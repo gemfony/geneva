@@ -72,8 +72,9 @@
 #define GBASECLIENTT_HPP_
 
 // Geneva headers go here
-#include "common/GSerializationHelperFunctionsT.hpp"
+#include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 
@@ -87,6 +88,8 @@ namespace Courtier {
  * over a given protocol (implemented in derived classes), to instantiate the
  * corresponding object, to process it and to deliver the results to the server.
  * This class assumes that the template parameter implements the "process()" call.
+ *
+ * TODO: Identify this client with a UUID
  */
 template<typename processable_type>
 class GBaseClientT :

@@ -45,6 +45,7 @@
 #include <mutex>
 #include <thread>
 #include <array>
+#include <regex>
 
 // Boost headers go here
 #include <boost/asio.hpp>
@@ -93,8 +94,6 @@
 namespace Gem {
 namespace Courtier {
 
-#define GWEBSOCKETCONSUMERMAXCONNECTIONATTEMPTS=10;
-
 using WsServer = SimpleWeb::SocketServer<SimpleWeb::WS>;
 using WsClient = SimpleWeb::SocketClient<SimpleWeb::WS>;
 
@@ -122,36 +121,34 @@ public:
 	 GWebSocketClientT(
 		 const std::string &server
 		 , const std::string &port
-	 	 , const std::string &endpoint
-	 )
-		 : GBaseClientT<processable_type>()
+		 , const std::string &endpoint
+	 ) :
+		 GBaseClientT<processable_type>()
 		 , m_client(server + ":" + port + "/" + endpoint)
-	 {
-		 // Start the actual websocket client
-		 m_client.start();
-	 }
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * Initialization by server name/ip, port and a model for the item to
-	  * be processed.
+	  * be processed, as well as static data which doesn't change for clients.
 	  *
 	  * @param server Identifies the server
 	  * @param port Identifies the port on the server
 	  * @param endpoint The "path" of the websocket server
+	  * @param additionalDataTemplate Any additional data to be made available to the client
 	  */
 	 GWebSocketClientT(
 		 const std::string &server
 		 , const std::string &port
 		 , const std::string &endpoint
 		 , std::shared_ptr<processable_type> additionalDataTemplate
-	 )
-		 : GBaseClientT<processable_type>(additionalDataTemplate)
- 		 , m_client(server + ":" + port + "/" + endpoint)
-	 {
-		 // Start the actual websocket client
-		 m_client.start();
-	 }
+	 ) :
+		 GBaseClientT<processable_type>(additionalDataTemplate)
+		 , m_client(server + ":" + port + "/" + endpoint)
+	 	 , m_server(server)
+	 	 , m_port(port)
+	 	 , m_endpoint(endpoint)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -160,85 +157,129 @@ public:
 	 virtual ~GWebSocketClientT() {
 		 // Stop the websocket client
 		 m_client.stop();
-
-		 if(this->getTotalConnectionAttempts() > 0) {
-			 glogger
-				 << "In GWebSocketClientT<>::~GWebSocketClientT():" << std::endl
-				 << "Recorded " << this->getTotalConnectionAttempts() << " failed connection" << std::endl
-				 << "attempts during the runtime of this client" << std::endl
-				 << GLOGGING;
-		 }
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Sets the maximum number of failed connection attempts before termination
+	  * This is the main loop of the client. It will take care to initiate the first
+	  * connection to the server and will then wait for the event loop to terminate
+	  * (which will usually be initiated by a call to onClose() through the websocket
+	  * library).
 	  *
-	  * @param maxConnectionAttempts The maximum number of allowed failed connection attempts
+	  * TODO: Restart connection a number of times in case of errors or if
+	  * the client code has crashed
 	  */
-	 void setMaxConnectionAttempts(const std::uint32_t &maxConnectionAttempts) {
-		 m_maxConnectionAttempts = maxConnectionAttempts;
-	 }
+	 virtual void run() override {
+		 // Start the actual websocket client. We do this in a
+		 // thread so we may wait asynchronously for its termination
+		 std::thread t([&]() -> void {
+			 m_client.start()
+		 });
 
-	 /***************************************************************************/
-	 /**
-	  * Retrieves the maximum allowed number of failed connection attempts
-	  *
-	  * @return The value of the m_maxConnectionAttempts variable
-	  */
-	 std::uint32_t getMaxConnectionAttempts() const {
-		 return m_maxConnectionAttempts;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves the total number of failed connection attempts during program execution
-	  * up the point of the call;
-	  */
-	 std::uint32_t getTotalConnectionAttempts() const {
-		 return m_totalConnectionAttempts;
+		 // Wait for the client to terminate
+		 t.join();
 	 }
 
 protected:
 	 /***************************************************************************/
 	 /**
-	  * Code to be executed when a new connection is established
+	  * Code to be executed when a new connection is established. As a first
+	  * action, the client will ask the server for wor.
 	  */
 	 void onOpen() {
+		 glogger
+		 << "Client: Closed opened connection to \"" << (m_server + ":" + m_port + "/" + m_endpoint) << "\"" << std::endl
+		 << "Asking server for work" << std::endl
+		 << GLOGGING;
 
+		 this->sendCommand("ready");
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Code to be executed when the connection is closed
 	  */
-	 void onClose(int status, const std::string& reason) {
-
+	 void onClose(
+		 int status
+		 , const std::string& reason
+	 ) {
+		 glogger
+		 << "Client: Closed connection with status code \"" << status << "\"" << std::endl
+		 << GLOGGING;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Code to be executed when a message was received
+	  * Code to be executed when a message was received. Apart from dealing with
+	  * the message and responding to it it must also check the termination
+	  * criteria of the client.
 	  */
-    void onMessage(std::shared_ptr<WsClient::Message> message_ptr) {
+	 void onMessage(std::shared_ptr<WsClient::Message> message_ptr) {
+		 // First retrieve the message
+		 auto message_str=message->string();
 
+		 // A regular expression for the "compute" command received from the server
+		 std::regex compute_regex(R"(^compute\((XML|TEXT|BINARY)\)\((.+)\)$)");
+		 // A regular expression for an idle period (in milliseconds)
+		 std::regex idle_regex(R"(^idle\(([0-9]+)\)$)");
+
+		 // Act on the message
+		 std::smatch sub_matches;
+		 if(std::regex_match(message_str, sub_matches, idle_regex)) {
+			 // Retrieve the idle time
+			 for(auto m: sub_matches) {
+				 std::cout << m << std::endl;
+			 }
+
+			 // If we have been asked to be quiet, start a deadline timer?
+			 // Or wait asynchronously and then ask for work later ?
+		 } else if(std::regex_match(message_str, sub_matches, compute_regex)) {
+			 // Retrieve the serialization mode and the serialization string
+			 for(auto m: sub_matches) {
+				 std::cout << m << std::endl;
+			 }
+		 } else {
+			 // Received an unknown command -- complain
+			 std::cout
+				 << "-------------------------------------------" << std::endl
+				 << "Got unknown command " << message_str << std::endl;
+		 }
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Code to be executed in case of errors
+	  * Code to be executed in case of errors -- let the audience know. Code-paths
+	  * resulting in a call to "onerror" will lead to a termination of the event
+	  * loop. Error code meanings may be found at
+	  * http://www.boost.org/doc/libs/1_62_0/doc/html/boost_asio/reference.html
+	  *
+	  * TODO: Use a more differentiated response
 	  */
 	 void onError(const boost::system::error_code& ec) {
-
+	    glogger
+		 << "Client: Error \"" << ec << "\" with error message \"" << ec.message() << "\"" << std::endl
+		 << GWARNING;
 	 }
 
 private:
 	 /***************************************************************************/
+	 /**
+	  * Sends a specific command to the server
+	  */
+	 void sendCommand(const std::string& command) {
+		 auto send_stream=std::make_shared<WsClient::SendStream>();
+		 *send_stream << command;
+		 m_client.send(send_stream);
+	 }
+
+	 /***************************************************************************/
+    // Data
 
 	 WsClient m_client; ///< The core websocket implementation
 
-	 std::uint32_t m_maxConnectionAttempts = GWEBSOCKETCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
-	 std::uint32_t m_totalConnectionAttempts = 0; ///< The total number of failed connection attempts during program execution
+	 std::string m_server; ///< The name or ip of the server
+	 std::string m_port; ///< The port used by the server
+	 std::string m_endpoint; ///< The endpoint used by the server
 };
 
 /******************************************************************************/
@@ -256,118 +297,118 @@ class GWebSocketConsumerT
 	:public Gem::Courtier::GBaseConsumerT<processable_type>
 {
 private:
-	// Make sure processable_type adheres to the GSubmissionContainerT interface
-	BOOST_MPL_ASSERT((boost::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>));
+	 // Make sure processable_type adheres to the GSubmissionContainerT interface
+	 BOOST_MPL_ASSERT((boost::is_base_of<Gem::Courtier::GSubmissionContainerT<processable_type>, processable_type>));
 
 public:
-   class GWorker; ///< Forward declaration
-   class GDefaultWorker; ///< Forward declaration
+	 class GWorker; ///< Forward declaration
+	 class GDefaultWorker; ///< Forward declaration
 
-	/***************************************************************************/
-	/**
-	 * The default constructor.
+	 /***************************************************************************/
+	 /**
+	  * The default constructor.
+	  */
+	 GWebSocketConsumerT()
+		 : Gem::Courtier::GBaseConsumerT<processable_type>()
+			, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
+			, broker_ptr_(GBROKER(processable_type))
+			, workerTemplates_(1, boost::shared_ptr<GWorker>(new GDefaultWorker()))
+	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	 * Standard destructor. Nothing - our threads receive the stop
+	 * signal from the broker and shouldn't exist at this point anymore.
 	 */
-	GWebSocketConsumerT()
-		: Gem::Courtier::GBaseConsumerT<processable_type>()
-		, threadsPerWorker_(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
-		, broker_ptr_(GBROKER(processable_type))
-	   , workerTemplates_(1, boost::shared_ptr<GWorker>(new GDefaultWorker()))
-	{ /* nothing */ }
+	 virtual ~GWebSocketConsumerT()
+	 { /* nothing */ }
 
-   /***************************************************************************/
-	/**
-	* Standard destructor. Nothing - our threads receive the stop
-	* signal from the broker and shouldn't exist at this point anymore.
-	*/
-	virtual ~GWebSocketConsumerT()
-	{ /* nothing */ }
-
-   /***************************************************************************/
-	/**
-	* Sets the number of threads per worker. Note that this function
-	* will only have an effect before the threads have been started.
-	* If threadsPerWorker is set to 0, an attempt will be made to automatically
-	* determine a suitable number of threads.
-	*
-	* @param tpw The maximum number of allowed threads
-	*/
-	void setNThreadsPerWorker(const std::size_t& tpw) {
-		if(tpw == 0) {
-			threadsPerWorker_ = boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER));
-		}
-		else {
-			threadsPerWorker_ = tpw;
-		}
-	}
-
-   /***************************************************************************/
-	/**
-	* Retrieves the maximum number of allowed threads
-	*
-	* @return The maximum number of allowed threads
-	*/
-	std::size_t getNThreadsPerWorker(void) const  {
-		return threadsPerWorker_;
-	}
-
-   /***************************************************************************/
-	/**
-	* Finalization code. Sends all threads an interrupt signal.
-	* process() then waits for them to join.
-	*/
-	void shutdown() {
-	   // Initiate the shutdown procedure
-	   GBaseConsumerT<processable_type>::shutdown();
-
-	   // Wait for local workers to terminate
-		gtg_.join_all();
-		workers_.clear();
-	}
-
-   /***************************************************************************/
-	/**
-	* A unique identifier for a given consumer
-	*
-	* @return A unique identifier for a given consumer
-	*/
-	virtual std::string getConsumerName() const {
-	  return std::string("GWebSocketConsumerT");
-	}
-
-   /***************************************************************************/
-   /**
-    * Returns a short identifier for this consumer
-    */
-   virtual std::string getMnemonic() const {
-      return std::string("btc");
-   }
-
-	/***************************************************************************/
-   /**
-    * Returns an indication whether full return can be expected from this
-    * consumer. Since evaluation is performed in threads, we assume that this
-    * is possible and return true.
-    */
-   virtual bool capableOfFullReturn() const {
-      return true;
-   }
-
-	/***************************************************************************/
-	/**
-	 * Retrieves the number of workers registered with this class
+	 /***************************************************************************/
+	 /**
+	 * Sets the number of threads per worker. Note that this function
+	 * will only have an effect before the threads have been started.
+	 * If threadsPerWorker is set to 0, an attempt will be made to automatically
+	 * determine a suitable number of threads.
+	 *
+	 * @param tpw The maximum number of allowed threads
 	 */
-	std::size_t getNWorkers() const {
-	   return workerTemplates_.size();
-	}
+	 void setNThreadsPerWorker(const std::size_t& tpw) {
+		 if(tpw == 0) {
+			 threadsPerWorker_ = boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER));
+		 }
+		 else {
+			 threadsPerWorker_ = tpw;
+		 }
+	 }
 
-   /***************************************************************************/
-   /**
-   * Starts the worker threads. This function will not block.
-   * Termination of the threads is triggered by a call to GBaseConsumerT<processable_type>::shutdown().
-   */
-   virtual void async_startProcessing() {
+	 /***************************************************************************/
+	 /**
+	 * Retrieves the maximum number of allowed threads
+	 *
+	 * @return The maximum number of allowed threads
+	 */
+	 std::size_t getNThreadsPerWorker(void) const  {
+		 return threadsPerWorker_;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	 * Finalization code. Sends all threads an interrupt signal.
+	 * process() then waits for them to join.
+	 */
+	 void shutdown() {
+		 // Initiate the shutdown procedure
+		 GBaseConsumerT<processable_type>::shutdown();
+
+		 // Wait for local workers to terminate
+		 gtg_.join_all();
+		 workers_.clear();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	 * A unique identifier for a given consumer
+	 *
+	 * @return A unique identifier for a given consumer
+	 */
+	 virtual std::string getConsumerName() const {
+		 return std::string("GWebSocketConsumerT");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns a short identifier for this consumer
+	  */
+	 virtual std::string getMnemonic() const {
+		 return std::string("btc");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns an indication whether full return can be expected from this
+	  * consumer. Since evaluation is performed in threads, we assume that this
+	  * is possible and return true.
+	  */
+	 virtual bool capableOfFullReturn() const {
+		 return true;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the number of workers registered with this class
+	  */
+	 std::size_t getNWorkers() const {
+		 return workerTemplates_.size();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	 * Starts the worker threads. This function will not block.
+	 * Termination of the threads is triggered by a call to GBaseConsumerT<processable_type>::shutdown().
+	 */
+	 virtual void async_startProcessing() {
 #ifdef DEBUG
-      if(workerTemplates_.empty()) { // Is the template vector empty ?
+		 if(workerTemplates_.empty()) { // Is the template vector empty ?
          glogger
          << "In GWebSocketConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
          << "The workerTemplates_ vector is empty when it should not be empty" << std::endl
@@ -375,25 +416,25 @@ public:
       }
 #endif /* DEBUG */
 
-      // Start threadsPerWorker_ threads for each registered worker template
-      for(std::size_t w=0; w<workerTemplates_.size(); w++) {
-         for(std::size_t i=0; i<threadsPerWorker_; i++) {
-            boost::shared_ptr<GWorker> p_worker = (workerTemplates_.at(w))->clone(i,this);
-            gtg_.create_thread(boost::bind(&GWebSocketConsumerT<processable_type>::GWorker::run, p_worker));
-            workers_.push_back(p_worker);
-         }
-      }
-   }
+		 // Start threadsPerWorker_ threads for each registered worker template
+		 for(std::size_t w=0; w<workerTemplates_.size(); w++) {
+			 for(std::size_t i=0; i<threadsPerWorker_; i++) {
+				 boost::shared_ptr<GWorker> p_worker = (workerTemplates_.at(w))->clone(i,this);
+				 gtg_.create_thread(boost::bind(&GWebSocketConsumerT<processable_type>::GWorker::run, p_worker));
+				 workers_.push_back(p_worker);
+			 }
+		 }
+	 }
 
-   /***************************************************************************/
-   /**
-    * Allows to register a set of worker templates with this class. Note that all
-    * existing worker templates will be deleted. The class will not take ownership
-    * of the worker templates.
-    */
-   void registerWorkerTemplates(const std::vector<boost::shared_ptr<GWorker> >& workerTemplates) {
+	 /***************************************************************************/
+	 /**
+	  * Allows to register a set of worker templates with this class. Note that all
+	  * existing worker templates will be deleted. The class will not take ownership
+	  * of the worker templates.
+	  */
+	 void registerWorkerTemplates(const std::vector<boost::shared_ptr<GWorker> >& workerTemplates) {
 #ifdef DEBUG
-      if(workerTemplates_.empty()) { // Is the template vector empty ?
+		 if(workerTemplates_.empty()) { // Is the template vector empty ?
          glogger
          << "In GWebSocketConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
          << "workerTemplates vector is empty when it should not be empty" << std::endl
@@ -410,21 +451,21 @@ public:
       }
 #endif /* DEBUG */
 
-      workerTemplates_.clear();
-      workerTemplates_ = workerTemplates;
+		 workerTemplates_.clear();
+		 workerTemplates_ = workerTemplates;
 
-      assert(workerTemplates.size() == workerTemplates_.size());
-   }
+		 assert(workerTemplates.size() == workerTemplates_.size());
+	 }
 
-   /***************************************************************************/
-   /**
-    * Allows to register a single worker template with this class. Note that all
-    * existing worker templates will be deleted. The class will not take ownership
-    * of the worker template.
-    */
-   void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
+	 /***************************************************************************/
+	 /**
+	  * Allows to register a single worker template with this class. Note that all
+	  * existing worker templates will be deleted. The class will not take ownership
+	  * of the worker template.
+	  */
+	 void registerWorkerTemplate(boost::shared_ptr<GWorker> workerTemplate) {
 #ifdef DEBUG
-      if(!workerTemplate) { // Does the template point somewhere ?
+		 if(!workerTemplate) { // Does the template point somewhere ?
          glogger
          << "In GWebSocketConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
          << "Found empty worker template pointer" << std::endl
@@ -432,202 +473,202 @@ public:
       }
 #endif /* DEBUG */
 
-      workerTemplates_.clear();
-      workerTemplates_.push_back(workerTemplate);
-   }
+		 workerTemplates_.clear();
+		 workerTemplates_.push_back(workerTemplate);
+	 }
 
-   /***************************************************************************/
-   /**
-    * Sets up a consumer and registers it with the broker. This function accepts
-    * a set of workers as argument.
-    */
-   static void setup(
-      const std::string& configFile
-      , std::vector<boost::shared_ptr<Gem::Courtier::GWebSocketConsumerT<processable_type>::GWorker> > workers
-   ) {
-      boost::shared_ptr<GWebSocketConsumerT<processable_type> > consumer_ptr(new GWebSocketConsumerT<processable_type>());
-      consumer_ptr->registerWorkerTemplates(workers);
-      consumer_ptr->parseConfigFile(configFile);
-      GBROKER(processable_type)->enrol(consumer_ptr);
-   }
+	 /***************************************************************************/
+	 /**
+	  * Sets up a consumer and registers it with the broker. This function accepts
+	  * a set of workers as argument.
+	  */
+	 static void setup(
+		 const std::string& configFile
+		 , std::vector<boost::shared_ptr<Gem::Courtier::GWebSocketConsumerT<processable_type>::GWorker> > workers
+	 ) {
+		 boost::shared_ptr<GWebSocketConsumerT<processable_type> > consumer_ptr(new GWebSocketConsumerT<processable_type>());
+		 consumer_ptr->registerWorkerTemplates(workers);
+		 consumer_ptr->parseConfigFile(configFile);
+		 GBROKER(processable_type)->enrol(consumer_ptr);
+	 }
 
-   /***************************************************************************/
-   /**
-    * Sets up a consumer and registers it with the broker. This function accepts
-    * a worker as argument.
-    */
-   static void setup(
-      const std::string& configFile
-      , boost::shared_ptr<Gem::Courtier::GWebSocketConsumerT<processable_type>::GWorker> worker_ptr
-   ) {
-      boost::shared_ptr<GWebSocketConsumerT<processable_type> > consumer_ptr(new GWebSocketConsumerT<processable_type>());
-      consumer_ptr->registerWorkerTemplate(worker_ptr);
-      consumer_ptr->parseConfigFile(configFile);
-      GBROKER(processable_type)->enrol(consumer_ptr);
-   }
+	 /***************************************************************************/
+	 /**
+	  * Sets up a consumer and registers it with the broker. This function accepts
+	  * a worker as argument.
+	  */
+	 static void setup(
+		 const std::string& configFile
+		 , boost::shared_ptr<Gem::Courtier::GWebSocketConsumerT<processable_type>::GWorker> worker_ptr
+	 ) {
+		 boost::shared_ptr<GWebSocketConsumerT<processable_type> > consumer_ptr(new GWebSocketConsumerT<processable_type>());
+		 consumer_ptr->registerWorkerTemplate(worker_ptr);
+		 consumer_ptr->parseConfigFile(configFile);
+		 GBROKER(processable_type)->enrol(consumer_ptr);
+	 }
 
-   /***************************************************************************/
-   /**
-    * Sets up a consumer and registers it with the broker. This function uses
-    * the default worker.
-    */
-   static void setup(
-      const std::string& configFile
-   ) {
-      boost::shared_ptr<GWebSocketConsumerT<processable_type> > consumer_ptr(new GWebSocketConsumerT<processable_type>());
-      consumer_ptr->parseConfigFile(configFile);
-      GBROKER(processable_type)->enrol(consumer_ptr);
-   }
+	 /***************************************************************************/
+	 /**
+	  * Sets up a consumer and registers it with the broker. This function uses
+	  * the default worker.
+	  */
+	 static void setup(
+		 const std::string& configFile
+	 ) {
+		 boost::shared_ptr<GWebSocketConsumerT<processable_type> > consumer_ptr(new GWebSocketConsumerT<processable_type>());
+		 consumer_ptr->parseConfigFile(configFile);
+		 GBROKER(processable_type)->enrol(consumer_ptr);
+	 }
 
 protected:
-   /***************************************************************************/
-   /**
-    * Adds local configuration options to a GParserBuilder object. We have only
-    * a single local option -- the number of threads
-    *
-    * @param gpb The GParserBuilder object, to which configuration options will be added
-    * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
-    */
-   virtual void addConfigurationOptions(
-         Gem::Common::GParserBuilder& gpb
-         , const bool& showOrigin
-   ){
-      std::string comment;
+	 /***************************************************************************/
+	 /**
+	  * Adds local configuration options to a GParserBuilder object. We have only
+	  * a single local option -- the number of threads
+	  *
+	  * @param gpb The GParserBuilder object, to which configuration options will be added
+	  * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
+	  */
+	 virtual void addConfigurationOptions(
+		 Gem::Common::GParserBuilder& gpb
+		 , const bool& showOrigin
+	 ){
+		 std::string comment;
 
-      // Call our parent class'es function
-      GBaseConsumerT<processable_type>::addConfigurationOptions(gpb, showOrigin);
+		 // Call our parent class'es function
+		 GBaseConsumerT<processable_type>::addConfigurationOptions(gpb, showOrigin);
 
-      // Add local data
-      comment = ""; // Reset the comment string
-      if(showOrigin) {
-         comment += "[Origin] GWebSocketConsumerT<processable_type>;";
-         comment += (std::string("with typeid(processable_type).name() = ") + typeid(processable_type).name() + ";");
-      }
-      comment += "Indicates the number of threads used to process each worker.;";
-      comment += "Setting threadsPerWorker to 0 will result in an attempt to;";
-      comment += "automatically determine the number of hardware threads.";
-      if(showOrigin) comment += "[GWebSocketConsumerT<>]";
-      gpb.registerFileParameter<std::size_t>(
-         "threadsPerWorker" // The name of the variable
-         , 0 // The default value
-         , boost::bind(
-            &GWebSocketConsumerT<processable_type>::setNThreadsPerWorker
-            , this
-            , _1
-           )
-         , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
-         , comment
-      );
-   }
+		 // Add local data
+		 comment = ""; // Reset the comment string
+		 if(showOrigin) {
+			 comment += "[Origin] GWebSocketConsumerT<processable_type>;";
+			 comment += (std::string("with typeid(processable_type).name() = ") + typeid(processable_type).name() + ";");
+		 }
+		 comment += "Indicates the number of threads used to process each worker.;";
+		 comment += "Setting threadsPerWorker to 0 will result in an attempt to;";
+		 comment += "automatically determine the number of hardware threads.";
+		 if(showOrigin) comment += "[GWebSocketConsumerT<>]";
+		 gpb.registerFileParameter<std::size_t>(
+			 "threadsPerWorker" // The name of the variable
+			 , 0 // The default value
+			 , boost::bind(
+				 &GWebSocketConsumerT<processable_type>::setNThreadsPerWorker
+				 , this
+				 , _1
+			 )
+			 , Gem::Common::VAR_IS_ESSENTIAL // Alternative: VAR_IS_SECONDARY
+			 , comment
+		 );
+	 }
 
-   /***************************************************************************/
-   /**
-    * Adds local command line options to a boost::program_options::options_description object.
-    *
-    * @param visible Command line options that should always be visible
-    * @param hidden Command line options that should only be visible upon request
-    */
-   virtual void addCLOptions(
-         boost::program_options::options_description& visible
-         , boost::program_options::options_description& hidden
-   ) {
-      namespace po = boost::program_options;
+	 /***************************************************************************/
+	 /**
+	  * Adds local command line options to a boost::program_options::options_description object.
+	  *
+	  * @param visible Command line options that should always be visible
+	  * @param hidden Command line options that should only be visible upon request
+	  */
+	 virtual void addCLOptions(
+		 boost::program_options::options_description& visible
+		 , boost::program_options::options_description& hidden
+	 ) {
+		 namespace po = boost::program_options;
 
-      hidden.add_options()
-         ("threadsPerWorker", po::value<std::size_t>(&threadsPerWorker_)->default_value(threadsPerWorker_), "\t[btc] The number of threads used to process each worker")
-      ;
-   }
+		 hidden.add_options()
+			 ("threadsPerWorker", po::value<std::size_t>(&threadsPerWorker_)->default_value(threadsPerWorker_), "\t[btc] The number of threads used to process each worker")
+			 ;
+	 }
 
-   /***************************************************************************/
-   /**
-    * Takes a boost::program_options::variables_map object and checks for supplied options.
-    */
-   virtual void actOnCLOptions(const boost::program_options::variables_map& vm)
-   { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * Takes a boost::program_options::variables_map object and checks for supplied options.
+	  */
+	 virtual void actOnCLOptions(const boost::program_options::variables_map& vm)
+	 { /* nothing */ }
 
 private:
-   /***************************************************************************/
+	 /***************************************************************************/
 
-	GWebSocketConsumerT(const GWebSocketConsumerT<processable_type>&); ///< Intentionally left undefined
-	const GWebSocketConsumerT<processable_type>& operator=(const GWebSocketConsumerT<processable_type>&); ///< Intentionally left undefined
+	 GWebSocketConsumerT(const GWebSocketConsumerT<processable_type>&); ///< Intentionally left undefined
+	 const GWebSocketConsumerT<processable_type>& operator=(const GWebSocketConsumerT<processable_type>&); ///< Intentionally left undefined
 
-	std::size_t threadsPerWorker_; ///< The maximum number of allowed threads in the pool
-	Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
-	boost::shared_ptr<GBrokerT<processable_type> > broker_ptr_; ///< A shortcut to the broker so we do not have to go through the singleton
-   std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the current worker objects
-   std::vector<boost::shared_ptr<GWorker> > workerTemplates_; ///< All workers will be created as a clone of these workers
+	 std::size_t threadsPerWorker_; ///< The maximum number of allowed threads in the pool
+	 Gem::Common::GThreadGroup gtg_; ///< Holds the processing threads
+	 boost::shared_ptr<GBrokerT<processable_type> > broker_ptr_; ///< A shortcut to the broker so we do not have to go through the singleton
+	 std::vector<boost::shared_ptr<GWorker> > workers_; ///< Holds the current worker objects
+	 std::vector<boost::shared_ptr<GWorker> > workerTemplates_; ///< All workers will be created as a clone of these workers
 
 public:
-   /***************************************************************************/
-   /**
-    * A nested class that performs the actual work inside of a thread. It is
-    * meant as a means to  Classes derived from GWebSocketConsumerT
-    * may use their own derivative from this class and store complex
-    * information associated with the execution inside of the worker threads.
-    * Note that a GWorker(-derivative) must be copy-constructible and implement
-    * the clone() function.
-    */
-   class GWorker {
-   public:
-      /************************************************************************/
-      /**
-       * The default constructor
-       */
-      GWorker()
-         : thread_id_(0)
-         , outer_(NULL)
-         , parsed_(false)
-         , runLoopHasCommenced_(false)
-      { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * A nested class that performs the actual work inside of a thread. It is
+	  * meant as a means to  Classes derived from GWebSocketConsumerT
+	  * may use their own derivative from this class and store complex
+	  * information associated with the execution inside of the worker threads.
+	  * Note that a GWorker(-derivative) must be copy-constructible and implement
+	  * the clone() function.
+	  */
+	 class GWorker {
+	 public:
+		  /************************************************************************/
+		  /**
+			* The default constructor
+			*/
+		  GWorker()
+			  : thread_id_(0)
+				 , outer_(NULL)
+				 , parsed_(false)
+				 , runLoopHasCommenced_(false)
+		  { /* nothing */ }
 
-   protected:
-      /************************************************************************/
-      /**
-       * The copy constructor. We do not copy the thread id, as it is set by
-       * async_startprocessing().
-       */
-      GWorker(
-            const GWorker& cp
-            , const std::size_t& thread_id
-            , const GWebSocketConsumerT<processable_type> *c_ptr
-      )
-         : thread_id_(thread_id)
-         , outer_(c_ptr)
-         , parsed_(cp.parsed_)
-         , runLoopHasCommenced_(false)
-      { /* nothing */ }
+	 protected:
+		  /************************************************************************/
+		  /**
+			* The copy constructor. We do not copy the thread id, as it is set by
+			* async_startprocessing().
+			*/
+		  GWorker(
+			  const GWorker& cp
+			  , const std::size_t& thread_id
+			  , const GWebSocketConsumerT<processable_type> *c_ptr
+		  )
+			  : thread_id_(thread_id)
+				 , outer_(c_ptr)
+				 , parsed_(cp.parsed_)
+				 , runLoopHasCommenced_(false)
+		  { /* nothing */ }
 
-   public:
-      /************************************************************************/
-      /**
-       * The destructor
-       */
-      virtual ~GWorker()
-      { /* nothing */ }
+	 public:
+		  /************************************************************************/
+		  /**
+			* The destructor
+			*/
+		  virtual ~GWorker()
+		  { /* nothing */ }
 
-      /************************************************************************/
-      /**
-       * The main entry point for the execution
-       */
-      void run() {
-         try{
-            runLoopHasCommenced_=false;
+		  /************************************************************************/
+		  /**
+			* The main entry point for the execution
+			*/
+		  void run() {
+			  try{
+				  runLoopHasCommenced_=false;
 
-            boost::shared_ptr<processable_type> p;
-            Gem::Common::PORTIDTYPE id;
-            boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
+				  boost::shared_ptr<processable_type> p;
+				  Gem::Common::PORTIDTYPE id;
+				  boost::posix_time::time_duration timeout(boost::posix_time::milliseconds(10));
 
-            while(true){
-               // Have we been asked to stop ?
-               if(outer_->stopped()) break;
+				  while(true){
+					  // Have we been asked to stop ?
+					  if(outer_->stopped()) break;
 
-               // If we didn't get a valid item, start again with the while loop
-               if(!outer_->broker_ptr_->get(id, p, timeout)) {
-                  continue;
-               }
+					  // If we didn't get a valid item, start again with the while loop
+					  if(!outer_->broker_ptr_->get(id, p, timeout)) {
+						  continue;
+					  }
 
 #ifdef DEBUG
-               // Check that we indeed got a valid item
+					  // Check that we indeed got a valid item
                if(!p) { // We didn't get a valid item after all
                   glogger
                   << "In GWebSocketConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
@@ -636,189 +677,189 @@ public:
                }
 #endif /* DEBUG */
 
-               // Perform setup work once for the loop, as soon as we have
-               // a processable item. Such setup work might require information
-               // from that item, so we pass it to the function.
-               if(!runLoopHasCommenced_) {
-                  processInit(p);
-                  runLoopHasCommenced_ = true;
-               }
+					  // Perform setup work once for the loop, as soon as we have
+					  // a processable item. Such setup work might require information
+					  // from that item, so we pass it to the function.
+					  if(!runLoopHasCommenced_) {
+						  processInit(p);
+						  runLoopHasCommenced_ = true;
+					  }
 
-               // Initiate the actual processing
-               this->process(p);
+					  // Initiate the actual processing
+					  this->process(p);
 
-               // Return the item to the broker. The item will be discarded
-               // if the requested target queue cannot be found.
-               try {
-                  while(!outer_->broker_ptr_->put(id, p, timeout)){ // This can lead to a loss of items
-                     // Terminate if we have been asked to stop
-                     if(outer_->stopped()) break;
-                  }
-               } catch (Gem::Courtier::buffer_not_present&) {
-                  continue;
-               }
-            }
-         } catch(boost::thread_interrupted&){ // Normal termination
-            // Perform any final work
-            processFinalize();
-            return;
-         } catch(std::exception& e) {
-            std::ostringstream error;
-            error << "In GWebSocketConsumerT<processable_type>::GWorker::run():" << std::endl
-                  << "Caught std::exception with message" << std::endl
-                  << e.what() << std::endl;
-            std::cerr << error.str();
-            std::terminate();
-         }
-         catch(boost::exception& e){
-            std::ostringstream error;
-             error << "In GWebSocketConsumerT<processable_type>::GWorker::run():" << std::endl
-                   << "Caught boost::exception with message" << std::endl;
-             std::cerr << error.str();
-             std::terminate();
-         }
-         catch(...) {
-            std::ostringstream error;
-            error << "In GWebSocketConsumerT<processable_type>::GWorker::run():" << std::endl
-                  << "Caught unknown exception." << std::endl;
-            std::cerr << error.str();
-            std::terminate();
-         }
-      }
+					  // Return the item to the broker. The item will be discarded
+					  // if the requested target queue cannot be found.
+					  try {
+						  while(!outer_->broker_ptr_->put(id, p, timeout)){ // This can lead to a loss of items
+							  // Terminate if we have been asked to stop
+							  if(outer_->stopped()) break;
+						  }
+					  } catch (Gem::Courtier::buffer_not_present&) {
+						  continue;
+					  }
+				  }
+			  } catch(boost::thread_interrupted&){ // Normal termination
+				  // Perform any final work
+				  processFinalize();
+				  return;
+			  } catch(std::exception& e) {
+				  std::ostringstream error;
+				  error << "In GWebSocketConsumerT<processable_type>::GWorker::run():" << std::endl
+						  << "Caught std::exception with message" << std::endl
+						  << e.what() << std::endl;
+				  std::cerr << error.str();
+				  std::terminate();
+			  }
+			  catch(boost::exception& e){
+				  std::ostringstream error;
+				  error << "In GWebSocketConsumerT<processable_type>::GWorker::run():" << std::endl
+						  << "Caught boost::exception with message" << std::endl;
+				  std::cerr << error.str();
+				  std::terminate();
+			  }
+			  catch(...) {
+				  std::ostringstream error;
+				  error << "In GWebSocketConsumerT<processable_type>::GWorker::run():" << std::endl
+						  << "Caught unknown exception." << std::endl;
+				  std::cerr << error.str();
+				  std::terminate();
+			  }
+		  }
 
-      /************************************************************************/
-      /**
-       * Retrieve this class'es id
-       */
-      std::size_t getThreadId() const {
-         return thread_id_;
-      }
+		  /************************************************************************/
+		  /**
+			* Retrieve this class'es id
+			*/
+		  std::size_t getThreadId() const {
+			  return thread_id_;
+		  }
 
-      /************************************************************************/
-      /**
-       * Parses a given configuration file. Note that parsing is done but once.
-       *
-       * @param configFile The name of a configuration file
-       */
-      void parseConfigFile(const std::string& configFile) {
-         if(parsed_) return;
+		  /************************************************************************/
+		  /**
+			* Parses a given configuration file. Note that parsing is done but once.
+			*
+			* @param configFile The name of a configuration file
+			*/
+		  void parseConfigFile(const std::string& configFile) {
+			  if(parsed_) return;
 
-         // Create a parser builder object -- local options will be added to it
-         Gem::Common::GParserBuilder gpb;
+			  // Create a parser builder object -- local options will be added to it
+			  Gem::Common::GParserBuilder gpb;
 
-         // Add configuration options of this and of derived classes
-         addConfigurationOptions(gpb, true);
+			  // Add configuration options of this and of derived classes
+			  addConfigurationOptions(gpb, true);
 
-         // Do the actual parsing. Note that this
-         // will try to write out a default configuration file,
-         // if no existing config file can be found
-         gpb.parseConfigFile(configFile);
+			  // Do the actual parsing. Note that this
+			  // will try to write out a default configuration file,
+			  // if no existing config file can be found
+			  gpb.parseConfigFile(configFile);
 
-         parsed_ = true;
-      }
+			  parsed_ = true;
+		  }
 
-   protected:
-      /************************************************************************/
-      /**
-       * Initialization code for processing. Can be specified in derived classes.
-       *
-       * @param p A pointer to a processable item meant to allow item-based setup
-       */
-      virtual void processInit(boost::shared_ptr<processable_type> p)
-      { /* nothing */ }
+	 protected:
+		  /************************************************************************/
+		  /**
+			* Initialization code for processing. Can be specified in derived classes.
+			*
+			* @param p A pointer to a processable item meant to allow item-based setup
+			*/
+		  virtual void processInit(boost::shared_ptr<processable_type> p)
+		  { /* nothing */ }
 
-      /************************************************************************/
-      /**
-       * Finalization code for processing. Can be specified in derived classes.
-       */
-      virtual void processFinalize()
-      { /* nothing */ }
+		  /************************************************************************/
+		  /**
+			* Finalization code for processing. Can be specified in derived classes.
+			*/
+		  virtual void processFinalize()
+		  { /* nothing */ }
 
-      /************************************************************************/
-      /**
-       * Adds local configuration options to a GParserBuilder object. We have no local
-       * data, hence this function is empty. It could have been declared purely virtual,
-       * however, we do not want to force derived classes to implement this function,
-       * as it might not always be needed.
-       *
-       * @param gpb The GParserBuilder object, to which configuration options will be added
-       * @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
-       */
-      virtual void addConfigurationOptions(
-            Gem::Common::GParserBuilder& gpb
-            , const bool& showOrigin
-      ){ /* nothing -- no local data */ }
+		  /************************************************************************/
+		  /**
+			* Adds local configuration options to a GParserBuilder object. We have no local
+			* data, hence this function is empty. It could have been declared purely virtual,
+			* however, we do not want to force derived classes to implement this function,
+			* as it might not always be needed.
+			*
+			* @param gpb The GParserBuilder object, to which configuration options will be added
+			* @param showOrigin Indicates, whether the origin of a configuration option should be shown in the configuration file
+			*/
+		  virtual void addConfigurationOptions(
+			  Gem::Common::GParserBuilder& gpb
+			  , const bool& showOrigin
+		  ){ /* nothing -- no local data */ }
 
-      /************************************************************************/
+		  /************************************************************************/
 
-      std::size_t thread_id_; ///< The id of the thread running this class'es operator()
-      const GWebSocketConsumerT<processable_type> * outer_;
+		  std::size_t thread_id_; ///< The id of the thread running this class'es operator()
+		  const GWebSocketConsumerT<processable_type> * outer_;
 
-   private:
-      /************************************************************************/
+	 private:
+		  /************************************************************************/
 
-      bool parsed_; ///< Indicates whether parsing has been completed
-      bool runLoopHasCommenced_; ///< Allows to check whether the while loop inside of the run function has started
+		  bool parsed_; ///< Indicates whether parsing has been completed
+		  bool runLoopHasCommenced_; ///< Allows to check whether the while loop inside of the run function has started
 
-   public:
-      /************************************************************************/
-      // Some purely virtual functions
+	 public:
+		  /************************************************************************/
+		  // Some purely virtual functions
 
-      /** @brief Creation of deep clones of this object('s derivatives) */
-      virtual boost::shared_ptr<GWorker> clone(
-            const std::size_t&
-            , const GWebSocketConsumerT<processable_type> *
-      ) const = 0;
-      /** @brief Actual per-item work is done here -- Implement this in derived classes */
-      virtual void process(boost::shared_ptr<processable_type> p) = 0;
-   };
+		  /** @brief Creation of deep clones of this object('s derivatives) */
+		  virtual boost::shared_ptr<GWorker> clone(
+			  const std::size_t&
+			  , const GWebSocketConsumerT<processable_type> *
+		  ) const = 0;
+		  /** @brief Actual per-item work is done here -- Implement this in derived classes */
+		  virtual void process(boost::shared_ptr<processable_type> p) = 0;
+	 };
 
-   /***************************************************************************/
-   /**
-    * The default derivative of GWorker that is used when no other worker has
-    * been registered with our outer class.
-    */
-   class GDefaultWorker
-      : public GWebSocketConsumerT<processable_type>::GWorker
-   {
-   public:
-      /************************************************************************/
-      /**
-       * The default constructor
-       */
-      GDefaultWorker() : GWorker()
-      { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The default derivative of GWorker that is used when no other worker has
+	  * been registered with our outer class.
+	  */
+	 class GDefaultWorker
+		 : public GWebSocketConsumerT<processable_type>::GWorker
+	 {
+	 public:
+		  /************************************************************************/
+		  /**
+			* The default constructor
+			*/
+		  GDefaultWorker() : GWorker()
+		  { /* nothing */ }
 
-   protected:
-      /************************************************************************/
-      /**
-       * The copy constructor.
-       */
-      GDefaultWorker(
-            const GDefaultWorker& cp
-            , const std::size_t& thread_id
-            , const GWebSocketConsumerT<processable_type> *outer
-      ) : GWorker(cp, thread_id, outer)
-      { /* nothing */ }
+	 protected:
+		  /************************************************************************/
+		  /**
+			* The copy constructor.
+			*/
+		  GDefaultWorker(
+			  const GDefaultWorker& cp
+			  , const std::size_t& thread_id
+			  , const GWebSocketConsumerT<processable_type> *outer
+		  ) : GWorker(cp, thread_id, outer)
+		  { /* nothing */ }
 
-   public:
-      /************************************************************************/
-      /**
-       * The destructor
-       */
-      virtual ~GDefaultWorker()
-      { /* nothing */ }
+	 public:
+		  /************************************************************************/
+		  /**
+			* The destructor
+			*/
+		  virtual ~GDefaultWorker()
+		  { /* nothing */ }
 
-      /************************************************************************/
-      /**
-       * Create a deep clone of this object, camouflaged as a GWorker
-       */
-      virtual boost::shared_ptr<GWorker> clone(
-            const std::size_t& thread_id
-            , const GWebSocketConsumerT<processable_type> *outer
-      ) const {
+		  /************************************************************************/
+		  /**
+			* Create a deep clone of this object, camouflaged as a GWorker
+			*/
+		  virtual boost::shared_ptr<GWorker> clone(
+			  const std::size_t& thread_id
+			  , const GWebSocketConsumerT<processable_type> *outer
+		  ) const {
 #ifdef DEBUG
-         if(!outer) {
+			  if(!outer) {
             glogger
             << "In GWebSocketConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
             << "Got empty pointer!" << std::endl
@@ -826,31 +867,31 @@ public:
          }
 #endif /* DEBUG */
 
-         return boost::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this, thread_id, outer));
-      }
+			  return boost::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this, thread_id, outer));
+		  }
 
-      /************************************************************************/
-      /**
-       * Actual per-item work is done here. Overload this function if you want
-       * to do something different here.
-       */
-      virtual void process(boost::shared_ptr<processable_type> p) {
-         // Do the actual work
-   #ifdef DEBUG
-         if(p) p->process();
+		  /************************************************************************/
+		  /**
+			* Actual per-item work is done here. Overload this function if you want
+			* to do something different here.
+			*/
+		  virtual void process(boost::shared_ptr<processable_type> p) {
+			  // Do the actual work
+#ifdef DEBUG
+			  if(p) p->process();
          else {
             glogger
             << "In GWebSocketConsumerT<processable_type>::GWorker::process(): Error!" << std::endl
             << "Received empty pointer for processable object" << std::endl
             << GEXCEPTION;
          }
-   #else
-         p->process();
-   #endif /* DEBUG */
-      }
+#else
+			  p->process();
+#endif /* DEBUG */
+		  }
 
-      /************************************************************************/
-   };
+		  /************************************************************************/
+	 };
 };
 
 /******************************************************************************/

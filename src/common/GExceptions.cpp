@@ -70,20 +70,31 @@ namespace Common {
  * The standard constructor
  */
 gemfony_error_condition::gemfony_error_condition(const std::string &description) throw()
-	: description_(description) { /* nothing */ }
+	: m_description(description)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor
+ */
+gemfony_error_condition::gemfony_error_condition(const gemfony_error_condition& cp) throw()
+	: std::exception(cp)
+	, m_description(cp.m_description)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-gemfony_error_condition::~gemfony_error_condition()  throw() { /* nothing */ }
+gemfony_error_condition::~gemfony_error_condition()  throw()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Allows to add further information to the exception
  */
 void gemfony_error_condition::add(const std::string &newMessage) throw() {
-	description_ += newMessage;
+	m_description += newMessage;
 }
 
 /******************************************************************************/
@@ -110,7 +121,7 @@ gemfony_error_condition &gemfony_error_condition::operator()(
  * Emits information when thrown
  */
 const char *gemfony_error_condition::what() const throw() {
-	return description_.c_str();
+	return m_description.c_str();
 }
 
 /******************************************************************************/
@@ -118,7 +129,7 @@ const char *gemfony_error_condition::what() const throw() {
  * Allows to check whether any information is stored in this class
  */
 bool gemfony_error_condition::empty() const throw() {
-	return description_.empty();
+	return m_description.empty();
 }
 
 /******************************************************************************/

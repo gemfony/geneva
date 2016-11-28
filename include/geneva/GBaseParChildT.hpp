@@ -1033,34 +1033,61 @@ protected:
 	 */
 	void sortMuCommaNuMode() {
 #ifdef DEBUG
-      // Check that we do not accidently trigger value calculation
-      typename GBaseParChildT<ind_type>::iterator it;
-      for(it=this->begin()+nParents_; it!=this->end(); ++it) {
-         if((*it)->isDirty()) {
-            glogger
-            << "In GBaseParChildT<ind_type>::sortMucommanuMode(): Error!" << std::endl
-            << "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
-            << " whose dirty flag is set." << std::endl
-            << GEXCEPTION;
-         }
-      }
+		if (GOptimizationAlgorithmT<ind_type>::inFirstIteration()) {
+			// Check that we do not accidently trigger value calculation -- check the whole range
+			typename GBaseParChildT<ind_type>::iterator it;
+			for (it = this->begin(); it != this->end(); ++it) {
+				if ((*it)->isDirty()) {
+					glogger
+						<< "In GBaseParChildT<ind_type>::sortMucommanuMode(): Error!" << std::endl
+						<< "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << std::distance(
+						this->begin()
+						, it
+					) << std::endl
+						<< " whose dirty flag is set." << std::endl
+						<< GEXCEPTION;
+				}
+			}
+		} else {
+			// Check that we do not accidently trigger value calculation -- check children only
+			typename GBaseParChildT<ind_type>::iterator it;
+			for (it = this->begin() + nParents_; it != this->end(); ++it) {
+				if ((*it)->isDirty()) {
+					glogger
+						<< "In GBaseParChildT<ind_type>::sortMucommanuMode(): Error!" << std::endl
+						<< "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << std::distance(
+						this->begin()
+						, it
+					) << std::endl
+						<< " whose dirty flag is set." << std::endl
+						<< GEXCEPTION;
+				}
+			}
+		}
 #endif /* DEBUG */
 
-		// Only sort the children
-		std::partial_sort(
-			GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
-			, GOptimizationAlgorithmT<ind_type>::data.begin() + 2*nParents_
-			, GOptimizationAlgorithmT<ind_type>::data.end()
-			, [](std::shared_ptr<ind_type> x, std::shared_ptr<ind_type> y) -> bool {
-				return x->minOnly_fitness() < y->minOnly_fitness();
-			}
-		);
+		if (GOptimizationAlgorithmT<ind_type>::inFirstIteration()) {
+			// We fall back to MUPLUSNU mode in the first iteration,
+			// as parents are new as well.
+			this->sortMuPlusNuMode();
+			return;
+		} else {
+			// Only sort the children
+			std::partial_sort(
+				GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
+				, GOptimizationAlgorithmT<ind_type>::data.begin() + 2 * nParents_
+				, GOptimizationAlgorithmT<ind_type>::data.end()
+				, [](std::shared_ptr<ind_type> x, std::shared_ptr<ind_type> y) -> bool {
+					return x->minOnly_fitness() < y->minOnly_fitness();
+				}
+			);
 
-		std::swap_ranges(
-			GOptimizationAlgorithmT<ind_type>::data.begin()
-			, GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_
-			, GOptimizationAlgorithmT<ind_type>::data.begin()+nParents_
-		);
+			std::swap_ranges(
+				GOptimizationAlgorithmT<ind_type>::data.begin()
+				, GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
+				, GOptimizationAlgorithmT<ind_type>::data.begin() + nParents_
+			);
+		}
 	}
 
 	/***************************************************************************/

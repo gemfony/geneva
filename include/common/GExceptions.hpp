@@ -110,26 +110,29 @@ namespace Common {
 class gemfony_error_condition : public std::exception
 {
 public:
-	/** @brief The standard constructor */
-	G_API_COMMON gemfony_error_condition(const std::string&) throw();
-	/** @brief The destructor */
-	virtual G_API_COMMON ~gemfony_error_condition() throw();
+	 /** @brief The standard constructor */
+	 G_API_COMMON gemfony_error_condition(const std::string&) throw();
+	 /** @brief The copy constructor */
+	 G_API_COMMON gemfony_error_condition(const gemfony_error_condition&) throw();
+	 /** @brief The destructor */
+	 virtual G_API_COMMON ~gemfony_error_condition() throw();
 
-	/** @brief Allows to add further information to the exception */
-	virtual G_API_COMMON void add(const std::string&) throw();
-	/** @brief Allows to add further informtion, automatically terminated through a '\n' */
-	G_API_COMMON gemfony_error_condition& operator()(const std::string&) throw();
+	 /** @brief Allows to add further information to the exception */
+	 virtual G_API_COMMON void add(const std::string&) throw();
+	 /** @brief Allows to add further informtion, automatically terminated through a '\n' */
+	 G_API_COMMON gemfony_error_condition& operator()(const std::string&) throw();
 
-	/** @brief Emits information when thrown */
-	virtual G_API_COMMON const char* what() const throw();
-	/** @brief Allows to check whether any information is stored in this class */
-	G_API_COMMON bool empty() const throw();
+	 /** @brief Emits information when thrown */
+	 virtual G_API_COMMON const char* what() const throw();
+	 /** @brief Allows to check whether any information is stored in this class */
+	 G_API_COMMON bool empty() const throw();
 
 protected:
-	/** @brief The default constructor: Intentionally private and undefined */
-	gemfony_error_condition() throw() = delete;
+	 /** @brief The default constructor: Intentionally private and undefined */
+	 gemfony_error_condition() throw() = delete;
 
-	std::string description_; ///< Holds the actual error description
+	 // Data
+	 std::string m_description; ///< Holds the actual error description
 };
 
 /******************************************************************************/
@@ -147,18 +150,18 @@ class g_expectation_violation
 	: public gemfony_error_condition
 {
 public:
-	/** @brief The standard constructor */
-	G_API_COMMON g_expectation_violation(const std::string &) throw();
+	 /** @brief The standard constructor */
+	 G_API_COMMON g_expectation_violation(const std::string &) throw();
 
-	/** @brief The destructor */
-	virtual G_API_COMMON ~g_expectation_violation() throw();
+	 /** @brief The destructor */
+	 virtual G_API_COMMON ~g_expectation_violation() throw();
 
-	/** @brief Allows to add further informtion, automatically terminated through a '\n' */
-	G_API_COMMON g_expectation_violation &operator()(const std::string &) throw();
+	 /** @brief Allows to add further informtion, automatically terminated through a '\n' */
+	 G_API_COMMON g_expectation_violation &operator()(const std::string &) throw();
 
 protected:
-	/** @brief The default constructor: Intentionally private and undefined */
-	g_expectation_violation() = delete;
+	 /** @brief The default constructor: Intentionally private and undefined */
+	 g_expectation_violation() = delete;
 };
 
 /******************************************************************************/

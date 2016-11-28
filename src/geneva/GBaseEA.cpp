@@ -540,7 +540,8 @@ void GBaseEA::updateIterationBestsPQ(
  */
 std::tuple<std::size_t, std::size_t> GBaseEA::getEvaluationRange() const {
 	// We evaluate all individuals in the first iteration This happens so pluggable
-	// optimization monitors do not need to distinguish between algorithms
+	// optimization monitors do not need to distinguish between algorithms, and
+	// MUCOMMANU selection may fall back to MUPLUSNU in the first iteration.
 	return std::tuple<std::size_t, std::size_t>(
 		inFirstIteration() ? 0 : getNParents(), data.size()
 	);
