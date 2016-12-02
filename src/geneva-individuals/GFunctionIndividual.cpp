@@ -50,27 +50,32 @@ namespace Geneva {
  * The default constructor
  */
 GDoubleSumConstraint::GDoubleSumConstraint()
-	: C_(1.) { /* nothing */ }
+	: C_(1.)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the constant
  */
 GDoubleSumConstraint::GDoubleSumConstraint(const double &C)
-	: C_(C) { /* nothing */ }
+	: C_(C)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
 GDoubleSumConstraint::GDoubleSumConstraint(const GDoubleSumConstraint &cp)
-	: GParameterSetConstraint(cp), C_(cp.C_) { /* nothing */ }
+	: GParameterSetConstraint(cp)
+  	, C_(cp.C_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GDoubleSumConstraint::~GDoubleSumConstraint() { /* nothing */ }
+GDoubleSumConstraint::~GDoubleSumConstraint()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1855,10 +1860,6 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 	// std::size_t nData = parDimLocal_?parDimLocal_:parDim_;
 	std::size_t nData = parDim_;
 
-	// Find out about the position that should be set to minVar_. Unless randomInit is set,
-	// all other positions will be set to the mean value of minVar_ and maxVar_.
-	std::size_t perimeterPos = this->m_uniform_int(nData - 1);
-
 	// Set up the data collections
 	switch (pT_.value()) {
 		case parameterType::USEGDOUBLECOLLECTION: {
@@ -1869,9 +1870,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			if (initMode::INITRANDOM == iM_) {
 				gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, maxVar_));
 			} else { // initMode::INITPERIMETER
-				gdc_ptr = std::shared_ptr<GDoubleCollection>(
-					new GDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
-				gdc_ptr->at(perimeterPos) = minVar_;
+				gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, minVar_, maxVar_));
 			}
 
 			gdc_ptr->addAdaptor(gat_ptr);
@@ -1887,12 +1886,9 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			std::shared_ptr <GConstrainedDoubleCollection> gcdc_ptr;
 
 			if (initMode::INITRANDOM == iM_) {
-				gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(
-					new GConstrainedDoubleCollection(nData, minVar_, maxVar_));
+				gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, maxVar_));
 			} else { // initMode::INITPERIMETER
-				gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(
-					new GConstrainedDoubleCollection(nData, (maxVar_ + minVar_) / 2., minVar_, maxVar_));
-				gcdc_ptr->at(perimeterPos) = minVar_;
+				gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, minVar_, maxVar_));
 			}
 
 			gcdc_ptr->addAdaptor(gat_ptr);
@@ -1909,14 +1905,8 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			// Fill the collection with GDoubleObject objects, each equipped with a copy of our adaptor
 			// Note that addAdaptor() itself will take care of cloning the adaptor
 			for (std::size_t i = 0; i < nData; i++) {
-				std::shared_ptr <GDoubleObject> gdo_ptr(new GDoubleObject(minVar_, maxVar_));
-				if (initMode::INITPERIMETER == iM_) {
-					if (i == perimeterPos) {
-						*gdo_ptr = minVar_;
-					} else {
-						*gdo_ptr = (maxVar_ + minVar_) / 2.;
-					}
-				}
+				std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(minVar_, maxVar_));
+				if (initMode::INITPERIMETER == iM_) { *gdo_ptr = minVar_; }
 
 				gdo_ptr->addAdaptor(gat_ptr);
 				gdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
@@ -1935,14 +1925,8 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			// Fill the collection with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
 			// Note that addAdaptor() itself will take care of cloning the adaptor
 			for (std::size_t i = 0; i < nData; i++) {
-				std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
-				if (initMode::INITPERIMETER == iM_) {
-					if (i == perimeterPos) {
-						*gcdo_ptr = minVar_;
-					} else {
-						*gcdo_ptr = (maxVar_ + minVar_) / 2.;
-					}
-				}
+				std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
+				if (initMode::INITPERIMETER == iM_) { *gcdo_ptr = minVar_; }
 
 				gcdo_ptr->addAdaptor(gat_ptr);
 				gcdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
@@ -1958,14 +1942,8 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			// Fill the individual with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
 			// Note that addAdaptor() itself will take care of cloning the adaptor
 			for (std::size_t i = 0; i < nData; i++) {
-				std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
-				if (initMode::INITPERIMETER == iM_) {
-					if (i == perimeterPos) {
-						*gcdo_ptr = minVar_;
-					} else {
-						*gcdo_ptr = (maxVar_ + minVar_) / 2.;
-					}
-				}
+				std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
+				if (initMode::INITPERIMETER == iM_) { *gcdo_ptr = minVar_; }
 
 				gcdo_ptr->addAdaptor(gat_ptr);
 				gcdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));

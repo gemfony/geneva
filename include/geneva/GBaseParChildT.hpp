@@ -830,8 +830,7 @@ protected:
 				, GOptimizationAlgorithmT<ind_type>::data[0]
 			);
 
-			// Randomly initialize new items.
-			// (Note: This will currently only have an effect on GParameterSet-derivatives)
+			// Randomly initialize new items
 			for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+this_sz; it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
 				(*it)->randomInit(activityMode::ACTIVEONLY);
 			}

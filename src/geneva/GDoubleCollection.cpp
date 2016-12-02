@@ -54,7 +54,9 @@ GDoubleCollection::GDoubleCollection() { /* nothing */ }
  * @param max The maximum random value
  */
 GDoubleCollection::GDoubleCollection(
-	const std::size_t &nval, const double &min, const double &max
+	const std::size_t &nval
+	, const double &min
+	, const double &max
 )
 	: GFPNumCollectionT<double>(nval, min, max)
 { /* nothing */ }
@@ -69,7 +71,10 @@ GDoubleCollection::GDoubleCollection(
  * @param max The maximum random value
  */
 GDoubleCollection::GDoubleCollection(
-	const std::size_t &nval, const double &val, const double &min, const double &max
+	const std::size_t &nval
+	, const double &val
+	, const double &min
+	, const double &max
 )
 	: GFPNumCollectionT<double>(nval, val, min, max)
 { /* nothing */ }

@@ -66,6 +66,8 @@ int main(int argc, char **argv) {
 	std::string monitorNAdaptions = "empty";
 	std::string logSigma = "empty";
 	std::string monitorTimings = "empty";
+	bool addOneOnly;
+	bool initPerimeter;
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;
@@ -105,6 +107,14 @@ int main(int argc, char **argv) {
 		"monitorTimings"
 		, po::value<std::string>(&monitorTimings)->implicit_value(std::string("timingsLog"))->default_value("empty")
 		, "Logs the times for all processing steps"
+	)(
+		"addOneIndividualOnly"
+		, po::value<bool>(&addOneOnly)->implicit_value(true)->default_value(false)
+		, "When set, results in a single individual being added to the collection. This may be useful for debugging in conjunction with the INITPERIMETER option"
+	)(
+		"initPerimeter"
+		, po::value<bool>(&initPerimeter)->implicit_value(true)->default_value(false)
+		, "When set, results in the initialization of the GFunctionIndividual on the perimeter of the allowed value range. Otherwise the individual will be initialized rendomly"
 	);
 
 	Go2 go(argc, argv, "./config/Go2.json", user_options);
@@ -119,6 +129,12 @@ int main(int argc, char **argv) {
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
 	std::shared_ptr<GFunctionIndividualFactory> gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+
+	if(initPerimeter) {
+		gfi_ptr->setIM(initMode::INITPERIMETER);
+	} else {
+		gfi_ptr->setIM(initMode::INITRANDOM);
+	}
 
 	//---------------------------------------------------------------------------
 	// Register pluggable optimization monitors, if requested by the user
@@ -184,8 +200,15 @@ int main(int argc, char **argv) {
 
 	//---------------------------------------------------------------------------
 
-	// Add a content creator so Go2 can generate its own individuals, if necessary
-	go.registerContentCreator(gfi_ptr);
+	// Either add a single individual or take all individuals from the content provider.
+	// Adding a single individual is useful for debugging purposes, e.g. in order to check,
+	// whether the added individual is retained in INITPERIMETER mode.
+	if(addOneOnly) {
+	   go.push_back(gfi_ptr->get());
+	} else {
+		// Add a content creator so Go2 can generate its own individuals, if necessary
+		go.registerContentCreator(gfi_ptr);
+	}
 
 	// Add a default optimization algorithm to the Go2 object. This is optional.
 	// Indeed "ea" is the default setting anyway. However, if you do not like it, you

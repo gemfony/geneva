@@ -42,7 +42,9 @@ namespace Geneva {
  * The default constructor
  */
 GParameterSetParChild::GParameterSetParChild()
-	: GBaseParChildT<GParameterSet>(), amalgamationLikelihood_(DEFAULTAMALGAMATIONLIKELIHOOD) { /* nothing */ }
+	: GBaseParChildT<GParameterSet>()
+  	, amalgamationLikelihood_(DEFAULTAMALGAMATIONLIKELIHOOD)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -51,13 +53,16 @@ GParameterSetParChild::GParameterSetParChild()
  * @param cp Another GParameterSetParChild object
  */
 GParameterSetParChild::GParameterSetParChild(const GParameterSetParChild &cp)
-	: GBaseParChildT<GParameterSet>(cp), amalgamationLikelihood_(cp.amalgamationLikelihood_) { /* nothing */ }
+	: GBaseParChildT<GParameterSet>(cp)
+   , amalgamationLikelihood_(cp.amalgamationLikelihood_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GParameterSetParChild::~GParameterSetParChild() { /* nothing */ }
+GParameterSetParChild::~GParameterSetParChild()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
