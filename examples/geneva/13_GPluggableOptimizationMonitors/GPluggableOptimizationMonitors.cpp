@@ -66,8 +66,11 @@ int main(int argc, char **argv) {
 	std::string monitorNAdaptions = "empty";
 	std::string logSigma = "empty";
 	std::string monitorTimings = "empty";
-	bool addOneOnly;
-	bool initPerimeter;
+	bool addOneOnly = false;
+	bool initPerimeter = false;
+	bool printInitial = false;
+	bool showIterationBoundaries = false;
+
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;
@@ -115,6 +118,14 @@ int main(int argc, char **argv) {
 		"initPerimeter"
 		, po::value<bool>(&initPerimeter)->implicit_value(true)->default_value(false)
 		, "When set, results in the initialization of the GFunctionIndividual on the perimeter of the allowed value range. Otherwise the individual will be initialized rendomly"
+	)(
+		"printInitial"
+		, po::value<bool>(&printInitial)->implicit_value(true)->default_value(false)
+		, "[logAll] When set, forces the printout of the initial population prior to the optimization"
+	)(
+		"showIterationBoundaries"
+		, po::value<bool>(&showIterationBoundaries)->implicit_value(true)->default_value(false)
+		, "[logAll] When set, prints a comment inbetween iterations"
 	);
 
 	Go2 go(argc, argv, "./config/Go2.json", user_options);
@@ -162,6 +173,14 @@ int main(int argc, char **argv) {
 		allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
 		allsolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
 		allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
+
+		if(printInitial) {
+			allsolutionLogger_ptr->setPrintInitial();
+		}
+
+		if(showIterationBoundaries) {
+			allsolutionLogger_ptr->setShowIterationBoundaries();
+		}
 
 		go.registerPluggableOM(allsolutionLogger_ptr);
 	}

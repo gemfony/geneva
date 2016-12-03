@@ -738,7 +738,12 @@ void GParameterSet::toPropertyTree(
  * @param  useRawFitness Indicates, whether the true fitness instead of the transformed fitness should be returned
  * @return A string holding the parameter values and possibly the types
  */
-std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool useRawFitness, bool showValidity) const {
+std::string GParameterSet::toCSV(
+	bool withNameAndType
+	, bool withCommas
+	, bool useRawFitness
+	, bool showValidity
+) const {
 	std::map<std::string, std::vector<double>> dData;
 	std::map<std::string, std::vector<float>> fData;
 	std::map<std::string, std::vector<std::int32_t>> iData;
@@ -802,16 +807,26 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool use
 		}
 	}
 
-	// Note: The following will throw if this individual is in a "dirty" state
+	// Note: The following will output the string "dirty" if the individual is in a "dirty" state
 	for (std::size_t f = 0; f < this->getNumberOfFitnessCriteria(); f++) {
 		if (withNameAndType) {
 			varNames.push_back(std::string("Fitness_") + boost::lexical_cast<std::string>(f));
 			varTypes.push_back("double");
 		}
-		if (useRawFitness) {
-			varValues.push_back(boost::lexical_cast<std::string>(this->fitness(f, PREVENTREEVALUATION, USERAWFITNESS)));
-		} else { // Output potentially transformed fitness
-			varValues.push_back(boost::lexical_cast<std::string>(this->transformedFitness(f)));
+		if(!this->isDirty()) { // The individual has already been evaluated
+			if (useRawFitness) {
+				varValues.push_back(
+					boost::lexical_cast<std::string>(
+						this->fitness(
+							f
+							, PREVENTREEVALUATION
+							, USERAWFITNESS
+						)));
+			} else { // Output potentially transformed fitness
+				varValues.push_back(boost::lexical_cast<std::string>(this->transformedFitness(f)));
+			}
+		} else { // No evaluation was performed so far
+			varValues.push_back("dirty");
 		}
 	}
 
@@ -821,7 +836,11 @@ std::string GParameterSet::toCSV(bool withNameAndType, bool withCommas, bool use
 			varTypes.push_back("bool");
 		}
 
-		varValues.push_back(boost::lexical_cast<std::string>(this->isValid()));
+		if(!this->isDirty()) { // The individual has already been evaluated
+			varValues.push_back(boost::lexical_cast<std::string>(this->isValid()));
+		} else {
+			varValues.push_back(boost::lexical_cast<std::string>(false));
+		}
 	}
 
 	// Transfer the data into the result string

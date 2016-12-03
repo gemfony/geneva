@@ -1898,7 +1898,9 @@ class GAllSolutionFileLoggerT
 		& BOOST_SERIALIZATION_NVP(m_withNameAndType)
 		& BOOST_SERIALIZATION_NVP(m_withCommas)
 		& BOOST_SERIALIZATION_NVP(m_useRawFitness)
-		& BOOST_SERIALIZATION_NVP(m_showValidity);
+		& BOOST_SERIALIZATION_NVP(m_showValidity)
+	   & BOOST_SERIALIZATION_NVP(m_printInitial)
+	 	& BOOST_SERIALIZATION_NVP(m_showIterationBoundaries);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -1950,6 +1952,8 @@ public:
 		, m_withCommas(cp.m_withCommas)
 		, m_useRawFitness(cp.m_useRawFitness)
 		, m_showValidity(cp.m_showValidity)
+		, m_printInitial(cp.m_printInitial)
+		, m_showIterationBoundaries(cp.m_showIterationBoundaries)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -2042,6 +2046,8 @@ public:
 		compare_t(IDENTITY(m_withCommas, p_load->m_withCommas), token);
 		compare_t(IDENTITY(m_useRawFitness, p_load->m_useRawFitness), token);
 		compare_t(IDENTITY(m_showValidity, p_load->m_showValidity), token);
+	   compare_t(IDENTITY(m_printInitial, p_load->m_printInitial), token);
+		compare_t(IDENTITY(m_showIterationBoundaries, p_load->m_showIterationBoundaries), token);
 
 		// React on deviations from the expectation
 		token.evaluate();
@@ -2101,7 +2107,7 @@ public:
 	 * Allows to specify whether explanations should be printed for parameter-
 	 * and fitness values.
 	 */
-	void setPrintWithNameAndType(bool withNameAndType) {
+	void setPrintWithNameAndType(bool withNameAndType = true) {
 		m_withNameAndType = withNameAndType;
 	}
 
@@ -2118,7 +2124,7 @@ public:
 	/**
 	 * Allows to specify whether commas should be printed in-between values
 	 */
-	void setPrintWithCommas(bool withCommas) {
+	void setPrintWithCommas(bool withCommas = true) {
 		m_withCommas = withCommas;
 	}
 
@@ -2134,7 +2140,7 @@ public:
 	/**
 	 * Allows to specify whether the true (instead of the transformed) fitness should be shown
 	 */
-	void setUseTrueFitness(bool useRawFitness) {
+	void setUseTrueFitness(bool useRawFitness = true) {
 		m_useRawFitness = useRawFitness;
 	}
 
@@ -2150,7 +2156,7 @@ public:
 	/**
 	 * Allows to specify whether the validity of a solution should be shown
 	 */
-	void setShowValidity(bool showValidity) {
+	void setShowValidity(bool showValidity = true) {
 		m_showValidity = showValidity;
 	}
 
@@ -2161,6 +2167,42 @@ public:
 	bool getShowValidity() const {
 		return m_showValidity;
 	}
+
+ 	/***************************************************************************/
+	/**
+	 * Allows to specifiy whether the initial population (prior to any
+	 * optimization work) should be printed.
+	 */
+	void setPrintInitial(bool printInitial = true) {
+		m_printInitial = printInitial;
+	}
+
+ 	/***************************************************************************/
+	/**
+	 * Allows to check whether the initial population (prior to any
+	 * optimization work) should be printed.
+	 */
+ 	bool getPrintInitial() const {
+		return m_printInitial;
+	}
+
+	/***************************************************************************/
+ 	/**
+    * Allows to specifiy whether a comment line should be inserted
+    * between iterations
+    */
+   void setShowIterationBoundaries(bool showIterationBoundaries = true) {
+		m_showIterationBoundaries = showIterationBoundaries;
+ 	}
+
+	/***************************************************************************/
+   /**
+    * Allows to check whether a comment line should be inserted
+    * between iterations
+    */
+   bool getShowIterationBoundaries() const {
+	   return m_showIterationBoundaries;
+ 	}
 
 	/***************************************************************************/
 	/**
@@ -2187,37 +2229,22 @@ public:
 
 					bf::rename(m_fileName, newFileName);
 				}
+
+				if(m_printInitial) {
+					this->printPopulation("Initial population", goa);
+				}
 			}
-				break;
+			break;
 
 			case Gem::Geneva::infoMode::INFOPROCESSING:
 			{
-				// Open the external file
-				boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
-
-				// Loop over all individuals of the algorithm.
-				for(std::size_t pos=0; pos<goa->size(); pos++) {
-					std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-
-					// Note that isGoodEnough may throw if loop acts on a "dirty" individual
-					if(!m_boundariesActive || ind->isGoodEnough(m_boundaries)) {
-						// Append the data to the external file
-						if(0 == pos && goa->inFirstIteration()) { // Only output name and type in the very first line (if at all)
-							data << ind->toCSV(m_withNameAndType, m_withCommas, m_useRawFitness, m_showValidity);
-						} else {
-							data << ind->toCSV(false, m_withCommas, m_useRawFitness, m_showValidity);
-						}
-					}
-				}
-
-				// Close the external file
-				data.close();
+				this->printPopulation("At end of iteration " + boost::lexical_cast<std::string>(goa->getIteration()), goa);
 			}
 				break;
 
 			case Gem::Geneva::infoMode::INFOEND:
 				// nothing
-				break;
+			break;
 
 			default:
 			{
@@ -2225,7 +2252,7 @@ public:
 				<< "In GAllSolutionFileLoggerT<ind_type>: Received invalid infoMode " << im << std::endl
 				<< GEXCEPTION;
 			}
-				break;
+			break;
 		};
 	}
 
@@ -2251,6 +2278,8 @@ protected:
 		m_withCommas = p_load->m_withCommas;
 		m_useRawFitness = p_load->m_useRawFitness;
 		m_showValidity = p_load->m_showValidity;
+		m_printInitial = p_load->m_printInitial;
+		m_showIterationBoundaries = p_load->m_showIterationBoundaries;
 	}
 
 	/************************************************************************/
@@ -2262,6 +2291,44 @@ protected:
 	}
 
 private:
+ 	/***************************************************************************/
+	/**
+	 * Does the actual printing
+	 */
+ 	void printPopulation(
+		const std::string& iterationDescription
+		, typename Gem::Geneva::GOptimizationAlgorithmT<ind_type> * const goa
+	) {
+		// Open the external file
+		boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
+
+		if(m_showIterationBoundaries) {
+			data
+				<< "#" << std::endl
+				<< "# -----------------------------------------------------------------------------" << std::endl
+				<< "# " << iterationDescription << ":" << std::endl
+			   << "#" << std::endl;
+		}
+
+		// Loop over all individuals of the algorithm.
+		for(std::size_t pos=0; pos<goa->size(); pos++) {
+			std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+
+			// Note that isGoodEnough may throw if loop acts on a "dirty" individual
+			if(!m_boundariesActive || ind->isGoodEnough(m_boundaries)) {
+				// Append the data to the external file
+				if(0 == pos && goa->inFirstIteration()) { // Only output name and type in the very first line (if at all)
+					data << ind->toCSV(m_withNameAndType, m_withCommas, m_useRawFitness, m_showValidity);
+				} else {
+					data << ind->toCSV(false, m_withCommas, m_useRawFitness, m_showValidity);
+				}
+			}
+		}
+
+		// Close the external file
+		data.close();
+	}
+
 	/***************************************************************************/
 
 	std::string m_fileName = "CompleteSolutionLog.txt"; ///< The name of the file to which solutions should be stored
@@ -2271,6 +2338,8 @@ private:
 	bool m_withCommas = false; ///< When set to true, commas will be printed in-between values
 	bool m_useRawFitness = true; ///< Indicates whether true- or transformed fitness should be output
 	bool m_showValidity = true; ///< Indicates whether the validity of a solution should be shown
+ 	bool m_printInitial = false; ///< Indicates whether the initial population should be printed
+ 	bool m_showIterationBoundaries = false; ///< Indicates whether a comment indicating the end of an iteration should be printed
 
 public:
 	/***************************************************************************/
