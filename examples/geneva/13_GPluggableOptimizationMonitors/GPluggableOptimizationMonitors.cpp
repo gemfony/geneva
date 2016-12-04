@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 		, "Only plot inside of specified boundaries (no effect, when monitorSpec hasn't been set)"
 	)(
 		"logAll"
-		, po::value<std::string>(&logAll)->implicit_value(std::string("./log.txt"))->default_value("empty")
+		, po::value<std::string>(&logAll)->implicit_value(std::string("./logAll.txt"))->default_value("empty")
 		, "Logs all solutions to the file name provided as argument to this switch"
 	)(
 		"monitorAdaptions"
@@ -167,22 +167,22 @@ int main(int argc, char **argv) {
 	}
 
 	if(logAll != "empty") {
-		std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet>> allsolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
+		std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet>> allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
 
-		allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
-		allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
-		allsolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
-		allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
+		allSolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
+		allSolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
+		allSolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
+		allSolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
 
 		if(printInitial) {
-			allsolutionLogger_ptr->setPrintInitial();
+			allSolutionLogger_ptr->setPrintInitial();
 		}
 
 		if(showIterationBoundaries) {
-			allsolutionLogger_ptr->setShowIterationBoundaries();
+			allSolutionLogger_ptr->setShowIterationBoundaries();
 		}
 
-		go.registerPluggableOM(allsolutionLogger_ptr);
+		go.registerPluggableOM(allSolutionLogger_ptr);
 	}
 
 	if(monitorNAdaptions != "empty") {

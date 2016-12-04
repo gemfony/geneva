@@ -59,13 +59,11 @@ int main(int argc, char **argv) {
 	// Server mode, serial or multi-threaded execution
 
 	// Add a "pluggable optimization monitor" to Go2. This particular monitor will log
-	// solutions that were found into the file allLog.txt, provided their fitness is better
-	// than 1. . The option is usually used for monitors that do not discriminate between
-	// optimization algorithms.
-	std::vector<double> boundaries;
-	boundaries.push_back(1.);
+	// solutions that were found into the file allLog.txt.
 	std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet>>
-		allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt", boundaries));
+		allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt"));
+	allSolutionLogger_ptr->setPrintInitial(); // Also log the initial population, prior to optimization
+	allSolutionLogger_ptr->setShowIterationBoundaries(); // Facilitates reading of the log file
 
 	go.registerPluggableOM(allSolutionLogger_ptr);
 
