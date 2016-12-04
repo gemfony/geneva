@@ -205,7 +205,7 @@ public:
 		// Add the required number of GConstrainedDoubleObject objects to the individual
 		for(std::size_t i=0; i<startValues.size(); i++) {
 			std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
-			if(0 == prod_id) { // First individual, initialization with standard values
+			if(Gem::Common::GFACTTORYFIRSTID == prod_id) { // First individual, initialization with standard values
 				gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
 					new GConstrainedDoubleObject(
 						startValues.at(i)
