@@ -57,6 +57,18 @@ namespace Courtier {
 
 /******************************************************************************/
 /**
+ * Global variables for failed transfers and connection attempts.
+ */
+const std::uint32_t GASIOTCPCONSUMERMAXSTALLS = 0;
+const std::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
+const unsigned short GASIOTCPCONSUMERDEFAULTPORT = 10000;
+const std::string GASIOTCPCONSUMERDEFAULTSERVER = "localhost";
+const std::uint16_t GASIOTCPCONSUMERTHREADS = 4;
+const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
+const bool GASIOTCPCONSUMERRETURNREGARDLESS = true;
+
+/******************************************************************************/
+/**
  * The size of input and output buffers of the GBufferPortT class
  */
 
