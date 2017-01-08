@@ -507,8 +507,8 @@ private:
 	 mutable std::condition_variable m_readyToGoRaw; ///< The get function will block until this condition variable is set
 	 mutable std::condition_variable m_readyToGoProcessed; ///< The put function will block until this condition variable is set
 
-	 RawBufferPtrMap m_RawBuffers; ///< Holds std::shared_ptr<boost::lockfree::spsc_queue> objects with raw items, tagged with a uuid
-	 ProcessedBufferPtrMap m_ProcessedBuffers; ///< Holds std::shared_ptr<boost::lockfree::spsc_queue> objects with processed items, tagged with a uuid
+	 RawBufferPtrMap m_RawBuffers; ///< Holds a std::map of buffer pointers
+	 ProcessedBufferPtrMap m_ProcessedBuffers; ///< Holds a std::map of buffer pointers
 
 	 typename RawBufferPtrMap::iterator m_currentGetPosition; ///< The current get position in the m_RawBuffers collection
 	 std::atomic<bool> m_buffersPresent; ///< Set to true once the first buffers have been enrolled

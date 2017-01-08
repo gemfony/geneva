@@ -375,7 +375,7 @@ The main changes for this release include:
    other "basic" optimization algorithms, except for multi-populations).
  - Reworked the entire broker architecture (GBrokerExecutorT was replaced
    by GBrokerExecutorT, and the GBrokerT class as well as the
-   GAsioTCPConsumerT classes have been refactored).
+   GAsioSerialTCPConsumerT classes have been refactored).
  - The broker, as implemented, now acts solely on GParameterSet-derivatives.
    This simplifies the architecture.
  - Renamed GIndividual to the more fitting "GOptimizableEntity".
@@ -589,7 +589,7 @@ Recommended version of Boost: 1.43
 * Version 0.8.4, "Route Bell" - September 23, 2010
 
 The main changes for this release include:
- - Revised GAsioTCPConsumerT.
+ - Revised GAsioSerialTCPConsumerT.
  - Fixed an important bug in the broker infrastructure. As a result of that
    problem, the server sometimes didn't shut down properly at the end
    of networked optimization.
@@ -664,7 +664,7 @@ The main changes for this release include:
  - Removed GBoostThreadConsumer dependency on GIndividual, making it a
    template class GBoostThreadConsumerT.
  - Removed GAsioTCPConsumer dependency on GIndividual, making it a template
-   class GAsioTCPConsumerT.
+   class GAsioSerialTCPConsumerT.
  - Removed the GIndividualBroker class, the GINDIVIDUALBROKER macro was
    moved to GIndividual.hpp.
  - Renamed GenevaExceptions file to GExceptions and renamed

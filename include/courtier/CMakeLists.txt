@@ -1,10 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( COMMUNICATIONINCLUDES
-    GAdHocSubmissionClientT.hpp
     GBaseClientT.hpp
 	GAsioHelperFunctions.hpp
-	GAsioTCPConsumerT.hpp
+    GAsioSerialTCPConsumerT.hpp
 	GBaseConsumerT.hpp
     GBoostThreadConsumerT.hpp
     GExecutorT.hpp
@@ -12,6 +11,7 @@ SET ( COMMUNICATIONINCLUDES
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
     GProcessingContainerT.hpp
+    GSerialSubmissionClientT.hpp
 	GSerialConsumerT.hpp
     GWebSocketConsumerT.hpp
 )

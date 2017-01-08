@@ -62,7 +62,7 @@
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/GAdHocSubmissionClientT.hpp"
+#include "courtier/GSerialSubmissionClientT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -171,8 +171,8 @@ public:
 	 * it returns an empty smart pointer, so that consumers without the need for
 	 * clients do not need to re-implement this function.
 	 */
-	virtual std::shared_ptr<GAdHocSubmissionClientT<payload_type>> getClient() const BASE {
-		return std::shared_ptr<GAdHocSubmissionClientT<payload_type>>();
+	virtual std::shared_ptr<GSerialSubmissionClientT<payload_type>> getClient() const BASE {
+		return std::shared_ptr<GSerialSubmissionClientT<payload_type>>();
 	}
 
 	/***************************************************************************/

@@ -530,7 +530,7 @@ int Go2::clientRun() {
 	}
 
 	// Retrieve the client worker from the consumer
-	std::shared_ptr <Gem::Courtier::GAdHocSubmissionClientT<Gem::Geneva::GParameterSet>> p;
+	std::shared_ptr <Gem::Courtier::GSerialSubmissionClientT<Gem::Geneva::GParameterSet>> p;
 
 	if (GConsumerStore->get(consumerName_)->needsClient()) {
 		p = GConsumerStore->get(consumerName_)->getClient();
@@ -1114,7 +1114,7 @@ void Go2::parseCommandLine(
 		std::ostringstream consumer_help;
 		consumer_help
 		<<
-		"The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2). "
+		"The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2) ). "
 		<< GConsumerStore->size() << " consumers have been registered: " << std::endl
 		<< consumer_description;
 

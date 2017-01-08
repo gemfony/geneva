@@ -52,7 +52,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GParserBuilder.hpp"
@@ -307,8 +307,8 @@ int main(int argc, char **argv){
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
 	if(execMode::EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
-		std::shared_ptr<GAsioTCPClientT<GParameterSet>>
-			p(new GAsioTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
+		std::shared_ptr<GAsioSerialTCPClientT<GParameterSet>>
+			p(new GAsioSerialTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(maxStalls); // 0 would mean an infinite number of stalled data retrievals
 		p->setMaxConnectionAttempts(maxConnectionAttempts);
@@ -353,8 +353,8 @@ int main(int argc, char **argv){
 		case execMode::EXECMODE_BROKERAGE: // Execution with networked consumer and possibly a local, multi-threaded consumer
 		{
 			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioTCPConsumerT<GParameterSet>>
-				gatc(new GAsioTCPConsumerT<GParameterSet>(port, 0, serMode));
+			std::shared_ptr<GAsioSerialTCPConsumerT<GParameterSet>>
+				gatc(new GAsioSerialTCPConsumerT<GParameterSet>(port, 0, serMode));
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
 			if(addLocalConsumer) { // This is mainly for testing and benchmarking

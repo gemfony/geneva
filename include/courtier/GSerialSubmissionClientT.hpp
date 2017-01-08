@@ -77,10 +77,13 @@ namespace Courtier {
  * network communication. Their task is to retrieve serialized objects from the server
  * over a given protocol (implemented in derived classes), to instantiate the
  * corresponding object, to process it and to deliver the results to the server.
- * This class assumes that the template parameter implements the "process()" call.
+ * This class assumes that the template parameter implements the "process()" call
+ * and that processing may take an arbitrary amount of time, e.g. because the
+ * connection is closed during the processing. A single work item is retrieved
+ * at the time, amounting to a serial execution of workloads.
  */
 template<typename processable_type>
-class GAdHocSubmissionClientT
+class GSerialSubmissionClientT
 	: public GBaseClientT<processable_type>
 {
 public:
@@ -88,7 +91,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GAdHocSubmissionClientT()
+	GSerialSubmissionClientT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -99,7 +102,7 @@ public:
 	 *
 	 * @param additionalDataTemplate The model of the item to be processed
 	 */
-	GAdHocSubmissionClientT(std::shared_ptr<processable_type> additionalDataTemplate)
+	GSerialSubmissionClientT(std::shared_ptr<processable_type> additionalDataTemplate)
 		: GBaseClientT<processable_type>(additionalDataTemplate)
 	{ /* nothing */ }
 
@@ -107,7 +110,7 @@ public:
 	/**
 	 * A standard destructor. We have no local, dynamically allocated data, hence it is empty.
 	 */
-	virtual ~GAdHocSubmissionClientT()
+	virtual ~GSerialSubmissionClientT()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -123,19 +126,19 @@ public:
 				while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
 			} else {
 				glogger
-				<< "In GAdHocSubmissionClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
+				<< "In GSerialSubmissionClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
 				<< GEXCEPTION;
 			}
 
 			if(!this->finally()) {
 				glogger
-				<< "In GAdHocSubmissionClientT<T>::run(): Finalization failed." << std::endl
+				<< "In GSerialSubmissionClientT<T>::run(): Finalization failed." << std::endl
 				<< GEXCEPTION;
 			}
 		}
 		catch (Gem::Common::gemfony_error_condition &e) {
 			glogger
-			<< "In GAdHocSubmissionClientT<T>::run():" << std::endl
+			<< "In GSerialSubmissionClientT<T>::run():" << std::endl
 			<< "Caught Gem::Common::gemfony_error_condition" << std::endl
 			<< "with message" << std::endl
 			<< e.what()
@@ -143,18 +146,18 @@ public:
 		}
 		catch (boost::exception &) {
 			glogger
-			<< "In GAdHocSubmissionClientT<T>::run(): Caught boost::exception" << std::endl
+			<< "In GSerialSubmissionClientT<T>::run(): Caught boost::exception" << std::endl
 			<< GEXCEPTION;
 		}
 		catch (std::exception &e) {
 			glogger
-			<< "In GAdHocSubmissionClientT<T>::run(): Caught std::exception with message" << std::endl
+			<< "In GSerialSubmissionClientT<T>::run(): Caught std::exception with message" << std::endl
 			<< e.what()
 			<< GEXCEPTION;
 		}
 		catch (...) {
 			glogger
-			<< "In GAdHocSubmissionClientT<T>::run(): Caught unknown exception" << std::endl
+			<< "In GSerialSubmissionClientT<T>::run(): Caught unknown exception" << std::endl
 			<< GEXCEPTION;
 		}
 	}
@@ -176,7 +179,7 @@ protected:
 		std::string istr, serModeStr;
 		if(!this->retrieve(istr, serModeStr)) {
 			glogger
-			<< "In GAdHocSubmissionClientT<T>::process() : Warning!" << std::endl
+			<< "In GSerialSubmissionClientT<T>::process() : Warning!" << std::endl
 			<< "Could not retrieve item from server. Leaving ..." << std::endl
 			<< GWARNING;
 
@@ -195,7 +198,7 @@ protected:
 		//
 		if(serModeStr == "") {
 			glogger
-			<< "In GAdHocSubmissionClientT<T>::process() : Warning!" << std::endl
+			<< "In GSerialSubmissionClientT<T>::process() : Warning!" << std::endl
 			<< "Found empty serModeStr. Leaving ..." << std::endl
 			<< GWARNING;
 
@@ -211,7 +214,7 @@ protected:
 		// Check if we have received a valid target. Leave the function if this is not the case
 		if(!target) {
 			glogger
-			<< "In GAdHocSubmissionClientT<T>::process() : Warning!" << std::endl
+			<< "In GSerialSubmissionClientT<T>::process() : Warning!" << std::endl
 			<< "Received empty target." << std::endl
 			<< GWARNING;
 
@@ -223,7 +226,7 @@ protected:
 	   this->loadDataTemplate(target);
 
 		// This one line is all it takes to do the processing required for this object.
-		// The object has all required functions on board. GAdHocSubmissionClientT<T> does not need to understand
+		// The object has all required functions on board. GSerialSubmissionClientT<T> does not need to understand
 		// what is being done during the processing. If processing did not lead to a useful result,
 		// information will be returned back to the server only if m_returnRegardless
 		// is set to true.
@@ -236,7 +239,7 @@ protected:
 		//
 		if(!this->submit(Gem::Common::sharedPtrToString(target, serMode))) {
 			glogger
-			<< "In GAdHocSubmissionClientT<T>::process() : Warning!" << std::endl
+			<< "In GSerialSubmissionClientT<T>::process() : Warning!" << std::endl
 			<< "Could not return item to server. Leaving ..." << std::endl
 			<< GWARNING;
 

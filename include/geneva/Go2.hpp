@@ -53,7 +53,7 @@
 #include "hap/GRandomFactory.hpp"
 #include "hap/GRandomT.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
-#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"

@@ -1,6 +1,6 @@
 This test submits random number containers to a broker, where they are
 distributed to workers. Processing is either done directly in threads or,
-alternatively, clients are started inside of threads and communicate 
+alternatively, clients are started inside of threads and communicate
 via local networking.
 
 The broker is an essential component of distributed optimization in Geneva.
@@ -10,13 +10,13 @@ code, with the help of some artificial container types.
 Different test modes are available:
 - Serial consumer (0)
 - Internal networking (1) -- just start one executable, uses local networking
-- networking (2) -- requires clients to be started                                        
-- multi-threaded (3) 
+- networking (2) -- requires clients to be started
+- multi-threaded (3)
 - multithreaded and internal networking (4)
 - multithreaded and networked mode (5)
 
 You can switch between these modes with the -e argument. A direct connection
-to the broker is available through the -u switch. This bypasses the GBrokerConnector 
+to the broker is available through the -u switch. This bypasses the GBrokerConnector
 class.
 
 Start the executable with the parameter --help to see further options.
@@ -26,9 +26,9 @@ might receive messages like this:
 
 ================================================
 WARNING (recorded on 2013-Aug-25 18:41:51)
-in file /home/rberlich/geneva-mac/include/courtier/GAsioTCPConsumerT.hpp near line 301
+in file /home/rberlich/geneva-mac/include/courtier/GAsioSerialTCPConsumerT.hpp near line 301
 
-In GAsioTCPClientT<processable_type>::retrieve(): Warning!
+In GAsioSerialTCPClientT<processable_type>::retrieve(): Warning!
 Maximum number of consecutive stalls reached,
 with last command = idle
 Leaving now.

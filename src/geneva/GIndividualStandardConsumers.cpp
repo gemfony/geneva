@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GIndividualTCPConsumer::GIndividualTCPConsumer()
-	: Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>()
+	: Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -56,7 +56,7 @@ GIndividualTCPConsumer::GIndividualTCPConsumer(
 	, const std::size_t &listenerThreads
 	, const Gem::Common::serializationMode &sm
 )
-	: Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
+	: Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
 { /* nothing */ }
 
 /******************************************************************************/

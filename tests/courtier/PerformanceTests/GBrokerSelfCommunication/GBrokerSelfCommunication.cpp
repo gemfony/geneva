@@ -40,7 +40,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GExecutorT.hpp"
-#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GExceptions.hpp"
@@ -394,7 +394,7 @@ int main(int argc, char **argv) {
 	std::uint32_t nWorkers;
 	GBSCModes executionMode;
 	bool useDirectBrokerConnection;
-	std::vector<std::shared_ptr<GAsioTCPClientT<WORKLOAD>> > clients;
+	std::vector<std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> > clients;
 
 	// Initialize the global producer counter
 	producer_counter = 0;
@@ -430,7 +430,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// If we are in (networked) client mode, start the client code
 	if((executionMode==GBSCModes::NETWORKING || executionMode==GBSCModes::THREAEDANDNETWORKING) && !serverMode) {
-		std::shared_ptr<GAsioTCPClientT<WORKLOAD>> p(new GAsioTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
+		std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
 		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -485,13 +485,13 @@ int main(int argc, char **argv) {
 			std::cout << "Using internal networking" << std::endl;
 
 			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD>> gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
+			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>((unsigned short)10000));
 			GBROKER(WORKLOAD)->enrol(gatc);
 
 			// Start the workers
 			clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-				std::shared_ptr<GAsioTCPClientT<WORKLOAD>> p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", "10000"));
 				clients.push_back(p);
 
 				worker_gtg.create_thread( [p](){ p->run(); } );
@@ -504,7 +504,7 @@ int main(int argc, char **argv) {
 			std::cout << "Using networked mode" << std::endl;
 
 			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD>> gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
+			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
 			GBROKER(WORKLOAD)->enrol(gatc);
 		}
 			break;
@@ -524,7 +524,7 @@ int main(int argc, char **argv) {
 		{
 			std::cout << "Using multithreading and internal networking" << std::endl;
 
-			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD>> gatc(new GAsioTCPConsumerT<WORKLOAD>((unsigned short)10000));
+			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>((unsigned short)10000));
 			std::shared_ptr< GBoostThreadConsumerT<WORKLOAD>> gbtc(new GBoostThreadConsumerT<WORKLOAD>());
 
 			GBROKER(WORKLOAD)->enrol(gatc);
@@ -533,7 +533,7 @@ int main(int argc, char **argv) {
 			// Start the workers
 			clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-				std::shared_ptr<GAsioTCPClientT<WORKLOAD>> p(new GAsioTCPClientT<WORKLOAD>("localhost", "10000"));
+				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", "10000"));
 				clients.push_back(p);
 
 				worker_gtg.create_thread( [p](){ p->run(); } );
@@ -545,7 +545,7 @@ int main(int argc, char **argv) {
 		{
 			std::cout << "Using multithreading and the networked mode" << std::endl;
 
-			std::shared_ptr<GAsioTCPConsumerT<WORKLOAD>> gatc(new GAsioTCPConsumerT<WORKLOAD>(port));
+			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
 			std::shared_ptr< GBoostThreadConsumerT<WORKLOAD>> gbtc(new GBoostThreadConsumerT<WORKLOAD>());
 
 			GBROKER(WORKLOAD)->enrol(gatc);

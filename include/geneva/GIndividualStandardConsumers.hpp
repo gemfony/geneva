@@ -46,7 +46,7 @@
 // Geneva headers go here
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "courtier/GAsioTCPConsumerT.hpp"
+#include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -62,7 +62,7 @@ namespace Geneva {
  * A consumer used for network communication, using GParameterSet-derivatives
  */
 class GIndividualTCPConsumer
-	: public Gem::Courtier::GAsioTCPConsumerT<Gem::Geneva::GParameterSet>
+	: public Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
 	/** @brief The default constructor */
