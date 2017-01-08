@@ -58,8 +58,8 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/lexical_cast.hpp>
 
-#ifndef GADHOCSUBMISSIONCLIENTT_HPP_
-#define GADHOCSUBMISSIONCLIENTT_HPP_
+#ifndef GSERIALSUBMISSIONCLIENTT_HPP
+#define GSERIALSUBMISSIONCLIENTT_HPP
 
 // Geneva headers go here
 #include "common/GSerializationHelperFunctionsT.hpp"
@@ -273,4 +273,4 @@ protected:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GADHOCSUBMISSIONCLIENTT_HPP_ */
+#endif /* GSERIALSUBMISSIONCLIENTT_HPP */

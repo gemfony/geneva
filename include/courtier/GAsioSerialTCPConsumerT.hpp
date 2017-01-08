@@ -61,8 +61,8 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
 
-#ifndef GASIOTCPCONSUMERT_HPP_
-#define GASIOTCPCONSUMERT_HPP_
+#ifndef GASIOSERIALTCPCONSUMERT_HPP
+#define GASIOSERIALTCPCONSUMERT_HPP
 
 // Geneva headers go here
 #include "common/GThreadGroup.hpp"
@@ -1592,4 +1592,4 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GASIOTCPCONSUMERT_HPP_ */
+#endif /* GASIOSERIALTCPCONSUMERT_HPP */
