@@ -1113,6 +1113,7 @@ void Go2::parseCommandLine(
 
 		std::ostringstream consumer_help;
 		consumer_help
+
 		<<
 		"The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2) ). "
 		<< GConsumerStore->size() << " consumers have been registered: " << std::endl
