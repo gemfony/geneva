@@ -290,8 +290,6 @@ protected:
 						 m_terminate.store(true);
 						 break; // Stop the loop
 					 }
-
-					 std::cout << "Received pong:" << m_openPings.load() << std::endl;
 				 } else if (this->parseIdleCommand(
 					 idleTime
 					 , command
@@ -424,7 +422,7 @@ protected:
 			 }
 		 } catch (boost::system::system_error &e) {
 			 glogger
-				 << "In GAsioSerialTCPClientT<processable_type>::retrieve():" << std::endl
+				 << "In GAsioAsyncTCPClientT<processable_type>::retrieve():" << std::endl
 				 << "Caught boost::system::system_error exception" << std::endl
 				 << "with message" << std::endl
 				 << e.what() << std::endl
@@ -434,7 +432,7 @@ protected:
 			 m_terminate.store(true);
 		 } catch (std::exception& e) {
 			 glogger
-				 << "In GAsioSerialTCPClientT<processable_type>::retrieve():" << std::endl
+				 << "In GAsioAsyncTCPClientT<processable_type>::retrieve():" << std::endl
 				 << "Caught std::exception with message" << std::endl
 				 << e.what() << std::endl
 				 << GWARNING;
@@ -447,6 +445,8 @@ protected:
 			 m_terminate.store(true);
 		 }
 
+		 // The io_service will run out of work after this call
+		 m_work_ptr.reset();
 		 // Wait for all threads in the thread pool to complete their work
 		 m_gtp.wait();
 	 }
@@ -456,7 +456,6 @@ protected:
 	  * Perform necessary finalization activities
 	  */
 	 virtual bool finally() override {
-		 m_work_ptr.reset(); // The io_service will run out of work after this call
 		 return true;
 	 }
 
@@ -531,8 +530,6 @@ private:
 						 , buffer(assembleQueryString("ping", Gem::Courtier::COMMANDLENGTH))
 					 ));
 
-					 std::cout << "Sent a ping" << std::endl;
-
 					 // Increase the ping-counter
 					 if(m_openPings++ > m_maxOpenPings) {
 						 // This is an error -- signal termination
@@ -544,6 +541,8 @@ private:
 
 						 m_terminate.store(true);
 					 } else {
+						 m_timer.expires_at(m_timer.expires_at() + m_pingInterval);
+
 						 // Continue the ping cycle
 						 async_ping();
 					 }
@@ -694,7 +693,6 @@ public:
 
 			 // The stopped flag was set -- let the client know by sending the close command
 			 this->sendSingleCommand("close");
-
 		 } catch (const boost::system::system_error &e) {
 			 glogger
 				 << "In GAsioAsyncServerSessionT::process():" << std::endl
