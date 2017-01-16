@@ -1224,23 +1224,23 @@ public:
 		 namespace po = boost::program_options;
 
 		 visible.add_options()
-			 ("ip,i", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
+			 ("ws_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
 				 "\t[ws] The name or ip of the server")
-			 ("port,p", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
+			 ("ws_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
 			 "\t[ws] The port of the server");
 
 		 hidden.add_options()
-			 ("serializationMode,s", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
+			 ("ws_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
 				 GASIOTCPCONSUMERSERIALIZATIONMODE),
 				 "\t[ws] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			 ("maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
+			 ("ws_maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
 				 "\t[ws] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
-			 ("maxConnectionAttempts",
+			 ("ws_maxConnectionAttempts",
 				 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 				 "\t[ws] The maximum allowed number of failed connection attempts of a client")
-			 ("returnRegardless", po::value<bool>(&m_returnRegardless)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
+			 ("ws_returnRegardless", po::value<bool>(&m_returnRegardless)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
 				 "\t[ws] Specifies whether unsuccessful client-side processing attempts should be returned to the server")
-			 ("nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
+			 ("ws_nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
 				 "\t[ws] The number of threads used to listen for incoming connections");
 	 }
 

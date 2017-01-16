@@ -1346,23 +1346,23 @@ public:
 		namespace po = boost::program_options;
 
 		visible.add_options()
-			("ip,i", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
+			("stcpc_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
 			 "\t[stcpc] The name or ip of the server")
-			("port,p", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
+			("stcpc_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
 			 "\t[stcpc] The port of the server");
 
 		hidden.add_options()
-			("serializationMode,s", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
+			("stcpc_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
 				GASIOTCPCONSUMERSERIALIZATIONMODE),
 			 "\t[stcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			("maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
+			("stcpc_maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
 			 "\t[stcpc] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
-			("maxConnectionAttempts",
+			("stcpc_maxConnectionAttempts",
 			 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 			 "\t[stcpc] The maximum allowed number of failed connection attempts of a client")
-			("returnRegardless", po::value<bool>(&m_returnRegardless)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
+			("stcpc_returnRegardless", po::value<bool>(&m_returnRegardless)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
 			 "\t[stcpc] Specifies whether unsuccessful client-side processing attempts should be returned to the server")
-			("nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
+			("stcpc_nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
 			 "\t[stcpc] The number of threads used to listen for incoming connections");
 	}
 
