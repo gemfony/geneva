@@ -164,18 +164,6 @@ public:
 		return std::string("btc");
 	}
 
-	/***************************************************************************/
-	/**
-	 * Returns an indication whether full return can be expected from this
-	 * consumer. Since evaluation is performed in threads, we assume that this
-	 * is possible and return true. Note that it is up to the user to ensure
-	 * that either his code does not crash or that exceptions are caught and
-	 * the thread becomes available again.
-	 */
-	virtual bool capableOfFullReturn() const override {
-		return true;
-	}
-
    /***************************************************************************/
    /**
 	  * Retrieves the number of workers registered with this class
@@ -184,6 +172,18 @@ public:
 	  return m_workerTemplates.size();
    }
 
+	/***************************************************************************/
+   /**
+	  * Returns an indication whether full return can be expected from this
+	  * consumer. Since evaluation is performed in threads, we assume that this
+	  * is possible and return true. Note that it is up to the user to ensure
+	  * that either his code does not crash or that exceptions are caught and
+	  * the thread becomes available again.
+	  */
+   virtual bool capableOfFullReturn() const override {
+	   return true;
+	}
+
    /***************************************************************************/
  	/**
   	 * Returns the (possibly estimated) number of concurrent processing units.
@@ -191,8 +191,11 @@ public:
     * make any assumptions whether processing units are dedicated solely to a
     * given task.
     */
- 	virtual std::uint16_t getNProcessingUnits() const override {
-		 return boost::numeric_cast<std::uint16_t>(this->getNWorkers() * this->getNThreadsPerWorker());
+ 	virtual std::size_t getNProcessingUnitsEstimate(bool& exact) override {
+		// Mark the answer as exact
+		exact=true;
+		// Return the result
+		return boost::numeric_cast<std::size_t>(this->getNWorkers() * this->getNThreadsPerWorker());
  	}
 
 	/***************************************************************************/

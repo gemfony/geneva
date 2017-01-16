@@ -43,7 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GIndividualTCPConsumer::GIndividualTCPConsumer()
+GIndividualSerialTCPConsumer::GIndividualSerialTCPConsumer()
 	: Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>()
 { /* nothing */ }
 
@@ -51,7 +51,7 @@ GIndividualTCPConsumer::GIndividualTCPConsumer()
 /**
  * A constructor that takes a number of vital arguments
  */
-GIndividualTCPConsumer::GIndividualTCPConsumer(
+GIndividualSerialTCPConsumer::GIndividualSerialTCPConsumer(
 	const unsigned short &port
 	, const std::size_t &listenerThreads
 	, const Gem::Common::serializationMode &sm
@@ -63,7 +63,37 @@ GIndividualTCPConsumer::GIndividualTCPConsumer(
 /**
  * The destructor
  */
-GIndividualTCPConsumer::~GIndividualTCPConsumer()
+GIndividualSerialTCPConsumer::~GIndividualSerialTCPConsumer()
+{ /* nothing */ }
+
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor
+ */
+GIndividualAsyncTCPConsumer::GIndividualAsyncTCPConsumer()
+	: Gem::Courtier::GAsioAsyncTCPConsumerT<Gem::Geneva::GParameterSet>()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * A constructor that takes a number of vital arguments
+ */
+GIndividualAsyncTCPConsumer::GIndividualAsyncTCPConsumer(
+	const unsigned short &port
+	, const std::size_t &listenerThreads
+	, const Gem::Common::serializationMode &sm
+)
+	: Gem::Courtier::GAsioAsyncTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The destructor
+ */
+GIndividualAsyncTCPConsumer::~GIndividualAsyncTCPConsumer()
 { /* nothing */ }
 
 /******************************************************************************/

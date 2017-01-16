@@ -82,7 +82,8 @@ Go2::Go2()
 	gi_.registerOAF<GSimulatedAnnealingFactory>();
 	gi_.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualTCPConsumer>();
+	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
+	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
 	gi_.registerConsumer<GIndividualThreadConsumer>();
 	gi_.registerConsumer<GIndividualSerialConsumer>();
 
@@ -124,7 +125,8 @@ Go2::Go2(
 	gi_.registerOAF<GSimulatedAnnealingFactory>();
 	gi_.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualTCPConsumer>();
+	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
+	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
 	gi_.registerConsumer<GIndividualThreadConsumer>();
 	gi_.registerConsumer<GIndividualSerialConsumer>();
 
@@ -165,7 +167,8 @@ Go2::Go2(const std::string &configFilename)
 	gi_.registerOAF<GSimulatedAnnealingFactory>();
 	gi_.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualTCPConsumer>();
+	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
+	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
 	gi_.registerConsumer<GIndividualThreadConsumer>();
 	gi_.registerConsumer<GIndividualSerialConsumer>();
 
@@ -214,7 +217,8 @@ Go2::Go2(
 	gi_.registerOAF<GSimulatedAnnealingFactory>();
 	gi_.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualTCPConsumer>();
+	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
+	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
 	gi_.registerConsumer<GIndividualThreadConsumer>();
 	gi_.registerConsumer<GIndividualSerialConsumer>();
 
@@ -257,7 +261,8 @@ Go2::Go2(const Go2 &cp)
 	gi_.registerOAF<GSimulatedAnnealingFactory>();
 	gi_.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualTCPConsumer>();
+	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
+	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
 	gi_.registerConsumer<GIndividualThreadConsumer>();
 	gi_.registerConsumer<GIndividualSerialConsumer>();
 
@@ -530,7 +535,7 @@ int Go2::clientRun() {
 	}
 
 	// Retrieve the client worker from the consumer
-	std::shared_ptr <Gem::Courtier::GSerialSubmissionClientT<Gem::Geneva::GParameterSet>> p;
+	std::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet>> p;
 
 	if (GConsumerStore->get(consumerName_)->needsClient()) {
 		p = GConsumerStore->get(consumerName_)->getClient();

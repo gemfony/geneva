@@ -39,6 +39,7 @@
 #include <string>
 #include <ostream>
 #include <istream>
+#include <chrono>
 
 // Boost headers go here
 #include <boost/uuid/uuid.hpp>
@@ -66,6 +67,8 @@ const std::string GASIOTCPCONSUMERDEFAULTSERVER = "localhost";
 const std::uint16_t GASIOTCPCONSUMERTHREADS = 4;
 const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
 const bool GASIOTCPCONSUMERRETURNREGARDLESS = true;
+const std::int32_t GASIOMAXOPENPINGS = 100; // The maximum number of pings without matching pong from the server
+const std::chrono::milliseconds GASIOPINGINTERVAL = std::chrono::milliseconds(1000);
 
 /******************************************************************************/
 /**

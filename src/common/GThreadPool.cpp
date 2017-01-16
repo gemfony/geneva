@@ -109,6 +109,8 @@ GThreadPool::~GThreadPool() {
  * equals the current number of threads. Note that this function may NOT be called
  * from a task running inside of the pool.
  *
+ * TODO: use std::defer_lock as in GBrokerT.hpp
+ *
  * @param nThreads The desired number of threads
  */
 void GThreadPool::setNThreads(unsigned int nThreads) {

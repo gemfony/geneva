@@ -223,14 +223,15 @@ public:
 
 			 // Find orphaned items in the two collections and remove them.
 			 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
-			 // otherwise the following statements could be simplified.
+			 // otherwise the following statements could be simplified. We use references
+			 // as lambda arguments, so the use count of the std::shared_ptr-objects isn't increased
 			 Gem::Common::erase_if(
 				 m_RawBuffers
-				 , [](std::pair <boost::uuids::uuid, GBUFFERPORT_PTR> p) -> bool { return p.second.unique(); }
+				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (p.second.use_count()==1); }
 			 ); // m_RawBuffers is a std::map, so items are of type std::pair
 			 Gem::Common::erase_if(
 				 m_ProcessedBuffers
-				 , [](std::pair <boost::uuids::uuid, GBUFFERPORT_PTR> p) -> bool { return p.second.unique(); }
+				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (p.second.use_count()==1); }
 			 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
 
 			 // Attach the new items to the maps

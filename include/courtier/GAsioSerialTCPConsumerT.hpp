@@ -1,5 +1,5 @@
 /**
- * @file GAsioTCPConsumerT.hpp
+ * @file GAsioSerialTCPConsumerT.hpp
  */
 
 /*
@@ -103,7 +103,8 @@ class GAsioSerialTCPConsumerT;
  */
 template<typename processable_type>
 class GAsioSerialTCPClientT
-	: public Gem::Courtier::GSerialSubmissionClientT<processable_type> {
+	: public Gem::Courtier::GSerialSubmissionClientT<processable_type>
+{
 public:
 	/***************************************************************************/
 	/**
@@ -112,18 +113,13 @@ public:
 	 * @param server Identifies the server
 	 * @param port Identifies the port on the server
 	 */
-	GAsioSerialTCPClientT(const std::string &server, const std::string &port)
+	GAsioSerialTCPClientT(
+		const std::string &server
+		, const std::string &port
+	)
 		: GSerialSubmissionClientT<processable_type>()
-	   , m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
-	   , m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
-	  	, m_totalConnectionAttempts(0)
-	   , m_stalls(0)
-	   , m_io_service()
-	   , m_socket(m_io_service)
-	   , m_resolver(m_io_service)
 	   , m_query(server, port)
 	   , m_endpoint_iterator0(m_resolver.resolve(m_query))
-	   , m_end()
 	{
 		m_tmpBuffer = new char[Gem::Courtier::COMMANDLENGTH];
 	}
@@ -142,15 +138,8 @@ public:
 		, std::shared_ptr<processable_type> additionalDataTemplate
 	)
 		: GSerialSubmissionClientT<processable_type>(additionalDataTemplate)
-	   , m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
-	   , m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
-	   , m_totalConnectionAttempts(0), m_stalls(0)
-	   , m_io_service()
-	   , m_socket(m_io_service)
-	   , m_resolver(m_io_service)
 	   , m_query(server, port)
 	   , m_endpoint_iterator0(m_resolver.resolve(m_query))
-	   , m_end()
 	{
 		m_tmpBuffer = new char[Gem::Courtier::COMMANDLENGTH];
 	}
@@ -254,9 +243,6 @@ protected:
 
 			 // Read answer. First we care for the command sent by the server
 			 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-
-
-			 // Not currently getting here
 
 			 // Remove all leading or trailing white spaces from the command
 			 std::string inboundCommandString = boost::algorithm::trim_copy(
@@ -514,23 +500,35 @@ private:
 	}
 
 	/***************************************************************************/
+	// Data
 
-	std::uint32_t m_maxStalls; ///< The maximum allowed number of stalled connection attempts
-	std::uint32_t m_maxConnectionAttempts; ///< The maximum allowed number of failed connection attempts
-	std::uint32_t m_totalConnectionAttempts; ///< The total number of failed connection attempts during program execution
+	std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts
+   std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
+   std::uint32_t m_totalConnectionAttempts = 0; ///< The total number of failed connection attempts during program execution
 
-	std::uint32_t m_stalls; ///< counter for stalled connection attempts
+   std::uint32_t m_stalls = 0; ///< counter for stalled connection attempts
 
 	char *m_tmpBuffer;
 
 	boost::asio::io_service m_io_service; ///< Holds the Boost::ASIO::io_service object
-	boost::asio::ip::tcp::socket m_socket; ///< The underlying socket
-
-	boost::asio::ip::tcp::resolver m_resolver; ///< Responsible for name resolution
+	boost::asio::ip::tcp::socket m_socket{m_io_service}; ///< The underlying socket
+	boost::asio::ip::tcp::resolver m_resolver{m_io_service}; ///< Responsible for name resolution
 	boost::asio::ip::tcp::resolver::query m_query; ///< A query
 
 	boost::asio::ip::tcp::resolver::iterator m_endpoint_iterator0; ///< start of iteration
 	boost::asio::ip::tcp::resolver::iterator m_end; ///< end for end point iterator
+
+
+   /***************************************************************************/
+
+   // Prevent default construction
+	GAsioSerialTCPClientT() = delete;
+
+   // Prevent copy construction and assignment
+	GAsioSerialTCPClientT(const GAsioSerialTCPClientT<processable_type>&) = delete;
+	 GAsioSerialTCPClientT(const GAsioSerialTCPClientT<processable_type>&&) = delete;
+   const GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&) = delete;
+   const GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&&) = delete;
 };
 
 /******************************************************************************/
@@ -900,7 +898,9 @@ protected:
 		// command, header and data in a single write operation.
 		try {
 			boost::asio::async_write(
-				m_socket, buffers, m_strand.wrap(std::bind(
+				m_socket
+				, buffers
+				, m_strand.wrap(std::bind(
 					&GAsioSerialServerSessionT<processable_type>::handle_write,
 					GAsioSerialServerSessionT<processable_type>::shared_from_this(),
 					std::placeholders::_1 // Replaces boost::asio::placeholders::error
@@ -992,7 +992,7 @@ private:
 
 	/***************************************************************************/
 
-	boost::asio::io_service::strand m_strand; ///< /// Ensure the connection's handlers are not called concurrently.
+	boost::asio::io_service::strand m_strand; ///< Ensure the connection's handlers are not called concurrently.
 	boost::asio::ip::tcp::socket m_socket; ///< The underlying socket
 
 	std::array<char, COMMANDLENGTH> m_commandBuffer; ///< A buffer to be used for command transfers
@@ -1036,16 +1036,6 @@ public:
 	 * The default constructor
 	 */
 	GAsioSerialTCPConsumerT()
-		: m_listenerThreads(Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
-		, m_acceptor(m_io_service)
-	   , m_serializationMode(Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY)
-		, m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
-		, m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
-	   , m_returnRegardless(GASIOTCPCONSUMERRETURNREGARDLESS)
-  		, m_port(GASIOTCPCONSUMERDEFAULTPORT)
-		, m_server(GASIOTCPCONSUMERDEFAULTSERVER)
-		, m_timeout(std::chrono::milliseconds(10))
-		, m_broker_ptr()
 	{ /* noting */ }
 
 	/***************************************************************************/
@@ -1062,15 +1052,8 @@ public:
 		, const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
 	)
 		: m_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
-		, m_acceptor(m_io_service)
 	   , m_serializationMode(sm)
-		, m_maxStalls(GASIOTCPCONSUMERMAXSTALLS)
-		, m_maxConnectionAttempts(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS)
-		, m_returnRegardless(GASIOTCPCONSUMERRETURNREGARDLESS)
 		, m_port(port)
-		, m_server(GASIOTCPCONSUMERDEFAULTSERVER)
-		, m_timeout(std::chrono::milliseconds(10))
-		, m_broker_ptr()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -1222,7 +1205,7 @@ public:
 	/**
 	 * Emits a client suitable for processing the data emitted by this consumer
 	 */
-	virtual std::shared_ptr <GSerialSubmissionClientT<processable_type>> getClient() const override {
+	virtual std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
 		std::shared_ptr <GAsioSerialTCPClientT<processable_type>> p(
 			new GAsioSerialTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
 		);
@@ -1555,17 +1538,19 @@ private:
 	}
 
 	/***************************************************************************/
+	// Data
+
 	boost::asio::io_service m_io_service;   ///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
-	std::shared_ptr <boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
-	std::size_t m_listenerThreads;  ///< The number of threads used to listen for incoming connections through io_servce::run()
-	boost::asio::ip::tcp::acceptor m_acceptor; ///< takes care of external connection requests
-	Gem::Common::serializationMode m_serializationMode; ///< Specifies the serialization mode
-	std::uint32_t m_maxStalls; ///< The maximum allowed number of stalled connection attempts of a client
-	std::uint32_t m_maxConnectionAttempts; ///< The maximum allowed number of failed connection attempts of a client
-	bool m_returnRegardless; ///< Specifies whether unsuccessful processing attempts should be returned to the server
-	unsigned short m_port; ///< The port on which the server is supposed to listen
-	std::string m_server;  ///< The name or ip if the server
-	std::chrono::duration<double> m_timeout; ///< A timeout for put- and get-operations
+	std::shared_ptr<boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
+	std::size_t m_listenerThreads = Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
+	boost::asio::ip::tcp::acceptor m_acceptor{m_io_service}; ///< takes care of external connection requests
+	Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY; ///< Specifies the serialization mode
+	std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
+	std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
+	bool m_returnRegardless = GASIOTCPCONSUMERRETURNREGARDLESS; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+	unsigned short m_port = GASIOTCPCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
+	std::string m_server = GASIOTCPCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
+	std::chrono::duration<double> m_timeout = std::chrono::milliseconds(10); ///< A timeout for put- and get-operations
 	Gem::Common::GThreadGroup m_gtg; ///< Holds listener threads
 	Gem::Common::GThreadPool m_gtp; ///< Holds workers sorting processed items back into the broker
 	std::shared_ptr<Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr; ///< A pointer to the global broker

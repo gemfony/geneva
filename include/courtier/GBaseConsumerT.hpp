@@ -87,22 +87,21 @@ public:
 	 * The default constructor
 	 */
 	GBaseConsumerT()
-		: stop_(false) { /* nothing */ }
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GBaseConsumerT() { /* nothing */ }
+	virtual ~GBaseConsumerT()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * Stop execution
 	 */
 	virtual void shutdown() BASE {
-		std::unique_lock<std::mutex> lock(stopMutex_);
-		stop_ = true;
-		lock.unlock();
+		m_stop.store(true);
 	}
 
 	/***************************************************************************/
@@ -110,8 +109,7 @@ public:
 	 * Check whether the stop flag has been set
 	 */
 	bool stopped() const {
-		std::unique_lock<std::mutex> lock(stopMutex_);
-		return stop_;
+		return m_stop.load();
 	}
 
 	/***************************************************************************/
@@ -119,7 +117,7 @@ public:
 	 * Returns an indication whether full return can be expected from the consumer.
 	 * By default we assume that a full return is not possible.
 	 */
-	virtual bool capableOfFullReturn() const {
+	virtual bool capableOfFullReturn() const BASE {
 		return false;
 	}
 
@@ -130,8 +128,9 @@ public:
     * make any assumptions whether processing units are dedicated solely to a
     * given task.
     */
-   virtual std::uint16_t getNProcessingUnits() const {
-       return boost::numeric_cast<std::uint16_t>(0);
+   virtual std::size_t getNProcessingUnitsEstimate(bool& exact) BASE {
+		exact=false;
+	 	return boost::numeric_cast<std::size_t>(0);
 	}
 
 	/***************************************************************************/
@@ -171,8 +170,8 @@ public:
 	 * it returns an empty smart pointer, so that consumers without the need for
 	 * clients do not need to re-implement this function.
 	 */
-	virtual std::shared_ptr<GSerialSubmissionClientT<payload_type>> getClient() const BASE {
-		return std::shared_ptr<GSerialSubmissionClientT<payload_type>>();
+	virtual std::shared_ptr<GBaseClientT<payload_type>> getClient() const BASE {
+		return std::shared_ptr<GBaseClientT<payload_type>>();
 	}
 
 	/***************************************************************************/
@@ -194,7 +193,7 @@ public:
 	 * By default we do nothing so that derived classes do not need to re-implement this
 	 * function.
 	 */
-	virtual void actOnCLOptions(const boost::program_options::variables_map &vm)
+	virtual void actOnCLOptions(const boost::program_options::variables_map &vm) BASE
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -221,12 +220,12 @@ protected:
 	 */
 	virtual void addConfigurationOptions(
 		Gem::Common::GParserBuilder &gpb
-	) { /* nothing -- no local data */ }
+	) BASE { /* nothing -- no local data */ }
 
 private:
 	/***************************************************************************/
-	mutable std::mutex stopMutex_; ///< Regulate access to the stop_ variable
-	mutable bool stop_; ///< Set to true if we are expected to stop
+
+	mutable std::atomic<bool> m_stop{false}; ///< Set to true if we are expected to stop
 };
 
 /******************************************************************************/

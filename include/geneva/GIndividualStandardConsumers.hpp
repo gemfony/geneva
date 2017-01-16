@@ -47,6 +47,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
+#include "courtier/GAsioAsyncTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -60,21 +61,46 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * A consumer used for network communication, using GParameterSet-derivatives
+ * and serial communication on the client side.
  */
-class GIndividualTCPConsumer
+class GIndividualSerialTCPConsumer
 	: public Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
 	/** @brief The default constructor */
-	G_API_GENEVA GIndividualTCPConsumer();
+	G_API_GENEVA GIndividualSerialTCPConsumer();
 	/** @brief A constructor that takes a number of vital arguments */
-	G_API_GENEVA GIndividualTCPConsumer(
+	G_API_GENEVA GIndividualSerialTCPConsumer(
 		const unsigned short&
 		, const std::size_t& = 0
 		, const Gem::Common::serializationMode& = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
 	);
 	/** @brief The destructor */
-	virtual G_API_GENEVA ~GIndividualTCPConsumer();
+	virtual G_API_GENEVA ~GIndividualSerialTCPConsumer();
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A consumer used for network communication, using GParameterSet-derivatives
+ * and async communication on the client side, so that a keep-alive of the
+ * connection is possible
+ */
+class GIndividualAsyncTCPConsumer
+	: public Gem::Courtier::GAsioAsyncTCPConsumerT<Gem::Geneva::GParameterSet>
+{
+public:
+	 /** @brief The default constructor */
+	 G_API_GENEVA GIndividualAsyncTCPConsumer();
+	 /** @brief A constructor that takes a number of vital arguments */
+	 G_API_GENEVA GIndividualAsyncTCPConsumer(
+		 const unsigned short&
+		 , const std::size_t& = 0
+		 , const Gem::Common::serializationMode& = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
+	 );
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~GIndividualAsyncTCPConsumer();
 };
 
 /******************************************************************************/

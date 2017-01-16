@@ -116,50 +116,11 @@ public:
 	/***************************************************************************/
 	/**
 	 * This is the main loop of the client. It will continue to call the process()
-	 * function (defined by derived classes), until it returns false or the maximum
-	 * number of processing steps has been reached. All network connectivity is done
-	 * in process().
+	 * function (defined by derived classes), until it returns false or a halt-condition
+	 * was reached.
 	 */
-	virtual void run() override {
-		try {
-			if(this->init()) {
-				while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
-			} else {
-				glogger
-				<< "In GSerialSubmissionClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
-				<< GEXCEPTION;
-			}
-
-			if(!this->finally()) {
-				glogger
-				<< "In GSerialSubmissionClientT<T>::run(): Finalization failed." << std::endl
-				<< GEXCEPTION;
-			}
-		}
-		catch (Gem::Common::gemfony_error_condition &e) {
-			glogger
-			<< "In GSerialSubmissionClientT<T>::run():" << std::endl
-			<< "Caught Gem::Common::gemfony_error_condition" << std::endl
-			<< "with message" << std::endl
-			<< e.what()
-			<< GEXCEPTION;
-		}
-		catch (boost::exception &) {
-			glogger
-			<< "In GSerialSubmissionClientT<T>::run(): Caught boost::exception" << std::endl
-			<< GEXCEPTION;
-		}
-		catch (std::exception &e) {
-			glogger
-			<< "In GSerialSubmissionClientT<T>::run(): Caught std::exception with message" << std::endl
-			<< e.what()
-			<< GEXCEPTION;
-		}
-		catch (...) {
-			glogger
-			<< "In GSerialSubmissionClientT<T>::run(): Caught unknown exception" << std::endl
-			<< GEXCEPTION;
-		}
+	virtual void run_() override {
+		while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
 	}
 
 protected:
@@ -249,14 +210,6 @@ protected:
 		// Everything worked. Indicate that we want to continue
 		return true;
 	} // std::shared_ptr<processable_type> target will cease to exist at this point
-
-	/***************************************************************************/
-	/** @brief Performs initialization work */
-	virtual bool init() { return true; }
-
-	/***************************************************************************/
-	/** @brief Perform necessary finalization activities */
-	virtual bool finally() { return true; }
 
 	/***************************************************************************/
 	/** @brief Retrieve work items from the server. To be defined by derived classes. */

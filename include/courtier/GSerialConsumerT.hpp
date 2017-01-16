@@ -119,7 +119,7 @@ public:
 	/***************************************************************************/
 	/**
 	 * Returns an indication whether full return can be expected from this
-	 * consumer. Since evaluation is performed aerially, we assume that this
+	 * consumer. Since evaluation is performed serially, we assume that this
 	 * is possible and return true.
 	 */
 	virtual bool capableOfFullReturn() const override {
@@ -131,8 +131,11 @@ public:
   	 * Returns the (possibly estimated) number of concurrent processing units.
   	 * A return value of 0 means "unknown".
   	 */
- 	virtual std::uint16_t getNProcessingUnits() const override {
-		 return boost::numeric_cast<std::uint16_t>(1);
+ 	virtual std::size_t getNProcessingUnitsEstimate(bool& exact) override {
+		// Mark the answer as exact
+		exact=true;
+		// Return the result
+	 	return boost::numeric_cast<std::size_t>(1);
  	}
 
 private:

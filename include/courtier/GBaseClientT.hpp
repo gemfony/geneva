@@ -207,16 +207,69 @@ public:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief This is the main loop of the client */
-	 virtual void run() BASE = 0;
+	 /**
+	  * The main initialization code
+	  */
+	 void run() {
+		 try {
+			 std::cout << "In GBaseClientT::run()" << std::endl;
+
+			 if (!this->init()) { // Initialize the client
+				 glogger
+					 << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
+					 << GEXCEPTION;
+			 }
+
+			 run_(); // The main loop
+
+			 if (!this->finally()) {
+				 glogger
+					 << "In GBaseClientT<T>::run(): Finalization failed." << std::endl
+					 << GEXCEPTION;
+			 }
+		 }
+		 catch (Gem::Common::gemfony_error_condition &e) {
+			 glogger
+				 << "In GBaseClientT<T>::run():" << std::endl
+				 << "Caught Gem::Common::gemfony_error_condition" << std::endl
+				 << "with message" << std::endl
+				 << e.what()
+				 << GEXCEPTION;
+		 }
+		 catch (boost::exception &) {
+			 glogger
+				 << "In GBaseClientT<T>::run(): Caught boost::exception" << std::endl
+				 << GEXCEPTION;
+		 }
+		 catch (std::exception &e) {
+			 glogger
+				 << "In GBaseClientT<T>::run(): Caught std::exception with message" << std::endl
+				 << e.what()
+				 << GEXCEPTION;
+		 }
+		 catch (...) {
+			 glogger
+				 << "In GBaseClientT<T>::run(): Caught unknown exception" << std::endl
+				 << GEXCEPTION;
+		 }
+	 }
 
 protected:
 	 /***************************************************************************/
-	 /**
-	  * Custom halt condition for processing
-	  */
-	 virtual bool customHalt()
-	 { return false; }
+	 /** @brief This is the main loop of the client, after initialization */
+	 virtual void run_() BASE = 0;
+
+	 /***************************************************************************/
+	 /** @brief Performs initialization work */
+	 virtual bool init() BASE { return true; }
+
+	 /***************************************************************************/
+	 /** @brief Perform necessary finalization activities */
+	 virtual bool finally() BASE { return true; }
+
+	 /***************************************************************************/
+	 /** @brief Custom halt condition for processing */
+	 virtual bool customHalt() BASE { return false; }
 
 	 /***************************************************************************/
 	 /**

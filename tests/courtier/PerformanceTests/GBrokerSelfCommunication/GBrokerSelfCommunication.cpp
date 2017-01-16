@@ -41,6 +41,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
+#include "courtier/GAsioAsyncTCPConsumerT.hpp"
 #include "courtier/GBoostThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GExceptions.hpp"
