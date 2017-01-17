@@ -191,7 +191,7 @@ public:
     * make any assumptions whether processing units are dedicated solely to a
     * given task.
     */
- 	virtual std::size_t getNProcessingUnitsEstimate(bool& exact) override {
+ 	virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
 		// Mark the answer as exact
 		exact=true;
 		// Return the result
@@ -441,7 +441,7 @@ public:
 				m_runLoopHasCommenced = false;
 
 				std::shared_ptr<processable_type> p;
-				std::chrono::milliseconds timeout(100);
+				std::chrono::milliseconds timeout(200);
 
 				while (true) {
 					Gem::Common::thread::interruption_point();

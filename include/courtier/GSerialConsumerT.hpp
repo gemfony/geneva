@@ -131,7 +131,7 @@ public:
   	 * Returns the (possibly estimated) number of concurrent processing units.
   	 * A return value of 0 means "unknown".
   	 */
- 	virtual std::size_t getNProcessingUnitsEstimate(bool& exact) override {
+ 	virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
 		// Mark the answer as exact
 		exact=true;
 		// Return the result
@@ -154,7 +154,7 @@ private:
 	void processItems() {
 		try {
 			std::shared_ptr <processable_type> p;
-			std::chrono::milliseconds timeout(100);
+			std::chrono::milliseconds timeout(200);
 
 			while (true) {
 				// Have we been asked to stop ?

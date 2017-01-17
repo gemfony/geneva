@@ -541,7 +541,7 @@ private:
 
 						 m_terminate.store(true);
 					 } else {
-						 m_timer.expires_at(m_timer.expires_at() + m_pingInterval);
+						 m_timer.expires_from_now(m_pingInterval);
 
 						 // Continue the ping cycle
 						 async_ping();
@@ -639,14 +639,20 @@ public:
 		 , m_serializationMode(serMod)
 		 , m_master(master)
 		 , m_broker_ptr(master->m_broker_ptr)
-	 { /* nothing */ }
+	 {
+		 // Update the connection counter in the consumer
+		 m_master->m_connections++;
+	 }
 
 	 /***************************************************************************/
 	 /**
 	  * A standard destructor. Shuts down and closes the socket. Note: Non-virtual.
 	  */
 	 ~GAsioAsyncServerSessionT()
-	 { /* nothing */ }
+	 {
+		 // Update the connection counter in the consumer
+		 m_master->m_connections--;
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -873,7 +879,7 @@ private:
 	 GAsioAsyncTCPConsumerT<processable_type> *m_master;
 	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr;
 
-	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(50); ///< A timeout for put- and get-operations
+	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(200); ///< A timeout for put- and get-operations
 
 	 std::size_t m_brokerRetrieveMaxRetries = 1; ///< The maximum amount
 	 std::uint32_t m_noDataClientSleepMilliSeconds = 100; ///< The amount of milliseconds the client should sleep when no data could be retrieved from the broker
@@ -941,17 +947,11 @@ public:
 	 /**
 	  * Returns the (possibly estimated) number of concurrent processing units.
 	  * Note that this function does not make any assumptions whether processing
-	  * units are dedicated solely to a given task. The function may not be
-	  * const, as cleanSessionVector() may erase orphaned session vectors from
-	  * the session list.
+	  * units are dedicated solely to a given task.
 	  */
-	 virtual std::size_t getNProcessingUnitsEstimate(bool& exact) override {
-		 // Mark the answer as an approximation
-		 exact=false;
-
-		 // Make sure the session list is empty
-		 std::size_t nProcessingUnits = this->cleanSessionVector();
-		 return nProcessingUnits;
+	 virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
+		 exact=false; // mark the answer as approximate
+		 return boost::numeric_cast<std::size_t>(m_connections.load());
 	 }
 
 	 /***************************************************************************/
@@ -1350,12 +1350,6 @@ private:
 					 , std::placeholders::_1 // Replaces boost::asio::placeholders::error
 				 )
 			 );
-
-			 // Add the new session to the list
-			 {
-				 std::unique_lock<std::mutex> sessionVecLock(m_sessionVecMutex);
-				 m_sessionVec.push_back(newSession);
-			 }
 		 } catch (const boost::system::system_error &e) {
 			 glogger
 				 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
@@ -1430,31 +1424,6 @@ private:
 	 }
 
 	 /***************************************************************************/
-	 /**
-	  * Erases orphaned session pointers
-	  *
-	  * @return The number of remaining sessions "in flight"
-	  */
-    std::size_t cleanSessionVector() {
-		 // Block access to the session vector
-		 std::unique_lock<std::mutex> sessionVecLock(m_sessionVecMutex);
-
-       // Erase all orphaned session vectors
-		 m_sessionVec.erase(
-			std::remove_if(
-				m_sessionVec.begin()
-				, m_sessionVec.end()
-				, [](const std::shared_ptr<GAsioAsyncServerSessionT<processable_type>>& p) -> bool { // Note: copying would increase the use count
-					return (p.use_count() == 1);
-				}
-			)
-			, m_sessionVec.end()
-		 );
-
-		 return m_sessionVec.size();
-	 }
-
-	 /***************************************************************************/
 	 // Data
 
 	 boost::asio::io_service m_io_service;   ///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
@@ -1467,12 +1436,11 @@ private:
 	 bool m_returnRegardless = GASIOTCPCONSUMERRETURNREGARDLESS; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 	 unsigned short m_port = GASIOTCPCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	 std::string m_server = GASIOTCPCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
-	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(10); ///< A timeout for put- and get-operations
+	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(200); ///< A timeout for put- and get-operations
 	 Gem::Common::GThreadGroup m_gtg; ///< Holds listener threads
 	 Gem::Common::GThreadPool m_gtp; ///< Holds workers sorting processed items back into the broker
 	 std::shared_ptr<Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr; ///< A pointer to the global broker
-	 std::vector<std::shared_ptr<GAsioAsyncServerSessionT<processable_type>>> m_sessionVec; ///< A list of current sessions
-	 mutable std::mutex m_sessionVecMutex; ///< Protects access to the session vector
+	 std::atomic<std::int_fast32_t> m_connections{0}; ///< Holds the current number of open connections
 };
 
 /******************************************************************************/

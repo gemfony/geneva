@@ -128,7 +128,7 @@ public:
     * make any assumptions whether processing units are dedicated solely to a
     * given task.
     */
-   virtual std::size_t getNProcessingUnitsEstimate(bool& exact) BASE {
+   virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const BASE {
 		exact=false;
 	 	return boost::numeric_cast<std::size_t>(0);
 	}
