@@ -74,7 +74,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "courtier/GSerialSubmissionClientT.hpp"
+#include "courtier/GBaseClientT.hpp"
 
 
 namespace Gem {
@@ -103,7 +103,7 @@ class GAsioSerialTCPConsumerT;
  */
 template<typename processable_type>
 class GAsioSerialTCPClientT
-	: public Gem::Courtier::GSerialSubmissionClientT<processable_type>
+	: public Gem::Courtier::GBaseClientT<processable_type>
 {
 public:
 	/***************************************************************************/
@@ -117,7 +117,7 @@ public:
 		const std::string &server
 		, const std::string &port
 	)
-		: GSerialSubmissionClientT<processable_type>()
+		: GBaseClientT<processable_type>()
 	   , m_query(server, port)
 	   , m_endpoint_iterator0(m_resolver.resolve(m_query))
 	{
@@ -137,7 +137,7 @@ public:
 		, const std::string &port
 		, std::shared_ptr<processable_type> additionalDataTemplate
 	)
-		: GSerialSubmissionClientT<processable_type>(additionalDataTemplate)
+		: GBaseClientT<processable_type>(additionalDataTemplate)
 	   , m_query(server, port)
 	   , m_endpoint_iterator0(m_resolver.resolve(m_query))
 	{
@@ -152,7 +152,7 @@ public:
 		Gem::Common::g_array_delete(m_tmpBuffer);
 
 		glogger
-		<< "In GAsioTCPClinetT<>::GAsioSerialTCPClientTlientT():" << std::endl
+		<< "In GAsioSerialTCPClientT<>::GAsioSerialTCPClientTlientT():" << std::endl
 		<< "Recorded " << this->getTotalConnectionAttempts() << " failed connection" << std::endl
 		<< "attempts during the runtime of this client" << std::endl
 		<< GLOGGING;
@@ -208,6 +208,100 @@ public:
 	}
 
 protected:
+	 /***************************************************************************/
+	 /**
+	  * This is the main loop of the client. It will continue to call the process()
+	  * function (defined by derived classes), until it returns false or a halt-condition
+	  * was reached.
+	  */
+	 virtual void run_() override {
+		 while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * This function models a single processing step
+	  */
+	 bool process() {
+		 // Store the current serialization mode
+		 Gem::Common::serializationMode serMode;
+
+		 // Get an item from the server
+		 //
+		 // TODO: Check if the clients drop out here
+		 //
+		 std::string istr, serModeStr;
+		 if(!this->retrieve(istr, serModeStr)) {
+			 glogger
+				 << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
+				 << "Could not retrieve item from server. Leaving ..." << std::endl
+				 << GWARNING;
+
+			 return false;
+		 }
+
+		 // There is a possibility that we have received an unknown command
+		 // or a timeout command. In this case we want to try again until retrieve()
+		 // returns "false". If we return true here, the next "process" command will
+		 // be executed.
+		 if(istr == "empty") return true;
+
+		 // Check the serialization mode we need to use
+		 //
+		 // TODO: Check if the clients drop out here
+		 //
+		 if(serModeStr == "") {
+			 glogger
+				 << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
+				 << "Found empty serModeStr. Leaving ..." << std::endl
+				 << GWARNING;
+
+			 return false;
+		 }
+
+		 serMode = boost::lexical_cast<Gem::Common::serializationMode>(serModeStr);
+
+		 // unpack the data and create a new object. Note that de-serialization must
+		 // generally happen through the same type that was used for serialization.
+		 std::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
+
+		 // Check if we have received a valid target. Leave the function if this is not the case
+		 if(!target) {
+			 glogger
+				 << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
+				 << "Received empty target." << std::endl
+				 << GWARNING;
+
+			 // This means that process() will be called again
+			 return true;
+		 }
+
+		 // If we have a model for the item to be parallelized, load its data into the target
+		 this->loadDataTemplate(target);
+
+		 // This one line is all it takes to do the processing required for this object.
+		 // The object has all required functions on board. GAsioSerialTCPClientT<T> does not need to understand
+		 // what is being done during the processing.
+		 target->process();
+
+		 // transform target back into a string and submit to the server. The actual
+		 // actions done by submit are defined by derived classes.
+		 //
+		 // TODO: Check if the clients drop out here
+		 //
+		 if(!this->submit(Gem::Common::sharedPtrToString(target, serMode))) {
+			 glogger
+				 << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
+				 << "Could not return item to server. Leaving ..." << std::endl
+				 << GWARNING;
+
+			 return false;
+		 }
+
+		 // Everything worked. Indicate that we want to continue
+		 return true;
+	 } // std::shared_ptr<processable_type> target will cease to exist at this point
+
 	 /***************************************************************************/
 	 /**
 	  * Retrieve work items from the server.
@@ -1113,28 +1207,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Specifies whether results should be returned regardless of the success achieved
-	 * in the processing step.
-	 *
-	 * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
-	 */
-	void setReturnRegardless(const bool &returnRegardless) {
-		m_returnRegardless = returnRegardless;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks whether results should be returned regardless of the success achieved
-	 * in the processing step.
-	 *
-	 * @return Whether results should be returned to the server regardless of their success
-	 */
-	bool getReturnRegardless() const {
-		return m_returnRegardless;
-	}
-
-	/***************************************************************************/
-	/**
 	 * Allows to set the serialization mode
 	 */
 	void setSerializationMode(Gem::Common::serializationMode sm) {
@@ -1212,7 +1284,6 @@ public:
 
 		p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls
 		p->setMaxConnectionAttempts(m_maxConnectionAttempts); // Set to 0 to allow an infinite number of failed connection attempts
-		p->setReturnRegardless(m_returnRegardless);  // Prevent return of unsuccessful adaption attempts to the server
 
 		return p;
 	}
@@ -1360,8 +1431,6 @@ public:
 			("stcpc_maxConnectionAttempts",
 			 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 			 "\t[stcpc] The maximum allowed number of failed connection attempts of a client")
-			("stcpc_returnRegardless", po::value<bool>(&m_returnRegardless)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
-			 "\t[stcpc] Specifies whether unsuccessful client-side processing attempts should be returned to the server")
 			("stcpc_nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
 			 "\t[stcpc] The number of threads used to listen for incoming connections");
 	}
@@ -1547,7 +1616,6 @@ private:
 	Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY; ///< Specifies the serialization mode
 	std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
 	std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
-	bool m_returnRegardless = GASIOTCPCONSUMERRETURNREGARDLESS; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 	unsigned short m_port = GASIOTCPCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	std::string m_server = GASIOTCPCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	std::chrono::duration<double> m_timeout = std::chrono::milliseconds(10); ///< A timeout for put- and get-operations

@@ -13,8 +13,7 @@ SET ( COMMUNICATIONINCLUDES
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
     GProcessingContainerT.hpp
-    GSerialSubmissionClientT.hpp
-	GSerialConsumerT.hpp
+    GSerialConsumerT.hpp
 )
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker

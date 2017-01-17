@@ -62,7 +62,7 @@
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"
-#include "courtier/GSerialSubmissionClientT.hpp"
+#include "courtier/GBaseClientT.hpp"
 
 namespace Gem {
 namespace Courtier {

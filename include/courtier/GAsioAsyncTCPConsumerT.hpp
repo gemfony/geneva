@@ -80,8 +80,6 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "courtier/GSerialSubmissionClientT.hpp"
-
 
 namespace Gem {
 namespace Courtier {
@@ -151,6 +149,10 @@ public:
 	  * The standard destructor.
 	  */
 	 virtual ~GAsioAsyncTCPClientT() {
+		 // Make sure we don't leave any open sockets lying around.
+		 disconnect(m_socket);
+
+		 // Do some book-keeping
 		 glogger
 			 << "In GAsioTCPClinetT<>::GAsioAsyncTCPClientTlientT():" << std::endl
 			 << "Recorded " << this->getTotalConnectionAttempts() << " failed connections" << std::endl
@@ -237,7 +239,7 @@ protected:
 		 }
 
 		 // At this point we should have a valid connection to the server. Let it know we want work
-		 m_strand.wrap(write(
+		 m_write_strand.wrap(write(
 			 m_socket
 			 , buffer(assembleQueryString("ready", Gem::Courtier::COMMANDLENGTH))
 		 ));
@@ -256,15 +258,15 @@ protected:
 		 using namespace boost::asio;
 
 		 try {
-			 // Read data until the termination flag m_terminate is set
-			 while (!m_terminate) {
+			 // Read data until a halt-condition is met
+			 while (!this->halt()) {
 				 std::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
 
 				 // Read the next command
-				 read(
+				 m_read_strand.wrap(read(
 					 m_socket
 					 , buffer(m_commandBuffer)
-				 );
+				 ));
 
 				 // Remove all leading or trailing white spaces from the command
 				 std::string command = boost::algorithm::trim_copy(
@@ -276,7 +278,7 @@ protected:
 
 				 // Act on the command
 				 if ("close" == command) { // set the termination flag
-					 m_terminate.store(true);
+					 this->flagCloseRequested();
 					 break; // Stop the loop
 				 } else if ("pong" == command) { // decrease the m_openPing counter and catch values < 0
 					 if (m_openPings-- < 0) {
@@ -287,7 +289,7 @@ protected:
 							 << GWARNING;
 
 						 // Terminate execution
-						 m_terminate.store(true);
+						 this->flagTerminalError();
 						 break; // Stop the loop
 					 }
 				 } else if (this->parseIdleCommand(
@@ -303,7 +305,7 @@ protected:
 							 << GWARNING;
 
 						 // Terminate execution
-						 m_terminate.store(true);
+						 this->flagTerminalError();
 						 break; // Stop the loop
 					 }
 
@@ -311,10 +313,10 @@ protected:
 					 std::this_thread::sleep_for(std::chrono::milliseconds(idleTime));
 				 } else if ("compute" == command) {
 					 // We have received a work item. First find out its size
-					 read(
+					 m_read_strand.wrap(read(
 						 m_socket
 						 , buffer(m_commandBuffer)
-					 );
+					 ));
 					 std::size_t dataSize = boost::lexical_cast<std::size_t>(
 						 boost::algorithm::trim_copy(std::string(
 							 m_commandBuffer.data()
@@ -323,10 +325,10 @@ protected:
 					 );
 
 					 // Now retrieve the serialization mode that was used
-					 read(
+					 m_read_strand.wrap(read(
 						 m_socket
 						 , buffer(m_commandBuffer)
-					 );
+					 ));
 					 // Check the serialization mode we need to use
 					 std::string serMode_str = boost::algorithm::trim_copy(
 						 std::string(
@@ -343,12 +345,13 @@ protected:
 
 					 // Finally obtain the actual payload
 					 char inboundData[dataSize];
-					 read(
+					 m_read_strand.wrap(read(
 						 m_socket
 						 , buffer(
 							 inboundData
 							 , dataSize
-						 ));
+						 )
+					 ));
 					 m_item = std::string(
 						 inboundData
 						 , dataSize
@@ -371,7 +374,7 @@ protected:
 									 << "Received empty target." << std::endl
 									 << GWARNING;
 
-								 this->m_terminate.store(true);
+								 this->flagTerminalError();
 								 return;
 							 }
 
@@ -405,7 +408,7 @@ protected:
 							 // to send different buffers in a single write operation. The operation needs
 							 // to be wrapped into a strand so a parallel "ping" does not iterfer with the
 							 // write operation.
-							 this->m_strand.wrap(write(m_socket, buffers));
+							 this->m_write_strand.wrap(write(m_socket, buffers));
 						 }
 					 );
 				 } else {
@@ -416,7 +419,7 @@ protected:
 						 << GWARNING;
 
 					 // Terminate execution
-					 m_terminate.store(true);
+					 this->flagTerminalError();
 					 break; // Stop the loop
 				 }
 			 }
@@ -429,20 +432,20 @@ protected:
 				 << "This is likely normal and due to a server shutdown." << std::endl
 				 << "Leaving now." << std::endl
 				 << GWARNING;
-			 m_terminate.store(true);
+			 this->flagTerminalError();
 		 } catch (std::exception& e) {
 			 glogger
 				 << "In GAsioAsyncTCPClientT<processable_type>::retrieve():" << std::endl
 				 << "Caught std::exception with message" << std::endl
 				 << e.what() << std::endl
 				 << GWARNING;
-			 m_terminate.store(true);
+			 this->flagTerminalError();
 		 } catch (...) {
 			 glogger
 				 << "In sharedPtrFromString(): Error!" << std::endl
 				 << "Caught unknown exception" << std::endl
 				 << GWARNING;
-			 m_terminate.store(true);
+			 this->flagTerminalError();
 		 }
 
 		 // The io_service will run out of work after this call
@@ -456,6 +459,9 @@ protected:
 	  * Perform necessary finalization activities
 	  */
 	 virtual bool finally() override {
+		 // Make sure we don't leave any open sockets lying around.
+		 disconnect(m_socket);
+
 		 return true;
 	 }
 
@@ -523,9 +529,9 @@ private:
 
 		 m_timer.async_wait(
 			 [&](const boost::system::error_code& ec) {
-				 if(!ec && false==m_terminate.load()) {
+				 if(!ec && !this->halt()) {
 					 // Send a ping to the server
-					 m_strand.wrap(write(
+					 m_write_strand.wrap(write(
 						 m_socket
 						 , buffer(assembleQueryString("ping", Gem::Courtier::COMMANDLENGTH))
 					 ));
@@ -539,18 +545,15 @@ private:
 							 << "Terminating -- possibly the server is down ..." << std::endl
 							 << GWARNING;
 
-						 m_terminate.store(true);
+						 this->flagTerminalError();
 					 } else {
+						 // Keep the ping cycle alive
 						 m_timer.expires_from_now(m_pingInterval);
 
 						 // Continue the ping cycle
 						 async_ping();
 					 }
-				 } else { // Inform all others and start the termination sequence
-					 if(false==m_terminate.load()) {
-						 m_terminate.store(true);
-					 }
-				 }
+				 } // No further action in case of an error or if the halt condition was set
 			 }
 		 );
 	 }
@@ -567,7 +570,8 @@ private:
 	 boost::asio::io_service m_io_service; ///< Holds the Boost::ASIO::io_service object
 	 std::shared_ptr<boost::asio::io_service::work> m_work_ptr; ///< Keeps the io_service alive when filled
 	 boost::asio::ip::tcp::socket m_socket{m_io_service}; ///< The underlying socket
-	 boost::asio::io_service::strand m_strand{m_io_service}; ///< Ensure the connection's handlers are not called concurrently.
+	 boost::asio::io_service::strand m_write_strand{m_io_service}; ///< Prevent multiple concurrent writes on the same socket
+	 boost::asio::io_service::strand m_read_strand{m_io_service}; ///< Prevent multiple concurrent reads on the same socket
 
 	 boost::asio::ip::tcp::resolver m_resolver{m_io_service}; ///< Responsible for name resolution
 	 boost::asio::ip::tcp::resolver::query m_query; ///< A query
@@ -582,8 +586,6 @@ private:
 	 boost::asio::steady_timer m_timer{m_io_service, m_pingInterval};
 
 	 std::array<char, COMMANDLENGTH> m_commandBuffer; ///< A buffer to be used for command transfers
-
-	 std::atomic<bool> m_terminate{false}; ///< Indicates whether the processing cycle should be terminated
 
 	 Gem::Common::GThreadPool m_gtp{2}; ///< Holds workers processing work items as well as the io_service.run()
 
@@ -634,7 +636,8 @@ public:
 		 , const Gem::Common::serializationMode &serMod
 		 , GAsioAsyncTCPConsumerT<processable_type> *master
 	 )
-		 : m_strand(io_service)
+		 : m_write_strand(io_service)
+		 , m_read_strand(io_service)
 		 , m_socket(io_service)
 		 , m_serializationMode(serMod)
 		 , m_master(master)
@@ -667,10 +670,10 @@ public:
 			 // Act on data until the termination flag is set
 			 while (!m_master->stopped()) {
 				 // Read the next command
-				 read(
+				 m_read_strand.wrap(read(
 					 m_socket
 					 , buffer(m_commandBuffer)
-				 );
+				 ));
 				 std::string command = boost::algorithm::trim_copy(
 					 std::string(
 						 m_commandBuffer.data()
@@ -699,6 +702,8 @@ public:
 
 			 // The stopped flag was set -- let the client know by sending the close command
 			 this->sendSingleCommand("close");
+			 // Make sure we don't leave any open sockets lying around.
+			 disconnect(m_socket);
 		 } catch (const boost::system::system_error &e) {
 			 glogger
 				 << "In GAsioAsyncServerSessionT::process():" << std::endl
@@ -738,10 +743,10 @@ private:
 		 using namespace boost::asio;
 
 		 // We have received a work item. First find out its size
-		 read(
+		 m_read_strand.wrap(read(
 			 m_socket
 			 , buffer(m_commandBuffer)
-		 );
+		 ));
 		 std::size_t dataSize = boost::lexical_cast<std::size_t>(
 			 boost::algorithm::trim_copy(std::string(
 				 m_commandBuffer.data()
@@ -751,12 +756,13 @@ private:
 
 		 // Finally obtain the actual payload
 		 char inboundData[dataSize];
-		 read(
+		 m_read_strand.wrap(read(
 			 m_socket
 			 , buffer(
 				 inboundData
 				 , dataSize
-			 ));
+			 )
+		 ));
 
 		 // ... and schedule the work item for de-serialization and resubmission to the broker
 		 m_master->async_scheduleDeSerialization(
@@ -816,7 +822,7 @@ private:
 		 // to send different buffers in a single write operation. The operation needs
 		 // to be wrapped into a strand so a parallel "ping" does not iterfer with the
 		 // write operation.
-		 this->m_strand.wrap(write(m_socket, buffers));
+		 this->m_write_strand.wrap(write(m_socket, buffers));
 	 }
 
 	 /***************************************************************************/
@@ -832,7 +838,7 @@ private:
 		 std::string outbound_command = assembleQueryString(command, Gem::Courtier::COMMANDLENGTH);
 		 // ... and tell the client
 		 try {
-			 m_strand.wrap(write(
+			 m_write_strand.wrap(write(
 				 m_socket
 				 , boost::asio::buffer(outbound_command)
 			 ));
@@ -870,7 +876,8 @@ private:
 
 	 /***************************************************************************/
 
-	 boost::asio::io_service::strand m_strand; ///< Ensure the connection's handlers are not called concurrently.
+	 boost::asio::io_service::strand m_write_strand; ///< Prevent concurrent writes on the same socket
+	 boost::asio::io_service::strand m_read_strand; ///< Prevent concurrent reads on the same socket
 	 boost::asio::ip::tcp::socket m_socket; ///< The underlying socket
 
 	 std::array<char, COMMANDLENGTH> m_commandBuffer; ///< A buffer to be used for command transfers
@@ -1004,28 +1011,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Specifies whether results should be returned regardless of the success achieved
-	  * in the processing step.
-	  *
-	  * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
-	  */
-	 void setReturnRegardless(const bool &returnRegardless) {
-		 m_returnRegardless = returnRegardless;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks whether results should be returned regardless of the success achieved
-	  * in the processing step.
-	  *
-	  * @return Whether results should be returned to the server regardless of their success
-	  */
-	 bool getReturnRegardless() const {
-		 return m_returnRegardless;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to set the serialization mode
 	  */
 	 void setSerializationMode(Gem::Common::serializationMode sm) {
@@ -1103,7 +1088,6 @@ public:
 
 		 p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls
 		 p->setMaxConnectionAttempts(m_maxConnectionAttempts); // Set to 0 to allow an infinite number of failed connection attempts
-		 p->setReturnRegardless(m_returnRegardless);  // Prevent return of unsuccessful adaption attempts to the server
 
 		 return p;
 	 }
@@ -1238,8 +1222,6 @@ public:
 			 ("ws_maxConnectionAttempts",
 				 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 				 "\t[ws] The maximum allowed number of failed connection attempts of a client")
-			 ("ws_returnRegardless", po::value<bool>(&m_returnRegardless)->default_value(GASIOTCPCONSUMERRETURNREGARDLESS),
-				 "\t[ws] Specifies whether unsuccessful client-side processing attempts should be returned to the server")
 			 ("ws_nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
 				 "\t[ws] The number of threads used to listen for incoming connections");
 	 }
@@ -1433,7 +1415,6 @@ private:
 	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY; ///< Specifies the serialization mode
 	 std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
 	 std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
-	 bool m_returnRegardless = GASIOTCPCONSUMERRETURNREGARDLESS; ///< Specifies whether unsuccessful processing attempts should be returned to the server
 	 unsigned short m_port = GASIOTCPCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	 std::string m_server = GASIOTCPCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(200); ///< A timeout for put- and get-operations

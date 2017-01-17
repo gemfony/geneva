@@ -184,26 +184,18 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Specifies whether results should be returned regardless of the success achieved
-	  * in the processing step.
-	  *
-	  * @param returnRegardless Specifies whether results should be returned to the server regardless of their success
+	  * Checks whether a terminal error was flagged
 	  */
-	 void setReturnRegardless(const bool &returnRegardless)
-	 {
-		 m_returnRegardless = returnRegardless;
+	 bool terminalErrorFlagged() const {
+		 return m_terminalError.load();
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether results should be returned regardless of the success achieved
-	  * in the processing step.
-	  *
-	  * @return Whether results should be returned to the server regardless of their success
+	  * Checks whether the close-flag was set
 	  */
-	 bool getReturnRegardless() const
-	 {
-		 return m_returnRegardless;
+	 bool closeRequested() const {
+		 return m_closeRequested.load();
 	 }
 
 	 /***************************************************************************/
@@ -273,6 +265,31 @@ protected:
 
 	 /***************************************************************************/
 	 /**
+	  * Increment of the processing counter. We do not use atomics, as only
+	  * one processing step is supposed to run at the same time
+	  */
+	 void incrementProcessingCounter() {
+		 m_processed++;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to flag an error that qualifies as a halt condition
+	  */
+	 void flagTerminalError() {
+		 m_terminalError.store(true);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set a flag indicating that the application should terminate
+	  */
+	  void flagCloseRequested() {
+		 m_closeRequested.store(true);
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Loads the additional data template into the processable_type target.
 	  * This function needs to be called for each new item by derived classes.
 	  */
@@ -285,13 +302,22 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether a halt condition was reached. Either the maximum number of processing
-	  * steps was reached or the maximum allowed time was reached.
+	  * Checks whether a halt condition was reached.
 	  *
 	  * @return A boolean indicating whether a halt condition was reached
 	  */
 	 bool halt()
 	 {
+		 // Has a terminal error been flagged?
+		 if(terminalErrorFlagged()) {
+			 return true;
+		 }
+
+		 // Has the application been asked to shut down?
+		 if(closeRequested()) {
+			 return true;
+		 }
+
 		 // Maximum number of processing steps reached ?
 		 if (m_processMax > 0 && (m_processed++ >= m_processMax)) {
 			 return true;
@@ -361,7 +387,8 @@ private:
 	 std::uint32_t m_processed = 0; ///< The number of processed items so far
 	 std::uint32_t m_processMax = 0; ///< The maximum number of items to process
 
-	 bool m_returnRegardless = true; ///< Specifies whether unsuccessful processing attempts should be returned to the server
+	 std::atomic<bool> m_terminalError{false}; ///< Indicates whether a terminal error was received
+	 std::atomic<bool> m_closeRequested{false}; ///< Indicates whether a the termination was requested by the server
 
 	 std::shared_ptr <processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
 };
