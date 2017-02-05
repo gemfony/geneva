@@ -111,6 +111,13 @@ SET ( OPTIMIZATIONINCLUDES
 	GTestIndividual1.hpp
 )
 
+set_source_files_properties(
+        ${OPTIMIZATIONINCLUDES}
+        PROPERTIES
+        LANGUAGE CXX
+        CXX_STANDARD 14
+)
+
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES})
 

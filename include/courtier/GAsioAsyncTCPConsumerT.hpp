@@ -383,6 +383,7 @@ protected:
 
 							 // Perform the actual processing
 							 target_ptr->process();
+							 this->incrementProcessingCounter();
 
 							 // Serialize the result
 	                   this->m_item = Gem::Common::sharedPtrToString(target_ptr, m_serMode);

@@ -283,6 +283,7 @@ protected:
 		 // The object has all required functions on board. GAsioSerialTCPClientT<T> does not need to understand
 		 // what is being done during the processing.
 		 target->process();
+		 this->incrementProcessingCounter();
 
 		 // transform target back into a string and submit to the server. The actual
 		 // actions done by submit are defined by derived classes.

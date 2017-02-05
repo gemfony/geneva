@@ -18,6 +18,14 @@ SET ( COMMONSOURCES
 	GThreadWrapper
 )
 
+
+set_source_files_properties(
+    ${COMMONSOURCES}
+    PROPERTIES
+    LANGUAGE CXX
+    CXX_STANDARD 14
+)
+
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
 IF ( GENEVA_STATIC )
 	ADD_LIBRARY ( ${COMMON_LIBNAME} STATIC ${COMMONSOURCES} )

@@ -9,6 +9,14 @@ SET ( HAPINCLUDES
 	GRandomT.hpp
 )
 
+
+set_source_files_properties(
+    ${HAPINCLUDES}
+    PROPERTIES
+    LANGUAGE CXX
+    CXX_STANDARD 14
+)
+
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_HAP_HEADERS SOURCES ${HAPINCLUDES})
 

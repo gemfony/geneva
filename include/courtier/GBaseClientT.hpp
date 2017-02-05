@@ -319,7 +319,7 @@ protected:
 		 }
 
 		 // Maximum number of processing steps reached ?
-		 if (m_processMax > 0 && (m_processed++ >= m_processMax)) {
+		 if (m_processMax > 0 && (m_processed >= m_processMax)) {
 			 return true;
 		 }
 

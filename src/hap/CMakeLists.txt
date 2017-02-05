@@ -7,6 +7,13 @@ SET ( HAPSOURCES
 	GRandomT
 )
 
+set_source_files_properties(
+        ${HAPSOURCES}
+        PROPERTIES
+        LANGUAGE CXX
+        CXX_STANDARD 14
+)
+
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
 IF ( GENEVA_STATIC )
 	ADD_LIBRARY ( ${HAP_LIBNAME} STATIC ${HAPSOURCES} )

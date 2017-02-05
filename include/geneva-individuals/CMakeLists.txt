@@ -11,6 +11,13 @@ SET ( SAMPLEINDIVIDUALINCLUDES
 	GTestIndividual3.hpp
 )
 
+set_source_files_properties(
+    ${SAMPLEINDIVIDUALINCLUDES}
+    PROPERTIES
+    LANGUAGE CXX
+    CXX_STANDARD 14
+)
+
 SET ( SAMPLEINDIVIDUALCONFIGS
 	# No config files at the moment
 )
