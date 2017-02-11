@@ -50,39 +50,6 @@ const int NPROD = 1000;
 using namespace Gem::Hap;
 
 /***********************************************************************************/
-// Containers for the two producer threads
-std::vector<double> producer1_vec;
-std::vector<double> producer2_vec;
-
-/***********************************************************************************/
-/**
- * Test of GRandom-access through thread-specific pointer
- */
-void produceNumbers(int id) {
-	Gem::Hap::g_uniform_real<double> uniform_real_distribution(0.,1.);
-
-	switch(id) {
-		case 1:
-			for(std::size_t i=0; i<NPROD; i++) {
-				producer1_vec.push_back(uniform_real_distribution());
-			}
-			break;
-
-		case 2:
-			for(std::size_t i=0; i<NPROD; i++) {
-				producer2_vec.push_back(uniform_real_distribution());
-			}
-			break;
-
-		default:
-			glogger
-			<< "Unkown id " << id << std::endl
-			<< GEXCEPTION;
-			break;
-	}
-}
-
-/***********************************************************************************/
 /**
  * The main function
  */
@@ -96,10 +63,7 @@ int main(int argc, char **argv) {
 	Gem::Hap::bi_normal_distribution<double> bi_normal_distribution(1. /*mean*/, 2. /*sigma1*/, 1. /*sigma2*/, 3. /*distance*/);
 	std::bernoulli_distribution uniform_bool; // defaults to a probability of 0.5
 	std::bernoulli_distribution weighted_bool(0.25); // 25% "true" values
-
 	std::uniform_int_distribution<std::int32_t> uniform_int_distribution;
-	Gem::Hap::g_uniform_int<std::int32_t> g_uniform_int;
-
 
 	for(int i=0; i<NPROD; i++) {
 		{
@@ -166,18 +130,8 @@ int main(int argc, char **argv) {
 			// Note that max may also be < 0.
 			std::int32_t min = -10, max = 10;
 			std::int32_t int_rand_min_max  = uniform_int_distribution(gr, std::uniform_int_distribution<std::int32_t>::param_type(min, max));
-			std::int32_t int_rand_min_max2 = g_uniform_int(min, max);
 		}
 	}
-
-	// Try thread specific storage access to GRandomT
-	std::thread t1(produceNumbers, 1);
-	std::thread t2(produceNumbers, 2);
-	t1.join();
-	t2.join();
-
-	std::cout << "producer1_vec.size() = " << producer1_vec.size() << std::endl;
-	std::cout << "producer2_vec.size() = " << producer2_vec.size() << std::endl;
 
 	return 0;
 }

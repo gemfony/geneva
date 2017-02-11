@@ -105,7 +105,7 @@ public:
 
 			std::this_thread::sleep_for(
 				std::chrono::milliseconds(
-					this->m_uniform_int(10, 20)
+					this->m_uniform_int(m_gr, std::uniform_int_distribution<long>::param_type(10, 20))
 				)
 			);
 
@@ -143,8 +143,8 @@ private:
 	std::uint32_t m_operatorCalled; ///< This counter will be incremented whenever process() is called
 
 	Gem::Hap::GRandom m_gr; // Instantiates a random number generator
-   Gem::Hap::g_uniform_int<long> m_uniform_int;
 
+ 	std::uniform_int_distribution<long> m_uniform_int;
  	std::bernoulli_distribution m_uniform_bool; // probability of 0.5 is the default
 };
 
@@ -156,9 +156,6 @@ private:
  * the thread pool in random intervals and
  */
 int main(int argc, char** argv) {
-	Gem::Hap::GRandom gr; // Instantiates a random number generator
-	Gem::Hap::g_uniform_int<unsigned int> m_uniform_int;
-
 	//----------------------------------------------------------------
 	// Local variables
 	bool simulateThreadCrash = false;

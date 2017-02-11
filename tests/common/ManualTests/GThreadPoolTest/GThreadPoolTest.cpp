@@ -95,7 +95,7 @@ public:
 	 * inside of the threads
 	 */
 	void process(bool simulateCrash) {
-		if(uniform_bool(gr)) {
+		if(uniform_bool(m_gr)) {
 			this->increment();
 		} else {
 			this->decrement();
@@ -103,7 +103,7 @@ public:
 
 		std::this_thread::sleep_for(
 			std::chrono::milliseconds(
-				this->m_uniform_int(10, 20)
+				this->m_uniform_int(m_gr, std::uniform_int_distribution<long>::param_type(10, 20))
 			)
 		);
 
@@ -139,9 +139,8 @@ private:
 	std::int32_t m_counterValue; ///< The internal value to be decremented or incremented
 	std::uint32_t operatorCalled_; ///< This counter will be incremented whenever process() is called
 
-	Gem::Hap::GRandom gr; // Instantiates a random number generator
-   Gem::Hap::g_uniform_int<long> m_uniform_int;
-
+	Gem::Hap::GRandom m_gr; // Instantiates a random number generator
+ 	std::uniform_int_distribution<long> m_uniform_int;
  	std::bernoulli_distribution uniform_bool; // probability of 0.5 is the default
 };
 
@@ -154,7 +153,7 @@ private:
  */
 int main(int argc, char** argv) {
 	Gem::Hap::GRandom gr; // Instantiates a random number generator
-	Gem::Hap::g_uniform_int<unsigned int> m_uniform_int;
+	std::uniform_int_distribution<unsigned int> m_uniform_int;
 
 	//----------------------------------------------------------------
 	// Local variables
@@ -238,7 +237,7 @@ int main(int argc, char** argv) {
 		}
 
 		if(nResizeEvents > 0 && weighted_bool(gr)) {
-			unsigned int nt = m_uniform_int(MINTHREADS,MAXTHREADS);
+			unsigned int nt = m_uniform_int(gr, std::uniform_int_distribution<unsigned int>::param_type(MINTHREADS,MAXTHREADS));
 			gtp.setNThreads(nt);
 
 			glogger
