@@ -385,7 +385,7 @@ bool GParameterSet::randomInit(const activityMode &am) {
 	// Trigger random initialization of all our parameter objects
 	GParameterSet::iterator it;
 	for (it = this->begin(); it != this->end(); ++it) {
-		(*it)->randomInit(am, gr);
+		(*it)->randomInit(am, m_gr);
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set
@@ -466,7 +466,7 @@ void GParameterSet::perItemCrossOver(const GParameterSet &cp, const double &like
 	// Do the actual cross-over
 	if (!this_double_vec.empty()) {
 		// Calculate a suitable position for the cross-over
-		std::size_t pos = this->m_uniform_int(std::size_t(0), this_double_vec.size() - std::size_t(1));
+		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_double_vec.size() - std::size_t(1)));
 
 		// Perform the actual cross-over operation
 		for (std::size_t i = pos; i < this_double_vec.size(); i++) {
@@ -476,7 +476,7 @@ void GParameterSet::perItemCrossOver(const GParameterSet &cp, const double &like
 
 	if (!this_float_vec.empty()) {
 		// Calculate a suitable position for the cross-over
-		std::size_t pos = this->m_uniform_int(std::size_t(0), this_float_vec.size() - std::size_t(1));
+		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_float_vec.size() - std::size_t(1)));
 
 		// Perform the actual cross-over operation
 		for (std::size_t i = pos; i < this_float_vec.size(); i++) {
@@ -486,7 +486,7 @@ void GParameterSet::perItemCrossOver(const GParameterSet &cp, const double &like
 
 	if (!this_bool_vec.empty()) {
 		// Calculate a suitable position for the cross-over
-		std::size_t pos = this->m_uniform_int(std::size_t(0), this_bool_vec.size() - std::size_t(1));
+		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_bool_vec.size() - std::size_t(1)));
 
 		// Perform the actual cross-over operation
 		for (std::size_t i = pos; i < this_bool_vec.size(); i++) {
@@ -496,7 +496,7 @@ void GParameterSet::perItemCrossOver(const GParameterSet &cp, const double &like
 
 	if (!this_int_vec.empty()) {
 		// Calculate a suitable position for the cross-over
-		std::size_t pos = this->m_uniform_int(std::size_t(0), this_int_vec.size() - std::size_t(1));
+		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_int_vec.size() - std::size_t(1)));
 
 		// Perform the actual cross-over operation
 		for (std::size_t i = pos; i < this_int_vec.size(); i++) {
@@ -943,7 +943,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			p_test_0->push_back(
 				std::shared_ptr<GConstrainedDoubleObject>(
 					new GConstrainedDoubleObject(
-						uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
+						uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
 						, MINGCONSTRDOUBLE
 						, MAXGCONSTRDOUBLE
 					)
@@ -953,7 +953,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				std::shared_ptr<GDoubleObject>(
 					new GDoubleObject(
 						uniform_real_distribution(
-							gr
+							m_gr
 							, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE)
 						)
 					)
@@ -1361,14 +1361,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		for (std::size_t i = 0; i < FPLOOPCOUNT; i++) {
 			std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
 				new GConstrainedDoubleObject(
-					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
+					uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
 					, MINGCONSTRDOUBLE
 					, MAXGCONSTRDOUBLE
 				)
 			);
 			std::shared_ptr <GDoubleObject> gdo_ptr = std::shared_ptr<GDoubleObject>(
 				new GDoubleObject(
-					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
+					uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
 				)
 			);
 			std::shared_ptr <GDoubleCollection> gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(NGDOUBLECOLL, MINGDOUBLECOLL, MAXGDOUBLECOLL));
@@ -1396,14 +1396,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		for (std::size_t i = 0; i < FPLOOPCOUNT; i++) {
 			std::shared_ptr <GConstrainedDoubleObject> gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject>(
 				new GConstrainedDoubleObject(
-					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
+					uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(MINGCONSTRDOUBLE, MAXGCONSTRDOUBLE))
 					, MINGCONSTRDOUBLE
 					, MAXGCONSTRDOUBLE
 				)
 			);
 			std::shared_ptr <GDoubleObject> gdo_ptr = std::shared_ptr<GDoubleObject>(
 				new GDoubleObject(
-					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
+					uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
 				)
 			);
 			std::shared_ptr <GConstrainedInt32ObjectCollection> gcioc_ptr
@@ -1424,7 +1424,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
 			std::shared_ptr <GDoubleObject> gdo2_ptr = std::shared_ptr<GDoubleObject>(
 				new GDoubleObject(
-					uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
+					uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(MINGDOUBLE, MAXGDOUBLE))
 				)
 			);
 			gdo2_ptr->setAdaptionsInactive();

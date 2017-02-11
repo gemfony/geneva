@@ -244,7 +244,7 @@ void GBaseSA::sortSAMode() {
 			this->at(np)->GObject::load(this->at(nParents_ + np));
 		} else {
 			double challenge =
-                    GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(0.,1.));
+                    GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.));
 			if (challenge < pPass) {
 				this->at(np)->GObject::load(this->at(nParents_ + np));
 			}

@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
 			double d_even_01 = uniform_real_distribution(gr);
 
 			// Note: GRandomBase defines an operator(), hence
-			// you could also use gr() to obtain a random number
+			// you could also use m_gr() to obtain a random number
 			// of this type.
 		}
 

@@ -840,7 +840,7 @@ void GNeuralNetworkIndividual::init(
 			// Add GDoubleObject objects
 			for (std::size_t i = 0; i < (layerNumber == 0 ? 2 * nNodes : nNodes * (nNodesPrevious + 1)); i++) {
 				// Set up a GDoubleObject object, initializing it with random data
-				std::shared_ptr <GDoubleObject> gd_ptr(new GDoubleObject(uniform_real_distribution(gr)));
+				std::shared_ptr <GDoubleObject> gd_ptr(new GDoubleObject(uniform_real_distribution(m_gr)));
 
 				// Set up an adaptor
 				std::shared_ptr <GDoubleGaussAdaptor> gdga(new GDoubleGaussAdaptor(sigma, sigmaSigma, minSigma, maxSigma));

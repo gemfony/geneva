@@ -705,7 +705,7 @@ void GBaseSwarm::init() {
 		for (std::size_t i = 0; i < velVec.size(); i++) {
 			double range = dblVelVecMax_[i];
 			velVec[i] =
-                    GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(-range,range));
+                    GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(-range,range));
 		}
 
 		// Load the array into the velocity object
@@ -944,17 +944,17 @@ void GBaseSwarm::updateIndividualPositions(
 		case updateRule::SWARM_UPDATERULE_CLASSIC:
 			// Multiply each floating point value with a random fp number in the range [0,1[, times a constant
 			for (std::size_t i = 0; i < personalBestVec.size(); i++) {
-				personalBestVec[i] *= (cPersonal * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-				nbhBestVec[i] *= (cNeighborhood * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-				glbBestVec[i] *= (cGlobal * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				personalBestVec[i] *= (cPersonal * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				nbhBestVec[i] *= (cNeighborhood * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				glbBestVec[i] *= (cGlobal * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
 			}
 			break;
 
 		case updateRule::SWARM_UPDATERULE_LINEAR:
 			// Multiply each position with the same random floating point number times a constant
-			Gem::Common::multVecConst<double>(personalBestVec, cPersonal * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-			Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-			Gem::Common::multVecConst<double>(glbBestVec, cGlobal * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(personalBestVec, cPersonal * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(glbBestVec, cGlobal * GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
 			break;
 
 		default: {

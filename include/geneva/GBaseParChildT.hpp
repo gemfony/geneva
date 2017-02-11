@@ -942,7 +942,7 @@ protected:
 			// try/catch blocks would add a non-negligible overhead in this function. uniform_int(max)
 			// returns integer values in the range [0,max]. As we want to have values in the range
 			// 0,1, ... nParents_-1, we need to subtract one from the argument.
-			parent_pos = m_uniform_int_distribution(GOptimizationAlgorithmT<ind_type>::gr, std::uniform_int_distribution<std::size_t>::param_type(0, nParents_-1));
+			parent_pos = m_uniform_int_distribution(GOptimizationAlgorithmT<ind_type>::m_gr, std::uniform_int_distribution<std::size_t>::param_type(0, nParents_-1));
 		}
 
 		// Load the parent data into the individual
@@ -969,7 +969,7 @@ protected:
 	) {
 		bool done=false;
 		double randTest // get the test value
-            = GOptimizationAlgorithmT<ind_type>::m_uniform_real_distribution(GOptimizationAlgorithmT<ind_type>::gr);
+            = GOptimizationAlgorithmT<ind_type>::m_uniform_real_distribution(GOptimizationAlgorithmT<ind_type>::m_gr);
 
 		for(std::size_t par=0; par<nParents_; par++) {
 			if(randTest<threshold[par]) {

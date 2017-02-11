@@ -128,7 +128,7 @@ protected:
 
 private:
 	/** @brief Uniformly distributed integer random numbers */
- 	Gem::Hap::g_uniform_int<std::size_t> m_uniform_int;
+	std::uniform_int_distribution<std::size_t> m_uniform_int;
 
 public:
 	/***************************************************************************/

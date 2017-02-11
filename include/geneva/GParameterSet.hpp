@@ -572,7 +572,7 @@ private:
 	 explicit G_API_GENEVA GParameterSet(const float&) = delete; ///< Intentionally private and undefined
 
 	 /** @brief Uniformly distributed integer random numbers */
-	 Gem::Hap::g_uniform_int<std::size_t> m_uniform_int;
+	 std::uniform_int_distribution<std::size_t> m_uniform_int;
 
 
 	 double perItemCrossOverProbability_; ///< A likelihood for "per item" cross-over operations to be performed

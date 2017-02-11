@@ -206,15 +206,15 @@ void GParameterSetParChild::doRecombine() {
 		threshold[nParents_ - 1] = 1.; // Necessary due to rounding errors
 	}
 
-	std::vector<std::shared_ptr < GParameterSet>> ::iterator it;
-    std::bernoulli_distribution amalgamationWanted(amalgamationLikelihood_); // true with a likelihood of amalgamationLikelihood_
+	std::vector<std::shared_ptr<GParameterSet>>::iterator it;
+	std::bernoulli_distribution amalgamationWanted(amalgamationLikelihood_); // true with a likelihood of amalgamationLikelihood_
 	for (it = GOptimizationAlgorithmT<GParameterSet>::data.begin() + nParents_;
 		  it != GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
 		// Retrieve a random number so we can decide whether to perform cross-over or duplication
 		// If we do perform cross-over, we always cross the best individual with another random parent
-		if (nParents_ > 1 && amalgamationWanted(gr)) { // Create individuals using a cross-over scheme
+		if (nParents_ > 1 && amalgamationWanted(m_gr)) { // Create individuals using a cross-over scheme
 			std::shared_ptr <GParameterSet> bestParent = this->front();
-			std::shared_ptr <GParameterSet> combiner = (nParents_ > 2) ? *(this->begin() + this->m_uniform_int(1, nParents_ - 1)) : (*(this->begin() + 1));
+			std::shared_ptr <GParameterSet> combiner = (nParents_ > 2) ? (*(this->begin() + this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(1, nParents_ - 1)))) : (*(this->begin() + 1));
 
 			(*it)->GObject::load(bestParent->amalgamate(combiner));
 		} else { // Just perform duplication
