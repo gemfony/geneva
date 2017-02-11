@@ -640,7 +640,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 			modeSet = true;
 		}
 
-		singleBPar item((*b_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
+		singleBPar item((*b_it)->getCurrentItem(m_gr), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->bParVec).push_back(item);
 	}
 	// 2) For std::int32_t objects
@@ -660,7 +660,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 			modeSet = true;
 		}
 
-		singleInt32Par item((*i_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
+		singleInt32Par item((*i_it)->getCurrentItem(m_gr), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->iParVec).push_back(item);
 	}
 	// 3) For float objects
@@ -680,7 +680,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 			modeSet = true;
 		}
 
-		singleFPar item((*f_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
+		singleFPar item((*f_it)->getCurrentItem(m_gr), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->fParVec).push_back(item);
 	}
 	// 4) For double objects
@@ -700,7 +700,7 @@ std::shared_ptr <parSet> GBasePS::getParameterSet(std::size_t &mode) {
 			modeSet = true;
 		}
 
-		singleDPar item((*d_it)->getCurrentItem(), std::get<0>(var), std::get<1>(var), std::get<2>(var));
+		singleDPar item((*d_it)->getCurrentItem(m_gr), std::get<0>(var), std::get<1>(var), std::get<2>(var));
 		(result->dParVec).push_back(item);
 	}
 

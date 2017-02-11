@@ -613,7 +613,7 @@ protected:
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 G_API_INDIVIDUALS virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 G_API_INDIVIDUALS virtual void postProcess_(std::shared_ptr <GParameterSet> &);
+	 G_API_INDIVIDUALS virtual void postProcess_(std::shared_ptr<GParameterSet> &);
 
 private:
 	 /** @brief Set the value of the minVar_ variable */
@@ -666,9 +666,6 @@ private:
 	 Gem::Common::GOneTimeRefParameterT<double> maxVar_;
 	 Gem::Common::GOneTimeRefParameterT<parameterType> pT_;
 	 Gem::Common::GOneTimeRefParameterT<initMode> iM_;
-
-	 /** @brief Uniformly distributed integer random numbers */
-	 Gem::Hap::g_uniform_int<std::size_t> m_uniform_int;
 };
 
 /******************************************************************************/

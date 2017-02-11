@@ -224,9 +224,11 @@ public:
 	/**
 	 * Retrieve the current item
 	 */
-	T getCurrentItem() const {
+	T getCurrentItem(
+		Gem::Hap::GRandomBase& gr
+	) const {
 		if(randomScan_) {
-			return getRandomItem();
+			return getRandomItem(gr);
 		} else {
 			return this->at(step_);
 		}
@@ -314,7 +316,9 @@ protected:
 	/**
 	 * Retrieves a random item. To be re-implemented for each supported type
 	 */
-	T getRandomItem() const {
+	T getRandomItem(
+		Gem::Hap::GRandomBase& gr
+	) const {
 		// A trap. This function needs to be re-implemented for each supported type
 		glogger
 		<< "In baseScanParT::getRandomItem(): Error!" << std::endl
@@ -326,10 +330,10 @@ protected:
 	}
 
 private:
-	 mutable Gem::Hap::g_boolean_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
-	 mutable Gem::Hap::g_uniform_real<float>  m_uniform_float_distribution;  ///< Uniformly distributed fp numbers
-	 mutable Gem::Hap::g_uniform_real<double> m_uniform_double_distribution; ///< Uniformly distributed fp numbers
-	 mutable Gem::Hap::g_uniform_int<std::int32_t> m_uniform_int_distribution; ///< Uniformly distributed integer numbers
+	 mutable std::bernoulli_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
+	 mutable std::uniform_real_distribution<float>  m_uniform_float_distribution;  ///< Uniformly distributed fp numbers
+	 mutable std::uniform_real_distribution<double> m_uniform_double_distribution; ///< Uniformly distributed fp numbers
+	 mutable std::uniform_int_distribution<std::int32_t> m_uniform_int_distribution; ///< Uniformly distributed integer numbers
 };
 
 /******************************************************************************/
@@ -339,8 +343,10 @@ private:
  * Retrieval of a random value for type bool
  */
 template <>
-inline bool baseScanParT<bool>::getRandomItem() const {
-	return m_uniform_bool();
+inline bool baseScanParT<bool>::getRandomItem(
+	Gem::Hap::GRandomBase& gr
+) const {
+	return m_uniform_bool(gr);
 }
 
 /******************************************************************************/
@@ -348,8 +354,10 @@ inline bool baseScanParT<bool>::getRandomItem() const {
  * Retrieval of a random value for type float
  */
 template <>
-inline float baseScanParT<float>::getRandomItem() const {
-	return m_uniform_float_distribution(std::uniform_real_distribution<float>::param_type(lower_, upper_));
+inline float baseScanParT<float>::getRandomItem(
+	Gem::Hap::GRandomBase& gr
+) const {
+	return m_uniform_float_distribution(gr, std::uniform_real_distribution<float>::param_type(lower_, upper_));
 }
 
 /******************************************************************************/
@@ -357,8 +365,10 @@ inline float baseScanParT<float>::getRandomItem() const {
  * Retrieval of a random value for type double
  */
 template <>
-inline double baseScanParT<double>::getRandomItem() const {
-	return m_uniform_double_distribution(std::uniform_real_distribution<double>::param_type(lower_, upper_));
+inline double baseScanParT<double>::getRandomItem(
+	Gem::Hap::GRandomBase& gr
+) const {
+	return m_uniform_double_distribution(gr, std::uniform_real_distribution<double>::param_type(lower_, upper_));
 }
 
 /******************************************************************************/
@@ -366,8 +376,10 @@ inline double baseScanParT<double>::getRandomItem() const {
  * Retrieval of a random value for type std::int32_t
  */
 template <>
-inline std::int32_t baseScanParT<std::int32_t>::getRandomItem() const {
-	return m_uniform_int_distribution(std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_+1));
+inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(
+	Gem::Hap::GRandomBase& gr
+) const {
+	return m_uniform_int_distribution(gr, std::uniform_int_distribution<std::int32_t>::param_type(lower_, upper_+1));
 }
 
 /******************************************************************************/
