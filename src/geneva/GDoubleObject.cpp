@@ -51,7 +51,8 @@ GDoubleObject::GDoubleObject() { /* nothing */ }
  * @param cp A copy of another GDoubleObject object
  */
 GDoubleObject::GDoubleObject(const GDoubleObject &cp)
-	: GNumFPT<double>(cp) { /* nothing */ }
+	: GNumFPT<double>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -60,7 +61,8 @@ GDoubleObject::GDoubleObject(const GDoubleObject &cp)
  * @param val A value used for the initialization
  */
 GDoubleObject::GDoubleObject(const double &val)
-	: GNumFPT<double>(val) { /* nothing */ }
+	: GNumFPT<double>(val)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -70,9 +72,11 @@ GDoubleObject::GDoubleObject(const double &val)
  * @param upperBoundary The upper boundary for the random number used in the initialization
  */
 GDoubleObject::GDoubleObject(
-	const double &lowerBoundary, const double &upperBoundary
+	const double &lowerBoundary
+	, const double &upperBoundary
 )
-	: GNumFPT<double>(lowerBoundary, upperBoundary) { /* nothing */ }
+	: GNumFPT<double>(lowerBoundary, upperBoundary)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -83,15 +87,19 @@ GDoubleObject::GDoubleObject(
  * @param upperBoundary The upper boundary for random initialization
  */
 GDoubleObject::GDoubleObject(
-	const double &val, const double &lowerBoundary, const double &upperBoundary
+	const double &val
+	, const double &lowerBoundary
+	, const double &upperBoundary
 )
-	: GNumFPT<double>(val, lowerBoundary, upperBoundary) { /* nothing */ }
+	: GNumFPT<double>(val, lowerBoundary, upperBoundary)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GDoubleObject::~GDoubleObject() { /* nothing */ }
+GDoubleObject::~GDoubleObject()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -388,12 +396,15 @@ void GDoubleObject::load_(const GObject *cp) {
  */
 bool GDoubleObject::modify_GUnitTests() {
 #ifdef GEM_TESTING
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	bool result = false;
 
 	// Call the parent class'es function
 	if (GNumFPT<double>::modify_GUnitTests()) result = true;
 
-	this->randomInit(activityMode::ALLPARAMETERS);
+	this->randomInit(activityMode::ALLPARAMETERS, gr);
 	result = true;
 
 	return result;

@@ -104,13 +104,10 @@ public:
 	)
 		: GNumCollectionT<fp_type>(nval, min, min, max) // The vector is preset to nval entries with value "min"
 	{
-		Gem::Hap::g_uniform_real<fp_type> uniform_real_distribution(min, max);
+		// No need to resize the vector. as the parent class should already have the desired size
 
-		// Assign random values to each position
-		typename GFPNumCollectionT<fp_type>::iterator it;
-		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = uniform_real_distribution();
-		}
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		GFPNumCollectionT<fp_type>::randomInit(activityMode::ACTIVEONLY, gr);
 	}
 
 	/***************************************************************************/
@@ -263,21 +260,20 @@ protected:
 	 * that this function assumes that the collection has been completely
 	 * set up. Data that is added later will remain unaffected.
 	 */
-	virtual bool randomInit_(const activityMode& am) override {
-		bool randomized = false;
-
+	virtual bool randomInit_(
+		const activityMode& am
+		, Gem::Hap::GRandomBase& gr
+	) override {
 		fp_type lowerBoundary = GNumCollectionT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumCollectionT<fp_type>::getUpperInitBoundary();
 
-		Gem::Hap::g_uniform_real<fp_type> uniform_real_distribution(lowerBoundary, upperBoundary);
-
+		typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerBoundary,upperBoundary);
 		typename GFPNumCollectionT<fp_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=uniform_real_distribution();
-			randomized = true;
+			(*it)=uniform_real_distribution(gr);
 		}
 
-		return randomized;
+		return true;
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -316,6 +312,9 @@ public:
 #ifdef GEM_TESTING
 		// Call the parent classes' functions
 		GNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
+
+		// A random generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		// A few settings
 		const std::size_t nItems = 100;
@@ -357,7 +356,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Check that the object has indeed changed
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -391,7 +390,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Load the data into p_test2 and check that both objects are equal
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -484,8 +483,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -526,8 +525,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -562,6 +561,9 @@ public:
 
 		// Call the parent classes' functions
 		GNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests();
+
+		// A random generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		//------------------------------------------------------------------------------
 

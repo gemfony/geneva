@@ -46,6 +46,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
+#include "common/GMathHelperFunctionsT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterCollectionT.hpp"
 #include "geneva/GBooleanAdaptor.hpp"
@@ -69,8 +70,7 @@ class GBooleanCollection :public GParameterCollectionT<bool>
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GParameterCollectionT_bool",
-						  boost::serialization::base_object<GParameterCollectionT<bool>>(*this));
+		ar & make_nvp("GParameterCollectionT_bool", boost::serialization::base_object<GParameterCollectionT<bool>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -108,9 +108,16 @@ public:
 	) const override;
 
 	/** @brief Random initialization */
-	virtual G_API_GENEVA bool randomInit(const activityMode&) override;
+	virtual G_API_GENEVA bool randomInit(
+		const activityMode&
+		, Gem::Hap::GRandomBase&
+	) override;
 	/** @brief Random initialization with a given probability structure */
-	G_API_GENEVA bool randomInit(const double&, const activityMode&);
+	G_API_GENEVA bool randomInit(
+		const double&
+		, const activityMode&
+		, Gem::Hap::GRandomBase&
+	);
 
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const override;
@@ -122,9 +129,16 @@ protected:
 	virtual G_API_GENEVA GObject *clone_() const override;
 
 	/** @brief Triggers random initialization of the parameter collection */
-	virtual G_API_GENEVA bool randomInit_(const activityMode&) override;
+	virtual G_API_GENEVA bool randomInit_(
+		const activityMode&
+		, Gem::Hap::GRandomBase&
+	) override;
 	/** @brief Triggers random initialization of the parameter collection, with a given likelihood structure */
-	G_API_GENEVA bool randomInit_(const double&, const activityMode&);
+	G_API_GENEVA bool randomInit_(
+		const double&
+		, const activityMode&
+		, Gem::Hap::GRandomBase&
+	);
 
 	/** @brief Returns a "comparative range" for this type */
 	virtual G_API_GENEVA bool range() const override;

@@ -95,9 +95,16 @@ public:
 	G_API_GENEVA bool operator!=(const GBooleanObject&) const;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual G_API_GENEVA bool randomInit(const activityMode&) override;
+	virtual G_API_GENEVA bool randomInit(
+		const activityMode&
+		, Gem::Hap::GRandomBase&
+	) override;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-	G_API_GENEVA bool randomInit(const double&, const activityMode&);
+	G_API_GENEVA bool randomInit(
+		const double&
+		, const activityMode&
+		, Gem::Hap::GRandomBase&
+	);
 
 	/** @brief Flips the value of this object */
 	G_API_GENEVA void flip();
@@ -119,9 +126,16 @@ protected:
 	virtual G_API_GENEVA GObject* clone_() const override;
 
 	/** @brief Triggers random initialization of the parameter object */
-	virtual G_API_GENEVA bool randomInit_(const activityMode&) override;
+	virtual G_API_GENEVA bool randomInit_(
+		const activityMode&
+		, Gem::Hap::GRandomBase&
+	) override;
 	/** @brief Triggers random initialization of the parameter object, with a given likelihood structure */
-	G_API_GENEVA bool randomInit_(const double&, const activityMode&);
+	G_API_GENEVA bool randomInit_(
+		const double&
+		, const activityMode&
+		, Gem::Hap::GRandomBase&
+	);
 
 	/** @brief Returns a "comparative range" for this type */
 	virtual G_API_GENEVA bool range() const override;

@@ -36,6 +36,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <random>
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
@@ -119,7 +120,10 @@ public:
 	G_API_GENEVA bool operator!=(const GParameterBase&) const;
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual G_API_GENEVA bool randomInit(const activityMode&) BASE;
+	virtual G_API_GENEVA bool randomInit(
+		const activityMode&
+		, Gem::Hap::GRandomBase&
+	) BASE;
 
 	/** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
 	virtual G_API_GENEVA bool isIndividualParameter() const BASE;
@@ -524,7 +528,10 @@ protected:
 	virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual G_API_GENEVA bool randomInit_(const activityMode&) BASE = 0;
+	virtual G_API_GENEVA bool randomInit_(
+		const activityMode&
+		, Gem::Hap::GRandomBase&
+	) BASE = 0;
 
 private:
 	bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out
@@ -556,9 +563,7 @@ inline void GParameterBase::streamline<float>(
 	std::vector<float>& parVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatStreamline(parVec, am);
 	}
 }
@@ -574,9 +579,7 @@ inline void GParameterBase::streamline<double>(
 	std::vector<double>& parVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleStreamline(parVec, am);
 	}
 }
@@ -592,9 +595,7 @@ inline void GParameterBase::streamline<std::int32_t>(
 	std::vector<std::int32_t>& parVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32Streamline(parVec, am);
 	}
 }
@@ -610,9 +611,7 @@ inline void GParameterBase::streamline<bool>(
 	std::vector<bool>& parVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->booleanStreamline(parVec, am);
 	}
 }
@@ -628,9 +627,7 @@ inline void GParameterBase::streamline<float>(
 	std::map<std::string, std::vector<float>>& parVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatStreamline(parVec, am);
 	}
 }
@@ -646,9 +643,7 @@ inline void GParameterBase::streamline<double>(
 	std::map<std::string, std::vector<double>>& parVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleStreamline(parVec, am);
 	}
 }
@@ -664,9 +659,7 @@ inline void GParameterBase::streamline<std::int32_t>(
 	std::map<std::string, std::vector<std::int32_t>>& parVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32Streamline(parVec, am);
 	}
 }
@@ -682,9 +675,7 @@ inline void GParameterBase::streamline<bool>(
 	std::map<std::string, std::vector<bool>>& parVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->booleanStreamline(parVec, am);
 	}
 }
@@ -703,9 +694,7 @@ inline void GParameterBase::boundaries<float>(
 	, std::vector<float>& uBndVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatBoundaries(lBndVec, uBndVec, am);
 	}
 }
@@ -723,9 +712,7 @@ inline void GParameterBase::boundaries<double>(
 	, std::vector<double>& uBndVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleBoundaries(lBndVec, uBndVec, am);
 	}
 }
@@ -743,9 +730,7 @@ inline void GParameterBase::boundaries<std::int32_t>(
 	, std::vector<std::int32_t>& uBndVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32Boundaries(lBndVec, uBndVec, am);
 	}
 }
@@ -763,9 +748,7 @@ inline void GParameterBase::boundaries<bool>(
 	, std::vector<bool>& uBndVec
 	, const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->booleanBoundaries(lBndVec, uBndVec, am);
 	}
 }
@@ -781,9 +764,7 @@ template <>
 inline std::size_t GParameterBase::countParameters<float>(
 	const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		return this->countFloatParameters(am);
 	} else {
 		return 0;
@@ -801,9 +782,7 @@ template <>
 inline std::size_t GParameterBase::countParameters<double>(
 	const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		return this->countDoubleParameters(am);
 	} else {
 		return 0;
@@ -821,9 +800,7 @@ template <>
 inline std::size_t GParameterBase::countParameters<std::int32_t>(
 	const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		return this->countInt32Parameters(am);
 	} else {
 		return 0;
@@ -841,9 +818,7 @@ template <>
 inline std::size_t GParameterBase::countParameters<bool>(
 	const activityMode& am
 ) const {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		return this->countBoolParameters(am);
 	} else {
 		return 0;
@@ -863,9 +838,7 @@ inline void GParameterBase::assignValueVector<float>(
 	, std::size_t& pos
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->assignFloatValueVector(parVec, pos, am);
 	}
 }
@@ -883,9 +856,7 @@ inline void GParameterBase::assignValueVector<double>(
 	, std::size_t& pos
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->assignDoubleValueVector(parVec, pos, am);
 	}
 }
@@ -934,9 +905,7 @@ inline void GParameterBase::assignValueVectors<float>(
 		, std::vector<float>>& parMap
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->assignFloatValueVectors(parMap, am);
 	}
 }
@@ -953,9 +922,7 @@ inline  void GParameterBase::assignValueVectors<double>(
 		, std::vector<double>>& parMap
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->assignDoubleValueVectors(parMap, am);
 	}
 }
@@ -971,9 +938,7 @@ inline  void GParameterBase::assignValueVectors<std::int32_t>(
 	const std::map<std::string, std::vector<std::int32_t>>& parMap
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->assignInt32ValueVectors(parMap, am);
 	}
 }
@@ -989,9 +954,7 @@ inline  void GParameterBase::assignValueVectors<bool>(
 	const std::map<std::string, std::vector<bool>>& parMap
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->assignBooleanValueVectors(parMap, am);
 	}
 }
@@ -1006,9 +969,7 @@ inline  void GParameterBase::multiplyByRandom<float>(
 	, const float& max
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatMultiplyByRandom(min, max, am);
 	}
 }
@@ -1023,9 +984,7 @@ inline  void GParameterBase::multiplyByRandom<double>(
 	, const double& max
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleMultiplyByRandom(min, max, am);
 	}
 }
@@ -1040,9 +999,7 @@ inline  void GParameterBase::multiplyByRandom<std::int32_t>(
 	, const std::int32_t& max
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32MultiplyByRandom(min, max, am);
 	}
 }
@@ -1059,9 +1016,7 @@ inline  void GParameterBase::multiplyByRandom<bool>(
 	, const bool& max
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		// NOTE: This will throw
 		this->booleanMultiplyByRandom(min, max, am);
 	}
@@ -1075,9 +1030,7 @@ template <>
 inline  void GParameterBase::multiplyByRandom<float>(
 	const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatMultiplyByRandom(am);
 	}
 }
@@ -1090,9 +1043,7 @@ template <>
 inline  void GParameterBase::multiplyByRandom<double>(
 	const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleMultiplyByRandom(am);
 	}
 }
@@ -1105,9 +1056,7 @@ template <>
 inline  void GParameterBase::multiplyByRandom<std::int32_t>(
 	const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32MultiplyByRandom(am);
 	}
 }
@@ -1122,9 +1071,7 @@ template <>
 inline  void GParameterBase::multiplyByRandom<bool>(
 	const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		// NOTE: This will throw
 		this->booleanMultiplyByRandom(am);
 	}
@@ -1139,9 +1086,7 @@ inline  void GParameterBase::multiplyBy<float>(
 	const float& val
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatMultiplyBy(val, am);
 	}
 }
@@ -1155,9 +1100,7 @@ inline  void GParameterBase::multiplyBy<double>(
 	const double& val
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleMultiplyBy(val, am);
 	}
 }
@@ -1171,9 +1114,7 @@ inline  void GParameterBase::multiplyBy<std::int32_t>(
 	const std::int32_t& val
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32MultiplyBy(val, am);
 	}
 }
@@ -1189,9 +1130,7 @@ inline  void GParameterBase::multiplyBy<bool>(
 	const bool& val
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		// NOTE: This will throw
 		this->booleanMultiplyBy(val, am);
 	}
@@ -1206,9 +1145,7 @@ inline  void GParameterBase::fixedValueInit<float>(
 	const float& val
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatFixedValueInit(val, am);
 	}
 }
@@ -1222,9 +1159,7 @@ inline  void GParameterBase::fixedValueInit<double>(
 	const double& val
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleFixedValueInit(val, am);
 	}
 }
@@ -1238,9 +1173,7 @@ inline  void GParameterBase::fixedValueInit<std::int32_t>(
 	const std::int32_t& val
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32FixedValueInit(val, am);
 	}
 }
@@ -1254,9 +1187,7 @@ inline  void GParameterBase::fixedValueInit<bool>(
 	const bool& val
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->booleanFixedValueInit(val, am);
 	}
 }
@@ -1270,9 +1201,7 @@ inline  void GParameterBase::add<float>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatAdd(p, am);
 	}
 }
@@ -1286,9 +1215,7 @@ inline  void GParameterBase::add<double>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleAdd(p, am);
 	}
 }
@@ -1302,9 +1229,7 @@ inline  void GParameterBase::add<std::int32_t>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32Add(p, am);
 	}
 }
@@ -1320,9 +1245,7 @@ inline  void GParameterBase::add<bool>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		// Note: This call will throw!
 		this->booleanAdd(p, am);
 	}
@@ -1337,9 +1260,7 @@ inline  void GParameterBase::subtract<float>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->floatSubtract(p, am);
 	}
 }
@@ -1353,9 +1274,7 @@ inline  void GParameterBase::subtract<double>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->doubleSubtract(p, am);
 	}
 }
@@ -1369,9 +1288,7 @@ inline  void GParameterBase::subtract<std::int32_t>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		this->int32Subtract(p, am);
 	}
 }
@@ -1387,9 +1304,7 @@ inline  void GParameterBase::subtract<bool>(
 	std::shared_ptr<GParameterBase> p
 	, const activityMode& am
 ) {
-	if(
-		this->modifiableAmMatchOrHandover(am)
-		) {
+	if(this->modifiableAmMatchOrHandover(am)) {
 		// NOTE: This call will throw
 		this->booleanSubtract(p, am);
 	}

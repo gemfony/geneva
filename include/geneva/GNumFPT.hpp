@@ -100,9 +100,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Initialize with a random value within given boundaries. Note that
-	 * we use the local randomInit_ function in order not to call any
-	 * purely virtual functions.
+	 * Initialize with a random value within given boundaries.
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
@@ -113,7 +111,8 @@ public:
 	)
 		: GNumT<fp_type> (min, max)
 	{
-		GNumFPT<fp_type>::randomInit(activityMode::ACTIVEONLY);
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		GNumFPT<fp_type>::randomInit(activityMode::ACTIVEONLY, gr);
 	}
 
 	/***************************************************************************/
@@ -282,12 +281,15 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter
 	 */
-	virtual bool randomInit_(const activityMode&) override {
+	virtual bool randomInit_(
+		const activityMode& am
+		, Gem::Hap::GRandomBase& gr
+	) override {
 		fp_type lowerBoundary = GNumT<fp_type>::getLowerInitBoundary();
 		fp_type upperBoundary = GNumT<fp_type>::getUpperInitBoundary();
-		GParameterT<fp_type>::setValue(
-			m_uniform_real_distribution(typename std::uniform_real_distribution<fp_type>::param_type(lowerBoundary, upperBoundary))
-		);
+
+		typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerBoundary,upperBoundary);
+		GParameterT<fp_type>::setValue(uniform_real_distribution(gr));
 
 		return true;
 	}
@@ -296,11 +298,6 @@ protected:
 	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
-
- 	/***************************************************************************/
-	// Data
-
-   Gem::Hap::g_uniform_real<fp_type> m_uniform_real_distribution; ///< Access to uniformly distributed fp random numbers
 
 public:
 
@@ -343,6 +340,9 @@ public:
 		// Call the parent classes' functions
 		GNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
 
+		// A random generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 		//------------------------------------------------------------------------------
 
 		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
@@ -381,7 +381,7 @@ public:
 				BOOST_CHECK(*p_test1 == *p_test2);
 
 				// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 				// Check that the object has indeed changed
 				BOOST_CHECK(*p_test2 != *p_test1);
@@ -408,7 +408,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Load the data into p_test2 and check that both objects are equal
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -477,8 +477,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);
@@ -511,8 +511,8 @@ public:
 			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
 
 			// Randomly initialize p_test1 and p_test2, so that both objects are different
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
-			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
+			BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Check that they are indeed different
 			BOOST_CHECK(*p_test1 != *p_test2);

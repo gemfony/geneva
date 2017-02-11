@@ -99,10 +99,13 @@ public:
 	)
 		: GNumCollectionT<int_type>(nval, min, min, max) // Initialization of a vector with nval variables of value "min"
 	{
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		typename std::uniform_int_distribution<int_type> uniform_int(min, max);
+
 		// Fill the vector with random values
 		typename GIntNumCollectionT<int_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			*it = m_uniform_int(min,max);
+			*it = uniform_int(gr);
 		}
 	}
 
@@ -251,31 +254,26 @@ protected:
 	 * function assumes that the collection has been completely set up. Data
 	 * that is added later will remain unaffected.
 	 */
-	bool randomInit_(const activityMode&) override {
-		bool randomized = false;
-
+	bool randomInit_(
+		const activityMode& am
+		, Gem::Hap::GRandomBase& gr
+	) override {
 		int_type lowerBoundary = GNumCollectionT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumCollectionT<int_type>::getUpperInitBoundary();
 
+		typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
 		typename GIntNumCollectionT<int_type>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)=m_uniform_int(lowerBoundary, upperBoundary);
-			randomized = true;
+			(*it)=uniform_int(gr);
 		}
 
-		return randomized;
+		return true;
 	}
 
 	/* ----------------------------------------------------------------------------------
 	 * Tested in GIntNumCollectionT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
-
-private:
-	 /***************************************************************************/
-
-	 /** @brief Uniformly distributed integer random numbers */
-	 Gem::Hap::g_uniform_int<int_type> m_uniform_int;
 
 public:
 	/***************************************************************************/
@@ -312,6 +310,9 @@ public:
 		// Call the parent class'es function
 		GNumCollectionT<int_type>::specificTestsNoFailureExpected_GUnitTests();
 
+		// A random generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 		//------------------------------------------------------------------------------
 
 		{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
@@ -340,7 +341,7 @@ public:
 			BOOST_CHECK(*p_test1 == *p_test2);
 
 			// Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
-			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 			// Check that the object has indeed changed
 			BOOST_CHECK(*p_test1 != *p_test2);

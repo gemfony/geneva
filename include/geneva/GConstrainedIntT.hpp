@@ -118,9 +118,9 @@ public:
 	)
 		: GConstrainedNumT<int_type>(lowerBoundary, upperBoundary)
 	{
-		GParameterT<int_type>::setValue(
-			this->m_uniform_int(lowerBoundary, upperBoundary)
-		);
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
+		GParameterT<int_type>::setValue(uniform_int(gr));
 	}
 
 	/***************************************************************************/
@@ -343,14 +343,16 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual bool randomInit_(const activityMode&) override {
-		this->setValue(
-			this->m_uniform_int(
-				GConstrainedNumT<int_type>::getLowerBoundary()
-				, GConstrainedNumT<int_type>::getUpperBoundary()
-			)
+	virtual bool randomInit_(
+		const activityMode&
+		, Gem::Hap::GRandomBase& gr
+	) override {
+		typename std::uniform_int_distribution<int_type> uniform_int(
+			GConstrainedNumT<int_type>::getLowerBoundary()
+			, GConstrainedNumT<int_type>::getUpperBoundary()
 		);
 
+		this->setValue(uniform_int(gr));
 		return true;
 	}
 
@@ -373,11 +375,6 @@ private:
 		int_type reverted = GConstrainedNumT<int_type>::getUpperBoundary() - position;
 		return reverted;
 	}
-
-	/***************************************************************************/
-
-	/** @brief Uniformly distributed integer random numbers */
-	Gem::Hap::g_uniform_int<int_type> m_uniform_int;
 
 public:
 	/***************************************************************************/
@@ -417,6 +414,10 @@ public:
 		// Call the parent classes' functions
 		GConstrainedNumT<int_type>::specificTestsNoFailureExpected_GUnitTests();
 
+		// A random generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+		typename std::uniform_int_distribution<int_type> uniform_int;
+
 		//------------------------------------------------------------------------------
 
 		{ // Check that the assignment of different valid values in the allowed range works without boundaries
@@ -441,14 +442,14 @@ public:
 				// Make sure we start with the maximum range
 				BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
-				int_type lowerBoundary = this->m_uniform_int(minLower, maxLower);
+				int_type lowerBoundary = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower));
 				int_type upperBoundary;
-				while((upperBoundary = this->m_uniform_int(minUpper, maxUpper)) <= lowerBoundary);
+				while((upperBoundary = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(minUpper, maxUpper))) <= lowerBoundary);
 
 				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
 				// Check that there are no values outside of the allowed range
-				int_type probe = this->m_uniform_int(lowerBoundary, upperBoundary);
+				int_type probe = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(lowerBoundary, upperBoundary));
 				BOOST_CHECK_NO_THROW(*p_test = probe);
 				BOOST_CHECK(p_test->value() == probe);
 			}
@@ -463,15 +464,15 @@ public:
 				// Make sure we start with the maximum range
 				BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
-				int_type lowerBoundary = this->m_uniform_int(minLower, maxLower);
+				int_type lowerBoundary = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower));
 				int_type upperBoundary;
-				while((upperBoundary = this->m_uniform_int(minUpper, maxUpper)) <= lowerBoundary);
+				while((upperBoundary = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(minUpper, maxUpper))) <= lowerBoundary);
 
 				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
 				// Check that there are no values outside of the allowed range
 				for(std::size_t j=0; j<100; j++) {
-					int_type probe = this->m_uniform_int(-10000, 10000);
+					int_type probe = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(-10000, 10000));
 					int_type mapping = int_type(0);
 					BOOST_CHECK_NO_THROW(mapping = p_test->transfer(probe));
 					BOOST_CHECK(mapping >= lowerBoundary && mapping <= upperBoundary);
@@ -488,7 +489,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			// Randomly initialize using our internal function -- will use the most extreme boundaries available
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));
 		}
 
 		//------------------------------------------------------------------------------
@@ -500,14 +501,14 @@ public:
 				// Make sure we start with the maximum range
 				BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
-				int_type lowerBoundary = this->m_uniform_int(minLower, maxLower);
+				int_type lowerBoundary = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(minLower, maxLower));
 				int_type upperBoundary;
-				while((upperBoundary = this->m_uniform_int(minUpper, maxUpper)) <= lowerBoundary);
+				while((upperBoundary = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(minUpper, maxUpper))) <= lowerBoundary);
 
 				BOOST_CHECK_NO_THROW(p_test->setValue(lowerBoundary, lowerBoundary, upperBoundary));
 
 				// Randomly initialize, using our internal value
-				BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));
 			}
 		}
 
@@ -584,7 +585,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
 			for(int_type i=1; i<100; i++) {
-				int_type probe = this->m_uniform_int(i,2*i);
+				int_type probe = uniform_int(gr, typename std::uniform_int_distribution<int_type>::param_type(i,2*i));
 				BOOST_CHECK_NO_THROW(p_test->setValue(probe, i, 2*i));
 				BOOST_CHECK(p_test->revert(probe) == p_test->getUpperBoundary() - (probe - p_test->getLowerBoundary()));
 			}

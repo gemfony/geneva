@@ -43,7 +43,8 @@ namespace Geneva {
  * The default constructor
  */
 GParameterObjectCollection::GParameterObjectCollection()
-	: GParameterTCollectionT<GParameterBase>() { /* nothing */ }
+	: GParameterTCollectionT<GParameterBase>()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,7 +53,8 @@ GParameterObjectCollection::GParameterObjectCollection()
 GParameterObjectCollection::GParameterObjectCollection(
 	const std::size_t &nCp, std::shared_ptr <GParameterBase> tmpl_ptr
 )
-	: GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr) { /* nothing */ }
+	: GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -61,13 +63,15 @@ GParameterObjectCollection::GParameterObjectCollection(
  * @param cp A copy of another GParameterObjectCollection object
  */
 GParameterObjectCollection::GParameterObjectCollection(const GParameterObjectCollection &cp)
-	: GParameterTCollectionT<GParameterBase>(cp) { /* nothing */ }
+	: GParameterTCollectionT<GParameterBase>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GParameterObjectCollection::~GParameterObjectCollection() { /* nothing */ }
+GParameterObjectCollection::~GParameterObjectCollection()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -212,6 +216,9 @@ bool GParameterObjectCollection::modify_GUnitTests() {
  */
 void GParameterObjectCollection::fillWithObjects() {
 #ifdef GEM_TESTING
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -232,7 +239,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
 
 	// Randomly initialize the GBooleanObject object, so it is unique
-	BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(activityMode::ALLPARAMETERS));
+	BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));
@@ -254,7 +261,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gio_ptr->addAdaptor(giga_ptr));
 
 	// Randomly initialize the GInt32Object object, so it is unique
-	BOOST_CHECK_NO_THROW(gio_ptr->randomInit(activityMode::ALLPARAMETERS));
+	BOOST_CHECK_NO_THROW(gio_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gio_ptr));
@@ -277,7 +284,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(gdo_ptr->addAdaptor(gdga_ptr));
 
 	// Randomly initialize the GDoubleObject object, so it is unique
-	BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(activityMode::ALLPARAMETERS));
+	BOOST_CHECK_NO_THROW(gdo_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
 
 	// Add the object to the collection
 	BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
@@ -300,6 +307,9 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double MULTVALUE = 3.;
 	const double RANDLOWERBOUNDARY = 2.;
 	const double RANDUPPERBOUNDARY = 10.;
+
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	//------------------------------------------------------------------------------
 
@@ -535,8 +545,8 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Test random initialization (test of GParameterTCollectionT<T>::randomInit_() )
-		std::shared_ptr <GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
-		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test1 = this->clone<GParameterObjectCollection>();
+		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
@@ -550,7 +560,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Randomly initialize p_test2, using GParameterTCollectionT<T>::randomInit()
-		BOOST_CHECK_NO_THROW(p_test2->randomInit(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->randomInit(activityMode::ALLPARAMETERS, gr));
 
 		// Check that the two objects differ
 		BOOST_CHECK(*p_test1 != *p_test2);

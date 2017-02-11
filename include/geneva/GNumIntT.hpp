@@ -112,9 +112,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Initialization by random number in a given range. Note that we
-	 * use the local randomInit_ function in order to avoid trying to
-	 * call any purely virtual functions from the constructor.
+	 * Initialization by random number in a given range.
 	 *
 	 * @param min The lower boundary for random entries
 	 * @param max The upper boundary for random entries
@@ -125,7 +123,8 @@ public:
 	)
 		: GNumT<int_type> (min, max)
 	{
-		GNumIntT<int_type>::randomInit(activityMode::ACTIVEONLY);
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		GNumIntT<int_type>::randomInit(activityMode::ACTIVEONLY, gr);
 	}
 
 	/***************************************************************************/
@@ -274,12 +273,17 @@ protected:
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
-	virtual bool randomInit_(const activityMode&) override {
+	virtual bool randomInit_(
+		const activityMode& am
+		, Gem::Hap::GRandomBase& gr
+	) override {
 		int_type lowerBoundary = GNumT<int_type>::getLowerInitBoundary();
 		int_type upperBoundary = GNumT<int_type>::getUpperInitBoundary();
 
+		typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
+
 		// uniform_int produces random numbers that include the upper boundary.
-		GParameterT<int_type>::setValue(m_uniform_int(lowerBoundary, upperBoundary));
+		GParameterT<int_type>::setValue(uniform_int(gr));
 
 		return true;
 	}
@@ -288,12 +292,6 @@ protected:
 	 * Tested in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
-
-private:
-	 /***************************************************************************/
-
-	 /** @brief Uniformly distributed integer random numbers */
-	 Gem::Hap::g_uniform_int<int_type> m_uniform_int;
 
 public:
 	/***************************************************************************/
@@ -330,6 +328,9 @@ public:
 		// Call the parent classes' functions
 		GNumT<int_type>::specificTestsNoFailureExpected_GUnitTests();
 
+		// A random generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 		//------------------------------------------------------------------------------
 
 		{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
@@ -355,7 +356,7 @@ public:
 
 			// Check that the values of p_test1 are inside of the allowed boundaries
 			for(std::size_t i=0; i<nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
 				BOOST_CHECK(p_test1->value() >= LOWERINITBOUNDARY);
 				BOOST_CHECK(p_test1->value() <= UPPERINITBOUNDARY);
 				BOOST_CHECK(p_test1->value() != p_test2->value());

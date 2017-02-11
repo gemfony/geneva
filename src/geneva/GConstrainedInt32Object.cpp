@@ -44,7 +44,8 @@ namespace Geneva {
  * The default constructor
  */
 GConstrainedInt32Object::GConstrainedInt32Object()
-	: GConstrainedIntT<std::int32_t>() { /* nothing */ }
+	: GConstrainedIntT<std::int32_t>()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -57,7 +58,8 @@ GConstrainedInt32Object::GConstrainedInt32Object()
 GConstrainedInt32Object::GConstrainedInt32Object(
 	const std::int32_t &lowerBoundary, const std::int32_t &upperBoundary
 )
-	: GConstrainedIntT<std::int32_t>(lowerBoundary, upperBoundary) { /* nothing */ }
+	: GConstrainedIntT<std::int32_t>(lowerBoundary, upperBoundary)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -70,7 +72,8 @@ GConstrainedInt32Object::GConstrainedInt32Object(
 GConstrainedInt32Object::GConstrainedInt32Object(
 	const std::int32_t &val, const std::int32_t &lowerBoundary, const std::int32_t &upperBoundary
 )
-	: GConstrainedIntT<std::int32_t>(val, lowerBoundary, upperBoundary) { /* nothing */ }
+	: GConstrainedIntT<std::int32_t>(val, lowerBoundary, upperBoundary)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -79,7 +82,8 @@ GConstrainedInt32Object::GConstrainedInt32Object(
  * @param cp A copy of another GConstrainedInt32Object object
  */
 GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object &cp)
-	: GConstrainedIntT<std::int32_t>(cp) { /* nothing */ }
+	: GConstrainedIntT<std::int32_t>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -88,13 +92,15 @@ GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object &
  * @param val A value used for the initialization
  */
 GConstrainedInt32Object::GConstrainedInt32Object(const std::int32_t &val)
-	: GConstrainedIntT<std::int32_t>(val) { /* nothing */ }
+	: GConstrainedIntT<std::int32_t>(val)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GConstrainedInt32Object::~GConstrainedInt32Object() { /* nothing */ }
+GConstrainedInt32Object::~GConstrainedInt32Object()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -312,8 +318,11 @@ void GConstrainedInt32Object::load_(const GObject *cp) {
 /**
  * Triggers random initialization of the parameter object
  */
-bool GConstrainedInt32Object::randomInit_(const activityMode &am) {
-	return GConstrainedIntT<std::int32_t>::randomInit_(am);
+bool GConstrainedInt32Object::randomInit_(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	return GConstrainedIntT<std::int32_t>::randomInit_(am, gr);
 }
 
 /* ----------------------------------------------------------------------------------

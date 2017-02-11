@@ -129,7 +129,8 @@ public:
  	  */
 	 inline int_type operator()(const typename std::uniform_int_distribution<int_type>::param_type& params) const {
 		 return m_uniform_int_distribution (
-			 randomProxy(), params
+			 randomProxy()
+			 , params
 		 );
 	 }
 

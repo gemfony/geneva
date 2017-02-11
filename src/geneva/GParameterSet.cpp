@@ -385,7 +385,7 @@ bool GParameterSet::randomInit(const activityMode &am) {
 	// Trigger random initialization of all our parameter objects
 	GParameterSet::iterator it;
 	for (it = this->begin(); it != this->end(); ++it) {
-		(*it)->randomInit(am);
+		(*it)->randomInit(am, gr);
 	}
 
 	// As we have modified our internal data sets, make sure the dirty flag is set

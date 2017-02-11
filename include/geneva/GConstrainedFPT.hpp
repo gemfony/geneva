@@ -116,12 +116,11 @@ public:
 	 * @param upperBoundary The upper boundary of the value range
 	 */
 	GConstrainedFPT (const fp_type& lowerBoundary , const fp_type& upperBoundary)
-		: GConstrainedNumT<fp_type>(lowerBoundary
-	 	, boost::math::float_prior<fp_type>(upperBoundary))
+		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
 	{
-		GParameterT<fp_type>::setValue(
-			m_uniform_real_distribution(typename std::uniform_real_distribution<fp_type>::param_type(lowerBoundary, upperBoundary))
-		);
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerBoundary, upperBoundary);
+		GParameterT<fp_type>::setValue(uniform_real_distribution(gr));
 	}
 
 	/***************************************************************************/
@@ -469,15 +468,16 @@ protected:
 	/**
 	 * Randomly initializes the parameter (within its limits)
 	 */
-	virtual bool randomInit_(const activityMode&) override {
-		this->setValue(
-			m_uniform_real_distribution(
-				typename std::uniform_real_distribution<fp_type>::param_type(
-					GConstrainedNumT<fp_type>::getLowerBoundary()
-					, GConstrainedNumT<fp_type>::getUpperBoundary()
-				)
-			)
+	virtual bool randomInit_(
+		const activityMode&
+		, Gem::Hap::GRandomBase& gr
+	) override {
+		typename std::uniform_real_distribution<fp_type> uniform_real_distribution(
+			GConstrainedNumT<fp_type>::getLowerBoundary()
+			, GConstrainedNumT<fp_type>::getUpperBoundary()
 		);
+
+		this->setValue(uniform_real_distribution(gr));
 
 		return true;
 	}
@@ -486,11 +486,6 @@ protected:
 	 * Tested in GConstrainedFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
-
-	 /***************************************************************************/
-	 // Data
-
-	 Gem::Hap::g_uniform_real<fp_type> m_uniform_real_distribution; ///< Access to uniformly distributed fp random numbers
 
 public:
 	/***************************************************************************/
@@ -531,6 +526,9 @@ public:
 
 		// Call the parent classes' functions
 		GConstrainedNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
+
+		// A random generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		//------------------------------------------------------------------------------
 
@@ -638,13 +636,9 @@ public:
 				// Assign valid boundaries and value
 				BOOST_CHECK_NO_THROW(p_test->setValue(tmpLowerBoundary, tmpLowerBoundary, tmpUpperBoundary));
 
+				typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerRandomBoundary, upperRandomBoundary);
 				for(std::size_t i=0; i<nTests; i++) {
-					fp_type randomValue = m_uniform_real_distribution(
-						typename std::uniform_real_distribution<fp_type>::param_type(
-							lowerRandomBoundary
-							, upperRandomBoundary
-						)
-					);
+					fp_type randomValue = uniform_real_distribution(gr);
 
 					BOOST_CHECK_NO_THROW(result = p_test->transfer(randomValue));
 					BOOST_CHECK_MESSAGE(
@@ -668,18 +662,12 @@ public:
 			// Assign a valid value and boundaries
 			BOOST_CHECK_NO_THROW(p_test->setValue(testVal, lowerBoundary, upperBoundary));
 
+			typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerRandomBoundary, upperRandomBoundary);
 			for(std::size_t i=0; i<nTests; i++) {
+				fp_type randomValue = uniform_real_distribution(gr);
+
 				// Randomly initialize with a "fixed" value
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template fixedValueInit<fp_type>(
-						m_uniform_real_distribution(
-							typename std::uniform_real_distribution<fp_type>::param_type(
-								lowerRandomBoundary
-								, upperRandomBoundary
-							)
-						)
-                  , activityMode::ALLPARAMETERS
-               )
-            );
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template fixedValueInit<fp_type>(randomValue, activityMode::ALLPARAMETERS));
 
 				// Check that the external value is inside of the allowed value range
 				// Check that the value is still in the allowed range
@@ -743,19 +731,10 @@ public:
 			// Assign boundaries and values
 			BOOST_CHECK_NO_THROW(p_test->setValue(fp_type(1), lowerBoundary, upperBoundary));
 
+			typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerRandomBoundary, upperRandomBoundary);
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(
-               p_test->GParameterBase::template multiplyBy<fp_type>(
-						m_uniform_real_distribution(
-							typename std::uniform_real_distribution<fp_type>::param_type(
-								lowerRandomBoundary
-								, upperRandomBoundary
-							)
-						)
-                  , activityMode::ALLPARAMETERS
-               )
-            );
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyBy<fp_type>(uniform_real_distribution(gr), activityMode::ALLPARAMETERS));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -899,7 +878,7 @@ public:
 			// Repeatedly add and subtract a randomly initialized p_test2 from p_test1
 			for(std::size_t i=0; i<nTests; i++) {
 				// Randomly initialize p_test2
-				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 				fp_type firstValue = p_test2->value();
 
@@ -915,7 +894,7 @@ public:
 				BOOST_CHECK(p_test1->value()  < upper);
 
 				// Randomly initialize p_test2 again
-				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test2->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 				fp_type secondValue = p_test2->value();
 

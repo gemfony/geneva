@@ -404,12 +404,15 @@ void GConstrainedDoubleObject::load_(const GObject *cp) {
  */
 bool GConstrainedDoubleObject::modify_GUnitTests() {
 #ifdef GEM_TESTING
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	bool result = false;
 
 	// Call the parent class'es function
 	if (GConstrainedFPT<double>::modify_GUnitTests()) result = true;
 
-	this->randomInit(activityMode::ALLPARAMETERS);
+	this->randomInit(activityMode::ALLPARAMETERS, gr);
 	result = true;
 
 	return result;

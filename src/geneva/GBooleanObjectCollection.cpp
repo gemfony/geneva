@@ -223,6 +223,9 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
  */
 void GBooleanObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -239,14 +242,13 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t &nAddedObjects)
 		// Create a suitable GBooleanObject object
 		std::shared_ptr <GBooleanObject> gbo_ptr;
 
-		BOOST_CHECK_NO_THROW(
-			gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
+		BOOST_CHECK_NO_THROW(gbo_ptr = std::shared_ptr<GBooleanObject>(new GBooleanObject())); // Initialization with standard values
 
 		// Add the adaptor
 		BOOST_CHECK_NO_THROW(gbo_ptr->addAdaptor(gba_ptr));
 
 		// Randomly initialize the GBooleanObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(gbo_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gbo_ptr));

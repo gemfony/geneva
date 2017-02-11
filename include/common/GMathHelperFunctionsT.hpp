@@ -68,12 +68,12 @@ const bool GERRORONLY = false;
 
 /******************************************************************************/
 /**
- * Enforces a value inside of a given range for the first parameter. Note that
- * the value of this parameter may change.
+ * Enforces a value inside of a given range (both boundaries inclusive) for the
+ * first parameter. Note that the value of this parameter may change.
  *
  * @param val The value to be adapted
  * @param lower The lower boundary of the allowed value range
- * @param upper The upper boundary of the allowed value range
+ * @param upper The upper (inclusive) boundary of the allowed value range
  */
 template<typename fp_type>
 fp_type enforceRangeConstraint(

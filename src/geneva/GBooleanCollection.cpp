@@ -59,9 +59,10 @@ GBooleanCollection::GBooleanCollection()
 GBooleanCollection::GBooleanCollection(const std::size_t &nval)
 	: GParameterCollectionT<bool>()
 {
-	Gem::Hap::g_boolean_distribution uniform_bool; // defaults to 0.5
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+	std::bernoulli_distribution bernoulli_distribution; // defaults to 0.5
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(uniform_bool());
+		this->push_back(bernoulli_distribution(gr));
 	}
 }
 
@@ -89,7 +90,9 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const bool &val)
  * @param nval The size of the collection
  * @param probability The probability for true values in the collection
  */
-GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &probability)
+GBooleanCollection::GBooleanCollection(
+	const std::size_t &nval
+	, const double &probability)
 	: GParameterCollectionT<bool>()
 {
 	Gem::Hap::g_boolean_distribution weighted_bool(probability);
@@ -107,7 +110,8 @@ GBooleanCollection::GBooleanCollection(const std::size_t &nval, const double &pr
  * @param cp A copy of another GBooleanCollection object
  */
 GBooleanCollection::GBooleanCollection(const GBooleanCollection &cp)
-	: GParameterCollectionT<bool>(cp) { /* nothing */ }
+	: GParameterCollectionT<bool>(cp)
+{ /* nothing */ }
 
 // Tested in this class
 
@@ -115,7 +119,8 @@ GBooleanCollection::GBooleanCollection(const GBooleanCollection &cp)
 /**
  * The standard destructor. No local data, hence it is empty.
  */
-GBooleanCollection::~GBooleanCollection() { /* nothing */ }
+GBooleanCollection::~GBooleanCollection()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -179,14 +184,17 @@ void GBooleanCollection::load_(const GObject *cp) {
  * function assumes that the collection has been completely set up. Data
  * that is added later will remain unaffected.
  */
-bool GBooleanCollection::randomInit_(const activityMode &) {
+bool GBooleanCollection::randomInit_(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
 	bool randomized = false;
 
-	Gem::Hap::g_boolean_distribution uniform_bool; // defaults to 0.5
+	std::bernoulli_distribution bernoulli_distribution; // defaults to 0.5
 
 	// Compare http://stackoverflow.com/questions/15927033/what-is-the-correct-way-of-using-c11s-range-based-for
 	for(auto&& b: this->data) {
-		b = uniform_bool();
+		b = bernoulli_distribution(gr);
 		randomized = true;
 	}
 
@@ -200,22 +208,27 @@ bool GBooleanCollection::randomInit_(const activityMode &) {
  *
  * @param probability The probability for true values in the collection
  */
-bool GBooleanCollection::randomInit_(const double &probability, const activityMode &) {
+bool GBooleanCollection::randomInit_(
+	const double &probability
+	, const activityMode &
+	, Gem::Hap::GRandomBase& gr
+) {
 	bool randomized = false;
 
-	// Do some error checking
-	if (probability < 0. || probability > 1.) {
+	// Do some error checks
+	if(!Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanCollection::randomInit_(probability)")) {
 		glogger
-		<< "In GBooleanCollection::randomInit_(" << probability << "):" << std::endl
-		<< "Requested probability outside of allowed range [0:1]" << std::endl
+		<< "In GBooleanCollection::randomInit_(probability): Error!" << std::endl
+	   << "Probability " << probability << " not in allowed value range [0,1]" << std::endl
 		<< GEXCEPTION;
 	}
 
-	Gem::Hap::g_boolean_distribution weighted_bool(probability);
+	// Obtain access to a random number generator
+	std::bernoulli_distribution bernoulli_distribution(probability);
 
 	// Compare http://stackoverflow.com/questions/15927033/what-is-the-correct-way-of-using-c11s-range-based-for
 	for(auto&& b: this->data) {
-		b = weighted_bool();
+		b = bernoulli_distribution(gr);
 		randomized = true;
 	}
 
@@ -227,8 +240,11 @@ bool GBooleanCollection::randomInit_(const double &probability, const activityMo
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanCollectionObject.GParameterBase::randomInit();".
  */
-bool GBooleanCollection::randomInit(const activityMode &am) {
-	return GParameterBase::randomInit(am); // This will also take into account the "blocked initialization" flag
+bool GBooleanCollection::randomInit(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	return GParameterBase::randomInit(am, gr); // This will also take into account the "blocked initialization" flag
 }
 
 /******************************************************************************/
@@ -238,12 +254,13 @@ bool GBooleanCollection::randomInit(const activityMode &am) {
  *
  * @param probability The probability for true values in the collection
  */
-bool GBooleanCollection::randomInit(const double &probability, const activityMode &am) {
-	if (
-		!GParameterBase::randomInitializationBlocked()
-		&& this->modifiableAmMatchOrHandover(am)
-		) {
-		return randomInit_(probability, am);
+bool GBooleanCollection::randomInit(
+	const double &probability
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	if (!GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
+		return randomInit_(probability, am, gr);
 	} else {
 		return false;
 	}
@@ -487,6 +504,9 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterCollectionT<bool>::specificTestsNoFailureExpected_GUnitTests();
 
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// --------------------------------------------------------------------------
 
 	{ // Check default constructor
@@ -607,7 +627,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->size() == nItems);
 
 		// Randomly initialize, using the internal function
-		BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test->randomInit_(activityMode::ALLPARAMETERS, gr));
 
 		// Count the number of true and false values
 		std::size_t nTrue = 0;
@@ -641,7 +661,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 
 		// Randomly initialize, using the internal function
-		BOOST_CHECK_NO_THROW(p_test->randomInit_(0., activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test->randomInit_(0., activityMode::ALLPARAMETERS, gr));
 
 		// Count the number of true and false values
 		std::size_t nTrue = 0;
@@ -672,7 +692,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		}
 
 		// Randomly initialize, using the internal function
-		BOOST_CHECK_NO_THROW(p_test->randomInit_(1., activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test->randomInit_(1., activityMode::ALLPARAMETERS, gr));
 
 		// Count the number of true and false values
 		std::size_t nTrue = 0;
@@ -704,7 +724,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 			}
 
 			// Randomly initialize, using the internal function and the required probability
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr));
 
 			// Count the number of true and false values
 			std::size_t nTrue = 0;
@@ -759,7 +779,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Try to randomly initialize, using the *external* function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
 
 		// Check that both objects are still the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -794,7 +814,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Try to randomly initialize, using the *external* function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS, gr));
 
 		// Check that both objects are still the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -885,6 +905,9 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterCollectionT<bool>::specificTestsFailuresExpected_GUnitTests();
 
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// --------------------------------------------------------------------------
 
 	{ // Check that random initialization with a probability < 0. throws
@@ -899,7 +922,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 		}
 
 		// Randomly initialize, using the internal function
-		BOOST_CHECK_THROW(p_test->randomInit_(-1., activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->randomInit_(-1., activityMode::ALLPARAMETERS, gr), Gem::Common::gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------
@@ -916,7 +939,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 		}
 
 		// Randomly initialize, using the internal function
-		BOOST_CHECK_THROW(p_test->randomInit_(2., activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->randomInit_(2., activityMode::ALLPARAMETERS, gr), Gem::Common::gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------

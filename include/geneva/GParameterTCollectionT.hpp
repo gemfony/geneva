@@ -360,7 +360,10 @@ protected:
 	/**
 	 * This function distributes the random initialization to other objects
 	 */
-	virtual bool randomInit_(const activityMode& am) override {
+	virtual bool randomInit_(
+		const activityMode& am
+		, Gem::Hap::GRandomBase& gr
+	) override {
 		bool randomized = false;
 
 		typename GParameterTCollectionT<T>::iterator it;
@@ -368,7 +371,7 @@ protected:
 			// Note that we do not call the randomInit_() function. First of all, we
 			// do not have access to it. Secondly it might be that re-initialization of
 			// a specific object is not desired.
-			if((*it)->GParameterBase::randomInit(am)) {
+			if((*it)->GParameterBase::randomInit(am, gr)) {
 				randomized = true;
 			}
 		}

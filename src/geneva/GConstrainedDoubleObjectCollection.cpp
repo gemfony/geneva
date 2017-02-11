@@ -205,6 +205,9 @@ bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
  */
 void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	//---------------------------------------------------------------------------
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
@@ -231,7 +234,7 @@ void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t &nAdd
 		BOOST_CHECK_NO_THROW(gcdo_ptr->addAdaptor(gdga_ptr));
 
 		// Randomly initialize the GConstrainedDoubleObject object, so it is unique
-		BOOST_CHECK_NO_THROW(gcdo_ptr->randomInit(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(gcdo_ptr->randomInit(activityMode::ALLPARAMETERS, gr));
 
 		// Add the object to the collection
 		BOOST_CHECK_NO_THROW(this->push_back(gcdo_ptr));

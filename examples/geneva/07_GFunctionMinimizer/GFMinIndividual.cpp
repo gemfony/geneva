@@ -443,15 +443,15 @@ void GFMinIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p) {
 	// Set up a collection with parDim_ values
 	std::shared_ptr<GConstrainedDoubleCollection> gcdc_ptr(new GConstrainedDoubleCollection(parDim_, minVar_, maxVar_));
 
-	// Randomly initialize
-	gcdc_ptr->randomInit(activityMode::ACTIVEONLY);
-
 	std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(sigma_, sigmaSigma_, minSigma_, maxSigma_));
 	gdga_ptr->setAdaptionProbability(adProb_);
 	gcdc_ptr->addAdaptor(gdga_ptr);
 
 	// Make the parameter collection known to this individual
 	p->push_back(gcdc_ptr);
+
+	// Randomly initialize
+	p->randomInit(activityMode::ACTIVEONLY);
 }
 
 /******************************************************************************/

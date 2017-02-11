@@ -44,7 +44,8 @@ namespace Geneva {
  * The default constructor
  */
 GBooleanObject::GBooleanObject()
-	: GParameterT<bool>() { /* nothing */ }
+	: GParameterT<bool>()
+{ /* nothing */ }
 
 // Tested in this file
 
@@ -66,7 +67,8 @@ GBooleanObject::GBooleanObject(const GBooleanObject &cp)
  * @param val A value used for the initialization
  */
 GBooleanObject::GBooleanObject(const bool &val)
-	: GParameterT<bool>(val) { /* nothing */ }
+	: GParameterT<bool>(val)
+{ /* nothing */ }
 
 // Tested in this file
 
@@ -78,11 +80,10 @@ GBooleanObject::GBooleanObject(const bool &val)
  * @param prob The probability for the value "true"
  */
 GBooleanObject::GBooleanObject(const double &probability) {
-	using namespace Gem::Common;
-	using namespace Gem::Hap;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+	std::bernoulli_distribution bernoulli_distribution(probability);
 
-	Gem::Hap::g_boolean_distribution weighted_bool(probability);
-	this->setValue(weighted_bool());
+	this->setValue(bernoulli_distribution(gr));
 }
 
 // Tested in this file
@@ -176,8 +177,11 @@ void GBooleanObject::flip() {
  * Random initialization. This is a helper function, without it we'd
  * have to say things like "myGBooleanObject.GParameterBase::randomInit();".
  */
-bool GBooleanObject::randomInit(const activityMode &am) {
-	return GParameterBase::randomInit(am);
+bool GBooleanObject::randomInit(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	return GParameterBase::randomInit(am, gr);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -192,9 +196,10 @@ bool GBooleanObject::randomInit(const activityMode &am) {
 bool GBooleanObject::randomInit(
 	const double &probability
 	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if (!GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
-		return randomInit_(probability, am);
+		return randomInit_(probability, am, gr);
 	} else {
 		return false;
 	}
@@ -209,9 +214,12 @@ bool GBooleanObject::randomInit(
 /**
  * Triggers random initialization of the parameter object
  */
-bool GBooleanObject::randomInit_(const activityMode &) {
-	Gem::Hap::g_boolean_distribution uniform_bool; // defaults to 0.5
-	this->setValue(uniform_bool());
+bool GBooleanObject::randomInit_(
+	const activityMode & am
+	, Gem::Hap::GRandomBase& gr
+) {
+	std::bernoulli_distribution bernoulli_distribution; // defaults to 0.5
+	this->setValue(bernoulli_distribution(gr));
 	return true;
 }
 
@@ -230,9 +238,18 @@ bool GBooleanObject::randomInit_(const activityMode &) {
 bool GBooleanObject::randomInit_(
 	const double &probability
 	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	Gem::Hap::g_boolean_distribution weighted_bool(probability);
-	this->setValue(weighted_bool());
+	// Do some error checks
+	if(!Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanObject::randomInit_(probability)")) {
+		glogger
+			<< "In GBooleanObject::randomInit_(probability): Error!" << std::endl
+			<< "Probability " << probability << " not in allowed value range [0,1]" << std::endl
+			<< GEXCEPTION;
+	}
+
+	std::bernoulli_distribution bernoulli_distribution(probability);
+	this->setValue(bernoulli_distribution(gr));
 	return true;
 }
 
@@ -450,6 +467,9 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests();
 
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// --------------------------------------------------------------------------
 
 	{ // Test default constructor
@@ -509,7 +529,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for (std::size_t i = 0; i < nTests; i++) {
-			p_test->randomInit_(activityMode::ALLPARAMETERS);
+			p_test->randomInit_(activityMode::ALLPARAMETERS, gr);
 			p_test->value() ? nTrue++ : nFalse++;
 		}
 
@@ -539,7 +559,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for (std::size_t i = 0; i < nTests; i++) {
-			p_test->randomInit_(1., activityMode::ALLPARAMETERS);
+			p_test->randomInit_(1., activityMode::ALLPARAMETERS, gr);
 			p_test->value() ? nTrue++ : nFalse++;
 		}
 
@@ -562,7 +582,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0;
 		std::size_t nFalse = 0;
 		for (std::size_t i = 0; i < nTests; i++) {
-			p_test->randomInit_(0., activityMode::ALLPARAMETERS);
+			p_test->randomInit_(0., activityMode::ALLPARAMETERS, gr);
 			p_test->value() ? nTrue++ : nFalse++;
 		}
 
@@ -582,14 +602,14 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK(p_test->value() == true);
 
 			// Randomly initialize, using the internal function, with the current probability
-			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr));
 
 			// Count the number of true and false values for a number of subsequent initializations
 			// with the internal randomInit_ function.
 			std::size_t nTrue = 0;
 			std::size_t nFalse = 0;
 			for (std::size_t i = 0; i < nTests; i++) {
-				p_test->randomInit_(d, activityMode::ALLPARAMETERS);
+				p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr);
 				p_test->value() ? nTrue++ : nFalse++;
 			}
 
@@ -635,7 +655,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Try to randomly initialize, using the *external* function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
 
 		// Check that both objects are still the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -666,7 +686,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Try to randomly initialize, using the *external* function
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS, gr));
 
 		// Check that both objects are still the same
 		BOOST_CHECK(*p_test1 == *p_test2);
@@ -740,14 +760,14 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
-	std::shared_ptr <GAdaptorT<bool>> storedAdaptor;
+	std::shared_ptr<GAdaptorT<bool>> storedAdaptor;
 
 	if (this->hasAdaptor()) {
 		storedAdaptor = this->getAdaptor();
 		adaptorStored = true;
 	}
 
-	std::shared_ptr <GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
+	std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
 	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
 	gba_ptr->setAdaptionMode(true); // Always adapt
 	this->addAdaptor(gba_ptr);
@@ -762,6 +782,9 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	if (adaptorStored) {
 		this->addAdaptor(storedAdaptor);
 	}
+
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBooleanObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

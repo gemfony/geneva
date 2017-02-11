@@ -340,7 +340,10 @@ protected:
 	/** @brief Creates a deep clone of this object */
 	virtual GObject* clone_() const override = 0;
 	/** @brief Triggers random initialization of the parameter(-collection) */
-	virtual bool randomInit_(const activityMode&) override = 0;
+	virtual bool randomInit_(
+		const activityMode&
+		, Gem::Hap::GRandomBase&
+	) override = 0;
 
 	/***************************************************************************/
 	/**

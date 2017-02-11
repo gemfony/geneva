@@ -392,7 +392,10 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Triggers random initialization of the parameter collection */
-	virtual bool randomInit_(const activityMode&) override = 0;
+	virtual bool randomInit_(
+		const activityMode&
+		, Gem::Hap::GRandomBase&
+	) override = 0;
 
 private:
 	/***************************************************************************/

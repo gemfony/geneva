@@ -481,12 +481,15 @@ GObject *GConstrainedDoubleCollection::clone_() const {
  */
 bool GConstrainedDoubleCollection::modify_GUnitTests() {
 #ifdef GEM_TESTING
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	bool result = false;
 
 	// Call the parent classes' functions
 	if (GConstrainedFPNumCollectionT<double>::modify_GUnitTests()) result = true;
 
-	this->randomInit(activityMode::ALLPARAMETERS);
+	this->randomInit(activityMode::ALLPARAMETERS, gr);
 	result = true;
 
 	return result;

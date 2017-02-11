@@ -52,6 +52,10 @@ The main changes for this release include:
    unbounded buffers are possible (set the capacity to 0)
  - Renamed class GBrokerConnector2T to GBrokerExecutorT
  - Reworked the entire broker architecture
+ - The ramdomInit()-function of GParameterBase derivatives must now be called with a GRandomBase-argument,
+   i.e. it must be supplied with a random number generator. This happens to get rid of thread_local
+   variables which have turned out to be a problem under Windows If custom parameter types are introduced,
+   their randomInit_() function now also needs to receive a GRandomBase-argument
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

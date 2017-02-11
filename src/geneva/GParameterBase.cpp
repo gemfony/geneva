@@ -346,12 +346,12 @@ bool GParameterBase::hasAdaptor() const {
  * Triggers random initialization of the parameter(-collection). This is the public
  * version of this function, which only acts if initialization has not been blocked.
  */
-bool GParameterBase::randomInit(const activityMode &am) {
-	if (
-		!randomInitializationBlocked_
-		&& this->modifiableAmMatchOrHandover(am)
-		) {
-		return randomInit_(am);
+bool GParameterBase::randomInit(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	if (!randomInitializationBlocked_ && this->modifiableAmMatchOrHandover(am)) {
+		return randomInit_(am, gr);
 	} else {
 		return false;
 	}
@@ -1100,6 +1100,9 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GObject::specificTestsNoFailureExpected_GUnitTests();
 
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	//---------------------------------------------------------------------
 
 	{ // Test blocking and unblocking of random initialization
@@ -1115,7 +1118,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
 
 		// Random initialization should leave the object unchanged
-		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Unblock random initialization
@@ -1131,7 +1134,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 			bool valueChanged = false;
 			p_test2->load(p_test1);
 			for (int i = 0; i < 100; i++) {
-				if (p_test1->randomInit(activityMode::ALLPARAMETERS)) {
+				if (p_test1->randomInit(activityMode::ALLPARAMETERS, gr)) {
 					if (*p_test1 != *p_test2) {
 						valueChanged = true;
 						break;
