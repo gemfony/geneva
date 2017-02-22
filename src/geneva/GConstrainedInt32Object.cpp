@@ -300,6 +300,89 @@ void GConstrainedInt32Object::assignInt32ValueVectors(
 
 /******************************************************************************/
 /**
+ * Multiplication with a random value in a given range
+ */
+void GConstrainedInt32Object::int32MultiplyByRandom(
+	const std::int32_t &min
+	, const std::int32_t &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	std::uniform_int_distribution<std::int32_t> uniform_int_distribution(min, max);
+	GParameterT<std::int32_t>::setValue(
+		transfer(GParameterT<std::int32_t>::value() * uniform_int_distribution(gr))
+	);
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random DOUBLE value in the range [0,1[
+ */
+void GConstrainedInt32Object::int32MultiplyByRandom(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
+	GParameterT<std::int32_t>::setValue(
+		transfer(
+			boost::numeric_cast<std::int32_t>(
+				boost::numeric_cast<double>(GParameterT<std::int32_t>::value())
+				* uniform_real_distribution(gr)
+			)
+		)
+	);
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+void GConstrainedInt32Object::int32MultiplyBy(
+	const std::int32_t &val
+	, const activityMode &am
+) {
+	GParameterT<std::int32_t>::setValue(transfer(val * GParameterT<std::int32_t>::value()));
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GConstrainedInt32Object::int32FixedValueInit(
+	const std::int32_t &val
+	, const activityMode &am
+) {
+	GParameterT<std::int32_t>::setValue(transfer(val));
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GConstrainedInt32Object::int32Add(
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
+) {
+	// We first need to convert p_base into the local type
+	std::shared_ptr<GConstrainedInt32Object> p = GParameterBase::parameterbase_cast<GConstrainedInt32Object>(p_base);
+	GParameterT<std::int32_t>::setValue(transfer(this->value() + p->value()));
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GConstrainedInt32Object::int32Subtract(
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
+) {
+	// We first need to convert p_base into the local type
+	std::shared_ptr<GConstrainedInt32Object> p = GParameterBase::parameterbase_cast<GConstrainedInt32Object>(p_base);
+	GParameterT<std::int32_t>::setValue(transfer(this->value() - p->value()));
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GConstrainedInt32Object object, camouflaged as a GObject
