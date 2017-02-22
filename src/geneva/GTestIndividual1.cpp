@@ -49,7 +49,7 @@ GTestIndividual1::GTestIndividual1()
 	std::shared_ptr <Gem::Geneva::GDoubleCollection> gdc_ptr(new Gem::Geneva::GDoubleCollection(100, -10., 10.));
 	std::shared_ptr <Gem::Geneva::GDoubleGaussAdaptor> gdga1(new Gem::Geneva::GDoubleGaussAdaptor(0.025, 0.1, 0., 1.));
 
-	// Prevent changes to adProb_
+	// Prevent changes to m_adProb
 	gdga1->setAdaptAdProb(0.);
 
 	gdc_ptr->addAdaptor(gdga1);

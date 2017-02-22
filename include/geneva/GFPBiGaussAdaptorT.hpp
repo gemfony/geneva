@@ -228,6 +228,7 @@ protected:
 	 virtual void customAdaptions(
 		 fp_type& value
 		 , const fp_type& range
+		 , Gem::Hap::GRandomBase& gr
 	 ) override {
 		 using namespace Gem::Common;
 		 using namespace Gem::Hap;
@@ -238,7 +239,8 @@ protected:
 			 value
 				 += (
 				 range * GNumBiGaussAdaptorT<fp_type, fp_type>::m_bi_normal_distribution(
-					 typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
+					 gr
+					 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
 						 fp_type(0.)
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_ // Intended to be sigma1_ (symmetry-case)
@@ -252,7 +254,8 @@ protected:
 			 value
 				 += (
 				 range * GNumBiGaussAdaptorT<fp_type, fp_type>::m_bi_normal_distribution(
-					 typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
+					 gr
+					 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
 						 fp_type(0.)
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma2_

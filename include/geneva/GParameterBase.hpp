@@ -48,7 +48,7 @@
 #include "common/GExceptions.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomT.hpp"
-#include "geneva/GMutableI.hpp"
+#include "geneva/GMutableParameterI.hpp"
 #include "geneva/GObject.hpp"
 
 namespace Gem {
@@ -64,7 +64,7 @@ namespace Geneva {
  */
 class GParameterBase
 	: public GObject
-		, public GMutableI
+	, public GMutableParameterI
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -92,9 +92,9 @@ public:
 	G_API_GENEVA const GParameterBase& operator=(const GParameterBase&);
 
 	/** @brief The adaption interface */
-	virtual G_API_GENEVA std::size_t adapt() override;
+	virtual G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) override;
 	/** @brief The actual adaption logic */
-	virtual G_API_GENEVA std::size_t adaptImpl() BASE = 0;
+	virtual G_API_GENEVA std::size_t adaptImpl(Gem::Hap::GRandomBase&) BASE = 0;
 
 	/** @brief Triggers updates when the optimization process has stalled */
 	virtual G_API_GENEVA bool updateAdaptorsOnStall(const std::size_t&) BASE = 0;

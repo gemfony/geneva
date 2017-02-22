@@ -61,6 +61,9 @@ using namespace boost;
 const std::uint32_t NTESTS=2000;
 
 int main(int argc, char **argv){
+	// Get a random number generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	std::shared_ptr<GHistogram1I> multipleFlipMutation_ptr(new GHistogram1I(50, 0.5,50.5));
 	multipleFlipMutation_ptr->setPlotLabel("Occurance of different values when flip-mutating, starting with 1");
 
@@ -104,11 +107,11 @@ int main(int argc, char **argv){
 	for(std::uint32_t i=0; i<NTESTS; i++) {
 		*multipleFlipMutation_ptr & gMultFlipMut.value();
 		*multipleFlipProgress_ptr & std::tuple<double,double>((double)i, (double)gMultFlipMut.value());
-		gMultFlipMut.adapt();
+		gMultFlipMut.adapt(gr);
 
 		*multipleGaussMutation_ptr & gMultGaussMut.value();
 		*multipleGaussProgress_ptr & std::tuple<double,double>((double)i, (double)gMultGaussMut.value());
-		gMultGaussMut.adapt();
+		gMultGaussMut.adapt(gr);
 
 		internalValue=-30.+50.*double(i)/double(NTESTS);
 

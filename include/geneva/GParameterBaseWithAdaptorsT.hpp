@@ -422,6 +422,7 @@ protected:
 	std::size_t applyAdaptor(
 		T &value
 		, const T& range
+		, Gem::Hap::GRandomBase& gr
 	) {
 #ifdef DEBUG
 		if (!adaptor_) {
@@ -434,7 +435,7 @@ protected:
 #endif /* DEBUG */
 
 		// Apply the adaptor
-		return adaptor_->adapt(value, range);
+		return adaptor_->adapt(value, range, gr);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -455,11 +456,12 @@ protected:
 	std::size_t applyAdaptor(
 		std::vector<T> &collection
 		, const T& range
+		, Gem::Hap::GRandomBase& gr
 	) {
 #ifdef DEBUG
 		if(!adaptor_) {
 		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range):" << std::endl
+		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range, gr):" << std::endl
          << "with typeid(T).name() = " << typeid(T).name() << std::endl
          << "Error: No adaptor was found." << std::endl
          << GEXCEPTION;
@@ -467,7 +469,7 @@ protected:
 #endif /* DEBUG */
 
 		// Apply the adaptor to each data item in turn
-		return adaptor_->adapt(collection, range);
+		return adaptor_->adapt(collection, range, gr);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -514,6 +516,9 @@ public:
 		// Call the parent classes' functions
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
 
+		// Get a random number generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 		//------------------------------------------------------------------------------
 
 		{ // Test that trying to reset the adaptor will not remove it
@@ -525,7 +530,7 @@ public:
 
 			T testVal = T(0);
 			// We have a local adaptor, so trying to call the applyAdaptor() function should not throw
-			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal, T(1)));
+			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal, T(1), gr));
 		}
 
 		//------------------------------------------------------------------------------
@@ -540,7 +545,7 @@ public:
 			std::vector<T> testVec;
 			for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
 			// We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
-			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec, T(1)));
+			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec, T(1), gr));
 		}
 
 		//------------------------------------------------------------------------------
@@ -583,6 +588,7 @@ template <>
 inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 	std::vector<bool>& collection
 	, const bool& range
+	, Gem::Hap::GRandomBase& gr
 ) {
 #ifdef DEBUG
       if(!adaptor_) {
@@ -598,7 +604,7 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 	std::vector<bool>::iterator it;
 	for (it = collection.begin(); it != collection.end(); ++it) {
 		bool value = *it;
-		if(1 == adaptor_->adapt(value, range)) {
+		if(1 == adaptor_->adapt(value, range, gr)) {
 			*it = value;
 			nAdapted += 1;
 		}

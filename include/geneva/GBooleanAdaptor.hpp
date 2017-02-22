@@ -108,7 +108,7 @@ public:
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const override;
 	/** @brief Random initialization of the adaptor */
-	G_API_GENEVA bool randomInit() override;
+	G_API_GENEVA bool randomInit(Gem::Hap::GRandomBase&) override;
 
 protected:
 	/** @brief Loads the data of another GObject */
@@ -116,7 +116,11 @@ protected:
 	/** @brief Creates a deep clone of this object. */
 	virtual G_API_GENEVA GObject* clone_() const override;
 	/** @brief Flip the value up or down by 1, depending on a random number */
-	virtual G_API_GENEVA void customAdaptions(bool&, const bool&) override;
+	virtual G_API_GENEVA void customAdaptions(
+		bool&
+		, const bool&
+		, Gem::Hap::GRandomBase&
+	) override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

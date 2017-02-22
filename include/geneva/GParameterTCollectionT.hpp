@@ -218,11 +218,11 @@ public:
 	 *
 	 * @return The number of adaptions that were carried out
 	 */
-	virtual std::size_t adaptImpl() override {
+	virtual std::size_t adaptImpl(Gem::Hap::GRandomBase& gr) override {
 		std::size_t nAdapted = 0;
 
 		for(auto p_ptr : *this) { // std::shared_ptr may be copied
-			nAdapted += p_ptr->adapt();
+			nAdapted += p_ptr->adapt(gr);
 		}
 
 		return nAdapted;

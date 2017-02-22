@@ -96,6 +96,7 @@ GObject *GBooleanAdaptor::clone_() const {
 void GBooleanAdaptor::customAdaptions(
 	bool &value
 	, const bool &range
+	, Gem::Hap::GRandomBase& gr
 ) {
 	value == true ? value = false : value = true;
 }
@@ -188,7 +189,7 @@ std::string GBooleanAdaptor::name() const {
  * Allows to randomly initialize parameter members. No local data, hence no
  * action taken.
  */
-bool GBooleanAdaptor::randomInit() {
+bool GBooleanAdaptor::randomInit(Gem::Hap::GRandomBase&) {
 	return false;
 }
 

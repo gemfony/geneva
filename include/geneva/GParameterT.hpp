@@ -251,10 +251,13 @@ public:
 	 *
 	 * @return The number of adaptions that were performed
 	 */
-	virtual std::size_t adaptImpl() override {
+	virtual std::size_t adaptImpl(
+		Gem::Hap::GRandomBase& gr
+	) override {
 		return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
 			val_
 			, this->range()
+			, gr
 		);
 	}
 

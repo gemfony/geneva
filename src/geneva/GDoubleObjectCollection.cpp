@@ -255,6 +255,9 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double RANDLOWERBOUNDARY = 0.;
 	const double RANDUPPERBOUNDARY = 10.;
 
+	// Get a random number generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// --------------------------------------------------------------------------
 
 	{ // Call the parent class'es function
@@ -283,7 +286,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Modify p_test2 using its adaptImpl function
-		BOOST_CHECK_NO_THROW(p_test2->adaptImpl());
+		BOOST_CHECK_NO_THROW(p_test2->adaptImpl(gr));
 
 		// Check that both objects differ
 		// Check that both objects are identical

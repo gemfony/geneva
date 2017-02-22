@@ -220,6 +220,9 @@ bool parseCommandLine (
 /************************************************************************************************/
 
 int main(int argc, char **argv) {
+	// Get a random number generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	double sigma1, sigmaSigma1, minSigma1, maxSigma1;
 	double sigma2, sigmaSigma2, minSigma2, maxSigma2;
 	double delta, sigmaDelta, minDelta, maxDelta;
@@ -306,7 +309,7 @@ int main(int argc, char **argv) {
 	for (std::uint32_t i = 0; i < maxIter; i++) {
 		mutValOld = mutVal;
 
-		gdbga_ptr->adapt(mutVal, 1.);
+		gdbga_ptr->adapt(mutVal, 1., gr);
 
 		(*gmutpar_iter_ptr) & std::tuple<double, double>((double)i, mutVal); // The new value of sigma
 		(*gmutpardiff_iter_ptr) & std::tuple<double, double>((double)i, mutVal - mutValOld); // Difference between last known value and current value

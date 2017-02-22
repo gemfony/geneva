@@ -1406,19 +1406,19 @@ protected:
 		 );
 
 		 comment = "";
-		 comment += "The initial value of the strength of adProb_ adaption;";
+		 comment += "The initial value of the strength of m_adProb adaption;";
 		 gpb.registerFileParameter<double>(
 			 "initAdaptAdProb", initAdaptAdProb_, GMETAOPT_DEF_INITADAPTADPROB, Gem::Common::VAR_IS_ESSENTIAL, comment
 		 );
 
 		 comment = "";
-		 comment += "The lower boundary for the variation of the strength of adProb_ adaption;";
+		 comment += "The lower boundary for the variation of the strength of m_adProb adaption;";
 		 gpb.registerFileParameter<double>(
 			 "adaptAdProb_LB", adaptAdProb_LB_, GMETAOPT_DEF_ADAPTADPROB_LB, Gem::Common::VAR_IS_ESSENTIAL, comment
 		 );
 
 		 comment = "";
-		 comment += "The upper boundary for the variation of the strength of adProb_ adaption;";
+		 comment += "The upper boundary for the variation of the strength of m_adProb adaption;";
 		 gpb.registerFileParameter<double>(
 			 "adaptAdProb_UB", adaptAdProb_UB_, GMETAOPT_DEF_ADAPTADPROB_UB, Gem::Common::VAR_IS_ESSENTIAL, comment
 		 );

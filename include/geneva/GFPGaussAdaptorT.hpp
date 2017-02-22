@@ -272,13 +272,14 @@ protected:
 	virtual void customAdaptions(
 		fp_type& value
 		, const fp_type& range
+		, Gem::Hap::GRandomBase& gr
 	) override {
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
 		// adapt the value in situ. Note that this changes
 		// the argument of this function
-		value += (range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(typename std::normal_distribution<fp_type>::param_type(0., GNumGaussAdaptorT<fp_type, fp_type>::sigma_)));
+		value += (range * GAdaptorT<fp_type, fp_type>::m_normal_distribution(gr, typename std::normal_distribution<fp_type>::param_type(0., GNumGaussAdaptorT<fp_type, fp_type>::sigma_)));
 	}
 
 	/* ----------------------------------------------------------------------------------

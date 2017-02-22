@@ -42,8 +42,12 @@ namespace Geneva {
  * The default constructor. Adaptions are switched on by default.
  */
 GParameterBase::GParameterBase()
-	: GObject(), GMutableI(), adaptionsActive_(true), randomInitializationBlocked_(false),
-	  parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()())) { /* nothing */ }
+	: GObject()
+  	, GMutableParameterI()
+  	, adaptionsActive_(true)
+  	, randomInitializationBlocked_(false)
+  	, parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -52,8 +56,12 @@ GParameterBase::GParameterBase()
  * @param cp A copy of another GParameterBase object
  */
 GParameterBase::GParameterBase(const GParameterBase &cp)
-	: GObject(cp), GMutableI(cp), adaptionsActive_(cp.adaptionsActive_),
-	  randomInitializationBlocked_(cp.randomInitializationBlocked_), parameterName_(cp.parameterName_) { /* nothing */ }
+	: GObject(cp)
+  	, GMutableParameterI(cp)
+  	, adaptionsActive_(cp.adaptionsActive_)
+  	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
+  	, parameterName_(cp.parameterName_)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -96,9 +104,9 @@ void GParameterBase::load_(const GObject *cp) {
  *
  * @return The number of adaptions that were performed
  */
-std::size_t GParameterBase::adapt() {
+std::size_t GParameterBase::adapt(Gem::Hap::GRandomBase& gr) {
 	if (adaptionsActive_) {
-		return adaptImpl(); // Will determine whether a modification was made
+		return adaptImpl(gr); // Will determine whether a modification was made
 	} else {
 		return 0;
 	}
@@ -1168,13 +1176,13 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		if (p_test_1->hasAdaptor() && p_test_2->hasAdaptor()) {
 			bool adapted = false;
 			BOOST_CHECK_NO_THROW(
-				adapted = p_test_1->adapt()); // Should change, unless we are dealing with an "empty" container type
+				adapted = p_test_1->adapt(gr)); // Should change, unless we are dealing with an "empty" container type
 			BOOST_CHECK_NO_THROW(p_test->setAdaptionsActive()); // Make sure differences do not stem from this flag
 			if (adapted) {
 				BOOST_CHECK(*p_test_1 != *p_test);
 			}
 
-			BOOST_CHECK_NO_THROW(p_test_2->adapt()); // Should stay unchanged
+			BOOST_CHECK_NO_THROW(p_test_2->adapt(gr)); // Should stay unchanged
 			BOOST_CHECK_NO_THROW(p_test->setAdaptionsInactive()); // Make sure differences do not stem from this flag
 			BOOST_CHECK(*p_test_2 == *p_test);
 		}
@@ -1199,7 +1207,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		if (p_test1->hasAdaptor()) {
 			for (std::size_t i = 0; i < 100; i++) {
 				bool adapted = false;
-				BOOST_CHECK_NO_THROW(adapted = p_test1->adapt());
+				BOOST_CHECK_NO_THROW(adapted = p_test1->adapt(gr));
 				if (adapted) {
 					BOOST_CHECK(*p_test1 != *p_test2);
 				}
@@ -1219,7 +1227,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 		// Check that adaptions do not occur anymore in p_test1
 		if (p_test1->hasAdaptor()) {
 			for (std::size_t i = 0; i < 100; i++) {
-				BOOST_CHECK_NO_THROW(p_test1->adapt());
+				BOOST_CHECK_NO_THROW(p_test1->adapt(gr));
 				BOOST_CHECK(*p_test1 == *p_test2);
 			}
 		}

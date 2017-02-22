@@ -270,6 +270,7 @@ protected:
 	virtual void customAdaptions(
 		int_type& value
 		, const int_type& range
+		, Gem::Hap::GRandomBase& gr
 	) override {
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
@@ -278,12 +279,13 @@ protected:
 		int_type addition = static_cast<int_type>(
 				static_cast<double>(range)
                 * GAdaptorT<int_type, double>::m_normal_distribution(
-                        std::normal_distribution<double>::param_type(0., this->getSigma())
+							gr
+							, std::normal_distribution<double>::param_type(0., this->getSigma())
                 )
 		);
 
 		if(addition == 0) { // Enforce a minimal change of 1.
-			bool flipDirection = GAdaptorT<int_type, double>::m_weighted_bool(std::bernoulli_distribution::param_type(0.5));
+			bool flipDirection = GAdaptorT<int_type, double>::m_weighted_bool(gr, std::bernoulli_distribution::param_type(0.5));
 			addition = flipDirection?1:-1;
 		}
 
@@ -296,9 +298,6 @@ protected:
 	 * - Tested in GNumGaussAdaptorT<int_type, double>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
-
-private:
-	 std::bernoulli_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
 
 public:
 	/***************************************************************************/

@@ -205,10 +205,13 @@ public:
 	 *
 	 * @return The number of adaptions that were carried out
 	 */
-	virtual std::size_t adaptImpl() override {
+	virtual std::size_t adaptImpl(
+		Gem::Hap::GRandomBase& gr
+	) override {
 		return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
 			Gem::Common::GStdSimpleVectorInterfaceT<num_type>::data
 			, this->range()
+			, gr
 		);
 	}
 

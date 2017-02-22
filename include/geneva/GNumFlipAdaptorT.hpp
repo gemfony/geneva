@@ -217,6 +217,15 @@ public:
 
 protected:
 	/***************************************************************************/
+ 	/**
+    * Allows to randomly initialize parameter members. No local data, hence no
+    * action taken.
+    */
+   virtual bool randomInit(Gem::Hap::GRandomBase&) override {
+	   return false;
+ 	}
+
+	/***************************************************************************/
 	/**
 	 * This function loads the data of another GNumFlipAdaptorT, camouflaged as a GObject.
 	 *
@@ -251,11 +260,12 @@ protected:
 	inline virtual void customAdaptions(
 		num_type& value
 		, const num_type& range
+		, Gem::Hap::GRandomBase& gr
 	) override {
 		using namespace Gem::Common;
 		using namespace Gem::Hap;
 
-		if(GAdaptorT<num_type>::m_weighted_bool(std::bernoulli_distribution::param_type(0.5))){
+		if(GAdaptorT<num_type>::m_weighted_bool(gr, std::bernoulli_distribution::param_type(0.5))){
 			value += 1;
 		} else {
 			value -= 1;
@@ -266,9 +276,6 @@ protected:
 	 * Tested in GAdaptorT<num_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
-
-private:
-	 std::bernoulli_distribution m_uniform_bool; ///< boolean random numbers with an even distribution
 
 public:
 	/***************************************************************************/

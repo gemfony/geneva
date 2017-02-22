@@ -1,5 +1,5 @@
 /**
- * @file GMutableI.hpp
+ * @file GMutableParameterI.hpp
  */
 
 /*
@@ -42,26 +42,27 @@
 // Boost header files go here
 #include <boost/exception/all.hpp>
 
-#ifndef GMUTABLEI_HPP_
-#define GMUTABLEI_HPP_
+#ifndef GMUTABLEPARAMETERI_HPP_
+#define GMUTABLEPARAMETERI_HPP_
 
 
 // Geneva header files go here
+#include "hap/GRandomBase.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /**
- * This is a simple interface class for mutable objects, in partucar individuals
+ * This is a simple interface class for mutable parameter objects
  */
-class GMutableI {
+class GMutableParameterI {
 public:
-	/** @brief The standard destructor */
-	virtual G_API_GENEVA ~GMutableI(){ /* nothing */ }
+	 /** @brief The standard destructor */
+	 virtual G_API_GENEVA ~GMutableParameterI(){ /* nothing */ }
 
-	/** @brief Allows derivatives to be adapted */
-	virtual G_API_GENEVA std::size_t adapt() BASE = 0;
+	 /** @brief Allows derivatives to be adapted */
+	 virtual G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) BASE = 0;
 };
 
 } /* namespace Geneva */
@@ -69,4 +70,4 @@ public:
 
 /******************************************************************************/
 
-#endif /* GMUTABLEI_HPP_ */
+#endif /* GMUTABLEPARAMETERI_HPP_ */

@@ -51,6 +51,7 @@ template <>
 std::size_t GAdaptorT<bool,double>::adapt(
 	std::vector<bool>& valVec
 	, const bool& range
+	, Gem::Hap::GRandomBase& gr
 ) {
 	using namespace Gem::Common;
 	using namespace Gem::Hap;
@@ -58,42 +59,42 @@ std::size_t GAdaptorT<bool,double>::adapt(
 	std::size_t nAdapted = 0;
 
 	// Update the adaption probability, if requested by the user
-	if(adaptAdProb_ > double(0.)) {
-		adProb_ *= gexp(
-			m_normal_distribution(typename std::normal_distribution<double>::param_type(0.,adaptAdProb_))
+	if(m_adaptAdProb > double(0.)) {
+		m_adProb *= gexp(
+			m_normal_distribution(gr, typename std::normal_distribution<double>::param_type(0.,m_adaptAdProb))
 		);
 		Gem::Common::enforceRangeConstraint<double>(
-			adProb_
-			, minAdProb_
-			, maxAdProb_
+			m_adProb
+			, m_minAdProb
+			, m_maxAdProb
 			, "GAdaptorT<bool,double>::adapt()"
 		);
 	}
 
 	bool dummy_val;
 
-	if(boost::logic::indeterminate(adaptionMode_)) { // The most likely case is indeterminate (means: "depends")
+	if(boost::logic::indeterminate(m_adaptionMode)) { // The most likely case is indeterminate (means: "depends")
 		for (auto && val: valVec) {
-			// A likelihood of adProb_ for adaption
-			if(m_weighted_bool(std::bernoulli_distribution::param_type(gfabs(adProb_)))) {
+			// A likelihood of m_adProb for adaption
+			if(m_weighted_bool(gr, std::bernoulli_distribution::param_type(gfabs(m_adProb)))) {
 				dummy_val = val;
-				adaptAdaption(range);
-				customAdaptions(dummy_val, range); // does not know about the bool-proxy of std::vector<bool>
+				adaptAdaption(range, gr);
+				customAdaptions(dummy_val, range, gr); // does not know about the bool-proxy of std::vector<bool>
 				val=dummy_val;
 				nAdapted += 1;
 			}
 		}
-	} else if(true == adaptionMode_) { // always adapt
+	} else if(true == m_adaptionMode) { // always adapt
 		for (auto && val: valVec) {
 			dummy_val = val;
-			adaptAdaption(range);
-			customAdaptions(dummy_val, range);
+			adaptAdaption(range, gr);
+			customAdaptions(dummy_val, range, gr);
 			val=dummy_val;
 			nAdapted += 1;
 		}
 	}
 
-	// No need to test for "adaptionMode_ == false" as no action is needed in this case
+	// No need to test for "m_adaptionMode == false" as no action is needed in this case
 
 	return nAdapted;
 }

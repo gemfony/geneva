@@ -441,6 +441,9 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	GNumFPT<double>::specificTestsNoFailureExpected_GUnitTests();
 
+	// Get a random number generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// --------------------------------------------------------------------------
 
 	{ // Test of GParameterT<T>'s methods for setting and retrieval of values
@@ -481,7 +484,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK(origVal == 1.);
 
 			for (std::size_t i = 0; i < nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test->adaptImpl());
+				BOOST_CHECK_NO_THROW(p_test->adaptImpl(gr));
 				BOOST_CHECK(origVal != *p_test); // Should be different
 				BOOST_CHECK_NO_THROW(origVal = *p_test);
 			}

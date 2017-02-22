@@ -211,15 +211,6 @@ public:
 		return std::string("GIntFlipAdaptorT");
 	}
 
-	/***************************************************************************/
-	/**
-	 * Allows to randomly initialize parameter members. No local data, hence no
-	 * action taken.
-	 */
-	virtual bool randomInit() override {
-		return false;
-	}
-
 protected:
 	/***************************************************************************/
 	/**

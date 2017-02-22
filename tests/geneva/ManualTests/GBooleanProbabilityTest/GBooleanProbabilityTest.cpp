@@ -67,6 +67,9 @@ const std::size_t NBIT=10;
  * The main function
  */
 int main(int argc, char **argv){
+	// Get a random number generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// Create test candidates
 	GBooleanObject A(true), A_tmp;
 	GBooleanCollection B(NBIT), B_tmp; // B is initialized with 100 random booleans
@@ -99,7 +102,7 @@ int main(int argc, char **argv){
 	for(std::size_t i=0; i<MAXFLIP; i++){
 		// GBooleanObject
 		A_tmp = A;
-		A.adapt(); // adapt
+		A.adapt(gr); // adapt
 		if(A.value() == A_tmp.value()){
 			ofs << "  singleFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
 			A_noprobadapt_notflipped += 1.;
@@ -111,7 +114,7 @@ int main(int argc, char **argv){
 
 		// GBooleanCollection
 		B_tmp = B;
-		B.adapt();
+		B.adapt(gr);
 		for(std::size_t j=0; j<NBIT; j++){
 			if(B[j] == B_tmp[j]){
 				ofs << "  collectionFlipValueNPA->Fill(0.);" << std::endl; // 0 means "not flipped"
@@ -143,7 +146,7 @@ int main(int argc, char **argv){
 	for(std::size_t i=0; i<MAXFLIP; i++){
 		// GBooleanObject
 		A_tmp = A;
-		A.adapt(); // adapt
+		A.adapt(gr); // adapt
 		if(A.value() == A_tmp.value()){
 			ofs << "  singleFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"
 			A_probadapt_notflipped += 1.;
@@ -155,7 +158,7 @@ int main(int argc, char **argv){
 
 		// GBooleanCollection
 		B_tmp = B;
-		B.adapt();
+		B.adapt(gr);
 		for(std::size_t j=0; j<NBIT; j++){
 			if(B[j] == B_tmp[j]){
 				ofs << "  collectionFlipValuePA->Fill(0.);" << std::endl; // 0 means "not flipped"

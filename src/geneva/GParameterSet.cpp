@@ -594,8 +594,8 @@ std::size_t GParameterSet::customAdaptions() {
 	std::size_t nAdaptions = 0;
 
 	GParameterSet::iterator it;
-	for (it = this->begin(); it != this->end(); ++it) {
-		nAdaptions += (*it)->adapt();
+	for (auto par: *this) {
+		nAdaptions += par->adapt(m_gr);
 	}
 
 	return nAdaptions;
