@@ -304,14 +304,13 @@ void GConstrainedDoubleObject::assignDoubleValueVectors(
  * Multiplication with a random value in a given range
  */
 void GConstrainedDoubleObject::doubleMultiplyByRandom(
-	const double &min, const double &max, const activityMode &am
+	const double &min
+	, const double &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	GParameterT<double>::setValue(
-		transfer(
-			GParameterT<double>::value() *
-            m_uniform_real_distribution(std::uniform_real_distribution<double>::param_type(min, max))
-		)
-	);
+	std::uniform_real_distribution<double> uniform_real_distribution(min, max);
+	GParameterT<double>::setValue(transfer(GParameterT<double>::value() * uniform_real_distribution(gr)));
 }
 
 /******************************************************************************/
@@ -320,13 +319,10 @@ void GConstrainedDoubleObject::doubleMultiplyByRandom(
  */
 void GConstrainedDoubleObject::doubleMultiplyByRandom(
 	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	GParameterT<double>::setValue(
-		transfer(
-			GParameterT<double>::value() *
-            m_uniform_real_distribution(std::uniform_real_distribution<double>::param_type(0., 1.))
-		)
-	);
+	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
+	GParameterT<double>::setValue(transfer(GParameterT<double>::value() * uniform_real_distribution(gr)));
 }
 
 /******************************************************************************/
@@ -356,13 +352,12 @@ void GConstrainedDoubleObject::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleObject::doubleAdd(
-	std::shared_ptr < GParameterBase > p_base, const
-activityMode &am
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
 ) {
-// We first need to convert p_base into the local type
-std::shared_ptr <GConstrainedDoubleObject> p
-	= GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
-GParameterT<double>::setValue(transfer(this->value() + p->value()));
+	// We first need to convert p_base into the local type
+	std::shared_ptr<GConstrainedDoubleObject> p = GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
+	GParameterT<double>::setValue(transfer(this->value() + p->value()));
 }
 
 /******************************************************************************/
@@ -370,13 +365,12 @@ GParameterT<double>::setValue(transfer(this->value() + p->value()));
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleObject::doubleSubtract(
-	std::shared_ptr < GParameterBase > p_base, const
-activityMode &am
+	std::shared_ptr<GParameterBase > p_base
+	, const activityMode &am
 ) {
-// We first need to convert p_base into the local type
-std::shared_ptr <GConstrainedDoubleObject> p
-	= GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
-GParameterT<double>::setValue(transfer(this->value() - p->value()));
+	// We first need to convert p_base into the local type
+	std::shared_ptr<GConstrainedDoubleObject> p = GParameterBase::parameterbase_cast<GConstrainedDoubleObject>(p_base);
+	GParameterT<double>::setValue(transfer(this->value() - p->value()));
 }
 
 

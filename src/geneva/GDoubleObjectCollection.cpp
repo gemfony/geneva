@@ -366,7 +366,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test1 with a random value
-		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(LOWERINITBOUNDARY, UPPERINITBOUNDARY, activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(LOWERINITBOUNDARY, UPPERINITBOUNDARY, activityMode::ALLPARAMETERS, gr));
 
 		// Check that p_test1 and p_test2 differ
 		BOOST_CHECK(*p_test1 != *p_test2);
@@ -402,7 +402,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test1 with a random value
-		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
 
 		// Check that p_test1 and p_test2 differ
 		BOOST_CHECK(*p_test1 != *p_test2);

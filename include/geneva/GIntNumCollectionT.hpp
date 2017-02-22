@@ -382,11 +382,11 @@ public:
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that adding p_test1 to p_test3 does not have an effect

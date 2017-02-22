@@ -462,7 +462,7 @@ public:
 		 // Loop over all GParameterBase objects.
 		 GParameterSet::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->multiplyByRandom<par_type>(min, max, am);
+			 (*it)->multiplyByRandom<par_type>(min, max, am, m_gr);
 		 }
 	 }
 
@@ -477,7 +477,7 @@ public:
 		 // Loop over all GParameterBase objects.
 		 GParameterSet::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->multiplyByRandom<par_type>(am);
+			 (*it)->multiplyByRandom<par_type>(am, m_gr);
 		 }
 	 }
 

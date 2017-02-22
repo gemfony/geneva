@@ -782,7 +782,10 @@ void GParameterBase::assignBooleanValueVectors(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::floatMultiplyByRandom(
-	const float &min, const float &max, const activityMode &am
+	const float &min
+	, const float &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	/* Do nothing by default */
 }
@@ -792,7 +795,10 @@ void GParameterBase::floatMultiplyByRandom(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::doubleMultiplyByRandom(
-	const double &min, const double &max, const activityMode &am
+	const double &min
+	, const double &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	/* Do nothing by default */
 }
@@ -802,7 +808,10 @@ void GParameterBase::doubleMultiplyByRandom(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::int32MultiplyByRandom(
-	const std::int32_t &min, const std::int32_t &max, const activityMode &am
+	const std::int32_t &min
+	, const std::int32_t &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	/* Do nothing by default */
 }
@@ -812,7 +821,10 @@ void GParameterBase::int32MultiplyByRandom(
  * Multiplication with a random value in a given range
  */
 void GParameterBase::booleanMultiplyByRandom(
-	const bool &min, const bool &max, const activityMode &am
+	const bool &min
+	, const bool &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	// Complain: This function should not be called for boolean values
 	glogger
@@ -825,7 +837,10 @@ void GParameterBase::booleanMultiplyByRandom(
 /**
  * Multiplication with a random value in the range [0,1[
  */
-void GParameterBase::floatMultiplyByRandom(const activityMode &am) {
+void GParameterBase::floatMultiplyByRandom(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
 	/* Do nothing by default */
 }
 
@@ -833,7 +848,10 @@ void GParameterBase::floatMultiplyByRandom(const activityMode &am) {
 /**
  * Multiplication with a random value in the range [0,1[
  */
-void GParameterBase::doubleMultiplyByRandom(const activityMode &am) {
+void GParameterBase::doubleMultiplyByRandom(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
 	/* Do nothing by default */
 }
 
@@ -841,7 +859,10 @@ void GParameterBase::doubleMultiplyByRandom(const activityMode &am) {
 /**
  * Multiplication with a random value in the range [0,1[
  */
-void GParameterBase::int32MultiplyByRandom(const activityMode &am) {
+void GParameterBase::int32MultiplyByRandom(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
 	/* Do nothing by default */
 }
 
@@ -849,7 +870,10 @@ void GParameterBase::int32MultiplyByRandom(const activityMode &am) {
 /**
  * Multiplication with a random value in the range [0,1[
  */
-void GParameterBase::booleanMultiplyByRandom(const activityMode &am) {
+void GParameterBase::booleanMultiplyByRandom(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
 	// Complain: This function should not be called for boolean values
 	glogger
 	<< "In GParameterBase::booleanMultiplyByRandom(): Error!" << std::endl

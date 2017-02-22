@@ -70,7 +70,8 @@ GInt32Collection::GInt32Collection(
 GInt32Collection::GInt32Collection(
 	const std::size_t &nval, const std::int32_t &val, const std::int32_t &min, const std::int32_t &max
 )
-	: GIntNumCollectionT<std::int32_t>(nval, val, min, max) { /* nothing */ }
+	: GIntNumCollectionT<std::int32_t>(nval, val, min, max)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -79,13 +80,15 @@ GInt32Collection::GInt32Collection(
  * @param cp A copy of another GInt32Collection object
  */
 GInt32Collection::GInt32Collection(const GInt32Collection &cp)
-	: GIntNumCollectionT<std::int32_t>(cp) { /* nothing */ }
+	: GIntNumCollectionT<std::int32_t>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GInt32Collection::~GInt32Collection() { /* nothing */ }
+GInt32Collection::~GInt32Collection()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -283,6 +286,119 @@ void GInt32Collection::assignInt32ValueVectors(
 	std::size_t cnt = 0;
 	for (it = this->begin(); it != this->end(); ++it) {
 		*it = (Gem::Common::getMapItem(parMap, this->getParameterName())).at(cnt++);
+	}
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a random value in a given range
+ */
+void GInt32Collection::int32MultiplyByRandom(
+	const std::int32_t &min
+	, const std::int32_t &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	std::uniform_int_distribution<std::int32_t> uniform_int_distribution(min, max);
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
+		GParameterCollectionT<std::int32_t>::setValue(
+			pos
+			, this->value(pos) * uniform_int_distribution(gr)
+		);
+	}
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a DOUBLE random value in the range [0,1[
+ */
+void GInt32Collection::int32MultiplyByRandom(
+	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
+) {
+	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
+		GParameterCollectionT<std::int32_t>::setValue(
+			pos
+			, boost::numeric_cast<std::int32_t>(
+				boost::numeric_cast<double>(this->value(pos))
+				* uniform_real_distribution(gr)
+			)
+		);
+	}
+}
+
+/******************************************************************************/
+/**
+ * Multiplication with a constant value
+ */
+void GInt32Collection::int32MultiplyBy(
+	const std::int32_t &val
+	, const activityMode &am
+) {
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
+		GParameterCollectionT<std::int32_t>::setValue(pos, val * this->value(pos));
+	}
+}
+
+/******************************************************************************/
+/**
+ * Initialization with a constant value
+ */
+void GInt32Collection::int32FixedValueInit(
+	const std::int32_t &val
+	, const activityMode &am
+) {
+	for (std::size_t pos = 0; pos < this->size(); pos++) {
+		GParameterCollectionT<std::int32_t>::setValue(pos, val);
+	}
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GInt32Collection::int32Add(
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
+) {
+	// We first need to convert p_base into the local type
+	std::shared_ptr <GInt32Collection> p = GParameterBase::parameterbase_cast<GInt32Collection>(p_base);
+
+	// Cross-check that the sizes match
+	if(this->size() != p->size()) {
+		glogger
+			<< "In GInt32Collection::int32Add():" << std::endl
+			<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+			<< GEXCEPTION;
+	}
+
+	for(std::size_t pos = 0; pos<this->size(); pos++) {
+		GParameterCollectionT<std::int32_t>::setValue(pos, this->value(pos) + p->value(pos));
+	}
+}
+
+/******************************************************************************/
+/**
+ * Adds the "same-type" parameters of another GParameterBase object to this one
+ */
+void GInt32Collection::int32Subtract(
+	std::shared_ptr< GParameterBase > p_base
+	, const activityMode &am
+) {
+	// We first need to convert p_base into the local type
+	std::shared_ptr <GInt32Collection> p = GParameterBase::parameterbase_cast<GInt32Collection>(p_base);
+
+// Cross-check that the sizes match
+	if(this->size() != p->size()) {
+		glogger
+			<< "In GInt32Collection::int32Subtract():" << std::endl
+			<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+			<< GEXCEPTION;
+	}
+
+	for(std::size_t pos = 0; pos<this->size(); pos++) {
+		GParameterCollectionT<std::int32_t>::setValue(pos, this->value(pos) - p->value(pos));
 	}
 }
 

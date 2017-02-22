@@ -95,9 +95,10 @@ GBooleanCollection::GBooleanCollection(
 	, const double &probability)
 	: GParameterCollectionT<bool>()
 {
-	Gem::Hap::g_boolean_distribution weighted_bool(probability);
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+	std::bernoulli_distribution weighted_bool(probability);
 	for (std::size_t i = 0; i < nval; i++) {
-		this->push_back(weighted_bool());
+		this->push_back(weighted_bool(gr));
 	}
 }
 
@@ -848,11 +849,11 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test2 == *p_test1);
 
 		// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
 		BOOST_CHECK(*p_test2 == *p_test1);
 
 		// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
 		BOOST_CHECK(*p_test2 == *p_test1);
 
 		// Check that adding p_test1 to p_test3 does not have an effect

@@ -250,10 +250,10 @@ private:
 /******************************************************************************/
 
 // Access to a thread_local copy of a random proxy object
-extern thread_local GRandomT<RANDFLAVOURS::RANDOMPROXY> GRANDOM_TLS;
+// extern thread_local GRandomT<RANDFLAVOURS::RANDOMPROXY> GRANDOM_TLS;
 
-/** @brief Gives access to a thread-local copy of the GRandomT proxy */
-G_API_HAP GRandomT<RANDFLAVOURS::RANDOMPROXY>& randomProxy();
+// /** @brief Gives access to a thread-local copy of the GRandomT proxy */
+// G_API_HAP GRandomT<RANDFLAVOURS::RANDOMPROXY>& randomProxy();
 
 } /* namespace Hap */
 } /* namespace Gem */

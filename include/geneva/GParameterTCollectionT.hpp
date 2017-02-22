@@ -880,10 +880,11 @@ protected:
 		const float& min
 		, const float& max
 		, const activityMode& am
+		, Gem::Hap::GRandomBase& gr
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyByRandom<float>(min, max, am);
+			(*it)->template multiplyByRandom<float>(min, max, am, gr);
 		}
 	}
 
@@ -895,10 +896,11 @@ protected:
 		const double& min
 		, const double& max
 		, const activityMode& am
+		, Gem::Hap::GRandomBase& gr
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyByRandom<double>(min, max, am);
+			(*it)->template multiplyByRandom<double>(min, max, am, gr);
 		}
 	}
 
@@ -910,10 +912,11 @@ protected:
 		const std::int32_t& min
 		, const std::int32_t& max
 		, const activityMode& am
+		, Gem::Hap::GRandomBase& gr
 	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyByRandom<std::int32_t>(min, max, am);
+			(*it)->template multiplyByRandom<std::int32_t>(min, max, am, gr);
 		}
 	}
 
@@ -921,10 +924,13 @@ protected:
 	/**
 	 * Multiplication with a random value in the range [0,1[
 	 */
-	virtual void floatMultiplyByRandom(const activityMode& am) override {
+	virtual void floatMultiplyByRandom(
+		const activityMode& am
+		, Gem::Hap::GRandomBase& gr
+	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyByRandom<float>(am);
+			(*it)->template multiplyByRandom<float>(am, gr);
 		}
 	}
 
@@ -932,10 +938,13 @@ protected:
 	/**
 	 * Multiplication with a random value in the range [0,1[
 	 */
-	virtual void doubleMultiplyByRandom(const activityMode& am) override {
+	virtual void doubleMultiplyByRandom(
+		const activityMode& am
+		, Gem::Hap::GRandomBase& gr
+	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyByRandom<double>(am);
+			(*it)->template multiplyByRandom<double>(am, gr);
 		}
 	}
 
@@ -943,10 +952,13 @@ protected:
 	/**
 	 * Multiplication with a random value in the range [0,1[
 	 */
-	virtual void int32MultiplyByRandom(const activityMode& am) override {
+	virtual void int32MultiplyByRandom(
+		const activityMode& am
+		, Gem::Hap::GRandomBase& gr
+	) override {
 		typename GParameterTCollectionT<T>::iterator it;
 		for(it=this->begin(); it!=this->end(); ++it) {
-			(*it)->template multiplyByRandom<std::int32_t>(am);
+			(*it)->template multiplyByRandom<std::int32_t>(am, gr);
 		}
 	}
 

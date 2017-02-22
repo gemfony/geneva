@@ -304,13 +304,16 @@ void GDoubleCollection::assignDoubleValueVectors(
  * Multiplication with a random value in a given range
  */
 void GDoubleCollection::doubleMultiplyByRandom(
-	const double &min, const double &max, const activityMode &am
+	const double &min
+	, const double &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	Gem::Hap::g_uniform_real<double> uniform_real_distribution(min, max);
+	std::uniform_real_distribution<double> uniform_real_distribution(min,max);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
 			pos
-			, this->value(pos) * uniform_real_distribution()
+			, this->value(pos) * uniform_real_distribution(gr)
 		);
 	}
 }
@@ -321,12 +324,13 @@ void GDoubleCollection::doubleMultiplyByRandom(
  */
 void GDoubleCollection::doubleMultiplyByRandom(
 	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	Gem::Hap::g_uniform_real<double> uniform_real_distribution(0., 1.);
+	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
 			pos
-			, this->value(pos) * uniform_real_distribution()
+			, this->value(pos) * uniform_real_distribution(gr)
 		);
 	}
 }
@@ -336,7 +340,8 @@ void GDoubleCollection::doubleMultiplyByRandom(
  * Multiplication with a constant value
  */
 void GDoubleCollection::doubleMultiplyBy(
-	const double &val, const activityMode &am
+	const double &val
+	, const activityMode &am
 ) {
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(pos, val * this->value(pos));
@@ -360,54 +365,22 @@ void GDoubleCollection::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleCollection::doubleAdd(
-	std::shared_ptr < GParameterBase > p_base, const
-activityMode &am
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
 ) {
-// We first need to convert p_base into the local type
-std::shared_ptr <GDoubleCollection> p
-	= GParameterBase::parameterbase_cast<GDoubleCollection>(p_base);
+	// We first need to convert p_base into the local type
+	std::shared_ptr <GDoubleCollection> p = GParameterBase::parameterbase_cast<GDoubleCollection>(p_base);
 
-// Cross-check that the sizes match
-if(this->
+	// Cross-check that the sizes match
+	if(this->size() != p->size()) {
+		glogger
+		<< "In GDoubleCollection::doubleAdd():" << std::endl
+		<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl << GEXCEPTION;
+	}
 
-size()
-
-!= p->
-
-size()
-
-) {
-glogger
-<< "In GDoubleCollection::doubleAdd():" << std::endl
-<< "Sizes of vectors don't match: " << this->
-
-size()
-
-<< "/" << p->
-
-size()
-
-<< std::endl
-<<
-GEXCEPTION;
-}
-
-for(
-std::size_t pos = 0;
-pos<this->
-
-size();
-
-pos++) {
-GParameterCollectionT<double>::setValue(
-	pos
-,
-this->
-value(pos)
-+ p->
-value(pos)
-);
-}
+	for(std::size_t pos = 0; pos<this->size(); pos++) {
+		GParameterCollectionT<double>::setValue(pos, this->value(pos) + p->value(pos));
+	}
 }
 
 /******************************************************************************/
@@ -415,54 +388,23 @@ value(pos)
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GDoubleCollection::doubleSubtract(
-	std::shared_ptr < GParameterBase > p_base, const
+	std::shared_ptr< GParameterBase > p_base, const
 activityMode &am
 ) {
-// We first need to convert p_base into the local type
-std::shared_ptr <GDoubleCollection> p
-	= GParameterBase::parameterbase_cast<GDoubleCollection>(p_base);
+	// We first need to convert p_base into the local type
+	std::shared_ptr <GDoubleCollection> p = GParameterBase::parameterbase_cast<GDoubleCollection>(p_base);
 
 // Cross-check that the sizes match
-if(this->
+	if(this->size() != p->size()) {
+		glogger
+		<< "In GDoubleCollection::doubleSubtract():" << std::endl
+		<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+		<< GEXCEPTION;
+	}
 
-size()
-
-!= p->
-
-size()
-
-) {
-glogger
-<< "In GDoubleCollection::doubleSubtract():" << std::endl
-<< "Sizes of vectors don't match: " << this->
-
-size()
-
-<< "/" << p->
-
-size()
-
-<< std::endl
-<<
-GEXCEPTION;
-}
-
-for(
-std::size_t pos = 0;
-pos<this->
-
-size();
-
-pos++) {
-GParameterCollectionT<double>::setValue(
-	pos
-,
-this->
-value(pos)
-- p->
-value(pos)
-);
-}
+	for(std::size_t pos = 0; pos<this->size(); pos++) {
+		GParameterCollectionT<double>::setValue(pos, this->value(pos) - p->value(pos));
+	}
 }
 
 /******************************************************************************/
@@ -511,6 +453,9 @@ bool GDoubleCollection::modify_GUnitTests() {
  */
 void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 #ifdef GEM_TESTING
+	// Get a random number generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// Make sure the collection is empty
 	BOOST_CHECK_NO_THROW(this->clear());
 
@@ -522,9 +467,9 @@ void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 	// Add a single item of defined value, so we can test the find() and count() functions
 	BOOST_CHECK_NO_THROW(this->push_back(0.));
 
-	Gem::Hap::g_uniform_real<double> uniform_real_distribution(-10., 10.);
+	std::uniform_real_distribution<double> uniform_real_distribution(-10.,10.);
 	for (std::size_t i = 1; i < nItems - 1; i++) {
-		BOOST_CHECK_NO_THROW(this->push_back(uniform_real_distribution()));
+		BOOST_CHECK_NO_THROW(this->push_back(uniform_real_distribution(gr)));
 	}
 
 	// Add a single item of defined value, so we can test the find() and count() functions

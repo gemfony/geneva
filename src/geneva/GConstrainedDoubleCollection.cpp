@@ -289,13 +289,14 @@ void GConstrainedDoubleCollection::assignDoubleValueVectors(
  */
 void GConstrainedDoubleCollection::doubleMultiplyByRandom(
 	const double &min
-    , const double &max
-    , const activityMode &am
+	, const double &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	Gem::Hap::g_uniform_real<double> uniform_real_distribution(min, max);
+	std::uniform_real_distribution<double> uniform_real_distribution(min,max);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, transfer(this->value(pos) * uniform_real_distribution())
+			pos, transfer(this->value(pos) * uniform_real_distribution(gr))
 		);
 	}
 }
@@ -306,11 +307,12 @@ void GConstrainedDoubleCollection::doubleMultiplyByRandom(
  */
 void GConstrainedDoubleCollection::doubleMultiplyByRandom(
 	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	Gem::Hap::g_uniform_real<double> uniform_real_distribution(0., 1.);
+	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
 		GParameterCollectionT<double>::setValue(
-			pos, transfer(this->value(pos) * uniform_real_distribution())
+			pos, transfer(this->value(pos) * uniform_real_distribution(gr))
 		);
 	}
 }
@@ -347,50 +349,23 @@ void GConstrainedDoubleCollection::doubleFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleCollection::doubleAdd(
-	std::shared_ptr < GParameterBase > p_base, const
-activityMode &am
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
 ) {
-// We first need to convert p_base into the local type
-std::shared_ptr <GConstrainedDoubleCollection> p
-	= GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
+	// We first need to convert p_base into the local type
+	std::shared_ptr<GConstrainedDoubleCollection> p = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
 
-// Cross-check that the sizes match
-if(this->
+	// Cross-check that the sizes match
+	if(this->size() != p->size()) {
+		glogger
+		<< "In GConstrainedDoubleCollection::doubleAdd():" << std::endl
+		<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+		<< GEXCEPTION;
+	}
 
-size()
-
-!= p->
-
-size()
-
-) {
-glogger
-<< "In GConstrainedDoubleCollection::doubleAdd():" << std::endl
-<< "Sizes of vectors don't match: " << this->
-
-size()
-
-<< "/" << p->
-
-size()
-
-<< std::endl
-<<
-GEXCEPTION;
-}
-
-for(
-std::size_t pos = 0;
-pos<this->
-
-size();
-
-pos++) {
-GParameterCollectionT<double>::setValue(
-	pos
-, transfer(this->value(pos) + p->value(pos))
-);
-}
+	for(std::size_t pos = 0; pos<this->size(); pos++) {
+		GParameterCollectionT<double>::setValue(pos, transfer(this->value(pos) + p->value(pos)));
+	}
 }
 
 /******************************************************************************/
@@ -398,50 +373,23 @@ GParameterCollectionT<double>::setValue(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GConstrainedDoubleCollection::doubleSubtract(
-	std::shared_ptr < GParameterBase > p_base, const
-activityMode &am
+	std::shared_ptr<GParameterBase> p_base
+	, const activityMode &am
 ) {
-// We first need to convert p_base into the local type
-std::shared_ptr <GConstrainedDoubleCollection> p
-	= GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
+	// We first need to convert p_base into the local type
+	std::shared_ptr<GConstrainedDoubleCollection> p = GParameterBase::parameterbase_cast<GConstrainedDoubleCollection>(p_base);
 
-// Cross-check that the sizes match
-if(this->
+	// Cross-check that the sizes match
+	if(this->size() != p->size()) {
+		glogger
+		<< "In GConstrainedDoubleCollection::doubleSubtract():" << std::endl
+		<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+		<< GEXCEPTION;
+	}
 
-size()
-
-!= p->
-
-size()
-
-) {
-glogger
-<< "In GConstrainedDoubleCollection::doubleSubtract():" << std::endl
-<< "Sizes of vectors don't match: " << this->
-
-size()
-
-<< "/" << p->
-
-size()
-
-<< std::endl
-<<
-GEXCEPTION;
-}
-
-for(
-std::size_t pos = 0;
-pos<this->
-
-size();
-
-pos++) {
-GParameterCollectionT<double>::setValue(
-	pos
-, transfer(this->value(pos) - p->value(pos))
-);
-}
+	for(std::size_t pos = 0; pos<this->size(); pos++) {
+		GParameterCollectionT<double>::setValue(pos, transfer(this->value(pos) - p->value(pos)));
+	}
 }
 
 /******************************************************************************/

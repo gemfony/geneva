@@ -52,327 +52,327 @@
 namespace Gem {
 namespace Hap {
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class produces integer random numbers, using GRandomT<RAMDONPROXY> as
- * the random number engine. The class may only be instantiated for integral
- * values.
- */
-template <
-	typename int_type
-	, typename std::enable_if<std::is_integral<int_type>::value>::type* dummy = nullptr
->
-class g_uniform_int {
-public:
-	 /**
-	  * The default constructor
-	  */
-	 g_uniform_int()
-		 : m_uniform_int_distribution(0,(std::numeric_limits<int_type>::max)())
-	 { /* nothing */ }
-
-	 /**
-	  * Initialization with an upper limit
-	  */
-	 explicit g_uniform_int(int_type r)
-		 : m_uniform_int_distribution(0,r)
-	 { /* nothing */ }
-
-	 /**
-	  * Initialization with a lower and upper limit
-	  */
-	 g_uniform_int(int_type l, int_type r)
-		 : m_uniform_int_distribution(l,r)
-	 { /* nothing */ }
-
-	 /**
-	  * Initialization through a std::uniform_int_distribution<int_type>::param_type object
-	  */
-	 explicit g_uniform_int(const typename std::uniform_int_distribution<int_type>::param_type& params)
-		 : m_uniform_int_distribution(params)
-	 { /* nothing */ }
-
-	 /**
-	  * Returns uniformly distributed random numbers, using
-	  * the boundaries specified in the constructor
-	  */
-	 inline int_type operator()() const {
-		 return m_uniform_int_distribution(randomProxy());
-	 }
-
-	 /**
-     * Returns uniformly distributed random numbers between 0
-     * and an upper boundary
-     */
-	 inline int_type operator()(int_type r) const {
-		 return m_uniform_int_distribution (
-			 randomProxy()
-			 , typename std::uniform_int_distribution<int_type>::param_type(0,r)
-		 );
-	 }
-
-	 /**
-	  * Returns uniformly distributed random numbers using
-	  * a new set of boundaries.
-	  */
-	 inline int_type operator()(int_type l, int_type r) const {
-		 return m_uniform_int_distribution (
-			 randomProxy()
-			 , typename std::uniform_int_distribution<int_type>::param_type(l,r)
-		 );
-	 }
-
-	 /**
- 	  * Returns uniformly distributed random numbers using a param_type object
- 	  */
-	 inline int_type operator()(const typename std::uniform_int_distribution<int_type>::param_type& params) const {
-		 return m_uniform_int_distribution (
-			 randomProxy()
-			 , params
-		 );
-	 }
-
-private:
-	 /** @brief Uniformly distributed integer random numbers */
-	 mutable std::uniform_int_distribution<int_type> m_uniform_int_distribution;
-
-	 // Deleted copy and assignment operators. Copy-construction is possible
-	 // through the std::uniform_int_distribution<int_type>::param_type object
-	 g_uniform_int(const g_uniform_int<int_type>&) = delete;
-	 g_uniform_int<int_type>& operator=(const g_uniform_int<int_type>&) = delete;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class produces evenly distributed floating point random numbers, using
- * GRandomT<RAMDONPROXY> as the random number engine. The lower boundary is
- * included in the value range, the upper boundary is not. The class may only be
- * instantiated for floating point values.
- */
-template <
-	typename fp_type
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* dummy = nullptr
->
-class g_uniform_real {
-public:
-	 /**
-	  * The default constructor. It will produce produce
-	  * random numbers in the half-open range [0:1[ .
-	  */
-	 g_uniform_real()
-		 : m_uniform_real_distribution(0.,1.)
-	 { /* nothing */ }
-
-	 /**
-	  * Initialization with an upper limit
-	  */
-	 explicit g_uniform_real(fp_type r)
-		 : m_uniform_real_distribution(0.,r)
-	 { /* nothing */ }
-
-	 /**
-	  * Initialization with a lower and upper limit
-	  */
-	 g_uniform_real(fp_type l, fp_type r)
-		 : m_uniform_real_distribution(l,r)
-	 { /* nothing */ }
-
-	 /**
- 	  * Initialization through a std::uniform_real_distribution<fp_type>::param_type object
- 	  */
-	 explicit g_uniform_real(const typename std::uniform_real_distribution<fp_type>::param_type& params)
-		 : m_uniform_real_distribution(params)
-	 { /* nothing */ }
-
-	 /**
-	  * Returns uniformly distributed random numbers in the half-
-	  * open range [0:1[ or using the boundaries specified in the constructor.
-	  */
-	 inline fp_type operator()() const {
-		 return m_uniform_real_distribution(randomProxy());
-	 }
-
-	 /**
-     * Returns uniformly distributed random numbers between 0
-     * and an upper boundary
-     */
-	 inline fp_type operator()(fp_type r) const {
-		 return m_uniform_real_distribution (
-			 randomProxy()
-			 , typename std::uniform_real_distribution<fp_type>::param_type(0.,r)
-		 );
-	 }
-
-	 /**
-	  * Returns uniformly distributed random numbers using
-	  * a new set of boundaries.
-	  */
-	 inline fp_type operator()(fp_type l, fp_type r) const {
-		 return m_uniform_real_distribution (
-			 randomProxy()
-			 , typename std::uniform_real_distribution<fp_type>::param_type(l,r)
-		 );
-	 }
-
-	 /**
-     * Returns uniformly distributed floating point random numbers using the specifications found in
-     * a param_type object
-     */
-	 inline fp_type operator()(const typename std::uniform_real_distribution<fp_type>::param_type& params) const {
-		 return m_uniform_real_distribution (
-			 randomProxy(), params
-		 );
-	 }
-
-private:
-	 /** @brief Uniformly distributed floating point random numbers */
-	 mutable std::uniform_real_distribution<fp_type> m_uniform_real_distribution;
-
-	 // Deleted copy and assignment operators. Copy-construction is possible
-	 // through the std::uniform_real_distribution<fp_type>::param_type object
-	 g_uniform_real(const g_uniform_real<fp_type>&) = delete;
-	 g_uniform_real<fp_type>& operator=(const g_uniform_real<fp_type>&) = delete;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class produces boolean random numbers, using GRandomT<RAMDONPROXY> as the
- * random number engine. The probability for true vs. false may be passed
- * either to the contructor or to the operator(), or a param_type object may be
- * provided.
- */
-class g_boolean_distribution
-{
-public:
-	 /**
-	  * The default constructor. Implicit probability of 50% for "true".
-	  */
-	 g_boolean_distribution() : m_bernoulli_distribution()
-	 { /* nothing */ }
-
-	 /**
-	  * Initialization with a probability for "true".
-	  */
-	 explicit g_boolean_distribution(double p) : m_bernoulli_distribution(p)
-	 { /* nothing */ }
-
-	 /**
- 	  * Initialization through a std::uniform_real_distribution<fp_type>::param_type object
- 	  */
-	 explicit g_boolean_distribution(const std::bernoulli_distribution::param_type& params)
-		 : m_bernoulli_distribution(params)
-	 { /* nothing */ }
-
-	 /**
-	  * Returns boolean random numbers with a probability of 50% for true vs. false
-	  */
-	 inline bool operator()() const {
-		 return m_bernoulli_distribution(randomProxy());
-	 }
-
-	 /**
-     * Returns boolean random numbers with a likelihood of "p" for "true" values
-     */
-	 inline bool operator()(double p) const {
-		 return m_bernoulli_distribution (randomProxy(), std::bernoulli_distribution::param_type(p));
-	 }
-
-	 /**
- 	  * Returns uniformly distributed floating point random numbers using the specifications found
- 	  * in a param_type object
- 	  */
-	 inline bool operator()(const std::bernoulli_distribution::param_type& params) const {
-		 return m_bernoulli_distribution (randomProxy(), params);
-	 }
-private:
-	 /** @brief Boolean random numbers with configurable probability structure */
-	 mutable std::bernoulli_distribution m_bernoulli_distribution;
-
-	 // Deleted copy and assignment operators. Copy-construction is possible
-	 // through the std::bernoulli_distribution::param_type object
-	 g_boolean_distribution(const g_boolean_distribution&) = delete;
-	 g_boolean_distribution& operator=(const g_boolean_distribution&) = delete;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class produces floating point random numbers with a normal distribution,
- * using GRandomT<RAMDONPROXY> as the random number engine. The class may only be
- * instantiated for floating point values.
- */
-template <
-	typename fp_type
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* dummy = nullptr
->
-class g_normal_distribution {
-public:
-	 /**
-	  * The default constructor (normal distribution with mean 0 and sigma 1)
-	  */
-	 g_normal_distribution()
-		 : m_normal_distribution(0.,1.)
-	 { /* nothing */ }
-
-	 /**
-	  * Initialization with mean and sigma
-	  */
-	 g_normal_distribution(fp_type mean, fp_type sigma)
-		 : m_normal_distribution(mean,sigma)
-	 { /* nothing */ }
-
-	 /**
- 	  * Initialization through a std::normal_distribution<fp_type>::param_type object
- 	  */
-	 explicit g_normal_distribution(const typename std::normal_distribution<fp_type>::param_type& params)
-		 : m_normal_distribution(params)
-	 { /* nothing */ }
-
-	 /**
-	  * Returns random numbers with a normal distribution, using
-	  * the parameters specified in the constructor
-	  */
-	 inline fp_type operator()() const {
-		 return m_normal_distribution(randomProxy());
-	 }
-
-	 /**
-	  * Returns random numbers with a normal distribution, using
-	  * a new set of mean and sigma.
-	  */
-	 inline fp_type operator()(fp_type mean, fp_type sigma) const {
-		 return m_normal_distribution (
-			 randomProxy()
-			 , typename std::normal_distribution<fp_type>::param_type(mean,sigma)
-		 );
-	 }
-
-	 /**
-     * Returns uniformly distributed floating point random numbers using the specifications found in
-     * a param_type object
-     */
-	 inline fp_type operator()(const typename std::normal_distribution<fp_type>::param_type& params) const {
-		 return m_normal_distribution (
-			 randomProxy(), params
-		 );
-	 }
-
-private:
-	 /** @brief Uniformly distributed floating point random numbers */
-	 mutable std::normal_distribution<fp_type> m_normal_distribution;
-
-	 // Deleted copy and assignment operators. Copy-construction is possible
-	 // through the std::normal_distribution<fp_type>::param_type object
-	 g_normal_distribution(const g_normal_distribution<fp_type>&) = delete;
-	 g_normal_distribution<fp_type>& operator=(const g_normal_distribution<fp_type>&) = delete;
-};
+///******************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////
+///******************************************************************************/
+///**
+// * This class produces integer random numbers, using GRandomT<RAMDONPROXY> as
+// * the random number engine. The class may only be instantiated for integral
+// * values.
+// */
+//template <
+//	typename int_type
+//	, typename std::enable_if<std::is_integral<int_type>::value>::type* dummy = nullptr
+//>
+//class g_uniform_int {
+//public:
+//	 /**
+//	  * The default constructor
+//	  */
+//	 g_uniform_int()
+//		 : m_uniform_int_distribution(0,(std::numeric_limits<int_type>::max)())
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Initialization with an upper limit
+//	  */
+//	 explicit g_uniform_int(int_type r)
+//		 : m_uniform_int_distribution(0,r)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Initialization with a lower and upper limit
+//	  */
+//	 g_uniform_int(int_type l, int_type r)
+//		 : m_uniform_int_distribution(l,r)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Initialization through a std::uniform_int_distribution<int_type>::param_type object
+//	  */
+//	 explicit g_uniform_int(const typename std::uniform_int_distribution<int_type>::param_type& params)
+//		 : m_uniform_int_distribution(params)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Returns uniformly distributed random numbers, using
+//	  * the boundaries specified in the constructor
+//	  */
+//	 inline int_type operator()() const {
+//		 return m_uniform_int_distribution(randomProxy());
+//	 }
+//
+//	 /**
+//     * Returns uniformly distributed random numbers between 0
+//     * and an upper boundary
+//     */
+//	 inline int_type operator()(int_type r) const {
+//		 return m_uniform_int_distribution (
+//			 randomProxy()
+//			 , typename std::uniform_int_distribution<int_type>::param_type(0,r)
+//		 );
+//	 }
+//
+//	 /**
+//	  * Returns uniformly distributed random numbers using
+//	  * a new set of boundaries.
+//	  */
+//	 inline int_type operator()(int_type l, int_type r) const {
+//		 return m_uniform_int_distribution (
+//			 randomProxy()
+//			 , typename std::uniform_int_distribution<int_type>::param_type(l,r)
+//		 );
+//	 }
+//
+//	 /**
+// 	  * Returns uniformly distributed random numbers using a param_type object
+// 	  */
+//	 inline int_type operator()(const typename std::uniform_int_distribution<int_type>::param_type& params) const {
+//		 return m_uniform_int_distribution (
+//			 randomProxy()
+//			 , params
+//		 );
+//	 }
+//
+//private:
+//	 /** @brief Uniformly distributed integer random numbers */
+//	 mutable std::uniform_int_distribution<int_type> m_uniform_int_distribution;
+//
+//	 // Deleted copy and assignment operators. Copy-construction is possible
+//	 // through the std::uniform_int_distribution<int_type>::param_type object
+//	 g_uniform_int(const g_uniform_int<int_type>&) = delete;
+//	 g_uniform_int<int_type>& operator=(const g_uniform_int<int_type>&) = delete;
+//};
+//
+///******************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////
+///******************************************************************************/
+///**
+// * This class produces evenly distributed floating point random numbers, using
+// * GRandomT<RAMDONPROXY> as the random number engine. The lower boundary is
+// * included in the value range, the upper boundary is not. The class may only be
+// * instantiated for floating point values.
+// */
+//template <
+//	typename fp_type
+//	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* dummy = nullptr
+//>
+//class g_uniform_real {
+//public:
+//	 /**
+//	  * The default constructor. It will produce produce
+//	  * random numbers in the half-open range [0:1[ .
+//	  */
+//	 g_uniform_real()
+//		 : m_uniform_real_distribution(0.,1.)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Initialization with an upper limit
+//	  */
+//	 explicit g_uniform_real(fp_type r)
+//		 : m_uniform_real_distribution(0.,r)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Initialization with a lower and upper limit
+//	  */
+//	 g_uniform_real(fp_type l, fp_type r)
+//		 : m_uniform_real_distribution(l,r)
+//	 { /* nothing */ }
+//
+//	 /**
+// 	  * Initialization through a std::uniform_real_distribution<fp_type>::param_type object
+// 	  */
+//	 explicit g_uniform_real(const typename std::uniform_real_distribution<fp_type>::param_type& params)
+//		 : m_uniform_real_distribution(params)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Returns uniformly distributed random numbers in the half-
+//	  * open range [0:1[ or using the boundaries specified in the constructor.
+//	  */
+//	 inline fp_type operator()() const {
+//		 return m_uniform_real_distribution(randomProxy());
+//	 }
+//
+//	 /**
+//     * Returns uniformly distributed random numbers between 0
+//     * and an upper boundary
+//     */
+//	 inline fp_type operator()(fp_type r) const {
+//		 return m_uniform_real_distribution (
+//			 randomProxy()
+//			 , typename std::uniform_real_distribution<fp_type>::param_type(0.,r)
+//		 );
+//	 }
+//
+//	 /**
+//	  * Returns uniformly distributed random numbers using
+//	  * a new set of boundaries.
+//	  */
+//	 inline fp_type operator()(fp_type l, fp_type r) const {
+//		 return m_uniform_real_distribution (
+//			 randomProxy()
+//			 , typename std::uniform_real_distribution<fp_type>::param_type(l,r)
+//		 );
+//	 }
+//
+//	 /**
+//     * Returns uniformly distributed floating point random numbers using the specifications found in
+//     * a param_type object
+//     */
+//	 inline fp_type operator()(const typename std::uniform_real_distribution<fp_type>::param_type& params) const {
+//		 return m_uniform_real_distribution (
+//			 randomProxy(), params
+//		 );
+//	 }
+//
+//private:
+//	 /** @brief Uniformly distributed floating point random numbers */
+//	 mutable std::uniform_real_distribution<fp_type> m_uniform_real_distribution;
+//
+//	 // Deleted copy and assignment operators. Copy-construction is possible
+//	 // through the std::uniform_real_distribution<fp_type>::param_type object
+//	 g_uniform_real(const g_uniform_real<fp_type>&) = delete;
+//	 g_uniform_real<fp_type>& operator=(const g_uniform_real<fp_type>&) = delete;
+//};
+//
+///******************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////
+///******************************************************************************/
+///**
+// * This class produces boolean random numbers, using GRandomT<RAMDONPROXY> as the
+// * random number engine. The probability for true vs. false may be passed
+// * either to the contructor or to the operator(), or a param_type object may be
+// * provided.
+// */
+//class g_boolean_distribution
+//{
+//public:
+//	 /**
+//	  * The default constructor. Implicit probability of 50% for "true".
+//	  */
+//	 g_boolean_distribution() : m_bernoulli_distribution()
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Initialization with a probability for "true".
+//	  */
+//	 explicit g_boolean_distribution(double p) : m_bernoulli_distribution(p)
+//	 { /* nothing */ }
+//
+//	 /**
+// 	  * Initialization through a std::uniform_real_distribution<fp_type>::param_type object
+// 	  */
+//	 explicit g_boolean_distribution(const std::bernoulli_distribution::param_type& params)
+//		 : m_bernoulli_distribution(params)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Returns boolean random numbers with a probability of 50% for true vs. false
+//	  */
+//	 inline bool operator()() const {
+//		 return m_bernoulli_distribution(randomProxy());
+//	 }
+//
+//	 /**
+//     * Returns boolean random numbers with a likelihood of "p" for "true" values
+//     */
+//	 inline bool operator()(double p) const {
+//		 return m_bernoulli_distribution (randomProxy(), std::bernoulli_distribution::param_type(p));
+//	 }
+//
+//	 /**
+// 	  * Returns uniformly distributed floating point random numbers using the specifications found
+// 	  * in a param_type object
+// 	  */
+//	 inline bool operator()(const std::bernoulli_distribution::param_type& params) const {
+//		 return m_bernoulli_distribution (randomProxy(), params);
+//	 }
+//private:
+//	 /** @brief Boolean random numbers with configurable probability structure */
+//	 mutable std::bernoulli_distribution m_bernoulli_distribution;
+//
+//	 // Deleted copy and assignment operators. Copy-construction is possible
+//	 // through the std::bernoulli_distribution::param_type object
+//	 g_boolean_distribution(const g_boolean_distribution&) = delete;
+//	 g_boolean_distribution& operator=(const g_boolean_distribution&) = delete;
+//};
+//
+///******************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////
+///******************************************************************************/
+///**
+// * This class produces floating point random numbers with a normal distribution,
+// * using GRandomT<RAMDONPROXY> as the random number engine. The class may only be
+// * instantiated for floating point values.
+// */
+//template <
+//	typename fp_type
+//	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* dummy = nullptr
+//>
+//class g_normal_distribution {
+//public:
+//	 /**
+//	  * The default constructor (normal distribution with mean 0 and sigma 1)
+//	  */
+//	 g_normal_distribution()
+//		 : m_normal_distribution(0.,1.)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Initialization with mean and sigma
+//	  */
+//	 g_normal_distribution(fp_type mean, fp_type sigma)
+//		 : m_normal_distribution(mean,sigma)
+//	 { /* nothing */ }
+//
+//	 /**
+// 	  * Initialization through a std::normal_distribution<fp_type>::param_type object
+// 	  */
+//	 explicit g_normal_distribution(const typename std::normal_distribution<fp_type>::param_type& params)
+//		 : m_normal_distribution(params)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Returns random numbers with a normal distribution, using
+//	  * the parameters specified in the constructor
+//	  */
+//	 inline fp_type operator()() const {
+//		 return m_normal_distribution(randomProxy());
+//	 }
+//
+//	 /**
+//	  * Returns random numbers with a normal distribution, using
+//	  * a new set of mean and sigma.
+//	  */
+//	 inline fp_type operator()(fp_type mean, fp_type sigma) const {
+//		 return m_normal_distribution (
+//			 randomProxy()
+//			 , typename std::normal_distribution<fp_type>::param_type(mean,sigma)
+//		 );
+//	 }
+//
+//	 /**
+//     * Returns uniformly distributed floating point random numbers using the specifications found in
+//     * a param_type object
+//     */
+//	 inline fp_type operator()(const typename std::normal_distribution<fp_type>::param_type& params) const {
+//		 return m_normal_distribution (
+//			 randomProxy(), params
+//		 );
+//	 }
+//
+//private:
+//	 /** @brief Uniformly distributed floating point random numbers */
+//	 mutable std::normal_distribution<fp_type> m_normal_distribution;
+//
+//	 // Deleted copy and assignment operators. Copy-construction is possible
+//	 // through the std::normal_distribution<fp_type>::param_type object
+//	 g_normal_distribution(const g_normal_distribution<fp_type>&) = delete;
+//	 g_normal_distribution<fp_type>& operator=(const g_normal_distribution<fp_type>&) = delete;
+//};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -639,95 +639,95 @@ bool operator!=(
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/**
- * This class produces floating point random numbers with a bi-normal distribution,
- * using GRandomT<RAMDONPROXY> as the random number engine and Geneva's bi_normal_distribution
- * class. Essentially, compared to bi_normal_distribution, this class allows to access
- * bi_normal random numbers without knowledge of the underlying random number generator.
- * The class may only be instantiated for floating point values.
- */
-template <
-	typename fp_type
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* dummy = nullptr
->
-class g_bi_normal_distribution {
-public:
-	 /**
-	  * The default constructor (normal distribution with mean 0 and sigma 1)
-	  */
-	 g_bi_normal_distribution()
-		 : m_bi_normal_distribution(0.,1.,1.,0.5)
-	 { /* nothing */ }
-
-	 /**
-	  * Initialization with mean and sigma
-	  */
-	 g_bi_normal_distribution(
-		 fp_type mean
-		 , fp_type sigma1
-		 , fp_type sigma2
-		 , fp_type distance
-	 )
-		 : m_bi_normal_distribution(mean,sigma1, sigma2, distance)
-	 { /* nothing */ }
-
-	 /**
- 	  * Initialization through a std::normal_distribution<fp_type>::param_type object
- 	  */
-	 explicit g_bi_normal_distribution(const typename Gem::Hap::bi_normal_distribution<fp_type>::param_type& params)
-		 : m_bi_normal_distribution(params)
-	 { /* nothing */ }
-
-	 /**
-	  * Returns random numbers with a normal distribution, using
-	  * the parameters specified in the constructor
-	  */
-	 inline fp_type operator()() const {
-		 return m_bi_normal_distribution(randomProxy());
-	 }
-
-	 /**
-	  * Returns random numbers with a normal distribution, using
-	  * a new set of mean and sigma.
-	  */
-	 inline fp_type operator()(
-		 fp_type mean
-		 , fp_type sigma1
-		 , fp_type sigma2
-		 , fp_type distance
-    ) const {
-		 return m_bi_normal_distribution (
-			 randomProxy()
-			 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
-				mean, sigma1, sigma2, distance
-		    )
-		 );
-	 }
-
-	 /**
-     * Returns uniformly distributed floating point random numbers using the specifications found in
-     * a param_type object
-     */
-	 inline fp_type operator()(const typename Gem::Hap::bi_normal_distribution<fp_type>::param_type& params) const {
-		 return m_bi_normal_distribution (
-			 randomProxy()
-			 , params
-		 );
-	 }
-
-private:
-	 /** @brief Uniformly distributed floating point random numbers */
-	 mutable Gem::Hap::bi_normal_distribution<fp_type> m_bi_normal_distribution;
-
-	 // Deleted copy and assignment operators. Copy-construction is possible
-	 // through the Gem::Hap::bi_normal_distribution<fp_type>::param_type object
-	 g_bi_normal_distribution(const g_bi_normal_distribution<fp_type>&) = delete;
-	 g_bi_normal_distribution<fp_type>& operator=(const g_bi_normal_distribution<fp_type>&) = delete;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
+///**
+// * This class produces floating point random numbers with a bi-normal distribution,
+// * using GRandomT<RAMDONPROXY> as the random number engine and Geneva's bi_normal_distribution
+// * class. Essentially, compared to bi_normal_distribution, this class allows to access
+// * bi_normal random numbers without knowledge of the underlying random number generator.
+// * The class may only be instantiated for floating point values.
+// */
+//template <
+//	typename fp_type
+//	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* dummy = nullptr
+//>
+//class g_bi_normal_distribution {
+//public:
+//	 /**
+//	  * The default constructor (normal distribution with mean 0 and sigma 1)
+//	  */
+//	 g_bi_normal_distribution()
+//		 : m_bi_normal_distribution(0.,1.,1.,0.5)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Initialization with mean and sigma
+//	  */
+//	 g_bi_normal_distribution(
+//		 fp_type mean
+//		 , fp_type sigma1
+//		 , fp_type sigma2
+//		 , fp_type distance
+//	 )
+//		 : m_bi_normal_distribution(mean,sigma1, sigma2, distance)
+//	 { /* nothing */ }
+//
+//	 /**
+// 	  * Initialization through a std::normal_distribution<fp_type>::param_type object
+// 	  */
+//	 explicit g_bi_normal_distribution(const typename Gem::Hap::bi_normal_distribution<fp_type>::param_type& params)
+//		 : m_bi_normal_distribution(params)
+//	 { /* nothing */ }
+//
+//	 /**
+//	  * Returns random numbers with a normal distribution, using
+//	  * the parameters specified in the constructor
+//	  */
+//	 inline fp_type operator()() const {
+//		 return m_bi_normal_distribution(randomProxy());
+//	 }
+//
+//	 /**
+//	  * Returns random numbers with a normal distribution, using
+//	  * a new set of mean and sigma.
+//	  */
+//	 inline fp_type operator()(
+//		 fp_type mean
+//		 , fp_type sigma1
+//		 , fp_type sigma2
+//		 , fp_type distance
+//    ) const {
+//		 return m_bi_normal_distribution (
+//			 randomProxy()
+//			 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
+//				mean, sigma1, sigma2, distance
+//		    )
+//		 );
+//	 }
+//
+//	 /**
+//     * Returns uniformly distributed floating point random numbers using the specifications found in
+//     * a param_type object
+//     */
+//	 inline fp_type operator()(const typename Gem::Hap::bi_normal_distribution<fp_type>::param_type& params) const {
+//		 return m_bi_normal_distribution (
+//			 randomProxy()
+//			 , params
+//		 );
+//	 }
+//
+//private:
+//	 /** @brief Uniformly distributed floating point random numbers */
+//	 mutable Gem::Hap::bi_normal_distribution<fp_type> m_bi_normal_distribution;
+//
+//	 // Deleted copy and assignment operators. Copy-construction is possible
+//	 // through the Gem::Hap::bi_normal_distribution<fp_type>::param_type object
+//	 g_bi_normal_distribution(const g_bi_normal_distribution<fp_type>&) = delete;
+//	 g_bi_normal_distribution<fp_type>& operator=(const g_bi_normal_distribution<fp_type>&) = delete;
+//};
+//
+///******************************************************************************/
+//////////////////////////////////////////////////////////////////////////////////
+///******************************************************************************/
 
 } /* namespace Hap */
 } /* namespace Gem */

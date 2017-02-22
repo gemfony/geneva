@@ -423,7 +423,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test2 with a random number in a given range
-		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS, gr));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));
@@ -457,7 +457,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Multiply p_test2 with a random number in the range [0,1[
-		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test2->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
 
 		// The first two parameters should again be unchanged
 		BOOST_CHECK(*(p_test1->at(0)) == *(p_test2->at(0)));

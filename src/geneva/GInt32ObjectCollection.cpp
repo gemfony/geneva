@@ -247,6 +247,9 @@ void GInt32ObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
  */
 void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
+	// A random generator
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// Some settings
 	const std::size_t nAddedObjects = 10;
 	const std::size_t nTests = 100;
@@ -296,11 +299,11 @@ void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to multiply p_test1 with a random fp value in a given range and check whether it has changed
-		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS, gr));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to multiply p_test1 with a random fp value in the range [0,1[ and check whether it has changed
-		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
+		BOOST_CHECK_NO_THROW(p_test1->multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Try to add p_test2 to p_test1 and see whether it has changed

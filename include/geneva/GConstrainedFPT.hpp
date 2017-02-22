@@ -761,7 +761,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(lowerRandomBoundary, upperRandomBoundary, activityMode::ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(lowerRandomBoundary, upperRandomBoundary, activityMode::ALLPARAMETERS, gr));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(
@@ -790,7 +790,7 @@ public:
 
 			for(std::size_t i=0; i<nTests; i++) {
 				// Multiply with a random value in a very wide
-				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS));
+				BOOST_CHECK_NO_THROW(p_test->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS, gr));
 
 				// Check that the value is still in the allowed range
 				BOOST_CHECK_MESSAGE(

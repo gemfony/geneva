@@ -106,15 +106,18 @@ int main(int argc, char **argv) {
 	// Configure the random number factory
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
+	// Retrieve a random number proxy
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
 	// Storage and production of random numbers
 	std::vector<double> payload(packageSize);
-	Gem::Hap::g_uniform_real<double> uniform_real(lowerBoundary,upperBoundary);
+	std::uniform_real_distribution<double> uniform_real(lowerBoundary, upperBoundary);
 
 	// Run the measurement loop
 	std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
 	for(std::uint32_t c=0; c<nCycles; c++) {
 		for(auto& p: payload) {
-			p = uniform_real();
+			p = uniform_real(gr);
 		}
 		std::sort(payload.begin(), payload.end());
 		// assert(is_sorted(payload.begin(), payload.end()));

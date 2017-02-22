@@ -197,10 +197,11 @@ std::size_t GDelayIndividual::customAdaptions()
  * @return The value of this object
  */
 double GDelayIndividual::fitnessCalculation() {
+	std::uniform_real_distribution<double> uniform_real_distribution;
+
 	if(m_sleepRandomly) {
 	   // Calculate the sleep time
-		double sleepTime
-			= m_uniform_real_distribution(std::get<0>(m_randSleepBoundaries), std::get<1>(m_randSleepBoundaries));
+		double sleepTime = uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(std::get<0>(m_randSleepBoundaries), std::get<1>(m_randSleepBoundaries)));
 
 		std::chrono::duration<double> random_sleepTime(sleepTime);
 
@@ -213,13 +214,13 @@ double GDelayIndividual::fitnessCalculation() {
 
 	// Throw if we were asked to do so
 	if(m_mayCrash) {
-		if(m_uniform_real_distribution(0.,1.) < m_throwLikelihood) {
+		if(uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)) < m_throwLikelihood) {
 			throw fitnessException();
 		}
 	}
 
 	// Return a random value - we do not perform any real optimization
-	return m_uniform_real_distribution(0.,1.);
+	return uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.));
 }
 
 /******************************************************************************/

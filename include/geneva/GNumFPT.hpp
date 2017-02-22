@@ -433,7 +433,7 @@ public:
 			BOOST_CHECK(p_test1->value() == 1.);
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS, gr));
 
 			// Check that all values are in the allowed range
 			BOOST_CHECK(p_test1->value() >= RANDLOWERBOUNDARY);
@@ -452,7 +452,7 @@ public:
 			BOOST_CHECK(p_test1->value() == 1.);
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS, gr));
 
 			// Check that all values are in the allowed range
 			BOOST_CHECK(p_test1->value() >= 0.);

@@ -305,12 +305,13 @@ void GDoubleObject::assignDoubleValueVectors(
  * Multiplication with a random value in a given range
  */
 void GDoubleObject::doubleMultiplyByRandom(
-	const double &min, const double &max, const activityMode &am
+	const double &min
+	, const double &max
+	, const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	GParameterT<double>::setValue(
-		GParameterT<double>::value() *
-        m_uniform_real_distribution(std::uniform_real_distribution<double>::param_type(min, max))
-	);
+	std::uniform_real_distribution<double> uniform_real_distribution(min, max);
+	GParameterT<double>::setValue(GParameterT<double>::value() * uniform_real_distribution(gr));
 }
 
 /******************************************************************************/
@@ -319,11 +320,10 @@ void GDoubleObject::doubleMultiplyByRandom(
  */
 void GDoubleObject::doubleMultiplyByRandom(
 	const activityMode &am
+	, Gem::Hap::GRandomBase& gr
 ) {
-	GParameterT<double>::setValue(
-		GParameterT<double>::value() *
-        m_uniform_real_distribution(std::uniform_real_distribution<double>::param_type(0., 1.))
-	);
+	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
+	GParameterT<double>::setValue(GParameterT<double>::value() * uniform_real_distribution(gr));
 }
 
 /******************************************************************************/

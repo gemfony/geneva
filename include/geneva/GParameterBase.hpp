@@ -274,6 +274,7 @@ public:
 		const par_type& min
 		, const par_type& max
 		, const activityMode& am
+		, Gem::Hap::GRandomBase&
 	) {
 		glogger
 		<< "In GParameterBase::multiplyByRandom()" << std::endl
@@ -288,6 +289,7 @@ public:
 	template <typename par_type>
 	void multiplyByRandom(
 		const activityMode& am
+		, Gem::Hap::GRandomBase&
 	) {
 		glogger
 		<< "In GParameterBase::multiplyByRandom()" << std::endl
@@ -468,22 +470,22 @@ protected:
 	virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool>>&, const activityMode&) BASE;
 
 	/** @brief Multiplication with a random value in a given range */
-	virtual G_API_GENEVA void floatMultiplyByRandom(const float& min, const float& max, const activityMode& am) BASE;
+	virtual G_API_GENEVA void floatMultiplyByRandom(const float& min, const float& max, const activityMode& am, Gem::Hap::GRandomBase&) BASE;
 	/** @brief Multiplication with a random value in a given range */
-	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) BASE;
+	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am, Gem::Hap::GRandomBase&) BASE;
 	/** @brief Multiplication with a random value in a given range */
-	virtual G_API_GENEVA void int32MultiplyByRandom(const std::int32_t& min, const std::int32_t& max, const activityMode& am) BASE;
+	virtual G_API_GENEVA void int32MultiplyByRandom(const std::int32_t& min, const std::int32_t& max, const activityMode& am, Gem::Hap::GRandomBase&) BASE;
 	/** @brief Multiplication with a random value in a given range */
-	virtual G_API_GENEVA void booleanMultiplyByRandom(const bool& min, const bool& max, const activityMode& am) BASE;
+	virtual G_API_GENEVA void booleanMultiplyByRandom(const bool& min, const bool& max, const activityMode& am, Gem::Hap::GRandomBase&) BASE;
 
 	/** @brief Multiplication with a random value in the range [0,1[ */
-	virtual G_API_GENEVA void floatMultiplyByRandom(const activityMode& am) BASE;
+	virtual G_API_GENEVA void floatMultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) BASE;
 	/** @brief Multiplication with a random value in the range [0,1[ */
-	virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am) BASE;
+	virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) BASE;
 	/** @brief Multiplication with a random value in the range [0,1[ */
-	virtual G_API_GENEVA void int32MultiplyByRandom(const activityMode& am) BASE;
+	virtual G_API_GENEVA void int32MultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) BASE;
 	/** @brief Multiplication with a random value in the range [0,1[ */
-	virtual G_API_GENEVA void booleanMultiplyByRandom(const activityMode& am) BASE;
+	virtual G_API_GENEVA void booleanMultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) BASE;
 
 	/** @brief Multiplication with a constant value */
 	virtual G_API_GENEVA void floatMultiplyBy(const float& value, const activityMode& am) BASE;
@@ -491,7 +493,7 @@ protected:
 	virtual G_API_GENEVA void doubleMultiplyBy(const double& value, const activityMode& am) BASE;
 	/** @brief Multiplication with a constant value */
 	virtual G_API_GENEVA void int32MultiplyBy(const std::int32_t& value, const activityMode& am) BASE;
-	/** @brief Multiplication with a random value in the range [0,1[ */
+	/** @brief Multiplication with a const value */
 	virtual G_API_GENEVA void booleanMultiplyBy(const bool& value, const activityMode& am) BASE;
 
 	/** @brief Initialization with a constant value */
@@ -500,7 +502,7 @@ protected:
 	virtual G_API_GENEVA void doubleFixedValueInit(const double& value, const activityMode& am) BASE;
 	/** @brief Initialization with a constant value */
 	virtual G_API_GENEVA void int32FixedValueInit(const std::int32_t& value, const activityMode& am) BASE;
-	/** @brief Initialization with a random value in the range [0,1[ */
+	/** @brief Initialization with a const value */
 	virtual G_API_GENEVA void booleanFixedValueInit(const bool& value, const activityMode& am) BASE;
 
 	/** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
@@ -968,9 +970,10 @@ inline  void GParameterBase::multiplyByRandom<float>(
 	const float& min
 	, const float& max
 	, const activityMode& am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if(this->modifiableAmMatchOrHandover(am)) {
-		this->floatMultiplyByRandom(min, max, am);
+		this->floatMultiplyByRandom(min, max, am, gr);
 	}
 }
 
@@ -983,9 +986,10 @@ inline  void GParameterBase::multiplyByRandom<double>(
 	const double& min
 	, const double& max
 	, const activityMode& am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if(this->modifiableAmMatchOrHandover(am)) {
-		this->doubleMultiplyByRandom(min, max, am);
+		this->doubleMultiplyByRandom(min, max, am, gr);
 	}
 }
 
@@ -998,9 +1002,10 @@ inline  void GParameterBase::multiplyByRandom<std::int32_t>(
 	const std::int32_t& min
 	, const std::int32_t& max
 	, const activityMode& am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if(this->modifiableAmMatchOrHandover(am)) {
-		this->int32MultiplyByRandom(min, max, am);
+		this->int32MultiplyByRandom(min, max, am, gr);
 	}
 }
 
@@ -1015,10 +1020,11 @@ inline  void GParameterBase::multiplyByRandom<bool>(
 	const bool& min
 	, const bool& max
 	, const activityMode& am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if(this->modifiableAmMatchOrHandover(am)) {
 		// NOTE: This will throw
-		this->booleanMultiplyByRandom(min, max, am);
+		this->booleanMultiplyByRandom(min, max, am, gr);
 	}
 }
 
@@ -1029,9 +1035,10 @@ inline  void GParameterBase::multiplyByRandom<bool>(
 template <>
 inline  void GParameterBase::multiplyByRandom<float>(
 	const activityMode& am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if(this->modifiableAmMatchOrHandover(am)) {
-		this->floatMultiplyByRandom(am);
+		this->floatMultiplyByRandom(am, gr);
 	}
 }
 
@@ -1042,9 +1049,10 @@ inline  void GParameterBase::multiplyByRandom<float>(
 template <>
 inline  void GParameterBase::multiplyByRandom<double>(
 	const activityMode& am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if(this->modifiableAmMatchOrHandover(am)) {
-		this->doubleMultiplyByRandom(am);
+		this->doubleMultiplyByRandom(am, gr);
 	}
 }
 
@@ -1055,9 +1063,10 @@ inline  void GParameterBase::multiplyByRandom<double>(
 template <>
 inline  void GParameterBase::multiplyByRandom<std::int32_t>(
 	const activityMode& am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if(this->modifiableAmMatchOrHandover(am)) {
-		this->int32MultiplyByRandom(am);
+		this->int32MultiplyByRandom(am, gr);
 	}
 }
 
@@ -1070,10 +1079,11 @@ inline  void GParameterBase::multiplyByRandom<std::int32_t>(
 template <>
 inline  void GParameterBase::multiplyByRandom<bool>(
 	const activityMode& am
+	, Gem::Hap::GRandomBase& gr
 ) {
 	if(this->modifiableAmMatchOrHandover(am)) {
 		// NOTE: This will throw
-		this->booleanMultiplyByRandom(am);
+		this->booleanMultiplyByRandom(am, gr);
 	}
 }
 

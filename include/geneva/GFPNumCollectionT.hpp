@@ -423,7 +423,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., activityMode::ALLPARAMETERS));
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(RANDLOWERBOUNDARY, RANDUPPERBOUNDARY, activityMode::ALLPARAMETERS, gr));
 
 			// Check that all values are in this range
 			for(std::size_t i=0; i<nItems; i++) {
@@ -450,7 +450,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., activityMode::ALLPARAMETERS));
 
 			// Multiply with random values in a given range
-			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(activityMode::ALLPARAMETERS, gr));
 
 			// Check that all values are in this range
 			for(std::size_t i=0; i<nItems; i++) {

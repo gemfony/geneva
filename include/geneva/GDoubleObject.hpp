@@ -126,9 +126,9 @@ protected:
 	virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double>>&, const activityMode& am) override;
 
 	/** @brief Multiplication with a random value in a given range */
-	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) override;
+	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am, Gem::Hap::GRandomBase&) override;
 	/** @brief Multiplication with a random value in the range [0,1[ */
-	virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am) override;
+	virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) override;
 	/** @brief Multiplication with a constant value */
 	virtual G_API_GENEVA void doubleMultiplyBy(const double& value, const activityMode& am) override;
 	/** @brief Initialization with a constant value */
@@ -137,9 +137,6 @@ protected:
 	virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 	/** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
 	virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
-
-	/** @brief Access to uniformly distributed random double values */
-	Gem::Hap::g_uniform_real<double> m_uniform_real_distribution;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

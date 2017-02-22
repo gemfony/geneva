@@ -156,7 +156,6 @@ protected:
 
 private:
 	 double m_fixedSleepTime; ///< The amount of time the evaluation function should sleep before continuing (seconds)
-	 Gem::Hap::g_uniform_real<double> m_uniform_real_distribution;
 
 	 bool m_mayCrash = false; ///< Indicates whether the fitness function may throw at the end of the sleep time
 	 double m_throwLikelihood = 0.001; ///< The likelihood for an exception to be thrown from the fitness function

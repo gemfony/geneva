@@ -132,9 +132,9 @@ protected:
 	virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double>>&, const activityMode& am) override;
 
 	/** @brief Multiplication with a random value in a given range */
-	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am) override;
+	virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am, Gem::Hap::GRandomBase&) override;
 	/** @brief Multiplication with a random value in the range [0,1[ */
-	virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am) override;
+	virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) override;
 	/** @brief Multiplication with a constant value */
 	virtual G_API_GENEVA void doubleMultiplyBy(const double& value, const activityMode& am) override;
 	/** @brief Initialization with a constant value */

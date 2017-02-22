@@ -127,6 +127,24 @@ protected:
 	/** @brief Assigns part of a value vector to the parameter */
 	virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) override;
 
+	 /** @brief Multiplication with a random value in a given range */
+	 virtual G_API_GENEVA void int32MultiplyByRandom(
+		 const std::int32_t& min
+		 , const std::int32_t& max
+		 , const activityMode& am
+		 , Gem::Hap::GRandomBase&
+	 ) override;
+	 /** @brief Multiplication with a random value in the range [0,1[ */
+	 virtual G_API_GENEVA void int32MultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) override;
+	 /** @brief Multiplication with a constant value */
+	 virtual G_API_GENEVA void int32MultiplyBy(const std::int32_t& value, const activityMode& am) override;
+	 /** @brief Initialization with a constant value */
+	 virtual G_API_GENEVA void int32FixedValueInit(const std::int32_t& value, const activityMode& am) override;
+	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+	 virtual G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
+	 virtual G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	virtual G_API_GENEVA bool modify_GUnitTests() override;
