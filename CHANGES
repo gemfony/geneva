@@ -56,6 +56,9 @@ The main changes for this release include:
    i.e. it must be supplied with a random number generator. This happens to get rid of thread_local
    variables which have turned out to be a problem under Windows If custom parameter types are introduced,
    their randomInit_() function now also needs to receive a GRandomBase-argument
+ - Moved away from GThread (interruptible threads), as this could only be implemented via thread_local.
+   Added a thread group solely based on std::thread and moved GThreadPool to this implementation.
+ - Renamed GBoostThreadConsumerT to GStdThreadConsumerT, as it is now based on std::thread
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016
@@ -666,7 +669,7 @@ The main changes for this release include:
  - Added a GParameterObjectCollection that allows to arbitrarily mix any
    GParameterBase object in the same collection.
  - Removed GBoostThreadConsumer dependency on GIndividual, making it a
-   template class GBoostThreadConsumerT.
+   template class GStdThreadConsumerT.
  - Removed GAsioTCPConsumer dependency on GIndividual, making it a template
    class GAsioSerialTCPConsumerT.
  - Removed the GIndividualBroker class, the GINDIVIDUALBROKER macro was

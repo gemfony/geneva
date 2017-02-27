@@ -1,5 +1,5 @@
 /**
- * @file GBoostThreadConsumerT.hpp
+ * @file GStdThreadConsumerT.hpp
  */
 
 /*
@@ -45,8 +45,8 @@
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
 
-#ifndef GBOOSTTHREADCONSUMERT_HPP_
-#define GBOOSTTHREADCONSUMERT_HPP_
+#ifndef GSTDTHREADCONSUMERT_HPP_
+#define GSTDTHREADCONSUMERT_HPP_
 
 // Geneva headers go here
 
@@ -72,7 +72,7 @@ const std::uint16_t DEFAULTTHREADSPERWORKER = 1;
  * The class makes use of the template arguments' process() function.
  */
 template<class processable_type>
-class GBoostThreadConsumerT
+class GStdThreadConsumerT
 	: public Gem::Courtier::GBaseConsumerT<processable_type> {
 private:
 	// Make sure processable_type adheres to the GProcessingContainerT interface
@@ -89,7 +89,7 @@ public:
 	/**
 	 * The default constructor.
 	 */
-	GBoostThreadConsumerT()
+	GStdThreadConsumerT()
 		: Gem::Courtier::GBaseConsumerT<processable_type>()
 		, m_threadsPerWorker(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
 		, m_broker_ptr(GBROKER(processable_type))
@@ -101,7 +101,7 @@ public:
 	* Standard destructor. Nothing - our threads receive the stop
 	* signal from the broker and shouldn't exist at this point anymore.
 	*/
-	virtual ~GBoostThreadConsumerT() { /* nothing */ }
+	virtual ~GStdThreadConsumerT() { /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -153,7 +153,7 @@ public:
 	* @return A unique identifier for a given consumer
 	*/
 	virtual std::string getConsumerName() const override {
-		return std::string("GBoostThreadConsumerT");
+		return std::string("GStdThreadConsumerT");
 	}
 
 	/***************************************************************************/
@@ -207,14 +207,14 @@ public:
 #ifdef DEBUG
       if(m_workerTemplates.empty()) { // Is the template vector empty ?
          glogger
-         << "In GBoostThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
+         << "In GStdThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
          << "The workerTemplates_ vector is empty when it should not be empty" << std::endl
          << GEXCEPTION;
       }
 #endif /* DEBUG */
 
 		// Start m_threadsPerWorker threads for each registered worker template
-		std::cout << "Starting " << m_threadsPerWorker << " processing threads for " << m_workerTemplates.size() << " worker(s) in GBoostThreadConsumerT" << std::endl;
+		std::cout << "Starting " << m_threadsPerWorker << " processing threads for " << m_workerTemplates.size() << " worker(s) in GStdThreadConsumerT" << std::endl;
 		for (std::size_t w = 0; w < m_workerTemplates.size(); w++) {
 			for (std::size_t i = 0; i < m_threadsPerWorker; i++) {
 				std::shared_ptr <GWorker> p_worker = (m_workerTemplates.at(w))->clone(i, this);
@@ -238,7 +238,7 @@ public:
 #ifdef DEBUG
       if(m_workerTemplates.empty()) { // Is the template vector empty ?
          glogger
-         << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
+         << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
          << "workerTemplates vector is empty when it should not be empty" << std::endl
          << GEXCEPTION;
       }
@@ -247,7 +247,7 @@ public:
 		for(auto w_ptr: workerTemplates) { // std::shared_ptr may be copied
 			if(!w_ptr) { // Does the template point somewhere ?
             glogger
-            << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
+            << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
             << "Found empty worker template pointer in position " << pos << std::endl
             << GEXCEPTION;
          }
@@ -273,7 +273,7 @@ public:
 #ifdef DEBUG
       if(!workerTemplate) { // Does the template point somewhere ?
          glogger
-         << "In GBoostThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
+         << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
          << "Found empty worker template pointer" << std::endl
          << GEXCEPTION;
       }
@@ -290,10 +290,10 @@ public:
 	 */
 	static void setup(
 		const std::string &configFile
-		, std::vector<std::shared_ptr <typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker>> workers
+		, std::vector<std::shared_ptr <typename Gem::Courtier::GStdThreadConsumerT<processable_type>::GWorker>> workers
 	) {
-		std::shared_ptr <GBoostThreadConsumerT<processable_type>> consumer_ptr(
-			new GBoostThreadConsumerT<processable_type>());
+		std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
+			new GStdThreadConsumerT<processable_type>());
 		consumer_ptr->registerWorkerTemplates(workers);
 		consumer_ptr->parseConfigFile(configFile);
 		GBROKER(processable_type)->enrol(consumer_ptr);
@@ -306,10 +306,10 @@ public:
 	 */
 	static void setup(
 		const std::string &configFile,
-		std::shared_ptr <typename Gem::Courtier::GBoostThreadConsumerT<processable_type>::GWorker> worker_ptr
+		std::shared_ptr <typename Gem::Courtier::GStdThreadConsumerT<processable_type>::GWorker> worker_ptr
 	) {
-		std::shared_ptr <GBoostThreadConsumerT<processable_type>> consumer_ptr(
-			new GBoostThreadConsumerT<processable_type>());
+		std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
+			new GStdThreadConsumerT<processable_type>());
 		consumer_ptr->registerWorkerTemplate(worker_ptr);
 		consumer_ptr->parseConfigFile(configFile);
 		GBROKER(processable_type)->enrol(consumer_ptr);
@@ -323,7 +323,7 @@ public:
 	static void setup(
 		const std::string &configFile
 	) {
-		std::shared_ptr <GBoostThreadConsumerT<processable_type>> consumer_ptr(new GBoostThreadConsumerT<processable_type>());
+		std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(new GStdThreadConsumerT<processable_type>());
 		consumer_ptr->parseConfigFile(configFile);
 		GBROKER(processable_type)->enrol(consumer_ptr);
 	}
@@ -380,8 +380,8 @@ protected:
 private:
 	/***************************************************************************/
 
-	GBoostThreadConsumerT(const GBoostThreadConsumerT<processable_type> &); ///< Intentionally left undefined
-	const GBoostThreadConsumerT<processable_type> &operator=(const GBoostThreadConsumerT<processable_type> &); ///< Intentionally left undefined
+	GStdThreadConsumerT(const GStdThreadConsumerT<processable_type> &); ///< Intentionally left undefined
+	const GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &); ///< Intentionally left undefined
 
 	std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
 	Gem::Common::GThreadGroup m_gtg; ///< Holds the processing threads
@@ -393,7 +393,7 @@ public:
 	/***************************************************************************/
 	/**
 	 * A nested class that performs the actual work inside of a thread.
-	 * Classes derived from GBoostThreadConsumerT may use their own derivative
+	 * Classes derived from GStdThreadConsumerT may use their own derivative
 	 * from this class and store complex information associated with the execution
 	 * inside of the worker threads. Note that a GWorker(-derivative) must be
 	 * copy-constructible and implement the clone() function.
@@ -417,7 +417,7 @@ public:
 		GWorker(
 			const GWorker &cp
 			, const std::size_t &thread_id
-			, const GBoostThreadConsumerT<processable_type> *c_ptr
+			, const GStdThreadConsumerT<processable_type> *c_ptr
 		)
 			: m_thread_id(thread_id)
 		   , m_outer(c_ptr)
@@ -458,7 +458,7 @@ public:
                // Check that we indeed got a valid item
                if(!p) { // We didn't get a valid item after all
                   glogger
-                  << "In GBoostThreadConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
+                  << "In GStdThreadConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
                   << "Got empty item when it shouldn't be empty!" << std::endl
                   << GEXCEPTION;
                }
@@ -490,20 +490,20 @@ public:
 			   /* nothing */
 			} catch (std::exception &e) {
 				glogger
-				<< "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
+				<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
 				<< "Caught std::exception with message" << std::endl
 				<< e.what() << std::endl
 				<< GEXCEPTION;
 			}
 			catch (boost::exception &) {
 				glogger
-				<< "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
+				<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
 				<< "Caught boost::exception with message" << std::endl
 				<< GEXCEPTION;
 			}
 			catch (...) {
 				glogger
-				<< "In GBoostThreadConsumerT<processable_type>::GWorker::run():" << std::endl
+				<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
 				<< "Caught unknown exception." << std::endl
 				<< GEXCEPTION;
 			}
@@ -574,7 +574,7 @@ public:
 		/************************************************************************/
 
 		std::size_t m_thread_id; ///< The id of the thread running this class'es operator()
-		const GBoostThreadConsumerT<processable_type> *m_outer;
+		const GStdThreadConsumerT<processable_type> *m_outer;
 
 	private:
 		/************************************************************************/
@@ -588,7 +588,7 @@ public:
 
 		/** @brief Creation of deep clones of this object('s derivatives) */
 		virtual std::shared_ptr <GWorker> clone(
-			const std::size_t &, const GBoostThreadConsumerT<processable_type> *
+			const std::size_t &, const GStdThreadConsumerT<processable_type> *
 		) const = 0;
 
 		/** @brief Actual per-item work is done here -- Implement this in derived classes */
@@ -601,7 +601,7 @@ public:
 	 * been registered with our outer class.
 	 */
 	class GDefaultWorker
-		: public GBoostThreadConsumerT<processable_type>::GWorker {
+		: public GStdThreadConsumerT<processable_type>::GWorker {
 	public:
 		/************************************************************************/
 		/**
@@ -615,7 +615,7 @@ public:
 		 * The copy constructor.
 		 */
 		GDefaultWorker(
-			const GDefaultWorker &cp, const std::size_t &thread_id, const GBoostThreadConsumerT<processable_type> *outer
+			const GDefaultWorker &cp, const std::size_t &thread_id, const GStdThreadConsumerT<processable_type> *outer
 		) : GWorker(cp, thread_id, outer) { /* nothing */ }
 
 	public:
@@ -630,12 +630,12 @@ public:
 		 * Create a deep clone of this object, camouflaged as a GWorker
 		 */
 		virtual std::shared_ptr <GWorker> clone(
-			const std::size_t &thread_id, const GBoostThreadConsumerT<processable_type> *outer
+			const std::size_t &thread_id, const GStdThreadConsumerT<processable_type> *outer
 		) const {
 #ifdef DEBUG
          if(!outer) {
             glogger
-            << "In GBoostThreadConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
+            << "In GStdThreadConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
             << "Got empty pointer!" << std::endl
             << GEXCEPTION;
          }
@@ -655,7 +655,7 @@ public:
          if(p) p->process();
          else {
             glogger
-            << "In GBoostThreadConsumerT<processable_type>::GWorker::process(): Error!" << std::endl
+            << "In GStdThreadConsumerT<processable_type>::GWorker::process(): Error!" << std::endl
             << "Received empty pointer for processable object" << std::endl
             << GEXCEPTION;
          }
@@ -673,4 +673,4 @@ public:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GBOOSTTHREADCONSUMERT_HPP_ */
+#endif /* GSTDTHREADCONSUMERT_HPP_ */

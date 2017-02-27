@@ -55,7 +55,7 @@
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GAsioAsyncTCPConsumerT.hpp"
-#include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"

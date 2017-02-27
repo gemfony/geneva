@@ -53,7 +53,7 @@
 
 // Geneva header files go here
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
-#include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaInitializer.hpp"
@@ -358,8 +358,8 @@ int main(int argc, char **argv){
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 
 			if(addLocalConsumer) { // This is mainly for testing and benchmarking
-				std::shared_ptr<GBoostThreadConsumerT<GParameterSet>>
-					gbtc(new GBoostThreadConsumerT<GParameterSet>());
+				std::shared_ptr<GStdThreadConsumerT<GParameterSet>>
+					gbtc(new GStdThreadConsumerT<GParameterSet>());
 				gbtc->setNThreadsPerWorker(nEvaluationThreads);
 				GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 			}

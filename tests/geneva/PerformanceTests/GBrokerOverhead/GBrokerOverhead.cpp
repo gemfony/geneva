@@ -412,9 +412,9 @@ int main(int argc, char **argv){
 			//-----------------------------------------------------------------------------------------------------
 		case execMode::EXECMODE_BROKERAGE: // Execution with multi-threaded consumer. Note that we use EXECMODE_BROKERAGE here, even though no networked execution takes place
 		{
-			std::cout << "Using the GBoostThreadConsumerT consumer." << std::endl;
+			std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
 			// Create a consumer and make it known to the global broker
-			std::shared_ptr<Gem::Courtier::GBoostThreadConsumerT<GParameterSet>> gbtc(new Gem::Courtier::GBoostThreadConsumerT<GParameterSet>());
+			std::shared_ptr<Gem::Courtier::GStdThreadConsumerT<GParameterSet>> gbtc(new Gem::Courtier::GStdThreadConsumerT<GParameterSet>());
 			gbtc->setNThreadsPerWorker(nEvaluationThreads);
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 

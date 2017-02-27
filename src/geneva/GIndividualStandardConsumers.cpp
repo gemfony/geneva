@@ -103,7 +103,7 @@ GIndividualAsyncTCPConsumer::~GIndividualAsyncTCPConsumer()
  * The default constructor
  */
 GIndividualThreadConsumer::GIndividualThreadConsumer()
-	: Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>()
+	: Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>()
 { /* nothing */ }
 
 /******************************************************************************/

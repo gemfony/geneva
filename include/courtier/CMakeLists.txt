@@ -7,13 +7,13 @@ SET ( COMMUNICATIONINCLUDES
     GAsioSerialTCPConsumerT.hpp
     GAsioAsyncTCPConsumerT.hpp
 	GBaseConsumerT.hpp
-    GBoostThreadConsumerT.hpp
     GExecutorT.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp
 	GCourtierEnums.hpp
     GProcessingContainerT.hpp
     GSerialConsumerT.hpp
+    GStdThreadConsumerT.hpp
 )
 
 set_source_files_properties(

@@ -48,7 +48,7 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GAsioAsyncTCPConsumerT.hpp"
-#include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
@@ -110,7 +110,7 @@ public:
  * A consumer used for multi-threaded processing, using GParameterSet-derivatives
  */
 class GIndividualThreadConsumer
-	: public Gem::Courtier::GBoostThreadConsumerT<Gem::Geneva::GParameterSet>
+	: public Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
 	/** @brief The default constructor */

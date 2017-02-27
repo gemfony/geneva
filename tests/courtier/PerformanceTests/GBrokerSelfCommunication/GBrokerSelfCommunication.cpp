@@ -42,7 +42,7 @@
 #include "courtier/GExecutorT.hpp"
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GAsioAsyncTCPConsumerT.hpp"
-#include "courtier/GBoostThreadConsumerT.hpp"
+#include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
@@ -515,7 +515,7 @@ int main(int argc, char **argv) {
 			std::cout << "Using the multithreaded mode" << std::endl;
 
 			// Create a consumer and make it known to the global broker
-			std::shared_ptr< GBoostThreadConsumerT<WORKLOAD>> gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			std::shared_ptr< GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
 			gbtc->setNThreadsPerWorker(10);
 			GBROKER(WORKLOAD)->enrol(gbtc);
 		}
@@ -526,7 +526,7 @@ int main(int argc, char **argv) {
 			std::cout << "Using multithreading and internal networking" << std::endl;
 
 			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>((unsigned short)10000));
-			std::shared_ptr< GBoostThreadConsumerT<WORKLOAD>> gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			std::shared_ptr< GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
 
 			GBROKER(WORKLOAD)->enrol(gatc);
 			GBROKER(WORKLOAD)->enrol(gbtc);
@@ -547,7 +547,7 @@ int main(int argc, char **argv) {
 			std::cout << "Using multithreading and the networked mode" << std::endl;
 
 			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
-			std::shared_ptr< GBoostThreadConsumerT<WORKLOAD>> gbtc(new GBoostThreadConsumerT<WORKLOAD>());
+			std::shared_ptr< GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
 
 			GBROKER(WORKLOAD)->enrol(gatc);
 			GBROKER(WORKLOAD)->enrol(gbtc);
