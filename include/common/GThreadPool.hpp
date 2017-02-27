@@ -53,7 +53,7 @@
 
 // Geneva header files go here
 #include "common/GLogger.hpp"
-#include "common/GThreadGroup.hpp"
+#include "common/GStdThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
 
 namespace Gem {
@@ -245,7 +245,7 @@ private:
 	 boost::asio::io_service m_io_service; ///< Manages the concurrent thread execution
 	 std::shared_ptr <boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
 
-	 GThreadGroup m_gtg; ///< Holds the actual threads
+	 GStdThreadGroup m_gtg; ///< Holds the actual threads
 
 	 std::atomic<std::uint32_t> m_errorCounter; ///< The number of exceptions thrown by the pay load
 	 std::vector<std::string> m_errorLog; ///< Holds error descriptions emitted by the work load

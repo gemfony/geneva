@@ -111,7 +111,7 @@ public:
 	 /***************************************************************************/
 	 /** @brief Returns the current position */
 	 std::size_t getCurrentPosition() const {
-		 return current_pos_;
+		 return m_current_pos;
 	 }
 
 	 /***************************************************************************/
@@ -119,7 +119,7 @@ public:
 	  * Allows to check whether the buffer has run empty
 	  */
 	 bool empty() {
-		 return (current_pos_ >= DEFAULTARRAYSIZE);
+		 return (m_current_pos >= DEFAULTARRAYSIZE);
 	 }
 
 	 /***************************************************************************/
@@ -131,12 +131,12 @@ public:
 		 if(empty()) {
          glogger
          << "In random_container::next(): Error!" << std::endl
-         << "Invalid current_pos_: " << current_pos_ << " / " << DEFAULTARRAYSIZE << std::endl
+         << "Invalid m_current_pos: " << m_current_pos << " / " << DEFAULTARRAYSIZE << std::endl
          << GEXCEPTION;
       }
 #endif
 
-		 return r_[current_pos_++];
+		 return m_r[m_current_pos++];
 	 }
 
 private:
@@ -149,11 +149,11 @@ private:
 	 explicit random_container(
 		 G_BASE_GENERATOR &rng
 	 )
-		 : current_pos_(0)
+		 : m_current_pos(0)
 	 {
 		 try {
 			 for (std::size_t pos = 0; pos < DEFAULTARRAYSIZE; pos++) {
-				 r_[pos] = rng();
+				 m_r[pos] = rng();
 			 }
 		 } catch (const std::bad_alloc &e) {
 			 // This will propagate the exception to the global error handler so it can be logged
@@ -177,10 +177,10 @@ private:
 	  * pointer. T_RNG must be one of the standard C++1x-generators
 	  */
 	 void refresh(G_BASE_GENERATOR &rng) {
-		 for (std::size_t pos = 0; pos < current_pos_; pos++) {
-			 r_[pos] = rng();
+		 for (std::size_t pos = 0; pos < m_current_pos; pos++) {
+			 m_r[pos] = rng();
 		 }
-		 current_pos_ = 0;
+		 m_current_pos = 0;
 	 }
 	 /***************************************************************************/
 
@@ -190,9 +190,9 @@ private:
 	 const random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
 	 const random_container &operator=(random_container &&) = delete; ///< Intentionally private and undefined
 
-	 std::size_t current_pos_; ///< The current position in the array
+	 std::size_t m_current_pos; ///< The current position in the array
 
-	 G_BASE_GENERATOR::result_type r_[DEFAULTARRAYSIZE]; ///< Holds the actual random numbers
+	 G_BASE_GENERATOR::result_type m_r[DEFAULTARRAYSIZE]; ///< Holds the actual random numbers
 };
 
 /******************************************************************************/
@@ -260,38 +260,38 @@ private:
 	 /** @brief The production of [0,1[ random numbers takes place here */
 	 void producer(std::uint32_t seed);
 
-	 bool finalized_ = false;
-	 std::atomic<bool> threads_started_; ///< Indicates whether threads were already started
-	 std::atomic<std::uint16_t> nProducerThreads_; ///< The number of threads used to produce random numbers
-	 Gem::Common::GThreadGroup producer_threads_; ///< A thread group that holds [0,1[ producer threads
+	 bool m_finalized = false;
+	 std::atomic<bool> m_threads_started; ///< Indicates whether threads were already started
+	 std::atomic<std::uint16_t> m_n_producer_threads; ///< The number of threads used to produce random numbers
+	 Gem::Common::GThreadGroup m_producer_threads; ///< A thread group that holds [0,1[ producer threads
 
 	 /** @brief A bounded buffer holding the random number packages */
-	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> p_fresh_bfr_; // Note: Absolutely needs to be defined after the thread group !!!
+	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> m_p_fresh_bfr; // Note: Absolutely needs to be defined after the thread group !!!
 	 /** @brief A bounded buffer holding random number packages ready for recycling */
-	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> p_ret_bfr_;
+	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> m_p_ret_bfr;
 
-	 static std::uint16_t multiple_call_trap_; ///< Trap to catch multiple instantiations of this class
-	 static std::mutex factory_creation_mutex_; ///< Synchronization of access to multiple_call_trap in constructor
+	 static std::uint16_t m_multiple_call_trap; ///< Trap to catch multiple instantiations of this class
+	 static std::mutex m_factory_creation_mutex; ///< Synchronization of access to multiple_call_trap in constructor
 
-	 mutable std::mutex thread_creation_mutex_; ///< Synchronization of access to the threads_started_ variable
+	 mutable std::mutex m_thread_creation_mutex; ///< Synchronization of access to the threads_started_ variable
 
-	 std::random_device nondet_rng_; ///< Source of non-deterministic random numbers
-	 std::seed_seq seed_seq_ ///< A seeding sequence
+	 std::random_device m_nondet_rng; ///< Source of non-deterministic random numbers
+	 std::seed_seq m_seed_seq ///< A seeding sequence
 		 = {
-			 nondet_rng_()
-			 , nondet_rng_()
-			 , nondet_rng_()
-			 , nondet_rng_()
-			 , nondet_rng_()
-			 , nondet_rng_()
-			 , nondet_rng_()
-			 , nondet_rng_()
+			 m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
 		 };
 
-	 mutable std::mutex seedingMutex_; ///< Regulates start-up of the seeding process
-	 std::vector<seed_type> seedCollection_; ///< Holds pre-calculated seeds
-	 std::vector<seed_type>::const_iterator seed_cit_; ///< Iterators over the seedCollection_
-	 bool seedingHasStarted_=false;
+	 mutable std::mutex m_seeding_mutex; ///< Regulates start-up of the seeding process
+	 std::vector<seed_type> m_seed_collection; ///< Holds pre-calculated seeds
+	 std::vector<seed_type>::const_iterator m_seed_cit; ///< Iterators over the seedCollection_
+	 bool m_seeding_has_started=false;
 };
 
 } /* namespace Hap */

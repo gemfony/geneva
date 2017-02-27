@@ -165,7 +165,6 @@ public:
 				 switchGetPositionLock
 				 , findProcessedBufferLock
 				 , consumerEnrolmentLock
-
 			 );
 			 //-----------------------------------------------------------------------
 

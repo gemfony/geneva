@@ -109,15 +109,16 @@ GThreadPool::~GThreadPool() {
  * equals the current number of threads. Note that this function may NOT be called
  * from a task running inside of the pool.
  *
- * TODO: use std::defer_lock as in GBrokerT.hpp
- *
  * @param nThreads The desired number of threads
  */
 void GThreadPool::setNThreads(unsigned int nThreads) {
 	// Make sure no new jobs may be submitted
-	std::unique_lock<std::mutex> job_lck(m_task_submission_mutex);
+	std::unique_lock<std::mutex> job_lck(m_task_submission_mutex, std::defer_lock);
 	// Make sure no threads may be created by other entities
-	std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
+	std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex, std::defer_lock);
+
+	// Simulataneously lock both locks
+	std::lock(job_lck, tc_lk);
 
 	// Check if any work needs to be done
 	unsigned int nThreadsLocal = nThreads>0 ? nThreads : getNHardwareThreads();

@@ -43,8 +43,8 @@ namespace Hap {
 /**
  * Initialization of static data members
  */
-std::uint16_t Gem::Hap::GRandomFactory::multiple_call_trap_ = 0;
-std::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
+std::uint16_t Gem::Hap::GRandomFactory::m_multiple_call_trap = 0;
+std::mutex Gem::Hap::GRandomFactory::m_factory_creation_mutex;
 
 /******************************************************************************/
 /**
@@ -52,17 +52,17 @@ std::mutex Gem::Hap::GRandomFactory::factory_creation_mutex_;
  * that this class is instantiated only once.
  */
 GRandomFactory::GRandomFactory()
-  	: threads_started_(ATOMIC_FLAG_INIT)
-	, nProducerThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
-	, seedCollection_(DEFAULTSEEDVECTORSIZE)
-	, seed_cit_(seedCollection_.begin())
+  	: m_threads_started(ATOMIC_FLAG_INIT)
+	, m_n_producer_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
+	, m_seed_collection(DEFAULTSEEDVECTORSIZE)
+	, m_seed_cit(m_seed_collection.begin())
 {
 	/*
 	 * Apparently the entropy() call currently always returns 0 with g++ and clang,
 	 * as this call is not fully implemented.
 	 *
 	// Check whether enough entropy is available. Warn, if this is not the case
-	if (0. == nondet_rng_.entropy()) {
+	if (0. == m_nondet_rng.entropy()) {
 		glogger
 		<< "In GSeedManager::GSeedManager(): Error!" << std::endl
 		<< "Source of non-deterministic random numbers" << std::endl
@@ -71,15 +71,15 @@ GRandomFactory::GRandomFactory()
 	}
 	*/
 
-	std::unique_lock<std::mutex> lk(factory_creation_mutex_);
-	if (multiple_call_trap_ > 0) {
+	std::unique_lock<std::mutex> lk(m_factory_creation_mutex);
+	if (m_multiple_call_trap > 0) {
 		glogger
 		<< "Error in GRandomFactory::GRandomFactory():" << std::endl
 		<< "Class has been instantiated before." << std::endl
 		<< "and may be instantiated only once" << std::endl
 		<< GTERMINATION;
 	} else {
-		multiple_call_trap_++;
+		m_multiple_call_trap++;
 	}
 }
 
@@ -110,11 +110,11 @@ void GRandomFactory::init() { /* nothing */ }
  */
 void GRandomFactory::finalize() {
 	// Only allow one finalization action to be carried out
-	if (finalized_) return;
+	if (m_finalized) return;
 
-	producer_threads_.interrupt_all(); // doesn't throw
-	producer_threads_.join_all();
-	finalized_ = true; // Let the audience know
+	m_producer_threads.interrupt_all(); // doesn't throw
+	m_producer_threads.join_all();
+	m_finalized = true; // Let the audience know
 }
 
 /******************************************************************************/
@@ -145,17 +145,17 @@ std::size_t GRandomFactory::getBufferSize() const {
  * @return A seed taken from a local seed_seq object
  */
 seed_type GRandomFactory::getSeed() {
-	std::unique_lock<std::mutex> sm_lck(seedingMutex_);
+	std::unique_lock<std::mutex> sm_lck(m_seeding_mutex);
 
 	// Refill at the start of seeding or when all seeds have been used
-	if(!seedingHasStarted_ || seed_cit_==seedCollection_.end()) {
-		seed_seq_.generate(seedCollection_.begin(), seedCollection_.end());
-		seed_cit_=seedCollection_.begin();
-		seedingHasStarted_=true;
+	if(!m_seeding_has_started || m_seed_cit==m_seed_collection.end()) {
+		m_seed_seq.generate(m_seed_collection.begin(), m_seed_collection.end());
+		m_seed_cit=m_seed_collection.begin();
+		m_seeding_has_started=true;
 	}
 
-	seed_type result = *seed_cit_;
-	++seed_cit_;
+	seed_type result = *m_seed_cit;
+	++m_seed_cit;
 
 	return result;
 }
@@ -169,11 +169,11 @@ seed_type GRandomFactory::getSeed() {
  * @param current_pos The first position in the array that holds unused random numbers
  */
 void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> p) {
-	// We try to add the item to the p_ret_bfr_ queue, until a timeout occurs.
+	// We try to add the item to the m_p_ret_bfr queue, until a timeout occurs.
 	// Once this is the case we delete the package, so we do not overflow
 	// with recycled packages
 	try {
-		p_ret_bfr_.push_front(std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT));
+		m_p_ret_bfr.push_front(std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT));
 	} catch (Gem::Common::condition_time_out &) { // No luck buffer is full. Delete the recycling bin
 		p.reset();
 	}
@@ -189,47 +189,47 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> p) {
  */
 void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) {
 	// Threads might already be running, so we need to regulate access
-	if(threads_started_.load()) {
+	if(m_threads_started.load()) {
 		// If we enter this code-path, there is no way threads
 		// could go into the "not-running" state, so we do not need
 		// to check again using DCLP .
-		std::unique_lock<std::mutex> lk(thread_creation_mutex_);
+		std::unique_lock<std::mutex> lk(m_thread_creation_mutex);
 		// Make a suggestion for the number of threads, if requested
 		std::uint16_t nProducerThreads_local =
 			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
 
-		if (nProducerThreads_local > nProducerThreads_.load()) { // start new 01 threads
-			for (std::uint16_t i = nProducerThreads_.load(); i < nProducerThreads_local; i++) {
-				producer_threads_.create_thread(
+		if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads
+			for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) {
+				m_producer_threads.create_thread(
 					[this]() { this->producer(this->getSeed()); }
 				);
 			}
-		} else if (nProducerThreads_local < nProducerThreads_.load()) { // We need to remove threads
+		} else if (nProducerThreads_local < m_n_producer_threads.load()) { // We need to remove threads
 			// remove_last will internally call "interrupt" for these threads
-			producer_threads_.remove_last(nProducerThreads_.load() - nProducerThreads_local);
+			m_producer_threads.remove_last(m_n_producer_threads.load() - nProducerThreads_local);
 		}
 	} else { // Double-checked locking pattern
 		// Here it appears that no threads were running. We do need to check again, though (DLCP)
-		std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
+		std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
 		// Make a suggestion for the number of threads, if requested
 		std::uint16_t nProducerThreads_local =
 			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
 
-		if (threads_started_.load()) { // Someone has started the threads in the meantime. Adjust the number of threads
-			if (nProducerThreads_local > nProducerThreads_.load()) { // start new 01 threads
-				for (std::uint16_t i = nProducerThreads_.load(); i < nProducerThreads_local; i++) {
-					producer_threads_.create_thread(
+		if (m_threads_started.load()) { // Someone has started the threads in the meantime. Adjust the number of threads
+			if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads
+				for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) {
+					m_producer_threads.create_thread(
 						[this]() { this->producer(this->getSeed()); }
 					);
 				}
-			} else if (nProducerThreads_local < nProducerThreads_.load()) { // We need to remove threads
+			} else if (nProducerThreads_local < m_n_producer_threads.load()) { // We need to remove threads
 				// remove_last will internally call "interrupt" for these threads
-				producer_threads_.remove_last(nProducerThreads_.load() - nProducerThreads_local);
+				m_producer_threads.remove_last(m_n_producer_threads.load() - nProducerThreads_local);
 			}
 		}
 
 		// Whether they were already running or not -- we may now adjust the number of producer threads
-		nProducerThreads_ = nProducerThreads_local;
+		m_n_producer_threads = nProducerThreads_local;
 	}
 }
 
@@ -244,24 +244,24 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
  */
 std::unique_ptr <random_container> GRandomFactory::getNewRandomContainer() {
 	// Start the producer threads upon first access to this function
-	if (!threads_started_.load()) {
-		std::unique_lock<std::mutex> tc_lk(thread_creation_mutex_);
-		if (!threads_started_.load()) { // double checked locking pattern
+	if (!m_threads_started.load()) {
+		std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
+		if (!m_threads_started.load()) { // double checked locking pattern
 			//---------------------------------------------------------
-			for (std::uint16_t i = 0; i < nProducerThreads_.load(); i++) {
-				producer_threads_.create_thread(
+			for (std::uint16_t i = 0; i < m_n_producer_threads.load(); i++) {
+				m_producer_threads.create_thread(
 					[this]() { this->producer(this->getSeed()); }
 				);
 			}
 			//---------------------------------------------------------
 
-			threads_started_.store(true);
+			m_threads_started.store(true);
 		}
 	}
 
 	std::unique_ptr <random_container> p; // empty
 	try {
-		p_fresh_bfr_.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
+		m_p_fresh_bfr.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out &) {
 		// nothing - our way of signaling a time out
 		// is to return an empty std::unique_ptr
@@ -290,10 +290,10 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 			Gem::Common::thread::interruption_point();
 
 			if (!p) { // buffer is still empty
-				// First we try to retrieve a "recycled" item from the p_ret_bfr_ buffer. If this
+				// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
 				// fails (likely because the buffer is empty), we create a new item instead
 				try {
-					p_ret_bfr_.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
+					m_p_ret_bfr.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
 
 					// If we reach this line, we have successfully retrieved a recycled container.
 					// First do some error-checking
@@ -318,7 +318,7 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 			// Thanks to the following call, thread creation will be mostly idle if the buffer is full
 			try {
 				// Put the bufffer in the queue
-				p_fresh_bfr_.push_front(std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT));
+				m_p_fresh_bfr.push_front(std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT));
 				// Reset the shared_ptr so the next pointer may be created
 				p.reset();
 			} catch (Gem::Common::condition_time_out &) {
