@@ -67,7 +67,7 @@
 #include "common/GBoundedBufferT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
-#include "common/GThreadGroup.hpp"
+#include "common/GStdThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "hap/GRandomDefines.hpp"
@@ -262,8 +262,9 @@ private:
 
 	 bool m_finalized = false;
 	 std::atomic<bool> m_threads_started; ///< Indicates whether threads were already started
+	 std::atomic<bool> m_threads_stop_requested; ///< Indicates whether all threads were requested to stop
 	 std::atomic<std::uint16_t> m_n_producer_threads; ///< The number of threads used to produce random numbers
-	 Gem::Common::GThreadGroup m_producer_threads; ///< A thread group that holds [0,1[ producer threads
+	 Gem::Common::GStdThreadGroup m_producer_threads; ///< A thread group that holds [0,1[ producer threads
 
 	 /** @brief A bounded buffer holding the random number packages */
 	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> m_p_fresh_bfr; // Note: Absolutely needs to be defined after the thread group !!!

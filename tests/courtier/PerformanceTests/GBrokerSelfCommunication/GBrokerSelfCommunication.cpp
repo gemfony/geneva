@@ -45,7 +45,7 @@
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GThreadGroup.hpp"
+#include "common/GStdThreadGroup.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GCommonEnums.hpp"
 
@@ -401,8 +401,8 @@ int main(int argc, char **argv) {
 	producer_counter = 0;
 
 	// Some thread groups needed for producers and workers
-	Gem::Common::GThreadGroup connectorProducer_gtg;
-	Gem::Common::GThreadGroup worker_gtg;
+	Gem::Common::GStdThreadGroup connectorProducer_gtg;
+	Gem::Common::GStdThreadGroup worker_gtg;
 
 	//--------------------------------------------------------------------------------
 	// Find out about our configuration options

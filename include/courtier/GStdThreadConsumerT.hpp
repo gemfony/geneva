@@ -49,8 +49,7 @@
 #define GSTDTHREADCONSUMERT_HPP_
 
 // Geneva headers go here
-
-#include "common/GThreadGroup.hpp"
+#include "common/GStdThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GBrokerT.hpp"
@@ -268,7 +267,7 @@ public:
 	 * of the worker template.
 	 */
 	void registerWorkerTemplate(
-		std::shared_ptr <GWorker> workerTemplate
+		std::shared_ptr<GWorker> workerTemplate
 	) {
 #ifdef DEBUG
       if(!workerTemplate) { // Does the template point somewhere ?
@@ -384,7 +383,7 @@ private:
 	const GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &); ///< Intentionally left undefined
 
 	std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
-	Gem::Common::GThreadGroup m_gtg; ///< Holds the processing threads
+	Gem::Common::GStdThreadGroup m_gtg; ///< Holds the processing threads
 	std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr; ///< A shortcut to the broker so we do not have to go through the singleton
 	std::vector<std::shared_ptr <GWorker>> m_workers; ///< Holds the current worker objects
 	std::vector<std::shared_ptr <GWorker>> m_workerTemplates; ///< All workers will be created as a clone of these workers
@@ -444,8 +443,6 @@ public:
 				std::chrono::milliseconds timeout(200);
 
 				while (true) {
-					Gem::Common::thread::interruption_point();
-
 					// Have we been asked to stop ?
 					if (m_outer->stopped()) break;
 
@@ -486,8 +483,11 @@ public:
 						continue;
 					}
 				}
-			} catch (Gem::Common::thread_interrupted &) { // Normal termination
-			   /* nothing */
+			} catch(Gem::Common::gemfony_error_condition& e) {
+				glogger
+				<< "In GStdThreadConsumerT<processable_type>::GWorker::run(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
+				<< e.what() << std::endl
+				<< GEXCEPTION;
 			} catch (std::exception &e) {
 				glogger
 				<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl

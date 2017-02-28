@@ -13,8 +13,7 @@ SET ( COMMONSOURCES
 	GParserBuilder
 	GPlotDesigner
     GStdThreadGroup
-    GThread
-	GThreadGroup
+	GStdThreadGroup
 	GThreadPool
 	GThreadWrapper
 )

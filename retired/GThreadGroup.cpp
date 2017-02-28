@@ -67,7 +67,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "common/GThreadGroup.hpp"
+#include "GThreadGroup.hpp"
 
 namespace Gem {
 namespace Common {

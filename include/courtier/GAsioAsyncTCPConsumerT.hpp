@@ -71,7 +71,7 @@
 #define GASIOASYNCTCPCONSUMERT_HPP
 
 // Geneva headers go here
-#include "common/GThreadGroup.hpp"
+#include "common/GStdThreadGroup.hpp"
 #include "common/GThreadPool.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GHelperFunctions.hpp"
@@ -1419,7 +1419,7 @@ private:
 	 unsigned short m_port = GASIOTCPCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	 std::string m_server = GASIOTCPCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(200); ///< A timeout for put- and get-operations
-	 Gem::Common::GThreadGroup m_gtg; ///< Holds listener threads
+	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds listener threads
 	 Gem::Common::GThreadPool m_gtp; ///< Holds workers sorting processed items back into the broker
 	 std::shared_ptr<Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr; ///< A pointer to the global broker
 	 std::atomic<std::int_fast32_t> m_connections{0}; ///< Holds the current number of open connections

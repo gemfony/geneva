@@ -83,7 +83,7 @@
 #define GTHREADGROUP_HPP_
 
 // Geneva header files go here
-#include "common/GThread.hpp"
+#include "GThread.hpp"
 
 namespace Gem {
 namespace Common {

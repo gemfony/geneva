@@ -53,6 +53,7 @@ std::mutex Gem::Hap::GRandomFactory::m_factory_creation_mutex;
  */
 GRandomFactory::GRandomFactory()
   	: m_threads_started(ATOMIC_FLAG_INIT)
+	, m_threads_stop_requested(ATOMIC_FLAG_INIT)
 	, m_n_producer_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
 	, m_seed_collection(DEFAULTSEEDVECTORSIZE)
 	, m_seed_cit(m_seed_collection.begin())
@@ -111,8 +112,9 @@ void GRandomFactory::init() { /* nothing */ }
 void GRandomFactory::finalize() {
 	// Only allow one finalization action to be carried out
 	if (m_finalized) return;
-
-	m_producer_threads.interrupt_all(); // doesn't throw
+	// Flag all threads to stop
+	m_threads_stop_requested.store(true);
+	// Wait for all threads to return
 	m_producer_threads.join_all();
 	m_finalized = true; // Let the audience know
 }
@@ -183,13 +185,14 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> p) {
 /**
  * Sets the number of producer threads for this factory. See also
  * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
- * the rationale of the double checked locking pattern.
+ * the rationale of the double checked locking pattern. Note that only an
+ * increase of the number of threads is allowed when threads are already running.
  *
  * @param n01Threads The number of threads simultaneously producing random numbers
  */
 void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) {
 	// Threads might already be running, so we need to regulate access
-	if(m_threads_started.load()) {
+	if(m_threads_started) {
 		// If we enter this code-path, there is no way threads
 		// could go into the "not-running" state, so we do not need
 		// to check again using DCLP .
@@ -205,8 +208,13 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 				);
 			}
 		} else if (nProducerThreads_local < m_n_producer_threads.load()) { // We need to remove threads
-			// remove_last will internally call "interrupt" for these threads
-			m_producer_threads.remove_last(m_n_producer_threads.load() - nProducerThreads_local);
+			glogger
+				<< "In GRandomFactory::setNProducerThreads(" << nProducerThreads << "): Warning!" << std::endl
+				<< "Attempt to decrease the number of producer threads from " << m_n_producer_threads.load() << " to " << nProducerThreads << std::endl
+				<< "while threads were alredy running. The number of threads will remain unchanged." << std::endl
+				<< GWARNING;
+
+			return;
 		}
 	} else { // Double-checked locking pattern
 		// Here it appears that no threads were running. We do need to check again, though (DLCP)
@@ -215,7 +223,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 		std::uint16_t nProducerThreads_local =
 			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
 
-		if (m_threads_started.load()) { // Someone has started the threads in the meantime. Adjust the number of threads
+		if (m_threads_started) { // Someone has started the threads in the meantime. Adjust the number of threads
 			if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads
 				for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) {
 					m_producer_threads.create_thread(
@@ -223,8 +231,13 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 					);
 				}
 			} else if (nProducerThreads_local < m_n_producer_threads.load()) { // We need to remove threads
-				// remove_last will internally call "interrupt" for these threads
-				m_producer_threads.remove_last(m_n_producer_threads.load() - nProducerThreads_local);
+				glogger
+					<< "In GRandomFactory::setNProducerThreads(" << nProducerThreads << "): Warning!" << std::endl
+					<< "Attempt to decrease the number of producer threads from " << m_n_producer_threads.load() << " to " << nProducerThreads << std::endl
+					<< "while threads were alredy running. The number of threads will remain unchanged." << std::endl
+					<< GWARNING;
+
+				return;
 			}
 		}
 
@@ -235,18 +248,18 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 
 /******************************************************************************/
 /**
- * When objects need a new container [0,1[ of random numbers with the current
+ * When objects need a new container of [0,1[ -random numbers with the current
  * default size, they call this function. See also
  * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
  * the rationale.
  *
  * @return A packet of new [0,1[ random numbers
  */
-std::unique_ptr <random_container> GRandomFactory::getNewRandomContainer() {
+std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 	// Start the producer threads upon first access to this function
-	if (!m_threads_started.load()) {
+	if (!m_threads_started) {
 		std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
-		if (!m_threads_started.load()) { // double checked locking pattern
+		if (!m_threads_started) { // double checked locking pattern
 			//---------------------------------------------------------
 			for (std::uint16_t i = 0; i < m_n_producer_threads.load(); i++) {
 				m_producer_threads.create_thread(
@@ -259,7 +272,7 @@ std::unique_ptr <random_container> GRandomFactory::getNewRandomContainer() {
 		}
 	}
 
-	std::unique_ptr <random_container> p; // empty
+	std::unique_ptr<random_container> p; // empty
 	try {
 		m_p_fresh_bfr.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
 	} catch (Gem::Common::condition_time_out &) {
@@ -285,10 +298,7 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 		G_BASE_GENERATOR mt(seed);
 		std::unique_ptr<random_container> p;
 
-		while (true) {
-			// Check whether an interruption was requested
-			Gem::Common::thread::interruption_point();
-
+		while (false == m_threads_stop_requested.load()) {
 			if (!p) { // buffer is still empty
 				// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
 				// fails (likely because the buffer is empty), we create a new item instead
@@ -325,8 +335,6 @@ void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_ty
 				continue; // Try again, if we didn't succeed
 			}
 		}
-	} catch (Gem::Common::thread_interrupted &) { // Not an error
-		return; // We're done
 	} catch (std::bad_alloc &e) {
 		glogger
 		<< "In GRandomFactory::producer(): Error!" << std::endl

@@ -189,23 +189,22 @@ private:
 					continue;
 				}
 			}
-		}
-		catch (Gem::Common::thread_interrupted &) {
-			// Terminate
-			return;
-		}
-		catch (std::exception &e) {
+		} catch(Gem::Common::gemfony_error_condition& e) {
+			glogger
+			<< "In GSerialConsumerT::processItems(): Caught Gem::Common::gemfony_error_condition with message"
+			<< std::endl
+			<< e.what() << std::endl
+			<< GEXCEPTION;
+		} catch (std::exception &e) {
 			glogger
 			<< "In GSerialConsumerT::processItems(): Caught std::exception with message" << std::endl
 			<< e.what() << std::endl
 			<< GEXCEPTION;
-		}
-		catch (boost::exception &) {
+		} catch (boost::exception &) {
 			glogger
 			<< "In GSerialConsumerT::processItems(): Caught boost::exception with message" << std::endl
 			<< GEXCEPTION;
-		}
-		catch (...) {
+		} catch (...) {
 			glogger
 			<< "In GSerialConsumerT::processItems(): Caught unknown exception." << std::endl
 			<< GEXCEPTION;

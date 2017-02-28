@@ -44,7 +44,7 @@
 // Geneva headers go here
 #include "common/GLogger.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GThread.hpp"
+#include "../GThread.hpp"
 #include "hap/GRandomT.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 

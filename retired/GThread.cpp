@@ -71,7 +71,7 @@
  * ***************************************************************************
  */
 
-#include "common/GThread.hpp"
+#include "GThread.hpp"
 
 namespace Gem {
 namespace Common {
