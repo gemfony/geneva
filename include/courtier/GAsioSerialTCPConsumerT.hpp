@@ -114,12 +114,12 @@ public:
 	 * @param port Identifies the port on the server
 	 */
 	GAsioSerialTCPClientT(
-		const std::string &server
-		, const std::string &port
+	    const std::string &server
+	    , const std::string &port
 	)
 		: GBaseClientT<processable_type>()
-	   , m_query(server, port)
-	   , m_endpoint_iterator0(m_resolver.resolve(m_query))
+		, m_query(server, port)
+		, m_endpoint_iterator0(m_resolver.resolve(m_query))
 	{
 		m_tmpBuffer = new char[Gem::Courtier::COMMANDLENGTH];
 	}
@@ -133,13 +133,13 @@ public:
 	 * @param port Identifies the port on the server
 	 */
 	GAsioSerialTCPClientT(
-		const std::string &server
-		, const std::string &port
-		, std::shared_ptr<processable_type> additionalDataTemplate
+	    const std::string &server
+	    , const std::string &port
+	    , std::shared_ptr<processable_type> additionalDataTemplate
 	)
 		: GBaseClientT<processable_type>(additionalDataTemplate)
-	   , m_query(server, port)
-	   , m_endpoint_iterator0(m_resolver.resolve(m_query))
+		, m_query(server, port)
+		, m_endpoint_iterator0(m_resolver.resolve(m_query))
 	{
 		m_tmpBuffer = new char[Gem::Courtier::COMMANDLENGTH];
 	}
@@ -152,10 +152,10 @@ public:
 		Gem::Common::g_array_delete(m_tmpBuffer);
 
 		glogger
-		<< "In GAsioSerialTCPClientT<>::GAsioSerialTCPClientTlientT():" << std::endl
-		<< "Recorded " << this->getTotalConnectionAttempts() << " failed connection" << std::endl
-		<< "attempts during the runtime of this client" << std::endl
-		<< GLOGGING;
+		        << "In GAsioSerialTCPClientT<>::GAsioSerialTCPClientTlientT():" << std::endl
+		        << "Recorded " << this->getTotalConnectionAttempts() << " failed connection" << std::endl
+		        << "attempts during the runtime of this client" << std::endl
+		        << GLOGGING;
 	}
 
 	/***************************************************************************/
@@ -208,248 +208,248 @@ public:
 	}
 
 protected:
-	 /***************************************************************************/
-	 /**
-	  * This is the main loop of the client. It will continue to call the process()
-	  * function (defined by derived classes), until it returns false or a halt-condition
-	  * was reached.
-	  */
-	 virtual void run_() override {
-		 while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
-	 }
+	/***************************************************************************/
+	/**
+	 * This is the main loop of the client. It will continue to call the process()
+	 * function (defined by derived classes), until it returns false or a halt-condition
+	 * was reached.
+	 */
+	virtual void run_() override {
+		while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
+	}
 
-	 /***************************************************************************/
-	 /**
-	  * This function models a single processing step
-	  */
-	 bool process() {
-		 // Store the current serialization mode
-		 Gem::Common::serializationMode serMode;
+	/***************************************************************************/
+	/**
+	 * This function models a single processing step
+	 */
+	bool process() {
+		// Store the current serialization mode
+		Gem::Common::serializationMode serMode;
 
-		 // Get an item from the server
-		 //
-		 // TODO: Check if the clients drop out here
-		 //
-		 std::string istr, serModeStr;
-		 if(!this->retrieve(istr, serModeStr)) {
-			 glogger
-				 << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
-				 << "Could not retrieve item from server. Leaving ..." << std::endl
-				 << GWARNING;
+		// Get an item from the server
+		//
+		// TODO: Check if the clients drop out here
+		//
+		std::string istr, serModeStr;
+		if (!this->retrieve(istr, serModeStr)) {
+			glogger
+			        << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
+			        << "Could not retrieve item from server. Leaving ..." << std::endl
+			        << GWARNING;
 
-			 return false;
-		 }
+			return false;
+		}
 
-		 // There is a possibility that we have received an unknown command
-		 // or a timeout command. In this case we want to try again until retrieve()
-		 // returns "false". If we return true here, the next "process" command will
-		 // be executed.
-		 if(istr == "empty") return true;
+		// There is a possibility that we have received an unknown command
+		// or a timeout command. In this case we want to try again until retrieve()
+		// returns "false". If we return true here, the next "process" command will
+		// be executed.
+		if (istr == "empty") return true;
 
-		 // Check the serialization mode we need to use
-		 //
-		 // TODO: Check if the clients drop out here
-		 //
-		 if(serModeStr == "") {
-			 glogger
-				 << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
-				 << "Found empty serModeStr. Leaving ..." << std::endl
-				 << GWARNING;
+		// Check the serialization mode we need to use
+		//
+		// TODO: Check if the clients drop out here
+		//
+		if (serModeStr == "") {
+			glogger
+			        << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
+			        << "Found empty serModeStr. Leaving ..." << std::endl
+			        << GWARNING;
 
-			 return false;
-		 }
+			return false;
+		}
 
-		 serMode = boost::lexical_cast<Gem::Common::serializationMode>(serModeStr);
+		serMode = boost::lexical_cast<Gem::Common::serializationMode>(serModeStr);
 
-		 // unpack the data and create a new object. Note that de-serialization must
-		 // generally happen through the same type that was used for serialization.
-		 std::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
+		// unpack the data and create a new object. Note that de-serialization must
+		// generally happen through the same type that was used for serialization.
+		std::shared_ptr<processable_type> target = Gem::Common::sharedPtrFromString<processable_type>(istr, serMode);
 
-		 // Check if we have received a valid target. Leave the function if this is not the case
-		 if(!target) {
-			 glogger
-				 << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
-				 << "Received empty target." << std::endl
-				 << GWARNING;
+		// Check if we have received a valid target. Leave the function if this is not the case
+		if (!target) {
+			glogger
+			        << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
+			        << "Received empty target." << std::endl
+			        << GWARNING;
 
-			 // This means that process() will be called again
-			 return true;
-		 }
+			// This means that process() will be called again
+			return true;
+		}
 
-		 // If we have a model for the item to be parallelized, load its data into the target
-		 this->loadDataTemplate(target);
+		// If we have a model for the item to be parallelized, load its data into the target
+		this->loadDataTemplate(target);
 
-		 // This one line is all it takes to do the processing required for this object.
-		 // The object has all required functions on board. GAsioSerialTCPClientT<T> does not need to understand
-		 // what is being done during the processing.
-		 target->process();
-		 this->incrementProcessingCounter();
+		// This one line is all it takes to do the processing required for this object.
+		// The object has all required functions on board. GAsioSerialTCPClientT<T> does not need to understand
+		// what is being done during the processing.
+		target->process();
+		this->incrementProcessingCounter();
 
-		 // transform target back into a string and submit to the server. The actual
-		 // actions done by submit are defined by derived classes.
-		 //
-		 // TODO: Check if the clients drop out here
-		 //
-		 if(!this->submit(Gem::Common::sharedPtrToString(target, serMode))) {
-			 glogger
-				 << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
-				 << "Could not return item to server. Leaving ..." << std::endl
-				 << GWARNING;
+		// transform target back into a string and submit to the server. The actual
+		// actions done by submit are defined by derived classes.
+		//
+		// TODO: Check if the clients drop out here
+		//
+		if (!this->submit(Gem::Common::sharedPtrToString(target, serMode))) {
+			glogger
+			        << "In GAsioSerialTCPClientT<T>::process() : Warning!" << std::endl
+			        << "Could not return item to server. Leaving ..." << std::endl
+			        << GWARNING;
 
-			 return false;
-		 }
+			return false;
+		}
 
-		 // Everything worked. Indicate that we want to continue
-		 return true;
-	 } // std::shared_ptr<processable_type> target will cease to exist at this point
+		// Everything worked. Indicate that we want to continue
+		return true;
+	} // std::shared_ptr<processable_type> target will cease to exist at this point
 
-	 /***************************************************************************/
-	 /**
-	  * Retrieve work items from the server.
-	  *
-	  * @param item Holds the string representation of the work item, if successful
-	  * @return true if operation should be continued, otherwise false
-	  */
-	 bool retrieve(
-		 std::string &item
-		 , std::string &serMode
-	 ) {
-		 item = "empty"; // Indicates that no item could be retrieved
-		 std::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
+	/***************************************************************************/
+	/**
+	 * Retrieve work items from the server.
+	 *
+	 * @param item Holds the string representation of the work item, if successful
+	 * @return true if operation should be continued, otherwise false
+	 */
+	bool retrieve(
+	    std::string &item
+	    , std::string &serMode
+	) {
+		item = "empty"; // Indicates that no item could be retrieved
+		std::uint32_t idleTime = 0; // Holds information on the idle time in milliseconds, if "idle" command is received
 
-		 try {
-			 // Try to make a connection
-			 if (!tryConnect()) {
-				 glogger
-					 << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Warning" << std::endl
-					 << "Could not connect to server. Shutting down now." << std::endl
-					 << "NOTE: This might be simply caused by the server shutting down" << std::endl
-					 << "at the end of an optimization run, so that usually this is no" << std::endl
-					 << "cause for concern." << std::endl
-					 << GLOGGING;
+		try {
+			// Try to make a connection
+			if (!tryConnect()) {
+				glogger
+				        << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Warning" << std::endl
+				        << "Could not connect to server. Shutting down now." << std::endl
+				        << "NOTE: This might be simply caused by the server shutting down" << std::endl
+				        << "at the end of an optimization run, so that usually this is no" << std::endl
+				        << "cause for concern." << std::endl
+				        << GLOGGING;
 
-				 // Make sure we don't leave any open sockets lying around.
-				 disconnect(m_socket);
-				 return CLIENT_TERMINATE;
-			 }
+				// Make sure we don't leave any open sockets lying around.
+				disconnect(m_socket);
+				return CLIENT_TERMINATE;
+			}
 
-			 // Let the server know we want work
-			 boost::asio::write(m_socket, boost::asio::buffer(assembleQueryString("ready", Gem::Courtier::COMMANDLENGTH)));
+			// Let the server know we want work
+			boost::asio::write(m_socket, boost::asio::buffer(assembleQueryString("ready", Gem::Courtier::COMMANDLENGTH)));
 
-			 // Read answer. First we care for the command sent by the server
-			 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+			// Read answer. First we care for the command sent by the server
+			boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
-			 // Remove all leading or trailing white spaces from the command
-			 std::string inboundCommandString = boost::algorithm::trim_copy(
-				 std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH)
-			 );
+			// Remove all leading or trailing white spaces from the command
+			std::string inboundCommandString = boost::algorithm::trim_copy(
+			                                       std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH)
+			                                   );
 
-			 // Act on the command
-			 if ("compute" == inboundCommandString) {
-				 // We have likely received data. Let's find out how big it is
-				 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-				 std::string inboundHeader = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-				 std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
+			// Act on the command
+			if ("compute" == inboundCommandString) {
+				// We have likely received data. Let's find out how big it is
+				boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				std::string inboundHeader = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				std::size_t dataSize = boost::lexical_cast<std::size_t>(inboundHeader);
 
-				 // Now retrieve the serialization mode that was used
-				 boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
-				 serMode = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				// Now retrieve the serialization mode that was used
+				boost::asio::read(m_socket, boost::asio::buffer(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
+				serMode = boost::algorithm::trim_copy(std::string(m_tmpBuffer, Gem::Courtier::COMMANDLENGTH));
 
-				 // Create appropriately sized buffer
-				 char *inboundData = new char[dataSize];
+				// Create appropriately sized buffer
+				char *inboundData = new char[dataSize];
 
-				 // Read the real data section from the stream
-				 boost::asio::read(m_socket, boost::asio::buffer(inboundData, dataSize));
+				// Read the real data section from the stream
+				boost::asio::read(m_socket, boost::asio::buffer(inboundData, dataSize));
 
-				 // And make the data known to the outside world
-				 item = std::string(inboundData, dataSize);
+				// And make the data known to the outside world
+				item = std::string(inboundData, dataSize);
 
-				 Gem::Common::g_array_delete(inboundData);
+				Gem::Common::g_array_delete(inboundData);
 
-				 // We have successfully retrieved an item, so we need
-				 // to reset the stall-counter
-				 m_stalls = 0;
+				// We have successfully retrieved an item, so we need
+				// to reset the stall-counter
+				m_stalls = 0;
 
-				 // Make sure we don't leave any open sockets lying around.
-				 disconnect(m_socket);
-				 // Indicate that we want to continue
-				 return CLIENT_CONTINUE;
-			 } else if (this->parseIdleCommand(idleTime, inboundCommandString)) { // Received no work. We have been instructed to wait for a certain time
-				 // We might want to allow a given number of timeouts / stalls
-				 if ((m_maxStalls != 0) && (m_stalls++ > m_maxStalls)) {
-					 glogger
-						 << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
-						 << "Maximum number of consecutive idle commands (" << m_maxStalls << ")" << std::endl
-						 << "has been reached. Leaving now." << std::endl
-						 << GWARNING;
+				// Make sure we don't leave any open sockets lying around.
+				disconnect(m_socket);
+				// Indicate that we want to continue
+				return CLIENT_CONTINUE;
+			} else if (this->parseIdleCommand(idleTime, inboundCommandString)) { // Received no work. We have been instructed to wait for a certain time
+				// We might want to allow a given number of timeouts / stalls
+				if ((m_maxStalls != 0) && (m_stalls++ > m_maxStalls)) {
+					glogger
+					        << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
+					        << "Maximum number of consecutive idle commands (" << m_maxStalls << ")" << std::endl
+					        << "has been reached. Leaving now." << std::endl
+					        << GWARNING;
 
-					 // Make sure we don't leave any open sockets lying around.
-					 disconnect(m_socket);
-					 // Indicate that we don't want to continue
-					 return CLIENT_TERMINATE;
-				 }
+					// Make sure we don't leave any open sockets lying around.
+					disconnect(m_socket);
+					// Indicate that we don't want to continue
+					return CLIENT_TERMINATE;
+				}
 
-				 // Make sure we don't leave any open sockets lying around.
-				 disconnect(m_socket);
+				// Make sure we don't leave any open sockets lying around.
+				disconnect(m_socket);
 
-				 // We can continue. But let's wait for a time specified by the server in its idle-command
-				 std::this_thread::sleep_for(std::chrono::milliseconds(idleTime));
+				// We can continue. But let's wait for a time specified by the server in its idle-command
+				std::this_thread::sleep_for(std::chrono::milliseconds(idleTime));
 
-				 // Indicate that we want to continue
-				 return CLIENT_CONTINUE;
-			 } else { // Received unknown command
-				 glogger
-					 << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
-					 << "Received unknown command " << inboundCommandString << std::endl
-					 << "Leaving now." << std::endl
-					 << GWARNING;
+				// Indicate that we want to continue
+				return CLIENT_CONTINUE;
+			} else { // Received unknown command
+				glogger
+				        << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Warning!" << std::endl
+				        << "Received unknown command " << inboundCommandString << std::endl
+				        << "Leaving now." << std::endl
+				        << GWARNING;
 
-				 // Make sure we don't leave any open sockets lying around.
-				 disconnect(m_socket);
-				 // Indicate that we don't want to continue
-				 return CLIENT_TERMINATE;
-			 }
-		 }
-		 // Any system error (except for those where a connection attempt failed) is considered
-		 // fatal and leads to the termination, by returning false.
-		 catch (boost::system::system_error &e) {
-			 { // Make sure we do not hide the next error declaration (avoid a warning message)
-				 glogger
-					 << "In GAsioSerialTCPClientT<processable_type>::retrieve():" << std::endl
-					 << "Caught boost::system::system_error exception" << std::endl
-					 << "with message" << std::endl
-					 << e.what() << std::endl
-					 << "This is likely normal and due to a server shutdown." << std::endl
-					 << "Leaving now." << std::endl
-					 << GWARNING;
-			 }
+				// Make sure we don't leave any open sockets lying around.
+				disconnect(m_socket);
+				// Indicate that we don't want to continue
+				return CLIENT_TERMINATE;
+			}
+		}
+		// Any system error (except for those where a connection attempt failed) is considered
+		// fatal and leads to the termination, by returning false.
+		catch (boost::system::system_error &e) {
+			{	// Make sure we do not hide the next error declaration (avoid a warning message)
+				glogger
+				        << "In GAsioSerialTCPClientT<processable_type>::retrieve():" << std::endl
+				        << "Caught boost::system::system_error exception" << std::endl
+				        << "with message" << std::endl
+				        << e.what() << std::endl
+				        << "This is likely normal and due to a server shutdown." << std::endl
+				        << "Leaving now." << std::endl
+				        << GWARNING;
+			}
 
-			 // Make sure we don't leave any open sockets lying around.
-			 disconnect(m_socket);
+			// Make sure we don't leave any open sockets lying around.
+			disconnect(m_socket);
 
-			 // Indicate that we don't want to continue
-			 return CLIENT_TERMINATE;
-		 } catch (std::exception& e) {
-			 glogger
-				 << "In GAsioSerialTCPClientT<processable_type>::retrieve():" << std::endl
-				 << "Caught std::exception with message" << std::endl
-				 << e.what() << std::endl
-				 << GEXCEPTION;
-		 } catch (...) {
-			 glogger
-				 << "In sharedPtrFromString(): Error!" << std::endl
-				 << "Caught unknown exception" << std::endl
-				 << GEXCEPTION;
-		 }
+			// Indicate that we don't want to continue
+			return CLIENT_TERMINATE;
+		} catch (std::exception& e) {
+			glogger
+			        << "In GAsioSerialTCPClientT<processable_type>::retrieve():" << std::endl
+			        << "Caught std::exception with message" << std::endl
+			        << e.what() << std::endl
+			        << GEXCEPTION;
+		} catch (...) {
+			glogger
+			        << "In sharedPtrFromString(): Error!" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
+		}
 
-		 // This part of the function should never be reached. Let the audience know, then terminate.
-		 glogger
-			 << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Error!" << std::endl
-			 << "We are in a part of the function that should never have been reached!" << std::endl
-			 << GEXCEPTION;
+		// This part of the function should never be reached. Let the audience know, then terminate.
+		glogger
+		        << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Error!" << std::endl
+		        << "We are in a part of the function that should never have been reached!" << std::endl
+		        << GEXCEPTION;
 
-		 return CLIENT_TERMINATE; // Make the compiler happy
-	 }
+		return CLIENT_TERMINATE; // Make the compiler happy
+	}
 
 	/***************************************************************************/
 	/**
@@ -466,9 +466,9 @@ protected:
 
 		// Assemble the size header
 		std::string sizeHeader = assembleQueryString(
-			boost::lexical_cast<std::string>(item.size())
-			, Gem::Courtier::COMMANDLENGTH
-		);
+		                             boost::lexical_cast<std::string>(item.size())
+		                             , Gem::Courtier::COMMANDLENGTH
+		                         );
 		buffers.push_back(boost::asio::buffer(sizeHeader));
 
 		// Finally take care of the data section.
@@ -478,9 +478,9 @@ protected:
 			// Try to make a connection
 			if (!tryConnect()) {
 				glogger
-				<< "In GAsioSerialTCPClientT<processable_type>::submit(): Warning" << std::endl
-				<< "Could not connect to server. Shutting down now." << std::endl
-				<< GWARNING;
+				        << "In GAsioSerialTCPClientT<processable_type>::submit(): Warning" << std::endl
+				        << "Could not connect to server. Shutting down now." << std::endl
+				        << GWARNING;
 
 				// Make sure we don't leave any open sockets lying around.
 				disconnect(m_socket);
@@ -502,14 +502,14 @@ protected:
 		}
 		// Any system error (except for those where a connection attempt failed) is considered
 		// fatal and leads to the termination, by returning false.
-		catch(boost::system::system_error &) {
+		catch (boost::system::system_error &) {
 			{
 				glogger
-				<< "In GAsioSerialTCPClientT<processable_type>::submit():" << std::endl
-				<< "Caught boost::system::system_error exception." << std::endl
-				<< "This is likely normal and due to a server shutdown." << std::endl
-				<< "Leaving now." << std::endl
-				<< GLOGGING;
+				        << "In GAsioSerialTCPClientT<processable_type>::submit():" << std::endl
+				        << "Caught boost::system::system_error exception." << std::endl
+				        << "This is likely normal and due to a server shutdown." << std::endl
+				        << "Leaving now." << std::endl
+				        << GLOGGING;
 			}
 
 			// Make sure we don't leave any open sockets lying around.
@@ -517,11 +517,11 @@ protected:
 
 			// Indicate that we don't want to continue
 			return CLIENT_TERMINATE;
-		} catch(...) {
+		} catch (...) {
 			glogger
-				<< "In GAsioSerialTCPClientT<processable_type>::submit():" << std::endl
-				<< "Caught unknown error. Leaving now." << std::endl
-				<< GLOGGING;
+			        << "In GAsioSerialTCPClientT<processable_type>::submit():" << std::endl
+			        << "Caught unknown error. Leaving now." << std::endl
+			        << GLOGGING;
 
 			// Make sure we don't leave any open sockets lying around.
 			disconnect(m_socket);
@@ -532,9 +532,9 @@ protected:
 
 		// This part of the function should never be reached. Let the audience know, then terminate.
 		glogger
-		<< "In GAsioSerialTCPClientT<processable_type>::submit() :" << std::endl
-		<< "In a part of the function that should never have been reached!" << std::endl
-		<< GLOGGING;
+		        << "In GAsioSerialTCPClientT<processable_type>::submit() :" << std::endl
+		        << "In a part of the function that should never have been reached!" << std::endl
+		        << GLOGGING;
 
 		return CLIENT_TERMINATE; // Make the compiler happy
 	}
@@ -598,10 +598,10 @@ private:
 	// Data
 
 	std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts
-   std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
-   std::uint32_t m_totalConnectionAttempts = 0; ///< The total number of failed connection attempts during program execution
+	std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
+	std::uint32_t m_totalConnectionAttempts = 0; ///< The total number of failed connection attempts during program execution
 
-   std::uint32_t m_stalls = 0; ///< counter for stalled connection attempts
+	std::uint32_t m_stalls = 0; ///< counter for stalled connection attempts
 
 	char *m_tmpBuffer;
 
@@ -614,16 +614,16 @@ private:
 	boost::asio::ip::tcp::resolver::iterator m_end; ///< end for end point iterator
 
 
-   /***************************************************************************/
+	/***************************************************************************/
 
-   // Prevent default construction
+	// Prevent default construction
 	GAsioSerialTCPClientT() = delete;
 
-   // Prevent copy construction and assignment
+	// Prevent copy construction and assignment
 	GAsioSerialTCPClientT(const GAsioSerialTCPClientT<processable_type>&) = delete;
-	 GAsioSerialTCPClientT(const GAsioSerialTCPClientT<processable_type>&&) = delete;
-   const GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&) = delete;
-   const GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&&) = delete;
+	GAsioSerialTCPClientT(const GAsioSerialTCPClientT<processable_type>&&) = delete;
+	const GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&) = delete;
+	const GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&&) = delete;
 };
 
 /******************************************************************************/
@@ -655,17 +655,17 @@ public:
 	 * @param io_service A reference to the server's io_service
 	 */
 	GAsioSerialServerSessionT(
-		boost::asio::io_service &io_service
-		, const Gem::Common::serializationMode &serMod
-		, GAsioSerialTCPConsumerT<processable_type> *master
+	    boost::asio::io_service &io_service
+	    , const Gem::Common::serializationMode &serMod
+	    , GAsioSerialTCPConsumerT<processable_type> *master
 	)
 		: m_strand(io_service)
-	  	, m_socket(io_service)
-	  	, m_bytesTransferredDataBody(0)
-	   , m_dataBody_ptr(new std::string()) // An empty string
-	   , m_serializationMode(serMod)
-	   , m_master(master)
-	   , m_broker_ptr(master->m_broker_ptr)
+		, m_socket(io_service)
+		, m_bytesTransferredDataBody(0)
+		, m_dataBody_ptr(new std::string()) // An empty string
+		, m_serializationMode(serMod)
+		, m_master(master)
+		, m_broker_ptr(master->m_broker_ptr)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -683,33 +683,33 @@ public:
 		try {
 			// Initiate the first read session. Every transmission starts with a command
 			boost::asio::async_read(
-				m_socket
-				, boost::asio::buffer(m_commandBuffer)
-				, m_strand.wrap(
-					std::bind(
-						&GAsioSerialServerSessionT<processable_type>::async_handle_read_command
-						, GAsioSerialServerSessionT<processable_type>::shared_from_this()
-						, std::placeholders::_1 // Replaces boost::asio::placeholders::error
-					)
-				)
+			    m_socket
+			    , boost::asio::buffer(m_commandBuffer)
+			    , m_strand.wrap(
+			        std::bind(
+			            &GAsioSerialServerSessionT<processable_type>::async_handle_read_command
+			            , GAsioSerialServerSessionT<processable_type>::shared_from_this()
+			            , std::placeholders::_1 // Replaces boost::asio::placeholders::error
+			        )
+			    )
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
+			        << "Caught boost::system::system_error exception with messages:" << std::endl
+			        << e.what() << std::endl
+			        << GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
-			<< "Caught boost::exception exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
+			        << "Caught boost::exception exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 	}
 
@@ -731,10 +731,10 @@ protected:
 	void async_handle_read_command(const boost::system::error_code &error) {
 		if (error) {
 			glogger
-			<< "In GAsioSerialServerSessionT<processable_type>::async_handle_read_command():!" << std::endl
-			<< "Received boost::system::error_code " << error << std::endl
-			<< "with message " << error.message() << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT<processable_type>::async_handle_read_command(): Error!" << std::endl
+			        << "Received boost::system::error_code " << error << std::endl
+			        << "with message " << error.message() << std::endl
+			        << GEXCEPTION;
 			return;
 		}
 
@@ -743,9 +743,9 @@ protected:
 
 		// Remove white spaces
 		std::string command
-			= boost::algorithm::trim_copy(
-				std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH)
-			);
+		    = boost::algorithm::trim_copy(
+		          std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH)
+		      );
 
 		//------------------------------------------------------------------------
 		// Initiate the next session, depending on the command
@@ -756,9 +756,9 @@ protected:
 			this->async_retrieveFromRemote(); // Initiate the retrieval sequence
 		} else {
 			glogger
-			<< "In GAsioSerialServerSessionT<processable_type>::async_handle_read_command(): Warning!" << std::endl
-			<< "Received unknown command \"" << command << "\"" << std::endl
-			<< GWARNING;
+			        << "In GAsioSerialServerSessionT<processable_type>::async_handle_read_command(): Warning!" << std::endl
+			        << "Received unknown command \"" << command << "\"" << std::endl
+			        << GWARNING;
 
 			this->async_sendSingleCommand("unknown");
 		}
@@ -777,31 +777,31 @@ protected:
 			// Initiate the next read session. Note that the requested data is returned
 			// in its entirety, not in chunks.
 			boost::asio::async_read(
-				m_socket
-				, boost::asio::buffer(m_commandBuffer)
-				, m_strand.wrap(std::bind(
-					&GAsioSerialServerSessionT<processable_type>::async_handle_read_datasize,
-					GAsioSerialServerSessionT<processable_type>::shared_from_this(),
-					std::placeholders::_1 // Replaces boost::asio::placeholders::error
-				))
+			    m_socket
+			    , boost::asio::buffer(m_commandBuffer)
+			    , m_strand.wrap(std::bind(
+			                        &GAsioSerialServerSessionT<processable_type>::async_handle_read_datasize,
+			                        GAsioSerialServerSessionT<processable_type>::shared_from_this(),
+			                        std::placeholders::_1 // Replaces boost::asio::placeholders::error
+			                    ))
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
+			        << "Caught boost::system::system_error exception with messages:" << std::endl
+			        << e.what() << std::endl
+			        << GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
-			<< "Caught boost::exception exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
+			        << "Caught boost::exception exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 	}
 
@@ -812,9 +812,9 @@ protected:
 	void async_handle_read_datasize(const boost::system::error_code &error) {
 		if (error) {
 			glogger
-			<< "In GAsioSerialServerSessionT<processable_type>::async_handle_read_datasize(): Warning!" << std::endl
-			<< "Warning: Received error " << error << std::endl
-			<< GWARNING;
+			        << "In GAsioSerialServerSessionT<processable_type>::async_handle_read_datasize(): Warning!" << std::endl
+			        << "Warning: Received error " << error << std::endl
+			        << GWARNING;
 			return;
 		}
 
@@ -823,9 +823,9 @@ protected:
 
 		// Remove white spaces
 		std::string dataSize_str
-			= boost::algorithm::trim_copy(
-				std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH)
-			);
+		    = boost::algorithm::trim_copy(
+		          std::string(m_commandBuffer.data(), Gem::Courtier::COMMANDLENGTH)
+		      );
 
 		m_dataSize = boost::lexical_cast<std::size_t>(dataSize_str);
 
@@ -833,31 +833,31 @@ protected:
 		// Initiate the next read session, this time dealing with the data body
 		try {
 			m_socket.async_read_some(
-				boost::asio::buffer(m_dataBuffer)
-				, m_strand.wrap(std::bind(
-					&GAsioSerialServerSessionT<processable_type>::async_handle_read_body
-					, GAsioSerialServerSessionT<processable_type>::shared_from_this()
-					, std::placeholders::_1 // Replaces boost::asio::placeholders::error
-					, std::placeholders::_2 // Replaces boost::asio::placeholders::bytes_transferred
-				))
+			    boost::asio::buffer(m_dataBuffer)
+			    , m_strand.wrap(std::bind(
+			                        &GAsioSerialServerSessionT<processable_type>::async_handle_read_body
+			                        , GAsioSerialServerSessionT<processable_type>::shared_from_this()
+			                        , std::placeholders::_1 // Replaces boost::asio::placeholders::error
+			                        , std::placeholders::_2 // Replaces boost::asio::placeholders::bytes_transferred
+			                    ))
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
+			        << "Caught boost::system::system_error exception with messages:" << std::endl
+			        << e.what() << std::endl
+			        << GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
-			<< "Caught boost::exception exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
+			        << "Caught boost::exception exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 
 		//------------------------------------------------------------------------
@@ -869,13 +869,13 @@ protected:
 	 * been read
 	 */
 	void async_handle_read_body(
-		const boost::system::error_code &error, std::size_t bytes_transferred
+	    const boost::system::error_code &error, std::size_t bytes_transferred
 	) {
 		if (error) {
 			glogger
-			<< "In GAsioSerialServerSessionT<processable_type>::async_handle_read_body(): Warning!" << std::endl
-			<< "Warning: Received error " << error << std::endl
-			<< GWARNING;
+			        << "In GAsioSerialServerSessionT<processable_type>::async_handle_read_body(): Warning!" << std::endl
+			        << "Warning: Received error " << error << std::endl
+			        << GWARNING;
 			return;
 		}
 
@@ -894,32 +894,32 @@ protected:
 		if (m_bytesTransferredDataBody < m_dataSize) {
 			try {
 				m_socket.async_read_some(
-					boost::asio::buffer(m_dataBuffer)
-				   , m_strand.wrap(std::bind(
-							&GAsioSerialServerSessionT<processable_type>::async_handle_read_body
-							, GAsioSerialServerSessionT<processable_type>::shared_from_this()
-							, std::placeholders::_1 // Replaces boost::asio::placeholders::error
-						   , std::placeholders::_2 // Replaces boost::asio::placeholders::bytes_transferred
-					   )
-					)
+				    boost::asio::buffer(m_dataBuffer)
+				    , m_strand.wrap(std::bind(
+				                        &GAsioSerialServerSessionT<processable_type>::async_handle_read_body
+				                        , GAsioSerialServerSessionT<processable_type>::shared_from_this()
+				                        , std::placeholders::_1 // Replaces boost::asio::placeholders::error
+				                        , std::placeholders::_2 // Replaces boost::asio::placeholders::bytes_transferred
+				                    )
+				                   )
 				);
 			} catch (const boost::system::system_error &e) {
 				glogger
-				<< "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
-				<< "Caught boost::system::system_error exception with messages:" << std::endl
-				<< e.what() << std::endl
-				<< GEXCEPTION;
+				        << "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
+				        << "Caught boost::system::system_error exception with messages:" << std::endl
+				        << e.what() << std::endl
+				        << GEXCEPTION;
 			} catch (const boost::exception &e) {
 				glogger
-				<< "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
-				<< "Caught boost::exception exception with messages:" << std::endl
-				<< boost::diagnostic_information(e) << std::endl
-				<< GEXCEPTION;
+				        << "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
+				        << "Caught boost::exception exception with messages:" << std::endl
+				        << boost::diagnostic_information(e) << std::endl
+				        << GEXCEPTION;
 			} catch (...) {
 				glogger
-				<< "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
-				<< "Caught unknown exception" << std::endl
-				<< GEXCEPTION;
+				        << "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
+				        << "Caught unknown exception" << std::endl
+				        << GEXCEPTION;
 			}
 		} else { // The transfer is complete, work with the results
 			// Disconnect the socket
@@ -956,8 +956,8 @@ protected:
 		while (!m_broker_ptr->get(p, m_timeout)) {
 			if (++nRetries > m_brokerRetrieveMaxRetries) {
 				std::string idleCommand
-					= std::string("idle(") + boost::lexical_cast<std::string>(m_noDataClientSleepMilliSeconds) +
-					  std::string(")");
+				    = std::string("idle(") + boost::lexical_cast<std::string>(m_noDataClientSleepMilliSeconds) +
+				      std::string(")");
 				this->async_sendSingleCommand(idleCommand);
 				return;
 			}
@@ -969,17 +969,17 @@ protected:
 
 		// Format the command
 		std::string outbound_command_header = assembleQueryString(
-			"compute", Gem::Courtier::COMMANDLENGTH
-		);
+		        "compute", Gem::Courtier::COMMANDLENGTH
+		                                      );
 
 		// Format the size header
 		std::string outbound_size_header
-			= assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Courtier::COMMANDLENGTH);
+		    = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Courtier::COMMANDLENGTH);
 
 		// Format a header for the serialization mode
 		std::string serialization_header = assembleQueryString(
-			boost::lexical_cast<std::string>(m_serializationMode), Gem::Courtier::COMMANDLENGTH
-		);
+		                                       boost::lexical_cast<std::string>(m_serializationMode), Gem::Courtier::COMMANDLENGTH
+		                                   );
 
 		// Assemble the data buffers
 		std::vector<boost::asio::const_buffer> buffers;
@@ -993,31 +993,31 @@ protected:
 		// command, header and data in a single write operation.
 		try {
 			boost::asio::async_write(
-				m_socket
-				, buffers
-				, m_strand.wrap(std::bind(
-					&GAsioSerialServerSessionT<processable_type>::handle_write,
-					GAsioSerialServerSessionT<processable_type>::shared_from_this(),
-					std::placeholders::_1 // Replaces boost::asio::placeholders::error
-				))
+			    m_socket
+			    , buffers
+			    , m_strand.wrap(std::bind(
+			                        &GAsioSerialServerSessionT<processable_type>::handle_write,
+			                        GAsioSerialServerSessionT<processable_type>::shared_from_this(),
+			                        std::placeholders::_1 // Replaces boost::asio::placeholders::error
+			                    ))
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
+			        << "Caught boost::system::system_error exception with messages:" << std::endl
+			        << e.what() << std::endl
+			        << GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
-			<< "Caught boost::exception exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
+			        << "Caught boost::exception exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 	}
 
@@ -1033,29 +1033,29 @@ protected:
 		// ... and tell the client
 		try {
 			boost::asio::async_write(
-				m_socket, boost::asio::buffer(outbound_command), m_strand.wrap(std::bind(
-					&GAsioSerialServerSessionT<processable_type>::handle_write,
-					GAsioSerialServerSessionT<processable_type>::shared_from_this(),
-					std::placeholders::_1 // Replaces boost::asio::placeholders::error
-				))
+			    m_socket, boost::asio::buffer(outbound_command), m_strand.wrap(std::bind(
+			                &GAsioSerialServerSessionT<processable_type>::handle_write,
+			                GAsioSerialServerSessionT<processable_type>::shared_from_this(),
+			                std::placeholders::_1 // Replaces boost::asio::placeholders::error
+			            ))
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
+			        << "Caught boost::system::system_error exception with messages:" << std::endl
+			        << e.what() << std::endl
+			        << GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
-			<< "Caught boost::exception exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
+			        << "Caught boost::exception exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 	}
 
@@ -1066,9 +1066,9 @@ protected:
 	void handle_write(const boost::system::error_code &error) {
 		if (error) {
 			glogger
-			<< "In GAsioSerialServerSessionT<processable_type>::handle_write(): Warning!" << std::endl
-			<< "Warning: Received error " << error << std::endl
-			<< GWARNING;
+			        << "In GAsioSerialServerSessionT<processable_type>::handle_write(): Warning!" << std::endl
+			        << "Warning: Received error " << error << std::endl
+			        << GWARNING;
 			return;
 		}
 
@@ -1082,7 +1082,7 @@ private:
 	GAsioSerialServerSessionT() = delete; ///< Intentionally left undefined
 	GAsioSerialServerSessionT(const GAsioSerialServerSessionT<processable_type> &) = delete; ///< Intentionally left undefined
 	const GAsioSerialServerSessionT<processable_type> &operator=(
-		const GAsioSerialServerSessionT<processable_type> &
+	    const GAsioSerialServerSessionT<processable_type> &
 	) = delete; ///< Intentionally left undefined
 
 	/***************************************************************************/
@@ -1142,12 +1142,12 @@ public:
 	 * @param sm The desired serialization mode
 	 */
 	GAsioSerialTCPConsumerT(
-		const unsigned short &port
-		, const std::size_t &listenerThreads = 0
-		, const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
+	    const unsigned short &port
+	    , const std::size_t &listenerThreads = 0
+	            , const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
 	)
 		: m_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
-	   , m_serializationMode(sm)
+		, m_serializationMode(sm)
 		, m_port(port)
 	{ /* nothing */ }
 
@@ -1280,8 +1280,8 @@ public:
 	 */
 	virtual std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
 		std::shared_ptr <GAsioSerialTCPClientT<processable_type>> p(
-			new GAsioSerialTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
-		);
+		            new GAsioSerialTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
+		        );
 
 		p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls
 		p->setMaxConnectionAttempts(m_maxConnectionAttempts); // Set to 0 to allow an infinite number of failed connection attempts
@@ -1309,9 +1309,9 @@ public:
 
 		if (!m_broker_ptr) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
-			<< "Got empty broker pointer" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
+			        << "Got empty broker pointer" << std::endl
+			        << GEXCEPTION;
 		}
 
 		// Set the number of threads in the pool
@@ -1331,32 +1331,32 @@ public:
 			// This absolutely needs to happen after the first session has started,
 			// so the io_service doesn't run out of work
 			m_gtg.create_threads(
-				[&]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
-				, m_listenerThreads
+			[&]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
+			, m_listenerThreads
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
+			        << "Caught boost::system::system_error exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
-			<< "Caught boost::exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
+			        << "Caught boost::exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (const std::exception &e) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
-			<< "Caught std::exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
+			        << "Caught std::exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 	}
 
@@ -1413,27 +1413,27 @@ public:
 	 * @param hidden Command line options that should only be visible upon request
 	 */
 	virtual void addCLOptions(
-		boost::program_options::options_description &visible, boost::program_options::options_description &hidden
+	    boost::program_options::options_description &visible, boost::program_options::options_description &hidden
 	) override {
 		namespace po = boost::program_options;
 
 		visible.add_options()
-			("stcpc_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
-			 "\t[stcpc] The name or ip of the server")
-			("stcpc_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
-			 "\t[stcpc] The port of the server");
+		("stcpc_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
+		 "\t[stcpc] The name or ip of the server")
+		("stcpc_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
+		 "\t[stcpc] The port of the server");
 
 		hidden.add_options()
-			("stcpc_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
-				GASIOTCPCONSUMERSERIALIZATIONMODE),
-			 "\t[stcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			("stcpc_maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
-			 "\t[stcpc] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
-			("stcpc_maxConnectionAttempts",
-			 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
-			 "\t[stcpc] The maximum allowed number of failed connection attempts of a client")
-			("stcpc_nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
-			 "\t[stcpc] The number of threads used to listen for incoming connections");
+		("stcpc_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
+		     GASIOTCPCONSUMERSERIALIZATIONMODE),
+		 "\t[stcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+		("stcpc_maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
+		 "\t[stcpc] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
+		("stcpc_maxConnectionAttempts",
+		 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
+		 "\t[stcpc] The maximum allowed number of failed connection attempts of a client")
+		("stcpc_nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
+		 "\t[stcpc] The number of threads used to listen for incoming connections");
 	}
 
 	/***************************************************************************/
@@ -1450,18 +1450,18 @@ private:
 	 * session does not need to perform this work
 	 */
 	void async_scheduleDeSerialization(
-		std::shared_ptr <std::string> dataBody_ptr
+	    std::shared_ptr <std::string> dataBody_ptr
 	) {
 		m_gtp.async_schedule(
-			std::function<void()>(
-				std::bind(
-					&GAsioSerialTCPConsumerT<processable_type>::handle_workItemComplete // Does its own error checks
-					, this
-					, dataBody_ptr
-					, m_serializationMode
-					, m_timeout
-				)
-			)
+		    std::function<void()>(
+		        std::bind(
+		            &GAsioSerialTCPConsumerT<processable_type>::handle_workItemComplete // Does its own error checks
+		            , this
+		            , dataBody_ptr
+		            , m_serializationMode
+		            , m_timeout
+		        )
+		    )
 		);
 	}
 
@@ -1471,20 +1471,20 @@ private:
 	 * will usually be called in its own thread.
 	 */
 	void handle_workItemComplete(
-		std::shared_ptr <std::string> dataBody_ptr
-		, Gem::Common::serializationMode sM
-		, std::chrono::duration<double> timeout
+	    std::shared_ptr <std::string> dataBody_ptr
+	    , Gem::Common::serializationMode sM
+	    , std::chrono::duration<double> timeout
 	) {
 		// De-Serialize the data
 		std::shared_ptr <processable_type> p
-			= Gem::Common::sharedPtrFromString<processable_type>(*dataBody_ptr, sM);
+		    = Gem::Common::sharedPtrFromString<processable_type>(*dataBody_ptr, sM);
 
 		// Complain if this is an empty item
 		if (!p) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT<>::handle_workItemComplete(): Error!" << std::endl
-			<< "Received empty item when filled item was expected!" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT<>::handle_workItemComplete(): Error!" << std::endl
+			        << "Received empty item when filled item was expected!" << std::endl
+			        << GEXCEPTION;
 		}
 
 		// Return the item to the broker. The item will be discarded
@@ -1493,9 +1493,9 @@ private:
 			while (!m_broker_ptr->put(p, timeout)) {
 				if (this->stopped()) { // This may lead to a loss of items
 					glogger
-					<< "GAsioSerialTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
-					<< "Discarding item as the consumer object stopped operation" << std::endl
-					<< GWARNING;
+					        << "GAsioSerialTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
+					        << "Discarding item as the consumer object stopped operation" << std::endl
+					        << GWARNING;
 
 					return;
 				}
@@ -1504,16 +1504,16 @@ private:
 			}
 		} catch (const Gem::Courtier::buffer_not_present &) { // discard the item
 			glogger
-			<< "GAsioSerialTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
-			<< "Discarding item as buffer port is not present" << std::endl
-			<< GWARNING;
+			        << "GAsioSerialTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
+			        << "Discarding item as buffer port is not present" << std::endl
+			        << GWARNING;
 
 			return;
 		} catch (...) {
 			glogger
-			<< "GAsioSerialTCPConsumerT<>::In handle_workItemComplete():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "GAsioSerialTCPConsumerT<>::In handle_workItemComplete():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 	}
 
@@ -1524,40 +1524,40 @@ private:
 	void async_newAccept() {
 		// First we make sure a new session is started asynchronously so the next request can be served
 		std::shared_ptr <GAsioSerialServerSessionT<processable_type>> newSession(
-			new GAsioSerialServerSessionT<processable_type>(
-				m_io_service
-				, m_serializationMode
-				, this
-			)
-		);
+		            new GAsioSerialServerSessionT<processable_type>(
+		                m_io_service
+		                , m_serializationMode
+		                , this
+		            )
+		        );
 
 		try {
 			m_acceptor.async_accept(
-				newSession->getSocket()
-				, std::bind(
-					&GAsioSerialTCPConsumerT<processable_type>::async_handleAccept
-					, this
-					, newSession
-					, std::placeholders::_1 // Replaces boost::asio::placeholders::error
-				)
+			    newSession->getSocket()
+			    , std::bind(
+			        &GAsioSerialTCPConsumerT<processable_type>::async_handleAccept
+			        , this
+			        , newSession
+			        , std::placeholders::_1 // Replaces boost::asio::placeholders::error
+			    )
 			);
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
+			        << "Caught boost::system::system_error exception with messages:" << std::endl
+			        << e.what() << std::endl
+			        << GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
-			<< "Caught boost::exception exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
+			        << "Caught boost::exception exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 	}
 
@@ -1570,14 +1570,14 @@ private:
 	 * @param error Possible error conditions
 	 */
 	void async_handleAccept(
-		std::shared_ptr <GAsioSerialServerSessionT<processable_type>> currentSession
-		, const boost::system::error_code &error
+	    std::shared_ptr <GAsioSerialServerSessionT<processable_type>> currentSession
+	    , const boost::system::error_code &error
 	) {
 		if (error) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT<>::async_handleAccept():"
-			<< "Terminating on error " << error << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT<>::async_handleAccept():"
+			        << "Terminating on error " << error << std::endl
+			        << GEXCEPTION;
 			return;
 		}
 
@@ -1589,21 +1589,21 @@ private:
 			currentSession->async_processRequest();
 		} catch (const boost::system::system_error &e) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl
-			<< "Caught boost::system::system_error exception with messages:" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl
+			        << "Caught boost::system::system_error exception with messages:" << std::endl
+			        << e.what() << std::endl
+			        << GEXCEPTION;
 		} catch (const boost::exception &e) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl
-			<< "Caught boost::exception exception with messages:" << std::endl
-			<< boost::diagnostic_information(e) << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl
+			        << "Caught boost::exception exception with messages:" << std::endl
+			        << boost::diagnostic_information(e) << std::endl
+			        << GEXCEPTION;
 		} catch (...) {
 			glogger
-			<< "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl
-			<< "Caught unknown exception" << std::endl
-			<< GEXCEPTION;
+			        << "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl
+			        << "Caught unknown exception" << std::endl
+			        << GEXCEPTION;
 		}
 	}
 

@@ -1,6 +1,0 @@
-This directory contains thirdparty code. License information may be
-found in each subdirectory. Please note that different licensing terms
-may apply to the rest of the code of the Geneva websocket consumer library.
-
-- WebSocket-Server-Eidheim: A Websocket-implementation by Ole Christian Eidheim
-  (see https://github.com/eidheim/Simple-WebSocket-Server).
