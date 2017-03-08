@@ -60,7 +60,7 @@ namespace Courtier {
 /**
  * Global variables for failed transfers and connection attempts.
  */
-const std::uint32_t GASIOTCPCONSUMERMAXSTALLS = 0;
+const std::uint32_t GASIOTCPCONSUMERMAXSTALLS = 0; // infinite number of stalls
 const std::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
 const unsigned short GASIOTCPCONSUMERDEFAULTPORT = 10000;
 const std::string GASIOTCPCONSUMERDEFAULTSERVER = "localhost";

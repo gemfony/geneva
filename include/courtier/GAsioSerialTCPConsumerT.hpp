@@ -553,7 +553,7 @@ private:
 	 * @return true if the connection could be established, false otherwise.
 	 */
 	bool tryConnect() {
-		// Try to make a connection, at max m_maxConnectionAttempts times
+		// Try to make a connection, at max m_max_connection_attempts times
 		long milliSecondsWait = 10;
 
 		std::uint32_t connectionAttempt = 0;
