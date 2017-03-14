@@ -109,7 +109,7 @@ using GOABase = Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>
  */
 class Go2
 	: public GMutableSetT<GParameterSet>
-		, public GOptimizableI
+	, public GOptimizableI
 {
 public:
 	 /** @brief The default constructor */
@@ -275,6 +275,11 @@ public:
 	 /** @brief Allows to check whether pluggable optimization monitors were registered */
 	 G_API_GENEVA bool hasOptimizationMonitors() const;
 
+	 /** @brief Allows to set the maximum running time for a client */
+	 G_API_GENEVA void setMaxClientTime(std::chrono::duration<double> maxDuration);
+	 /** @brief Allows to retrieve the maximum running time for a client */
+	 G_API_GENEVA std::chrono::duration<double> getMaxClientTime() const;
+
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another Go2 object */
@@ -300,38 +305,42 @@ private:
 
 	 /***************************************************************************/
 	 // Initialization code for the Geneva library
-	 GenevaInitializer gi_;
+	 GenevaInitializer m_gi;
 
 	 /***************************************************************************/
 	 // These parameters can enter the object through the constructor
-	 bool clientMode_; ///< Specifies whether this object represents a network client
-	 std::string configFilename_; ///< Indicates where the configuration file is stored
-	 execMode parMode_; ///< The desired parallelization mode for free-form algorithms
-	 std::string consumerName_; ///< The name of a consumer requested by the user on the command line
+	 bool m_client_mode = GO2_DEF_CLIENTMODE; ///< Specifies whether this object represents a network client
+	 std::string m_config_filename = GO2_DEF_DEFAULTCONFIGFILE; ///< Indicates where the configuration file is stored
+	 execMode m_par_mode = GO2_DEF_DEFAULPARALLELIZATIONMODE; ///< The desired parallelization mode for free-form algorithms
+	 std::string m_consumer_name = GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
 	 //---------------------------------------------------------------------------
 	 // Parameters for the random number generator
-	 std::uint16_t nProducerThreads_; ///< The number of threads that will simultaneously produce random numbers
+	 std::uint16_t m_n_producer_threads = GO2_DEF_NPRODUCERTHREADS; ///< The number of threads that will simultaneously produce random numbers
+
+	 //---------------------------------------------------------------------------
+	 // Parameters for clients
+	 std::chrono::duration<double> m_max_client_duration = Gem::Common::duration_from_string(DEFAULTDURATION); ///< Maximum time-frame for a client to run
 
 	 //---------------------------------------------------------------------------
 	 // Internal parameters
-	 std::uint32_t offset_; ///< The offset to be used when starting a new optimization run
-	 bool sorted_; ///< Indicates whether local individuals have been sorted
-	 std::uint32_t iterationsConsumed_; ///< The number of successive iterations performed by this object so far
+	 std::uint32_t m_offset = GO2_DEF_OFFSET; ///< The offset to be used when starting a new optimization run
+	 bool m_sorted = false; ///< Indicates whether local individuals have been sorted
+	 std::uint32_t m_iterations_consumed = 0; ///< The number of successive iterations performed by this object so far
 
 	 //---------------------------------------------------------------------------
 	 // The list of "chained" optimization algorithms
-	 std::vector<std::shared_ptr<GOABase>> algorithms_;
+	 std::vector<std::shared_ptr<GOABase>> m_algorithms_vec;
 	 // Algorithms that were specified on the command line
-	 std::vector<std::shared_ptr<GOABase>> cl_algorithms_;
+	 std::vector<std::shared_ptr<GOABase>> m_cl_algorithms_vec;
 	 // The default algorithm (if any)
-	 std::shared_ptr<GOABase> default_algorithm_;
+	 std::shared_ptr<GOABase> m_default_algorithm;
 	 // A string representation of the default algorithm
-	 const std::string default_algorithm_str_; ///< This is the last fall-back
+	 const std::string m_default_algorithm_str = DEFAULTOPTALG; ///< This is the last fall-back
 	 // Holds an object capable of producing objects of the desired type
-	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr_;
+	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_content_creator_ptr;
 	 // A user-defined means for information retrieval
-	 std::vector<std::shared_ptr<Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>> pluggable_monitors_;
+	 std::vector<std::shared_ptr<Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>> m_pluggable_monitors_vec;
 };
 
 /******************************************************************************/

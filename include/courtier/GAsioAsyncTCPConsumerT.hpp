@@ -46,6 +46,7 @@
 #include <thread>
 #include <array>
 #include <chrono>
+#include <random>
 #include <vector>
 #include <algorithm>
 
@@ -76,6 +77,7 @@
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "hap/GRandomT.hpp"
 #include "courtier/GAsioHelperFunctions.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -98,12 +100,13 @@ class GAsioAsyncTCPConsumerT;
 /******************************************************************************/
 /**
  * This class is responsible for the client side of network communication
- * with Boost::Asio. Note that this class is noncopyable, as it is derived
- * from a non-copyable base class. It assumes that a single data transfer
- * is done each time and that the connection is interrupted inbetween transfers.
- * This may be useful for long calculations, but may cause high load on the server
- * similar to a highly-frequented web server for short work loads or when all
- * workloads are returned at the same time.
+ * with Boost::Asio through a stripped-down version of web sockets (essentially
+ * only leaving the asynchronous keep-alive pings intact. Note that this
+ * class is noncopyable.
+ *
+ * TODO: Make clients try to reconnect a number of times when the connection
+ * is broken.
+ * TODO: Make clients react gracefully to a EOF etc.
  */
 template<typename processable_type>
 class GAsioAsyncTCPClientT : public Gem::Courtier::GBaseClientT<processable_type>
@@ -201,8 +204,7 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves the total number of failed connection attempts during program execution
-	  * up the point of the call;
+	  * Returns the total number of connection attempts
 	  */
 	 std::uint32_t getTotalConnectionAttempts() const {
 		 return m_total_connection_attempts;
@@ -225,10 +227,7 @@ protected:
 			 glogger
 				 << "In GAsioAsyncTCPClientT<processable_type>::init(): Warning" << std::endl
 				 << "Could not connect to server. Shutting down now." << std::endl
-				 << "NOTE: This might be simply caused by the server shutting down" << std::endl
-				 << "at the end of an optimization run, so that usually this is no" << std::endl
-				 << "cause for concern." << std::endl
-				 << GLOGGING;
+				 << GWARNING;
 
 			 // Make sure we don't leave any open sockets lying around.
 			 disconnect(m_socket);
@@ -275,12 +274,16 @@ protected:
 				 // Act on the command
 				 if ("close" == command) {
 					 this->act_on_close(); break; // Stop the loop
+				 } else if("unknown" == command) {
+					 this->act_on_unknown(); break; // Stop the loop
 				 } else if ("pong" == command) {
 					 if(!this->act_on_pong()) break;
 				 } else if (this->parseIdleCommand(
 					 idleTime
 					 , command
-				 )) { // Received no work. We have been instructed to wait for a certain time
+				 )) {
+					 // Received no work. We have been instructed to wait for a certain time.
+					 // NOTE that this idle time should be smaller than the "ping" interval!
 					 if(!this->act_on_idle_command(idleTime)) break;
 				 } else if ("compute" == command) {
 					 if(!this->act_on_compute_command()) break;
@@ -293,7 +296,8 @@ protected:
 
 					 // Terminate execution
 					 this->flagTerminalError();
-					 break; // Stop the loop
+					 // Stop the loop
+					 break;
 				 }
 			 }
 		 } catch (boost::system::system_error &e) {
@@ -305,6 +309,7 @@ protected:
 				 << "This is likely normal and due to a server shutdown." << std::endl
 				 << "Leaving now." << std::endl
 				 << GWARNING;
+			 // Terminate execution
 			 this->flagTerminalError();
 		 } catch (std::exception& e) {
 			 glogger
@@ -312,15 +317,19 @@ protected:
 				 << "Caught std::exception with message" << std::endl
 				 << e.what() << std::endl
 				 << GWARNING;
+			 // Terminate execution
 			 this->flagTerminalError();
 		 } catch (...) {
 			 glogger
 				 << "In GAsioAsyncTCPClientT<processable_type>::run_(): Warning!" << std::endl
 				 << "Caught unknown exception" << std::endl
 				 << GWARNING;
+			 // Terminate execution
 			 this->flagTerminalError();
 		 }
 
+		 // Make sure we don't leave any open sockets lying around.
+		 disconnect(m_socket);
 		 // The io_service will run out of work after this call
 		 m_work_ptr.reset();
 		 // Wait for all threads in the thread pool to complete their work
@@ -341,56 +350,50 @@ protected:
 private:
 	 /***************************************************************************/
 	 /**
-	  * Tries to make a connection to the remote site. If a maximum number of
-	  * connection attempts has been set, the function will increase the waiting
-	  * time by a factor of 2 each time a connection could not be established, starting with
-	  * 10 milliseconds. Thus, with a maximum of 10 connection attempts, the maximum
-	  * sleep time would be about 10 seconds. This is the recommended mode of operation.
-	  * If no maximum amount of connection attempts has been set, the function will
-	  * sleep for 10 milliseconds every time a connection could not be established.
+	  * Tries to make a connection to the remote site. The function will wait for a
+	  * random time between 0 and 2 seconds before making the next connection
+	  * attempt, up to a possible maximum amount of connection attempts.
 	  *
 	  * @return true if the connection could be established, false otherwise.
 	  */
 	 bool tryConnect() {
-		 // Try to make a connection, at max m_max_connection_attempts times
-		 long milliSecondsWait = 10;
+		 // A random number generator needed to determine a suitable time frame
+		 // for the next connection.
+		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		 std::uniform_real_distribution<double> uniform_real;
 
 		 std::uint32_t connectionAttempt = 0;
 
-		 boost::system::error_code error;
+		 boost::system::error_code error = boost::asio::error::host_not_found;;
 		 boost::asio::ip::tcp::resolver::iterator endpoint_iterator;
 
-		 while (m_max_connection_attempts ? (connectionAttempt++ < m_max_connection_attempts) : true) {
+		 while (error && ((m_max_connection_attempts > 0) ? (connectionAttempt++ < m_max_connection_attempts) : true)) {
 			 // Restore the start of the iteration
 			 endpoint_iterator = m_endpoint_iterator0;
-			 error = boost::asio::error::host_not_found;
 
-			 while (error && endpoint_iterator != m_end) {
-				 // Make sure we do not try to re-open an already open socket
-				 disconnect(m_socket);
-				 // Make the connection attempt
-				 m_socket.connect(*endpoint_iterator++, error);
+			 // Sleep between 0 and 2 seconds times the number of connection attempts,
+			 // so not all clients connect at once
+			 auto ms = std::chrono::milliseconds(
+				 boost::numeric_cast<long int>(connectionAttempt + 1)
+			 	 * boost::numeric_cast<long int>(2000.*uniform_real(gr))
+			 );
+			 std::this_thread::sleep_for(ms);
 
-				 if (error) {
-					 m_total_connection_attempts++;
-				 }
-			 }
+			 boost::asio::connect(
+				 m_socket
+				 , endpoint_iterator
+				 , error
+			 );
 
-			 // We were successful
-			 if (!error) break;
-
-			 // Unsuccessful. Sleep for 0.01 seconds, then try again
-			 std::this_thread::sleep_for(std::chrono::milliseconds(milliSecondsWait));
-
-			 if (m_max_connection_attempts > 0) {
-				 milliSecondsWait *= 2;
-			 }
+			 m_total_connection_attempts++;
 		 }
 
-		 // Still error ? Return, terminate
-		 if (error) return false;
-
-		 return true;
+		 // Still in error ? Tell the audience
+		 if (error) {
+			 return false;
+		 } else {
+			 return true;
+		 }
 	 }
 
 	 /***************************************************************************/
@@ -398,14 +401,21 @@ private:
 	  * Acts on a "close"-command
 	  */
   	 void act_on_close() {
-		 // Acknowledge the close request so that the server may close the connection
-		 m_write_strand.wrap(boost::asio::write(
-			 m_socket
-			 , boost::asio::buffer(assembleQueryString("ack_close", Gem::Courtier::COMMANDLENGTH))
-		 ));
-
 		 // set the termination flag
 		 this->flagCloseRequested();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Acts when the server indicated that it has received an unknown command
+	  */
+
+	 void act_on_unknown() {
+		 glogger
+		 	<< "In GAsioAsyncTCPClientT<processable_type>::act_on_unknown(): Error" << std::endl
+			<< "The server has indicated that it has received an unknown command from us," << std::endl
+		   << "which should not happen." << std::endl
+			<< GWARNING;
 	 }
 
 	 /***************************************************************************/
@@ -425,7 +435,6 @@ private:
 
 			 // Terminate execution
 			 this->flagTerminalError();
-
 			 // Notify the caller that an error has occurred
 			 return false;
 		 }
@@ -454,7 +463,6 @@ private:
 
 			 // Terminate execution
 			 this->flagTerminalError();
-
 			 // Notify the caller that an error has occurred
 			 return false;
 		 }
@@ -469,6 +477,9 @@ private:
 	 /***************************************************************************/
 	 /**
 	  * Reacts to a "compute"-command and initiates processing
+	  *
+	  * TODO: Catch boost::asio::error::eof in case the connection was closed by the peer
+	  * See also http://www.boost.org/doc/libs/1_40_0/boost/asio/error.hpp --> connection reset by peer
 	  *
 	  * @return false if an error condition has occurred, true otherwise
 	  */
@@ -623,7 +634,7 @@ private:
 
 	 std::uint32_t m_max_stalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts
 	 std::uint32_t m_max_connection_attempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
-	 std::uint32_t m_total_connection_attempts = 0; ///< The total number of failed connection attempts during program execution
+	 std::uint32_t m_total_connection_attempts = 0;
 
 	 std::uint32_t m_stalls = 0; ///< counter for stalled connection attempts
 
@@ -680,7 +691,6 @@ private:
 template<typename processable_type>
 class GAsioAsyncServerSessionT
 	: public std::enable_shared_from_this<GAsioAsyncServerSessionT<processable_type>>
-  	, private boost::noncopyable
 {
 public:
 	 /***************************************************************************/
@@ -703,20 +713,24 @@ public:
 		 , m_master(master)
 		 , m_broker_ptr(master->m_broker_ptr)
 	 {
+		 // TODO: Do not increment here, but when a new session is created in the server itself
+
 		 // Update the connection counter in the consumer
 		 m_master->m_connections++;
-
-		 std::cout << "Got " << m_master->m_connections.load() << " connections" << std::endl;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * A standard destructor. Shuts down and closes the socket. Note: Non-virtual.
 	  */
-	 ~GAsioAsyncServerSessionT()
+	 virtual ~GAsioAsyncServerSessionT()
 	 {
+		 // TODO: Do not decrement here, but when a new session is destroyed in the server itself
+
 		 // Update the connection counter in the consumer
 		 m_master->m_connections--;
+
+		 // TODO: Why isn't the socket closed here ?
 	 }
 
 	 /***************************************************************************/
@@ -726,6 +740,7 @@ public:
 	  * condition was set in the server and will inform the clients accordingly.
 	  *
 	  * TODO: Gracefully terminate server session when a read/write command failed
+	  * TODO: Make sure we only leave through the destructor --> no uncaught exception
 	  */
 	 void process() {
 		 try {
@@ -765,10 +780,6 @@ public:
 			 // The stopped flag was set -- let the client know by sending the close command
 			 this->sendSingleCommand("close");
 
-			 // Wait for the client to acknowledge the close request
-			 // TODO: Give this a timeout
-			 while(!this->readSingleCommand("ack_close"));
-
 			 // Make sure we don't leave any open sockets lying around.
 			 disconnect(m_socket);
 		 } catch (const boost::system::system_error &e) {
@@ -776,19 +787,23 @@ public:
 				 << "In GAsioAsyncServerSessionT::process():" << std::endl
 				 << "Caught boost::system::system_error exception with messages:" << std::endl
 				 << e.what() << std::endl
-				 << GEXCEPTION;
+				 << GWARNING;
+
+			 // TODO: no exception here ?
 		 } catch (const boost::exception &e) {
 			 glogger
 				 << "In GAsioAsyncServerSessionT::process():" << std::endl
 				 << "Caught boost::exception exception with messages:" << std::endl
 				 << boost::diagnostic_information(e) << std::endl
-				 << GEXCEPTION;
+				 << GWARNING;
 		 } catch (...) {
 			 glogger
 				 << "In GAsioAsyncServerSessionT::process():" << std::endl
 				 << "Caught unknown exception" << std::endl
-				 << GEXCEPTION;
+				 << GWARNING;
 		 }
+
+		 // TODO: close the socket here ?
 	 }
 
 	 /***************************************************************************/
@@ -900,29 +915,10 @@ private:
 		 // Format the command ...
 		 std::string outbound_command = assembleQueryString(command, Gem::Courtier::COMMANDLENGTH);
 		 // ... and tell the client
-		 try {
-			 m_write_strand.wrap(boost::asio::write(
-				 m_socket
-				 , boost::asio::buffer(outbound_command)
-			 ));
-		 } catch (const boost::system::system_error &e) {
-			 glogger
-				 << "In GAsioSerialServerSessionT::sendSingleCommand():" << std::endl
-				 << "Caught boost::system::system_error exception with messages:" << std::endl
-				 << e.what() << std::endl
-				 << GEXCEPTION;
-		 } catch (const boost::exception &e) {
-			 glogger
-				 << "In GAsioSerialServerSessionT::sendSingleCommand():" << std::endl
-				 << "Caught boost::exception exception with messages:" << std::endl
-				 << boost::diagnostic_information(e) << std::endl
-				 << GEXCEPTION;
-		 } catch (...) {
-			 glogger
-				 << "In GAsioSerialServerSessionT::sendSingleCommand():" << std::endl
-				 << "Caught unknown exception" << std::endl
-				 << GEXCEPTION;
-		 }
+		 m_write_strand.wrap(boost::asio::write(
+			 m_socket
+			 , boost::asio::buffer(outbound_command)
+		 ));
 	 }
 
 	 /***************************************************************************/
@@ -931,48 +927,23 @@ private:
 	  * was not received.
 	  */
     bool readSingleCommand(const std::string& command) {
-		 try {
-			 // Read the next command
-			 m_read_strand.wrap(boost::asio::read(
-				 m_socket
-				 , boost::asio::buffer(m_commandBuffer)
-			 ));
-			 std::string rec_command = boost::algorithm::trim_copy(
-				 std::string(
-					 m_commandBuffer.data()
-					 , Gem::Courtier::COMMANDLENGTH
-				 )
-			 );
+		 // Read the next command
+		 m_read_strand.wrap(boost::asio::read(
+			 m_socket
+			 , boost::asio::buffer(m_commandBuffer)
+		 ));
+		 std::string rec_command = boost::algorithm::trim_copy(
+			 std::string(
+				 m_commandBuffer.data()
+				 , Gem::Courtier::COMMANDLENGTH
+			 )
+		 );
 
-			 if(rec_command != command) {
-				 return false;
-			 }
-		 } catch (const boost::system::system_error &e) {
-			 glogger
-				 << "In GAsioSerialServerSessionT::readSingleCommand():" << std::endl
-				 << "Caught boost::system::system_error exception with messages:" << std::endl
-				 << e.what() << std::endl
-				 << GWARNING;
-
+		 if(rec_command != command) {
 			 return false;
-		 } catch (const boost::exception &e) {
-			 glogger
-				 << "In GAsioSerialServerSessionT::readSingleCommand():" << std::endl
-				 << "Caught boost::exception exception with messages:" << std::endl
-				 << boost::diagnostic_information(e) << std::endl
-				 << GWARNING;
-
-			 return false;
-		 } catch (...) {
-			 glogger
-				 << "In GAsioSerialServerSessionT::readSingleCommand():" << std::endl
-				 << "Caught unknown exception" << std::endl
-				 << GWARNING;
-
-			 return false;
+		 } else {
+			 return true;
 		 }
-
-		 return true;
 	 }
 
 	 /***************************************************************************/
@@ -1234,19 +1205,17 @@ public:
 		 m_gtp.setNThreads(boost::numeric_cast<unsigned int>(m_listenerThreads));
 
 		 try {
-			 // Prevent a race condition
+			 // Inform the io_service that there is work to do
 			 m_work.reset(new boost::asio::io_service::work(m_io_service));
 
-			 // Start the first session
-			 this->async_newAccept();
-
 			 // Create a number of threads responsible for the m_io_service objects
-			 // This absolutely needs to happen after the first session has started,
-			 // so the io_service doesn't run out of work
 			 m_gtg.create_threads(
 				 [&]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
 				 , m_listenerThreads
 			 );
+
+			 // Start the first session
+			 this->async_newAccept();
 		 } catch (const boost::system::system_error &e) {
 			 glogger
 				 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
@@ -1283,7 +1252,6 @@ public:
 
 		 // Terminate the worker and clear the thread group
 		 m_work.reset(); // This will initiate termination of all threads
-
 		 // Terminate the io service
 		 m_io_service.stop();
 		 // Wait for the threads in the group to exit
@@ -1492,11 +1460,16 @@ private:
 			 // Initiate the processing sequence
 			 if(currentSession) {
 				 currentSession->process();
+
+				 // TODO: When processing failed, allow to return an unprocessed item to the broker
+				 // like so: "if(!currentSession->process()) currentSession->restoreWorkItem();"
 			 } else {
 				 glogger
 				 << "In AsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
 				 << "currentSession pointer seems to be empty" << std::endl
 			    << GEXCEPTION;
+
+				 // TODO: No exception here. Rather leave the session
 			 }
 		 } catch (const boost::system::system_error &e) {
 			 glogger

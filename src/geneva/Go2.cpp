@@ -64,33 +64,25 @@ std::once_flag f_go2;
  */
 Go2::Go2()
 	: GMutableSetT<GParameterSet>()
-   , clientMode_(GO2_DEF_CLIENTMODE)
-   , configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
-   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
-   , consumerName_(GO2_DEF_NOCONSUMER)
-   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-   , offset_(GO2_DEF_OFFSET)
-   , sorted_(false)
-   , iterationsConsumed_(0)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms and consumers
 
-	gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
-	gi_.registerOAF<GSwarmAlgorithmFactory>();
-	gi_.registerOAF<GGradientDescentFactory>();
-	gi_.registerOAF<GSimulatedAnnealingFactory>();
-	gi_.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
-	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
-	gi_.registerConsumer<GIndividualThreadConsumer>();
-	gi_.registerConsumer<GIndividualSerialConsumer>();
+	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
+	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
+	m_gi.registerConsumer<GIndividualThreadConsumer>();
+	m_gi.registerConsumer<GIndividualSerialConsumer>();
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
 }
 
 
@@ -104,31 +96,25 @@ Go2::Go2()
  * @param od A vector of additional command line options (cmp. boost::program_options)
  */
 Go2::Go2(
-	int argc, char **argv, const boost::program_options::options_description &userDescriptions
+	int argc
+	, char **argv
+	, const boost::program_options::options_description &userDescriptions
 )
 	: GMutableSetT<GParameterSet>()
-   , clientMode_(GO2_DEF_CLIENTMODE)
-   , configFilename_(GO2_DEF_DEFAULTCONFIGFILE)
-   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
-   , consumerName_(GO2_DEF_NOCONSUMER)
-   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-   , offset_(GO2_DEF_OFFSET)
-   , sorted_(false)
-   , iterationsConsumed_(0)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
-	gi_.registerOAF<GSwarmAlgorithmFactory>();
-	gi_.registerOAF<GGradientDescentFactory>();
-	gi_.registerOAF<GSimulatedAnnealingFactory>();
-	gi_.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
-	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
-	gi_.registerConsumer<GIndividualThreadConsumer>();
-	gi_.registerConsumer<GIndividualSerialConsumer>();
+	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
+	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
+	m_gi.registerConsumer<GIndividualThreadConsumer>();
+	m_gi.registerConsumer<GIndividualSerialConsumer>();
 
 	//--------------------------------------------
 	// Load initial configuration options from the command line
@@ -137,7 +123,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
 }
 
 /******************************************************************************/
@@ -148,29 +134,21 @@ Go2::Go2(
  */
 Go2::Go2(const std::string &configFilename)
 	: GMutableSetT<GParameterSet>()
-   , clientMode_(GO2_DEF_CLIENTMODE)
-   , configFilename_(configFilename)
-   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
-   , consumerName_(GO2_DEF_NOCONSUMER)
-   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-   , offset_(GO2_DEF_OFFSET)
-   , sorted_(false)
-   , iterationsConsumed_(0)
-   , default_algorithm_str_(DEFAULTOPTALG)
+   , m_config_filename(configFilename)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
-	gi_.registerOAF<GSwarmAlgorithmFactory>();
-	gi_.registerOAF<GGradientDescentFactory>();
-	gi_.registerOAF<GSimulatedAnnealingFactory>();
-	gi_.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
-	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
-	gi_.registerConsumer<GIndividualThreadConsumer>();
-	gi_.registerConsumer<GIndividualSerialConsumer>();
+	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
+	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
+	m_gi.registerConsumer<GIndividualThreadConsumer>();
+	m_gi.registerConsumer<GIndividualSerialConsumer>();
 
 	//--------------------------------------------
 	// Parse configuration file options
@@ -179,7 +157,7 @@ Go2::Go2(const std::string &configFilename)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
 }
 
 /******************************************************************************/
@@ -198,29 +176,21 @@ Go2::Go2(
 	, const boost::program_options::options_description &userDescriptions
 )
 	: GMutableSetT<GParameterSet>()
-   , clientMode_(GO2_DEF_CLIENTMODE)
-   , configFilename_(configFilename)
-   , parMode_(GO2_DEF_DEFAULPARALLELIZATIONMODE)
-   , consumerName_(GO2_DEF_NOCONSUMER)
-   , nProducerThreads_(GO2_DEF_NPRODUCERTHREADS)
-   , offset_(GO2_DEF_OFFSET)
-   , sorted_(false)
-   , iterationsConsumed_(0)
-   , default_algorithm_str_(DEFAULTOPTALG)
+   , m_config_filename(configFilename)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
-	gi_.registerOAF<GSwarmAlgorithmFactory>();
-	gi_.registerOAF<GGradientDescentFactory>();
-	gi_.registerOAF<GSimulatedAnnealingFactory>();
-	gi_.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
-	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
-	gi_.registerConsumer<GIndividualThreadConsumer>();
-	gi_.registerConsumer<GIndividualSerialConsumer>();
+	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
+	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
+	m_gi.registerConsumer<GIndividualThreadConsumer>();
+	m_gi.registerConsumer<GIndividualSerialConsumer>();
 
 	//--------------------------------------------
 	// Parse configuration file options
@@ -233,7 +203,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
 }
 
 /******************************************************************************/
@@ -242,43 +212,41 @@ Go2::Go2(
  */
 Go2::Go2(const Go2 &cp)
 	: GMutableSetT<GParameterSet>(cp)
-   , clientMode_(cp.clientMode_)
-   , configFilename_(cp.configFilename_)
-   , parMode_(cp.parMode_)
-   , consumerName_(cp.consumerName_)
-   , nProducerThreads_(cp.nProducerThreads_)
-   , offset_(cp.offset_)
-   , sorted_(cp.sorted_)
-   , iterationsConsumed_(0)
-   , default_algorithm_str_(DEFAULTOPTALG)
+   , m_client_mode(cp.m_client_mode)
+   , m_config_filename(cp.m_config_filename)
+   , m_par_mode(cp.m_par_mode)
+   , m_consumer_name(cp.m_consumer_name)
+   , m_n_producer_threads(cp.m_n_producer_threads)
+   , m_offset(cp.m_offset)
+   , m_sorted(cp.m_sorted)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	gi_.registerOAF<GEvolutionaryAlgorithmFactory>();
-	gi_.registerOAF<GSwarmAlgorithmFactory>();
-	gi_.registerOAF<GGradientDescentFactory>();
-	gi_.registerOAF<GSimulatedAnnealingFactory>();
-	gi_.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
-	gi_.registerConsumer<GIndividualSerialTCPConsumer>();
-	gi_.registerConsumer<GIndividualAsyncTCPConsumer>();
-	gi_.registerConsumer<GIndividualThreadConsumer>();
-	gi_.registerConsumer<GIndividualSerialConsumer>();
+	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
+	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
+	m_gi.registerConsumer<GIndividualThreadConsumer>();
+	m_gi.registerConsumer<GIndividualSerialConsumer>();
 
 	//--------------------------------------------
 	// Copy the algorithms vectors over
-	Gem::Common::copyCloneableSmartPointerContainer(cp.cl_algorithms_, cl_algorithms_);
-	Gem::Common::copyCloneableSmartPointerContainer(cp.algorithms_, algorithms_);
+	Gem::Common::copyCloneableSmartPointerContainer(cp.m_cl_algorithms_vec, m_cl_algorithms_vec);
+	Gem::Common::copyCloneableSmartPointerContainer(cp.m_algorithms_vec, m_algorithms_vec);
 
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, nProducerThreads_));
+	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
 
 	//--------------------------------------------
 	// Copy the default algorithm over, if any
-	Gem::Common::copyCloneableSmartPointer<GOABase>(cp.default_algorithm_, default_algorithm_);
+	Gem::Common::copyCloneableSmartPointer<GOABase>(cp.m_default_algorithm, m_default_algorithm);
 }
 
 /******************************************************************************/
@@ -287,8 +255,8 @@ Go2::Go2(const Go2 &cp)
  */
 Go2::~Go2() {
 	this->clear(); // Get rid of the local individuals
-	algorithms_.clear(); // Get rid of the optimization algorithms
-	cl_algorithms_.clear(); // Get rid of algorithms registered on the command line
+	m_algorithms_vec.clear(); // Get rid of the optimization algorithms
+	m_cl_algorithms_vec.clear(); // Get rid of algorithms registered on the command line
 }
 
 /***************************************************************************/
@@ -357,15 +325,16 @@ void Go2::compare(
 	Gem::Common::compare_base<GMutableSetT<GParameterSet>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(clientMode_, p_load->clientMode_), token);
-	compare_t(IDENTITY(configFilename_, p_load->configFilename_), token);
-	compare_t(IDENTITY(parMode_, p_load->parMode_), token);
-	compare_t(IDENTITY(consumerName_, p_load->consumerName_), token);
-	compare_t(IDENTITY(nProducerThreads_, p_load->nProducerThreads_), token);
-	compare_t(IDENTITY(offset_, p_load->offset_), token);
-	compare_t(IDENTITY(sorted_, p_load->sorted_), token);
-	compare_t(IDENTITY(iterationsConsumed_, p_load->iterationsConsumed_), token);
-	compare_t(IDENTITY(default_algorithm_, p_load->default_algorithm_), token);
+	compare_t(IDENTITY(m_client_mode, p_load->m_client_mode), token);
+	compare_t(IDENTITY(m_config_filename, p_load->m_config_filename), token);
+	compare_t(IDENTITY(m_par_mode, p_load->m_par_mode), token);
+	compare_t(IDENTITY(m_consumer_name, p_load->m_consumer_name), token);
+	compare_t(IDENTITY(m_n_producer_threads, p_load->m_n_producer_threads), token);
+	compare_t(IDENTITY(m_max_client_duration.count(), p_load->m_max_client_duration.count()), token);
+	compare_t(IDENTITY(m_offset, p_load->m_offset), token);
+	compare_t(IDENTITY(m_sorted, p_load->m_sorted), token);
+	compare_t(IDENTITY(m_iterations_consumed, p_load->m_iterations_consumed), token);
+	compare_t(IDENTITY(m_default_algorithm, p_load->m_default_algorithm), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -393,7 +362,7 @@ std::string Go2::name() const {
  */
 void Go2::registerDefaultAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
-	std::shared_ptr <GOptimizationAlgorithmFactoryT<GOABase>> p;
+	std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
 	if (!GOAFactoryStore->get(mn, p)) {
 		glogger
 		<< "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
@@ -401,7 +370,7 @@ void Go2::registerDefaultAlgorithm(const std::string &mn) {
 		<< GEXCEPTION;
 	}
 
-	this->registerDefaultAlgorithm(p->get(parMode_));
+	this->registerDefaultAlgorithm(p->get(m_par_mode));
 }
 
 /******************************************************************************/
@@ -411,7 +380,7 @@ void Go2::registerDefaultAlgorithm(const std::string &mn) {
  * not be used. Note that any individuals registered with the default algorithm
  * will be copied into the Go2 object.
  */
-void Go2::registerDefaultAlgorithm(std::shared_ptr < GOABase > default_algorithm) {
+void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase > default_algorithm) {
 	// Check that the pointer isn't empty
 	if (!default_algorithm) {
 		glogger
@@ -430,7 +399,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr < GOABase > default_algorithm
 	}
 
 	// Register the algorithm
-	default_algorithm_ = default_algorithm;
+	m_default_algorithm = default_algorithm;
 }
 
 /******************************************************************************/
@@ -451,7 +420,7 @@ void Go2::registerPluggableOM(
 	std::shared_ptr<GOABase::GBasePluggableOMT> pluggableOM
 ) {
 	if (pluggableOM) {
-		pluggable_monitors_.push_back(pluggableOM);
+		m_pluggable_monitors_vec.push_back(pluggableOM);
 	} else {
 		glogger
 		<< "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
@@ -464,7 +433,7 @@ void Go2::registerPluggableOM(
  * Allows to reset the local pluggable optimization monitor
  */
 void Go2::resetPluggableOM() {
-	pluggable_monitors_.clear();
+	m_pluggable_monitors_vec.clear();
 }
 
 /******************************************************************************/
@@ -472,8 +441,26 @@ void Go2::resetPluggableOM() {
  * Allows to check whether pluggable optimization monitors were registered
  */
 bool Go2::hasOptimizationMonitors() const {
-	return !pluggable_monitors_.empty();
+	return !m_pluggable_monitors_vec.empty();
 }
+
+/******************************************************************************/
+/**
+ * Allows to set the maximum running time for a client. A duration of 0 results
+ * in no time limit being set.
+ */
+void Go2::setMaxClientTime(std::chrono::duration<double> maxDuration) {
+	m_max_client_duration = maxDuration;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the maximum running time for a client
+ */
+std::chrono::duration<double> Go2::getMaxClientTime() const {
+	return m_max_client_duration;
+}
+
 
 /******************************************************************************/
 /**
@@ -489,20 +476,21 @@ void Go2::load_(const GObject *cp) {
 	GMutableSetT<GParameterSet>::load_(cp);
 
 	// and then our local data
-	clientMode_ = p_load->clientMode_;
-	configFilename_ = p_load->configFilename_;
-	parMode_ = p_load->parMode_;
-	consumerName_ = p_load->consumerName_;
-	nProducerThreads_ = p_load->nProducerThreads_;
-	offset_ = p_load->offset_;
-	sorted_ = p_load->sorted_;
-	iterationsConsumed_ = p_load->iterationsConsumed_;
+	m_client_mode = p_load->m_client_mode;
+	m_config_filename = p_load->m_config_filename;
+	m_par_mode = p_load->m_par_mode;
+	m_consumer_name = p_load->m_consumer_name;
+	m_n_producer_threads = p_load->m_n_producer_threads;
+	m_max_client_duration = p_load->m_max_client_duration;
+	m_offset = p_load->m_offset;
+	m_sorted = p_load->m_sorted;
+	m_iterations_consumed = p_load->m_iterations_consumed;
 
-	Gem::Common::copyCloneableSmartPointer<GOABase>(p_load->default_algorithm_, default_algorithm_);
+	Gem::Common::copyCloneableSmartPointer<GOABase>(p_load->m_default_algorithm, m_default_algorithm);
 
 	// Copy the algorithm vectors over
-	Gem::Common::copyCloneableSmartPointerContainer(p_load->algorithms_, algorithms_);
-	Gem::Common::copyCloneableSmartPointerContainer(p_load->cl_algorithms_, cl_algorithms_);
+	Gem::Common::copyCloneableSmartPointerContainer(p_load->m_algorithms_vec, m_algorithms_vec);
+	Gem::Common::copyCloneableSmartPointerContainer(p_load->m_cl_algorithms_vec, m_cl_algorithms_vec);
 
 	// Cross check other data has been added
 }
@@ -525,24 +513,24 @@ GObject *Go2::clone_() const {
 int Go2::clientRun() {
 	// Check that we have indeed been given a valid name
 	if (
-		GO2_DEF_NOCONSUMER == consumerName_
-		|| !GConsumerStore->exists(consumerName_)
+		GO2_DEF_NOCONSUMER == m_consumer_name
+		|| !GConsumerStore->exists(m_consumer_name)
 	) {
 		glogger
 		<< "In Go2::clientRun(): Error!" << std::endl
-		<< "Received invalid consumer name: " << consumerName_ << std::endl
+		<< "Received invalid consumer name: " << m_consumer_name << std::endl
 		<< GEXCEPTION;
 	}
 
 	// Retrieve the client worker from the consumer
 	std::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet>> p;
 
-	if (GConsumerStore->get(consumerName_)->needsClient()) {
-		p = GConsumerStore->get(consumerName_)->getClient();
+	if (GConsumerStore->get(m_consumer_name)->needsClient()) {
+		p = GConsumerStore->get(m_consumer_name)->getClient();
 	} else {
 		glogger
 		<< "In Go2::clientRun(): Error!" << std::endl
-		<< "Trying to execute clientRun() on consumer " << consumerName_ << std::endl
+		<< "Trying to execute clientRun() on consumer " << m_consumer_name << std::endl
 		<< "which does not require a client" << std::endl
 		<< GEXCEPTION;
 	}
@@ -551,9 +539,12 @@ int Go2::clientRun() {
 	if (!p) {
 		glogger
 		<< "In Go2::clientRun(): Error!" << std::endl
-		<< "Received empty client from consumer " << consumerName_ << std::endl
+		<< "Received empty client from consumer " << m_consumer_name << std::endl
 		<< GEXCEPTION;
 	}
+
+	// Set the maximum runtime of the client
+	p->setMaxTime(this->m_max_client_duration);
 
 	// Start the actual processing loop. This call will not return until run() is finished.
 	p->run();
@@ -568,7 +559,7 @@ int Go2::clientRun() {
  * @return A boolean which indicates whether the client mode has been set for this object
  */
 bool Go2::clientMode() const {
-	return clientMode_;
+	return m_client_mode;
 }
 
 /******************************************************************************/
@@ -581,7 +572,7 @@ bool Go2::clientMode() const {
  * @param execMode The parallelization mode used for the optimization
  */
 void Go2::setParallelizationMode(const execMode &parMode) {
-	parMode_ = parMode;
+	m_par_mode = parMode;
 }
 
 /******************************************************************************/
@@ -591,7 +582,7 @@ void Go2::setParallelizationMode(const execMode &parMode) {
  * @return The parallelization mode currently used for the optimization
  */
 execMode Go2::getParallelizationMode() const {
-	return parMode_;
+	return m_par_mode;
 }
 
 /******************************************************************************/
@@ -614,7 +605,7 @@ bool Go2::randomInit(const activityMode &) {
  */
 double Go2::fitnessCalculation() {
 	// Make sure all optimization work has been carried out
-	std::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(offset_ + iterationsConsumed_);
+	std::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(m_offset + m_iterations_consumed);
 
 	// We use the raw fitness rather than the transformed fitness,
 	// as this is custom also for "normal" individuals. Re-evaluation
@@ -627,7 +618,7 @@ double Go2::fitnessCalculation() {
  * Retrieves the currently registered number of algorithms
  */
 std::size_t Go2::getNAlgorithms() const {
-	return algorithms_.size();
+	return m_algorithms_vec.size();
 }
 
 /******************************************************************************/
@@ -635,7 +626,7 @@ std::size_t Go2::getNAlgorithms() const {
  * Retrieves the currently registered number of command line algorithms
  */
 std::size_t Go2::getNCLAlgorithms() const {
-	return cl_algorithms_.size();
+	return m_cl_algorithms_vec.size();
 }
 
 /******************************************************************************/
@@ -645,7 +636,7 @@ std::size_t Go2::getNCLAlgorithms() const {
  *
  * @param alg A base pointer to another optimization algorithm
  */
-void Go2::addAlgorithm(std::shared_ptr < GOABase > alg) {
+void Go2::addAlgorithm(std::shared_ptr<GOABase > alg) {
 	// Check that the pointer is not empty
 	if (!alg) {
 		glogger
@@ -663,7 +654,7 @@ void Go2::addAlgorithm(std::shared_ptr < GOABase > alg) {
 		alg->clear();
 	}
 
-	algorithms_.push_back(alg);
+	m_algorithms_vec.push_back(alg);
 }
 
 /******************************************************************************/
@@ -677,7 +668,7 @@ void Go2::addAlgorithm(std::shared_ptr < GOABase > alg) {
  * @param alg A base pointer to another optimization algorithm
  * @return A reference to this object
  */
-Go2 &Go2::operator&(std::shared_ptr < GOABase > alg) {
+Go2 &Go2::operator&(std::shared_ptr<GOABase > alg) {
 	this->addAlgorithm(alg);
 	return *this;
 }
@@ -688,7 +679,7 @@ Go2 &Go2::operator&(std::shared_ptr < GOABase > alg) {
  */
 void Go2::addAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
-	std::shared_ptr <GOptimizationAlgorithmFactoryT<GOABase>> p;
+	std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
 	if (!GOAFactoryStore->get(mn, p)) {
 		glogger
 		<< "In Go2::addAlgorithm(std::string): Error!" << std::endl
@@ -696,7 +687,7 @@ void Go2::addAlgorithm(const std::string &mn) {
 		<< GEXCEPTION;
 	}
 
-	this->addAlgorithm(p->get(parMode_)); // The factory might add a monitor to the object
+	this->addAlgorithm(p->get(m_par_mode)); // The factory might add a monitor to the object
 }
 
 /***************************************************************************/
@@ -713,7 +704,7 @@ Go2 &Go2::operator&(const std::string &mn) {
  * Allows to register a content creator
  */
 void Go2::registerContentCreator(
-	std::shared_ptr < Gem::Common::GFactoryT<GParameterSet>> cc_ptr
+	std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr
 ) {
 	if (!cc_ptr) {
 		glogger
@@ -722,7 +713,7 @@ void Go2::registerContentCreator(
 		<< GEXCEPTION;
 	}
 
-	contentCreatorPtr_ = cc_ptr;
+	m_content_creator_ptr = cc_ptr;
 }
 
 /******************************************************************************/
@@ -738,38 +729,38 @@ void Go2::optimize(const std::uint32_t &offset) {
 	// before those specified on the command line. E.g., a line
 	// "go & ea_ptr;" (where ea_ptr pointed to an evolutionary
 	// algorithm) will add this algorithm as the first entry to
-	// the algorithms_ vector.
-	if (!cl_algorithms_.empty()) {
+	// the m_algorithms_vec vector.
+	if (!m_cl_algorithms_vec.empty()) {
 		// Add algorithms that have been specified on the command line
-		std::vector<std::shared_ptr < GOABase>> ::iterator pers_it;
-		for (pers_it = cl_algorithms_.begin(); pers_it != cl_algorithms_.end(); ++pers_it) {
+		std::vector<std::shared_ptr<GOABase>> ::iterator pers_it;
+		for (pers_it = m_cl_algorithms_vec.begin(); pers_it != m_cl_algorithms_vec.end(); ++pers_it) {
 			this->addAlgorithm(*pers_it);
 		}
-		cl_algorithms_.clear();
+		m_cl_algorithms_vec.clear();
 	}
 
 	// Check that algorithms have indeed been registered. If not, try to add a default algorithm
-	if (algorithms_.empty()) {
-		if (!default_algorithm_) {
+	if (m_algorithms_vec.empty()) {
+		if (!m_default_algorithm) {
 			// No algorithms given, no default algorithm specified by the user:
 			// Simply add the Geneva-side default algorithm
-			this->registerDefaultAlgorithm(default_algorithm_str_);
+			this->registerDefaultAlgorithm(m_default_algorithm_str);
 
 			glogger
 			<< "In Go2::optimize(): INFORMATION:" << std::endl
 			<< "No user-defined optimization algorithm available." << std::endl
-			<< "Using default algorithm \"" << default_algorithm_str_ << "\" instead." << std::endl
+			<< "Using default algorithm \"" << m_default_algorithm_str << "\" instead." << std::endl
 			<< GLOGGING;
 		}
 
-		algorithms_.push_back(default_algorithm_->clone<GOABase>());
+		m_algorithms_vec.push_back(m_default_algorithm->clone<GOABase>());
 	}
 
 	// Check that individuals have been registered
 	if (this->empty()) {
-		if (contentCreatorPtr_) {
-			for (std::size_t ind = 0; ind < algorithms_.at(0)->getDefaultPopulationSize(); ind++) {
-				std::shared_ptr <GParameterSet> p_ind = (*contentCreatorPtr_)();
+		if (m_content_creator_ptr) {
+			for (std::size_t ind = 0; ind < m_algorithms_vec.at(0)->getDefaultPopulationSize(); ind++) {
+				std::shared_ptr<GParameterSet> p_ind = (*m_content_creator_ptr)();
 				if (p_ind) {
 					this->push_back(p_ind);
 				} else { // No valid item received, the factory has run empty
@@ -794,15 +785,15 @@ void Go2::optimize(const std::uint32_t &offset) {
 	}
 
 	// Loop over all algorithms
-	iterationsConsumed_ = offset_;
-	sorted_ = false;
+	m_iterations_consumed = m_offset;
+	m_sorted = false;
 	GOABase::iterator ind_it;
 	std::vector<std::shared_ptr<GOABase>>::iterator alg_it;
-	for (alg_it = algorithms_.begin(); alg_it != algorithms_.end(); ++alg_it) {
-		std::shared_ptr <GOABase> p_base = (*alg_it);
+	for (alg_it = m_algorithms_vec.begin(); alg_it != m_algorithms_vec.end(); ++alg_it) {
+		std::shared_ptr<GOABase> p_base = (*alg_it);
 
 		// Add the pluggable optimization monitors to the algorithm
-		for(auto pm_ptr: pluggable_monitors_) { // std::shared_ptr may be copied
+		for(auto pm_ptr: m_pluggable_monitors_vec) { // std::shared_ptr may be copied
 			p_base->registerPluggableOM(pm_ptr);
 		}
 
@@ -823,14 +814,14 @@ void Go2::optimize(const std::uint32_t &offset) {
 #endif /* DEBUG */
 
 		// Do the actual optimization
-		p_base->GOptimizableI::optimize<GParameterSet>(iterationsConsumed_);
+		p_base->GOptimizableI::optimize<GParameterSet>(m_iterations_consumed);
 
 		// Make sure we start with the correct iteration in the next algorithm
-		iterationsConsumed_ = p_base->getIteration();
+		m_iterations_consumed = p_base->getIteration();
 
 		// Unload the individuals from the last algorithm and store them again in this object
-		std::vector<std::shared_ptr < GParameterSet>> bestIndividuals = p_base->GOptimizableI::getBestGlobalIndividuals < GParameterSet > ();
-		std::vector<std::shared_ptr < GParameterSet>>::iterator best_it;
+		std::vector<std::shared_ptr<GParameterSet>> bestIndividuals = p_base->GOptimizableI::getBestGlobalIndividuals < GParameterSet > ();
+		std::vector<std::shared_ptr<GParameterSet>>::iterator best_it;
 		for (best_it = bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 			this->push_back(*best_it);
 		}
@@ -843,12 +834,12 @@ void Go2::optimize(const std::uint32_t &offset) {
 	// Sort the individuals according to their primary fitness so we have it easier later on
 	// to extract the best individuals found.
 	std::sort(
-		this->begin(), this->end(), [](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
+		this->begin(), this->end(), [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 			return x->minOnly_fitness() < y->minOnly_fitness();
 		}
 	);
 
-	sorted_ = true;
+	m_sorted = true;
 }
 
 /******************************************************************************/
@@ -858,7 +849,7 @@ void Go2::optimize(const std::uint32_t &offset) {
  *
  * @return The best individual found
  */
-std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual() {
+std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual() {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -879,7 +870,7 @@ std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual(
 		}
 	}
 
-	if (!sorted_) {
+	if (!m_sorted) {
 		glogger
 		<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
 		<< "Tried to retrieve best individual" << std::endl
@@ -898,7 +889,7 @@ std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual(
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestGlobalIndividuals() {
+std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGlobalIndividuals() {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -919,7 +910,7 @@ std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestGlo
 		}
 	}
 
-	std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> bestIndividuals;
+	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> bestIndividuals;
 	for (it = this->begin(); it != this->end(); ++it) {
 		// This will result in an implicit downcast
 		bestIndividuals.push_back(*it);
@@ -935,14 +926,14 @@ std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestGlo
  *
  * @return The best individual found
  */
-std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIterationIndividual() {
+std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIterationIndividual() {
 	glogger
 	<< "In Go2::customGetBestIterationIndividual(): Error!" << std::endl
 	<< "This function should not be called" << std::endl
 	<< GEXCEPTION;
 
 	// Make the compiler happy
-	return std::shared_ptr <Gem::Geneva::GParameterSet>();
+	return std::shared_ptr<Gem::Geneva::GParameterSet>();
 }
 
 /******************************************************************************/
@@ -952,14 +943,14 @@ std::shared_ptr <Gem::Geneva::GParameterSet> Go2::customGetBestIterationIndividu
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>> Go2::customGetBestIterationIndividuals() {
+std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestIterationIndividuals() {
 	glogger
 	<< "In Go2::customGetBestIterationIndividuals(): Error!" << std::endl
 	<< "This function should not be called" << std::endl
 	<< GEXCEPTION;
 
 	// Make the compiler happy
-	return std::vector<std::shared_ptr < Gem::Geneva::GParameterSet>>();
+	return std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>>();
 }
 
 /******************************************************************************/
@@ -985,7 +976,8 @@ void Go2::addConfigurationOptions(
 	// Add local data
 	gpb.registerFileParameter<std::uint16_t>(
 		"nProducerThreads" // The name of the first variable
-		, GO2_DEF_NPRODUCERTHREADS, [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
+		, GO2_DEF_NPRODUCERTHREADS
+		, [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
 	)
 	<< "The number of threads simultaneously producing random numbers";
 }
@@ -1007,7 +999,7 @@ std::string Go2::getIndividualCharacteristic() const {
  * @param serverMode Allows to mark this object as belonging to a client as opposed to a server
  */
 void Go2::setClientMode(bool clientMode) {
-	clientMode_ = clientMode;
+	m_client_mode = clientMode;
 }
 
 /******************************************************************************/
@@ -1017,7 +1009,7 @@ void Go2::setClientMode(bool clientMode) {
  * @return A boolean indicating whether this object is working in server or client mode
  */
 bool Go2::getClientMode() const {
-	return clientMode_;
+	return m_client_mode;
 }
 
 /******************************************************************************/
@@ -1027,7 +1019,7 @@ bool Go2::getClientMode() const {
  * @param nProducerThreads The number of threads that will simultaneously produce random numbers
  */
 void Go2::setNProducerThreads(const std::uint16_t &nProducerThreads) {
-	nProducerThreads_ = nProducerThreads;
+	m_n_producer_threads = nProducerThreads;
 }
 
 /******************************************************************************/
@@ -1037,7 +1029,7 @@ void Go2::setNProducerThreads(const std::uint16_t &nProducerThreads) {
  * @return The number of threads that will simultaneously produce random numbers
  */
 std::uint16_t Go2::getNProducerThreads() const {
-	return nProducerThreads_;
+	return m_n_producer_threads;
 }
 
 /******************************************************************************/
@@ -1048,7 +1040,7 @@ std::uint16_t Go2::getNProducerThreads() const {
  * @param offset The offset with which the iteration counter should start
  */
 void Go2::setOffset(const std::uint32_t &offset) {
-	offset_ = offset;
+	m_offset = offset;
 }
 
 /******************************************************************************/
@@ -1056,7 +1048,7 @@ void Go2::setOffset(const std::uint32_t &offset) {
  * Retrieval of the current iteration
  */
 uint32_t Go2::getIteration() const {
-	return iterationsConsumed_;
+	return m_iterations_consumed;
 }
 
 /******************************************************************************/
@@ -1076,7 +1068,7 @@ std::string Go2::getAlgorithmName() const {
  * @return The current offset with which the iteration counter will start
  */
 std::uint32_t Go2::getIterationOffset() const {
-	return offset_;
+	return m_offset;
 }
 
 /******************************************************************************/
@@ -1087,11 +1079,15 @@ std::uint32_t Go2::getIterationOffset() const {
  * @param od A program_options object for user-defined command line options
  */
 void Go2::parseCommandLine(
-	int argc, char **argv, const boost::program_options::options_description &userOptions
+	int argc
+	, char **argv
+	, const boost::program_options::options_description &userOptions
 ) {
 	namespace po = boost::program_options;
 
 	try {
+		std::string maxClientDuration = EMPTYDURATION; // 00:00:00
+
 		std::string optimization_algorithms;
 
 		// Extract a list of algorithm mnemonics and clear-text descriptions
@@ -1118,11 +1114,9 @@ void Go2::parseCommandLine(
 
 		std::ostringstream consumer_help;
 		consumer_help
-
-		<<
-		"The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2) ). "
-		<< GConsumerStore->size() << " consumers have been registered: " << std::endl
-		<< consumer_description;
+			<< "The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2) ). "
+			<< GConsumerStore->size() << " consumers have been registered: " << std::endl
+			<< consumer_description;
 
 		std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
 
@@ -1134,11 +1128,11 @@ void Go2::parseCommandLine(
 			("help,h", "Emit help message")
 			("showAll", "Show all available options")
 			("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
-			("executionMode,e", po::value<execMode>(&parMode_)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
+			("executionMode,e", po::value<execMode>(&m_par_mode)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
 			 "The execution mode: (0) means serial execution (1) means multi-threaded execution and (2) means execution through the broker. Note that you need to specifiy a consumer")
-			("client",
-			 "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
-			("consumer,c", po::value<std::string>(&consumerName_), consumer_help.str().c_str());
+			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
+			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION), "The maximum runtime for a client in the form \"hh:mm:ss\". Note that a client may run longer as this time-frame if its work load still runs. The default value \"00:00:00\" means: \"no time limit\"")
+			("consumer,c", po::value<std::string>(&m_consumer_name), consumer_help.str().c_str());
 
 		// Add additional options coming from the algorithms and consumers
 		boost::program_options::options_description visible("Global algorithm- and consumer-options");
@@ -1190,12 +1184,12 @@ void Go2::parseCommandLine(
 		po::notify(vm);
 
 		if (vm.count("client")) {
-			clientMode_ = true;
+			m_client_mode = true;
 		}
 
 		// If the user has requested brokered execution, do corresponding error checks
 		// and prepare the environment as required
-		if (execMode::EXECMODE_BROKERAGE == parMode_) {
+		if (execMode::EXECMODE_BROKERAGE == m_par_mode) {
 			// No consumer specified, although brokered execution was requested
 			if (vm.count("consumer") != 1) {
 				glogger
@@ -1206,34 +1200,34 @@ void Go2::parseCommandLine(
 			}
 
 			// Check that the requested consumer actually exists
-			if (vm.count("consumer") && !GConsumerStore->exists(consumerName_)) {
+			if (vm.count("consumer") && !GConsumerStore->exists(m_consumer_name)) {
 				glogger
 				<< "In Go2::parseCommandLine(): Error!" << std::endl
-				<< "You have requested a consumer with name " << consumerName_ << std::endl
+				<< "You have requested a consumer with name " << m_consumer_name << std::endl
 				<< "which could not be found in the consumer store." << std::endl
 				<< GEXCEPTION;
 			}
 
-			if (clientMode_ && !GConsumerStore->get(consumerName_)->needsClient()) {
+			if (m_client_mode && !GConsumerStore->get(m_consumer_name)->needsClient()) {
 				glogger
 				<< "In Go2::parseCommandLine(): Error!" << std::endl
-				<< "Requested client mode even though consumer " << consumerName_ << " does not require a client" <<
+				<< "Requested client mode even though consumer " << m_consumer_name << " does not require a client" <<
 				std::endl
 				<< GEXCEPTION;
 			}
 
-			std::cout << "Using consumer " << consumerName_ << std::endl;
+			std::cout << "Using consumer " << m_consumer_name << std::endl;
 
 			// Finally give the consumer the chance to act on the command line options
 			// TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker
-			GConsumerStore->get(consumerName_)->actOnCLOptions(vm);
+			GConsumerStore->get(m_consumer_name)->actOnCLOptions(vm);
 
 			// At this point the consumer should be fully configured
 
 			// Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
-			if (!clientMode_) {
+			if (!m_client_mode) {
 				if (!GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
-					GBROKER(Gem::Geneva::GParameterSet)->enrol(GConsumerStore->get(consumerName_));
+					GBROKER(Gem::Geneva::GParameterSet)->enrol(GConsumerStore->get(m_consumer_name));
 				} else {
 					glogger
 					<< "In Go2::parseCommandLine(): Note!" << std::endl
@@ -1248,11 +1242,11 @@ void Go2::parseCommandLine(
 				glogger
 				<< "In Go2::parseCommandLine(): Error!" << std::endl
 				<< "You have specified a consumer but have requested " << std::endl
-				<< "an execution mode " << parMode_ << " where " << execMode::EXECMODE_BROKERAGE << " was expected" << std::endl
+				<< "an execution mode " << m_par_mode << " where " << execMode::EXECMODE_BROKERAGE << " was expected" << std::endl
 				<< GEXCEPTION;
 			}
 
-			if (clientMode_) {
+			if (m_client_mode) {
 				glogger
 				<< "Requested client mode even though we are not running in brokered mode" << std::endl
 				<< GEXCEPTION;
@@ -1266,7 +1260,7 @@ void Go2::parseCommandLine(
 			std::vector<std::string>::iterator it;
 			for (it = algs.begin(); it != algs.end(); ++it) {
 				// Retrieve the algorithm factory from the global store
-				std::shared_ptr <GOptimizationAlgorithmFactoryT<GOABase>> p;
+				std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
 				if (!GOAFactoryStore->get(*it, p)) {
 					glogger
 					<< "In Go2::parseCommandLine(int, char**): Error!" << std::endl
@@ -1276,9 +1270,12 @@ void Go2::parseCommandLine(
 				}
 
 				// Retrieve an algorithm from the factory and add it to the list
-				cl_algorithms_.push_back(p->get(parMode_));
+				m_cl_algorithms_vec.push_back(p->get(m_par_mode));
 			}
 		}
+
+		// Set the maximum running time for the client (if any)
+		m_max_client_duration = Gem::Common::duration_from_string(maxClientDuration);
 	}
 	catch (const po::error &e) {
 		glogger

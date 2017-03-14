@@ -203,17 +203,73 @@ public:
 	  * The main initialization code
 	  */
 	 void run() {
+		 //------------------------------------------------------------------------
+	    // init section
 		 try {
-			 std::cout << "In GBaseClientT::run()" << std::endl;
-
 			 if (!this->init()) { // Initialize the client
 				 glogger
 					 << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
 					 << GEXCEPTION;
 			 }
+		 }
+		 catch (Gem::Common::gemfony_error_condition &e) {
+			 glogger
+				 << "In GBaseClientT<T>::run() / init:" << std::endl
+				 << "Caught Gem::Common::gemfony_error_condition" << std::endl
+				 << "with message" << std::endl
+				 << e.what()
+				 << GEXCEPTION;
+		 }
+		 catch (boost::exception &) {
+			 glogger
+				 << "In GBaseClientT<T>::run() / init: Caught boost::exception" << std::endl
+				 << GEXCEPTION;
+		 }
+		 catch (std::exception &e) {
+			 glogger
+				 << "In GBaseClientT<T>::run() / init: Caught std::exception with message" << std::endl
+				 << e.what()
+				 << GEXCEPTION;
+		 }
+		 catch (...) {
+			 glogger
+				 << "In GBaseClientT<T>::run() / init: Caught unknown exception" << std::endl
+				 << GEXCEPTION;
+		 }
 
+		 //------------------------------------------------------------------------
+	    // run-section
+		 try {
 			 run_(); // The main loop
+		 }
+		 catch (Gem::Common::gemfony_error_condition &e) {
+			 glogger
+				 << "In GBaseClientT<T>::run() / run_:" << std::endl
+				 << "Caught Gem::Common::gemfony_error_condition" << std::endl
+				 << "with message" << std::endl
+				 << e.what()
+				 << GEXCEPTION;
+		 }
+		 catch (boost::exception &) {
+			 glogger
+				 << "In GBaseClientT<T>::run() / run_: Caught boost::exception" << std::endl
+				 << GEXCEPTION;
+		 }
+		 catch (std::exception &e) {
+			 glogger
+				 << "In GBaseClientT<T>::run() / run_: Caught std::exception with message" << std::endl
+				 << e.what()
+				 << GEXCEPTION;
+		 }
+		 catch (...) {
+			 glogger
+				 << "In GBaseClientT<T>::run() / run_: Caught unknown exception" << std::endl
+				 << GEXCEPTION;
+		 }
 
+		 //------------------------------------------------------------------------
+	    // finalize section
+		 try {
 			 if (!this->finally()) {
 				 glogger
 					 << "In GBaseClientT<T>::run(): Finalization failed." << std::endl
@@ -222,7 +278,7 @@ public:
 		 }
 		 catch (Gem::Common::gemfony_error_condition &e) {
 			 glogger
-				 << "In GBaseClientT<T>::run():" << std::endl
+				 << "In GBaseClientT<T>::run() / finally:" << std::endl
 				 << "Caught Gem::Common::gemfony_error_condition" << std::endl
 				 << "with message" << std::endl
 				 << e.what()
@@ -230,20 +286,23 @@ public:
 		 }
 		 catch (boost::exception &) {
 			 glogger
-				 << "In GBaseClientT<T>::run(): Caught boost::exception" << std::endl
+				 << "In GBaseClientT<T>::run() / finally: Caught boost::exception" << std::endl
 				 << GEXCEPTION;
 		 }
 		 catch (std::exception &e) {
 			 glogger
-				 << "In GBaseClientT<T>::run(): Caught std::exception with message" << std::endl
+				 << "In GBaseClientT<T>::run() / finally: Caught std::exception with message" << std::endl
 				 << e.what()
 				 << GEXCEPTION;
 		 }
 		 catch (...) {
 			 glogger
-				 << "In GBaseClientT<T>::run(): Caught unknown exception" << std::endl
+				 << "In GBaseClientT<T>::run() / finally: Caught unknown exception" << std::endl
 				 << GEXCEPTION;
 		 }
+
+		 //------------------------------------------------------------------------
+
 	 }
 
 protected:
@@ -310,26 +369,46 @@ protected:
 	 {
 		 // Has a terminal error been flagged?
 		 if(terminalErrorFlagged()) {
+			 glogger
+			 	<< "Client is terminating because an unrecoverable error was flagged" << std::endl
+		    	<< GLOGGING;
+
 			 return true;
 		 }
 
 		 // Has the application been asked to shut down?
 		 if(closeRequested()) {
+			 glogger
+				 << "Client is terminating because the application was asked to shut down" << std::endl
+				 << GLOGGING;
+
 			 return true;
 		 }
 
 		 // Maximum number of processing steps reached ?
 		 if (m_processMax > 0 && (m_processed >= m_processMax)) {
+			 glogger
+				 << "Client is terminating because the maximum number of processing steps was exceeded" << std::endl
+				 << GLOGGING;
+
 			 return true;
 		 }
 
 		 // Maximum duration reached ?
 		 if (m_maxDuration.count() > 0. && ((std::chrono::system_clock::now() - m_startTime) >= m_maxDuration)) {
+			 glogger
+				 << "Client is terminating because the maximum time frame was exceeded" << std::endl
+				 << GLOGGING;
+
 			 return true;
 		 }
 
 		 // Custom halt condition reached ?
 		 if (customHalt()) {
+			 glogger
+				 << "Client is terminating because custom halt condition has triggered" << std::endl
+				 << GLOGGING;
+
 			 return true;
 		 }
 

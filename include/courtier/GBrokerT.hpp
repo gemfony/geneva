@@ -259,6 +259,8 @@ public:
 	 /**
 	  * Adds a new consumer to this class and starts its thread.
 	  *
+	  * TODO: Check what happens if no consumer is registered anymore
+	  *
 	  * @param gc_ptr A pointer to a GBaseConsumerT<carrier_type> object
 	  */
 	 void enrol(std::shared_ptr<GBaseConsumerT<carrier_type>> gc_ptr) {
@@ -286,6 +288,8 @@ public:
 	  * Retrieves a "raw" item from a GBufferPortT. This function will block
 	  * if no item can be retrieved.
 	  *
+	  * TODO: Check what happens if no buffer port is registered anymore
+	  *
 	  * @param p Holds the retrieved "raw" item
 	  */
 	 void get(std::shared_ptr<carrier_type>& p) {
@@ -307,6 +311,8 @@ public:
 	 /**
 	  * Retrieves a "raw" item from a GBufferPortT, observing a timeout. Note that upon
 	  * time-out an exception is thrown.
+	  *
+	  * TODO: Check what happens if no buffer port is registered anymore
 	  *
 	  * @param p Holds the retrieved "raw" item
 	  * @param timeout Time after which the function should time out
