@@ -60,6 +60,8 @@ The main changes for this release include:
    o Moved away from GThread (interruptible threads), as this could only be implemented via thread_local.
    o Added a thread group solely based on std::thread and moved GThreadPool to this implementation.
  - Renamed GBoostThreadConsumerT to GStdThreadConsumerT, as it is now based on std::thread
+ - Gave Go2 a new command line option --maxClientDuration which allows to limit the maximum runtime
+   of a client. Note that the actual runtime may be longer, as a running workload will not be interrupted.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016
