@@ -45,7 +45,7 @@ GThreadPool::GThreadPool()
 	: m_errorCounter(0)
    , m_tasksInFlight(0)
    , m_nThreads(getNHardwareThreads())
-   , m_threads_started(ATOMIC_FLAG_INIT) // false
+   , m_threads_started(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
 { /* nothing */ }
 
 /******************************************************************************/
@@ -59,7 +59,7 @@ GThreadPool::GThreadPool(const unsigned int &nThreads)
 	: m_errorCounter(0)
    , m_tasksInFlight(0)
    , m_nThreads(nThreads ? nThreads : getNHardwareThreads())
-   , m_threads_started(ATOMIC_FLAG_INIT) // false
+   , m_threads_started(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
 { /* nothing */ }
 
 /******************************************************************************/

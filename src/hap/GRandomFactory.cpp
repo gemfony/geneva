@@ -52,8 +52,8 @@ std::mutex Gem::Hap::GRandomFactory::m_factory_creation_mutex;
  * that this class is instantiated only once.
  */
 GRandomFactory::GRandomFactory()
-  	: m_threads_started(ATOMIC_FLAG_INIT)
-	, m_threads_stop_requested(ATOMIC_FLAG_INIT)
+  	: m_threads_started(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
+	, m_threads_stop_requested(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
 	, m_n_producer_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
 	, m_seed_collection(DEFAULTSEEDVECTORSIZE)
 	, m_seed_cit(m_seed_collection.begin())

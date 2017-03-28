@@ -868,7 +868,7 @@ protected:
 	  *
 	  * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject *cp) {
+	 virtual void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
 		 const GMetaOptimizerIndividualT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMetaOptimizerIndividualT<ind_type>>(cp, this);
 
@@ -1897,7 +1897,7 @@ protected:
 		*
 		* @param cp A copy of another GOptOptMonitorT object, camouflaged as a GObject
 		*/
-	 virtual void load_(const GObject *cp) {
+	 virtual void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GOptOptMonitorT<ind_type> reference independent of this object and convert the pointer
 		 const GOptOptMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptOptMonitorT<ind_type>>(cp, this);
 
@@ -1924,7 +1924,7 @@ protected:
 		*
 		* @return A deep clone of this object
 		*/
-	 virtual GObject *clone_() const {
+	 virtual GObject *clone_() const override {
 		 return new GOptOptMonitorT<ind_type>(*this);
 	 }
 

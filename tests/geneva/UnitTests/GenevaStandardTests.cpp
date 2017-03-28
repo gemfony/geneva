@@ -34,6 +34,8 @@
 
 #include <iostream>
 
+#define BOOST_TEST_MODULE GenevaStandardTestSuite
+#define BOOST_TEST_DYN_LINK  // cmp. http://stackoverflow.com/questions/39171467/there-is-no-argument-provided-for-parameter-color-output-with-boost-test-and-cte
 #include <boost/test/unit_test.hpp>
 
 using boost::unit_test_framework::test_suite;

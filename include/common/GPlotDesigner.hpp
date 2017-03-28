@@ -4253,10 +4253,11 @@ public:
 		, const double& // the limit for allowed deviations of floating point types
 	) const override;
 
-private:
-	/** @brief The default constructor -- intentionally private and undefined */
-	GPlotDesigner() = delete;
+protected:
+	 /** @brief The default constructor -- only needed for (de-)serialization, but must be accessible by derived classes */
+	 GPlotDesigner();
 
+private:
 	/** @brief A header for static data in a ROOT file */
 	std::string staticHeader(const std::string&) const;
 

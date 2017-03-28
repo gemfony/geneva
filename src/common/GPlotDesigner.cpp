@@ -3701,6 +3701,13 @@ GPlotDesigner::GPlotDesigner(
 
 /******************************************************************************/
 /**
+ * The default constructor -- only needed for (de-)serialization
+ */
+GPlotDesigner::GPlotDesigner()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The copy constructor
  */
 GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)

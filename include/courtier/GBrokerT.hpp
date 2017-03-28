@@ -108,9 +108,9 @@ public:
 	  * The default constructor.
 	  */
 	 GBrokerT()
-		 : m_finalized(ATOMIC_FLAG_INIT) // false
+		 : m_finalized(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
 		 , m_currentGetPosition(m_RawBuffers.begin())
-		 , m_buffersPresent(ATOMIC_FLAG_INIT) // false
+		 , m_buffersPresent(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
 	 { /* nothing */ }
 
 	 /***************************************************************************/
