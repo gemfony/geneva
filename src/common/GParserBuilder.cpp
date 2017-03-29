@@ -41,7 +41,7 @@ namespace Common {
 /**
  * Initialization of static data members
  */
-std::mutex Gem::Common::GParserBuilder::configFileParser_mutex_;
+std::mutex Gem::Common::GParserBuilder::m_configfile_parser_mutex;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,8 +69,8 @@ std::size_t commentLevel::getCommentLevel() const {
 GParsableI::GParsableI(
 	const std::string &optionNameVar, const std::string &commentVar
 )
-	: optionName_(GParsableI::makeVector(optionNameVar)), comment_(GParsableI::makeVector(commentVar)),
-	  cl_(0) { /* nothing */ }
+	: m_option_name(GParsableI::makeVector(optionNameVar)), m_comment(GParsableI::makeVector(commentVar)),
+	  m_cl(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -79,7 +79,7 @@ GParsableI::GParsableI(
 GParsableI::GParsableI(
 	const std::vector<std::string> &optionNameVec, const std::vector<std::string> &commentVec
 )
-	: optionName_(optionNameVec), comment_(commentVec), cl_(0) { /* nothing */ }
+	: m_option_name(optionNameVec), m_comment(commentVec), m_cl(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -92,15 +92,15 @@ GParsableI::~GParsableI() { /* nothing */ }
  * Retrieves the option name
  */
 std::string GParsableI::optionName(std::size_t pos) const {
-	if (optionName_.size() <= pos) {
+	if (m_option_name.size() <= pos) {
 		glogger
 		<< "In GParsableI::optionName(std::size_t): Error!" << std::endl
 		<< "Tried to access item at position " << pos << std::endl
-		<< "where the size of the vector is " << optionName_.size() << std::endl
+		<< "where the size of the vector is " << m_option_name.size() << std::endl
 		<< GEXCEPTION;
 	}
 
-	return optionName_.at(pos);
+	return m_option_name.at(pos);
 }
 
 /******************************************************************************/
@@ -108,15 +108,15 @@ std::string GParsableI::optionName(std::size_t pos) const {
  * Retrieves the comment that was assigned to this variable
  */
 std::string GParsableI::comment(std::size_t pos) const {
-	if (comment_.size() <= pos) {
+	if (m_comment.size() <= pos) {
 		glogger
-		<< "In GParsableI::comment_(std::size_t): Error!" << std::endl
+		<< "In GParsableI::m_comment(std::size_t): Error!" << std::endl
 		<< "Tried to access item at position " << pos << std::endl
-		<< "where the size of the vector is " << comment_.size() << std::endl
+		<< "where the size of the vector is " << m_comment.size() << std::endl
 		<< GEXCEPTION;
 	}
 
-	return comment_.at(pos);
+	return m_comment.at(pos);
 }
 
 /******************************************************************************/
@@ -124,7 +124,7 @@ std::string GParsableI::comment(std::size_t pos) const {
  * Checks whether comments have indeed been registered
  */
 bool GParsableI::hasComments() const {
-	return !comment_.empty();
+	return !m_comment.empty();
 }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ bool GParsableI::hasComments() const {
  * Retrieves the number of comments available
  */
 std::size_t GParsableI::numberOfComments() const {
-	return comment_.size();
+	return m_comment.size();
 }
 
 /******************************************************************************/
@@ -142,7 +142,7 @@ std::size_t GParsableI::numberOfComments() const {
 GParsableI &GParsableI::operator<<(std::ostream &( *val )(std::ostream &)) {
 	std::ostringstream oss;
 	oss << val;
-	comment_.at(cl_) += oss.str();
+	m_comment.at(m_cl) += oss.str();
 	return *this;
 }
 
@@ -153,7 +153,7 @@ GParsableI &GParsableI::operator<<(std::ostream &( *val )(std::ostream &)) {
 GParsableI &GParsableI::operator<<(std::ios &( *val )(std::ios &)) {
 	std::ostringstream oss;
 	oss << val;
-	comment_.at(cl_) += oss.str();
+	m_comment.at(m_cl) += oss.str();
 	return *this;
 }
 
@@ -164,7 +164,7 @@ GParsableI &GParsableI::operator<<(std::ios &( *val )(std::ios &)) {
 GParsableI &GParsableI::operator<<(std::ios_base &( *val )(std::ios_base &)) {
 	std::ostringstream oss;
 	oss << val;
-	comment_.at(cl_) += oss.str();
+	m_comment.at(m_cl) += oss.str();
 	return *this;
 }
 
@@ -174,22 +174,22 @@ GParsableI &GParsableI::operator<<(std::ios_base &( *val )(std::ios_base &)) {
  */
 GParsableI &GParsableI::operator<<(const commentLevel &cl) {
 #ifdef DEBUG
-   if(comment_.empty()) {
+   if(m_comment.empty()) {
       glogger
        << "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
        << "No comments in vector" << std::endl
        << GEXCEPTION;
    }
 
-   if(comment_.size() <= cl.getCommentLevel()) {
+   if(m_comment.size() <= cl.getCommentLevel()) {
       glogger
       << "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
-      << "Invalid comment level " << cl.getCommentLevel() << " requested, where the maximum is " << comment_.size() - 1 << std::endl
+      << "Invalid comment level " << cl.getCommentLevel() << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-	cl_ = cl.getCommentLevel();
+	m_cl = cl.getCommentLevel();
 	return *this;
 }
 
@@ -199,23 +199,23 @@ GParsableI &GParsableI::operator<<(const commentLevel &cl) {
  */
 GParsableI &GParsableI::operator<<(const nextComment &nC) {
 #ifdef DEBUG
-   if(comment_.empty()) {
+   if(m_comment.empty()) {
       glogger
        << "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
        << "No comments in vector" << std::endl
        << GEXCEPTION;
    }
 
-   if(comment_.size() <= (cl_+1)) {
+   if(m_comment.size() <= (m_cl+1)) {
       glogger
       << "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
-      << "Invalid comment level " << cl_+1 << " requested, where the maximum is " << comment_.size() - 1 << std::endl
+      << "Invalid comment level " << m_cl+1 << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
 	// Increment the comment level
-	cl_++;
+	m_cl++;
 	return *this;
 }
 
@@ -263,7 +263,7 @@ std::vector<std::string> GParsableI::splitComment(const std::string &comment) co
 GFileParsableI::GFileParsableI(
 	const std::string &optionNameVar, const std::string &commentVar, const bool &isEssentialVar
 )
-	: GParsableI(optionNameVar, commentVar), isEssential_(isEssentialVar) { /* nothing */ }
+	: GParsableI(optionNameVar, commentVar), m_is_essential(isEssentialVar) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -272,7 +272,7 @@ GFileParsableI::GFileParsableI(
 GFileParsableI::GFileParsableI(
 	const std::vector<std::string> &optionNameVec, const std::vector<std::string> &commentVec, const bool &isEssentialVar
 )
-	: GParsableI(optionNameVec, commentVec), isEssential_(isEssentialVar) { /* nothing */ }
+	: GParsableI(optionNameVec, commentVec), m_is_essential(isEssentialVar) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -285,7 +285,7 @@ GFileParsableI::~GFileParsableI() { /* nothing */ }
  * Checks whether this is an essential variable
  */
 bool GFileParsableI::isEssential() const {
-	return isEssential_;
+	return m_is_essential;
 }
 
 /******************************************************************************/
@@ -323,15 +323,15 @@ GCLParsableI::~GCLParsableI() { /* nothing */ }
  * @param configurationFile The name of the configuration file
  */
 GParserBuilder::GParserBuilder()
-	: configFileBaseName_("empty") {
+	: m_configfile_Base_name("empty") {
 #if defined(_MSC_VER)  && (_MSC_VER >= 1020)
    char* jsonBaseName_ch = 0;
    size_t sz = 0;
    if (0 == _dupenv_s(&jsonBaseName_ch, &sz, "GENEVA_CONFIG_BASENAME") && nullptr != jsonBaseName_ch) {
       // Only convert to a string if the environment variable exists
-      configFileBaseName_ = std::string(jsonBaseName_ch);
+      m_configfile_Base_name = std::string(jsonBaseName_ch);
       // Convert to a std::string and remove any white space characters
-      boost::trim(configFileBaseName_);
+      boost::trim(m_configfile_Base_name);
       // Clean up the environment
       free(jsonBaseName_ch);
    }
@@ -340,10 +340,10 @@ GParserBuilder::GParserBuilder()
 
 	if (jsonBaseName_ch) {
 		// Only convert to a string if the environment variable exists
-		configFileBaseName_ = std::string(jsonBaseName_ch);
+		m_configfile_Base_name = std::string(jsonBaseName_ch);
 
 		// Convert to a std::string and remove any white space characters
-		boost::trim(configFileBaseName_);
+		boost::trim(m_configfile_Base_name);
 	}
 #endif /* _MSC_VER */
 }
@@ -366,7 +366,7 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 	// Make sure only one entity is parsed at once. This allows us to
 	// concurrently create e.g. optimization algorithms, letting them
 	// parse the same config file.
-	std::unique_lock<std::mutex> lk(GParserBuilder::configFileParser_mutex_);
+	std::unique_lock<std::mutex> lk(GParserBuilder::m_configfile_parser_mutex);
 
 	namespace pt = boost::property_tree;
 	namespace bf = boost::filesystem;
@@ -379,8 +379,8 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 	boost::trim(configFile_withBase);
 
 	// Check that configFile_withBase doesn't start with a / (--> absolute path)
-	if (!configFileBaseName_.empty() && "empty" != configFileBaseName_ && configFile.at(0) != '/') {
-		configFile_withBase = configFileBaseName_ + configFile_withBase;
+	if (!m_configfile_Base_name.empty() && "empty" != m_configfile_Base_name && configFile.at(0) != '/') {
+		configFile_withBase = m_configfile_Base_name + configFile_withBase;
 	}
 
 	try {
@@ -419,11 +419,9 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 		pt::read_json(configFile_withBase, ptr);
 
 		// Load the data into our objects and execute the relevant call-back functions
-		std::vector<std::shared_ptr < GFileParsableI>> ::iterator
-		it;
-		for (it = file_parameter_proxies_.begin(); it != file_parameter_proxies_.end(); ++it) {
-			(*it)->load(ptr);
-			(*it)->executeCallBackFunction();
+		for(auto proxy: m_file_parameter_proxies) {
+			proxy->load(ptr);
+			proxy->executeCallBackFunction();
 		}
 
 		result = true;
@@ -468,8 +466,8 @@ void GParserBuilder::writeConfigFile(
 	boost::trim(configFile_withBase);
 
 	// Check that configFile_withBase doesn't start with a / (--> absolute path)
-	if (!configFileBaseName_.empty() && "empty" != configFileBaseName_ && configFile.at(0) != '/') {
-		configFile_withBase = configFileBaseName_ + configFile_withBase;
+	if (!m_configfile_Base_name.empty() && "empty" != m_configfile_Base_name && configFile.at(0) != '/') {
+		configFile_withBase = m_configfile_Base_name + configFile_withBase;
 	}
 
 	// Needed for the separation of comment strings
@@ -523,7 +521,7 @@ void GParserBuilder::writeConfigFile(
 	}
 
 	// Do some error checking
-	if (file_parameter_proxies_.size() == 0) {
+	if (m_file_parameter_proxies.size() == 0) {
 		glogger
 		<< "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
 		<< GEXCEPTION;
@@ -544,7 +542,7 @@ void GParserBuilder::writeConfigFile(
 
 	// Output variables and values
 	std::vector<std::shared_ptr <GFileParsableI>> ::const_iterator cit;
-	for (cit = file_parameter_proxies_.begin(); cit != file_parameter_proxies_.end(); ++cit) {
+	for (cit = m_file_parameter_proxies.begin(); cit != m_file_parameter_proxies.end(); ++cit) {
 		// Only write out the parameter(s) if they are either essential or it
 		// has been requested to write out all parameters regardless
 		if (!writeAll && !(*cit)->isEssential()) continue;
@@ -567,7 +565,7 @@ void GParserBuilder::writeConfigFile(
  * @return The number of configuration options stored in this class
  */
 std::size_t GParserBuilder::numberOfFileOptions() const {
-	return file_parameter_proxies_.size();
+	return m_file_parameter_proxies.size();
 }
 
 /******************************************************************************/
@@ -594,13 +592,13 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
 		// Add further options from the parameter objects
 		std::vector<std::shared_ptr < GCLParsableI>> ::iterator
 		it;
-		for (it = cl_parameter_proxies_.begin(); it != cl_parameter_proxies_.end(); ++it) {
+		for (it = m_cl_parameter_proxies.begin(); it != m_cl_parameter_proxies.end(); ++it) {
 			(*it)->save(desc);
 		}
 
 		// Do the actual parsing
 		po::variables_map vm;
-		po::store(po::parse_command_line(argc, (const char *const *) arg, desc), vm);
+		po::store(po::parse_command_line(argc, (const char *const *) argv, desc), vm);
 		po::notify(vm);
 
 		// Emit a help message, if necessary and let the caller of this function know
@@ -612,7 +610,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
 				std::cout
 				<< "GParserBuilder::parseCommandLine():" << std::endl
 				<< "Working with the following options:" << std::endl;
-				for (it = cl_parameter_proxies_.begin(); it != cl_parameter_proxies_.end(); ++it) {
+				for (it = m_cl_parameter_proxies.begin(); it != m_cl_parameter_proxies.end(); ++it) {
 					std::cout << (*it)->content() << std::endl;
 				}
 				std::cout << std::endl;
@@ -640,7 +638,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
  * stored in this class
  */
 std::size_t GParserBuilder::numberOfCLOptions() const {
-	return cl_parameter_proxies_.size();
+	return m_cl_parameter_proxies.size();
 }
 
 /******************************************************************************/

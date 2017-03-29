@@ -208,7 +208,7 @@ public:
 	/**
 	 * Searches for item in the entire range of the vector.
 	 */
-	const_iterator find(const T &item) const {
+	/* const_iterator */ decltype(auto) find(const T &item) const {
 		return std::find(data.begin(), data.end(), item);
 	}
 

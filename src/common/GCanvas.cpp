@@ -102,15 +102,15 @@ float operator*(const coord2D &a, const coord2D &b) {
 const triangle_circle_struct &triangle_circle_struct::operator=(
 	const triangle_circle_struct &cp
 ) {
-	middle = cp.middle;
-	radius = cp.radius;
-	angle1 = cp.angle1;
-	angle2 = cp.angle2;
-	angle3 = cp.angle3;
-	r = cp.r;
-	g = cp.g;
-	b = cp.b;
-	a = cp.a;
+	this->middle = cp.middle;
+	this->radius = cp.radius;
+	this->angle1 = cp.angle1;
+	this->angle2 = cp.angle2;
+	this->angle3 = cp.angle3;
+	this->r = cp.r;
+	this->g = cp.g;
+	this->b = cp.b;
+	this->a = cp.a;
 
 	return *this;
 }
@@ -120,7 +120,7 @@ const triangle_circle_struct &triangle_circle_struct::operator=(
  * Needed for sorting the structs
  */
 float triangle_circle_struct::getAlphaValue() const {
-	return a;
+	return this->a;
 }
 
 /******************************************************************************/
@@ -165,9 +165,7 @@ bool operator==(const t_circle &a, const t_circle &b) {
 	if (a.r != b.r) return false;
 	if (a.g != b.g) return false;
 	if (a.b != b.b) return false;
-	if (a.a != b.a) return false;
-
-	return true;
+	return a.a == b.a;
 }
 
 /******************************************************************************/

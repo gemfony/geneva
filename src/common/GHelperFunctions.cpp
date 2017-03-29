@@ -52,9 +52,9 @@ std::atomic<bool> g_hwt_read(false); // global in this file
 std::atomic<unsigned int> g_nHardwareThreads(Gem::Common::DEFAULTNHARDWARETHREADS); // global in this file
 
 unsigned int getNHardwareThreads(const unsigned int &defaultNThreads) {
-	if (false == g_hwt_read.load()) {
+	if (!g_hwt_read) {
 		std::unique_lock<std::mutex>(g_hwt_read_mutex);
-		if (false == g_hwt_read.load()) {
+		if (!g_hwt_read) {
 			g_hwt_read = true;
 			g_nHardwareThreads.store(std::thread::hardware_concurrency());
 		}

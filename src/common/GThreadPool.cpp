@@ -138,7 +138,7 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 	}
 
 	// If threads were already running, either add new threads or recreate the pool
-	if (true == m_threads_started.load()) {
+	if (m_threads_started) {
 		if (nThreadsLocal > m_nThreads.load()) { // We simply add the required number of threads
 			m_gtg.create_threads(
 				[this]() { this->m_io_service.run(); }
