@@ -195,7 +195,9 @@ public:
 	 * @param item The item to be counted in the collection
 	 * @return The number of items found
 	 */
-	size_type count(const T &item) const { return std::count(data.begin(), data.end(), item); }
+	size_type count(const T &item) const {
+		return boost::numeric_cast<size_type>(std::count(data.begin(), data.end(), item));
+	}
 
 	/* ----------------------------------------------------------------------------
 	 * Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
@@ -204,9 +206,7 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Searches for item in the entire range of the vector. Needs to be
-	 * re-implemented here, as we are dealing with a collection of smart pointers
-	 * and we do not want to compare the pointers themselves.
+	 * Searches for item in the entire range of the vector.
 	 */
 	const_iterator find(const T &item) const {
 		return std::find(data.begin(), data.end(), item);

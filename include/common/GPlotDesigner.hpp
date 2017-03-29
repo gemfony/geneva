@@ -631,7 +631,7 @@ protected:
 
 		// ... and then our local data
 		m_coordinates = p_load->m_coordinates;
-		m_marker = p_load->cp.m_marker;
+		m_marker = p_load->m_marker;
 		m_color = p_load->m_color;
 		m_size = p_load->m_size;
 	}
@@ -2236,7 +2236,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
 	, std::tuple<double, double> rangeX
 ) const {
 	std::tuple<double, double> myRangeX;
-	if (rangeX == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeX == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double> extremes = Gem::Common::getMinMax(this->m_data);
 		myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
@@ -2275,7 +2276,8 @@ inline
 std::shared_ptr <GDataCollector1T<double>>
 GDataCollector2T<double, double>::projectY(std::size_t nBinsY, std::tuple<double, double> rangeY) const {
 	std::tuple<double, double> myRangeY;
-	if (rangeY == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeY == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double> extremes = Gem::Common::getMinMax(m_data);
 		myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
@@ -3193,7 +3195,8 @@ inline
 std::shared_ptr <GDataCollector1T<double>>
 GDataCollector3T<double, double, double>::projectX(std::size_t nBinsX, std::tuple<double, double> rangeX) const {
 	std::tuple<double, double> myRangeX;
-	if (rangeX == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeX == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(this->m_data);
 		myRangeX = std::tuple<double, double>(std::get<0>(extremes), std::get<1>(extremes));
@@ -3231,7 +3234,8 @@ inline
 std::shared_ptr <GDataCollector1T<double>>
 GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, std::tuple<double, double> rangeY) const {
 	std::tuple<double, double> myRangeY;
-	if (rangeY == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeY == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(m_data);
 		myRangeY = std::tuple<double, double>(std::get<2>(extremes), std::get<3>(extremes));
@@ -3269,7 +3273,8 @@ inline
 std::shared_ptr <GDataCollector1T<double>>
 GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, std::tuple<double, double> rangeZ) const {
 	std::tuple<double, double> myRangeZ;
-	if (rangeZ == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeZ == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double, double, double> extremes = Gem::Common::getMinMax(m_data);
 		myRangeZ = std::tuple<double, double>(std::get<4>(extremes), std::get<5>(extremes));
@@ -3729,10 +3734,13 @@ protected:
 template<>
 inline
 std::shared_ptr <GDataCollector1T<double>>
-GDataCollector4T<double, double, double, double>::projectX(std::size_t nBinsX,
-																			  std::tuple<double, double> rangeX) const {
+GDataCollector4T<double, double, double, double>::projectX(
+	std::size_t nBinsX
+	, std::tuple<double, double> rangeX
+) const {
 	std::tuple<double, double> myRangeX;
-	if (rangeX == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeX == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
 			this->m_data);
@@ -3767,12 +3775,14 @@ GDataCollector4T<double, double, double, double>::projectX(std::size_t nBinsX,
  * @param range The minimum and maximum boundaries of the histogram
  */
 template<>
-inline
-std::shared_ptr <GDataCollector1T<double>>
-GDataCollector4T<double, double, double, double>::projectY(std::size_t nBinsY,
-																			  std::tuple<double, double> rangeY) const {
+inline  std::shared_ptr <GDataCollector1T<double>>
+GDataCollector4T<double, double, double, double>::projectY(
+	std::size_t nBinsY
+	, std::tuple<double, double> rangeY
+) const {
 	std::tuple<double, double> myRangeY;
-	if (rangeY == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeY == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
 			this->m_data);
@@ -3812,7 +3822,8 @@ std::shared_ptr <GDataCollector1T<double>>
 GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ,
 																			  std::tuple<double, double> rangeZ) const {
 	std::tuple<double, double> myRangeZ;
-	if (rangeZ == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeZ == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
 			this->m_data);
@@ -3855,7 +3866,8 @@ GDataCollector4T<double, double, double, double>::projectW(
 	, std::tuple<double, double> rangeW
 ) const {
 	std::tuple<double, double> myRangeW;
-	if (rangeW == std::tuple<double, double>()) {
+	std::tuple<double, double> default_range;
+	if (rangeW == default_range) {
 		// Find out about the minimum and maximum values in the m_data array
 		std::tuple<double, double, double, double, double, double, double, double> extremes = Gem::Common::getMinMax(
 			this->m_data);
@@ -4063,9 +4075,9 @@ protected:
 private:
 	GFunctionPlotter1D() = delete; ///< The default constructor
 
-	std::string functionDescription_ = std::string();
+	std::string functionDescription_;
 
-	std::tuple<double, double> xExtremes_ = std::tuple<double, double>(); ///< Minimum and maximum values for the x-axis
+	std::tuple<double, double> xExtremes_; ///< Minimum and maximum values for the x-axis
 	std::size_t nSamplesX_ = DEFNSAMPLES; ///< The number of sampling points of the function
 };
 
@@ -4151,10 +4163,10 @@ protected:
 private:
 	GFunctionPlotter2D() = delete; ///< The default constructor -- intentionally private and undefined
 
-	std::string functionDescription_ = std::string();
+	std::string functionDescription_;
 
-	std::tuple<double, double> xExtremes_ = std::tuple<double, double>(); ///< Minimum and maximum values for the x-axis
-	std::tuple<double, double> yExtremes_ = std::tuple<double, double>(); ///< Minimum and maximum values for the y-axis
+	std::tuple<double, double> xExtremes_; ///< Minimum and maximum values for the x-axis
+	std::tuple<double, double> yExtremes_; ///< Minimum and maximum values for the y-axis
 
 	std::size_t nSamplesX_ = DEFNSAMPLES; ///< The number of sampling points of the function
 	std::size_t nSamplesY_ = DEFNSAMPLES; ///< The number of sampling points of the function

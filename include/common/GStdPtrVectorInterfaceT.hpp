@@ -269,7 +269,7 @@ public:
 			<< GEXCEPTION;
 		}
 
-		return std::count_if(
+		return boost::numeric_cast<size_type>(std::count_if(
 			data.begin(), data.end(), [&item](const std::shared_ptr <T> &cont_item) -> bool {
 				bool result = false;
 #ifdef DEBUG
@@ -286,7 +286,7 @@ public:
 #endif
 				return result;
 			}
-		);
+		));
 	}
 
 	/* -------------------------------------------------------------------------
@@ -752,11 +752,10 @@ public:
 	 *
 	 * @param cp A reference to a vector that will hold a copy of our local data vector
 	 */
-	void getDataCopy(std::vector<std::shared_ptr <T>>& cp) const {
+	void getDataCopy(std::vector<std::shared_ptr<T>>& cp) const {
 		cp.clear();
-		typename std::vector<std::shared_ptr < T>> ::const_iterator it;
-		for (it = data.begin(); it != data.end(); ++it) {
-			cp.push_back((*it)->T::template clone<T>());
+		for(const auto& item: data) {
+			cp.push_back(item->T::template clone<T>());
 		}
 	}
 
@@ -832,7 +831,7 @@ public:
 	/** An iterator implementation that facilitates access to derived elements */
 	template<typename derivedType>
 	class conversion_iterator
-		:public boost::iterator_facade<conversion_iterator<derivedType>, std::shared_ptr <T>, boost::forward_traversal_tag, std::shared_ptr<derivedType>>
+		: public boost::iterator_facade<conversion_iterator<derivedType>, std::shared_ptr<T>, boost::forward_traversal_tag, std::shared_ptr<derivedType>>
 	{
 	public:
 		/************************************************************************/
@@ -890,10 +889,9 @@ public:
 
 		/************************************************************************/
 		/**
-		 * The default constructor. Intentionally left undefined and private, so it cannot be
-		 * instantiated.
+		 * Deleted default constructor
 		 */
-		conversion_iterator();
+		conversion_iterator() = delete;
 
 		/************************************************************************/
 		/**
@@ -962,16 +960,13 @@ protected:
 private:
 	/***************************************************************************/
 	/** @brief Intentionally left undefined */
-	bool operator==(const GStdPtrVectorInterfaceT<T, B> &) const;
-
+	bool operator==(const GStdPtrVectorInterfaceT<T, B> &) const = delete;
 	/** @brief Intentionally left undefined */
-	bool operator!=(const GStdPtrVectorInterfaceT<T, B> &) const;
-
+	bool operator!=(const GStdPtrVectorInterfaceT<T, B> &) const = delete;
 	/** @brief Intentionally left undefined */
-	bool operator==(const std::vector<std::shared_ptr <T>>&) const;
-
+	bool operator==(const std::vector<std::shared_ptr <T>>&) const = delete;
 	/** @brief Intentionally left undefined */
-	bool operator!=(const std::vector<std::shared_ptr <T>>&) const;
+	bool operator!=(const std::vector<std::shared_ptr <T>>&) const = delete;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

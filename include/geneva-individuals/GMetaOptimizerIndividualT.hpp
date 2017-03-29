@@ -320,9 +320,9 @@ public:
 	  *
 	  * @param gpb The GParserBuilder object to which configuration options should be added
 	  */
-	 virtual void addConfigurationOptions(
+	 virtual void addConfigurationOptions (
 		 Gem::Common::GParserBuilder &gpb
-	 ) {
+	 ) override {
 		 // Call our parent class'es function
 		 GParameterSet::addConfigurationOptions(gpb);
 
@@ -493,7 +493,7 @@ public:
 	  */
 	 std::size_t getNParents() const {
 		 std::shared_ptr <GConstrainedInt32Object> npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
-		 return npar_ptr->value();
+		 return boost::numeric_cast<std::size_t>(npar_ptr->value());
 	 }
 
 	 /***************************************************************************/
@@ -502,7 +502,7 @@ public:
 	  */
 	 std::size_t getNChildren() const {
 		 std::shared_ptr <GConstrainedInt32Object> nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
-		 return nch_ptr->value();
+		 return boost::numeric_cast<std::size_t>(nch_ptr->value());
 	 }
 
 	 /***************************************************************************/
@@ -903,7 +903,7 @@ protected:
 	  * @param The id of the target function (ignored here)
 	  * @return The value of this object, as calculated with the evaluation function
 	  */
-	 virtual double fitnessCalculation() {
+	 virtual double fitnessCalculation() override {
 		 bool first_maxMode = true;
 		 bool maxMode = false;
 
@@ -1115,7 +1115,7 @@ public:
 	  *
 	  * @return A boolean indicating whether
 	  */
-	 virtual bool modify_GUnitTests() {
+	 virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -1144,7 +1144,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed.
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() {
+	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using namespace Gem::Geneva;
 
@@ -1169,7 +1169,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail.
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() {
+	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using namespace Gem::Geneva;
 
@@ -1931,7 +1931,7 @@ protected:
 private:
 	 /***************************************************************************/
 
-	 GOptOptMonitorT() { /* empty */ }; ///< Default constructor; Intentionally private (only needed for serialization)
+	 GOptOptMonitorT() : m_gpd("empty", 1, 1) { /* empty */ }; ///< Default constructor; Intentionally private (only needed for serialization)
 
 	 std::string m_fileName; ///< The name of the output file
 

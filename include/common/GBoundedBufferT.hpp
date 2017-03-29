@@ -131,9 +131,7 @@ class condition_time_out : public std::exception
  * if there may never be an "inflation".
  */
 template<typename T, std::size_t t_capacity = DEFAULTBUFFERSIZE>
-class GBoundedBufferT
-	: private boost::noncopyable
-{
+class GBoundedBufferT {
 public:
 
 	 using container_type = std::deque<T>;
@@ -380,6 +378,8 @@ private:
 
 	 GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
 	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator
+	 GBoundedBufferT(const GBoundedBufferT<T> &&) = delete; ///< Disabled move constructor
+	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &&) = delete; ///< Disabled move-assignment operator
 };
 
 /******************************************************************************/

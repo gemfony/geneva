@@ -600,7 +600,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
 
 		// Do the actual parsing
 		po::variables_map vm;
-		po::store(po::parse_command_line(argc, argv, desc), vm);
+		po::store(po::parse_command_line(argc, (const char *const *) arg, desc), vm);
 		po::notify(vm);
 
 		// Emit a help message, if necessary and let the caller of this function know

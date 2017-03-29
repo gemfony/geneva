@@ -76,7 +76,7 @@ struct GThreadWrapper {
 	G_API_COMMON void operator()();
 
 private:
-	GThreadWrapper(); ///< Intentionally empty and undefined
+	GThreadWrapper() = delete; ///< Intentionally empty and undefined
 	std::function<void()> f_; ///< Holds the actual worker task
 };
 

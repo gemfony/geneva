@@ -137,11 +137,7 @@ bool checkRangeCompliance(
       	<< GEXCEPTION;
    }
 
-	if (val < lower || val > upper) {
-		return false;
-	} else {
-		return true;
-	}
+	return !(val < lower || val > upper);
 }
 
 /******************************************************************************/
@@ -198,36 +194,32 @@ fp_type checkValueRange(
 	, std::string varName = std::string()
 	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-	bool result = true;
+	bool inValueRange = true;
 
 	if (lowerOpen) {
-		if (val < boost::math::float_next<fp_type>(min)) result = false;
+		if (val < boost::math::float_next<fp_type>(min)) inValueRange = false;
 	} else {
-		if (val < min) result = false;
+		if (val < min) inValueRange = false;
 	}
 
 	if (upperOpen) {
-		if (val > boost::math::float_prior<fp_type>(max)) result = false;
+		if (val > boost::math::float_prior<fp_type>(max)) inValueRange = false;
 	} else {
-		if (val > max) result = false;
+		if (val > max) inValueRange = false;
 	}
 
-	if (false == result) {
+	if (!inValueRange) {
 		if (warnOnly) {
 			glogger
 			<< "In checkValueRange<fp_type>(): Error!" << std::endl
-			<< "Value " << val << (varName.empty() ? "" : (" of variable " + varName)) <<
-			" outside of recommended range " << std::endl
-			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") <<
-			std::endl
+			<< "Value " << val << (varName.empty() ? "" : (" of variable " + varName)) << " outside of recommended range " << std::endl
+			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") << std::endl
 			<< GWARNING;
 		} else {
 			glogger
 			<< "In checkValueRange<fp_type>(): Error!" << std::endl
-			<< "Value " << val << (varName.empty() ? "" : (" of variable " + varName)) << " outside of allowed range " <<
-			std::endl
-			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") <<
-			std::endl
+			<< "Value " << val << (varName.empty() ? "" : (" of variable " + varName)) << " outside of allowed range " << std::endl
+			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") << std::endl
 			<< GEXCEPTION;
 		}
 	}
@@ -257,21 +249,21 @@ int_type checkValueRange(
 	int_type val, int_type min, int_type max, bool lowerOpen = false, bool upperOpen = false, bool warnOnly = false,
 	typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
 ) {
-	bool result = true;
+	bool inValueRange = true;
 
 	if (lowerOpen) {
-		if (val <= min) result = false;
+		if (val <= min) inValueRange = false;
 	} else {
-		if (val < min) result = false;
+		if (val < min) inValueRange = false;
 	}
 
 	if (upperOpen) {
-		if (val >= max) result = false;
+		if (val >= max) inValueRange = false;
 	} else {
-		if (val > max) result = false;
+		if (val > max) inValueRange = false;
 	}
 
-	if (false == result) {
+	if (!inValueRange) {
 		if (warnOnly) {
 			glogger
 			<< "Warning:" << std::endl
@@ -576,28 +568,28 @@ void GVecStandardDeviation(
  */
 template<std::size_t B, std::size_t E>
 struct PowSmallPosInt {
-	enum {
+	enum : std::size_t {
 		result = B * PowSmallPosInt<B, E - 1>::result
 	};
 };
 
 template<std::size_t B>
 struct PowSmallPosInt<B, 2> {
-	enum {
+	enum : std::size_t {
 		result = B * B
 	};
 };
 
 template<std::size_t B>
 struct PowSmallPosInt<B, 1> {
-	enum {
+	enum : std::size_t {
 		result = B
 	};
 };
 
 template<std::size_t B>
 struct PowSmallPosInt<B, 0> {
-	enum {
+	enum : std::size_t {
 		result = 1
 	};
 };
@@ -759,7 +751,7 @@ fp_type productSumTupleVec(
 
 	typename std::vector<std::tuple<fp_type, fp_type>>::const_iterator cit;
 	for (cit = dataPoints.begin(); cit != dataPoints.end(); ++cit) {
-		result += std::get<0>(*cit) * std::get<1>(*cit);
+		result += (std::get<0>(*cit) * std::get<1>(*cit));
 	}
 
 	return result;
@@ -916,11 +908,7 @@ bool isClose(
 	, fp_type margin = fp_type(0.00001)
 	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-	if(gfabs(val-target) <= margin) {
-		return true;
-	} else {
-		return false;
-	}
+	return (gfabs(val - target) <= margin);
 }
 
 /******************************************************************************/

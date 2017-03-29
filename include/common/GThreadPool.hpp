@@ -55,6 +55,7 @@
 #include "common/GLogger.hpp"
 #include "common/GStdThreadGroup.hpp"
 #include "common/GHelperFunctions.hpp"
+#include "GThreadWrapper.hpp"
 
 namespace Gem {
 namespace Common {
@@ -67,9 +68,7 @@ namespace Common {
  * meant to be copyable, as this concept does not make much sense for running
  * threads.
  */
-class GThreadPool
-	: private boost::noncopyable // make sure the pool cannot be copied
-{
+class GThreadPool {
 public:
 	 /** @brief Initialization with the "native" number of threads for this architecture */
 	 G_API_COMMON GThreadPool();
@@ -109,9 +108,9 @@ public:
 
 		 // Determine whether threads have already been started
 		 // If not, start them. Access to the threads is blocked by job_lck
-		 if (false==m_threads_started.load()) {
+		 if (!m_threads_started) {
 			 std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
-			 if (false==m_threads_started.load()) { // double checked locking pattern
+			 if (!m_threads_started) { // double checked locking pattern
 				 // Some error checks
 				 if(0==m_nThreads.load()) {
 					 glogger
@@ -164,6 +163,13 @@ public:
 	 }
 
 private:
+	 /***************************************************************************/
+	 // Some deleted functions
+	 GThreadPool(const GThreadPool&) = delete; // deleted copy constructor
+	 const GThreadPool& operator=(GThreadPool&) = delete; // deleted assignment operator
+	 GThreadPool(const GThreadPool&&) = delete; // deleted move constructor
+	 const GThreadPool& operator=(GThreadPool&&) = delete; // deleted move-assignment operator
+
 	 /***************************************************************************/
 	 /**
 	  * A wrapper for the thread execution that takes care of exceptions thrown by our

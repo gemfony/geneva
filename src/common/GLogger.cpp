@@ -438,14 +438,6 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 		} break;
 
 			//------------------------------------------------------------------------
-		default: {
-			raiseException(
-				"In GLogStreamer::operator<<(const GManipulator&): Error!" << std::endl
-				<< "Received invalid logging type " << gm.getLogType() << std::endl
-			);
-		} break;
-
-			//------------------------------------------------------------------------
 	};
 }
 

@@ -983,15 +983,10 @@ namespace boost {
 namespace spirit {
 
 G_API_COMMON void swap(Gem::Common::nil &, Gem::Common::nil &);
-
 G_API_COMMON void swap(Gem::Common::signed_ &, Gem::Common::signed_ &);
-
 G_API_COMMON void swap(Gem::Common::operation &, Gem::Common::operation &);
-
 G_API_COMMON void swap(Gem::Common::unary_function_ &, Gem::Common::unary_function_ &);
-
 G_API_COMMON void swap(Gem::Common::binary_function_ &, Gem::Common::binary_function_ &);
-
 G_API_COMMON void swap(Gem::Common::ast_expression &, Gem::Common::ast_expression &);
 
 } /* namespace spirit */

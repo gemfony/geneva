@@ -182,13 +182,6 @@ std::string serializationModeToString(const serializationMode &s) {
 		case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY:
 			return std::string("binary mode");
 			break;
-		default: {
-			glogger
-			<< "In serializationModeToString(): Error!" << std::endl
-			<< "Incorrect serialization mode requested: " << s << std::endl
-			<< GEXCEPTION;
-			break;
-		}
 	}
 
 	// Make the compiler happy
