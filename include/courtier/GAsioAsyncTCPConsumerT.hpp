@@ -124,8 +124,8 @@ public:
 		 , const std::string &port
 	 )
 		 : GBaseClientT<processable_type>()
-		 , m_query(server, port)
-		 , m_endpoint_iterator0(m_resolver.resolve(m_query))
+			, m_query(server, port)
+			, m_endpoint_iterator0(m_resolver.resolve(m_query))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -142,8 +142,8 @@ public:
 		 , std::shared_ptr<processable_type> additionalDataTemplate
 	 )
 		 : GBaseClientT<processable_type>(additionalDataTemplate)
-		 , m_query(server, port)
-		 , m_endpoint_iterator0(m_resolver.resolve(m_query))
+			, m_query(server, port)
+			, m_endpoint_iterator0(m_resolver.resolve(m_query))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -242,7 +242,7 @@ protected:
 
 		 // Start the ping cycle
 		 m_timer.expires_from_now(m_ping_interval);
-	    this->async_ping();
+		 this->async_ping();
 
 		 return true;
 	 }
@@ -375,7 +375,7 @@ private:
 			 // so not all clients connect at once
 			 auto ms = std::chrono::milliseconds(
 				 boost::numeric_cast<long int>(connectionAttempt + 1)
-			 	 * boost::numeric_cast<long int>(2000.*uniform_real(gr))
+				 * boost::numeric_cast<long int>(2000.*uniform_real(gr))
 			 );
 			 std::this_thread::sleep_for(ms);
 
@@ -400,7 +400,7 @@ private:
 	 /**
 	  * Acts on a "close"-command
 	  */
-  	 void act_on_close() {
+	 void act_on_close() {
 		 // set the termination flag
 		 this->flagCloseRequested();
 	 }
@@ -412,10 +412,10 @@ private:
 
 	 void act_on_unknown() {
 		 glogger
-		 	<< "In GAsioAsyncTCPClientT<processable_type>::act_on_unknown(): Error" << std::endl
-			<< "The server has indicated that it has received an unknown command from us," << std::endl
-		   << "which should not happen." << std::endl
-			<< GWARNING;
+			 << "In GAsioAsyncTCPClientT<processable_type>::act_on_unknown(): Error" << std::endl
+			 << "The server has indicated that it has received an unknown command from us," << std::endl
+			 << "which should not happen." << std::endl
+			 << GWARNING;
 	 }
 
 	 /***************************************************************************/
@@ -483,7 +483,7 @@ private:
 	  *
 	  * @return false if an error condition has occurred, true otherwise
 	  */
-  	 bool act_on_compute_command(){
+	 bool act_on_compute_command(){
 		 // We have received a work item. First find out its size
 		 m_read_strand.wrap(boost::asio::read(
 			 m_socket
@@ -667,7 +667,7 @@ private:
 	 // Prevent default construction
 	 GAsioAsyncTCPClientT() = delete;
 
-	 // Prevent copy construction and assignment
+	 // Prevent copy construction, moving and assignment
 	 GAsioAsyncTCPClientT(const GAsioAsyncTCPClientT<processable_type>&) = delete;
 	 GAsioAsyncTCPClientT(const GAsioAsyncTCPClientT<processable_type>&&) = delete;
 	 const GAsioAsyncTCPClientT<processable_type>& operator=(const GAsioAsyncTCPClientT<processable_type>&) = delete;
@@ -707,11 +707,11 @@ public:
 		 , GAsioAsyncTCPConsumerT<processable_type> *master
 	 )
 		 : m_write_strand(io_service)
-		 , m_read_strand(io_service)
-		 , m_socket(io_service)
-		 , m_serializationMode(serMod)
-		 , m_master(master)
-		 , m_broker_ptr(master->m_broker_ptr)
+			, m_read_strand(io_service)
+			, m_socket(io_service)
+			, m_serializationMode(serMod)
+			, m_master(master)
+			, m_broker_ptr(master->m_broker_ptr)
 	 {
 		 // TODO: Do not increment here, but when a new session is created in the server itself
 
@@ -926,7 +926,7 @@ private:
 	  * Reads (and expects) a single command and flags an error, if this command
 	  * was not received.
 	  */
-    bool readSingleCommand(const std::string& command) {
+	 bool readSingleCommand(const std::string& command) {
 		 // Read the next command
 		 m_read_strand.wrap(boost::asio::read(
 			 m_socket
@@ -1015,8 +1015,8 @@ public:
 		 , const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
 	 )
 		 : m_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
-		 , m_serialization_mode(sm)
-		 , m_port(port)
+			, m_serialization_mode(sm)
+			, m_port(port)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1292,7 +1292,7 @@ public:
 			 ("ws_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
 				 "\t[ws] The name or ip of the server")
 			 ("ws_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
-			 "\t[ws] The port of the server");
+				 "\t[ws] The port of the server");
 
 		 hidden.add_options()
 			 ("ws_serializationMode", po::value<Gem::Common::serializationMode>(&m_serialization_mode)->default_value(
@@ -1465,9 +1465,9 @@ private:
 				 // like so: "if(!currentSession->process()) currentSession->restoreWorkItem();"
 			 } else {
 				 glogger
-				 << "In AsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
-				 << "currentSession pointer seems to be empty" << std::endl
-			    << GEXCEPTION;
+					 << "In AsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
+					 << "currentSession pointer seems to be empty" << std::endl
+					 << GEXCEPTION;
 
 				 // TODO: No exception here. Rather leave the session
 			 }
