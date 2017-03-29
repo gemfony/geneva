@@ -2938,14 +2938,6 @@ std::string GHistogram2D::drawingArguments(bool isSecondary) const {
 			case tddropt::SURFONECYL:
 				dA = "SURF1CYL";
 				break;
-
-			default: {
-				glogger
-				<< "In GHistogram2D::drawingArguments(): Error!" << std::endl
-				<< "Encountered unknown drawing option " << dropt_ << std::endl
-				<< GEXCEPTION;
-			}
-				break;
 		}
 
 		if (isSecondary) {

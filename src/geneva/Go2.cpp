@@ -1163,7 +1163,7 @@ void Go2::parseCommandLine(
 
 		// Do the actual parsing of the command line
 		po::variables_map vm;
-		po::store(po::parse_command_line(argc, argv, general), vm);
+		po::store(po::parse_command_line(argc, (const char *const *) argv, general), vm);
 
 		// Emit a help message, if necessary
 		if (vm.count("help") || vm.count("showAll")) { // Allow syntax "programm --help --showAll" and "program --showAll"

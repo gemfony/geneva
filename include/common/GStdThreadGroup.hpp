@@ -96,67 +96,75 @@ class GThreadPool;
  * a version by Anthony Williams, as offered as part of the Boost 1.36 release
  */
 class GStdThreadGroup
-	: private boost::noncopyable
 {
-	friend class GThreadPool;
+	 friend class GThreadPool;
 
-	using thread_ptr = std::shared_ptr <std::thread>;
-	using thread_vector = std::vector<thread_ptr>;
+	 using thread_ptr = std::shared_ptr <std::thread>;
+	 using thread_vector = std::vector<thread_ptr>;
 
 public:
-	/** @brief The destructor */
-	G_API_COMMON ~GStdThreadGroup();
+	 /** @brief The default constructor */
+	 G_API_COMMON GStdThreadGroup();
 
-	/** @brief Adds an already created thread to the group */
-	G_API_COMMON void add_thread(thread_ptr);
+	 /** @brief The destructor */
+	 G_API_COMMON ~GStdThreadGroup();
 
-	/** @brief Requests all threads to join */
-	G_API_COMMON void join_all();
+	 /** @brief Adds an already created thread to the group */
+	 G_API_COMMON void add_thread(thread_ptr);
 
-	/** @brief Returns the size of the current thread group */
-	G_API_COMMON std::size_t size() const;
+	 /** @brief Requests all threads to join */
+	 G_API_COMMON void join_all();
 
-	/***************************************************************************/
-	/**
-	 * Creates a new thread and adds it to the group
-	 *
-	 * TODO: Add perfect forwarding, so we may pass arguments directly
-	 *
-	 * @param f The function to be run by the thread
-	 * @return A pointer to the newly created thread
-	 */
-	template<typename F>
-	std::shared_ptr<std::thread> create_thread(F f) {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		thread_ptr new_thread(new std::thread(f));
-		m_threads.push_back(new_thread);
-		return new_thread;
-	}
+	 /** @brief Returns the size of the current thread group */
+	 G_API_COMMON std::size_t size() const;
 
-	/***************************************************************************/
-	/**
-	 * Creates nThreads new threads with the same function
-	 * and adds them to the group
-	 *
-	 * @param f The function to be run by the thread
-	 * @param nThreads The number of threads to add to the group
-	 * @return A pointer to the newly created thread
-	 */
-	template<typename F>
-	void create_threads(F f, const std::size_t &nThreads) {
-		for (std::size_t i = 0; i < nThreads; i++) {
-			create_thread(f);
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * Creates a new thread and adds it to the group
+	  *
+	  * TODO: Add perfect forwarding, so we may pass arguments directly
+	  *
+	  * @param f The function to be run by the thread
+	  * @return A pointer to the newly created thread
+	  */
+	 template<typename F>
+	 std::shared_ptr<std::thread> create_thread(F f) {
+		 std::unique_lock<std::mutex> guard(m_mutex);
+		 thread_ptr new_thread(new std::thread(f));
+		 m_threads.push_back(new_thread);
+		 return new_thread;
+	 }
 
-	/***************************************************************************/
+	 /***************************************************************************/
+	 /**
+	  * Creates nThreads new threads with the same function
+	  * and adds them to the group
+	  *
+	  * @param f The function to be run by the thread
+	  * @param nThreads The number of threads to add to the group
+	  * @return A pointer to the newly created thread
+	  */
+	 template<typename F>
+	 void create_threads(F f, const std::size_t &nThreads) {
+		 for (std::size_t i = 0; i < nThreads; i++) {
+			 create_thread(f);
+		 }
+	 }
+
+	 /***************************************************************************/
 
 private:
-	/** @brief Clears the thread vector */
-	void clearThreads();
+	 // Prevent copying
+	 GStdThreadGroup(const GStdThreadGroup&) = delete;
+	 GStdThreadGroup(const GStdThreadGroup&&) = delete;
+	 const GStdThreadGroup& operator=(const GStdThreadGroup&) = delete;
+	 const GStdThreadGroup& operator=(const GStdThreadGroup&&) = delete;
 
-	thread_vector m_threads; ///< Holds the actual threads
-	mutable std::mutex m_mutex; ///< Needed to synchronize access to the vector
+	 /** @brief Clears the thread vector */
+	 void clearThreads();
+
+	 thread_vector m_threads; ///< Holds the actual threads
+	 mutable std::mutex m_mutex; ///< Needed to synchronize access to the vector
 };
 
 /******************************************************************************/

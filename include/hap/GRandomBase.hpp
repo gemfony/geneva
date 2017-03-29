@@ -74,11 +74,11 @@ namespace Hap {
  * from "raw" random numbers, which can be obtained in derived classes using
  * various different ways.
  */
-class GRandomBase : private boost::noncopyable
+class GRandomBase
 {
 public:
 	 /** @brief Helps to use this object as a generator for C++11 std::distributions */
-	using result_type = G_BASE_GENERATOR::result_type;
+	 using result_type = G_BASE_GENERATOR::result_type;
 
 	 /***************************************************************************/
 	 /** @brief The standard constructor */
@@ -112,6 +112,12 @@ public:
 
 protected:
 	 /***************************************************************************/
+	 // Prevent copying
+	 GRandomBase(const GRandomBase&) = delete;
+	 GRandomBase(const GRandomBase&&) = delete;
+	 const GRandomBase& operator=(const GRandomBase&) = delete;
+	 const GRandomBase& operator=(const GRandomBase&&) = delete;
+
 	 /** @brief Uniformly distributed integer numbers in the range min/max */
 	 virtual G_API_HAP result_type int_random() = 0;
 };

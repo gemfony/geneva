@@ -104,13 +104,6 @@ bool GToken::expectationMet() const {
 				return true;
 			}
 			break;
-
-		default: {
-			glogger
-			<< "In GToken::expectationMet(): Got invalid expectation " << e_ << std::endl
-			<< GEXCEPTION;
-		}
-			break;
 	}
 
 	return false;
@@ -148,15 +141,6 @@ std::string GToken::getExpectationStr() const {
 
 		case Gem::Common::expectation::CE_INEQUALITY:
 			return std::string("CE_INEQUALITY");
-			break;
-
-		default: {
-			glogger
-			<< "In GToken::getExpectationStr(): Got invalid expectation " << e_ << std::endl
-			<< GEXCEPTION;
-
-			return std::string(); // make the compiler happy
-		}
 			break;
 	}
 }
@@ -233,13 +217,6 @@ std::string GToken::toString() const {
 
 		case Gem::Common::expectation::CE_INEQUALITY: {
 			result += std::string("CE_INEQUALITY was ");
-		}
-			break;
-
-		default: {
-			glogger
-			<< "In GToken::toString(): Got invalid expectation " << e_ << std::endl
-			<< GEXCEPTION;
 		}
 			break;
 	}
@@ -331,13 +308,6 @@ void compare(
 				 !(boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
 				expectationMet = true;
 			}
-			break;
-
-		default: {
-			glogger
-			<< "In compare(/* 5 */): Got invalid expectation " << e << std::endl
-			<< GEXCEPTION;
-		}
 			break;
 	};
 

@@ -222,8 +222,7 @@ private:
  * number generators have now been replaced by std::random generators, which are
  * modelled after their boost-equivalents.
  */
-class GRandomFactory
-	: private boost::noncopyable {
+class GRandomFactory {
 public:
 	 /** @brief The default constructor */
 	 G_API_HAP GRandomFactory();
@@ -254,8 +253,11 @@ public:
 
 private:
 	 /***************************************************************************/
-	 GRandomFactory(const GRandomFactory &) = delete; ///< Intentionally left undefined
-	 const GRandomFactory &operator=(const GRandomFactory &) = delete;  ///< Intentionally left undefined
+	 // Prevent copying
+	 GRandomFactory(const GRandomFactory&) = delete;
+	 GRandomFactory(const GRandomFactory&&) = delete;
+	 const GRandomFactory& operator=(const GRandomFactory&) = delete;
+	 const GRandomFactory& operator=(const GRandomFactory&&) = delete;
 
 	 /** @brief The production of [0,1[ random numbers takes place here */
 	 void producer(std::uint32_t seed);

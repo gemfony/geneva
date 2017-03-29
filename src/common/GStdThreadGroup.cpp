@@ -74,6 +74,13 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * The default constructor
+ */
+GStdThreadGroup::GStdThreadGroup()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The standard destructor. Assumes that all threads have already
  * been terminated (?), so that the thread objects can be safely deleted.
  * As we are using a vector of std::shared_ptr<thread> objects, we do not have
