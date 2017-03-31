@@ -128,7 +128,7 @@ class GObject
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GCommonInterfaceT_GObject", boost::serialization::base_object<GCommonInterfaceT<GObject>>(*this));
+		& make_nvp("GCommonInterfaceT_GObject", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GObject>>(*this));
 	}
 	///////////////////////////////////////////////////////////////////////
 

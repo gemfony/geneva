@@ -843,7 +843,7 @@ void GBaseEA::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Check setting and retrieval of the population size and number of parents/childs
+	{ // Check setting and retrieval of the population size and number of parents/children
 		std::shared_ptr <GBaseEA> p_test = this->clone<GBaseEA>();
 
 		// Set the default population size and number of children to different numbers
