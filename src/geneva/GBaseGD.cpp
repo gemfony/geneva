@@ -122,7 +122,7 @@ bool GBaseGD::operator==(const GBaseGD &cp) const {
  * Checks for inequality with another GBaseGD object
  *
  * @param  cp A constant reference to another GBaseGD object
- * @return A boolean indicating whether both objects are inequal
+ * @return A boolean indicating whether both objects are unequal
  */
 bool GBaseGD::operator!=(const GBaseGD &cp) const {
 	using namespace Gem::Common;
@@ -181,7 +181,7 @@ void GBaseGD::setNStartingPoints(std::size_t nStartingPoints) {
  */
 void GBaseGD::setFiniteStep(double finiteStep) {
 	// Check that finiteStep_ has an appropriate value
-	if (finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in permille of the allowed or preferred value range
+	if (finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
 		glogger
 		<< "In GBaseGD::setFiniteStep(double): Error!" << std::endl
 		<< "Invalid values of finiteStep_: " << finiteStep_ << std::endl
@@ -210,7 +210,7 @@ double GBaseGD::getFiniteStep() const {
  */
 void GBaseGD::setStepSize(double stepSize) {
 	// Check that stepSize_ has an appropriate value
-	if (stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in permille of the allowed or preferred value range
+	if (stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
 		glogger
 		<< "In GBaseGD::setStepSize(double): Error!" << std::endl
 		<< "Invalid values of stepSize_: " << stepSize_ << std::endl
@@ -225,7 +225,7 @@ void GBaseGD::setStepSize(double stepSize) {
 /**
  * Retrieves the current step size
  *
- * @return The current valze of the step size
+ * @return The current value of the step size
  */
 double GBaseGD::getStepSize() const {
 	return stepSize_;
@@ -587,7 +587,7 @@ void GBaseGD::init() {
    }
 
    // Check that stepSize_ has an appropriate value
-   if(stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in permille of the allowed or preferred value range
+   if(stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
       glogger
       << "In GBaseGD::init(): Error!" << std::endl
       << "Invalid values of stepSize_: " << stepSize_ << std::endl
