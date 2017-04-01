@@ -79,6 +79,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GOptimizableEntity.hpp
 	GOptimizableI.hpp
 	GOptimizationAlgorithmT.hpp
+    GOptimizationAlgorithmT2.hpp
 	GOptimizationAlgorithmFactoryT.hpp
 	GOptimizationEnums.hpp
 	GParameterBase.hpp

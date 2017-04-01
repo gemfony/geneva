@@ -334,7 +334,7 @@ public:
 	 * @param replace If set to true, the queue will be emptied before adding new work items
 	 */
 	virtual void add(
-		const std::vector<std::shared_ptr < T>>& items
+		const std::vector<std::shared_ptr<T>>& items
 		, bool do_clone = false
 		, bool replace = false
 	) {

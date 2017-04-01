@@ -99,31 +99,31 @@ class GOptimizableEntity
 		// Some preparation needed if this is a load operation.
 		// This is needed to work around a problem in Boost 1.58
 		if(Archive::is_loading::value) {
-			currentFitnessVec_.clear();
-			worstKnownValids_.clear();
+			m_current_fitness_vec.clear();
+			m_worst_known_valids_vec.clear();
 		}
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-		& BOOST_SERIALIZATION_NVP(nFitnessCriteria_)
-		& BOOST_SERIALIZATION_NVP(bestPastPrimaryFitness_)
-		& BOOST_SERIALIZATION_NVP(nStalls_)
-		& BOOST_SERIALIZATION_NVP(dirtyFlag_)
-		& BOOST_SERIALIZATION_NVP(maximize_)
-		& BOOST_SERIALIZATION_NVP(assignedIteration_)
-		& BOOST_SERIALIZATION_NVP(validityLevel_)
-		& BOOST_SERIALIZATION_NVP(pt_ptr_)
-		& BOOST_SERIALIZATION_NVP(evalPolicy_)
-		& BOOST_SERIALIZATION_NVP(individualConstraint_)
-		& BOOST_SERIALIZATION_NVP(steepness_)
-		& BOOST_SERIALIZATION_NVP(barrier_)
-		& BOOST_SERIALIZATION_NVP(markedAsInvalidByUser_)
-		& BOOST_SERIALIZATION_NVP(maxUnsuccessfulAdaptions_)
-		& BOOST_SERIALIZATION_NVP(maxRetriesUntilValid_)
-		& BOOST_SERIALIZATION_NVP(nAdaptions_)
-		& BOOST_SERIALIZATION_NVP(evaluationID_)
-		& BOOST_SERIALIZATION_NVP(currentFitnessVec_)
-		& BOOST_SERIALIZATION_NVP(worstKnownValids_);
+		& BOOST_SERIALIZATION_NVP(m_n_fitness_criteria)
+		& BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness)
+		& BOOST_SERIALIZATION_NVP(m_n_stalls)
+		& BOOST_SERIALIZATION_NVP(m_dirty_flag)
+		& BOOST_SERIALIZATION_NVP(m_maximize)
+		& BOOST_SERIALIZATION_NVP(m_assigned_iteration)
+		& BOOST_SERIALIZATION_NVP(m_validity_level)
+		& BOOST_SERIALIZATION_NVP(m_pt_ptr)
+		& BOOST_SERIALIZATION_NVP(m_eval_policy)
+		& BOOST_SERIALIZATION_NVP(m_individual_constraint_ptr)
+		& BOOST_SERIALIZATION_NVP(m_sigmoid_steepness)
+		& BOOST_SERIALIZATION_NVP(m_sigmoid_extremes)
+		& BOOST_SERIALIZATION_NVP(m_marked_as_invalid_by_user)
+		& BOOST_SERIALIZATION_NVP(m_max_unsuccessful_adaptions)
+		& BOOST_SERIALIZATION_NVP(m_max_retries_until_valid)
+		& BOOST_SERIALIZATION_NVP(m_n_adaptions)
+		& BOOST_SERIALIZATION_NVP(m_evaluation_id)
+		& BOOST_SERIALIZATION_NVP(m_current_fitness_vec)
+		& BOOST_SERIALIZATION_NVP(m_worst_known_valids_vec);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -318,8 +318,8 @@ public:
 		typename std::enable_if<std::is_base_of<GPersonalityTraits, personality_type>::value>::type *dummy = nullptr
 	) {
 #ifdef DEBUG
-      // Check that pt_ptr_ actually points somewhere
-      if(!pt_ptr_) {
+      // Check that m_pt_ptr actually points somewhere
+      if(!m_pt_ptr) {
          glogger
          << "In GOptimizableEntity::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
          << "This should not happen." << std::endl
@@ -331,7 +331,7 @@ public:
 #endif /* DEBUG */
 
 		// Does error checks on the conversion internally
-		return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(pt_ptr_);
+		return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(m_pt_ptr);
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -458,11 +458,9 @@ protected:
 		, std::tuple<double, double> oldValue
 	) const {
 		if(this->getMaxMode()) {
-			if(std::get<pos>(newValue) < std::get<pos>(oldValue)) return true;
-			else return false;
+			return (std::get<pos>(newValue) < std::get<pos>(oldValue));
 		} else { // minimization
-			if(std::get<pos>(newValue) > std::get<pos>(oldValue)) return true;
-			else return false;
+			return (std::get<pos>(newValue) > std::get<pos>(oldValue));
 		}
 	}
 
@@ -477,11 +475,9 @@ protected:
 		, std::tuple<double, double> oldValue
 	) const {
 		if(this->getMaxMode()) {
-			if(std::get<pos>(newValue) > std::get<pos>(oldValue)) return true;
-			else return false;
+			return (std::get<pos>(newValue) > std::get<pos>(oldValue));
 		} else { // minimization
-			if(std::get<pos>(newValue) < std::get<pos>(oldValue)) return true;
-			else return false;
+			return (std::get<pos>(newValue) < std::get<pos>(oldValue));
 		}
 	}
 
@@ -492,46 +488,46 @@ private:
 
 	/***************************************************************************/
 	/** @brief The total number of fitness criteria */
-	std::size_t nFitnessCriteria_ = 1;
+	std::size_t m_n_fitness_criteria = 1;
 	/** @brief Holds this object's internal, raw and transformed fitness */
-	std::vector<std::tuple<double, double>> currentFitnessVec_;
+	std::vector<std::tuple<double, double>> m_current_fitness_vec;
 
 	/** @brief The worst known evaluation up to the current iteration */
-	std::vector<std::tuple<double, double>> worstKnownValids_;
+	std::vector<std::tuple<double, double>> m_worst_known_valids_vec;
 	/** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
-	Gem::Common::GLockVarT<bool> markedAsInvalidByUser_;
+	Gem::Common::GLockVarT<bool> m_marked_as_invalid_by_user;
 
 	/** @brief Holds the globally best known primary fitness of all individuals */
-	std::tuple<double, double> bestPastPrimaryFitness_;
+	std::tuple<double, double> m_best_past_primary_fitness;
 	/** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
-	std::uint32_t nStalls_ = 0;
+	std::uint32_t m_n_stalls = 0;
 	/** @brief Internal representation of the adaption status of this object */
-	boost::logic::tribool dirtyFlag_ = true; // boost::logic::indeterminate refers to "delayed evaluation"
+	boost::logic::tribool m_dirty_flag = true; // boost::logic::indeterminate refers to "delayed evaluation"
 	/** @brief Indicates whether we are running in maximization or minimization mode */
-	bool maximize_ = false;
+	bool m_maximize = false;
 	/** @brief The iteration of the parent algorithm's optimization cycle */
-	std::uint32_t assignedIteration_ = 0;
+	std::uint32_t m_assigned_iteration = 0;
 	/** @brief Indicates how valid a given solution is */
-	double validityLevel_ = 0.;
+	double m_validity_level = 0.;
 	/** @brief Holds the actual personality information */
-	std::shared_ptr<GPersonalityTraits> pt_ptr_;
+	std::shared_ptr<GPersonalityTraits> m_pt_ptr;
 
 	/** @brief Specifies what to do when the individual is marked as invalid */
-	evaluationPolicy evalPolicy_ = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;
+	evaluationPolicy m_eval_policy = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;
 	/** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
-	double steepness_ = Gem::Geneva::FITNESSSIGMOIDSTEEPNESS;
+	double m_sigmoid_steepness = Gem::Geneva::FITNESSSIGMOIDSTEEPNESS;
 	/** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
-	double barrier_ = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
+	double m_sigmoid_extremes = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
 
 	/** @brief A constraint-check to be applied to one or more components of this individual */
-	std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> individualConstraint_;
+	std::shared_ptr<GPreEvaluationValidityCheckT<GOptimizableEntity>> m_individual_constraint_ptr;
 
-	std::size_t maxUnsuccessfulAdaptions_ = Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
-	std::size_t maxRetriesUntilValid_ = Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
-	std::size_t nAdaptions_ = 0; ///< Stores the actual number of adaptions after a call to "adapt()"
+	std::size_t m_max_unsuccessful_adaptions = Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
+	std::size_t m_max_retries_until_valid = Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
+	std::size_t m_n_adaptions = 0; ///< Stores the actual number of adaptions after a call to "adapt()"
 
 	/** @brief A unique id that is assigned to an evaluation */
-	std::string evaluationID_ = "empty";
+	std::string m_evaluation_id = "empty";
 
 public:
 	/***************************************************************************/

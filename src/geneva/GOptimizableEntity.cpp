@@ -47,7 +47,7 @@ namespace Geneva {
  * class body.
  */
 GOptimizableEntity::GOptimizableEntity()
-	: GOptimizableEntity(1 /* nFitnessCriteria_ */)
+	: GOptimizableEntity(1 /* m_n_fitness_criteria */)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -63,11 +63,11 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t &nFitnessCriteria)
 	: GMutableI()
 	, GRateableI()
 	, GObject()
-	, nFitnessCriteria_(nFitnessCriteria ? nFitnessCriteria : 1) // Note: Thus function will silently assign a minimum of 1 to nFitnessCriteria_
-	, currentFitnessVec_(nFitnessCriteria_)
-	, worstKnownValids_(nFitnessCriteria_)
-	, markedAsInvalidByUser_(OE_NOT_MARKED_AS_INVALID) // Means: the object has not been marked as invalid by the user in the evaluation function
-	, bestPastPrimaryFitness_(std::make_tuple(0., 0.))
+	, m_n_fitness_criteria(nFitnessCriteria ? nFitnessCriteria : 1) // Note: Thus function will silently assign a minimum of 1 to m_n_fitness_criteria
+	, m_current_fitness_vec(m_n_fitness_criteria)
+	, m_worst_known_valids_vec(m_n_fitness_criteria)
+	, m_marked_as_invalid_by_user(OE_NOT_MARKED_AS_INVALID) // Means: the object has not been marked as invalid by the user in the evaluation function
+	, m_best_past_primary_fitness(std::make_tuple(0., 0.))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -80,29 +80,29 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity &cp)
 	: GMutableI(cp)
 	, GRateableI(cp)
 	, GObject(cp)
-	, nFitnessCriteria_(cp.nFitnessCriteria_)
-	, currentFitnessVec_(cp.currentFitnessVec_)
-	, worstKnownValids_(cp.worstKnownValids_)
-	, markedAsInvalidByUser_(cp.markedAsInvalidByUser_)
-	, bestPastPrimaryFitness_(cp.bestPastPrimaryFitness_)
-	, nStalls_(cp.nStalls_)
-	, dirtyFlag_(cp.dirtyFlag_)
-	, maximize_(cp.maximize_)
-	, assignedIteration_(cp.assignedIteration_)
-	, validityLevel_(cp.validityLevel_)
-	, evalPolicy_(cp.evalPolicy_)
-	, steepness_(cp.steepness_)
-	, barrier_(cp.barrier_)
-	, maxUnsuccessfulAdaptions_(cp.maxUnsuccessfulAdaptions_)
-	, maxRetriesUntilValid_(cp.maxRetriesUntilValid_)
-	, nAdaptions_(cp.nAdaptions_)
-	, evaluationID_(cp.evaluationID_)
+	, m_n_fitness_criteria(cp.m_n_fitness_criteria)
+	, m_current_fitness_vec(cp.m_current_fitness_vec)
+	, m_worst_known_valids_vec(cp.m_worst_known_valids_vec)
+	, m_marked_as_invalid_by_user(cp.m_marked_as_invalid_by_user)
+	, m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
+	, m_n_stalls(cp.m_n_stalls)
+	, m_dirty_flag(cp.m_dirty_flag)
+	, m_maximize(cp.m_maximize)
+	, m_assigned_iteration(cp.m_assigned_iteration)
+	, m_validity_level(cp.m_validity_level)
+	, m_eval_policy(cp.m_eval_policy)
+	, m_sigmoid_steepness(cp.m_sigmoid_steepness)
+	, m_sigmoid_extremes(cp.m_sigmoid_extremes)
+	, m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
+	, m_max_retries_until_valid(cp.m_max_retries_until_valid)
+	, m_n_adaptions(cp.m_n_adaptions)
+	, m_evaluation_id(cp.m_evaluation_id)
 {
 	// Copy the personality pointer over
-	Gem::Common::copyCloneableSmartPointer(cp.pt_ptr_, pt_ptr_);
+	Gem::Common::copyCloneableSmartPointer(cp.m_pt_ptr, m_pt_ptr);
 
 	// Make sure any constraints are copied over
-	Gem::Common::copyCloneableSmartPointer(cp.individualConstraint_, individualConstraint_);
+	Gem::Common::copyCloneableSmartPointer(cp.m_individual_constraint_ptr, m_individual_constraint_ptr);
 }
 
 /******************************************************************************/
@@ -177,25 +177,25 @@ void GOptimizableEntity::compare(
 	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(nFitnessCriteria_, p_load->nFitnessCriteria_), token);
-	compare_t(IDENTITY(currentFitnessVec_, p_load->currentFitnessVec_), token);
-	compare_t(IDENTITY(worstKnownValids_, p_load->worstKnownValids_), token);
-	compare_t(IDENTITY(markedAsInvalidByUser_, p_load->markedAsInvalidByUser_), token);
-	compare_t(IDENTITY(bestPastPrimaryFitness_, p_load->bestPastPrimaryFitness_), token);
-	compare_t(IDENTITY(nStalls_, p_load->nStalls_), token);
-	compare_t(IDENTITY(dirtyFlag_, p_load->dirtyFlag_), token);
-	compare_t(IDENTITY(maximize_, p_load->maximize_), token);
-	compare_t(IDENTITY(assignedIteration_, p_load->assignedIteration_), token);
-	compare_t(IDENTITY(validityLevel_, p_load->validityLevel_), token);
-	compare_t(IDENTITY(evalPolicy_, p_load->evalPolicy_), token);
-	compare_t(IDENTITY(pt_ptr_, p_load->pt_ptr_), token);
-	compare_t(IDENTITY(individualConstraint_, p_load->individualConstraint_), token);
-	compare_t(IDENTITY(steepness_, p_load->steepness_), token);
-	compare_t(IDENTITY(barrier_, p_load->barrier_), token);
-	compare_t(IDENTITY(maxUnsuccessfulAdaptions_, p_load->maxUnsuccessfulAdaptions_), token);
-	compare_t(IDENTITY(maxRetriesUntilValid_, p_load->maxRetriesUntilValid_), token);
-	compare_t(IDENTITY(nAdaptions_, p_load->nAdaptions_), token);
-	compare_t(IDENTITY(evaluationID_, p_load->evaluationID_), token);
+	compare_t(IDENTITY(m_n_fitness_criteria, p_load->m_n_fitness_criteria), token);
+	compare_t(IDENTITY(m_current_fitness_vec, p_load->m_current_fitness_vec), token);
+	compare_t(IDENTITY(m_worst_known_valids_vec, p_load->m_worst_known_valids_vec), token);
+	compare_t(IDENTITY(m_marked_as_invalid_by_user, p_load->m_marked_as_invalid_by_user), token);
+	compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
+	compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
+	compare_t(IDENTITY(m_dirty_flag, p_load->m_dirty_flag), token);
+	compare_t(IDENTITY(m_maximize, p_load->m_maximize), token);
+	compare_t(IDENTITY(m_assigned_iteration, p_load->m_assigned_iteration), token);
+	compare_t(IDENTITY(m_validity_level, p_load->m_validity_level), token);
+	compare_t(IDENTITY(m_eval_policy, p_load->m_eval_policy), token);
+	compare_t(IDENTITY(m_pt_ptr, p_load->m_pt_ptr), token);
+	compare_t(IDENTITY(m_individual_constraint_ptr, p_load->m_individual_constraint_ptr), token);
+	compare_t(IDENTITY(m_sigmoid_steepness, p_load->m_sigmoid_steepness), token);
+	compare_t(IDENTITY(m_sigmoid_extremes, p_load->m_sigmoid_extremes), token);
+	compare_t(IDENTITY(m_max_unsuccessful_adaptions, p_load->m_max_unsuccessful_adaptions), token);
+	compare_t(IDENTITY(m_max_retries_until_valid, p_load->m_max_retries_until_valid), token);
+	compare_t(IDENTITY(m_n_adaptions, p_load->m_n_adaptions), token);
+	compare_t(IDENTITY(m_evaluation_id, p_load->m_evaluation_id), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -225,7 +225,7 @@ void GOptimizableEntity::registerConstraint(
 	}
 
 	// We store clones, so individual objects do not share the same object
-	individualConstraint_ = c_ptr->GObject::clone<GPreEvaluationValidityCheckT<GOptimizableEntity>>();
+	m_individual_constraint_ptr = c_ptr->GObject::clone<GPreEvaluationValidityCheckT<GOptimizableEntity>>();
 }
 
 /******************************************************************************/
@@ -233,7 +233,7 @@ void GOptimizableEntity::registerConstraint(
  * Allows to set the policy to use in case this individual represents an invalid solution
  */
 void GOptimizableEntity::setEvaluationPolicy(evaluationPolicy evalPolicy) {
-	evalPolicy_ = evalPolicy;
+	m_eval_policy = evalPolicy;
 }
 
 /******************************************************************************/
@@ -241,7 +241,7 @@ void GOptimizableEntity::setEvaluationPolicy(evaluationPolicy evalPolicy) {
  * Allows to retrieve the current policy in case this individual represents an invalid solution
  */
 evaluationPolicy GOptimizableEntity::getEvaluationPolicy() const {
-	return evalPolicy_;
+	return m_eval_policy;
 }
 
 /******************************************************************************/
@@ -258,26 +258,26 @@ void GOptimizableEntity::load_(const GObject *cp) {
 	GObject::load_(cp);
 
 	// Then load our local data
-	nFitnessCriteria_ = p_load->nFitnessCriteria_;
-	currentFitnessVec_ = p_load->currentFitnessVec_;
-	worstKnownValids_ = p_load->worstKnownValids_;
-	markedAsInvalidByUser_.setValue((p_load->markedAsInvalidByUser_).value());
-	bestPastPrimaryFitness_ = p_load->bestPastPrimaryFitness_;
-	nStalls_ = p_load->nStalls_;
-	dirtyFlag_ = p_load->dirtyFlag_;
-	maximize_ = p_load->maximize_;
-	assignedIteration_ = p_load->assignedIteration_;
-	validityLevel_ = p_load->validityLevel_;
-	evalPolicy_ = p_load->evalPolicy_;
-	steepness_ = p_load->steepness_;
-	barrier_ = p_load->barrier_;
-	maxUnsuccessfulAdaptions_ = p_load->maxUnsuccessfulAdaptions_;
-	maxRetriesUntilValid_ = p_load->maxRetriesUntilValid_;
-	nAdaptions_ = p_load->nAdaptions_;
-	evaluationID_ = p_load->evaluationID_;
+	m_n_fitness_criteria = p_load->m_n_fitness_criteria;
+	m_current_fitness_vec = p_load->m_current_fitness_vec;
+	m_worst_known_valids_vec = p_load->m_worst_known_valids_vec;
+	m_marked_as_invalid_by_user.setValue((p_load->m_marked_as_invalid_by_user).value());
+	m_best_past_primary_fitness = p_load->m_best_past_primary_fitness;
+	m_n_stalls = p_load->m_n_stalls;
+	m_dirty_flag = p_load->m_dirty_flag;
+	m_maximize = p_load->m_maximize;
+	m_assigned_iteration = p_load->m_assigned_iteration;
+	m_validity_level = p_load->m_validity_level;
+	m_eval_policy = p_load->m_eval_policy;
+	m_sigmoid_steepness = p_load->m_sigmoid_steepness;
+	m_sigmoid_extremes = p_load->m_sigmoid_extremes;
+	m_max_unsuccessful_adaptions = p_load->m_max_unsuccessful_adaptions;
+	m_max_retries_until_valid = p_load->m_max_retries_until_valid;
+	m_n_adaptions = p_load->m_n_adaptions;
+	m_evaluation_id = p_load->m_evaluation_id;
 
-	Gem::Common::copyCloneableSmartPointer(p_load->pt_ptr_, pt_ptr_);
-	Gem::Common::copyCloneableSmartPointer(p_load->individualConstraint_, individualConstraint_);
+	Gem::Common::copyCloneableSmartPointer(p_load->m_pt_ptr, m_pt_ptr);
+	Gem::Common::copyCloneableSmartPointer(p_load->m_individual_constraint_ptr, m_individual_constraint_ptr);
 }
 
 /******************************************************************************/
@@ -298,7 +298,7 @@ std::size_t GOptimizableEntity::adapt() {
 	// of evolutionary algorithms, this process is indeed equivalent to
 	// a larger population, if invalid solutions were produced. The downside
 	// may be, that the algorithm moves closer to MUPLUSNU. Thus, if you find
-	// yourself stuck in local optima too often, consider setting maxRetriesUntilValid_
+	// yourself stuck in local optima too often, consider setting m_max_retries_until_valid
 	// to 0, using the appropriate function.
 	while (true) {
 		// Make sure at least one modification is performed. E.g., for low
@@ -314,14 +314,14 @@ std::size_t GOptimizableEntity::adapt() {
 			}
 
 			// Terminate, if the maximum number of adaptions has been exceeded
-			if (maxUnsuccessfulAdaptions_ > 0 && ++nAdaptionAttempts > maxUnsuccessfulAdaptions_) {
+			if (m_max_unsuccessful_adaptions > 0 && ++nAdaptionAttempts > m_max_unsuccessful_adaptions) {
 				break;
 			}
 		}
 
 		if (
 			this->parameterSetFulfillsConstraints(validity)
-			|| ++nInvalidAdaptions > maxRetriesUntilValid_
+			|| ++nInvalidAdaptions > m_max_retries_until_valid
 			) {
 			break;
 		}
@@ -331,7 +331,7 @@ std::size_t GOptimizableEntity::adapt() {
 	GOptimizableEntity::setDirtyFlag();
 
 	// Store the number of adaptions for later use
-	nAdaptions_ = nAdaptions;
+	m_n_adaptions = nAdaptions;
 
 	return nAdaptions;
 }
@@ -495,13 +495,13 @@ double GOptimizableEntity::fitness(
 	const std::size_t &id, bool reevaluationAllowed, bool useTransformedFitness
 ) {
 	// Check whether we need to recalculate the fitness
-	if (true == dirtyFlag_) {
+	if (true == m_dirty_flag) {
 		if (reevaluationAllowed) {
 			this->enforceFitnessUpdate();
 
 #ifdef DEBUG
          // Check if the dirty flag is still set. This should only happen in special cases
-         if(true==dirtyFlag_) { // Note that dirtyFlag_ may also assume the state boost::logic::indeterminate, if evaluation was delayed
+         if(true==m_dirty_flag) { // Note that m_dirty_flag may also assume the state boost::logic::indeterminate, if evaluation was delayed
             glogger
             << "In GOptimizableEntity::fitness(...): Error!" << std::endl
             << "Dirty flag is still set in a location where it shouldn't be" << std::endl
@@ -575,9 +575,9 @@ double GOptimizableEntity::getCachedFitness(
 	const std::size_t &id, const bool &useTransformedFitness
 ) const {
 	if (useTransformedFitness) {
-		return std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(id));
+		return std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(id));
 	} else {
-		return std::get<G_RAW_FITNESS>(currentFitnessVec_.at(id));
+		return std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(id));
 	}
 }
 
@@ -595,15 +595,15 @@ void GOptimizableEntity::registerSecondaryResult(
 	const std::size_t &id, const double &secondaryValue
 ) {
 #ifdef DEBUG
-   if(currentFitnessVec_.size() <= id || 0==id) {
+   if(m_current_fitness_vec.size() <= id || 0==id) {
       glogger
       << "In GOptimizableEntity::registerSecondaryResult(...): Error!" << std::endl
-      << "Invalid position in vector: " << id << " (expected min 1 and max " <<  currentFitnessVec_.size()-1 << ")" << std::endl
+      << "Invalid position in vector: " << id << " (expected min 1 and max " <<  m_current_fitness_vec.size()-1 << ")" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-	std::get<G_RAW_FITNESS>(currentFitnessVec_.at(id)) = secondaryValue;
+	std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(id)) = secondaryValue;
 }
 
 /******************************************************************************/
@@ -612,21 +612,21 @@ void GOptimizableEntity::registerSecondaryResult(
  */
 void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>()> f) {
 	// Assign a new evaluation id
-	evaluationID_ = std::string("eval_") + boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+	m_evaluation_id = std::string("eval_") + boost::lexical_cast<std::string>(boost::uuids::random_generator()());
 
 	// We start a new evaluation. Make sure the object isn't marked as invalid,
 	// and that this state cannot be changed.
-	markedAsInvalidByUser_.reset();
+	m_marked_as_invalid_by_user.reset();
 
 	// Find out, whether this is a valid solution
 	if (
 		this->parameterSetFulfillsConstraints(
-			validityLevel_) // Needs to be called first, or else the validityLevel_ will not be filled
-		|| evaluationPolicy::USESIMPLEEVALUATION == evalPolicy_
+			m_validity_level) // Needs to be called first, or else the m_validity_level will not be filled
+		|| evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy
 		) {
 		// Marking individuals as invalid happens inside of the user-supplied fitness
 		// calculation (if at all) so we want to reset the corresponding "invalid" flag
-		markedAsInvalidByUser_.unlockWithValue(OE_NOT_MARKED_AS_INVALID);
+		m_marked_as_invalid_by_user.unlockWithValue(OE_NOT_MARKED_AS_INVALID);
 
 		if (f) {
 			std::vector<double> fitnessVec = f();
@@ -643,7 +643,7 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 
 			// Assign the actual fitness values
 			for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(currentFitnessVec_.at(0)) = fitnessVec.at(i);
+				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(0)) = fitnessVec.at(i);
 			}
 
 
@@ -651,30 +651,30 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 			// Trigger actual fitness calculation using the user-supplied function. This will
 			// also register secondary "raw" fitness values used in multi-criterion optimization.
 			// Transformed values are taken care of below
-			std::get<G_RAW_FITNESS>(currentFitnessVec_.at(0)) = fitnessCalculation();
+			std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(0)) = fitnessCalculation();
 		}
 
 		// Lock setting of the variable again, so the invalidity state can only be changed
 		// upon re-calculation of the object's values
-		markedAsInvalidByUser_.lock();
+		m_marked_as_invalid_by_user.lock();
 
-		if (markedAsInvalidByUser_ || this->allRawResultsAtWorst()) { // Is this an invalid result ?
+		if (m_marked_as_invalid_by_user || this->allRawResultsAtWorst()) { // Is this an invalid result ?
 			// Fill the raw and transformed vectors with the worst case scenario. It is assumed
 			// here that marking entire solutions as invalid after the evaluation happens relatively
 			// rarely so that a flat "worst" quality surface for such solutions does not hinder
 			// progress of the optimization procedure too much
 			for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
-				std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
+				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
+				std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
 			}
 		} else { // This is a valid solution nonetheless
 			for (std::size_t i = 0; i < this->getNumberOfFitnessCriteria(); i++) {
-				if (evaluationPolicy::USESIGMOID == evalPolicy_) { // Update the fitness value to use sigmoidal values
-					std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) =
-						Gem::Common::gsigmoid(std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)), barrier_, steepness_);
+				if (evaluationPolicy::USESIGMOID == m_eval_policy) { // Update the fitness value to use sigmoidal values
+					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) =
+						Gem::Common::gsigmoid(std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)), m_sigmoid_extremes, m_sigmoid_steepness);
 				} else { // All other transformation policies leave valid solutions intact
-					std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = std::get<G_RAW_FITNESS>(
-						currentFitnessVec_.at(i));
+					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = std::get<G_RAW_FITNESS>(
+						m_current_fitness_vec.at(i));
 				}
 			}
 		}
@@ -684,49 +684,49 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 		setDirtyFlag(false);
 		//--------------
 	} else { // Some constraints were violated. Act on the chosen policy
-		if (evaluationPolicy::USEWORSTCASEFORINVALID == evalPolicy_) {
+		if (evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy) {
 			for (std::size_t i = 0; i < this->getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
-				std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
+				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
+				std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
 			}
 
 			// Clear the dirty flag -- all possible evaluation work was done
 			//--------------
 			setDirtyFlag(false);
 			//--------------
-		} else if (evaluationPolicy::USESIGMOID == evalPolicy_) {
+		} else if (evaluationPolicy::USESIGMOID == m_eval_policy) {
 			double uniformFitnessValue = 0.;
 			if (true == this->getMaxMode()) { // maximize
-				if (boost::numeric::bounds<double>::highest() == validityLevel_) {
+				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
 					uniformFitnessValue = this->getWorstCase();
 				} else {
-					uniformFitnessValue = -validityLevel_ * barrier_;
+					uniformFitnessValue = -m_validity_level * m_sigmoid_extremes;
 				}
 			} else { // minimize
-				if (boost::numeric::bounds<double>::highest() == validityLevel_) {
+				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
 					uniformFitnessValue = this->getWorstCase();
 				} else {
-					uniformFitnessValue = validityLevel_ * barrier_;
+					uniformFitnessValue = m_validity_level * m_sigmoid_extremes;
 				}
 			}
 
 			for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
-				std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = uniformFitnessValue;
+				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
+				std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = uniformFitnessValue;
 			}
 
 			// Clear the dirty flag -- all possible evaluation work was done
 			//--------------
 			setDirtyFlag(false);
 			//--------------
-		} else if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == evalPolicy_) {
+		} else if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == m_eval_policy) {
 			// Some of this will be reset later, in  GOptimizableEntity::postEvaluationUpdate().
 			// The caller needs to tell us about the worst solution known up to now. It is only
 			// known once all individuals of this iteration have been evaluated, i.e. not at this
 			// place.
 			for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
-				std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
+				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
+				std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
 			}
 
 			// As only place-holders have been stored in the fitness criteria, the individual
@@ -750,7 +750,7 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
  * @return The number of fitness criteria registered with this individual
  */
 std::size_t GOptimizableEntity::getNumberOfFitnessCriteria() const {
-	return nFitnessCriteria_;
+	return m_n_fitness_criteria;
 }
 
 /******************************************************************************/
@@ -763,10 +763,10 @@ std::size_t GOptimizableEntity::getNumberOfFitnessCriteria() const {
  * of existing values.
  */
 void GOptimizableEntity::setNumberOfFitnessCriteria(std::size_t nFitnessCriteria) {
-	if (nFitnessCriteria < nFitnessCriteria_) {
-		currentFitnessVec_.resize(nFitnessCriteria);
-		worstKnownValids_.resize(nFitnessCriteria);
-	} else if (nFitnessCriteria > nFitnessCriteria_) {
+	if (nFitnessCriteria < m_n_fitness_criteria) {
+		m_current_fitness_vec.resize(nFitnessCriteria);
+		m_worst_known_valids_vec.resize(nFitnessCriteria);
+	} else if (nFitnessCriteria > m_n_fitness_criteria) {
 		std::tuple<double, double> worstVal, bestVal;
 
 		std::get<G_RAW_FITNESS>(worstVal) = this->getWorstCase();
@@ -775,11 +775,11 @@ void GOptimizableEntity::setNumberOfFitnessCriteria(std::size_t nFitnessCriteria
 		std::get<G_RAW_FITNESS>(bestVal) = this->getBestCase();
 		std::get<G_TRANSFORMED_FITNESS>(bestVal) = this->getBestCase();
 
-		currentFitnessVec_.resize(nFitnessCriteria, worstVal);
-		worstKnownValids_.resize(nFitnessCriteria, bestVal);
+		m_current_fitness_vec.resize(nFitnessCriteria, worstVal);
+		m_worst_known_valids_vec.resize(nFitnessCriteria, bestVal);
 	} // else do nothing
 
-	nFitnessCriteria_ = nFitnessCriteria;
+	m_n_fitness_criteria = nFitnessCriteria;
 }
 
 /******************************************************************************/
@@ -841,7 +841,7 @@ void GOptimizableEntity::challengeWorstValidFitness(
  * Retrieve the fitness tuple at a given evaluation position.
  */
 std::tuple<double, double> GOptimizableEntity::getFitnessTuple(const std::uint32_t &id) const {
-	return currentFitnessVec_.at(id);
+	return m_current_fitness_vec.at(id);
 }
 
 /******************************************************************************/
@@ -859,24 +859,24 @@ void GOptimizableEntity::setFitness_(const std::vector<double> &f_vec) {
 #ifdef DEBUG
 	if(
       f_vec.size() != this->getNumberOfFitnessCriteria()
-	   || currentFitnessVec_.size() != this->getNumberOfFitnessCriteria()
+	   || m_current_fitness_vec.size() != this->getNumberOfFitnessCriteria()
 	) {
 	   glogger
 	   << "In GOptimizableEntity::setFitness_(...): Error!" << std::endl
       << "Invalid size of fitness vector: " << std::endl
-      << f_vec.size() << " / " << currentFitnessVec_.size() << " / expected: " << this->getNumberOfFitnessCriteria() << std::endl
+      << f_vec.size() << " / " << m_current_fitness_vec.size() << " / expected: " << this->getNumberOfFitnessCriteria() << std::endl
       << GEXCEPTION;
 	}
 #endif /* DEBUG */
 
 	for (std::size_t i = 0; i < this->getNumberOfFitnessCriteria(); i++) {
-		std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i)) = f_vec.at(i);
+		std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = f_vec.at(i);
 
 		// We need to update the transformed fitness for the USESIGMOID
 		// case. All other transformations are handled elsewhere.
-		std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) =
-			evaluationPolicy::USESIGMOID == evalPolicy_
-			? Gem::Common::gsigmoid(f_vec.at(i), barrier_, steepness_)
+		std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) =
+			evaluationPolicy::USESIGMOID == m_eval_policy
+			? Gem::Common::gsigmoid(f_vec.at(i), m_sigmoid_extremes, m_sigmoid_steepness)
 			: f_vec.at(i);
 	}
 
@@ -895,7 +895,7 @@ void GOptimizableEntity::setFitness_(const std::vector<double> &f_vec) {
  * Checks whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation
  */
 bool GOptimizableEntity::isClean() const {
-	if (true == dirtyFlag_ || boost::logic::indeterminate(dirtyFlag_)) {
+	if (true == m_dirty_flag || boost::logic::indeterminate(m_dirty_flag)) {
 		return false;
 	} else {
 		return true;
@@ -909,7 +909,7 @@ bool GOptimizableEntity::isClean() const {
  * @return The value of the dirtyFlag_ variable
  */
 bool GOptimizableEntity::isDirty() const {
-	return true == dirtyFlag_;
+	return true == m_dirty_flag;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -929,7 +929,7 @@ bool GOptimizableEntity::isDirty() const {
  * @param mode A boolean which indicates whether we want to work in maximization or minimization mode
  */
 void GOptimizableEntity::setMaxMode_(const bool &mode) {
-	maximize_ = mode;
+	m_maximize = mode;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -944,7 +944,7 @@ void GOptimizableEntity::setMaxMode_(const bool &mode) {
  * @return The current value of the maximize_ parameter
  */
 bool GOptimizableEntity::getMaxMode() const {
-	return maximize_;
+	return m_maximize;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -977,7 +977,7 @@ double GOptimizableEntity::getBestCase() const {
  * Retrieves the steepness_ variable (used for the sigmoid transformation)
  */
 double GOptimizableEntity::getSteepness() const {
-	return steepness_;
+	return m_sigmoid_steepness;
 }
 
 /******************************************************************************/
@@ -992,7 +992,7 @@ void GOptimizableEntity::setSteepness(double steepness) {
 		<< GEXCEPTION;
 	}
 
-	steepness_ = steepness;
+	m_sigmoid_steepness = steepness;
 }
 
 /******************************************************************************/
@@ -1000,7 +1000,7 @@ void GOptimizableEntity::setSteepness(double steepness) {
  * Retrieves the barrier_ variable (used for the sigmoid transformation)
  */
 double GOptimizableEntity::getBarrier() const {
-	return barrier_;
+	return m_sigmoid_extremes;
 }
 
 /******************************************************************************/
@@ -1015,7 +1015,7 @@ void GOptimizableEntity::setBarrier(double barrier) {
 		<< GEXCEPTION;
 	}
 
-	barrier_ = barrier;
+	m_sigmoid_extremes = barrier;
 }
 
 /******************************************************************************/
@@ -1026,7 +1026,7 @@ void GOptimizableEntity::setBarrier(double barrier) {
  * you would get an endless loop.
  */
 void GOptimizableEntity::setMaxUnsuccessfulAdaptions(std::size_t maxUnsuccessfulAdaptions) {
-	maxUnsuccessfulAdaptions_ = maxUnsuccessfulAdaptions;
+	m_max_unsuccessful_adaptions = maxUnsuccessfulAdaptions;
 }
 
 /******************************************************************************/
@@ -1035,7 +1035,7 @@ void GOptimizableEntity::setMaxUnsuccessfulAdaptions(std::size_t maxUnsuccessful
  * actual modifications
  */
 std::size_t GOptimizableEntity::getMaxUnsuccessfulAdaptions() const {
-	return maxUnsuccessfulAdaptions_;
+	return m_max_unsuccessful_adaptions;
 }
 
 /******************************************************************************/
@@ -1046,7 +1046,7 @@ std::size_t GOptimizableEntity::getMaxUnsuccessfulAdaptions() const {
 void GOptimizableEntity::setMaxRetriesUntilValid(
 	std::size_t maxRetriesUntilValid
 ) {
-	maxRetriesUntilValid_ = maxRetriesUntilValid;
+	m_max_retries_until_valid = maxRetriesUntilValid;
 }
 
 /******************************************************************************/
@@ -1055,7 +1055,7 @@ void GOptimizableEntity::setMaxRetriesUntilValid(
  * individuals until a valid individual was found.
  */
 std::size_t GOptimizableEntity::getMaxRetriesUntilValid() const {
-	return maxRetriesUntilValid_;
+	return m_max_retries_until_valid;
 }
 
 /******************************************************************************/
@@ -1064,7 +1064,7 @@ std::size_t GOptimizableEntity::getMaxRetriesUntilValid() const {
  * (or 0, if no adaptions were performed so far).
  */
 std::size_t GOptimizableEntity::getNAdaptions() const {
-	return nAdaptions_;
+	return m_n_adaptions;
 }
 
 /******************************************************************************/
@@ -1073,7 +1073,7 @@ std::size_t GOptimizableEntity::getNAdaptions() const {
  * has been set, the only way to reset it is to calculate the fitness of this object.
  */
 void GOptimizableEntity::setDirtyFlag() {
-	dirtyFlag_ = true;
+	m_dirty_flag = true;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1087,7 +1087,7 @@ void GOptimizableEntity::setDirtyFlag() {
  * Checks whether evaluation was delayed
  */
 bool GOptimizableEntity::evaluationDelayed() const {
-	if (boost::logic::indeterminate(dirtyFlag_)) {
+	if (boost::logic::indeterminate(m_dirty_flag)) {
 		return true;
 	} else {
 		return false;
@@ -1104,8 +1104,8 @@ bool GOptimizableEntity::evaluationDelayed() const {
 boost::logic::tribool GOptimizableEntity::setDirtyFlag(
 	const boost::logic::tribool &dirtyFlag
 ) {
-	bool previous = dirtyFlag_;
-	dirtyFlag_ = dirtyFlag;
+	bool previous = m_dirty_flag;
+	m_dirty_flag = dirtyFlag;
 	return previous;
 }
 
@@ -1129,7 +1129,7 @@ bool GOptimizableEntity::isValid() const {
 		<< GEXCEPTION;
 	}
 
-	if (validityLevel_ <= 1. && !markedAsInvalidByUser_ && !this->allRawResultsAtWorst()) {
+	if (m_validity_level <= 1. && !m_marked_as_invalid_by_user && !this->allRawResultsAtWorst()) {
 		return true;
 	} else {
 		return false;
@@ -1141,7 +1141,7 @@ bool GOptimizableEntity::isValid() const {
  * Checks whether this solution is invalid
  */
 bool GOptimizableEntity::isInValid() const {
-	if (validityLevel_ > 1. || markedAsInvalidByUser_ || this->allRawResultsAtWorst()) {
+	if (m_validity_level > 1. || m_marked_as_invalid_by_user || this->allRawResultsAtWorst()) {
 		return true;
 	} else {
 		return false;
@@ -1154,8 +1154,8 @@ bool GOptimizableEntity::isInValid() const {
  * function may be called prior to evaluation in order to check
  */
 bool GOptimizableEntity::parameterSetFulfillsConstraints(double &validityLevel) const {
-	if (individualConstraint_) {
-		return individualConstraint_->isValid(this, validityLevel);
+	if (m_individual_constraint_ptr) {
+		return m_individual_constraint_ptr->isValid(this, validityLevel);
 	} else { // Always valid, if no constraint object has been registered
 		validityLevel = 0.;
 		return true;
@@ -1171,7 +1171,7 @@ bool GOptimizableEntity::parameterSetFulfillsConstraints(double &validityLevel) 
  */
 bool GOptimizableEntity::allRawResultsAtWorst() const {
 	for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-		if (this->getWorstCase() != std::get<G_RAW_FITNESS>(currentFitnessVec_.at(i))) return false;
+		if (this->getWorstCase() != std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i))) return false;
 	}
 
 	// O.k., so all results are at their worst value
@@ -1183,7 +1183,7 @@ bool GOptimizableEntity::allRawResultsAtWorst() const {
  * Check how valid a given solution is
  */
 double GOptimizableEntity::getValidityLevel() const {
-	return validityLevel_;
+	return m_validity_level;
 }
 
 /******************************************************************************/
@@ -1191,7 +1191,7 @@ double GOptimizableEntity::getValidityLevel() const {
  * Checks whether all constraints were fulfilled
  */
 bool GOptimizableEntity::constraintsFulfilled() const {
-	if (validityLevel_ <= 1.) return true;
+	if (m_validity_level <= 1.) return true;
 	else return false;
 }
 
@@ -1204,7 +1204,7 @@ bool GOptimizableEntity::constraintsFulfilled() const {
 void GOptimizableEntity::setBestKnownPrimaryFitness(
 	const std::tuple<double, double> &bnf
 ) {
-	bestPastPrimaryFitness_ = bnf;
+	m_best_past_primary_fitness = bnf;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1219,7 +1219,7 @@ void GOptimizableEntity::setBestKnownPrimaryFitness(
  * @return The best known primary fitness so far
  */
 std::tuple<double, double> GOptimizableEntity::getBestKnownPrimaryFitness() const {
-	return bestPastPrimaryFitness_;
+	return m_best_past_primary_fitness;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1232,7 +1232,7 @@ std::tuple<double, double> GOptimizableEntity::getBestKnownPrimaryFitness() cons
  * Retrieve the id assigned to the current evaluation
  */
 std::string GOptimizableEntity::getCurrentEvaluationID() const {
-	return evaluationID_;
+	return m_evaluation_id;
 }
 
 /******************************************************************************/
@@ -1246,7 +1246,7 @@ std::string GOptimizableEntity::getCurrentEvaluationID() const {
 void GOptimizableEntity::setWorstKnownValid(
 	const std::vector<std::tuple<double, double>> &worstKnownValid
 ) {
-	worstKnownValids_ = worstKnownValid;
+	m_worst_known_valids_vec = worstKnownValid;
 }
 
 /******************************************************************************/
@@ -1260,11 +1260,11 @@ std::tuple<double, double> GOptimizableEntity::getWorstKnownValid(
 #ifdef DEBUG
    glogger
    << "In GOptimizableEntity::getWorstKnownValid(" << id << "): Error!" << std::endl
-   << "Expected id of max " << worstKnownValids_.size() - 1 << std::endl
+   << "Expected id of max " << m_worst_known_valids_vec.size() - 1 << std::endl
    << GEXCEPTION;
 #endif /* DEBUG */
 
-	return worstKnownValids_.at(id);
+	return m_worst_known_valids_vec.at(id);
 }
 
 /******************************************************************************/
@@ -1273,7 +1273,7 @@ std::tuple<double, double> GOptimizableEntity::getWorstKnownValid(
  * current iteration, as set by an external optimization algorithm
  */
 std::vector<std::tuple<double, double>> GOptimizableEntity::getWorstKnownValids() const {
-	return worstKnownValids_;
+	return m_worst_known_valids_vec;
 }
 
 /******************************************************************************/
@@ -1283,16 +1283,16 @@ std::vector<std::tuple<double, double>> GOptimizableEntity::getWorstKnownValids(
  */
 void GOptimizableEntity::populateWorstKnownValid() {
 #ifdef DEBUG
-   if(worstKnownValids_.size() != nFitnessCriteria_) {
+   if(m_worst_known_valids_vec.size() != m_n_fitness_criteria) {
       glogger
       << "In GOptimizableEntity::populateWorstKnownValid(): Error!" << std::endl
-      << "Invalid size of worstKnownValids_: " << worstKnownValids_.size() << " (expected " << nFitnessCriteria_ << ")" << std::endl
+      << "Invalid size of m_worst_known_valids_vec: " << m_worst_known_valids_vec.size() << " (expected " << m_n_fitness_criteria << ")" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-	for (std::size_t i = 0; i < nFitnessCriteria_; i++) {
-		worstKnownValids_.at(i) = std::tuple<double, double>(this->getBestCase(), this->getBestCase());
+	for (std::size_t i = 0; i < m_n_fitness_criteria; i++) {
+		m_worst_known_valids_vec.at(i) = std::tuple<double, double>(this->getBestCase(), this->getBestCase());
 	}
 }
 
@@ -1302,42 +1302,42 @@ void GOptimizableEntity::populateWorstKnownValid() {
  */
 void GOptimizableEntity::postEvaluationUpdate() {
 #ifdef DEBUG
-   if((nFitnessCriteria_) != currentFitnessVec_.size()) {
+   if((m_n_fitness_criteria) != m_current_fitness_vec.size()) {
       glogger
       << "In GOptimizableEntity::postEvaluationUpdate(): Error!" << std::endl
-      << "Number of expected fitness criteria " << nFitnessCriteria_ << " does not match actual number " << currentFitnessVec_.size() << std::endl
+      << "Number of expected fitness criteria " << m_n_fitness_criteria << " does not match actual number " << m_current_fitness_vec.size() << std::endl
       << GEXCEPTION;
    }
 
-   if(worstKnownValids_.empty()) {
+   if(m_worst_known_valids_vec.empty()) {
       glogger
       << "In GOptimizableEntity::postEvaluationUpdate(): Error!" << std::endl
-      << "worstKnownValids_ does not seem to be initialized" << std::endl
+      << "m_worst_known_valids_vec does not seem to be initialized" << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
-	if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == evalPolicy_ && this->isInValid()) {
-		if (true == maximize_) {
-			for (std::size_t i = 0; i < nFitnessCriteria_; i++) {
-				if (boost::numeric::bounds<double>::highest() == validityLevel_ ||
-					 boost::numeric::bounds<double>::lowest() == validityLevel_) {
-					std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
+	if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == m_eval_policy && this->isInValid()) {
+		if (true == m_maximize) {
+			for (std::size_t i = 0; i < m_n_fitness_criteria; i++) {
+				if (boost::numeric::bounds<double>::highest() == m_validity_level ||
+					 boost::numeric::bounds<double>::lowest() == m_validity_level) {
+					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
 				} else {
-					std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i))
-						= -(std::max)(std::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), (std::max)(barrier_, 1.)) *
-						  validityLevel_;
+					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i))
+						= -(std::max)(std::get<G_TRANSFORMED_FITNESS>(m_worst_known_valids_vec.at(i)), (std::max)(m_sigmoid_extremes, 1.)) *
+						  m_validity_level;
 				}
 			}
 		} else {
-			for (std::size_t i = 1; i < nFitnessCriteria_; i++) {
-				if (boost::numeric::bounds<double>::highest() == validityLevel_ ||
-					 boost::numeric::bounds<double>::lowest() == validityLevel_) {
-					std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i)) = this->getWorstCase();
+			for (std::size_t i = 1; i < m_n_fitness_criteria; i++) {
+				if (boost::numeric::bounds<double>::highest() == m_validity_level ||
+					 boost::numeric::bounds<double>::lowest() == m_validity_level) {
+					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
 				} else {
-					std::get<G_TRANSFORMED_FITNESS>(currentFitnessVec_.at(i))
-						= (std::max)(std::get<G_TRANSFORMED_FITNESS>(worstKnownValids_.at(i)), (std::max)(barrier_, 1.)) *
-						  validityLevel_;
+					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i))
+						= (std::max)(std::get<G_TRANSFORMED_FITNESS>(m_worst_known_valids_vec.at(i)), (std::max)(m_sigmoid_extremes, 1.)) *
+						  m_validity_level;
 				}
 			}
 		}
@@ -1358,7 +1358,7 @@ void GOptimizableEntity::postEvaluationUpdate() {
 double GOptimizableEntity::sumCombiner() const {
 	double result = 0.;
 	std::vector<std::tuple<double, double>>::const_iterator cit;
-	for (cit = currentFitnessVec_.begin(); cit != currentFitnessVec_.end(); ++cit) {
+	for (cit = m_current_fitness_vec.begin(); cit != m_current_fitness_vec.end(); ++cit) {
 		result += std::get<G_TRANSFORMED_FITNESS>(*cit);
 	}
 	return result;
@@ -1373,7 +1373,7 @@ double GOptimizableEntity::sumCombiner() const {
 double GOptimizableEntity::fabsSumCombiner() const {
 	double result = 0.;
 	std::vector<std::tuple<double, double>>::const_iterator cit;
-	for (cit = currentFitnessVec_.begin(); cit != currentFitnessVec_.end(); ++cit) {
+	for (cit = m_current_fitness_vec.begin(); cit != m_current_fitness_vec.end(); ++cit) {
 		result += fabs(std::get<G_TRANSFORMED_FITNESS>(*cit));
 	}
 	return result;
@@ -1390,7 +1390,7 @@ double GOptimizableEntity::fabsSumCombiner() const {
 double GOptimizableEntity::squaredSumCombiner() const {
 	double result = 0.;
 	std::vector<std::tuple<double, double>>::const_iterator cit;
-	for (cit = currentFitnessVec_.begin(); cit != currentFitnessVec_.end(); ++cit) {
+	for (cit = m_current_fitness_vec.begin(); cit != m_current_fitness_vec.end(); ++cit) {
 		result += GSQUARED(std::get<G_TRANSFORMED_FITNESS>(*cit));
 	}
 	return sqrt(result);
@@ -1410,16 +1410,16 @@ double GOptimizableEntity::weighedSquaredSumCombiner(const std::vector<double> &
 	std::vector<std::tuple<double, double>>::const_iterator cit_eval;
 	std::vector<double>::const_iterator cit_weights;
 
-	if (currentFitnessVec_.size() != weights.size()) {
+	if (m_current_fitness_vec.size() != weights.size()) {
 		glogger
 		<< "In GOptimizableEntity::weighedSquaredSumCombine(): Error!" << std::endl
-		<< "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: " << currentFitnessVec_.size() <<
+		<< "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: " << m_current_fitness_vec.size() <<
 		" / " << weights.size() << std::endl
 		<< GEXCEPTION;
 	}
 
-	for (cit_eval = currentFitnessVec_.begin(), cit_weights = weights.begin();
-		  cit_eval != currentFitnessVec_.end();
+	for (cit_eval = m_current_fitness_vec.begin(), cit_weights = weights.begin();
+		  cit_eval != m_current_fitness_vec.end();
 		  ++cit_eval, ++cit_weights
 		) {
 		result += GSQUARED((*cit_weights) * (std::get<G_TRANSFORMED_FITNESS>(*cit_eval)));
@@ -1434,8 +1434,8 @@ double GOptimizableEntity::weighedSquaredSumCombiner(const std::vector<double> &
  * from within the evaluation function)
  */
 void GOptimizableEntity::markAsInvalid() {
-	if (!markedAsInvalidByUser_.isLocked()) {
-		markedAsInvalidByUser_ = true;
+	if (!m_marked_as_invalid_by_user.isLocked()) {
+		m_marked_as_invalid_by_user = true;
 	} else {
 		glogger
 		<< "In GOptimizableEntity::markAsInvalid(): Error!" << std::endl
@@ -1451,7 +1451,7 @@ void GOptimizableEntity::markAsInvalid() {
  * Allows to check whether this solution was marked as invalid
  */
 bool GOptimizableEntity::markedAsInvalidByUser() const {
-	return markedAsInvalidByUser_;
+	return m_marked_as_invalid_by_user;
 }
 
 /******************************************************************************/
@@ -1546,7 +1546,7 @@ void GOptimizableEntity::addConfigurationOptions(
 	"1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions" <<
 	std::endl
 	<<
-	"2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations" <<
+	"2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations" <<
 	std::endl
 	<<
 	"3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise";
@@ -1588,7 +1588,7 @@ void GOptimizableEntity::addConfigurationOptions(
 
 
 
-	// maximize_ will be set in GParameterSet, as it has a different
+	// m_maximize will be set in GParameterSet, as it has a different
 	// meaning for optimization algorithms that also derive indirectly
 	// from this class.
 }
@@ -1611,7 +1611,7 @@ void GOptimizableEntity::setPersonality(
 	}
 
 	// Add the personality traits object to our local pointer
-	pt_ptr_ = gpt;
+	m_pt_ptr = gpt;
 }
 
 
@@ -1625,7 +1625,7 @@ void GOptimizableEntity::setPersonality(
  * Resets the current personality to PERSONALITY_NONE
  */
 void GOptimizableEntity::resetPersonality() {
-	pt_ptr_.reset();
+	m_pt_ptr.reset();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1638,8 +1638,8 @@ void GOptimizableEntity::resetPersonality() {
  * Retrieves the mnemonic used for the optimization of this object
  */
 std::string GOptimizableEntity::getMnemonic() const {
-	if(pt_ptr_) {
-		return pt_ptr_->getMnemonic();
+	if(m_pt_ptr) {
+		return m_pt_ptr->getMnemonic();
 	} else {
 		glogger
 			<< "In GOptimizableEntity::getMnemonic():" << std::endl
@@ -1659,8 +1659,8 @@ std::string GOptimizableEntity::getMnemonic() const {
  * @return An identifier for the current personality of this object
  */
 std::string GOptimizableEntity::getPersonality() const {
-	if (pt_ptr_) {
-		return pt_ptr_->name();
+	if (m_pt_ptr) {
+		return m_pt_ptr->name();
 	} else {
 		return std::string("PERSONALITY_NONE");
 	}
@@ -1682,7 +1682,7 @@ std::string GOptimizableEntity::getPersonality() const {
 std::shared_ptr <GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() {
 #ifdef DEBUG
 	// Do some error checking
-	if(!pt_ptr_) {
+	if(!m_pt_ptr) {
 	   glogger
 	   << "In GOptimizableEntity::getPersonalityTraits():" << std::endl
       << "Pointer to personality traits object is empty." << std::endl
@@ -1690,7 +1690,7 @@ std::shared_ptr <GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() 
 	}
 #endif
 
-	return pt_ptr_;
+	return m_pt_ptr;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1715,7 +1715,7 @@ std::size_t GOptimizableEntity::customAdaptions() BASE {
  * @param parentAlgIteration The current iteration of the optimization algorithm
  */
 void GOptimizableEntity::setAssignedIteration(const std::uint32_t &parentAlgIteration) {
-	assignedIteration_ = parentAlgIteration;
+	m_assigned_iteration = parentAlgIteration;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1730,7 +1730,7 @@ void GOptimizableEntity::setAssignedIteration(const std::uint32_t &parentAlgIter
  * @return The parent optimization algorithm's current iteration
  */
 std::uint32_t GOptimizableEntity::getAssignedIteration() const {
-	return assignedIteration_;
+	return m_assigned_iteration;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1745,7 +1745,7 @@ std::uint32_t GOptimizableEntity::getAssignedIteration() const {
  * @param nStalls The number of optimization cycles without improvement in the parent algorithm
  */
 void GOptimizableEntity::setNStalls(const std::uint32_t &nStalls) {
-	nStalls_ = nStalls;
+	m_n_stalls = nStalls;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1760,7 +1760,7 @@ void GOptimizableEntity::setNStalls(const std::uint32_t &nStalls) {
  * @return The number of optimization cycles without improvement in the parent algorithm
  */
 std::uint32_t GOptimizableEntity::getNStalls() const {
-	return nStalls_;
+	return m_n_stalls;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1790,7 +1790,7 @@ bool GOptimizableEntity::modify_GUnitTests() {
 	// parameters directly here in this class.
 
 	// A relatively harmless change
-	nStalls_++;
+	m_n_stalls++;
 
 	return result;
 
