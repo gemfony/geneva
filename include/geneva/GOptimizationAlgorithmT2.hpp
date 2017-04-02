@@ -247,14 +247,14 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Performs the necessary administratory work of doing check-pointing
+	  * Triggers saving of a checkpoint file dependimg om user-settings
 	  *
 	  * @param better A boolean which indicates whether a better result was found
 	  */
 	 void checkpoint(const bool& better) const {
 		 // Save checkpoints if required by the user
-		 if(m_cp_interval < 0 && better) saveCheckpoint();
-		 else if(m_cp_interval && m_iteration%m_cp_interval == 0) saveCheckpoint();
+		 if(m_cp_interval < 0 && better) saveCheckpoint(); // Only save when a better solution was found
+		 else if(m_cp_interval > 0 && m_iteration%m_cp_interval == 0) saveCheckpoint(); // Save in regular intervals
 	 }
 
 	 /***************************************************************************/
