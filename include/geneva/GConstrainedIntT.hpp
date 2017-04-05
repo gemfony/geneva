@@ -190,7 +190,7 @@ public:
 	 * @param  cp A constant reference to another GConstrainedNumT<int_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GConstrainedNumT<int_type>& cp) const {
+	bool operator==(const GConstrainedIntT<int_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -207,7 +207,7 @@ public:
 	 * @param  cp A constant reference to another GConstrainedNumT<int_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GConstrainedNumT<int_type>& cp) const {
+	bool operator!=(const GConstrainedIntT<int_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);

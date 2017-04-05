@@ -361,7 +361,7 @@ public:
 			// Check that the object has indeed changed
 			BOOST_CHECK(*p_test1 != *p_test2);
 
-			// Check that each value is different and that the values of p_test1 are inside of the allowed boundaroes
+			// Check that each value is different and that the values of p_test1 are inside of the allowed boundaries
 			for(std::size_t i=0; i<nItems; i++) {
 				BOOST_CHECK(p_test1->at(i) != p_test2->at(i));
 				BOOST_CHECK(p_test1->at(i) >= LOWERINITBOUNDARY);
@@ -461,7 +461,7 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test addition of other GFPNumCollectionT<fp_type> objets
+		{ // Test addition of other GFPNumCollectionT<fp_type> objects
 			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
@@ -503,7 +503,7 @@ public:
 
 		//------------------------------------------------------------------------------
 
-		{ // Test subtraction of other GFPNumCollectionT<fp_type> objets
+		{ // Test subtraction of other GFPNumCollectionT<fp_type> objects
 			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
 			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type>>();

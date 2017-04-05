@@ -204,7 +204,7 @@ public:
 
 		 // The expected number of work items from the current iteration is
 		 // equal to the number of unprocessed items
-		 m_expectedNumber = std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED);
+		 m_expectedNumber = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
 		 // Take care of a situation where no items have been submitted
 		 if (m_expectedNumber == 0) {
 			 return true;
@@ -227,7 +227,7 @@ public:
 		 this->iterationFinalize(workItems, workItemPos, oldWorkItems);
 
 		 // Find out about the number of returned items
-		 m_notReturnedLast = std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED);
+		 m_notReturnedLast = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
 		 m_returnedLast    = m_expectedNumber - m_notReturnedLast;
 
 		 if (m_returnedLast == 0) { // Check whether any work items have returned at all
@@ -1187,15 +1187,6 @@ protected:
 				 completed = this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
 				 break;
 
-				 //------------------------------------------------------------------
-				 // Fallback
-			 default: {
-				 glogger
-					 << "In GBrokerExecutorT<>::waitForReturn(): Error!" << std::endl
-					 << "Encountered an invalid submission return mode: " << m_srm << std::endl
-					 << GEXCEPTION;
-			 }
-				 break;
 				 //------------------------------------------------------------------
 		 }
 

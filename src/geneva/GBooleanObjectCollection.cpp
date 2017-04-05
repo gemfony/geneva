@@ -344,7 +344,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		std::size_t nTrue = 0, nFalse = 0;
 		for (std::size_t i = 0; i < nTests; i++) {
-			gboc.at(i)->value() == true ? nTrue++ : nFalse++;
+			gboc.at(i)->value() ? nTrue++ : nFalse++;
 		}
 
 		// We allow a slight deviation, as the initialization is a random process

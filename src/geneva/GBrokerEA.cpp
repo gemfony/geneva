@@ -317,11 +317,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 			oldWorkItems_.begin()
 			, oldWorkItems_.end()
 			, [&iteration](std::shared_ptr<GParameterSet> x) -> bool {
-				if(x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration) {
-					return true;
-				} else {
-					return false;
-				}
+				return x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 			}
 		)
 		, oldWorkItems_.end()
