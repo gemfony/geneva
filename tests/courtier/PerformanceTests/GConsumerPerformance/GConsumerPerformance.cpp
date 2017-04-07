@@ -32,6 +32,14 @@
  * http://www.gemfony.eu .
  */
 
+/**
+ * TODO:
+ * - Give clients the option not to return data
+ * - Make the submitter optionally check for complete returns
+ * - Make the submitter optionally return statistics of completed returns
+ * - Program does not terminate correctly
+ */
+
 #include <vector>
 #include <functional>
 #include <thread>
@@ -207,10 +215,10 @@ bool parseCommandLine(
 	gpb.registerCLParameter<bool>(
 		"useDirectBrokerConnection"
 		, useDirectBrokerConnection
-		, DEFAULTUSEDIRECTBROKERCONNECTIONAP // Use client mode, if no server option is specified
+		, DEFAULTUSEDIRECTBROKERCONNECTIONAP // Use connector object, if the option wasn't specified
 		, "Indicates whether producers should connect directly to the broker or through the broker connector object"
 		, true // Permit implicit values
-		, true // Use server mode, if only -u or --useDirectBrokerConnection was specified
+		, true // Use direct connection, if only --useDirectBrokerConnection was specified
 	);
 
 	gpb.registerCLParameter<std::uint32_t>(
