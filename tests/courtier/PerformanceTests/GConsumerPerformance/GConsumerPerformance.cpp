@@ -67,7 +67,7 @@ using namespace Gem::Common;
  * This enum defines the available execution modes of the GBrokerSelfCommunication
  * example
  */
-enum class GBSCModes : Gem::Common::ENUMBASETYPE {
+enum class GCPModes : Gem::Common::ENUMBASETYPE {
 	 SERIAL = 0
 	 , MULTITHREADING = 1
 	 , INTERNALSERIALNETWORKING = 2
@@ -80,7 +80,7 @@ enum class GBSCModes : Gem::Common::ENUMBASETYPE {
 	 , THREAEDANDASYNCNETWORKING = 9
 };
 
-const GBSCModes MAXGBSCMODES = GBSCModes::THREAEDANDSERIALNETWORKING;
+const GCPModes MAXGCPMODES = GCPModes::THREAEDANDSERIALNETWORKING;
 
 /********************************************************************************/
 /**
@@ -90,7 +90,7 @@ const GBSCModes MAXGBSCMODES = GBSCModes::THREAEDANDSERIALNETWORKING;
  * @param gbscmode the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream& operator<<(std::ostream& o, const GBSCModes& gbscmode) {
+std::ostream& operator<<(std::ostream& o, const GCPModes& gbscmode) {
 	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(gbscmode);
 	o << tmp;
 	return o;
@@ -104,14 +104,14 @@ std::ostream& operator<<(std::ostream& o, const GBSCModes& gbscmode) {
  * @param gbscmode The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream& operator>>(std::istream& i, GBSCModes& gbscmode) {
+std::istream& operator>>(std::istream& i, GCPModes& gbscmode) {
 	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	gbscmode = boost::numeric_cast<GBSCModes>(tmp);
+	gbscmode = boost::numeric_cast<GCPModes>(tmp);
 #else
-	gbscmode = static_cast<GBSCModes>(tmp);
+	gbscmode = static_cast<GCPModes>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -126,7 +126,7 @@ const std::size_t DEFAULTMAXRESUBMISSIONSAP = 5;
 const std::uint32_t DEFAULTNCONTAINEROBJECTSAP = 100;
 const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;
 const std::uint32_t DEFAULTNWORKERSAP = 4;
-const GBSCModes DEFAULTEXECUTIONMODEAP = GBSCModes::MULTITHREADING;
+const GCPModes DEFAULTEXECUTIONMODEAP = GCPModes::MULTITHREADING;
 const unsigned short DEFAULTPORTAP=10000;
 const std::string DEFAULTIPAP="localhost";
 const std::string DEFAULTCONFIGFILEAP="./GConsumerPerformance.cfg";
@@ -140,7 +140,7 @@ const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, GBSCModes &executionMode
+	, GCPModes &executionMode
 	, bool &serverMode
 	, std::string &ip
 	, unsigned short &port
@@ -157,7 +157,7 @@ bool parseCommandLine(
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
 
-	gpb.registerCLParameter<GBSCModes>(
+	gpb.registerCLParameter<GCPModes>(
 		"executionMode,e"
 		, executionMode
 		, DEFAULTEXECUTIONMODEAP
@@ -231,7 +231,7 @@ bool parseCommandLine(
 		"nContainerObjects"
 		, nContainerObjects
 		, DEFAULTNCONTAINEROBJECTSAP
-		, "The number of contaoner objects / work item prduced in one go"
+		, "The number of container objects / work item prduced in one go"
 	);
 
 	gpb.registerCLParameter<std::size_t>(
@@ -399,7 +399,7 @@ int main(int argc, char **argv) {
 	std::uint32_t nContainerObjects;
 	std::size_t nContainerEntries;
 	std::uint32_t nWorkers;
-	GBSCModes executionMode;
+	GCPModes executionMode;
 	bool useDirectBrokerConnection;
 	std::vector<std::shared_ptr<GBaseClientT<WORKLOAD>>> clients;
 
@@ -436,7 +436,7 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// If we are in serial networked client mode, start corresponding the client code
-	if((executionMode==GBSCModes::EXTERNALSERIALNETWORKING || executionMode==GBSCModes::THREAEDANDSERIALNETWORKING) && !serverMode) {
+	if((executionMode==GCPModes::EXTERNALSERIALNETWORKING || executionMode==GCPModes::THREAEDANDSERIALNETWORKING) && !serverMode) {
 		std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
@@ -450,7 +450,7 @@ int main(int argc, char **argv) {
 
 	//--------------------------------------------------------------------------------
 	// If we are in async networked client mode, start corresponding the client code
-	if((executionMode==GBSCModes::EXTERNALASYNCNETWORKING || executionMode==GBSCModes::THREAEDANDASYNCNETWORKING) && !serverMode) {
+	if((executionMode==GCPModes::EXTERNALASYNCNETWORKING || executionMode==GCPModes::THREAEDANDASYNCNETWORKING) && !serverMode) {
 		std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
@@ -491,7 +491,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Add the desired consumers to the broker
 	switch(executionMode) {
-		case GBSCModes::SERIAL:
+		case GCPModes::SERIAL:
 		{
 			std::cout << "Using a serial consumer" << std::endl;
 
@@ -501,7 +501,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::MULTITHREADING:
+		case GCPModes::MULTITHREADING:
 		{
 			std::cout << "Using the multithreaded mode" << std::endl;
 
@@ -512,7 +512,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::INTERNALSERIALNETWORKING:
+		case GCPModes::INTERNALSERIALNETWORKING:
 		{
 			std::cout << "Using internal serial networking" << std::endl;
 
@@ -531,7 +531,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::EXTERNALSERIALNETWORKING:
+		case GCPModes::EXTERNALSERIALNETWORKING:
 		{
 			std::cout << "Using external serial networked mode" << std::endl;
 
@@ -541,7 +541,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::THREADANDINTERNALSERIALNETWORKING:
+		case GCPModes::THREADANDINTERNALSERIALNETWORKING:
 		{
 			std::cout << "Using multithreading and internal serial networking" << std::endl;
 
@@ -562,7 +562,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::THREAEDANDSERIALNETWORKING:
+		case GCPModes::THREAEDANDSERIALNETWORKING:
 		{
 			std::cout << "Using multithreading and external serial networked mode" << std::endl;
 
@@ -574,7 +574,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::INTERNALASYNCNETWORKING:
+		case GCPModes::INTERNALASYNCNETWORKING:
 		{
 			std::cout << "Using internal async networking" << std::endl;
 
@@ -593,7 +593,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::EXTERNALASYNCNETWORKING:
+		case GCPModes::EXTERNALASYNCNETWORKING:
 		{
 			std::cout << "Using external async networked mode" << std::endl;
 
@@ -603,7 +603,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::THREADANDINTERNALASYNCNETWORKING:
+		case GCPModes::THREADANDINTERNALASYNCNETWORKING:
 		{
 			std::cout << "Using multithreading and internal async networking" << std::endl;
 
@@ -624,7 +624,7 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::THREAEDANDASYNCNETWORKING:
+		case GCPModes::THREAEDANDASYNCNETWORKING:
 		{
 			std::cout << "Using multithreading and external async networked mode" << std::endl;
 
@@ -642,10 +642,10 @@ int main(int argc, char **argv) {
 	connectorProducer_gtg.join_all();
 
 	if(
-		executionMode == GBSCModes::INTERNALSERIALNETWORKING
-		|| executionMode == GBSCModes::THREADANDINTERNALSERIALNETWORKING
-		|| executionMode == GBSCModes::INTERNALASYNCNETWORKING
-		|| executionMode == GBSCModes::THREADANDINTERNALASYNCNETWORKING
+		executionMode == GCPModes::INTERNALSERIALNETWORKING
+		|| executionMode == GCPModes::THREADANDINTERNALSERIALNETWORKING
+		|| executionMode == GCPModes::INTERNALASYNCNETWORKING
+		|| executionMode == GCPModes::THREADANDINTERNALASYNCNETWORKING
 	) {
 		worker_gtg.join_all();
 	}
