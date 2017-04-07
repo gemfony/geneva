@@ -62,6 +62,8 @@ The main changes for this release include:
  - Renamed GBoostThreadConsumerT to GStdThreadConsumerT, as it is now based on std::thread
  - Gave Go2 a new command line option --maxClientDuration which allows to limit the maximum runtime
    of a client. Note that the actual runtime may be longer, as a running workload will not be interrupted.
+ - Renamed the GBrokerSelfCommunication-test to GConsumerPerformance and added the new ws-consumer for
+   debugging purposes
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

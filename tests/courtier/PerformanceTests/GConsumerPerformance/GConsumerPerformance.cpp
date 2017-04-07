@@ -1,5 +1,5 @@
 /**
- * @file GBrokerSelfCommunication.cpp
+ * @file GConsumerPerformance.cpp
  */
 
 /*
@@ -69,14 +69,18 @@ using namespace Gem::Common;
  */
 enum class GBSCModes : Gem::Common::ENUMBASETYPE {
 	 SERIAL = 0
-	 , INTERNALNETWORKING = 1
-	 , NETWORKING = 2
-	 , MULTITHREADING = 3
-	 , THREADANDINTERNALNETWORKING = 4
-	 , THREAEDANDNETWORKING = 5
+	 , MULTITHREADING = 1
+	 , INTERNALSERIALNETWORKING = 2
+	 , EXTERNALSERIALNETWORKING = 3
+	 , THREADANDINTERNALSERIALNETWORKING = 4
+	 , THREAEDANDSERIALNETWORKING = 5
+	 , INTERNALASYNCNETWORKING = 6
+	 , EXTERNALASYNCNETWORKING = 7
+	 , THREADANDINTERNALASYNCNETWORKING = 8
+	 , THREAEDANDASYNCNETWORKING = 9
 };
 
-const GBSCModes MAXGBSCMODES = GBSCModes::THREAEDANDNETWORKING;
+const GBSCModes MAXGBSCMODES = GBSCModes::THREAEDANDSERIALNETWORKING;
 
 /********************************************************************************/
 /**
@@ -125,7 +129,7 @@ const std::uint32_t DEFAULTNWORKERSAP = 4;
 const GBSCModes DEFAULTEXECUTIONMODEAP = GBSCModes::MULTITHREADING;
 const unsigned short DEFAULTPORTAP=10000;
 const std::string DEFAULTIPAP="localhost";
-const std::string DEFAULTCONFIGFILEAP="./GBrokerSelfCommunication.cfg";
+const std::string DEFAULTCONFIGFILEAP="./GConsumerPerformance.cfg";
 const std::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
 const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
 const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
@@ -157,7 +161,9 @@ bool parseCommandLine(
 		"executionMode,e"
 		, executionMode
 		, DEFAULTEXECUTIONMODEAP
-		, "\"Whether to run this program with a serial consumer (0), with internal networking (1), networking (2), multi-threaded (3), multithreaded and internal networking (4) or multithreaded and networked mode (5)\""
+		, "Whether to run this program with a serial consumer (0), multi-threaded (1), internal serial networking (2), serial networking (3), "
+			"multithreaded and internal serial networking (4), multithreaded and serial networked mode (5),"
+			"internal async networking (6), async networking (7), multithreaded and internal async networking (8) or multithreaded and async networking (9)"
 	);
 
 	gpb.registerCLParameter<bool>(
@@ -395,7 +401,7 @@ int main(int argc, char **argv) {
 	std::uint32_t nWorkers;
 	GBSCModes executionMode;
 	bool useDirectBrokerConnection;
-	std::vector<std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> > clients;
+	std::vector<std::shared_ptr<GBaseClientT<WORKLOAD>>> clients;
 
 	// Initialize the global producer counter
 	producer_counter = 0;
@@ -429,9 +435,23 @@ int main(int argc, char **argv) {
 	GBROKER(WORKLOAD)->init();
 
 	//--------------------------------------------------------------------------------
-	// If we are in (networked) client mode, start the client code
-	if((executionMode==GBSCModes::NETWORKING || executionMode==GBSCModes::THREAEDANDNETWORKING) && !serverMode) {
+	// If we are in serial networked client mode, start corresponding the client code
+	if((executionMode==GBSCModes::EXTERNALSERIALNETWORKING || executionMode==GBSCModes::THREAEDANDSERIALNETWORKING) && !serverMode) {
 		std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
+
+		p->setMaxStalls(0); // An infinite number of stalled data retrievals
+		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
+
+		// Start the actual processing loop
+		p->run();
+
+		return 0;
+	}
+
+	//--------------------------------------------------------------------------------
+	// If we are in async networked client mode, start corresponding the client code
+	if((executionMode==GBSCModes::EXTERNALASYNCNETWORKING || executionMode==GBSCModes::THREAEDANDASYNCNETWORKING) && !serverMode) {
+		std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
 		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -481,35 +501,6 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::INTERNALNETWORKING:
-		{
-			std::cout << "Using internal networking" << std::endl;
-
-			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>((unsigned short)10000));
-			GBROKER(WORKLOAD)->enrol(gatc);
-
-			// Start the workers
-			clients.clear();
-			for(std::size_t worker=0; worker<nWorkers; worker++) {
-				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", "10000"));
-				clients.push_back(p);
-
-				worker_gtg.create_thread( [p](){ p->run(); } );
-			}
-		}
-			break;
-
-		case GBSCModes::NETWORKING:
-		{
-			std::cout << "Using networked mode" << std::endl;
-
-			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
-			GBROKER(WORKLOAD)->enrol(gatc);
-		}
-			break;
-
 		case GBSCModes::MULTITHREADING:
 		{
 			std::cout << "Using the multithreaded mode" << std::endl;
@@ -521,11 +512,40 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::THREADANDINTERNALNETWORKING:
+		case GBSCModes::INTERNALSERIALNETWORKING:
 		{
-			std::cout << "Using multithreading and internal networking" << std::endl;
+			std::cout << "Using internal serial networking" << std::endl;
 
-			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>((unsigned short)10000));
+			// Create a network consumer and enrol it with the broker
+			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
+			GBROKER(WORKLOAD)->enrol(gatc);
+
+			// Start the workers
+			clients.clear();
+			for(std::size_t worker=0; worker<nWorkers; worker++) {
+				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", boost::lexical_cast<std::string>(port)));
+				clients.push_back(p);
+
+				worker_gtg.create_thread( [p](){ p->run(); } );
+			}
+		}
+			break;
+
+		case GBSCModes::EXTERNALSERIALNETWORKING:
+		{
+			std::cout << "Using external serial networked mode" << std::endl;
+
+			// Create a network consumer and enrol it with the broker
+			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
+			GBROKER(WORKLOAD)->enrol(gatc);
+		}
+			break;
+
+		case GBSCModes::THREADANDINTERNALSERIALNETWORKING:
+		{
+			std::cout << "Using multithreading and internal serial networking" << std::endl;
+
+			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
 			std::shared_ptr< GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
 
 			GBROKER(WORKLOAD)->enrol(gatc);
@@ -534,7 +554,7 @@ int main(int argc, char **argv) {
 			// Start the workers
 			clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", "10000"));
+				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", boost::lexical_cast<std::string>(port)));
 				clients.push_back(p);
 
 				worker_gtg.create_thread( [p](){ p->run(); } );
@@ -542,9 +562,9 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		case GBSCModes::THREAEDANDNETWORKING:
+		case GBSCModes::THREAEDANDSERIALNETWORKING:
 		{
-			std::cout << "Using multithreading and the networked mode" << std::endl;
+			std::cout << "Using multithreading and external serial networked mode" << std::endl;
 
 			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
 			std::shared_ptr< GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
@@ -554,11 +574,65 @@ int main(int argc, char **argv) {
 		}
 			break;
 
-		default:
+		case GBSCModes::INTERNALASYNCNETWORKING:
 		{
-			raiseException(
-				"Error: Invalid execution mode requested: " << executionMode << std::endl
-			);
+			std::cout << "Using internal async networking" << std::endl;
+
+			// Create a network consumer and enrol it with the broker
+			std::shared_ptr<GAsioAsyncTCPConsumerT<WORKLOAD>> gatc(new GAsioAsyncTCPConsumerT<WORKLOAD>(port));
+			GBROKER(WORKLOAD)->enrol(gatc);
+
+			// Start the workers
+			clients.clear();
+			for(std::size_t worker=0; worker<nWorkers; worker++) {
+				std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>("localhost", boost::lexical_cast<std::string>(port)));
+				clients.push_back(p);
+
+				worker_gtg.create_thread( [p](){ p->run(); } );
+			}
+		}
+			break;
+
+		case GBSCModes::EXTERNALASYNCNETWORKING:
+		{
+			std::cout << "Using external async networked mode" << std::endl;
+
+			// Create a network consumer and enrol it with the broker
+			std::shared_ptr<GAsioAsyncTCPConsumerT<WORKLOAD>> gatc(new GAsioAsyncTCPConsumerT<WORKLOAD>(port));
+			GBROKER(WORKLOAD)->enrol(gatc);
+		}
+			break;
+
+		case GBSCModes::THREADANDINTERNALASYNCNETWORKING:
+		{
+			std::cout << "Using multithreading and internal async networking" << std::endl;
+
+			std::shared_ptr<GAsioAsyncTCPConsumerT<WORKLOAD>> gatc(new GAsioAsyncTCPConsumerT<WORKLOAD>(port));
+			std::shared_ptr<GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
+
+			GBROKER(WORKLOAD)->enrol(gatc);
+			GBROKER(WORKLOAD)->enrol(gbtc);
+
+			// Start the workers
+			clients.clear();
+			for(std::size_t worker=0; worker<nWorkers; worker++) {
+				std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>("localhost", boost::lexical_cast<std::string>(port)));
+				clients.push_back(p);
+
+				worker_gtg.create_thread( [p](){ p->run(); } );
+			}
+		}
+			break;
+
+		case GBSCModes::THREAEDANDASYNCNETWORKING:
+		{
+			std::cout << "Using multithreading and external async networked mode" << std::endl;
+
+			std::shared_ptr<GAsioAsyncTCPConsumerT<WORKLOAD>> gatc(new GAsioAsyncTCPConsumerT<WORKLOAD>(port));
+			std::shared_ptr<GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
+
+			GBROKER(WORKLOAD)->enrol(gatc);
+			GBROKER(WORKLOAD)->enrol(gbtc);
 		}
 			break;
 	};
@@ -568,8 +642,10 @@ int main(int argc, char **argv) {
 	connectorProducer_gtg.join_all();
 
 	if(
-		executionMode == GBSCModes::INTERNALNETWORKING ||
-		executionMode == GBSCModes::THREADANDINTERNALNETWORKING
+		executionMode == GBSCModes::INTERNALSERIALNETWORKING
+		|| executionMode == GBSCModes::THREADANDINTERNALSERIALNETWORKING
+		|| executionMode == GBSCModes::INTERNALASYNCNETWORKING
+		|| executionMode == GBSCModes::THREADANDINTERNALASYNCNETWORKING
 	) {
 		worker_gtg.join_all();
 	}

@@ -33,7 +33,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(GBrokerSelfCommunication)
+	PROJECT(GConsumerPerformance)
 
 	# For building the tests independently, we still assume that the
 	# current source folder is still part of the Geneva tree structure,
@@ -46,10 +46,10 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-SET ( EXECUTABLENAME GBrokerSelfCommunication )
+SET ( EXECUTABLENAME GConsumerPerformance )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GBrokerSelfCommunication
+	GConsumerPerformance
 	../../Misc/GRandomNumberContainer
 	../../Misc/GSimpleContainer
 )
