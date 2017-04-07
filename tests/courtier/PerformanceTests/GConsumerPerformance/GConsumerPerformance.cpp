@@ -37,7 +37,7 @@
  * - Give clients the option not to return data
  * - Make the submitter optionally check for complete returns
  * - Make the submitter optionally return statistics of completed returns
- * - Program does not terminate correctly
+ * - Catch "In GAsioAsyncServerSessionT::process(): Caught boost::system::system_error exception with messages: read: End of file"
  */
 
 #include <vector>
@@ -415,7 +415,7 @@ int main(int argc, char **argv) {
 	producer_counter = 0;
 
 	// Some thread groups needed for producers and workers
-	Gem::Common::GStdThreadGroup connectorProducer_gtg;
+	Gem::Common::GStdThreadGroup producer_gtg;
 	Gem::Common::GStdThreadGroup worker_gtg;
 
 	//--------------------------------------------------------------------------------
@@ -473,7 +473,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// Create the required number of connectorProducer threads
 	if(useDirectBrokerConnection) {
-		connectorProducer_gtg.create_threads(
+		producer_gtg.create_threads(
 			std::bind(
 				brokerProducer
 				, nProductionCycles
@@ -483,7 +483,7 @@ int main(int argc, char **argv) {
 			, nProducers
 		);
 	} else {
-		connectorProducer_gtg.create_threads(
+		producer_gtg.create_threads(
 			std::bind(
 				connectorProducer
 				, nProductionCycles
@@ -646,8 +646,8 @@ int main(int argc, char **argv) {
 	};
 
 	//--------------------------------------------------------------------------------
-	// Wait for all threads to finish
-	connectorProducer_gtg.join_all();
+	// Wait for all producer threads to finish
+	producer_gtg.join_all();
 
 	if(
 		executionMode == GCPModes::INTERNALSERIALNETWORKING
@@ -655,6 +655,10 @@ int main(int argc, char **argv) {
 		|| executionMode == GCPModes::INTERNALASYNCNETWORKING
 		|| executionMode == GCPModes::THREADANDINTERNALASYNCNETWORKING
 	) {
+		for(auto p: clients) {
+			p->flagCloseRequested();
+		}
+
 		worker_gtg.join_all();
 	}
 

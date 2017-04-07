@@ -305,6 +305,14 @@ public:
 
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * Allows to set a flag indicating that the application should terminate
+	  */
+	 void flagCloseRequested() {
+		 m_closeRequested.store(true);
+	 }
+
 protected:
 	 /***************************************************************************/
 	 /** @brief This is the main loop of the client, after initialization */
@@ -337,14 +345,6 @@ protected:
 	  */
 	 void flagTerminalError() {
 		 m_terminalError.store(true);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to set a flag indicating that the application should terminate
-	  */
-	  void flagCloseRequested() {
-		 m_closeRequested.store(true);
 	 }
 
 	 /***************************************************************************/
