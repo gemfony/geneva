@@ -56,6 +56,7 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/asio/io_service.hpp>
 #include <boost/asio/steady_timer.hpp>
+#include <boost/asio/error.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
@@ -301,16 +302,27 @@ protected:
 				 }
 			 }
 		 } catch (boost::system::system_error &e) {
-			 glogger
-				 << "In GAsioAsyncTCPClientT<processable_type>::run_(): Warning" << std::endl
-				 << "Caught boost::system::system_error exception" << std::endl
-				 << "with message" << std::endl
-				 << e.what() << std::endl
-				 << "This is likely normal and due to a server shutdown." << std::endl
-				 << "Leaving now." << std::endl
-				 << GWARNING;
-			 // Terminate execution
-			 this->flagTerminalError();
+			 if(e.code() == boost::asio::error::eof) {
+#ifdef DEBUG
+				 glogger
+					 << "In GAsioAsyncTCPClientT<processable_type>::run_():" << std::endl
+					 << "Caught boost::asio::error::eof, which likely indicates" << std::endl
+					 << "that a connection was closed by the remote side." << std::endl
+					 << "This particular server session will terminate now."
+					 << GLOGGING;
+#endif
+			 } else {
+				 glogger
+					 << "In GAsioAsyncTCPClientT<processable_type>::run_(): Warning" << std::endl
+					 << "Caught boost::system::system_error exception" << std::endl
+					 << "with message" << std::endl
+					 << e.what() << std::endl
+					 << "This is likely normal and due to a server shutdown." << std::endl
+					 << "Leaving now." << std::endl
+					 << GWARNING;
+				 // Terminate execution
+				 this->flagTerminalError();
+			 }
 		 } catch (std::exception& e) {
 			 glogger
 				 << "In GAsioAsyncTCPClientT<processable_type>::run_(): Warning!" << std::endl
@@ -747,10 +759,11 @@ public:
 			 // Act on data until the termination flag is set
 			 while (!m_master->stopped()) {
 				 // Read the next command
-				 m_read_strand.wrap(boost::asio::read(
-					 m_socket
-					 , boost::asio::buffer(m_commandBuffer)
-				 ));
+				 m_read_strand.wrap(
+					 boost::asio::read(
+						 m_socket
+						 , boost::asio::buffer(m_commandBuffer)
+					 ));
 				 std::string command = boost::algorithm::trim_copy(
 					 std::string(
 						 m_commandBuffer.data()
@@ -760,11 +773,11 @@ public:
 
 
 				 // Act on the received command
-				 if("ping" == command) { // Send a "pong" back
+				 if ("ping" == command) { // Send a "pong" back
 					 this->sendSingleCommand("pong");
-				 } else if("ready" == command) {
+				 } else if ("ready" == command) {
 					 this->submitToRemote();
-				 } else if("result" == command) {
+				 } else if ("result" == command) {
 					 this->retrieveFromRemote();
 					 this->submitToRemote();
 				 } else {
@@ -782,14 +795,25 @@ public:
 
 			 // Make sure we don't leave any open sockets lying around.
 			 disconnect(m_socket);
-		 } catch (const boost::system::system_error &e) {
-			 glogger
-				 << "In GAsioAsyncServerSessionT::process():" << std::endl
-				 << "Caught boost::system::system_error exception with messages:" << std::endl
-				 << e.what() << std::endl
-				 << GWARNING;
+		 } catch (boost::system::system_error &e) {
+			 if(e.code() == boost::asio::error::eof) {
+#ifdef DEBUG
+				 glogger
+					 << "In GAsioAsyncServerSessionT::process():" << std::endl
+					 << "Caught boost::asio::error::eof, which likely indicates" << std::endl
+					 << "that a connection was closed by the remote side." << std::endl
+					 << "This particular server session will terminate now."
+					 << GLOGGING;
+#endif
+			 } else {
+				 glogger
+					 << "In GAsioAsyncServerSessionT::process():" << std::endl
+					 << "Caught boost::system::system_error exception with messages:" << std::endl
+					 << e.what() << std::endl
+					 << GWARNING;
 
-			 // TODO: no exception here ?
+				 // TODO: no exception here ?
+			 }
 		 } catch (const boost::exception &e) {
 			 glogger
 				 << "In GAsioAsyncServerSessionT::process():" << std::endl
@@ -1216,12 +1240,23 @@ public:
 
 			 // Start the first session
 			 this->async_newAccept();
-		 } catch (const boost::system::system_error &e) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-				 << "Caught boost::system::system_error exception with messages:" << std::endl
-				 << boost::diagnostic_information(e) << std::endl
-				 << GEXCEPTION;
+		 } catch (boost::system::system_error &e) {
+			 if(e.code() == boost::asio::error::eof) {
+#ifdef DEBUG
+				 glogger
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
+					 << "Caught boost::asio::error::eof, which likely indicates" << std::endl
+					 << "that a connection was closed by the remote side." << std::endl
+					 << "This particular server session will terminate now."
+					 << GLOGGING;
+#endif
+			 } else {
+				 glogger
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
+					 << "Caught boost::system::system_error exception with messages:" << std::endl
+					 << boost::diagnostic_information(e) << std::endl
+					 << GEXCEPTION;
+			 }
 		 } catch (const boost::exception &e) {
 			 glogger
 				 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
