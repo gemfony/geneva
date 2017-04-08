@@ -257,9 +257,9 @@ public:
 		 // Determine a suitable name for the checkpoint file
 		 bf::path output_file;
 		 if(m_cp_overwrite) {
-			 output_file = getCheckpointDirectory() /  bf::path("checkpoint_" + getCheckpointBaseName());
+			 output_file = getCheckpointPath() /  bf::path("checkpoint_" + getCheckpointBaseName());
 		 } else {
-			 output_file = getCheckpointDirectory() / bf::path(
+			 output_file = getCheckpointPath() / bf::path(
 					(this->halted() ? "final" : boost::lexical_cast<std::string>(getIteration())) + "_" +
 					boost::lexical_cast<std::string>(std::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) + "_" +
 					getCheckpointBaseName()
@@ -267,12 +267,15 @@ public:
 		 }
 
 		 // Save checkpoints if required by the user
-		 if(m_cp_interval < 0 && (is_better || this->halted())) {
+		 if(m_cp_interval < 0 && is_better) {
 			 saveCheckpoint(output_file);
-		 } // Only save when a is_better solution was found
+		 } // Only save when a better solution was found
 		 else if(m_cp_interval > 0 && m_iteration%m_cp_interval == 0) {
 			 saveCheckpoint(output_file);
 		 } // Save in regular intervals
+		 else if(this->halted()) {
+			 saveCheckpoint(output_file);
+		 } // Save the final result
 	 }
 
 	 /***************************************************************************/
@@ -383,7 +386,7 @@ public:
 	  *
 	  * @return The base name used for checkpoint files
 	  */
-	 bf::path getCheckpointDirectory() const {
+	 bf::path getCheckpointPath() const {
 		 return bf::path(m_cp_directory);
 	 }
 
