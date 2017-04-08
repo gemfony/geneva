@@ -122,6 +122,7 @@ private:
 		 & BOOST_SERIALIZATION_NVP(m_cp_base_name)
 		 & BOOST_SERIALIZATION_NVP(m_cp_directory)
 		 & BOOST_SERIALIZATION_NVP(m_cp_serialization_mode)
+		 & BOOST_SERIALIZATION_NVP(m_cp_overwrite)
 		 & BOOST_SERIALIZATION_NVP(m_quality_threshold)
 		 & BOOST_SERIALIZATION_NVP(m_has_quality_threshold)
 		 & BOOST_SERIALIZATION_NVP(m_max_duration)
@@ -180,6 +181,7 @@ public:
 		 , m_cp_interval(cp.m_cp_interval)
 		 , m_cp_base_name(cp.m_cp_base_name)
 		 , m_cp_directory(cp.m_cp_directory)
+		 , m_cp_overwrite(cp.m_cp_overwrite)
 		 , m_cp_serialization_mode(cp.m_cp_serialization_mode)
 		 , m_quality_threshold(cp.m_quality_threshold)
 		 , m_has_quality_threshold(cp.m_has_quality_threshold)
@@ -247,19 +249,39 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Triggers saving of a checkpoint file dependimg om user-settings
+	  * Triggers saving of a checkpoint file dependimg on user-settings
 	  *
-	  * @param better A boolean which indicates whether a better result was found
+	  * @param is_better A boolean which indicates whether a better result was found
 	  */
-	 void checkpoint(const bool& better) const {
+	 void checkpoint(const bool& is_better) const {
+		 // Determine a suitable name for the checkpoint file
+		 bf::path output_file;
+		 if(m_cp_overwrite) {
+			 output_file = getCheckpointDirectory() /  bf::path("checkpoint_" + getCheckpointBaseName());
+		 } else {
+			 output_file = getCheckpointDirectory() / bf::path(
+					(this->halted() ? "final" : boost::lexical_cast<std::string>(getIteration())) + "_" +
+					boost::lexical_cast<std::string>(std::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) + "_" +
+					getCheckpointBaseName()
+			 );
+		 }
+
 		 // Save checkpoints if required by the user
-		 if(m_cp_interval < 0 && better) saveCheckpoint(); // Only save when a better solution was found
-		 else if(m_cp_interval > 0 && m_iteration%m_cp_interval == 0) saveCheckpoint(); // Save in regular intervals
+		 if(m_cp_interval < 0 && (is_better || this->halted())) {
+			 saveCheckpoint(output_file);
+		 } // Only save when a is_better solution was found
+		 else if(m_cp_interval > 0 && m_iteration%m_cp_interval == 0) {
+			 saveCheckpoint(output_file);
+		 } // Save in regular intervals
 	 }
 
 	 /***************************************************************************/
-	 /** @brief Loads the state of the class from disc. */
-	 virtual void loadCheckpoint(const boost::filesystem::path&) = 0;
+	 /**
+	  * Loads the state of the class from disc
+	  */
+	 virtual void loadCheckpoint(const bf::path& cpFile) {
+		 this->fromFile(cpFile, this->getCheckpointSerializationMode());
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -341,10 +363,8 @@ public:
 				 << GEXCEPTION;
 		 }
 
-		 // Add a trailing slash to the directory name, if necessary
-		 // TODO: THIS IS NOT PORTABLE TO WINDOWS!
-		 if(cpDirectory[cpDirectory.size() - 1] != '/') m_cp_directory = cpDirectory + '/';
-		 else m_cp_directory = cpDirectory;
+		 // Finally store the directory
+		 m_cp_directory = cpDirectory;
 	 }
 
 	 /***************************************************************************/
@@ -363,8 +383,8 @@ public:
 	  *
 	  * @return The base name used for checkpoint files
 	  */
-	 std::string getCheckpointDirectory() const {
-		 return m_cp_directory;
+	 bf::path getCheckpointDirectory() const {
+		 return bf::path(m_cp_directory);
 	 }
 
 	 /***************************************************************************/
@@ -385,6 +405,23 @@ public:
 	  */
 	 Gem::Common::serializationMode getCheckpointSerializationMode() const {
 		 return m_cp_serialization_mode;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the m_cp_overwrite flag (determines whether checkpoint files
+	  * should be overwritten or kept
+	  */
+	 void setKeepCheckpointFiles(bool cp_overwrite) {
+		 m_cp_overwrite = cp_overwrite;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether checkpoint files will be overwritten
+	  */
+    bool checkpointFilesAreKept() const {
+		 return m_cp_overwrite;
 	 }
 
 	 /***************************************************************************/
@@ -429,6 +466,7 @@ public:
 		 compare_t(IDENTITY(m_cp_interval, p_load->m_cp_interval), token);
 		 compare_t(IDENTITY(m_cp_base_name, p_load->m_cp_base_name), token);
 		 compare_t(IDENTITY(m_cp_directory, p_load->m_cp_directory), token);
+		 compare_t(IDENTITY(m_cp_overwrite, p_load->m_cp_overwrite), token);
 		 compare_t(IDENTITY(m_cp_serialization_mode, p_load->m_cp_serialization_mode), token);
 		 compare_t(IDENTITY(m_quality_threshold, p_load->m_quality_threshold), token);
 		 compare_t(IDENTITY(m_has_quality_threshold, p_load->m_has_quality_threshold), token);
@@ -1110,6 +1148,13 @@ public:
 			 << "The directory where checkpoint files should be stored." << Gem::Common::nextComment() // comments for the second option follow
 			 << "The significant part of the checkpoint file name.";
 
+		 gpb.registerFileParameter<std::int32_t>(
+			 "cp_pverwrite" // The name of the variable
+			 , false // The default value
+			 , [this](bool cp_overwrite){ this->setKeepCheckpointFiles(cp_overwrite); }
+		 )
+			 << "Determines whether checkpoint files should be overwritten or kept" << std::endl;
+
 		 gpb.registerFileParameter<Gem::Common::serializationMode>(
 			 "cpSerMode" // The name of the variable
 			 , DEFAULTCPSERMODE // The default value
@@ -1365,6 +1410,7 @@ protected:
 		 m_cp_interval = p_load->m_cp_interval;
 		 m_cp_base_name = p_load->m_cp_base_name;
 		 m_cp_directory = p_load->m_cp_directory;
+		 m_cp_overwrite = p_load->m_cp_overwrite;
 		 m_cp_serialization_mode = p_load->m_cp_serialization_mode;
 		 m_quality_threshold = p_load->m_quality_threshold;
 		 m_has_quality_threshold = p_load->m_has_quality_threshold;
@@ -1393,7 +1439,7 @@ protected:
 		 if(p) return p;
 		 else {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<T>::customGetBestGlobalIndividual(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT2<executor_type>::customGetBestGlobalIndividual(): Error!" << std::endl
 				 << "Best individual seems to be empty" << std::endl
 				 << GEXCEPTION;
 
@@ -1425,7 +1471,7 @@ protected:
 		 if(p) return p;
 		 else {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<T>::customGetBestIterationIndividual(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT2<executor_type>::customGetBestIterationIndividual(): Error!" << std::endl
 				 << "Best individual seems to be empty" << std::endl
 				 << GEXCEPTION;
 
@@ -1467,8 +1513,12 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief Saves the state of the class to disc */
-	 virtual void saveCheckpoint() const = 0;
+	 /**
+	  * Saves the state of the class to disc
+	  */
+	 virtual void saveCheckpoint(bf::path outputFile) const {
+		 this->toFile(outputFile, this->getCheckpointSerializationMode());
+	 }
 
 	 /***************************************************************************/
 	 /** @brief The actual business logic to be performed during each iteration */
@@ -2040,7 +2090,9 @@ private:
 	 std::int32_t m_cp_interval = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	 std::string m_cp_base_name = DEFAULTCPBASENAME; ///< The base name of the checkpoint file
 	 std::string m_cp_directory = DEFAULTCPDIR; ///< The directory where checkpoint files should be stored
+	 bool m_cp_overwrite = true; ///< Whether checkpoint files should be overwritten or kept
 	 Gem::Common::serializationMode m_cp_serialization_mode = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
+
 	 double m_quality_threshold = DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
 	 bool m_has_quality_threshold = false; ///< Specifies whether a qualityThreshold has been set
 	 std::chrono::duration<double> m_max_duration = Gem::Common::duration_from_string(DEFAULTDURATION); ///< Maximum time-frame for the optimization

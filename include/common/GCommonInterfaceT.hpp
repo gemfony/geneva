@@ -243,7 +243,8 @@ public:
 	 * @param descr A text representation of a T-derivative
 	 */
 	void fromString(
-		const std::string &descr, const Gem::Common::serializationMode &serMod
+		const std::string &descr
+		, const Gem::Common::serializationMode &serMod
 	) {
 		std::istringstream istr(descr);
 		fromStream(istr, serMod);
@@ -263,9 +264,10 @@ public:
 	 * @param serMod The desired serialization mode
 	 */
 	void toFile(
-		const bf::path &p, const Gem::Common::serializationMode &serMod
+		const bf::path &p
+		, const Gem::Common::serializationMode &serMod
 	) const {
-		bf::ofstream ofstr(p);
+		bf::ofstream ofstr(p, std::ofstream::trunc); // Note: will overwrite existing files
 
 		if (!ofstr) {
 			glogger
@@ -302,7 +304,8 @@ public:
 	 * @param serMod The desired serialization mode
 	 */
 	void fromFile(
-		const bf::path &p, const Gem::Common::serializationMode &serMod
+		const bf::path &p
+		, const Gem::Common::serializationMode &serMod
 	) {
 		// Check that the file exists
 		if (!bf::exists(bf::path(p))) {
