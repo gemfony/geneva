@@ -354,7 +354,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 		}
 	}
 
-	// Mark the first nParents_ individuals as parents in the first iteration. We want to have a "sane" population.
+	// Mark the first m_n_parents individuals as parents in the first iteration. We want to have a "sane" population.
 	if (inFirstIteration()) {
 		for (auto it = this->begin(); it != this->begin() + np; ++it) {
 			(*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();

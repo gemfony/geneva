@@ -505,7 +505,7 @@ protected:
 		 // First check that we have been given a suitable value for the number of parents.
 		 // Note that a number of checks (e.g. population size != 0) has already been done
 		 // in the parent class.
-		 if (nParents_ == 0) {
+		 if (m_n_parents == 0) {
 			 glogger
 			 << "In GEvolutionaryAlgorithmT<executor_type>::populationSanityChecks(): Error!" << std::endl
 			 << "Number of parents is set to 0"
@@ -519,13 +519,13 @@ protected:
 		 // parents, so that the first parent individual will be replaced.
 		 std::size_t popSize = getPopulationSize();
 		 if (
-			 ((m_smode == sortingMode::MUCOMMANU_SINGLEEVAL || m_smode == sortingMode::MUNU1PRETAIN_SINGLEEVAL) && (popSize < 2 * nParents_)) ||
-			 (m_smode == sortingMode::MUPLUSNU_SINGLEEVAL && popSize <= nParents_)
+			 ((m_smode == sortingMode::MUCOMMANU_SINGLEEVAL || m_smode == sortingMode::MUNU1PRETAIN_SINGLEEVAL) && (popSize < 2 * m_n_parents)) ||
+			 (m_smode == sortingMode::MUPLUSNU_SINGLEEVAL && popSize <= m_n_parents)
 		 ) {
 			 std::ostringstream error;
 			 error
 				 << "In GEvolutionaryAlgorithmT<executor_type>::populationSanityChecks() :" << std::endl
-				 << "Requested size of population is too small :" << popSize << " " << nParents_ << std::endl
+				 << "Requested size of population is too small :" << popSize << " " << m_n_parents << std::endl
 				 << "Sorting scheme is ";
 
 			 switch (m_smode) {
@@ -621,7 +621,7 @@ protected:
 	// children is present. If individuals can get lost in your setting,
 	// you must add mechanisms to "repair" the population before this
 	// function is called
-	if((data.size()-nParents_) < defaultNChildren_){
+	if((data.size()-m_n_parents) < m_default_n_children){
 	   glogger
 	   << "In GEvolutionaryAlgorithmT<executor_type>::select():" << std::endl
       << "Too few children. Got " << data.size()-getNParents() << "," << std::endl
@@ -821,7 +821,7 @@ private:
 		 } else if (nIndividualsOnParetoFront < getNParents()) {
 			 // Sort the non-pareto-front individuals according to their master fitness
 			 std::partial_sort(
-				 data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
+				 data.begin() + nIndividualsOnParetoFront, data.begin() + m_n_parents, data.end(),
 				 [](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
 					 return x->minOnly_fitness() < y->minOnly_fitness();
 				 }
@@ -832,7 +832,7 @@ private:
 		 // to give some sense to the value recombination scheme. It won't change much in case of the
 		 // random recombination scheme.
 		 std::sort(
-			 data.begin(), data.begin() + nParents_,
+			 data.begin(), data.begin() + m_n_parents,
 			 [](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
 				 return x->minOnly_fitness() < y->minOnly_fitness();
 			 }
@@ -856,17 +856,17 @@ private:
 		 }
 
 		 // Mark the last iterations parents as not being on the pareto front
-		 for (it = this->begin(); it != this->begin() + nParents_; ++it) {
+		 for (it = this->begin(); it != this->begin() + m_n_parents; ++it) {
 			 (*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsNotOnParetoFront();
 		 }
 
 		 // Mark all children as being on the pareto front initially
-		 for (it = this->begin() + nParents_; it != this->end(); ++it) {
+		 for (it = this->begin() + m_n_parents; it != this->end(); ++it) {
 			 (*it)->getPersonalityTraits<GEAPersonalityTraits>()->resetParetoTag();
 		 }
 
 		 // Compare all parameters of all children
-		 for (it = this->begin() + nParents_; it != this->end(); ++it) {
+		 for (it = this->begin() + m_n_parents; it != this->end(); ++it) {
 			 for (it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
 				 // If we already know that this individual is *not*
 				 // on the front we do not have to do any tests
@@ -921,7 +921,7 @@ private:
 		 } else if (nIndividualsOnParetoFront < getNParents()) {
 			 // Sort the non-pareto-front individuals according to their master fitness
 			 std::partial_sort(
-				 data.begin() + nIndividualsOnParetoFront, data.begin() + nParents_, data.end(),
+				 data.begin() + nIndividualsOnParetoFront, data.begin() + m_n_parents, data.end(),
 				 [](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
 					 return x->minOnly_fitness() < y->minOnly_fitness();
 				 }
@@ -932,7 +932,7 @@ private:
 		 // to give some sense to the value recombination scheme. It won't change much in case of the
 		 // random recombination scheme.
 		 std::sort(
-			 data.begin(), data.begin() + nParents_,
+			 data.begin(), data.begin() + m_n_parents,
 			 [](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
 				 return x->minOnly_fitness() < y->minOnly_fitness();
 			 }
@@ -1028,7 +1028,7 @@ private:
 			 }
 		 }
 
-		 // Mark the first nParents_ individuals as parents in the first iteration. We want to have a "sane" population.
+		 // Mark the first m_n_parents individuals as parents in the first iteration. We want to have a "sane" population.
 		 if (inFirstIteration()) {
 			 for (auto it = this->begin(); it != this->begin() + np; ++it) {
 				 (*it)->getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();

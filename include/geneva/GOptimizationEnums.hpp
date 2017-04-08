@@ -59,6 +59,14 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Default population sizes -- 100 by default (parents + children)
+ */
+const std::size_t DEFPARCHILDNPARENTS = 1;
+const std::size_t DEFPARCHILDNCHILDREN = 99;
+const std::size_t DEFPARCHILDPOPSIZE = DEFPARCHILDNPARENTS + DEFPARCHILDNCHILDREN;
+
+/******************************************************************************/
+/**
  * The default number of individuals to be monitored by GFitnessMonitorT<>
  */
 const std::size_t DEFNMONITORINDS = 1;
@@ -417,7 +425,7 @@ enum class duplicationScheme : Gem::Common::ENUMBASETYPE {
 	DEFAULTDUPLICATIONSCHEME = 0
 	, RANDOMDUPLICATIONSCHEME = 1
 	, VALUEDUPLICATIONSCHEME = 2
-	, DUPLICATIONSCHEME_LAST = VALUEDUPLICATIONSCHEME
+	, DUPLICATIONSCHEME_LAST = duplicationScheme::VALUEDUPLICATIONSCHEME
 };
 
 /******************************************************************************/
@@ -428,7 +436,7 @@ enum class infoMode : Gem::Common::ENUMBASETYPE {
 	INFOINIT = 0
 	, INFOPROCESSING = 1
 	, INFOEND = 2
-	, INFOMODE_LAST = INFOEND
+	, INFOMODE_LAST = infoMode::INFOEND
 };
 
 /******************************************************************************/
@@ -443,7 +451,7 @@ enum class adaptorId : Gem::Common::ENUMBASETYPE {
 	, GINT32GAUSSADAPTOR = 4
 	, GBOOLEANADAPTOR = 5
 	, GINT32FLIPADAPTOR = 6
-	, ADAPTORIDE_LAST = GINT32FLIPADAPTOR
+	, ADAPTORIDE_LAST = adaptorId::GINT32FLIPADAPTOR
 };
 
 /******************************************************************************/
@@ -459,7 +467,7 @@ enum class sortingMode : Gem::Common::ENUMBASETYPE {
 	, MUNU1PRETAIN_SINGLEEVAL = 2
 	, MUPLUSNU_PARETO = 3
 	, MUCOMMANU_PARETO = 4
-	, SORTINGMODE_LAST = MUCOMMANU_PARETO
+	, SORTINGMODE_LAST = sortingMode::MUCOMMANU_PARETO
 };
 
 /******************************************************************************/
@@ -470,7 +478,7 @@ enum class sortingModeMP : Gem::Common::ENUMBASETYPE {
 	MUPLUSNU_SINGLEEVAL_MP = 0
 	, MUCOMMANU_SINGLEEVAL_MP = 1
 	, MUNU1PRETAIN_SINGLEEVAL_MP = 2
-	, SORTINGMODEMP_LAST = MUNU1PRETAIN_SINGLEEVAL_MP
+	, SORTINGMODEMP_LAST = sortingModeMP::MUNU1PRETAIN_SINGLEEVAL_MP
 };
 
 /******************************************************************************/

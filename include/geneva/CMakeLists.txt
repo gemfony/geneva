@@ -6,6 +6,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GBasePS.hpp
 	GBaseParChildPersonalityTraits.hpp
 	GBaseParChildT.hpp
+    GBaseParChildT2.hpp
 	GBaseGD.hpp
 	GBaseSA.hpp
 	GBaseSwarm.hpp
@@ -39,6 +40,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GenevaHelperFunctionsT.hpp
 	GenevaInitializer.hpp
 	GEvolutionaryAlgorithmFactory.hpp
+    GEvolutionaryAlgorithmT.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp

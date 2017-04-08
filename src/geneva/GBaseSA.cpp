@@ -231,29 +231,29 @@ std::shared_ptr <GPersonalityTraits> GBaseSA::getPersonalityTraits() const {
 void GBaseSA::sortSAMode() {
 	// Position the nParents best children of the population right behind the parents
 	std::partial_sort(
-		data.begin() + nParents_, data.begin() + 2 * nParents_, data.end(),
+		data.begin() + m_n_parents, data.begin() + 2 * m_n_parents, data.end(),
 		[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
 			return x->minOnly_fitness() < y->minOnly_fitness();
 		}
 	);
 
 	// Check for each parent whether it should be replaced by the corresponding child
-	for (std::size_t np = 0; np < nParents_; np++) {
-		double pPass = saProb(this->at(np)->minOnly_fitness(), this->at(nParents_ + np)->minOnly_fitness());
+	for (std::size_t np = 0; np < m_n_parents; np++) {
+		double pPass = saProb(this->at(np)->minOnly_fitness(), this->at(m_n_parents + np)->minOnly_fitness());
 		if (pPass >= 1.) {
-			this->at(np)->GObject::load(this->at(nParents_ + np));
+			this->at(np)->GObject::load(this->at(m_n_parents + np));
 		} else {
 			double challenge =
                     GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.));
 			if (challenge < pPass) {
-				this->at(np)->GObject::load(this->at(nParents_ + np));
+				this->at(np)->GObject::load(this->at(m_n_parents + np));
 			}
 		}
 	}
 
 	// Sort the parents -- it is possible that a child with a worse fitness has replaced a parent
 	std::sort(
-		data.begin(), data.begin() + nParents_,
+		data.begin(), data.begin() + m_n_parents,
 		[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
 			return x->minOnly_fitness() < y->minOnly_fitness();
 		}
@@ -395,7 +395,7 @@ void GBaseSA::populationSanityChecks() const {
 	// First check that we have been given a suitable value for the number of parents.
 	// Note that a number of checks (e.g. population size != 0) has already been done
 	// in the parent class.
-	if (nParents_ == 0) {
+	if (m_n_parents == 0) {
 		glogger
 		<< "In GBaseSA::populationSanityChecks(): Error!" << std::endl
 		<< "Number of parents is set to 0"
@@ -404,10 +404,10 @@ void GBaseSA::populationSanityChecks() const {
 
 	// We need at least as many children as parents
 	std::size_t popSize = getPopulationSize();
-	if (popSize <= nParents_) {
+	if (popSize <= m_n_parents) {
 		glogger
 		<< "In GBaseSA::populationSanityChecks() :" << std::endl
-		<< "Requested size of population is too small :" << popSize << " " << nParents_ << std::endl
+		<< "Requested size of population is too small :" << popSize << " " << m_n_parents << std::endl
 		<< GEXCEPTION;
 	}
 }

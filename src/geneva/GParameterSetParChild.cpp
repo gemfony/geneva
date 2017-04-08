@@ -189,36 +189,36 @@ double GParameterSetParChild::getAmalgamationLikelihood() const {
  */
 void GParameterSetParChild::doRecombine() {
 	std::size_t i;
-	std::vector<double> threshold(nParents_);
+	std::vector<double> threshold(m_n_parents);
 	double thresholdSum = 0.;
 	// TODO: Check whether it is sufficient to do this only once
-	if (duplicationScheme::VALUEDUPLICATIONSCHEME == recombinationMethod_ && nParents_ > 1) {          // Calculate a weight vector
-		for (i = 0; i < nParents_; i++) {
+	if (duplicationScheme::VALUEDUPLICATIONSCHEME == m_recombination_method && m_n_parents > 1) {          // Calculate a weight vector
+		for (i = 0; i < m_n_parents; i++) {
 			thresholdSum += 1. / (static_cast<double>(i) + 2.);
 		}
-		for (i = 0; i < nParents_ - 1; i++) {
+		for (i = 0; i < m_n_parents - 1; i++) {
 			// Normalizing the sum to 1
 			threshold[i] = (1. / (static_cast<double>(i) + 2.)) / thresholdSum;
 
 			// Make sure the subsequent range is in the right position
 			if (i > 0) threshold[i] += threshold[i - 1];
 		}
-		threshold[nParents_ - 1] = 1.; // Necessary due to rounding errors
+		threshold[m_n_parents - 1] = 1.; // Necessary due to rounding errors
 	}
 
 	std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 	std::bernoulli_distribution amalgamationWanted(amalgamationLikelihood_); // true with a likelihood of amalgamationLikelihood_
-	for (it = GOptimizationAlgorithmT<GParameterSet>::data.begin() + nParents_;
+	for (it = GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents;
 		  it != GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
 		// Retrieve a random number so we can decide whether to perform cross-over or duplication
 		// If we do perform cross-over, we always cross the best individual with another random parent
-		if (nParents_ > 1 && amalgamationWanted(m_gr)) { // Create individuals using a cross-over scheme
+		if (m_n_parents > 1 && amalgamationWanted(m_gr)) { // Create individuals using a cross-over scheme
 			std::shared_ptr <GParameterSet> bestParent = this->front();
-			std::shared_ptr <GParameterSet> combiner = (nParents_ > 2) ? (*(this->begin() + this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(1, nParents_ - 1)))) : (*(this->begin() + 1));
+			std::shared_ptr <GParameterSet> combiner = (m_n_parents > 2) ? (*(this->begin() + this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(1, m_n_parents - 1)))) : (*(this->begin() + 1));
 
 			(*it)->GObject::load(bestParent->amalgamate(combiner));
 		} else { // Just perform duplication
-			switch (recombinationMethod_) {
+			switch (m_recombination_method) {
 				case duplicationScheme::DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
 				case duplicationScheme::RANDOMDUPLICATIONSCHEME: {
 					randomRecombine(*it);
@@ -226,7 +226,7 @@ void GParameterSetParChild::doRecombine() {
 					break;
 
 				case duplicationScheme::VALUEDUPLICATIONSCHEME: {
-					if (nParents_ == 1) {
+					if (m_n_parents == 1) {
 						(*it)->GObject::load(*(GOptimizationAlgorithmT<GParameterSet>::data.begin()));
 						(*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits> ()->setParentId(0);
 					} else {
@@ -247,7 +247,7 @@ void GParameterSetParChild::doRecombine() {
 				default: {
 					glogger
 					<< "In GParameterSetParChild::doRecombine(): Error!" << std::endl
-					<< "Got invalid duplication scheme: " << recombinationMethod_ << std::endl
+					<< "Got invalid duplication scheme: " << m_recombination_method << std::endl
 					<< GEXCEPTION;
 				}
 					break;

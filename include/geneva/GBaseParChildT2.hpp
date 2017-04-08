@@ -1,5 +1,5 @@
 /**
- * @file GBaseParChildT.hpp
+ * @file GBaseParChildT2.hpp
  */
 
 /*
@@ -42,16 +42,17 @@
 // Boost headers go here
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/range.hpp>
 
-#ifndef GBASEPARCHILDEAT_HPP_
-#define GBASEPARCHILDEAT_HPP_
+#ifndef GBASEPARCHILDT2_HPP_
+#define GBASEPARCHILDT2_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/GOptimizationAlgorithmT2.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GBaseParChildPersonalityTraits.hpp"
 
@@ -60,27 +61,19 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The GBaseParChildT<ind_type> class adds the notion of parents and children to
- * the GOptimizationAlgorithmT<ind_type> class. The evolutionary adaptation is realized
+ * The GBaseParChildT2<executor_type> class adds the notion of parents and children to
+ * the GOptimizationAlgorithmT2<executor_type> class. An evolutionary adaptation is realized
  * through the cycle of adaption, evaluation, and sorting, as defined in this
- * class.
- *
- * It forms the base class for either multi populations (i.e. evolutionary algorithms
- * that may act on other optimization algorithms (including themselves), or a hierarchy of
- * algorithms acting on parameter objects.
+ * class. It forms the basis for Evolutionary Algorithms as well as Simulated Annealing.
  *
  * Populations are collections of individuals, which themselves are objects
- * exhibiting at least the GOptimizableEntity class' API, most notably the ind_type::fitness()
- * and GOptimizableEntity::adapt() functions.
- *
- * In order to add parents to an instance of this class use the default constructor,
- * then add at least one GOptimizableEntity-derivative to it, and call setPopulationSizes().
- * The population will then be "filled up" with missing individuals as required, before the
- * optimization starts.
+ * exhibiting at least the GOptimizableEntity class' API, most notably the
+ * GOptimizableEntity::fitness() and GOptimizableEntity::adapt() functions.
+ * You must add at least one GOptimizableEntity-derivative to the class.
  */
-template <typename ind_type>
-class GBaseParChildT
-	: public GOptimizationAlgorithmT<ind_type>
+template <typename executor_type>
+class GBaseParChildT2
+	: public GOptimizationAlgorithmT2<executor_type>
 {
 	/////////////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -90,7 +83,7 @@ class GBaseParChildT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GOptimizationAlgorithmT_ind_type", boost::serialization::base_object<GOptimizationAlgorithmT<ind_type>>(*this))
+		& make_nvp("GOptimizationAlgorithmT2_executor_type", boost::serialization::base_object<GOptimizationAlgorithmT2<executor_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(m_n_parents)
 		& BOOST_SERIALIZATION_NVP(m_recombination_method)
 		& BOOST_SERIALIZATION_NVP(m_default_n_children)
@@ -99,22 +92,22 @@ class GBaseParChildT
 	}
 	/////////////////////////////////////////////////////////////////////////////
 
-	// Make sure ind_type is a derivative of GOptimizableEntity (or is GOptimizableEntity itself)
+	// Make sure executor_type is a derivative of GOptimizableEntity (or is GOptimizableEntity itself)
 	static_assert(
-		std::is_base_of<GOptimizableEntity, ind_type>::value
-		, "GOptimizableEntity is no base type of ind_type"
+		std::is_base_of<GOptimizableEntity, executor_type>::value
+		, "GOptimizableEntity is no base type of executor_type"
 	);
 
 public:
 	/***************************************************************************/
 	/**
 	 * The default constructor, As we do not have any individuals yet, we set the population
-	 * size, and number of parents to 0. It is the philosophy of this class not
+	 * size, and number of parents to a predefined value. It is the philosophy of this class not
 	 * to provide constructors for each and every use case. Instead, you should set
 	 * vital parameters, such as the population size or the parent individuals by hand
-	 * or do so through the configuration file.
+	 * or do so through a configuration file.
 	 */
-	GBaseParChildT() : Gem::Geneva::GOptimizationAlgorithmT<ind_type>()
+	GBaseParChildT2() : Gem::Geneva::GOptimizationAlgorithmT2<executor_type>()
 	{
 		// Make sure we start with a valid population size if the user does not supply these values
 		this->setPopulationSizes(
@@ -125,14 +118,12 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * A standard copy constructor. Note that the generation number is reset to 0 and
-	 * is not copied from the other object. We assume that a new optimization run will
-	 * be started.
+	 * A standard copy constructor.
 	 *
-	 * @param cp Another GBaseParChildT<ind_type> object
+	 * @param cp Another GBaseParChildT2<executor_type> object
 	 */
-	GBaseParChildT(const GBaseParChildT<ind_type>& cp)
-		: GOptimizationAlgorithmT<ind_type>(cp)
+	GBaseParChildT2(const GBaseParChildT2<executor_type>& cp)
+		: GOptimizationAlgorithmT2<executor_type>(cp)
 		, m_n_parents(cp.m_n_parents)
 		, m_recombination_method(cp.m_recombination_method)
 		, m_default_n_children(cp.m_default_n_children)
@@ -146,26 +137,28 @@ public:
 	/**
 	 * The standard destructor. All work is done in the parent class.
 	 */
-	virtual ~GBaseParChildT()
+	virtual ~GBaseParChildT2()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The standard assignment operator
 	 */
-	const GBaseParChildT<ind_type>& operator=(const GBaseParChildT<ind_type>& cp) {
+	const GBaseParChildT2<executor_type>& operator=(
+		const GBaseParChildT2<executor_type>& cp
+	) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/***************************************************************************/
 	/**
-	 * Checks for equality with another GBaseParChildT<ind_type> object
+	 * Checks for equality with another GBaseParChildT2<executor_type> object
 	 *
-	 * @param  cp A constant reference to another GBaseParChildT<ind_type> object
+	 * @param  cp A constant reference to another GBaseParChildT2<executor_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	bool operator==(const GBaseParChildT<ind_type>& cp) const {
+	bool operator==(const GBaseParChildT2<executor_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -177,12 +170,12 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Checks for inequality with another GBaseParChildT<ind_type> object
+	 * Checks for inequality with another GBaseParChildT2<executor_type> object
 	 *
-	 * @param  cp A constant reference to another GBaseParChildT<ind_type> object
+	 * @param  cp A constant reference to another GBaseParChildT2<executor_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	bool operator!=(const GBaseParChildT<ind_type>& cp) const {
+	bool operator!=(const GBaseParChildT2<executor_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -208,13 +201,13 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GBaseParChildT<ind_type>  reference independent of this object and convert the pointer
-		const GBaseParChildT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT<ind_type>>(cp, this);
+		// Check that we are dealing with a GBaseParChildT2<executor_type>  reference independent of this object and convert the pointer
+		const GBaseParChildT2<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT2<executor_type>>(cp, this);
 
-		GToken token("GBaseParChildT<ind_type>", e);
+		GToken token("GBaseParChildT2<executor_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GOptimizationAlgorithmT<ind_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT2<executor_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(m_n_parents, p_load->m_n_parents), token);
@@ -231,14 +224,17 @@ public:
 	/**
 	 * Specifies the default size of the population plus the number of parents.
 	 * The population will be filled with additional individuals later, as required --
-	 * see GBaseParChildT<ind_type>::adjustPopulation() . Also, all error checking is done in
+	 * see GBaseParChildT2<executor_type>::adjustPopulation() . Also, all error checking is done in
 	 * that function.
 	 *
 	 * @param popSize The desired size of the population
 	 * @param nParents The desired number of parents
 	 */
-	void setPopulationSizes(std::size_t popSize, std::size_t nParents) {
-		GOptimizationAlgorithmT<ind_type>::setDefaultPopulationSize(popSize);
+	void setPopulationSizes(
+		std::size_t popSize
+		, std::size_t nParents
+	) {
+		GOptimizationAlgorithmT2<executor_type>::setDefaultPopulationSize(popSize);
 		m_n_parents = nParents;
 	}
 
@@ -274,12 +270,10 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Retrieves the defaultNChildren_ parameter. E.g. in GTransferPopulation::adaptChildren() ,
-	 * this factor controls when a population is considered to be complete. The corresponding
-	 * loop which waits for new arrivals will then be stopped, which in turn allows
-	 * a new generation to start.
+	 * Retrieves the m_default_n_children parameter. This factor may control when a
+	 * population is considered to be complete.
 	 *
-	 * @return The defaultNChildren_ parameter
+	 * @return The m_default_n_children parameter
 	 */
 	std::size_t getDefaultNChildren() const {
 		return m_default_n_children;
@@ -297,7 +291,7 @@ public:
 #ifdef DEBUG
       if(std::get<1>(range) <= std::get<0>(range)) {
          glogger
-         << "In GBaseParChildT<>::getNProcessableItems(): Error!" << std::endl
+         << "In GBaseParChildT2<>::getNProcessableItems(): Error!" << std::endl
          << "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/" << std::get<0>(range) << std::endl
          << GEXCEPTION;
       }
@@ -308,12 +302,20 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Lets the user set the desired recombination method. No sanity checks for the
-	 * values are necessary, as we use an enum.
+	 * Lets the user set the desired recombination method.
 	 *
 	 * @param recombinationMethod The desired recombination method
 	 */
 	void setRecombinationMethod(duplicationScheme recombinationMethod) {
+#ifdef DEBUG
+		if(duplicationScheme::DUPLICATIONSCHEME_LAST < recombinationMethod) {
+			glogger
+				<< "In GBaseParChildT2<>::setRecombinationMethod(): Error!" << std::endl
+				<< "Got invalid duplication scheme " << recombinationMethod << std::endl
+				<< GEXCEPTION;
+		}
+#endif
+
 		m_recombination_method = recombinationMethod;
 	}
 
@@ -329,80 +331,6 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Loads the state of the class from disc. We do not load the entire population,
-	 * but only the best individuals of a former optimization run, as these contain the
-	 * "real" information.
-	 */
-	virtual void loadCheckpoint(const boost::filesystem::path& cpFile) override {
-		// Create a vector to hold the best individuals
-		std::vector<std::shared_ptr<ind_type>> bestIndividuals;
-
-		// Check that the file indeed exists
-		if(!boost::filesystem::exists(cpFile)) {
-			glogger
-			<< "In GBaseParChildT<ind_type>::loadCheckpoint(const bf::path&)" << std::endl
-			<< "Got invalid checkpoint file name " << cpFile.string() << std::endl
-			<< GEXCEPTION;
-		}
-
-		// Create the input stream and check that it is in good order
-		boost::filesystem::ifstream checkpointStream(cpFile);
-		if(!checkpointStream) {
-			glogger
-			<< "In GBaseParChildT<ind_type>::loadCheckpoint(const bf::path&)" << std::endl
-			<< "Error: Could not open input file" << std::endl
-			<< GEXCEPTION;
-		}
-
-		switch(GOptimizationAlgorithmT<ind_type>::getCheckpointSerializationMode()) {
-			case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT:
-				// Load the data from disc in text mode
-			{
-				boost::archive::text_iarchive ia(checkpointStream);
-				ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
-			} // note: explicit scope here is essential so the ia-destructor gets called
-				break;
-
-			case Gem::Common::serializationMode::SERIALIZATIONMODE_XML:
-				// Load the data from disc in xml mode
-			{
-				boost::archive::xml_iarchive ia(checkpointStream);
-				ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
-			} // note: explicit scope here is essential so the ia-destructor gets called
-				break;
-
-			case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY:
-				// Load the data from disc in binary mode
-			{
-				boost::archive::binary_iarchive ia(checkpointStream);
-				ia >> boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
-			} // note: explicit scope here is essential so the ia-destructor gets called
-				break;
-		}
-
-		// Make sure the stream is closed again
-		checkpointStream.close();
-
-		// Load the individuals into this class
-		std::size_t thisSize = this->size();
-		std::size_t biSize = bestIndividuals.size();
-		if(thisSize >= biSize) { // The most likely case
-			for(std::size_t ic=0; ic<biSize; ic++) {
-				(*this)[ic]->GObject::load(bestIndividuals[ic]);
-			}
-		}
-		else if(thisSize < biSize) {
-			for(std::size_t ic=0; ic<thisSize; ic++) {
-				(*this)[ic]->GObject::load(bestIndividuals[ic]);
-			}
-			for(std::size_t ic=thisSize; ic<biSize; ic++) {
-				this->push_back(bestIndividuals[ic]);
-			}
-		}
-	}
-
-	/***************************************************************************/
-	/**
 	 * Adds the option to increase the population by a given amount per iteration
 	 *
 	 * @param growthRate The amount of individuals to be added in each iteration
@@ -412,6 +340,15 @@ public:
 		std::size_t growthRate
 		, std::size_t maxPopulationSize
 	) {
+#ifdef DEBUG
+		if(maxPopulationSize <= growthRate) {
+			glogger
+				<< "In GBaseParChildT2<>::setPopulationGrowth(): Error!" << std::endl
+				<< "Got invalid growth rade " << growthRate << ", with maxPopulationSize = " << maxPopulationSize << std::endl
+				<< GEXCEPTION;
+		}
+#endif
+
 		m_growth_rate = growthRate;
 		m_max_population_size = maxPopulationSize;
 	}
@@ -446,7 +383,7 @@ public:
 		Gem::Common::GParserBuilder& gpb
 	)  override {
 		// Call our parent class'es function
-		GOptimizationAlgorithmT<ind_type>::addConfigurationOptions(gpb);
+		GOptimizationAlgorithmT2<executor_type>::addConfigurationOptions(gpb);
 
 		// Add local data
 
@@ -458,7 +395,8 @@ public:
 			, [this](std::size_t ps, std::size_t np){ this->setPopulationSizes(ps, np); }
 			, "population"
 		)
-		<< "The total size of the population " << Gem::Common::nextComment()
+		<< "The total size of the population "
+		<< Gem::Common::nextComment()
 		<< "The number of parents in the population";
 
 		gpb.registerFileParameter<duplicationScheme>(
@@ -487,8 +425,8 @@ public:
 	/***************************************************************************/
 	/**
 	 * Retrieves a specific parent individual and casts it to the desired type. Note that this
-	 * function will only be accessible to the compiler if individual_type is a derivative of GOptimizableEntity,
-	 * thanks to the magic of the std::enable_if and type_traits.
+	 * function will only be accessible to the compiler if parent_type is a derivative of
+	 * GOptimizableEntity, thanks to the magic of the std::enable_if and type_traits.
 	 *
 	 * @param parent The id of the parent that should be returned
 	 * @return A converted shared_ptr to the parent
@@ -502,7 +440,7 @@ public:
       // Check that the parent id is in a valid range
       if(parentId >= this->getNParents()) {
          glogger
-         << "In GBaseEA::getParentIndividual<>() : Error" << std::endl
+         << "In GBaseParChildT2::getParentIndividual<>() : Error" << std::endl
          << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents() << std::endl
          << GEXCEPTION;
 
@@ -518,7 +456,7 @@ public:
 	/***************************************************************************/
 	/** @brief Returns the name of this optimization algorithm */
 	virtual std::string getAlgorithmName() const override = 0;
-	/** @brief Returns information about the type of optimization algorithm */
+	/** @brief Returns a mnemonic for the optimization algorithm */
 	virtual std::string getOptimizationAlgorithm() const override = 0;
 
 	/***************************************************************************/
@@ -526,7 +464,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GBaseParChildT");
+		return std::string("GBaseParChildT2");
 	}
 
 protected:
@@ -542,20 +480,20 @@ protected:
 	/** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
 	virtual std::tuple<std::size_t,std::size_t> getEvaluationRange() const = 0; // Depends on selection scheme
 	/** @brief Some error checks related to population sizes */
-	virtual void populationSanityChecks() const = 0; // TODO: Take code from old init() function
+	virtual void populationSanityChecks() const = 0;
 
 	/***************************************************************************/
 	/**
-	 * Loads the data of another GBaseParChildT<ind_type> object, camouflaged as a GObject.
+	 * Loads the data of another GBaseParChildT2<executor_type> object, camouflaged as a GObject.
 	 *
-	 * @param cp A pointer to another GBaseParChildT<ind_type> object, camouflaged as a GObject
+	 * @param cp A pointer to another GBaseParChildT2<executor_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject * cp) override {
-		// Check that we are dealing with a GBaseParChildT<ind_type>  reference independent of this object and convert the pointer
-		const GBaseParChildT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT<ind_type>>(cp, this);
+		// Check that we are dealing with a GBaseParChildT2<executor_type>  reference independent of this object and convert the pointer
+		const GBaseParChildT2<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBaseParChildT2<executor_type>>(cp, this);
 
 		// First load the parent class'es data ...
-		GOptimizationAlgorithmT<ind_type>::load_(cp);
+		GOptimizationAlgorithmT2<executor_type>::load_(cp);
 
 		// ... and then our own data
 		m_n_parents = p_load->m_n_parents;
@@ -575,7 +513,8 @@ protected:
 		std::size_t i;
 		std::vector<double> threshold(m_n_parents);
 		double thresholdSum=0.;
-		// TODO: Check whether it is sufficient to do this only once
+		// The number of parents may change, e.g. in the case of pareto-optimization. Hence we may
+		// need to recalculate the weight vector.
 		if(duplicationScheme::VALUEDUPLICATIONSCHEME == m_recombination_method && m_n_parents > 1) {          // Calculate a weight vector
 			for(i=0; i<m_n_parents; i++) {
 				thresholdSum += 1./(static_cast<double>(i)+2.);
@@ -590,31 +529,30 @@ protected:
 			threshold[m_n_parents-1] = 1.; // Necessary due to rounding errors
 		}
 
-		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
-		for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+m_n_parents; it!= GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
+		for(auto item: boost::make_iterator_range(GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents, GOptimizationAlgorithmT2<executor_type>::data.end())) {
 			switch(m_recombination_method){
 				case duplicationScheme::DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior
 				case duplicationScheme::RANDOMDUPLICATIONSCHEME:
 				{
-					randomRecombine(*it);
+					randomRecombine(item);
 				}
 					break;
 
 				case duplicationScheme::VALUEDUPLICATIONSCHEME:
 				{
 					if(m_n_parents == 1) {
-						(*it)->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin()));
-						(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
+						item->GObject::load(GOptimizationAlgorithmT2<executor_type>::data.begin());
+						item->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(0);
 					} else {
 						// A recombination taking into account the value does not make
 						// sense in the first iteration, as parents might not have a suitable
 						// value. Instead, this function might accidently trigger value
 						// calculation. Hence we fall back to random recombination in iteration 0.
 						// No value calculation takes place there.
-						if(GOptimizationAlgorithmT<ind_type>::inFirstIteration()) {
-							randomRecombine(*it);
+						if(GOptimizationAlgorithmT2<executor_type>::inFirstIteration()) {
+							randomRecombine(item);
 						} else {
-							valueRecombine(*it, threshold);
+							valueRecombine(item, threshold);
 						}
 					}
 				}
@@ -623,9 +561,9 @@ protected:
 				default:
 				{
 					glogger
-					<< "In GBaseParChildT<ind_type>::doRecombine(): Error!" << std::endl
-					<< "Got invalid duplication scheme: " << m_recombination_method << std::endl
-					<< GEXCEPTION;
+						<< "In GBaseParChildT2<executor_type>::doRecombine(): Error!" << std::endl
+						<< "Got invalid duplication scheme: " << m_recombination_method << std::endl
+						<< GEXCEPTION;
 				}
 					break;
 			}
@@ -634,7 +572,7 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * This function is called from GOptimizationAlgorithmT<ind_type>::optimize() and performs the
+	 * This function is called from GOptimizationAlgorithmT2<executor_type>::optimize() and performs the
 	 * actual recombination, based on the recombination schemes defined by the user.
 	 *
 	 * Note that, in DEBUG mode, this implementation will enforce a minimum number of children,
@@ -649,7 +587,7 @@ protected:
       // you must add mechanisms to "repair" the population.
       if((this->size()-m_n_parents) < m_default_n_children){
          glogger
-         << "In GBaseParChildT<ind_type>::recombine():" << std::endl
+         << "In GBaseParChildT2<executor_type>::recombine():" << std::endl
          << "Too few children. Got " << this->size()-m_n_parents << "," << std::endl
          << "but was expecting at least " << m_default_n_children << std::endl
          << GEXCEPTION;
@@ -678,12 +616,11 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * This helper function marks parents as parents and children as children.
+	 * This helper function marks parents as parents
 	 */
 	void markParents() {
-		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
-		for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.begin()+m_n_parents; ++it){
-			(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
+		for(auto item: boost::make_iterator_range(GOptimizationAlgorithmT2<executor_type>::data.begin(), GOptimizationAlgorithmT2<executor_type>::data.end()+m_n_parents)) {
+			item->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
 		}
 	}
 
@@ -692,9 +629,8 @@ protected:
 	 * This helper function marks children as children
 	 */
 	void markChildren() {
-		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
-		for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+m_n_parents; it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it){
-			(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
+		for(auto item: boost::make_iterator_range(GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents, GOptimizationAlgorithmT2<executor_type>::data.end())) {
+			item->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
 		}
 	}
 
@@ -705,22 +641,21 @@ protected:
 	 */
 	void markIndividualPositions() {
 		std::size_t pos = 0;
-		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
-		for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
-			(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
+		for(auto ind: GOptimizationAlgorithmT2<executor_type>::data) {
+			ind->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
 		}
 	}
 
 	/***************************************************************************/
 	/**
 	 * This function implements the logic that constitutes evolutionary algorithms. The
-	 * function is called by GOptimizationAlgorithmT<ind_type> for each cycle of the optimization,
+	 * function is called by GOptimizationAlgorithmT2<executor_type> for each cycle of the optimization,
 	 *
 	 * @return The value of the best individual found
 	 */
 	virtual std::tuple<double, double> cycleLogic() override {
 		// If this is not the first iteration, check whether we need to increase the population
-		if(GOptimizationAlgorithmT<ind_type>::afterFirstIteration()) {
+		if(GOptimizationAlgorithmT2<executor_type>::afterFirstIteration()) {
 			performScheduledPopulationGrowth();
 		}
 
@@ -734,16 +669,16 @@ protected:
 		runFitnessCalculation();
 
 		// Perform post-evaluation updates (mostly of individuals)
-		GOptimizationAlgorithmT<ind_type>::postEvaluationWork();
+		GOptimizationAlgorithmT2<executor_type>::postEvaluationWork();
 
 		// find out the best individuals of the population
 		selectBest();
 
 #ifdef DEBUG
-      // The dirty flag of this individual shouldn't be set
+      // The dirty flag of the fiest individual shouldn't be set
       if(!this->at(0)->isClean()) {
          glogger
-         << "In GBaseParChiltT<>::cycleLogic(): Error!" << std::endl
+         << "In GBaseParChildT2<>::cycleLogic(): Error!" << std::endl
          << "Expected clean individual in best position" << std::endl
          << GEXCEPTION;
       }
@@ -757,12 +692,12 @@ protected:
 	/***************************************************************************/
 	/**
 	 * The function checks that the population size meets the requirements and does some
-	 * tagging. It is called from within GOptimizationAlgorithmT<ind_type>::optimize(), before the
+	 * tagging. It is called from within GOptimizationAlgorithmT2<executor_type>::optimize(), before the
 	 * actual optimization cycle starts.
 	 */
 	virtual void init() override {
 		// To be performed before any other action
-		GOptimizationAlgorithmT<ind_type>::init();
+		GOptimizationAlgorithmT2<executor_type>::init();
 
 		// Perform some checks regarding population sizes
 		populationSanityChecks();
@@ -771,11 +706,13 @@ protected:
 		markParents();
 		// Let children know they are children
 
-		// Make sure derived classes (such as GTransferPopulation) have a way of finding out
-		// what the desired number of children is. This is particularly important, if, in a
-		// network environment, some individuals might not return and some individuals return
-		// late. The factual size of the population then changes and we need to take action.
-		m_default_n_children = GOptimizationAlgorithmT<ind_type>::getDefaultPopulationSize() - m_n_parents;
+		// Make sure derived classes have a way of finding out what the desired number of children is.
+		// This is particularly important, if, in a network environment, some individuals might not
+		// return and some individuals return late. The factual size of the population then changes and we
+		// need to take action.
+		m_default_n_children = GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize() - m_n_parents;
+
+
 	}
 
 	/***************************************************************************/
@@ -784,7 +721,7 @@ protected:
 	 */
 	virtual void finalize() override {
 		// Last action
-		GOptimizationAlgorithmT<ind_type>::finalize();
+		GOptimizationAlgorithmT2<executor_type>::finalize();
 	}
 
 	/***************************************************************************/
@@ -793,15 +730,15 @@ protected:
 	 * population to the appropriate size, if required. An obvious precondition is that at
 	 * least one individual has been added to the population. Individuals that have already
 	 * been added will not be replaced. This function is called once before the optimization
-	 * cycle from within GOptimizationAlgorithmT<ind_type>::optimize()
+	 * cycle from within GOptimizationAlgorithmT2<executor_type>::optimize()
 	 */
 	virtual void adjustPopulation() override {
 		// Has the population size been set at all ?
-		if(GOptimizationAlgorithmT<ind_type>::getDefaultPopulationSize() == 0) {
+		if(GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize() == 0) {
 			glogger
-			<< "In GBaseParChildT<ind_type>::adjustPopulation() :" << std::endl
+			<< "In GBaseParChildT2<executor_type>::adjustPopulation() :" << std::endl
 			<< "The population size is 0." << std::endl
-			<< "Did you call GOptimizationAlgorithmT<ind_type>::setParentsAndPopulationSize() ?" << std::endl
+			<< "Did you call GOptimizationAlgorithmT2<executor_type>::setParentsAndPopulationSize() ?" << std::endl
 			<< GEXCEPTION;
 		}
 
@@ -809,33 +746,32 @@ protected:
 		std::size_t this_sz = this->size();
 		if(this_sz == 0) {
 			glogger
-			<< "In GBaseParChildT<ind_type>::adjustPopulation() :" << std::endl
+			<< "In GBaseParChildT2<executor_type>::adjustPopulation() :" << std::endl
 			<< "size of population is 0. Did you add any individuals?" << std::endl
 			<< "We need at least one local individual" << std::endl
 			<< GEXCEPTION;
 		}
 
 		// Do the smart pointers actually point to any objects ?
-		typename std::vector<std::shared_ptr<ind_type>>::iterator it;
-		for(it=GOptimizationAlgorithmT<ind_type>::data.begin(); it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
-			if(!(*it)) { // shared_ptr can be implicitly converted to bool
+		for(auto item: GOptimizationAlgorithmT2<executor_type>::data) {
+			if(!item) { // shared_ptr can be implicitly converted to bool
 				glogger
-				<< "In GBaseParChildT<ind_type>::adjustPopulation() :" << std::endl
-				<< "Found empty smart pointer." << std::endl
-				<< GEXCEPTION;
+					<< "In GBaseParChildT2<executor_type>::adjustPopulation() :" << std::endl
+					<< "Found empty smart pointer." << std::endl
+					<< GEXCEPTION;
 			}
 		}
 
 		// Fill up as required. We are now sure we have a suitable number of individuals to do so
-		if(this_sz < GOptimizationAlgorithmT<ind_type>::getDefaultPopulationSize()) {
+		if(this_sz < GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize()) {
 			this->resize_clone(
-				GOptimizationAlgorithmT<ind_type>::getDefaultPopulationSize()
-				, GOptimizationAlgorithmT<ind_type>::data[0]
+				GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize()
+				, GOptimizationAlgorithmT2<executor_type>::data[0]
 			);
 
 			// Randomly initialize new items
-			for(it=GOptimizationAlgorithmT<ind_type>::data.begin()+this_sz; it!=GOptimizationAlgorithmT<ind_type>::data.end(); ++it) {
-				(*it)->randomInit(activityMode::ACTIVEONLY);
+			for(auto item: boost::make_iterator_range(GOptimizationAlgorithmT2<executor_type>::data.begin()+this_sz, GOptimizationAlgorithmT2<executor_type>::data.end())) {
+				item->randomInit(activityMode::ACTIVEONLY);
 			}
 		}
 	}
@@ -850,106 +786,38 @@ protected:
 			m_growth_rate != 0
 			&& (this->getDefaultPopulationSize() + m_growth_rate <= m_max_population_size)
 			&& (this->size() < m_max_population_size)
-			) {
+		) {
 			// Set a new default population size
 			this->setPopulationSizes(this->getDefaultPopulationSize() + m_growth_rate, this->getNParents());
 
 			// Add missing items as copies of the last individual in the list
-			this->resize_clone(GOptimizationAlgorithmT<ind_type>::getDefaultPopulationSize(), GOptimizationAlgorithmT<ind_type>::data[0]);
+			this->resize_clone(GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize(), GOptimizationAlgorithmT2<executor_type>::data[0]);
 		}
 	}
 
 	/***************************************************************************/
 	/**
-	 * Saves the state of the class to disc. The function adds the current generation
-	 * and the fitness to the base name. We do not save the entire population, but only
-	 * the best individuals, as these contain the "real" information. Note that no real
-	 * copying of the individual's data takes place here, as we are dealing with
-	 * std::shared_ptr objects.
-	 */
-	virtual void saveCheckpoint() const override {
-		// Copy the nParents best individuals to a vector
-		std::vector<std::shared_ptr<ind_type>> bestIndividuals;
-		typename GBaseParChildT<ind_type>::const_iterator it;
-		for(it=this->begin(); it!=this->begin() + getNParents(); ++it)
-			bestIndividuals.push_back(*it);
-
-#ifdef DEBUG // Cross check so we do not accidently trigger value calculation
-      if(this->at(0)->isDirty()) {
-         glogger
-         << "In GBaseParChildT<ind_type>::saveCheckpoint():" << std::endl
-         << "Error: class member in position " << std::distance(this->begin(),it) << " has the dirty flag set." << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
-		double newValue = this->at(0)->fitness(); // The raw fitness -- used for identification only
-
-		// Determine a suitable name for the output file
-		std::string outputFile = GOptimizationAlgorithmT<ind_type>::getCheckpointDirectory() + boost::lexical_cast<std::string>(GOptimizationAlgorithmT<ind_type>::getIteration()) + "_"
-										 + boost::lexical_cast<std::string>(newValue) + "_" + GOptimizationAlgorithmT<ind_type>::getCheckpointBaseName();
-
-		// Create the output stream and check that it is in good order
-		boost::filesystem::ofstream checkpointStream(outputFile);
-		if(!checkpointStream) {
-			glogger
-			<< "In GBaseParChildT<ind_type>::saveCheckpoint()" << std::endl
-			<< "Error: Could not open output file" << outputFile.c_str() << std::endl
-			<< GEXCEPTION;
-		}
-
-		switch(GOptimizationAlgorithmT<ind_type>::getCheckpointSerializationMode()) {
-			case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT:
-				// Write the individuals' data to disc in text mode
-			{
-				boost::archive::text_oarchive oa(checkpointStream);
-				oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
-			} // note: explicit scope here is essential so the oa-destructor gets called
-				break;
-
-			case Gem::Common::serializationMode::SERIALIZATIONMODE_XML:
-				// Write the individuals' data to disc in XML mode
-			{
-				boost::archive::xml_oarchive oa(checkpointStream);
-				oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
-			} // note: explicit scope here is essential so the oa-destructor gets called
-				break;
-
-			case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY:
-				// Write the individuals' data to disc in binary mode
-			{
-				boost::archive::binary_oarchive oa(checkpointStream);
-				oa << boost::serialization::make_nvp("bestIndividuals", bestIndividuals);
-			} // note: explicit scope here is essential so the oa-destructor gets called
-				break;
-		}
-
-		// Make sure the stream is closed again
-		checkpointStream.close();
-	}
-
-	/***************************************************************************/
-	/**
-	 * This function implements the RANDOMDUPLICATIONSCHEME scheme. This functions uses BOOST's
-	 * numeric_cast function for safe conversion between std::size_t and uint16_t.
+	 * This function implements the RANDOMDUPLICATIONSCHEME scheme.
 	 *
 	 * @param pos The position of the individual for which a new value should be chosen
 	 */
-	void randomRecombine(std::shared_ptr<ind_type>& child) {
+	void randomRecombine(std::shared_ptr<executor_type>& child) {
 		std::size_t parent_pos;
 
 		if(m_n_parents==1) {
 			parent_pos = 0;
 		} else {
-			// Choose a parent to be used for the recombination. Note that
-			// numeric_cast may throw. Exceptions need to be caught in surrounding functions.
-			// try/catch blocks would add a non-negligible overhead in this function. uniform_int(max)
+			// Choose a parent to be used for the recombination. uniform_int(0, max)
 			// returns integer values in the range [0,max]. As we want to have values in the range
 			// 0,1, ... m_n_parents-1, we need to subtract one from the argument.
-			parent_pos = m_uniform_int_distribution(GOptimizationAlgorithmT<ind_type>::m_gr, std::uniform_int_distribution<std::size_t>::param_type(0, m_n_parents-1));
+			parent_pos = m_uniform_int_distribution(
+				GOptimizationAlgorithmT2<executor_type>::m_gr
+				, std::uniform_int_distribution<std::size_t>::param_type(0, m_n_parents-1)
+			);
 		}
 
 		// Load the parent data into the individual
-		child->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin() + parent_pos));
+		child->GObject::load(GOptimizationAlgorithmT2<executor_type>::data.begin() + parent_pos);
 
 		// Let the individual know the id of the parent
 		child->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
@@ -967,17 +835,17 @@ protected:
 	 * @param threshold A std::vector<double> holding the recombination likelihoods for each parent
 	 */
 	void valueRecombine(
-		std::shared_ptr<ind_type>& p
+		std::shared_ptr<executor_type>& p
 		, const std::vector<double>& threshold
 	) {
 		bool done=false;
 		double randTest // get the test value
-            = GOptimizationAlgorithmT<ind_type>::m_uniform_real_distribution(GOptimizationAlgorithmT<ind_type>::m_gr);
+            = GOptimizationAlgorithmT2<executor_type>::m_uniform_real_distribution(GOptimizationAlgorithmT2<executor_type>::m_gr);
 
 		for(std::size_t par=0; par<m_n_parents; par++) {
 			if(randTest<threshold[par]) {
 				// Load the parent's data
-				p->GObject::load(*(GOptimizationAlgorithmT<ind_type>::data.begin() + par));
+				p->GObject::load(GOptimizationAlgorithmT2<executor_type>::data.begin() + par);
 				// Let the individual know the parent's id
 				p->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
 				done = true;
@@ -988,7 +856,7 @@ protected:
 
 		if(!done) {
 			glogger
-			<< "In GBaseParChildT<ind_type>::valueRecombine():" << std::endl
+			<< "In GBaseParChildT2<executor_type>::valueRecombine():" << std::endl
 			<< "Could not recombine." << std::endl
 			<< GEXCEPTION;
 		}
@@ -1007,8 +875,8 @@ protected:
       for(auto ind_ptr: *this) { // std::shared_ptr may be copied
          if(ind_ptr->isDirty()) {
             glogger
-            << "In GBaseParChildT<ind_type>::sortMuplusnuMode(): Error!" << std::endl
-            << "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << pos << std::endl
+            << "In GBaseParChildT2<executor_type>::sortMuplusnuMode(): Error!" << std::endl
+            << "In iteration " << GOptimizationAlgorithmT2<executor_type>::getIteration() << ": Found individual in position " << pos << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
          }
@@ -1018,10 +886,10 @@ protected:
 
 		// Only partially sort the arrays
 		std::partial_sort(
-			GOptimizationAlgorithmT<ind_type>::data.begin()
-			, GOptimizationAlgorithmT<ind_type>::data.begin() + m_n_parents
-			, GOptimizationAlgorithmT<ind_type>::data.end()
-			, [](std::shared_ptr<ind_type> x, std::shared_ptr<ind_type> y) -> bool {
+			GOptimizationAlgorithmT2<executor_type>::data.begin()
+			, GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
+			, GOptimizationAlgorithmT2<executor_type>::data.end()
+			, [](std::shared_ptr<executor_type> x, std::shared_ptr<executor_type> y) -> bool {
 				return x->minOnly_fitness() < y->minOnly_fitness();
 			}
 		);
@@ -1035,14 +903,14 @@ protected:
 	 */
 	void sortMuCommaNuMode() {
 #ifdef DEBUG
-		if (GOptimizationAlgorithmT<ind_type>::inFirstIteration()) {
+		if (GOptimizationAlgorithmT2<executor_type>::inFirstIteration()) {
 			// Check that we do not accidently trigger value calculation -- check the whole range
-			typename GBaseParChildT<ind_type>::iterator it;
+			typename GBaseParChildT2<executor_type>::iterator it;
 			for (it = this->begin(); it != this->end(); ++it) {
 				if ((*it)->isDirty()) {
 					glogger
-						<< "In GBaseParChildT<ind_type>::sortMucommanuMode(): Error!" << std::endl
-						<< "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << std::distance(
+						<< "In GBaseParChildT2<executor_type>::sortMucommanuMode(): Error!" << std::endl
+						<< "In iteration " << GOptimizationAlgorithmT2<executor_type>::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
 					) << std::endl
@@ -1052,12 +920,12 @@ protected:
 			}
 		} else {
 			// Check that we do not accidently trigger value calculation -- check children only
-			typename GBaseParChildT<ind_type>::iterator it;
+			typename GBaseParChildT2<executor_type>::iterator it;
 			for (it = this->begin() + m_n_parents; it != this->end(); ++it) {
 				if ((*it)->isDirty()) {
 					glogger
-						<< "In GBaseParChildT<ind_type>::sortMucommanuMode(): Error!" << std::endl
-						<< "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << std::distance(
+						<< "In GBaseParChildT2<executor_type>::sortMucommanuMode(): Error!" << std::endl
+						<< "In iteration " << GOptimizationAlgorithmT2<executor_type>::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
 					) << std::endl
@@ -1068,7 +936,7 @@ protected:
 		}
 #endif /* DEBUG */
 
-		if (GOptimizationAlgorithmT<ind_type>::inFirstIteration()) {
+		if (GOptimizationAlgorithmT2<executor_type>::inFirstIteration()) {
 			// We fall back to MUPLUSNU mode in the first iteration,
 			// as parents are new as well.
 			this->sortMuPlusNuMode();
@@ -1076,18 +944,18 @@ protected:
 		} else {
 			// Only sort the children
 			std::partial_sort(
-				GOptimizationAlgorithmT<ind_type>::data.begin() + m_n_parents
-				, GOptimizationAlgorithmT<ind_type>::data.begin() + 2 * m_n_parents
-				, GOptimizationAlgorithmT<ind_type>::data.end()
-				, [](std::shared_ptr<ind_type> x, std::shared_ptr<ind_type> y) -> bool {
+				GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
+				, GOptimizationAlgorithmT2<executor_type>::data.begin() + 2 * m_n_parents
+				, GOptimizationAlgorithmT2<executor_type>::data.end()
+				, [](std::shared_ptr<executor_type> x, std::shared_ptr<executor_type> y) -> bool {
 					return x->minOnly_fitness() < y->minOnly_fitness();
 				}
 			);
 
 			std::swap_ranges(
-				GOptimizationAlgorithmT<ind_type>::data.begin()
-				, GOptimizationAlgorithmT<ind_type>::data.begin() + m_n_parents
-				, GOptimizationAlgorithmT<ind_type>::data.begin() + m_n_parents
+				GOptimizationAlgorithmT2<executor_type>::data.begin()
+				, GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
+				, GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
 			);
 		}
 	}
@@ -1105,47 +973,49 @@ protected:
 	void sortMunu1pretainMode() {
 #ifdef DEBUG
       // Check that we do not accidently trigger value calculation
-      typename GBaseParChildT<ind_type>::iterator it;
-      for(it=this->begin()+m_n_parents; it!=this->end(); ++it) {
-         if((*it)->isDirty()) {
-            glogger
-            << "In GBaseParChildT<ind_type>::sortMunu1pretainMode(): Error!" << std::endl
-            << "In iteration " << GOptimizationAlgorithmT<ind_type>::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
-            << " whose dirty flag is set." << std::endl
-            << GEXCEPTION;
-         }
-      }
+		std::size_t pos = 0;
+		for(auto item: boost::make_iterator_range(this->begin()+m_n_parents, this->end())) {
+			if(item->isDirty()) {
+				glogger
+					<< "In GBaseParChildT2<executor_type>::sortMunu1pretainMode(): Error!" << std::endl
+					<< "In iteration " << GOptimizationAlgorithmT2<executor_type>::getIteration() << ": Found individual in position " << pos << std::endl
+					<< " whose dirty flag is set." << std::endl
+					<< GEXCEPTION;
+			}
+
+			pos++;
+		}
 #endif /* DEBUG */
 
-		if(m_n_parents==1 || GOptimizationAlgorithmT<ind_type>::inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
+		if(m_n_parents==1 || GOptimizationAlgorithmT2<executor_type>::inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
 			sortMuPlusNuMode();
 		} else {
 			// Sort the children
 			std::partial_sort(
-				GOptimizationAlgorithmT<ind_type>::data.begin() + m_n_parents
-				, GOptimizationAlgorithmT<ind_type>::data.begin() + 2*m_n_parents
-				, GOptimizationAlgorithmT<ind_type>::data.end()
-				, [](std::shared_ptr<ind_type> x, std::shared_ptr<ind_type> y) -> bool {
+				GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
+				, GOptimizationAlgorithmT2<executor_type>::data.begin() + 2*m_n_parents
+				, GOptimizationAlgorithmT2<executor_type>::data.end()
+				, [](std::shared_ptr<executor_type> x, std::shared_ptr<executor_type> y) -> bool {
 					return x->minOnly_fitness() < y->minOnly_fitness();
 				}
 			);
 
 			// Retrieve the best child's and the last generation's best parent's fitness
-			double bestTranformedChildFitness_MinOnly  = (*(GOptimizationAlgorithmT<ind_type>::data.begin() + m_n_parents))->minOnly_fitness();
-			double bestTranformedParentFitness_MinOnly = (*(GOptimizationAlgorithmT<ind_type>::data.begin()))->minOnly_fitness();
+			double bestTranformedChildFitness_MinOnly  = (*(GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents))->minOnly_fitness();
+			double bestTranformedParentFitness_MinOnly = (*(GOptimizationAlgorithmT2<executor_type>::data.begin()))->minOnly_fitness();
 
 			// Leave the best parent in place, if no better child was found
 			if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) { // A better child was found. Overwrite all parents
 				std::swap_ranges(
-					GOptimizationAlgorithmT<ind_type>::data.begin()
-					,GOptimizationAlgorithmT<ind_type>::data.begin()+m_n_parents
-					,GOptimizationAlgorithmT<ind_type>::data.begin()+m_n_parents
+					GOptimizationAlgorithmT2<executor_type>::data.begin()
+					,GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents
+					,GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents
 				);
 			} else {
 				std::swap_ranges(
-					GOptimizationAlgorithmT<ind_type>::data.begin()+1
-					,GOptimizationAlgorithmT<ind_type>::data.begin()+m_n_parents
-					,GOptimizationAlgorithmT<ind_type>::data.begin()+m_n_parents
+					GOptimizationAlgorithmT2<executor_type>::data.begin()+1
+					, GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents
+					, GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents
 				);
 			}
 		}
@@ -1175,12 +1045,12 @@ public:
       bool result = false;
 
       // Call the parent class'es function
-      if(GOptimizationAlgorithmT<ind_type>::modify_GUnitTests()) result = true;
+      if(GOptimizationAlgorithmT2<executor_type>::modify_GUnitTests()) result = true;
 
       return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GBaseParChildT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GBaseParChildT2<executor_type>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -1192,10 +1062,10 @@ public:
 	virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
       // Call the parent class'es function
-      GOptimizationAlgorithmT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
+      GOptimizationAlgorithmT2<executor_type>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GBaseParChildT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GBaseParChildT2<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -1206,10 +1076,10 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
       // Call the parent class'es function
-      GOptimizationAlgorithmT<ind_type>::specificTestsFailuresExpected_GUnitTests();
+      GOptimizationAlgorithmT2<executor_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
-		condnotset("GBaseParChildT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GBaseParChildT2<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 };
@@ -1224,13 +1094,13 @@ public:
 
 namespace boost {
 namespace serialization {
-template<typename ind_type>
-struct is_abstract<Gem::Geneva::GBaseParChildT<ind_type>> : public boost::true_type {};
-template<typename ind_type>
-struct is_abstract< const Gem::Geneva::GBaseParChildT<ind_type>> : public boost::true_type {};
+template<typename executor_type>
+struct is_abstract<Gem::Geneva::GBaseParChildT2<executor_type>> : public boost::true_type {};
+template<typename executor_type>
+struct is_abstract< const Gem::Geneva::GBaseParChildT2<executor_type>> : public boost::true_type {};
 }
 }
 
 /******************************************************************************/
 
-#endif /* GBASEPARCHILDEAT_HPP_ */
+#endif /* GBASEPARCHILDT2_HPP_ */
