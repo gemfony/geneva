@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GMultiThreadedGD::GMultiThreadedGD()
 	: GBaseGD(), nThreads_(
-	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
+	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -55,7 +55,7 @@ GMultiThreadedGD::GMultiThreadedGD(
 	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
 )
 	: GBaseGD(nStartingPoints, finiteStep, stepSize), nThreads_(
-	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
+	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -162,7 +162,7 @@ std::string GMultiThreadedGD::name() const {
  */
 void GMultiThreadedGD::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;

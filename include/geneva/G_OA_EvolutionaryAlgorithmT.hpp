@@ -68,7 +68,7 @@ namespace Geneva {
 /**
  * The default sorting mode
  */
-const sortingMode DEFAULTSMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
+const sortingMode DEFAULTSORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
 
 /******************************************************************************/
 /**
@@ -112,7 +112,7 @@ public:
 	  */
 	 GEvolutionaryAlgorithmT()
 		 : GParameterSetParChild()
-		 , nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+		 , nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS)))
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
 		 this->setPopulationSizes(100, 1);
@@ -384,7 +384,7 @@ public:
 
 		 gpb.registerFileParameter<sortingMode>(
 			 "sortingMethod" // The name of the variable
-			 , DEFAULTSMODE // The default value
+			 , DEFAULTSORTINGMODE // The default value
 			 , [this](sortingMode sm) { this->setSortingScheme(sm); }
 		 )
 		 << "The sorting scheme. Options" << std::endl
@@ -409,7 +409,7 @@ public:
 	  */
 	 void setNThreads(std::uint16_t nThreads) {
 		 if (nThreads == 0) {
-			 m_nThreads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+			 m_nThreads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
 		 }
 		 else {
 			 m_nThreads = nThreads;
@@ -1044,8 +1044,8 @@ private:
 
 	 executor_type m_executor; ///< Takes care of the evaluation of objects
 
-	 sortingMode m_smode = DEFAULTSMODE; ///< The chosen sorting scheme
-	 std::uint16_t m_nThreads = DEFAULTNBOOSTTHREADS; ///< The number of threads, e.g. for the parallel adaption
+	 sortingMode m_smode = DEFAULTSORTINGMODE; ///< The chosen sorting scheme
+	 std::uint16_t m_nThreads = DEFAULTNSTDTHREADS; ///< The number of threads, e.g. for the parallel adaption
 
 	 std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
 	 std::vector<std::shared_ptr<GParameterSet>> m_oldWorkItems; ///< Temporarily holds old returned work items

@@ -304,7 +304,7 @@ std::string GMultiThreadedEA::getIndividualCharacteristic() const {
  */
 void GMultiThreadedEA::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;

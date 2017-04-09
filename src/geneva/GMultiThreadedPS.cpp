@@ -45,7 +45,7 @@ namespace Geneva {
  */
 GMultiThreadedPS::GMultiThreadedPS()
 	: GBasePS(), nThreads_(
-	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS))) { /* nothing */ }
+	boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS))) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -152,7 +152,7 @@ std::string GMultiThreadedPS::name() const {
  */
 void GMultiThreadedPS::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;

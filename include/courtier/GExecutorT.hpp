@@ -405,18 +405,18 @@ public:
 	  */
 	 virtual void finalize() BASE { /* nothing */ }
 
- 	 /***************************************************************************/
- 	 /**
- 	  * Retrieve the number of individuals returned during the last iteration
- 	  */
+	 /***************************************************************************/
+	 /**
+	  * Retrieve the number of individuals returned during the last iteration
+	  */
 	 std::size_t getNReturned() const {
- 		 return m_returnedLast;
+		 return m_returnedLast;
 	 }
 
- 	 /***************************************************************************/
- 	 /**
- 	  * Retrieve the number of individuals NOT returned during the last iteration
- 	  */
+	 /***************************************************************************/
+	 /**
+	  * Retrieve the number of individuals NOT returned during the last iteration
+	  */
 	 std::size_t getNNotReturned() const {
 		 return m_notReturnedLast;
 	 }
@@ -822,6 +822,7 @@ class GBrokerExecutorT
 	 ///////////////////////////////////////////////////////////////////////
 
 	 using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>>;
+	 using GBroker_ptr = std::shared_ptr<Gem::Courtier::GBrokerT<processable_type>>;
 
 public:
 	 /***************************************************************************/
@@ -830,7 +831,7 @@ public:
 	  */
 	 GBrokerExecutorT()
 		 : GBaseExecutorT<processable_type>()
-		 , m_gpd("Maximum waiting times and returned items", 1, 2)
+			, m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -853,8 +854,8 @@ public:
 	  */
 	 explicit GBrokerExecutorT(submissionReturnMode srm)
 		 : GBaseExecutorT<processable_type>()
-		 , m_srm(srm)
-		 , m_gpd("Maximum waiting times and returned items", 1, 2)
+			, m_srm(srm)
+			, m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -877,16 +878,16 @@ public:
 	  */
 	 GBrokerExecutorT(const GBrokerExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
-		 , m_srm(cp.m_srm)
-		 , m_maxResubmissions(cp.m_maxResubmissions)
-		 , m_waitFactor(cp.m_waitFactor)
-		 , m_initialWaitFactor(cp.m_initialWaitFactor)
-		 , m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
-	 	 , m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
-	 	 , m_lastReturnTime(cp.m_lastReturnTime)
-	 	 , m_lastAverage(cp.m_lastAverage)
-	 	 , m_remainingTime(cp.m_remainingTime)
-	 	 , m_maxTimeout(cp.m_maxTimeout)
+			, m_srm(cp.m_srm)
+			, m_maxResubmissions(cp.m_maxResubmissions)
+			, m_waitFactor(cp.m_waitFactor)
+			, m_initialWaitFactor(cp.m_initialWaitFactor)
+			, m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
+			, m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
+			, m_lastReturnTime(cp.m_lastReturnTime)
+			, m_lastAverage(cp.m_lastAverage)
+			, m_remainingTime(cp.m_remainingTime)
+			, m_maxTimeout(cp.m_maxTimeout)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -985,7 +986,7 @@ public:
 		 )
 			 << "A static double factor for timeouts" << std::endl
 			 << "A wait factor <= 0 means \"no timeout\"." << std::endl
-		    << "It is suggested to use values >= 1.";
+			 << "It is suggested to use values >= 1.";
 
 		 gpb.registerFileParameter<double>(
 			 "initialWaitFactor" // The name of the variable
@@ -995,7 +996,7 @@ public:
 			 }
 		 )
 			 << "A static double factor for timeouts in the first iteration." << std::endl
-		    << "Set this to the inverse of the number of parallel processing" << std::endl
+			 << "Set this to the inverse of the number of parallel processing" << std::endl
 			 << "units being used.";
 
 		 gpb.registerFileParameter<std::size_t>(
@@ -1099,11 +1100,14 @@ public:
 		 // Make sure we have a valid buffer port
 		 if (!m_CurrentBufferPort) {
 			 m_CurrentBufferPort
-				 = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<std::shared_ptr < processable_type>> ());
+				 = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>());
 		 }
 
+		 // Retrieve a connection to the broker
+		 m_broker_ptr = GBROKER(processable_type);
+
 		 // Add the buffer port to the broker
-		 GBROKER(processable_type)->enrol(m_CurrentBufferPort);
+		 m_broker_ptr->enrol(m_CurrentBufferPort);
 	 }
 
 	 /***************************************************************************/
@@ -1113,6 +1117,9 @@ public:
 	 virtual void finalize() override {
 		 // Get rid of the buffer port
 		 m_CurrentBufferPort.reset();
+
+		 // Disconnect from the broker
+		 m_broker_ptr.reset();
 
 		 // To be called after all other finalization code
 		 GBaseExecutorT<processable_type>::finalize();
@@ -1124,8 +1131,8 @@ protected:
 	  * Allows to perform necessary setup work for an iteration
 	  */
 	 virtual void iterationInit(std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+										 , std::vector<bool> &workItemPos
+										 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 // Make sure the parent classes iterationInit function is executed first
 		 // This function will also update the iteration start time
@@ -1220,7 +1227,7 @@ private:
 		 // Store the id of the buffer port in the item
 		 w_ptr->setBufferId(m_CurrentBufferPort->getUniqueTag());
 
-	    // Perform the actual submission
+		 // Perform the actual submission
 		 m_CurrentBufferPort->push_raw(w_ptr);
 	 }
 
@@ -1303,7 +1310,7 @@ private:
 	  */
 	 bool passedMaxTime(std::size_t nReturnedCurrent) {
 		 std::chrono::duration<double> currentElapsed
-		 	= std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
+			 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
 
 		 if (currentElapsed > m_maxTimeout) {
 			 m_remainingTime = std::chrono::duration<double>(0.);
@@ -1382,7 +1389,7 @@ private:
 					 , workItemPos
 					 , oldWorkItems
 				 )
-			 ) {
+				 ) {
 				 // This covers the rare case that a "collection" of a *single*
 				 // work item was submitted.
 				 return true;
@@ -1391,7 +1398,7 @@ private:
 			 }
 		 }
 
-	 	 //------------------------------------
+		 //------------------------------------
 
 		 // Loop until a timeout is reached or all current items have returned
 		 while (true) {
@@ -1411,8 +1418,8 @@ private:
 				 , workItems
 				 , workItemPos
 				 , oldWorkItems
-				)
-			 ) {
+			 )
+				 ) {
 				 break;
 			 }
 
@@ -1555,12 +1562,13 @@ private:
 
 	 /***************************************************************************/
 	 // Local data
-	 submissionReturnMode m_srm = DEFAULTSRM; ///< Indicates how (long) the object shall wait for returns
+	 submissionReturnMode m_srm = submissionReturnMode::INCOMPLETERETURN; ///< Indicates how (long) the object shall wait for returns
 	 std::size_t m_maxResubmissions = DEFAULTMAXRESUBMISSIONS; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
 	 double m_waitFactor = DEFAULTBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts
 	 double m_initialWaitFactor = DEFAULTINITIALBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts in the first iteration
 
 	 GBufferPortT_ptr m_CurrentBufferPort; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
+	 GBroker_ptr m_broker_ptr; ///< A (possibly empty) pointer to a global broker
 
 	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
 	 std::shared_ptr<Gem::Common::GGraph2D> m_waiting_times_graph;  ///< The maximum waiting time resulting from the wait factor

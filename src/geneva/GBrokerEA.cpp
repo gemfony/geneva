@@ -46,7 +46,7 @@ namespace Geneva {
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
 	, Gem::Courtier::GBrokerExecutorT<GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
-	, nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+	, m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS)))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -58,7 +58,7 @@ GBrokerEA::GBrokerEA()
 GBrokerEA::GBrokerEA(const GBrokerEA &cp)
 	: GBaseEA(cp)
 	, Gem::Courtier::GBrokerExecutorT<GParameterSet>(cp)
-	, nThreads_(cp.nThreads_)
+	, m_n_threads(cp.m_n_threads)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -84,7 +84,7 @@ void GBrokerEA::load_(const GObject *cp) {
 	Gem::Courtier::GBrokerExecutorT<GParameterSet>::load(p_load);
 
 	// ... and then our own
-	nThreads_ = p_load->nThreads_;
+	m_n_threads = p_load->m_n_threads;
 }
 
 /******************************************************************************/
@@ -167,7 +167,7 @@ void GBrokerEA::compare(
 	// We do not compare the broker data
 
 	// ... compare the local data
-	compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
+	compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -193,7 +193,7 @@ void GBrokerEA::init() {
 	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::init();
 
 	// Initialize our thread pool
-	tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
+	m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
 }
 
 /******************************************************************************/
@@ -202,9 +202,9 @@ void GBrokerEA::init() {
  */
 void GBrokerEA::finalize() {
 	// Check whether there were any errors during thread execution
-	if (tp_ptr_->hasErrors()) {
+	if (m_tp_ptr->hasErrors()) {
 		std::vector<std::string> errors;
-		errors = tp_ptr_->getErrors();
+		errors = m_tp_ptr->getErrors();
 
 		glogger
 		<< "========================================================================" << std::endl
@@ -222,7 +222,7 @@ void GBrokerEA::finalize() {
 	}
 
 	// Terminate our thread pool
-	tp_ptr_.reset();
+	m_tp_ptr.reset();
 
 	// Finalize the broker connector
 	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::finalize();
@@ -252,11 +252,11 @@ void GBrokerEA::adaptChildren() {
 	it;
 
 	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
-		tp_ptr_->async_schedule([it]() { (*it)->adapt(); });
+		m_tp_ptr->async_schedule([it]() { (*it)->adapt(); });
 	}
 
 	// Wait for all threads in the pool to complete their work
-	tp_ptr_->wait();
+	m_tp_ptr->wait();
 }
 
 /******************************************************************************/
@@ -291,7 +291,7 @@ void GBrokerEA::runFitnessCalculation() {
 	Gem::Courtier::GBrokerExecutorT<GParameterSet>::workOn(
 		data
 		, range
-		, oldWorkItems_
+		, m_old_work_items
 		, true // Remove unprocessed items
 	);
 
@@ -312,21 +312,21 @@ void GBrokerEA::fixAfterJobSubmission() {
 	// Note that "remove_if" simply moves items not satisfying the predicate to the end of the list.
 	// We thus need to explicitly erase these items. remove_if returns the iterator position right after
 	// the last item not satisfying the predicate.
-	oldWorkItems_.erase(
+	m_old_work_items.erase(
 		std::remove_if(
-			oldWorkItems_.begin()
-			, oldWorkItems_.end()
+			m_old_work_items.begin()
+			, m_old_work_items.end()
 			, [&iteration](std::shared_ptr<GParameterSet> x) -> bool {
 				return x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 			}
 		)
-		, oldWorkItems_.end()
+		, m_old_work_items.end()
 	);
 
 	// Make it known to remaining old individuals that they are now part of a new iteration
 	std::for_each(
-		oldWorkItems_.begin()
-		, oldWorkItems_.end()
+		m_old_work_items.begin()
+		, m_old_work_items.end()
 		, [iteration](std::shared_ptr <GParameterSet> p) { p->setAssignedIteration(iteration); }
 	);
 
@@ -340,10 +340,10 @@ void GBrokerEA::fixAfterJobSubmission() {
 	);
 
 	// Attach all old work items to the end of the current population and clear the array of old items
-	for(auto item: oldWorkItems_) {
+	for(auto item: m_old_work_items) {
 		data.push_back(item);
 	}
-	oldWorkItems_.clear();
+	m_old_work_items.clear();
 
 	// Add missing individuals, as clones of the last item
 	if (data.size() < getDefaultPopulationSize()) {
@@ -430,10 +430,10 @@ void GBrokerEA::addConfigurationOptions(
  */
 void GBrokerEA::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
 	}
 	else {
-		nThreads_ = nThreads;
+		m_n_threads = nThreads;
 	}
 }
 
@@ -444,7 +444,7 @@ void GBrokerEA::setNThreads(std::uint16_t nThreads) {
  * @return The maximum number of allowed threads
  */
 std::uint16_t GBrokerEA::getNThreads() const {
-	return nThreads_;
+	return m_n_threads;
 }
 
 /******************************************************************************/

@@ -60,7 +60,7 @@ GBaseEA::GBaseEA()
  */
 GBaseEA::GBaseEA(const GBaseEA &cp)
 	: GParameterSetParChild(cp)
-	, smode_(cp.smode_)
+	, m_sorting_mode(cp.m_sorting_mode)
 {
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
@@ -129,7 +129,7 @@ void GBaseEA::load_(const GObject *cp) {
 	GParameterSetParChild::load_(cp);
 
 	// ... and then our own data
-	smode_ = p_load->smode_;
+	m_sorting_mode = p_load->m_sorting_mode;
 }
 
 /******************************************************************************/
@@ -157,7 +157,7 @@ void GBaseEA::compare(
 	Gem::Common::compare_base<GParameterSetParChild>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(smode_, p_load->smode_), token);
+	compare_t(IDENTITY(m_sorting_mode, p_load->m_sorting_mode), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -234,7 +234,7 @@ void GBaseEA::addConfigurationOptions(
 
 	gpb.registerFileParameter<sortingMode>(
 		"sortingMethod" // The name of the variable
-		, DEFAULTSMODE // The default value
+		, DEFAULTSORTINGMODE // The default value
 		, [this](sortingMode sm) { this->setSortingScheme(sm); }
 	)
 	<< "The sorting scheme. Options" << std::endl
@@ -258,7 +258,7 @@ void GBaseEA::addConfigurationOptions(
  * @param smode The desired sorting scheme
  */
 void GBaseEA::setSortingScheme(sortingMode smode) {
-	smode_ = smode;
+	m_sorting_mode = smode;
 }
 
 /******************************************************************************/
@@ -269,7 +269,7 @@ void GBaseEA::setSortingScheme(sortingMode smode) {
  * @return The current sorting scheme
  */
 sortingMode GBaseEA::getSortingScheme() const {
-	return smode_;
+	return m_sorting_mode;
 }
 
 /******************************************************************************/
@@ -313,8 +313,8 @@ void GBaseEA::populationSanityChecks() const {
 	// parents, so that the first parent individual will be replaced.
 	std::size_t popSize = getPopulationSize();
 	if ( // TODO: Why are PARETO modes missing here ?
-		((smode_ == sortingMode::MUCOMMANU_SINGLEEVAL || smode_ == sortingMode::MUNU1PRETAIN_SINGLEEVAL) && (popSize < 2 * m_n_parents)) ||
-		(smode_ == sortingMode::MUPLUSNU_SINGLEEVAL && popSize <= m_n_parents)
+		((m_sorting_mode == sortingMode::MUCOMMANU_SINGLEEVAL || m_sorting_mode == sortingMode::MUNU1PRETAIN_SINGLEEVAL) && (popSize < 2 * m_n_parents)) ||
+		(m_sorting_mode == sortingMode::MUPLUSNU_SINGLEEVAL && popSize <= m_n_parents)
 		) {
 		std::ostringstream error;
 		error
@@ -322,7 +322,7 @@ void GBaseEA::populationSanityChecks() const {
 		<< "Requested size of population is too small :" << popSize << " " << m_n_parents << std::endl
 		<< "Sorting scheme is ";
 
-		switch (smode_) {
+		switch (m_sorting_mode) {
 			case sortingMode::MUPLUSNU_SINGLEEVAL:
 				error << "MUPLUSNU_SINGLEEVAL" << std::endl;
 				break;
@@ -365,7 +365,7 @@ void GBaseEA::selectBest() {
 	}
 #endif /* DEBUG */
 
-	switch (smode_) {
+	switch (m_sorting_mode) {
 		//----------------------------------------------------------------------------
 		case sortingMode::MUPLUSNU_SINGLEEVAL: {
 			sortMuPlusNuMode();
@@ -437,7 +437,7 @@ void GBaseEA::updateGlobalBestsPQ(
    }
 #endif /* DEBUG */
 
-	switch (smode_) {
+	switch (m_sorting_mode) {
 		//----------------------------------------------------------------------------
 		case sortingMode::MUPLUSNU_SINGLEEVAL:
 		case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
@@ -485,7 +485,7 @@ void GBaseEA::updateIterationBestsPQ(
 	}
 #endif /* DEBUG */
 
-	switch (smode_) {
+	switch (m_sorting_mode) {
 		//----------------------------------------------------------------------------
 		case sortingMode::MUPLUSNU_SINGLEEVAL:
 		case sortingMode::MUNU1PRETAIN_SINGLEEVAL:

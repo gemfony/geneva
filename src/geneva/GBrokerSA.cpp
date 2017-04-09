@@ -46,7 +46,7 @@ namespace Geneva {
 GBrokerSA::GBrokerSA()
 	: GBaseSA()
 	, Gem::Courtier::GBrokerExecutorT<GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
-	, nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS)))
+	, nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS)))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -450,7 +450,7 @@ void GBrokerSA::addConfigurationOptions(
  */
 void GBrokerSA::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNBOOSTTHREADS));
+		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
 	}
 	else {
 		nThreads_ = nThreads;

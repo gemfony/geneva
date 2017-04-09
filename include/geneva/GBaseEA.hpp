@@ -66,7 +66,7 @@ namespace Geneva {
 /**
  * The default sorting mode
  */
-const sortingMode DEFAULTSMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
+const sortingMode DEFAULTSORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
 
 /******************************************************************************/
 /**
@@ -86,7 +86,7 @@ class GBaseEA
 
 		ar
 		& make_nvp("GParameterSetParChild", boost::serialization::base_object<GParameterSetParChild>(*this))
-		& BOOST_SERIALIZATION_NVP(smode_);
+		& BOOST_SERIALIZATION_NVP(m_sorting_mode);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -179,7 +179,7 @@ private:
 	/***************************************************************************/
 	// Local data
 
-	sortingMode smode_ = DEFAULTSMODE; ///< The chosen sorting scheme
+	sortingMode m_sorting_mode = DEFAULTSORTINGMODE; ///< The chosen sorting scheme
 
 public:
 	/***************************************************************************/

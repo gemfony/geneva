@@ -149,7 +149,7 @@ const std::string DEFAULTOPTALG="ea";
 
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with boost */
-const std::uint16_t DEFAULTNBOOSTTHREADS = 2;
+const std::uint16_t DEFAULTNSTDTHREADS = 2;
 
 /******************************************************************************/
 /**

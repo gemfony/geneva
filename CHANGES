@@ -64,6 +64,7 @@ The main changes for this release include:
    of a client. Note that the actual runtime may be longer, as a running workload will not be interrupted.
  - Renamed the GBrokerSelfCommunication-test to GConsumerPerformance and added the new ws-consumer for
    debugging purposes
+ - Switched default return mode for GExecutorT::GBrokerExecutorT to INCOMPLETERETURN (from full return)
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

@@ -141,7 +141,7 @@ public:
 		 if (true == m_finalized.load()) return;
 
 		 // Shut down all consumers
-		 for(auto c: m_consumerCollection) {
+		 for(auto c: m_consumer_collection_vec) {
 			 c->shutdown();
 		 }
 
@@ -171,7 +171,7 @@ public:
 			 // Clear raw and processed buffers and the consumer lists
 			 m_RawBuffers.clear();
 			 m_ProcessedBuffers.clear();
-			 m_consumerCollection.clear();
+			 m_consumer_collection_vec.clear();
 			 m_buffersPresent.store(false);
 
 			 // Make sure this function does not execute code a second time
@@ -276,7 +276,7 @@ public:
 		 }
 
 		 // Archive the consumer and its name, then start its thread
-		 m_consumerCollection.push_back(gc_ptr);
+		 m_consumer_collection_vec.push_back(gc_ptr);
 		 m_consumerTypesPresent.push_back(gc_ptr->getConsumerName());
 
 		 // Initiate processing in the consumer. This call will not block.
@@ -420,7 +420,7 @@ public:
 	  */
 	 bool hasConsumers() const {
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
-		 return m_consumerCollection.size() > 0 ? true : false;
+		 return m_consumer_collection_vec.size() > 0 ? true : false;
 	 }
 
 	 /***************************************************************************/
@@ -432,23 +432,22 @@ public:
 	 bool capableOfFullReturn() const {
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
 
-		 if (!m_consumerCollection.empty()) {
+		 if (!m_consumer_collection_vec.empty()) {
 			 glogger
 				 << "In GBrokerT<carrier_type>::capableOfFullReturn(): Error!" << std::endl
 				 << "No consumers registered" << std::endl
 				 << GEXCEPTION;
 		 }
 
-		 bool result = true;
-		 typename std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>>::const_iterator cit;
-		 for (cit = m_consumerCollection.begin(); cit != m_consumerCollection.end(); ++cit) {
-			 if (!(*cit)->capableOfFullReturn()) {
-				 result = false;
+		 bool capable_of_full_return = true;
+		 for(auto item: m_consumer_collection_vec) {
+			 if (!item->capableOfFullReturn()) {
+				 capable_of_full_return = false;
 				 break; // stop the loop
 			 }
 		 }
 
-		 return result;
+		 return capable_of_full_return;
 	 }
 
 private:
@@ -519,7 +518,7 @@ private:
 	 typename RawBufferPtrMap::iterator m_currentGetPosition; ///< The current get position in the m_RawBuffers collection
 	 std::atomic<bool> m_buffersPresent; ///< Set to true once the first buffers have been enrolled
 
-	 std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>> m_consumerCollection; ///< Holds the actual consumers
+	 std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>> m_consumer_collection_vec; ///< Holds the actual consumers
 	 std::vector<std::string> m_consumerTypesPresent; ///< Holds identifying strings for each consumer
 };
 
