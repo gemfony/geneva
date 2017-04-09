@@ -408,13 +408,6 @@ void GBaseEA::selectBest() {
 			break;
 
 			//----------------------------------------------------------------------------
-		default: {
-			glogger
-			<< "In GBaseEA::selectBest(): Error" << std::endl
-			<< "Incorrect sorting scheme requested: " << smode_ << std::endl
-			<< GEXCEPTION;
-		}
-			break;
 	}
 
 	// Let parents know they are parents
@@ -467,13 +460,6 @@ void GBaseEA::updateGlobalBestsPQ(
 			break;
 
 			//----------------------------------------------------------------------------
-		default: {
-			glogger
-			<< "In GBaseEA::updateGlobalBestsPQ(): Error" << std::endl
-			<< "Incorrect sorting scheme requested: " << smode_ << std::endl
-			<< GEXCEPTION;
-		}
-			break;
 	}
 }
 
@@ -521,12 +507,6 @@ void GBaseEA::updateIterationBestsPQ(
 		} break;
 
 			//----------------------------------------------------------------------------
-		default: {
-			glogger
-			<< "In GBaseEA::updateGlobalBestsPQ(): Error" << std::endl
-			<< "Incorrect sorting scheme requested: " << smode_ << std::endl
-			<< GEXCEPTION;
-		} break;
 	}
 }
 
@@ -560,6 +540,7 @@ void GBaseEA::sortMuPlusNuParetoMode() {
 	it = this->begin();
 	if (!(*it)->hasMultipleFitnessCriteria()) {
 		sortMuPlusNuMode();
+		return;
 	}
 
 	// Mark all individuals as being on the pareto front initially

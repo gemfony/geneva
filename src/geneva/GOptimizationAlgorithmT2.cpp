@@ -36,7 +36,7 @@
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 
-// #include "geneva/GBaseParChildT2.hpp"
+#include "geneva/GBaseParChildT2.hpp"
 
 /******************************************************************************/
 

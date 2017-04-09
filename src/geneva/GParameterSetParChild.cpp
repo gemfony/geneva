@@ -207,7 +207,7 @@ void GParameterSetParChild::doRecombine() {
 	}
 
 	std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-	std::bernoulli_distribution amalgamationWanted(amalgamationLikelihood_); // true with a likelihood of amalgamationLikelihood_
+	std::bernoulli_distribution amalgamationWanted(amalgamationLikelihood_); // true with a likelihood of m_amalgamation_likelihood
 	for (it = GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents;
 		  it != GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
 		// Retrieve a random number so we can decide whether to perform cross-over or duplication
@@ -241,14 +241,6 @@ void GParameterSetParChild::doRecombine() {
 							valueRecombine(*it, threshold);
 						}
 					}
-				}
-					break;
-
-				default: {
-					glogger
-					<< "In GParameterSetParChild::doRecombine(): Error!" << std::endl
-					<< "Got invalid duplication scheme: " << m_recombination_method << std::endl
-					<< GEXCEPTION;
 				}
 					break;
 			}
