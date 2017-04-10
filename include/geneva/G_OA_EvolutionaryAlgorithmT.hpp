@@ -556,7 +556,7 @@ protected:
 	 /**
 	  * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
 	  */
-	 // TODO: Add m_tp_ptr tp class
+	 // TODO: Add m_gtp_ptr tp class
 	 virtual void adaptChildren() override {
 		 std::tuple<std::size_t, std::size_t> range = getAdaptionRange();
 		 std::vector<std::shared_ptr < GParameterSet>> ::iterator

@@ -42,6 +42,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <chrono>
 
 // Boost headers go here
 
@@ -193,7 +194,7 @@ template<typename Archive>
 void save(
 	Archive &ar
 	, const boost::logic::tribool &val
-	, unsigned int
+	, unsigned int version
 ) {
 	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
 	if (val == true)
@@ -212,7 +213,7 @@ template<typename Archive>
 void load(
 	Archive &ar
 	, boost::logic::tribool &val
-	, unsigned int
+	, unsigned int version
 ) {
 	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
 	ar &make_nvp("tbs", tbs);
@@ -240,9 +241,9 @@ template<typename Archive>
 void save(
 	Archive &ar
 	, const std::chrono::duration<double> &val
-	, unsigned int
+	, unsigned int version
 ) {
-	double chrono_duration = val.count();
+	typename std::chrono::duration<double>::rep chrono_duration = val.count();
 	ar & make_nvp("chrono_duration", chrono_duration);
 }
 
@@ -254,11 +255,41 @@ template<typename Archive>
 void load(
 	Archive &ar
 	, std::chrono::duration<double> &val
-	, unsigned int
+	, unsigned int version
 ) {
-	double chrono_duration = 0.;
-	ar &make_nvp("chrono_duration", chrono_duration);
+	typename std::chrono::duration<double>::rep chrono_duration;
+	ar & make_nvp("chrono_duration", chrono_duration);
 	val = std::chrono::duration<double>(chrono_duration);
+}
+
+/******************************************************************************/
+/**
+ * Loads a time point from an archive
+ */
+template<class Archive>
+void save(
+	Archive& ar
+	, std::chrono::system_clock::time_point const& val
+	, unsigned int version
+) {
+	std::chrono::milliseconds::rep representation
+		= std::chrono::duration_cast<std::chrono::milliseconds>(val.time_since_epoch()).count();
+	ar & make_nvp("timpoint_milliseconds", representation);;
+}
+
+/******************************************************************************/
+/**
+ * Saves a time point to an archive
+ */
+template<class Archive>
+void load(
+	Archive& ar
+	, std::chrono::system_clock::time_point& val
+	, unsigned int version
+) {
+	std::chrono::milliseconds::rep representation;
+	ar & make_nvp("timpoint_milliseconds", representation);
+	val = std::chrono::system_clock::time_point(std::chrono::milliseconds(representation));
 }
 
 /******************************************************************************/
@@ -272,6 +303,18 @@ void load(
  */
 BOOST_SERIALIZATION_SPLIT_FREE(boost::logic::tribool)
 BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::duration<double>)
+BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::system_clock::time_point)
+
+/*
+template<class Archive, typename clock_type>
+inline void serialize(
+	Archive & ar
+	, std::chrono::time_point<clock_type>& time_point
+	, unsigned int version
+) {
+	boost::serialization::split_free(ar, time_point, version);
+}
+ */
 
 /******************************************************************************/
 

@@ -43,16 +43,17 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GBrokerPS::GBrokerPS() :
-	GBasePS(),
-	Gem::Courtier::GBrokerExecutorT<GParameterSet>(Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
+GBrokerPS::GBrokerPS() : GBasePS()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
 GBrokerPS::GBrokerPS(const GBrokerPS &cp)
-	: GBasePS(cp), Gem::Courtier::GBrokerExecutorT<GParameterSet>(cp) { /* nothing */ }
+	: GBasePS(cp)
+   , Gem::Courtier::GBrokerExecutorT<GParameterSet>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -259,20 +260,46 @@ void GBrokerPS::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
-	std::tuple<std::size_t, std::size_t> range(0, this->size());
-	complete = GBrokerExecutorT<GParameterSet>::workOn(
+
+	std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
+	complete = Gem::Courtier::GBrokerExecutorT<GParameterSet>::workOn(
 		data
-		, range
-		, oldWorkItems_
-		, false // Do not remove unprocessed item
+		, workItemPos
+		, m_oldWorkItems_vec
+		, true // resubmit unprocessed items
+		, "GBrokerPS::runFitnessCalculation()"
 	);
 
+	//--------------------------------------------------------------------------------
+	// Some error checks
+
+	// Check if all work items have returned
 	if (!complete) {
 		glogger
-		<< "In GBrokerPS::runFitnessCalculation(): Error!" << std::endl
-		<< "No complete set of items received" << std::endl
-		<< GEXCEPTION;
+			<< "In GBrokerPS::runFitnessCalculation(): Error!" << std::endl
+			<< "No complete set of items received" << std::endl
+			<< GEXCEPTION;
 	}
+
+	// Check if work items exists whose processing function has thrown an exception.
+	// This is a severe error, as we need evaluations for all work items in a gradient
+	// descent.
+	if(auto it = std::find_if(
+		data.begin()
+		, data.end()
+		, [this](std::shared_ptr<GParameterSet> p) -> bool {
+			return p->processing_was_unsuccessful();
+		}
+	) != data.end()) {
+		glogger
+			<< "In GBrokerPS::runFitnessCalculation(): Error!" << std::endl
+			<< "At least one individual could not be processed" << std::endl
+			<< "due to errors in the (possibly user-supplied) process() function." << std::endl
+			<< "This is a severe error and we cannot continue" << std::endl
+			<< GEXCEPTION;
+	}
+
+	//--------------------------------------------------------------------------------
 }
 
 /******************************************************************************/

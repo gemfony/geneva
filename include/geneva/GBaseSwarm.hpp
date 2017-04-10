@@ -82,22 +82,22 @@ class GBaseSwarm
 
 		ar
 		& make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>>(*this))
-		& BOOST_SERIALIZATION_NVP(nNeighborhoods_)
-		& BOOST_SERIALIZATION_NVP(defaultNNeighborhoodMembers_)
-		& BOOST_SERIALIZATION_NVP(nNeighborhoodMembers_)
-		& BOOST_SERIALIZATION_NVP(global_best_)
-		& BOOST_SERIALIZATION_NVP(neighborhood_bests_)
-		& BOOST_SERIALIZATION_NVP(c_personal_)
-		& BOOST_SERIALIZATION_NVP(c_neighborhood_)
-		& BOOST_SERIALIZATION_NVP(c_global_)
-		& BOOST_SERIALIZATION_NVP(c_velocity_)
-		& BOOST_SERIALIZATION_NVP(updateRule_)
-		& BOOST_SERIALIZATION_NVP(randomFillUp_)
-		& BOOST_SERIALIZATION_NVP(repulsionThreshold_)
-		& BOOST_SERIALIZATION_NVP(dblLowerParameterBoundaries_)
-		& BOOST_SERIALIZATION_NVP(dblUpperParameterBoundaries_)
-		& BOOST_SERIALIZATION_NVP(dblVelVecMax_)
-		& BOOST_SERIALIZATION_NVP(velocityRangePercentage_);
+		& BOOST_SERIALIZATION_NVP(m_n_neighborhoods)
+		& BOOST_SERIALIZATION_NVP(m_default_n_neighborhood_members)
+		& BOOST_SERIALIZATION_NVP(m_n_neighborhood_members_vec)
+		& BOOST_SERIALIZATION_NVP(m_global_best_vec)
+		& BOOST_SERIALIZATION_NVP(m_neighborhood_bests_vec)
+		& BOOST_SERIALIZATION_NVP(m_c_personal)
+		& BOOST_SERIALIZATION_NVP(m_c_neighborhood)
+		& BOOST_SERIALIZATION_NVP(m_c_global)
+		& BOOST_SERIALIZATION_NVP(m_c_velocity)
+		& BOOST_SERIALIZATION_NVP(m_update_rule)
+		& BOOST_SERIALIZATION_NVP(m_random_fill_up)
+		& BOOST_SERIALIZATION_NVP(m_repulsion_threshold)
+		& BOOST_SERIALIZATION_NVP(m_dbl_lower_parameter_boundaries)
+		& BOOST_SERIALIZATION_NVP(m_dbl_upper_parameter_boundaries)
+		& BOOST_SERIALIZATION_NVP(m_dbl_vel_vec_max)
+		& BOOST_SERIALIZATION_NVP(m_velocity_range_percentage);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -211,10 +211,10 @@ public:
 	){
 #ifdef DEBUG
 		// Check that the neighborhood is in a valid range
-		if(neighborhood >= nNeighborhoods_) {
+		if(neighborhood >= m_n_neighborhoods) {
 		   glogger
 		   << "In GBaseSwarm::getBestNeighborhoodIndividual<>() : Error" << std::endl
-         << "Requested neighborhood which does not exist: " << neighborhood << " / " << nNeighborhoods_ << std::endl
+         << "Requested neighborhood which does not exist: " << neighborhood << " / " << m_n_neighborhoods << std::endl
          << GEXCEPTION;
 
 		   // Make the compiler happy
@@ -223,7 +223,7 @@ public:
 #endif /* DEBUG */
 
 		// Does error checks on the conversion internally
-		return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(neighborhood_bests_[neighborhood]);
+		return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(m_neighborhood_bests_vec[neighborhood]);
 	}
 
 	/** @brief Emits a name for this class / object */
@@ -281,29 +281,29 @@ protected:
 	/** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
 	G_API_GENEVA void pruneVelocity(std::vector<double>&);
 
-	std::size_t nNeighborhoods_ = (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS : 1); ///< The number of neighborhoods in the population
-	std::size_t defaultNNeighborhoodMembers_ = ((DEFAULTNNEIGHBORHOODMEMBERS <= 1) ? 2 : DEFAULTNNEIGHBORHOODMEMBERS); ///< The desired number of individuals belonging to each neighborhood
-	std::vector<std::size_t> nNeighborhoodMembers_ = std::vector<std::size_t>(nNeighborhoods_, 0); ///< The current number of individuals belonging to each neighborhood
+	std::size_t m_n_neighborhoods = (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS : 1); ///< The number of neighborhoods in the population
+	std::size_t m_default_n_neighborhood_members = ((DEFAULTNNEIGHBORHOODMEMBERS <= 1) ? 2 : DEFAULTNNEIGHBORHOODMEMBERS); ///< The desired number of individuals belonging to each neighborhood
+	std::vector<std::size_t> m_n_neighborhood_members_vec = std::vector<std::size_t>(m_n_neighborhoods, 0); ///< The current number of individuals belonging to each neighborhood
 
-	std::shared_ptr<GParameterSet> global_best_; ///< The globally best individual
-	std::vector<std::shared_ptr<GParameterSet>> neighborhood_bests_ = std::vector<std::shared_ptr<GParameterSet>>(nNeighborhoods_); ///< The collection of best individuals from each neighborhood
-	std::vector<std::shared_ptr<GParameterSet>> velocities_ = std::vector<std::shared_ptr<GParameterSet>>(); ///< Holds velocities, as calculated in the previous iteration
+	std::shared_ptr<GParameterSet> m_global_best_vec; ///< The globally best individual
+	std::vector<std::shared_ptr<GParameterSet>> m_neighborhood_bests_vec = std::vector<std::shared_ptr<GParameterSet>>(m_n_neighborhoods); ///< The collection of best individuals from each neighborhood
+	std::vector<std::shared_ptr<GParameterSet>> m_velocities_vec = std::vector<std::shared_ptr<GParameterSet>>(); ///< Holds velocities, as calculated in the previous iteration
 
-	double c_personal_ = DEFAULTCPERSONAL; ///< A factor for multiplication of personal best distances
-	double c_neighborhood_ = DEFAULTCNEIGHBORHOOD; ///< A factor for multiplication of neighborhood best distances
-	double c_global_ = DEFAULTCGLOBAL; ///< A factor for multiplication of global best distances
-	double c_velocity_ = DEFAULTCVELOCITY; ///< A factor for multiplication of velocities
+	double m_c_personal = DEFAULTCPERSONAL; ///< A factor for multiplication of personal best distances
+	double m_c_neighborhood = DEFAULTCNEIGHBORHOOD; ///< A factor for multiplication of neighborhood best distances
+	double m_c_global = DEFAULTCGLOBAL; ///< A factor for multiplication of global best distances
+	double m_c_velocity = DEFAULTCVELOCITY; ///< A factor for multiplication of velocities
 
-	updateRule updateRule_ = DEFAULTUPDATERULE; ///< Specifies how the parameters are updated
-	bool randomFillUp_ = true; ///< Specifies whether neighborhoods are filled up with random values
+	updateRule m_update_rule = DEFAULTUPDATERULE; ///< Specifies how the parameters are updated
+	bool m_random_fill_up = true; ///< Specifies whether neighborhoods are filled up with random values
 
-	std::uint32_t repulsionThreshold_ = DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
+	std::uint32_t m_repulsion_threshold = DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
 
-	std::vector<double> dblLowerParameterBoundaries_ = std::vector<double>(); ///< Holds lower boundaries of double parameters
-	std::vector<double> dblUpperParameterBoundaries_ = std::vector<double>(); ///< Holds upper boundaries of double parameters
-	std::vector<double> dblVelVecMax_ = std::vector<double>(); ///< Holds the maximum allowed values of double-type velocities
+	std::vector<double> m_dbl_lower_parameter_boundaries = std::vector<double>(); ///< Holds lower boundaries of double parameters
+	std::vector<double> m_dbl_upper_parameter_boundaries = std::vector<double>(); ///< Holds upper boundaries of double parameters
+	std::vector<double> m_dbl_vel_vec_max = std::vector<double>(); ///< Holds the maximum allowed values of double-type velocities
 
-	double velocityRangePercentage_ = DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
+	double m_velocity_range_percentage = DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
 	/** Updates the personal best of an individual */
 	G_API_GENEVA void updatePersonalBest(std::shared_ptr<GParameterSet>);

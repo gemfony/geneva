@@ -137,7 +137,6 @@ const std::uint32_t DEFAULTNWORKERSAP = 4;
 const GCPModes DEFAULTEXECUTIONMODEAP = GCPModes::MULTITHREADING;
 const unsigned short DEFAULTPORTAP=10000;
 const std::string DEFAULTIPAP="localhost";
-const std::string DEFAULTCONFIGFILEAP="./GConsumerPerformance.cfg";
 const std::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
 const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
 const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
@@ -153,7 +152,6 @@ bool parseCommandLine(
 	, std::string &ip
 	, unsigned short &port
 	, Gem::Common::serializationMode &serMode
-	, submissionReturnMode &srm
 	, bool &useDirectBrokerConnection
 	, std::uint32_t &nProducers
 	, std::uint32_t &nProductionCycles
@@ -202,14 +200,6 @@ bool parseCommandLine(
 		, serMode
 		, DEFAULTSERMODEAP
 		, "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)"
-	);
-
-	gpb.registerCLParameter<submissionReturnMode>(
-		"srm,f"
-		, srm
-		, DEFAULTSRMAP
-		, "Whether items from older iterations may return and an incomplete return is acceptable (0), items "
-			"should be resubmitted (1) or whether a complete return of a given submission\'s items is required"
 	);
 
 	gpb.registerCLParameter<bool>(
@@ -281,7 +271,6 @@ void connectorProducer(
 	std::uint32_t nProductionCycles
 	, std::uint32_t nContainerObjects
 	, std::size_t nContainerEntries
-	, submissionReturnMode srm
 	, std::size_t maxResubmissions
 ) {
 	std::size_t id;
@@ -292,7 +281,7 @@ void connectorProducer(
 	}
 
 	// Holds the broker connector (i.e. the entity that connects us to the broker)
-	Gem::Courtier::GBrokerExecutorT<WORKLOAD> brokerConnector(srm);
+	Gem::Courtier::GBrokerExecutorT<WORKLOAD> brokerConnector;
 	brokerConnector.init(); // This will particularly set up the buffer port
 	brokerConnector.setMaxResubmissions(maxResubmissions);
 
@@ -315,11 +304,23 @@ void connectorProducer(
 		}
 		nSentItems += boost::numeric_cast<std::uint32_t>(data.size());
 
+		std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
 		bool complete = brokerConnector.workOn(
 			data
-			, std::tuple<std::size_t,std::size_t>(0, data.size())
+			, workItemPos
 			, oldWorkItems
-			, true // Remove unprocessed items
+			, false // Do not resubmit unprocessed items
+		);
+
+		// Take care of unprocessed items
+		Gem::Common::erase_according_to_flags(data, workItemPos, Gem::Courtier::GBC_UNPROCESSED, 0, data.size());
+
+		// Remove items for which an error has occurred during processing
+		Gem::Common::erase_if(
+			data
+			, [](std::shared_ptr<WORKLOAD> p) -> bool {
+				return p->processing_was_unsuccessful();
+			}
 		);
 
 		nReceivedItemsNew += boost::numeric_cast<std::uint32_t>(data.size());
@@ -402,7 +403,6 @@ int main(int argc, char **argv) {
 	Gem::Common::serializationMode serMode;
 	std::uint32_t nProducers;
 	std::uint32_t nProductionCycles;
-	submissionReturnMode srm;
 	std::size_t maxResubmissions;
 	std::uint32_t nContainerObjects;
 	std::size_t nContainerEntries;
@@ -427,7 +427,6 @@ int main(int argc, char **argv) {
 		, ip
 		, port
 		, serMode
-		, srm
 		, useDirectBrokerConnection
 		, nProducers
 		, nProductionCycles
@@ -489,7 +488,6 @@ int main(int argc, char **argv) {
 				, nProductionCycles
 				, nContainerObjects
 				, nContainerEntries
-				, srm
 				, maxResubmissions
 			)
 			, nProducers
@@ -554,10 +552,10 @@ int main(int argc, char **argv) {
 			std::cout << "Using multithreading and internal serial networking" << std::endl;
 
 			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
-			std::shared_ptr< GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
+			std::shared_ptr<GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
 
-			GBROKER(WORKLOAD)->enrol(gatc);
-			GBROKER(WORKLOAD)->enrol(gbtc);
+			std::vector<std::shared_ptr<GBaseConsumerT<WORKLOAD>>> consumers {gatc, gbtc};
+			GBROKER(WORKLOAD)->enrol(consumers);
 
 			// Start the workers
 			clients.clear();
@@ -577,8 +575,8 @@ int main(int argc, char **argv) {
 			std::shared_ptr<GAsioSerialTCPConsumerT<WORKLOAD>> gatc(new GAsioSerialTCPConsumerT<WORKLOAD>(port));
 			std::shared_ptr< GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
 
-			GBROKER(WORKLOAD)->enrol(gatc);
-			GBROKER(WORKLOAD)->enrol(gbtc);
+			std::vector<std::shared_ptr<GBaseConsumerT<WORKLOAD>>> consumers {gatc, gbtc};
+			GBROKER(WORKLOAD)->enrol(consumers);
 		}
 			break;
 
@@ -618,8 +616,8 @@ int main(int argc, char **argv) {
 			std::shared_ptr<GAsioAsyncTCPConsumerT<WORKLOAD>> gatc(new GAsioAsyncTCPConsumerT<WORKLOAD>(port));
 			std::shared_ptr<GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
 
-			GBROKER(WORKLOAD)->enrol(gatc);
-			GBROKER(WORKLOAD)->enrol(gbtc);
+			std::vector<std::shared_ptr<GBaseConsumerT<WORKLOAD>>> consumers {gatc, gbtc};
+			GBROKER(WORKLOAD)->enrol(consumers);
 
 			// Start the workers
 			clients.clear();
@@ -639,8 +637,8 @@ int main(int argc, char **argv) {
 			std::shared_ptr<GAsioAsyncTCPConsumerT<WORKLOAD>> gatc(new GAsioAsyncTCPConsumerT<WORKLOAD>(port));
 			std::shared_ptr<GStdThreadConsumerT<WORKLOAD>> gbtc(new GStdThreadConsumerT<WORKLOAD>());
 
-			GBROKER(WORKLOAD)->enrol(gatc);
-			GBROKER(WORKLOAD)->enrol(gbtc);
+			std::vector<std::shared_ptr<GBaseConsumerT<WORKLOAD>>> consumers {gatc, gbtc};
+			GBROKER(WORKLOAD)->enrol(consumers);
 		}
 			break;
 	};

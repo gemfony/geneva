@@ -43,32 +43,36 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GBrokerGD::GBrokerGD()
-	: GBaseGD(), Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(
-	Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
+GBrokerGD::GBrokerGD() : GBaseGD()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the number of starting points and the size of the finite step
  */
 GBrokerGD::GBrokerGD(
-	const std::size_t &nStartingPoints, const double &finiteStep, const double &stepSize
+	const std::size_t &nStartingPoints
+	, const double &finiteStep
+	, const double &stepSize
 )
-	: GBaseGD(nStartingPoints, finiteStep, stepSize), Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(
-	Gem::Courtier::submissionReturnMode::RESUBMISSIONAFTERTIMEOUT) { /* nothing */ }
+	: GBaseGD(nStartingPoints, finiteStep, stepSize)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A standard copy constructor
  */
 GBrokerGD::GBrokerGD(const GBrokerGD &cp)
-	: GBaseGD(cp), Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(cp) { /* nothing */ }
+	: GBaseGD(cp)
+   , Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor.
  */
-GBrokerGD::~GBrokerGD() { /* nothing */ }
+GBrokerGD::~GBrokerGD()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -125,7 +129,9 @@ bool GBrokerGD::operator!=(const GBrokerGD &cp) const {
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBrokerGD::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
@@ -269,16 +275,44 @@ void GBrokerGD::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
-	std::tuple<std::size_t, std::size_t> range(0, this->size());
-	complete = GBrokerExecutorT<Gem::Geneva::GParameterSet>::workOn(
-		data, range, oldWorkItems_, false // Do not remove unprocessed item
+
+	std::vector<std::shared_ptr<GParameterSet>> old_work_items;
+	std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
+	complete = Gem::Courtier::GBrokerExecutorT<GParameterSet>::workOn(
+		data
+		, workItemPos
+		, old_work_items
+		, true // resubmit unprocessed items
+		, "GBrokerGD::runFitnessCalculation()"
 	);
 
+	//--------------------------------------------------------------------------------
+	// Some error checks
+
+	// Check if all work items have returned
 	if (!complete) {
 		glogger
-		<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
-		<< "No complete set of items received" << std::endl
-		<< GEXCEPTION;
+			<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
+			<< "No complete set of items received" << std::endl
+			<< GEXCEPTION;
+	}
+
+	// Check if work items exists whose processing function has thrown an exception.
+	// This is a severe error, as we need evaluations for all work items in a gradient
+	// descent.
+	if(auto it = std::find_if(
+		data.begin()
+		, data.end()
+		, [this](std::shared_ptr<GParameterSet> p) -> bool {
+			return p->processing_was_unsuccessful();
+		}
+	) != data.end()) {
+		glogger
+			<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
+			<< "At least one individual could not be processed" << std::endl
+			<< "due to errors in the (possibly user-supplied) process() function." << std::endl
+			<< "This is a severe error and we cannot continue" << std::endl
+			<< GEXCEPTION;
 	}
 
 	//--------------------------------------------------------------------------------

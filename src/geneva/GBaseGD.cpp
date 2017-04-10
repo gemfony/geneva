@@ -389,8 +389,8 @@ void GBaseGD::load_(const GObject *cp) {
 	finiteStep_ = p_load->finiteStep_;
 	stepSize_ = p_load->stepSize_;
 	// stepRatio_ = p_load->stepRatio_; // temporary parameter
-	// dblLowerParameterBoundaries_ = p_load->dblLowerParameterBoundaries_; // temporary parameter
-	// dblUpperParameterBoundaries_ = p_load->dblUpperParameterBoundaries_; // temporary parameter
+	// m_dbl_lower_parameter_boundaries = p_load->m_dbl_lower_parameter_boundaries; // temporary parameter
+	// m_dbl_upper_parameter_boundaries = p_load->m_dbl_upper_parameter_boundaries; // temporary parameter
 	// adjustedFiniteStep_ = p_load->adjustedFiniteStep_; // temporary parameter
 }
 

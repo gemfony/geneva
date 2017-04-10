@@ -404,7 +404,10 @@ public:
 		 * The default constructor
 		 */
 		GWorker()
-			: m_thread_id(0), m_outer(nullptr), m_parsed(false), m_runLoopHasCommenced(false)
+			: m_thread_id(0)
+		   , m_outer(nullptr)
+		   , m_parsed(false)
+		   , m_runLoopHasCommenced(false)
 		{ /* nothing */ }
 
 	protected:

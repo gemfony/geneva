@@ -148,7 +148,7 @@ const double FITNESSSIGMOIDSTEEPNESS  = 1000.;
 const std::string DEFAULTOPTALG="ea";
 
 /******************************************************************************/
-/** @brief The default number of threads for parallelization with boost */
+/** @brief The default number of threads for parallelization with threads */
 const std::uint16_t DEFAULTNSTDTHREADS = 2;
 
 /******************************************************************************/

@@ -76,6 +76,7 @@
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GPlotDesigner.hpp"
+#include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GThreadPool.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GBrokerT.hpp"
@@ -84,6 +85,16 @@
 
 namespace Gem {
 namespace Courtier {
+
+/**
+ * Invariants of this hierarchy:
+ * - for consumers indicating that they are capable of full return, the process()
+ *   function must always return a valid result (even if the user-code crashes)
+ */
+
+// TODO: Even in the case "capable of full return" we need to take into account
+// that work items may return unprocessed. E.g. the processing code itself
+// might throw.
 
 /******************************************************************************/
 /**
@@ -109,6 +120,9 @@ public:
 	 template<typename Archive>
 	 void serialize(Archive &ar, const unsigned int) {
 		 using boost::serialization::make_nvp;
+
+		 ar
+		 & BOOST_SERIALIZATION_NVP(m_maxResubmissions);
 	 }
 
 	 /////////////////////////////////////////////////////////////////////////////
@@ -129,6 +143,7 @@ public:
 	  * @param cp A copy of another GBrokerConnector object
 	  */
 	 GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
+	 	: m_maxResubmissions(cp.m_maxResubmissions)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -158,7 +173,30 @@ public:
 	  * @param cp A constant pointer to another GBaseExecutorT object
 	  */
 	 virtual void load(GBaseExecutorT<processable_type> const *const cp) BASE
-	 { /* nothing */ }
+	 {
+		 m_maxResubmissions = cp->m_maxResubmissions;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Specifies how often work items should be resubmitted in the case a full return
+	  * of work items is expected.
+	  *
+	  * @param maxResubmissions The maximum number of allowed resubmissions
+	  */
+	 void setMaxResubmissions(std::size_t maxResubmissions) {
+		 m_maxResubmissions = maxResubmissions;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns the maximum number of allowed resubmissions
+	  *
+	  * @return The maximum number of allowed resubmissions
+	  */
+	 std::size_t getMaxResubmissions() const {
+		 return m_maxResubmissions;
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -175,19 +213,22 @@ public:
 	  * to submit items that are not derived from GProcessingContainerT<processable_type>.
 	  * This function will not alter the size of the workItems vector. It does not
 	  * guarantee that all work items have indeed been processed. You can find out
-	  * via the workItemPos vector.
+	  * via the workItemPos vector, which items were processed.
+	  *
+	  * TODO: Catch exceptions in this loop or in the entire function
 	  *
 	  * @param workItems A vector with work items to be evaluated beyond the broker
 	  * @param workItemPos A vector of the item positions to be worked on
 	  * @param oldWorkItems Will hold old work items after the job submission
-	  * @param originator Optionally holds information on the caller
+	  * @param resubmitUnprocessed Indicates whether unprocessed items should be resubmitted
+	  * @param caller Optionally holds information on the caller
 	  * @return A boolean indicating whether all expected items have returned
 	  */
 	 bool workOn(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
+		 , std::vector<bool>& workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-		 , bool removeUnprocessed = true
+		 , bool resubmitUnprocessed = false
 		 , const std::string &caller = std::string()
 	 ) {
 		 bool completed = false;
@@ -216,43 +257,37 @@ public:
 		 // Perform necessary setup work for an iteration (a facility for derived classes)
 		 this->iterationInit(workItems, workItemPos, oldWorkItems);
 
-		 // Submit all work items
-		 this->submitAllWorkItems(workItems, workItemPos);
+		 std::size_t nResubmissions = 0;
+		 do {
+			 // Submit all work items.
+			 this->submitAllWorkItems(
+				 workItems
+				 , workItemPos
+			 );
 
-		 // Wait for work items to complete. This function needs to
-		 // be re-implemented in derived classes.
-		 completed = waitForReturn(workItems, workItemPos, oldWorkItems);
+			 // Wait for work items to complete. This function needs to
+			 // be re-implemented in derived classes.
+			 completed = waitForReturn(
+				 workItems
+				 , workItemPos
+				 , oldWorkItems
+			 );
+
+			 // We may leave if all items have returned
+			 if(completed) break;
+
+			 // We may leave if the user hasn't asked to resubmit unprocessed items
+			 if(!resubmitUnprocessed) break;
+		 } while(m_maxResubmissions>0?(++nResubmissions < m_maxResubmissions):true);
+		 // Note: m_maxResubmissions will result in an endless loop of resubmissions
 
 		 // Perform necessary cleanup work for an iteration (a facility for derived classes)
 		 this->iterationFinalize(workItems, workItemPos, oldWorkItems);
 
 		 // Find out about the number of returned items
-		 m_notReturnedLast = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
-		 m_returnedLast    = m_expectedNumber - m_notReturnedLast;
-
-		 if (m_returnedLast == 0) { // Check whether any work items have returned at all
-			 glogger
-				 << "In GBaseExecutorT<processable_type>::iterationFinalize(): Warning!" << std::endl
-				 << "No current items have returned with" << std::endl
-				 << "m_expectedNumber  = " << m_expectedNumber << std::endl
-				 << "m_notReturnedLast = " << m_notReturnedLast << std::endl
-				 << "m_returnedLast    = " << m_returnedLast << std::endl
-				 << "Got " << oldWorkItems.size() << " older work items" << std::endl
-				 << GWARNING;
-		 }
-
-		 // Remove unprocessed items, if necessary (incomplete, and the removal of
-		 // unprocessed items was requested by the user)
-		 // TODO: Replace with custom erase_if function
-		 if (!completed && removeUnprocessed) {
-			 Gem::Common::erase_according_to_flags(
-				 workItems
-				 , workItemPos
-				 , GBC_UNPROCESSED
-				 , 0
-				 , workItems.size()
-			 );
-		 }
+		 m_n_notReturnedLast = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
+		 m_n_returnedLast    = m_expectedNumber - m_n_notReturnedLast;
+		 m_n_oldWorkItems    = oldWorkItems.size();
 
 		 // Sort old work items according to their ids so they can be readily used by the caller
 		 std::sort(
@@ -264,121 +299,22 @@ public:
 			 }
 		 );
 
-		 // Give feedback to the audience (a facility for derived classes)
+		 // Give feedback to the audience (may be overloaded in derived classes)
 		 this->report();
 
-		 // Update the submission counter
-		 m_submission_counter++;
+		 // Update the iteration counter
+		 m_iteration_counter++;
 
+		 // Note: unprocessed items will be returned to the caller, which needs to deal with them
 		 return completed;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Submits a set of work items in a range. There may be unprocessed work
-	  * items. At your choice, these may be removed from the workItems vector
-	  * or will be left there.
-	  *
-	  * @param workItems A vector with work items to be evaluated beyond the broker
-	  * @param start The id of first item to be worked on in the vector
-	  * @param end The id beyond the last item to be worked on in the vector
-	  * @param oldWorkItems A vector holding work items from older iterations
-	  * @param removeUnprocessed If set to true, unprocessed work items will be removed
-	  * @param caller Optionally holds information on the caller
-	  * @return A boolean indicating whether all expected items have returned
-	  */
-	 bool workOn(
-		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , const std::size_t &start
-		 , const std::size_t &end
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-		 , bool removeUnprocessed = true
-		 , const std::string &caller = std::string()
-	 ) {
-		 // Make sure the start/end positoons match
-		 Gem::Common::assert_sizes_match_container(workItems, start, end, "GBaseExecutorT<processable_type>::workOn()");
-
-		 // Assemble a position vector. Only items in fields marked
-		 // unprocessed will be processed. Hence the vector is initialized
-		 // with the GBC_PROCESSED-flag, and only items in positions start-end
-		 // are marked as GBC_UNPROCESSED;
-		 std::vector<bool> workItemPos(workItems.size(), GBC_PROCESSED);
-		 for (std::size_t pos = start; pos != end; pos++) {
-			 workItemPos[pos] = GBC_UNPROCESSED;
-		 }
-
-		 // Start the calculation. A return value of "true" indicates that all
-		 // unprocessed items were processed
-		 return this->workOn(
-			 workItems
-			 , workItemPos
-			 , oldWorkItems
-			 , removeUnprocessed
-			 , caller
-		 );
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Submits and retrieves a set of work items in a range
-	  *
-	  * @param workItems A vector with work items to be evaluated beyond the broker
-	  * @param range A std::tuple holding the boundaries of the submission range
-	  * @param oldWorkItems A vector holding work items from older iterations
-	  * @param removeUnprocessed If set to true, unprocessed work items will be removed
-	  * @param caller Optionally holds information on the caller
-	  * @return A boolean indicating whether all expected items have returned
-	  */
-	 bool workOn(
-		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , const std::tuple<std::size_t, std::size_t> &range
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-		 , const bool &removeUnprocessed = true
-		 , const std::string &caller = std::string()
-	 ) {
-		 return this->workOn(
-			 workItems
-			 , std::get<0>(range)
-			 , std::get<1>(range)
-			 , oldWorkItems
-			 , removeUnprocessed
-			 , caller
-		 );
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Submits all work items in an array
-	  *
-	  * @param workItems A vector with work items to be evaluated beyond the broker
-	  * @param oldWorkItems A vector holding work items from older iterations
-	  * @param removeUnprocessed If set to true, unprocessed work items will be removed
-	  * @param caller Optionally holds information on the caller
-	  * @return A boolean indicating whether all expected items have returned
-	  */
-	 bool workOn(
-		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-		 , const bool &removeUnprocessed = true
-		 , const std::string &caller = std::string()
-	 ) {
-		 return this->workOn(
-			 workItems
-			 , 0
-			 , workItems.size()
-			 , oldWorkItems
-			 , removeUnprocessed
-			 , caller
-		 );
-	 }
-
-
-	 /***************************************************************************/
-	 /**
 	  * Gives access to the value of the current submission id
 	  */
-	 SUBMISSION_COUNTER_TYPE getSubmissionId() const {
-		 return m_submission_counter;
+	 ITERATION_COUNTER_TYPE getSubmissionId() const {
+		 return m_iteration_counter;
 	 }
 
 	 /***************************************************************************/
@@ -390,7 +326,15 @@ public:
 	 virtual void addConfigurationOptions(
 		 Gem::Common::GParserBuilder &gpb
 	 ) BASE {
-		 /* no local data. hence empty */
+		 gpb.registerFileParameter<std::size_t>(
+			 "maxResubmissions" // The name of the variable
+			 , DEFAULTMAXRESUBMISSIONS // The default value
+			 , [this](std::size_t r) {
+				 this->setMaxResubmissions(r);
+			 }
+		 )
+			 << "The amount of resubmissions allowed if a full return of work" << std::endl
+			 << "items was expected but only a subset has returned";
 	 }
 
 	 /***************************************************************************/
@@ -410,7 +354,7 @@ public:
 	  * Retrieve the number of individuals returned during the last iteration
 	  */
 	 std::size_t getNReturned() const {
-		 return m_returnedLast;
+		 return m_n_returnedLast;
 	 }
 
 	 /***************************************************************************/
@@ -418,15 +362,23 @@ public:
 	  * Retrieve the number of individuals NOT returned during the last iteration
 	  */
 	 std::size_t getNNotReturned() const {
-		 return m_notReturnedLast;
+		 return m_n_notReturnedLast;
+	 }
+
+	 /***************************************************************************/
+	 /**
+ 	  * Retrieves the current number of old work items in this iteration
+ 	  */
+	 std::size_t getNOldWorkItems() const {
+		 return m_n_oldWorkItems;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Retrieves the current submission id
 	  */
-	 SUBMISSION_COUNTER_TYPE getCurrentSubmissionId() const {
-		 return m_submission_counter;
+	 ITERATION_COUNTER_TYPE getCurrentSubmissionId() const {
+		 return m_iteration_counter;
 	 }
 
 protected:
@@ -469,11 +421,24 @@ protected:
 	 /**
 	  * Allows to emit information at the end of an iteration
 	  */
-	 virtual void report() BASE { /* nothing */ }
+	 virtual void report() BASE {
+		 if (m_n_returnedLast == 0) { // Check whether any work items have returned at all
+			 glogger
+				 << "In GBaseExecutorT<processable_type>::iterationFinalize(): Warning!" << std::endl
+				 << "No current items have returned with" << std::endl
+				 << "m_expectedNumber  = " << m_expectedNumber << std::endl
+				 << "m_n_notReturnedLast = " << m_n_notReturnedLast << std::endl
+				 << "m_n_returnedLast    = " << m_n_returnedLast << std::endl
+				 << "m_n_oldWorkItems    = " << m_n_oldWorkItems << std::endl
+				 << GWARNING;
+		 }
+	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Submission of all work items in the list
+	  *
+	  * TODO: Take care of situations where submission may block
 	  */
 	 void submitAllWorkItems(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
@@ -488,12 +453,12 @@ protected:
 					 glogger
 						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
 						 << "Received empty work item in position "  << pos_cnt << std::endl
-						 << "m_submission_counter = " << m_submission_counter << std::endl
+						 << "m_iteration_counter = " << m_iteration_counter << std::endl
 						 << GEXCEPTION;
 				 }
 #endif
 
-				 w_ptr->setSubmissionCounter(m_submission_counter);
+				 w_ptr->setSubmissionCounter(m_iteration_counter);
 				 w_ptr->setSubmissionPosition(pos_cnt);
 
 				 this->submit(w_ptr);
@@ -504,12 +469,16 @@ protected:
 
 	 /***************************************************************************/
 	 // Local data
-	 SUBMISSION_COUNTER_TYPE m_submission_counter = SUBMISSION_COUNTER_TYPE(0); ///< Counts the number of submissions initiated by this object. Note: not serialized!
+	 ITERATION_COUNTER_TYPE m_iteration_counter = ITERATION_COUNTER_TYPE(0); ///< Counts the number of submissions initiated for this object. Note: not serialized!
+
 	 std::size_t m_expectedNumber = 0; ///< The number of work items to be submitted (and expected back)
 	 std::chrono::system_clock::time_point m_submissionStartTime = std::chrono::system_clock::now(); ///< Temporary that holds the start time for the retrieval of items in a given iteration
 
-	 std::size_t m_returnedLast = 0; ///< The number of individuals returned in the last iteration cycle
-	 std::size_t m_notReturnedLast = 0; ///< The number of individuals MOT returned in the last iteration cycle
+	 std::size_t m_maxResubmissions = DEFAULTMAXRESUBMISSIONS; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
+
+	 std::size_t m_n_returnedLast = 0; ///< The number of individuals returned in the last iteration cycle
+	 std::size_t m_n_notReturnedLast = 0; ///< The number of individuals MOT returned in the last iteration cycle
+	 std::size_t m_n_oldWorkItems = 0; ///< The number of old work items returned in a given iteration
 };
 
 /******************************************************************************/
@@ -633,9 +602,9 @@ protected:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
-		 // Mark all positions as returned
-		 for(auto it = workItemPos.begin(); it != workItemPos.end(); ++it) {
-			 *it = GBC_PROCESSED;
+		 // Mark all positions as "processed"
+		 for(auto item: workItemPos) {
+			 item = GBC_PROCESSED;
 		 }
 
 		 return true;
@@ -672,7 +641,8 @@ public:
 	  * The default constructor
 	  */
 	 GMTExecutorT()
-		 : GBaseExecutorT<processable_type>(), m_gtp()
+		 : GBaseExecutorT<processable_type>()
+	 	 , m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -680,7 +650,8 @@ public:
 	  * Initialization with the number of threads
 	  */
 	 GMTExecutorT(std::uint16_t nThreads)
-		 : GBaseExecutorT<processable_type>(), m_gtp(nThreads)
+		 : GBaseExecutorT<processable_type>()
+		 , m_n_threads(nThreads)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -690,7 +661,8 @@ public:
 	  * @param cp A copy of another GBrokerConnector object
 	  */
 	 GMTExecutorT(const GMTExecutorT<processable_type> &cp)
-		 : GBaseExecutorT<processable_type>(cp), m_gtp(cp.m_gtp.getNThreads())
+		 : GBaseExecutorT<processable_type>(cp)
+	 	 , m_n_threads(cp.m_n_threads)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -730,8 +702,8 @@ public:
 		 // Load our parent classes data
 		 GBaseExecutorT<processable_type>::load(cp);
 
-		 // Adapt our local thread pool
-		 m_gtp.setNThreads((cp->m_gtp).getNThreads());
+		 // Load our local data
+		 m_n_threads = cp->m_n_threads;
 	 }
 
 	 /***************************************************************************/
@@ -749,16 +721,103 @@ public:
 		 // No local data
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * Sets the number of threads for the thread pool. If nThreads is set
+	  * to 0, an attempt will be made to set the number of threads to the
+	  * number of hardware threading units (e.g. number of cores or hyperthreading
+	  * units).
+	  *
+	  * @param nThreads The number of threads the threadpool should use
+	  */
+	 void setNThreads(std::uint16_t nThreads) {
+		 if (nThreads == 0) {
+			 m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(Gem::Courtier::DEFAULTNSTDTHREADS));
+		 }
+		 else {
+			 m_n_threads = nThreads;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+ * Retrieves the number of threads this population uses.
+ *
+ * @return The maximum number of allowed threads
+ */
+	 std::uint16_t getNThreads() const {
+		 return m_n_threads;
+	 }
+	 /***************************************************************************/
+	 /**
+	  * General initialization function to be called prior to the first submission
+	  */
+	 virtual void init() override {
+		 // GBaseExecutorT<processable_type> sees exactly the environment it would when called from its own class
+		 GBaseExecutorT<processable_type>::init();
+
+		 // Initialize our thread pool
+		 m_gtp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * General finalization function to be called after the last submission
+	  */
+	 virtual void finalize() override {
+		 // Check whether there were any errors during thread execution
+		 if (m_gtp_ptr->hasErrors()) {
+			 std::ostringstream oss;
+			 std::vector<std::string> errors;
+			 errors = m_gtp_ptr->getErrors();
+
+			 for(auto error: errors) {
+				 oss << error << std::endl;
+			 }
+
+			 glogger
+				 << "In GMTExecutorT<processable_type>::finalize(): Warning!" << std::endl
+			 	 << "There were errors during thread execution in GThreadPool:" << std::endl
+				 << oss.str() << std::endl
+				 << GWARNING;
+		 }
+
+		 // Terminate our thread pool
+		 m_gtp_ptr.reset();
+
+		 // GBaseExecutorT<processable_type> sees exactly the environment it would when called from its own class
+		 GBaseExecutorT<processable_type>::finalize();
+	 }
+
 protected:
 	 /***************************************************************************/
 	 /**
 	  * Submits a single work item. As we are dealing with multi-threaded
-	  * execution, we simply push a worker into a thread pool.
+	  * execution, we simply let a thread pool executed a lambda function
+	  * which takes care of the processing.
 	  *
 	  * @param w The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr <processable_type> w) override {
-		 m_gtp.async_schedule([w]() -> bool { return w->process(); });
+	 virtual void submit(std::shared_ptr<processable_type> w) override {
+#ifdef DEBUG
+		 if (m_gtp_ptr && w) {
+			 m_gtp_ptr->async_schedule([w]() -> bool { return w->process(); });
+		 } else {
+			 if (!m_gtp_ptr) {
+				 glogger
+					 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
+					 << "Threadpool pointer is empty" << std::endl
+					 << GEXCEPTION;
+			 } else if(!w) {
+				 glogger
+					 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
+					 << "work item pointer is empty" << std::endl
+					 << GEXCEPTION;
+			 }
+		 }
+#else
+		 m_gtp_ptr->async_schedule([w]() -> bool { return w->process(); });
+#endif /* DEBUG */
 	 }
 
 	 /***************************************************************************/
@@ -770,12 +829,11 @@ protected:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
-		 m_gtp.wait();
+		 m_gtp_ptr->wait();
 
-		 // Mark all positions as "returned"
-		 std::vector<bool>::iterator it;
-		 for (it = workItemPos.begin(); it != workItemPos.end(); ++it) {
-			 *it = false;
+		 // Mark all positions as "processed"
+		 for(auto item: workItemPos) {
+			 item = GBC_PROCESSED;
 		 }
 
 		 return true;
@@ -784,7 +842,8 @@ protected:
 private:
 	 /***************************************************************************/
 
-	 Gem::Common::GThreadPool m_gtp; ///< Holds a thread pool
+	 std::uint16_t m_n_threads; ///< The number of threads
+	 std::shared_ptr<Gem::Common::GThreadPool> m_gtp_ptr; ///< Temporarily holds a thread pool
 };
 
 /******************************************************************************/
@@ -807,16 +866,17 @@ class GBrokerExecutorT
 
 		 ar
 		 & make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this))
-		 & BOOST_SERIALIZATION_NVP(m_srm)
-		 & BOOST_SERIALIZATION_NVP(m_maxResubmissions)
 		 & BOOST_SERIALIZATION_NVP(m_waitFactor)
 		 & BOOST_SERIALIZATION_NVP(m_initialWaitFactor)
+		 & BOOST_SERIALIZATION_NVP(m_capable_of_full_return)
 		 & BOOST_SERIALIZATION_NVP(m_gpd)
 		 & BOOST_SERIALIZATION_NVP(m_waiting_times_graph)
 		 & BOOST_SERIALIZATION_NVP(m_returned_items_graph)
-		 & BOOST_SERIALIZATION_NVP(m_waitFactorWarningEmitted);
-
-		 // TODO: serialize m_lastReturnTime and m_lastAverage
+		 & BOOST_SERIALIZATION_NVP(m_waitFactorWarningEmitted)
+		 & BOOST_SERIALIZATION_NVP(m_lastReturnTime)
+		 & BOOST_SERIALIZATION_NVP(m_lastAverage)
+		 & BOOST_SERIALIZATION_NVP(m_remainingTime)
+		 & BOOST_SERIALIZATION_NVP(m_maxTimeout);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -831,31 +891,7 @@ public:
 	  */
 	 GBrokerExecutorT()
 		 : GBaseExecutorT<processable_type>()
-			, m_gpd("Maximum waiting times and returned items", 1, 2)
-	 {
-		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
-
-		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
-		 m_waiting_times_graph->setXAxisLabel("Iteration");
-		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
-		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-
-		 m_returned_items_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
-		 m_returned_items_graph->setXAxisLabel("Iteration");
-		 m_returned_items_graph->setYAxisLabel("Number of returned items");
-		 m_returned_items_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Initialization with a given submission return mode.
-	  *
-	  * @param srm The submission-return mode to be used
-	  */
-	 explicit GBrokerExecutorT(submissionReturnMode srm)
-		 : GBaseExecutorT<processable_type>()
-			, m_srm(srm)
-			, m_gpd("Maximum waiting times and returned items", 1, 2)
+		 , m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -878,16 +914,15 @@ public:
 	  */
 	 GBrokerExecutorT(const GBrokerExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
-			, m_srm(cp.m_srm)
-			, m_maxResubmissions(cp.m_maxResubmissions)
-			, m_waitFactor(cp.m_waitFactor)
-			, m_initialWaitFactor(cp.m_initialWaitFactor)
-			, m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
-			, m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
-			, m_lastReturnTime(cp.m_lastReturnTime)
-			, m_lastAverage(cp.m_lastAverage)
-			, m_remainingTime(cp.m_remainingTime)
-			, m_maxTimeout(cp.m_maxTimeout)
+		 , m_waitFactor(cp.m_waitFactor)
+		 , m_initialWaitFactor(cp.m_initialWaitFactor)
+		 , m_capable_of_full_return(cp.m_capable_of_full_return)
+		 , m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
+		 , m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
+		 , m_lastReturnTime(cp.m_lastReturnTime)
+		 , m_lastAverage(cp.m_lastAverage)
+		 , m_remainingTime(cp.m_remainingTime)
+		 , m_maxTimeout(cp.m_maxTimeout)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -952,10 +987,9 @@ public:
 		 GBaseExecutorT<processable_type>::load(cp);
 
 		 // Local data
-		 m_srm = cp->m_srm;
-		 m_maxResubmissions = cp->m_maxResubmissions;
 		 m_waitFactor = cp->m_waitFactor;
 		 m_initialWaitFactor = cp->m_initialWaitFactor;
+		 m_capable_of_full_return = cp->m_capable_of_full_return;
 		 m_waitFactorWarningEmitted = cp->m_waitFactorWarningEmitted;
 		 m_lastReturnTime = cp->m_lastReturnTime;
 		 m_lastAverage = cp->m_lastAverage;
@@ -1008,45 +1042,6 @@ public:
 		 )
 			 << "The amount of resubmissions allowed if a full return of work" << std::endl
 			 << "items was expected but only a subset has returned";
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to set the submission return mode. Depending on this setting,
-	  * the object will wait indefinitely for items of the current submission to return,
-	  * or will timeout and optionally resubmit unprocessed items.
-	  */
-	 void setSubmissionReturnMode(submissionReturnMode srm) {
-		 m_srm = srm;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to retrieve the current submission return mode
-	  */
-	 submissionReturnMode getSubmissionReturnMode() const {
-		 return m_srm;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Specifies how often work items should be resubmitted in the case a full return
-	  * of work items is expected.
-	  *
-	  * @param maxResubmissions The maximum number of allowed resubmissions
-	  */
-	 void setMaxResubmissions(std::size_t maxResubmissions) {
-		 m_maxResubmissions = maxResubmissions;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the maximum number of allowed resubmissions
-	  *
-	  * @return The maximum number of allowed resubmissions
-	  */
-	 std::size_t getMaxResubmissions() const {
-		 return m_maxResubmissions;
 	 }
 
 	 /***************************************************************************/
@@ -1108,6 +1103,23 @@ public:
 
 		 // Add the buffer port to the broker
 		 m_broker_ptr->enrol(m_CurrentBufferPort);
+
+		 // Check the capabilities of consumsers enrolled with the broker.
+		 // Note that this call may block until consumers have actually been enrolled.
+		 m_capable_of_full_return = m_broker_ptr->capableOfFullReturn();
+#ifdef DEBUG
+		 if(m_capable_of_full_return) {
+			 glogger
+				 << "In GBrokerExecutorT<>::init():" << std::endl
+				 << "Assuming that all consumers are capable of full return" << std::endl
+				 << GLOGGING;
+		 } else {
+			 glogger
+				 << "In GBrokerExecutorT<>::init():" << std::endl
+			    << "At least one consumer is not capable of full return" << std::endl
+				 << GLOGGING;
+		 }
+#endif
 	 }
 
 	 /***************************************************************************/
@@ -1117,6 +1129,9 @@ public:
 	 virtual void finalize() override {
 		 // Get rid of the buffer port
 		 m_CurrentBufferPort.reset();
+
+		 // Likely unnecessary cleanup
+		 m_capable_of_full_return = false;
 
 		 // Disconnect from the broker
 		 m_broker_ptr.reset();
@@ -1130,9 +1145,10 @@ protected:
 	 /**
 	  * Allows to perform necessary setup work for an iteration
 	  */
-	 virtual void iterationInit(std::vector<std::shared_ptr<processable_type>>& workItems
-										 , std::vector<bool> &workItemPos
-										 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+	 virtual void iterationInit(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+		 , std::vector<bool> &workItemPos
+		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 // Make sure the parent classes iterationInit function is executed first
 		 // This function will also update the iteration start time
@@ -1151,8 +1167,8 @@ protected:
 	 ) override {
 		 // Calculate average return times of work items.
 		 m_lastAverage =
-			 (GBaseExecutorT<processable_type>::m_returnedLast>0)
-			 ? (m_lastReturnTime - GBaseExecutorT<processable_type>::m_submissionStartTime)/GBaseExecutorT<processable_type>::m_returnedLast
+			 (GBaseExecutorT<processable_type>::m_n_returnedLast>0)
+			 ? (m_lastReturnTime - GBaseExecutorT<processable_type>::m_submissionStartTime)/GBaseExecutorT<processable_type>::m_n_returnedLast
 			 : (std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime)/GBaseExecutorT<processable_type>::m_expectedNumber; // this is an artificial number, as no items have returned
 
 		 m_maxTimeout =
@@ -1170,34 +1186,14 @@ protected:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
-		 bool completed = false;
-
-		 switch (m_srm) {
-			 //------------------------------------------------------------------
+		 if(m_capable_of_full_return) {
+			 // Wait until all work items have returned (possibly indefinitely)
+			 return this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
+		 } else {
 			 // Wait for a given amount of time, decided upon by the function.
 			 // Items that have not returned in time may return in a later iteration
-			 case submissionReturnMode::INCOMPLETERETURN:
-				 completed = this->waitForTimeOut(workItems, workItemPos, oldWorkItems);
-				 break;
-
-				 //------------------------------------------------------------------
-				 // Wait for a given amount of time, decided upon by the function.
-				 // If not all items have returned, re-submit work items up to a
-				 // predefined number of times
-			 case submissionReturnMode::RESUBMISSIONAFTERTIMEOUT:
-				 completed = this->waitForTimeOutAndResubmit(workItems, workItemPos, oldWorkItems);
-				 break;
-
-				 //------------------------------------------------------------------
-				 // Wait indefinitely, until all work items have returned
-			 case submissionReturnMode::EXPECTFULLRETURN:
-				 completed = this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
-				 break;
-
-				 //------------------------------------------------------------------
+			 return this->waitForTimeOut(workItems, workItemPos, oldWorkItems);
 		 }
-
-		 return completed;
 	 }
 
 private:
@@ -1271,7 +1267,7 @@ private:
 			 std::chrono::duration<double> currentElapsed
 				 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
 
-			 if (this->getCurrentSubmissionId() == SUBMISSION_COUNTER_TYPE(0)) {
+			 if (this->getCurrentSubmissionId() == ITERATION_COUNTER_TYPE(0)) {
 				 // Calculate a timeout for subsequent retrievals in this iteration. In the first iteration and for the first item,
 				 // this timeout is the number of remaining items times the return time needed for the first item times a custom
 				 // wait factor for the first submission. This may be very long, but takes care of a situation where there is only
@@ -1434,27 +1430,6 @@ private:
 
 	 /***************************************************************************/
 	 /**
-	  * Waits until a timeout occurs, then resubmits missing items up to a maximum
-	  * number of times. If m_maxResubmissions is set to 0, resubmission will happen
-	  * without limit.
-	  */
-	 bool waitForTimeOutAndResubmit(
-		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-	 ) {
-		 bool completed = false;
-		 std::size_t nResubmissions = 0;
-
-		 do {
-			 completed = waitForTimeOut(workItems, workItemPos, oldWorkItems);
-		 } while (!completed && (m_maxResubmissions>0?(++nResubmissions < m_maxResubmissions):true));
-
-		 return completed;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Waits (possibly indefinitely) until all items have returned. Note that this
 	  * function may stall, if for whatever reason a work item does not return. If this
 	  * is not acceptable, use either waitForTimeout() or waitForTimeoutAndResubmit()
@@ -1504,7 +1479,7 @@ private:
 		 }
 
 		 bool completed = false;
-		 auto current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
+		 auto current_iteration = GBaseExecutorT<processable_type>::m_iteration_counter;
 		 auto w_iteration = w_ptr->getSubmissionCounter();
 
 		 if (current_iteration == w_iteration) {
@@ -1519,13 +1494,15 @@ private:
 					 << GEXCEPTION;
 			 }
 
+			 // Re-submitted items might return twice, so we only add them
+			 // if a processed item hasn't been added yet.
 			 if (GBC_UNPROCESSED == workItemPos.at(w_pos)) {
 				 workItemPos.at(w_pos) = GBC_PROCESSED; // Successfully returned
 				 workItems.at(w_pos) = w_ptr;
 				 if (++nReturnedCurrent == GBaseExecutorT<processable_type>::m_expectedNumber) {
 					 completed = true;
 				 }
-			 } // no else. Re-submitted items might return twice
+			 } // no else
 
 		 } else { // It could be that a previous submission did not expect a full return. Hence older items may occur
 			 oldWorkItems.push_back(w_ptr);
@@ -1540,14 +1517,18 @@ private:
  	  * TODO: The content of this function is a hack. Submitted for current debugging purposes
  	  */
 	 virtual void report() override {
+		 // Call our parent class'es report function
+		 GBaseExecutorT<processable_type>::report();
+
+		 // Now do our own reporting
 		 std::chrono::duration<double> currentElapsed
 			 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
-		 auto current_iteration = GBaseExecutorT<processable_type>::m_submission_counter;
+		 auto current_iteration = GBaseExecutorT<processable_type>::m_iteration_counter;
 
 		 m_waiting_times_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), m_maxTimeout.count()));
 		 m_returned_items_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), boost::numeric_cast<double>(this->getNReturned())));
 
-		 if (0 == GBaseExecutorT<processable_type>::m_submission_counter) {
+		 if (0 == GBaseExecutorT<processable_type>::m_iteration_counter) {
 			 std::cout
 				 << "Maximum waiting time in iteration " << current_iteration << ": " << m_maxTimeout.count()
 				 << " s (" << currentElapsed.count() << ", "
@@ -1562,13 +1543,12 @@ private:
 
 	 /***************************************************************************/
 	 // Local data
-	 submissionReturnMode m_srm = submissionReturnMode::INCOMPLETERETURN; ///< Indicates how (long) the object shall wait for returns
-	 std::size_t m_maxResubmissions = DEFAULTMAXRESUBMISSIONS; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
 	 double m_waitFactor = DEFAULTBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts
 	 double m_initialWaitFactor = DEFAULTINITIALBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts in the first iteration
 
 	 GBufferPortT_ptr m_CurrentBufferPort; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
 	 GBroker_ptr m_broker_ptr; ///< A (possibly empty) pointer to a global broker
+	 bool m_capable_of_full_return = false; ///< Indicates whether the broker may return results without losses
 
 	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
 	 std::shared_ptr<Gem::Common::GGraph2D> m_waiting_times_graph;  ///< The maximum waiting time resulting from the wait factor

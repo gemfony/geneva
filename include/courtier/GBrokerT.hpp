@@ -91,7 +91,7 @@ public:
 
 /******************************************************************************/
 /**
- * This class acts as the main interface between producers and consumers.
+ * This class acts as the main mediator between producers and consumers.
  */
 template<typename carrier_type>
 class GBrokerT
@@ -201,7 +201,7 @@ public:
 	 void enrol(std::shared_ptr<GBufferPortT<std::shared_ptr<carrier_type>>> gbp_ptr) {
 		 {
 			 //-----------------------------------------------------------------------
-			 // Lock the access to our internal data simultaneously for all mutexs
+			 // Lock the access to our internal data simultaneously for all mutexes
 
 			 std::unique_lock <std::mutex> switchGetPositionLock(
 				 m_switchGetPositionMutex
@@ -243,16 +243,8 @@ public:
 			 std::cout << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl;
 		 }
 
-		 // If this was the first registered GBufferPortT object, we need to notify all
-		 // available consumer objects. We use notify_all here, as indeed all need to be informed
-		 // that there is work to do. We only check one variable, as both are set
-		 // simultaneously.
-		 if (false == m_buffersPresent.load()) {
-			 m_buffersPresent.store(true);
-
-			 m_readyToGoRaw.notify_all();
-			 m_readyToGoProcessed.notify_all();
-		 }
+		 // Let the audience know
+		 m_buffersPresent.store(true);
 	 }
 
 	 /***************************************************************************/
@@ -264,6 +256,19 @@ public:
 	  * @param gc_ptr A pointer to a GBaseConsumerT<carrier_type> object
 	  */
 	 void enrol(std::shared_ptr<GBaseConsumerT<carrier_type>> gc_ptr) {
+		 //-----------------------------------------------------------------------
+		 // Check whether consumers have already been enrolled. As this may happen
+		 // only once, we emit a warning and return
+		 if(m_consumersPresent) {
+			 glogger
+				 << "In GBrokerT<>::enrol(consumer_ptr): Consumers have already been enrolled." << std::endl
+				 << "We will ignore the new enrolment request." << std::endl
+				 << GWARNING;
+
+			 return;
+		 }
+
+		 //-----------------------------------------------------------------------
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
 
 		 // Do nothing if a consumer of this type has already been registered
@@ -272,6 +277,11 @@ public:
 			 , m_consumerTypesPresent.end()
 			 , gc_ptr->getConsumerName()) != m_consumerTypesPresent.end()
 		 ) {
+			 glogger
+			 << "In GBrokerT<>::enrol(consumer):" << std::endl
+			 << "Consumer with name " << gc_ptr->getConsumerName() << " aleady exists." << std::endl
+		    << GWARNING;
+
 			 return;
 		 }
 
@@ -281,6 +291,82 @@ public:
 
 		 // Initiate processing in the consumer. This call will not block.
 		 gc_ptr->async_startProcessing();
+
+		 //-----------------------------------------------------------------------
+		 // Make it known to subsequent calls that a consumer is already present
+
+		 m_consumersPresent.store(true);
+
+		 //-----------------------------------------------------------------------
+
+		 // Check whether all registered consumers are capable of full return
+		 m_capable_of_full_return.store(this->checkConsumersCapableOfFullReturn());
+
+		 // Notify all interested parties
+		 m_consumersEnrolledCondition.notify_all();
+
+		 //-----------------------------------------------------------------------
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Adds multiple consumers to this class and starts their threads.
+	  *
+	  * @param gc_ptr_vec A vector of pointers to GBaseConsumerT<carrier_type> objects
+	  */
+	 void enrol(std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>> gc_ptr_vec) {
+		 //-----------------------------------------------------------------------
+		 // Check whether consumers have already been enrolled. As this may happen
+		 // only once, we emit a warning and return
+		 if(m_consumersPresent) {
+			 glogger
+				 << "In GBrokerT<>::enrol(consumer_ptr_vec): Consumers have already been enrolled." << std::endl
+				 << "We will ignore the new enrolment request." << std::endl
+				 << GWARNING;
+
+			 return;
+		 }
+
+		 //-----------------------------------------------------------------------
+		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
+
+		 for(auto consumer_ptr: gc_ptr_vec) {
+			 // Do nothing if a consumer of this type has already been registered
+			 if (std::find(
+				 m_consumerTypesPresent.begin()
+				 , m_consumerTypesPresent.end()
+				 , consumer_ptr->getConsumerName()) != m_consumerTypesPresent.end()
+			 ) {
+				 glogger
+					 << "In GBrokerT<>::enrol(consumer_ptr_vec): A consumer with name " << consumer_ptr->getConsumerName() << std::endl
+				    << "has already been enrolled. We will ignore the new enrolment request." << std::endl
+					 << GWARNING;
+
+				 continue;
+			 }
+
+			 // Archive the consumer and its name, then start its thread
+			 m_consumer_collection_vec.push_back(consumer_ptr);
+			 m_consumerTypesPresent.push_back(consumer_ptr->getConsumerName());
+
+			 // Initiate processing in the consumer. This call will not block.
+			 consumer_ptr->async_startProcessing();
+		 }
+
+		 //-----------------------------------------------------------------------
+		 // Make it known to subsequent calls that a consumer is already present
+
+		 m_consumersPresent.store(true);
+
+		 //-----------------------------------------------------------------------
+
+		 // Check whether all registered consumers are capable of full return
+		 m_capable_of_full_return.store(this->checkConsumersCapableOfFullReturn());
+
+		 // Notify all interested parties
+		 m_consumersEnrolledCondition.notify_all();
+
+		 //-----------------------------------------------------------------------
 	 }
 
 	 /***************************************************************************/
@@ -412,42 +498,32 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether any consumers have been enrolled at the time of calling. As
-	  * consumers are maintained inside of a thread group and consumers may be added
-	  * asynchronously, this function can only give a hint.
+	  * Checks whether any consumers have been enrolled at the time of calling.
 	  *
 	  * @return A boolean indicating whether any consumers are registered
 	  */
 	 bool hasConsumers() const {
-		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
-		 return m_consumer_collection_vec.size() > 0 ? true : false;
+		 return m_consumersPresent;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * This function checks all registered consumers to see whether all of them
-	  * are capable of full return. If so, it returns true. If at least one is
-	  * found that is not capable of full return, it returns false.
+	  * This function relies on a prior check during the enrolment process whether
+	  * all registered consumers are capable of full return. It will block until
+	  * a consumer has been registered. The lock will be either released by the
+	  * condition variable or when the function is left, so enrolling of consumers
+	  * is not prevented.
 	  */
 	 bool capableOfFullReturn() const {
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
-
-		 if (!m_consumer_collection_vec.empty()) {
-			 glogger
-				 << "In GBrokerT<carrier_type>::capableOfFullReturn(): Error!" << std::endl
-				 << "No consumers registered" << std::endl
-				 << GEXCEPTION;
+		 if(!m_consumersPresent) {
+			 m_consumersEnrolledCondition.wait(
+				 consumerEnrolmentLock
+				 , [this]() -> bool { return this->hasConsumers(); }
+			 );
 		 }
 
-		 bool capable_of_full_return = true;
-		 for(auto item: m_consumer_collection_vec) {
-			 if (!item->capableOfFullReturn()) {
-				 capable_of_full_return = false;
-				 break; // stop the loop
-			 }
-		 }
-
-		 return capable_of_full_return;
+		 return m_capable_of_full_return;
 	 }
 
 private:
@@ -496,6 +572,32 @@ private:
 	 }
 
 	 /***************************************************************************/
+	 /**
+	  * Checks if all registered consumers are capable of full return. This
+	  * function is not thread-safe and must be called in a controlled environment.
+	  *
+	  * @return A boolean indicating whether all registered consumers are capable of full return
+	  */
+	 bool checkConsumersCapableOfFullReturn() {
+		 if (m_consumer_collection_vec.empty()) {
+			 glogger
+				 << "In GBrokerT<carrier_type>::checkConsumersCapableOfFullReturn(): Error!" << std::endl
+				 << "No consumers registered" << std::endl
+				 << GEXCEPTION;
+		 }
+
+		 bool capable_of_full_return = true;
+		 for(auto item: m_consumer_collection_vec) {
+			 if (!item->capableOfFullReturn()) {
+				 capable_of_full_return = false;
+				 break; // stop the loop
+			 }
+		 }
+
+		 return capable_of_full_return;
+	 }
+
+	 /***************************************************************************/
 
 	 GBrokerT(const GBrokerT<carrier_type> &) = delete; ///< Intentionally left undefined
 	 const GBrokerT &operator=(const GBrokerT<carrier_type> &) = delete; ///< Intentionally left undefined
@@ -509,14 +611,16 @@ private:
 	 mutable std::mutex m_switchGetPositionMutex; ///< Protects switches to the next get position
 	 mutable std::mutex m_findProcesedBufferMutex; ///< Protects finding a given processed buffer
 
-	 mutable std::condition_variable m_readyToGoRaw; ///< The get function will block until this condition variable is set
-	 mutable std::condition_variable m_readyToGoProcessed; ///< The put function will block until this condition variable is set
+	 mutable std::condition_variable m_consumersEnrolledCondition; ///< Allows to notify interested parties once consumers have been enrolled
 
 	 RawBufferPtrMap m_RawBuffers; ///< Holds a std::map of buffer pointers
 	 ProcessedBufferPtrMap m_ProcessedBuffers; ///< Holds a std::map of buffer pointers
 
 	 typename RawBufferPtrMap::iterator m_currentGetPosition; ///< The current get position in the m_RawBuffers collection
 	 std::atomic<bool> m_buffersPresent; ///< Set to true once the first buffers have been enrolled
+
+	 std::atomic<bool> m_consumersPresent{false}; ///< Set to true once one or more consumers have been enrolled
+	 std::atomic<bool> m_capable_of_full_return{false}; ///< Set to true if all registered consumers are capable of full return, otherwise false
 
 	 std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>> m_consumer_collection_vec; ///< Holds the actual consumers
 	 std::vector<std::string> m_consumerTypesPresent; ///< Holds identifying strings for each consumer

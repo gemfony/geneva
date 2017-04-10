@@ -45,7 +45,6 @@ namespace Geneva {
  */
 GBrokerEA::GBrokerEA()
 	: GBaseEA()
-	, Gem::Courtier::GBrokerExecutorT<GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
 	, m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS)))
 { /* nothing */ }
 
@@ -270,7 +269,6 @@ void GBrokerEA::runFitnessCalculation() {
 	// to be worked on
 	std::tuple<std::size_t, std::size_t> range = getEvaluationRange();
 
-
 #ifdef DEBUG
    // There should be no situation in which a "clean" child is submitted
    // through this function. There MAY be situations, where in the first iteration
@@ -288,12 +286,39 @@ void GBrokerEA::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
+	// TODO: hide these details
+	std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_PROCESSED);
+	for(std::size_t pos=std::get<0>(range); pos<std::get<1>(range); pos++) {
+		workItemPos.at(pos) = Gem::Courtier::GBC_UNPROCESSED;
+	}
 	Gem::Courtier::GBrokerExecutorT<GParameterSet>::workOn(
 		data
-		, range
+		, workItemPos
 		, m_old_work_items
-		, true // Remove unprocessed items
+		, false // do not resubmit unprocessed items
+		, "GBrokerEA::runFitnessCalculation()"
 	);
+
+	//--------------------------------------------------------------------------------
+	// Take care of unprocessed items
+	Gem::Common::erase_according_to_flags(data, workItemPos, Gem::Courtier::GBC_UNPROCESSED, 0, data.size());
+
+	// Remove items for which an error has occurred during processing
+	Gem::Common::erase_if(
+		data
+		, [this](std::shared_ptr<GParameterSet> p) -> bool {
+			return p->processing_was_unsuccessful();
+		}
+	);
+
+	//--------------------------------------------------------------------------------
+	// Check that items remain
+	if(data.size() <= this->getNParents()) {
+		glogger
+		<< "In GBrokerEA::runFitnessCalculation(): Error!" << std::endl
+		<< "Vector of individuals only has " << data.size() << " items remaining" << std::endl
+      << GEXCEPTION;
+	}
 
 	//--------------------------------------------------------------------------------
 	// Now fix the population -- it may be smaller than its nominal size
@@ -362,7 +387,7 @@ void GBrokerEA::fixAfterJobSubmission() {
 	}
 
 	// We care for too many returned individuals in the selectBest() function. Older
-	// individuals might nevertheless have a better quality. We do not want to loose them.
+	// individuals might nevertheless have a better quality. We do not want to loose them here.
 }
 
 /******************************************************************************/

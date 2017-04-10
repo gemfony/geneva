@@ -139,8 +139,8 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::vector<std::shared_ptr<GParameterSet>> oldIndividuals_; ///< A temporary copy of the last iteration's individuals
-	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
+	std::vector<std::shared_ptr<GParameterSet>> m_last_iteration_individuals_vec; ///< A temporary copy of the last iteration's individuals
+	std::vector<std::shared_ptr<GParameterSet>> m_old_work_items; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
 

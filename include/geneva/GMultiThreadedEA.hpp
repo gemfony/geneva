@@ -71,7 +71,7 @@ class GMultiThreadedEA
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseEA)
-		& BOOST_SERIALIZATION_NVP(nThreads_);
+		& BOOST_SERIALIZATION_NVP(m_n_threads);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -131,8 +131,8 @@ protected:
 	virtual G_API_GENEVA void runFitnessCalculation() override;
 
 private:
-	std::uint16_t nThreads_; ///< The number of threads
-	std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
+	std::uint16_t m_n_threads; ///< The number of threads
+	std::shared_ptr<Gem::Common::GThreadPool> m_gtp_ptr; ///< Temporarily holds a thread pool
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

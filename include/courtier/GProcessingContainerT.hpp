@@ -98,7 +98,8 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_post_processor_ptr)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processing_time)
 		 & BOOST_SERIALIZATION_NVP(m_processing_time)
-		 & BOOST_SERIALIZATION_NVP(m_post_processing_time);
+		 & BOOST_SERIALIZATION_NVP(m_post_processing_time)
+		 & BOOST_SERIALIZATION_NVP(m_processing_successful);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -125,6 +126,7 @@ public:
 		 , m_bufferport_id(cp.m_bufferport_id)
 	 	 , m_preProcessingDisabled(cp.m_preProcessingDisabled)
  		 , m_postProcessingDisabled(cp.m_postProcessingDisabled)
+	 	 , m_processing_successful(cp.m_processing_successful)
 	 {
 		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -143,7 +145,7 @@ public:
 	  * post-processing allows to run a sub-optimization. The amount of time
 	  * needed for processing is done for logging purposes.
 	  *
-	  * TODO: Try to continue in case of exceptions ?
+	  * @return A boolean indicating whether processing was successful
 	  */
 	 bool process() {
 		 try {
@@ -159,27 +161,71 @@ public:
 			 m_pre_processing_time = std::chrono::duration<double>(afterPreProcessing - startTime).count();
 			 m_processing_time = std::chrono::duration<double>(afterProcessing - afterPreProcessing).count();
 			 m_post_processing_time = std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
+
+			 m_processing_successful = true;
 		 } catch(Gem::Common::gemfony_error_condition& e) {
 			 glogger
 				 << "In GProcessingContainerT<>::process(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
 				 << e.what() << std::endl
-				 << GTERMINATION;
+				 << GWARNING;
+
+			 m_processing_successful = false;
 		 } catch(boost::exception&){
 			 glogger
 				 << "In GProcessingContainerT<>::process(): Caught boost::exception with message" << std::endl
-				 << GTERMINATION;
+				 << GWARNING;
+
+			 m_processing_successful = false;
 		 } catch(std::exception& e){
 			 glogger
 				 << "In GProcessingContainerT<>::process(): Caught std::exception with message" << std::endl
 				 << e.what() << std::endl
-				 << GTERMINATION;
+				 << GWARNING;
+
+			 m_processing_successful = false;
 		 } catch(...){
 			 glogger
 				 << "GProcessingContainerT<>::process(): Caught unknown exception" << std::endl
-				 << GTERMINATION;
+				 << GWARNING;
+
+			 m_processing_successful = false;
 		 }
 
-		 return true;
+		 // Give processing times a valid state
+		 if(!m_processing_successful) {
+			 m_pre_processing_time = 0.;
+			 m_processing_time = 0.;
+			 m_post_processing_time = 0.;
+		 }
+
+		 return m_processing_successful;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Check whether processing was successful
+	  */
+	 bool processing_was_successful() const {
+		 return m_processing_successful;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Check whether processing was unsuccessful. This is a convenience function
+	  * to make the code more readable.
+	  */
+	 bool processing_was_unsuccessful() const {
+		 return !m_processing_successful;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Mark processing as having failed
+	  *
+	  * TODO: This may be overwritten in the process() function
+	  */
+	 void mark_processing_as_unsuccessful() {
+		 m_processing_successful = false;
 	 }
 
 	 /***************************************************************************/
@@ -200,7 +246,7 @@ public:
 	 /**
 	  * Allows to set the counter of a given submission
 	  */
-	 void setSubmissionCounter(const SUBMISSION_COUNTER_TYPE& counter) {
+	 void setSubmissionCounter(const ITERATION_COUNTER_TYPE& counter) {
 		 m_submission_counter = counter;
 	 }
 
@@ -208,7 +254,7 @@ public:
 	 /**
 	  * Allows to retrieve the counter of a given submission
 	  */
-	 SUBMISSION_COUNTER_TYPE getSubmissionCounter() const {
+	 ITERATION_COUNTER_TYPE getSubmissionCounter() const {
 		 return m_submission_counter;
 	 }
 
@@ -371,7 +417,7 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 SUBMISSION_COUNTER_TYPE  m_submission_counter = 0;
+	 ITERATION_COUNTER_TYPE  m_submission_counter = 0;
 	 SUBMISSION_POSITION_TYPE m_submission_position = 0;
 	 BUFFERPORT_ID_TYPE m_bufferport_id = BUFFERPORT_ID_TYPE();
 
@@ -384,6 +430,8 @@ private:
 	 double m_pre_processing_time = 0.; ///< The amount of time needed for pre-processing (in seconds)
 	 double m_processing_time = 0.; ///< The amount of time needed for the actual processing step (in seconds)
 	 double m_post_processing_time = 0.; ///< The amount of time needed for post-processing (in seconds)
+
+	 bool m_processing_successful = false; ///< Indicates whether an error has occurred during processing - the item may then be in an undefined state
 };
 
 /******************************************************************************/

@@ -47,7 +47,9 @@ namespace Geneva {
  * cannot be determined.
  */
 GMultiThreadedEA::GMultiThreadedEA()
-	: GBaseEA(), nThreads_(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads())) { /* nothing */ }
+	: GBaseEA()
+   , m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -56,13 +58,16 @@ GMultiThreadedEA::GMultiThreadedEA()
  * @param cp Reference to another GMultiThreadedEA object
  */
 GMultiThreadedEA::GMultiThreadedEA(const GMultiThreadedEA &cp)
-	: GBaseEA(cp), nThreads_(cp.nThreads_) { /* nothing */ }
+	: GBaseEA(cp)
+   , m_n_threads(cp.m_n_threads)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor.
  */
-GMultiThreadedEA::~GMultiThreadedEA() { /* nothing */ }
+GMultiThreadedEA::~GMultiThreadedEA()
+{ /* nothing */ }
 
 /***************************************************************************/
 /**
@@ -87,7 +92,7 @@ void GMultiThreadedEA::load_(const GObject *cp) {
 	GBaseEA::load_(cp);
 
 	// ... and then our own
-	nThreads_ = p_load->nThreads_;
+	m_n_threads = p_load->m_n_threads;
 }
 
 /******************************************************************************/
@@ -157,7 +162,7 @@ void GMultiThreadedEA::compare(
 	Gem::Common::compare_base<GBaseEA>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(nThreads_, p_load->nThreads_), token);
+	compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -180,7 +185,7 @@ void GMultiThreadedEA::init() {
 	GBaseEA::init();
 
 	// Initialize our thread pool
-	tp_ptr_.reset(new Gem::Common::GThreadPool(nThreads_));
+	m_gtp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
 }
 
 /******************************************************************************/
@@ -189,10 +194,10 @@ void GMultiThreadedEA::init() {
  */
 void GMultiThreadedEA::finalize() {
 	// Check whether there were any errors during thread execution
-	if (tp_ptr_->hasErrors()) {
+	if (m_gtp_ptr->hasErrors()) {
 		std::ostringstream oss;
 		std::vector<std::string> errors;
-		errors = tp_ptr_->getErrors();
+		errors = m_gtp_ptr->getErrors();
 
 		for (std::vector<std::string>::iterator it = errors.begin(); it != errors.end(); ++it) {
 			oss << *it << std::endl;
@@ -205,7 +210,7 @@ void GMultiThreadedEA::finalize() {
 	}
 
 	// Terminate our thread pool
-	tp_ptr_.reset();
+	m_gtp_ptr.reset();
 
 	// GBaseEA sees exactly the environment it would when called from its own class
 	GBaseEA::finalize();
@@ -220,11 +225,11 @@ void GMultiThreadedEA::adaptChildren() {
 	std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 
 	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
-		tp_ptr_->async_schedule([it]() { (*it)->adapt(); });
+		m_gtp_ptr->async_schedule([it]() { (*it)->adapt(); });
 	}
 
 	// Wait for all threads in the pool to complete their work
-	tp_ptr_->wait();
+	m_gtp_ptr->wait();
 }
 
 /******************************************************************************/
@@ -253,13 +258,13 @@ void GMultiThreadedEA::runFitnessCalculation() {
 	// Make evaluation possible and initiate the worker threads
 	for (it = data.begin() + std::get<0>(range); it != data.begin() + std::get<1>(range); ++it) {
 		// Do the actual scheduling
-		tp_ptr_->async_schedule(
+		m_gtp_ptr->async_schedule(
 			[it]() { (*it)->process(); }
 		);
 	}
 
 	// Wait for all threads in the pool to complete their work
-	tp_ptr_->wait();
+	m_gtp_ptr->wait();
 }
 
 /******************************************************************************/
@@ -304,10 +309,10 @@ std::string GMultiThreadedEA::getIndividualCharacteristic() const {
  */
 void GMultiThreadedEA::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		nThreads_ = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
+		m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
 	}
 	else {
-		nThreads_ = nThreads;
+		m_n_threads = nThreads;
 	}
 }
 
@@ -318,7 +323,7 @@ void GMultiThreadedEA::setNThreads(std::uint16_t nThreads) {
  * @return The maximum number of allowed threads
  */
 std::uint16_t GMultiThreadedEA::getNThreads() const {
-	return nThreads_;
+	return m_n_threads;
 }
 
 /******************************************************************************/

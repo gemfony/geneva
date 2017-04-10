@@ -47,7 +47,6 @@ namespace Geneva {
  */
 GBrokerSwarm::GBrokerSwarm()
 	: GBaseSwarm()
-	, Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -63,7 +62,6 @@ GBrokerSwarm::GBrokerSwarm(
 	, const std::size_t &nNeighborhoodMembers
 )
 	: GBaseSwarm(nNeighborhoods, nNeighborhoodMembers)
-	, Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(Gem::Courtier::submissionReturnMode::INCOMPLETERETURN)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +71,9 @@ GBrokerSwarm::GBrokerSwarm(
  * @param cp A copy of another GBrokerSwarm object
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm &cp)
-	: GBaseSwarm(cp), Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(cp) { /* nothing */ }
+	: GBaseSwarm(cp)
+   , Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -262,31 +262,31 @@ std::string GBrokerSwarm::getIndividualCharacteristic() const {
 void GBrokerSwarm::updatePositions() {
 #ifdef DEBUG
 	// Check that all neighborhoods have the default size
-	for(std::size_t n=0; n<nNeighborhoods_; n++) {
-		if(nNeighborhoodMembers_[n] != defaultNNeighborhoodMembers_) {
+	for(std::size_t n=0; n<m_n_neighborhoods; n++) {
+		if(m_n_neighborhood_members_vec[n] != m_default_n_neighborhood_members) {
 		   glogger
 		   << "In GBrokerSwarm::updatePositions(): Error!" << std::endl
-         << "nNeighborhoodMembers_[" << n << "] has invalid size " << nNeighborhoodMembers_[n] << std::endl
-         << "but expected size " << defaultNNeighborhoodMembers_ << std::endl
+         << "m_n_neighborhood_members_vec[" << n << "] has invalid size " << m_n_neighborhood_members_vec[n] << std::endl
+         << "but expected size " << m_default_n_neighborhood_members << std::endl
          << GEXCEPTION;
 		}
 
-		if(this->size() != nNeighborhoods_*defaultNNeighborhoodMembers_) {
+		if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
 		   glogger
 		   << "In GBrokerSwarm::updatePositions(): Error!" << std::endl
-         << "The population has an incorrect size of " << this->size() << ", expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << std::endl
+         << "The population has an incorrect size of " << this->size() << ", expected " << m_n_neighborhoods*m_default_n_neighborhood_members << std::endl
          << GEXCEPTION;
 		}
 	}
 #endif
 
-	oldIndividuals_.clear();
+	m_last_iteration_individuals_vec.clear();
 	if (afterFirstIteration()) {
 		GBrokerSwarm::iterator it;
 
 		// Clone the individuals and copy them over
 		for (it = this->begin(); it != this->end(); ++it) {
-			oldIndividuals_.push_back((*it)->clone<GParameterSet>());
+			m_last_iteration_individuals_vec.push_back((*it)->clone<GParameterSet>());
 		}
 	}
 
@@ -300,23 +300,39 @@ void GBrokerSwarm::updatePositions() {
 void GBrokerSwarm::runFitnessCalculation() {
 	using namespace Gem::Courtier;
 
-	std::uint32_t iteration = getIteration();
-
-	// Submit work items and wait for results
+	//--------------------------------------------------------------------------------
+	// Submit work items and wait for results.
+	// TODO: hide these details
+	std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
 	Gem::Courtier::GBrokerExecutorT<GParameterSet>::workOn(
 		data
-		, oldWorkItems_
-		, true // Remove unprocessed items
+		, workItemPos
+		, m_old_work_items
+		, false // do not resubmit unprocessed items
+		, "GBrokerSwarm::runFitnessCalculation()"
 	);
 
 	// Update the iteration of older individuals (they will keep their old neighborhood id)
 	// and attach them to the data vector
-	for(auto item: oldWorkItems_) {
-		item->setAssignedIteration(iteration);
+	for(auto item: m_old_work_items) {
+		item->setAssignedIteration(this->getIteration());
 		this->push_back(item);
 	}
-	oldWorkItems_.clear();
+	m_old_work_items.clear();
 
+	//--------------------------------------------------------------------------------
+	// Take care of unprocessed items
+	Gem::Common::erase_according_to_flags(data, workItemPos, Gem::Courtier::GBC_UNPROCESSED, 0, data.size());
+
+	// Remove items for which an error has occurred during processing
+	Gem::Common::erase_if(
+		data
+		, [this](std::shared_ptr<GParameterSet> p) -> bool {
+			return p->processing_was_unsuccessful();
+		}
+	);
+
+	//--------------------------------------------------------------------------------
 	// Sort according to the individuals' neighborhoods
 	sort(
 		data.begin()
@@ -327,10 +343,10 @@ void GBrokerSwarm::runFitnessCalculation() {
 	);
 
 	// Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
-	Gem::Common::assignVecConst(nNeighborhoodMembers_, (std::size_t) 0);
+	Gem::Common::assignVecConst(m_n_neighborhood_members_vec, (std::size_t)0);
 	// Then update the number of individuals in each neighborhood
 	for(auto item: *this) {
-		nNeighborhoodMembers_[item->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
+		m_n_neighborhood_members_vec[item->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
 	// The population will be fixed in the GBrokerSwarm::adjustNeighborhoods() function
@@ -344,13 +360,13 @@ void GBrokerSwarm::adjustNeighborhoods() {
 	std::size_t firstNIPos; // Will hold the expected first position of a neighborhood
 
 #ifdef DEBUG
-	// Check that oldIndividuals_ has the desired size in iterations other than the first
-	if(afterFirstIteration() && oldIndividuals_.size() != defaultNNeighborhoodMembers_*nNeighborhoods_) {
+	// Check that m_last_iteration_individuals_vec has the desired size in iterations other than the first
+	if(afterFirstIteration() && m_last_iteration_individuals_vec.size() != m_default_n_neighborhood_members*m_n_neighborhoods) {
 	   glogger
 	   << "In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
-      << "oldIndividuals_ has incorrect size! Expected" << std::endl
-      << "defaultNNeighborhoodMembers_*nNeighborhoods_ = " << defaultNNeighborhoodMembers_*nNeighborhoods_ << std::endl
-      << "but found " << oldIndividuals_.size() << std::endl
+      << "m_last_iteration_individuals_vec has incorrect size! Expected" << std::endl
+      << "m_default_n_neighborhood_members*m_n_neighborhoods = " << m_default_n_neighborhood_members*m_n_neighborhoods << std::endl
+      << "but found " << m_last_iteration_individuals_vec.size() << std::endl
       << GEXCEPTION;
 	}
 #endif /* DEBUG */
@@ -360,35 +376,35 @@ void GBrokerSwarm::adjustNeighborhoods() {
 	// Neighborhoods with too many items are pruned. findBests() has sorted each neighborhood
 	// according to its fitness, so we know that the best items are in the front position of each
 	// neighborhood. We thus simply remove items at the end of neighborhoods that are too large.
-	for (std::size_t n = 0; n < nNeighborhoods_; n++) { // Loop over all neighborhoods
+	for (std::size_t n = 0; n < m_n_neighborhoods; n++) { // Loop over all neighborhoods
 		// Calculate the desired position of our own first individual in this neighborhood
 		// As we start with the first neighborhood and add or remove surplus or missing items,
 		// getFirstNIPos() will return a valid position.
 		firstNIPos = getFirstNIPos(n);
 
-		if (nNeighborhoodMembers_[n] == defaultNNeighborhoodMembers_) {
+		if (m_n_neighborhood_members_vec[n] == m_default_n_neighborhood_members) {
 			continue;
-		} else if (nNeighborhoodMembers_[n] >
-					  defaultNNeighborhoodMembers_) { // Remove surplus items from the end of the neighborhood
+		} else if (m_n_neighborhood_members_vec[n] >
+					  m_default_n_neighborhood_members) { // Remove surplus items from the end of the neighborhood
 			// Find out, how many surplus items there are
-			std::size_t nSurplus = nNeighborhoodMembers_[n] - defaultNNeighborhoodMembers_;
+			std::size_t nSurplus = m_n_neighborhood_members_vec[n] - m_default_n_neighborhood_members;
 
-			// Remove nSurplus items from the position (n+1)*defaultNNeighborhoodMembers_
+			// Remove nSurplus items from the position (n+1)*m_default_n_neighborhood_members
 			data.erase(
-				data.begin() + (n + 1) * defaultNNeighborhoodMembers_
-				, data.begin() + ((n + 1) * defaultNNeighborhoodMembers_ + nSurplus)
+				data.begin() + (n + 1) * m_default_n_neighborhood_members
+				, data.begin() + ((n + 1) * m_default_n_neighborhood_members + nSurplus)
 			);
-		} else { // nNeighborhoodMembers_[n] < defaultNNeighborhoodMembers_
+		} else { // m_n_neighborhood_members_vec[n] < m_default_n_neighborhood_members
 			// TODO: Deal with cases where no items of a given neighborhood have returned
 			// The number of missing items
-			std::size_t nMissing = defaultNNeighborhoodMembers_ - nNeighborhoodMembers_[n];
+			std::size_t nMissing = m_default_n_neighborhood_members - m_n_neighborhood_members_vec[n];
 
 			if (afterFirstIteration()) { // The most likely case
-				// Copy the best items of this neighborhood over from the oldIndividuals_ vector.
+				// Copy the best items of this neighborhood over from the m_last_iteration_individuals_vec vector.
 				// Each neighborhood there should have been sorted according to the individuals
 				// fitness, with the best individuals in the front of each neighborhood.
 				for (std::size_t i = 0; i < nMissing; i++) {
-					data.insert(data.begin() + firstNIPos, *(oldIndividuals_.begin() + firstNIPos + i));
+					data.insert(data.begin() + firstNIPos, *(m_last_iteration_individuals_vec.begin() + firstNIPos + i));
 				}
 			} else { // first iteration
 #ifdef DEBUG
@@ -417,20 +433,20 @@ void GBrokerSwarm::adjustNeighborhoods() {
 		}
 
 		// Finally adjust the number of entries in this neighborhood
-		nNeighborhoodMembers_[n] = defaultNNeighborhoodMembers_;
+		m_n_neighborhood_members_vec[n] = m_default_n_neighborhood_members;
 	}
 
 #ifdef DEBUG
 	// Check that the population has the expected size
-	if(this->size() != nNeighborhoods_*defaultNNeighborhoodMembers_) {
+	if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
 	   glogger
 	   << "In GBrokerSwarm::adjustNeighborhoods(): Error!" << std::endl
-      << "The population has an incorrect size of " << this->size() << ", expected " << nNeighborhoods_*defaultNNeighborhoodMembers_ << std::endl
+      << "The population has an incorrect size of " << this->size() << ", expected " << m_n_neighborhoods*m_default_n_neighborhood_members << std::endl
       << GEXCEPTION;
 	}
 #endif
 
-	oldIndividuals_.clear(); // Get rid of the copies
+	m_last_iteration_individuals_vec.clear(); // Get rid of the copies
 }
 
 /******************************************************************************/
@@ -440,8 +456,8 @@ void GBrokerSwarm::adjustNeighborhoods() {
  * @return A boolean which indicates whether all neighborhoods have the default size
  */
 bool GBrokerSwarm::neighborhoodsHaveNominalValues() const {
-	for (std::size_t n = 0; n < nNeighborhoods_; n++) {
-		if (nNeighborhoodMembers_[n] == defaultNNeighborhoodMembers_) return false;
+	for (std::size_t n = 0; n < m_n_neighborhoods; n++) {
+		if (m_n_neighborhood_members_vec[n] == m_default_n_neighborhood_members) return false;
 	}
 	return true;
 }

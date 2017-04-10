@@ -64,7 +64,11 @@ The main changes for this release include:
    of a client. Note that the actual runtime may be longer, as a running workload will not be interrupted.
  - Renamed the GBrokerSelfCommunication-test to GConsumerPerformance and added the new ws-consumer for
    debugging purposes
- - Switched default return mode for GExecutorT::GBrokerExecutorT to INCOMPLETERETURN (from full return)
+ - Consumers must now be registered in one go. Once this registration has taken place, no new
+   consumers may be registered. This happens so that the broker may reliably retrieve information
+   about registered consumers just once before an optimization run rather than having to check repeatedly.
+ - Eliminated the need for new optimization algorithms to specify the submission return mode. GExecutorT
+   now retrieves this information from the broker, which in turn retrieves it from registered consumers.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

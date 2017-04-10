@@ -80,7 +80,7 @@ class GBrokerSA
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseSA)
 		& make_nvp("GBrokerExecutorT_GParameterSet", boost::serialization::base_object<Gem::Courtier::GBrokerExecutorT<GParameterSet>>(*this))
-		& BOOST_SERIALIZATION_NVP(nThreads_);
+		& BOOST_SERIALIZATION_NVP(m_n_threads);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -147,10 +147,10 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::uint16_t nThreads_ = DEFAULTNSTDTHREADS; ///< The number of threads
-	std::shared_ptr<Gem::Common::GThreadPool> tp_ptr_; ///< Temporarily holds a thread pool
+	std::uint16_t m_n_threads = DEFAULTNSTDTHREADS; ///< The number of threads
+	std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
 
-	std::vector<std::shared_ptr<GParameterSet>> oldWorkItems_; ///< Temporarily holds old returned work items
+	std::vector<std::shared_ptr<GParameterSet>> m_old_work_items; ///< Temporarily holds old returned work items
 
 	/***************************************************************************/
 
