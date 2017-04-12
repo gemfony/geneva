@@ -83,10 +83,10 @@ namespace Common {
  * As one example, (de-)serialization is simplified by some of the functions
  * in this class, as is the task of conversion to the derived types.
  */
-template <typename T>
+template <typename g_class_type>
 class GCommonInterfaceT
 	// This simplifies detection of classes that implement the Gemfony interface -- see GTypeTraits.hpp
-	// The problem here is that GCommonInterfaceT<T> is usually the base class of T and thus an incomplete
+	// The problem here is that GCommonInterfaceT<g_class_type> is usually the base class of g_class_type and thus an incomplete
 	// type at the time type traits are applied. Hence we use another (trivial) base class that simplifies
 	// detection.
 	: private gemfony_common_interface
@@ -118,19 +118,19 @@ public:
 		std::ostream &oarchive_stream
 		, const Gem::Common::serializationMode &serMod
 	) const {
-		const T *local;
+		const g_class_type *local;
 
 		// Note: (De-)serialization must happen through a pointer to the same type.
 #ifdef DEBUG
-		local = dynamic_cast<const T *>(this);
+		local = dynamic_cast<const g_class_type *>(this);
 		if(!local) {
 			glogger
-			<< "In GCommonInterfaceT<T>::toStream(): Error!" << std::endl
+			<< "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << std::endl
 			<< "Conversion failed" << std::endl
 			<< GEXCEPTION;
 		}
 #else
-		local = static_cast<const T *>(this);
+		local = static_cast<const g_class_type *>(this);
 #endif /* DEBUG */
 
 		switch (serMod) {
@@ -175,7 +175,7 @@ public:
 		std::istream &istr
 		, const Gem::Common::serializationMode &serMod
 	) {
-		T *local = nullptr;
+		g_class_type *local = nullptr;
 
 		switch (serMod) {
 			case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT: {
@@ -236,11 +236,11 @@ public:
 	/***************************************************************************/
 	/**
 	 * Initializes the object from its string representation, using the currently set serialization mode.
-	 * Note that the string will likely describe a derivative of T, as T cannot usually be instantiated.
+	 * Note that the string will likely describe a derivative of g_class_type, as g_class_type cannot usually be instantiated.
 	 * Note also that you will have to take care yourself that serialization and de-serialization happens
 	 * in the same mode.
 	 *
-	 * @param descr A text representation of a T-derivative
+	 * @param descr A text representation of a g_class_type-derivative
 	 */
 	void fromString(
 		const std::string &descr
@@ -357,13 +357,13 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const {
-		return std::string("GCommonInterfaceT<T>");
+		return std::string("GCommonInterfaceT<g_class_type>");
 	}
 
 	/***************************************************************************/
 	/**
 	 * Checks for compliance with expectations with respect to another object
-	 * of type T. This purely virtual function ensures the well-formedness of the
+	 * of type g_class_type. This purely virtual function ensures the well-formedness of the
 	 * compare hierarchy in derived classes.
 	 *
 	 * @param cp A constant reference to another object of the same type, camouflaged as a base object
@@ -371,7 +371,7 @@ public:
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 	virtual void compare(
-		const T& cp // the other object
+		const g_class_type& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
 	) const BASE = 0;
@@ -380,14 +380,14 @@ public:
 	/**
 	 * Checks for compliance with expectations with respect to another object
 	 * of the same type. This function does the real check. Without it we would get
-	 * an error about "no known conversion from GCommonInterfaceT<T> to T.
+	 * an error about "no known conversion from GCommonInterfaceT<g_class_type> to g_class_type.
 	 *
 	 * @param cp A constant reference to another object of the same type, camouflaged as a base object
 	 * @param e The expected outcome of the comparison
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 	void compare(
-		const GCommonInterfaceT<T>& cp // the other object
+		const GCommonInterfaceT<g_class_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
 	) const {
@@ -405,7 +405,7 @@ public:
 		// we throw an expectation violation for the expectation CE_INEQUALITY.
 		if (Gem::Common::expectation::CE_INEQUALITY == e) {
 			throw g_expectation_violation(
-				"In GCommonInterfaceT<T>: instance is empty and a base class, hence the expectation of inequality is always violated."
+				"In GCommonInterfaceT<g_class_type>: instance is empty and a base class, hence the expectation of inequality is always violated."
 			);
 		}
 	}
@@ -413,25 +413,25 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Creates a clone of this object, storing it in a std::shared_ptr<T>
+	 * Creates a clone of this object, storing it in a std::shared_ptr<g_class_type>
 	 */
-	std::shared_ptr<T> clone() const {
-		return std::shared_ptr<T>(clone_());
+	std::shared_ptr<g_class_type> clone() const {
+		return std::shared_ptr<g_class_type>(clone_());
 	}
 
 	/***************************************************************************/
 	/**
-	 * The function creates a clone of the T pointer, converts it to a pointer to a derived class
+	 * The function creates a clone of the g_class_type pointer, converts it to a pointer to a derived class
 	 * and emits it as a std::shared_ptr<> . Note that this template will only be accessible to the
-	 * compiler if T is a base type of clone_type.
+	 * compiler if g_class_type is a base type of clone_type.
 	 *
 	 * @return A converted clone of this object, wrapped into a std::shared_ptr
 	 */
 	template <typename clone_type>
 	std::shared_ptr<clone_type> clone(
-		typename std::enable_if<std::is_base_of<T, clone_type>::value>::type *dummy = nullptr
+		typename std::enable_if<std::is_base_of<g_class_type, clone_type>::value>::type *dummy = nullptr
 	) const {
-		return Gem::Common::convertSmartPointer<T, clone_type>(std::shared_ptr<T>(this->clone_()));
+		return Gem::Common::convertSmartPointer<g_class_type, clone_type>(std::shared_ptr<g_class_type>(this->clone_()));
 	}
 
 	/* ----------------------------------------------------------------------------------
@@ -441,15 +441,15 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Loads the data of another T(-derivative), wrapped in a shared pointer. Note that this
-	 * function is only accessible to the compiler if load_type is a derivative of T.
+	 * Loads the data of another g_class_type(-derivative), wrapped in a shared pointer. Note that this
+	 * function is only accessible to the compiler if load_type is a derivative of g_class_type.
 	 *
-	 * @param cp A copy of another T-derivative, wrapped into a std::shared_ptr<>
+	 * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
 	 */
 	template <typename load_type>
 	inline void load(
 		const std::shared_ptr<load_type>& cp
-		, typename std::enable_if<std::is_base_of<T, load_type>::value>::type *dummy = nullptr
+		, typename std::enable_if<std::is_base_of<g_class_type, load_type>::value>::type *dummy = nullptr
 	) {
 		load_(cp.get());
 	}
@@ -461,15 +461,15 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Loads the data of another T(-derivative), presented as a constant reference. Note that this
-	 * function is only accessible to the compiler if load_type is a derivative of T.
+	 * Loads the data of another g_class_type(-derivative), presented as a constant reference. Note that this
+	 * function is only accessible to the compiler if load_type is a derivative of g_class_type.
 	 *
-	 * @param cp A copy of another T-derivative, wrapped into a std::shared_ptr<>
+	 * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
 	 */
 	template <typename load_type>
 	inline void load(
 		const load_type& cp
-		, typename std::enable_if<std::is_base_of<T, load_type>::value>::type *dummy = nullptr
+		, typename std::enable_if<std::is_base_of<g_class_type, load_type>::value>::type *dummy = nullptr
 	) {
 		load_(&cp);
 	}
@@ -481,10 +481,10 @@ public:
 
 protected:
 	/***************************************************************************/
-	/** @brief Loads the data of another T */
-	virtual G_API_COMMON void load_(const T*) BASE = 0;
+	/** @brief Loads the data of another g_class_type */
+	virtual G_API_COMMON void load_(const g_class_type*) BASE = 0;
 	/** @brief Creates a deep clone of this object */
-	virtual G_API_COMMON T* clone_() const BASE = 0;
+	virtual G_API_COMMON g_class_type* clone_() const BASE = 0;
 };
 
 /******************************************************************************/
@@ -495,14 +495,14 @@ protected:
 } /* namespace Gem */
 
 /******************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(GCommonInterfaceT<g_class_type>)
 
 namespace boost {
 namespace serialization {
-template<typename T>
-struct is_abstract<Gem::Common::GCommonInterfaceT<T>> : public boost::true_type {};
-template<typename T>
-struct is_abstract< const Gem::Common::GCommonInterfaceT<T>> : public boost::true_type {};
+template<typename g_class_type>
+struct is_abstract<Gem::Common::GCommonInterfaceT<g_class_type>> : public boost::true_type {};
+template<typename g_class_type>
+struct is_abstract< const Gem::Common::GCommonInterfaceT<g_class_type>> : public boost::true_type {};
 }
 }
 
