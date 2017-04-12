@@ -95,6 +95,8 @@ namespace Courtier {
 // TODO: Even in the case "capable of full return" we need to take into account
 // that work items may return unprocessed. E.g. the processing code itself
 // might throw.
+// TODO: Once all optimization algorithms have been moved to the new infrastructur,
+// derive GBaseExecutorT from GCommonInterfaceT
 
 /******************************************************************************/
 /**

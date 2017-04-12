@@ -67,6 +67,9 @@
 namespace Gem {
 namespace Geneva {
 
+// TODO: m_executor is not loaded or compared. Fix or use m_executor as a (private ?) base class instead
+// TODO: make m_executor private and provide protected access functions for derived classes
+
 /***************************************************************************/
 /**
  * This class implements basic operations found in iteration-based optimization algorithms.

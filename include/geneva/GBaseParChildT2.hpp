@@ -125,12 +125,12 @@ public:
 	  */
 	 GBaseParChildT2(const GBaseParChildT2<executor_type>& cp)
 		 : GOptimizationAlgorithmT2<executor_type>(cp)
-			, m_n_parents(cp.m_n_parents)
-			, m_recombination_method(cp.m_recombination_method)
-			, m_default_n_children(cp.m_default_n_children)
-			, m_growth_rate(cp.m_growth_rate)
-			, m_max_population_size(cp.m_max_population_size)
-			, m_amalgamation_likelihood(cp.m_amalgamation_likelihood)
+		 , m_n_parents(cp.m_n_parents)
+		 , m_recombination_method(cp.m_recombination_method)
+		 , m_default_n_children(cp.m_default_n_children)
+		 , m_growth_rate(cp.m_growth_rate)
+		 , m_max_population_size(cp.m_max_population_size)
+		 , m_amalgamation_likelihood(cp.m_amalgamation_likelihood)
 	 {
 		 // Copying of individuals is done by the parent class
 	 }
