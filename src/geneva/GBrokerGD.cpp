@@ -64,7 +64,7 @@ GBrokerGD::GBrokerGD(
  */
 GBrokerGD::GBrokerGD(const GBrokerGD &cp)
 	: GBaseGD(cp)
-   , Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(cp)
+   , m_gbroker_executor(cp.m_gbroker_executor)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -143,9 +143,8 @@ void GBrokerGD::compare(
 	// Compare our parent data ...
 	Gem::Common::compare_base<GBaseGD>(IDENTITY(*this, *p_load), token);
 
-	// We do not compare the broker data
-
-	// ... no local data
+	// ... compare the local data
+	compare_t(IDENTITY(m_gbroker_executor, p_load->m_gbroker_executor), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -182,9 +181,9 @@ void GBrokerGD::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBaseGD::load_(cp);
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::load(p_load);
 
-	// ... no local data
+	// ... and then our local data
+	m_gbroker_executor = p_load->m_gbroker_executor;
 }
 
 /******************************************************************************/
@@ -206,7 +205,7 @@ void GBrokerGD::init() {
 	GBaseGD::init();
 
 	// Initialize the broker connector
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::init();
+	m_gbroker_executor.init();
 }
 
 /******************************************************************************/
@@ -215,7 +214,7 @@ void GBrokerGD::init() {
  */
 void GBrokerGD::finalize() {
 	// Finalize the broker connector
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::finalize();
+	m_gbroker_executor.finalize();
 
 	// GBaseGD sees exactly the environment it would when called from its own class
 	GBaseGD::finalize();
@@ -234,9 +233,9 @@ void GBrokerGD::addConfigurationOptions(
 
 	// Call our parent class'es function
 	GBaseGD::addConfigurationOptions(gpb);
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::addConfigurationOptions(gpb);
 
-	// no local data
+	// Add options from our local objects
+	m_gbroker_executor.addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -278,7 +277,7 @@ void GBrokerGD::runFitnessCalculation() {
 
 	std::vector<std::shared_ptr<GParameterSet>> old_work_items;
 	std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
-	complete = Gem::Courtier::GBrokerExecutorT<GParameterSet>::workOn(
+	complete = m_gbroker_executor.workOn(
 		data
 		, workItemPos
 		, old_work_items

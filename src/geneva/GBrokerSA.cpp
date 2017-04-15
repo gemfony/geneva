@@ -56,8 +56,8 @@ GBrokerSA::GBrokerSA()
  */
 GBrokerSA::GBrokerSA(const GBrokerSA &cp)
 	: GBaseSA(cp)
-	, Gem::Courtier::GBrokerExecutorT<GParameterSet>(cp)
 	, m_n_threads(cp.m_n_threads)
+   , m_gbroker_executor(cp.m_gbroker_executor)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -81,10 +81,10 @@ void GBrokerSA::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBaseSA::load_(cp);
-	Gem::Courtier::GBrokerExecutorT<GParameterSet>::load(p_load);
 
 	// ... and then our own
 	m_n_threads = p_load->m_n_threads;
+	m_gbroker_executor = p_load->m_gbroker_executor;
 }
 
 /******************************************************************************/
@@ -166,10 +166,9 @@ void GBrokerSA::compare(
 	// Compare our parent data ...
 	Gem::Common::compare_base<GBaseSA>(IDENTITY(*this, *p_load), token);
 
-	// We do not compare the broker data
-
-	// ... and then the local data
+	// ... compare the local data
 	compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
+	compare_t(IDENTITY(m_gbroker_executor, p_load->m_gbroker_executor), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -210,7 +209,7 @@ void GBrokerSA::init() {
 	GBaseSA::init();
 
 	// Initialize the broker connector
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::init();
+	m_gbroker_executor.init();
 
 	// Initialize our thread pool
 	m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
@@ -245,7 +244,7 @@ void GBrokerSA::finalize() {
 	m_tp_ptr.reset();
 
 	// Finalize the broker connector
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::finalize();
+	m_gbroker_executor.finalize();
 
 	// GBaseSA sees exactly the environment it would when called from its own class
 	GBaseSA::finalize();
@@ -312,7 +311,7 @@ void GBrokerSA::runFitnessCalculation() {
 	for(std::size_t pos=std::get<0>(range); pos<std::get<1>(range); pos++) {
 		workItemPos.at(pos) = Gem::Courtier::GBC_UNPROCESSED;
 	}
-	Gem::Courtier::GBrokerExecutorT<GParameterSet>::workOn(
+	m_gbroker_executor.workOn(
 		data
 		, workItemPos
 		, m_old_work_items
@@ -454,7 +453,6 @@ void GBrokerSA::addConfigurationOptions(
 ) {
 	// Call our parent class'es function
 	GBaseSA::addConfigurationOptions(gpb);
-	Gem::Courtier::GBrokerExecutorT<GParameterSet>::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::uint16_t>(
@@ -463,6 +461,8 @@ void GBrokerSA::addConfigurationOptions(
 		, [this](std::uint16_t nt) { this->setNThreads(nt); }
 	)
 	<< "The number of threads used to simultaneously adapt individuals";
+
+	m_gbroker_executor.addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/

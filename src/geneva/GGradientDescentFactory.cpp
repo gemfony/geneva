@@ -186,11 +186,11 @@ void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgori
 			std::shared_ptr <GBrokerGD> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
 
-			p->setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_waitFactor);
-			p->setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_initialWaitFactor);
+			p->m_gbroker_executor.setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_waitFactor);
+			p->m_gbroker_executor.setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_initialWaitFactor);
 
 			// This differs from e.g. GEvolutionaryAlgorithmFactory
-			p->setMaxResubmissions(maxResubmissions_);
+			p->m_gbroker_executor.setMaxResubmissions(maxResubmissions_);
 		}
 			break;
 	}

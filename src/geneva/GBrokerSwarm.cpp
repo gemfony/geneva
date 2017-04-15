@@ -72,7 +72,7 @@ GBrokerSwarm::GBrokerSwarm(
  */
 GBrokerSwarm::GBrokerSwarm(const GBrokerSwarm &cp)
 	: GBaseSwarm(cp)
-   , Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>(cp)
+   , m_gbroker_executor(cp.m_gbroker_executor)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -106,9 +106,9 @@ void GBrokerSwarm::load_(const GObject *cp) {
 
 	// Load the parent classes' data ...
 	GBaseSwarm::load_(cp);
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::load(p_load);
 
-	// no local data
+	// ... and then our local data
+	m_gbroker_executor = p_load->m_gbroker_executor;
 }
 
 /******************************************************************************/
@@ -177,7 +177,8 @@ void GBrokerSwarm::compare(
 	// Compare our parent data ...
 	Gem::Common::compare_base<GBaseSwarm>(IDENTITY(*this, *p_load), token);
 
-	// ... no local data
+	// ... and then our local data
+	compare_t(IDENTITY(m_gbroker_executor, p_load->m_gbroker_executor), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -200,7 +201,7 @@ void GBrokerSwarm::init() {
 	GBaseSwarm::init();
 
 	// Initialize the broker connector
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::init();
+	m_gbroker_executor.init();
 }
 
 /******************************************************************************/
@@ -209,7 +210,7 @@ void GBrokerSwarm::init() {
  */
 void GBrokerSwarm::finalize() {
 	// Finalize the broker connector
-	Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>::finalize();
+	m_gbroker_executor.finalize();
 
 	// GBaseSwarm sees exactly the environment it would when called from its own class
 	GBaseSwarm::finalize();
@@ -237,9 +238,9 @@ void GBrokerSwarm::addConfigurationOptions(
 ) {
 	// Call our parent class'es function
 	GBaseSwarm::addConfigurationOptions(gpb);
-	Gem::Courtier::GBrokerExecutorT<GParameterSet>::addConfigurationOptions(gpb);
 
-	// no local data
+	// Add the broker executor
+	m_gbroker_executor.addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -304,7 +305,7 @@ void GBrokerSwarm::runFitnessCalculation() {
 	// Submit work items and wait for results.
 	// TODO: hide these details
 	std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
-	Gem::Courtier::GBrokerExecutorT<GParameterSet>::workOn(
+	m_gbroker_executor.workOn(
 		data
 		, workItemPos
 		, m_old_work_items

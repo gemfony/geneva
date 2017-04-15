@@ -48,6 +48,7 @@
 #include <typeinfo>
 #include <type_traits>
 #include <tuple>
+#include <chrono>
 
 // Boost headers go here
 #include <boost/cast.hpp>
@@ -64,6 +65,7 @@
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"
+#include "common/GHelperFunctionsT.hpp"
 #include "common/GMathHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
@@ -326,13 +328,6 @@ void compare(
 				expectationMet = true;
 			}
 			break;
-
-		default: {
-			glogger
-			<< "In compare(/* 1 */): Got invalid expectation " << e << std::endl
-			<< GEXCEPTION;
-		}
-			break;
 	};
 
 	if (!expectationMet) {
@@ -343,6 +338,122 @@ void compare(
 		<< x_name << " = " << x << std::endl
 		<< y_name << " = " << y << std::endl
 		<< "]" << std::endl;
+		throw g_expectation_violation(error.str());
+	}
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This function checks whether two std::chrono::time_point types fulfill a given
+ * expectation. A check for similarity is treated the same as a check for
+ * equality. The function will throw a g_expectation_violation exception if the expectation
+ * was violated.
+ *
+ * @param x The first parameter to be compared
+ * @param y The second parameter to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
+ */
+template <typename Clock, typename Duration = typename Clock::duration>
+void compare(
+	const std::chrono::time_point<Clock, Duration> &x
+	, const std::chrono::time_point<Clock, Duration> &y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit = 0.
+) {
+	bool expectationMet = false;
+	std::string expectation_str;
+
+	switch (e) {
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
+			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+			if (x == y) {
+				expectationMet = true;
+			}
+			break;
+
+		case Gem::Common::expectation::CE_INEQUALITY:
+			expectation_str = "CE_INEQUALITY";
+			if (x != y) {
+				expectationMet = true;
+			}
+			break;
+	};
+
+	if (!expectationMet) {
+		std::ostringstream error;
+		error
+			<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
+			<< "[" << std::endl
+			<< x_name << " = " << x.time_since_epoch().count() << std::endl
+			<< y_name << " = " << y.time_since_epoch().count() << std::endl
+			<< "]" << std::endl;
+		throw g_expectation_violation(error.str());
+	}
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This function checks whether two std::chrono::duration types fulfill a given
+ * expectation. A check for similarity is treated the same as a check for
+ * equality. The function will throw a g_expectation_violation exception if the expectation
+ * was violated.
+ *
+ * @param x The first parameter to be compared
+ * @param y The second parameter to be compared
+ * @param x_name The name of the first parameter
+ * @param y_name The name of the second parameter
+ * @param e The expectation both parameters need to fulfill
+ * @param limit The maximum allowed deviation of two floating point values
+ * @param dummy std::enable_if magic to steer overloaded resolution by the compiler
+ */
+template <typename Rep, typename Period = std::ratio<1>>
+void compare(
+	const std::chrono::duration<Rep, Period> &x
+	, const std::chrono::duration<Rep, Period> &y
+	, const std::string &x_name
+	, const std::string &y_name
+	, const Gem::Common::expectation &e
+	, const double &limit = 0.
+) {
+	bool expectationMet = false;
+	std::string expectation_str;
+
+	switch (e) {
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY:
+			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+			if (x == y) {
+				expectationMet = true;
+			}
+			break;
+
+		case Gem::Common::expectation::CE_INEQUALITY:
+			expectation_str = "CE_INEQUALITY";
+			if (x != y) {
+				expectationMet = true;
+			}
+			break;
+	};
+
+	if (!expectationMet) {
+		std::ostringstream error;
+		error
+			<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
+			<< "[" << std::endl
+			<< x_name << " = " << x.count() << std::endl
+			<< y_name << " = " << y.count() << std::endl
+			<< "]" << std::endl;
 		throw g_expectation_violation(error.str());
 	}
 }
@@ -392,13 +503,6 @@ void compare(
 			if (x != y) {
 				expectationMet = true;
 			}
-			break;
-
-		default: {
-			glogger
-			<< "In compare(/* 2 */): Got invalid expectation " << e << std::endl
-			<< GEXCEPTION;
-		}
 			break;
 	};
 
@@ -458,13 +562,6 @@ void compare(
 			if (x != y) {
 				expectationMet = true;
 			}
-			break;
-
-		default: {
-			glogger
-			<< "In compare(/* 3 */): Got invalid expectation " << e << std::endl
-			<< GEXCEPTION;
-		}
 			break;
 	};
 
@@ -547,13 +644,6 @@ void compare(
 			if (x != y) {
 				expectationMet = true;
 			}
-			break;
-
-		default: {
-			glogger
-				<< "In compare(/* 4 */): Got invalid expectation " << e << std::endl
-				<< GEXCEPTION;
-		}
 			break;
 	};
 
@@ -684,13 +774,6 @@ void compare(
 				<< "do not differ even though they should" << std::endl;
 			}
 			break;
-
-		default: {
-			glogger
-			<< "In compare(/* 5 */): Got invalid expectation " << e << std::endl
-			<< GEXCEPTION;
-		}
-			break;
 	};
 
 	if (!expectationMet) {
@@ -790,13 +873,6 @@ void compare(
 					<< "do not differ even though they should" << std::endl;
 			}
 			break;
-
-		default: {
-			glogger
-				<< "In compare(/* 6 */): Got invalid expectation " << e << std::endl
-				<< GEXCEPTION;
-		}
-			break;
 	};
 
 	if (!expectationMet) {
@@ -874,14 +950,6 @@ void compare (
 				break;
 			}
 			expectationMet = true;
-		}
-			break;
-
-		default:
-		{
-			glogger
-			<< "In compare(/* 7 */): Got invalid expectation " << e << std::endl
-			<< GEXCEPTION;
 		}
 			break;
 	};
@@ -988,14 +1056,6 @@ void compare (
 				break;
 			}
 			expectationMet = true;
-		}
-			break;
-
-		default:
-		{
-			glogger
-			<< "In compare(/* 8 */): Got invalid expectation " << e << std::endl
-			<< GEXCEPTION;
 		}
 			break;
 	};
@@ -1131,12 +1191,6 @@ void compare (
 			<< "The two containers " << x_name << " and " << y_name << " are equal." << std::endl
 			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
 		}
-	} break;
-
-	default: {
-		glogger
-		<< "In compare(/* 9 */): Got invalid expectation " << e << std::endl
-		<< GEXCEPTION;
 	} break;
 	};
 

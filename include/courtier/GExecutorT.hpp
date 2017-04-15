@@ -69,6 +69,7 @@
 
 
 // Geneva headers go here
+#include "common/GCommonInterfaceT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GExpectationChecksT.hpp"
@@ -97,6 +98,10 @@ namespace Courtier {
 // might throw.
 // TODO: Once all optimization algorithms have been moved to the new infrastructur,
 // derive GBaseExecutorT from GCommonInterfaceT
+// TODO: Take care of marking some classes abstract
+// TODO: Take care of making some of theses classes serializable
+// TODO: In GOptimizationAlgorithmT2(cpp/hpp): serialize-exports instantiations with processable_type == GParameterSet
+// TODO: Some variables are still not listet in all Gemfony-API functions
 
 /******************************************************************************/
 /**
@@ -104,10 +109,14 @@ namespace Courtier {
  * serial or parallel execution for a set of work items. Its main purpose is to
  * avoid duplication of code. Derived classes may deal with different types of
  * parallel execution, including connection to a broker and multi-threaded
- * execution. The serial mode is meant for debugging purposes only.
+ * execution. The serial mode is meant for debugging purposes only. The class
+ * follows the Gemfony conventions for loading / cloning and comparison with
+ * other objects.
  */
 template<typename processable_type>
-class GBaseExecutorT {
+class GBaseExecutorT
+	: public Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>
+{
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
 		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type>, processable_type>::value
@@ -124,6 +133,8 @@ public:
 		 using boost::serialization::make_nvp;
 
 		 ar
+		 & make_nvp("GCommonInterfaceT_GObject"
+						, boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_maxResubmissions);
 	 }
 
@@ -145,7 +156,8 @@ public:
 	  * @param cp A copy of another GBrokerConnector object
 	  */
 	 GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
-	 	: m_maxResubmissions(cp.m_maxResubmissions)
+	 	: Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(cp)
+	   , m_maxResubmissions(cp.m_maxResubmissions)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -158,25 +170,56 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Checks for equality with another GBaseExecutorT<processable_type> object
+	  *
+	  * @param  cp A constant reference to another GBaseExecutorT<processable_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 bool operator==(const GBaseExecutorT<processable_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks for inequality with another GBaseExecutorT<processable_type> object
+	  *
+	  * @param  cp A constant reference to another GBaseExecutorT<processable_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 bool operator!=(const GBaseExecutorT<processable_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 virtual std::string name() const override {
+		 return std::string("GBaseExecutorT<processable_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * A standard assignment operator for GBaseExecutorT<processable_type> objects,
 	  *
 	  * @param cp A copy of another GBaseExecutorT<processable_type> object
 	  * @return A constant reference to this object
 	  */
 	 const GBaseExecutorT<processable_type> &operator=(const GBaseExecutorT<processable_type> &cp) {
-		 GBaseExecutorT<processable_type>::load(&cp);
+		 this->load_(&cp);
 		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Loads the data of another GBaseExecutorT object
-	  *
-	  * @param cp A constant pointer to another GBaseExecutorT object
-	  */
-	 virtual void load(GBaseExecutorT<processable_type> const *const cp) BASE
-	 {
-		 m_maxResubmissions = cp->m_maxResubmissions;
 	 }
 
 	 /***************************************************************************/
@@ -302,7 +345,7 @@ public:
 		 );
 
 		 // Give feedback to the audience (may be overloaded in derived classes)
-		 this->report();
+		 this->visualize_performance();
 
 		 // Update the iteration counter
 		 m_iteration_counter++;
@@ -383,7 +426,50 @@ public:
 		 return m_iteration_counter;
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  */
+	 virtual void compare(
+		 const GBaseExecutorT<processable_type>& cp // the other object
+		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		 , const double& limit // the limit for allowed deviations of floating point types
+	 ) const override {
+		 using namespace Gem::Common;
+
+		 // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
+		 const GBaseExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		 GToken token("GBaseExecutorT<processable_type>", e);
+
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GCommonInterfaceT<GBaseExecutorT<processable_type>>>(IDENTITY(*this, *p_load), token);
+
+		 // ... and then our local data
+		 compare_t(IDENTITY(this->m_maxResubmissions,  p_load->m_maxResubmissions), token);
+
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
+
+	 virtual void visualize_performance() BASE { /* nothing */ }
+
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Loads the data of another object
+	  */
+	 virtual void load_(const GBaseExecutorT<processable_type>* cp) override {
+		 // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
+		 const GBaseExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		 // No parent class with loadable data
+
+		 // Copy local data
+		 m_maxResubmissions = p_load->m_maxResubmissions;
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Submits a single work item */
 	 virtual void submit(std::shared_ptr<processable_type>) = 0;
@@ -418,23 +504,6 @@ protected:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) BASE { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to emit information at the end of an iteration
-	  */
-	 virtual void report() BASE {
-		 if (m_n_returnedLast == 0) { // Check whether any work items have returned at all
-			 glogger
-				 << "In GBaseExecutorT<processable_type>::iterationFinalize(): Warning!" << std::endl
-				 << "No current items have returned with" << std::endl
-				 << "m_expectedNumber  = " << m_expectedNumber << std::endl
-				 << "m_n_notReturnedLast = " << m_n_notReturnedLast << std::endl
-				 << "m_n_returnedLast    = " << m_n_returnedLast << std::endl
-				 << "m_n_oldWorkItems    = " << m_n_oldWorkItems << std::endl
-				 << GWARNING;
-		 }
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -535,33 +604,56 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Checks for equality with another GSerialExecutorT<processable_type> object
+	  *
+	  * @param  cp A constant reference to another GSerialExecutorT<processable_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 bool operator==(const GSerialExecutorT<processable_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks for inequality with another GSerialExecutorT<processable_type> object
+	  *
+	  * @param  cp A constant reference to another GSerialExecutorT<processable_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 bool operator!=(const GSerialExecutorT<processable_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 virtual std::string name() const override {
+		 return std::string("GSerialExecutorT<processable_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * A standard assignment operator for GSerialExecutorT<processable_type> objects,
 	  *
 	  * @param cp A copy of another GSerialExecutorT<processable_type> object
 	  * @return A constant reference to this object
 	  */
 	 const GSerialExecutorT<processable_type> &operator=(const GSerialExecutorT<processable_type> &cp) {
-		 GSerialExecutorT<processable_type>::load(&cp);
+		 GSerialExecutorT<processable_type>::load_(&cp);
 		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Loads the data of another GSerialExecutorT object
-	  *
-	  * @param cp A constant pointer to another GSerialExecutorT object
-	  */
-	 virtual void load(GBaseExecutorT<processable_type> const *const cp_base) override {
-		 GSerialExecutorT<processable_type> const *const cp = dynamic_cast<GSerialExecutorT<processable_type> const *const>(cp_base);
-
-		 if (!cp) { // nullptr
-			 glogger
-				 << "In GSerialExecutorT<processable_type>::load(): Conversion error!" << std::endl
-				 << GEXCEPTION;
-		 }
-
-		 // Load our parent classes data
-		 GBaseExecutorT<processable_type>::load(cp);
 	 }
 
 	 /***************************************************************************/
@@ -579,7 +671,60 @@ public:
 		 // No local data
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  */
+	 virtual void compare(
+		 const GBaseExecutorT<processable_type>& cp // the other object
+		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		 , const double& limit // the limit for allowed deviations of floating point types
+	 ) const override {
+		 using namespace Gem::Common;
+
+		 // Check that we are dealing with a GSerialExecutorT reference independent of this object and convert the pointer
+		 const GSerialExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		 GToken token("GSerialExecutorT<processable_type>", e);
+
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GBaseExecutorT<processable_type>>(IDENTITY(*this, *p_load), token);
+
+		 // ... no local data
+
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
+
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Loads the data of another GSerialExecutorT object
+	  *
+	  * @param cp A constant pointer to another GSerialExecutorT object
+	  */
+	 virtual void load_(const GBaseExecutorT<processable_type> *cp) override {
+		 const GSerialExecutorT<processable_type> *p_load = dynamic_cast<GSerialExecutorT<processable_type> const *const>(cp);
+
+		 if (!cp) { // nullptr
+			 glogger
+				 << "In GSerialExecutorT<processable_type>::load_(): Conversion error!" << std::endl
+				 << GEXCEPTION;
+		 }
+
+		 // Load our parent classes data
+		 GBaseExecutorT<processable_type>::load_(p_load);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object.
+	  */
+	 virtual GBaseExecutorT<processable_type>* clone_() const override {
+		 return new GSerialExecutorT<processable_type>(*this);
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Submits a single work item. In the case of serial execution, all work
@@ -632,7 +777,8 @@ class GMTExecutorT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this));
+		 & make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this))
+		 & BOOST_SERIALIZATION_NVP(m_n_threads);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -676,36 +822,56 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Checks for equality with another GMTExecutorT<processable_type> object
+	  *
+	  * @param  cp A constant reference to another GMTExecutorT<processable_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 bool operator==(const GMTExecutorT<processable_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks for inequality with another GMTExecutorT<processable_type> object
+	  *
+	  * @param  cp A constant reference to another GMTExecutorT<processable_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 bool operator!=(const GMTExecutorT<processable_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 virtual std::string name() const override {
+		 return std::string("GMTExecutorT<processable_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * A standard assignment operator for GMTExecutorT<processable_type> objects,
 	  *
 	  * @param cp A copy of another GMTExecutorT<processable_type> object
 	  * @return A constant reference to this object
 	  */
 	 const GMTExecutorT<processable_type> &operator=(const GMTExecutorT<processable_type> &cp) {
-		 GMTExecutorT<processable_type>::load(&cp);
+		 GMTExecutorT<processable_type>::load_(&cp);
 		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Loads the data of another GMTExecutorT object
-	  *
-	  * @param cp A constant pointer to another GMTExecutorT object
-	  */
-	 virtual void load(GBaseExecutorT<processable_type> const *const cp_base) override {
-		 GMTExecutorT<processable_type> const *const cp = dynamic_cast<GMTExecutorT<processable_type> const *const>(cp_base);
-
-		 if (!cp) { // nullptr
-			 glogger
-				 << "In GMTExecutorT<processable_type>::load(): Conversion error!" << std::endl
-				 << GEXCEPTION;
-		 }
-
-		 // Load our parent classes data
-		 GBaseExecutorT<processable_type>::load(cp);
-
-		 // Load our local data
-		 m_n_threads = cp->m_n_threads;
 	 }
 
 	 /***************************************************************************/
@@ -791,7 +957,65 @@ public:
 		 GBaseExecutorT<processable_type>::finalize();
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  */
+	 virtual void compare(
+		 const GBaseExecutorT<processable_type>& cp // the other object
+		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		 , const double& limit // the limit for allowed deviations of floating point types
+	 ) const override {
+		 using namespace Gem::Common;
+
+		 // Check that we are dealing with a GSerialExecutorT reference independent of this object and convert the pointer
+		 const GMTExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		 GToken token("GMTExecutorT<processable_type>", e);
+
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GBaseExecutorT<processable_type>>(IDENTITY(*this, *p_load), token);
+
+		 // ... and then our local data
+		 compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
+
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
+
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Loads the data of another GMTExecutorT object
+	  *
+	  * @param cp A constant pointer to another GMTExecutorT object
+	  */
+	 virtual void load_(const GBaseExecutorT<processable_type> *cp) override {
+		 const GMTExecutorT<processable_type> *p_load = dynamic_cast<const GMTExecutorT<processable_type> *>(cp);
+
+		 if (!cp) { // nullptr
+			 glogger
+				 << "In GMTExecutorT<processable_type>::load_(): Conversion error!" << std::endl
+				 << GEXCEPTION;
+		 }
+
+		 // Load our parent classes data
+		 GBaseExecutorT<processable_type>::load_(cp);
+
+		 // Load our local data
+		 m_n_threads = p_load->m_n_threads;
+	 }
+
+
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object.
+	  */
+	 virtual GBaseExecutorT<processable_type>* clone_() const override {
+		 return new GMTExecutorT<processable_type>(*this);
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Submits a single work item. As we are dealing with multi-threaded
@@ -960,43 +1184,57 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Checks for equality with another GBrokerExecutorT<processable_type> object
+	  *
+	  * @param  cp A constant reference to another GBrokerExecutorT<processable_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 bool operator==(const GBrokerExecutorT<processable_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks for inequality with another GBrokerExecutorT<processable_type> object
+	  *
+	  * @param  cp A constant reference to another GBrokerExecutorT<processable_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 bool operator!=(const GBrokerExecutorT<processable_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 virtual std::string name() const override {
+		 return std::string("GBrokerExecutorT<processable_type>");
+	 }
+
+
+	 /***************************************************************************/
+	 /**
 	  * A standard assignment operator for GBrokerExecutorT<processable_type> objects,
 	  *
 	  * @param cp A copy of another GBrokerExecutorT<processable_type> object
 	  * @return A constant reference to this object
 	  */
 	 const GBrokerExecutorT<processable_type> &operator=(const GBrokerExecutorT<processable_type> &cp) {
-		 GBrokerExecutorT<processable_type>::load(&cp);
+		 GBrokerExecutorT<processable_type>::load_(&cp);
 		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Loads the data of another GBrokerExecutorT object
-	  *
-	  * @param cp A constant pointer to another GBrokerExecutorT object
-	  */
-	 virtual void load(GBaseExecutorT<processable_type> const *const cp_base) override {
-		 GBrokerExecutorT<processable_type> const *const cp = dynamic_cast<GBrokerExecutorT<processable_type> const *const>(cp_base);
-
-		 if (!cp) { // nullptr
-			 glogger
-				 << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << std::endl
-				 << GEXCEPTION;
-		 }
-
-		 // Load our parent classes data
-		 GBaseExecutorT<processable_type>::load(cp);
-
-		 // Local data
-		 m_waitFactor = cp->m_waitFactor;
-		 m_initialWaitFactor = cp->m_initialWaitFactor;
-		 m_capable_of_full_return = cp->m_capable_of_full_return;
-		 m_waitFactorWarningEmitted = cp->m_waitFactorWarningEmitted;
-		 m_lastReturnTime = cp->m_lastReturnTime;
-		 m_lastAverage = cp->m_lastAverage;
-		 m_remainingTime = cp->m_remainingTime;
-		 m_maxTimeout = cp->m_maxTimeout;
 	 }
 
 	 /***************************************************************************/
@@ -1109,6 +1347,7 @@ public:
 		 // Check the capabilities of consumsers enrolled with the broker.
 		 // Note that this call may block until consumers have actually been enrolled.
 		 m_capable_of_full_return = m_broker_ptr->capableOfFullReturn();
+
 #ifdef DEBUG
 		 if(m_capable_of_full_return) {
 			 glogger
@@ -1142,7 +1381,78 @@ public:
 		 GBaseExecutorT<processable_type>::finalize();
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  */
+	 virtual void compare(
+		 const GBaseExecutorT<processable_type>& cp // the other object
+		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		 , const double& limit // the limit for allowed deviations of floating point types
+	 ) const override {
+		 using namespace Gem::Common;
+
+		 // Check that we are dealing with a GSerialExecutorT reference independent of this object and convert the pointer
+		 const GBrokerExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		 GToken token("GBrokerExecutorT<processable_type>", e);
+
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GBaseExecutorT<processable_type>>(IDENTITY(*this, *p_load), token);
+
+		 // ... and then our local data
+		 compare_t(IDENTITY(m_waitFactor, p_load->m_waitFactor), token);
+		 compare_t(IDENTITY(m_initialWaitFactor, p_load->m_initialWaitFactor), token);
+		 compare_t(IDENTITY(m_capable_of_full_return, p_load->m_capable_of_full_return), token);
+		 compare_t(IDENTITY(m_waitFactorWarningEmitted, p_load->m_waitFactorWarningEmitted), token);
+		 compare_t(IDENTITY(m_lastReturnTime, p_load->m_lastReturnTime), token);
+		 compare_t(IDENTITY(m_lastAverage, p_load->m_lastAverage), token);
+		 compare_t(IDENTITY(m_remainingTime, p_load->m_remainingTime), token);
+		 compare_t(IDENTITY(m_maxTimeout, p_load->m_maxTimeout), token);
+
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
+
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Loads the data of another GBrokerExecutorT object
+	  *
+	  * @param cp A constant pointer to another GBrokerExecutorT object
+	  */
+	 virtual void load_(const GBaseExecutorT<processable_type> * cp) override {
+		 const GBrokerExecutorT<processable_type> *p_load = dynamic_cast<const GBrokerExecutorT<processable_type> *>(cp);
+
+		 if (!p_load) { // nullptr
+			 glogger
+				 << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << std::endl
+				 << GEXCEPTION;
+		 }
+
+		 // Load our parent classes data
+		 GBaseExecutorT<processable_type>::load_(cp);
+
+		 // Local data
+		 m_waitFactor = p_load->m_waitFactor;
+		 m_initialWaitFactor = p_load->m_initialWaitFactor;
+		 m_capable_of_full_return = p_load->m_capable_of_full_return;
+		 m_waitFactorWarningEmitted = p_load->m_waitFactorWarningEmitted;
+		 m_lastReturnTime = p_load->m_lastReturnTime;
+		 m_lastAverage = p_load->m_lastAverage;
+		 m_remainingTime = p_load->m_remainingTime;
+		 m_maxTimeout = p_load->m_maxTimeout;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object.
+	  */
+	 virtual GBaseExecutorT<processable_type>* clone_() const override {
+		 return new GBrokerExecutorT<processable_type>(*this);
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Allows to perform necessary setup work for an iteration
@@ -1518,9 +1828,9 @@ private:
  	  * Allows to emit information at the end of an iteration
  	  * TODO: The content of this function is a hack. Submitted for current debugging purposes
  	  */
-	 virtual void report() override {
+	 virtual void visualize_performance() override {
 		 // Call our parent class'es report function
-		 GBaseExecutorT<processable_type>::report();
+		 GBaseExecutorT<processable_type>::visualize_performance();
 
 		 // Now do our own reporting
 		 std::chrono::duration<double> currentElapsed

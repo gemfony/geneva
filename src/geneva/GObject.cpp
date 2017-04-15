@@ -54,7 +54,8 @@ GObject::GObject() { /* nothing */ }
  *
  * @param cp A copy of another GObject object
  */
-GObject::GObject(const GObject &cp) { /* nothing */ }
+GObject::GObject(const GObject &cp) : Gem::Common::GCommonInterfaceT<GObject>(cp)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
