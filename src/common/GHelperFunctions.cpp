@@ -153,7 +153,7 @@ int runExternalCommand(
 	// Assign the full command (mostly needed for external error-evaluation)
 	fullCommand = localCommand;
 
-	// Run the actual command. T
+	// Run the actual command.
 	int errorCode = system(localCommand.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE

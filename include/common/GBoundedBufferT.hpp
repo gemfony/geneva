@@ -104,6 +104,8 @@
 #include "common/GLogger.hpp"
 #include "common/GCommonEnums.hpp"
 
+#include "common/GThreadSafeQueueT.hpp"
+
 namespace Gem {
 namespace Common {
 

@@ -73,6 +73,8 @@
 // Standard headers go here
 #include <memory>
 #include <mutex>
+#include <atomic>
+#include <type_traits>
 
 // Boost headers go here
 
@@ -80,19 +82,22 @@
 #define GTHREADSAFEQUEUET_HPP_
 
 // Geneva headers go here
+#include "common/GCommonEnums.hpp"
 
 namespace Gem {
 namespace Common {
 
-// TODO: Make this an optionally bounded queue
+// TODO: Make this an optionally bounded queue --> done
+// TODO: Make this queue fit for pushing std::shared_ptr and std::unique_ptr into it
 // TODO: Introduce timed waits
-// TODO: Make this queue fit for pushing std::shared_ptr into it
 
 /******************************************************************************/
 
-template<typename T>
-class threadsafe_queue
-{
+template<
+	typename T
+	, std::size_t t_capacity = DEFAULTBUFFERSIZE
+>
+class threadsafe_queue {
 private:
 	 struct node
 	 {
@@ -104,116 +109,154 @@ private:
 	 std::unique_ptr<node> head;
 	 std::mutex tail_mutex;
 	 node* tail;
-	 std::condition_variable data_cond;
+	 std::condition_variable m_not_empty; ///< Allows to wait until new nodes have appeared
+	 std::condition_variable m_not_full; ///< Allows to wait until space becomes available in the data structure
 
-	 node* get_tail()
-	 {
-		 std::lock_guard<std::mutex> tail_lock(tail_mutex);
+	 std::atomic<std::size_t> n_data_sets = 0;
+
+	 node* get_tail() {
+		 std::unique_lock<std::mutex> tail_lock(tail_mutex);
 		 return tail;
 	 }
 
-	 std::unique_ptr<node> pop_head()
-	 {
+	 std::unique_ptr<node> pop_head() {
 		 std::unique_ptr<node> const old_head=std::move(head);
 		 head=std::move(old_head->next);
+#ifdef DEBUG
+		 assert(n_data_sets.load() >= 1);
+#endif /* DEBUG */
+		 n_data_sets--;
+		 m_not_full.notify_one();
 		 return old_head;
 	 }
 
-	 std::unique_lock<std::mutex> wait_for_data()
-	 {
+	 std::unique_lock<std::mutex> wait_for_data() {
 		 std::unique_lock<std::mutex> head_lock(head_mutex);
-		 data_cond.wait(head_lock,[&]{return head!=get_tail();});
+		 m_not_empty.wait(head_lock,[&]{return head!=get_tail();});
 		 return std::move(head_lock);
 	 }
 
-	 std::unique_ptr<node> wait_pop_head()
-	 {
+	 std::unique_ptr<node> wait_pop_head() {
 		 std::unique_lock<std::mutex> head_lock(wait_for_data());
 		 return pop_head();
 	 }
 
-	 std::unique_ptr<node> wait_pop_head(T& value)
-	 {
+	 std::unique_ptr<node> wait_pop_head(T& value) {
 		 std::unique_lock<std::mutex> head_lock(wait_for_data());
 		 value=std::move(*head->data);
 		 return pop_head();
 	 }
 
-	 std::unique_ptr<node> try_pop_head()
-	 {
-		 std::lock_guard<std::mutex> head_lock(head_mutex);
-		 if(head.get()==get_tail())
-		 {
+	 std::unique_ptr<node> try_pop_head() {
+		 std::unique_lock<std::mutex> head_lock(head_mutex);
+		 if(head.get()==get_tail()) {
 			 return std::unique_ptr<node>();
 		 }
 		 return pop_head();
 	 }
 
-	 std::unique_ptr<node> try_pop_head(T& value)
-	 {
-		 std::lock_guard<std::mutex> head_lock(head_mutex);
-		 if(head.get()==get_tail())
-		 {
+	 std::unique_ptr<node> try_pop_head(T& value) {
+		 std::unique_lock<std::mutex> head_lock(head_mutex);
+		 if(head.get()==get_tail()) {
 			 return std::unique_ptr<node>();
 		 }
 		 value=std::move(*head->data);
 		 return pop_head();
+	 }
+
+	 std::unique_lock<std::mutex> wait_for_space(
+		 typename std::enable_if<(t_capacity>0)>::type* = 0
+	 ) {
+		 std::unique_lock<std::mutex> tail_lock(tail_mutex);
+		 m_not_full.wait(
+			 tail_lock
+			 , [&] { return n_data_sets.load() < t_capacity; }
+		 );
+		 return std::move(tail_lock);
+	 }
+
+	 std::unique_lock<std::mutex> wait_for_space(
+		 typename std::enable_if<(t_capacity==0)>::type* = 0
+	 ) {
+		 std::unique_lock<std::mutex> tail_lock(tail_mutex);
+		 return std::move(tail_lock);
 	 }
 
 public:
 	 threadsafe_queue():
-		 head(new node),tail(head.get())
+		 head(new node)
+		 ,tail(head.get())
 	 { /* nothing */ }
 
 	 threadsafe_queue(const threadsafe_queue& other)=delete;
 	 threadsafe_queue& operator=(const threadsafe_queue& other)=delete;
 
-	 void push(T new_value)
-	 {
+	 void push(T new_value) {
 		 std::shared_ptr<T> new_data(std::make_shared<T>(std::move(new_value)));
 		 std::unique_ptr<node> p(new node);
 		 {
-			 std::lock_guard<std::mutex> tail_lock(tail_mutex);
+			 std::unique_lock<std::mutex> tail_lock(wait_for_space());
 			 tail->data=new_data;
 			 node* const new_tail=p.get();
 			 tail->next=std::move(p);
 			 tail=new_tail;
+			 n_data_sets++;
 		 }
-		 data_cond.notify_one();
+		 m_not_empty.notify_one();
 	 }
 
-	 std::shared_ptr<T> wait_and_pop()
-	 {
+	 void push(std::shared_ptr<T> new_value_ptr) {
+		 std::unique_ptr<node> p(new node);
+		 {
+			 std::unique_lock<std::mutex> tail_lock(wait_for_space());
+			 tail->data=new_value_ptr;
+			 node* const new_tail=p.get();
+			 tail->next=std::move(p);
+			 tail=new_tail;
+			 n_data_sets++;
+		 }
+		 m_not_empty.notify_one();
+	 }
+
+	 void push(std::unique_ptr<T>& new_value_ptr) {
+		 std::unique_ptr<node> p(new node);
+		 {
+			 std::unique_lock<std::mutex> tail_lock(wait_for_space());
+			 tail->data=std::shared_ptr<T>(new_value_ptr.release());
+			 node* const new_tail=p.get();
+			 tail->next=std::move(p);
+			 tail=new_tail;
+			 n_data_sets++;
+		 }
+		 m_not_empty.notify_one();
+	 }
+
+	 std::shared_ptr<T> wait_and_pop() {
 		 std::unique_ptr<node> const old_head=wait_pop_head();
 		 return old_head->data;
 	 }
 
-	 void wait_and_pop(T& value)
-	 {
+	 void wait_and_pop(T& value) {
 		 std::unique_ptr<node> const old_head=wait_pop_head(value);
 	 }
 
-	 std::shared_ptr<T> try_pop()
-	 {
+	 std::shared_ptr<T> try_pop() {
 		 std::unique_ptr<node> const old_head=try_pop_head();
 		 return old_head?old_head->data:std::shared_ptr<T>();
 	 }
 
-	 bool try_pop(T& value)
-	 {
+	 bool try_pop(T& value) {
 		 std::unique_ptr<node> const old_head=try_pop_head(value);
 		 if(!old_head) return false;
 		 value = *old_head;
 		 return true;
 	 }
 
-	 bool empty()
-	 {
-		 std::lock_guard<std::mutex> head_lock(head_mutex);
+	 bool empty() {
+		 std::unique_lock<std::mutex> head_lock(head_mutex);
 		 return (head==get_tail());
 	 }
 };
-
 
 /******************************************************************************/
 

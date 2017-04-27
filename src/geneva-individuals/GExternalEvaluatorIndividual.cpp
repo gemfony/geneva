@@ -1119,6 +1119,8 @@ std::string GExternalEvaluatorIndividualFactory::getParameterFileBaseName() cons
 /******************************************************************************/
 /**
  * Indicates the initialization mode
+ *
+ * TODO: Allow "none" in case parameters should be solely supplied by the external evaluator
  */
 void GExternalEvaluatorIndividualFactory::setInitValues(std::string initValues) {
 	if (initValues != "random" && initValues != "min" && initValues != "max") {
