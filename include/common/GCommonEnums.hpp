@@ -103,7 +103,11 @@ namespace Common {
  * conditions, however, the buffer should never reach its upper
  * limit.
  */
-const std::size_t DEFAULTBUFFERSIZE = 20000;
+#ifdef GENEVA_COMMON_DEFAULT_BUFFER_SIZE
+	const std::size_t DEFAULTBUFFERSIZE = GENEVA_COMMON_DEFAULT_BUFFER_SIZE;
+#else
+	const std::size_t DEFAULTBUFFERSIZE = 10000;
+#endif
 
 /******************************************************************************/
 // A basetype used for all enums in Geneva
@@ -138,6 +142,8 @@ const double CE_DEF_SIMILARITY_DIFFERENCE = pow(10., -5);
 /**
  * Indicates whether higher or lower values are considered better. Needed e.g.
  * in conjunction with the sorting in priority queues.
+ *
+ * TODO: Replace by enum class
  */
 const bool HIGHERISBETTER = true;
 const bool LOWERISBETTER = false;

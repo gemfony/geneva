@@ -2382,13 +2382,65 @@ private:
 	 const GParserBuilder& operator=(const GParserBuilder&&) = delete;
 
 
-	 std::vector<std::shared_ptr < GFileParsableI>> m_file_parameter_proxies; ///< Holds file parameter proxies
-	 std::vector<std::shared_ptr < GCLParsableI>> m_cl_parameter_proxies;   ///< Holds command line parameter proxies
+	 std::vector<std::shared_ptr<GFileParsableI>> m_file_parameter_proxies; ///< Holds file parameter proxies
+	 std::vector<std::shared_ptr<GCLParsableI>> m_cl_parameter_proxies;   ///< Holds command line parameter proxies
 
 	 std::string m_configfile_Base_name;
 
 	 static std::mutex m_configfile_parser_mutex; ///< Synchronization of access to configuration files (may only happen serially)
 };
+
+/******************************************************************************/
+/**
+ * A helper function that lets users configure a given object from a file.
+ * The function assumes that the target object has a suitable addConfigurationOptions
+ * function. The function will automatically generate the configuration file using
+ * the mechanisms implenented in GParserBuilder, should the file not exist.
+ *
+ * @param path Name and path to a configuration file
+ */
+template <typename conf_object_type>
+void configureFromFile(
+	conf_object_type& target_object
+	, const std::string& conf_file
+) {
+	// Create a parser builder object. It will be destroyed at
+	// the end of this scope and thus cannot cause trouble
+	// due to registered call-backs and references
+	Gem::Common::GParserBuilder gpb;
+
+	// Add configuration options from the target object
+	target_object.addConfigurationOptions(gpb);
+
+	//----------------------------------------------------------------------------
+	// Some error checking
+
+	boost::filesystem::path conf_file_path(conf_file);
+
+	// Check whether path is a directory name rather than
+	// a file. It is a severe error if this is the case.
+	if(boost::filesystem::is_directory(conf_file_path)) {
+		glogger
+			<< "In configureFromFile(" << conf_file << "): Error!" << std::endl
+			<< "Target is a directory rather than a file." << std::endl
+			<< GEXCEPTION;
+	}
+
+	// Check whether the target directory exists. It is a
+	// severe error if this is not the case.
+	if(!boost::filesystem::exists(conf_file_path.parent_path())) {
+		glogger
+			<< "In configureFromFile(" << conf_file << "): Error!" << std::endl
+			<< "Target has invalid parent path" << std::endl
+			<< GEXCEPTION;
+	}
+
+	//----------------------------------------------------------------------------
+	// Do the actual parsing
+	gpb.parseConfigFile(conf_file);
+
+	//----------------------------------------------------------------------------
+}
 
 /******************************************************************************/
 

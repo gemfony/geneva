@@ -57,12 +57,41 @@ using lagged_fibonacci = std::subtract_with_carry_engine<uint_fast64_t, 48, 5, 1
 /******************************************************************************/
 // Some constants needed for the random number generation
 
-const std::size_t   DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
-const std::size_t   DEFAULTFACTORYBUFFERSIZE = 400; ///< Default size of the underlying buffer
-const std::uint16_t DEFAULTFACTORYPUTWAIT = 50; ///< waiting time in milliseconds
-const std::uint16_t DEFAULTFACTORYGETWAIT = 50; ///< waiting time in milliseconds
-const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 50; ///< waiting time for seeding queue in milliseconds
-const std::size_t   DEFAULTSEEDVECTORSIZE = 1000; ///< The size of the seeding vector
+#ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_ARRAY_SIZE
+	const std::size_t   DEFAULTARRAYSIZE = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_ARRAY_SIZE; ///< Default size of the random number array
+#else
+	const std::size_t   DEFAULTARRAYSIZE = 1000; ///< Default size of the random number array
+#endif /* GHAP_DEFAULT_ARRAY_SIZE */
+
+#ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE
+	const std::size_t   DEFAULTFACTORYBUFFERSIZE = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE; ///< Default size of the underlying buffer
+#else
+	const std::size_t   DEFAULTFACTORYBUFFERSIZE = Gem::Common::DEFAULTBUFFERSIZE; ///< Default size of the underlying buffer
+#endif /* GENEVA_HAP_RANDOM_FACTORY_DEFAULT_BUFFER_SIZE */
+
+#ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_PUT_WAIT
+	const std::uint16_t DEFAULTFACTORYPUTWAIT = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_PUT_WAIT; ///< waiting time in milliseconds
+#else
+	const std::uint16_t DEFAULTFACTORYPUTWAIT = 200; ///< waiting time in milliseconds
+#endif /* GENEVA_HAP_RANDOM_FACTORY_DEFAULT_PUT_WAIT */
+
+#ifdef GENEVA_HAP_RANDOM_FACTORY_DEFAULT_GET_WAIT
+	const std::uint16_t DEFAULTFACTORYGETWAIT = GENEVA_HAP_RANDOM_FACTORY_DEFAULT_GET_WAIT; ///< waiting time in milliseconds
+#else
+	const std::uint16_t DEFAULTFACTORYGETWAIT = 200; ///< waiting time in milliseconds
+#endif /* GENEVA_HAP_RANDOM_FACTORY_DEFAULT_GET_WAIT */
+
+#ifdef GENEVA_HAP_RANDOM_FACTORY_SEEDQUEUE_PUT_WAIT
+	const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT = GENEVA_HAP_RANDOM_FACTORY_SEEDQUEUE_PUT_WAIT; ///< waiting time for seeding queue in milliseconds
+#else
+	const std::uint16_t DEFAULTSEEDQUEUEPUTWAIT = 200; ///< waiting time for seeding queue in milliseconds
+#endif /* GENEVA_HAP_RANDOM_FACTORY_SEEDQUEUE_PUT_WAIT */
+
+#ifdef GENEVA_HAP_RANDOM_FACTORY_SEED_VECTOR_SIZE
+	const std::size_t   DEFAULTSEEDVECTORSIZE = GENEVA_HAP_RANDOM_FACTORY_SEED_VECTOR_SIZE; ///< The size of the seeding vector
+#else
+	const std::size_t   DEFAULTSEEDVECTORSIZE = 2000; ///< The size of the seeding vector
+#endif /* GENEVA_HAP_RANDOM_FACTORY_SEED_VECTOR_SIZE */
 
 /******************************************************************************/
 /**

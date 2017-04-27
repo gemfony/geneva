@@ -129,6 +129,12 @@ class condition_time_out : public std::exception
  * stored in the buffer. Setting the template argument t_capacity to 0
  * results in an unbounded buffer, possibly useful for returning items,
  * if there may never be an "inflation".
+ *
+ * Modify the behaviour of this class using the following defines:
+ * - DEFAULTBUFFERSIZE:
+ * The maximum size of the buffer. "0" means "unlimited"
+ * - GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL :
+ * Use notify_all instead of notify_one for condition-variables
  */
 template<typename T, std::size_t t_capacity = DEFAULTBUFFERSIZE>
 class GBoundedBufferT {
@@ -181,6 +187,8 @@ public:
 	  * will block if there is no space in the buffer and continue once
 	  * space is available.
 	  *
+	  * TODO: Provide specalization for t_capacity / DEFAULCAPCITY == 0
+	  *
 	  * @param item An item to be added to the front of the buffer
 	  */
 	 void push_front(value_type item) {
@@ -192,7 +200,12 @@ public:
 			 , [&]() -> bool { return (t_capacity==0)?true:(m_container.size()<t_capacity); } // will always signal "not full" if t_capacity is == 0
 		 );
 		 m_container.push_front(std::move(item));
+#ifndef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_empty.notify_one();
+#else
 		 m_not_empty.notify_all();
+#endif
+
 	 }
 
 	 /***************************************************************************/
@@ -214,7 +227,11 @@ public:
 			 throw Gem::Common::condition_time_out();
 		 }
 		 m_container.push_front(std::move(item));
+#ifndef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_empty.notify_one();
+#else
 		 m_not_empty.notify_all();
+#endif
 	 }
 
 	 /***************************************************************************/
@@ -237,7 +254,11 @@ public:
 			 return false;
 		 }
 		 m_container.push_front(std::move(item));
+#ifndef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_empty.notify_one();
+#else
 		 m_not_empty.notify_all();
+#endif
 		 return true;
 	 }
 
@@ -258,7 +279,11 @@ public:
 
 		 item = std::move(m_container.back());
 		 m_container.pop_back();
+#ifndef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_one();
+#else
 		 m_not_full.notify_all();
+#endif
 	 }
 
 	 /***************************************************************************/
@@ -282,7 +307,11 @@ public:
 
 		 item = std::move(m_container.back());
 		 m_container.pop_back();
+#ifndef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_one();
+#else
 		 m_not_full.notify_all();
+#endif
 	 }
 
 	 /***************************************************************************/
@@ -308,7 +337,11 @@ public:
 
 		 item = std::move(m_container.back()); // Assign the item at the back of the container
 		 m_container.pop_back(); // Remove it from the container
+#ifndef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_one();
+#else
 		 m_not_full.notify_all();
+#endif
 		 return true;
 	 }
 

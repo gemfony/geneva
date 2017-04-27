@@ -195,6 +195,7 @@ public:
 		 , m_emit_termination_reason(cp.m_emit_termination_reason)
 		 , m_halted(cp.m_halted)
 		 , m_worst_known_valids_vec(cp.m_worst_known_valids_vec)
+	 	 , m_executor(cp.m_executor)
 	 {
 		 // Copy the pluggable optimization monitors over (if any)
 		 Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors_vec, m_pluggable_monitors_vec);
@@ -485,6 +486,7 @@ public:
 		 compare_t(IDENTITY(m_worst_known_valids_vec, p_load->m_worst_known_valids_vec), token);
 		 compare_t(IDENTITY(m_pluggable_monitors_vec, p_load->m_pluggable_monitors_vec), token);
 		 compare_t(IDENTITY(this->data,  p_load->data), token); // Held in the parent class
+		 compare_t(IDENTITY(this->m_executor, p_load->m_executor), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();

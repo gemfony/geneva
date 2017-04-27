@@ -1272,16 +1272,6 @@ public:
 			 << "A static double factor for timeouts in the first iteration." << std::endl
 			 << "Set this to the inverse of the number of parallel processing" << std::endl
 			 << "units being used.";
-
-		 gpb.registerFileParameter<std::size_t>(
-			 "maxResubmissions" // The name of the variable
-			 , DEFAULTMAXRESUBMISSIONS // The default value
-			 , [this](std::size_t r) {
-				 this->setMaxResubmissions(r);
-			 }
-		 )
-			 << "The amount of resubmissions allowed if a full return of work" << std::endl
-			 << "items was expected but only a subset has returned";
 	 }
 
 	 /***************************************************************************/

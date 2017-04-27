@@ -395,7 +395,9 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 
 			std::string header = "This configuration file was automatically created by GParserBuilder;";
 			this->writeConfigFile(
-				configFile, header, true // writeAll == true
+				configFile
+				, header
+				, true // writeAll == true
 			);
 		} else { // configFile exists
 			// Is it a regular file ?
