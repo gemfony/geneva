@@ -88,51 +88,71 @@ namespace Gem {
 namespace Common {
 
 // TODO: Make this an optionally bounded queue --> done
-// TODO: Make this queue fit for pushing std::shared_ptr and std::unique_ptr into it
+// TODO: Make this queue fit for pushing std::shared_ptr and std::unique_ptr into it --> done
 // TODO: Introduce timed waits
 
 /******************************************************************************/
-
+/**
+ * A queue-like structure featuring thread-safe access and fine-grained locking.
+ * Modelled after an implementation provided by Anthony Williams in his book
+ * "C++ Concurrency in Action" (Manning).
+ *
+ * @tparam T The type of the data stored in this class
+ * @tparam t_capacity The maximum number of data items to be stored in this class (0 means unlimited)
+ */
 template<
 	typename T
 	, std::size_t t_capacity = DEFAULTBUFFERSIZE
 >
-class threadsafe_queue {
+class GThreadSafeQueueT {
 private:
+	 /**
+	  * A struct to be instantiated for each new data set stored in the queue
+	  */
 	 struct node
 	 {
 		  std::shared_ptr<T> data;
 		  std::unique_ptr<node> next;
 	 };
 
-	 std::mutex head_mutex;
-	 std::unique_ptr<node> head;
-	 std::mutex tail_mutex;
-	 node* tail;
-	 std::condition_variable m_not_empty; ///< Allows to wait until new nodes have appeared
-	 std::condition_variable m_not_full; ///< Allows to wait until space becomes available in the data structure
+	 std::mutex m_head_mutex; ///< Protects access to the head node
+	 std::mutex m_tail_mutex; ///< Protects access to the tail node
 
-	 std::atomic<std::size_t> n_data_sets = 0;
+	 std::unique_ptr<node> m_head_ptr; ///< Points to the head of the linked list
+	 node* m_tail_ptr; ///< Points to the tail of the linked list
+
+	 std::condition_variable m_not_empty; ///< Allows to wait until new nodes have appeared
+	 std::condition_variable m_not_full;  ///< Allows to wait until space becomes available in the data structure
+
+	 std::atomic<std::size_t> m_n_data_sets = 0; ///< The number of data sets stored in this class
 
 	 node* get_tail() {
-		 std::unique_lock<std::mutex> tail_lock(tail_mutex);
-		 return tail;
+		 std::unique_lock<std::mutex> tail_lock(m_tail_mutex);
+		 return m_tail_ptr;
 	 }
 
 	 std::unique_ptr<node> pop_head() {
-		 std::unique_ptr<node> const old_head=std::move(head);
-		 head=std::move(old_head->next);
+		 std::unique_ptr<node> const old_head=std::move(m_head_ptr);
+		 m_head_ptr=std::move(old_head->next);
+
 #ifdef DEBUG
-		 assert(n_data_sets.load() >= 1);
+		 assert(m_n_data_sets.load() >= 1);
 #endif /* DEBUG */
-		 n_data_sets--;
+
+		 m_n_data_sets--;
+
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_all();
+#else
 		 m_not_full.notify_one();
+#endif
+
 		 return old_head;
 	 }
 
 	 std::unique_lock<std::mutex> wait_for_data() {
-		 std::unique_lock<std::mutex> head_lock(head_mutex);
-		 m_not_empty.wait(head_lock,[&]{return head!=get_tail();});
+		 std::unique_lock<std::mutex> head_lock(m_head_mutex);
+		 m_not_empty.wait(head_lock,[&]{return m_head_ptr!=get_tail();});
 		 return std::move(head_lock);
 	 }
 
@@ -143,34 +163,34 @@ private:
 
 	 std::unique_ptr<node> wait_pop_head(T& value) {
 		 std::unique_lock<std::mutex> head_lock(wait_for_data());
-		 value=std::move(*head->data);
+		 value=std::move(*m_head_ptr->data);
 		 return pop_head();
 	 }
 
 	 std::unique_ptr<node> try_pop_head() {
-		 std::unique_lock<std::mutex> head_lock(head_mutex);
-		 if(head.get()==get_tail()) {
+		 std::unique_lock<std::mutex> head_lock(m_head_mutex);
+		 if(m_head_ptr.get()==get_tail()) {
 			 return std::unique_ptr<node>();
 		 }
 		 return pop_head();
 	 }
 
 	 std::unique_ptr<node> try_pop_head(T& value) {
-		 std::unique_lock<std::mutex> head_lock(head_mutex);
-		 if(head.get()==get_tail()) {
+		 std::unique_lock<std::mutex> head_lock(m_head_mutex);
+		 if(m_head_ptr.get()==get_tail()) {
 			 return std::unique_ptr<node>();
 		 }
-		 value=std::move(*head->data);
+		 value=std::move(*m_head_ptr->data);
 		 return pop_head();
 	 }
 
 	 std::unique_lock<std::mutex> wait_for_space(
 		 typename std::enable_if<(t_capacity>0)>::type* = 0
 	 ) {
-		 std::unique_lock<std::mutex> tail_lock(tail_mutex);
+		 std::unique_lock<std::mutex> tail_lock(m_tail_mutex);
 		 m_not_full.wait(
 			 tail_lock
-			 , [&] { return n_data_sets.load() < t_capacity; }
+			 , [&] { return m_n_data_sets.load() < t_capacity; }
 		 );
 		 return std::move(tail_lock);
 	 }
@@ -178,57 +198,72 @@ private:
 	 std::unique_lock<std::mutex> wait_for_space(
 		 typename std::enable_if<(t_capacity==0)>::type* = 0
 	 ) {
-		 std::unique_lock<std::mutex> tail_lock(tail_mutex);
+		 std::unique_lock<std::mutex> tail_lock(m_tail_mutex);
 		 return std::move(tail_lock);
 	 }
 
 public:
-	 threadsafe_queue():
-		 head(new node)
-		 ,tail(head.get())
+	 GThreadSafeQueueT():
+		 m_head_ptr(new node)
+		 ,m_tail_ptr(m_head_ptr.get())
 	 { /* nothing */ }
 
-	 threadsafe_queue(const threadsafe_queue& other)=delete;
-	 threadsafe_queue& operator=(const threadsafe_queue& other)=delete;
+	 GThreadSafeQueueT(const GThreadSafeQueueT& other)=delete;
+	 GThreadSafeQueueT& operator=(const GThreadSafeQueueT& other)=delete;
 
-	 void push(T new_value) {
+	 void push(
+		 T new_value
+		 , typename std::enable_if<std::is_move_constructible<T>::value || std::is_copy_constructible<T>::value>::type* = 0
+	 ) {
 		 std::shared_ptr<T> new_data(std::make_shared<T>(std::move(new_value)));
 		 std::unique_ptr<node> p(new node);
 		 {
 			 std::unique_lock<std::mutex> tail_lock(wait_for_space());
-			 tail->data=new_data;
+			 m_tail_ptr->data=new_data;
 			 node* const new_tail=p.get();
-			 tail->next=std::move(p);
-			 tail=new_tail;
-			 n_data_sets++;
+			 m_tail_ptr->next=std::move(p);
+			 m_tail_ptr=new_tail;
+			 m_n_data_sets++;
 		 }
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_empty.notify_all();
+#else
 		 m_not_empty.notify_one();
+#endif
 	 }
 
 	 void push(std::shared_ptr<T> new_value_ptr) {
 		 std::unique_ptr<node> p(new node);
 		 {
 			 std::unique_lock<std::mutex> tail_lock(wait_for_space());
-			 tail->data=new_value_ptr;
+			 m_tail_ptr->data=new_value_ptr;
 			 node* const new_tail=p.get();
-			 tail->next=std::move(p);
-			 tail=new_tail;
-			 n_data_sets++;
+			 m_tail_ptr->next=std::move(p);
+			 m_tail_ptr=new_tail;
+			 m_n_data_sets++;
 		 }
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_empty.notify_all();
+#else
 		 m_not_empty.notify_one();
+#endif
 	 }
 
 	 void push(std::unique_ptr<T>& new_value_ptr) {
 		 std::unique_ptr<node> p(new node);
 		 {
 			 std::unique_lock<std::mutex> tail_lock(wait_for_space());
-			 tail->data=std::shared_ptr<T>(new_value_ptr.release());
+			 m_tail_ptr->data=std::shared_ptr<T>(new_value_ptr.release());
 			 node* const new_tail=p.get();
-			 tail->next=std::move(p);
-			 tail=new_tail;
-			 n_data_sets++;
+			 m_tail_ptr->next=std::move(p);
+			 m_tail_ptr=new_tail;
+			 m_n_data_sets++;
 		 }
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_empty.notify_all();
+#else
 		 m_not_empty.notify_one();
+#endif
 	 }
 
 	 std::shared_ptr<T> wait_and_pop() {
@@ -236,6 +271,7 @@ public:
 		 return old_head->data;
 	 }
 
+	 // TODO: Was soll diese Funktion ? Warum das Assignment ?
 	 void wait_and_pop(T& value) {
 		 std::unique_ptr<node> const old_head=wait_pop_head(value);
 	 }
@@ -253,8 +289,8 @@ public:
 	 }
 
 	 bool empty() {
-		 std::unique_lock<std::mutex> head_lock(head_mutex);
-		 return (head==get_tail());
+		 std::unique_lock<std::mutex> head_lock(m_head_mutex);
+		 return (m_head_ptr==get_tail());
 	 }
 };
 

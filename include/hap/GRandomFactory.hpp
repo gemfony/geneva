@@ -249,7 +249,7 @@ public:
 	 G_API_HAP seed_type getSeed();
 
 	 /** @brief Allows recycling of partially used packages */
-	 G_API_HAP void returnUsedPackage(std::unique_ptr<random_container>);
+	 G_API_HAP void returnUsedPackage(std::unique_ptr<random_container>&);
 
 private:
 	 /***************************************************************************/

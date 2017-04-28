@@ -170,13 +170,11 @@ seed_type GRandomFactory::getSeed() {
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container> p) {
+void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container>& p) {
 	// We try to add the item to the m_p_ret_bfr queue, until a timeout occurs.
 	// Once this is the case we delete the package, so we do not overflow
 	// with recycled packages
-	try {
-		m_p_ret_bfr.push_front(std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT));
-	} catch (Gem::Common::condition_time_out &) { // No luck buffer is full. Delete the recycling bin
+	if(!m_p_ret_bfr.push_front_bool(p, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))) {
 		p.reset();
 	}
 }
@@ -273,9 +271,7 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 	}
 
 	std::unique_ptr<random_container> p; // empty
-	try {
-		m_p_fresh_bfr.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
-	} catch (Gem::Common::condition_time_out &) {
+	if(!m_p_fresh_bfr.pop_back_bool(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
 		// nothing - our way of signaling a time out
 		// is to return an empty std::unique_ptr
 		p = std::unique_ptr<random_container>();
@@ -293,72 +289,76 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
  *
  * @param seed A seed for our local random number generator
  */
-void GRandomFactory::producer(std::uint32_t seed) { // TODO: should be result_type ?
+void GRandomFactory::producer(std::uint32_t seed) {
 	try {
 		G_BASE_GENERATOR mt(seed);
 		std::unique_ptr<random_container> p;
 
-		while (false == m_threads_stop_requested.load()) {
-			if (!p) { // buffer is still empty
-				// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
-				// fails (likely because the buffer is empty), we create a new item instead
-				try {
-					m_p_ret_bfr.pop_back(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
+		while(!m_threads_stop_requested) {
+			// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
+			// fails (likely because the buffer is empty), we create a new item instead
+			if(m_p_ret_bfr.try_pop_back_bool(p)) {
 
-					// If we reach this line, we have successfully retrieved a recycled container.
-					// First do some error-checking
+				// If we reach this line, we have successfully retrieved a recycled container.
+				// First do some error-checking
 #ifdef DEBUG
-		         if(!p) {
-		            glogger
-		            << "In RandomFactory::producer(): Error!" << std::endl
-		            << "Got empty recycling pointer" << std::endl
-		            << GEXCEPTION;
-		         }
+				if(!p) {
+					glogger
+						<< "In RandomFactory::producer(): Error!" << std::endl
+						<< "Got empty recycling pointer" << std::endl
+						<< GEXCEPTION;
+				}
 
 #endif /* DEBUG */
 
-					// Finally we replace "used" random numbers with new ones
-					p->refresh(mt);
-
-				} catch (Gem::Common::condition_time_out &) { // O.k., so we need to create a new container
-					p = std::unique_ptr<random_container>(new random_container(mt));
-				}
+				// Replace "used" random numbers with new ones
+				p->refresh(mt);
+			} else { // O.k., so we need to create a new container
+				p.reset(new random_container(mt));
 			}
 
-			// Thanks to the following call, thread creation will be mostly idle if the buffer is full
-			try {
-				// Put the bufffer in the queue
-				m_p_fresh_bfr.push_front(std::move(p), std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT));
-				// Reset the shared_ptr so the next pointer may be created
-				p.reset();
-			} catch (Gem::Common::condition_time_out &) {
-				continue; // Try again, if we didn't succeed
+			// Try to submit the item and check for termination conditions along the way
+			while(!m_threads_stop_requested) {
+				if(!m_p_fresh_bfr.push_front_bool(p, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))){
+#ifdef DEBUG
+					// p should never be empty here
+					if(!p) {
+						glogger
+							<< "In RandomFactory::producer(): Error!" << std::endl
+							<< "Got empty pointer after unsuccesfull submission" << std::endl
+							<< GEXCEPTION;
+					}
+#endif
+					continue;
+				} else { // We have submitted the item -- stop the inner loop
+					break;
+				}
 			}
 		}
 	} catch (std::bad_alloc &e) {
 		glogger
-		<< "In GRandomFactory::producer(): Error!" << std::endl
-		<< "Caught std::bad_alloc exception with message"
-		<< std::endl << e.what() << std::endl
-		<< GEXCEPTION;
+			<< "In GRandomFactory::producer(): Error!" << std::endl
+			<< "Caught std::bad_alloc exception with message"
+			<< std::endl << e.what() << std::endl
+			<< GEXCEPTION;
 	} catch (std::invalid_argument &e) {
 		glogger
-		<< "In GRandomFactory::producer(): Error!" << std::endl
-		<< "Caught std::invalid_argument exception with message" << std::endl
-		<< e.what() << std::endl
-		<< GEXCEPTION;
+			<< "In GRandomFactory::producer(): Error!" << std::endl
+			<< "Caught std::invalid_argument exception with message" << std::endl
+			<< e.what() << std::endl
+			<< GEXCEPTION;
 	} catch (std::system_error& e) {
 		glogger
-		<< "In GRandomFactory::producer(): Error!" << std::endl
-		<< "Caught std::system_error exception with message" << std::endl
-	   << e.what()
-		<< "which might indicate that a mutex could not be locked." << std::endl
-		<< GEXCEPTION;
+			<< "In GRandomFactory::producer(): Error!" << std::endl
+			<< "Caught std::system_error exception with message" << std::endl
+			<< e.what()
+			<< "which might indicate that a mutex could not be locked." << std::endl
+			<< GEXCEPTION;
 	} catch (...) {
 		glogger
-		<< "In GRandomFactory::producer(): Error!" << std::endl
-		<< "Caught unkown exception." << std::endl
-		<< GEXCEPTION;
+			<< "In GRandomFactory::producer(): Error!" << std::endl
+			<< "Caught unkown exception." << std::endl
+			<< GEXCEPTION;
 	}
 }
 

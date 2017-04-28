@@ -103,8 +103,8 @@ public:
 	 */
 	GRandomT()
 		: Gem::Hap::GRandomBase()
-	  	, p_( /* empty */ )
-	  	, grf_(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+	  	, m_p( /* empty */ )
+	  	, m_grf(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
 		getNewRandomContainer();
@@ -115,10 +115,10 @@ public:
 	 * The standard destructor
 	 */
 	virtual ~GRandomT() {
-		if (p_) {
-			grf_->returnUsedPackage(std::move(p_));
+		if (m_p) {
+			m_grf->returnUsedPackage(m_p);
 		}
-		grf_.reset();
+		m_grf.reset();
 	}
 
 	/***************************************************************************/
@@ -141,13 +141,13 @@ protected:
 	 * assumes that a valid container is already available.
 	 */
 	virtual GRandomBase::result_type int_random() {
-		if (p_->empty()) {
+		if (m_p->empty()) {
 			// Get rid of the old container ...
-			grf_->returnUsedPackage(std::move(p_));
+			m_grf->returnUsedPackage(m_p);
 			// ... then get a new one
 			getNewRandomContainer();
 		}
-		return p_->next();
+		return m_p->next();
 	}
 
 private:
@@ -158,10 +158,10 @@ private:
 	 */
 	void getNewRandomContainer() {
 		// Make sure we get rid of the old container
-		// p_.reset(); No longer needed with std::unique_ptr
+		// m_p.reset(); No longer needed with std::unique_ptr
 
 #ifdef DEBUG
-		if(!grf_) {
+		if(!m_grf) {
 		   glogger
 		   << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
          << "No connection to GRandomFactory object." << std::endl
@@ -175,7 +175,7 @@ private:
 
 		// Try until a valid container has been received. new01Container has
 		// a timeout of DEFAULTFACTORYGETWAIT internally.
-		while (!(p_ = grf_->getNewRandomContainer())) {
+		while (!(m_p = m_grf->getNewRandomContainer())) {
 #ifdef DEBUG
 		   nRetries++;
 #endif /* DEBUG */
@@ -191,9 +191,9 @@ private:
 
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers */
-	std::unique_ptr <random_container> p_;
+	std::unique_ptr <random_container> m_p;
 	/** @brief A local copy of the global GRandomFactory */
-	std::shared_ptr <Gem::Hap::GRandomFactory> grf_;
+	std::shared_ptr <Gem::Hap::GRandomFactory> m_grf;
 };
 
 /** @brief Convenience typedef */
@@ -220,7 +220,7 @@ public:
 	 */
 	GRandomT()
 		: Gem::Hap::GRandomBase()
-	  	, rng_(GRANDOMFACTORY->getSeed())
+	  	, m_rng(GRANDOMFACTORY->getSeed())
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -236,13 +236,13 @@ protected:
 	 * This function produces uniform random numbers locally.
 	 */
 	virtual GRandomBase::result_type int_random() {
-		return rng_();
+		return m_rng();
 	}
 
 private:
 	/***************************************************************************/
 	/** @brief The actual generator for local random number creation */
-	G_BASE_GENERATOR rng_;
+	G_BASE_GENERATOR m_rng;
 };
 
 /******************************************************************************/
