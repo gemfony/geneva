@@ -403,16 +403,16 @@ enum class evaluationPolicy : Gem::Common::ENUMBASETYPE {
  * Specification of different parallelization modes
  */
 enum class execMode : Gem::Common::ENUMBASETYPE {
-	EXECMODE_SERIAL = 0
-	, EXECMODE_MULTITHREADED = 1
-	, EXECMODE_BROKERAGE = 2
-	, EXECMODE_LAST = execMode::EXECMODE_BROKERAGE
+	SERIAL = 0
+	, MULTITHREADED = 1
+	, BROKER = 2
+	, LAST = execMode::BROKER
 };
 
 /**
  * The default parallelization mode of optimization algorithms
  */
-const execMode DEFAULTEXECMODE = execMode::EXECMODE_MULTITHREADED;
+const execMode DEFAULT = execMode::MULTITHREADED;
 
 /******************************************************************************/
 /**

@@ -71,7 +71,7 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 
-const execMode DEFAULTPARALLELIZATIONMODEAP=execMode::EXECMODE_MULTITHREADED;
+const execMode DEFAULTPARALLELIZATIONMODEAP=execMode::MULTITHREADED;
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
 const std::uint32_t DEFAULTMAXSTALLS06=0;
@@ -350,7 +350,7 @@ int main(int argc, char **argv){
 	/****************************************************************************/
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
-	if(execMode::EXECMODE_BROKERAGE==parallelizationMode && !serverMode) {
+	if(execMode::BROKER==parallelizationMode && !serverMode) {
 		std::shared_ptr<GAsioSerialTCPClientT<GParameterSet>>
 			p(new GAsioSerialTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
@@ -372,14 +372,14 @@ int main(int argc, char **argv){
 	// Create the actual populations
 	switch (parallelizationMode) {
 		//---------------------------------------------------------------------------
-		case execMode::EXECMODE_SERIAL: // Serial execution
+		case execMode::SERIAL: // Serial execution
 			// Create an empty population
 			pop_ptr
 				= std::shared_ptr<GSerialSwarm>(new GSerialSwarm(nNeighborhoods, nNeighborhoodMembers));
 			break;
 
 			//---------------------------------------------------------------------------
-		case execMode::EXECMODE_MULTITHREADED: // Multi-threaded execution
+		case execMode::MULTITHREADED: // Multi-threaded execution
 		{
 			// Create the multi-threaded population
 			std::shared_ptr<GMultiThreadedSwarm>
@@ -394,7 +394,7 @@ int main(int argc, char **argv){
 			break;
 
 			//---------------------------------------------------------------------------
-		case execMode::EXECMODE_BROKERAGE: // Networked execution (server-side)
+		case execMode::BROKER: // Networked execution (server-side)
 		{
 			// Create a network consumer and enrol it with the broker
 			std::shared_ptr<GAsioSerialTCPConsumerT<GParameterSet>>

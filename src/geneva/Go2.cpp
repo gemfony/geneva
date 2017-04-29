@@ -1189,7 +1189,7 @@ void Go2::parseCommandLine(
 
 		// If the user has requested brokered execution, do corresponding error checks
 		// and prepare the environment as required
-		if (execMode::EXECMODE_BROKERAGE == m_par_mode) {
+		if (execMode::BROKER == m_par_mode) {
 			// No consumer specified, although brokered execution was requested
 			if (vm.count("consumer") != 1) {
 				glogger
@@ -1242,7 +1242,7 @@ void Go2::parseCommandLine(
 				glogger
 				<< "In Go2::parseCommandLine(): Error!" << std::endl
 				<< "You have specified a consumer but have requested " << std::endl
-				<< "an execution mode " << m_par_mode << " where " << execMode::EXECMODE_BROKERAGE << " was expected" << std::endl
+				<< "an execution mode " << m_par_mode << " where " << execMode::BROKER << " was expected" << std::endl
 				<< GEXCEPTION;
 			}
 

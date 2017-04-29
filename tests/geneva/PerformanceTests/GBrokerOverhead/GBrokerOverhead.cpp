@@ -67,7 +67,7 @@ const long DEFAULTMAXMINUTES=10;
 const std::uint32_t DEFAULTREPORTITERATION=1;
 const duplicationScheme DEFAULTRSCHEME=duplicationScheme::VALUEDUPLICATIONSCHEME;
 const bool DEFAULTVERBOSE=true;
-const execMode DEFAULTPARALLELIZATIONMODE=execMode::EXECMODE_MULTITHREADED;
+const execMode DEFAULTPARALLELIZATIONMODE=execMode::MULTITHREADED;
 const bool DEFAULTUSECOMMONADAPTOR=false; // whether to use a common adaptor for all GParameterT objects
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
@@ -388,14 +388,14 @@ int main(int argc, char **argv){
 	// Create the actual populations
 	switch (parallelizationMode) {
 		//-----------------------------------------------------------------------------------------------------
-		case execMode::EXECMODE_SERIAL: // Serial execution
+		case execMode::SERIAL: // Serial execution
 			std::cout << "Using serial execution." << std::endl;
 			// Create an empty population
 			pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
 			break;
 
 			//-----------------------------------------------------------------------------------------------------
-		case execMode::EXECMODE_MULTITHREADED: // Multi-threaded execution
+		case execMode::MULTITHREADED: // Multi-threaded execution
 		{
 			std::cout << "Using plain multithreaded execution." << std::endl;
 			// Create the multi-threaded population
@@ -410,7 +410,7 @@ int main(int argc, char **argv){
 			break;
 
 			//-----------------------------------------------------------------------------------------------------
-		case execMode::EXECMODE_BROKERAGE: // Execution with multi-threaded consumer. Note that we use EXECMODE_BROKERAGE here, even though no networked execution takes place
+		case execMode::BROKER: // Execution with multi-threaded consumer. Note that we use BROKER here, even though no networked execution takes place
 		{
 			std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
 			// Create a consumer and make it known to the global broker

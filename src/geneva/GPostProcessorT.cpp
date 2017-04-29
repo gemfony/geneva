@@ -52,21 +52,21 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
 ) :
 	GPostProcessorBaseT<GParameterSet>()
 	, m_configFile(configFile)
-	, m_executionMode((executionMode == execMode::EXECMODE_SERIAL || executionMode == execMode::EXECMODE_MULTITHREADED) ? executionMode : execMode::EXECMODE_SERIAL)
+	, m_executionMode((executionMode == execMode::SERIAL || executionMode == execMode::MULTITHREADED) ? executionMode : execMode::SERIAL)
 {
 	switch (executionMode) {
-		case execMode::EXECMODE_SERIAL:
-		case execMode::EXECMODE_MULTITHREADED:
+		case execMode::SERIAL:
+		case execMode::MULTITHREADED:
 			/* nothing */
 			break;
 
-		case execMode::EXECMODE_BROKERAGE:
+		case execMode::BROKER:
 		default: {
 			glogger
 				<< "In GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(execMode): Error!"
 				<< std::endl
 				<< "Got invalid execution mode " << executionMode << std::endl
-				<< "The mode was reset to execMode::EXECMODE_SERIAL" << std::endl
+				<< "The mode was reset to execMode::SERIAL" << std::endl
 				<< GWARNING;
 		}
 	}
@@ -204,13 +204,13 @@ void GEvolutionaryAlgorithmPostOptimizer::compare(
 void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode)
 {
 	switch (executionMode) {
-		case execMode::EXECMODE_SERIAL:
-		case execMode::EXECMODE_MULTITHREADED: {
+		case execMode::SERIAL:
+		case execMode::MULTITHREADED: {
 			m_executionMode = executionMode;
 		}
 			break;
 
-		case execMode::EXECMODE_BROKERAGE:
+		case execMode::BROKER:
 		default: {
 			glogger
 				<< "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl

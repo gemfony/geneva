@@ -339,7 +339,7 @@ private:
 	 /**************************************************************************/
 	 // Data
 	 std::string m_configFile; ///< The name of the configuration file for this evolutionary algorithm
-	 execMode m_executionMode = execMode::EXECMODE_SERIAL; ///< Whether to run the post-optimizer in serial or multi-threaded mode
+	 execMode m_executionMode = execMode::SERIAL; ///< Whether to run the post-optimizer in serial or multi-threaded mode
 };
 
 /******************************************************************************/

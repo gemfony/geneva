@@ -85,7 +85,7 @@ public:
 		 const std::string &configFile
 	 )
 		 : Gem::Common::GFactoryT<oa_type>(configFile)
-	 	 , m_pm(DEFAULTEXECMODE)
+	 	 , m_pm(DEFAULT)
 		 , m_nEvaluationThreads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS)))
 		 , m_waitFactor(Gem::Courtier::DEFAULTBROKERWAITFACTOR2)
 		 , m_initialWaitFactor(Gem::Courtier::DEFAULTINITIALBROKERWAITFACTOR2)

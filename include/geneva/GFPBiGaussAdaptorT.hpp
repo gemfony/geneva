@@ -243,7 +243,7 @@ protected:
 					 , typename Gem::Hap::bi_normal_distribution<fp_type>::param_type(
 						 fp_type(0.)
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_
-						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_ // Intended to be sigma1_ (symmetry-case)
+						 , GNumBiGaussAdaptorT<fp_type, fp_type>::sigma1_ // Intended to be m_sigma1 (symmetry-case)
 						 , GNumBiGaussAdaptorT<fp_type, fp_type>::delta_
 					 )
 				 )

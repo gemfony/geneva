@@ -334,12 +334,12 @@ public:
 		 minSigma1_ = minSigma1;
 		 maxSigma1_ = maxSigma1;
 
-		 // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+		 // Silently adapt m_minSigma1, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
 		 if(minSigma1_ < fp_type(DEFAULTMINSIGMA)) {
 			 minSigma1_ = fp_type(DEFAULTMINSIGMA);
 		 }
 
-		 // Rectify sigma1_, if necessary
+		 // Rectify m_sigma1, if necessary
 		 enforceRangeConstraint(
 			 sigma1_
 			 , minSigma1_
@@ -467,12 +467,12 @@ public:
 		 minSigma2_ = minSigma2;
 		 maxSigma2_ = maxSigma2;
 
-		 // Silently adapt minSigma1_, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
+		 // Silently adapt m_minSigma1, if it is smaller than DEFAULTMINSIGMA. E.g., a value of 0 does not make sense
 		 if(minSigma2_ < fp_type(DEFAULTMINSIGMA)) {
 			 minSigma2_ = fp_type(DEFAULTMINSIGMA);
 		 }
 
-		 // Rectify sigma1_, if necessary
+		 // Rectify m_sigma1, if necessary
 		 enforceRangeConstraint(
 			 sigma2_
 			 , minSigma2_
@@ -597,7 +597,7 @@ public:
 		 // Note: In contrast to setSigmaXRange(...) we allow a delta < DEFAULTMINDELTA
 		 // (as long as it is >= 0), as a delta of 0 makes sense
 
-		 // Rectify delta_, if necessary
+		 // Rectify m_delta, if necessary
 		 if(delta_<minDelta_) {
 			 delta_ = minDelta_;
 		 } else if(delta_>maxDelta_) {

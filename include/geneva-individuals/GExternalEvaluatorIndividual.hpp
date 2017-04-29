@@ -149,11 +149,11 @@ class GExternalEvaluatorIndividual : public GParameterSet {
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		& BOOST_SERIALIZATION_NVP(programName_)
-		& BOOST_SERIALIZATION_NVP(customOptions_)
-		& BOOST_SERIALIZATION_NVP(parameterFileBaseName_)
-		& BOOST_SERIALIZATION_NVP(nResults_)
-		& BOOST_SERIALIZATION_NVP(removeExecTemporaries_);
+		& BOOST_SERIALIZATION_NVP(m_program_name)
+		& BOOST_SERIALIZATION_NVP(m_custom_options)
+		& BOOST_SERIALIZATION_NVP(m_parameter_file_base_name)
+		& BOOST_SERIALIZATION_NVP(m_n_results)
+		& BOOST_SERIALIZATION_NVP(m_remove_exec_temporaries);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -232,12 +232,12 @@ protected:
 private:
 	/***************************************************************************/
 
-	std::string programName_; ///< The name of the external program to be executed
-	std::string customOptions_; ///< Any custom options that need to be provided to the external program
-	std::string parameterFileBaseName_; ///< The base name to be assigned to the parameterFile
-	std::size_t nResults_; ///< The number of results to be expected from the evaluation function
+	std::string m_program_name; ///< The name of the external program to be executed
+	std::string m_custom_options; ///< Any custom options that need to be provided to the external program
+	std::string m_parameter_file_base_name; ///< The base name to be assigned to the parameterFile
+	std::size_t m_n_results; ///< The number of results to be expected from the evaluation function
 	std::string runID_; ///< Identifies this run with a unique id
-	bool removeExecTemporaries_; ///< Indicates whether temporary files should be removed
+	bool m_remove_exec_temporaries; ///< Indicates whether temporary files should be removed
 };
 
 /******************************************************************************/
@@ -257,31 +257,31 @@ class GExternalEvaluatorIndividualFactory
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GFactoryT<GParameterSet>)
-		& BOOST_SERIALIZATION_NVP(adProb_)
-		& BOOST_SERIALIZATION_NVP(adaptAdProb_)
-		& BOOST_SERIALIZATION_NVP(minAdProb_)
-		& BOOST_SERIALIZATION_NVP(maxAdProb_)
-		& BOOST_SERIALIZATION_NVP(adaptionThreshold_)
-		& BOOST_SERIALIZATION_NVP(useBiGaussian_)
-		& BOOST_SERIALIZATION_NVP(sigma1_)
-		& BOOST_SERIALIZATION_NVP(sigmaSigma1_)
-		& BOOST_SERIALIZATION_NVP(minSigma1_)
-		& BOOST_SERIALIZATION_NVP(maxSigma1_)
-		& BOOST_SERIALIZATION_NVP(sigma2_)
-		& BOOST_SERIALIZATION_NVP(sigmaSigma2_)
-		& BOOST_SERIALIZATION_NVP(minSigma2_)
-		& BOOST_SERIALIZATION_NVP(maxSigma2_)
-		& BOOST_SERIALIZATION_NVP(delta_)
-		& BOOST_SERIALIZATION_NVP(sigmaDelta_)
-		& BOOST_SERIALIZATION_NVP(minDelta_)
-		& BOOST_SERIALIZATION_NVP(maxDelta_)
-		& BOOST_SERIALIZATION_NVP(programName_)
-		& BOOST_SERIALIZATION_NVP(customOptions_)
-		& BOOST_SERIALIZATION_NVP(parameterFileBaseName_)
-		& BOOST_SERIALIZATION_NVP(initValues_)
-		& BOOST_SERIALIZATION_NVP(removeExecTemporaries_)
-		& BOOST_SERIALIZATION_NVP(externalEvaluatorQueried_)
-		& BOOST_SERIALIZATION_NVP(ptr_);
+		& BOOST_SERIALIZATION_NVP(m_adProb)
+		& BOOST_SERIALIZATION_NVP(m_adaptAdProb)
+		& BOOST_SERIALIZATION_NVP(m_minAdProb)
+		& BOOST_SERIALIZATION_NVP(m_maxAdProb)
+		& BOOST_SERIALIZATION_NVP(m_adaptionThreshold)
+		& BOOST_SERIALIZATION_NVP(m_useBiGaussian)
+		& BOOST_SERIALIZATION_NVP(m_sigma1)
+		& BOOST_SERIALIZATION_NVP(m_sigmaSigma1)
+		& BOOST_SERIALIZATION_NVP(m_minSigma1)
+		& BOOST_SERIALIZATION_NVP(m_maxSigma1)
+		& BOOST_SERIALIZATION_NVP(m_sigma2)
+		& BOOST_SERIALIZATION_NVP(m_sigmaSigma2)
+		& BOOST_SERIALIZATION_NVP(m_minSigma2)
+		& BOOST_SERIALIZATION_NVP(m_maxSigma2)
+		& BOOST_SERIALIZATION_NVP(m_delta)
+		& BOOST_SERIALIZATION_NVP(m_sigmaDelta)
+		& BOOST_SERIALIZATION_NVP(m_minDelta)
+		& BOOST_SERIALIZATION_NVP(m_maxDelta)
+		& BOOST_SERIALIZATION_NVP(m_programName)
+		& BOOST_SERIALIZATION_NVP(m_customOptions)
+		& BOOST_SERIALIZATION_NVP(m_parameterFileBaseName)
+		& BOOST_SERIALIZATION_NVP(m_initValues)
+		& BOOST_SERIALIZATION_NVP(m_removeExecTemporaries)
+		& BOOST_SERIALIZATION_NVP(m_externalEvaluatorQueried)
+		& BOOST_SERIALIZATION_NVP(m_ptr);
 	}
 
 	///////////////////////////////////////////////////////////////////////
@@ -456,34 +456,34 @@ private:
 	/** @brief The default constructor; Only needed for (de-)serialization purposes, hence empty. */
 	GExternalEvaluatorIndividualFactory();
 
-	Gem::Common::GOneTimeRefParameterT<double> adProb_;
-	Gem::Common::GOneTimeRefParameterT<double> adaptAdProb_;
-	Gem::Common::GOneTimeRefParameterT<double> minAdProb_;
-	Gem::Common::GOneTimeRefParameterT<double> maxAdProb_;
-	Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaptionThreshold_;
-	Gem::Common::GOneTimeRefParameterT<bool> useBiGaussian_;
-	Gem::Common::GOneTimeRefParameterT<double> sigma1_;
-	Gem::Common::GOneTimeRefParameterT<double> sigmaSigma1_;
-	Gem::Common::GOneTimeRefParameterT<double> minSigma1_;
-	Gem::Common::GOneTimeRefParameterT<double> maxSigma1_;
-	Gem::Common::GOneTimeRefParameterT<double> sigma2_;
-	Gem::Common::GOneTimeRefParameterT<double> sigmaSigma2_;
-	Gem::Common::GOneTimeRefParameterT<double> minSigma2_;
-	Gem::Common::GOneTimeRefParameterT<double> maxSigma2_;
-	Gem::Common::GOneTimeRefParameterT<double> delta_;
-	Gem::Common::GOneTimeRefParameterT<double> sigmaDelta_;
-	Gem::Common::GOneTimeRefParameterT<double> minDelta_;
-	Gem::Common::GOneTimeRefParameterT<double> maxDelta_;
+	Gem::Common::GOneTimeRefParameterT<double> m_adProb;
+	Gem::Common::GOneTimeRefParameterT<double> m_adaptAdProb;
+	Gem::Common::GOneTimeRefParameterT<double> m_minAdProb;
+	Gem::Common::GOneTimeRefParameterT<double> m_maxAdProb;
+	Gem::Common::GOneTimeRefParameterT<std::uint32_t> m_adaptionThreshold;
+	Gem::Common::GOneTimeRefParameterT<bool> m_useBiGaussian;
+	Gem::Common::GOneTimeRefParameterT<double> m_sigma1;
+	Gem::Common::GOneTimeRefParameterT<double> m_sigmaSigma1;
+	Gem::Common::GOneTimeRefParameterT<double> m_minSigma1;
+	Gem::Common::GOneTimeRefParameterT<double> m_maxSigma1;
+	Gem::Common::GOneTimeRefParameterT<double> m_sigma2;
+	Gem::Common::GOneTimeRefParameterT<double> m_sigmaSigma2;
+	Gem::Common::GOneTimeRefParameterT<double> m_minSigma2;
+	Gem::Common::GOneTimeRefParameterT<double> m_maxSigma2;
+	Gem::Common::GOneTimeRefParameterT<double> m_delta;
+	Gem::Common::GOneTimeRefParameterT<double> m_sigmaDelta;
+	Gem::Common::GOneTimeRefParameterT<double> m_minDelta;
+	Gem::Common::GOneTimeRefParameterT<double> m_maxDelta;
 
-	Gem::Common::GOneTimeRefParameterT<std::string> programName_;
-	Gem::Common::GOneTimeRefParameterT<std::string> customOptions_;
-	Gem::Common::GOneTimeRefParameterT<std::string> parameterFileBaseName_;
-	Gem::Common::GOneTimeRefParameterT<std::string> initValues_;
+	Gem::Common::GOneTimeRefParameterT<std::string> m_programName;
+	Gem::Common::GOneTimeRefParameterT<std::string> m_customOptions;
+	Gem::Common::GOneTimeRefParameterT<std::string> m_parameterFileBaseName;
+	Gem::Common::GOneTimeRefParameterT<std::string> m_initValues;
 
-	Gem::Common::GOneTimeRefParameterT<bool> removeExecTemporaries_;
+	Gem::Common::GOneTimeRefParameterT<bool> m_removeExecTemporaries;
 
-	bool externalEvaluatorQueried_; ///< Specifies whether the external evaluator program has already been queried for setup information
-	pt::ptree ptr_; ///< Holds setup information for individuals, as provided by the external evaluator program
+	bool m_externalEvaluatorQueried; ///< Specifies whether the external evaluator program has already been queried for setup information
+	pt::ptree m_ptr; ///< Holds setup information for individuals, as provided by the external evaluator program
 };
 
 } /* namespace Geneva */

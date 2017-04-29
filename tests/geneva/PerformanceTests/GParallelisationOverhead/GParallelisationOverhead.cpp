@@ -253,7 +253,7 @@ int main(int argc, char **argv) {
 
 	// For the serial measurement
 	Go2 go_serial("./config/Go2.json");
-	go_serial.setParallelizationMode(execMode::EXECMODE_SERIAL);
+	go_serial.setParallelizationMode(execMode::SERIAL);
 
 	// Add default optimization algorithms to the Go2 objects
 	go_parallel.registerDefaultAlgorithm("ea");

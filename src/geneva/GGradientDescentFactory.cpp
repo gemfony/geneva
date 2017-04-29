@@ -122,15 +122,15 @@ std::shared_ptr <GOptimizationAlgorithmT<GParameterSet>> GGradientDescentFactory
 
 	// Fill the target pointer as required
 	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_pm) {
-		case execMode::EXECMODE_SERIAL:
+		case execMode::SERIAL:
 			target = std::shared_ptr<GSerialGD>(new GSerialGD());
 			break;
 
-		case execMode::EXECMODE_MULTITHREADED:
+		case execMode::MULTITHREADED:
 			target = std::shared_ptr<GMultiThreadedGD>(new GMultiThreadedGD());
 			break;
 
-		case execMode::EXECMODE_BROKERAGE:
+		case execMode::BROKER:
 			target = std::shared_ptr<GBrokerGD>(new GBrokerGD());
 			break;
 	}
@@ -171,18 +171,18 @@ void GGradientDescentFactory::describeLocalOptions_(Gem::Common::GParserBuilder 
 void GGradientDescentFactory::postProcess_(std::shared_ptr < GOptimizationAlgorithmT<GParameterSet>> &p_base) {
 	// Convert the object to the correct target type
 	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_pm) {
-		case execMode::EXECMODE_SERIAL:
+		case execMode::SERIAL:
 			// nothing
 			break;
 
-		case execMode::EXECMODE_MULTITHREADED: {
+		case execMode::MULTITHREADED: {
 			std::shared_ptr <GMultiThreadedGD> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GMultiThreadedGD>(p_base);
 			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<GParameterSet>>::m_nEvaluationThreads);
 		}
 			break;
 
-		case execMode::EXECMODE_BROKERAGE: {
+		case execMode::BROKER: {
 			std::shared_ptr <GBrokerGD> p
 				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<GParameterSet>, GBrokerGD>(p_base);
 

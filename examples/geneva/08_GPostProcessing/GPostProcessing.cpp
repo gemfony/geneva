@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 
 	std::string monitorTimings = "empty";
 	bool usePostProcessor = false;
-	execMode execModePP = execMode::EXECMODE_SERIAL;
+	execMode execModePP = execMode::SERIAL;
 
 	// Assemble command line options
 	boost::program_options::options_description user_options;
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 		, "Whether or not to post-process individuals (using evolutionary algorithms in this example)"
 	)(
 		"execModePostProcessing"
-		, po::value<execMode>(&execModePP)->default_value(execMode::EXECMODE_SERIAL)
+		, po::value<execMode>(&execModePP)->default_value(execMode::SERIAL)
 		, "The execution mode for post-optimization (0: serial; 1: multithreaded)"
 	);
 
