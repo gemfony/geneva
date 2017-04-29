@@ -174,7 +174,7 @@ void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container>& p) {
 	// We try to add the item to the m_p_ret_bfr queue, until a timeout occurs.
 	// Once this is the case we delete the package, so we do not overflow
 	// with recycled packages
-	if(!m_p_ret_bfr.push_front_bool(p, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))) {
+	if(!m_p_ret_bfr.push_and_wait(p, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))) {
 		p.reset();
 	}
 }
@@ -271,7 +271,9 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 	}
 
 	std::unique_ptr<random_container> p; // empty
-	if(!m_p_fresh_bfr.pop_back_bool(p, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
+	if(!m_p_fresh_bfr.pop_and_wait(
+		p
+		, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
 		// nothing - our way of signaling a time out
 		// is to return an empty std::unique_ptr
 		p = std::unique_ptr<random_container>();
@@ -297,7 +299,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 		while(!m_threads_stop_requested) {
 			// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
 			// fails (likely because the buffer is empty), we create a new item instead
-			if(m_p_ret_bfr.try_pop_back_bool(p)) {
+			if(m_p_ret_bfr.try_pop(p)) {
 
 				// If we reach this line, we have successfully retrieved a recycled container.
 				// First do some error-checking
@@ -319,7 +321,9 @@ void GRandomFactory::producer(std::uint32_t seed) {
 
 			// Try to submit the item and check for termination conditions along the way
 			while(!m_threads_stop_requested) {
-				if(!m_p_fresh_bfr.push_front_bool(p, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))){
+				if(!m_p_fresh_bfr.push_and_wait(
+					p
+					, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))){
 #ifdef DEBUG
 					// p should never be empty here
 					if(!p) {

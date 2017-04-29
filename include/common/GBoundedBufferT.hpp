@@ -103,14 +103,10 @@
 #include "common/GPlotDesigner.hpp"
 #include "common/GLogger.hpp"
 #include "common/GCommonEnums.hpp"
+#include "common/GThreadSafeQueueT.hpp"
 
 namespace Gem {
 namespace Common {
-
-/******************************************************************************/
-/** @brief Class to be thrown as a message in the case of a time-out in GBuffer */
-class condition_time_out : public std::exception
-{ /* nothing */ };
 
 /******************************************************************************/
 /**
@@ -150,6 +146,15 @@ public:
 	 GBoundedBufferT()
 	 { /* nothing */ }
 
+
+	 /***************************************************************************/
+	 // Various deleted functions
+
+	 GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
+	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator
+	 GBoundedBufferT(const GBoundedBufferT<T> &&) = delete; ///< Disabled move constructor
+	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &&) = delete; ///< Disabled move-assignment operator
+
 	 /***************************************************************************/
 	 /**
 	  * A standard destructor. Virtual, as classes such as a producer-type
@@ -183,75 +188,100 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Adds a single item to the front of the buffer. The function
-	  * will block if there is no space in the buffer and continue once
-	  * space is available. Specialization for the case t_capacity==0
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 void push_front(
-		 value_type& item
-		 , typename std::enable_if<(u_capacity==0)>::type* = nullptr
-	 ) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 m_container.push_front(std::move(item));
-
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_empty.notify_all();
-#else
-		 m_not_empty.notify_one();
-#endif
-	 }
-
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the front of the buffer. The function
-	  * will block if there is no space in the buffer and continue once
-	  * space is available. Specialization for the case t_capacity>0
-	  *
-	  * @param item An item to be added to the front of the buffer
-	  */
-	 template <typename std::size_t u_capacity = t_capacity>
-	 void push_front(
-		 value_type& item
-		 , typename std::enable_if<(u_capacity>0)>::type* = nullptr
-	 ) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 // Note that this overload of wait() internally runs a loop on its predicate to
-		 // deal with spurious wakeups
-		 m_not_full.wait(
-			 lock
-			 , [&]() -> bool { return m_container.size()<u_capacity; }
-		 );
-		 m_container.push_front(std::move(item));
-
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_empty.notify_all();
-#else
-		 m_not_empty.notify_one();
-#endif
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds a single item to the front of the buffer. The function
-	  * will time out after a given amount of time. This function was
-	  * added to Jan Gaspar's original implementation. Specialization
-	  * for the case t_capacity==0
+	  * Adds a single item to the front of the buffer. The function will always
+	  * always return "true", as this is the specialization for an unlimited buffer.
 	  *
 	  * @param item An item to be added to the front of the buffer
 	  * @param timeout duration until a timeout occurs
+	  * @return A boolean indicating whether an item has been successfully submitted
 	  */
 	 template <typename std::size_t u_capacity = t_capacity>
-	 void push_front(
-		 value_type& item
-		 , const std::chrono::duration<double> &timeout
-		 , typename std::enable_if<(u_capacity==0)>::type* = nullptr
+	 bool try_push (
+		 value_type &item
+		 , typename std::enable_if<(u_capacity == 0)>::type * = nullptr
 	 ) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 m_container.push_front(std::move(item));
+		 static_assert(
+			 t_capacity==u_capacity
+			 , "t_capacity != u_capacity"
+		 );
+
+		 {
+			 std::unique_lock<std::mutex> lock(m_mutex);
+			 m_container.push_front(std::move(item));
+		 } // Release the lock
+
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_empty.notify_all();
+#else
+		 m_not_empty.notify_one();
+#endif
+
+		 return true;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Adds a single item to the front of the buffer. The function will return
+	  * "false" immediately, if no space is available in the bufffer (true if space
+	  * was available and the item could be added). This is the specialization
+	  * for the case "t_capacity > 0" (i.e. limited buffer size).
+	  *
+	  * @param item An item to be added to the front of the buffer
+	  * @param timeout duration until a timeout occurs
+	  * @return A boolean indicating whether an item has been successfully submitted
+	  */
+	 template <typename std::size_t u_capacity = t_capacity>
+	 bool try_push (
+		 value_type &item
+		 , typename std::enable_if<(u_capacity > 0)>::type * = nullptr
+	 ) {
+		 static_assert(
+			 t_capacity==u_capacity
+			 , "t_capacity != u_capacity"
+		 );
+
+		 {
+			 std::unique_lock<std::mutex> lock(m_mutex);
+
+			 // Check if the size fits our requirements. Return
+			 // if this is note the case.
+			 if (m_container.size() >= t_capacity) {
+				 return false;
+			 }
+
+			 m_container.push_front(std::move(item));
+		 } // Release the lock
+
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_empty.notify_all();
+#else
+		 m_not_empty.notify_one();
+#endif
+
+		 return true;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Adds a single item to the buffer. Specialization for the case t_capacity==0
+	  * (unlimited buffer size), so the function will not block.
+	  *
+	  * @param item An item to be added to the front of the buffer
+	  */
+	 template <typename std::size_t u_capacity = t_capacity>
+	 void push_and_block(
+		 value_type &item
+		 , typename std::enable_if<(u_capacity == 0)>::type * = nullptr
+	 ) {
+		 static_assert(
+			 t_capacity==u_capacity
+			 , "t_capacity != u_capacity"
+		 );
+
+		 {
+			 std::unique_lock<std::mutex> lock(m_mutex);
+			 m_container.push_front(std::move(item));
+		 } // Release the lock
 
 #ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
 		 m_not_empty.notify_all();
@@ -260,31 +290,35 @@ public:
 #endif
 	 }
 
+
 	 /***************************************************************************/
 	 /**
-	  * Adds a single item to the front of the buffer. The function
-	  * will time out after a given amount of time. This function was
-	  * added to Jan Gaspar's original implementation. Specialization
+	  * Adds a single item to the buffer. The function will block if there is no
+	  * space in the buffer and continue once space is available. Specialization
 	  * for the case t_capacity>0
 	  *
 	  * @param item An item to be added to the front of the buffer
-	  * @param timeout duration until a timeout occurs
 	  */
 	 template <typename std::size_t u_capacity = t_capacity>
-	 void push_front(
-		 value_type& item
-		 , const std::chrono::duration<double> &timeout
-		 , typename std::enable_if<(u_capacity>0)>::type* = nullptr
+	 void push_and_block(
+		 value_type &item
+		 , typename std::enable_if<(u_capacity > 0)>::type * = nullptr
 	 ) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_full.wait_for(
-			 lock
-			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-			 , [&]() -> bool { return m_container.size()<u_capacity; }
-		 )) {
-			 throw Gem::Common::condition_time_out();
-		 }
-		 m_container.push_front(std::move(item));
+		 static_assert(
+			 t_capacity==u_capacity
+			 , "t_capacity != u_capacity"
+		 );
+
+		 {
+			 std::unique_lock<std::mutex> lock(m_mutex);
+			 // Note that this overload of wait() internally runs a loop on its predicate to
+			 // deal with spurious wakeups
+			 m_not_full.wait(
+				 lock
+				 , [&]() -> bool { return m_container.size() < u_capacity; }
+			 );
+			 m_container.push_front(std::move(item));
+		 } // Release the lock
 
 #ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
 		 m_not_empty.notify_all();
@@ -295,22 +329,29 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Adds a single item to the front of the buffer. The function
-	  * will time out after a given amount of time and return false
-	  * in this case. Specialization for the case t_capacity==0
+	  * Adds a single item to the buffer. The function will always
+	  * return "true", as the buffer is unlimited, and will not wait (despite the
+	  * name).
 	  *
 	  * @param item An item to be added to the front of the buffer
 	  * @param timeout duration until a timeout occurs
 	  * @return A boolean indicating whether an item has been successfully submitted
 	  */
 	 template <typename std::size_t u_capacity = t_capacity>
-	 bool push_front_bool(
-		 value_type& item
+	 bool push_and_wait(
+		 value_type &item
 		 , const std::chrono::duration<double> &timeout
-		 , typename std::enable_if<(u_capacity==0)>::type* = nullptr
+		 , typename std::enable_if<(u_capacity == 0)>::type * = nullptr
 	 ) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 m_container.push_front(std::move(item));
+		 static_assert(
+			 t_capacity==u_capacity
+			 , "t_capacity != u_capacity"
+		 );
+
+		 {
+			 std::unique_lock<std::mutex> lock(m_mutex);
+			 m_container.push_front(std::move(item));
+		 } // Release the lock
 
 #ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
 		 m_not_empty.notify_all();
@@ -323,29 +364,37 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Adds a single item to the front of the buffer. The function
-	  * will time out after a given amount of time and return false
-	  * in this case. Specialization for the case t_capacity>0
+	  * Adds a single item to the buffer. The function
+	  * will time out after a given amount of time and return "false"
+	  * in this case ("true" in the case of success. Specialization
+	  * for the case t_capacity>0 (i.e. limited capacity).
 	  *
 	  * @param item An item to be added to the front of the buffer
 	  * @param timeout duration until a timeout occurs
 	  * @return A boolean indicating whether an item has been successfully submitted
 	  */
 	 template <typename std::size_t u_capacity = t_capacity>
-	 bool push_front_bool(
-		 value_type& item
+	 bool push_and_wait(
+		 value_type &item
 		 , const std::chrono::duration<double> &timeout
-		 , typename std::enable_if<(u_capacity>0)>::type* = nullptr
+		 , typename std::enable_if<(u_capacity > 0)>::type * = nullptr
 	 ) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_full.wait_for(
-			 lock
-			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-			 , [&]() -> bool { return m_container.size()<u_capacity;}
-		 )) {
-			 return false;
-		 }
-		 m_container.push_front(std::move(item));
+		 static_assert(
+			 t_capacity==u_capacity
+			 , "t_capacity != u_capacity"
+		 );
+
+		 {
+			 std::unique_lock<std::mutex> lock(m_mutex);
+			 if (!m_not_full.wait_for(
+				 lock
+				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+				 , [&]() -> bool { return m_container.size() < u_capacity; }
+			 )) {
+				 return false;
+			 }
+			 m_container.push_front(std::move(item));
+		 } // Release the lock
 
 #ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
 		 m_not_empty.notify_all();
@@ -358,13 +407,13 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Tries to retrieve a single item from the end of the buffer. The function
+	  * Tries to retrieve a single item from the buffer. The function
 	  * will return false immediately if this cannot be achieved.
 	  *
 	  * @param item Reference to a single item that was removed from the end of the buffer
 	  * @return A boolean indicating whether retrieval was successful
 	  */
-	 bool try_pop_back_bool(value_type &item) {
+	 bool try_pop(value_type &item) {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 if(!m_container.empty()) {
 			 item = std::move(m_container.back());
@@ -377,21 +426,22 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves a single item from the end of the buffer. The
-	  * function will block if no items are available and will continue
-	  * once items become available again.
+	  * Retrieves a single item from the buffer. The function will block if no
+	  * items are available and will continue once items become available again.
 	  *
 	  * @param item Reference to a single item that was removed from the end of the buffer
 	  */
-	 void pop_back(value_type &item) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 m_not_empty.wait(
-			 lock
-			 , [&]() -> bool { return !m_container.empty(); }
-		 );
+	 void pop_and_block(value_type &item) {
+		 {
+			 std::unique_lock<std::mutex> lock(m_mutex);
+			 m_not_empty.wait(
+				 lock
+				 , [&]() -> bool { return !m_container.empty(); }
+			 );
 
-		 item = std::move(m_container.back());
-		 m_container.pop_back();
+			 item = std::move(m_container.back());
+			 m_container.pop_back();
+		 } // Release the lock
 
 #ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
 		 m_not_full.notify_all();
@@ -402,35 +452,7 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves a single item from the end of the buffer. The function
-	  * will time out after a given amount of time. This function was
-	  * added to Jan Gaspar's original implementation.
-	  *
-	  * @param item Reference to a single item that was removed from the end of the buffer
-	  * @param timeout duration until a timeout occurs
-	  */
-	 void pop_back(value_type &item, const std::chrono::duration<double> &timeout) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_empty.wait_for(
-			 lock
-			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-			 , [&]() -> bool { return !m_container.empty(); }
-		 )) {
-			 throw Gem::Common::condition_time_out();
-		 }
-
-		 item = std::move(m_container.back());
-		 m_container.pop_back();
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_full.notify_all();
-#else
-		 m_not_full.notify_one();
-#endif
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves a single item from the end of the buffer. The function
+	  * Retrieves a single item from the buffer. The function
 	  * will time out after a given amount of time. It will return false
 	  * in this case. "true" will be returned if an item could be retrieved
 	  * successfully.
@@ -439,18 +461,23 @@ public:
 	  * @param timeout duration until a timeout occurs
 	  * @return A boolean indicating whether an item has been successfully retrieved
 	  */
-	 bool pop_back_bool(value_type &item, const std::chrono::duration<double> &timeout) {
-		 std::unique_lock<std::mutex> lock(m_mutex);
-		 if (!m_not_empty.wait_for(
-			 lock
-			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-			 , [&]() -> bool { return !m_container.empty(); }
-		 )) {
-			 return false;
-		 }
+	 bool pop_and_wait(
+		 value_type &item
+		 , const std::chrono::duration<double> &timeout
+	 ) {
+		 {
+			 std::unique_lock<std::mutex> lock(m_mutex);
+			 if (!m_not_empty.wait_for(
+				 lock
+				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
+				 , [&]() -> bool { return !m_container.empty(); }
+			 )) {
+				 return false;
+			 }
 
-		 item = std::move(m_container.back()); // Assign the item at the back of the container
-		 m_container.pop_back(); // Remove it from the container
+			 item = std::move(m_container.back()); // Assign the item at the back of the container
+			 m_container.pop_back(); // Remove it from the container
+		 } // Release the lock
 
 #ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
 		 m_not_full.notify_all();
@@ -480,7 +507,7 @@ public:
 	  *
 	  * @return The currently remaining space in the buffer
 	  */
-	 std::size_t remainingSpace() {
+	 std::size_t getRemainingSpace() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 return t_capacity - m_container.size();
 	 }
@@ -520,14 +547,6 @@ protected:
 	 mutable std::mutex m_mutex; ///< Used for synchronization of access to the container
 	 std::condition_variable m_not_empty; ///< Used for synchronization of access to the container
 	 std::condition_variable m_not_full; ///< Used for synchronization of access to the container
-
-private:
-	 /***************************************************************************/
-
-	 GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
-	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator
-	 GBoundedBufferT(const GBoundedBufferT<T> &&) = delete; ///< Disabled move constructor
-	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &&) = delete; ///< Disabled move-assignment operator
 };
 
 /******************************************************************************/

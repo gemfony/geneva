@@ -98,7 +98,7 @@ public:
 	  * @return A boolean which indicates whether the submission was successful
 	  */
 	 void push_raw(T item) {
-		 m_raw_ptr->push_front(item);
+		 m_raw_ptr->push_and_block(item);
 	 }
 
 	 /***************************************************************************/
@@ -115,7 +115,10 @@ public:
 		 T item
 		 , const std::chrono::duration<double> &timeout
 	 ) {
-		 return m_raw_ptr->push_front_bool(item, timeout);
+		 return m_raw_ptr->push_and_wait(
+			 item
+			 , timeout
+		 );
 	 }
 
 	 /***************************************************************************/
@@ -127,7 +130,7 @@ public:
 	  * @return A boolean which indicates whether the retrieval was successful
 	  */
 	 void pop_raw(T &item) {
-		 m_raw_ptr->pop_back(item);
+		 m_raw_ptr->pop_and_block(item);
 	 }
 
 	 /***************************************************************************/
@@ -144,7 +147,10 @@ public:
 		 T &item
 		 , const std::chrono::duration<double> &timeout
 	 ) {
-		 return m_raw_ptr->pop_back_bool(item, timeout);
+		 return m_raw_ptr->pop_and_wait(
+			 item
+			 , timeout
+		 );
 	 }
 
 	 /***************************************************************************/
@@ -155,7 +161,7 @@ public:
 	  * @return A boolean which indicates whether the submission was successful
 	  */
 	 void push_processed(T item) {
-		 m_processed_ptr->push_front(item);
+		 m_processed_ptr->push_and_block(item);
 	 }
 
 	 /***************************************************************************/
@@ -172,7 +178,10 @@ public:
 		 T item
 		 , const std::chrono::duration<double> &timeout
 	 ) {
-		 return m_processed_ptr->push_front_bool(item, timeout);
+		 return m_processed_ptr->push_and_wait(
+			 item
+			 , timeout
+		 );
 	 }
 
 	 /***************************************************************************/
@@ -185,7 +194,7 @@ public:
 	  * @return A boolean which indicates whether the retrieval was successful
 	  */
 	 void pop_processed(T &item) {
-		 m_processed_ptr->pop_back(item);
+		 m_processed_ptr->pop_and_block(item);
 	 }
 
 	 /***************************************************************************/
@@ -201,7 +210,10 @@ public:
 		 T &item
 		 , const std::chrono::duration<double> &timeout
 	 ) {
-		 return m_processed_ptr->pop_back_bool(item, timeout);
+		 return m_processed_ptr->pop_and_wait(
+			 item
+			 , timeout
+		 );
 	 }
 
 	 /***************************************************************************/

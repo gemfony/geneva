@@ -698,7 +698,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test inserting and erasure of items, the pop_back and resize functions and the getDataCopy and operator= functions (Test of GStdSimpleVectorInterfaceT<double> functionality)
+	{ // Test inserting and erasure of items, the pop_and_block and resize functions and the getDataCopy and operator= functions (Test of GStdSimpleVectorInterfaceT<double> functionality)
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
