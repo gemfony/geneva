@@ -88,10 +88,6 @@
 namespace Gem {
 namespace Common {
 
-// TODO: Make this an optionally bounded queue --> done
-// TODO: Make this queue fit for pushing std::shared_ptr and std::unique_ptr into it --> done
-// TODO: Introduce timed waits
-
 /******************************************************************************/
 /**
  * A queue-like structure featuring thread-safe access and fine-grained locking.
@@ -591,7 +587,7 @@ private:
 		 data_is_available = m_not_empty.wait_for(
 			 head_lock
 			 , timeout
-			 , [&]{ return m_head_ptr!=get_tail(); }
+			 , [&]{ return m_head_ptr.get()!=get_tail(); }
 		 );
 		 return std::move(head_lock);
 	 }
@@ -761,7 +757,7 @@ private:
 	 std::condition_variable m_not_empty; ///< Allows to wait until new nodes have appeared
 	 std::condition_variable m_not_full;  ///< Allows to wait until space becomes available in the data structure
 
-	 std::atomic<std::size_t> m_n_data_sets = 0; ///< The number of data sets stored in this class
+	 std::atomic<std::size_t> m_n_data_sets {0}; ///< The number of data sets stored in this class
 
 	 /***************************************************************************/
 };

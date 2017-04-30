@@ -1,0 +1,6 @@
+This directory contains a manual test / usage demo of the GThreadSafeQueue class,
+which lets you buffer data / objects between different threads.
+
+- Random number containers are produced by producers and are submitted to the queue wrapped
+in a std::shared_ptr, std::unique_ptr or natively. Consumers retrieve  work items from the
+queue, sort them and return them to the producers through another queue.

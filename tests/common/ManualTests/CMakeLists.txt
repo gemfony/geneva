@@ -9,6 +9,7 @@ ADD_CUSTOM_TARGET( "tests-common-manual"
 		GLoggerTest
 		GPlotDesignerTest
 		GThreadPoolTest
+        GThreadSafeQueueTest
         ../../../retired/GThreadTest
 	COMMENT "Building the manual tests for the Common library."
 )
@@ -19,3 +20,4 @@ ADD_SUBDIRECTORY ( GFormulaParserTest )
 ADD_SUBDIRECTORY ( GLoggerTest )
 ADD_SUBDIRECTORY ( GPlotDesignerTest )
 ADD_SUBDIRECTORY ( GThreadPoolTest )
+ADD_SUBDIRECTORY ( GThreadSafeQueueTest )
