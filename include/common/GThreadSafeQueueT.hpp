@@ -404,32 +404,151 @@ public:
 
 	 /***************************************************************************/
 
-	 std::shared_ptr<T> wait_and_pop() {
-		 std::unique_ptr<node> const old_head=wait_pop_head();
-		 return old_head->data;
-	 }
+	 bool try_pop(T &item) {
+		 std::unique_ptr<node> popped_node;
+		 {
+			 std::unique_lock<std::mutex> head_lock(m_head_mutex);
+			 if (m_head_ptr.get() == get_tail()) {
+				 return false;
+			 }
 
-	 /***************************************************************************/
+			 popped_node = unprotected_pop_head();
+			 item = *popped_node->data;
 
-	 // TODO: Was soll diese Funktion ? Warum das Assignment ?
-	 void wait_and_pop(T& value) {
-		 std::unique_ptr<node> const old_head=wait_pop_head(value);
-	 }
+			 m_n_data_sets--;
+		 }
 
-	 /***************************************************************************/
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+			 m_not_full.notify_all();
+#else
+			 m_not_full.notify_one();
+#endif
 
-	 std::shared_ptr<T> try_pop() {
-		 std::unique_ptr<node> const old_head=try_pop_head();
-		 return old_head?old_head->data:std::shared_ptr<T>();
-	 }
-
-	 /***************************************************************************/
-
-	 bool try_pop(T& value) {
-		 std::unique_ptr<node> const old_head=try_pop_head(value);
-		 if(!old_head) return false;
-		 value = *old_head;
 		 return true;
+	 }
+
+	 /***************************************************************************/
+
+	 std::shared_ptr<T> try_pop(bool &item_is_available) {
+		 std::unique_ptr<node> popped_node;
+		 {
+			 std::unique_lock<std::mutex> head_lock(m_head_mutex);
+			 if (m_head_ptr.get() == get_tail()) {
+				 item_is_available = false;
+				 return std::shared_ptr<T>();
+			 }
+
+			 popped_node = unprotected_pop_head();
+			 item_is_available = true;
+
+			 m_n_data_sets--;
+		 }
+
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_all();
+#else
+		 m_not_full.notify_one();
+#endif
+
+		 return popped_node->data;
+	 }
+
+	 /***************************************************************************/
+
+	 void pop_and_block(T &item) {
+		 {
+			 std::unique_lock<std::mutex> head_lock(wait_for_data());
+			 item = *unprotected_pop_head()->data;
+			 m_n_data_sets--;
+		 }
+
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_all();
+#else
+		 m_not_full.notify_one();
+#endif
+	 }
+
+	 /***************************************************************************/
+
+	 std::shared_ptr<T> pop_and_block() {
+		 std::shared_ptr<T> popped_item;
+		 {
+			 std::unique_lock<std::mutex> head_lock(wait_for_data());
+			 popped_item = unprotected_pop_head()->data;
+			 m_n_data_sets--;
+		 }
+
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_all();
+#else
+		 m_not_full.notify_one();
+#endif
+
+		 return popped_item;
+	 }
+
+	 /***************************************************************************/
+
+	 bool pop_and_wait(
+		 T& item
+		 , const std::chrono::duration<double> &timeout
+	 ) {
+		 bool data_is_available = false;
+		 {
+			 std::unique_lock<std::mutex> head_lock(
+				 wait_for_data(
+					 timeout
+					 , data_is_available
+				 ));
+			 if (!data_is_available) {
+				 return false;
+			 }
+
+			 item = *unprotected_pop_head()->data;
+			 m_n_data_sets--;
+		 }
+
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_all();
+#else
+		 m_not_full.notify_one();
+#endif
+
+		 return true;
+	 }
+
+	 /***************************************************************************/
+
+	 std::shared_ptr<T> pop_and_wait(
+		 bool &item_is_available
+		 , const std::chrono::duration<double> &timeout
+	 ) {
+		 bool data_is_available = false;
+		 std::shared_ptr<T> popped_item;
+		 {
+			 std::unique_lock<std::mutex> head_lock(
+				 wait_for_data(
+					 timeout
+					 , data_is_available
+				 ));
+			 if (!data_is_available) {
+				 item_is_available = false;
+				 return std::shared_ptr<T>();
+			 }
+
+			 popped_item = unprotected_pop_head()->data;
+			 m_n_data_sets--;
+		 }
+
+#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
+		 m_not_full.notify_all();
+#else
+		 m_not_full.notify_one();
+#endif
+
+		 item_is_available = true;
+		 return popped_item;
 	 }
 
 	 /***************************************************************************/
@@ -624,59 +743,10 @@ private:
 
 	 /***************************************************************************/
 
-	 std::unique_ptr<node> pop_head() {
-		 std::unique_ptr<node> const old_head=std::move(m_head_ptr);
+	 std::unique_ptr<node> unprotected_pop_head() {
+		 std::unique_ptr<node> old_head=std::move(m_head_ptr);
 		 m_head_ptr=std::move(old_head->next);
-
-#ifdef DEBUG
-		 assert(m_n_data_sets.load() >= 1);
-#endif /* DEBUG */
-
-		 m_n_data_sets--;
-
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_full.notify_all();
-#else
-		 m_not_full.notify_one();
-#endif
-
 		 return old_head;
-	 }
-
-	 /***************************************************************************/
-
-	 std::unique_ptr<node> wait_pop_head() {
-		 std::unique_lock<std::mutex> head_lock(wait_for_data());
-		 return pop_head();
-	 }
-
-	 /***************************************************************************/
-
-	 std::unique_ptr<node> wait_pop_head(T& value) {
-		 std::unique_lock<std::mutex> head_lock(wait_for_data());
-		 value=std::move(*m_head_ptr->data);
-		 return pop_head();
-	 }
-
-	 /***************************************************************************/
-
-	 std::unique_ptr<node> try_pop_head() {
-		 std::unique_lock<std::mutex> head_lock(m_head_mutex);
-		 if(m_head_ptr.get()==get_tail()) {
-			 return std::unique_ptr<node>();
-		 }
-		 return pop_head();
-	 }
-
-	 /***************************************************************************/
-
-	 std::unique_ptr<node> try_pop_head(T& value) {
-		 std::unique_lock<std::mutex> head_lock(m_head_mutex);
-		 if(m_head_ptr.get()==get_tail()) {
-			 return std::unique_ptr<node>();
-		 }
-		 value=std::move(*m_head_ptr->data);
-		 return pop_head();
 	 }
 
 	 /***************************************************************************/
