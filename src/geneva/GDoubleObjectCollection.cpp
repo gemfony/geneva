@@ -202,7 +202,7 @@ bool GDoubleObjectCollection::modify_GUnitTests() {
 void GDoubleObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
 
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
@@ -256,7 +256,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double RANDUPPERBOUNDARY = 10.;
 
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
 
 	// --------------------------------------------------------------------------
 

@@ -517,7 +517,7 @@ public:
 		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
 
 		// Get a random number generator
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
 
 		//------------------------------------------------------------------------------
 

@@ -39,13 +39,13 @@ namespace Hap {
 
 /******************************************************************************/
 
-// thread_local Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> GRANDOM_TLS;
+// thread_local Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> GRANDOM_TLS;
 
 /**
  * Gives access to a thread-local copy of the GRandomT proxy
  */
 /*
-GRandomT<RANDFLAVOURS::RANDOMPROXY>& randomProxy() {
+GRandomT<RANDFLAVOURS::PROXY>& randomProxy() {
 	return GRANDOM_TLS;
 }
 */

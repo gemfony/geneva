@@ -152,7 +152,7 @@ int main(int argc, char **argv){
 	GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
 	// Create a random number proxy
-	gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(new GRandomT<RANDFLAVOURS::RANDOMPROXY>());
+	gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::PROXY>>(new GRandomT<RANDFLAVOURS::PROXY>());
 
 	boost::filesystem::ofstream ofs("rootPlotRNGDistributions.C");
 	if(!ofs) {

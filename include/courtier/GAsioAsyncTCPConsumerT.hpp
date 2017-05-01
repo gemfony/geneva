@@ -375,7 +375,7 @@ private:
 	 bool tryConnect() {
 		 // A random number generator needed to determine a suitable time frame
 		 // for the next connection.
-		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
 		 std::uniform_real_distribution<double> uniform_real;
 
 		 std::uint32_t connectionAttempt = 0;

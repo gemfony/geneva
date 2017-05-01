@@ -118,7 +118,7 @@ public:
 	GConstrainedFPT (const fp_type& lowerBoundary , const fp_type& upperBoundary)
 		: GConstrainedNumT<fp_type>(lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary))
 	{
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
 		typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerBoundary, upperBoundary);
 		GParameterT<fp_type>::setValue(uniform_real_distribution(gr));
 	}
@@ -528,7 +528,7 @@ public:
 		GConstrainedNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
 
 		// A random generator
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
 
 		//------------------------------------------------------------------------------
 

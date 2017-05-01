@@ -97,7 +97,7 @@ int main() {
 	double fact_1_02, fact_1_04, fact_1_06, fact_1_08;
 	double fact_2_02, fact_2_04, fact_2_06, fact_2_08;
 
-	std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::RANDOMPROXY>>(new GRandomT<RANDFLAVOURS::RANDOMPROXY>());
+	std::shared_ptr<Gem::Hap::GRandomBase> gr_ptr = std::shared_ptr<GRandomT<RANDFLAVOURS::PROXY>>(new GRandomT<RANDFLAVOURS::PROXY>());
 
 	std::string caption_dist = "Different random distributions for the adaption of sigma, varying sigmaSigma";
 	GPlotDesigner gpd_dist (caption_dist, 2, 4);

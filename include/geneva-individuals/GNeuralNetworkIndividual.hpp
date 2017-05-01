@@ -486,7 +486,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+		GRandomT<RANDFLAVOURS::PROXY> gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
 
 		// Retrieve the number of input- and output nodes for easier reference
@@ -581,7 +581,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+		GRandomT<RANDFLAVOURS::PROXY> gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
 
 		// Retrieve the number of input- and output nodes for easier reference
@@ -728,7 +728,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+		GRandomT<RANDFLAVOURS::PROXY> gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
 
 		// Retrieve the number of input- and output nodes for easier reference
@@ -846,7 +846,7 @@ public:
 		}
 
 		// Create a local random number generator.
-		GRandomT<RANDFLAVOURS::RANDOMPROXY> gr_l;
+		GRandomT<RANDFLAVOURS::PROXY> gr_l;
         std::uniform_real_distribution<double> uniform_real_distribution;
 
 		// Retrieve the number of input- and output nodes for easier reference

@@ -99,7 +99,7 @@ public:
 	)
 		: GNumCollectionT<int_type>(nval, min, min, max) // Initialization of a vector with nval variables of value "min"
 	{
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
 		typename std::uniform_int_distribution<int_type> uniform_int(min, max);
 
 		// Fill the vector with random values
@@ -311,7 +311,7 @@ public:
 		GNumCollectionT<int_type>::specificTestsNoFailureExpected_GUnitTests();
 
 		// A random generator
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
 
 		//------------------------------------------------------------------------------
 

@@ -64,7 +64,8 @@
 
 // Geneva headers go here
 
-#include "common/GBoundedBufferT.hpp"
+// #include "common/GBoundedBufferT.hpp"
+#include "common/GThreadSafeQueueT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GStdThreadGroup.hpp"
@@ -244,12 +245,12 @@ public:
 	 G_API_HAP std::size_t getBufferSize() const;
 
 	 /** @brief Delivers a new [0,1[ random number container with the current standard size to clients */
-	 G_API_HAP std::unique_ptr <random_container> getNewRandomContainer();
+	 G_API_HAP std::shared_ptr <random_container> getNewRandomContainer();
 	 /** @brief Retrieval of a new seed for external or internal random number generators */
 	 G_API_HAP seed_type getSeed();
 
 	 /** @brief Allows recycling of partially used packages */
-	 G_API_HAP void returnUsedPackage(std::unique_ptr<random_container>&);
+	 G_API_HAP void returnUsedPackage(std::shared_ptr<random_container>&);
 
 private:
 	 /***************************************************************************/
@@ -269,9 +270,9 @@ private:
 	 Gem::Common::GStdThreadGroup m_producer_threads; ///< A thread group that holds [0,1[ producer threads
 
 	 /** @brief A bounded buffer holding the random number packages */
-	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> m_p_fresh_bfr; // Note: Absolutely needs to be defined after the thread group !!!
+	 Gem::Common::GThreadSafeQueueT<random_container,DEFAULTFACTORYBUFFERSIZE> m_p_fresh_bfr; // Note: Absolutely needs to be defined after the thread group !!!
 	 /** @brief A bounded buffer holding random number packages ready for recycling */
-	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> m_p_ret_bfr;
+	 Gem::Common::GThreadSafeQueueT<random_container,DEFAULTFACTORYBUFFERSIZE> m_p_ret_bfr;
 
 	 static std::uint16_t m_multiple_call_trap; ///< Trap to catch multiple instantiations of this class
 	 static std::mutex m_factory_creation_mutex; ///< Synchronization of access to multiple_call_trap in constructor

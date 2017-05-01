@@ -55,7 +55,7 @@ using namespace Gem::Hap;
  */
 int main(int argc, char **argv) {
 	// Instantiate a random number generator
-	// NOTE: You could use GRandomT<RANDOMPROXY> instead
+	// NOTE: You could use GRandomT<PROXY> instead
 	GRandom gr;
 
 	std::uniform_real_distribution<double> uniform_real_distribution(0.,1.);

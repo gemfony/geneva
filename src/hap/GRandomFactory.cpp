@@ -170,7 +170,7 @@ seed_type GRandomFactory::getSeed() {
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container>& p) {
+void GRandomFactory::returnUsedPackage(std::shared_ptr<random_container>& p) {
 	// We try to add the item to the m_p_ret_bfr queue, until a timeout occurs.
 	// Once this is the case we delete the package, so we do not overflow
 	// with recycled packages
@@ -249,11 +249,11 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
  * When objects need a new container of [0,1[ -random numbers with the current
  * default size, they call this function. See also
  * http://preshing.com/20130930/double-checked-locking-is-fixed-in-cpp11/ for
- * the rationale.
+ * the rationale of the first part of this function.
  *
  * @return A packet of new [0,1[ random numbers
  */
-std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
+std::shared_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 	// Start the producer threads upon first access to this function
 	if (!m_threads_started) {
 		std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
@@ -270,16 +270,8 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 		}
 	}
 
-	std::unique_ptr<random_container> p; // empty
-	if(!m_p_fresh_bfr.pop_and_wait(
-		p
-		, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
-		// nothing - our way of signaling a time out
-		// is to return an empty std::unique_ptr
-		p = std::unique_ptr<random_container>();
-	}
-
-	return p;
+	// The function will return an empty shared_ptr if no data could be retrieved
+	return m_p_fresh_bfr.pop_and_wait(std::chrono::milliseconds(DEFAULTFACTORYGETWAIT));
 }
 
 /******************************************************************************/
@@ -294,24 +286,15 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 void GRandomFactory::producer(std::uint32_t seed) {
 	try {
 		G_BASE_GENERATOR mt(seed);
-		std::unique_ptr<random_container> p;
+		std::shared_ptr<random_container> p;
 
 		while(!m_threads_stop_requested) {
 			// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
 			// fails (likely because the buffer is empty), we create a new item instead
-			if(m_p_ret_bfr.try_pop(p)) {
+			if(p=m_p_ret_bfr.try_pop()) {
 
 				// If we reach this line, we have successfully retrieved a recycled container.
 				// First do some error-checking
-#ifdef DEBUG
-				if(!p) {
-					glogger
-						<< "In RandomFactory::producer(): Error!" << std::endl
-						<< "Got empty recycling pointer" << std::endl
-						<< GEXCEPTION;
-				}
-
-#endif /* DEBUG */
 
 				// Replace "used" random numbers with new ones
 				p->refresh(mt);
@@ -323,7 +306,8 @@ void GRandomFactory::producer(std::uint32_t seed) {
 			while(!m_threads_stop_requested) {
 				if(!m_p_fresh_bfr.push_and_wait(
 					p
-					, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))){
+					, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))
+				){
 #ifdef DEBUG
 					// p should never be empty here
 					if(!p) {

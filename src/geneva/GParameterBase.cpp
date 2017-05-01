@@ -1133,7 +1133,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 	GObject::specificTestsNoFailureExpected_GUnitTests();
 
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
 
 	//---------------------------------------------------------------------
 
