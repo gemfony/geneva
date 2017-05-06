@@ -204,7 +204,7 @@ bool GInt32ObjectCollection::modify_GUnitTests() {
 void GInt32ObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
@@ -248,7 +248,7 @@ void GInt32ObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 void GInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// Some settings
 	const std::size_t nAddedObjects = 10;

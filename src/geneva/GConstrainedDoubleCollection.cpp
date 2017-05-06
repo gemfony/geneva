@@ -430,7 +430,7 @@ GObject *GConstrainedDoubleCollection::clone_() const {
 bool GConstrainedDoubleCollection::modify_GUnitTests() {
 #ifdef GEM_TESTING
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	bool result = false;
 

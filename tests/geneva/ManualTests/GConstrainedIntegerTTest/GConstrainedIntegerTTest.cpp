@@ -62,7 +62,7 @@ const std::uint32_t NTESTS=2000;
 
 int main(int argc, char **argv){
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	std::shared_ptr<GHistogram1I> multipleFlipMutation_ptr(new GHistogram1I(50, 0.5,50.5));
 	multipleFlipMutation_ptr->setPlotLabel("Occurance of different values when flip-mutating, starting with 1");

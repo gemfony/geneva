@@ -80,7 +80,7 @@ GBooleanObject::GBooleanObject(const bool &val)
  * @param prob The probability for the value "true"
  */
 GBooleanObject::GBooleanObject(const double &probability) {
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
 	std::bernoulli_distribution bernoulli_distribution(probability);
 
 	this->setValue(bernoulli_distribution(gr));
@@ -468,7 +468,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests();
 
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// --------------------------------------------------------------------------
 
@@ -784,7 +784,7 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBooleanObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

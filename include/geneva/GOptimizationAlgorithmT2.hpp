@@ -1755,7 +1755,7 @@ protected:
 	 std::uniform_real_distribution<double> m_uniform_real_distribution; ///< Access to uniformly distributed double random values
 	 std::uniform_int_distribution<std::size_t> m_uniform_int_distribution; ///< Access to uniformly distributed random numbers
 
-	 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> m_gr; ///< A random number generator. Note that the actual calculation is done in a random number proxy / factory
+	 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> m_gr; ///< A random number generator. Note that the actual calculation is done in a random number proxy / factory
 	 executor_type m_executor; ///< Takes care of the evaluation of objects
 
 private:

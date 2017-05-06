@@ -59,7 +59,7 @@ GBooleanCollection::GBooleanCollection()
 GBooleanCollection::GBooleanCollection(const std::size_t &nval)
 	: GParameterCollectionT<bool>()
 {
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
 	std::bernoulli_distribution bernoulli_distribution; // defaults to 0.5
 	for (std::size_t i = 0; i < nval; i++) {
 		this->push_back(bernoulli_distribution(gr));
@@ -95,7 +95,7 @@ GBooleanCollection::GBooleanCollection(
 	, const double &probability)
 	: GParameterCollectionT<bool>()
 {
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
 	std::bernoulli_distribution weighted_bool(probability);
 	for (std::size_t i = 0; i < nval; i++) {
 		this->push_back(weighted_bool(gr));
@@ -506,7 +506,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 	GParameterCollectionT<bool>::specificTestsNoFailureExpected_GUnitTests();
 
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// --------------------------------------------------------------------------
 
@@ -907,7 +907,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 	GParameterCollectionT<bool>::specificTestsFailuresExpected_GUnitTests();
 
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// --------------------------------------------------------------------------
 

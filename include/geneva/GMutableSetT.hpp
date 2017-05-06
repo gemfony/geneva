@@ -240,7 +240,7 @@ protected:
 	 * A random number generator. Note that the actual calculation is
 	 * done in a random number proxy / factory
 	 */
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> m_gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> m_gr;
 
 	/***************************************************************************/
 	/**

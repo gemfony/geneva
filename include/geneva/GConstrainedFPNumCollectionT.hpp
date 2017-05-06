@@ -108,7 +108,7 @@ public:
 	)
 		: GConstrainedNumCollectionT<fp_type> (size, lowerBoundary, boost::math::float_prior<fp_type>(upperBoundary)) // Note that we define the upper boundary as "open"
 	{
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
 		typename std::uniform_real_distribution<fp_type> uniform_real_distribution(lowerBoundary,upperBoundary);
 
 		// Assign random values to each position

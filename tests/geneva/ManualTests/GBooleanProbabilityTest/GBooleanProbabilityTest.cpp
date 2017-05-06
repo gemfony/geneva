@@ -68,7 +68,7 @@ const std::size_t NBIT=10;
  */
 int main(int argc, char **argv){
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// Create test candidates
 	GBooleanObject A(true), A_tmp;

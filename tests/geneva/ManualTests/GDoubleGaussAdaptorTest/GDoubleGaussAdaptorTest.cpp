@@ -150,7 +150,7 @@ bool parseCommandLine(
 
 int main(int argc, char **argv) {
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	bool verbose;
 	double sigma, sigmaSigma, minSigma, maxSigma;

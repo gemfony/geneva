@@ -46,7 +46,6 @@
 // Geneva headers go here
 
 #include "common/GSerializationHelperFunctionsT.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
 #include "hap/GRandomT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -1049,7 +1048,7 @@ public:
 		 GObject::specificTestsNoFailureExpected_GUnitTests();
 
 		 // Retrieve a random number generator
-		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		 //------------------------------------------------------------------------------
 
@@ -1408,7 +1407,7 @@ public:
 		 GObject::specificTestsFailuresExpected_GUnitTests();
 
 		 // Retrieve a random number generator
-		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		 //------------------------------------------------------------------------------
 

@@ -206,7 +206,7 @@ bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
 void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	//---------------------------------------------------------------------------
 	// Clear the collection, so we can start fresh
@@ -264,7 +264,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	const double RANDUPPERBOUNDARY = 10.;
 
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// --------------------------------------------------------------------------
 

@@ -54,7 +54,7 @@ GRandomNumberContainer::GRandomNumberContainer()
  * @param nrnr The desired amount of random numbers to be added to the randomNumbers_ vector
  */
 GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
             std::uniform_real_distribution<double> uniform_real_distribution;
 	for(std::size_t i=0; i<nrnr; i++) {
 		randomNumbers_.push_back(uniform_real_distribution(gr));

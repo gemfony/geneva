@@ -224,7 +224,7 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
 void GBooleanObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// Clear the collection, so we can start fresh
 	BOOST_CHECK_NO_THROW(this->clear());
@@ -277,7 +277,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	const double LOWERBND = 0.8, UPPERBND = 1.2;
 
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	//----------------------------------------------------------------------------
 

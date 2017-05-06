@@ -454,7 +454,7 @@ bool GDoubleCollection::modify_GUnitTests() {
 void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 #ifdef GEM_TESTING
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// Make sure the collection is empty
 	BOOST_CHECK_NO_THROW(this->clear());
@@ -513,7 +513,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	GFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
 
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	//------------------------------------------------------------------------------
 

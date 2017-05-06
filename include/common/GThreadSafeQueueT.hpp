@@ -73,8 +73,6 @@
 // Standard headers go here
 #include <memory>
 #include <mutex>
-#include <thread>
-#include <condition_variable>
 #include <atomic>
 #include <type_traits>
 #include <chrono>
@@ -131,6 +129,7 @@ public:
 	  */
 	 bool try_push(
 		 T new_value
+		 , typename std::enable_if<std::is_move_constructible<T>::value || std::is_copy_constructible<T>::value>::type* = 0
 	 ) {
 		 bool space_is_available = false;
 		 {
@@ -237,6 +236,7 @@ public:
 
 	 void push_and_block(
 		 T new_value
+		 , typename std::enable_if<std::is_move_constructible<T>::value || std::is_copy_constructible<T>::value>::type * = 0
 	 ) {
 		 std::shared_ptr<T> new_data(std::make_shared<T>(std::move(new_value)));
 		 std::unique_ptr<node> p(new node);
@@ -302,6 +302,7 @@ public:
 	 bool push_and_wait(
 		 T new_value
 		 , const std::chrono::duration<double> &timeout
+		 , typename std::enable_if<std::is_move_constructible<T>::value || std::is_copy_constructible<T>::value>::type * = 0
 	 ) {
 		 bool space_is_available = false;
 		 {
@@ -450,30 +451,6 @@ public:
 
 	 /***************************************************************************/
 
-	 std::shared_ptr<T> try_pop() {
-		 std::unique_ptr<node> popped_node;
-		 {
-			 std::unique_lock<std::mutex> head_lock(m_head_mutex);
-			 if (m_head_ptr.get() == get_tail()) {
-				 return std::shared_ptr<T>();
-			 }
-
-			 popped_node = unprotected_pop_head();
-
-			 m_n_data_sets--;
-		 }
-
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_full.notify_all();
-#else
-		 m_not_full.notify_one();
-#endif
-
-		 return popped_node->data;
-	 }
-
-	 /***************************************************************************/
-
 	 void pop_and_block(T &item) {
 		 {
 			 std::unique_lock<std::mutex> head_lock(wait_for_data());
@@ -567,36 +544,6 @@ public:
 #endif
 
 		 item_is_available = true;
-		 return popped_item;
-	 }
-
-	 /***************************************************************************/
-
-	 std::shared_ptr<T> pop_and_wait(
-		 const std::chrono::duration<double> &timeout
-	 ) {
-		 bool data_is_available = false;
-		 std::shared_ptr<T> popped_item;
-		 {
-			 std::unique_lock<std::mutex> head_lock(
-				 wait_for_data(
-					 timeout
-					 , data_is_available
-				 ));
-			 if (!data_is_available) {
-				 return std::shared_ptr<T>();
-			 }
-
-			 popped_item = unprotected_pop_head()->data;
-			 m_n_data_sets--;
-		 }
-
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_full.notify_all();
-#else
-		 m_not_full.notify_one();
-#endif
-
 		 return popped_item;
 	 }
 

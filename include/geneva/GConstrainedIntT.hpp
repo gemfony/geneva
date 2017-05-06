@@ -118,7 +118,7 @@ public:
 	)
 		: GConstrainedNumT<int_type>(lowerBoundary, upperBoundary)
 	{
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
 		typename std::uniform_int_distribution<int_type> uniform_int(lowerBoundary, upperBoundary);
 		GParameterT<int_type>::setValue(uniform_int(gr));
 	}
@@ -415,7 +415,7 @@ public:
 		GConstrainedNumT<int_type>::specificTestsNoFailureExpected_GUnitTests();
 
 		// A random generator
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 		typename std::uniform_int_distribution<int_type> uniform_int;
 
 		//------------------------------------------------------------------------------

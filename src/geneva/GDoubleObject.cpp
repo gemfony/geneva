@@ -397,7 +397,7 @@ void GDoubleObject::load_(const GObject *cp) {
 bool GDoubleObject::modify_GUnitTests() {
 #ifdef GEM_TESTING
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	bool result = false;
 
@@ -442,7 +442,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	GNumFPT<double>::specificTestsNoFailureExpected_GUnitTests();
 
 	// Get a random number generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	// --------------------------------------------------------------------------
 

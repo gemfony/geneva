@@ -106,7 +106,7 @@ public:
 	{
 		// No need to resize the vector. as the parent class should already have the desired size
 
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
 		GFPNumCollectionT<fp_type>::randomInit(activityMode::ACTIVEONLY, gr);
 	}
 
@@ -314,7 +314,7 @@ public:
 		GNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
 
 		// A random generator
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		// A few settings
 		const std::size_t nItems = 100;
@@ -563,7 +563,7 @@ public:
 		GNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests();
 
 		// A random generator
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		//------------------------------------------------------------------------------
 

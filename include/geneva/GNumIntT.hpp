@@ -123,7 +123,7 @@ public:
 	)
 		: GNumT<int_type> (min, max)
 	{
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> gr;
 		GNumIntT<int_type>::randomInit(activityMode::ACTIVEONLY, gr);
 	}
 
@@ -329,7 +329,7 @@ public:
 		GNumT<int_type>::specificTestsNoFailureExpected_GUnitTests();
 
 		// A random generator
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 		//------------------------------------------------------------------------------
 

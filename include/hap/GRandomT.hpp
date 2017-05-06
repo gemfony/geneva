@@ -67,7 +67,7 @@ namespace Hap {
  * produced in different ways. We only define the interface here. The actual
  * implementation can be found in the (partial) specializations of this class.
  */
-template<Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDFLAVOURS::PROXY>
+template<Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
 class GRandomT
 	: public Gem::Hap::GRandomBase {
 public:
@@ -93,7 +93,7 @@ protected:
  * objects or use copy constructors.
  */
 template<>
-class GRandomT<Gem::Hap::RANDFLAVOURS::PROXY>
+class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
 	: public Gem::Hap::GRandomBase
 {
 public:
@@ -158,12 +158,12 @@ private:
 	 */
 	void getNewRandomContainer() {
 		// Make sure we get rid of the old container
-		m_p.reset();
+		// m_p.reset(); No longer needed with std::unique_ptr
 
 #ifdef DEBUG
 		if(!m_grf) {
 		   glogger
-		   << "In GRandomT<PROXY>::getNewRandomContainer(): Error!" << std::endl
+		   << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
          << "No connection to GRandomFactory object." << std::endl
          << GEXCEPTION;
 		}
@@ -173,7 +173,8 @@ private:
 		std::uint32_t nRetries = 0;
 #endif /* DEBUG */
 
-		// Try until a valid container has been received.
+		// Try until a valid container has been received. new01Container has
+		// a timeout of DEFAULTFACTORYGETWAIT internally.
 		while (!(m_p = m_grf->getNewRandomContainer())) {
 #ifdef DEBUG
 		   nRetries++;
@@ -190,13 +191,13 @@ private:
 
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers */
-	std::shared_ptr<random_container> m_p;
+	std::unique_ptr <random_container> m_p;
 	/** @brief A local copy of the global GRandomFactory */
-	std::shared_ptr<Gem::Hap::GRandomFactory> m_grf;
+	std::shared_ptr <Gem::Hap::GRandomFactory> m_grf;
 };
 
 /** @brief Convenience typedef */
-using GRandom = GRandomT<Gem::Hap::RANDFLAVOURS::PROXY>;
+using GRandom = GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -209,7 +210,7 @@ using GRandom = GRandomT<Gem::Hap::RANDFLAVOURS::PROXY>;
  * case the default constructor is used.
  */
 template<>
-class GRandomT<Gem::Hap::RANDFLAVOURS::LOCAL>
+class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>
 	: public Gem::Hap::GRandomBase
 {
 public:
@@ -249,10 +250,10 @@ private:
 /******************************************************************************/
 
 // Access to a thread_local copy of a random proxy object
-// extern thread_local GRandomT<RANDFLAVOURS::PROXY> GRANDOM_TLS;
+// extern thread_local GRandomT<RANDFLAVOURS::RANDOMPROXY> GRANDOM_TLS;
 
 // /** @brief Gives access to a thread-local copy of the GRandomT proxy */
-// G_API_HAP GRandomT<RANDFLAVOURS::PROXY>& randomProxy();
+// G_API_HAP GRandomT<RANDFLAVOURS::RANDOMPROXY>& randomProxy();
 
 } /* namespace Hap */
 } /* namespace Gem */

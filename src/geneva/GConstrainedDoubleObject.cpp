@@ -399,7 +399,7 @@ void GConstrainedDoubleObject::load_(const GObject *cp) {
 bool GConstrainedDoubleObject::modify_GUnitTests() {
 #ifdef GEM_TESTING
 	// A random generator
-	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::PROXY> gr;
+	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 	bool result = false;
 
