@@ -150,7 +150,7 @@ bool parseCommandLine(
  * A global buffer port, to/from which WORKLOAD objects are written/read. We store
  * smart pointers instead of the objects themselves.
  */
-GBufferPortT<WORKLOAD> bufferport;
+GBufferPortT<std::shared_ptr<WORKLOAD>> bufferport;
 
 /********************************************************************************/
 /*

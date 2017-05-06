@@ -69,7 +69,6 @@ The main changes for this release include:
    about registered consumers just once before an optimization run rather than having to check repeatedly.
  - Eliminated the need for new optimization algorithms to specify the submission return mode. GExecutorT
    now retrieves this information from the broker, which in turn retrieves it from registered consumers.
- - Introduced a replacement for GBoundedBufferT (GThreadSafeQueueT) with more fine-grained locking
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

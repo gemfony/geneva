@@ -352,7 +352,7 @@ void brokerProducer(
 	, std::size_t nContainerEntries
 ) {
 	std::size_t id;
-	using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<WORKLOAD>>;
+	using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD>>>;
 
 	{ // Assign a counter to this producer
 		std::unique_lock<std::mutex> lk(producer_counter_mutex);
@@ -360,7 +360,7 @@ void brokerProducer(
 	}
 
 	// Create a buffer port and register it with the broker
-	GBufferPortT_ptr CurrentBufferPort_(new Gem::Courtier::GBufferPortT<WORKLOAD>());
+	GBufferPortT_ptr CurrentBufferPort_(new Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD>>());
 	GBROKER(WORKLOAD)->enrol(CurrentBufferPort_);
 
 	// Start the loop

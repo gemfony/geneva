@@ -604,7 +604,7 @@ public:
 
 	 bool empty() {
 		 std::unique_lock<std::mutex> head_lock(m_head_mutex);
-		 return (m_head_ptr.get()==get_tail());
+		 return (m_head_ptr==get_tail());
 	 }
 
 private:
@@ -624,7 +624,7 @@ private:
 		 std::unique_lock<std::mutex> head_lock(m_head_mutex);
 		 m_not_empty.wait(
 			 head_lock
-			 , [&]{ return m_head_ptr.get()!=get_tail(); }
+			 , [&]{ return m_head_ptr!=get_tail(); }
 		 );
 		 return std::move(head_lock);
 	 }
