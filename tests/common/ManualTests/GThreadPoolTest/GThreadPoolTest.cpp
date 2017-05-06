@@ -70,7 +70,7 @@ public:
 	 */
 	testTask()
 		: m_counterValue(0)
-		, operatorCalled_(0)
+		, m_operatorCalled(0)
 	{ /* nothing */ }
 
 	/********************************************************************/
@@ -86,7 +86,7 @@ public:
 	 * Retrieves the number of operator calls
 	 */
 	std::uint32_t getOperatorCalledValue() const {
-		return operatorCalled_;
+		return m_operatorCalled;
 	}
 
 	/********************************************************************/
@@ -95,7 +95,7 @@ public:
 	 * inside of the threads
 	 */
 	void process(bool simulateCrash) {
-		if(uniform_bool(m_gr)) {
+		if(m_uniform_bool(m_gr)) {
 			this->increment();
 		} else {
 			this->decrement();
@@ -123,7 +123,7 @@ private:
 	 */
 	void increment() {
 		m_counterValue++;
-		operatorCalled_++;
+		m_operatorCalled++;
 	}
 
 	/********************************************************************/
@@ -132,16 +132,16 @@ private:
 	 */
 	void decrement() {
 		m_counterValue--;
-		operatorCalled_++;
+		m_operatorCalled++;
 	}
 
 	/********************************************************************/
 	std::int32_t m_counterValue; ///< The internal value to be decremented or incremented
-	std::uint32_t operatorCalled_; ///< This counter will be incremented whenever process() is called
+	std::uint32_t m_operatorCalled; ///< This counter will be incremented whenever process() is called
 
 	Gem::Hap::GRandom m_gr; // Instantiates a random number generator
  	std::uniform_int_distribution<long> m_uniform_int;
- 	std::bernoulli_distribution uniform_bool; // probability of 0.5 is the default
+ 	std::bernoulli_distribution m_uniform_bool; // probability of 0.5 is the default
 };
 
 /************************************************************************/
