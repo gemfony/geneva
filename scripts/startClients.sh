@@ -84,6 +84,6 @@ fi
 
 # Start the clients
 for i in `seq 1 $2`; do
-    (./${PROGNAME} -e 2 -c tcpc --client --ip=${IP} --port=${PORT} >& ./output/output_client_$i) &
+    (./${PROGNAME} -e 2 -c stcpc --client --stcpc_ip=${IP} --stcpcport=${PORT} >& ./output/output_client_$i) &
 done
 

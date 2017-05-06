@@ -1107,7 +1107,7 @@ class GBrokerExecutorT
 
 	 ///////////////////////////////////////////////////////////////////////
 
-	 using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>>;
+	 using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<processable_type>>;
 	 using GBroker_ptr = std::shared_ptr<Gem::Courtier::GBrokerT<processable_type>>;
 
 public:
@@ -1325,7 +1325,7 @@ public:
 		 // Make sure we have a valid buffer port
 		 if (!m_CurrentBufferPort) {
 			 m_CurrentBufferPort
-				 = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>());
+				 = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<processable_type>());
 		 }
 
 		 // Retrieve a connection to the broker

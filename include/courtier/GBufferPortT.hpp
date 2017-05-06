@@ -54,7 +54,7 @@
 // Geneva header files go here
 #include "courtier/GCourtierEnums.hpp"
 #include "common/GHelperFunctionsT.hpp"
-#include "common/GBoundedBufferT.hpp"
+#include "common/GThreadSafeQueueT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -73,12 +73,11 @@ namespace Courtier {
  * single population.
  */
 template<typename T>
-class GBufferPortT
-	: private boost::noncopyable
+class GBufferPortT : private boost::noncopyable
 {
 public:
-	 using RAW_BUFFER_TYPE = typename Gem::Common::GBoundedBufferT<T, Gem::Common::DEFAULTBUFFERSIZE>;
-	 using PROCESSED_BUFFER_TYPE = typename Gem::Common::GBoundedBufferT<T, 0>;
+	 using RAW_BUFFER_TYPE = typename Gem::Common::GThreadSafeQueueT<T, Gem::Common::DEFAULTBUFFERSIZE>;
+	 using PROCESSED_BUFFER_TYPE = typename Gem::Common::GThreadSafeQueueT<T, 0>;
 
 	 /***************************************************************************/
 	 /**
@@ -94,11 +93,11 @@ public:
 	  * Puts an item into the raw queue. This is the queue for "raw" objects.
 	  * This function will block until the item was submitted.
 	  *
-	  * @param item A raw object that needs to be processed
+	  * @param item_ptr A raw object that needs to be processed
 	  * @return A boolean which indicates whether the submission was successful
 	  */
-	 void push_raw(T item) {
-		 m_raw_ptr->push_and_block(item);
+	 void push_raw(std::shared_ptr<T> item_ptr) {
+		 m_raw_ptr->push_and_block(item_ptr);
 	 }
 
 	 /***************************************************************************/
@@ -107,16 +106,16 @@ public:
 	  * after a given amount of time, the function returns. Note that a time_out
 	  * exception will be thrown in this case.
 	  *
-	  * @param item An item to be added to the buffer
+	  * @param item_ptr An item to be added to the buffer
 	  * @param timeout duration until a timeout occurs
 	  * @return A boolean which indicates whether the submission was successful
 	  */
 	 bool push_raw(
-		 T item
+		 std::shared_ptr<T> item_ptr
 		 , const std::chrono::duration<double> &timeout
 	 ) {
 		 return m_raw_ptr->push_and_wait(
-			 item
+			 item_ptr
 			 , timeout
 		 );
 	 }
@@ -129,8 +128,8 @@ public:
 	  * @param item A reference to the item to be retrieved
 	  * @return A boolean which indicates whether the retrieval was successful
 	  */
-	 void pop_raw(T &item) {
-		 m_raw_ptr->pop_and_block(item);
+	 void pop_raw(std::shared_ptr<T>& item_ptr) {
+		 item_ptr = m_raw_ptr->pop_and_block();
 	 }
 
 	 /***************************************************************************/
@@ -144,13 +143,12 @@ public:
 	  * @return A boolean which indicates whether the retrieval was successful
 	  */
 	 bool pop_raw(
-		 T &item
+		 std::shared_ptr<T>& item_ptr
 		 , const std::chrono::duration<double> &timeout
 	 ) {
-		 return m_raw_ptr->pop_and_wait(
-			 item
-			 , timeout
-		 );
+		 bool item_is_available;
+		 item_ptr = m_raw_ptr->pop_and_wait(item_is_available, timeout);
+		 return item_is_available;
 	 }
 
 	 /***************************************************************************/
@@ -160,8 +158,8 @@ public:
 	  * @param item A raw object that needs to be processed
 	  * @return A boolean which indicates whether the submission was successful
 	  */
-	 void push_processed(T item) {
-		 m_processed_ptr->push_and_block(item);
+	 void push_processed(std::shared_ptr<T> item_ptr) {
+		 m_processed_ptr->push_and_block(item_ptr);
 	 }
 
 	 /***************************************************************************/
@@ -175,11 +173,11 @@ public:
 	  * @return A boolean which indicates whether the submission was successful
 	  */
 	 bool push_processed(
-		 T item
+		 std::shared_ptr<T> item_ptr
 		 , const std::chrono::duration<double> &timeout
 	 ) {
 		 return m_processed_ptr->push_and_wait(
-			 item
+			 item_ptr
 			 , timeout
 		 );
 	 }
@@ -193,8 +191,8 @@ public:
 	  * @param The item that was retrieved from the queue
 	  * @return A boolean which indicates whether the retrieval was successful
 	  */
-	 void pop_processed(T &item) {
-		 m_processed_ptr->pop_and_block(item);
+	 void pop_processed(std::shared_ptr<T>& item_ptr) {
+		 item_ptr = m_processed_ptr->pop_and_block();
 	 }
 
 	 /***************************************************************************/
@@ -207,13 +205,15 @@ public:
 	  * @return A boolean which indicates whether the retrieval was successful
 	  */
 	 bool pop_processed(
-		 T &item
+		 std::shared_ptr<T>& item_ptr
 		 , const std::chrono::duration<double> &timeout
 	 ) {
-		 return m_processed_ptr->pop_and_wait(
-			 item
+		 bool item_is_available;
+		 item_ptr = m_processed_ptr->pop_and_wait(
+			 item_is_available
 			 , timeout
 		 );
+		 return item_is_available;
 	 }
 
 	 /***************************************************************************/

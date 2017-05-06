@@ -63,8 +63,6 @@
 
 
 // Geneva headers go here
-
-// #include "common/GBoundedBufferT.hpp"
 #include "common/GThreadSafeQueueT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"

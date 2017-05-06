@@ -69,7 +69,6 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GBoundedBufferT.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GSingletonT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
@@ -97,7 +96,7 @@ template<typename carrier_type>
 class GBrokerT
 	: private boost::noncopyable
 {
-	 using GBUFFERPORT = GBufferPortT<std::shared_ptr<carrier_type>>;
+	 using GBUFFERPORT = GBufferPortT<carrier_type>;
 	 using GBUFFERPORT_PTR = typename std::shared_ptr<GBUFFERPORT>;
 	 using RawBufferPtrMap = typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR>;
 	 using ProcessedBufferPtrMap = typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR>;
@@ -186,19 +185,19 @@ public:
 	  * unprocessed) items and for processed items. A producer may at any time decide
 	  * to drop a GBufferPortT. This is simply done by letting the shared_ptr<GBufferPortT>
 	  * go out of scope. As the producer holds the only copy, the GBufferPortT will then be
-	  * deleted. A BufferPort contains two shared_ptr<GBoundedBufferT> objects. A shared_ptr
+	  * deleted. A BufferPort contains two shared_ptr<GThreadSafeQueueT> objects. A shared_ptr
 	  * to these objects is saved upon enrollment with the broker, so that letting the
-	  * shared_ptr<GBufferPortT> go out of scope will not drop the shared_ptr<GBoundedBufferT>
+	  * shared_ptr<GBufferPortT> go out of scope will not drop the shared_ptr<GThreadSafeQueueT>
 	  * objects immediately. This is important, as there may still be active connections
 	  * with items being collected from or dropped into them by the consumers. It is the
-	  * task of this function to remove the orphaned shared_ptr<GBoundedBufferT> objects.
+	  * task of this function to remove the orphaned shared_ptr<GThreadSafeQueueT> objects.
 	  * It thus needs to block access to the entire object during its operation. Note that one of
 	  * the effects of this function is that the buffer collections will never run empty,
 	  * once the first buffer has been registered.
 	  *
 	  * @param gbp_ptr A shared pointer to a new GBufferPortT object
 	  */
-	 void enrol(std::shared_ptr<GBufferPortT<std::shared_ptr<carrier_type>>> gbp_ptr) {
+	 void enrol(std::shared_ptr<GBUFFERPORT> gbp_ptr) {
 		 {
 			 //-----------------------------------------------------------------------
 			 // Lock the access to our internal data simultaneously for all mutexes
