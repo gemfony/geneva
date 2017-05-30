@@ -1,0 +1,9 @@
+This example demonstrates on the example of OpenCL how to write a more complex backend for the
+Courtier broker architecture. It may also serve as a starting point for users wishing to deal
+with OpenCL-based optimization problems, where the evaluation step is performed in parallel on an
+OpenCL compute device.
+
+Since this example could not be tested on a wide range of devices and operating systems, it is
+disabled by default and needs to be switched on explicitly by passing the appropriate define to CMake
+(cmp. the genecaConfig.gcfg / prepareBuild.sh combo, where it may be selected by choosing the
+corresponding option in the config file).

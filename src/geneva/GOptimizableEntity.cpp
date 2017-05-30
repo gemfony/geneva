@@ -558,17 +558,6 @@ double GOptimizableEntity::fitness(
 
 /******************************************************************************/
 /**
- * Adapts and evaluates the individual in one go
- *
- * @return The main fitness result
- */
-void GOptimizableEntity::adaptAndEvaluate() {
-	adapt();
-	enforceFitnessUpdate();
-}
-
-/******************************************************************************/
-/**
  * Retrieve the current (not necessarily up-to-date) fitness
  */
 double GOptimizableEntity::getCachedFitness(

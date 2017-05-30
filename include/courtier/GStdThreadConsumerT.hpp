@@ -478,9 +478,11 @@ public:
 					// Return the item to the broker. The item will be discarded
 					// if the requested target queue cannot be found.
 					try {
+						std::size_t retCounter = 0;
 						while (!m_outer->m_broker_ptr->put(p, timeout)) { // This can lead to a loss of items
 							// Terminate if we have been asked to stop
 							if (m_outer->stopped()) break;
+							retCounter++;
 						}
 					} catch (Gem::Courtier::buffer_not_present &) {
 						continue;

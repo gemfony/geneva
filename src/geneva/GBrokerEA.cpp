@@ -281,15 +281,26 @@ void GBrokerEA::runFitnessCalculation() {
          << GEXCEPTION;
       }
    }
+
+	if(data.size() != this->getDefaultPopulationSize()) {
+		glogger
+		<< "In GBrokerEA::runFitnessCalculation(): Error!" << std::endl
+		<< "Size of data vector (" << data.size() << ") should be " << this->getDefaultPopulationSize() << std::endl
+		<< GEXCEPTION;
+	}
 #endif
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
 	// TODO: hide these details
+
+	// TODO: workitemPos size may be 0 if data.size() is 0 from a previous session ?
+
 	std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_PROCESSED);
 	for(std::size_t pos=std::get<0>(range); pos<std::get<1>(range); pos++) {
 		workItemPos.at(pos) = Gem::Courtier::GBC_UNPROCESSED;
 	}
+
 	m_gbroker_executor.workOn(
 		data
 		, workItemPos

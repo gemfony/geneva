@@ -82,6 +82,9 @@ INSTALLDIR="/opt/geneva"
 # Further linker parameters you might want to provide
 LINKEREXTRAFLAGS=""
 
+# Whether to build OpenCL examples. Note that this is an experimental feature
+BUILDOPENCLEXAMPLES="0"
+
 # Further CMake parameters you might want to provide; these
 # will be passed 'verbatim' to CMake's command line
 CMAKEEXTRAFLAGS=""

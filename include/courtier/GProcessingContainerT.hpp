@@ -143,12 +143,16 @@ public:
 	 /**
 	  * Perform the actual processing steps. E.g. in optimization algorithms,
 	  * post-processing allows to run a sub-optimization. The amount of time
-	  * needed for processing is done for logging purposes.
+	  * needed for processing is done for logging purposes. Where one of the
+	  * processing functions returns false or throws an exception, the function
+	  * returns false, otherwise true.
 	  *
 	  * @return A boolean indicating whether processing was successful
 	  */
 	 bool process() {
 		 try {
+			 m_processing_successful = false;
+
 			 auto startTime = std::chrono::high_resolution_clock::now();
 			 if (!this->preProcess_()) return false;
 			 auto afterPreProcessing = std::chrono::high_resolution_clock::now();
@@ -226,6 +230,16 @@ public:
 	  */
 	 void mark_processing_as_unsuccessful() {
 		 m_processing_successful = false;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Mark processing as successful
+	  *
+	  * TODO: This may be overwritten in the process() function
+	  */
+	 void force_mark_processing_as_successful() {
+		 m_processing_successful = true;
 	 }
 
 	 /***************************************************************************/

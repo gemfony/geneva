@@ -188,9 +188,6 @@ public:
 	/** @brief A wrapper for the const fitness function, so we can bind to it */
 	G_API_GENEVA double constFitness(const std::size_t&, bool, bool) const;
 
-	/** @brief Adapts and evaluates the individual in one go */
-	virtual G_API_GENEVA void adaptAndEvaluate();
-
 	/** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	G_API_GENEVA double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
 

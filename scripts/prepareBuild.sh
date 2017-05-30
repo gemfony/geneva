@@ -56,6 +56,7 @@ if [ $# -eq 0 ]; then
 	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
 	VERBOSEMAKEFILE="1"            # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"       # Where the Geneva library shall go
+	BUILDOPENCLEXAMPLES="0"        # Whether to build OpenCL examples (note: this is an experimental feature)
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
 	testfile=`basename $1 .gcfg`.gcfg
@@ -104,6 +105,11 @@ elif [ $# -eq 1 ]; then
 	if [ -z "${INSTALLDIR}" ]; then
 		INSTALLDIR="/opt/geneva"
 		echo "Variable INSTALLDIR wasn't set. Setting to default value '${INSTALLDIR}'"
+	fi
+
+	if [ -z "${BUILDOPENCLEXAMPLES}" ]; then
+		BUILDOPENCLEXAMPLES="0"
+		echo "Variable INSTALLDIR wasn't set. Setting to default value '${BUILDOPENCLEXAMPLES}'"
 	fi
 else
 	echo -e "\nReceived $# command line arguments, which is an invalid number."
@@ -242,7 +248,8 @@ CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
 -DGENEVA_STATIC=${BUILDSTATIC} \
 -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
--DCMAKE_INSTALL_PREFIX=${INSTALLDIR}"
+-DCMAKE_INSTALL_PREFIX=${INSTALLDIR} \
+-DGENEVA_BUILD_WITH_OPENCL_EXAMPLES=${BUILDOPENCLEXAMPLES}"
 
 if [ "x$CXXEXTRAFLAGS" != "x" ]; then
 	CONFIGURE="${CONFIGURE} -DCMAKE_CXX_FLAGS='${CXXEXTRAFLAGS}'"

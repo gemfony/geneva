@@ -772,7 +772,7 @@ public:
          glogger
          << "In GCanvas<>::addTriangel(): Error!" << std::endl
          << "Angles are not in consecutive oder: " << std::endl
-         << t.angle1 << " / " << t.angle2 << " / " << t.angle3 << std::endl
+         << t << std::endl
          << GEXCEPTION;
       }
 #endif /* DEBUG */
@@ -800,8 +800,8 @@ public:
 	 * Adds a complete set of triangles to the canvas, using Gemfony's
 	 * "circular" definition
 	 */
-	void addTriangles(std::vector<t_circle> ts, std::size_t nTriangles) {
-		for (std::size_t i = 0; i < nTriangles; i++) {
+	void addTriangles(std::vector<t_circle> ts) {
+		for (std::size_t i = 0; i < ts.size(); i++) {
 			this->addTriangle(ts[i]);
 		}
 	}
