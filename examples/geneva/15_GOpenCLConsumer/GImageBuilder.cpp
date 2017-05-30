@@ -368,7 +368,7 @@ int main(int argc, char **argv) {
    workers = getWorkers(deviceDescription, imageDimensions);
 
    // Set up the consumer
-   GStdThreadConsumerT<GParameterSet>::setup("./config/GBoostThreadConsumerT.json", workers);
+   GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", workers);
 
    // Register pluggable optimization monitors, if requested by the user
    std::shared_ptr<GCollectiveMonitorT<GParameterSet> > collectiveMonitor_ptr = getPOM(

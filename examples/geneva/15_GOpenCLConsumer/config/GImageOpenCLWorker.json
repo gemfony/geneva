@@ -1,0 +1,27 @@
+{
+    "header": {
+        "comment": "This configuration file was automatically created by GParserBuilder",
+        "comment": "Sun May 28 10:58:44 2017"
+    },
+    "codeFile": {
+        "comment": "The name of the file holding the OpenCL code",
+        "default": ".\/code\/default.cl",
+        "value": ".\/code\/monalisa.cl"
+    },
+    "workGroupSize": {
+        "comment": "The size of each work group",
+        "default": "192",
+        "value": "192"
+    },
+    "imageFile": {
+        "comment": "The name of the file holding the target image",
+        "default": ".\/pictures\/ml.ppm",
+        "value": ".\/pictures\/ml_small192.ppm"
+    },
+    "useGPU": {
+        "comment": "Indicates whether evaluation should run on the GPU (1)",
+        "comment": " or the CPU (0)",
+        "default": "true",
+        "value": "true"
+    }
+}

@@ -64,7 +64,7 @@ const int GOCLWT_DEF_WGS = 192;
 
 /******************************************************************************/
 /**
- * A worker class for the GBoostThreadConsumerT, targeted at OpenCL work. Derived
+ * A worker class for the GStdThreadConsumerT, targeted at OpenCL work. Derived
  * classes particularly need to implement the process() function, where all task-
  * specific work may take place. This class is purely virtual and cannot be
  * instantiated directly.
