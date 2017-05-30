@@ -85,21 +85,24 @@ float GOpenCLCanvas::diff(const GOpenCLCanvas& cp) const {
 /**
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
-std::tuple<boost::shared_array<cl_uchar>, std::size_t> GOpenCLCanvas::getOpenCLCanvasI() const {
-   boost::shared_array<cl_uchar> oclCanvasData(new cl_uchar[4*this->getNPixels()]);
+std::tuple<std::shared_ptr<cl_uchar>, std::size_t> GOpenCLCanvas::getOpenCLCanvasI() const {
+   std::shared_ptr<cl_uchar> oclCanvasData(
+		new cl_uchar[4*this->getNPixels()]
+		, [](cl_uchar *a) { delete [] a; }
+	);
    std::size_t offset = 0;
    for(std::size_t i_y=0; i_y<yDim_; i_y++) {
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
          offset = 4*(i_y*xDim_ + i_x);
 
-         oclCanvasData[offset+0] = (cl_uchar)(canvasData_[i_x][i_y].r*255.0f);
-         oclCanvasData[offset+1] = (cl_uchar)(canvasData_[i_x][i_y].g*255.0f);
-         oclCanvasData[offset+2] = (cl_uchar)(canvasData_[i_x][i_y].b*255.0f);
-         oclCanvasData[offset+3] = (cl_uchar)255;
+         oclCanvasData.get()[offset+0] = (cl_uchar)(canvasData_[i_x][i_y].r*255.0f);
+         oclCanvasData.get()[offset+1] = (cl_uchar)(canvasData_[i_x][i_y].g*255.0f);
+         oclCanvasData.get()[offset+2] = (cl_uchar)(canvasData_[i_x][i_y].b*255.0f);
+         oclCanvasData.get()[offset+3] = (cl_uchar)255;
       }
    }
 
-   return std::tuple<boost::shared_array<cl_uchar>, std::size_t>(oclCanvasData, 4*this->getNPixels());
+   return std::tuple<std::shared_ptr<cl_uchar>, std::size_t>(oclCanvasData, 4*this->getNPixels());
 }
 
 
@@ -107,8 +110,8 @@ std::tuple<boost::shared_array<cl_uchar>, std::size_t> GOpenCLCanvas::getOpenCLC
 /**
  * Loads the canvas data from a cl_uchar array
  */
-void GOpenCLCanvas::loadFromOpenCLArrayI(const std::tuple<boost::shared_array<cl_uchar>, std::size_t>& c) {
-   boost::shared_array<cl_uchar> oclCanvasData = std::get<0>(c);
+void GOpenCLCanvas::loadFromOpenCLArrayI(const std::tuple<std::shared_ptr<cl_uchar>, std::size_t>& c) {
+   std::shared_ptr<cl_uchar> oclCanvasData = std::get<0>(c);
    std::size_t nEntries = std::get<1>(c);
 
    // Check that our dimension fit the number of entries in the array
@@ -125,9 +128,9 @@ void GOpenCLCanvas::loadFromOpenCLArrayI(const std::tuple<boost::shared_array<cl
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
          offset = 4*(i_y*xDim_ + i_x);
 
-         canvasData_[i_x][i_y].r = (float)(oclCanvasData[offset+0])/255.f;
-         canvasData_[i_x][i_y].g = (float)(oclCanvasData[offset+1])/255.f;
-         canvasData_[i_x][i_y].b = (float)(oclCanvasData[offset+2])/255.f;
+         canvasData_[i_x][i_y].r = (float)(oclCanvasData.get()[offset+0])/255.f;
+         canvasData_[i_x][i_y].g = (float)(oclCanvasData.get()[offset+1])/255.f;
+         canvasData_[i_x][i_y].b = (float)(oclCanvasData.get()[offset+2])/255.f;
       }
    }
 }
@@ -136,21 +139,24 @@ void GOpenCLCanvas::loadFromOpenCLArrayI(const std::tuple<boost::shared_array<cl
 /**
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
-std::tuple<boost::shared_array<cl_float>, std::size_t> GOpenCLCanvas::getOpenCLCanvasF() const {
-   boost::shared_array<cl_float> oclCanvasData(new cl_float[4*this->getNPixels()]);
+std::tuple<std::shared_ptr<cl_float>, std::size_t> GOpenCLCanvas::getOpenCLCanvasF() const {
+   std::shared_ptr<cl_float> oclCanvasData(
+		new cl_float[4*this->getNPixels()]
+		, [](cl_float *a){ delete [] a; }
+	);
    std::size_t offset = 0;
    for(std::size_t i_y=0; i_y<yDim_; i_y++) {
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
          offset = 4*(i_y*xDim_ + i_x);
 
-         oclCanvasData[offset + 0] = boost::numeric_cast<cl_float>(canvasData_[i_x][i_y].r);
-         oclCanvasData[offset + 1] = boost::numeric_cast<cl_float>(canvasData_[i_x][i_y].g);
-         oclCanvasData[offset + 2] = boost::numeric_cast<cl_float>(canvasData_[i_x][i_y].b);
-         oclCanvasData[offset + 3] = boost::numeric_cast<cl_float>(255.f);
+         oclCanvasData.get()[offset + 0] = static_cast<cl_float>(canvasData_[i_x][i_y].r);
+         oclCanvasData.get()[offset + 1] = static_cast<cl_float>(canvasData_[i_x][i_y].g);
+         oclCanvasData.get()[offset + 2] = static_cast<cl_float>(canvasData_[i_x][i_y].b);
+         oclCanvasData.get()[offset + 3] = static_cast<cl_float>(255.f);
       }
    }
 
-   return std::tuple<boost::shared_array<cl_float>, std::size_t>(oclCanvasData, 4*this->getNPixels());
+   return std::tuple<std::shared_ptr<cl_float>, std::size_t>(oclCanvasData, 4*this->getNPixels());
 }
 
 
@@ -158,8 +164,8 @@ std::tuple<boost::shared_array<cl_float>, std::size_t> GOpenCLCanvas::getOpenCLC
 /**
  * Loads the canvas data from a cl_uchar array
  */
-void GOpenCLCanvas::loadFromOpenCLArrayF(const std::tuple<boost::shared_array<cl_float>, std::size_t>& c) {
-   boost::shared_array<cl_float> oclCanvasData = std::get<0>(c);
+void GOpenCLCanvas::loadFromOpenCLArrayF(const std::tuple<std::shared_ptr<cl_float>, std::size_t>& c) {
+   std::shared_ptr<cl_float> oclCanvasData = std::get<0>(c);
    std::size_t nEntries = std::get<1>(c);
 
    // Check that our dimension fit the number of entries in the array
@@ -176,9 +182,9 @@ void GOpenCLCanvas::loadFromOpenCLArrayF(const std::tuple<boost::shared_array<cl
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
          offset = 4*(i_y*xDim_ + i_x);
 
-         canvasData_[i_x][i_y].r = boost::numeric_cast<float>(oclCanvasData[offset + 0]);
-         canvasData_[i_x][i_y].g = boost::numeric_cast<float>(oclCanvasData[offset + 1]);
-         canvasData_[i_x][i_y].b = boost::numeric_cast<float>(oclCanvasData[offset + 2]);
+         canvasData_[i_x][i_y].r = static_cast<float>(oclCanvasData.get()[offset + 0]);
+         canvasData_[i_x][i_y].g = static_cast<float>(oclCanvasData.get()[offset + 1]);
+         canvasData_[i_x][i_y].b = static_cast<float>(oclCanvasData.get()[offset + 2]);
       }
    }
 }
@@ -187,21 +193,24 @@ void GOpenCLCanvas::loadFromOpenCLArrayF(const std::tuple<boost::shared_array<cl
 /**
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
-std::tuple<boost::shared_array<cl_float4>, std::size_t> GOpenCLCanvas::getOpenCLCanvasF4() const {
-   boost::shared_array<cl_float4> oclCanvasData(new cl_float4[this->getNPixels()]);
+std::tuple<std::shared_ptr<cl_float4>, std::size_t> GOpenCLCanvas::getOpenCLCanvasF4() const {
+   std::shared_ptr<cl_float4> oclCanvasData(
+		new cl_float4[this->getNPixels()]
+		, [](cl_float4 *a){ delete [] a; }
+	);
    std::size_t offset = 0;
    for(std::size_t i_y=0; i_y<yDim_; i_y++) {
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
          offset = i_y*xDim_ + i_x;
 
-         oclCanvasData[offset].s[0] = boost::numeric_cast<cl_float>(canvasData_[i_x][i_y].r);
-         oclCanvasData[offset].s[1] = boost::numeric_cast<cl_float>(canvasData_[i_x][i_y].g);
-         oclCanvasData[offset].s[2] = boost::numeric_cast<cl_float>(canvasData_[i_x][i_y].b);
-         oclCanvasData[offset].s[3] = boost::numeric_cast<cl_float>(255.f);
+         oclCanvasData.get()[offset].s[0] = static_cast<cl_float>(canvasData_[i_x][i_y].r);
+         oclCanvasData.get()[offset].s[1] = static_cast<cl_float>(canvasData_[i_x][i_y].g);
+         oclCanvasData.get()[offset].s[2] = static_cast<cl_float>(canvasData_[i_x][i_y].b);
+         oclCanvasData.get()[offset].s[3] = static_cast<cl_float>(255.f);
       }
    }
 
-   return std::tuple<boost::shared_array<cl_float4>, std::size_t>(oclCanvasData, this->getNPixels());
+   return std::tuple<std::shared_ptr<cl_float4>, std::size_t>(oclCanvasData, this->getNPixels());
 }
 
 
@@ -209,8 +218,8 @@ std::tuple<boost::shared_array<cl_float4>, std::size_t> GOpenCLCanvas::getOpenCL
 /**
  * Loads the canvas data from a cl_uchar array
  */
-void GOpenCLCanvas::loadFromOpenCLArrayF4(const std::tuple<boost::shared_array<cl_float4>, std::size_t>& c) {
-   boost::shared_array<cl_float4> oclCanvasData = std::get<0>(c);
+void GOpenCLCanvas::loadFromOpenCLArrayF4(const std::tuple<std::shared_ptr<cl_float4>, std::size_t>& c) {
+   std::shared_ptr<cl_float4> oclCanvasData = std::get<0>(c);
    std::size_t nEntries = std::get<1>(c);
 
    // Check that our dimension fit the number of entries in the array
@@ -227,9 +236,9 @@ void GOpenCLCanvas::loadFromOpenCLArrayF4(const std::tuple<boost::shared_array<c
       for(std::size_t i_x=0; i_x<xDim_; i_x++) {
          offset = i_y*xDim_ + i_x;
 
-         canvasData_[i_x][i_y].r = boost::numeric_cast<float>(oclCanvasData[offset].s[0]);
-         canvasData_[i_x][i_y].g = boost::numeric_cast<float>(oclCanvasData[offset].s[1]);
-         canvasData_[i_x][i_y].b = boost::numeric_cast<float>(oclCanvasData[offset].s[2]);
+         canvasData_[i_x][i_y].r = static_cast<float>(oclCanvasData.get()[offset].s[0]);
+         canvasData_[i_x][i_y].g = static_cast<float>(oclCanvasData.get()[offset].s[1]);
+         canvasData_[i_x][i_y].b = static_cast<float>(oclCanvasData.get()[offset].s[2]);
       }
    }
 }

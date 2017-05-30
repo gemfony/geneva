@@ -49,10 +49,10 @@ void triangle_ocl_circle_struct::operator=(
    angle1 = tcs.angle1;
    angle2 = tcs.angle2;
    angle3 = tcs.angle3;
-   rgba_f.s[0] = boost::numeric_cast<cl_float>(tcs.r);
-   rgba_f.s[1] = boost::numeric_cast<cl_float>(tcs.g);
-   rgba_f.s[2] = boost::numeric_cast<cl_float>(tcs.b);
-   rgba_f.s[3] = boost::numeric_cast<cl_float>(tcs.a);
+   rgba_f.s[0] = static_cast<cl_float>(tcs.r);
+   rgba_f.s[1] = static_cast<cl_float>(tcs.g);
+   rgba_f.s[2] = static_cast<cl_float>(tcs.b);
+   rgba_f.s[3] = static_cast<cl_float>(tcs.a);
 }
 
 /******************************************************************************/
@@ -250,16 +250,16 @@ void GImageOpenCLWorker::initOpenCL(std::shared_ptr<GParameterSet> p) {
    global_results_ = new cl_float[nWorkGroups_]; // We do not want to re-initialize the existing buffer
    circle_triangles_ = new t_ocl_circle[nTriangles_];
 
-   std::tuple<boost::shared_array<cl_float>, std::size_t> oclCanvasData = targetCanvas_.getOpenCLCanvasF();
+   std::tuple<std::shared_ptr<cl_float>, std::size_t> oclCanvasData = targetCanvas_.getOpenCLCanvasF();
 
    // Initialize buffers and load the target image to "our" device
    target_image_buffer_ = cl::Image2D(
                  context_
-                 , CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR
+                 , CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR // This will copy the data in the host_ptr
                  , cl::ImageFormat(CL_RGBA, CL_FLOAT)
                  , dimX_, dimY_
                  , 0
-                 , (void *)(std::get<0>(oclCanvasData).get())
+                 , (void *)(std::get<0>(oclCanvasData).get()) // TODO: Does this copy the data ?
                  );
 
    candidate_image_buffer_ = cl::Image2D(
@@ -418,9 +418,9 @@ void GImageOpenCLWorker::process(std::shared_ptr<GParameterSet> p) {
 
    std::function<std::vector<double>()> f;
    if(useGPU_) {
-      f = boost::bind(&GImageOpenCLWorker::openCLCalc, this, p_conv);
+      f = std::bind(&GImageOpenCLWorker::openCLCalc, this, p_conv);
    } else {
-      f = boost::bind(&GImageOpenCLWorker::cpuCalc, this, p_conv);
+      f = std::bind(&GImageOpenCLWorker::cpuCalc, this, p_conv);
    }
    p_conv->enforceFitnessUpdate(f);
 	p_conv->force_mark_processing_as_successful();

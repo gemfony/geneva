@@ -17,6 +17,7 @@
 
 // Standard header files go here
 #include <tuple>
+#include <functional>
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -90,19 +91,19 @@ public:
    virtual float diff(const GOpenCLCanvas&) const;
 
    /** @brief Emits the canvas data suitable for transfer to an OpenCL context (char-representation) */
-   std::tuple<boost::shared_array<cl_uchar>, std::size_t> getOpenCLCanvasI() const;
+   std::tuple<std::shared_ptr<cl_uchar>, std::size_t> getOpenCLCanvasI() const;
    /** @brief Loads the canvas data from a cl_uchar array */
-   void loadFromOpenCLArrayI(const std::tuple<boost::shared_array<cl_uchar>, std::size_t>&);
+   void loadFromOpenCLArrayI(const std::tuple<std::shared_ptr<cl_uchar>, std::size_t>&);
 
    /** @brief Emits the canvas data suitable for transfer to an OpenCL context (cl_float-representation) */
-   std::tuple<boost::shared_array<cl_float>, std::size_t> getOpenCLCanvasF() const;
+   std::tuple<std::shared_ptr<cl_float>, std::size_t> getOpenCLCanvasF() const;
    /** @brief Loads the canvas data from a cl_float array */
-   void loadFromOpenCLArrayF(const std::tuple<boost::shared_array<cl_float>, std::size_t>&);
+   void loadFromOpenCLArrayF(const std::tuple<std::shared_ptr<cl_float>, std::size_t>&);
 
    /** @brief Emits the canvas data suitable for transfer to an OpenCL context (cl_float4-representation) */
-   std::tuple<boost::shared_array<cl_float4>, std::size_t> getOpenCLCanvasF4() const;
+   std::tuple<std::shared_ptr<cl_float4>, std::size_t> getOpenCLCanvasF4() const;
    /** @brief Loads the canvas data from a cl_float4 array */
-   void loadFromOpenCLArrayF4(const std::tuple<boost::shared_array<cl_float4>, std::size_t>&);
+   void loadFromOpenCLArrayF4(const std::tuple<std::shared_ptr<cl_float4>, std::size_t>&);
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
