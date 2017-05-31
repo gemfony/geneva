@@ -748,6 +748,16 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
 	);
 
 	comment = "";
+	comment += "Determines the rate of adaption of location-adProb. Set to 0, if you do not need this feature;";
+	gpb.registerFileParameter<double>(
+		"loc_adaptAdProb"
+		, loc_adaptAdProb_.reference()
+		, GII_DEF_LOC_ADAPTADPROB
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+
+	comment = "";
 	comment += "The lower allowed boundary for adProb-variation;";
 	gpb.registerFileParameter<double>(
 		"minAdProb"
@@ -770,6 +780,28 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
 	checkValueRange(maxAdProb_.value(), minAdProb_.value(), 1., GFPLOWERCLOSED, GFPUPPERCLOSED, GFNOWARNING, "maxAdProb");
 
 	comment = "";
+	comment += "The lower allowed boundary for loc_adProb-variation;";
+	gpb.registerFileParameter<double>(
+		"loc_minAdProb"
+		, loc_minAdProb_.reference()
+		, GII_DEF_LOC_MINADPROB
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+	checkValueRange(loc_minAdProb_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPERCLOSED, GFNOWARNING, "loc_minAdProb");
+
+	comment = "";
+	comment += "The upper allowed boundary for loc_adProb-variation;";
+	gpb.registerFileParameter<double>(
+		"loc_maxAdProb"
+		, loc_maxAdProb_.reference()
+		, GII_DEF_LOC_MAXADPROB
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+	checkValueRange(loc_maxAdProb_.value(), loc_minAdProb_.value(), 1., GFPLOWERCLOSED, GFPUPPERCLOSED, GFNOWARNING, "loc_maxAdProb");
+
+	comment = "";
 	comment += "The probability for random adaptions of values in evolutionary algorithms;";
 	comment += "The allowed value range is [0,1];";
 	gpb.registerFileParameter<double>(
@@ -780,6 +812,18 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
 		, comment
 	);
 	checkValueRange(adProb_.value(), minAdProb_.value(), maxAdProb_.value(), GFPLOWERCLOSED, GFPUPPERCLOSED, GFNOWARNING, "adProb");
+
+	comment = "";
+	comment += "The probability for random adaptions of location parameters of values in evolutionary algorithms;";
+	comment += "The allowed value range is [0,1];";
+	gpb.registerFileParameter<double>(
+		"loc_adProb"
+		, loc_adProb_.reference()
+		, GII_DEF_LOC_ADPROB
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+	checkValueRange(loc_adProb_.value(), loc_minAdProb_.value(), loc_maxAdProb_.value(), GFPLOWERCLOSED, GFPUPPERCLOSED, GFNOWARNING, "loc_adProb");
 
 	comment = "";
 	comment += "The sigma for gauss-adaption in ES;";
@@ -830,6 +874,56 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
 		, comment
 	);
 	checkValueRange(sigmaSigma_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPERCLOSED, GFNOWARNING, "sigmaSigma");
+
+	comment = "";
+	comment += "The sigma for gauss-adaption of location parameters in ES;";
+	comment += "loc_sigma must be positive;";
+	comment += "Recommended value range [0,1];";
+	gpb.registerFileParameter<double>(
+		"loc_sigma"
+		, loc_sigma_.reference()
+		, GII_DEF_LOC_SIGMA
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+	checkValueRange(loc_sigma_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "loc_sigma");
+
+	comment = "";
+	comment += "The minimum value of sigma for location parameters;";
+	comment += "loc_minSigma must be positive and smaller than loc_maxSigma;";
+	gpb.registerFileParameter<double>(
+		"loc_minSigma"
+		, loc_minSigma_.reference()
+		, GII_DEF_LOC_MINSIGMA
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+	checkValueRange(loc_minSigma_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPEROPEN, GFNOWARNING, "loc_minSigma");
+
+	comment = "";
+	comment += "The maximum value of sigma for location parameters;";
+	comment += "loc_maxSigma must be positive and larger than loc_minSigma;";
+	gpb.registerFileParameter<double>(
+		"loc_maxSigma"
+		, loc_maxSigma_.reference()
+		, GII_DEF_LOC_MAXSIGMA
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+	checkValueRange(loc_maxSigma_.value(), loc_minSigma_.value(), 1., GFPLOWEROPEN, GFPUPPEROPEN, GFNOWARNING, "loc_maxSigma");
+
+	comment = "";
+	comment += "Influences the self-adaption of gauss-mutation in ES for location parameters;";
+	comment += "loc_sigmaSigma must be positive;";
+	comment += "The allowed value range is [0,1];";
+	gpb.registerFileParameter<double>(
+		"loc_sigmaSigma"
+		, loc_sigmaSigma_.reference()
+		, GII_DEF_LOC_SIGMASIGMA
+		, Gem::Common::VAR_IS_ESSENTIAL
+		, comment
+	);
+	checkValueRange(loc_sigmaSigma_.value(), 0., 1., GFPLOWERCLOSED, GFPUPPERCLOSED, GFNOWARNING, "loc_sigmaSigma");
 
 	comment = "";
 	comment += "The initial background color (red channel);";
