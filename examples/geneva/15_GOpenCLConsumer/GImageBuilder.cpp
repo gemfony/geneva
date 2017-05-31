@@ -38,11 +38,10 @@
 // Information retrieval and printing
 #include "GImagePOM.hpp"
 
-// This will force OpenCL C++ classes to raise exceptions
-// rather than to use an error code
-#define __CL_ENABLE_EXCEPTIONS
-
 // OpenCL includes
+#define __CL_ENABLE_EXCEPTIONS // This will force OpenCL C++ classes to raise exceptions rather than to use an error code
+#define CL_HPP_TARGET_OPENCL_VERSION 120
+#define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "cl.hpp" // Use the file in our local directory -- cl.hpp is not delivered by default on MacOS X
 #else
@@ -356,6 +355,12 @@ int main(int argc, char **argv) {
    // Create the optimizer
    Go2 go(argc, argv, "./config/Go2.json", user_options);
 
+	//---------------------------------------------------------------------------
+	// As we are dealing with a server, register a signal handler that allows us
+	// to interrupt execution "on the run"
+	signal(G_SIGHUP, GObject::sigHupHandler);
+
+	//---------------------------------------------------------------------------
    // If we have only been asked to print device info, do so and exit
    if(showDevices) {
       printDeviceInfo();
