@@ -29,10 +29,6 @@ namespace Geneva {
  */
 GImageIndividual::GImageIndividual()
    : Gem::Geneva::GParameterSet()
-   , adProb_(GII_DEF_ADPROB)
-   , adaptAdProb_(GII_DEF_ADAPTADPROB)
-   , minAdProb_(GII_DEF_MINADPROB)
-   , maxAdProb_(GII_DEF_MAXADPROB)
    , bgRed_(GII_DEF_BGRED)
    , bgGreen_(GII_DEF_BGGREEN)
    , bgBlue_(GII_DEF_BGBLUE)
@@ -46,10 +42,6 @@ GImageIndividual::GImageIndividual()
  */
 GImageIndividual::GImageIndividual(const GImageIndividual& cp)
    : Gem::Geneva::GParameterSet(cp)
-   , adProb_(cp.adProb_)
-   , adaptAdProb_(cp.adaptAdProb_)
-   , minAdProb_(cp.minAdProb_)
-   , maxAdProb_(cp.maxAdProb_)
    , bgRed_(cp.bgRed_)
    , bgGreen_(cp.bgGreen_)
    , bgBlue_(cp.bgBlue_)
@@ -145,11 +137,6 @@ void GImageIndividual::init(
       << GEXCEPTION;
    }
 
-   adProb_ = adProb;
-   adaptAdProb_ = adaptAdProb;
-   minAdProb_ = minAdProb;
-   maxAdProb_ = maxAdProb;
-
    bgRed_ = bgRed;
    bgGreen_ = bgGreen;
    bgBlue_ = bgBlue;
@@ -169,9 +156,9 @@ void GImageIndividual::init(
                , maxSigma
          )
    );
-   gdga_ptr_tmpl->setAdaptionProbability(adProb_);
-   gdga_ptr_tmpl->setAdaptAdProb(adaptAdProb_);
-   gdga_ptr_tmpl->setAdProbRange(minAdProb_, maxAdProb_);
+   gdga_ptr_tmpl->setAdaptionProbability(adProb);
+   gdga_ptr_tmpl->setAdaptAdProb(adaptAdProb);
+   gdga_ptr_tmpl->setAdProbRange(minAdProb, maxAdProb);
 
    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
    // Set up a hierarchical data structure holding the triangle information (compare the description of this function)
@@ -343,10 +330,6 @@ void GImageIndividual::compare(
 	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	Gem::Common::compare_t(IDENTITY(adProb_, p_load->adProb_), token);
-	Gem::Common::compare_t(IDENTITY(adaptAdProb_, p_load->adaptAdProb_), token);
-	Gem::Common::compare_t(IDENTITY(minAdProb_, p_load->minAdProb_), token);
-	Gem::Common::compare_t(IDENTITY(maxAdProb_, p_load->maxAdProb_), token);
 	Gem::Common::compare_t(IDENTITY(bgRed_, p_load->bgRed_), token);
 	Gem::Common::compare_t(IDENTITY(bgGreen_, p_load->bgGreen_), token);
 	Gem::Common::compare_t(IDENTITY(bgBlue_, p_load->bgBlue_), token);
@@ -518,10 +501,6 @@ void GImageIndividual::load_(const GObject* cp)
    GParameterSet::load_(cp);
 
    // Load local data
-   adProb_ = p_load->adProb_;
-   adaptAdProb_ = p_load->adaptAdProb_;
-   minAdProb_ = p_load->minAdProb_;
-   maxAdProb_ = p_load->maxAdProb_;
    bgRed_ = p_load->bgRed_;
    bgGreen_ = p_load->bgGreen_;
    bgBlue_ = p_load->bgBlue_;

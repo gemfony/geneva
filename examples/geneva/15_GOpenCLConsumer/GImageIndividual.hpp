@@ -113,10 +113,6 @@ class GImageIndividual
 
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-      & BOOST_SERIALIZATION_NVP(adProb_)
-      & BOOST_SERIALIZATION_NVP(adaptAdProb_)
-      & BOOST_SERIALIZATION_NVP(minAdProb_)
-      & BOOST_SERIALIZATION_NVP(maxAdProb_)
       & BOOST_SERIALIZATION_NVP(bgRed_)
       & BOOST_SERIALIZATION_NVP(bgGreen_)
       & BOOST_SERIALIZATION_NVP(bgBlue_)
@@ -201,11 +197,6 @@ protected:
 private:
    /******************************************************************************/
    // Parameters
-
-   double adProb_; ///< The adaption probability
-   double adaptAdProb_; ///< The "strength" of adProb-adaption
-   double minAdProb_; ///< The minimum allowed value for adProb_
-   double maxAdProb_; ///< The maximum allowed value for adProb_
 
    double bgRed_;   ///< The red channel of the background color
    double bgGreen_; ///< The green channel of the background color
