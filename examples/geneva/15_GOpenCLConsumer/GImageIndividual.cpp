@@ -95,6 +95,14 @@ void GImageIndividual::init(
 	, const double& adaptAdProb
 	, const double& minAdProb
 	, const double& maxAdProb
+	, const double& loc_sigma
+	, const double& loc_sigmaSigma
+	, const double& loc_minSigma
+	, const double& loc_maxSigma
+	, const double& loc_adProb
+	, const double& loc_adaptAdProb
+	, const double& loc_minAdProb
+	, const double& loc_maxAdProb
 ) {
 	if(startSize>=0. && startSize < minSize) {
 		glogger
@@ -124,10 +132,24 @@ void GImageIndividual::init(
 			<< GEXCEPTION;
 	}
 
+	if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
+		glogger
+			<< "In GImageIndividual::init() : Error!" << std::endl
+			<< "Invalid value for loc_adaptAdProb provided: " << loc_adaptAdProb << std::endl
+			<< GEXCEPTION;
+	}
+
 	if(minAdProb >= maxAdProb || minAdProb < 0 || maxAdProb > 1 || adProb < minAdProb || adProb > maxAdProb) {
 		glogger
 			<< "In GImageIndividual::init() : Error!" << std::endl
 			<< "Invalid values for minAdprob, maxAdProb or adProb provided: " << minAdProb << " / " << maxAdProb << " / " << adProb << std::endl
+			<< GEXCEPTION;
+	}
+
+	if(loc_minAdProb >= loc_maxAdProb || loc_minAdProb < 0 || loc_maxAdProb > 1 || loc_adProb < loc_minAdProb || loc_adProb > loc_maxAdProb) {
+		glogger
+			<< "In GImageIndividual::init() : Error!" << std::endl
+			<< "Invalid values for loc_minAdprob, loc_maxAdProb or loc_adProb provided: " << loc_minAdProb << " / " << loc_maxAdProb << " / " << loc_adProb << std::endl
 			<< GEXCEPTION;
 	}
 
@@ -150,6 +172,19 @@ void GImageIndividual::init(
 	gdga_ptr_tmpl->setAdaptAdProb(adaptAdProb);
 	gdga_ptr_tmpl->setAdProbRange(minAdProb, maxAdProb);
 
+	// Gaussian distributed random numbers for location parameters
+	std::shared_ptr<GDoubleGaussAdaptor> loc_gdga_ptr_tmpl(
+		new GDoubleGaussAdaptor(
+			loc_sigma
+			, loc_sigmaSigma
+			, loc_minSigma
+			, loc_maxSigma
+		)
+	);
+	loc_gdga_ptr_tmpl->setAdaptionProbability(loc_adProb);
+	loc_gdga_ptr_tmpl->setAdaptAdProb(loc_adaptAdProb);
+	loc_gdga_ptr_tmpl->setAdProbRange(loc_minAdProb, loc_maxAdProb);
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	// Set up a hierarchical data structure holding the triangle information (compare the description of this function)
 
@@ -159,9 +194,9 @@ void GImageIndividual::init(
 		// Add objects for the middle-x and -y
 		std::shared_ptr<GConstrainedDoubleObject> middle_x_ptr(new GConstrainedDoubleObject(0., 1.));
 		std::shared_ptr<GConstrainedDoubleObject> middle_y_ptr(new GConstrainedDoubleObject(0., 1.));
-		// ... and equip them with an adaptor ...
-		middle_x_ptr->addAdaptor(gdga_ptr_tmpl);
-		middle_y_ptr->addAdaptor(gdga_ptr_tmpl);
+		// ... and equip them with an adaptor. This will clone the adaptor ...
+		middle_x_ptr->addAdaptor(loc_gdga_ptr_tmpl);
+		middle_y_ptr->addAdaptor(loc_gdga_ptr_tmpl);
 		// ... finally add them to the GParameterObjectCollection representing the triangle
 		this->push_back(middle_x_ptr);
 		this->push_back(middle_y_ptr);
@@ -1020,6 +1055,14 @@ void GImageIndividualFactory::postProcess_(std::shared_ptr<GImageIndividual>& p)
 		, adaptAdProb_
 		, minAdProb_
 		, maxAdProb_
+		, loc_sigma_
+		, loc_sigmaSigma_
+		, loc_minSigma_
+		, loc_maxSigma_
+		, loc_adProb_
+		, loc_adaptAdProb_
+		, loc_minAdProb_
+		, loc_maxAdProb_
 	);
 }
 

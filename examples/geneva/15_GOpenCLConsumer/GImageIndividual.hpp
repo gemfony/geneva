@@ -73,20 +73,20 @@ const double GII_DEF_MAXOPAQUENESS = 0.6;
 const double GII_DEF_ADPROB = 0.05;
 const double GII_DEF_ADAPTADPROB = 0.1;
 const double GII_DEF_MINADPROB = 0.05;
-const double GII_DEF_MAXADPROB = 1.;
+const double GII_DEF_MAXADPROB = 0.2;
 const double GII_DEF_SIGMA = 0.1;
 const double GII_DEF_SIGMASIGMA = 0.8;
-const double GII_DEF_MINSIGMA = 0.;
+const double GII_DEF_MINSIGMA = 0.05;
 const double GII_DEF_MAXSIGMA = 0.2;
 
-const double GII_DEF_LOC_ADPROB = 0.05;
+const double GII_DEF_LOC_ADPROB = 0.1;
 const double GII_DEF_LOC_ADAPTADPROB = 0.1;
-const double GII_DEF_LOC_MINADPROB = 0.05;
-const double GII_DEF_LOC_MAXADPROB = 1.;
-const double GII_DEF_LOC_SIGMA = 0.1;
+const double GII_DEF_LOC_MINADPROB = 0.1;
+const double GII_DEF_LOC_MAXADPROB = 0.3;
+const double GII_DEF_LOC_SIGMA = 0.2;
 const double GII_DEF_LOC_SIGMASIGMA = 0.8;
-const double GII_DEF_LOC_MINSIGMA = 0.;
-const double GII_DEF_LOC_MAXSIGMA = 0.2;
+const double GII_DEF_LOC_MINSIGMA = 0.1;
+const double GII_DEF_LOC_MAXSIGMA = 0.4;
 
 const std::size_t GII_DEF_COLORDEPTH = 8;
 const std::size_t GII_DEF_NCOLORS    = Gem::Common::PowSmallPosInt<2,GII_DEF_COLORDEPTH>::result;
@@ -152,6 +152,14 @@ public:
 		 , const double& adaptAdProb
 		 , const double& minAdProb
 		 , const double& maxAdProb
+		 , const double& loc_sigma
+		 , const double& loc_sigmaSigma
+		 , const double& loc_minSigma
+		 , const double& loc_maxSigma
+		 , const double& loc_adProb
+		 , const double& loc_adaptAdProb
+		 , const double& loc_minAdProb
+		 , const double& loc_maxAdProb
 	 );
 
 	 /** @brief A standard assignment operator */
