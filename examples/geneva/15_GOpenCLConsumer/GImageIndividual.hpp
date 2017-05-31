@@ -77,6 +77,12 @@ const double GII_DEF_SIGMA = 0.1;
 const double GII_DEF_SIGMASIGMA = 0.8;
 const double GII_DEF_MINSIGMA = 0.;
 const double GII_DEF_MAXSIGMA = 0.2;
+const double GII_DEF_LOC_MINADPROB = 0.05;
+const double GII_DEF_LOC_MAXADPROB = 1.;
+const double GII_DEF_LOC_SIGMA = 0.1;
+const double GII_DEF_LOC_SIGMASIGMA = 0.8;
+const double GII_DEF_LOC_MINSIGMA = 0.;
+const double GII_DEF_LOC_MAXSIGMA = 0.2;
 const std::size_t GII_DEF_COLORDEPTH = 8;
 const std::size_t GII_DEF_NCOLORS    = Gem::Common::PowSmallPosInt<2,GII_DEF_COLORDEPTH>::result;
 const std::size_t GII_DEF_MAXCOLOR   = GII_DEF_NCOLORS - 1;
@@ -107,11 +113,6 @@ class GImageIndividual
 
       ar
       & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-      & BOOST_SERIALIZATION_NVP(startSize_)
-      & BOOST_SERIALIZATION_NVP(minSize_)
-      & BOOST_SERIALIZATION_NVP(maxSize_)
-      & BOOST_SERIALIZATION_NVP(minOpaqueness_)
-      & BOOST_SERIALIZATION_NVP(maxOpaqueness_)
       & BOOST_SERIALIZATION_NVP(adProb_)
       & BOOST_SERIALIZATION_NVP(adaptAdProb_)
       & BOOST_SERIALIZATION_NVP(minAdProb_)
@@ -200,14 +201,6 @@ protected:
 private:
    /******************************************************************************/
    // Parameters
-
-   double startSize_; ///< The initial site of triangles
-
-   double minSize_; ///<   The minimum size of triangles (compare the triangle definition)
-   double maxSize_; ///< The maximum size of triangles (compare the triangle definition)
-
-   double minOpaqueness_; ///< Minimum opaqueness of objects in percent
-   double maxOpaqueness_; ///< Maximum opaqueness of objects in percent
 
    double adProb_; ///< The adaption probability
    double adaptAdProb_; ///< The "strength" of adProb-adaption

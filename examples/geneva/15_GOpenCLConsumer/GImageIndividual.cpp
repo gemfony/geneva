@@ -29,11 +29,6 @@ namespace Geneva {
  */
 GImageIndividual::GImageIndividual()
    : Gem::Geneva::GParameterSet()
-   , startSize_(GII_DEF_STARTSIZE)
-   , minSize_(GII_DEF_MINSIZE)
-   , maxSize_(GII_DEF_MAXSIZE)
-   , minOpaqueness_(GII_DEF_MINOPAQUENESS)
-   , maxOpaqueness_(GII_DEF_MAXOPAQUENESS)
    , adProb_(GII_DEF_ADPROB)
    , adaptAdProb_(GII_DEF_ADAPTADPROB)
    , minAdProb_(GII_DEF_MINADPROB)
@@ -51,11 +46,6 @@ GImageIndividual::GImageIndividual()
  */
 GImageIndividual::GImageIndividual(const GImageIndividual& cp)
    : Gem::Geneva::GParameterSet(cp)
-   , startSize_(cp.startSize_)
-   , minSize_(cp.minSize_)
-   , maxSize_(cp.maxSize_)
-   , minOpaqueness_(cp.minOpaqueness_)
-   , maxOpaqueness_(cp.maxOpaqueness_)
    , adProb_(cp.adProb_)
    , adaptAdProb_(cp.adaptAdProb_)
    , minAdProb_(cp.minAdProb_)
@@ -155,14 +145,6 @@ void GImageIndividual::init(
       << GEXCEPTION;
    }
 
-   startSize_ = startSize;
-
-   minSize_ = minSize;
-   maxSize_ = maxSize;
-
-   minOpaqueness_ = minOpaqueness;
-   maxOpaqueness_ = maxOpaqueness;
-
    adProb_ = adProb;
    adaptAdProb_ = adaptAdProb;
    minAdProb_ = minAdProb;
@@ -211,10 +193,10 @@ void GImageIndividual::init(
       // Add an object for the radius ...
       std::shared_ptr<GConstrainedDoubleObject> radius_ptr;
 
-      if(startSize_ < 0.) { // Random initialization of radius
-         radius_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(minSize_, maxSize_));
-      } else { // Radius will be set to startSize_
-         radius_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(startSize_, minSize_, maxSize_));
+      if(startSize < 0.) { // Random initialization of radius
+         radius_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(minSize, maxSize));
+      } else { // Radius will be set to startSize
+         radius_ptr = std::shared_ptr<GConstrainedDoubleObject>(new GConstrainedDoubleObject(startSize, minSize, maxSize));
       }
 
       // ... equip it with an adaptor ...
@@ -243,7 +225,7 @@ void GImageIndividual::init(
       std::shared_ptr<GConstrainedDoubleObject> color_r_ptr(new GConstrainedDoubleObject(0., 1.));
       std::shared_ptr<GConstrainedDoubleObject> color_g_ptr(new GConstrainedDoubleObject(0., 1.));
       std::shared_ptr<GConstrainedDoubleObject> color_b_ptr(new GConstrainedDoubleObject(0., 1.));
-      std::shared_ptr<GConstrainedDoubleObject> color_a_ptr(new GConstrainedDoubleObject(minOpaqueness_, maxOpaqueness_));
+      std::shared_ptr<GConstrainedDoubleObject> color_a_ptr(new GConstrainedDoubleObject(minOpaqueness, maxOpaqueness));
 
       // ... equip them with an adaptor
       color_r_ptr->addAdaptor(gdga_ptr_tmpl);
@@ -361,11 +343,6 @@ void GImageIndividual::compare(
 	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	Gem::Common::compare_t(IDENTITY(startSize_, p_load->startSize_), token);
-	Gem::Common::compare_t(IDENTITY(minSize_, p_load->minSize_), token);
-	Gem::Common::compare_t(IDENTITY(maxSize_, p_load->maxSize_), token);
-	Gem::Common::compare_t(IDENTITY(minOpaqueness_, p_load->minOpaqueness_), token);
-	Gem::Common::compare_t(IDENTITY(maxOpaqueness_, p_load->maxOpaqueness_), token);
 	Gem::Common::compare_t(IDENTITY(adProb_, p_load->adProb_), token);
 	Gem::Common::compare_t(IDENTITY(adaptAdProb_, p_load->adaptAdProb_), token);
 	Gem::Common::compare_t(IDENTITY(minAdProb_, p_load->minAdProb_), token);
@@ -541,11 +518,6 @@ void GImageIndividual::load_(const GObject* cp)
    GParameterSet::load_(cp);
 
    // Load local data
-   startSize_ = p_load->startSize_;
-   minSize_ = p_load->minSize_;
-   maxSize_ = p_load->maxSize_;
-   minOpaqueness_ = p_load->minOpaqueness_;
-   maxOpaqueness_ = p_load->maxOpaqueness_;
    adProb_ = p_load->adProb_;
    adaptAdProb_ = p_load->adaptAdProb_;
    minAdProb_ = p_load->minAdProb_;
