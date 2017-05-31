@@ -32,10 +32,12 @@
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 
+// This will force OpenCL C++ classes to raise exceptions
+// rather than to use an error code
+#define __CL_ENABLE_EXCEPTIONS
+
+
 // OpenCL includes
-#define __CL_ENABLE_EXCEPTIONS // This will force OpenCL C++ classes to raise exceptions rather than to use an error code
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_HPP_MINIMUM_OPENCL_VERSION 120
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "cl.hpp" // Use the file in our local directory -- cl.hpp is not delivered by default on MacOS X
 #else
