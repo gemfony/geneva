@@ -135,25 +135,25 @@ public:
 
    /** @brief Fills the object with parameters */
    void init(
-      const double&        // startSize
-      , const double&      // minSize
-      , const double&      // maxSize
-      , const double&      // sigma
-      , const double&      // sigmaSigma
-      , const double&      // minSigma
-      , const double&      // maxSigma
-      , const double&      // minOpaqueness
-      , const double&      // maxOpaqueness
-      , const double&      // adProb
-      , const double&      // adaptAdProb
-      , const double&      // minAdProb
-      , const double&      // maxAdProb
-      , const double&      // bgRed
-      , const double&      // bgGreen
-      , const double&      // bgBlue
-      , const std::size_t& // nTriangles
-      , const bool&        // alphaSort
-   );
+		const std::size_t& nTriangles
+		, const double& bgRed
+		, const double& bgGreen
+		, const double& bgBlue
+		, const double& startSize
+		, const double& minSize
+		, const double& maxSize
+		, const double& minOpaqueness
+		, const double& maxOpaqueness
+		, const bool&   alphaSort
+		, const double& sigma
+		, const double& sigmaSigma
+		, const double& minSigma
+		, const double& maxSigma
+		, const double& adProb
+		, const double& adaptAdProb
+		, const double& minAdProb
+		, const double& maxAdProb
+	);
 
    /** @brief A standard assignment operator */
    const GImageIndividual& operator=(const GImageIndividual&);

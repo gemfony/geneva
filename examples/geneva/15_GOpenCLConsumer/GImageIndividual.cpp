@@ -101,24 +101,24 @@ GImageIndividual::~GImageIndividual()
  * @param alphaSort Whether triangles should be sorted according to their alpha channel
  */
 void GImageIndividual::init(
-   const double& startSize
+	const std::size_t& nTriangles
+	, const double& bgRed
+	, const double& bgGreen
+	, const double& bgBlue
+   , const double& startSize
    , const double& minSize
    , const double& maxSize
+	, const double& minOpaqueness
+	, const double& maxOpaqueness
+	, const bool&   alphaSort
    , const double& sigma
    , const double& sigmaSigma
    , const double& minSigma
    , const double& maxSigma
-   , const double& minOpaqueness
-   , const double& maxOpaqueness
    , const double& adProb
    , const double& adaptAdProb
    , const double& minAdProb
    , const double& maxAdProb
-   , const double& bgRed
-   , const double& bgGreen
-   , const double& bgBlue
-   , const std::size_t& nTriangles
-   , const bool& alphaSort
 ) {
    if(startSize>=0. && startSize < minSize) {
       glogger
@@ -965,24 +965,24 @@ void GImageIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilder&
 void GImageIndividualFactory::postProcess_(std::shared_ptr<GImageIndividual>& p) {
    // The image must already have been loaded for this function to work properly
    p->init(
-         startSize_
+		   nTriangles_
+		   , bgRed_
+		   , bgGreen_
+		   , bgBlue_
+         , startSize_
          , minSize_
          , maxSize_
+			, minOpaqueness_
+			, maxOpaqueness_
+			, alphaSort_
          , sigma_
          , sigmaSigma_
          , minSigma_
          , maxSigma_
-         , minOpaqueness_
-         , maxOpaqueness_
          , adProb_
          , adaptAdProb_
          , minAdProb_
          , maxAdProb_
-         , bgRed_
-         , bgGreen_
-         , bgBlue_
-         , nTriangles_
-         , alphaSort_
    );
 }
 
