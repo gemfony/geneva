@@ -37,6 +37,8 @@
 
 // Standard header files go here
 #include <type_traits>
+#include <future>
+#include <atomic>
 
 #ifndef GIMAGEPOM_HPP_
 #define GIMAGEPOM_HPP_
@@ -97,7 +99,8 @@ public:
       , const bool& emitBestOnly
    )
 		: resultImageDirectory_(GImagePOM::trailingSlash(resultDirectory))
-		, dimX_(DEFAULTXDIMPROGRESS), dimY_(DEFAULTYDIMPROGRESS)
+		, dimX_(DEFAULTXDIMPROGRESS)
+	  	, dimY_(DEFAULTYDIMPROGRESS)
 		, emitBestOnly_(emitBestOnly)
    { /* nothing */ }
 
@@ -110,7 +113,8 @@ public:
    GImagePOM(const GImagePOM& cp)
 		: GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT(cp)
 		, resultImageDirectory_(cp.resultImageDirectory_)
-		, dimX_(cp.dimX_), dimY_(cp.dimY_)
+		, dimX_(cp.dimX_)
+	  	, dimY_(cp.dimY_)
 		, emitBestOnly_(cp.emitBestOnly_)
    { /* nothing */ }
 
@@ -276,11 +280,21 @@ public:
       {
          // Trigger output of a result picture
          if(!emitBestOnly_ || (emitBestOnly_ && goa->progress())) {
-            goa->GOptimizableI::getBestIterationIndividual<GImageIndividual>()->writeImage(
-                  "image"
-                  , resultImageDirectory_
-                  , std::tuple<std::size_t,std::size_t>(dimX_, dimY_)
-            );
+				// TODO: We assume that access to dimX_/dimY_ and resultImageDirectory_ is read-only
+				// (i.e. no entity writes to these quantities during an optimization run). Hence we
+				// do not currently protect these resouces. This should be changed.
+				std::async(
+					[&]() {
+						goa->GOptimizableI::getBestIterationIndividual<GImageIndividual>()->writeImage(
+							"image"
+							, resultImageDirectory_
+							, std::tuple<std::size_t, std::size_t>(
+								dimX_
+								, dimY_
+							)
+						);
+					}
+				);
          }
       }
       break;
