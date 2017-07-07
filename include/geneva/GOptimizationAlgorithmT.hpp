@@ -244,6 +244,8 @@ public:
 	  * @param better A boolean which indicates whether a better result was found
 	  */
 	 void checkpoint(const bool& is_better) const {
+		 bool do_save = false;
+
 		 // Determine a suitable name for the checkpoint file
 		 bf::path output_file;
 		 output_file = getCheckpointPath() / bf::path(
@@ -255,25 +257,29 @@ public:
 
 		 // Save checkpoints if required by the user
 		 if(m_cp_interval < 0 && is_better) {
-			 saveCheckpoint(output_file);
+			 do_save = true;
 		 } // Only save when a better solution was found
 		 else if(m_cp_interval > 0 && m_iteration%m_cp_interval == 0) {
-			 saveCheckpoint(output_file);
+			 do_save = true;
 		 } // Save in regular intervals
 		 else if(this->halted()) {
-			 saveCheckpoint(output_file);
+			 do_save = true;
 		 } // Save the final result
 
 
-		 // Remove the last checkoint file if requested by the user
-		 if(m_cp_remove && m_cp_last != "empty") {
-			 if(boost::filesystem::exists(boost::filesystem::path(m_cp_last))) {
-				 boost::filesystem::remove(boost::filesystem::path(m_cp_last));
-			 }
-		 }
+		 if(do_save) {
+			 saveCheckpoint(output_file);
 
-		 // Record the name of the last known checkpoint file
-		 m_cp_last = output_file.string();
+			 // Remove the last checkoint file if requested by the user
+			 if(m_cp_remove && m_cp_last != "empty") {
+				 if(boost::filesystem::exists(boost::filesystem::path(m_cp_last))) {
+					 boost::filesystem::remove(boost::filesystem::path(m_cp_last));
+				 }
+			 }
+
+			 // Record the name of the last known checkpoint file
+			 m_cp_last = output_file.string();
+		 }
 	 }
 
 	 /***************************************************************************/
@@ -1423,6 +1429,23 @@ public:
 		 return m_iteration > m_offset;
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * Checks whether a checkpoint-file has the same "personality" as our
+	  * own algorithm
+	  */
+	 bool cp_personality_fits(const boost::filesystem::path& p) const {
+		 // Extract the name of the optimization algorithm used for this file
+		 std::string opt_desc = this->extractOptAlgFromPath(p);
+
+		 // Make sure it fits our own algorithm
+		 if(opt_desc != this->getOptimizationAlgorithm()) {
+			 return false;
+		 } else {
+			 return true;
+		 }
+	 }
+
 protected:
 	 /***************************************************************************/
 	 /**
@@ -1507,23 +1530,6 @@ protected:
 
 		 // Let the audience know
 		 return tokens[1];
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks whether a checkpointfile has the same "personality" as our
-	  * own algorithm
-	  */
-    bool cp_personality_fits(const boost::filesystem::path& p) const {
-		 // Extract the name of the optimization algorithm used for this file
-		 std::string opt_desc = this->extractOptAlgFromPath(p);
-
-		 // Make sure it fits our own algorithm
-		 if(opt_desc != this->getOptimizationAlgorithm()) {
-			 return false;
-		 } else {
-			 return true;
-		 }
 	 }
 
 	 /***************************************************************************/

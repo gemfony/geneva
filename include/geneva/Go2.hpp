@@ -329,6 +329,10 @@ private:
 	 std::uint32_t m_iterations_consumed = 0; ///< The number of successive iterations performed by this object so far
 
 	 //---------------------------------------------------------------------------
+	 // Name and path of a checkpoint file, if supplied by the user
+	 std::string m_cp_file = "empty";
+
+	 //---------------------------------------------------------------------------
 	 // The list of "chained" optimization algorithms
 	 std::vector<std::shared_ptr<GOABase>> m_algorithms_vec;
 	 // Algorithms that were specified on the command line

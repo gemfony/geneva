@@ -485,6 +485,7 @@ void Go2::load_(const GObject *cp) {
 	m_offset = p_load->m_offset;
 	m_sorted = p_load->m_sorted;
 	m_iterations_consumed = p_load->m_iterations_consumed;
+	m_cp_file = p_load->m_cp_file;
 
 	Gem::Common::copyCloneableSmartPointer<GOABase>(p_load->m_default_algorithm, m_default_algorithm);
 
@@ -756,36 +757,56 @@ void Go2::optimize(const std::uint32_t &offset) {
 		m_algorithms_vec.push_back(m_default_algorithm->clone<GOABase>());
 	}
 
-	// Check that individuals have been registered
-	if (this->empty()) {
-		if (m_content_creator_ptr) {
-			for (std::size_t ind = 0; ind < m_algorithms_vec.at(0)->getDefaultPopulationSize(); ind++) {
-				std::shared_ptr<GParameterSet> p_ind = (*m_content_creator_ptr)();
-				if (p_ind) {
-					this->push_back(p_ind);
-				} else { // No valid item received, the factory has run empty
-					if (this->empty()) { // Still empty ?
-						glogger
-						<< "In Go2::optimize(): Error!" << std::endl
-						<< "The content creator did not deliver any individuals" << std::endl
-						<< "and none have been registered so far." << std::endl
-						<< "No way to continue." << std::endl
-						<< GEXCEPTION;
+	// Check whether a possible checkpoint file fits the first algorithm in the chain
+	if(m_cp_file != "empty" && !m_algorithms_vec[0]->cp_personality_fits(boost::filesystem::path(m_cp_file))) {
+		glogger
+		<< "In Go2::optimize(): Error!" << std::endl
+	   << "Checkpoint file " << m_cp_file << " does not" << std::endl
+	   << "fit requirements of first algorithm " << m_algorithms_vec[0]->getOptimizationAlgorithm() << std::endl
+		<< GEXCEPTION;
+	}
+
+	// Load the checkpoint file or creat individuals from the content creator
+	if(m_cp_file != "empty") {
+		// Load the external data
+		m_algorithms_vec[0]->loadCheckpoint(boost::filesystem::path(m_cp_file));
+
+		// This makes sure the first algorithm starts where the checkpoint file ended
+		m_iterations_consumed = m_algorithms_vec[0]->getIteration();
+	} else {
+		// Check that individuals have been registered
+		if (this->empty()) {
+			if (m_content_creator_ptr) {
+				for (std::size_t ind = 0; ind < m_algorithms_vec.at(0)->getDefaultPopulationSize(); ind++) {
+					std::shared_ptr<GParameterSet> p_ind = (*m_content_creator_ptr)();
+					if (p_ind) {
+						this->push_back(p_ind);
+					} else { // No valid item received, the factory has run empty
+						if (this->empty()) { // Still empty ?
+							glogger
+								<< "In Go2::optimize(): Error!" << std::endl
+								<< "The content creator did not deliver any individuals" << std::endl
+								<< "and none have been registered so far." << std::endl
+								<< "No way to continue." << std::endl
+								<< GEXCEPTION;
+						}
+						break;
 					}
-					break;
 				}
+			} else {
+				glogger
+					<< "In Go2::optimize(): Error!" << std::endl
+					<< "Neither a content creator nor individuals have been registered." << std::endl
+					<< "No way to continue." << std::endl
+					<< GEXCEPTION;
 			}
-		} else {
-			glogger
-			<< "In Go2::optimize(): Error!" << std::endl
-			<< "Neither a content creator nor individuals have been registered." << std::endl
-			<< "No way to continue." << std::endl
-			<< GEXCEPTION;
 		}
+
+		// We start with a predefined iteration offset
+		m_iterations_consumed = m_offset;
 	}
 
 	// Loop over all algorithms
-	m_iterations_consumed = m_offset;
 	m_sorted = false;
 	GOABase::iterator ind_it;
 	std::vector<std::shared_ptr<GOABase>>::iterator alg_it;
@@ -1089,6 +1110,7 @@ void Go2::parseCommandLine(
 		std::string maxClientDuration = EMPTYDURATION; // 00:00:00
 
 		std::string optimization_algorithms;
+		std::string checkpointFile = "empty";
 
 		// Extract a list of algorithm mnemonics and clear-text descriptions
 		std::string algorithm_description;
@@ -1128,6 +1150,8 @@ void Go2::parseCommandLine(
 			("help,h", "Emit help message")
 			("showAll", "Show all available options")
 			("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
+			("cp_file,f", po::value<std::string>(&checkpointFile)->default_value("empty"),
+			 "A file (including its path) holding a checkpoint for a given optimization algorithm")
 			("executionMode,e", po::value<execMode>(&m_par_mode)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
 			 "The execution mode: (0) means serial execution (1) means multi-threaded execution and (2) means execution through the broker. Note that you need to specifiy a consumer")
 			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
@@ -1273,6 +1297,9 @@ void Go2::parseCommandLine(
 				m_cl_algorithms_vec.push_back(p->get(m_par_mode));
 			}
 		}
+
+		// Set the name of a checkpoint file (if any)
+		m_cp_file = checkpointFile;
 
 		// Set the maximum running time for the client (if any)
 		m_max_client_duration = Gem::Common::duration_from_string(maxClientDuration);
