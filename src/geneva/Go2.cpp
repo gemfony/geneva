@@ -771,8 +771,8 @@ void Go2::optimize(const std::uint32_t &offset) {
 		// Load the external data
 		m_algorithms_vec[0]->loadCheckpoint(boost::filesystem::path(m_cp_file));
 
-		// This makes sure the first algorithm starts where the checkpoint file ended
-		m_iterations_consumed = m_algorithms_vec[0]->getIteration();
+		// Make sure the first algorithm starts right after the iteration where the checkpoint file ended
+		m_iterations_consumed = m_algorithms_vec[0]->getIteration() + 1;
 	} else {
 		// Check that individuals have been registered
 		if (this->empty()) {
