@@ -120,9 +120,6 @@ public:
 		, const double& // the limit for allowed deviations of floating point types
 	) const override;
 
-	/** @brief Loads a checkpoint */
-	virtual G_API_GENEVA void loadCheckpoint(const boost::filesystem::path&) override;
-
 	/** @brief Returns information about the type of optimization algorithm */
 	virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
 
@@ -174,9 +171,6 @@ protected:
 
 	/** @brief Resizes the population to the desired level and does some error checks */
 	virtual G_API_GENEVA void adjustPopulation() override;
-
-	/** @brief Saves the state of the class to disc. */
-	virtual G_API_GENEVA void saveCheckpoint() const override;
 
 	/** @brief Triggers fitness calculation of a number of individuals */
 	virtual G_API_GENEVA void runFitnessCalculation() override = 0;

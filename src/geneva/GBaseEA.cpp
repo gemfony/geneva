@@ -173,8 +173,7 @@ std::string GBaseEA::name() const {
 
 /******************************************************************************/
 /**
- * Returns information about the type of optimization algorithm. This function needs
- * to be overloaded by the actual algorithms to return the correct type.
+ * Returns information about the type of optimization algorithm.
  *
  * @return The type of optimization algorithm
  */

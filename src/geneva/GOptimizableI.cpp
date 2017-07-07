@@ -60,7 +60,9 @@ void GOptimizableI::optimize() {
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs
- * to be overloaded by the actual algorithms to return the correct type.
+ * to be overloaded by the actual algorithms to return the correct type. Note that
+ * the returned information may only consist of a single word and must start with
+ * "PERSONALITY_".
  *
  * @return The type of optimization algorithm
  */

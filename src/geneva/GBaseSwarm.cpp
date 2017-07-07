@@ -158,8 +158,7 @@ bool GBaseSwarm::operator!=(const GBaseSwarm &cp) const {
 
 /******************************************************************************/
 /**
- * Returns information about the type of optimization algorithm. This function needs
- * to be overloaded by the actual algorithms to return the correct type.
+ * Returns information about the type of optimization algorithm.
  *
  * @return The type of optimization algorithm
  */
@@ -343,42 +342,6 @@ void GBaseSwarm::setSwarmSizes(std::size_t nNeighborhoods, std::size_t defaultNN
 
 	// Update our parent class'es values
 	GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
-}
-
-/******************************************************************************/
-/**
- * Saves the state of the class to disc. The function adds the current generation
- * and the fitness to the base name. The entire object is saved. The function will
- * throw if no global best has been established yet.
- */
-void GBaseSwarm::saveCheckpoint() const {
-#ifdef DEBUG
-	// Check that the global best has been initialized
-	if(!m_global_best_vec) {
-	   glogger
-	   << "In GBaseSwarm::saveCheckpoint():" << std::endl
-      << "m_global_best_vec has not yet been initialized!" << std::endl
-      << GEXCEPTION;
-	}
-#endif /* DEBUG */
-
-	double newValue = m_global_best_vec->transformedFitness();
-
-	// Determine a suitable name for the output file
-	std::string outputFile = getCheckpointDirectory() + boost::lexical_cast<std::string>(getIteration()) + "_"
-									 + boost::lexical_cast<std::string>(newValue) + "_" + getCheckpointBaseName();
-
-	this->toFile(boost::filesystem::path(outputFile), getCheckpointSerializationMode());
-}
-
-/******************************************************************************/
-/**
- * Loads the state of the object from disc.
- *
- * @param cpFile The name of the file the checkpoint should be loaded from
- */
-void GBaseSwarm::loadCheckpoint(const boost::filesystem::path &cpFile) {
-	this->fromFile(cpFile, getCheckpointSerializationMode());
 }
 
 /******************************************************************************/

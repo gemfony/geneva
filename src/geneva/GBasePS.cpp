@@ -1018,33 +1018,6 @@ void GBasePS::adjustPopulation() {
 
 /******************************************************************************/
 /**
- * Loads a checkpoint from disk
- *
- * @param cpFile The name of the file the checkpoint should be loaded from
- */
-void GBasePS::loadCheckpoint(const boost::filesystem::path &cpFile) {
-	this->fromFile(cpFile, getCheckpointSerializationMode());
-}
-
-/******************************************************************************/
-/**
- * Saves the state of the object to disc. We simply serialize the entire object.
- */
-void GBasePS::saveCheckpoint() const {
-	double newValue = this->at(0)->transformedFitness();
-
-	// Determine a suitable name for the output file
-	std::string outputFile =
-		getCheckpointDirectory()
-		+ boost::lexical_cast<std::string>(this->getIteration()) + "_"
-	 	+ boost::lexical_cast<std::string>(newValue) + "_"
-		+ getCheckpointBaseName();
-
-	this->toFile(boost::filesystem::path(outputFile), getCheckpointSerializationMode());
-}
-
-/******************************************************************************/
-/**
  * Applies modifications to this object. This is needed for testing purposes
  */
 bool GBasePS::modify_GUnitTests() {

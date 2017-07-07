@@ -135,9 +135,6 @@ public:
 	/** @brief Returns information about the type of optimization algorithm */
 	virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
 
-	/** @brief Loads a checkpoint from disk */
-	virtual G_API_GENEVA void loadCheckpoint(const boost::filesystem::path&) override;
-
 	/** @brief Allows to set a static multiplier for personal distances */
 	G_API_GENEVA void setCPersonal(double);
 	/** @brief Allows to retrieve the static multiplier for personal distances */
@@ -247,9 +244,6 @@ protected:
 	virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
 	/** @brief Fixes an incomplete population */
 	virtual G_API_GENEVA void adjustNeighborhoods() BASE;
-
-	/** @brief Saves the state of the class to disc. */
-	virtual G_API_GENEVA void saveCheckpoint() const override;
 
 	/** @brief Updates the best individuals found */
 	virtual G_API_GENEVA std::tuple<double, double> findBests();

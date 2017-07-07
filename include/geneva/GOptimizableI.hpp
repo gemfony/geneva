@@ -214,10 +214,10 @@ public:
 
 	 /***************************************************************************/
 
-	 /** @brief Returns information about the type of optimization algorithm. */
+	 /** @brief Returns one-word information about the type of optimization algorithm. */
 	 virtual G_API_GENEVA std::string getOptimizationAlgorithm() const BASE;
 
-	 /** @brief Returns a name assigned to this algorithm */
+	 /** @brief Returns a descriptive name assigned to this algorithm */
 	 virtual G_API_GENEVA std::string getAlgorithmName() const = 0;
 	 /** @brief Checks whether a given algorithm type likes to communicate via the broker */
 	 virtual G_API_GENEVA bool usesBroker() const BASE;
