@@ -6,7 +6,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GBasePS.hpp
 	GBaseParChildPersonalityTraits.hpp
 	GBaseParChildT.hpp
-    GBaseParChildT2.hpp
 	GBaseGD.hpp
 	GBaseSA.hpp
 	GBaseSwarm.hpp
@@ -40,7 +39,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GenevaHelperFunctionsT.hpp
 	GenevaInitializer.hpp
 	GEvolutionaryAlgorithmFactory.hpp
-    GEvolutionaryAlgorithmT.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp
@@ -73,7 +71,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
-    G_OA_EvolutionaryAlgorithmT.hpp
 	GOAInitializerT.hpp
 	Go2.hpp
 	GOAFactoryStore.hpp
@@ -81,7 +78,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GOptimizableEntity.hpp
 	GOptimizableI.hpp
 	GOptimizationAlgorithmT.hpp
-    GOptimizationAlgorithmT2.hpp
 	GOptimizationAlgorithmFactoryT.hpp
 	GOptimizationEnums.hpp
 	GParameterBase.hpp

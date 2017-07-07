@@ -50,7 +50,6 @@ SET ( OPTIMIZATIONSOURCES
 	GOptimizableEntity
 	GOptimizableI
 	GOptimizationAlgorithmT
-    GOptimizationAlgorithmT2
 	GOptimizationEnums
 	GParameterBase
 	GParameterObjectCollection
