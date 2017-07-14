@@ -117,8 +117,8 @@ public:
 	  *
 	  * @param additionalDataTemplate The model of the item to be processed
 	  */
-	 GBaseClientT(std::shared_ptr <processable_type> additionalDataTemplate) :
-		 m_additionalDataTemplate(additionalDataTemplate)
+	 GBaseClientT(std::shared_ptr <processable_type> additionalDataTemplate)
+		 : m_additionalDataTemplate(additionalDataTemplate)
 	 { /* nothing*/ }
 
 	 /***************************************************************************/

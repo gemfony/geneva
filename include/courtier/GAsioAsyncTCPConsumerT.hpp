@@ -996,7 +996,7 @@ private:
 
 	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY; ///< Specifies the serialization mode
 	 GAsioAsyncTCPConsumerT<processable_type> *m_master;
-	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr;
+	 std::shared_ptr<Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr;
 
 	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(200); ///< A timeout for put- and get-operations
 
