@@ -176,7 +176,7 @@ bool parseCommandLine(
 		"serverMode,s"
 		, serverMode
 		, false // Use client mode, if no server option is specified
-		, "Whether to run networked execution in server or client mode. The option only has an effect if \"--parallelizationMode=2\". You can either say \"--server=true\" or just \"--server\"."
+		, "Whether to run networked execution in server or client mode. The option only has an effect for modes requiring a server. You can either say \"--serverMode=true\", just \"--serverMode\" or simple \"-s\"."
 		, GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
 		, true // Use server mode, of only -s or --server was specified
 	);
