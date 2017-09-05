@@ -1827,8 +1827,8 @@ private:
 			 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
 		 auto current_iteration = GBaseExecutorT<processable_type>::m_iteration_counter;
 
-		 m_waiting_times_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), m_maxTimeout.count()));
-		 m_returned_items_graph->add(std::make_tuple(boost::numeric_cast<double>(current_iteration), boost::numeric_cast<double>(this->getNReturned())));
+		 m_waiting_times_graph->add(boost::numeric_cast<double>(current_iteration), m_maxTimeout.count());
+		 m_returned_items_graph->add(boost::numeric_cast<double>(current_iteration), boost::numeric_cast<double>(this->getNReturned()));
 
 		 if (0 == GBaseExecutorT<processable_type>::m_iteration_counter) {
 			 std::cout

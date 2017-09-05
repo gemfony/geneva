@@ -115,7 +115,7 @@ void assembleCommandLineOptions(
  * Set up a number of optimization monitors, mostly for debugging and
  * profiling purposes
  */
-std::shared_ptr<GCollectiveMonitorT<GParameterSet> > getPOM(
+std::shared_ptr<GCollectiveMonitor> getPOM(
    const std::string& logAll
    , const std::string& logResults
    , const std::string& monitorNAdaptions
@@ -376,7 +376,7 @@ int main(int argc, char **argv) {
    GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", workers);
 
    // Register pluggable optimization monitors, if requested by the user
-   std::shared_ptr<GCollectiveMonitorT<GParameterSet> > collectiveMonitor_ptr = getPOM(
+   std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr = getPOM(
       logAll
       , logResults
       , monitorNAdaptions

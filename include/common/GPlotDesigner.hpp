@@ -2020,9 +2020,9 @@ public:
 	 * pointer. I.e., this makes object_ptr->add(data) instead of
 	 * *object_ptr & data possible.
 	 */
-	template<typename data_type>
-	void add(const data_type &item) {
-		*this & item;
+	template<typename data_type1, typename data_type2>
+	void add(const data_type1 &item1, const data_type2 &item2) {
+		*this & std::make_tuple(item1, item2);
 	}
 
 	/***************************************************************************/

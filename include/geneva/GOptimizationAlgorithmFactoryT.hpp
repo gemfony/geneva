@@ -54,7 +54,7 @@
 #include "geneva/GSerialEA.hpp"
 #include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GBrokerEA.hpp"
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
+#include "geneva/GPluggableOptimizationMonitors.hpp"
 
 namespace Gem {
 namespace Geneva {

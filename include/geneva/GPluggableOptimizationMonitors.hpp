@@ -166,7 +166,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT: {
@@ -227,7 +227,7 @@ public:
 		GToken token("GStandardMonitor", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -531,7 +531,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT: {
@@ -542,8 +542,8 @@ public:
 
 			case Gem::Geneva::infoMode::INFOPROCESSING: {
 				// Retrieve the list of globally- and iteration bests individuals
-				std::vector<GParameterSet> global_bests = goa->GOptimizableI::template getBestGlobalIndividuals<GParameterSet>();
-				std::vector<GParameterSet> iter_bests   = goa->GOptimizableI::template getBestIterationIndividuals<GParameterSet>();
+				auto global_bests = goa->GOptimizableI::getBestGlobalIndividuals<GParameterSet>();
+				auto iter_bests   = goa->GOptimizableI::getBestIterationIndividuals<GParameterSet>();
 
 				// Retrieve the current iteration in the population
 				std::uint32_t iteration = goa->getIteration();
@@ -622,8 +622,8 @@ public:
 
 				std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator global_it;
 				std::vector<std::shared_ptr<Gem::Common::GGraph2D>>::iterator iter_it;
-				typename std::vector<GParameterSet>::iterator  global_ind_it;
-				typename std::vector<GParameterSet>::iterator  iter_ind_it;
+				std::vector<std::shared_ptr<GParameterSet>>::iterator  global_ind_it;
+				std::vector<std::shared_ptr<GParameterSet>>::iterator  iter_ind_it;
 
 				std::size_t mInd = 0;
 				for(
@@ -645,8 +645,7 @@ public:
 
 			default: {
 				glogger
-				<< "In GFitnessMonitor::informationFunction(): Received invalid infoMode " << im <<
-				std::endl
+				<< "In GFitnessMonitor::informationFunction(): Received invalid infoMode " << im << std::endl
 				<< GEXCEPTION;
 			} break;
 		}
@@ -682,7 +681,7 @@ public:
 		GToken token("GFitnessMonitor", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_xDim, p_load->m_xDim), token);
@@ -911,7 +910,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) override {
 		for(auto pm_ptr : m_pluggable_monitors) { // std::shared_ptr may be copied
 			pm_ptr->informationFunction(im,goa);
@@ -922,7 +921,7 @@ public:
 	/**
 	 * Allows to register a new pluggable monitor
 	 */
-	void registerPluggableOM(std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT> om_ptr) {
+	void registerPluggableOM(std::shared_ptr<Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT> om_ptr) {
 		if(om_ptr) {
 			m_pluggable_monitors.push_back(om_ptr);
 		} else {
@@ -979,7 +978,7 @@ public:
 		GToken token("GCollectiveMonitor", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_pluggable_monitors, p_load->m_pluggable_monitors), token);
@@ -1016,7 +1015,7 @@ protected:
 
 
 private:
-	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>> m_pluggable_monitors; ///< The collection of monitors
+	std::vector<std::shared_ptr<Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>> m_pluggable_monitors; ///< The collection of monitors
 
 public:
 	/***************************************************************************/
@@ -1448,7 +1447,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -1524,16 +1523,16 @@ public:
 						switch(this->nProfileVars()) {
 							case 1:
 							{
-								fp_type val0    = p->GOptimizableEntity::getVarVal<fp_type>(m_fp_profVarVec[0].var);
+								fp_type val0 = p->GOptimizableEntity::getVarVal<fp_type>(m_fp_profVarVec[0].var);
 
 								if(m_observeBoundaries) {
 									if(
 										val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
 										) {
-										m_progressPlotter2D_oa->add(std::tuple<double,double>(double(val0), primaryFitness));
+										m_progressPlotter2D_oa->add(double(val0), primaryFitness);
 									}
 								} else {
-									m_progressPlotter2D_oa->add(std::tuple<double,double>(double(val0), primaryFitness));
+									m_progressPlotter2D_oa->add(double(val0), primaryFitness);
 								}
 							}
 								break;
@@ -1581,7 +1580,7 @@ public:
 						}
 					}
 				} else { // Monitor all individuals
-					typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::iterator it;
+					Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::iterator it;
 					for(it=goa->begin(); it!=goa->end(); ++it) {
 
 						if(GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::useRawEvaluation_) {
@@ -1600,10 +1599,10 @@ public:
 										if(
 											val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
 											) {
-											m_progressPlotter2D_oa->add(std::tuple<double,double>(double(val0), primaryFitness));
+											m_progressPlotter2D_oa->add(double(val0), primaryFitness);
 										}
 									} else {
-										m_progressPlotter2D_oa->add(std::tuple<double,double>(double(val0), primaryFitness));
+										m_progressPlotter2D_oa->add(double(val0), primaryFitness);
 									}
 								}
 									break;
@@ -1716,7 +1715,7 @@ public:
 		GToken token("GProgressPlotter", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fp_profVarVec, p_load->m_fp_profVarVec), token);
@@ -2020,7 +2019,7 @@ public:
 		GToken token("GAllSolutionFileLogger", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2195,7 +2194,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -2281,7 +2280,7 @@ private:
 	 */
  	void printPopulation(
 		const std::string& iterationDescription
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) {
 		// Open the external file
 		boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
@@ -2523,7 +2522,7 @@ public:
 		GToken token("GIterationResultsFileLogger", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2589,7 +2588,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -2895,7 +2894,7 @@ public:
 		GToken token("GNAdpationsLogger", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2993,7 +2992,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) override {
 		using namespace Gem::Common;
 
@@ -3417,7 +3416,7 @@ public:
 		GToken token("GAdaptorPropertyLogger", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -3548,7 +3547,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	) override {
 		using namespace Gem::Common;
 
@@ -3982,7 +3981,7 @@ public:
 		 GToken token("GProcessingTimesLogger", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_fileName_pth, p_load->m_fileName_pth), token);
@@ -4125,7 +4124,7 @@ public:
 	  * Retrieves the current number of bins for the processing times
 	  * histograms in x-direction
 	  */
-	 std::string getNBinsX() const {
+	 std::size_t getNBinsX() const {
 		 return m_nBinsX;
 	 }
 
@@ -4149,7 +4148,7 @@ public:
 	  * Retrieves the current number of bins for the processing times
 	  * histograms in y-direction
 	  */
-	 std::string getNBinsY() const {
+	 std::size_t getNBinsY() const {
 		 return m_nBinsY;
 	 }
 
@@ -4160,7 +4159,7 @@ public:
 	  */
 	 virtual void informationFunction(
 		 const infoMode& im
-		 , typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		 , Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
 	 ) override {
 		 switch(im) {
 			 case Gem::Geneva::infoMode::INFOINIT: {
@@ -4313,10 +4312,10 @@ public:
 					 m_all_processing_times_hist->add(allProcessingTime); // OVERALL PROCESSING TIME
 
 					 // Fill the timings into the 2D histograms ...
-					 m_pre_processing_times_hist2D->add(std::tuple<double,double>(iteration, preProcessingTime)); // PREPROCESSING
-					 m_processing_times_hist2D->add(std::tuple<double,double>(iteration, mainProcessingTime)); // PROCESSING
-					 m_post_processing_times_hist2D->add(std::tuple<double,double>(iteration, postProcessingTime)); // POSTPROCESSING
-					 m_all_processing_times_hist2D->add(std::tuple<double,double>(iteration, allProcessingTime)); // OVERALL PROCESSING TIME
+					 m_pre_processing_times_hist2D->add(boost::numeric_cast<double>(iteration), boost::numeric_cast<double>(preProcessingTime)); // PREPROCESSING
+					 m_processing_times_hist2D->add(boost::numeric_cast<double>(iteration), boost::numeric_cast<double>(mainProcessingTime)); // PROCESSING
+					 m_post_processing_times_hist2D->add(boost::numeric_cast<double>(iteration), boost::numeric_cast<double>(postProcessingTime)); // POSTPROCESSING
+					 m_all_processing_times_hist2D->add(boost::numeric_cast<double>(iteration), boost::numeric_cast<double>(allProcessingTime)); // OVERALL PROCESSING TIME
 
 					 data_txt << boost::numeric_cast<std::uint32_t>(iteration) << ", " << std::showpoint << preProcessingTime << ", " << mainProcessingTime << ", " << postProcessingTime << std::endl;
 				 }
@@ -4344,14 +4343,6 @@ public:
 				 m_processing_times_hist2D.reset();
 				 m_post_processing_times_hist2D.reset();
 				 m_all_processing_times_hist2D.reset();
-			 }
-				 break;
-
-			 default:
-			 {
-				 glogger
-					 << "In GProcessingTimesLogger: Received invalid infoMode " << im << std::endl
-					 << GEXCEPTION;
 			 }
 				 break;
 		 };
