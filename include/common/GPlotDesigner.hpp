@@ -1772,7 +1772,7 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
-	GHistogram1D() = delete; ///< The default constructor -- intentionally private and undefined
+	GHistogram1D(); ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
 	std::size_t nBinsX_; ///< The number of bins in the histogram
 
@@ -1863,7 +1863,7 @@ protected:
 	virtual std::string drawingArguments(bool) const override;
 
 private:
-	GHistogram1I() = delete; ///< The default constructor -- intentionally private and undefined
+ 	GHistogram1I(); ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
 	std::size_t nBinsX_; ///< The number of bins in the histogram
 
@@ -2694,7 +2694,7 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
-	GHistogram2D() = delete; ///< The default constructor -- intentionally private and undefined
+	GHistogram2D(); ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
 	std::size_t nBinsX_; ///< The number of bins in the x-direction of the histogram
 	std::size_t nBinsY_; ///< The number of bins in the y-direction of the histogram
@@ -4073,7 +4073,7 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
-	GFunctionPlotter1D() = delete; ///< The default constructor
+	GFunctionPlotter1D(); ///< The default constructor. Intentionally private, as it is only needed for (de-)serialization
 
 	std::string functionDescription_;
 
@@ -4161,7 +4161,7 @@ protected:
 	virtual G_API_COMMON GBasePlotter* clone_() const override;
 
 private:
-	GFunctionPlotter2D() = delete; ///< The default constructor -- intentionally private and undefined
+	GFunctionPlotter2D(); ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
 	std::string functionDescription_;
 

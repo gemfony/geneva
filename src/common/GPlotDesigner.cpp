@@ -1946,6 +1946,12 @@ void GGraph4D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * The default constructor -- intentionally private as it is only needed for (de-)serialization
+ */
+GHistogram1D::GHistogram1D(){ /* nothing */ }
+
+/******************************************************************************/
+/**
  * Initialization with number of bins and automatic range detection
  */
 GHistogram1D::GHistogram1D(
@@ -2277,6 +2283,13 @@ void GHistogram1D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * The default constructor -- intentionally private as it is only needed for (de-)serialization
+ */
+GHistogram1I::GHistogram1I()
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
  * The standard constructor
  */
 GHistogram1I::GHistogram1I(
@@ -2588,6 +2601,12 @@ void GHistogram1I::load_(const GBasePlotter* cp) {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor -- intentionally private, as it is only needed for (de-)serialization
+ */
+GHistogram2D::GHistogram2D() { /* nothing */ }
+
 /******************************************************************************/
 /**
  * The standard constructor
@@ -3090,6 +3109,12 @@ void GHistogram2D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * The default constructor. Intentionally private, as it is only needed for (de-)serialization
+ */
+GFunctionPlotter1D::GFunctionPlotter1D() { /* nothing */ }
+
+/******************************************************************************/
+/**
  * The standard constructor. Some member variables may be initialized in the
  * class body.
  *
@@ -3361,6 +3386,12 @@ void GFunctionPlotter1D::load_(const GBasePlotter* cp) {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * The default constructor -- intentionally private, as it is only needed for (de-)serialization
+ */
+GFunctionPlotter2D::GFunctionPlotter2D() { /* nothing */ }
+
 /******************************************************************************/
 /**
  * The standard constructor
