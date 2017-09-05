@@ -79,7 +79,6 @@ class GOptimizationAlgorithmT
 {
 public:
 	 // Forward declarations, as these classes are only defined at the end of this file
-	 class GOptimizationMonitorT;
 	 class GBasePluggableOMT;
 
 	 // Allow external entities to determine the type used for the individuals
