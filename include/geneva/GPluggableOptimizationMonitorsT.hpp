@@ -194,13 +194,6 @@ public:
 				<< GLOGGING;
 			}
 				break;
-
-			default: {
-				glogger
-				<< "In GStandardMonitorT<ind_type>::informationFunction(): Received invalid infoMode " << im << std::endl
-				<< GEXCEPTION;
-			}
-				break;
 		}
 	}
 
