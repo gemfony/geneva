@@ -41,7 +41,7 @@
 
 // Geneva header files go here
 #include "geneva/Go2.hpp"
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
+#include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/GPostProcessorT.hpp"
 
 // The individual that should be optimized
@@ -113,8 +113,8 @@ int main(int argc, char **argv) {
 	// See example 13 for more monitors
 
 	if(monitorTimings != "empty") {
-		std::shared_ptr<GProcessingTimesLoggerT<GParameterSet>>
-			processingTimesLogger_ptr(new GProcessingTimesLoggerT<GParameterSet>(
+		std::shared_ptr<GProcessingTimesLogger>
+			processingTimesLogger_ptr(new GProcessingTimesLogger(
 				"hist_" + monitorTimings + ".C"
 				, "hist2D_" + monitorTimings + ".C"
 				, monitorTimings + ".txt"

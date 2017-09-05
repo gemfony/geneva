@@ -41,7 +41,7 @@
 
 // Geneva header files go here
 #include "geneva/Go2.hpp"
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
+#include "geneva/GPluggableOptimizationMonitors.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
 
 	// Register a progress plotter with the global optimization algorithm factory
 	if(monitorSpec != "empty") {
-		std::shared_ptr<GProgressPlotterT<GParameterSet, double>> progplot_ptr(new GProgressPlotterT<GParameterSet, double>());
+		std::shared_ptr<GProgressPlotter<double>> progplot_ptr(new GProgressPlotter<double>());
 
 		progplot_ptr->setProfileSpec(monitorSpec);
 		progplot_ptr->setObserveBoundaries(observeBoundaries);
@@ -167,7 +167,7 @@ int main(int argc, char **argv) {
 	}
 
 	if(logAll != "empty") {
-		std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet>> allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
+		std::shared_ptr<GAllSolutionFileLogger> allSolutionLogger_ptr(new GAllSolutionFileLogger(logAll));
 
 		allSolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
 		allSolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
@@ -186,7 +186,7 @@ int main(int argc, char **argv) {
 	}
 
 	if(monitorNAdaptions != "empty") {
-		std::shared_ptr<GNAdpationsLoggerT<GParameterSet>> nAdaptionsLogger_ptr(new GNAdpationsLoggerT<GParameterSet>(monitorNAdaptions));
+		std::shared_ptr<GNAdpationsLogger> nAdaptionsLogger_ptr(new GNAdpationsLogger(monitorNAdaptions));
 
 		nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
 		nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
@@ -195,8 +195,8 @@ int main(int argc, char **argv) {
 	}
 
 	if(logSigma != "empty") {
-		std::shared_ptr<GAdaptorPropertyLoggerT<GParameterSet, double>>
-			sigmaLogger_ptr(new GAdaptorPropertyLoggerT<GParameterSet, double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
+		std::shared_ptr<GAdaptorPropertyLogger<double>>
+			sigmaLogger_ptr(new GAdaptorPropertyLogger<double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
 
 		sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
 		sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
@@ -205,8 +205,8 @@ int main(int argc, char **argv) {
 	}
 
 	if(monitorTimings != "empty") {
-		std::shared_ptr<GProcessingTimesLoggerT<GParameterSet>>
-			processingTimesLogger_ptr(new GProcessingTimesLoggerT<GParameterSet>(
+		std::shared_ptr<GProcessingTimesLogger>
+			processingTimesLogger_ptr(new GProcessingTimesLogger(
 				"hist_" + monitorTimings + ".C"
 				, "hist2D_" + monitorTimings + ".C"
 				, monitorTimings + ".txt"

@@ -27,7 +27,7 @@
 #include "common/GHelperFunctions.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
+#include "geneva/GPluggableOptimizationMonitors.hpp"
 
 // The individual that should be optimized
 #include "GImageIndividual.hpp"
@@ -124,10 +124,10 @@ std::shared_ptr<GCollectiveMonitorT<GParameterSet> > getPOM(
    , const bool& emitBestOnly
    , const std::tuple<std::size_t, std::size_t>& imageDimensions
 ) {
-   std::shared_ptr<GCollectiveMonitorT<GParameterSet> > collectiveMonitor_ptr(new GCollectiveMonitorT<GParameterSet>());
+   std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr(new GCollectiveMonitor());
 
    if(logAll != "empty") {
-      std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet> > allsolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>(logAll));
+      std::shared_ptr<GAllSolutionFileLogger> allsolutionLogger_ptr(new GAllSolutionFileLogger(logAll));
 
       allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
       allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
@@ -138,7 +138,7 @@ std::shared_ptr<GCollectiveMonitorT<GParameterSet> > getPOM(
    }
 
    if(logResults != "empty") {
-      std::shared_ptr<GIterationResultsFileLoggerT<GParameterSet> > iterationResultLogger_ptr(new GIterationResultsFileLoggerT<GParameterSet>(logResults));
+      std::shared_ptr<GIterationResultsFileLogger> iterationResultLogger_ptr(new GIterationResultsFileLogger(logResults));
 
       iterationResultLogger_ptr->setPrintWithCommas(true); // Output commas between values
       iterationResultLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
@@ -147,7 +147,7 @@ std::shared_ptr<GCollectiveMonitorT<GParameterSet> > getPOM(
    }
 
    if(monitorNAdaptions != "empty") {
-      std::shared_ptr<GNAdpationsLoggerT<GParameterSet> > nAdaptionsLogger_ptr(new GNAdpationsLoggerT<GParameterSet>(monitorNAdaptions));
+      std::shared_ptr<GNAdpationsLogger> nAdaptionsLogger_ptr(new GNAdpationsLogger(monitorNAdaptions));
 
       nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
       nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
@@ -156,8 +156,8 @@ std::shared_ptr<GCollectiveMonitorT<GParameterSet> > getPOM(
    }
 
    if(logSigma != "empty") {
-      std::shared_ptr<GAdaptorPropertyLoggerT<GParameterSet, double> >
-         sigmaLogger_ptr(new GAdaptorPropertyLoggerT<GParameterSet, double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
+      std::shared_ptr<GAdaptorPropertyLogger<double> >
+         sigmaLogger_ptr(new GAdaptorPropertyLogger<double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
 
       sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
       sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
@@ -178,7 +178,7 @@ std::shared_ptr<GCollectiveMonitorT<GParameterSet> > getPOM(
    if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
       return collectiveMonitor_ptr;
    } else {
-      return std::shared_ptr<GCollectiveMonitorT<GParameterSet> >(); // empty pointer indicates that no monitor was requested
+      return std::shared_ptr<GCollectiveMonitor>(); // empty pointer indicates that no monitor was requested
    }
 }
 

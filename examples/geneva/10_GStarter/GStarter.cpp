@@ -39,7 +39,7 @@
 
 // Geneva header files go here
 #include <geneva/Go2.hpp>
-#include <geneva/GPluggableOptimizationMonitorsT.hpp>
+#include <geneva/GPluggableOptimizationMonitors.hpp>
 
 // The individual that should be optimized
 #include "GStarterIndividual.hpp"
@@ -60,8 +60,8 @@ int main(int argc, char **argv) {
 
 	// Add a "pluggable optimization monitor" to Go2. This particular monitor will log
 	// solutions that were found into the file allLog.txt.
-	std::shared_ptr<GAllSolutionFileLoggerT<GParameterSet>>
-		allSolutionLogger_ptr(new GAllSolutionFileLoggerT<GParameterSet>("allLog.txt"));
+	std::shared_ptr<GAllSolutionFileLogger>
+		allSolutionLogger_ptr(new GAllSolutionFileLogger("allLog.txt"));
 	allSolutionLogger_ptr->setPrintInitial(); // Also log the initial population, prior to optimization
 	allSolutionLogger_ptr->setShowIterationBoundaries(); // Facilitates reading of the log file
 

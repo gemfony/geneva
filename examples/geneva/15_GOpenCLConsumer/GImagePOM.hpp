@@ -44,7 +44,7 @@
 #define GIMAGEPOM_HPP_
 
 // Geneva headers go here
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
+#include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "GImageIndividual.hpp"
 
 namespace Gem {
