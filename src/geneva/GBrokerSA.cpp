@@ -332,15 +332,6 @@ void GBrokerSA::runFitnessCalculation() {
 	);
 
 	//--------------------------------------------------------------------------------
-	// Check that items remain
-	if(data.size() <= this->getNParents()) {
-		glogger
-			<< "In GBrokerSA::runFitnessCalculation(): Error!" << std::endl
-			<< "Vector of individuals only has " << data.size() << " items remaining" << std::endl
-			<< GEXCEPTION;
-	}
-
-	//--------------------------------------------------------------------------------
 	// Now fix the population -- it may be smaller than its nominal size
 	fixAfterJobSubmission();
 }
@@ -389,6 +380,33 @@ void GBrokerSA::fixAfterJobSubmission() {
 	}
 	m_old_work_items.clear();
 
+	// Check that individuals do exist in the population. We cannot continue, if this is not the case
+	if(data.empty()) {
+		glogger
+			<< "In GBrokerSA::fixAfterJobSubmission(): Error!" << std::endl
+			<< "Population holds no data" << std::endl
+			<< GEXCEPTION;
+	} else {
+		// Emit a warning if no children have returned
+		if(data.size() <= this->getNParents()) {
+			glogger
+				<< "In GBrokerSA::fixAfterJobSubmission(): Warning!" << std::endl
+				<< "No child individuals have returned" << std::endl
+				<< "We need to fill up the population with clones from parent individuals" << std::endl
+				<< GWARNING;
+		}
+	}
+
+	// Check that the dirty flag of the last individual isn't set. This is a severe error.
+	if(data.back()->isDirty()) {
+		glogger
+			<< "In GBrokerSA::fixAfterJobSubmission(): Error!" << std::endl
+			<< "The last individual in the population has the dirty" << std::endl
+			<< "flag set, so we cannot use it for cloning" << std::endl
+			<< GEXCEPTION;
+	}
+
+
 	// Add missing individuals, as clones of the last item
 	if (data.size() < getDefaultPopulationSize()) {
 		std::size_t fixSize = getDefaultPopulationSize() - data.size();
@@ -398,12 +416,15 @@ void GBrokerSA::fixAfterJobSubmission() {
 		}
 	}
 
-	// Mark the first m_n_parents individuals as parents in the first iteration. We want to have a "sane" population.
-	if (inFirstIteration()) {
-		for (auto it = this->begin(); it != this->begin() + np; ++it) {
-			(*it)->getPersonalityTraits<GSAPersonalityTraits>()->setIsParent();
-		}
+	// Mark the first m_n_parents individuals as parents and the rest of the individuals as children.
+	// We want to have a sane population.
+	for (auto it = this->begin(); it != this->begin() + np; ++it) {
+		(*it)->getPersonalityTraits<GSAPersonalityTraits>()->setIsParent();
 	}
+	for (auto it = this->begin() + np; it != this->end(); ++it) {
+		(*it)->getPersonalityTraits<GSAPersonalityTraits>()->setIsChild();
+	}
+
 
 	// We care for too many returned individuals in the selectBest() function. Older
 	// individuals might nevertheless have a better quality. We do not want to loose them.
