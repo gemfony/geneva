@@ -324,6 +324,8 @@ public:
 	/***************************************************************************/
 };
 
+
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -4490,5 +4492,22 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+/******************************************************************************/
+// Exports of classes
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStandardMonitor)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFitnessMonitor)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCollectiveMonitor)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProgressPlotter<double>)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAllSolutionFileLogger)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GIterationResultsFileLogger)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNAdpationsLogger)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<double>)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GAdaptorPropertyLogger<bool>)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GProcessingTimesLogger)
+
+/******************************************************************************/
 
 #endif /* GPLUGGABLEOPTIMIZATIONMONITORS_HPP_ */

@@ -96,7 +96,8 @@ class parPropSpec
 		using boost::serialization::make_nvp;
 		using namespace Gem::Common;
 
-		& make_nvp("GCommonInterfaceT_parPropSpec_par_type", boost::serialization::base_object<GCommonInterfaceT<parPropSpec<par_type>>>(*this))
+		ar
+		& make_nvp("GCommonInterfaceT_parPropSpec_par_type", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<parPropSpec<par_type>>>(*this))
 		& BOOST_SERIALIZATION_NVP(var)
 		& BOOST_SERIALIZATION_NVP(lowerBoundary)
 	  	& BOOST_SERIALIZATION_NVP(upperBoundary)
@@ -117,7 +118,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	parPropSpec(const parPropSpec& cp)
+	parPropSpec(const parPropSpec<par_type>& cp)
 		: var(cp.var)
 		, lowerBoundary(cp.lowerBoundary)
 		, upperBoundary(cp.upperBoundary)
