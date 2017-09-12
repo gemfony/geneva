@@ -38,7 +38,6 @@
 #include <vector>
 
 // Boost headers go here
-#include <boost/tuple/tuple_io.hpp>
 
 // Geneva headers go here
 #include "common/GHelperFunctions.hpp"
