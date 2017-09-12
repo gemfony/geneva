@@ -74,7 +74,6 @@
 #include <mutex>
 
 // Boost header files go here
-#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>

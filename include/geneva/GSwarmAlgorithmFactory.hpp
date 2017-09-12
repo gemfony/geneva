@@ -40,7 +40,6 @@
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
-#include <boost/function.hpp>
 
 #ifndef GSWARMALGORITHMFACTORY_HPP_
 #define GSWARMALGORITHMFACTORY_HPP_

@@ -40,7 +40,6 @@
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
-#include <boost/function.hpp>
 
 #ifndef GEVOLUTIONARYALGORITHMFACTORY_HPP_
 #define GEVOLUTIONARYALGORITHMFACTORY_HPP_

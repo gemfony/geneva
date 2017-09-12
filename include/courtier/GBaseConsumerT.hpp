@@ -46,7 +46,6 @@
 // Boost headers go here
 
 #include <boost/utility.hpp>
-#include <boost/function.hpp>
 #include <boost/asio.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>

@@ -52,7 +52,6 @@
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/cast.hpp>
-#include <boost/function.hpp>
 
 #ifndef GRANDOMBASE_HPP_
 #define GRANDOMBASE_HPP_

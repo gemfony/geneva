@@ -41,7 +41,6 @@
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
-#include <boost/function.hpp>
 
 #ifndef GOPTIMIZATIONALGORITHMFACTORYT_HPP_
 #define GOPTIMIZATIONALGORITHMFACTORYT_HPP_

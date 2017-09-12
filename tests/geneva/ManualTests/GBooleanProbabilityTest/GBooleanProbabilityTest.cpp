@@ -42,7 +42,6 @@
 // Boost header files go here
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-#include <boost/function.hpp>
 
 // Geneva header files go here
 #include "geneva/GBooleanObject.hpp"

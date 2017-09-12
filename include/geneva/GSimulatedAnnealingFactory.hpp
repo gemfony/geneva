@@ -40,7 +40,6 @@
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
-#include <boost/function.hpp>
 
 #ifndef GSIMULATEDANNEALINGFACTORY_HPP_
 #define GSIMULATEDANNEALINGFACTORY_HPP_

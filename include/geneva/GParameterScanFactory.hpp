@@ -40,7 +40,6 @@
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
-#include <boost/function.hpp>
 
 #ifndef GPARAMETERSCANFACTORY_HPP_
 #define GPARAMETERSCANFACTORY_HPP_

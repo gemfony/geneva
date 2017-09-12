@@ -64,7 +64,6 @@
 #include <boost/archive/basic_archive.hpp>
 #include <boost/cast.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/logic/tribool.hpp>

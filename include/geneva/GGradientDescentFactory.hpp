@@ -40,7 +40,6 @@
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
-#include <boost/function.hpp>
 
 #ifndef GGRADIENTDESCENTFACTORY_HPP_
 #define GGRADIENTDESCENTFACTORY_HPP_

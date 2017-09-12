@@ -41,7 +41,6 @@
 
 // Boost header files go here
 #include <boost/algorithm/string.hpp>
-#include <boost/function.hpp>
 
 #ifndef GO2_HPP_
 #define GO2_HPP_

@@ -55,7 +55,6 @@
 
 // Boost headers go here
 #include <boost/utility.hpp>
-#include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>

@@ -91,7 +91,6 @@
 #include <boost/optional.hpp>
 #include <boost/xpressive/xpressive.hpp>
 #include <boost/variant.hpp>
-#include <boost/function.hpp>
 #include <boost/utility.hpp>
 #include <boost/variant/recursive_variant.hpp>
 #include <boost/variant/apply_visitor.hpp>
