@@ -36,7 +36,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/ref.hpp>
 #include <boost/program_options.hpp>
 
 // Geneva header files go here

@@ -61,7 +61,6 @@
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/version.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <boost/ref.hpp>
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 

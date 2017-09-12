@@ -36,7 +36,6 @@
 #include <iostream>
 
 // Boost header files go here
-#include <boost/ref.hpp>
 
 // Geneva header files go here
 #include "geneva/Go2.hpp"
