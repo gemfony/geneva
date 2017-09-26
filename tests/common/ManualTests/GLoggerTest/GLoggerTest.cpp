@@ -41,10 +41,30 @@
 
 // Geneva headers go here
 #include "common/GLogger.hpp"
+#include "common/GParserBuilder.hpp"
 
 using namespace Gem::Common;
 
 int main(int argc, char** argv) {
+	bool do_crash = false;
+
+	// Create the parser builder
+	GParserBuilder gpb;
+
+	gpb.registerCLParameter<bool>(
+		"crash,c"
+		, do_crash
+		, false // do not crash by default
+		, "Whether an uncaught exception should be raised"
+		, GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --crash instead of --crash=true
+		, true // Crash only, if --crash or -c was specified on the command line
+	);
+
+	// Do the actual command line parsing
+	if(GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+		return 0; // Do not continue
+	}
+
 	std::shared_ptr<GBaseLogTarget> gcl_ptr(new GConsoleLogger());
 	std::shared_ptr<GBaseLogTarget> gfl_ptr(new GFileLogger("./somePathToLogFile.txt"));
 
@@ -81,4 +101,9 @@ int main(int argc, char** argv) {
 
 	// Output to stderr
 	glogger << "std::err information" << std::endl << GSTDERR;
+
+	// Crash the applicaton if requested
+	if(do_crash) {
+		glogger << "A crash was requested. Crashing ..." << GEXCEPTION;
+	}
 }

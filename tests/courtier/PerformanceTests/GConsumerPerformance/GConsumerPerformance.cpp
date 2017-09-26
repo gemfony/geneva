@@ -40,11 +40,13 @@
  * - Catch "In GAsioAsyncServerSessionT::process(): Caught boost::system::system_error exception with messages: read: End of file"
  */
 
+// Standard includes
 #include <vector>
 #include <functional>
 #include <thread>
 #include <mutex>
 
+// Geneva includes
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GExecutorT.hpp"

@@ -1,5 +1,5 @@
 /**
- * @file GLoggerTest.cpp
+ * @file GHelperFunctionsTest.cpp
  */
 
 /*

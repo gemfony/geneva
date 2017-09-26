@@ -6,6 +6,9 @@ glogger << "Some information " << 1 << " " << 2 << someStreamableType << GLOGGER
 It also allows to raise exceptions in the same, easy way, using the modifier GEXCEPTION.
 
 Call the program and you will see some shell-output through the console logger. Also,
-a number of files will have been created (--> file logging). Note that access to the 
+a number of files will have been created (--> file logging). Note that access to the
 logger is thread safe, so it can also be used as an easy output mechanism. Note though,
 that there might be a performance penalty.
+
+Note that the application is meant to crash when called with the --crash option. This
+is meant to check whether we can navigate to the throw-site with a debugger.
