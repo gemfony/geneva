@@ -732,8 +732,9 @@ protected:
 			 glogger
 				 << "In GAsioSerialServerSessionT<processable_type>::async_handle_read_command(): Error!" << std::endl
 				 << "Received boost::system::error_code " << error << std::endl
-				 << "with message " << error.message() << std::endl
-				 << GEXCEPTION;
+				 << "with message \"" << error.message() << "\"" << std::endl
+				 << "Terminating this session."
+				 << GWARNING;
 			 return;
 		 }
 
