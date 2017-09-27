@@ -189,7 +189,7 @@ public:
 	 /***************************************************************************/
 	 /**
 	  * Adds a single item to the front of the buffer. The function will always
-	  * always return "true", as this is the specialization for an unlimited buffer.
+	  * return "true", as this is the specialization for an unlimited buffer.
 	  *
 	  * @param item An item to be added to the front of the buffer
 	  * @param timeout duration until a timeout occurs

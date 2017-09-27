@@ -191,9 +191,9 @@ private:
 
 	/***************************************************************************/
 	/** @brief Holds the container of uniform random numbers */
-	std::unique_ptr <random_container> m_p;
+	std::unique_ptr<random_container> m_p;
 	/** @brief A local copy of the global GRandomFactory */
-	std::shared_ptr <Gem::Hap::GRandomFactory> m_grf;
+	std::shared_ptr<Gem::Hap::GRandomFactory> m_grf;
 };
 
 /** @brief Convenience typedef */

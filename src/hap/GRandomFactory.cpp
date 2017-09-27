@@ -126,8 +126,8 @@ std::size_t GRandomFactory::getCurrentArraySize() const {
 
 /******************************************************************************/
 /**
- * Retrieves the size of the random buffer, i.e. the array holding the random
- * number packages.
+ * Retrieves the size of the random buffer, i.e. the data structure holding the
+ * random number packages.
  *
  * @return The size of the random buffer
  */
@@ -159,17 +159,16 @@ seed_type GRandomFactory::getSeed() {
 
 /******************************************************************************/
 /**
- * Allows recycling of partially used packages. Note that this function may
- * delete its argument if it cannot be added to the buffer.
+ * Allows recycling of (possibly partially used) packages. This way we avoid
+ * the continuous allocation and deletion of new buffers. Note that this function
+ * may delete its argument if it cannot be added to the buffer.
  *
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
 void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container>& p) {
-	// We try to add the item to the m_p_ret_bfr queue, until a timeout occurs.
-	// Once this is the case we delete the package, so we do not overflow
-	// with recycled packages
-	if(!m_p_ret_bfr.push_and_wait(p, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))) {
+	// We try to add the item to the m_p_ret_bfr queue.
+	if(!m_p_ret_bfr.try_push(p)) {
 		p.reset();
 	}
 }
@@ -316,9 +315,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 
 			// Try to submit the item and check for termination conditions along the way
 			while(!m_threads_stop_requested) {
-				if(!m_p_fresh_bfr.push_and_wait(
-					p
-					, std::chrono::milliseconds(DEFAULTFACTORYPUTWAIT))){
+				if(!m_p_fresh_bfr.try_push(p)){
 #ifdef DEBUG
 					// p should never be empty here
 					if(!p) {
@@ -328,6 +325,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 							<< GEXCEPTION;
 					}
 #endif
+					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 					continue;
 				} else { // We have submitted the item -- stop the inner loop
 					break;
