@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
 	);
 
 	// Do the actual command line parsing
-	if(GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
+	if(GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, false /* not verbose */)) {
 		return 0; // Do not continue
 	}
 
