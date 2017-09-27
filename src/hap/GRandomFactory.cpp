@@ -348,7 +348,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 		glogger
 			<< "In GRandomFactory::producer(): Error!" << std::endl
 			<< "Caught std::system_error exception with message" << std::endl
-			<< e.what()
+			<< e.what() << std::endl
 			<< "which might indicate that a mutex could not be locked." << std::endl
 			<< GEXCEPTION;
 	} catch (...) {
