@@ -50,13 +50,7 @@ std::atomic<bool> GRandomFactory::m_multiple_call_trap = ATOMIC_VAR_INIT(false);
  * The standard constructor, which seeds the random number generator and checks
  * that this class is instantiated only once.
  */
-GRandomFactory::GRandomFactory()
-  	: m_threads_started(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
-	, m_threads_stop_requested(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
-	, m_n_producer_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)))
-	, m_seed_collection(DEFAULTSEEDVECTORSIZE)
-	, m_seed_cit(m_seed_collection.begin())
-{
+GRandomFactory::GRandomFactory() {
 	/*
 	 * Apparently the entropy() call currently always returns 0 with g++ and clang,
 	 * as this call is not fully implemented.
@@ -110,11 +104,14 @@ void GRandomFactory::init() { /* nothing */ }
 void GRandomFactory::finalize() {
 	// Only allow one finalization action to be carried out
 	if (m_finalized) return;
+
 	// Flag all threads to stop
 	m_threads_stop_requested.store(true);
 	// Wait for all threads to return
 	m_producer_threads.join_all();
-	m_finalized = true; // Let the audience know
+
+	// Let the audience know
+	m_finalized.store(true);
 }
 
 /******************************************************************************/
@@ -151,7 +148,7 @@ seed_type GRandomFactory::getSeed() {
 	if(!m_seeding_has_started || m_seed_cit==m_seed_collection.end()) {
 		m_seed_seq.generate(m_seed_collection.begin(), m_seed_collection.end());
 		m_seed_cit=m_seed_collection.begin();
-		m_seeding_has_started=true;
+		m_seeding_has_started.store(true);
 	}
 
 	seed_type result = *m_seed_cit;

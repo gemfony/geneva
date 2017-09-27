@@ -262,10 +262,11 @@ private:
 	 /** @brief The production of [0,1[ random numbers takes place here */
 	 void producer(std::uint32_t seed);
 
-	 bool m_finalized = false;
-	 std::atomic<bool> m_threads_started; ///< Indicates whether threads were already started
-	 std::atomic<bool> m_threads_stop_requested; ///< Indicates whether all threads were requested to stop
-	 std::atomic<std::uint16_t> m_n_producer_threads; ///< The number of threads used to produce random numbers
+	 std::atomic<bool> m_finalized = ATOMIC_VAR_INIT(false);
+	 std::atomic<bool> m_threads_started = ATOMIC_VAR_INIT(false); ///< Indicates whether threads were already started
+	 std::atomic<bool> m_threads_stop_requested = ATOMIC_VAR_INIT(false); ///< Indicates whether all threads were requested to stop
+	 std::atomic<std::uint16_t> m_n_producer_threads = ATOMIC_VAR_INIT(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS))); ///< The number of threads used to produce random numbers
+
 	 Gem::Common::GStdThreadGroup m_producer_threads; ///< A thread group that holds [0,1[ producer threads
 
 	 /** @brief A bounded buffer holding the random number packages */
@@ -291,9 +292,9 @@ private:
 		 };
 
 	 mutable std::mutex m_seeding_mutex; ///< Regulates start-up of the seeding process
-	 std::vector<seed_type> m_seed_collection; ///< Holds pre-calculated seeds
-	 std::vector<seed_type>::const_iterator m_seed_cit; ///< Iterators over the seedCollection_
-	 bool m_seeding_has_started=false;
+	 std::vector<seed_type> m_seed_collection = std::vector<seed_type>(DEFAULTSEEDVECTORSIZE); ///< Holds pre-calculated seeds
+	 std::vector<seed_type>::const_iterator m_seed_cit = m_seed_collection.begin(); ///< Iterators over the seedCollection_
+	 std::atomic<bool> m_seeding_has_started = ATOMIC_VAR_INIT(false);
 };
 
 } /* namespace Hap */
