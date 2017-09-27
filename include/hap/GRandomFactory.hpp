@@ -50,6 +50,8 @@
 #include <random>
 #include <thread>
 #include <mutex>
+#include <array>
+#include <algorithm>
 
 // Boost headers go here
 #include <boost/utility.hpp>
@@ -118,7 +120,7 @@ public:
 	 /**
 	  * Allows to check whether the buffer has run empty
 	  */
-	 bool empty() {
+	 bool empty() const {
 		 return (m_current_pos >= DEFAULTARRAYSIZE);
 	 }
 
@@ -150,9 +152,7 @@ private:
 		 G_BASE_GENERATOR &rng
 	 ) {
 		 try {
-			 for (std::size_t pos = 0; pos < DEFAULTARRAYSIZE; pos++) {
-				 m_r[pos] = rng();
-			 }
+			 std::generate(m_r.begin(), m_r.end(), [&](){ return rng(); });
 		 } catch (const std::bad_alloc &e) {
 			 // This will propagate the exception to the global error handler so it can be logged
 			 glogger
@@ -175,9 +175,7 @@ private:
 	  * pointer. T_RNG must be one of the standard C++1x-generators
 	  */
 	 void refresh(G_BASE_GENERATOR &rng) {
-		 for (std::size_t pos = 0; pos < m_current_pos; pos++) {
-			 m_r[pos] = rng();
-		 }
+		 std::generate(m_r.begin(), m_r.begin() + m_current_pos, [&](){ return rng(); });
 		 m_current_pos = 0;
 	 }
 	 /***************************************************************************/
@@ -190,7 +188,7 @@ private:
 
 	 std::size_t m_current_pos = 0; ///< The current position in the array
 
-	 G_BASE_GENERATOR::result_type m_r[DEFAULTARRAYSIZE]; ///< Holds the actual random numbers
+	 std::array<G_BASE_GENERATOR::result_type, DEFAULTARRAYSIZE> m_r; ///< Holds the actual random numbers
 };
 
 /******************************************************************************/
