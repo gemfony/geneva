@@ -335,8 +335,8 @@ void GRandomFactory::producer(std::uint32_t seed) {
 	} catch (std::bad_alloc &e) {
 		glogger
 			<< "In GRandomFactory::producer(): Error!" << std::endl
-			<< "Caught std::bad_alloc exception with message"
-			<< std::endl << e.what() << std::endl
+			<< "Caught std::bad_alloc exception with message" << std::endl
+			<< e.what() << std::endl
 			<< GEXCEPTION;
 	} catch (std::invalid_argument &e) {
 		glogger
