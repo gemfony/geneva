@@ -43,7 +43,7 @@ namespace Hap {
 /**
  * Initialization of static data members
  */
-std::atomic<bool> GRandomFactory::m_multiple_call_trap = std::atomic<bool>(false);
+std::atomic<bool> GRandomFactory::m_multiple_call_trap = ATOMIC_VAR_INIT(false);
 
 /******************************************************************************/
 /**
@@ -62,7 +62,7 @@ GRandomFactory::GRandomFactory()
 	 * as this call is not fully implemented.
 	 *
 	// Check whether enough entropy is available. Warn, if this is not the case
-	if (0. == m_nondet_rng.entropy()) {
+	if (0. == m_multiple_call_trap.entropy()) {
 		glogger
 		<< "In GSeedManager::GSeedManager(): Error!" << std::endl
 		<< "Source of non-deterministic random numbers" << std::endl
