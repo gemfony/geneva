@@ -148,9 +148,7 @@ private:
 	  */
 	 explicit random_container(
 		 G_BASE_GENERATOR &rng
-	 )
-		 : m_current_pos(0)
-	 {
+	 ) {
 		 try {
 			 for (std::size_t pos = 0; pos < DEFAULTARRAYSIZE; pos++) {
 				 m_r[pos] = rng();
@@ -190,7 +188,7 @@ private:
 	 const random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
 	 const random_container &operator=(random_container &&) = delete; ///< Intentionally private and undefined
 
-	 std::size_t m_current_pos; ///< The current position in the array
+	 std::size_t m_current_pos = 0; ///< The current position in the array
 
 	 G_BASE_GENERATOR::result_type m_r[DEFAULTARRAYSIZE]; ///< Holds the actual random numbers
 };
