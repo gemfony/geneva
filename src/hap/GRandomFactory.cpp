@@ -43,8 +43,7 @@ namespace Hap {
 /**
  * Initialization of static data members
  */
-std::uint16_t Gem::Hap::GRandomFactory::m_multiple_call_trap = 0;
-std::mutex Gem::Hap::GRandomFactory::m_factory_creation_mutex;
+std::atomic<bool> GRandomFactory::m_multiple_call_trap = std::atomic<bool>(false);
 
 /******************************************************************************/
 /**
@@ -72,15 +71,14 @@ GRandomFactory::GRandomFactory()
 	}
 	*/
 
-	std::unique_lock<std::mutex> lk(m_factory_creation_mutex);
-	if (m_multiple_call_trap > 0) {
+	if (m_multiple_call_trap) {
 		glogger
 		<< "Error in GRandomFactory::GRandomFactory():" << std::endl
 		<< "Class has been instantiated before." << std::endl
 		<< "and may be instantiated only once" << std::endl
 		<< GTERMINATION;
 	} else {
-		m_multiple_call_trap++;
+		m_multiple_call_trap.store(true);
 	}
 }
 

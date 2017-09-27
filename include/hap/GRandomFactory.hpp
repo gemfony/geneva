@@ -273,8 +273,7 @@ private:
 	 /** @brief A bounded buffer holding random number packages ready for recycling */
 	 Gem::Common::GBoundedBufferT<std::unique_ptr<random_container>,DEFAULTFACTORYBUFFERSIZE> m_p_ret_bfr;
 
-	 static std::uint16_t m_multiple_call_trap; ///< Trap to catch multiple instantiations of this class
-	 static std::mutex m_factory_creation_mutex; ///< Synchronization of access to multiple_call_trap in constructor
+	 static std::atomic<bool> m_multiple_call_trap; ///< Trap to catch multiple instantiations of this class -- this is mostly for debugging purposes
 
 	 mutable std::mutex m_thread_creation_mutex; ///< Synchronization of access to the threads_started_ variable
 
