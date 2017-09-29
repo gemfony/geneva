@@ -49,6 +49,7 @@
 #define GOPTIMIZATIONALGORITHMT_HPP_
 
 // Geneva headers go here
+#include "common/GStdPtrVectorInterfaceT.hpp"
 #include "common/GHelperFunctions.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
@@ -74,7 +75,8 @@ namespace Geneva {
  */
 template <typename ind_type>
 class GOptimizationAlgorithmT
-	: public GMutableSetT<ind_type>
+	: public GOptimizableEntity
+  	, public Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>
    , public GOptimizableI
 {
 public:
@@ -93,7 +95,8 @@ private:
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GMutableSetT", boost::serialization::base_object<GMutableSetT<ind_type>>(*this))
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
+		 & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>>(*this))
 		 & make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_iteration)
 		 & BOOST_SERIALIZATION_NVP(m_offset)
@@ -133,7 +136,8 @@ public:
 	  * The default constructor. Note that most variables are initialized in the class body.
 	  */
 	 GOptimizationAlgorithmT()
-		 : GMutableSetT<ind_type>()
+		 : GOptimizableEntity()
+			, Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>()
 			, m_bestGlobalIndividuals(m_nRecordbestGlobalIndividuals, Gem::Common::LOWERISBETTER)
 			, m_bestIterationIndividuals(0, Gem::Common::LOWERISBETTER) // unlimited size, so all individuals of an iteration fit in
 			, m_bestKnownPrimaryFitness(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
@@ -151,7 +155,8 @@ public:
 	  * @param cp A constant reference to another GOptimizationAlgorithmT object
 	  */
 	 GOptimizationAlgorithmT(const GOptimizationAlgorithmT<ind_type>& cp)
-		 : GMutableSetT<ind_type>(cp)
+		 : GOptimizableEntity(cp)
+			, Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>(cp)
 			, m_iteration(cp.m_iteration)
 			, m_offset(DEFAULTOFFSET)
 			, m_minIteration(cp.m_minIteration)
@@ -476,9 +481,10 @@ public:
 		 GToken token("GOptimizationAlgorithmT<ind_type>", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GMutableSetT<ind_type>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
+		 compare_t(IDENTITY(this->data,  p_load->data), token); // This allows us to compare the parent class without directly referring to it.
 		 compare_t(IDENTITY(m_iteration, p_load->m_iteration), token);
 		 compare_t(IDENTITY(m_offset, p_load->m_offset), token);
 		 compare_t(IDENTITY(m_maxIteration, p_load->m_maxIteration), token);
@@ -1119,7 +1125,7 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override {
 		 // Call our parent class'es function
-		 GMutableSetT<ind_type>::addConfigurationOptions(gpb);
+		 GOptimizableEntity::addConfigurationOptions(gpb);
 
 		 // Add local data
 		 gpb.registerFileParameter<std::uint32_t>(
@@ -1448,6 +1454,13 @@ public:
 protected:
 	 /***************************************************************************/
 	 /**
+	  * A random number generator. Note that the actual calculation is
+	  * done in a random number proxy / factory
+	  */
+	 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> m_gr;
+
+	 /***************************************************************************/
+	 /**
 	  * Loads the data of another GOptimizationAlgorithm object
 	  *
 	  * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
@@ -1457,7 +1470,8 @@ protected:
 		 const GOptimizationAlgorithmT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<ind_type>>(cp, this);
 
 		 // Load the parent class'es data
-		 GMutableSetT<ind_type>::load_(cp);
+		 GOptimizableEntity::load_(cp);
+		 Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>::operator=(*p_load);
 
 		 // and then our local data
 		 m_iteration = p_load->m_iteration;
@@ -1491,6 +1505,14 @@ protected:
 		 m_worstKnownValids = p_load->m_worstKnownValids;
 		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors, m_pluggable_monitors);
 	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Re-implementation of a corresponding function in GStdPtrVectorInterface.
+	  * Make the vector wrapper purely virtual allows the compiler to perform
+	  * further optimizations.
+	  */
+	 virtual void dummyFunction() override { /* nothing */ }
 
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
@@ -2238,7 +2260,13 @@ public:
 		 bool result = false;
 
 		 // Call the parent class'es function
-		 if(GMutableSetT<ind_type>::modify_GUnitTests()) result = true;
+		 if(GOptimizableEntity::modify_GUnitTests()) result = true;
+		 if(Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>::modify_GUnitTests()) result = true;
+
+		 // Try to change the objects contained in the collection
+		 for(auto o: *this) {
+			 if(o->modify_GUnitTests()) result = true;
+		 }
 
 		 this->setMaxIteration(this->getMaxIteration() + 1);
 		 result = true;
@@ -2247,7 +2275,7 @@ public:
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GOptimizationAlgorithmT<>::modify_GUnitTests", "GEM_TESTING");
-		return false;
+		 return false;
 #endif /* GEM_TESTING */
 	 }
 
@@ -2257,8 +2285,12 @@ public:
 	  */
 	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
-		 // Call the parent class'es function
-		 GMutableSetT<ind_type>::specificTestsNoFailureExpected_GUnitTests();
+		 using boost::unit_test_framework::test_suite;
+		 using boost::unit_test_framework::test_case;
+
+		 // Call the parent classes' functions
+		 GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests();
+		 Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GOptimizationAlgorithmT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -2271,8 +2303,12 @@ public:
 	  */
 	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
-		 // Call the parent class'es function
-		 GMutableSetT<ind_type>::specificTestsFailuresExpected_GUnitTests();
+		 using boost::unit_test_framework::test_suite;
+		 using boost::unit_test_framework::test_case;
+
+		 // Call the parent classes' functions
+		 GOptimizableEntity::specificTestsFailuresExpected_GUnitTests();
+		 Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GOptimizationAlgorithmT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
