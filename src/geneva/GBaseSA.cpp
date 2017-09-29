@@ -273,12 +273,12 @@ void GBaseSA::sortSAMode() {
  */
 double GBaseSA::saProb(const double &qParent, const double &qChild) {
 	// We do not have to do anything if the child is better than the parent
-	if (this->isBetter(qChild, qParent)) {
+	if (this->at(0)->isBetter(qChild, qParent)) {
 		return 2.;
 	}
 
 	double result = 0.;
-	if (this->getMaxMode()) {
+	if (this->at(0)->getMaxMode()) {
 		result = exp(-(qParent - qChild) / t_);
 	} else {
 		result = exp(-(qChild - qParent) / t_);

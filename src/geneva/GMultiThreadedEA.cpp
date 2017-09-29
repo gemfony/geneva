@@ -290,16 +290,6 @@ void GMultiThreadedEA::addConfigurationOptions(
 
 /******************************************************************************/
 /**
- * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
- * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
- * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
- */
-std::string GMultiThreadedEA::getIndividualCharacteristic() const {
-	return std::string("GENEVA_MTOPTALG");
-}
-
-/******************************************************************************/
-/**
  * Sets the number of threads for this population. If nThreads is set
  * to 0, an attempt will be made to set the number of threads to the
  * number of hardware threading units (e.g. number of cores or hyperthreading

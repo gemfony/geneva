@@ -342,7 +342,7 @@ void GBasePS::load_(const GObject *cp) {
  * @return The value of the best individual found
  */
 std::tuple<double, double> GBasePS::cycleLogic() {
-	std::tuple<double, double> bestFitness = std::make_tuple(this->getWorstCase(), this->getWorstCase());
+	std::tuple<double, double> bestFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
 	// Apply all necessary modifications to individuals
 	if (0 == simpleScanItems_) { // We have been asked to deal with specific parameters
@@ -373,7 +373,7 @@ std::tuple<double, double> GBasePS::cycleLogic() {
 #endif
 
 		newEval = (*it)->getFitnessTuple();
-		if (this->isBetter(std::get<G_TRANSFORMED_FITNESS>(newEval), std::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+		if (this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(newEval), std::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
 			bestFitness = newEval;
 		}
 	}

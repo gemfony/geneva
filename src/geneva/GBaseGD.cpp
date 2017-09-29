@@ -342,8 +342,8 @@ std::tuple<double, double> GBaseGD::cycleLogic() {
 	// Perform post-evaluation updates (mostly of individuals)
 	postEvaluationWork();
 
-	std::tuple<double, double> bestFitness = std::make_tuple(this->getWorstCase(), this->getWorstCase());
-	std::tuple<double, double> fitnessCandidate = std::make_tuple(this->getWorstCase(), this->getWorstCase());
+	std::tuple<double, double> bestFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+	std::tuple<double, double> fitnessCandidate = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
 	// Retrieve information about the best fitness found and disallow re-evaluation
 	GBaseGD::iterator it;
@@ -352,7 +352,7 @@ std::tuple<double, double> GBaseGD::cycleLogic() {
 		std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION,
 																									USETRANSFORMEDFITNESS);
 
-		if (this->isBetter(
+		if (this->at(0)->isBetter(
 				std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate)
 				, std::get<G_TRANSFORMED_FITNESS>(bestFitness)
 			)

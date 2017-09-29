@@ -2623,7 +2623,7 @@ public:
 					std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
 					fitnessVec = goa->at(pos)->fitnessVec(m_useRawFitness);
 
-					std::size_t nFitnessCriteria = goa->getNumberOfFitnessCriteria();
+					std::size_t nFitnessCriteria = goa->at(0)->getNumberOfFitnessCriteria();
 					for(std::size_t i=0; i<nFitnessCriteria; i++) {
 						data << fitnessVec.at(i) << ((m_withCommas && (nFitnessCriteria*nIndividuals > (i+1)*(pos+1)))?", ":" ");
 					}

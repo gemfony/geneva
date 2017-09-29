@@ -187,24 +187,6 @@ std::string GBrokerSA::name() const {
  * Performs any necessary initialization work before the start of the optimization cycle
  */
 void GBrokerSA::init() {
-	// Prevent usage of this brokered algorithms inside of this broker population - check type of individuals
-	// Note that evolutionary algorithms may store arbitrary "GParameterSet"-derivatives, hence it is also possible
-	// to store brokered optimization algorithms in it, which does not make sense.
-	{
-		std::vector<std::shared_ptr < GParameterSet>> ::iterator
-		it;
-		for (it = this->begin(); it != this->end(); ++it) {
-			if ((*it)->getIndividualCharacteristic() == "GENEVA_BROKEROPTALG"
-				 || (*it)->getIndividualCharacteristic() == "GENEVA_GO2WRAPPER") {
-				glogger
-				<< "In GBrokerSA::optimize(): Error" << std::endl
-				<< "GBrokerSA or Go2 stored as an individual inside of" << std::endl
-				<< "the population." << std::endl
-				<< GEXCEPTION;
-			}
-		}
-	}
-
 	// GBaseSA sees exactly the environment it would when called from its own class
 	GBaseSA::init();
 
@@ -511,16 +493,6 @@ void GBrokerSA::setNThreads(std::uint16_t nThreads) {
  */
 std::uint16_t GBrokerSA::getNThreads() const {
 	return m_n_threads;
-}
-
-/******************************************************************************/
-/**
- * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
- * GBrokerSA class which should prevent objects of its type from being stored as an individual in its population.
- * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
- */
-std::string GBrokerSA::getIndividualCharacteristic() const {
-	return std::string("GENEVA_BROKEROPTALG");
 }
 
 /******************************************************************************/

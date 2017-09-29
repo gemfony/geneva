@@ -741,7 +741,7 @@ bool GBaseEA::aDominatesB(
 #endif
 
 	for (std::size_t i = 0; i < nCriteriaA; i++) {
-		if (this->isWorse(a->transformedFitness(i), b->transformedFitness(i))) return false;
+		if (this->at(0)->isWorse(a->transformedFitness(i), b->transformedFitness(i))) return false;
 	}
 
 	return true;
@@ -793,7 +793,9 @@ void GBaseEA::fillWithObjects(const std::size_t &nIndividuals) {
 	}
 
 	// Make sure we have unique data items
-	this->randomInit(activityMode::ALLPARAMETERS);
+	for(auto ind: *this) {
+		ind->randomInit(activityMode::ALLPARAMETERS);
+	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GBaseEA::fillWithObjects", "GEM_TESTING");

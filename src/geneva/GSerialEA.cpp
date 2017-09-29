@@ -209,16 +209,6 @@ void GSerialEA::addConfigurationOptions(
 
 /******************************************************************************/
 /**
- * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
- * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
- * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
- */
-std::string GSerialEA::getIndividualCharacteristic() const {
-	return std::string("GENEVA_SERIALOPTALG");
-}
-
-/******************************************************************************/
-/**
  * Adapt all children in sequence. Evaluation is done in a seperate function (evaluateChildren).
  */
 void GSerialEA::adaptChildren() {

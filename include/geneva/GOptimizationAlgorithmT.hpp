@@ -74,7 +74,7 @@ namespace Geneva {
  */
 template <typename ind_type>
 class GOptimizationAlgorithmT
-	: public GOptimizableEntity
+	: public GObject
   	, public Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>
    , public GOptimizableI
 {
@@ -94,7 +94,7 @@ private:
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
 		 & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>>(*this))
 		 & make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_iteration)
@@ -135,7 +135,7 @@ public:
 	  * The default constructor. Note that most variables are initialized in the class body.
 	  */
 	 GOptimizationAlgorithmT()
-		 : GOptimizableEntity()
+		 : GObject()
 			, Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>()
 			, m_bestGlobalIndividuals(m_nRecordbestGlobalIndividuals, Gem::Common::LOWERISBETTER)
 			, m_bestIterationIndividuals(0, Gem::Common::LOWERISBETTER) // unlimited size, so all individuals of an iteration fit in
@@ -154,7 +154,7 @@ public:
 	  * @param cp A constant reference to another GOptimizationAlgorithmT object
 	  */
 	 GOptimizationAlgorithmT(const GOptimizationAlgorithmT<ind_type>& cp)
-		 : GOptimizableEntity(cp)
+		 : GObject(cp)
 			, Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>(cp)
 			, m_iteration(cp.m_iteration)
 			, m_offset(DEFAULTOFFSET)
@@ -480,7 +480,7 @@ public:
 		 GToken token("GOptimizationAlgorithmT<ind_type>", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 compare_t(IDENTITY(this->data,  p_load->data), token); // This allows us to compare the parent class without directly referring to it.
@@ -559,7 +559,7 @@ public:
 		 if(m_reportIteration) informationUpdate(infoMode::INFOINIT);
 
 		 // We want to know if no better values were found for a longer period of time
-		 double worstCase = this->getWorstCase();
+		 double worstCase = this->at(0)->getWorstCase();
 		 m_bestKnownPrimaryFitness   = std::make_tuple(worstCase, worstCase);
 		 m_bestCurrentPrimaryFitness = std::make_tuple(worstCase, worstCase);
 
@@ -1093,17 +1093,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * This function is e.g. called from GSerialEA::adjustPopulation(). It
-	  * currently only triggers actions for GParameterSet-derivatives. Optimization algorithms
-	  * are unaffected. It might be useful to implement actions here as well, though, in order
-	  * to make better use of Multi-Populations in Evolutionary Algorithms.
-	  */
-	 virtual bool randomInit(const activityMode&) override {
-		 return false;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Retrieve the number of processable items in the current iteration. This function should
 	  * be overloaded for derived classes. It is used to determine a suitable wait factor for
 	  * networked execution.
@@ -1124,7 +1113,7 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override {
 		 // Call our parent class'es function
-		 GOptimizableEntity::addConfigurationOptions(gpb);
+		 GObject::addConfigurationOptions(gpb);
 
 		 // Add local data
 		 gpb.registerFileParameter<std::uint32_t>(
@@ -1260,27 +1249,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
-	  * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
-	  * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
-	  */
-	 virtual std::string getIndividualCharacteristic() const override {
-		 return std::string("GENEVA_OPTIMIZATIONALGORITHM");
-	 }
-
-	 /******************************************************************************/
-	 /**
-	  * Retrieves a parameter of a given type at the specified position
-	  */
-	 virtual boost::any getVarVal(
-		 const std::string& descr
-		 , const std::tuple<std::size_t, std::string, std::size_t>& target
-	 ) override {
-		 return GOptimizableI::getBestGlobalIndividual<GParameterSet>()->getVarVal(descr, target);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Adds the best individuals of each iteration to a priority queue. The
 	  * queue will be sorted by the first evaluation criterion of the individuals
 	  * and may either have a limited or unlimited size. Note: this function is
@@ -1327,90 +1295,6 @@ public:
 
 	 /** @brief Emits a name for this class / object; this can be a long name with spaces */
 	 virtual std::string name() const override = 0;
-
-	 /***************************************************************************/
-	 /**
-	  * Helps to determine whether a given value is strictly better (i.e. better than equal)
-	  * than another one. As "better" means something different for maximization and minimization,
-	  * this function helps to make the code easier to understand. This function requires
-	  * that at least one individual has been registered with the algorithm.
-	  *
-	  * @param newValue The new value
-	  * @param oldValue The old value
-	  * @return true if newValue is better than oldValue, otherwise false.
-	  */
-	 virtual bool isBetter(double newValue, const double& oldValue) const override {
-#ifdef DEBUG
-		 if(this->empty()) {
-			 glogger
-				 << "In GOptimizationAlgorithmT<>::isBetter(): Error!" << std::endl
-				 << "No individuals have been registered" << std::endl
-				 << GEXCEPTION;
-		 }
-#endif
-
-		 return this->at(0)->isBetter(newValue, oldValue);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
-	  * than another one. As "worse" means something different for maximization and minimization,
-	  * this function helps to make the code easier to understand. This function requires
-	  * that at least one individual has been registered with the algorithm.
-	  *
-	  * @param newValue The new value
-	  * @param oldValue The old value
-	  * @return true of newValue is worse than oldValue, otherwise false.
-	  */
-	 virtual bool isWorse(double newValue, const double& oldValue) const override {
-#ifdef DEBUG
-		 if(this->empty()) {
-			 glogger
-				 << "In GOptimizationAlgorithmT<>::isWorse(): Error!" << std::endl
-				 << "No individuals have been registered" << std::endl
-				 << GEXCEPTION;
-		 }
-#endif
-
-		 return this->at(0)->isWorse(newValue, oldValue);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves the worst possible evaluation result, depending on whether we are
-	  * in maximization or minimization mode
-	  */
-	 virtual double getWorstCase() const override {
-#ifdef DEBUG
-		 if(this->empty()) {
-			 glogger
-				 << "In GOptimizationAlgorithmT<>::getWorstCase(): Error!" << std::endl
-				 << "No individuals have been registered" << std::endl
-				 << GEXCEPTION;
-		 }
-#endif
-
-		 return this->at(0)->getWorstCase();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Retrieves the best possible evaluation result, depending on whether we are
-	  * in maximization or minimization mode
-	  */
-	 virtual double getBestCase() const override {
-#ifdef DEBUG
-		 if(this->empty()) {
-			 glogger
-				 << "In GOptimizationAlgorithmT<>::getBestCase(): Error!" << std::endl
-				 << "No individuals have been registered" << std::endl
-				 << GEXCEPTION;
-		 }
-#endif
-
-		 return this->at(0)->getBestCase();
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -1469,7 +1353,7 @@ protected:
 		 const GOptimizationAlgorithmT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<ind_type>>(cp, this);
 
 		 // Load the parent class'es data
-		 GOptimizableEntity::load_(cp);
+		 GObject::load_(cp);
 		 Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>::operator=(*p_load);
 
 		 // and then our local data
@@ -1695,26 +1579,6 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Fitness calculation for a population means optimization. The fitness is then determined
-	  * by the best individual which, after the end of the optimization cycle, can be found in
-	  * the first position of the array. Note that this function will only take into account the
-	  * fitness of the first registered evaluation criterion in an individual.
-	  *
-	  * @param The id of an evaluation criterion (will be ignored by this function)
-	  * @return The fitness of the best individual in the population
-	  */
-	 virtual double fitnessCalculation() override {
-		 // Make sure the population is optimized
-		 GOptimizableI::optimize();
-
-		 // We use the raw fitness rather than the transformed fitness,
-		 // as this is custom also for "normal" individuals. Re-evaluation
-		 // at this point should never happen.
-		 return this->at(0)->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USERAWFITNESS);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows derived classes to reset the stall counter.
 	  */
 	 void resetStallCounter() {
@@ -1886,7 +1750,7 @@ private:
 	  * in the case of a constraint violation).
 	  */
 	 void updateStallCounter(const std::tuple<double, double>& bestEval) {
-		 if(this->isBetter(std::get<G_TRANSFORMED_FITNESS>(bestEval), std::get<G_TRANSFORMED_FITNESS>(m_bestKnownPrimaryFitness))) {
+		 if(this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(bestEval), std::get<G_TRANSFORMED_FITNESS>(m_bestKnownPrimaryFitness))) {
 			 m_bestKnownPrimaryFitness = bestEval;
 			 m_stallCounter = 0;
 		 } else {
@@ -1938,7 +1802,7 @@ private:
 	  * @return A boolean indicating whether the quality is above or below a given threshold
 	  */
 	 bool qualityHalt() const {
-		 if(this->isBetter(std::get<G_RAW_FITNESS>(m_bestKnownPrimaryFitness), m_qualityThreshold)) {
+		 if(this->at(0)->isBetter(std::get<G_RAW_FITNESS>(m_bestKnownPrimaryFitness), m_qualityThreshold)) {
 			 if(m_emitTerminationReason) {
 				 glogger
 					 << "Terminating optimization run because" << std::endl
@@ -2259,7 +2123,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent class'es function
-		 if(GOptimizableEntity::modify_GUnitTests()) result = true;
+		 if(GObject::modify_GUnitTests()) result = true;
 		 if(Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>::modify_GUnitTests()) result = true;
 
 		 // Try to change the objects contained in the collection
@@ -2288,7 +2152,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests();
+		 GObject::specificTestsNoFailureExpected_GUnitTests();
 		 Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -2306,7 +2170,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GOptimizableEntity::specificTestsFailuresExpected_GUnitTests();
+		 GObject::specificTestsFailuresExpected_GUnitTests();
 		 Gem::Common::GStdPtrVectorInterfaceT<ind_type, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw

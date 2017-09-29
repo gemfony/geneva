@@ -408,6 +408,40 @@ public:
 	/** @brief Checks whether this object is worse than the argument, depending on the maxMode */
 	G_API_GENEVA bool isWorseThan(std::shared_ptr<GOptimizableEntity>) const;
 
+	 /***************************************************************************/
+	 /**
+	  * Checks if a given position of a std::tuple is better then another,
+	  * depending on our maximization mode
+	  */
+	 template <std::size_t pos>
+	 bool isWorse(
+		 std::tuple<double, double> newValue
+		 , std::tuple<double, double> oldValue
+	 ) const {
+		 if(this->getMaxMode()) {
+			 return (std::get<pos>(newValue) < std::get<pos>(oldValue));
+		 } else { // minimization
+			 return (std::get<pos>(newValue) > std::get<pos>(oldValue));
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks if a given position of a std::tuple is better then another,
+	  * depending on our maximization mode
+	  */
+	 template <std::size_t pos>
+	 bool isBetter(
+		 std::tuple<double, double> newValue
+		 , std::tuple<double, double> oldValue
+	 ) const {
+		 if(this->getMaxMode()) {
+			 return (std::get<pos>(newValue) > std::get<pos>(oldValue));
+		 } else { // minimization
+			 return (std::get<pos>(newValue) < std::get<pos>(oldValue));
+		 }
+	 }
+
 protected:
 	/***************************************************************************/
 	/** @brief Loads the data of another GOptimizableEntity */
@@ -443,40 +477,6 @@ protected:
 
 	/** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
 	G_API_GENEVA bool parameterSetFulfillsConstraints(double&) const;
-
-	/***************************************************************************/
-	/**
-	 * Checks if a given position of a std::tuple is better then another,
-	 * depending on our maximization mode
-	 */
-	template <std::size_t pos>
-	bool isWorse(
-		std::tuple<double, double> newValue
-		, std::tuple<double, double> oldValue
-	) const {
-		if(this->getMaxMode()) {
-			return (std::get<pos>(newValue) < std::get<pos>(oldValue));
-		} else { // minimization
-			return (std::get<pos>(newValue) > std::get<pos>(oldValue));
-		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * Checks if a given position of a std::tuple is better then another,
-	 * depending on our maximization mode
-	 */
-	template <std::size_t pos>
-	bool isBetter(
-		std::tuple<double, double> newValue
-		, std::tuple<double, double> oldValue
-	) const {
-		if(this->getMaxMode()) {
-			return (std::get<pos>(newValue) > std::get<pos>(oldValue));
-		} else { // minimization
-			return (std::get<pos>(newValue) < std::get<pos>(oldValue));
-		}
-	}
 
 private:
 	/***************************************************************************/

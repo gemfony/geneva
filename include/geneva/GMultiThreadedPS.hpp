@@ -114,9 +114,6 @@ public:
 		Gem::Common::GParserBuilder& gpb
 	) override;
 
-	/** @brief Allows to assign a name to the role of this individual(-derivative) */
-	virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
-
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const override;
 
