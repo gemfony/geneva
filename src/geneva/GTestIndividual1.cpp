@@ -481,7 +481,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test of GMutableSetT<T>::swap(const GMutableSetT<T>&)
+	{ // Test of Gem::Common::GStdPtrVectorInterfaceT<T,GObject>::swap(...)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test1 = this->clone<Gem::Tests::GTestIndividual1>();
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test2 = this->clone<Gem::Tests::GTestIndividual1>();
 
