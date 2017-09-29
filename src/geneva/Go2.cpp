@@ -63,7 +63,8 @@ std::once_flag f_go2;
  * The default constructor
  */
 Go2::Go2()
-	: GOptimizableEntity()
+	: GObject()
+	, GOptimizableI()
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
@@ -101,7 +102,8 @@ Go2::Go2(
 	, char **argv
 	, const boost::program_options::options_description &userDescriptions
 )
-	: GOptimizableEntity()
+	: GObject()
+	, GOptimizableI()
   	, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
@@ -135,7 +137,8 @@ Go2::Go2(
  * @param configFilename The name of a configuration file
  */
 Go2::Go2(const std::string &configFilename)
-	: GOptimizableEntity()
+	: GObject()
+	, GOptimizableI()
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
    , m_config_filename(configFilename)
 {
@@ -178,7 +181,8 @@ Go2::Go2(
 	, const std::string &configFilename
 	, const boost::program_options::options_description &userDescriptions
 )
-	: GOptimizableEntity()
+	: GObject()
+	, GOptimizableI()
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
    , m_config_filename(configFilename)
 {
@@ -215,7 +219,7 @@ Go2::Go2(
  * The copy constructor
  */
 Go2::Go2(const Go2 &cp)
-	: GOptimizableEntity(cp)
+	: GObject(cp)
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>(cp)
    , m_client_mode(cp.m_client_mode)
    , m_config_filename(cp.m_config_filename)
@@ -321,14 +325,13 @@ void Go2::compare(
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
+	// Check that we are dealing with a Go2 reference independent of this object and convert the pointer
 	const Go2 *p_load = Gem::Common::g_convert_and_compare<GObject, Go2>(cp, this);
 
 	GToken token("Go2", e);
 
 	// Compare our parent data ...
-	// Compare our parent data ...
-	Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(this->data,  p_load->data), token); // Actually data is contained in a parent class
@@ -411,16 +414,6 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase > default_algorithm) 
 
 /******************************************************************************/
 /**
- * Retrieves a parameter of a given type at the specified position
- */
-boost::any Go2::getVarVal(
-	const std::string &descr, const std::tuple<std::size_t, std::string, std::size_t> &target
-) {
-	return this->GOptimizableI::getBestGlobalIndividual<GParameterSet>()->getVarVal(descr, target);
-}
-
-/******************************************************************************/
-/**
  * Allows to register a pluggable optimization monitor
  */
 void Go2::registerPluggableOM(
@@ -476,11 +469,11 @@ std::chrono::duration<double> Go2::getMaxClientTime() const {
  * @param cp A copy of another Go2 object, camouflaged as a GObject
  */
 void Go2::load_(const GObject *cp) {
-	// Check that we are dealing with a GOptimizableEntity reference independent of this object and convert the pointer
+	// Check that we are dealing with a Go2 reference independent of this object and convert the pointer
 	const Go2 *p_load = Gem::Common::g_convert_and_compare<GObject, Go2>(cp, this);
 
 	// First load the parent class'es data ...
-	GOptimizableEntity::load_(cp);
+	GObject::load_(cp);
 	Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>::operator=(*p_load);
 
 	// and then our local data
@@ -592,34 +585,6 @@ void Go2::setParallelizationMode(const execMode &parMode) {
  */
 execMode Go2::getParallelizationMode() const {
 	return m_par_mode;
-}
-
-/******************************************************************************/
-/**
- * Allows to randomly initialize parameter members. Note that for this wrapper object
- * this function doesn't make any sense. It is made available to satisfy a requirement
- * of GOptimizableEntity.
- */
-bool Go2::randomInit(const activityMode &) {
-	return false;
-}
-
-/******************************************************************************/
-/**
- * (Primary) fitness calculation for an optimization algorithm means optimization. The fitness
- * is then determined by the best individual which, after the end of the optimization cycle.
- *
- * @param id The id of the target function (ignored here)
- * @return The fitness of the best individual in the population
- */
-double Go2::fitnessCalculation() {
-	// Make sure all optimization work has been carried out
-	std::shared_ptr<GParameterSet> p = this->GOptimizableI::optimize<GParameterSet>(m_offset + m_iterations_consumed);
-
-	// We use the raw fitness rather than the transformed fitness,
-	// as this is custom also for "normal" individuals. Re-evaluation
-	// should never happen at this point.
-	return p->fitness(0, Gem::Geneva::PREVENTREEVALUATION, Gem::Geneva::USERAWFITNESS);
 }
 
 /******************************************************************************/
@@ -1000,7 +965,7 @@ void Go2::addConfigurationOptions(
 	using namespace Gem::Common;
 
 	// Call our parent class'es function
-	GOptimizableEntity::addConfigurationOptions(gpb);
+	GObject::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::uint16_t>(
@@ -1009,16 +974,6 @@ void Go2::addConfigurationOptions(
 		, [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
 	)
 	<< "The number of threads simultaneously producing random numbers";
-}
-
-/******************************************************************************/
-/**
- * Allows to assign a name to the role of this individual(-derivative). This is mostly important for the
- * GBrokerEA class which should prevent objects of its type from being stored as an individual in its population.
- * All other objects do not need to re-implement this function (unless they rely on the name for some reason).
- */
-std::string Go2::getIndividualCharacteristic() const {
-	return std::string("GENEVA_GO2WRAPPER");
 }
 
 /******************************************************************************/

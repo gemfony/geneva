@@ -57,8 +57,8 @@
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GBrokerT.hpp"
+#include "geneva/GObject.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
-#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GOptimizableI.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -102,13 +102,11 @@ using GOABase = Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>;
  * This class allows to "chain" a number of optimization algorithms so that a given
  * set of individuals can be optimized using more than one algorithm in sequence. The
  * class also hides the details of client/server mode, consumer initialization, etc.
- * While it is derived from GOptimizableI, it is not currently meant to be used as an
- * individual. Hence the ability to serialize the class has been removed.
  */
 class Go2
-	: public GOptimizableEntity
-  	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
+	: public GObject
 	, public GOptimizableI
+	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
 {
 public:
 	 /** @brief The default constructor */
@@ -165,11 +163,6 @@ public:
 	 /** @brief Checks whether only the best individuals are copied */
 	 G_API_GENEVA bool onlyBestIndividualsAreCopied() const;
 
-	 /** @brief Allows to randomly initialize parameter members. Unused in this wrapper object */
-	 virtual G_API_GENEVA bool randomInit(const activityMode&) override;
-	 /** @brief Triggers fitness calculation (i.e. optimization) for this object */
-	 virtual G_API_GENEVA double fitnessCalculation() override;
-
 	 /** @brief Allows to add an optimization algorithm to the chain */
 	 G_API_GENEVA void addAlgorithm(std::shared_ptr<GOABase>);
 	 /** @brief Makes it easier to add algorithms */
@@ -219,9 +212,6 @@ public:
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
-	 /** @brief Allows to assign a name to the role of this individual(-derivative) */
-	 virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
-
 	 /***************************************************************************/
 	 /**
 	  * Starts the optimization cycle and returns the best individual found, converted to
@@ -260,12 +250,6 @@ public:
 	 G_API_GENEVA void registerDefaultAlgorithm(std::shared_ptr<GOABase>);
 	 /** @brief Allows to register a default algorithm. */
 	 G_API_GENEVA void registerDefaultAlgorithm(const std::string& default_algorithm);
-
-	 /** @brief Retrieves a parameter of a given type at the specified position */
-	 virtual G_API_GENEVA boost::any getVarVal(
-		 const std::string&
-		 , const std::tuple<std::size_t, std::string, std::size_t>& target
-	 ) override;
 
 	 /** @brief Allows to register a pluggable optimization monitor */
 	 G_API_GENEVA void registerPluggableOM(std::shared_ptr<GOABase::GBasePluggableOMT>);
