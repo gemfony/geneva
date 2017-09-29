@@ -63,7 +63,8 @@ std::once_flag f_go2;
  * The default constructor
  */
 Go2::Go2()
-	: GMutableSetT<GParameterSet>()
+	: GOptimizableEntity()
+   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms and consumers
@@ -100,7 +101,8 @@ Go2::Go2(
 	, char **argv
 	, const boost::program_options::options_description &userDescriptions
 )
-	: GMutableSetT<GParameterSet>()
+	: GOptimizableEntity()
+  	, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
@@ -133,7 +135,8 @@ Go2::Go2(
  * @param configFilename The name of a configuration file
  */
 Go2::Go2(const std::string &configFilename)
-	: GMutableSetT<GParameterSet>()
+	: GOptimizableEntity()
+   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
    , m_config_filename(configFilename)
 {
 	//--------------------------------------------
@@ -175,7 +178,8 @@ Go2::Go2(
 	, const std::string &configFilename
 	, const boost::program_options::options_description &userDescriptions
 )
-	: GMutableSetT<GParameterSet>()
+	: GOptimizableEntity()
+   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
    , m_config_filename(configFilename)
 {
 	//--------------------------------------------
@@ -211,7 +215,8 @@ Go2::Go2(
  * The copy constructor
  */
 Go2::Go2(const Go2 &cp)
-	: GMutableSetT<GParameterSet>(cp)
+	: GOptimizableEntity(cp)
+   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>(cp)
    , m_client_mode(cp.m_client_mode)
    , m_config_filename(cp.m_config_filename)
    , m_par_mode(cp.m_par_mode)
@@ -322,9 +327,11 @@ void Go2::compare(
 	GToken token("Go2", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GMutableSetT<GParameterSet>>(IDENTITY(*this, *p_load), token);
+	// Compare our parent data ...
+	Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
+	compare_t(IDENTITY(this->data,  p_load->data), token); // Actually data is contained in a parent class
 	compare_t(IDENTITY(m_client_mode, p_load->m_client_mode), token);
 	compare_t(IDENTITY(m_config_filename, p_load->m_config_filename), token);
 	compare_t(IDENTITY(m_par_mode, p_load->m_par_mode), token);
@@ -473,7 +480,8 @@ void Go2::load_(const GObject *cp) {
 	const Go2 *p_load = Gem::Common::g_convert_and_compare<GObject, Go2>(cp, this);
 
 	// First load the parent class'es data ...
-	GMutableSetT<GParameterSet>::load_(cp);
+	GOptimizableEntity::load_(cp);
+	Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>::operator=(*p_load);
 
 	// and then our local data
 	m_client_mode = p_load->m_client_mode;
@@ -992,7 +1000,7 @@ void Go2::addConfigurationOptions(
 	using namespace Gem::Common;
 
 	// Call our parent class'es function
-	GMutableSetT<GParameterSet>::addConfigurationOptions(gpb);
+	GOptimizableEntity::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::uint16_t>(

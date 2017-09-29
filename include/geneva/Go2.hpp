@@ -59,7 +59,6 @@
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GOptimizableEntity.hpp"
-#include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -96,7 +95,7 @@ G_API_GENEVA void setRNFParameters(const std::uint16_t&);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
-using GOABase = Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>;
+using GOABase = Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>;
 
 /******************************************************************************/
 /**
@@ -107,7 +106,8 @@ using GOABase = Gem::Geneva::GOptimizationAlgorithmT<Gem::Geneva::GParameterSet>
  * individual. Hence the ability to serialize the class has been removed.
  */
 class Go2
-	: public GMutableSetT<GParameterSet>
+	: public GOptimizableEntity
+  	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
 	, public GOptimizableI
 {
 public:
@@ -280,6 +280,14 @@ public:
 	 G_API_GENEVA std::chrono::duration<double> getMaxClientTime() const;
 
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Re-implementation of a corresponding function in GStdPtrVectorInterface.
+	  * Make the vector wrapper purely virtual allows the compiler to perform
+	  * further optimizations.
+	  */
+	 virtual void dummyFunction() override { /* nothing */ }
+
 	 /***************************************************************************/
 	 /** @brief Loads the data of another Go2 object */
 	 virtual G_API_GENEVA void load_(const GObject *) override;

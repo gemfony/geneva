@@ -56,7 +56,6 @@
 #include "common/GPlotDesigner.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GMutableSetT.hpp"
 #include "geneva/GOptimizableI.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
