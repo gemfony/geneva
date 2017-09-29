@@ -46,8 +46,8 @@
 #include "hap/GRandomT.hpp"
 #include "common/GHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
-#include "geneva/GObject.hpp"
 #include "common/GStdPtrVectorInterfaceT.hpp"
+#include "geneva/GObject.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterBase.hpp"
 

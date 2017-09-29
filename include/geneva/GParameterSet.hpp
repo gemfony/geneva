@@ -45,12 +45,14 @@
 
 
 // Geneva headers go here
+#include "hap/GRandomT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GHelperFunctionsT.hpp"
+#include "common/GStdPtrVectorInterfaceT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GMutableSetT.hpp"
+#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterBase.hpp"
 
 #ifdef GEM_TESTING
@@ -81,7 +83,8 @@ namespace Geneva {
  * will form the basis of many user-defined individuals.
  */
 class GParameterSet
-	: public GMutableSetT<Gem::Geneva::GParameterBase>
+	: public GOptimizableEntity
+   , public Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>
 	, public Gem::Courtier::GProcessingContainerT<GParameterSet>
 {
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
@@ -93,7 +96,8 @@ class GParameterSet
 	 void serialize(Archive & ar, const unsigned int){
 		 using boost::serialization::make_nvp;
 		 ar
-		 & make_nvp("GMutableSetT_GParameterBase", boost::serialization::base_object<GMutableSetT<Gem::Geneva::GParameterBase>>(*this))
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
+		 & make_nvp("GStdPtrVectorInterfaceT_GParameterBase", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>>(*this))
 		 & make_nvp("GProcessingContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet>>(*this))
 		 & BOOST_SERIALIZATION_NVP(perItemCrossOverProbability_);
 	 }
@@ -123,6 +127,10 @@ public:
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
+
+	 /***************************************************************************/
+	 /** Swap another object's vector with ours. */
+	 void swap(GParameterSet& cp);
 
 	 /** @brief Allows to randomly initialize parameter members */
 	 virtual G_API_GENEVA bool randomInit(const activityMode&) override;
@@ -157,7 +165,7 @@ public:
 	 ) override;
 
 	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-	 G_API_GENEVA GMutableSetT<Gem::Geneva::GParameterBase>::reference at(const std::size_t& pos);
+	 G_API_GENEVA Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference at(const std::size_t& pos);
 
 	 /** @brief Checks whether this object is better than a given set of evaluations */
 	 G_API_GENEVA bool isGoodEnough(const std::vector<double>&);
@@ -554,6 +562,21 @@ public:
 	 }
 
 protected:
+	 /***************************************************************************/
+	 /**
+	  * A random number generator. Note that the actual calculation is
+	  * done in a random number proxy / factory
+	  */
+	 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> m_gr;
+
+/***************************************************************************/
+	 /**
+	  * Re-implementation of a corresponding function in GStdPtrVectorInterface.
+	  * Make the vector wrapper purely virtual allows the compiler to perform
+	  * further optimizations.
+	  */
+	 virtual void dummyFunction() override { /* nothing */ }
+
 	 /***************************************************************************/
 	 /** @brief Do the required processing for this object */
 	 virtual G_API_GENEVA bool process_() override;

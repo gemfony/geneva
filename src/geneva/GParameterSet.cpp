@@ -44,7 +44,8 @@ namespace Geneva {
  * The default constructor.
  */
 GParameterSet::GParameterSet()
-	: GMutableSetT<Gem::Geneva::GParameterBase>()
+	: GOptimizableEntity()
+   , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
   	, Gem::Courtier::GProcessingContainerT<GParameterSet>()
   	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
@@ -54,7 +55,8 @@ GParameterSet::GParameterSet()
  * Initialization with the number of fitness criteria
  */
 GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
-	: GMutableSetT<Gem::Geneva::GParameterBase>(nFitnessCriteria)
+	: GOptimizableEntity(nFitnessCriteria)
+   , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
    , Gem::Courtier::GProcessingContainerT<GParameterSet>()
   	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
@@ -67,7 +69,8 @@ GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
  * @param cp A copy of another GParameterSet object
  */
 GParameterSet::GParameterSet(const GParameterSet &cp)
-	: GMutableSetT<Gem::Geneva::GParameterBase>(cp)
+	: GOptimizableEntity(cp)
+   , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>(cp)
   	, Gem::Courtier::GProcessingContainerT<GParameterSet>(cp)
 	, perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
 { /* nothing */ }
@@ -143,14 +146,31 @@ void GParameterSet::compare(
 	GToken token("GParameterSet", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GMutableSetT<Gem::Geneva::GParameterBase>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GOptimizableEntity>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
+	compare_t(IDENTITY(this->data,  p_load->data), token); // data is actually contained in a parent class
 	compare_t(IDENTITY(perItemCrossOverProbability_, p_load->perItemCrossOverProbability_), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
 }
+
+/******************************************************************************/
+/**
+ * Swap another object's vector with ours. We need to set the dirty flag of both
+ * individuals in this case.
+ */
+void GParameterSet::swap(GParameterSet& cp) {
+	Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::swap(cp.data);
+	GOptimizableEntity::setDirtyFlag();
+	cp.setDirtyFlag();
+}
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
 
 /******************************************************************************/
 /**
@@ -341,9 +361,8 @@ void GParameterSet::load_(const GObject *cp) {
 	const GParameterSet *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSet>(cp, this);
 
 	// Load the parent class'es data
-	GMutableSetT<Gem::Geneva::GParameterBase>::load_(cp);
-
-	// Load the parent class'es data
+	GOptimizableEntity::load_(cp);
+	Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::operator=(*p_load);
 	Gem::Courtier::GProcessingContainerT<GParameterSet>::load_pc(p_load);
 
 	// and then our local data
@@ -575,8 +594,8 @@ bool GParameterSet::process_() {
  * @param pos The position of the item we aim to retrieve from the std::vector<GParameterBase>
  * @return The item we aim to retrieve from the std::vector<GParameterBase>
  */
-GMutableSetT<Gem::Geneva::GParameterBase>::reference GParameterSet::at(const std::size_t &pos) {
-	return GMutableSetT<Gem::Geneva::GParameterBase>::at(pos);
+Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference GParameterSet::at(const std::size_t &pos) {
+	return Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::at(pos);
 }
 
 /* ----------------------------------------------------------------------------------
@@ -616,7 +635,7 @@ void GParameterSet::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GMutableSetT<Gem::Geneva::GParameterBase>::addConfigurationOptions(gpb);
+	GOptimizableEntity::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<bool>(
@@ -883,10 +902,18 @@ std::string GParameterSet::toCSV(
  */
 bool GParameterSet::modify_GUnitTests() {
 #ifdef GEM_TESTING
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GMutableSetT<Gem::Geneva::GParameterBase>::modify_GUnitTests()) result = true;
+	if(GOptimizableEntity::modify_GUnitTests()) result = true;
+	if(Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::modify_GUnitTests()) result = true;
+
+	for(auto o: *this) {
+		if(o->modify_GUnitTests()) result = true;
+	}
 
 	if(this->randomInit(activityMode::ALLPARAMETERS)) {
 		result = true;
@@ -911,7 +938,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	std::uniform_real_distribution<double> uniform_real_distribution;
 
 	// Call the parent class'es function
-	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
+	GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests();
+	Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::specificTestsNoFailureExpected_GUnitTests();
 
 	//---------------------------------------------------------------------
 
@@ -1568,8 +1596,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
  */
 void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
-	// Call the parent class'es function
-	GMutableSetT<Gem::Geneva::GParameterBase>::specificTestsFailuresExpected_GUnitTests();
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	// Call the parent classes' functions
+	GOptimizableEntity::specificTestsFailuresExpected_GUnitTests();
+	Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::specificTestsFailuresExpected_GUnitTests();
+
+	// no local data, nothing to test
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GParameterSet::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
