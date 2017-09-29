@@ -285,6 +285,14 @@ private:
 			 , m_nondet_rng()
 			 , m_nondet_rng()
 			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
+			 , m_nondet_rng()
 		 };
 
 	 mutable std::mutex m_seeding_mutex; ///< Regulates start-up of the seeding process
