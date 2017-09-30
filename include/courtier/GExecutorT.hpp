@@ -96,8 +96,6 @@ namespace Courtier {
 // TODO: Even in the case "capable of full return" we need to take into account
 // that work items may return unprocessed. E.g. the processing code itself
 // might throw.
-// TODO: Once all optimization algorithms have been moved to the new infrastructur,
-// derive GBaseExecutorT from GCommonInterfaceT
 // TODO: Take care of marking some classes abstract
 // TODO: Take care of making some of theses classes serializable
 // TODO: In GOptimizationAlgorithmT2(cpp/hpp): serialize-exports instantiations with processable_type == GParameterSet
@@ -133,7 +131,7 @@ public:
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GCommonInterfaceT_GObject"
+		 & make_nvp("GCommonInterfaceT_GBaseExecutotT"
 						, boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_maxResubmissions);
 	 }

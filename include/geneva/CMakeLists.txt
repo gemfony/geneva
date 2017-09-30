@@ -92,6 +92,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterSetMultiConstraint.hpp
 	GParameterT.hpp
 	GParameterTCollectionT.hpp
+    GParChildT.hpp
 	GPersonalityTraits.hpp
     GPluggableOptimizationMonitors.hpp
     GPostProcessorT.hpp
