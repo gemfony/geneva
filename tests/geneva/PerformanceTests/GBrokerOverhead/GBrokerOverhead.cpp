@@ -42,7 +42,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GCourtierHelperFunctions.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"

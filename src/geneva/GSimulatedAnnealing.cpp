@@ -1,5 +1,5 @@
 /**
- * @file GAsioHelperFunctions.hpp
+ * @file GSimulatedAnnealing.cpp
  */
 
 /*
@@ -32,49 +32,12 @@
  * http://www.gemfony.eu .
  */
 
-// Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
-
-// Standard headers go here
-
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <cmath>
-#include <cfloat>
-#include <climits>
-
-// Boost headers go here
-#include <boost/lexical_cast.hpp>
-#include <boost/asio.hpp>
-
-#ifndef GASIOHELPERFUNCTIONS_HPP_
-#define GASIOHELPERFUNCTIONS_HPP_
-
-// Geneva headers go here
-#include "common/GExceptions.hpp"
-#include "common/GLogger.hpp"
-#include "courtier/GCourtierEnums.hpp"
-
-namespace Gem {
-namespace Courtier {
-
-/******************************************************************************/
-/** @brief Assembles a query string from a given command */
-G_API_COURTIER std::string assembleQueryString(const std::string &, const std::size_t &);
-
-/** @brief Extracts the size of ASIO's data section from a C string. */
-G_API_COURTIER std::size_t extractDataSize(const char *, const std::size_t &);
-
-/** @brief Cleanly shuts down a socket */
-G_API_COURTIER void disconnect(boost::asio::ip::tcp::socket &);
+#include "geneva/GSimulatedAnnealing.hpp"
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBrokerSimulatedAnnealing)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialSimulatedAnnealing)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMTSimulatedAnnealing)
 
-#endif /* GASIOHELPERFUNCTIONS_HPP_ */
+/******************************************************************************/

@@ -83,6 +83,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
+#include "courtier/GCourtierHelperFunctions.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -450,6 +451,8 @@ public:
 		 // React on deviations from the expectation
 		 token.evaluate();
 	 }
+
+	 /***************************************************************************/
 
 	 virtual void visualize_performance() BASE { /* nothing */ }
 

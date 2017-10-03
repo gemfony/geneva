@@ -50,6 +50,7 @@ SET ( OPTIMIZATIONSOURCES
 	GOptimizableEntity
 	GOptimizableI
 	GOptimizationAlgorithmT
+    GOptimizationAlgorithmT2
 	GOptimizationEnums
 	GParameterBase
 	GParameterObjectCollection
@@ -71,6 +72,7 @@ SET ( OPTIMIZATIONSOURCES
 	GSerialPS
 	GSerialSA
 	GSerialSwarm
+    GSimulatedAnnealing
 	GSimulatedAnnealingFactory
 	GSwarmAlgorithmFactory
 	GSwarmPersonalityTraits

@@ -39,7 +39,6 @@
 
 // Geneva header files go here
 #include "geneva/Go2.hpp"
-#include "geneva/GParChildT.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"

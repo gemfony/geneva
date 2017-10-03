@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GCourtierHelperFunctions.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -83,6 +83,22 @@ void disconnect(boost::asio::ip::tcp::socket &socket) {
 	boost::system::error_code ignore;
 	socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ignore);
 	socket.close();
+}
+
+/******************************************************************************/
+/**
+ * Create a boolean mask
+ */
+std::vector<bool> getBooleanMask(
+	std::size_t vecSize
+	, std::size_t start
+	, std::size_t end
+) {
+	std::vector<bool> workItemPos(vecSize, Gem::Courtier::GBC_PROCESSED);
+	for(auto p_it = workItemPos.begin() + start; p_it != workItemPos.begin() + end; ++p_it) {
+		*p_it = Gem::Courtier::GBC_UNPROCESSED;
+	}
+	return workItemPos;
 }
 
 /******************************************************************************/

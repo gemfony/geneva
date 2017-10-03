@@ -245,7 +245,7 @@ bool GBrokerSA::usesBroker() const {
 
 /******************************************************************************/
 /**
- * Adapt all children in parallel. Evaluation is done in a seperate function (runFitnessCalculation).
+ * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
  */
 void GBrokerSA::adaptChildren() {
 	std::tuple<std::size_t, std::size_t> range = getAdaptionRange();
@@ -459,7 +459,7 @@ void GBrokerSA::addConfigurationOptions(
 
 	// Add local data
 	gpb.registerFileParameter<std::uint16_t>(
-		"nEvaluationThreads" // The name of the variable
+		"nAdaptionThreads" // The name of the variable
 		, 0 // The default value
 		, [this](std::uint16_t nt) { this->setNThreads(nt); }
 	)

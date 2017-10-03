@@ -77,6 +77,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GOptimizableEntity.hpp
 	GOptimizableI.hpp
 	GOptimizationAlgorithmT.hpp
+    GOptimizationAlgorithmT2.hpp
 	GOptimizationAlgorithmFactoryT.hpp
 	GOptimizationEnums.hpp
 	GParameterBase.hpp
@@ -105,6 +106,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GSerialPS.hpp
 	GSerialSA.hpp
 	GSerialSwarm.hpp
+    GSimulatedAnnealing.hpp
 	GSimulatedAnnealingFactory.hpp
 	GSwarmAlgorithmFactory.hpp
 	GSwarmPersonalityTraits.hpp

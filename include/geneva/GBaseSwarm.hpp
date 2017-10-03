@@ -102,9 +102,6 @@ class GBaseSwarm
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief An easy identifier for the class */
-	static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
-
 	/** @brief The default constructor */
 	G_API_GENEVA GBaseSwarm();
 	/** @brief Initialization with neighborhood sizes and amount of individuals in each neighborhood */

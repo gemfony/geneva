@@ -52,7 +52,7 @@
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/GOptimizationAlgorithmT2.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GBaseParChildPersonalityTraits.hpp"
 
@@ -62,7 +62,7 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * The GParChildT<executor_type> class adds the notion of parents and children to
- * the GOptimizationAlgorithmT<GParameterSet> class. The evolutionary adaptation is realized
+ * the GOptimizationAlgorithmT2<executor_type> class. The evolutionary adaptation is realized
  * through the cycle of adaption, evaluation, and sorting, as defined in this
  * class.
  *
@@ -83,7 +83,7 @@ template <
 	typename executor_type = Gem::Courtier::GBrokerExecutorT<GParameterSet>
 >
 class GParChildT
-	: public GOptimizationAlgorithmT<GParameterSet>
+	: public GOptimizationAlgorithmT2<executor_type>
 {
 	 /////////////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -93,7 +93,7 @@ class GParChildT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>>(*this))
+		 & make_nvp("GOptimizationAlgorithmT_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT2<executor_type>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_n_parents)
 		 & BOOST_SERIALIZATION_NVP(m_recombination_method)
 		 & BOOST_SERIALIZATION_NVP(m_default_n_children)
@@ -102,11 +102,6 @@ class GParChildT
 		 & BOOST_SERIALIZATION_NVP(m_amalgamationLikelihood);
 	 }
 	 /////////////////////////////////////////////////////////////////////////////
-
-	 static_assert(
-		 std::enable_if<std::is_base_of<Gem::Courtier::GBaseExecutorT<GParameterSet>,executor_type>::value>::type
-		 , "Error: executor_type is not derived from GBaseExecutorT<GParameterSet>"
-	 );
 
 public:
 	 /***************************************************************************/
@@ -117,11 +112,12 @@ public:
 	  * vital parameters, such as the population size or the parent individuals by hand
 	  * or do so through the configuration file.
 	  */
-	 GParChildT() : Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>()
+	 GParChildT()
+		 : Gem::Geneva::GOptimizationAlgorithmT2<executor_type>()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
 		 this->setPopulationSizes(
-			 DEFPARCHILDPOPSIZE// overall population size
+			 DEFPARCHILDPOPSIZE // overall population size
 			 , DEFPARCHILDNPARENTS // number of parents
 		 );
 	 }
@@ -135,7 +131,7 @@ public:
 	  * @param cp Another GParChildT<executor_type> object
 	  */
 	 GParChildT(const GParChildT<executor_type>& cp)
-		 : GOptimizationAlgorithmT<GParameterSet>(cp)
+		 : GOptimizationAlgorithmT2<executor_type>(cp)
 			, m_n_parents(cp.m_n_parents)
 			, m_recombination_method(cp.m_recombination_method)
 			, m_default_n_children(cp.m_default_n_children)
@@ -218,7 +214,7 @@ public:
 		 GToken token("GParChildT<executor_type>", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<GOptimizationAlgorithmT2<executor_type>>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 compare_t(IDENTITY(m_n_parents, p_load->m_n_parents), token);
@@ -243,7 +239,7 @@ public:
 	  * @param nParents The desired number of parents
 	  */
 	 void setPopulationSizes(std::size_t popSize, std::size_t nParents) {
-		 GOptimizationAlgorithmT<GParameterSet>::setDefaultPopulationSize(popSize);
+		 GOptimizationAlgorithmT2<executor_type>::setDefaultPopulationSize(popSize);
 		 m_n_parents = nParents;
 	 }
 
@@ -377,7 +373,7 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 )  override {
 		 // Call our parent class'es function
-		 GOptimizationAlgorithmT<GParameterSet>::addConfigurationOptions(gpb);
+		 GOptimizationAlgorithmT2<executor_type>::addConfigurationOptions(gpb);
 
 		 // Add local data
 
@@ -474,13 +470,13 @@ public:
 
 		 std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 		 std::bernoulli_distribution amalgamationWanted(m_amalgamationLikelihood); // true with a likelihood of m_amalgamation_likelihood
-		 for (it = GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents;
-				it != GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
+		 for (it = GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents;
+				it != GOptimizationAlgorithmT2<executor_type>::data.end(); ++it) {
 			 // Retrieve a random number so we can decide whether to perform cross-over or duplication
 			 // If we do perform cross-over, we always cross the best individual with another random parent
-			 if (m_n_parents > 1 && amalgamationWanted(m_gr)) { // Create individuals using a cross-over scheme
+			 if (m_n_parents > 1 && amalgamationWanted(this->m_gr)) { // Create individuals using a cross-over scheme
 				 std::shared_ptr <GParameterSet> bestParent = this->front();
-				 std::shared_ptr <GParameterSet> combiner = (m_n_parents > 2) ? (*(this->begin() + this->m_uniform_int_distribution(m_gr, std::uniform_int_distribution<std::size_t>::param_type(1, m_n_parents - 1)))) : (*(this->begin() + 1));
+				 std::shared_ptr <GParameterSet> combiner = (m_n_parents > 2) ? (*(this->begin() + this->m_uniform_int_distribution(this->m_gr, std::uniform_int_distribution<std::size_t>::param_type(1, m_n_parents - 1)))) : (*(this->begin() + 1));
 
 				 (*it)->GObject::load(bestParent->amalgamate(combiner));
 			 } else { // Just perform duplication
@@ -493,7 +489,7 @@ public:
 
 					 case duplicationScheme::VALUEDUPLICATIONSCHEME: {
 						 if (m_n_parents == 1) {
-							 (*it)->GObject::load(*(GOptimizationAlgorithmT<GParameterSet>::data.begin()));
+							 (*it)->GObject::load(*(GOptimizationAlgorithmT2<executor_type>::data.begin()));
 							 (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits> ()->setParentId(0);
 						 } else {
 							 // A recombination taking into account the value does not make
@@ -501,7 +497,7 @@ public:
 							 // value. Instead, this function might accidentaly trigger value
 							 // calculation. Hence we fall back to random recombination in iteration 0.
 							 // No value calculation takes place there.
-							 if (GOptimizationAlgorithmT<GParameterSet>::inFirstIteration()) {
+							 if (GOptimizationAlgorithmT2<executor_type>::inFirstIteration()) {
 								 randomRecombine(*it);
 							 } else {
 								 valueRecombine(*it, threshold);
@@ -523,12 +519,11 @@ public:
 	  */
 	 void actOnStalls() {
 		 // Make sure the actions of our parent class are carried out
-		 GOptimizationAlgorithmT<GParameterSet>::actOnStalls();
+		 GOptimizationAlgorithmT2<executor_type>::actOnStalls();
 
 		 if (this->getNParents() > 1) {
 			 // Update parent individuals. We leave the best parent untouched
-			 GParChildT<executor_type>::iterator it;
-			 for (it = this->begin() + 1; it != this->begin() + this->getNParents(); ++it) {
+			 for(auto it = this->begin() + 1; it != this->begin() + this->getNParents(); ++it) {
 				 (*it)->updateAdaptorsOnStall(this->getStallCounter());
 			 }
 		 }
@@ -606,7 +601,7 @@ protected:
 		 const GParChildT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GParChildT<executor_type>>(cp, this);
 
 		 // First load the parent class'es data ...
-		 GOptimizationAlgorithmT<GParameterSet>::load_(cp);
+		 GOptimizationAlgorithmT2<executor_type>::load_(cp);
 
 		 // ... and then our own data
 		 m_n_parents = p_load->m_n_parents;
@@ -619,7 +614,7 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * This function is called from GOptimizationAlgorithmT<GParameterSet>::optimize() and performs the
+	  * This function is called from GOptimizationAlgorithmT2<executor_type>::optimize() and performs the
 	  * actual recombination, based on the recombination schemes defined by the user.
 	  *
 	  * Note that, in DEBUG mode, this implementation will enforce a minimum number of children,
@@ -667,7 +662,7 @@ protected:
 	  */
 	 void markParents() {
 		 typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-		 for(it=GOptimizationAlgorithmT<GParameterSet>::data.begin(); it!=GOptimizationAlgorithmT<GParameterSet>::data.begin()+m_n_parents; ++it){
+		 for(it=GOptimizationAlgorithmT2<executor_type>::data.begin(); it!=GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents; ++it){
 			 (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
 		 }
 	 }
@@ -678,7 +673,7 @@ protected:
 	  */
 	 void markChildren() {
 		 typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-		 for(it=GOptimizationAlgorithmT<GParameterSet>::data.begin()+m_n_parents; it!=GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it){
+		 for(it=GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents; it!=GOptimizationAlgorithmT2<executor_type>::data.end(); ++it){
 			 (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
 		 }
 	 }
@@ -691,7 +686,7 @@ protected:
 	 void markIndividualPositions() {
 		 std::size_t pos = 0;
 		 typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-		 for(it=GOptimizationAlgorithmT<GParameterSet>::data.begin(); it!=GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
+		 for(it=GOptimizationAlgorithmT2<executor_type>::data.begin(); it!=GOptimizationAlgorithmT2<executor_type>::data.end(); ++it) {
 			 (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
 		 }
 	 }
@@ -699,13 +694,13 @@ protected:
 	 /***************************************************************************/
 	 /**
 	  * This function implements the logic that constitutes evolutionary algorithms. The
-	  * function is called by GOptimizationAlgorithmT<GParameterSet> for each cycle of the optimization,
+	  * function is called by GOptimizationAlgorithmT2<executor_type> for each cycle of the optimization,
 	  *
 	  * @return The value of the best individual found
 	  */
 	 virtual std::tuple<double, double> cycleLogic() override {
 		 // If this is not the first iteration, check whether we need to increase the population
-		 if(GOptimizationAlgorithmT<GParameterSet>::afterFirstIteration()) {
+		 if(GOptimizationAlgorithmT2<executor_type>::afterFirstIteration()) {
 			 performScheduledPopulationGrowth();
 		 }
 
@@ -719,7 +714,7 @@ protected:
 		 runFitnessCalculation();
 
 		 // Perform post-evaluation updates (mostly of individuals)
-		 GOptimizationAlgorithmT<GParameterSet>::postEvaluationWork();
+		 GOptimizationAlgorithmT2<executor_type>::postEvaluationWork();
 
 		 // find out the best individuals of the population
 		 selectBest();
@@ -742,12 +737,12 @@ protected:
 	 /***************************************************************************/
 	 /**
 	  * The function checks that the population size meets the requirements and does some
-	  * tagging. It is called from within GOptimizationAlgorithmT<GParameterSet>::optimize(), before the
+	  * tagging. It is called from within GOptimizationAlgorithmT2<executor_type>::optimize(), before the
 	  * actual optimization cycle starts.
 	  */
 	 virtual void init() override {
 		 // To be performed before any other action
-		 GOptimizationAlgorithmT<GParameterSet>::init();
+		 GOptimizationAlgorithmT2<executor_type>::init();
 
 		 // Perform some checks regarding population sizes
 		 populationSanityChecks();
@@ -760,7 +755,7 @@ protected:
 		 // what the desired number of children is. This is particularly important, if, in a
 		 // network environment, some individuals might not return and some individuals return
 		 // late. The factual size of the population then changes and we need to take action.
-		 m_default_n_children = GOptimizationAlgorithmT<GParameterSet>::getDefaultPopulationSize() - m_n_parents;
+		 m_default_n_children = GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize() - m_n_parents;
 	 }
 
 	 /***************************************************************************/
@@ -769,7 +764,7 @@ protected:
 	  */
 	 virtual void finalize() override {
 		 // Last action
-		 GOptimizationAlgorithmT<GParameterSet>::finalize();
+		 GOptimizationAlgorithmT2<executor_type>::finalize();
 	 }
 
 	 /***************************************************************************/
@@ -778,15 +773,15 @@ protected:
 	  * population to the appropriate size, if required. An obvious precondition is that at
 	  * least one individual has been added to the population. Individuals that have already
 	  * been added will not be replaced. This function is called once before the optimization
-	  * cycle from within GOptimizationAlgorithmT<GParameterSet>::optimize()
+	  * cycle from within GOptimizationAlgorithmT2<executor_type>::optimize()
 	  */
 	 virtual void adjustPopulation() override {
 		 // Has the population size been set at all ?
-		 if(GOptimizationAlgorithmT<GParameterSet>::getDefaultPopulationSize() == 0) {
+		 if(GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize() == 0) {
 			 glogger
 				 << "In GParChildT<executor_type>::adjustPopulation() :" << std::endl
 				 << "The population size is 0." << std::endl
-				 << "Did you call GOptimizationAlgorithmT<GParameterSet>::setParentsAndPopulationSize() ?" << std::endl
+				 << "Did you call GOptimizationAlgorithmT2<executor_type>::setParentsAndPopulationSize() ?" << std::endl
 				 << GEXCEPTION;
 		 }
 
@@ -802,7 +797,7 @@ protected:
 
 		 // Do the smart pointers actually point to any objects ?
 		 typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-		 for(it=GOptimizationAlgorithmT<GParameterSet>::data.begin(); it!=GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
+		 for(it=GOptimizationAlgorithmT2<executor_type>::data.begin(); it!=GOptimizationAlgorithmT2<executor_type>::data.end(); ++it) {
 			 if(!(*it)) { // shared_ptr can be implicitly converted to bool
 				 glogger
 					 << "In GParChildT<executor_type>::adjustPopulation() :" << std::endl
@@ -812,14 +807,14 @@ protected:
 		 }
 
 		 // Fill up as required. We are now sure we have a suitable number of individuals to do so
-		 if(this_sz < GOptimizationAlgorithmT<GParameterSet>::getDefaultPopulationSize()) {
+		 if(this_sz < GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize()) {
 			 this->resize_clone(
-				 GOptimizationAlgorithmT<GParameterSet>::getDefaultPopulationSize()
-				 , GOptimizationAlgorithmT<GParameterSet>::data[0]
+				 GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize()
+				 , GOptimizationAlgorithmT2<executor_type>::data[0]
 			 );
 
 			 // Randomly initialize new items
-			 for(it=GOptimizationAlgorithmT<GParameterSet>::data.begin()+this_sz; it!=GOptimizationAlgorithmT<GParameterSet>::data.end(); ++it) {
+			 for(it=GOptimizationAlgorithmT2<executor_type>::data.begin()+this_sz; it!=GOptimizationAlgorithmT2<executor_type>::data.end(); ++it) {
 				 (*it)->randomInit(activityMode::ACTIVEONLY);
 			 }
 		 }
@@ -840,7 +835,7 @@ protected:
 			 this->setPopulationSizes(this->getDefaultPopulationSize() + m_growth_rate, this->getNParents());
 
 			 // Add missing items as copies of the last individual in the list
-			 this->resize_clone(GOptimizationAlgorithmT<GParameterSet>::getDefaultPopulationSize(), GOptimizationAlgorithmT<GParameterSet>::data[0]);
+			 this->resize_clone(GOptimizationAlgorithmT2<executor_type>::getDefaultPopulationSize(), GOptimizationAlgorithmT2<executor_type>::data[0]);
 		 }
 	 }
 
@@ -862,11 +857,11 @@ protected:
 			 // try/catch blocks would add a non-negligible overhead in this function. uniform_int(max)
 			 // returns integer values in the range [0,max]. As we want to have values in the range
 			 // 0,1, ... m_n_parents-1, we need to subtract one from the argument.
-			 parent_pos = m_uniform_int_distribution(GOptimizationAlgorithmT<GParameterSet>::m_gr, std::uniform_int_distribution<std::size_t>::param_type(0, m_n_parents-1));
+			 parent_pos = m_uniform_int_distribution(this->m_gr, std::uniform_int_distribution<std::size_t>::param_type(0, m_n_parents-1));
 		 }
 
 		 // Load the parent data into the individual
-		 child->GObject::load(*(GOptimizationAlgorithmT<GParameterSet>::data.begin() + parent_pos));
+		 child->GObject::load(*(GOptimizationAlgorithmT2<executor_type>::data.begin() + parent_pos));
 
 		 // Let the individual know the id of the parent
 		 child->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
@@ -889,12 +884,12 @@ protected:
 	 ) {
 		 bool done=false;
 		 double randTest // get the test value
-			 = GOptimizationAlgorithmT<GParameterSet>::m_uniform_real_distribution(GOptimizationAlgorithmT<GParameterSet>::m_gr);
+			 = GOptimizationAlgorithmT2<executor_type>::m_uniform_real_distribution(this->m_gr);
 
 		 for(std::size_t par=0; par<m_n_parents; par++) {
 			 if(randTest<threshold[par]) {
 				 // Load the parent's data
-				 p->GObject::load(*(GOptimizationAlgorithmT<GParameterSet>::data.begin() + par));
+				 p->GObject::load(*(GOptimizationAlgorithmT2<executor_type>::data.begin() + par));
 				 // Let the individual know the parent's id
 				 p->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
 				 done = true;
@@ -925,7 +920,7 @@ protected:
          if(ind_ptr->isDirty()) {
             glogger
             << "In GParChildT<executor_type>::sortMuplusnuMode(): Error!" << std::endl
-            << "In iteration " << GOptimizationAlgorithmT<GParameterSet>::getIteration() << ": Found individual in position " << pos << std::endl
+            << "In iteration " << GOptimizationAlgorithmT2<executor_type>::getIteration() << ": Found individual in position " << pos << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
          }
@@ -935,9 +930,9 @@ protected:
 
 		 // Only partially sort the arrays
 		 std::partial_sort(
-			 GOptimizationAlgorithmT<GParameterSet>::data.begin()
-			 , GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents
-			 , GOptimizationAlgorithmT<GParameterSet>::data.end()
+			 GOptimizationAlgorithmT2<executor_type>::data.begin()
+			 , GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
+			 , GOptimizationAlgorithmT2<executor_type>::data.end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 				 return x->minOnly_fitness() < y->minOnly_fitness();
 			 }
@@ -952,14 +947,14 @@ protected:
 	  */
 	 void sortMuCommaNuMode() {
 #ifdef DEBUG
-		 if (GOptimizationAlgorithmT<GParameterSet>::inFirstIteration()) {
+		 if (GOptimizationAlgorithmT2<executor_type>::inFirstIteration()) {
 			// Check that we do not accidently trigger value calculation -- check the whole range
 			typename GParChildT<executor_type>::iterator it;
 			for (it = this->begin(); it != this->end(); ++it) {
 				if ((*it)->isDirty()) {
 					glogger
 						<< "In GParChildT<executor_type>::sortMucommanuMode(): Error!" << std::endl
-						<< "In iteration " << GOptimizationAlgorithmT<GParameterSet>::getIteration() << ": Found individual in position " << std::distance(
+						<< "In iteration " << GOptimizationAlgorithmT2<executor_type>::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
 					) << std::endl
@@ -974,7 +969,7 @@ protected:
 				if ((*it)->isDirty()) {
 					glogger
 						<< "In GParChildT<executor_type>::sortMucommanuMode(): Error!" << std::endl
-						<< "In iteration " << GOptimizationAlgorithmT<GParameterSet>::getIteration() << ": Found individual in position " << std::distance(
+						<< "In iteration " << GOptimizationAlgorithmT2<executor_type>::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
 					) << std::endl
@@ -985,7 +980,7 @@ protected:
 		}
 #endif /* DEBUG */
 
-		 if (GOptimizationAlgorithmT<GParameterSet>::inFirstIteration()) {
+		 if (GOptimizationAlgorithmT2<executor_type>::inFirstIteration()) {
 			 // We fall back to MUPLUSNU mode in the first iteration,
 			 // as parents are new as well.
 			 this->sortMuPlusNuMode();
@@ -993,18 +988,18 @@ protected:
 		 } else {
 			 // Only sort the children
 			 std::partial_sort(
-				 GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents
-				 , GOptimizationAlgorithmT<GParameterSet>::data.begin() + 2 * m_n_parents
-				 , GOptimizationAlgorithmT<GParameterSet>::data.end()
+				 GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
+				 , GOptimizationAlgorithmT2<executor_type>::data.begin() + 2 * m_n_parents
+				 , GOptimizationAlgorithmT2<executor_type>::data.end()
 				 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 					 return x->minOnly_fitness() < y->minOnly_fitness();
 				 }
 			 );
 
 			 std::swap_ranges(
-				 GOptimizationAlgorithmT<GParameterSet>::data.begin()
-				 , GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents
-				 , GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents
+				 GOptimizationAlgorithmT2<executor_type>::data.begin()
+				 , GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
+				 , GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
 			 );
 		 }
 	 }
@@ -1027,42 +1022,42 @@ protected:
          if((*it)->isDirty()) {
             glogger
             << "In GParChildT<executor_type>::sortMunu1pretainMode(): Error!" << std::endl
-            << "In iteration " << GOptimizationAlgorithmT<GParameterSet>::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
+            << "In iteration " << GOptimizationAlgorithmT2<executor_type>::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
          }
       }
 #endif /* DEBUG */
 
-		 if(m_n_parents==1 || GOptimizationAlgorithmT<GParameterSet>::inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
+		 if(m_n_parents==1 || GOptimizationAlgorithmT2<executor_type>::inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
 			 sortMuPlusNuMode();
 		 } else {
 			 // Sort the children
 			 std::partial_sort(
-				 GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents
-				 , GOptimizationAlgorithmT<GParameterSet>::data.begin() + 2*m_n_parents
-				 , GOptimizationAlgorithmT<GParameterSet>::data.end()
+				 GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents
+				 , GOptimizationAlgorithmT2<executor_type>::data.begin() + 2*m_n_parents
+				 , GOptimizationAlgorithmT2<executor_type>::data.end()
 				 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 					 return x->minOnly_fitness() < y->minOnly_fitness();
 				 }
 			 );
 
 			 // Retrieve the best child's and the last generation's best parent's fitness
-			 double bestTranformedChildFitness_MinOnly  = (*(GOptimizationAlgorithmT<GParameterSet>::data.begin() + m_n_parents))->minOnly_fitness();
-			 double bestTranformedParentFitness_MinOnly = (*(GOptimizationAlgorithmT<GParameterSet>::data.begin()))->minOnly_fitness();
+			 double bestTranformedChildFitness_MinOnly  = (*(GOptimizationAlgorithmT2<executor_type>::data.begin() + m_n_parents))->minOnly_fitness();
+			 double bestTranformedParentFitness_MinOnly = (*(GOptimizationAlgorithmT2<executor_type>::data.begin()))->minOnly_fitness();
 
 			 // Leave the best parent in place, if no better child was found
 			 if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) { // A better child was found. Overwrite all parents
 				 std::swap_ranges(
-					 GOptimizationAlgorithmT<GParameterSet>::data.begin()
-					 ,GOptimizationAlgorithmT<GParameterSet>::data.begin()+m_n_parents
-					 ,GOptimizationAlgorithmT<GParameterSet>::data.begin()+m_n_parents
+					 GOptimizationAlgorithmT2<executor_type>::data.begin()
+					 ,GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents
+					 ,GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents
 				 );
 			 } else {
 				 std::swap_ranges(
-					 GOptimizationAlgorithmT<GParameterSet>::data.begin()+1
-					 ,GOptimizationAlgorithmT<GParameterSet>::data.begin()+m_n_parents
-					 ,GOptimizationAlgorithmT<GParameterSet>::data.begin()+m_n_parents
+					 GOptimizationAlgorithmT2<executor_type>::data.begin()+1
+					 ,GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents
+					 ,GOptimizationAlgorithmT2<executor_type>::data.begin()+m_n_parents
 				 );
 			 }
 		 }
@@ -1093,7 +1088,7 @@ public:
 		 bool result = false;
 
       // Call the parent class'es function
-      if(GOptimizationAlgorithmT<GParameterSet>::modify_GUnitTests()) result = true;
+      if(GOptimizationAlgorithmT2<executor_type>::modify_GUnitTests()) result = true;
 
       return result;
 
@@ -1110,7 +1105,7 @@ public:
 	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-      GOptimizationAlgorithmT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests();
+      GOptimizationAlgorithmT2<executor_type>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GParChildT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -1124,7 +1119,7 @@ public:
 	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-      GOptimizationAlgorithmT<GParameterSet>::specificTestsFailuresExpected_GUnitTests();
+      GOptimizationAlgorithmT2<executor_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
 		 condnotset("GParChildT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

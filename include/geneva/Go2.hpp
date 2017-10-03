@@ -51,7 +51,7 @@
 #include "common/GParserBuilder.hpp"
 #include "hap/GRandomFactory.hpp"
 #include "hap/GRandomT.hpp"
-#include "courtier/GAsioHelperFunctions.hpp"
+#include "courtier/GCourtierHelperFunctions.hpp"
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GAsioAsyncTCPConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"

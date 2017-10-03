@@ -93,9 +93,6 @@ class GBaseGD
 	///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief An easy identifier for the class */
-	static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
-
 	/** @brief The default constructor */
 	G_API_GENEVA GBaseGD();
 	/** @brief Initialization with the number of starting points and the size of the finite step */
