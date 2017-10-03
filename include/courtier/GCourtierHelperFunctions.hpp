@@ -51,8 +51,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/asio.hpp>
 
-#ifndef GASIOHELPERFUNCTIONS_HPP_
-#define GASIOHELPERFUNCTIONS_HPP_
+#ifndef GCOURTIERHELPERFUNCTIONS_HPP_
+#define GCOURTIERHELPERFUNCTIONS_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -84,4 +84,4 @@ G_API_COURTIER std::vector<bool> getBooleanMask(
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GASIOHELPERFUNCTIONS_HPP_ */
+#endif /* GCOURTIERHELPERFUNCTIONS_HPP_ */
