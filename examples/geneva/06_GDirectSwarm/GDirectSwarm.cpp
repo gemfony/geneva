@@ -57,7 +57,9 @@
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/GSwarmAlgorithmFactory.hpp"
+#include "geneva/GSerialSwarm.hpp"
+#include "geneva/GMultiThreadedSwarm.hpp"
+#include "geneva/GBrokerSwarm.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"

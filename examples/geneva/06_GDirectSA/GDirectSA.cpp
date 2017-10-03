@@ -57,9 +57,7 @@
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/GSerialEA.hpp"
-#include "geneva/GMultiThreadedEA.hpp"
-#include "geneva/GBrokerEA.hpp"
+#include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
