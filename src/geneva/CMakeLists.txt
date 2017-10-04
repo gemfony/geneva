@@ -46,6 +46,8 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedSA
 	GMultiThreadedSwarm
 	Go2
+    G_OA_SimulatedAnnealing
+    G_OA_SimulatedAnnealingFactory
 	GObject
 	GOptimizableEntity
 	GOptimizableI
@@ -72,8 +74,6 @@ SET ( OPTIMIZATIONSOURCES
 	GSerialPS
 	GSerialSA
 	GSerialSwarm
-    GSimulatedAnnealing
-	GSimulatedAnnealingFactory
 	GSwarmAlgorithmFactory
 	GSwarmPersonalityTraits
 	GTestIndividual1

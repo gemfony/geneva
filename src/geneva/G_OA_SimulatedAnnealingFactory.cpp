@@ -1,5 +1,5 @@
 /**
- * @file GSimulatedAnnealingFactory.cpp
+ * @file G_OA_SimulatedAnnealingFactory.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GSimulatedAnnealingFactory.hpp"
+#include "geneva/G_OA_SimulatedAnnealingFactory.hpp"
 
 namespace Gem {
 namespace Geneva {

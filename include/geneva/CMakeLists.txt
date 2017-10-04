@@ -71,6 +71,8 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumIntT.hpp
 	GNumT.hpp
 	GOAInitializerT.hpp
+    G_OA_SimulatedAnnealing.hpp
+    G_OA_SimulatedAnnealingFactory.hpp
 	Go2.hpp
 	GOAFactoryStore.hpp
     GObject.hpp
@@ -106,8 +108,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GSerialPS.hpp
 	GSerialSA.hpp
 	GSerialSwarm.hpp
-    GSimulatedAnnealing.hpp
-	GSimulatedAnnealingFactory.hpp
 	GSwarmAlgorithmFactory.hpp
 	GSwarmPersonalityTraits.hpp
 	GTestIndividual1.hpp

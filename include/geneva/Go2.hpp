@@ -72,7 +72,7 @@
 #include "geneva/GEvolutionaryAlgorithmFactory.hpp"
 #include "geneva/GGradientDescentFactory.hpp"
 #include "geneva/GParameterScanFactory.hpp"
-#include "geneva/GSimulatedAnnealingFactory.hpp"
+#include "geneva/G_OA_SimulatedAnnealingFactory.hpp"
 #include "geneva/GSwarmAlgorithmFactory.hpp"
 
 namespace Gem {

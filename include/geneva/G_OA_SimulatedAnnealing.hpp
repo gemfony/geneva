@@ -1,5 +1,5 @@
 /**
- * @file SimulatedAnnealing.hpp
+ * @file G_OA_SimulatedAnnealing.hpp
  */
 
 /*
@@ -40,8 +40,8 @@
 
 // Boost headers go here
 
-#ifndef GSIMULATEDANNEALING_HPP_
-#define GSIMULATEDANNEALING_HPP_
+#ifndef G_OA_SIMULATEDANNEALING_HPP_
+#define G_OA_SIMULATEDANNEALING_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -846,4 +846,4 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerSimulatedAnnealing)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialSimulatedAnnealing)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMTSimulatedAnnealing)
 
-#endif /* GSIMULATEDANNEALING_HPP_ */
+#endif /* G_OA_SIMULATEDANNEALING_HPP_ */

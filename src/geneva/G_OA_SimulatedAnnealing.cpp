@@ -1,5 +1,5 @@
 /**
- * @file GSimulatedAnnealing.cpp
+ * @file G_OA_SimulatedAnnealing.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GSimulatedAnnealing.hpp"
+#include "geneva/G_OA_SimulatedAnnealing.hpp"
 
 /******************************************************************************/
 
