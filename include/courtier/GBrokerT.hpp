@@ -69,7 +69,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GBoundedBufferT.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSingletonT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GBufferPortT.hpp"

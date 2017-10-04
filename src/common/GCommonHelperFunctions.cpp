@@ -1,5 +1,5 @@
 /**
- * @file GHelperFunctions.cpp
+ * @file GCommonHelperFunctions.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {

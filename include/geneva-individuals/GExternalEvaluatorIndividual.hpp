@@ -56,7 +56,7 @@
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "hap/GRandomT.hpp"

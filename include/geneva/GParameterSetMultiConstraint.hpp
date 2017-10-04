@@ -43,7 +43,7 @@
 #define GPARAMETERSETMULTICONSTRAINT_HPP_
 
 // Geneva header files go here
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GFormulaParserT.hpp"
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GIndividualMultiConstraint.hpp"

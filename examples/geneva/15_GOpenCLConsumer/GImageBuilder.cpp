@@ -24,7 +24,7 @@
 #include <boost/program_options.hpp>
 
 // Geneva header files go here
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"

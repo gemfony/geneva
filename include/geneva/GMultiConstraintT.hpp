@@ -44,7 +44,7 @@
 #define GMULTICONSTRAINTT_HPP_
 
 // Geneva header files go here
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"

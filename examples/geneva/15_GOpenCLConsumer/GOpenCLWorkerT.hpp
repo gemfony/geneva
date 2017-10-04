@@ -46,7 +46,7 @@
 #define GOPENCLWORKER_HPP_
 
 // Geneva headers go here
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 #include "common/GParserBuilder.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBaseConsumerT.hpp"

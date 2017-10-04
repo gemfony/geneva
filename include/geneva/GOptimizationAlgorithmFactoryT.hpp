@@ -46,7 +46,7 @@
 #define GOPTIMIZATIONALGORITHMFACTORYT_HPP_
 
 // Geneva headers go here
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GFactoryT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GBaseEA.hpp"

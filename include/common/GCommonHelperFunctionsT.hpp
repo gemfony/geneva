@@ -1,5 +1,5 @@
 /**
- * @file GHelperFunctionsT.hpp
+ * @file GCommonHelperFunctionsT.hpp
  */
 
 /*
@@ -60,11 +60,11 @@
 #include <boost/lockfree/spsc_queue.hpp>
 #include <boost/lockfree/policies.hpp>
 
-#ifndef GHELPERFUNCTIONST_HPP_
-#define GHELPERFUNCTIONST_HPP_
+#ifndef GCOMMONHELPERFUNCTIONST_HPP_
+#define GCOMMONHELPERFUNCTIONST_HPP_
 
 // Geneva headers go here
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GTypeTraitsT.hpp"
@@ -1076,4 +1076,4 @@ bool timedRetrievalFromBoostLockfree(
 } /* namespace Common */
 } /* namespace Gem */
 
-#endif /* GHELPERFUNCTIONST_HPP_ */
+#endif /* GCOMMONHELPERFUNCTIONST_HPP_ */

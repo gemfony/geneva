@@ -1,5 +1,5 @@
 /**
- * @file GHelperFunctions.hpp
+ * @file GCommonHelperFunctions.hpp
  */
 
 /*
@@ -63,8 +63,8 @@
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
 #include <boost/predef.h>
 
-#ifndef GHELPERFUNCTIONS_HPP_
-#define GHELPERFUNCTIONS_HPP_
+#ifndef GCOMMONHELPERFUNCTIONS_HPP_
+#define GCOMMONHELPERFUNCTIONS_HPP_
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
@@ -88,7 +88,10 @@ std::string loadTextDataFromFile(const boost::filesystem::path &);
 /** @brief This function executes an external command on the operating system */
 G_API_COMMON
 int runExternalCommand(
-	const boost::filesystem::path &, const std::vector<std::string> &, const boost::filesystem::path &, std::string &
+	const boost::filesystem::path &
+	, const std::vector<std::string> &
+	, const boost::filesystem::path &
+	, std::string &
 );
 
 /******************************************************************************/
@@ -136,4 +139,4 @@ std::string getMSSince1970();
 } /* namespace Common */
 } /* namespace Gem */
 
-#endif /* GHELPERFUNCTIONS_HPP_ */
+#endif /* GCOMMONHELPERFUNCTIONS_HPP_ */

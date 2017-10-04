@@ -1,5 +1,5 @@
 /**
- * @file GMathHelperFunctions.cpp
+ * @file GCommonMathHelperFunctions.cpp
  */
 
 /*
@@ -61,7 +61,7 @@
  */
 
 
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {

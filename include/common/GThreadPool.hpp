@@ -54,7 +54,7 @@
 // Geneva header files go here
 #include "common/GLogger.hpp"
 #include "common/GStdThreadGroup.hpp"
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 #include "GThreadWrapper.hpp"
 
 namespace Gem {

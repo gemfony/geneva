@@ -48,8 +48,8 @@
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"
-#include "common/GHelperFunctionsT.hpp"
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GLockVarT.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GObject.hpp"

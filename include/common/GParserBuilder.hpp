@@ -83,7 +83,7 @@
 #include "common/GLogger.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GDefaultValueT.hpp"
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {

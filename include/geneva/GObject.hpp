@@ -90,7 +90,7 @@
 #include "common/GDefaultValueT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GParserBuilder.hpp"

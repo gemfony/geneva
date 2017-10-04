@@ -44,7 +44,7 @@
 #define GPARAMETERTCOLLECTIONT_HPP_
 
 // Geneva header files go here
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GStdPtrVectorInterfaceT.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "geneva/GParameterT.hpp"

@@ -42,7 +42,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <common/GMathHelperFunctionsT.hpp>
+#include <common/GCommonMathHelperFunctionsT.hpp>
 #include <common/GThreadPool.hpp>
 #include <geneva/Go2.hpp>
 

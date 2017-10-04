@@ -51,7 +51,7 @@
 #include "geneva/GConstrainedNumT.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 #include "hap/GRandomBase.hpp"
 #include "hap/GRandomT.hpp"
 

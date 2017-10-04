@@ -54,8 +54,8 @@
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
-#include "common/GHelperFunctionsT.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include "hap/GRandomDistributionsT.hpp"
 #include "geneva/GDoubleCollection.hpp"

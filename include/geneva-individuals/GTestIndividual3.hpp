@@ -71,8 +71,8 @@
 #include "common/GExceptions.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GParserBuilder.hpp"
-#include "common/GMathHelperFunctions.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace Tests {

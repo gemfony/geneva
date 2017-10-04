@@ -47,7 +47,7 @@
 // Geneva headers go here
 
 #include "hap/GRandomT.hpp"
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
 namespace Hap {

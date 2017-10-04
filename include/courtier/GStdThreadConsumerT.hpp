@@ -50,7 +50,7 @@
 
 // Geneva headers go here
 #include "common/GStdThreadGroup.hpp"
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBaseConsumerT.hpp"

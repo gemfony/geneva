@@ -85,9 +85,9 @@
 
 // Geneva header files go here
 #include "common/GLogger.hpp"
-#include "common/GHelperFunctions.hpp"
-#include "common/GMathHelperFunctions.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 
 // aliases for ease of use
 namespace bf = boost::filesystem;

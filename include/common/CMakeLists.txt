@@ -38,7 +38,10 @@ SET ( GENEVACOMMONINCLUDES
     GBoundedBufferT.hpp
 	GCanvas.hpp
 	GCommonEnums.hpp
+    GCommonHelperFunctions.hpp
 	GCommonInterfaceT.hpp
+    GCommonMathHelperFunctions.hpp
+    GCommonMathHelperFunctionsT.hpp
 	GDefaultValueT.hpp
 	GExceptions.hpp
 	GExpectationChecksT.hpp
@@ -47,12 +50,9 @@ SET ( GENEVACOMMONINCLUDES
 	GFormulaParserT.hpp
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
-	GHelperFunctions.hpp
-	GHelperFunctionsT.hpp
+        GCommonHelperFunctionsT.hpp
 	GLockVarT.hpp
 	GLogger.hpp
-	GMathHelperFunctions.hpp
-	GMathHelperFunctionsT.hpp
 	GParserBuilder.hpp
 	GPlotDesigner.hpp
     GSerializableFunctionObjectT.hpp

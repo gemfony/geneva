@@ -45,7 +45,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GBaseParChildT.hpp"

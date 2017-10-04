@@ -48,7 +48,7 @@
 #include "hap/GRandomT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GStdPtrVectorInterfaceT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GObject.hpp"

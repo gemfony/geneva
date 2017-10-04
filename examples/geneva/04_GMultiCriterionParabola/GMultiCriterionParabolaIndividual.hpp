@@ -48,7 +48,7 @@
 #include <geneva/GConstrainedDoubleObject.hpp>
 #include <common/GFactoryT.hpp>
 #include <common/GParserBuilder.hpp>
-#include <common/GHelperFunctions.hpp>
+#include <common/GCommonHelperFunctions.hpp>
 
 namespace Gem {
 namespace Geneva {

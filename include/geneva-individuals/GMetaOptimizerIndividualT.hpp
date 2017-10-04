@@ -49,7 +49,7 @@
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"

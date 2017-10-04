@@ -65,8 +65,8 @@
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"
-#include "common/GHelperFunctionsT.hpp"
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GTypeTraitsT.hpp"

@@ -68,7 +68,7 @@
 #define GSTDPTRVECTORINTERFACET_HPP_
 
 // Geneva headers go here
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GExpectationChecksT.hpp"
 

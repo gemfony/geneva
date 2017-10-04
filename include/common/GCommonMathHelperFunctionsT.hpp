@@ -1,5 +1,5 @@
 /**
- * @file GMathHelperFunctionsT.hpp
+ * @file GCommonMathHelperFunctionsT.hpp
  */
 
 /*
@@ -52,13 +52,13 @@
 #include <boost/math/special_functions.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
 
-#ifndef GMATHHELPERFUNCTIONST_HPP_
-#define GMATHHELPERFUNCTIONST_HPP_
+#ifndef GCOMMONMATHHELPERFUNCTIONST_HPP_
+#define GCOMMONMATHHELPERFUNCTIONST_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {
@@ -916,4 +916,4 @@ bool isClose(
 } /* namespace Common */
 } /* namespace Gem */
 
-#endif /* GMATHHELPERFUNCTIONST_HPP_ */
+#endif /* GCOMMONMATHHELPERFUNCTIONST_HPP_ */

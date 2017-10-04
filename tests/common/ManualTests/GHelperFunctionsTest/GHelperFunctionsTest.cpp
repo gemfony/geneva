@@ -40,7 +40,7 @@
 // Boost headers go here
 
 // Geneva headers go here
-#include "common/GHelperFunctions.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 
 using namespace Gem::Common;
 

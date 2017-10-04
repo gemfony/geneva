@@ -40,7 +40,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/Go2.hpp"
 

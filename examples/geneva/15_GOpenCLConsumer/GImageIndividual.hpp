@@ -52,12 +52,12 @@
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GGlobalOptionsT.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GFactoryT.hpp"
-#include "common/GMathHelperFunctions.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GCanvas.hpp"
 
 namespace Gem {

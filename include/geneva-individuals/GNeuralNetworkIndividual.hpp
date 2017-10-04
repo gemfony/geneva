@@ -70,8 +70,8 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GHelperFunctions.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "common/GUnitTestFrameworkT.hpp"

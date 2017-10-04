@@ -57,7 +57,7 @@
 #define GRANDOMBASE_HPP_
 
 // Hap headers go here
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 #include "hap/GHapEnums.hpp"
 #include "hap/GRandomDefines.hpp"
 #include "hap/GRandomFactory.hpp"

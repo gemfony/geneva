@@ -67,7 +67,7 @@
 // Geneva headers go here
 
 #include "common/GExceptions.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GExpectationChecksT.hpp"
 

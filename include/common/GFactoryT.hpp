@@ -66,7 +66,7 @@
 // Geneva header files go here
 #include <common/GParserBuilder.hpp>
 #include <common/GExceptions.hpp>
-#include <common/GHelperFunctionsT.hpp>
+#include <common/GCommonHelperFunctionsT.hpp>
 
 namespace Gem {
 namespace Common {

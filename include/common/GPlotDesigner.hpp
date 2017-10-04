@@ -80,8 +80,8 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GHelperFunctionsT.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"

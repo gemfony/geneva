@@ -53,7 +53,7 @@
 
 // Geneva header files go here
 #include "courtier/GCourtierEnums.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GBoundedBufferT.hpp"
 
 namespace Gem {

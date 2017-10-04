@@ -49,7 +49,7 @@
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GConstrainedDoubleCollection.hpp"

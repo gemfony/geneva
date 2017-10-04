@@ -51,8 +51,8 @@
 
 // Geneva headers go here
 #include "common/GStdPtrVectorInterfaceT.hpp"
-#include "common/GHelperFunctions.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "courtier/GExecutorT.hpp"

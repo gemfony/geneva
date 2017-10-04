@@ -103,7 +103,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
-#include "common/GMathHelperFunctions.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
 namespace Common {

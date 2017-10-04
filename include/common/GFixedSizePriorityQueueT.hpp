@@ -63,11 +63,11 @@
 #define GFIXEDSIZEPRIORITYQUEUET_HPP_
 
 // Geneva headers go here
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GExceptions.hpp"
 #include <common/GExpectationChecksT.hpp>
 #include "common/GLogger.hpp"
-#include "common/GMathHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
 
 namespace Gem {

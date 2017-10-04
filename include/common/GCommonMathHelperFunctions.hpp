@@ -1,5 +1,5 @@
 /**
- * @file GMathHelperFunctions.hpp
+ * @file GCommonMathHelperFunctions.hpp
  */
 
 /*
@@ -70,8 +70,8 @@
 // Boost headers go here
 #include <boost/math/special_functions.hpp>
 
-#ifndef GMATHHELPERFUNCTIONS_HPP_
-#define GMATHHELPERFUNCTIONS_HPP_
+#ifndef GCOMMONMATHHELPERFUNCTIONS_HPP_
+#define GCOMMONMATHHELPERFUNCTIONS_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -208,4 +208,4 @@ G_API_COMMON double gsigmoid(const double &, const double &, const double &);
 } /* namespace Common */
 } /* namespace Gem */
 
-#endif /* GMATHHELPERFUNCTIONS_HPP_ */
+#endif /* GCOMMONMATHHELPERFUNCTIONS_HPP_ */

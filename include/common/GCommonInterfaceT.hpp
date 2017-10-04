@@ -68,7 +68,7 @@
 #include "common/GCommonEnums.hpp" // For the serialization mode
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 
 // aliases for ease of use
 namespace bf = boost::filesystem;

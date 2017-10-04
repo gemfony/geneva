@@ -46,7 +46,7 @@
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
-#include "common/GHelperFunctionsT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GScanPar.hpp"
 #include "geneva/GOptimizableEntity.hpp"

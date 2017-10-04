@@ -3,13 +3,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET ( COMMONSOURCES
 	GCanvas
     GCommonEnums
-	GExceptions
+    GCommonHelperFunctions
+    GCommonMathHelperFunctions
+    GExceptions
 	GExpectationChecksT
 	GFormulaParserT
-	GHelperFunctions
 	GLockVarT
 	GLogger
-	GMathHelperFunctions
 	GParserBuilder
 	GPlotDesigner
     GStdThreadGroup
