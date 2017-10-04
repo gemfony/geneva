@@ -573,7 +573,14 @@ private:
 			 head_lock
 			 , [&]{ return m_head_ptr!=get_tail(); }
 		 );
-		 return std::move(head_lock);
+
+		 // The original code used an explicit move, which (on Clang on Apple) resulted
+		 // in a warning "moving a local object in a return statement prevents copy elision".
+		 // https://stackoverflow.com/questions/26014368/c11-move-when-returning-a-lock
+		 // correctly states that std::unique_lock cannot be copied, so leaving out the
+		 // std::move will result in a move anyway.
+		 // return std::move(head_lock);
+		 return head_lock;
 	 }
 
 
@@ -589,7 +596,14 @@ private:
 			 , timeout
 			 , [&]{ return m_head_ptr.get()!=get_tail(); }
 		 );
-		 return std::move(head_lock);
+
+		 // The original code used an explicit move, which (on Clang on Apple) resulted
+		 // in a warning "moving a local object in a return statement prevents copy elision".
+		 // https://stackoverflow.com/questions/26014368/c11-move-when-returning-a-lock
+		 // correctly states that std::unique_lock cannot be copied, so leaving out the
+		 // std::move will result in a move anyway.
+		 // return std::move(head_lock);
+		 return head_lock;
 	 }
 
 	 /***************************************************************************/
@@ -612,7 +626,14 @@ private:
 			 tail_lock
 			 , [&] { return m_n_data_sets.load() < u_capacity; }
 		 );
-		 return std::move(tail_lock);
+
+		 // The original code used an explicit move, which (on Clang on Apple) resulted
+		 // in a warning "moving a local object in a return statement prevents copy elision".
+		 // https://stackoverflow.com/questions/26014368/c11-move-when-returning-a-lock
+		 // correctly states that std::unique_lock cannot be copied, so leaving out the
+		 // std::move will result in a move anyway.
+		 // return std::move(tail_lock);
+		 return tail_lock;
 	 }
 
 	 /***************************************************************************/
@@ -632,7 +653,13 @@ private:
 		 );
 
 		 std::unique_lock<std::mutex> tail_lock(m_tail_mutex);
-		 return std::move(tail_lock);
+		 // The original code used an explicit move, which (on Clang on Apple) resulted
+		 // in a warning "moving a local object in a return statement prevents copy elision".
+		 // https://stackoverflow.com/questions/26014368/c11-move-when-returning-a-lock
+		 // correctly states that std::unique_lock cannot be copied, so leaving out the
+		 // std::move will result in a move anyway.
+		 // return std::move(tail_lock);
+		 return tail_lock;
 	 }
 
 	 /***************************************************************************/
@@ -659,7 +686,13 @@ private:
 			 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
 			 , [&] { return m_n_data_sets.load() < u_capacity; }
 		 );
-		 return std::move(tail_lock);
+		 // The original code used an explicit move, which (on Clang on Apple) resulted
+		 // in a warning "moving a local object in a return statement prevents copy elision".
+		 // https://stackoverflow.com/questions/26014368/c11-move-when-returning-a-lock
+		 // correctly states that std::unique_lock cannot be copied, so leaving out the
+		 // std::move will result in a move anyway.
+		 // return std::move(tail_lock);
+		 return tail_lock;
 	 }
 
 	 /***************************************************************************/
@@ -682,7 +715,13 @@ private:
 
 		 std::unique_lock<std::mutex> tail_lock(m_tail_mutex);
 		 space_is_available = true;
-		 return std::move(tail_lock);
+		 // The original code used an explicit move, which (on Clang on Apple) resulted
+		 // in a warning "moving a local object in a return statement prevents copy elision".
+		 // https://stackoverflow.com/questions/26014368/c11-move-when-returning-a-lock
+		 // correctly states that std::unique_lock cannot be copied, so leaving out the
+		 // std::move will result in a move anyway.
+		 // return std::move(tail_lock);
+		 return tail_lock;
 	 }
 
 	 /***************************************************************************/
@@ -703,7 +742,13 @@ private:
 
 		 std::unique_lock<std::mutex> tail_lock(m_tail_mutex);
 		 space_is_available = (m_n_data_sets.load() < u_capacity);
-		 return std::move(tail_lock);
+		 // The original code used an explicit move, which (on Clang on Apple) resulted
+		 // in a warning "moving a local object in a return statement prevents copy elision".
+		 // https://stackoverflow.com/questions/26014368/c11-move-when-returning-a-lock
+		 // correctly states that std::unique_lock cannot be copied, so leaving out the
+		 // std::move will result in a move anyway.
+		 // return std::move(tail_lock);
+		 return tail_lock;
 	 }
 
 	 /***************************************************************************/
@@ -726,7 +771,13 @@ private:
 
 		 std::unique_lock<std::mutex> tail_lock(m_tail_mutex);
 		 space_is_available = true;
-		 return std::move(tail_lock);
+		 // The original code used an explicit move, which (on Clang on Apple) resulted
+		 // in a warning "moving a local object in a return statement prevents copy elision".
+		 // https://stackoverflow.com/questions/26014368/c11-move-when-returning-a-lock
+		 // correctly states that std::unique_lock cannot be copied, so leaving out the
+		 // std::move will result in a move anyway.
+		 // return std::move(tail_lock);
+		 return tail_lock;
 	 }
 
 

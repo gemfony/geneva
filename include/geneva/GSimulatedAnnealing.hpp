@@ -420,9 +420,11 @@ protected:
 		 std::tuple<std::size_t, std::size_t> range = this->getAdaptionRange();
 
 		 // Loop over all requested individuals and perform the adaption
-		 for (auto it = (this->data.begin() + std::get<0>(range)); it != this->data.begin() + std::get<1>(range); ++it) {
+		 for (auto it = (this->data.begin() + std::get<0>(range)); it != (this->data.begin() + std::get<1>(range)); ++it) {
 			 m_tp_ptr->async_schedule(
-				 [&]() {
+				 // Note: may not pass it as a reference, as it is a local variable in the loop and might
+				 // vanish of have been altered once the thread has started and adaption is requested.
+				 [it]() {
 					 (*it)->adapt();
 				 }
 			 );
@@ -505,7 +507,7 @@ protected:
 			 std::remove_if(
 				 m_old_work_items.begin()
 				 , m_old_work_items.end()
-				 , [&](std::shared_ptr<GParameterSet> x) -> bool {
+				 , [iteration](std::shared_ptr<GParameterSet> x) -> bool {
 					 return x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 				 }
 			 )
@@ -515,7 +517,7 @@ protected:
 		 // Make it known to remaining old individuals that they are now part of a new iteration
 		 std::for_each(
 			 m_old_work_items.begin(), m_old_work_items.end(),
-			 [&](std::shared_ptr <GParameterSet> p) { p->setAssignedIteration(iteration); }
+			 [iteration](std::shared_ptr <GParameterSet> p) { p->setAssignedIteration(iteration); }
 		 );
 
 		 // Make sure that parents are at the beginning of the array.
@@ -573,10 +575,10 @@ protected:
 		 // We want to have a sane population.
 		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
 		 for (it = this->begin(); it != this->begin() + np; ++it) {
-			 (*it)->GParameterSet::getPersonalityTraits<GSAPersonalityTraits>()->setIsParent();
+			 (*it)->GParameterSet::template getPersonalityTraits<GSAPersonalityTraits>()->setIsParent();
 		 }
 		 for (it = this->begin() + np; it != this->end(); ++it) {
-			 (*it)->GParameterSet::getPersonalityTraits<GSAPersonalityTraits>()->setIsChild();
+			 (*it)->GParameterSet::template getPersonalityTraits<GSAPersonalityTraits>()->setIsChild();
 		 }
 
 		 // We care for too many returned individuals in the selectBest() function. Older

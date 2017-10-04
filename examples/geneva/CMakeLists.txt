@@ -53,6 +53,7 @@ ADD_CUSTOM_TARGET( "examples-geneva"
 		GParameterObjectUsagePatterns
 		GMultiCriterionParabola
 		GDirectEA
+        GDirectSA
 		GDirectSwarm
 		GFunctionMinimizer
         GPostProcessing
@@ -70,6 +71,7 @@ ADD_SUBDIRECTORY( 02_GParaboloid2D )
 ADD_SUBDIRECTORY( 03_GParameterObjectUsagePatterns )
 ADD_SUBDIRECTORY( 04_GMultiCriterionParabola )
 ADD_SUBDIRECTORY( 06_GDirectEA )
+ADD_SUBDIRECTORY( 06_GDirectSA )
 ADD_SUBDIRECTORY( 06_GDirectSwarm )
 ADD_SUBDIRECTORY( 07_GFunctionMinimizer )
 ADD_SUBDIRECTORY( 08_GPostProcessing )

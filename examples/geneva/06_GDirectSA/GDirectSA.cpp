@@ -87,7 +87,6 @@ const std::uint32_t DEFAULTMAXITERATIONS=200;
 const std::uint32_t DEFAULTREPORTITERATION=1;
 const long DEFAULTMAXMINUTES=10;
 const duplicationScheme DEFAULTRSCHEME=duplicationScheme::VALUEDUPLICATIONSCHEME;
-const sortingMode DEFAULTSORTINGSCHEME=sortingMode::MUCOMMANU_SINGLEEVAL;
 
 /******************************************************************************/
 /**
@@ -111,7 +110,6 @@ bool parseCommandLine(
 	, long& maxMinutes
 	, std::uint32_t& reportIteration
 	, duplicationScheme& rScheme
-	, sortingMode& smode
 ){
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
@@ -232,13 +230,6 @@ bool parseCommandLine(
 		, "The recombination scheme of the evolutionary algorithm"
 	);
 
-	gpb.registerCLParameter<sortingMode>(
-		"smode"
-		, smode
-		, DEFAULTSORTINGSCHEME
-		, "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode"
-	);
-
 	// Parse the command line and leave if the help flag was given. The parser
 	// will emit an appropriate help message by itself
 	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
@@ -267,7 +258,6 @@ int main(int argc, char **argv){
 	long maxMinutes;
 	std::uint32_t reportIteration;
 	duplicationScheme rScheme;
-	sortingMode smode;
 	Gem::Common::serializationMode serMode;
 	bool addLocalConsumer;
 
@@ -296,7 +286,6 @@ int main(int argc, char **argv){
 		, maxMinutes
 		, reportIteration
 		, rScheme
-		, smode
 	)) { exit(1); }
 
 	/****************************************************************************/
@@ -322,53 +311,143 @@ int main(int argc, char **argv){
 	/****************************************************************************/
 	// We can now start creating populations. We refer to them through the base class
 
-	// This smart pointer will hold the different population types
-	std::shared_ptr<GBaseEA> pop_ptr;
+	// Create a factory for GFunctionIndividual objects and perform
+	// any necessary initial work.
+	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
+
+	// Create the first set of parent individuals. Initialization of parameters is done randomly.
+	std::vector<std::shared_ptr<GFunctionIndividual>> parentIndividuals;
+	for(std::size_t p = 0 ; p<nParents; p++) {
+		parentIndividuals.push_back(gfi.get_as<GFunctionIndividual>());
+	}
+
+	/****************************************************************************/
+	// Act depending on the parallelisation mode. Unfortunately, since we
+	// have no common base class (GOptimizationAlgorithmT2 is a template),
+	// we need to replicate some code.
 
 	// Create the actual populations
 	switch (parallelizationMode) {
 		//----------------------------------------------------------------------------
 		case execMode::SERIAL: // Serial execution
 		{
+			// Will hold the final result
+			std::shared_ptr<GFunctionIndividual> p;
+
 			// Create an empty population
-			pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
+			std::shared_ptr<GSerialSimulatedAnnealing> pop_ptr(new GSerialSimulatedAnnealing());
+
+			// General settings
+			pop_ptr->setPopulationSizes(populationSize,nParents);
+			pop_ptr->setMaxIteration(maxIterations);
+			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
+			pop_ptr->setReportIteration(reportIteration);
+			pop_ptr->setRecombinationMethod(rScheme);
+
+			// Add individuals to the population.
+			for(auto ind: parentIndividuals) {
+				pop_ptr->push_back(ind);
+			}
+
+			// Perform the actual optimization
+			pop_ptr->optimize();
+
+			// Do something with the best individual found
+			p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
+
+			// Here you can do something with the best individual ("p") found.
+			// We simply print its content here, by means of an operator<< implemented
+			// in the GFunctionIndividual code.
+			std::cout
+				<< "Best result found:" << std::endl
+				<< p << std::endl;
 		}
 			break;
 
 			//----------------------------------------------------------------------------
 		case execMode::MULTITHREADED: // Multi-threaded execution
 		{
-			// Create the multi-threaded population
-			std::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+			// Will hold the final result
+			std::shared_ptr<GFunctionIndividual> p;
 
-			// Population-specific settings
-			popPar_ptr->setNThreads(nEvaluationThreads);
+			// Create an empty population
+			std::shared_ptr<GMTSimulatedAnnealing> pop_ptr(new GMTSimulatedAnnealing());
 
-			// Assignment to the base pointer
-			pop_ptr = popPar_ptr;
+			// General settings
+			pop_ptr->setPopulationSizes(populationSize,nParents);
+			pop_ptr->setMaxIteration(maxIterations);
+			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
+			pop_ptr->setReportIteration(reportIteration);
+			pop_ptr->setRecombinationMethod(rScheme);
+
+			// Settings specific to the chosen parallelisation mode
+			pop_ptr->setNThreads(nEvaluationThreads);
+
+			// Add individuals to the population.
+			for(auto ind: parentIndividuals) {
+				pop_ptr->push_back(ind);
+			}
+
+			// Perform the actual optimization
+			pop_ptr->optimize();
+
+			// Do something with the best individual found
+			p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
+
+			// Here you can do something with the best individual ("p") found.
+			// We simply print its content here, by means of an operator<< implemented
+			// in the GFunctionIndividual code.
+			std::cout
+				<< "Best result found:" << std::endl
+				<< p << std::endl;
 		}
 			break;
 
 			//----------------------------------------------------------------------------
 		case execMode::BROKER: // Execution with networked consumer and possibly a local, multi-threaded consumer
 		{
-			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioSerialTCPConsumerT<GParameterSet>>
-				gatc(new GAsioSerialTCPConsumerT<GParameterSet>(port, 0, serMode));
-			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
-
-			if(addLocalConsumer) { // This is mainly for testing and benchmarking
-				std::shared_ptr<GStdThreadConsumerT<GParameterSet>>
-					gbtc(new GStdThreadConsumerT<GParameterSet>());
+			if(addLocalConsumer) {
+				// Create a multi-threaded consumer. This
+				// is mainly for testing and benchmarking
+				std::shared_ptr<GStdThreadConsumerT<GParameterSet>> gbtc(new GStdThreadConsumerT<GParameterSet>());
 				gbtc->setNThreadsPerWorker(nEvaluationThreads);
 				GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
+			} else {
+				// Create a network consumer and enrol it with the broker
+				std::shared_ptr<GAsioSerialTCPConsumerT<GParameterSet>> gatc(new GAsioSerialTCPConsumerT<GParameterSet>(port, 0, serMode));
+				GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 			}
 
-			// Create the actual broker population
-			std::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+			// Will hold the final result
+			std::shared_ptr<GFunctionIndividual> p;
 
-			// Assignment to the base pointer
-			pop_ptr = popBroker_ptr;
+			// Create an empty population
+			std::shared_ptr<GMTSimulatedAnnealing> pop_ptr(new GMTSimulatedAnnealing());
+
+			// General settings
+			pop_ptr->setPopulationSizes(populationSize,nParents);
+			pop_ptr->setMaxIteration(maxIterations);
+			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
+			pop_ptr->setReportIteration(reportIteration);
+			pop_ptr->setRecombinationMethod(rScheme);
+
+			// Add individuals to the population.
+			for(auto ind: parentIndividuals) {
+				pop_ptr->push_back(ind);
+			}
+
+			// Perform the actual optimization
+			pop_ptr->optimize();
+
+			// Do something with the best individual found
+			p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
+
+			// Here you can do something with the best individual ("p") found.
+			// We simply print its content here, by means of an operator<< implemented
+			// in the GFunctionIndividual code.
+			std::cout
+				<< "Best result found:" << std::endl
+				<< p << std::endl;
 		}
 			break;
 
@@ -381,48 +460,6 @@ int main(int argc, char **argv){
 		}
 			break;
 	}
-
-	/****************************************************************************/
-	// Create a factory for GFunctionIndividual objects and perform
-	// any necessary initial work.
-	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
-
-	// Create the first set of parent individuals. Initialization of parameters is done randomly.
-	std::vector<std::shared_ptr<GFunctionIndividual>> parentIndividuals;
-	for(std::size_t p = 0 ; p<nParents; p++) {
-		parentIndividuals.push_back(gfi.get_as<GFunctionIndividual>());
-	}
-
-	/****************************************************************************/
-	// Now we have suitable populations and can fill them with data
-
-	// Add individuals to the population. Many Geneva classes, such as
-	// the optimization classes, feature an interface very similar to std::vector.
-	for(std::size_t p = 0 ; p<parentIndividuals.size(); p++) {
-		pop_ptr->push_back(parentIndividuals[p]);
-	}
-
-	// Specify some general population settings
-	pop_ptr->setPopulationSizes(populationSize,nParents);
-	pop_ptr->setMaxIteration(maxIterations);
-	pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
-	pop_ptr->setReportIteration(reportIteration);
-	pop_ptr->setRecombinationMethod(rScheme);
-	pop_ptr->setSortingScheme(smode);
-
-	// Perform the actual optimization
-	pop_ptr->optimize();
-
-	/****************************************************************************/
-	// Do something with the best individual found
-	std::shared_ptr<GFunctionIndividual> p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
-
-	// Here you can do something with the best individual ("p") found.
-	// We simply print its content here, by means of an operator<< implemented
-	// in the GFunctionIndividual code.
-	std::cout
-	<< "Best result found:" << std::endl
-	<< p << std::endl;
 
 	/****************************************************************************/
 	// Terminate

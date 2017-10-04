@@ -39,6 +39,7 @@ SET ( GENEVACOMMONINCLUDES
 	GCanvas.hpp
 	GCommonEnums.hpp
     GCommonHelperFunctions.hpp
+    GCommonHelperFunctionsT.hpp
 	GCommonInterfaceT.hpp
     GCommonMathHelperFunctions.hpp
     GCommonMathHelperFunctionsT.hpp
@@ -50,7 +51,6 @@ SET ( GENEVACOMMONINCLUDES
 	GFormulaParserT.hpp
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
-        GCommonHelperFunctionsT.hpp
 	GLockVarT.hpp
 	GLogger.hpp
 	GParserBuilder.hpp

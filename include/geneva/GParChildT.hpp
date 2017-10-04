@@ -517,7 +517,7 @@ public:
 	  * they will be replicated in the next iteration. We leave the best parent
 	  * untouched, so that otherwise successful adaptor settings may survive.
 	  */
-	 void actOnStalls() {
+	 virtual void actOnStalls() override {
 		 // Make sure the actions of our parent class are carried out
 		 GOptimizationAlgorithmT2<executor_type>::actOnStalls();
 
