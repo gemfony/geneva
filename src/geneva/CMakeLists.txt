@@ -46,6 +46,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedSA
 	GMultiThreadedSwarm
 	Go2
+    G_OA_EvolutionaryAlgorithm
     G_OA_SimulatedAnnealing
     G_OA_SimulatedAnnealingFactory
 	GObject

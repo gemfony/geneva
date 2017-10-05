@@ -48,13 +48,11 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GParChildT.hpp"
 #include "geneva/GSAPersonalityTraits.hpp"
 #include "geneva/GParChildT.hpp"
-#include "GParChildT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -420,7 +418,7 @@ protected:
 		 std::tuple<std::size_t, std::size_t> range = this->getAdaptionRange();
 
 		 // Loop over all requested individuals and perform the adaption
-		 for (auto it = (this->data.begin() + std::get<0>(range)); it != (this->data.begin() + std::get<1>(range)); ++it) {
+		 for (auto it = (this->begin() + std::get<0>(range)); it != (this->begin() + std::get<1>(range)); ++it) {
 			 m_tp_ptr->async_schedule(
 				 // Note: may not pass it as a reference, as it is a local variable in the loop and might
 				 // vanish of have been altered once the thread has started and adaption is requested.
@@ -462,7 +460,7 @@ protected:
 
 		 //--------------------------------------------------------------------------------
 		 // Retrieve a vector describing the items to be modified
-		 std::vector<bool> workItemPos = Gem::Courtier::getBooleanMask(this->data.size(), std::get<0>(range), std::get<1>(range));
+		 std::vector<bool> workItemPos = Gem::Courtier::getBooleanMask(this->size(), std::get<0>(range), std::get<1>(range));
 
 		 //--------------------------------------------------------------------------------
 		 // Now submit work items and wait for results.
@@ -476,7 +474,7 @@ protected:
 
 		 //--------------------------------------------------------------------------------
 		 // Take care of unprocessed items
-		 Gem::Common::erase_according_to_flags(this->data, workItemPos, Gem::Courtier::GBC_UNPROCESSED, 0, this->data.size());
+		 Gem::Common::erase_according_to_flags(this->data, workItemPos, Gem::Courtier::GBC_UNPROCESSED, 0, this->size());
 
 		 // Remove items for which an error has occurred during processing
 		 Gem::Common::erase_if(
@@ -522,8 +520,8 @@ protected:
 
 		 // Make sure that parents are at the beginning of the array.
 		 sort(
-			 this->data.begin()
-			 , this->data.end()
+			 this->begin()
+			 , this->end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 				 return (x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GSAPersonalityTraits>()->isParent());
 			 }
@@ -531,19 +529,19 @@ protected:
 
 		 // Attach all old work items to the end of the current population and clear the array of old items
 		 for(auto item: m_old_work_items) {
-			 this->data.push_back(item);
+			 this->push_back(item);
 		 }
 		 m_old_work_items.clear();
 
 		 // Check that individuals do exist in the population. We cannot continue, if this is not the case
-		 if(this->data.empty()) {
+		 if(this->empty()) {
 			 glogger
 				 << "In GSimulatedAnnealingT<executor_type>::fixAfterJobSubmission(): Error!" << std::endl
 				 << "Population holds no data" << std::endl
 				 << GEXCEPTION;
 		 } else {
 			 // Emit a warning if no children have returned
-			 if(this->data.size() <= this->getNParents()) {
+			 if(this->size() <= this->getNParents()) {
 				 glogger
 					 << "In GSimulatedAnnealingT<executor_type>::fixAfterJobSubmission(): Warning!" << std::endl
 					 << "No child individuals have returned" << std::endl
@@ -553,7 +551,7 @@ protected:
 		 }
 
 		 // Check that the dirty flag of the last individual isn't set. This is a severe error.
-		 if(this->data.back()->isDirty()) {
+		 if(this->back()->isDirty()) {
 			 glogger
 				 << "In GSimulatedAnnealingT<executor_type>::fixAfterJobSubmission(): Error!" << std::endl
 				 << "The last individual in the population has the dirty" << std::endl
@@ -563,11 +561,11 @@ protected:
 
 
 		 // Add missing individuals, as clones of the last item
-		 if (this->data.size() < this->getDefaultPopulationSize()) {
-			 std::size_t fixSize = this->getDefaultPopulationSize() - this->data.size();
+		 if (this->size() < this->getDefaultPopulationSize()) {
+			 std::size_t fixSize = this->getDefaultPopulationSize() - this->size();
 			 for (std::size_t i = 0; i < fixSize; i++) {
 				 // This function will create a clone of its argument
-				 this->push_back_clone(this->data.back());
+				 this->push_back_clone(this->back());
 			 }
 		 }
 
@@ -599,10 +597,10 @@ protected:
 #ifdef DEBUG
 		 // Make sure our population is not smaller than its nominal size -- this
    	 // should have been taken care of in fixAfterJobSubmission() .
-   	 if(this->data.size() < this->getDefaultPopulationSize()) {
+   	 if(this->size() < this->getDefaultPopulationSize()) {
       	 glogger
       	 << "In GSimulatedAnnealingT<executor_type>::selectBest(): Error!" << std::endl
-      	 << "Size of population is smaller than expected: " << this->data.size() << " / " << this->getDefaultPopulationSize() << std::endl
+      	 << "Size of population is smaller than expected: " << this->size() << " / " << this->getDefaultPopulationSize() << std::endl
       	 << GEXCEPTION;
    	 }
 #endif /* DEBUG */
@@ -611,7 +609,7 @@ protected:
 		 // At this point we have a sorted list of individuals and can take care of
 		 // too many members, so the next iteration finds a "standard" population. This
 		 // function will remove the last items.
-		 this->data.resize(this->getNParents() + this->getDefaultNChildren());
+		 this->resize(this->getNParents() + this->getDefaultNChildren());
 
 		 // Let children know they are children
 		 this->markChildren();
@@ -631,7 +629,7 @@ protected:
 		 // We evaluate all individuals in the first iteration This happens so pluggable
 		 // optimization monitors do not need to distinguish between algorithms
 		 return std::tuple<std::size_t, std::size_t>(
-			 this->inFirstIteration() ? 0 : this->getNParents(), this->data.size()
+			 this->inFirstIteration() ? 0 : this->getNParents(), this->size()
 		 );
 	 }
 
@@ -695,7 +693,7 @@ private:
 	 void sortSAMode() {
 		 // Position the nParents best children of the population right behind the parents
 		 std::partial_sort(
-			 this->data.begin() + this->m_n_parents, this->data.begin() + 2 * this->m_n_parents, this->data.end(),
+			 this->begin() + this->m_n_parents, this->begin() + 2 * this->m_n_parents, this->end(),
 			 [](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
 				 return x->minOnly_fitness() < y->minOnly_fitness();
 			 }
@@ -717,7 +715,7 @@ private:
 
 		 // Sort the parents -- it is possible that a child with a worse fitness has replaced a parent
 		 std::sort(
-			 this->data.begin(), this->data.begin() + this->m_n_parents,
+			 this->begin(), this->begin() + this->m_n_parents,
 			 [](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
 				 return x->minOnly_fitness() < y->minOnly_fitness();
 			 }
