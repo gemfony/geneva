@@ -422,7 +422,7 @@ int main(int argc, char **argv){
 			std::shared_ptr<GFunctionIndividual> p;
 
 			// Create an empty population
-			std::shared_ptr<GMTSimulatedAnnealing> pop_ptr(new GMTSimulatedAnnealing());
+			std::shared_ptr<GBrokerSimulatedAnnealing> pop_ptr(new GBrokerSimulatedAnnealing());
 
 			// General settings
 			pop_ptr->setPopulationSizes(populationSize,nParents);

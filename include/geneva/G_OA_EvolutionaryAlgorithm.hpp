@@ -66,7 +66,7 @@ namespace Geneva {
 /**
  * The default sorting mode
  */
-const sortingMode DEFAULTSORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
+const sortingMode DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
 
 /******************************************************************************/
 /**
@@ -292,7 +292,7 @@ public:
 			 case sortingMode::MUPLUSNU_SINGLEEVAL:
 			 case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 			 case sortingMode::MUCOMMANU_SINGLEEVAL:
-				 this->updateGlobalBestsPQ(bestIndividuals);
+				 GOptimizationAlgorithmT2<executor_type>::updateGlobalBestsPQ(bestIndividuals);
 				 break;
 
 				 //----------------------------------------------------------------------------
@@ -340,7 +340,7 @@ public:
 			 case sortingMode::MUPLUSNU_SINGLEEVAL:
 			 case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 			 case sortingMode::MUCOMMANU_SINGLEEVAL: {
-				 this->updateIterationBestsPQ(bestIndividuals);
+				 GOptimizationAlgorithmT2<executor_type>::updateIterationBestsPQ(bestIndividuals);
 			 } break;
 
 				 //----------------------------------------------------------------------------
@@ -374,7 +374,7 @@ public:
 
 		 gpb.registerFileParameter<sortingMode>(
 			 "sortingMethod" // The name of the variable
-			 , DEFAULTSORTINGMODE // The default value
+			 , DEFAULTEASORTINGMODE // The default value
 			 , [this](sortingMode sm) { this->setSortingScheme(sm); }
 		 )
 			 << "The sorting scheme. Options" << std::endl
@@ -613,7 +613,7 @@ protected:
 				 m_old_work_items.begin()
 				 , m_old_work_items.end()
 				 , [iteration](std::shared_ptr<GParameterSet> x) -> bool {
-					 return x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
+					 return x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 				 }
 			 )
 			 , m_old_work_items.end()
@@ -631,7 +631,7 @@ protected:
 			 this->begin()
 			 , this->end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-				 return (x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GSAPersonalityTraits>()->isParent());
+				 return (x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GEAPersonalityTraits>()->isParent());
 			 }
 		 );
 
@@ -680,10 +680,10 @@ protected:
 		 // Mark the first this->m_n_parents individuals as parents and the rest of the individuals as children.
 		 // We want to have a sane population.
 		 for (auto it = this->begin(); it != this->begin() + np; ++it) {
-			 (*it)->GParameterSet::template getPersonalityTraits<GSAPersonalityTraits>()->setIsParent();
+			 (*it)->GParameterSet::template getPersonalityTraits<GEAPersonalityTraits>()->setIsParent();
 		 }
 		 for (auto it = this->begin() + np; it != this->end(); ++it) {
-			 (*it)->GParameterSet::template getPersonalityTraits<GSAPersonalityTraits>()->setIsChild();
+			 (*it)->GParameterSet::template getPersonalityTraits<GEAPersonalityTraits>()->setIsChild();
 		 }
 
 		 // We care for too many returned individuals in the selectBest() function. Older
@@ -1072,7 +1072,7 @@ private:
 	 /***************************************************************************/
 	 // Local data
 
-	 sortingMode m_sorting_mode = DEFAULTSORTINGMODE; ///< The chosen sorting scheme
+	 sortingMode m_sorting_mode = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
 
 	 std::uint16_t m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS)); ///< The number of threads
 	 std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
