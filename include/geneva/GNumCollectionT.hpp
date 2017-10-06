@@ -440,7 +440,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test setting and retrieval of initialization boundaries
-			std::shared_ptr<GNumCollectionT<num_type>> p_test = this->GObject::template clone<GNumCollectionT<num_type>>();
+			std::shared_ptr<GNumCollectionT<num_type>> p_test = this->template clone<GNumCollectionT<num_type>>();
 
 			// Set the boundaries
 			BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
@@ -473,7 +473,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that assignement of initialization boundaries throws for invalid boundaries
-			std::shared_ptr<GNumCollectionT<num_type>> p_test = this->GObject::template clone<GNumCollectionT<num_type>>();
+			std::shared_ptr<GNumCollectionT<num_type>> p_test = this->template clone<GNumCollectionT<num_type>>();
 
 			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), Gem::Common::gemfony_error_condition);
 		}

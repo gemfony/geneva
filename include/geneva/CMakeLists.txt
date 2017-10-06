@@ -72,6 +72,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumT.hpp
 	GOAInitializerT.hpp
     G_OA_EvolutionaryAlgorithm.hpp
+    G_OA_GradientDescent.hpp
     G_OA_SimulatedAnnealing.hpp
     G_OA_SimulatedAnnealingFactory.hpp
 	Go2.hpp

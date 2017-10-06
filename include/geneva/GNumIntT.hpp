@@ -334,8 +334,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
-			std::shared_ptr<GNumIntT<int_type>> p_test1 = this->GObject::clone<GNumIntT<int_type>>();
-			std::shared_ptr<GNumIntT<int_type>> p_test2 = this->GObject::clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test1 = this->template clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test2 = this->template clone<GNumIntT<int_type>>();
 
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test1 = 2*UPPERINITBOUNDARY); // Make sure random initialization cannot randomly result in an unchanged value
@@ -366,9 +366,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that the fp-family of functions doesn't have an effect on this object
-			std::shared_ptr<GNumIntT<int_type>> p_test1 = this->GObject::clone<GNumIntT<int_type>>();
-			std::shared_ptr<GNumIntT<int_type>> p_test2 = this->GObject::clone<GNumIntT<int_type>>();
-			std::shared_ptr<GNumIntT<int_type>> p_test3 = this->GObject::clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test1 = this->template clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test2 = this->template clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test3 = this->template clone<GNumIntT<int_type>>();
 
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test1 = FIXEDVALUEINIT); // Make sure random initialization cannot randomly result in an unchanged value
@@ -383,27 +383,27 @@ public:
 			BOOST_CHECK(*p_test3 == *p_test2);
 
 			// Check that initialization with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->template fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that multiplication with a fixed floating point value has no effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyBy<double>(2., activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test2->template multiplyBy<double>(2., activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
+			BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-			BOOST_CHECK_NO_THROW(p_test2->GParameterBase::template multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
+			BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
 			BOOST_CHECK(*p_test2 == *p_test1);
 
 			// Check that adding p_test1 to p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<double>(p_test1, activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->template add<double>(p_test1, activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test3 == *p_test2);
 
 			// Check that subtracting p_test1 from p_test3 does not have an effect
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<double>(p_test1, activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->template subtract<double>(p_test1, activityMode::ALLPARAMETERS));
 			BOOST_CHECK(*p_test3 == *p_test2);
 		}
 

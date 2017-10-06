@@ -346,8 +346,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
-			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
-			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->template clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->template clone<GNumFPT<fp_type>>();
 
 			// Assign a defined start value
 			p_test1->setValue(fp_type(0));
@@ -395,8 +395,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a fixed value
-			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
-			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->template clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->template clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
@@ -424,7 +424,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in fixed range
-			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->template clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., activityMode::ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
@@ -443,7 +443,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in the range [0:1[
-			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->template clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(1., activityMode::ALLPARAMETERS)); // 1. chosen so we see the multiplication value of the random number generator
@@ -462,9 +462,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test addition of other GNumFPT<fp_type> objets
-			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
-			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
-			std::shared_ptr<GNumFPT<fp_type>> p_test3 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->template clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->template clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test3 = this->template clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(0., activityMode::ALLPARAMETERS));
@@ -496,9 +496,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test subtraction of other GNumFPT<fp_type> objects
-			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->GObject::clone<GNumFPT<fp_type>>();
-			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->GObject::clone<GNumFPT<fp_type>>();
-			std::shared_ptr<GNumFPT<fp_type>> p_test3 = this->GObject::clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test1 = this->template clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test2 = this->template clone<GNumFPT<fp_type>>();
+			std::shared_ptr<GNumFPT<fp_type>> p_test3 = this->template clone<GNumFPT<fp_type>>();
 
 			// Initialize with a fixed value
 			BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(0., activityMode::ALLPARAMETERS));
@@ -521,7 +521,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test3->load(p_test2));
 
 			// Subtract p_test1 from p_test3
-			BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template subtract<fp_type>(p_test1, activityMode::ALLPARAMETERS));
+			BOOST_CHECK_NO_THROW(p_test3->template subtract<fp_type>(p_test1, activityMode::ALLPARAMETERS));
 
 			// Cross-check that the addition has worked. Note that we do need to take into
 			// account effects of floating point accuracy

@@ -328,8 +328,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check initialization with a fixed value, setting and retrieval of boundaries and random initialization
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->template clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -372,8 +372,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a fixed value
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->template clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -408,8 +408,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in fixed range
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->template clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -435,8 +435,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test multiplication with a random value in the range [0:1[
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->template clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure p_test1 and p_test2 are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -462,9 +462,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test addition of other GFPNumCollectionT<fp_type> objects
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test3 = this->template clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure all clones are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -504,9 +504,9 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test subtraction of other GFPNumCollectionT<fp_type> objects
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test3 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test3 = this->template clone<GFPNumCollectionT<fp_type>>();
 
 			// Make sure all clones are empty
 			BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -568,8 +568,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that adding another object of different size throws
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->template clone<GFPNumCollectionT<fp_type>>();
 
 			// Add a few items to p_test1, but not to p_test2
 			for(std::size_t i=0; i<nItems; i++) {
@@ -582,8 +582,8 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Check that subtracting another object of different size throws
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
-			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->GObject::clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test1 = this->template clone<GFPNumCollectionT<fp_type>>();
+			std::shared_ptr<GFPNumCollectionT<fp_type>> p_test2 = this->template clone<GFPNumCollectionT<fp_type>>();
 
 			// Add a few items to p_test1, but not to p_test2
 			for(std::size_t i=0; i<nItems; i++) {

@@ -686,7 +686,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test setting and retrieval of the sigma range
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			for(fp_type dlower=fp_type(0.); dlower<fp_type(0.8); dlower+=fp_type(0.1)) {
 				fp_type dupper = Gem::Common::gmin(fp_type(2.)*dlower, fp_type(1.));
@@ -720,7 +720,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
 			BOOST_CHECK_NO_THROW(p_test->setSigma(fp_type(DEFAULTMINSIGMA)));
@@ -730,7 +730,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Tests setting and retrieval of the sigma parameter
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
 
@@ -743,7 +743,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test setting and retrieval of the sigma adaption rate
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
 				BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(d));
@@ -756,7 +756,7 @@ public:
 		{ // Check that simultaneous setting of all "sigma-values" has an effect
 			using namespace boost;
 
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setAll(fp_type(0.5), fp_type(0.8), fp_type(0.), fp_type(1.)));
 			BOOST_CHECK(p_test->getSigma() == fp_type(0.5));
@@ -770,7 +770,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test sigma adaption
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			// true: Adaptions should happen always, independent of the adaption probability
 			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(true));
@@ -842,7 +842,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a minimal sigma < 0. throws
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(-1.), fp_type(2.)), Gem::Common::gemfony_error_condition);
 		}
@@ -850,7 +850,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a minimal sigma > the maximum sigma throws
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(2.), fp_type(1.)), Gem::Common::gemfony_error_condition);
 		}
@@ -858,7 +858,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a negative sigma throws
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_THROW(p_test->setSigma(fp_type(-1.)), Gem::Common::gemfony_error_condition);
 		}
@@ -866,7 +866,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a sigma below the allowed range throws
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
 			BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), Gem::Common::gemfony_error_condition);
@@ -875,7 +875,7 @@ public:
 		//------------------------------------------------------------------------------
 
 		{ // Test that setting a sigma above the allowed range throws
-			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->GObject::clone<GNumGaussAdaptorT<num_type, fp_type>>();
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
 			BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), Gem::Common::gemfony_error_condition);
