@@ -34,6 +34,8 @@
 
 #include "geneva/G_OA_ParameterScan.hpp"
 
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan)
+
 namespace Gem {
 namespace Geneva {
 

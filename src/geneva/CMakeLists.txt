@@ -51,6 +51,7 @@ SET ( OPTIMIZATIONSOURCES
     G_OA_ParameterScan
     G_OA_SimulatedAnnealing
     G_OA_SimulatedAnnealingFactory
+    G_OA_SwarmAlgorithm
 	GObject
 	GOptimizableEntity
 	GOptimizableI

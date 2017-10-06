@@ -312,6 +312,6 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterScan)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan)
 
 #endif /* G_OA_PARAMETERSCAN_HPP_ */
