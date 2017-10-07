@@ -815,9 +815,17 @@ void GParameterScan::addConfigurationOptions(
 
 	gpb.registerFileParameter<std::size_t>(
 		"size" // The name of the first variable
-		, DEFAULTPOPULATIONSIZE, [this](std::size_t dps) { this->setDefaultPopulationSize(dps); }
+		, DEFAULTPOPULATIONSIZE
+		, [this](std::size_t dps) { this->setDefaultPopulationSize(dps); }
 	)
 	<< "The total size of the population";
+
+	gpb.registerFileParameter<std::string>(
+		"parameterOptions"
+		, std::string("d(0, -10., 10., 100), d(1, -10., 10., 100)")
+		, [this](std::string parSpecs) { this->setParameterSpecs(parSpecs); }
+	)
+	<< "Specification of the parameters to be used in the parameter scan" << std::endl;
 
 	gpb.registerFileParameter<bool>(
 		"scanRandomly" // The name of the variable
