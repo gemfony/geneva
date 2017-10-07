@@ -74,7 +74,8 @@ const sortingMode DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * an infrastructure for evolutionary algorithms.
  */
 template<typename executor_type>
-class GEvolutionaryAlgorithmT : public GParChildT<executor_type>
+class GEvolutionaryAlgorithmT
+	: public GParChildT<executor_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -385,6 +386,14 @@ public:
 			 << "   unless a better individual has been found" << std::endl
 			 << "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection" << std::endl
 			 << "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection";
+
+		 gpb.registerFileParameter<std::uint16_t>(
+			 "nAdaptionThreads"
+			 , DEFAULTNSTDTHREADS
+			 , [this](std::uint16_t nThreads) { this->setNThreads(nThreads); }
+		 )
+			 << "Determines the number of threads simultaneously" << std::endl
+			 << "performing adaptions. 0 means \"automatic\"";
 	 }
 
 	 /***************************************************************************/

@@ -46,7 +46,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
+#include "geneva/GOptimizationAlgorithmFactoryT2.hpp"
 #include "geneva/GOptimizationAlgorithmT2.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_EvolutionaryAlgorithm.hpp"
@@ -60,41 +60,50 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
+ * It will only return evolutionary algorithms which perform all evaluation through the
+ * broker.
  */
 class GEvolutionaryAlgorithmFactory2
-	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
-	/** @brief The default constructor */
-	G_API_GENEVA GEvolutionaryAlgorithmFactory2();
-	/** @brief Initialization with the name of the config file */
-	explicit G_API_GENEVA GEvolutionaryAlgorithmFactory2(const std::string&);
-	/** @brief Initialization with the name of the config file and the parallelization mode */
-	G_API_GENEVA GEvolutionaryAlgorithmFactory2(
-		const std::string&
-		, const execMode&
-	);
-	/** @brief Adds a content creator in addition to the standard values */
-	G_API_GENEVA GEvolutionaryAlgorithmFactory2(
-		const std::string&
-		, const execMode&
-		, std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
-	);
-   /** @brief The copy constructor */
-   G_API_GENEVA GEvolutionaryAlgorithmFactory2(const GEvolutionaryAlgorithmFactory2&);
-	/** @brief The destructor */
-	virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory2();
+	 /** @brief The default constructor */
+	 G_API_GENEVA GEvolutionaryAlgorithmFactory2();
+	 /** @brief Initialization with the name of the config file */
+	 explicit G_API_GENEVA GEvolutionaryAlgorithmFactory2(const std::string&);
+	 /** @brief Initialization with the name of the config file and a content creator */
+	 G_API_GENEVA GEvolutionaryAlgorithmFactory2(
+		 const std::string&
+		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
+	 );
+	 /** @brief The copy constructor */
+	 G_API_GENEVA GEvolutionaryAlgorithmFactory2(const GEvolutionaryAlgorithmFactory2&);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory2();
 
-	/** @brief Gives access to the mnemonics / nickname describing an algorithm */
-	virtual G_API_GENEVA std::string getMnemonic() const override;
-	/** @brief Gives access to a clear-text description of the algorithm */
-	virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
+	 virtual G_API_GENEVA std::string getMnemonic() const override;
+	 /** @brief Gives access to a clear-text description of the algorithm */
+	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
 
 protected:
-	/** @brief Creates individuals of this type */
-	virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
-	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT2<GParameterSet>>&) override;
+	 /** @brief Creates individuals of this type */
+	 virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> getObject_(
+		 Gem::Common::GParserBuilder&
+		 , const std::size_t&
+	 ) override;
+	 /** @brief Allows to act on the configuration options received from the configuration file */
+	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>&) override;
+
+private:
+	 /** The number of threads used for adaption */
+	 std::uint16_t m_nAdaptionThreads
+		 = boost::numeric_cast<std::uint16_t>(
+			 Gem::Common::getNHardwareThreads(
+				 Gem::Common::DEFAULTNHARDWARETHREADS
+				 , Gem::Common::DEFAULTMAXNHARDWARETHREADS
+			 )
+		 );
 };
 
 /******************************************************************************/

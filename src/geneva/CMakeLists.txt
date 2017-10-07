@@ -47,6 +47,7 @@ SET ( OPTIMIZATIONSOURCES
 	GMultiThreadedSwarm
 	Go2
     G_OA_EvolutionaryAlgorithm
+    G_OA_EvolutionaryAlgorithmFactory
     G_OA_GradientDescent
     G_OA_ParameterScan
     G_OA_SimulatedAnnealing

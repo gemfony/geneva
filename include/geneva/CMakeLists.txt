@@ -72,6 +72,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumT.hpp
 	GOAInitializerT.hpp
     G_OA_EvolutionaryAlgorithm.hpp
+    G_OA_EvolutionaryAlgorithmFactory.hpp
     G_OA_GradientDescent.hpp
     G_OA_ParameterScan.hpp
     G_OA_SimulatedAnnealing.hpp
@@ -84,7 +85,8 @@ SET ( OPTIMIZATIONINCLUDES
 	GOptimizationAlgorithmT.hpp
     GOptimizationAlgorithmT2.hpp
 	GOptimizationAlgorithmFactoryT.hpp
-	GOptimizationEnums.hpp
+    GOptimizationAlgorithmFactoryT2.hpp
+    GOptimizationEnums.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp
 	GParameterCollectionT.hpp

@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2()
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
 
@@ -53,18 +53,7 @@ GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2()
 GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * nitialization with the name of the config file and the default parallelization mode
- */
-GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
-	const std::string &configFile
-	, const execMode &pm
-)
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, pm)
+	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,10 +62,10 @@ GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
  * to add a content creator. It initializes a target item as needed.
  */
 GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
-	const std::string &configFile, const execMode &pm,
-	std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
+	const std::string &configFile
+	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, pm, contentCreatorPtr)
+	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -84,7 +73,7 @@ GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
  * The copy constructor
  */
 GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(const GEvolutionaryAlgorithmFactory2& cp)
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -116,29 +105,16 @@ std::string GEvolutionaryAlgorithmFactory2::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr <GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GEvolutionaryAlgorithmFactory2::getObject_(
-	Gem::Common::GParserBuilder &gpb, const std::size_t &id
+std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GEvolutionaryAlgorithmFactory2::getObject_(
+	Gem::Common::GParserBuilder &gpb
+	, const std::size_t &id
 ) {
-	// Will hold the result
-	std::shared_ptr <GBaseEA> target;
+	std::shared_ptr<GBrokerEvolutionaryAlgorithm> target(
+		new GBrokerEvolutionaryAlgorithm()
+	);
 
-	// Fill the target pointer as required
-	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::m_pm) {
-		case execMode::SERIAL:
-			target = std::shared_ptr<GSerialEA>(new GSerialEA());
-			break;
-
-		case execMode::MULTITHREADED:
-			target = std::shared_ptr<GMultiThreadedEA>(new GMultiThreadedEA());
-			break;
-
-		case execMode::BROKER:
-			target = std::shared_ptr<GBrokerEA>(new GBrokerEA());
-			break;
-	}
-
-	// Make the local configuration options known (up to the level of GBaseEA)
-	target->GBaseEA::addConfigurationOptions(gpb);
+	// Make the local configuration options known (up to the level of GBrokerEvolutionaryAlgorithm)
+	target->GBrokerEvolutionaryAlgorithm::addConfigurationOptions(gpb);
 
 	return target;
 }
@@ -151,34 +127,10 @@ std::shared_ptr <GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParam
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GEvolutionaryAlgorithmFactory2::postProcess_(
-	std::shared_ptr < GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> &p_base
+	std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
-	// Convert the object to the correct target type
-	switch (GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::m_pm) {
-		case execMode::SERIAL:
-			// nothing
-			break;
-
-		case execMode::MULTITHREADED: {
-			std::shared_ptr <GMultiThreadedEA> p
-				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>, GMultiThreadedEA>(p_base);
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::m_nEvaluationThreads);
-		}
-			break;
-
-		case execMode::BROKER: {
-			std::shared_ptr <GBrokerEA> p
-				= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>, GBrokerEA>(p_base);
-
-			p->setNThreads(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::m_nEvaluationThreads);
-			p->m_gbroker_executor.setWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::m_waitFactor);
-			p->m_gbroker_executor.setInitialWaitFactor(GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::m_initialWaitFactor);
-		}
-			break;
-	}
-
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

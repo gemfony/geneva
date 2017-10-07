@@ -39,9 +39,11 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * This function retrieves the number of CPU cores on the system, which is regarded as a suitable
- * default number for the amount of threads of a specific kind. The function is thread-safe. When called
- * multiple times, it will read the number of hardware threads from a local cache.
+ * This function retrieves the number of CPU cores on the system (possibly including "virtual cores" such
+ * as in the case of hyperthreading), which is regarded as a suitable default number for the amount of threads
+ * of a specific kind. The function is thread-safe. When called multiple times, it will read the number of
+ * hardware threads from a local cache. A maximum number of threads may be set. When the maxNThreads parameter
+ * is set to 0 (the default), the maximum number is unlimited.
  *
  * @param defaultNThreads The default number of threads to be returned if hardware concurrency cannot be determined
  * @return A guess at a suitable number of threads for this architecture, used as a fallback
@@ -51,38 +53,42 @@ std::mutex g_hwt_read_mutex;
 std::atomic<bool> g_hwt_read(false); // global in this file
 std::atomic<unsigned int> g_nHardwareThreads(Gem::Common::DEFAULTNHARDWARETHREADS); // global in this file
 
-unsigned int getNHardwareThreads(const unsigned int &defaultNThreads) {
+unsigned int getNHardwareThreads(
+	const unsigned int &defaultNThreads
+	, const unsigned int& maxNThreads
+) {
 	if (!g_hwt_read) {
 		std::unique_lock<std::mutex>(g_hwt_read_mutex);
 		if (!g_hwt_read) {
 			g_hwt_read = true;
-			g_nHardwareThreads.store(std::thread::hardware_concurrency());
+
+			if(maxNThreads > 0) {
+				g_nHardwareThreads.store(
+					(std::min)(Gem::Common::DEFAULTMAXNHARDWARETHREADS, std::thread::hardware_concurrency())
+				);
+			} else {
+				g_nHardwareThreads.store(std::thread::hardware_concurrency());
+			}
+
+			if(g_nHardwareThreads.load() == 0) {
+				unsigned int nFallBackThreads = 0;
+				if(maxNThreads > 0) {
+					nFallBackThreads = (std::min)(Gem::Common::DEFAULTMAXNHARDWARETHREADS, Gem::Common::DEFAULTNHARDWARETHREADS);
+				} else {
+					nFallBackThreads = Gem::Common::DEFAULTNHARDWARETHREADS;
+				}
+
+				glogger
+					<< "Could not get information regarding suitable number of threads." << std::endl
+					<< "Using the default value  = " << nFallBackThreads << " instead." << std::endl
+					<< GWARNING;
+
+				g_nHardwareThreads.store(nFallBackThreads);
+			}
 		}
 	} // exclusive access ends
 
-	if (g_nHardwareThreads.load() > 0) {
-		return g_nHardwareThreads;
-	} else {
-		if(0==defaultNThreads) {
-#ifdef DEBUG
-			glogger
-				<< "Could not get information regarding suitable number of threads." << std::endl
-				<< "Using the default value DEFAULTNHARDWARETHREADS = " << Gem::Common::DEFAULTNHARDWARETHREADS << " instead." << std::endl
-				<< GWARNING;
-#endif
-
-			return Gem::Common::DEFAULTNHARDWARETHREADS;
-		} else {
-#ifdef DEBUG
-			glogger
-				<< "Could not get information regarding suitable number of threads." << std::endl
-				<< "Using the default value defaultNThreads = " << defaultNThreads << " instead." << std::endl
-				<< GWARNING;
-#endif
-
-			return defaultNThreads;
-		}
-	}
+	return g_nHardwareThreads.load();
 }
 
 /******************************************************************************/

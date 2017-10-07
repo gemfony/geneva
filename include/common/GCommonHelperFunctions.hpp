@@ -51,6 +51,7 @@
 #include <atomic>
 #include <chrono>
 #include <iomanip>
+#include <algorithm>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
@@ -77,7 +78,10 @@ namespace Common {
 /******************************************************************************/
 /** @brief This function tries to determine a suitable number of threads for the current architecture */
 G_API_COMMON
-unsigned int getNHardwareThreads(const unsigned int &defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS);
+unsigned int getNHardwareThreads(
+	const unsigned int& defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS
+	, const unsigned int& maxNThreads = 0
+);
 
 /******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file */

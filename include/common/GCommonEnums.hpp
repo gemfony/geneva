@@ -243,6 +243,10 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::expectation &
  * concurrency can be determined.
  */
 const unsigned int DEFAULTNHARDWARETHREADS = 2;
+/**
+ * Specification of the default maximum number of threads
+ */
+const unsigned int DEFAULTMAXNHARDWARETHREADS = 4;
 
 /******************************************************************************/
 
