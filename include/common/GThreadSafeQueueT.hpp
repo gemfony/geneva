@@ -84,6 +84,7 @@
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -802,7 +803,8 @@ private:
 	 std::mutex m_head_mutex; ///< Protects access to the head node
 	 std::mutex m_tail_mutex; ///< Protects access to the tail node
 
-	 std::unique_ptr<node> m_head_ptr = std::make_unique<node>(); ///< Points to the head of the linked list
+	 // TODO: Replace with std::make_unique once gcc 4.8.x is no longer used for Geneva
+	 std::unique_ptr<node> m_head_ptr = Gem::Common::g_make_unique<node>(); ///< Points to the head of the linked list
 	 node* m_tail_ptr = m_head_ptr.get(); ///< Points to the tail of the linked list
 
 	 std::condition_variable m_not_empty; ///< Allows to wait until new nodes have appeared

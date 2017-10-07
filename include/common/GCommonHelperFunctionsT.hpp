@@ -49,6 +49,7 @@
 #include <thread>
 #include <chrono>
 #include <type_traits>
+#include <memory>
 
 // Boost headers go here
 #include <boost/cast.hpp>
@@ -1069,6 +1070,16 @@ bool timedRetrievalFromBoostLockfree(
 		std::this_thread::sleep_for(sleepTime);
 	}
 	return retrieved;
+}
+
+/******************************************************************************/
+/**
+ * A replacement for std::make_unique -- a C++14 feature that does not seem
+ * to be supported well with older compilers
+ */
+template<typename p_type, typename... arg_list>
+std::unique_ptr<p_type> g_make_unique(arg_list&&... args) {
+	return std::unique_ptr<p_type>(new p_type(std::forward<arg_list>(args)...));
 }
 
 /******************************************************************************/
