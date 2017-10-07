@@ -74,6 +74,7 @@ SET ( OPTIMIZATIONINCLUDES
     G_OA_EvolutionaryAlgorithm.hpp
     G_OA_EvolutionaryAlgorithmFactory.hpp
     G_OA_GradientDescent.hpp
+    G_OA_GradientDescentFactory.hpp
     G_OA_ParameterScan.hpp
     G_OA_SimulatedAnnealing.hpp
     G_OA_SimulatedAnnealingFactory.hpp
