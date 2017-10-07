@@ -232,10 +232,11 @@ public:
 		 // Add local data
 		 gpb.registerFileParameter<std::uint16_t>(
 			 "nAdaptionThreads" // The name of the variable
-			 , 0 // The default value
+			 , DEFAULTNSTDTHREADS // The default value
 			 , [this](std::uint16_t nt) { this->setNThreads(nt); }
 		 )
-			 << "The number of threads used to simultaneously adapt individuals";
+			 << "The number of threads used to simultaneously adapt individuals" << std::endl
+			 << "0 means \"automatic\"";
 
 		 gpb.registerFileParameter<double>(
 			 "t0" // The name of the variable
@@ -764,7 +765,11 @@ private:
 	 double t_ = t0_; ///< The current temperature, used in simulated annealing
 	 double alpha_ = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
 
-	 std::uint16_t m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS)); ///< The number of threads
+	 std::uint16_t m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(
+		 Gem::Common::DEFAULTNHARDWARETHREADS
+		 , Gem::Common::DEFAULTMAXNHARDWARETHREADS
+	 )); ///< The number of threads
+
 	 std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
 
 	 std::vector<std::shared_ptr<GParameterSet>> m_old_work_items; ///< Temporarily holds old returned work items

@@ -369,9 +369,19 @@ public:
  	  */
 	 virtual void addConfigurationOptions (
 		 Gem::Common::GParserBuilder& gpb
-	 ) override {
+	 ) override
+	 {
 		 // Call our parent class'es function
 		 GParChildT<executor_type>::addConfigurationOptions(gpb);
+
+		 // Add local data
+		 gpb.registerFileParameter<std::uint16_t>(
+			 "nAdaptionThreads" // The name of the variable
+			 , DEFAULTNSTDTHREADS // The default value
+			 , [this](std::uint16_t nt) { this->setNThreads(nt); }
+		 )
+			 << "The number of threads used to simultaneously adapt individuals" << std::endl
+			 << "0 means \"automatic\"";
 
 		 gpb.registerFileParameter<sortingMode>(
 			 "sortingMethod" // The name of the variable
@@ -386,14 +396,6 @@ public:
 			 << "   unless a better individual has been found" << std::endl
 			 << "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection" << std::endl
 			 << "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection";
-
-		 gpb.registerFileParameter<std::uint16_t>(
-			 "nAdaptionThreads"
-			 , DEFAULTNSTDTHREADS
-			 , [this](std::uint16_t nThreads) { this->setNThreads(nThreads); }
-		 )
-			 << "Determines the number of threads simultaneously" << std::endl
-			 << "performing adaptions. 0 means \"automatic\"";
 	 }
 
 	 /***************************************************************************/
@@ -1082,8 +1084,10 @@ private:
 	 // Local data
 
 	 sortingMode m_sorting_mode = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
-
-	 std::uint16_t m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS)); ///< The number of threads
+	 std::uint16_t m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(
+		 Gem::Common::DEFAULTNHARDWARETHREADS
+		 , Gem::Common::DEFAULTMAXNHARDWARETHREADS
+	 )); ///< The number of threads
 	 std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
 
 	 std::vector<std::shared_ptr<GParameterSet>> m_old_work_items; ///< Temporaril
