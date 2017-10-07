@@ -80,6 +80,7 @@ SET ( OPTIMIZATIONINCLUDES
     G_OA_SimulatedAnnealing.hpp
     G_OA_SimulatedAnnealingFactory.hpp
     G_OA_SwarmAlgorithm.hpp
+    G_OA_SwarmAlgorithmFactory.hpp
 	Go2.hpp
 	GOAFactoryStore.hpp
     GObject.hpp
