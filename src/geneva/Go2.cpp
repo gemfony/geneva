@@ -217,6 +217,8 @@ Go2::Go2(
 /******************************************************************************/
 /**
  * The copy constructor
+ *
+ * TODO: Should be non-copyable
  */
 Go2::Go2(const Go2 &cp)
 	: GObject(cp)
