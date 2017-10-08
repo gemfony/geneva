@@ -174,7 +174,7 @@ void submit_raw_work_items() {
 void submit_up_work_items() {
 	std::size_t nProducedLocal = 0;
 	do {
-		std::unique_ptr<testTask> task = std::make_unique<testTask>();
+		std::unique_ptr<testTask> task = Gem::Common::g_make_unique<testTask>();
 		if(g_tasks_raw.push_and_wait(task, timeout)) {
 			nProducedLocal++;
 			nProduced_up++;

@@ -55,11 +55,10 @@
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
+#include "courtier/GCourtierEnums.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/GSerialSwarm.hpp"
-#include "geneva/GMultiThreadedSwarm.hpp"
-#include "geneva/GBrokerSwarm.hpp"
+#include "geneva/G_OA_SwarmAlgorithm.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -73,7 +72,7 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 
-const execMode DEFAULTPARALLELIZATIONMODEAP=execMode::MULTITHREADED;
+const brokerMode DEFAULTCONSUMERTYPE=brokerMode::MULTITHREADED_BROKER;
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
 const std::uint32_t DEFAULTMAXSTALLS06=0;
@@ -99,14 +98,13 @@ const bool DEFAULTALLRANDOMINIT=true;
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, execMode& parallelizationMode
-	, bool& serverMode
+	, brokerMode& consumerType
+	, bool& clientMode
 	, std::string& ip
 	, unsigned short& port
 	, std::uint32_t& maxStalls
 	, std::uint32_t& maxConnectionAttempts
 	, Gem::Common::serializationMode& serMode
-	, bool& addLocalConsumer
 	, std::size_t& nNeighborhoods
 	, std::size_t& nNeighborhoodMembers
 	, double& cPersonal
@@ -124,20 +122,20 @@ bool parseCommandLine(
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
 
-	gpb.registerCLParameter<execMode>(
-		"parallelizationMode,p"
-		, parallelizationMode
-		, DEFAULTPARALLELIZATIONMODEAP
-		, "Whether to run the optimization in serial (0), multi-threaded (1) or networked (2) mode"
+	gpb.registerCLParameter<brokerMode>(
+		"consumerType"
+		, consumerType
+		, DEFAULTCONSUMERTYPE
+		, "The type of consumer to use: 0 (serial), 1 (multithreaded) or 2 (networked)"
 	);
 
 	gpb.registerCLParameter<bool>(
-		"serverMode,s"
-		, serverMode
-		, false // Use client mode, if no server option is specified
-		, "Whether to run networked execution in server or client mode. The option only has an effect if \"--parallelizationMode=2\". You can either say \"--server=true\" or just \"--server\"."
+		"client,c"
+		, clientMode
+		, false // Use server mode, if no client option is specified
+		, "Whether to run networked execution in server or client mode."
 		, GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
-		, true // Use server mode, of only -s or --server was specified
+		, true // Use client mode, of only -c or --client was specified
 	);
 
 	gpb.registerCLParameter<std::string>(
@@ -173,15 +171,6 @@ bool parseCommandLine(
 		, serMode
 		, DEFAULTSERMODE
 		, "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)"
-	);
-
-	gpb.registerCLParameter<bool>(
-		"addLocalConsumer"
-		, addLocalConsumer
-		, DEFAULTADDLOCALCONSUMER // Use client mode, if no server option is specified
-		, "Whether or not a local consumer should be added to networked execution. You can use this option with or without arguments."
-		, GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
-		, true // Use a local consumer if the option --addLocalConsumer was given without arguments
 	);
 
 	gpb.registerCLParameter<std::size_t>(
@@ -291,8 +280,8 @@ bool parseCommandLine(
  * The main function.
  */
 int main(int argc, char **argv){
-	execMode parallelizationMode;
-	bool serverMode;
+	brokerMode consumerType;
+	bool clientMode;
 	std::string ip;
 	unsigned short port;
 	std::uint32_t maxStalls;
@@ -303,7 +292,6 @@ int main(int argc, char **argv){
 	long maxMinutes;
 	std::uint32_t reportIteration;
 	Gem::Common::serializationMode serMode;
-	bool addLocalConsumer;
 	std::size_t nNeighborhoods;
 	std::size_t nNeighborhoodMembers;
 	double cPersonal;
@@ -322,14 +310,13 @@ int main(int argc, char **argv){
 
 	if(!parseCommandLine(
 		argc, argv
-		, parallelizationMode
-		, serverMode
+		, consumerType
+		, clientMode
 		, ip
 		, port
 		, maxStalls
 		, maxConnectionAttempts
 		, serMode
-		, addLocalConsumer
 		, nNeighborhoods
 		, nNeighborhoodMembers
 		, cPersonal
@@ -352,7 +339,7 @@ int main(int argc, char **argv){
 	/****************************************************************************/
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
-	if(execMode::BROKER==parallelizationMode && !serverMode) {
+	if(clientMode && consumerType == brokerMode::NETWORKED_BROKER) {
 		std::shared_ptr<GAsioSerialTCPClientT<GParameterSet>>
 			p(new GAsioSerialTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
@@ -369,53 +356,33 @@ int main(int argc, char **argv){
 	// We can now start creating populations. We refer to them through the base class
 
 	// This smart pointer will hold the different population types
-	std::shared_ptr<GBaseSwarm> pop_ptr;
+	std::shared_ptr<GSwarmAlgorithm> pop_ptr(new GSwarmAlgorithm(nNeighborhoods, nNeighborhoodMembers));
 
 	// Create the actual populations
-	switch (parallelizationMode) {
+	switch(consumerType) {
 		//---------------------------------------------------------------------------
-		case execMode::SERIAL: // Serial execution
-			// Create an empty population
-			pop_ptr
-				= std::shared_ptr<GSerialSwarm>(new GSerialSwarm(nNeighborhoods, nNeighborhoodMembers));
-			break;
-
-			//---------------------------------------------------------------------------
-		case execMode::MULTITHREADED: // Multi-threaded execution
+		case brokerMode::SERIAL_BROKER: // Serial execution
 		{
-			// Create the multi-threaded population
-			std::shared_ptr<GMultiThreadedSwarm>
-				popPar_ptr(new GMultiThreadedSwarm(nNeighborhoods, nNeighborhoodMembers));
-
-			// Population-specific settings
-			popPar_ptr->setNThreads(nEvaluationThreads);
-
-			// Assignment to the base pointer
-			pop_ptr = popPar_ptr;
+			std::shared_ptr<GSerialConsumerT<GParameterSet>> sc(new GSerialConsumerT<GParameterSet>());
+			GBROKER(Gem::Geneva::GParameterSet)->enrol(sc);
 		}
 			break;
 
 			//---------------------------------------------------------------------------
-		case execMode::BROKER: // Networked execution (server-side)
+		case brokerMode::MULTITHREADED_BROKER: // Multi-threaded execution
+		{
+			std::shared_ptr<GStdThreadConsumerT<GParameterSet>> gbtc(new GStdThreadConsumerT<GParameterSet>());
+			gbtc->setNThreadsPerWorker(nEvaluationThreads);
+			GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
+		}
+			break;
+
+			//---------------------------------------------------------------------------
+		case brokerMode::NETWORKED_BROKER: // Networked execution (server-side)
 		{
 			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioSerialTCPConsumerT<GParameterSet>>
-				gatc(new GAsioSerialTCPConsumerT<GParameterSet>(port, 0, serMode));
+			std::shared_ptr<GAsioSerialTCPConsumerT<GParameterSet>> gatc(new GAsioSerialTCPConsumerT<GParameterSet>(port, 0, serMode));
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
-
-			if(addLocalConsumer) { // This is mainly for testing and benchmarking
-				std::shared_ptr<GStdThreadConsumerT<GParameterSet>>
-					gbtc(new GStdThreadConsumerT<GParameterSet>());
-				gbtc->setNThreadsPerWorker(nEvaluationThreads);
-				GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
-			}
-
-			// Create the actual broker population
-			std::shared_ptr<GBrokerSwarm>
-				popBroker_ptr(new GBrokerSwarm(nNeighborhoods, nNeighborhoodMembers));
-
-			// Assignment to the base pointer
-			pop_ptr = popBroker_ptr;
 		}
 			break;
 
@@ -423,7 +390,7 @@ int main(int argc, char **argv){
 		default:
 		{
 			glogger
-			<< "In main(): Received invalid parallelization mode " << parallelizationMode << std::endl
+			<< "In main(): Received invalid consumer type " << consumerType << std::endl
 			<< GEXCEPTION;
 		}
 			break;

@@ -400,7 +400,9 @@ enum class evaluationPolicy : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
- * Specification of different parallelization modes
+ * Specification of different parallelization modes used by optimization algorithms.
+ * Some algorithms, in particular evolutionary algorithms, may perform multithreaded
+ * and serial execution without the broker.
  */
 enum class execMode : Gem::Common::ENUMBASETYPE {
 	SERIAL = 0
@@ -412,7 +414,7 @@ enum class execMode : Gem::Common::ENUMBASETYPE {
 /**
  * The default parallelization mode of optimization algorithms
  */
-const execMode DEFAULT = execMode::MULTITHREADED;
+const execMode DEFAULT_EXEC_MODE = execMode::MULTITHREADED;
 
 /******************************************************************************/
 /**
