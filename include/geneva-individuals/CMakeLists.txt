@@ -5,7 +5,7 @@ SET ( SAMPLEINDIVIDUALINCLUDES
 	GExternalEvaluatorIndividual.hpp
 	GFunctionIndividual.hpp
 	GLineFitIndividual.hpp
-	GMetaOptimizerIndividualT.hpp
+	# GMetaOptimizerIndividualT.hpp
 	GNeuralNetworkIndividual.hpp
 	GTestIndividual2.hpp
 	GTestIndividual3.hpp

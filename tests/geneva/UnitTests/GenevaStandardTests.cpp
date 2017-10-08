@@ -61,17 +61,11 @@ using namespace boost::unit_test;
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GBooleanCollection.hpp"
-#include "geneva/GSerialEA.hpp"
-#include "geneva/GMultiThreadedEA.hpp"
 #include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GPSPersonalityTraits.hpp"
 #include "geneva/GSAPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
-#include "geneva/GSerialSwarm.hpp"
-#include "geneva/GMultiThreadedSwarm.hpp"
-#include "geneva/GSerialGD.hpp"
-#include "geneva/GMultiThreadedGD.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GTestIndividual1.hpp"
@@ -129,12 +123,6 @@ public:
 		>;
 
 		using algorithm_types = boost::mpl::list<
-			GSerialEA
-			, GMultiThreadedEA
-			, GSerialSwarm
-			, GMultiThreadedSwarm
-			, GSerialGD
-			, GMultiThreadedGD
 		>;
 
 		using trait_types = boost::mpl::list<
@@ -167,8 +155,8 @@ public:
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, pod_collection_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, pod_collection_types ) );
 
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, algorithm_types ) );
-		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, algorithm_types ) );
+		// add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, algorithm_types ) );
+		// add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, algorithm_types ) );
 
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_no_failure_expected, trait_types ) );
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, trait_types ) );

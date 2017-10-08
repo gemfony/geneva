@@ -60,7 +60,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GOptimizableI.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/GOptimizationAlgorithmT2.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -69,11 +69,11 @@
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/GEvolutionaryAlgorithmFactory.hpp"
-#include "geneva/GGradientDescentFactory.hpp"
-#include "geneva/GParameterScanFactory.hpp"
-#include "geneva/GSimulatedAnnealingFactory.hpp"
-#include "geneva/GSwarmAlgorithmFactory.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithmFactory.hpp"
+#include "geneva/G_OA_GradientDescentFactory.hpp"
+#include "geneva/G_OA_ParameterScanFactory.hpp"
+#include "geneva/G_OA_SimulatedAnnealingFactory.hpp"
+#include "geneva/G_OA_SwarmAlgorithmFactory.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -95,7 +95,7 @@ G_API_GENEVA void setRNFParameters(const std::uint16_t&);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
-using GOABase = Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>;
+using GOABase = Gem::Geneva::GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>;
 
 /******************************************************************************/
 /**
@@ -152,11 +152,6 @@ public:
 
 	 /** @brief Checks whether this object is running in client mode */
 	 G_API_GENEVA bool clientMode() const;
-
-	 /** @brief Sets the desired parallelization mode */
-	 G_API_GENEVA void setParallelizationMode(const execMode&);
-	 /** @brief Retrieves the current parallelization mode */
-	 G_API_GENEVA execMode getParallelizationMode() const;
 
 	 /* @brief Specifies whether only the best individuals of a population should be copied */
 	 G_API_GENEVA void setCopyBestIndividualsOnly(const bool&);
@@ -302,7 +297,6 @@ private:
 	 // These parameters can enter the object through the constructor
 	 bool m_client_mode = GO2_DEF_CLIENTMODE; ///< Specifies whether this object represents a network client
 	 std::string m_config_filename = GO2_DEF_DEFAULTCONFIGFILE; ///< Indicates where the configuration file is stored
-	 execMode m_par_mode = GO2_DEF_DEFAULPARALLELIZATIONMODE; ///< The desired parallelization mode for free-form algorithms
 	 std::string m_consumer_name = GO2_DEF_NOCONSUMER; ///< The name of a consumer requested by the user on the command line
 
 	 //---------------------------------------------------------------------------
@@ -335,7 +329,7 @@ private:
 	 // Holds an object capable of producing objects of the desired type
 	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_content_creator_ptr;
 	 // A user-defined means for information retrieval
-	 std::vector<std::shared_ptr<Gem::Geneva::GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>> m_pluggable_monitors_vec;
+	 std::vector<std::shared_ptr<GOABase::GBasePluggableOMT>> m_pluggable_monitors_vec;
 };
 
 /******************************************************************************/

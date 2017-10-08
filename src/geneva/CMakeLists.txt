@@ -2,21 +2,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( OPTIMIZATIONSOURCES
     GAdaptorT
-	GBaseEA
-	GBaseGD
-	GBasePS
 	GBaseParChildPersonalityTraits
-	GBaseSA
-	GBaseSwarm
 	GBooleanAdaptor
 	GBooleanCollection
 	GBooleanObject
 	GBooleanObjectCollection
-	GBrokerEA
-	GBrokerGD
-	GBrokerPS
-	GBrokerSA
-	GBrokerSwarm
 	GConstrainedDoubleCollection
 	GConstrainedDoubleObject
 	GConstrainedDoubleObjectCollection
@@ -30,9 +20,7 @@ SET ( OPTIMIZATIONSOURCES
 	GEAPersonalityTraits
 	GenevaHelperFunctionsT
 	GenevaInitializer
-	GEvolutionaryAlgorithmFactory
 	GGDPersonalityTraits
-	GGradientDescentFactory
 	GIndividualMultiConstraint
 	GIndividualStandardConsumers
 	GInt32Collection
@@ -40,11 +28,6 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32GaussAdaptor
 	GInt32Object
 	GInt32ObjectCollection
-	GMultiThreadedEA
-	GMultiThreadedGD
-	GMultiThreadedPS
-	GMultiThreadedSA
-	GMultiThreadedSwarm
 	Go2
     G_OA_EvolutionaryAlgorithm
     G_OA_EvolutionaryAlgorithmFactory
@@ -65,7 +48,6 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterBase
 	GParameterObjectCollection
 	GParameterPropertyParser
-	GParameterScanFactory
 	GParameterSet
 	GParameterSetParChild
 	GParameterSetFixedSizePriorityQueue
@@ -77,13 +59,6 @@ SET ( OPTIMIZATIONSOURCES
 	GRateableI
 	GSAPersonalityTraits
 	GScanPar
-	GSerialEA
-	GSerialGD
-	GSerialPS
-	GSerialSA
-	GSerialSwarm
-    GSimulatedAnnealingFactory
-	GSwarmAlgorithmFactory
 	GSwarmPersonalityTraits
 	GTestIndividual1
 )

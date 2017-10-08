@@ -70,11 +70,11 @@ Go2::Go2()
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms and consumers
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
+	m_gi.registerOAF<GGradientDescentFactory2>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
+	m_gi.registerOAF<GParameterScanFactory2>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -109,11 +109,11 @@ Go2::Go2(
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
+	m_gi.registerOAF<GGradientDescentFactory2>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
+	m_gi.registerOAF<GParameterScanFactory2>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -145,11 +145,11 @@ Go2::Go2(const std::string &configFilename)
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
+	m_gi.registerOAF<GGradientDescentFactory2>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
+	m_gi.registerOAF<GParameterScanFactory2>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -189,11 +189,11 @@ Go2::Go2(
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
+	m_gi.registerOAF<GGradientDescentFactory2>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
+	m_gi.registerOAF<GParameterScanFactory2>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -225,7 +225,6 @@ Go2::Go2(const Go2 &cp)
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>(cp)
    , m_client_mode(cp.m_client_mode)
    , m_config_filename(cp.m_config_filename)
-   , m_par_mode(cp.m_par_mode)
    , m_consumer_name(cp.m_consumer_name)
    , m_n_producer_threads(cp.m_n_producer_threads)
    , m_offset(cp.m_offset)
@@ -234,11 +233,11 @@ Go2::Go2(const Go2 &cp)
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
+	m_gi.registerOAF<GGradientDescentFactory2>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
+	m_gi.registerOAF<GParameterScanFactory2>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -339,7 +338,6 @@ void Go2::compare(
 	compare_t(IDENTITY(this->data,  p_load->data), token); // Actually data is contained in a parent class
 	compare_t(IDENTITY(m_client_mode, p_load->m_client_mode), token);
 	compare_t(IDENTITY(m_config_filename, p_load->m_config_filename), token);
-	compare_t(IDENTITY(m_par_mode, p_load->m_par_mode), token);
 	compare_t(IDENTITY(m_consumer_name, p_load->m_consumer_name), token);
 	compare_t(IDENTITY(m_n_producer_threads, p_load->m_n_producer_threads), token);
 	compare_t(IDENTITY(m_max_client_duration.count(), p_load->m_max_client_duration.count()), token);
@@ -374,7 +372,7 @@ std::string Go2::name() const {
  */
 void Go2::registerDefaultAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
-	std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
+	std::shared_ptr<GOptimizationAlgorithmFactoryT2<GOABase>> p;
 	if (!GOAFactoryStore->get(mn, p)) {
 		glogger
 		<< "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
@@ -382,7 +380,7 @@ void Go2::registerDefaultAlgorithm(const std::string &mn) {
 		<< GEXCEPTION;
 	}
 
-	this->registerDefaultAlgorithm(p->get(m_par_mode));
+	this->registerDefaultAlgorithm(p->get());
 }
 
 /******************************************************************************/
@@ -481,7 +479,6 @@ void Go2::load_(const GObject *cp) {
 	// and then our local data
 	m_client_mode = p_load->m_client_mode;
 	m_config_filename = p_load->m_config_filename;
-	m_par_mode = p_load->m_par_mode;
 	m_consumer_name = p_load->m_consumer_name;
 	m_n_producer_threads = p_load->m_n_producer_threads;
 	m_max_client_duration = p_load->m_max_client_duration;
@@ -568,29 +565,6 @@ bool Go2::clientMode() const {
 
 /******************************************************************************/
 /**
- * Allows to set the parallelization mode used for the optimization. Note that
- * this setting will only have an effect on algorithms that have not been explicitly
- * added to Go2 and only to those algorithms that have been added after the parMode_
- * has been set.
- *
- * @param execMode The parallelization mode used for the optimization
- */
-void Go2::setParallelizationMode(const execMode &parMode) {
-	m_par_mode = parMode;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the parallelization mode currently used for the optimization
- *
- * @return The parallelization mode currently used for the optimization
- */
-execMode Go2::getParallelizationMode() const {
-	return m_par_mode;
-}
-
-/******************************************************************************/
-/**
  * Retrieves the currently registered number of algorithms
  */
 std::size_t Go2::getNAlgorithms() const {
@@ -655,7 +629,7 @@ Go2 &Go2::operator&(std::shared_ptr<GOABase > alg) {
  */
 void Go2::addAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
-	std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
+	std::shared_ptr<GOptimizationAlgorithmFactoryT2<GOABase>> p;
 	if (!GOAFactoryStore->get(mn, p)) {
 		glogger
 		<< "In Go2::addAlgorithm(std::string): Error!" << std::endl
@@ -663,7 +637,7 @@ void Go2::addAlgorithm(const std::string &mn) {
 		<< GEXCEPTION;
 	}
 
-	this->addAlgorithm(p->get(m_par_mode)); // The factory might add a monitor to the object
+	this->addAlgorithm(p->get()); // The factory might add a monitor to the object
 }
 
 /***************************************************************************/
@@ -800,14 +774,6 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 		// Remove our local copies
 		this->clear();
-
-#ifdef DEBUG
-      if(!this->empty()) {
-         glogger
-         << "Go2 collection still contains " << this->size() << " individuals after clear()" << std::endl
-         << GEXCEPTION;
-      }
-#endif /* DEBUG */
 
 		// Do the actual optimization
 		p_base->GOptimizableI::optimize<GParameterSet>(m_iterations_consumed);
@@ -1117,8 +1083,6 @@ void Go2::parseCommandLine(
 			("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
 			("cp_file,f", po::value<std::string>(&checkpointFile)->default_value("empty"),
 			 "A file (including its path) holding a checkpoint for a given optimization algorithm")
-			("executionMode,e", po::value<execMode>(&m_par_mode)->default_value(GO2_DEF_DEFAULPARALLELIZATIONMODE),
-			 "The execution mode: (0) means serial execution (1) means multi-threaded execution and (2) means execution through the broker. Note that you need to specifiy a consumer")
 			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
 			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION), "The maximum runtime for a client in the form \"hh:mm:ss\". Note that a client may run longer as this time-frame if its work load still runs. The default value \"00:00:00\" means: \"no time limit\"")
 			("consumer,c", po::value<std::string>(&m_consumer_name), consumer_help.str().c_str());
@@ -1176,69 +1140,50 @@ void Go2::parseCommandLine(
 			m_client_mode = true;
 		}
 
-		// If the user has requested brokered execution, do corresponding error checks
-		// and prepare the environment as required
-		if (execMode::BROKER == m_par_mode) {
-			// No consumer specified, although brokered execution was requested
-			if (vm.count("consumer") != 1) {
+		// No consumer specified, although brokered execution was requested
+		if (vm.count("consumer") != 1) {
+			glogger
+			<< "In Go2::parseCommandLine(): Error!" << std::endl
+			<< "You need to specify exactly one consumer for brokered execution," << std::endl
+			<< "on the command line. Found " << vm.count("consumer") << "." << std::endl
+			<< GEXCEPTION;
+		}
+
+		// Check that the requested consumer actually exists
+		if (vm.count("consumer") && !GConsumerStore->exists(m_consumer_name)) {
+			glogger
+			<< "In Go2::parseCommandLine(): Error!" << std::endl
+			<< "You have requested a consumer with name " << m_consumer_name << std::endl
+			<< "which could not be found in the consumer store." << std::endl
+			<< GEXCEPTION;
+		}
+
+		if (m_client_mode && !GConsumerStore->get(m_consumer_name)->needsClient()) {
+			glogger
+			<< "In Go2::parseCommandLine(): Error!" << std::endl
+			<< "Requested client mode even though consumer " << m_consumer_name << " does not require a client" <<
+			std::endl
+			<< GEXCEPTION;
+		}
+
+		std::cout << "Using consumer " << m_consumer_name << std::endl;
+
+		// Finally give the consumer the chance to act on the command line options
+		// TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker
+		GConsumerStore->get(m_consumer_name)->actOnCLOptions(vm);
+
+		// At this point the consumer should be fully configured
+
+		// Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
+		if (!m_client_mode) {
+			if (!GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
+				GBROKER(Gem::Geneva::GParameterSet)->enrol(GConsumerStore->get(m_consumer_name));
+			} else {
 				glogger
-				<< "In Go2::parseCommandLine(): Error!" << std::endl
-				<< "You need to specify exactly one consumer for brokered execution," << std::endl
-				<< "on the command line. Found " << vm.count("consumer") << "." << std::endl
-				<< GEXCEPTION;
-			}
-
-			// Check that the requested consumer actually exists
-			if (vm.count("consumer") && !GConsumerStore->exists(m_consumer_name)) {
-				glogger
-				<< "In Go2::parseCommandLine(): Error!" << std::endl
-				<< "You have requested a consumer with name " << m_consumer_name << std::endl
-				<< "which could not be found in the consumer store." << std::endl
-				<< GEXCEPTION;
-			}
-
-			if (m_client_mode && !GConsumerStore->get(m_consumer_name)->needsClient()) {
-				glogger
-				<< "In Go2::parseCommandLine(): Error!" << std::endl
-				<< "Requested client mode even though consumer " << m_consumer_name << " does not require a client" <<
-				std::endl
-				<< GEXCEPTION;
-			}
-
-			std::cout << "Using consumer " << m_consumer_name << std::endl;
-
-			// Finally give the consumer the chance to act on the command line options
-			// TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker
-			GConsumerStore->get(m_consumer_name)->actOnCLOptions(vm);
-
-			// At this point the consumer should be fully configured
-
-			// Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
-			if (!m_client_mode) {
-				if (!GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
-					GBROKER(Gem::Geneva::GParameterSet)->enrol(GConsumerStore->get(m_consumer_name));
-				} else {
-					glogger
-					<< "In Go2::parseCommandLine(): Note!" << std::endl
-					<< "Could not register requested consumer," << std::endl
-					<< "as a consumer was already registered with the broker" << std::endl
-					<< GLOGGING;
-				}
-			}
-		} else { // not in brokered mode. No consumers to be taken into account
-			// Complain if a consumer was specified, but we are not dealing with brokered execution
-			if (vm.count("consumer")) {
-				glogger
-				<< "In Go2::parseCommandLine(): Error!" << std::endl
-				<< "You have specified a consumer but have requested " << std::endl
-				<< "an execution mode " << m_par_mode << " where " << execMode::BROKER << " was expected" << std::endl
-				<< GEXCEPTION;
-			}
-
-			if (m_client_mode) {
-				glogger
-				<< "Requested client mode even though we are not running in brokered mode" << std::endl
-				<< GEXCEPTION;
+				<< "In Go2::parseCommandLine(): Note!" << std::endl
+				<< "Could not register requested consumer," << std::endl
+				<< "as a consumer was already registered with the broker" << std::endl
+				<< GLOGGING;
 			}
 		}
 
@@ -1249,7 +1194,7 @@ void Go2::parseCommandLine(
 			std::vector<std::string>::iterator it;
 			for (it = algs.begin(); it != algs.end(); ++it) {
 				// Retrieve the algorithm factory from the global store
-				std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
+				std::shared_ptr<GOptimizationAlgorithmFactoryT2<GOABase>> p;
 				if (!GOAFactoryStore->get(*it, p)) {
 					glogger
 					<< "In Go2::parseCommandLine(int, char**): Error!" << std::endl
@@ -1259,7 +1204,7 @@ void Go2::parseCommandLine(
 				}
 
 				// Retrieve an algorithm from the factory and add it to the list
-				m_cl_algorithms_vec.push_back(p->get(m_par_mode));
+				m_cl_algorithms_vec.push_back(p->get());
 			}
 		}
 

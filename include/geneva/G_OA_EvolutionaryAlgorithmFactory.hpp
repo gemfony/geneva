@@ -99,6 +99,86 @@ protected:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/**
+ * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
+ * It will only return evolutionary algorithms which perform all evaluation in multithreaded mode.
+ */
+class G_MT_EvolutionaryAlgorithmFactory
+	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GMTExecutorT<GParameterSet>>>
+{
+public:
+	 /** @brief The default constructor */
+	 G_API_GENEVA G_MT_EvolutionaryAlgorithmFactory();
+	 /** @brief Initialization with the name of the config file */
+	 explicit G_API_GENEVA G_MT_EvolutionaryAlgorithmFactory(const std::string&);
+	 /** @brief Initialization with the name of the config file and a content creator */
+	 G_API_GENEVA G_MT_EvolutionaryAlgorithmFactory(
+		 const std::string&
+		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
+	 );
+	 /** @brief The copy constructor */
+	 G_API_GENEVA G_MT_EvolutionaryAlgorithmFactory(const G_MT_EvolutionaryAlgorithmFactory&);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~G_MT_EvolutionaryAlgorithmFactory();
+
+	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
+	 virtual G_API_GENEVA std::string getMnemonic() const override;
+	 /** @brief Gives access to a clear-text description of the algorithm */
+	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+
+protected:
+	 /** @brief Creates individuals of this type */
+	 virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GMTExecutorT<GParameterSet>>> getObject_(
+		 Gem::Common::GParserBuilder&
+		 , const std::size_t&
+	 ) override;
+	 /** @brief Allows to act on the configuration options received from the configuration file */
+	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GMTExecutorT<GParameterSet>>>&) override;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class is a specialization of the GFactoryT<> class for evolutionary algorithms.
+ * It will only return evolutionary algorithms which perform all evaluation in multithreaded mode.
+ */
+class G_Serial_EvolutionaryAlgorithmFactory
+	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GSerialExecutorT<GParameterSet>>>
+{
+public:
+	 /** @brief The default constructor */
+	 G_API_GENEVA G_Serial_EvolutionaryAlgorithmFactory();
+	 /** @brief Initialization with the name of the config file */
+	 explicit G_API_GENEVA G_Serial_EvolutionaryAlgorithmFactory(const std::string&);
+	 /** @brief Initialization with the name of the config file and a content creator */
+	 G_API_GENEVA G_Serial_EvolutionaryAlgorithmFactory(
+		 const std::string&
+		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
+	 );
+	 /** @brief The copy constructor */
+	 G_API_GENEVA G_Serial_EvolutionaryAlgorithmFactory(const G_Serial_EvolutionaryAlgorithmFactory&);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~G_Serial_EvolutionaryAlgorithmFactory();
+
+	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
+	 virtual G_API_GENEVA std::string getMnemonic() const override;
+	 /** @brief Gives access to a clear-text description of the algorithm */
+	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+
+protected:
+	 /** @brief Creates individuals of this type */
+	 virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GSerialExecutorT<GParameterSet>>> getObject_(
+		 Gem::Common::GParserBuilder&
+		 , const std::size_t&
+	 ) override;
+	 /** @brief Allows to act on the configuration options received from the configuration file */
+	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GSerialExecutorT<GParameterSet>>>&) override;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

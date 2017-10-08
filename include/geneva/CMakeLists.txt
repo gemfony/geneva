@@ -2,22 +2,12 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
-	GBaseEA.hpp
-	GBasePS.hpp
 	GBaseParChildPersonalityTraits.hpp
 	GBaseParChildT.hpp
-	GBaseGD.hpp
-	GBaseSA.hpp
-	GBaseSwarm.hpp
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp
 	GBooleanObject.hpp
 	GBooleanObjectCollection.hpp
-	GBrokerEA.hpp
-	GBrokerGD.hpp
-	GBrokerPS.hpp
-	GBrokerSA.hpp
-	GBrokerSwarm.hpp
 	GConstrainedDoubleCollection.hpp
 	GConstrainedDoubleObject.hpp
 	GConstrainedDoubleObjectCollection.hpp
@@ -38,12 +28,10 @@ SET ( OPTIMIZATIONINCLUDES
 	GEAPersonalityTraits.hpp
 	GenevaHelperFunctionsT.hpp
 	GenevaInitializer.hpp
-	GEvolutionaryAlgorithmFactory.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp
 	GGDPersonalityTraits.hpp
-	GGradientDescentFactory.hpp
 	GIndividualMultiConstraint.hpp
 	GIndividualStandardConsumerInitializerT.hpp
 	GIndividualStandardConsumers.hpp
@@ -56,11 +44,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
     GMultiConstraintT.hpp
-	GMultiThreadedEA.hpp
-	GMultiThreadedGD.hpp
-	GMultiThreadedPS.hpp
-	GMultiThreadedSA.hpp
-	GMultiThreadedSwarm.hpp
 	GMutableI.hpp
     GMutableParameterI.hpp
 	GNumBiGaussAdaptorT.hpp
@@ -96,7 +79,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterCollectionT.hpp
 	GParameterObjectCollection.hpp
 	GParameterPropertyParser.hpp
-	GParameterScanFactory.hpp
 	GParameterSet.hpp
     GParameterSetFactory.hpp
 	GParameterSetParChild.hpp
@@ -112,13 +94,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GRateableI.hpp
 	GSAPersonalityTraits.hpp
 	GScanPar.hpp
-	GSerialEA.hpp
-	GSerialGD.hpp
-	GSerialPS.hpp
-	GSerialSA.hpp
-	GSerialSwarm.hpp
-    GSimulatedAnnealingFactory.hpp
-	GSwarmAlgorithmFactory.hpp
 	GSwarmPersonalityTraits.hpp
 	GTestIndividual1.hpp
 )

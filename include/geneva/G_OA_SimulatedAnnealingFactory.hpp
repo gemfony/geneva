@@ -98,6 +98,86 @@ protected:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/**
+ * This class is a specialization of the GFactoryT<> class for simulated annealing.
+ * It will only return objects which perform all evaluation through the broker.
+ */
+class G_MT_SimulatedAnnealingFactory
+	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GMTExecutorT<GParameterSet>>>
+{
+public:
+	 /** @brief The default constructor */
+	 G_API_GENEVA G_MT_SimulatedAnnealingFactory();
+	 /** @brief Initialization with the name of the config file */
+	 explicit G_API_GENEVA G_MT_SimulatedAnnealingFactory(const std::string&);
+	 /** @brief Initialization with the name of the config file and a content creator */
+	 G_API_GENEVA G_MT_SimulatedAnnealingFactory(
+		 const std::string&
+		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
+	 );
+	 /** @brief The copy constructor */
+	 G_API_GENEVA G_MT_SimulatedAnnealingFactory(const G_MT_SimulatedAnnealingFactory&);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~G_MT_SimulatedAnnealingFactory();
+
+	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
+	 virtual G_API_GENEVA std::string getMnemonic() const override;
+	 /** @brief Gives access to a clear-text description of the algorithm */
+	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+
+protected:
+	 /** @brief Creates individuals of this type */
+	 virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GMTExecutorT<GParameterSet>>> getObject_(
+		 Gem::Common::GParserBuilder&
+		 , const std::size_t&
+	 ) override;
+	 /** @brief Allows to act on the configuration options received from the configuration file */
+	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GMTExecutorT<GParameterSet>>>&) override;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class is a specialization of the GFactoryT<> class for simulated annealing.
+ * It will only return objects which perform all evaluation through the broker.
+ */
+class G_Serial_SimulatedAnnealingFactory
+	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GSerialExecutorT<GParameterSet>>>
+{
+public:
+	 /** @brief The default constructor */
+	 G_API_GENEVA G_Serial_SimulatedAnnealingFactory();
+	 /** @brief Initialization with the name of the config file */
+	 explicit G_API_GENEVA G_Serial_SimulatedAnnealingFactory(const std::string&);
+	 /** @brief Initialization with the name of the config file and a content creator */
+	 G_API_GENEVA G_Serial_SimulatedAnnealingFactory(
+		 const std::string&
+		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
+	 );
+	 /** @brief The copy constructor */
+	 G_API_GENEVA G_Serial_SimulatedAnnealingFactory(const G_Serial_SimulatedAnnealingFactory&);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~G_Serial_SimulatedAnnealingFactory();
+
+	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
+	 virtual G_API_GENEVA std::string getMnemonic() const override;
+	 /** @brief Gives access to a clear-text description of the algorithm */
+	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+
+protected:
+	 /** @brief Creates individuals of this type */
+	 virtual G_API_GENEVA std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GSerialExecutorT<GParameterSet>>> getObject_(
+		 Gem::Common::GParserBuilder&
+		 , const std::size_t&
+	 ) override;
+	 /** @brief Allows to act on the configuration options received from the configuration file */
+	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GSerialExecutorT<GParameterSet>>>&) override;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

@@ -283,49 +283,89 @@ Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithm
  */
 bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p)
 {
-	// Create a factory for evolutionary algorithm objects
-	// TODO: Move this to class-scope ?
-	GEvolutionaryAlgorithmFactory eaFactory(
-		m_configFile
-		, m_executionMode
-	);
-
-	// Obtain a new evolutionary algorithm from the factory. It will be
-	// equipped with all settings from the config file
-	std::shared_ptr <GBaseEA> ea_ptr = eaFactory.get<GBaseEA>();
 
 	// Make sure p is clean
 	if (p.isDirty()) {
 		glogger
-			<< "In GEvolutionaryAlgorithmPostOptimizer: Error!" << std::endl
+			<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
 			<< "Provided base_type has dirty flag set." << std::endl
 			<< GEXCEPTION;
 	}
 
-	// Clone the individual for post-processing
-	std::shared_ptr <GParameterSet> p_unopt_ptr = p.template clone<GParameterSet>();
+	switch(m_executionMode) {
+		case execMode::MULTITHREADED:
+		{
+			// Clone the individual for post-processing
+			std::shared_ptr <GParameterSet> p_unopt_ptr = p.template clone<GParameterSet>();
 
-	// Make sure the post-optimization does not trigger post-optimization recursively ...
-	p_unopt_ptr->vetoPostProcessing(true);
+			// Make sure the post-optimization does not trigger post-optimization recursively ...
+			p_unopt_ptr->vetoPostProcessing(true);
 
-	// Add our individual to the algorithm
-	ea_ptr->push_back(p_unopt_ptr);
+			G_MT_EvolutionaryAlgorithmFactory eaFactory(m_configFile);
+			std::shared_ptr<GMTEvolutionaryAlgorithm> ea_ptr = eaFactory.get<GMTEvolutionaryAlgorithm>();
 
-	// Perform the actual (sub-)optimization
-	ea_ptr->optimize();
+			// Add our individual to the algorithm
+			ea_ptr->push_back(p_unopt_ptr);
 
-	// Retrieve the best individual
-	std::shared_ptr <GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
+			// Perform the actual (sub-)optimization
+			ea_ptr->optimize();
 
-	// Make sure subsequent optimization cycles may generally perform post-optimization again.
-	// THis needs to be done on the optimized individual, as it will be loaded into the
-	// original individual.
-	p_opt_ptr->vetoPostProcessing(false);
+			// Retrieve the best individual
+			std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
 
-	// Load the parameter data into the argument base_type (will also clear the dirty flag)
-	p.cannibalize(*p_opt_ptr);
+			// Make sure subsequent optimization cycles may generally perform post-optimization again.
+			// THis needs to be done on the optimized individual, as it will be loaded into the
+			// original individual.
+			p_opt_ptr->vetoPostProcessing(false);
 
-	return true;
+			// Load the parameter data into the argument base_type (will also clear the dirty flag)
+			p.cannibalize(*p_opt_ptr);
+
+			return true;
+		}
+			break;
+
+		case execMode::SERIAL:
+		{
+			// Clone the individual for post-processing
+			std::shared_ptr <GParameterSet> p_unopt_ptr = p.template clone<GParameterSet>();
+
+			// Make sure the post-optimization does not trigger post-optimization recursively ...
+			p_unopt_ptr->vetoPostProcessing(true);
+
+			G_Serial_EvolutionaryAlgorithmFactory eaFactory(m_configFile);
+			std::shared_ptr<GSerialEvolutionaryAlgorithm> ea_ptr = eaFactory.get<GSerialEvolutionaryAlgorithm>();
+
+			// Add our individual to the algorithm
+			ea_ptr->push_back(p_unopt_ptr);
+
+			// Perform the actual (sub-)optimization
+			ea_ptr->optimize();
+
+			// Retrieve the best individual
+			std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
+
+			// Make sure subsequent optimization cycles may generally perform post-optimization again.
+			// THis needs to be done on the optimized individual, as it will be loaded into the
+			// original individual.
+			p_opt_ptr->vetoPostProcessing(false);
+
+			// Load the parameter data into the argument base_type (will also clear the dirty flag)
+			p.cannibalize(*p_opt_ptr);
+
+			return true;
+		}
+			break;
+
+		default:
+		{
+			glogger
+				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
+				<< "Got invalid execution mode " << m_executionMode << std::endl
+				<< GEXCEPTION;
+		}
+			break;
+	}
 }
 
 /******************************************************************************/
