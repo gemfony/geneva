@@ -36,7 +36,7 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBrokerEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialEvolutionaryAlgorithm)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMTEvolutionaryAlgorithm)
 

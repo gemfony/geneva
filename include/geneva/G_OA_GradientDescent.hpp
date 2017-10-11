@@ -48,7 +48,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/GOptimizationAlgorithmT2.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GOptimizationAlgorithmT2.hpp"

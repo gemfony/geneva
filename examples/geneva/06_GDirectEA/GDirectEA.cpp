@@ -435,7 +435,7 @@ int main(int argc, char **argv){
 			std::shared_ptr<GFunctionIndividual> p;
 
 			// Create an empty population
-			std::shared_ptr<GBrokerEvolutionaryAlgorithm> pop_ptr(new GBrokerEvolutionaryAlgorithm());
+			std::shared_ptr<GEvolutionaryAlgorithm> pop_ptr(new GEvolutionaryAlgorithm());
 
 			// General settings
 			pop_ptr->setPopulationSizes(populationSize,nParents);

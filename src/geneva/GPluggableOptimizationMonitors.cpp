@@ -40,7 +40,7 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStandardMonitor)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFitnessMonitor)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCollectiveMonitor)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProgressPlotter<double>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProgressPlotter)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAllSolutionFileLogger)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GIterationResultsFileLogger)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNAdpationsLogger)

@@ -49,7 +49,6 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GParChildT.hpp"
@@ -1225,7 +1224,7 @@ public:
 
 /******************************************************************************/
 // Some typedefs for the different execution modes
-using GBrokerEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>;
+using GEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>;
 using GSerialEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>>;
 using GMTEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>>;
 
@@ -1234,7 +1233,7 @@ using GMTEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GMTExecu
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialEvolutionaryAlgorithm)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMTEvolutionaryAlgorithm)
 

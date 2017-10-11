@@ -42,14 +42,12 @@ SET ( OPTIMIZATIONSOURCES
 	GObject
 	GOptimizableEntity
 	GOptimizableI
-	GOptimizationAlgorithmT
     GOptimizationAlgorithmT2
 	GOptimizationEnums
 	GParameterBase
 	GParameterObjectCollection
 	GParameterPropertyParser
 	GParameterSet
-	GParameterSetParChild
 	GParameterSetFixedSizePriorityQueue
 	GParameterSetMultiConstraint
 	GPersonalityTraits

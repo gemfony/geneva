@@ -111,12 +111,12 @@ std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParame
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
-	std::shared_ptr<GBrokerEvolutionaryAlgorithm> target(
-		new GBrokerEvolutionaryAlgorithm()
+	std::shared_ptr<GEvolutionaryAlgorithm> target(
+		new GEvolutionaryAlgorithm()
 	);
 
-	// Make the local configuration options known (up to the level of GBrokerEvolutionaryAlgorithm)
-	target->GBrokerEvolutionaryAlgorithm::addConfigurationOptions(gpb);
+	// Make the local configuration options known (up to the level of GEvolutionaryAlgorithm)
+	target->GEvolutionaryAlgorithm::addConfigurationOptions(gpb);
 
 	return target;
 }

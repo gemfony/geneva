@@ -3,7 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
 	GBaseParChildPersonalityTraits.hpp
-	GBaseParChildT.hpp
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp
 	GBooleanObject.hpp
@@ -69,9 +68,7 @@ SET ( OPTIMIZATIONINCLUDES
     GObject.hpp
 	GOptimizableEntity.hpp
 	GOptimizableI.hpp
-	GOptimizationAlgorithmT.hpp
     GOptimizationAlgorithmT2.hpp
-	GOptimizationAlgorithmFactoryT.hpp
     GOptimizationAlgorithmFactoryT2.hpp
     GOptimizationEnums.hpp
 	GParameterBase.hpp
@@ -81,7 +78,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterPropertyParser.hpp
 	GParameterSet.hpp
     GParameterSetFactory.hpp
-	GParameterSetParChild.hpp
 	GParameterSetFixedSizePriorityQueue.hpp
 	GParameterSetMultiConstraint.hpp
 	GParameterT.hpp

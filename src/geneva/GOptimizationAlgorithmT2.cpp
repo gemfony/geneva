@@ -1,5 +1,5 @@
 /**
- * @file GOptimizationAlgorithmT.cpp
+ * @file GOptimizationAlgorithmT2.cpp
  */
 
 /*
@@ -38,9 +38,8 @@
 
 /******************************************************************************/
 
-// TODO: Re-enable once the old GOptimizationAlgorithmT has gone
-// BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
-// BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)
-// BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)
 
 /******************************************************************************/
