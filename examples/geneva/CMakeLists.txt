@@ -56,7 +56,7 @@ ADD_CUSTOM_TARGET( "examples-geneva"
         GDirectSA
 		GDirectSwarm
 		GFunctionMinimizer
-        # GPostProcessing
+        GPostProcessing
 		GNeuralNetwork
 		GStarter
 		# GMetaOptimizer
@@ -74,7 +74,7 @@ ADD_SUBDIRECTORY( 06_GDirectEA )
 ADD_SUBDIRECTORY( 06_GDirectSA )
 ADD_SUBDIRECTORY( 06_GDirectSwarm )
 ADD_SUBDIRECTORY( 07_GFunctionMinimizer )
-# ADD_SUBDIRECTORY( 08_GPostProcessing )
+ADD_SUBDIRECTORY( 08_GPostProcessing )
 ADD_SUBDIRECTORY( 09_GNeuralNetwork )
 ADD_SUBDIRECTORY( 10_GStarter )
 # ADD_SUBDIRECTORY( 11_GMetaOptimizer )
