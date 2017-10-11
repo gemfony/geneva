@@ -51,6 +51,7 @@
 #include "common/GFactoryT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "geneva/GConstrainedInt32Object.hpp"
 #include "geneva/GInt32FlipAdaptor.hpp"
 #include "geneva/GInt32GaussAdaptor.hpp"
@@ -61,7 +62,7 @@
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPluggableOptimizationMonitors.hpp"
-#include "geneva/GEvolutionaryAlgorithmFactory.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithmFactory.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 namespace Gem {
@@ -182,7 +183,6 @@ class GMetaOptimizerIndividualT : public GParameterSet {
 		 & BOOST_SERIALIZATION_NVP(iterationThreshold_)
 		 & BOOST_SERIALIZATION_NVP(moTarget_)
 		 & BOOST_SERIALIZATION_NVP(subEA_config_)
-		 & BOOST_SERIALIZATION_NVP(subExecMode_)
 		 & BOOST_SERIALIZATION_NVP(ind_factory_);
 	 }
 
@@ -200,7 +200,6 @@ public:
 			, iterationThreshold_(GMETAOPT_DEF_ITERATIONTHRESHOLD)
 			, moTarget_(GMETAOPT_DEF_MOTARGET)
 			, subEA_config_(GMETAOPT_DEF_SUBEACONFIG)
-			, subExecMode_(GMETAOPT_DEF_SUBEXECMODE)
 			, ind_factory_()
 	 { /* nothing */ }
 
@@ -217,7 +216,6 @@ public:
 			, iterationThreshold_(cp.iterationThreshold_)
 			, moTarget_(cp.moTarget_)
 			, subEA_config_(cp.subEA_config_)
-			, subExecMode_(cp.subExecMode_)
 			, ind_factory_(
 			 Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, typename ind_type::FACTORYTYPE>(
 				 (cp.ind_factory_)->clone()
@@ -308,7 +306,6 @@ public:
 		 Gem::Common::compare_t(IDENTITY(iterationThreshold_, p_load->iterationThreshold_), token);
 		 Gem::Common::compare_t(IDENTITY(moTarget_, p_load->moTarget_), token);
 		 Gem::Common::compare_t(IDENTITY(subEA_config_, p_load->subEA_config_), token);
-		 Gem::Common::compare_t(IDENTITY(subExecMode_, p_load->subExecMode_), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();
@@ -363,32 +360,6 @@ public:
 			 , [this](std::string seac) { this->setSubEAConfig(seac); }
 		 )
 			 << "Path and name of the configuration file used for the (sub-)evolutionary algorithm";
-
-		 gpb.registerFileParameter<bool>(
-			 "subExecMode" // The name of the variable
-			 , GMETAOPT_DEF_SUBEXECMODE // The default value
-			 , [this](bool sem) { this->setSubExecMode(sem); }
-		 )
-			 << "The execution mode for the sub-optimization algorithm:" << std::endl
-			 << "serial (0/false), multithreaded (1/true)";
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to specify the execution mode to be chosen for our (sub-) optimization
-	  * algorithm: 0/false for serial, 1/true for multithreaded.
-	  */
-	 void setSubExecMode(bool subExecM) {
-		 subExecMode_ = subExecM;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to retrieve the execution mode to be chosen for our (sub-) optimization
-	  * algorithm: 0/false for serial, 1/true for multithreaded.
-	  */
-	 bool getSubExecMode() const {
-		 return subExecMode_;
 	 }
 
 	 /***************************************************************************/
@@ -857,8 +828,7 @@ public:
 		 }
 
 		 ind_factory_
-			 = Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, typename ind_type::FACTORYTYPE>(
-			 factory->clone());
+			 = Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, typename ind_type::FACTORYTYPE>(factory->clone());
 	 }
 
 protected:
@@ -881,7 +851,6 @@ protected:
 		 iterationThreshold_ = p_load->iterationThreshold_;
 		 moTarget_ = p_load->moTarget_;
 		 subEA_config_ = p_load->subEA_config_;
-		 subExecMode_ = p_load->subExecMode_;
 
 		 // We simply keep our local individual factory, as all settings are made inside of fitnessCalculation
 	 }
@@ -954,14 +923,11 @@ protected:
 		 ind_factory_->setAdProb(startAdProb);
 		 ind_factory_->setAdaptAdProb(adaptAdProb);
 
-		 // Determine the desired execution mode
-		 execMode em = (subExecMode_ == GMETAOPT_SUBEXEC_SERIAL ? execMode::SERIAL : execMode::MULTITHREADED);
-
-		 // Set up a population factory
-		 GEvolutionaryAlgorithmFactory ea(subEA_config_, em);
+		 // Set up a population factory for serial execution
+		 G_Serial_EvolutionaryAlgorithmFactory ea(subEA_config_);
 
 		 // Run the required number of optimizations
-		 std::shared_ptr <GBaseEA> ea_ptr;
+		 std::shared_ptr<GSerialEvolutionaryAlgorithm> ea_ptr;
 
 		 std::uint32_t nChildren = boost::numeric_cast<std::uint32_t>(nch_ptr->value());
 		 std::uint32_t nParents = boost::numeric_cast<std::uint32_t>(npar_ptr->value());
@@ -975,7 +941,7 @@ protected:
 
 		 for (std::size_t opt = 0; opt < nRunsPerOptimization_; opt++) {
 			 std::cout << "Starting measurement " << opt + 1 << " / " << nRunsPerOptimization_ << std::endl;
-			 ea_ptr = ea.get<GBaseEA>();
+			 ea_ptr = ea.get<GSerialEvolutionaryAlgorithm>();
 
 			 // Set the population parameters
 			 ea_ptr->setPopulationSizes(popSize, nParents);
@@ -1104,7 +1070,6 @@ private:
 	 metaOptimizationTarget moTarget_; ///< The target used for the meta-optimization
 	 std::string individual_config_; ///< Path and name of the configuration file needed for the individual
 	 std::string subEA_config_; ///< Path and name of the configuration file needed for (sub-)evolutionary algorithms
-	 bool subExecMode_; ///< Whether to use serial (false) or multi-threaded (true) execution for sub-optimization algorithms
 
 	 std::shared_ptr <typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals
 
@@ -1603,10 +1568,12 @@ const std::size_t P_YDIM = 1400;
  * is to find out information about the development of various properties (e.g. sigma, best evaluation)
  * over the course of the optimization for the best individuals. This monitor is thus targeted at a specific
  * type of individual. Note that the class uses ROOT scripts for the output of its results.
+ *
+ * TODO: templatize this class on executor_type, like is being done for the other optimization monitors
  */
 template<typename ind_type>
 class GOptOptMonitorT
-	: public GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::GBasePluggableOMT
 {
 	 // Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
 	 static_assert(
@@ -1622,7 +1589,7 @@ class GOptOptMonitorT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(*this))
+		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::GBasePluggableOMT>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_fileName)
 		 & BOOST_SERIALIZATION_NVP(m_gpd)
 		 & BOOST_SERIALIZATION_NVP(m_progressPlotter)
@@ -1661,7 +1628,7 @@ public:
 	  * @param cp A copy of another GOptOptMonitorT object
 	  */
 	 GOptOptMonitorT(const GOptOptMonitorT<ind_type> &cp)
-		 : GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT(cp)
+		 : GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::GBasePluggableOMT(cp)
 			, m_fileName(cp.m_fileName)
 			, m_gpd("Progress information", 2, 4) // We do not want to copy progress information of another object
 			, m_progressPlotter(new Gem::Common::GGraph2D())
@@ -1745,7 +1712,7 @@ public:
 		 GToken token("GOptOptMonitorT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<typename GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<typename GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -1786,7 +1753,7 @@ public:
 	  */
 	 virtual void informationFunction(
 		 const infoMode& im
-		 , typename Gem::Geneva::GOptimizationAlgorithmT<GParameterSet> * const goa
+		 , GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>> * const goa
 	 ) override {
 		 using namespace Gem::Common;
 
@@ -1850,7 +1817,7 @@ public:
 			 case Gem::Geneva::infoMode::INFOPROCESSING:
 			 {
 				 // Convert the base pointer to the target type
-				 GBaseEA *const ea = static_cast<GBaseEA *const>(goa);
+				 GEvolutionaryAlgorithm *const ea = static_cast<GEvolutionaryAlgorithm *const>(goa);
 
 				 // Extract the requested data. First retrieve the best individual.
 				 // It can always be found in the first position with evolutionary algorithms
@@ -1903,7 +1870,7 @@ protected:
 
 		 // Trigger loading of our parent class'es data
 		 // Load the parent classes' data ...
-		 GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::load_(cp);
+		 GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::GBasePluggableOMT::load_(cp);
 
 		 // Load local data
 		 m_fileName = p_load->m_fileName;
@@ -1961,7 +1928,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent classes' functions
-		 if(GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::modify_GUnitTests()) {
+		 if(GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::GBasePluggableOMT::modify_GUnitTests()) {
 			 result = true;
 		 }
 
@@ -1985,7 +1952,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		 GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GOptOptMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -2001,7 +1968,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		 GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GOptOptMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

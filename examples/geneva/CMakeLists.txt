@@ -59,7 +59,7 @@ ADD_CUSTOM_TARGET( "examples-geneva"
         GPostProcessing
 		GNeuralNetwork
 		GStarter
-		# GMetaOptimizer
+		GMetaOptimizer
 		GExternalEvaluator
 		GPluggableOptimizationMonitors
 		GDependentConstraints
@@ -77,7 +77,7 @@ ADD_SUBDIRECTORY( 07_GFunctionMinimizer )
 ADD_SUBDIRECTORY( 08_GPostProcessing )
 ADD_SUBDIRECTORY( 09_GNeuralNetwork )
 ADD_SUBDIRECTORY( 10_GStarter )
-# ADD_SUBDIRECTORY( 11_GMetaOptimizer )
+ADD_SUBDIRECTORY( 11_GMetaOptimizer )
 ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
 ADD_SUBDIRECTORY( 14_GDependentConstraints )
