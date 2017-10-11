@@ -1,23 +1,23 @@
-This folder contains an application that, instead of performing 
-calculations in the evaluation function, waits for a predefined 
+This folder contains an application that, instead of performing
+calculations in the evaluation function, waits for a predefined
 amount of time. As this makes the run time independent of the underlying
-calculation and e.g. the load on client- and server-systems, this 
+calculation and e.g. the load on client- and server-systems, this
 allows us to measure the theoretically possible speedup for a given
 amount of data exchange and length of the evaluation procedure, dependant
-on the local environment. Furthermore, we can measure the overhead that 
-is jointly introduced by the broker infrastructure, serialization and 
+on the local environment. Furthermore, we can measure the overhead that
+is jointly introduced by the broker infrastructure, serialization and
 network transfers.
 
 A serial measurement will be started in parallel to your measurement,
 as a reference point. The serial measurement will only calculate
-the first few data points and the extrapolate.
+the first few data points and then extrapolate.
 
 ***
-ATTENTION: This example can run for a very long time
+ATTENTION: This test can run for a VERY long time
 ***
 
 The result is a ROOT-file result.C, which you can look at with a command
-similar to 
+similar to
 
 root -l result.C
 

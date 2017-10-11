@@ -6,7 +6,7 @@ ADD_CUSTOM_TARGET( "tests-geneva-performance"
         GBrokerOverhead
         GBrokerSanityChecks
 		GOptimizationBenchmark
-		# GParallelisationOverhead
+		GParallelisationOverhead
 		GSerializationOverhead
 	COMMENT "Building the performance tests for the Optimization library."
 )
@@ -14,5 +14,5 @@ ADD_CUSTOM_TARGET( "tests-geneva-performance"
 ADD_SUBDIRECTORY ( GBrokerOverhead )
 ADD_SUBDIRECTORY ( GBrokerSanityChecks )
 ADD_SUBDIRECTORY ( GOptimizationBenchmark )
-# ADD_SUBDIRECTORY ( GParallelisationOverhead )
+ADD_SUBDIRECTORY ( GParallelisationOverhead )
 ADD_SUBDIRECTORY ( GSerializationOverhead )

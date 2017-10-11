@@ -42,9 +42,10 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <common/GCommonMathHelperFunctionsT.hpp>
-#include <common/GThreadPool.hpp>
-#include <geneva/Go2.hpp>
+#include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GThreadPool.hpp"
+#include "geneva/Go2.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithmFactory.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GDelayIndividual.hpp"
@@ -63,13 +64,16 @@ using namespace Gem::Common;
  * @param ab The parameters a and b of the line best describing all measurements, so that f(x)=a+b*x
  */
 void startReferenceMeasurement(
-	Go2& go
+	G_Serial_EvolutionaryAlgorithmFactory& ea_factory
 	, GDelayIndividualFactory& gdif
 	, std::tuple<double,double,double,double>& ab
 ) {
 	std::cout << "Starting reference measurement" << std::endl;
 
 	std::vector<std::tuple<double, double>> referenceExecutionTimes;
+
+	// Create an evolutionary algorithm
+	auto ea_alg_master = ea_factory.get<GSerialEvolutionaryAlgorithm>();
 
 	//---------------------------------------------------------------------
 	// Loop until no valid individuals can be retrieved anymore
@@ -88,12 +92,15 @@ void startReferenceMeasurement(
 		for(std::uint32_t i=0; i<nMeasurementsPerIteration; i++) {
 			std::cout << "Serial measurement " << i << " in iteration " << iter << std::endl;
 
+			// Create a clone of the evolutionary algorithm
+			auto ea_alg = ea_alg_master->clone<GSerialEvolutionaryAlgorithm>();
+
 			// Make the individual known to the optimizer
-			go.push_back(gdi_ptr);
+			ea_alg->push_back(gdi_ptr);
 
 			// Do the actual optimization and measure the time
 			std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-			go.optimize<GDelayIndividual>();
+			ea_alg->optimize();
 			std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
 			std::chrono::duration<double> duration = endTime - startTime;
 
@@ -103,9 +110,6 @@ void startReferenceMeasurement(
 					, duration.count()
 				)
 			);
-
-			// Clean up the collection
-			go.clear();
 		}
 
 		// Wait for late arrivals
@@ -251,19 +255,17 @@ int main(int argc, char **argv) {
 	// ... and for parallel measurements
 	GDelayIndividualFactory gdif_par("./config/GDelayIndividual.json");
 
-	// For the serial measurement
-	Go2 go_serial("./config/Go2.json");
-	go_serial.setParallelizationMode(execMode::SERIAL);
+	// Create a factory for serial EA algorithms
+	G_Serial_EvolutionaryAlgorithmFactory ea_serial_factory("./config/GEvolutionaryAlgorithm.json");
 
-	// Add default optimization algorithms to the Go2 objects
+	// Add default optimization algorithms to the parallel Go2 object
 	go_parallel.registerDefaultAlgorithm("ea");
-	go_serial.registerDefaultAlgorithm("ea");
 
 	// Threadpool for two threads
 	Gem::Common::GThreadPool tp(2);
 
 	// Start the reference and parallel threads
-	tp.async_schedule([&](){ startReferenceMeasurement(go_serial, gdif_ref, ab); });
+	tp.async_schedule([&](){ startReferenceMeasurement(ea_serial_factory, gdif_ref, ab); });
 	tp.async_schedule([&](){ startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes); });
 	std::cout << "Waiting for threads to return" << std::endl;
 	// And wait for their return
