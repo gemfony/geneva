@@ -21,9 +21,16 @@ The main changes for this release include:
    an example
  - Removed GOptimizationMonitorT and derivatives, as these were redundant and the same functionality
 	is available through pluggable optimization monitors. This may require re-implementation
-	of any custom, user-defined GOptimizationMonitorT-derivatives as pluggable optimization
+	of custom, user-defined GOptimizationMonitorT-derivatives as a pluggable optimization
 	monitor. Note that the logic of both is the same so that most of the work should be
 	possible via "cut & paste".
+ - Optimization algorithms have been consolidated into a single class each. Formerly, e.g.
+   the case of evolutionary algorithms, there was a GBaseEA, GMultiThreadedEA, GSerialEA
+   and GBrokerEA-class. By default, all evaluation now happens through the broker, which
+   in turn decides about the type of parallelisation used. Evolutionary algorithms still
+   have a multi-threaded mode implemented inside of the class, so that meta-optimization
+   is better supported. Users should however use the optimization algorithms that
+   communicate through the broker.
  - Boost 1.58 is NOT recommended, due to severe bugs affecting Geneva (Serialization, UUID)
  - As Geneva must now be compiled in C++14 mode and Boost is a mixture of header-only-
    and binary-libraries, it is highly recommended to also compile Boost in C++14-mode
