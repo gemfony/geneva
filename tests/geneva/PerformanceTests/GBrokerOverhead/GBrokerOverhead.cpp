@@ -380,32 +380,67 @@ int main(int argc, char **argv){
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// We can now start creating populations. We refer to them through the base class
-
-	// This smart pointer will hold the different population types
-	std::shared_ptr<GBaseEA> pop_ptr;
+	// We can now start creating populations. We refer to them through the base class.
 
 	// Create the actual populations
 	switch (parallelizationMode) {
 		//-----------------------------------------------------------------------------------------------------
 		case execMode::SERIAL: // Serial execution
+		{
 			std::cout << "Using serial execution." << std::endl;
 			// Create an empty population
-			pop_ptr = std::shared_ptr<GSerialEA>(new GSerialEA());
+			std::shared_ptr<GSerialEvolutionaryAlgorithm> pop_ptr(new GSerialEvolutionaryAlgorithm());
+
+			// Add individuals to the population
+			for (std::size_t p = 0; p < nParents; p++) {
+				pop_ptr->push_back(parentIndividuals[p]);
+			}
+
+			// Specify some general population settings
+			pop_ptr->setPopulationSizes(
+				populationSize
+				, nParents
+			);
+			pop_ptr->setMaxIteration(maxIterations);
+			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
+			pop_ptr->setReportIteration(reportIteration);
+			pop_ptr->setRecombinationMethod(rScheme);
+			pop_ptr->setSortingScheme(smode);
+
+			// Do the actual optimization
+			pop_ptr->optimize();
+		}
 			break;
 
 			//-----------------------------------------------------------------------------------------------------
 		case execMode::MULTITHREADED: // Multi-threaded execution
 		{
 			std::cout << "Using plain multithreaded execution." << std::endl;
-			// Create the multi-threaded population
-			std::shared_ptr<GMultiThreadedEA> popPar_ptr(new GMultiThreadedEA());
+
+			// Create an empty population
+			std::shared_ptr<GMTEvolutionaryAlgorithm > pop_ptr(new GMTEvolutionaryAlgorithm());
+
+			// Add individuals to the population
+			for (std::size_t p = 0; p < nParents; p++) {
+				pop_ptr->push_back(parentIndividuals[p]);
+			}
+
+			// Specify some general population settings
+			pop_ptr->setPopulationSizes(
+				populationSize
+				, nParents
+			);
+			pop_ptr->setMaxIteration(maxIterations);
+			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
+			pop_ptr->setReportIteration(reportIteration);
+			pop_ptr->setRecombinationMethod(rScheme);
+			pop_ptr->setSortingScheme(smode);
 
 			// Population-specific settings
-			popPar_ptr->setNThreads(nEvaluationThreads);
+			pop_ptr->setNThreads(nEvaluationThreads);
 
-			// Assignment to the base pointer
-			pop_ptr = popPar_ptr;
+			// Do the actual optimization
+			pop_ptr->optimize();
 		}
 			break;
 
@@ -413,39 +448,36 @@ int main(int argc, char **argv){
 		case execMode::BROKER: // Execution with multi-threaded consumer. Note that we use BROKER here, even though no networked execution takes place
 		{
 			std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
+
 			// Create a consumer and make it known to the global broker
 			std::shared_ptr<Gem::Courtier::GStdThreadConsumerT<GParameterSet>> gbtc(new Gem::Courtier::GStdThreadConsumerT<GParameterSet>());
 			gbtc->setNThreadsPerWorker(nEvaluationThreads);
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
 
-			// Create the actual broker population and set parameters as needed
-			std::shared_ptr<GBrokerEA> popBroker_ptr(new GBrokerEA());
+			// Create an empty population
+			std::shared_ptr<GEvolutionaryAlgorithm > pop_ptr(new GEvolutionaryAlgorithm());
 
-			// Assignment to the base pointer
-			pop_ptr = popBroker_ptr;
+			// Add individuals to the population
+			for (std::size_t p = 0; p < nParents; p++) {
+				pop_ptr->push_back(parentIndividuals[p]);
+			}
+
+			// Specify some general population settings
+			pop_ptr->setPopulationSizes(
+				populationSize
+				, nParents
+			);
+			pop_ptr->setMaxIteration(maxIterations);
+			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
+			pop_ptr->setReportIteration(reportIteration);
+			pop_ptr->setRecombinationMethod(rScheme);
+			pop_ptr->setSortingScheme(smode);
+
+			// Do the actual optimization
+			pop_ptr->optimize();
 		}
 			break;
 	}
-
-
-	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// Now we have suitable populations and can fill them with data
-
-	// Add individuals to the population
-	for(std::size_t p = 0 ; p<nParents; p++) {
-		pop_ptr->push_back(parentIndividuals[p]);
-	}
-
-	// Specify some general population settings
-	pop_ptr->setPopulationSizes(populationSize, nParents);
-	pop_ptr->setMaxIteration(maxIterations);
-	pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
-	pop_ptr->setReportIteration(reportIteration);
-	pop_ptr->setRecombinationMethod(rScheme);
-	pop_ptr->setSortingScheme(smode);
-
-	// Do the actual optimization
-	pop_ptr->optimize();
 
 	//--------------------------------------------------------------------------------------------
 	// Terminate
