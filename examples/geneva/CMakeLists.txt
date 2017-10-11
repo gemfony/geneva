@@ -62,7 +62,7 @@ ADD_CUSTOM_TARGET( "examples-geneva"
 		# GMetaOptimizer
 		GExternalEvaluator
 		GPluggableOptimizationMonitors
-		# GDependentConstraints
+		GDependentConstraints
 	COMMENT "Building all the examples for the Optimization library."
 )
 
@@ -80,7 +80,7 @@ ADD_SUBDIRECTORY( 09_GNeuralNetwork )
 # ADD_SUBDIRECTORY( 11_GMetaOptimizer )
 ADD_SUBDIRECTORY( 12_GExternalEvaluator )
 ADD_SUBDIRECTORY( 13_GPluggableOptimizationMonitors )
-# ADD_SUBDIRECTORY( 14_GDependentConstraints )
+ADD_SUBDIRECTORY( 14_GDependentConstraints )
 
 IF(GENEVA_BUILD_WITH_OPENCL_EXAMPLES AND OpenCL_FOUND)
     ADD_SUBDIRECTORY( 15_GOpenCLConsumer )

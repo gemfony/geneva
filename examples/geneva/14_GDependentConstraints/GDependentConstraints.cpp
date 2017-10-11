@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 	// Register a progress plotter with the global optimization algorithm factory
 	if(monitorSpec != "empty") {
-		std::shared_ptr<GProgressPlotter<double>> progplot_ptr(new GProgressPlotter<double>());
+		std::shared_ptr<GProgressPlotter> progplot_ptr(new GProgressPlotter());
 
 		progplot_ptr->setProfileSpec(monitorSpec);
 		progplot_ptr->setObserveBoundaries(observeBoundaries);
