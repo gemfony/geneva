@@ -325,7 +325,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 							<< GEXCEPTION;
 					}
 #endif
-					std::this_thread::yield();
+					std::this_thread::sleep_for(std::chrono::milliseconds(10));
 					continue;
 				} else { // We have submitted the item -- stop the inner loop
 					break;
