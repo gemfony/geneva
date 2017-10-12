@@ -549,8 +549,8 @@ public:
 
 			case Gem::Geneva::infoMode::INFOPROCESSING: {
 				// Retrieve the list of globally- and iteration bests individuals
-				auto global_bests = goa->GOptimizableI::getBestGlobalIndividuals<GParameterSet>();
-				auto iter_bests   = goa->GOptimizableI::getBestIterationIndividuals<GParameterSet>();
+				auto global_bests = goa->GOptimizableI::template getBestGlobalIndividuals<GParameterSet>();
+				auto iter_bests   = goa->GOptimizableI::template getBestIterationIndividuals<GParameterSet>();
 
 				// Retrieve the current iteration in the population
 				std::uint32_t iteration = goa->getIteration();

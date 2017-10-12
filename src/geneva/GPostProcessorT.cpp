@@ -366,6 +366,9 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p)
 		}
 			break;
 	}
+
+	// Make the compiler happy
+	return false;
 }
 
 /******************************************************************************/
