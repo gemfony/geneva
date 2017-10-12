@@ -647,7 +647,7 @@ public:
 			} break;
 
 			case Gem::Geneva::infoMode::INFOEND: {
-
+				/* nothing */
 			} break;
 
 			default: {
