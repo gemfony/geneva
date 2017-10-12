@@ -333,7 +333,10 @@ std::string GSwarmAlgorithm::name() const {
  * @param nNeighborhoods The number of neighborhoods
  * @param defaultNNeighborhoodMembers The default number of individuals in each neighborhood
  */
-void GSwarmAlgorithm::setSwarmSizes(std::size_t nNeighborhoods, std::size_t defaultNNeighborhoodMembers) {
+void GSwarmAlgorithm::setSwarmSizes(
+	std::size_t nNeighborhoods
+	, std::size_t defaultNNeighborhoodMembers
+) {
 	// Enforce useful settings
 	if (nNeighborhoods == 0) {
 		glogger
@@ -403,7 +406,8 @@ std::size_t GSwarmAlgorithm::getFirstNIPos(const std::size_t &neighborhood) cons
  * @return The position of the first individual of a neighborhood
  */
 std::size_t GSwarmAlgorithm::getFirstNIPosVec(
-	const std::size_t &neighborhood, const std::vector<std::size_t> &vec
+	const std::size_t &neighborhood
+	, const std::vector<std::size_t> &vec
 ) const {
 #ifdef DEBUG
 	if(neighborhood >= m_n_neighborhoods) {
@@ -414,6 +418,8 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
       << "hence the maximum allowed value of the id is " << m_n_neighborhoods-1 << "." << std::endl
       << GEXCEPTION;
 	}
+
+	// TODO: Add check for array sizes
 #endif
 
 	if (neighborhood == 0) return 0;
@@ -644,13 +650,13 @@ void GSwarmAlgorithm::init() {
 
 	// Create copies of our individuals in the m_velocities_vec vector.
 	std::size_t pos = 0;
-	for (GSwarmAlgorithm::iterator it = this->begin(); it != this->end(); ++it) {
+	for(auto ind: *this) {
 #ifdef DEBUG
-		if(!(*it)) {
+		if(!ind) {
 			glogger
-			<< "In GSwarmAlgorithm::init(): Error!" << std::endl
-			<< "Found empty std::shared_ptr in position " << pos << std::endl
-			<< GEXCEPTION;
+				<< "In GSwarmAlgorithm::init(): Error!" << std::endl
+				<< "Found empty std::shared_ptr in position " << pos << std::endl
+				<< GEXCEPTION;
 		}
 #endif /* DEBUG */
 
@@ -658,29 +664,29 @@ void GSwarmAlgorithm::init() {
 		// to have assigned anything else than a GParameterSet derivative to
 		// the swarm, then the following line will throw in DEBUG mode or return
 		// undefined results in RELEASE mode
-		std::shared_ptr <GParameterSet> p((*it)->clone<GParameterSet>());
+		std::shared_ptr<GParameterSet> p(ind->clone<GParameterSet>());
 
 		// Extract the parameter vector
 		std::vector<double> velVec;
 		p->streamline(velVec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
-      // Check that the number of parameters equals those in the velocity boundaries
-      if(velVec.size() != m_dbl_lower_parameter_boundaries.size() || velVec.size() != m_dbl_vel_vec_max.size()) {
-         glogger
-         << "In GSwarmAlgorithm::init(): Error! (2)" << std::endl
-         << "Found invalid sizes: " << velVec.size()
-         << " / " << m_dbl_lower_parameter_boundaries.size() << std::endl
-         << " / " << m_dbl_vel_vec_max.size() << std::endl
-         << GEXCEPTION;
-      }
+		// Check that the number of parameters equals those in the velocity boundaries
+		if(velVec.size() != m_dbl_lower_parameter_boundaries.size() || velVec.size() != m_dbl_vel_vec_max.size()) {
+			glogger
+				<< "In GSwarmAlgorithm::init(): Error! (2)" << std::endl
+				<< "Found invalid sizes: " << velVec.size()
+				<< " / " << m_dbl_lower_parameter_boundaries.size() << std::endl
+				<< " / " << m_dbl_vel_vec_max.size() << std::endl
+				<< GEXCEPTION;
+		}
 #endif /* DEBUG */
 
 		// Randomly initialize the velocities
 		for (std::size_t i = 0; i < velVec.size(); i++) {
 			double range = m_dbl_vel_vec_max[i];
 			velVec[i] =
-                    GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(-range,range));
+				GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(-range,range));
 		}
 
 		// Load the array into the velocity object
@@ -697,6 +703,9 @@ void GSwarmAlgorithm::init() {
 	// It will only hold empty smart pointers. However, new ones
 	// will be assigned in findBests()
 	m_neighborhood_bests_vec.resize(m_n_neighborhoods);
+
+	// Make sure the m_n_neighborhood_members_vec vector has the correct size
+	m_n_neighborhood_members_vec.resize(m_n_neighborhoods, m_default_n_neighborhood_members);
 }
 
 /******************************************************************************/
@@ -785,8 +794,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 
 		if (m_n_neighborhood_members_vec[n] == m_default_n_neighborhood_members) {
 			continue;
-		} else if (m_n_neighborhood_members_vec[n] >
-					  m_default_n_neighborhood_members) { // Remove surplus items from the end of the neighborhood
+		} else if (m_n_neighborhood_members_vec[n] > m_default_n_neighborhood_members) { // Remove surplus items from the end of the neighborhood
 			// Find out, how many surplus items there are
 			std::size_t nSurplus = m_n_neighborhood_members_vec[n] - m_default_n_neighborhood_members;
 
@@ -900,11 +908,9 @@ void GSwarmAlgorithm::updatePositions() {
 
 	m_last_iteration_individuals_vec.clear();
 	if (afterFirstIteration()) {
-		GSwarmAlgorithm::iterator it;
-
 		// Clone the individuals and copy them over
-		for (it = this->begin(); it != this->end(); ++it) {
-			m_last_iteration_individuals_vec.push_back((*it)->clone<GParameterSet>());
+		for(auto ind: *this) {
+			m_last_iteration_individuals_vec.push_back(ind->clone<GParameterSet>());
 		}
 	}
 
@@ -1229,33 +1235,35 @@ void GSwarmAlgorithm::runFitnessCalculation() {
  * @return The best evaluation found in this iteration
  */
 std::tuple<double, double> GSwarmAlgorithm::findBests() {
+	std::cout << "In findBests" << std::endl;
+
 	std::size_t bestLocalId = 0;
 	std::tuple<double, double> bestLocalFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 	std::tuple<double, double> bestIterationFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
-	GSwarmAlgorithm::iterator it;
-
 #ifdef DEBUG
-	for(it=this->begin(); it!=this->end(); ++it) {
-		if((*it)->isDirty()) {
-		   glogger
-		   << "In GSwarmAlgorithm::findBests(): Error!" << std::endl
-         << "Found individual in position " << std::distance(this->begin(), it) << " in iteration " << this->getIteration() << std::endl
-         << "whose dirty flag is set." << std::endl
-         << GEXCEPTION;
+	std::size_t pos = 0;
+	for(auto ind: *this) {
+		if(ind->isDirty()) {
+			glogger
+				<< "In GSwarmAlgorithm::findBests(): Error!" << std::endl
+				<< "Found individual in position " << pos << " in iteration " << this->getIteration() << std::endl
+				<< "whose dirty flag is set." << std::endl
+				<< GEXCEPTION;
 		}
+
+		pos++;
 	}
 #endif /* DEBUG */
 
 	// Update the personal bests of all individuals
 	if (inFirstIteration()) {
-		GSwarmAlgorithm::iterator it;
-		for (it = this->begin(); it != this->end(); ++it) {
-			updatePersonalBest(*it);
+		for (auto ind: *this) {
+			updatePersonalBest(ind);
 		}
 	} else {
-		for (it = this->begin(); it != this->end(); ++it) {
-			updatePersonalBestIfBetter(*it);
+		for (auto ind: *this) {
+			updatePersonalBestIfBetter(ind);
 		}
 	}
 
@@ -1290,8 +1298,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 
 	// Identify the best individuals among all neighborhood bests
 	for (std::size_t n = 0; n < m_n_neighborhoods; n++) {
-		if (this->at(0)->isBetter((m_neighborhood_bests_vec.at(n))->transformedFitness(),
-								 std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
+		if (this->at(0)->isBetter((m_neighborhood_bests_vec.at(n))->transformedFitness(), std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
 			bestLocalId = n;
 			bestLocalFitness = (m_neighborhood_bests_vec.at(n))->getFitnessTuple();
 		}

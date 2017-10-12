@@ -577,7 +577,11 @@ protected:
 
 		 //--------------------------------------------------------------------------------
 		 // Retrieve a vector describing the items to be modified
-		 std::vector<bool> workItemPos = Gem::Courtier::getBooleanMask(this->size(), std::get<0>(range), std::get<1>(range));
+		 std::vector<bool> workItemPos = Gem::Courtier::getBooleanMask(
+			 this->size()
+			 , std::get<0>(range)
+			 , std::get<1>(range)
+		 );
 
 		 //--------------------------------------------------------------------------------
 		 // Now submit work items and wait for results.
@@ -591,7 +595,13 @@ protected:
 
 		 //--------------------------------------------------------------------------------
 		 // Take care of unprocessed items
-		 Gem::Common::erase_according_to_flags(this->data, workItemPos, Gem::Courtier::GBC_UNPROCESSED, 0, this->size());
+		 Gem::Common::erase_according_to_flags(
+			 this->data
+			 , workItemPos
+			 , Gem::Courtier::GBC_UNPROCESSED
+			 , 0
+			 , this->size()
+		 );
 
 		 // Remove items for which an error has occurred during processing
 		 Gem::Common::erase_if(

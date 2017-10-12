@@ -1,63 +1,27 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "2015-Nov-01 12:45:55"
+        "comment": "Thu Oct 12 12:29:21 2017"
     },
-    "nEvaluationThreads": {
-        "comment": "Determines the number of threads simultaneously running",
-        "comment": "evaluations in multi-threaded mode. 0 means \"automatic\"",
-        "default": "0",
-        "value": "0"
+    "maxResubmissions": {
+        "comment": "The amount of resubmissions allowed if a full return of work",
+        "comment": "items was expected but only a subset has returned",
+        "default": "5",
+        "value": "5"
     },
     "waitFactor": {
-      "comment": "A static double factor for timeouts",
-      "comment": "A wait factor <= 0 means \"no timeout\".",
-      "comment": "It is suggested to use values >= 1.",
-      "default": "1.1",
-      "value": "1.1"
+        "comment": "A static double factor for timeouts",
+        "comment": "A wait factor <= 0 means \"no timeout\".",
+        "comment": "It is suggested to use values >= 1.",
+        "default": "1.1000000000000001",
+        "value": "1.1000000000000001"
     },
     "initialWaitFactor": {
-      "comment": "A static double factor for timeouts in the first iteration.",
-      "comment": "Set this to the inverse of the number of parallel processing",
-      "comment": "units being used.",
-      "default": "1",
-      "value": "1"
-    },
-    "evalPolicy": {
-        "comment": "Specifies which strategy should be used to calculate the evaluation:",
-        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
-        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
-        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
-        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
-        "default": "0",
-        "value": "0"
-    },
-    "steepness": {
-        "comment": "When using a sigmoid function to transform the individual's fitness,",
-        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
-        "comment": "The parameter must have a value > 0.",
-        "default": "1000",
-        "value": "1000"
-    },
-    "barrier": {
-        "comment": "When using a sigmoid function to transform the individual's fitness,",
-        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
-        "comment": "The parameter must have a value > 0.",
-        "default": "10000",
-        "value": "10000"
-    },
-    "maxUnsuccessfulAdaptions": {
-        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
-        "default": "1000",
-        "value": "1000"
-    },
-    "maxRetriesUntilValid": {
-        "comment": "The maximum allowed number of retries during the",
-        "comment": "adaption of individuals until a valid solution was found",
-        "comment": "A parameter set is considered to be \"valid\" if",
-        "comment": "it passes all validity checks",
-        "default": "10",
-        "value": "10"
+        "comment": "A static double factor for timeouts in the first iteration.",
+        "comment": "Set this to the inverse of the number of parallel processing",
+        "comment": "units being used.",
+        "default": "1",
+        "value": "1"
     },
     "maxIteration": {
         "comment": "The maximum allowed number of iterations",
@@ -65,15 +29,30 @@
         "value": "1000"
     },
     "minIteration": {
-      "comment": "The minimum allowed number of iterations",
-      "default": "0",
-      "value": "0"
+        "comment": "The minimum allowed number of iterations",
+        "default": "0",
+        "value": "0"
     },
     "maxStallIteration": {
         "comment": "The maximum allowed number of iterations without improvement",
         "comment": "0 means: no constraint.",
         "default": "20",
         "value": "20"
+    },
+    "touchedTermination": {
+        "terminationFile": {
+            "comment": "The name of a file which, when modified after the start of an",
+            "comment": "optimization run, instructs Geneva to terminate optimitation.",
+            "comment": "This can be used to \"touch a file\" after the start of an optimization",
+            "comment": "run, which will lead to the termination of the run after the current iteration.",
+            "default": "empty",
+            "value": "empty"
+        },
+        "touchedTerminationActive": {
+            "comment": "Activates (1) or de-activates (0) the \"touched termination\"",
+            "default": "false",
+            "value": "false"
+        }
     },
     "indivdualUpdateStallCounterThreshold": {
         "comment": "The number of iterations without improvement after which",
@@ -111,6 +90,11 @@
             "value": "geneva.cp"
         }
     },
+    "cpOverwrite": {
+        "comment": "When set to \"true\", old checkpoint files will not be kept",
+        "default": "true",
+        "value": "true"
+    },
     "cpSerMode": {
         "comment": "Determines whether check-pointing should be done in",
         "comment": "text- (0), XML- (1), or binary-mode (2)",
@@ -133,15 +117,16 @@
     },
     "maxDuration": {
         "comment": "The maximum allowed time-frame for the optimization",
+        "comment": "in the format hours:minutes:seconds",
         "default": "00:00:00",
         "value": "00:00:00"
     },
     "minDuration": {
-      "comment": "The minimum required time-frame for the optimization",
-      "comment": "in the format hours:minutes:seconds",
-      "default": "00:00:00",
-      "value": "00:00:00"
-    }
+        "comment": "The minimum required time-frame for the optimization",
+        "comment": "in the format hours:minutes:seconds",
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
     "emitTerminationReason": {
         "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
         "default": "true",
