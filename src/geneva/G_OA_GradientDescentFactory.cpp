@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GGradientDescentFactory2::GGradientDescentFactory2()
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GGradientDescent.json")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GGradientDescentFactory2::GGradientDescentFactory2()
 GGradientDescentFactory2::GGradientDescentFactory2(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GGradientDescentFactory2::GGradientDescentFactory2(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GGradientDescentFactory2::GGradientDescentFactory2(
  * The copy constructor
  */
 GGradientDescentFactory2::GGradientDescentFactory2(const GGradientDescentFactory2& cp)
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -130,7 +130,7 @@ void GGradientDescentFactory2::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

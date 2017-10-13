@@ -372,7 +372,7 @@ std::string Go2::name() const {
  */
 void Go2::registerDefaultAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
-	std::shared_ptr<GOptimizationAlgorithmFactoryT2<GOABase>> p;
+	std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
 	if (!GOAFactoryStore->get(mn, p)) {
 		glogger
 		<< "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
@@ -629,7 +629,7 @@ Go2 &Go2::operator&(std::shared_ptr<GOABase > alg) {
  */
 void Go2::addAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
-	std::shared_ptr<GOptimizationAlgorithmFactoryT2<GOABase>> p;
+	std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
 	if (!GOAFactoryStore->get(mn, p)) {
 		glogger
 		<< "In Go2::addAlgorithm(std::string): Error!" << std::endl
@@ -1194,7 +1194,7 @@ void Go2::parseCommandLine(
 			std::vector<std::string>::iterator it;
 			for (it = algs.begin(); it != algs.end(); ++it) {
 				// Retrieve the algorithm factory from the global store
-				std::shared_ptr<GOptimizationAlgorithmFactoryT2<GOABase>> p;
+				std::shared_ptr<GOptimizationAlgorithmFactoryT<GOABase>> p;
 				if (!GOAFactoryStore->get(*it, p)) {
 					glogger
 					<< "In Go2::parseCommandLine(int, char**): Error!" << std::endl

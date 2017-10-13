@@ -46,7 +46,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/GOptimizationAlgorithmFactoryT2.hpp"
+#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_SimulatedAnnealing.hpp"
@@ -63,7 +63,7 @@ namespace Geneva {
  * It will only return objects which perform all evaluation through the broker.
  */
 class GSimulatedAnnealingFactory2
-	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
@@ -103,7 +103,7 @@ protected:
  * It will only return objects which perform all evaluation through the broker.
  */
 class G_MT_SimulatedAnnealingFactory
-	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
@@ -143,7 +143,7 @@ protected:
  * It will only return objects which perform all evaluation through the broker.
  */
 class G_Serial_SimulatedAnnealingFactory
-	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */

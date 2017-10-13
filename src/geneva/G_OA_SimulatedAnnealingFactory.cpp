@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2()
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GSimulatedAnnealing.json")
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2()
 GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(
  * The copy constructor
  */
 GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(const GSimulatedAnnealingFactory2& cp)
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ void GSimulatedAnnealingFactory2::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/
@@ -142,7 +142,7 @@ void GSimulatedAnnealingFactory2::postProcess_(
  * The default constructor
  */
 G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory()
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(
 	"./config/GSimulatedAnnealing.json")
 { /* nothing */ }
 
@@ -153,7 +153,7 @@ G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory()
 G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -165,7 +165,7 @@ G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory(
  * The copy constructor
  */
 G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory(const G_MT_SimulatedAnnealingFactory& cp)
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(cp)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -230,7 +230,7 @@ void G_MT_SimulatedAnnealingFactory::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/
@@ -240,7 +240,7 @@ void G_MT_SimulatedAnnealingFactory::postProcess_(
  * The default constructor
  */
 G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory()
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(
 	"./config/GSimulatedAnnealing.json")
 { /* nothing */ }
 
@@ -251,7 +251,7 @@ G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory()
 G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -263,7 +263,7 @@ G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -271,7 +271,7 @@ G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory(
  * The copy constructor
  */
 G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory(const G_Serial_SimulatedAnnealingFactory& cp)
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(cp)
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -328,7 +328,7 @@ void G_Serial_SimulatedAnnealingFactory::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

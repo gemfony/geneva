@@ -46,7 +46,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/GOptimizationAlgorithmFactoryT2.hpp"
+#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_EvolutionaryAlgorithm.hpp"
@@ -64,7 +64,7 @@ namespace Geneva {
  * broker.
  */
 class GEvolutionaryAlgorithmFactory2
-	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
@@ -104,7 +104,7 @@ protected:
  * It will only return evolutionary algorithms which perform all evaluation in multithreaded mode.
  */
 class G_MT_EvolutionaryAlgorithmFactory
-	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GMTExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
@@ -144,7 +144,7 @@ protected:
  * It will only return evolutionary algorithms which perform all evaluation in multithreaded mode.
  */
 class G_Serial_EvolutionaryAlgorithmFactory
-	: public GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>
+	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */

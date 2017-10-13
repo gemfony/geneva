@@ -1,5 +1,5 @@
 /**
- * @file GOptimizationAlgorithmFactoryT2.hpp
+ * @file GOptimizationAlgorithmFactoryT.hpp
  */
 
 /*
@@ -61,7 +61,7 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
 template<typename oa_type>
-class GOptimizationAlgorithmFactoryT2
+class GOptimizationAlgorithmFactoryT
 	: public Gem::Common::GFactoryT<oa_type> {
 public:
 	 /***************************************************************************/
@@ -72,7 +72,7 @@ public:
 	 /**
 	  * The standard constructor
 	  */
-	 explicit GOptimizationAlgorithmFactoryT2(
+	 explicit GOptimizationAlgorithmFactoryT(
 		 const std::string &configFile
 	 )
 		 : Gem::Common::GFactoryT<oa_type>(configFile)
@@ -82,7 +82,7 @@ public:
 	 /**
 	  * A constructor which adds a content creation function
 	  */
-	 GOptimizationAlgorithmFactoryT2(
+	 GOptimizationAlgorithmFactoryT(
 		 const std::string &configFile
 		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 	 )
@@ -94,7 +94,7 @@ public:
 	 /**
 	  * The copy constructor
 	  */
-	 GOptimizationAlgorithmFactoryT2(const GOptimizationAlgorithmFactoryT2<oa_type> &cp)
+	 GOptimizationAlgorithmFactoryT(const GOptimizationAlgorithmFactoryT<oa_type> &cp)
 		 : Gem::Common::GFactoryT<oa_type>(cp)
 		 , m_contentCreatorPtr()
 		 , m_maxIterationCL(cp.m_maxIterationCL)
@@ -116,7 +116,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GOptimizationAlgorithmFactoryT2()
+	 virtual ~GOptimizationAlgorithmFactoryT()
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -141,17 +141,17 @@ public:
 		 hidden.add_options()(
 			 (this->getMnemonic() + std::string("MaxIterations")).c_str()
 			 , po::value<std::int32_t>(&m_maxIterationCL)->default_value(-1)
-			 , (std::string("\t[GOptimizationAlgorithmFactoryT2 / ") + this->getMnemonic() +
+			 , (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxStallIterations")).c_str()
 			 , po::value<std::int32_t>(&m_maxStallIterationCL)->default_value(-1)
-			 , (std::string("\t[GOptimizationAlgorithmFactoryT2 / ") + this->getMnemonic() +
+			 , (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of stalled iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxSeconds")).c_str()
 			 , po::value<std::int32_t>(&m_maxSecondsCL)->default_value(-1)
-			 , (std::string("\t[GOptimizationAlgorithmFactoryT2 / ") + this->getMnemonic() +
+			 , (std::string("\t[GOptimizationAlgorithmFactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed duration in seconds or 0 to disable limit").c_str()
 		 );
 	 }
@@ -405,7 +405,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief The default constructor. Intentionally private and undefined */
-	 GOptimizationAlgorithmFactoryT2() = delete;
+	 GOptimizationAlgorithmFactoryT() = delete;
 
 	 std::int32_t m_maxIterationCL = -1; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 	 std::int32_t m_maxStallIterationCL = -1; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
