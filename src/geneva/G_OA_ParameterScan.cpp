@@ -43,7 +43,6 @@ namespace Geneva {
 /**
  * A simple output operator for parSet object, mostly meant for debugging
  */
-/*
 std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 	os
 	<< "###########################################################" << std::endl
@@ -103,8 +102,6 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 
 	return os;
 }
- */
-// TODO: Reenable once GBasePS is gone
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

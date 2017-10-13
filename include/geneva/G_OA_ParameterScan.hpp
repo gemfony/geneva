@@ -78,8 +78,7 @@ struct parSet {
 
 /******************************************************************************/
 /** @brief A simple output operator for parSet object, mostly meant for debugging */
-// TODO: Reanable once GBasePS is gone
-// G_API_GENEVA std::ostream& operator<<(std::ostream& os, const parSet& pS);
+G_API_GENEVA std::ostream& operator<<(std::ostream& os, const parSet& pS);
 
 /******************************************************************************/
 /** @brief The default number of "best" individuals to be kept during the algorithm run */
