@@ -44,12 +44,12 @@
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"
-#include "geneva/GOptimizationAlgorithmT2.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationAlgorithmFactoryT2.hpp"
 #include "geneva/GParameterSet.hpp"
 
 // A global store for optimization algorithm factories
-using goa_factory = Gem::Geneva::GOptimizationAlgorithmFactoryT2<Gem::Geneva::GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>>;
+using goa_factory = Gem::Geneva::GOptimizationAlgorithmFactoryT2<Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>>;
 using GOAStore = Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<goa_factory>> >;
 #define GOAFactoryStore GOAStore::Instance(0)
 

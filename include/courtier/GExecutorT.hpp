@@ -99,7 +99,7 @@ namespace Courtier {
 // might throw.
 // TODO: Take care of marking some classes abstract
 // TODO: Take care of making some of theses classes serializable
-// TODO: In GOptimizationAlgorithmT2(cpp/hpp): serialize-exports instantiations with processable_type == GParameterSet
+// TODO: In GOptimizationAlgorithmT(cpp/hpp): serialize-exports instantiations with processable_type == GParameterSet
 // TODO: Some variables are still not listet in all Gemfony-API functions
 
 /******************************************************************************/

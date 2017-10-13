@@ -50,7 +50,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GScanPar.hpp"
 #include "geneva/GOptimizableEntity.hpp"
-#include "geneva/GOptimizationAlgorithmT2.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPSPersonalityTraits.hpp"
@@ -109,7 +109,7 @@ const std::size_t DEFAULTNMONITORINDS = 10;
  * with this class will simply store all parameters and results in an XML file.
  */
 class GParameterScan
-	:public GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
+	:public GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -119,7 +119,7 @@ class GParameterScan
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GOptimizationAlgorithmT2_GParameterSet", boost::serialization::base_object<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
+		 & make_nvp("GOptimizationAlgorithmT_GBrokerExecutorT", boost::serialization::base_object<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(scanRandomly_)
 		 & BOOST_SERIALIZATION_NVP(nMonitorInds_)
 		 & BOOST_SERIALIZATION_NVP(bVec_)

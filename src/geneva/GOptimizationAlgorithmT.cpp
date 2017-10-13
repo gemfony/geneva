@@ -1,5 +1,5 @@
 /**
- * @file GOptimizationAlgorithmT2.cpp
+ * @file GOptimizationAlgorithmT.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GOptimizationAlgorithmT2.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 

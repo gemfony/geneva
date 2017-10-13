@@ -323,7 +323,7 @@ int main(int argc, char **argv){
 
 	/****************************************************************************/
 	// Act depending on the parallelisation mode. Unfortunately, since we
-	// have no common base class (GOptimizationAlgorithmT2 is a template),
+	// have no common base class (GOptimizationAlgorithmT is a template),
 	// we need to replicate some code.
 
 	// Create the actual populations

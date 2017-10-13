@@ -113,7 +113,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
  * The default constructor
  */
 GParameterScan::GParameterScan()
-	: GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>()
+	: GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -123,7 +123,7 @@ GParameterScan::GParameterScan()
  * @param cp A copy of another GradientDescent object
  */
 GParameterScan::GParameterScan(const GParameterScan &cp)
-	: GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>(cp)
+	: GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>(cp)
 	, cycleLogicHalt_(cp.cycleLogicHalt_)
 	, scanRandomly_(cp.scanRandomly_)
 	, nMonitorInds_(cp.nMonitorInds_)
@@ -255,7 +255,7 @@ void GParameterScan::compare(
 	GToken token("GParameterScan", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(cycleLogicHalt_, p_load->cycleLogicHalt_), token);
@@ -306,7 +306,7 @@ void GParameterScan::load_(const GObject *cp) {
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
 
 	// ... and then our own data
 	cycleLogicHalt_ = p_load->cycleLogicHalt_;
@@ -811,7 +811,7 @@ void GParameterScan::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
 
 	gpb.registerFileParameter<std::size_t>(
 		"size" // The name of the first variable
@@ -1039,7 +1039,7 @@ bool GParameterScan::getScanRandomly() const {
  */
 void GParameterScan::init() {
 	// To be performed before any other action
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::init();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::init();
 
 	// Reset the custom halt criterion
 	cycleLogicHalt_ = false;
@@ -1060,7 +1060,7 @@ void GParameterScan::init() {
  */
 void GParameterScan::finalize() {
 	// Last action
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::finalize();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::finalize();
 }
 
 /******************************************************************************/
@@ -1119,7 +1119,7 @@ bool GParameterScan::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::modify_GUnitTests()) result = true;
+	if (GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */
@@ -1135,7 +1135,7 @@ bool GParameterScan::modify_GUnitTests() {
 void GParameterScan::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsNoFailureExpected_GUnitTests();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1148,7 +1148,7 @@ void GParameterScan::specificTestsNoFailureExpected_GUnitTests() {
 void GParameterScan::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsFailuresExpected_GUnitTests();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */

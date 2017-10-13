@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GParameterScanFactory2::GParameterScanFactory2()
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>("./config/GParameterScan.json")
+	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>("./config/GParameterScan.json")
 	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GParameterScanFactory2::GParameterScanFactory2()
 GParameterScanFactory2::GParameterScanFactory2(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
   	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -66,7 +66,7 @@ GParameterScanFactory2::GParameterScanFactory2(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
    , m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -75,7 +75,7 @@ GParameterScanFactory2::GParameterScanFactory2(
  * The copy constructor
  */
 GParameterScanFactory2::GParameterScanFactory2(const GParameterScanFactory2& cp)
-	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
   	, m_parameterSpecCL(cp.m_parameterSpecCL)
 { /* nothing */ }
 
@@ -122,7 +122,7 @@ void GParameterScanFactory2::addCLOptions(
 	);
 
 	// Add the parent class'es options
-	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::addCLOptions(visible, hidden);
+	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::addCLOptions(visible, hidden);
 }
 
 /******************************************************************************/
@@ -155,7 +155,7 @@ void GParameterScanFactory2::resetCLParameterSpecs() {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GParameterScanFactory2::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GParameterScanFactory2::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -177,17 +177,17 @@ std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParame
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GParameterScanFactory2::postProcess_(
-	std::shared_ptr<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
+	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	if(m_parameterSpecCL != "empty") {
 		std::shared_ptr<GParameterScan> p
-			= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>, GParameterScan> (p_base);
+			= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>, GParameterScan> (p_base);
 
 		p->setParameterSpecs(m_parameterSpecCL);
 	}
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT2<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

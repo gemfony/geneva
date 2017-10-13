@@ -48,10 +48,10 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GOptimizationAlgorithmT2.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
-#include "geneva/GOptimizationAlgorithmT2.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GTestIndividual1.hpp"
@@ -76,7 +76,7 @@ const double DEFAULTSTEPSIZE=0.1;
  * networked execution for the evaluation step).
  */
 class GGradientDescent
-	:public GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
+	:public GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -86,8 +86,8 @@ class GGradientDescent
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GOptimizationAlgorithmT_GOptimizationAlgorithmT2",
-			 boost::serialization::base_object<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
+		 & make_nvp("GOptimizationAlgorithmT_GBrokerExecutorT",
+			 boost::serialization::base_object<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(nStartingPoints_)
 		 & BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
 		 & BOOST_SERIALIZATION_NVP(finiteStep_)

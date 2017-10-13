@@ -58,11 +58,11 @@ GSwarmAlgorithm::GSwarmAlgorithm(
 	const std::size_t &nNeighborhoods
 	, const std::size_t &defaultNNeighborhoodMembers
 )
-	: GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>()
+	: GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>()
 	, m_n_neighborhoods((nNeighborhoods>=1) ? nNeighborhoods : 1)
 	, m_default_n_neighborhood_members((defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers: 2)
 {
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
 }
 
 /******************************************************************************/
@@ -72,7 +72,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(
  * @param cp Another GSwarmAlgorithm object
  */
 GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
-	: GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>(cp)
+	: GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>(cp)
 	, m_n_neighborhoods(cp.m_n_neighborhoods)
 	, m_default_n_neighborhood_members(cp.m_default_n_neighborhood_members)
 	, m_n_neighborhood_members_vec(cp.m_n_neighborhood_members_vec)
@@ -95,7 +95,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
 	// Differences might e.g. occur if not all individuals return from their remote
 	// evaluation. adjustPopulation will take care to resize the population appropriately
 	// inside of the "optimize()" call.
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
 
 	// Clone cp's best individuals in each neighborhood
 	if (cp.afterFirstIteration()) {
@@ -180,7 +180,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
 
 	// ... and then our own data
 	m_default_n_neighborhood_members = p_load->m_default_n_neighborhood_members;
@@ -286,7 +286,7 @@ void GSwarmAlgorithm::compare(
 	GToken token("GSwarmAlgorithm", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(m_n_neighborhoods, p_load->m_n_neighborhoods), token);
@@ -328,7 +328,7 @@ std::string GSwarmAlgorithm::name() const {
 /******************************************************************************/
 /**
  * Sets the number of neighborhoods and the default number of members in them. All work is done inside of
- * the adjustPopulation function, inside of the GOptimizationAlgorithmT2<>::optimize() function.
+ * the adjustPopulation function, inside of the GOptimizationAlgorithmT<>::optimize() function.
  *
  * @param nNeighborhoods The number of neighborhoods
  * @param defaultNNeighborhoodMembers The default number of individuals in each neighborhood
@@ -356,7 +356,7 @@ void GSwarmAlgorithm::setSwarmSizes(
 	m_default_n_neighborhood_members = (defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers : 2;
 
 	// Update our parent class'es values
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
 }
 
 /******************************************************************************/
@@ -531,7 +531,7 @@ void GSwarmAlgorithm::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::size_t, std::size_t>(
@@ -618,11 +618,11 @@ std::string GSwarmAlgorithm::getAlgorithmName() const {
 /******************************************************************************/
 /**
  * This function does some preparatory work and tagging required by swarm algorithms. It is called
- * from within GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::optimize(), immediately before the actual optimization cycle starts.
+ * from within GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::optimize(), immediately before the actual optimization cycle starts.
  */
 void GSwarmAlgorithm::init() {
 	// To be performed before any other action
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::init();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::init();
 
 	// Extract the boundaries of all parameters
 	this->at(0)->boundaries(m_dbl_lower_parameter_boundaries, m_dbl_upper_parameter_boundaries, activityMode::ACTIVEONLY);
@@ -686,7 +686,7 @@ void GSwarmAlgorithm::init() {
 		for (std::size_t i = 0; i < velVec.size(); i++) {
 			double range = m_dbl_vel_vec_max[i];
 			velVec[i] =
-				GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(-range,range));
+				GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(-range,range));
 		}
 
 		// Load the array into the velocity object
@@ -718,7 +718,7 @@ void GSwarmAlgorithm::finalize() {
 	m_velocities_vec.clear();
 
 	// Last action
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::finalize();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::finalize();
 }
 
 /******************************************************************************/
@@ -732,7 +732,7 @@ std::shared_ptr <GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits() con
 /******************************************************************************/
 /**
  * This function implements the logic that constitutes each cycle of a swarm algorithm. The
- * function is called by GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::optimize() for each iteration of
+ * function is called by GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::optimize() for each iteration of
  * the optimization,
  *
  * @return The value of the best individual found
@@ -1064,17 +1064,17 @@ void GSwarmAlgorithm::updateIndividualPositions(
 		case updateRule::SWARM_UPDATERULE_CLASSIC:
 			// Multiply each floating point value with a random fp number in the range [0,1[, times a constant
 			for (std::size_t i = 0; i < personalBestVec.size(); i++) {
-				personalBestVec[i] *= (cPersonal * GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-				nbhBestVec[i] *= (cNeighborhood * GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-				glbBestVec[i] *= (cGlobal * GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				personalBestVec[i] *= (cPersonal * GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				nbhBestVec[i] *= (cNeighborhood * GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				glbBestVec[i] *= (cGlobal * GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
 			}
 			break;
 
 		case updateRule::SWARM_UPDATERULE_LINEAR:
 			// Multiply each position with the same random floating point number times a constant
-			Gem::Common::multVecConst<double>(personalBestVec, cPersonal * GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-			Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-			Gem::Common::multVecConst<double>(glbBestVec, cGlobal * GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(personalBestVec, cPersonal * GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(glbBestVec, cGlobal * GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
 			break;
 	}
 
@@ -1328,7 +1328,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 /******************************************************************************/
 /**
  * Resizes the population to the desired level and does some error checks. This function implements
- * the purely virtual function GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::adjustPopulation() .
+ * the purely virtual function GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::adjustPopulation() .
  */
 void GSwarmAlgorithm::adjustPopulation() {
 	const std::size_t currentSize = this->size();
@@ -1694,7 +1694,7 @@ bool GSwarmAlgorithm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::modify_GUnitTests()) result = true;
+	if (GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -1711,7 +1711,7 @@ bool GSwarmAlgorithm::modify_GUnitTests() {
 void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsNoFailureExpected_GUnitTests();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -1725,7 +1725,7 @@ void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 void GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsFailuresExpected_GUnitTests();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

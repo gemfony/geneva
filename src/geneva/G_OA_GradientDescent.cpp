@@ -60,7 +60,7 @@ GGradientDescent::GGradientDescent(
 	, const double &finiteStep
 	, const double &stepSize
 )
-	: GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>()
+	: GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>()
 	, nStartingPoints_(nStartingPoints)
 	, finiteStep_(finiteStep)
 	, stepSize_(stepSize)
@@ -73,7 +73,7 @@ GGradientDescent::GGradientDescent(
  * @param cp A copy of another GradientDescent object
  */
 GGradientDescent::GGradientDescent(const GGradientDescent &cp)
-	: GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>(cp)
+	: GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>(cp)
 	, nStartingPoints_(cp.nStartingPoints_)
 	, nFPParmsFirst_(cp.nFPParmsFirst_)
 	, finiteStep_(cp.finiteStep_)
@@ -273,7 +273,7 @@ void GGradientDescent::compare(
 	GToken token("GGradientDescent", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nStartingPoints_, p_load->nStartingPoints_), token);
@@ -309,7 +309,7 @@ void GGradientDescent::load_(const GObject *cp) {
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
 
 	// ... and then our own data
 	nStartingPoints_ = p_load->nStartingPoints_;
@@ -471,7 +471,7 @@ void GGradientDescent::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::size_t>(
@@ -576,7 +576,7 @@ void GGradientDescent::runFitnessCalculation() {
  */
 void GGradientDescent::init() {
 	// To be performed before any other action
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::init();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::init();
 
 	// Extract the boundaries of all parameters
 	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, activityMode::ACTIVEONLY);
@@ -639,7 +639,7 @@ void GGradientDescent::init() {
  */
 void GGradientDescent::finalize() {
 	// Last action
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::finalize();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::finalize();
 }
 
 /******************************************************************************/
@@ -693,7 +693,7 @@ void GGradientDescent::adjustPopulation() {
 #endif
 
 	// Set the default size of the population
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::setDefaultPopulationSize(nStartingPoints_ * (nFPParmsFirst_ + 1));
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::setDefaultPopulationSize(nStartingPoints_ * (nFPParmsFirst_ + 1));
 
 	// First create a suitable number of start individuals and initialize them as required
 	if (nStart < nStartingPoints_) {
@@ -749,7 +749,7 @@ bool GGradientDescent::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::modify_GUnitTests()) result = true;
+	if (GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */
@@ -765,7 +765,7 @@ bool GGradientDescent::modify_GUnitTests() {
 void GGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsNoFailureExpected_GUnitTests();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -778,7 +778,7 @@ void GGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 void GGradientDescent::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GOptimizationAlgorithmT2<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsFailuresExpected_GUnitTests();
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */

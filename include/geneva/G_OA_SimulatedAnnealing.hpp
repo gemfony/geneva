@@ -572,7 +572,7 @@ protected:
 
 		 // Mark the first this->m_n_parents individuals as parents and the rest of the individuals as children.
 		 // We want to have a sane population.
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for (it = this->begin(); it != this->begin() + np; ++it) {
 			 (*it)->GParameterSet::template getPersonalityTraits<GSAPersonalityTraits>()->setIsParent();
 		 }

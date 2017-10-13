@@ -1,5 +1,5 @@
 /**
- * @file GOptimizationAlgorithmT2.hpp
+ * @file GOptimizationAlgorithmT.hpp
  */
 
 /*
@@ -46,8 +46,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#ifndef GOPTIMIZATIONALGORITHMT2_HPP_
-#define GOPTIMIZATIONALGORITHMT2_HPP_
+#ifndef GOPTIMIZATIONALGORITHMT_HPP_
+#define GOPTIMIZATIONALGORITHMT_HPP_
 
 // Geneva headers go here
 #include "common/GStdPtrVectorInterfaceT.hpp"
@@ -76,7 +76,7 @@ namespace Geneva {
 template <
 	typename executor_type = Gem::Courtier::GBrokerExecutorT<GParameterSet>
 >
-class GOptimizationAlgorithmT2
+class GOptimizationAlgorithmT
 	: public GObject
   	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
    , public GOptimizableI
@@ -135,7 +135,7 @@ public:
 	 /**
 	  * The default constructor. Note that most variables are initialized in the class body.
 	  */
-	 GOptimizationAlgorithmT2()
+	 GOptimizationAlgorithmT()
 		 : GObject()
 			, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>()
 			, m_bestGlobalIndividuals(m_nRecordbestGlobalIndividuals, Gem::Common::LOWERISBETTER)
@@ -152,9 +152,9 @@ public:
 	 /**
 	  * The copy constructor
 	  *
-	  * @param cp A constant reference to another GOptimizationAlgorithmT2 object
+	  * @param cp A constant reference to another GOptimizationAlgorithmT object
 	  */
-	 GOptimizationAlgorithmT2(const GOptimizationAlgorithmT2<executor_type>& cp)
+	 GOptimizationAlgorithmT(const GOptimizationAlgorithmT<executor_type>& cp)
 		 : GObject(cp)
 			, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>(cp)
 			, m_iteration(cp.m_iteration)
@@ -196,26 +196,26 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GOptimizationAlgorithmT2()
+	 virtual ~GOptimizationAlgorithmT()
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * A standard assignment operator
 	  */
-	 const GOptimizationAlgorithmT2<executor_type>& operator=(const GOptimizationAlgorithmT2<executor_type>& cp) {
+	 const GOptimizationAlgorithmT<executor_type>& operator=(const GOptimizationAlgorithmT<executor_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GOptimizationAlgorithmT2<executor_type> object
+	  * Checks for equality with another GOptimizationAlgorithmT<executor_type> object
 	  *
-	  * @param  cp A constant reference to another GOptimizationAlgorithmT2<executor_type> object
+	  * @param  cp A constant reference to another GOptimizationAlgorithmT<executor_type> object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 bool operator==(const GOptimizationAlgorithmT2<executor_type>& cp) const {
+	 bool operator==(const GOptimizationAlgorithmT<executor_type>& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -227,12 +227,12 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for inequality with another GOptimizationAlgorithmT2<executor_type> object
+	  * Checks for inequality with another GOptimizationAlgorithmT<executor_type> object
 	  *
-	  * @param  cp A constant reference to another GOptimizationAlgorithmT2<executor_type> object
+	  * @param  cp A constant reference to another GOptimizationAlgorithmT<executor_type> object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 bool operator!=(const GOptimizationAlgorithmT2<executor_type>& cp) const {
+	 bool operator!=(const GOptimizationAlgorithmT<executor_type>& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -298,7 +298,7 @@ public:
 		 // Make sure it fits our own algorithm
 		 if(opt_desc != this->getOptimizationAlgorithm()) {
 			 glogger
-			 << "In GOptimizationAlgorithmT2<>::loadCheckpoint(): Error!" << std::endl
+			 << "In GOptimizationAlgorithmT<>::loadCheckpoint(): Error!" << std::endl
 		    << "Checkpoint file " << cpFile << std::endl
 			 << "seems to belong to another algorithm. Expected " << this->getOptimizationAlgorithm() << std::endl
 			 << "but got " << opt_desc << std::endl
@@ -353,14 +353,14 @@ public:
 		 // Do some basic checks
 		 if(cpBaseName == "empty" || cpBaseName.empty()) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<executor_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+				 << "In GOptimizationAlgorithmT<executor_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				 << "Error: Invalid cpBaseName: " << cpBaseName << std::endl
 				 << GEXCEPTION;
 		 }
 
 		 if(cpDirectory == "empty" || cpDirectory.empty()) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<executor_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+				 << "In GOptimizationAlgorithmT<executor_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				 << "Error: Invalid cpDirectory: " << cpDirectory << std::endl
 				 << GEXCEPTION;
 		 }
@@ -370,19 +370,19 @@ public:
 		 // Check that the provided directory exists
 		 if(!boost::filesystem::exists(cpDirectory)) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<executor_type>::setCheckpointBaseName(): Warning!" << std::endl
+				 << "In GOptimizationAlgorithmT<executor_type>::setCheckpointBaseName(): Warning!" << std::endl
 				 << "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl
 				 << GWARNING;
 
 			 if(!boost::filesystem::create_directory(cpDirectory)) {
 				 glogger
-					 << "In GOptimizationAlgorithmT2<executor_type>::setCheckpointBaseName(): Error!" << std::endl
+					 << "In GOptimizationAlgorithmT<executor_type>::setCheckpointBaseName(): Error!" << std::endl
 					 << "Could not create directory " << cpDirectory << std::endl
 					 << GEXCEPTION;
 			 }
 		 } else if(!boost::filesystem::is_directory(cpDirectory)) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<executor_type>::setCheckpointBaseName(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT<executor_type>::setCheckpointBaseName(): Error!" << std::endl
 				 << cpDirectory << " exists but is no directory." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -476,10 +476,10 @@ public:
 	 ) const override {
 		 using namespace Gem::Common;
 
-		 // Check that we are dealing with a GOptimizationAlgorithmT2<executor_type> reference independent of this object and convert the pointer
-		 const GOptimizationAlgorithmT2<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT2<executor_type>>(cp, this);
+		 // Check that we are dealing with a GOptimizationAlgorithmT<executor_type> reference independent of this object and convert the pointer
+		 const GOptimizationAlgorithmT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<executor_type>>(cp, this);
 
-		 GToken token("GOptimizationAlgorithmT2<executor_type>", e);
+		 GToken token("GOptimizationAlgorithmT<executor_type>", e);
 
 		 // Compare our parent data ...
 		 Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
@@ -664,7 +664,7 @@ public:
 			 default:
 			 {
 				 glogger
-					 << "GOptimizationAlgorithmT2<>::informationUpdate(" << im << "): Received invalid infoMode " << std::endl
+					 << "GOptimizationAlgorithmT<>::informationUpdate(" << im << "): Received invalid infoMode " << std::endl
 					 << GEXCEPTION;
 			 }
 				 break;
@@ -693,7 +693,7 @@ public:
 	  * function does NOT take ownership of the optimization monitor.
 	  */
 	 void registerPluggableOM(
-		 std::shared_ptr<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT> pluggableOM
+		 std::shared_ptr<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT> pluggableOM
 	 ) {
 		 if(pluggableOM) {
 			 m_pluggable_monitors.push_back(pluggableOM);
@@ -752,7 +752,7 @@ public:
 		 // The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
 		 if(m_maxIteration > 0 && m_maxIteration <= m_minIteration) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<>::setMaxIteration(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT<>::setMaxIteration(): Error!" << std::endl
 				 << "Maximum number of iterations " << 	m_maxIteration << " is <= the minimum number " << m_minIteration << std::endl
 				 << GEXCEPTION;
 		 }
@@ -784,7 +784,7 @@ public:
 		 // The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
 		 if(m_maxIteration > 0 && m_maxIteration <= m_minIteration) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<>::setMinIteration(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT<>::setMinIteration(): Error!" << std::endl
 				 << "Maximum number of iterations " << 	m_maxIteration << " is <= the minimum number " << m_minIteration << std::endl
 				 << GEXCEPTION;
 		 }
@@ -831,7 +831,7 @@ public:
 	 void setMaxTime(std::chrono::duration<double> maxDuration) {
 		 if(!Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < m_minDuration) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<>::setMaxTime(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT<>::setMaxTime(): Error!" << std::endl
 				 << "Desired maxDuration (" << maxDuration.count() << " is smaller than m_minDuration(" << m_minDuration.count() << ")" << std::endl
 				 << GEXCEPTION;
 		 }
@@ -859,7 +859,7 @@ public:
 	 void setMinTime(std::chrono::duration<double> minDuration) {
 		 if(!Gem::Common::isClose<double>(m_maxDuration.count(),0.) && m_maxDuration < minDuration) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<>::setMinTime(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT<>::setMinTime(): Error!" << std::endl
 				 << "Desired maxDuration (" << m_maxDuration.count() << " is smaller than m_minDuration(" << minDuration.count() << ")" << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1076,7 +1076,7 @@ public:
 #ifdef DEBUG
 		 if(pos >= this->size()) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<executor_type>::individual_cast<>() : Error" << std::endl
+				 << "In GOptimizationAlgorithmT<executor_type>::individual_cast<>() : Error" << std::endl
 				 << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
 				 << GEXCEPTION;
 
@@ -1262,7 +1262,7 @@ public:
 #ifdef DEBUG
 		 if(this->empty()) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<executor_type>::updateGlobalBestsPQ() :" << std::endl
+				 << "In GOptimizationAlgorithmT<executor_type>::updateGlobalBestsPQ() :" << std::endl
 				 << "Tried to retrieve the best individuals even though the population is empty." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1288,7 +1288,7 @@ public:
 #ifdef DEBUG
 		 if(this->empty()) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<executor_type>::updateIterationBestsPQ() :" << std::endl
+				 << "In GOptimizationAlgorithmT<executor_type>::updateIterationBestsPQ() :" << std::endl
 				 << "Tried to retrieve the best individuals even though the population is empty." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1312,7 +1312,7 @@ public:
 		 // We simply add all *clean* individuals to the queue -- only the best ones will actually be added
 		 // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
 		 // resized as required by its maximum allowed size.
-		 GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 if((*it)->isClean()) {
 				 bestIndividuals.add(*it, CLONE);
@@ -1377,8 +1377,8 @@ protected:
 	  * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
 	  */
 	 virtual void load_(const GObject* cp) override {
-		 // Check that we are dealing with a GOptimizationAlgorithmT2<executor_type> reference independent of this object and convert the pointer
-		 const GOptimizationAlgorithmT2<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT2<executor_type>>(cp, this);
+		 // Check that we are dealing with a GOptimizationAlgorithmT<executor_type> reference independent of this object and convert the pointer
+		 const GOptimizationAlgorithmT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptimizationAlgorithmT<executor_type>>(cp, this);
 
 		 // Load the parent class'es data
 		 GObject::load_(cp);
@@ -1475,7 +1475,7 @@ protected:
 		 // Check that the size is at least 2 (i.e. the PERSONALITY_X-part may exist)
 		 if(tokens.size() < 2) {
 			 glogger
-			 << "In GOptimizationAlgorithmT2<>::extractOptAlgFromPath(): Error!" << std::endl
+			 << "In GOptimizationAlgorithmT<>::extractOptAlgFromPath(): Error!" << std::endl
 		    << "Found file name " << filename << " that does not comply to rules." << std::endl
 			 << "Expected \"/some/path/word1-PERSONALITY_EA-some-other-information \"" << std::endl
 		    << GEXCEPTION;
@@ -1496,7 +1496,7 @@ protected:
 		 if(p) return p;
 		 else {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<T>::customGetBestGlobalIndividual(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT<T>::customGetBestGlobalIndividual(): Error!" << std::endl
 				 << "Best individual seems to be empty" << std::endl
 				 << GEXCEPTION;
 
@@ -1528,7 +1528,7 @@ protected:
 		 if(p) return p;
 		 else {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<T>::customGetBestIterationIndividual(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT<T>::customGetBestIterationIndividual(): Error!" << std::endl
 				 << "Best individual seems to be empty" << std::endl
 				 << GEXCEPTION;
 
@@ -1554,7 +1554,7 @@ protected:
 	  * Allows to set the personality type of the individuals
 	  */
 	 virtual void setIndividualPersonalities() {
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->setPersonality(this->getPersonalityTraits());
 		 }
@@ -1565,7 +1565,7 @@ protected:
 	  * Resets the individual's personality types
 	  */
 	 void resetIndividualPersonalities() {
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) (*it)->resetPersonality();
 	 }
 
@@ -1592,7 +1592,7 @@ protected:
 	 void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals) {
 		 if(0 == nRecordBestIndividuals) {
 			 glogger
-				 << "In GOptimizationAlgorithmT2<>::setNRecordBestIndividuals(): Error!" << std::endl
+				 << "In GOptimizationAlgorithmT<>::setNRecordBestIndividuals(): Error!" << std::endl
 				 << "Invalid number of individuals to be recorded: " << nRecordBestIndividuals << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1615,7 +1615,7 @@ protected:
 	 /**
 	  * It is possible for derived classes to specify in overloaded versions of this
 	  * function under which conditions the optimization should be stopped. The
-	  * function is called from GOptimizationAlgorithmT2<executor_type>::halt .
+	  * function is called from GOptimizationAlgorithmT<executor_type>::halt .
 	  *
 	  * @return boolean indicating that a stop condition was reached
 	  */
@@ -1670,7 +1670,7 @@ protected:
 	  * cycle.
 	  */
 	 virtual void markIteration() BASE {
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->setAssignedIteration(m_iteration);
 		 }
@@ -1684,7 +1684,7 @@ protected:
 	  * evaluation, the second value the potentially transformed value.
 	  */
 	 void updateWorstKnownValid() {
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 std::size_t nFitnessCriteria = (*(this->begin()))->getNumberOfFitnessCriteria();
 
 		 // Is this the first call ? Fill m_worstKnownValids with data
@@ -1701,7 +1701,7 @@ protected:
 #ifdef DEBUG
 			 if((*it)->getNumberOfFitnessCriteria() != nFitnessCriteria) {
 				 glogger
-					 << "In GOptimizationAlgorithmT2<>::updateWorstKnownValid(): Error!" << std::endl
+					 << "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
 					 << "Got " << (*it)->getNumberOfFitnessCriteria() << " fitness criteria in individual " << (it-this->begin()) << std::endl
 					 << "but expected " << nFitnessCriteria << " criteria" << std::endl
 					 << GEXCEPTION;
@@ -1709,7 +1709,7 @@ protected:
 
 			 if(!m_worstKnownValids.empty() && m_worstKnownValids.size() != nFitnessCriteria) {
 				 glogger
-					 << "In GOptimizationAlgorithmT2<>::updateWorstKnownValid(): Error!" << std::endl
+					 << "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
 					 << "Got invalid number of evaluation criteria in m_worstKnownValids:" << std::endl
 					 << "Got " << m_worstKnownValids.size() << " but expected " << nFitnessCriteria << std::endl
 					 << GEXCEPTION;
@@ -1730,7 +1730,7 @@ protected:
 	  */
 	 void markWorstKnownValid() {
 		 this->updateWorstKnownValid();
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->setWorstKnownValid(m_worstKnownValids);
 		 }
@@ -1742,7 +1742,7 @@ protected:
 	  * act on the information regarding best or worst evaluations found
 	  */
 	 void triggerEvaluationUpdate() {
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->postEvaluationUpdate();
 		 }
@@ -1752,7 +1752,7 @@ protected:
 	 /**
 	  * Work to be performed right after the individuals were evaluated. NOTE:
 	  * this setup is sub-optimal, as this function isn't called from within
-	  * GOptimizationAlgorithmT2 directly, but only from derived classes. This happens
+	  * GOptimizationAlgorithmT directly, but only from derived classes. This happens
 	  * to prevent an additional split of the cycleLogic function.
 	  */
 	 void postEvaluationWork() {
@@ -1771,7 +1771,7 @@ protected:
 	  * Let individuals know the number of stalls encountered so far
 	  */
 	 void markNStalls() {
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->setNStalls(m_stallCounter);
 		 }
@@ -1811,7 +1811,7 @@ private:
 	 /**
 	  * This function returns true once a given time (set with
 	  * GOptimizationAlgorithm<GParameterSet>::setMaxTime()) has passed.
-	  * It is used in the GOptimizationAlgorithmT2<executor_type>::halt() function.
+	  * It is used in the GOptimizationAlgorithmT<executor_type>::halt() function.
 	  *
 	  * @return A boolean indicating whether a given amount of time has passed
 	  */
@@ -2108,7 +2108,7 @@ private:
 	  * Marks the globally best known fitness in all individuals
 	  */
 	 void markBestFitness() {
-		 typename GOptimizationAlgorithmT2<executor_type>::iterator it;
+		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
 		 }
@@ -2158,7 +2158,7 @@ private:
 	 bool m_emitTerminationReason = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
 	 bool m_halted = false; ///< Set to true when halt() has returned "true"
 	 std::vector<std::tuple<double, double>> m_worstKnownValids; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-	 std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>> m_pluggable_monitors; ///< A collection of monitors
+	 std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>> m_pluggable_monitors; ///< A collection of monitors
 
 	 executor_type m_executor; ///< Takes care of the evaluation of objects
 
@@ -2188,7 +2188,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GOptimizationAlgorithmT2<>::modify_GUnitTests", "GEM_TESTING");
+		 condnotset("GOptimizationAlgorithmT<>::modify_GUnitTests", "GEM_TESTING");
 		 return false;
 #endif /* GEM_TESTING */
 	 }
@@ -2207,7 +2207,7 @@ public:
 		 Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GOptimizationAlgorithmT2<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GOptimizationAlgorithmT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -2225,7 +2225,7 @@ public:
 		 Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GOptimizationAlgorithmT2<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GOptimizationAlgorithmT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -2267,7 +2267,7 @@ public:
 			* The copy constructor
 			*/
 		  GBasePluggableOMT(
-			  const typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT& cp
+			  const typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT& cp
 		  )
 			  : useRawEvaluation_(cp.useRawEvaluation_)
 		  { /* nothing */ }
@@ -2286,7 +2286,7 @@ public:
 			* @param  cp A constant reference to another GBasePluggableOMT object
 			* @return A boolean indicating whether both objects are equal
 			*/
-		  virtual bool operator==(const typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT& cp) const {
+		  virtual bool operator==(const typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT& cp) const {
 			  using namespace Gem::Common;
 			  try {
 				  this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -2303,7 +2303,7 @@ public:
 			* @param  cp A constant reference to another GBasePluggableOMT object
 			* @return A boolean indicating whether both objects are inequal
 			*/
-		  virtual bool operator!=(const typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT& cp) const {
+		  virtual bool operator!=(const typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT& cp) const {
 			  using namespace Gem::Common;
 			  try {
 				  this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -2351,7 +2351,7 @@ public:
 			*/
 		  virtual void informationFunction(
 			  const infoMode& im
-			  , GOptimizationAlgorithmT2<executor_type> * const goa
+			  , GOptimizationAlgorithmT<executor_type> * const goa
 		  ) BASE = 0;
 
 		  /***************************************************************************/
@@ -2417,7 +2417,7 @@ public:
 			  return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-			  condnotset("GOptimizationAlgorithmT2<>::GBasePluggableOMT::modify_GUnitTests", "GEM_TESTING");
+			  condnotset("GOptimizationAlgorithmT<>::GBasePluggableOMT::modify_GUnitTests", "GEM_TESTING");
 			return false;
 #endif /* GEM_TESTING */
 		  }
@@ -2432,7 +2432,7 @@ public:
 			  GObject::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-			  condnotset("GOptimizationAlgorithmT2<>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+			  condnotset("GOptimizationAlgorithmT<>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 		  }
 
@@ -2446,7 +2446,7 @@ public:
 			  GObject::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-			  condnotset("GOptimizationAlgorithmT2<>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+			  condnotset("GOptimizationAlgorithmT<>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 		  }
 
@@ -2470,9 +2470,9 @@ public:
 namespace boost {
 namespace serialization {
 template<typename executor_type>
-struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT2<executor_type>> : public boost::true_type {};
+struct is_abstract<Gem::Geneva::GOptimizationAlgorithmT<executor_type>> : public boost::true_type {};
 template<typename executor_type>
-struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT2<executor_type>> : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::GOptimizationAlgorithmT<executor_type>> : public boost::true_type {};
 }
 }
 
@@ -2484,4 +2484,4 @@ BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)
 
 /******************************************************************************/
 
-#endif /* GOPTIMIZATIONALGORITHMT2_HPP_ */
+#endif /* GOPTIMIZATIONALGORITHMT_HPP_ */

@@ -42,7 +42,7 @@ SET ( OPTIMIZATIONSOURCES
 	GObject
 	GOptimizableEntity
 	GOptimizableI
-    GOptimizationAlgorithmT2
+    GOptimizationAlgorithmT
 	GOptimizationEnums
 	GParameterBase
 	GParameterObjectCollection

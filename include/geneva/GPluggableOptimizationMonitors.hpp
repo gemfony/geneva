@@ -57,7 +57,7 @@
 #include "common/GLogger.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
-#include "geneva/GOptimizationAlgorithmT2.hpp"
+#include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GParameterSet.hpp"
 
 namespace Gem {
@@ -66,7 +66,7 @@ namespace Geneva {
 /******************************************************************************/
 /*
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
- * information from within optimization algorithms. They can be plugged into GOptimizationAlgorithmT2<executor_type>
+ * information from within optimization algorithms. They can be plugged into GOptimizationAlgorithmT<executor_type>
  * derivatives. A requirement is that they implement a function "informationFunction"
  * according to the API of GOptimizationAlgorithmT<>::GBasePluggableOMT .
  */
@@ -81,7 +81,7 @@ namespace Geneva {
  */
 template <typename executor_type>
 class GStandardMonitorT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -92,7 +92,7 @@ class GStandardMonitorT
 
 		ar & make_nvp(
 			"GBasePluggableOMT"
-			, boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this)
+			, boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this)
 		);
 	}
 
@@ -111,7 +111,7 @@ public:
 	 * The copy constructor
 	 */
 	GStandardMonitorT(const GStandardMonitorT<executor_type>& cp)
-		: GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT(cp)
+		: GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -170,7 +170,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT: {
@@ -231,7 +231,7 @@ public:
 		GToken token("GStandardMonitorT<executor_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -251,7 +251,7 @@ protected:
 		const GStandardMonitorT<executor_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		// ... no local data
 	}
@@ -279,7 +279,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -303,7 +303,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GStandardMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -319,7 +319,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GStandardMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -341,7 +341,7 @@ public:
  */
 template <typename executor_type>
 class GFitnessMonitorT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -351,7 +351,7 @@ class GFitnessMonitorT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT", boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this))
+		& make_nvp("GBasePluggableOMT", boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this))
 		& BOOST_SERIALIZATION_NVP(m_xDim)
 	  	& BOOST_SERIALIZATION_NVP(m_yDim)
 		& BOOST_SERIALIZATION_NVP(m_nMonitorInds)
@@ -376,7 +376,7 @@ public:
 	 * The copy constructor
 	 */
 	GFitnessMonitorT(const GFitnessMonitorT<executor_type>& cp)
-		: GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT(cp)
+		: GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT(cp)
 	  	, m_xDim(cp.m_xDim)
 	  	, m_yDim(cp.m_yDim)
 		, m_nMonitorInds(cp.m_nMonitorInds)
@@ -538,7 +538,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT: {
@@ -688,7 +688,7 @@ public:
 		GToken token("GFitnessMonitorT<executor_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_xDim, p_load->m_xDim), token);
@@ -715,7 +715,7 @@ protected:
 		const GFitnessMonitorT<executor_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
 		m_xDim = p_load->m_xDim;
@@ -763,7 +763,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -787,7 +787,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GFitnessMonitorT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -803,7 +803,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GFitnessMonitorT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -821,7 +821,7 @@ public:
  */
 template <typename executor_type>
 class GCollectiveMonitorT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -831,7 +831,7 @@ class GCollectiveMonitorT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this));
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this));
 
 		// Some preparation needed if this is a load operation.
 		// This is needed to work around a problem in Boost 1.58
@@ -857,7 +857,7 @@ public:
 	 * The copy constructor
 	 */
 	GCollectiveMonitorT(const GCollectiveMonitorT<executor_type>& cp)
-		: GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT(cp)
+		: GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT(cp)
 	{
 		Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors, m_pluggable_monitors);
 	}
@@ -918,7 +918,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) override {
 		for(auto pm_ptr : m_pluggable_monitors) { // std::shared_ptr may be copied
 			pm_ptr->informationFunction(im,goa);
@@ -930,7 +930,7 @@ public:
 	 * Allows to register a new pluggable monitor
 	 */
 	void registerPluggableOM(
-		std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT> om_ptr
+		std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT> om_ptr
 	) {
 		if(om_ptr) {
 			m_pluggable_monitors.push_back(om_ptr);
@@ -988,7 +988,7 @@ public:
 		GToken token("GCollectiveMonitorT<executor_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_pluggable_monitors, p_load->m_pluggable_monitors), token);
@@ -1009,7 +1009,7 @@ protected:
 		const GCollectiveMonitorT<executor_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
 		Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors, m_pluggable_monitors);
@@ -1025,7 +1025,7 @@ protected:
 
 
 private:
-	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>> m_pluggable_monitors; ///< The collection of monitors
+	std::vector<std::shared_ptr<typename Gem::Geneva::GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>> m_pluggable_monitors; ///< The collection of monitors
 
 public:
 	/***************************************************************************/
@@ -1042,7 +1042,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -1066,7 +1066,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GCollectiveMonitorT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1082,7 +1082,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GCollectiveMonitorT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -1101,7 +1101,7 @@ public:
  */
 template <typename fp_type, typename executor_type>
 class GProgressPlotterTT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1111,7 +1111,7 @@ class GProgressPlotterTT
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this))
+			& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this))
 			& BOOST_SERIALIZATION_NVP(m_fp_profVarVec)
 			& BOOST_SERIALIZATION_NVP(m_gpd)
 			& BOOST_SERIALIZATION_NVP(m_progressPlotter2D_oa)
@@ -1164,7 +1164,7 @@ public:
 	 * The copy constructor
 	 */
 	GProgressPlotterTT(const GProgressPlotterTT<fp_type, executor_type>& cp)
-		: GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT(cp)
+		: GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT(cp)
 		, m_gpd(cp.m_gpd)
 		, m_fileName(cp.m_fileName)
 		, m_canvasDimensions(cp.m_canvasDimensions)
@@ -1460,7 +1460,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -1526,7 +1526,7 @@ public:
 
 				if(m_monitorBestOnly) { // Monitor the best individuals only
 					std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestGlobalIndividual<GParameterSet>();
-					if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::useRawEvaluation_) {
+					if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::useRawEvaluation_) {
 						primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 					} else {
 						primaryFitness = p->transformedFitness();
@@ -1593,10 +1593,10 @@ public:
 						}
 					}
 				} else { // Monitor all individuals
-					typename Gem::Geneva::GOptimizationAlgorithmT2<executor_type>::iterator it;
+					typename Gem::Geneva::GOptimizationAlgorithmT<executor_type>::iterator it;
 					for(it=goa->begin(); it!=goa->end(); ++it) {
 
-						if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::useRawEvaluation_) {
+						if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::useRawEvaluation_) {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 						} else {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
@@ -1728,7 +1728,7 @@ public:
 		GToken token("GProgressPlotterTT<fp_type, executor_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fp_profVarVec, p_load->m_fp_profVarVec), token);
@@ -1759,7 +1759,7 @@ protected:
 		const GProgressPlotterTT<fp_type, executor_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
 		Gem::Common::copyCloneableObjectsContainer(p_load->m_fp_profVarVec, m_fp_profVarVec);
@@ -1817,7 +1817,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -1841,7 +1841,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GProgressPlotterTT<fp_type, executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1857,7 +1857,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GProgressPlotterTT<fp_type, executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -1900,7 +1900,7 @@ public:
  */
 template <typename executor_type>
 class GAllSolutionFileLoggerT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1910,7 +1910,7 @@ class GAllSolutionFileLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this))
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_boundaries)
 		& BOOST_SERIALIZATION_NVP(m_boundariesActive)
@@ -2049,7 +2049,7 @@ public:
 		GToken token("GAllSolutionFileLoggerT<executor_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2224,7 +2224,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -2281,7 +2281,7 @@ protected:
 		const GAllSolutionFileLoggerT<executor_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -2310,7 +2310,7 @@ private:
 	 */
  	void printPopulation(
 		const std::string& iterationDescription
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) {
 		// Open the external file
 		boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
@@ -2369,7 +2369,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -2393,7 +2393,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAllSolutionFileLoggerT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -2409,7 +2409,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAllSolutionFileLoggerT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -2427,7 +2427,7 @@ public:
  */
 template <typename executor_type>
 class GIterationResultsFileLoggerT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2437,7 +2437,7 @@ class GIterationResultsFileLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this))
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_withCommas)
 		& BOOST_SERIALIZATION_NVP(m_useRawFitness);
@@ -2553,7 +2553,7 @@ public:
 		GToken token("GIterationResultsFileLoggerT<executor_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2619,7 +2619,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -2691,7 +2691,7 @@ protected:
 		const GIterationResultsFileLoggerT<executor_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -2729,7 +2729,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -2753,7 +2753,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GIterationResultsFileLoggerT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -2769,7 +2769,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GIterationResultsFileLoggerT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -2788,7 +2788,7 @@ public:
  */
 template <typename executor_type>
 class GNAdpationsLoggerT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2798,7 +2798,7 @@ class GNAdpationsLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this))
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_canvasDimensions)
 		& BOOST_SERIALIZATION_NVP(m_gpd)
@@ -2926,7 +2926,7 @@ public:
 		GToken token("GNAdpationsLoggerT<executor_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -3024,7 +3024,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) override {
 		using namespace Gem::Common;
 
@@ -3171,7 +3171,7 @@ protected:
 		const GNAdpationsLoggerT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<executor_type>>(cp, this);
 
 		// Load the parent classes' data ...
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -3231,7 +3231,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -3255,7 +3255,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GNAdpationsLoggerT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -3271,7 +3271,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GNAdpationsLoggerT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -3289,7 +3289,7 @@ public:
  */
 template <typename num_type, typename executor_type>
 class GAdaptorPropertyLoggerTT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -3299,7 +3299,7 @@ class GAdaptorPropertyLoggerTT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this))
+		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_adaptorName)
 		& BOOST_SERIALIZATION_NVP(m_property)
@@ -3448,7 +3448,7 @@ public:
 		GToken token("GAdaptorPropertyLoggerTT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -3579,7 +3579,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		, Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	) override {
 		using namespace Gem::Common;
 
@@ -3727,7 +3727,7 @@ protected:
 		const GAdaptorPropertyLoggerTT<num_type, executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerTT<num_type, executor_type>>(cp, this);
 
 		// Load the parent classes' data ...
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -3790,7 +3790,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -3814,7 +3814,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAdaptorPropertyLoggerTT<num_type, executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -3830,7 +3830,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAdaptorPropertyLoggerTT<num_type, executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -3850,7 +3850,7 @@ public:
  */
 template <typename executor_type>
 class GProcessingTimesLoggerT
-	: public GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT
+	: public GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -3860,7 +3860,7 @@ class GProcessingTimesLoggerT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(*this))
+		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_fileName_pth)
 		 & BOOST_SERIALIZATION_NVP(m_canvasDimensions_pth)
 		 & BOOST_SERIALIZATION_NVP(m_gpd_pth)
@@ -4014,7 +4014,7 @@ public:
 		 GToken token("GProcessingTimesLoggerT<executor_type>", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<typename GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<typename GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_fileName_pth, p_load->m_fileName_pth), token);
@@ -4192,7 +4192,7 @@ public:
 	  */
 	 virtual void informationFunction(
 		 const infoMode& im
-		 , Gem::Geneva::GOptimizationAlgorithmT2<executor_type> * const goa
+		 , Gem::Geneva::GOptimizationAlgorithmT<executor_type> * const goa
 	 ) override {
 		 switch(im) {
 			 case Gem::Geneva::infoMode::INFOINIT: {
@@ -4393,7 +4393,7 @@ protected:
 		 const GProcessingTimesLoggerT<executor_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		 // Load the parent classes' data ...
-		 GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::load_(cp);
+		 GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::load_(cp);
 
 		 // ... and then our local data
 		 m_fileName_pth = p_load->m_fileName_pth;
@@ -4468,7 +4468,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent classes' functions
-		 if(GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
+		 if(GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::modify_GUnitTests()) {
 			 result = true;
 		 }
 
@@ -4492,7 +4492,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		 GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GProcessingTimesLoggerT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -4508,7 +4508,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GOptimizationAlgorithmT2<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		 GOptimizationAlgorithmT<executor_type>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GProcessingTimesLoggerT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
