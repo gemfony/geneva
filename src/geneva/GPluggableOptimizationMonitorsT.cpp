@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/GPluggableOptimizationMonitorsT.hpp"
 
 /******************************************************************************/
 // Exports of classes

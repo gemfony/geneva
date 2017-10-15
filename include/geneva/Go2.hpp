@@ -247,7 +247,7 @@ public:
 	 G_API_GENEVA void registerDefaultAlgorithm(const std::string& default_algorithm);
 
 	 /** @brief Allows to register a pluggable optimization monitor */
-	 G_API_GENEVA void registerPluggableOM(std::shared_ptr<GOABase::GBasePluggableOMT>);
+	 G_API_GENEVA void registerPluggableOM(std::shared_ptr<GBasePluggableOMT<GOABase>>);
 	 /** @brief Allows to reset the local pluggable optimization monitor */
 	 G_API_GENEVA void resetPluggableOM();
 	 /** @brief Allows to check whether pluggable optimization monitors were registered */
@@ -329,7 +329,7 @@ private:
 	 // Holds an object capable of producing objects of the desired type
 	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_content_creator_ptr;
 	 // A user-defined means for information retrieval
-	 std::vector<std::shared_ptr<GOABase::GBasePluggableOMT>> m_pluggable_monitors_vec;
+	 std::vector<std::shared_ptr<GBasePluggableOMT<GOABase>>> m_pluggable_monitors_vec;
 };
 
 /******************************************************************************/

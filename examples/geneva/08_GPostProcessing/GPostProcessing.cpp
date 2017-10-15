@@ -40,7 +40,7 @@
 
 // Geneva header files go here
 #include "geneva/Go2.hpp"
-#include "geneva/GPluggableOptimizationMonitors.hpp"
+#include "geneva/GPluggableOptimizationMonitorsT.hpp"
 #include "geneva/GPostProcessorT.hpp"
 
 // The individual that should be optimized

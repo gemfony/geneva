@@ -52,7 +52,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterSetFixedSizePriorityQueue
 	GParameterSetMultiConstraint
 	GPersonalityTraits
-    GPluggableOptimizationMonitors
+    GPluggableOptimizationMonitorsT
     GPostProcessorT
 	GPSPersonalityTraits
 	GRateableI

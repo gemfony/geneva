@@ -37,6 +37,10 @@ The main changes for this release include:
 
 ********************************************************************************
 
+ - Made GBasePluggableOMT<> independent of GOptimizationAlgorithmT<>. The monitor base class
+   is no longer an embedded class of GOptimizationAlgorithmT<>. If you develop your own
+   optimization monitors, you need to derive them from a new class -- see the collection
+   in GPluggableOptimizationMonitorsT.hpp for examples.
  - Added the option to specify a minimum number of iterations and a minimum time that the
    optimization should run. Only interactive halt-criteria (Ctrl-C, "touched halt") are
    observed, as long as the minimum number ierations / timeframe are not met. Examine the sample
