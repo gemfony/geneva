@@ -29,6 +29,7 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32Object
 	GInt32ObjectCollection
 	Go2
+    G_OA_ConjugateGradientDescent
     G_OA_EvolutionaryAlgorithm
     G_OA_EvolutionaryAlgorithmFactory
     G_OA_GradientDescent

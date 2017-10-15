@@ -53,6 +53,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumIntT.hpp
 	GNumT.hpp
 	GOAInitializerT.hpp
+    G_OA_ConjugateGradientDescent.hpp
     G_OA_EvolutionaryAlgorithm.hpp
     G_OA_EvolutionaryAlgorithmFactory.hpp
     G_OA_GradientDescent.hpp

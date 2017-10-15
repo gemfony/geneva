@@ -568,11 +568,11 @@ public:
 
 		 m_stallCounter = 0;
 
+		 // Give derived classes the opportunity to perform any other necessary preparatory work.
+		 init();
+
 		 // Initialize the start time with the current time.
 		 m_startTime = std::chrono::system_clock::now();
-
-		 // Give derived classes the opportunity to perform any necessary preparatory work.
-		 init();
 
 		 do {
 			 // Let all individuals know the current iteration

@@ -1083,6 +1083,25 @@ std::unique_ptr<p_type> g_make_unique(arg_list&&... args) {
 }
 
 /******************************************************************************/
+/**
+ * This function returns an arbitrary std::vector as a string of value separated
+ * by a comma. It assumes that the template type may be output by std::cout
+ */
+template <typename vec_cont_type>
+std::string vector_as_string(const std::vector<vec_cont_type>& vec) {
+	typename std::vector<vec_cont_type>::const_iterator cit;
+	std::ostringstream result;
+	for(cit=vec.begin(); cit!=vec.end(); ++cit) {
+		result << *cit;
+		if(cit != (vec.end() - 1)) {
+			result << ", ";
+		}
+	}
+
+	return result.str();
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
