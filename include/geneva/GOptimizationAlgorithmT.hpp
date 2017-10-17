@@ -134,18 +134,7 @@ public:
 	 /**
 	  * The default constructor. Note that most variables are initialized in the class body.
 	  */
-	 GOptimizationAlgorithmT()
-		 : GObject()
-			, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>()
-			, m_bestGlobalIndividuals_pq(m_nRecordbestGlobalIndividuals, Gem::Common::LOWERISBETTER)
-			, m_bestIterationIndividuals_pq(0, Gem::Common::LOWERISBETTER) // unlimited size, so all individuals of an iteration fit in
-			, m_bestKnownPrimaryFitness(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
-			, m_bestCurrentPrimaryFitness(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
-			, m_maxDuration(Gem::Common::duration_from_string(DEFAULTDURATION))
-			, m_minDuration(Gem::Common::duration_from_string(DEFAULTMINDURATION))
-			, m_worstKnownValids_vec()
-			, m_pluggable_monitors_vec()
-	 { /* nothing */ }
+	 GOptimizationAlgorithmT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -533,7 +522,20 @@ public:
 	  * calling) this function.
 	  */
 	 virtual void resetToOptimizationStart() {
+		 this->clear(); // Remove all individuals found in this population
 
+		 m_iteration = 0; // The current iteration
+		 m_bestGlobalIndividuals_pq.clear(); // A priority queue with the best individuals found so far
+		 m_bestIterationIndividuals_pq.clear(); // A priority queue with the best individuals of a given iteration
+
+		 m_bestKnownPrimaryFitness = std::tuple<double,double>(0.,0.); // Records the best primary fitness found so far
+		 m_bestCurrentPrimaryFitness = std::tuple<double,double>(0.,0.); // Records the best fitness found in the current iteration
+
+		 m_stallCounter = 0; // Counts the number of iterations without improvement
+
+		 m_halted = false; // Set to true when halt() has returned "true"
+
+		 m_worstKnownValids_vec.clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 	 }
 
 	 /***************************************************************************/
@@ -2145,12 +2147,12 @@ private:
 	 std::uint32_t m_reportIteration = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
 
 	 std::size_t m_nRecordbestGlobalIndividuals = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-	 GParameterSetFixedSizePriorityQueue m_bestGlobalIndividuals_pq; ///< A priority queue with the best individuals found so far
-	 GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals_pq; ///< A priority queue with the best individuals of a given iteration
+	 GParameterSetFixedSizePriorityQueue m_bestGlobalIndividuals_pq {m_nRecordbestGlobalIndividuals, Gem::Common::LOWERISBETTER}; ///< A priority queue with the best individuals found so far
+	 GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals_pq {0, Gem::Common::LOWERISBETTER}; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
 
 	 std::size_t m_defaultPopulationSize = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
-	 std::tuple<double, double> m_bestKnownPrimaryFitness; ///< Records the best primary fitness found so far
-	 std::tuple<double, double> m_bestCurrentPrimaryFitness; ///< Records the best fitness found in the current iteration
+	 std::tuple<double, double> m_bestKnownPrimaryFitness = std::tuple<double,double>(0.,0.); ///< Records the best primary fitness found so far
+	 std::tuple<double, double> m_bestCurrentPrimaryFitness = std::tuple<double,double>(0.,0.); ///< Records the best fitness found in the current iteration
 
 	 std::uint32_t m_stallCounter = 0; ///< Counts the number of iterations without improvement
 	 std::uint32_t m_stallCounterThreshold = DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
