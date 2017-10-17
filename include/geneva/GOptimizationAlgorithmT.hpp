@@ -103,7 +103,7 @@ private:
 		 & BOOST_SERIALIZATION_NVP(m_maxStallIteration)
 		 & BOOST_SERIALIZATION_NVP(m_reportIteration)
 		 & BOOST_SERIALIZATION_NVP(m_nRecordbestGlobalIndividuals)
-		 & BOOST_SERIALIZATION_NVP(m_bestGlobalIndividuals)
+		 & BOOST_SERIALIZATION_NVP(m_bestGlobalIndividuals_pq)
 		 & BOOST_SERIALIZATION_NVP(m_defaultPopulationSize)
 		 & BOOST_SERIALIZATION_NVP(m_bestKnownPrimaryFitness)
 		 & BOOST_SERIALIZATION_NVP(m_bestCurrentPrimaryFitness)
@@ -123,8 +123,8 @@ private:
 		 & BOOST_SERIALIZATION_NVP(m_terminateOnFileModification)
 		 & BOOST_SERIALIZATION_NVP(m_emitTerminationReason)
 		 & BOOST_SERIALIZATION_NVP(m_halted)
-		 & BOOST_SERIALIZATION_NVP(m_worstKnownValids)
-		 & BOOST_SERIALIZATION_NVP(m_pluggable_monitors)
+		 & BOOST_SERIALIZATION_NVP(m_worstKnownValids_vec)
+		 & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_vec)
 		 & BOOST_SERIALIZATION_NVP(m_executor);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
@@ -137,14 +137,14 @@ public:
 	 GOptimizationAlgorithmT()
 		 : GObject()
 			, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>()
-			, m_bestGlobalIndividuals(m_nRecordbestGlobalIndividuals, Gem::Common::LOWERISBETTER)
-			, m_bestIterationIndividuals(0, Gem::Common::LOWERISBETTER) // unlimited size, so all individuals of an iteration fit in
+			, m_bestGlobalIndividuals_pq(m_nRecordbestGlobalIndividuals, Gem::Common::LOWERISBETTER)
+			, m_bestIterationIndividuals_pq(0, Gem::Common::LOWERISBETTER) // unlimited size, so all individuals of an iteration fit in
 			, m_bestKnownPrimaryFitness(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 			, m_bestCurrentPrimaryFitness(std::tuple<double,double>(0.,0.)) // will be set appropriately in the optimize() function
 			, m_maxDuration(Gem::Common::duration_from_string(DEFAULTDURATION))
 			, m_minDuration(Gem::Common::duration_from_string(DEFAULTMINDURATION))
-			, m_worstKnownValids()
-			, m_pluggable_monitors()
+			, m_worstKnownValids_vec()
+			, m_pluggable_monitors_vec()
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -163,8 +163,8 @@ public:
 			, m_maxStallIteration(cp.m_maxStallIteration)
 			, m_reportIteration(cp.m_reportIteration)
 			, m_nRecordbestGlobalIndividuals(cp.m_nRecordbestGlobalIndividuals)
-			, m_bestGlobalIndividuals(cp.m_bestGlobalIndividuals)
-			, m_bestIterationIndividuals(cp.m_bestIterationIndividuals)
+			, m_bestGlobalIndividuals_pq(cp.m_bestGlobalIndividuals_pq)
+			, m_bestIterationIndividuals_pq(cp.m_bestIterationIndividuals_pq)
 			, m_defaultPopulationSize(cp.m_defaultPopulationSize)
 			, m_bestKnownPrimaryFitness(cp.m_bestKnownPrimaryFitness)
 			, m_bestCurrentPrimaryFitness(cp.m_bestCurrentPrimaryFitness)
@@ -184,11 +184,11 @@ public:
 			, m_terminateOnFileModification(cp.m_terminateOnFileModification)
 			, m_emitTerminationReason(cp.m_emitTerminationReason)
 			, m_halted(cp.m_halted)
-			, m_worstKnownValids(cp.m_worstKnownValids)
+			, m_worstKnownValids_vec(cp.m_worstKnownValids_vec)
 			, m_executor(cp.m_executor)
 	 {
 		 // Copy the pluggable optimization monitors over (if any)
-		 Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors, m_pluggable_monitors);
+		 Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors_vec, m_pluggable_monitors_vec);
 	 }
 
 	 /***************************************************************************/
@@ -492,8 +492,8 @@ public:
 		 compare_t(IDENTITY(m_maxStallIteration, p_load->m_maxStallIteration), token);
 		 compare_t(IDENTITY(m_reportIteration, p_load->m_reportIteration), token);
 		 compare_t(IDENTITY(m_nRecordbestGlobalIndividuals, p_load->m_nRecordbestGlobalIndividuals), token);
-		 compare_t(IDENTITY(m_bestGlobalIndividuals, p_load->m_bestGlobalIndividuals), token);
-		 compare_t(IDENTITY(m_bestIterationIndividuals, p_load->m_bestIterationIndividuals), token);
+		 compare_t(IDENTITY(m_bestGlobalIndividuals_pq, p_load->m_bestGlobalIndividuals_pq), token);
+		 compare_t(IDENTITY(m_bestIterationIndividuals_pq, p_load->m_bestIterationIndividuals_pq), token);
 		 compare_t(IDENTITY(m_defaultPopulationSize, p_load->m_defaultPopulationSize), token);
 		 compare_t(IDENTITY(m_bestKnownPrimaryFitness, p_load->m_bestKnownPrimaryFitness), token);
 		 compare_t(IDENTITY(m_bestCurrentPrimaryFitness, p_load->m_bestCurrentPrimaryFitness), token);
@@ -513,14 +513,28 @@ public:
 		 compare_t(IDENTITY(m_terminateOnFileModification, p_load->m_terminateOnFileModification), token);
 		 compare_t(IDENTITY(m_emitTerminationReason, p_load->m_emitTerminationReason), token);
 		 compare_t(IDENTITY(m_halted, p_load->m_halted), token);
-		 compare_t(IDENTITY(m_worstKnownValids, p_load->m_worstKnownValids), token);
-		 compare_t(IDENTITY(m_pluggable_monitors, p_load->m_pluggable_monitors), token);
+		 compare_t(IDENTITY(m_worstKnownValids_vec, p_load->m_worstKnownValids_vec), token);
+		 compare_t(IDENTITY(m_pluggable_monitors_vec, p_load->m_pluggable_monitors_vec), token);
 		 compare_t(IDENTITY(m_executor, p_load->m_executor), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * Resets the class to the state before the optimize call. This will in
+	  * particular erase all individuals stored in this class and clear the list
+	  * of best individuals. Please note that a subsequent call to optimize will
+	  * result in an error, unless you add new individuals. The purpose of this
+	  * function is allow repeated optimization with the same settings, but different
+	  * starting points. Actual implementations of optimization algorithms derived
+	  * from this class may have to perform additional work by overloading (and
+	  * calling) this function.
+	  */
+	 virtual void resetToOptimizationStart() {
+
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -544,7 +558,7 @@ public:
 		 // Store any *clean* individuals that have been added to this algorithm
 		 // in the priority queue. This happens so that best individuals from a
 		 // previous "chained" optimization run aren't lost.
-		 addCleanStoredBests(m_bestGlobalIndividuals);
+		 addCleanStoredBests(m_bestGlobalIndividuals_pq);
 
 		 // Resize the population to the desired size and do some error checks.
 		 // This function will also check that individuals have indeed been registered
@@ -580,10 +594,10 @@ public:
 			 // Update fitness values and the stall counter
 			 updateStallCounter((m_bestCurrentPrimaryFitness=cycleLogic()));
 
-			 // Add the best individuals to the m_bestGlobalIndividuals
-			 // and m_bestIterationIndividuals vectors
-			 updateGlobalBestsPQ(m_bestGlobalIndividuals);
-			 updateIterationBestsPQ(m_bestIterationIndividuals);
+			 // Add the best individuals to the m_bestGlobalIndividuals_pq
+			 // and m_bestIterationIndividuals_pq vectors
+			 updateGlobalBestsPQ(m_bestGlobalIndividuals_pq);
+			 updateIterationBestsPQ(m_bestIterationIndividuals_pq);
 
 			 // Check whether a better value was found, and do the check-pointing, if necessary and requested.
 			 checkpoint(progress());
@@ -670,7 +684,7 @@ public:
 		 };
 
 		 // Perform any action defined by the user through pluggable monitor objects
-		 for(auto pm_ptr: m_pluggable_monitors) { // std::shared_ptr may be copied
+		 for(auto pm_ptr: m_pluggable_monitors_vec) { // std::shared_ptr may be copied
 			 pm_ptr->informationFunction(im, this);
 		 }
 	 }
@@ -695,7 +709,7 @@ public:
 		 std::shared_ptr<GBasePluggableOMT<GOptimizationAlgorithmT<executor_type>>> pluggableOM
 	 ) {
 		 if(pluggableOM) {
-			 m_pluggable_monitors.push_back(pluggableOM);
+			 m_pluggable_monitors_vec.push_back(pluggableOM);
 		 } else {
 			 glogger
 				 << "In GoptimizationMonitorT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
@@ -708,7 +722,7 @@ public:
 	  * Allows to reset the local pluggable optimization monitors
 	  */
 	 void resetPluggableOM() {
-		 m_pluggable_monitors.clear();
+		 m_pluggable_monitors_vec.clear();
 	 }
 
 	 /******************************************************************************/
@@ -716,7 +730,7 @@ public:
  	 * Allows to check whether pluggable optimization monitors were registered
   	 */
 	 bool hasPluggableOptimizationMonitors() const {
-		 return !m_pluggable_monitors.empty();
+		 return !m_pluggable_monitors_vec.empty();
 	 }
 
 	 /***************************************************************************/
@@ -1024,7 +1038,7 @@ public:
 	  * @return The best raw and transformed fitness found so far
 	  */
 	 std::tuple<double, double> getBestKnownPrimaryFitness() const {
-		 return (m_bestGlobalIndividuals.best())->getFitnessTuple();
+		 return (m_bestGlobalIndividuals_pq.best())->getFitnessTuple();
 
 		 // return m_bestKnownPrimaryFitness;
 	 }
@@ -1391,8 +1405,8 @@ protected:
 		 m_maxStallIteration = p_load->m_maxStallIteration;
 		 m_reportIteration = p_load->m_reportIteration;
 		 m_nRecordbestGlobalIndividuals = p_load->m_nRecordbestGlobalIndividuals;
-		 m_bestGlobalIndividuals = p_load->m_bestGlobalIndividuals;
-		 m_bestIterationIndividuals = p_load->m_bestIterationIndividuals;
+		 m_bestGlobalIndividuals_pq = p_load->m_bestGlobalIndividuals_pq;
+		 m_bestIterationIndividuals_pq = p_load->m_bestIterationIndividuals_pq;
 		 m_defaultPopulationSize = p_load->m_defaultPopulationSize;
 		 m_bestKnownPrimaryFitness = p_load->m_bestKnownPrimaryFitness;
 		 m_bestCurrentPrimaryFitness = p_load->m_bestCurrentPrimaryFitness;
@@ -1412,8 +1426,8 @@ protected:
 		 m_minDuration = p_load->m_minDuration;
 		 m_emitTerminationReason = p_load->m_emitTerminationReason;
 		 m_halted = p_load->m_halted;
-		 m_worstKnownValids = p_load->m_worstKnownValids;
-		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors, m_pluggable_monitors);
+		 m_worstKnownValids_vec = p_load->m_worstKnownValids_vec;
+		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors_vec, m_pluggable_monitors_vec);
 		 m_executor = p_load->m_executor;
 	 }
 
@@ -1491,7 +1505,7 @@ protected:
 	  */
 	 virtual std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
 #ifdef DEBUG
-		 std::shared_ptr<GParameterSet> p = m_bestGlobalIndividuals.best();
+		 std::shared_ptr<GParameterSet> p = m_bestGlobalIndividuals_pq.best();
 		 if(p) return p;
 		 else {
 			 glogger
@@ -1503,7 +1517,7 @@ protected:
 			 return std::shared_ptr<GParameterSet>();
 		 }
 #else
-		 return m_bestGlobalIndividuals.best();
+		 return m_bestGlobalIndividuals_pq.best();
 #endif
 	 }
 
@@ -1513,7 +1527,7 @@ protected:
 	  * the priority queue)
 	  */
 	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override {
-		 return m_bestGlobalIndividuals.toVector();
+		 return m_bestGlobalIndividuals_pq.toVector();
 	 }
 
 	 /***************************************************************************/
@@ -1523,7 +1537,7 @@ protected:
 	  */
 	 virtual std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override {
 #ifdef DEBUG
-		 std::shared_ptr<GParameterSet> p = m_bestIterationIndividuals.best();
+		 std::shared_ptr<GParameterSet> p = m_bestIterationIndividuals_pq.best();
 		 if(p) return p;
 		 else {
 			 glogger
@@ -1535,7 +1549,7 @@ protected:
 			 return std::shared_ptr<GParameterSet>();
 		 }
 #else
-		 return m_bestIterationIndividuals.best();
+		 return m_bestIterationIndividuals_pq.best();
 #endif
 	 }
 
@@ -1545,7 +1559,7 @@ protected:
 	  * the priority queue)
 	  */
 	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override {
-		 return m_bestIterationIndividuals.toVector();
+		 return m_bestIterationIndividuals_pq.toVector();
 	 }
 
 	 /***************************************************************************/
@@ -1597,7 +1611,7 @@ protected:
 		 }
 
 		 m_nRecordbestGlobalIndividuals = nRecordBestIndividuals;
-		 m_bestGlobalIndividuals.setMaxSize(m_nRecordbestGlobalIndividuals);
+		 m_bestGlobalIndividuals_pq.setMaxSize(m_nRecordbestGlobalIndividuals);
 	 }
 
 	 /***************************************************************************/
@@ -1686,14 +1700,14 @@ protected:
 		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 std::size_t nFitnessCriteria = (*(this->begin()))->getNumberOfFitnessCriteria();
 
-		 // Is this the first call ? Fill m_worstKnownValids with data
+		 // Is this the first call ? Fill m_worstKnownValids_vec with data
 		 if(inFirstIteration()) {
 			 for(it=this->begin(); it!=this->end(); ++it) {
 				 (*it)->populateWorstKnownValid();
 			 }
 
-			 // Initialize our own, local m_worstKnownValids
-			 m_worstKnownValids = (*(this->begin()))->getWorstKnownValids();
+			 // Initialize our own, local m_worstKnownValids_vec
+			 m_worstKnownValids_vec = (*(this->begin()))->getWorstKnownValids();
 		 }
 
 		 for(it=this->begin(); it!=this->end(); ++it) {
@@ -1706,18 +1720,18 @@ protected:
 					 << GEXCEPTION;
 			 }
 
-			 if(!m_worstKnownValids.empty() && m_worstKnownValids.size() != nFitnessCriteria) {
+			 if(!m_worstKnownValids_vec.empty() && m_worstKnownValids_vec.size() != nFitnessCriteria) {
 				 glogger
 					 << "In GOptimizationAlgorithmT<>::updateWorstKnownValid(): Error!" << std::endl
-					 << "Got invalid number of evaluation criteria in m_worstKnownValids:" << std::endl
-					 << "Got " << m_worstKnownValids.size() << " but expected " << nFitnessCriteria << std::endl
+					 << "Got invalid number of evaluation criteria in m_worstKnownValids_vec:" << std::endl
+					 << "Got " << m_worstKnownValids_vec.size() << " but expected " << nFitnessCriteria << std::endl
 					 << GEXCEPTION;
 			 }
 #endif /* DEBUG */
 
 			 if((*it)->isClean() && (*it)->isValid()) { // Is this an individual which has been evaluated and fulfills all constraints ?
 				 for(std::size_t id=0; id<nFitnessCriteria; id++) {
-					 (*it)->challengeWorstValidFitness(m_worstKnownValids.at(id), id);
+					 (*it)->challengeWorstValidFitness(m_worstKnownValids_vec.at(id), id);
 				 }
 			 }
 		 }
@@ -1731,7 +1745,7 @@ protected:
 		 this->updateWorstKnownValid();
 		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->setWorstKnownValid(m_worstKnownValids);
+			 (*it)->setWorstKnownValid(m_worstKnownValids_vec);
 		 }
 	 }
 
@@ -2131,8 +2145,8 @@ private:
 	 std::uint32_t m_reportIteration = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
 
 	 std::size_t m_nRecordbestGlobalIndividuals = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-	 GParameterSetFixedSizePriorityQueue m_bestGlobalIndividuals; ///< A priority queue with the best individuals found so far
-	 GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals; ///< A priority queue with the best individuals of a given iteration
+	 GParameterSetFixedSizePriorityQueue m_bestGlobalIndividuals_pq; ///< A priority queue with the best individuals found so far
+	 GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals_pq; ///< A priority queue with the best individuals of a given iteration
 
 	 std::size_t m_defaultPopulationSize = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
 	 std::tuple<double, double> m_bestKnownPrimaryFitness; ///< Records the best primary fitness found so far
@@ -2156,8 +2170,8 @@ private:
 	 bool m_terminateOnFileModification = false;
 	 bool m_emitTerminationReason = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
 	 bool m_halted = false; ///< Set to true when halt() has returned "true"
-	 std::vector<std::tuple<double, double>> m_worstKnownValids; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-	 std::vector<std::shared_ptr<GBasePluggableOMT<GOptimizationAlgorithmT<executor_type>>>> m_pluggable_monitors; ///< A collection of monitors
+	 std::vector<std::tuple<double, double>> m_worstKnownValids_vec; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
+	 std::vector<std::shared_ptr<GBasePluggableOMT<GOptimizationAlgorithmT<executor_type>>>> m_pluggable_monitors_vec; ///< A collection of monitors
 
 	 executor_type m_executor; ///< Takes care of the evaluation of objects
 

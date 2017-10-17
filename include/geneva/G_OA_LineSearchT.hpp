@@ -1,5 +1,5 @@
 /**
- * @file G_OA_ConjugateGradientDescent.hpp
+ * @file G_OA_LineSearchT.hpp
  */
 
 /*
@@ -40,8 +40,8 @@
 
 // Boost headers go here
 
-#ifndef G_OA_CONJUGATEGRADIENTDESCENT_HPP_
-#define G_OA_CONJUGATEGRADIENTDESCENT_HPP_
+#ifndef G_OA_LINESEARCHT_HPP_
+#define G_OA_LINESEARCHT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -68,7 +68,7 @@ namespace Geneva {
  * is delegated to the Broker (which may in turn use other means, such as threads or
  * networked execution for the evaluation step).
  */
-class GConjugateGradientDescent
+class GLineSearchT
 	:public GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -87,19 +87,19 @@ class GConjugateGradientDescent
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GConjugateGradientDescent();
+	 G_API_GENEVA GLineSearchT();
 	 /** @brief A standard copy constructor */
-	 G_API_GENEVA GConjugateGradientDescent(const GConjugateGradientDescent&);
+	 G_API_GENEVA GLineSearchT(const GLineSearchT&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GConjugateGradientDescent();
+	 virtual G_API_GENEVA ~GLineSearchT();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GConjugateGradientDescent& operator=(const GConjugateGradientDescent&);
+	 G_API_GENEVA const GLineSearchT& operator=(const GLineSearchT&);
 
-	 /** @brief Checks for equality with another GConjugateGradientDescent object */
-	 virtual G_API_GENEVA bool operator==(const GConjugateGradientDescent&) const;
-	 /** @brief Checks for inequality with another GConjugateGradientDescent object */
-	 virtual G_API_GENEVA bool operator!=(const GConjugateGradientDescent&) const;
+	 /** @brief Checks for equality with another GLineSearchT object */
+	 virtual G_API_GENEVA bool operator==(const GLineSearchT&) const;
+	 /** @brief Checks for inequality with another GLineSearchT object */
+	 virtual G_API_GENEVA bool operator!=(const GLineSearchT&) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
@@ -168,6 +168,6 @@ public
 } /* namespace Gem */
 
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConjugateGradientDescent)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GLineSearchT)
 
-#endif /* G_OA_CONJUGATEGRADIENTDESCENT_HPP_ */
+#endif /* G_OA_LINESEARCHT_HPP_ */
