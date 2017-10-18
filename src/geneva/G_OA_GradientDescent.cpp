@@ -289,6 +289,24 @@ void GGradientDescent::compare(
 	token.evaluate();
 }
 
+
+/******************************************************************************/
+/**
+ * Resets the settings of this population to what was configured when
+ * the optimize()-call was issued
+ */
+void GGradientDescent::resetToOptimizationStart() {
+	dblLowerParameterBoundaries_.clear(); // Holds lower boundaries of double parameters; Will be extracted in init()
+	dblUpperParameterBoundaries_.clear(); // Holds upper boundaries of double parameters; Will be extracted in init()
+	adjustedFiniteStep_.clear(); // A step-size normalized to each parameter range; Will be recalculated in init()
+
+	m_old_work_items.clear(); // Temporarily holds old returned work items
+
+	// There is no more work to be done here, so we simply call the
+	// function of the parent class
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::resetToOptimizationStart();
+}
+
 /******************************************************************************/
 /**
  * Emits a name for this class / object
@@ -317,8 +335,8 @@ void GGradientDescent::load_(const GObject *cp) {
 	finiteStep_ = p_load->finiteStep_;
 	stepSize_ = p_load->stepSize_;
 	// stepRatio_ = p_load->stepRatio_; // temporary parameter
-	// m_dbl_lower_parameter_boundaries = p_load->m_dbl_lower_parameter_boundaries; // temporary parameter
-	// m_dbl_upper_parameter_boundaries = p_load->m_dbl_upper_parameter_boundaries; // temporary parameter
+	// m_dbl_lower_parameter_boundaries_vec = p_load->m_dbl_lower_parameter_boundaries_vec; // temporary parameter
+	// m_dbl_upper_parameter_boundaries_vec = p_load->m_dbl_upper_parameter_boundaries_vec; // temporary parameter
 	// adjustedFiniteStep_ = p_load->adjustedFiniteStep_; // temporary parameter
 }
 
@@ -601,7 +619,7 @@ void GGradientDescent::init() {
    }
 
    // Check that finiteStep_ has an appropriate value
-   if(finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in permille of the allowed or preferred value range
+   if(finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
       glogger
       << "In GGradientDescent::init(): Error!" << std::endl
       << "Invalid values of finiteStep_: " << finiteStep_ << std::endl

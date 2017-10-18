@@ -74,9 +74,9 @@ class GSimulatedAnnealingT : public GParChildT<executor_type>
 
 		 ar
 		 & make_nvp("GParChildT<executor_type>", boost::serialization::base_object<GParChildT<executor_type>>(*this))
-		 & BOOST_SERIALIZATION_NVP(t0_)
-		 & BOOST_SERIALIZATION_NVP(t_)
-		 & BOOST_SERIALIZATION_NVP(alpha_)
+		 & BOOST_SERIALIZATION_NVP(m_t0)
+		 & BOOST_SERIALIZATION_NVP(m_t)
+		 & BOOST_SERIALIZATION_NVP(m_alpha)
 		 & BOOST_SERIALIZATION_NVP(m_n_threads);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
@@ -102,9 +102,9 @@ public:
 	  */
 	 GSimulatedAnnealingT(const GSimulatedAnnealingT<executor_type>& cp)
 		 : GParChildT<executor_type>(cp)
-		 , t0_(cp.t0_)
-		 , t_(cp.t_)
-		 , alpha_(cp.alpha_)
+		 , m_t0(cp.m_t0)
+		 , m_t(cp.m_t)
+		 , m_alpha(cp.m_alpha)
 		 , m_n_threads(cp.m_n_threads)
 	 {
 		 // Copying / setting of the optimization algorithm id is done by the parent class. The same
@@ -187,13 +187,30 @@ public:
 		 Gem::Common::compare_base<GParChildT<executor_type>>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
-		 compare_t(IDENTITY(t0_, p_load->t0_), token);
-		 compare_t(IDENTITY(t_, p_load->t_), token);
-		 compare_t(IDENTITY(alpha_, p_load->alpha_), token);
+		 compare_t(IDENTITY(m_t0, p_load->m_t0), token);
+		 compare_t(IDENTITY(m_t, p_load->m_t), token);
+		 compare_t(IDENTITY(m_alpha, p_load->m_alpha), token);
 		 compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Resets the settings of this population to what was configured when
+	  * the optimize()-call was issued
+	  */
+	 virtual void resetToOptimizationStart() {
+		 // Reset the temperature
+		 m_t = m_t0;
+
+		 // Remove any remaining old work items
+		 m_old_work_items.clear();
+
+		 // There is no more work to be done here, so we simply call the
+		 // function of the parent class
+		 GParChildT<executor_type>::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -295,7 +312,7 @@ public:
 				 << GEXCEPTION;
 		 }
 
-		 alpha_ = alpha;
+		 m_alpha = alpha;
 	 }
 
 	 /***************************************************************************/
@@ -305,7 +322,7 @@ public:
  	  * @return The temperature degradation strength
  	  */
 	 double getTDegradationStrength() const {
-		 return alpha_;
+		 return m_alpha;
 	 }
 
 	 /***************************************************************************/
@@ -322,7 +339,7 @@ public:
 				 << GEXCEPTION;
 		 }
 
-		 t0_ = t0;
+		 m_t0 = t0;
 	 }
 
 	 /***************************************************************************/
@@ -332,7 +349,7 @@ public:
  	  * @return The start temperature
  	  */
 	 double getT0() const {
-		 return t0_;
+		 return m_t0;
 	 }
 
 	 /***************************************************************************/
@@ -342,7 +359,7 @@ public:
  	  * @return The current temperature
  	  */
 	 double getT() const {
-		 return t_;
+		 return m_t;
 	 }
 
 	 /***************************************************************************/
@@ -369,9 +386,9 @@ protected:
 		 GParChildT<executor_type>::load_(cp);
 
 		 // ... and then our own data
-		 t0_ = p_load->t0_;
-		 t_ = p_load->t_;
-		 alpha_ = p_load->alpha_;
+		 m_t0 = p_load->m_t0;
+		 m_t = p_load->m_t;
+		 m_alpha = p_load->m_alpha;
 		 m_n_threads = p_load->m_n_threads;
 	 }
 
@@ -742,9 +759,9 @@ private:
 
 		 double result = 0.;
 		 if (this->at(0)->getMaxMode()) {
-			 result = exp(-(qParent - qChild) / t_);
+			 result = exp(-(qParent - qChild) / m_t);
 		 } else {
-			 result = exp(-(qChild - qParent) / t_);
+			 result = exp(-(qChild - qParent) / m_t);
 		 }
 
 		 return result;
@@ -755,15 +772,15 @@ private:
  	  * Updates the temperature. This function is used for simulated annealing.
  	  */
 	 void updateTemperature() {
-		 t_ *= alpha_;
+		 m_t *= m_alpha;
 	 }
 
 	 /***************************************************************************/
 	 // Data
 
-	 double t0_ = SA_T0; ///< The start temperature, used in simulated annealing
-	 double t_ = t0_; ///< The current temperature, used in simulated annealing
-	 double alpha_ = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
+	 double m_t0 = SA_T0; ///< The start temperature, used in simulated annealing
+	 double m_t = m_t0; ///< The current temperature, used in simulated annealing
+	 double m_alpha = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
 
 	 std::uint16_t m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(
 		 Gem::Common::DEFAULTNHARDWARETHREADS

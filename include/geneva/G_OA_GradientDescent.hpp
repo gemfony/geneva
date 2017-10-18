@@ -121,6 +121,9 @@ public:
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
 
+	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
+	 virtual G_API_GENEVA void resetToOptimizationStart();
+
 	 /** @brief Returns information about the type of optimization algorithm */
 	 virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
 

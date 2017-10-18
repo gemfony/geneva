@@ -76,7 +76,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
 	, m_n_neighborhoods(cp.m_n_neighborhoods)
 	, m_default_n_neighborhood_members(cp.m_default_n_neighborhood_members)
 	, m_n_neighborhood_members_vec(cp.m_n_neighborhood_members_vec)
-	, m_global_best_vec((cp.afterFirstIteration()) ? (cp.m_global_best_vec)->clone<GParameterSet>() : std::shared_ptr<GParameterSet>())
+	, m_global_best_ptr((cp.afterFirstIteration()) ? (cp.m_global_best_ptr)->clone<GParameterSet>() : std::shared_ptr<GParameterSet>())
 	, m_neighborhood_bests_vec(m_n_neighborhoods) // We copy the smart pointers over later
 	, m_c_personal(cp.m_c_personal)
 	, m_c_neighborhood(cp.m_c_neighborhood)
@@ -85,9 +85,9 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
 	, m_update_rule(cp.m_update_rule)
 	, m_random_fill_up(cp.m_random_fill_up)
 	, m_repulsion_threshold(cp.m_repulsion_threshold)
-	, m_dbl_lower_parameter_boundaries(cp.m_dbl_lower_parameter_boundaries)
-	, m_dbl_upper_parameter_boundaries(cp.m_dbl_upper_parameter_boundaries)
-	, m_dbl_vel_vec_max(cp.m_dbl_vel_vec_max)
+	, m_dbl_lower_parameter_boundaries_vec(cp.m_dbl_lower_parameter_boundaries_vec)
+	, m_dbl_upper_parameter_boundaries_vec(cp.m_dbl_upper_parameter_boundaries_vec)
+	, m_dbl_vel_max_vec(cp.m_dbl_vel_max_vec)
 	, m_velocity_range_percentage(cp.m_velocity_range_percentage)
 {
 	// Note that this setting might differ from nCPIndividuals, as it is not guaranteed
@@ -192,9 +192,9 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
 	m_random_fill_up = p_load->m_random_fill_up;
 	m_repulsion_threshold = p_load->m_repulsion_threshold;
 
-	m_dbl_lower_parameter_boundaries = p_load->m_dbl_lower_parameter_boundaries;
-	m_dbl_upper_parameter_boundaries = p_load->m_dbl_upper_parameter_boundaries;
-	m_dbl_vel_vec_max = p_load->m_dbl_vel_vec_max;
+	m_dbl_lower_parameter_boundaries_vec = p_load->m_dbl_lower_parameter_boundaries_vec;
+	m_dbl_upper_parameter_boundaries_vec = p_load->m_dbl_upper_parameter_boundaries_vec;
+	m_dbl_vel_max_vec = p_load->m_dbl_vel_max_vec;
 
 	m_velocity_range_percentage = p_load->m_velocity_range_percentage;
 
@@ -244,14 +244,14 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
 
 	// Copy the global best over
 	if (p_load->afterFirstIteration()) { // cp has a global best, we don't
-		if (m_global_best_vec) { // If we already have a global best, just load the other objects global best
-			m_global_best_vec->GObject::load(p_load->m_global_best_vec);
+		if (m_global_best_ptr) { // If we already have a global best, just load the other objects global best
+			m_global_best_ptr->GObject::load(p_load->m_global_best_ptr);
 		} else {
-			m_global_best_vec = p_load->GObject::clone<GParameterSet>();
+			m_global_best_ptr = p_load->GObject::clone<GParameterSet>();
 		}
 	}
 	else if (p_load->inFirstIteration()) { // cp does not have a global best
-		m_global_best_vec.reset(); // empty the smart pointer
+		m_global_best_ptr.reset(); // empty the smart pointer
 	}
 	// else {} // We do not need to do anything if both iterations are 0 as there is no global best at all
 }
@@ -291,7 +291,7 @@ void GSwarmAlgorithm::compare(
 	// ... and then the local data
 	compare_t(IDENTITY(m_n_neighborhoods, p_load->m_n_neighborhoods), token);
 	compare_t(IDENTITY(m_default_n_neighborhood_members, p_load->m_default_n_neighborhood_members), token);
-	compare_t(IDENTITY(m_global_best_vec, p_load->m_global_best_vec), token);
+	compare_t(IDENTITY(m_global_best_ptr, p_load->m_global_best_ptr), token);
 	compare_t(IDENTITY(m_c_personal, p_load->m_c_personal), token);
 	compare_t(IDENTITY(m_c_neighborhood, p_load->m_c_neighborhood), token);
 	compare_t(IDENTITY(m_c_global, p_load->m_c_global), token);
@@ -299,9 +299,9 @@ void GSwarmAlgorithm::compare(
 	compare_t(IDENTITY(m_update_rule, p_load->m_update_rule), token);
 	compare_t(IDENTITY(m_random_fill_up, p_load->m_random_fill_up), token);
 	compare_t(IDENTITY(m_repulsion_threshold, p_load->m_repulsion_threshold), token);
-	compare_t(IDENTITY(m_dbl_lower_parameter_boundaries, p_load->m_dbl_lower_parameter_boundaries), token);
-	compare_t(IDENTITY(m_dbl_upper_parameter_boundaries, p_load->m_dbl_upper_parameter_boundaries), token);
-	compare_t(IDENTITY(m_dbl_vel_vec_max, p_load->m_dbl_vel_vec_max), token);
+	compare_t(IDENTITY(m_dbl_lower_parameter_boundaries_vec, p_load->m_dbl_lower_parameter_boundaries_vec), token);
+	compare_t(IDENTITY(m_dbl_upper_parameter_boundaries_vec, p_load->m_dbl_upper_parameter_boundaries_vec), token);
+	compare_t(IDENTITY(m_dbl_vel_max_vec, p_load->m_dbl_vel_max_vec), token);
 	compare_t(IDENTITY(m_velocity_range_percentage, p_load->m_velocity_range_percentage), token);
 
 	// The next checks only makes sense if the number of neighborhoods are equal
@@ -315,6 +315,31 @@ void GSwarmAlgorithm::compare(
 
 	// React on deviations from the expectation
 	token.evaluate();
+}
+
+/******************************************************************************/
+/**
+ * Resets the settings of this population to what was configured when
+ * the optimize()-call was issued
+ */
+void GSwarmAlgorithm::resetToOptimizationStart() {
+	m_n_neighborhood_members_vec = std::vector<std::size_t>(m_n_neighborhoods, 0); // The current number of individuals belonging to each neighborhood
+
+	m_global_best_ptr.reset(); // The globally best individual
+
+	m_neighborhood_bests_vec = std::vector<std::shared_ptr<GParameterSet>>(m_n_neighborhoods); // The collection of best individuals from each neighborhood
+	m_velocities_vec = std::vector<std::shared_ptr<GParameterSet>>(); // Holds velocities, as calculated in the previous iteration
+
+	m_dbl_lower_parameter_boundaries_vec.clear(); // Holds lower boundaries of double parameters
+	m_dbl_upper_parameter_boundaries_vec.clear(); // Holds upper boundaries of double parameters
+	m_dbl_vel_max_vec.clear(); // Holds the maximum allowed values of double-type velocities
+
+	m_last_iteration_individuals_vec.clear(); // A temporary copy of the last iteration's individuals
+	m_old_work_items.clear(); // Temporarily holds old returned work items
+
+	// There is no more work to be done here, so we simply call the
+	// function of the parent class
+	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::resetToOptimizationStart();
 }
 
 /******************************************************************************/
@@ -625,24 +650,24 @@ void GSwarmAlgorithm::init() {
 	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::init();
 
 	// Extract the boundaries of all parameters
-	this->at(0)->boundaries(m_dbl_lower_parameter_boundaries, m_dbl_upper_parameter_boundaries, activityMode::ACTIVEONLY);
+	this->at(0)->boundaries(m_dbl_lower_parameter_boundaries_vec, m_dbl_upper_parameter_boundaries_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
    // Size matters!
-   if(m_dbl_lower_parameter_boundaries.size() != m_dbl_upper_parameter_boundaries.size()) {
+   if(m_dbl_lower_parameter_boundaries_vec.size() != m_dbl_upper_parameter_boundaries_vec.size()) {
       glogger
       << "In GSwarmAlgorithm::init(): Error!" << std::endl
       << "Found invalid sizes: "
-      << m_dbl_lower_parameter_boundaries.size() << " / " << m_dbl_upper_parameter_boundaries.size() << std::endl
+      << m_dbl_lower_parameter_boundaries_vec.size() << " / " << m_dbl_upper_parameter_boundaries_vec.size() << std::endl
       << GEXCEPTION;
    }
 #endif /* DEBUG */
 
 	// Calculate the allowed maximum values of the velocities
 	double l = getVelocityRangePercentage();
-	m_dbl_vel_vec_max.clear();
-	for (std::size_t i = 0; i < m_dbl_lower_parameter_boundaries.size(); i++) {
-		m_dbl_vel_vec_max.push_back(l * (m_dbl_upper_parameter_boundaries[i] - m_dbl_lower_parameter_boundaries[i]));
+	m_dbl_vel_max_vec.clear();
+	for (std::size_t i = 0; i < m_dbl_lower_parameter_boundaries_vec.size(); i++) {
+		m_dbl_vel_max_vec.push_back(l * (m_dbl_upper_parameter_boundaries_vec[i] - m_dbl_lower_parameter_boundaries_vec[i]));
 	}
 
 	// Make sure the m_velocities_vec vector is really empty
@@ -672,19 +697,19 @@ void GSwarmAlgorithm::init() {
 
 #ifdef DEBUG
 		// Check that the number of parameters equals those in the velocity boundaries
-		if(velVec.size() != m_dbl_lower_parameter_boundaries.size() || velVec.size() != m_dbl_vel_vec_max.size()) {
+		if(velVec.size() != m_dbl_lower_parameter_boundaries_vec.size() || velVec.size() != m_dbl_vel_max_vec.size()) {
 			glogger
 				<< "In GSwarmAlgorithm::init(): Error! (2)" << std::endl
 				<< "Found invalid sizes: " << velVec.size()
-				<< " / " << m_dbl_lower_parameter_boundaries.size() << std::endl
-				<< " / " << m_dbl_vel_vec_max.size() << std::endl
+				<< " / " << m_dbl_lower_parameter_boundaries_vec.size() << std::endl
+				<< " / " << m_dbl_vel_max_vec.size() << std::endl
 				<< GEXCEPTION;
 		}
 #endif /* DEBUG */
 
 		// Randomly initialize the velocities
 		for (std::size_t i = 0; i < velVec.size(); i++) {
-			double range = m_dbl_vel_vec_max[i];
+			double range = m_dbl_vel_max_vec[i];
 			velVec[i] =
 				GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(-range,range));
 		}
@@ -936,10 +961,10 @@ void GSwarmAlgorithm::updatePositions() {
             << GEXCEPTION;
 			}
 
-			if(n==0 && !m_global_best_vec) { // Only check for the first n
+			if(n==0 && !m_global_best_ptr) { // Only check for the first n
 			   glogger
 			   << "In GSwarmAlgorithm::updatePositions():" << std::endl
-            << "m_global_best_vec is empty." << std::endl
+            << "m_global_best_ptr is empty." << std::endl
             << GEXCEPTION;
 			}
 		}
@@ -964,7 +989,7 @@ void GSwarmAlgorithm::updatePositions() {
 				 !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
 				updateIndividualPositions(
-					n, (*current), m_neighborhood_bests_vec[n], m_global_best_vec, m_velocities_vec[neighborhood_offset], std::make_tuple(
+					n, (*current), m_neighborhood_bests_vec[n], m_global_best_ptr, m_velocities_vec[neighborhood_offset], std::make_tuple(
 						getCPersonal(), getCNeighborhood(), getCGlobal(), getCVelocity()
 					)
 				);
@@ -1119,10 +1144,10 @@ void GSwarmAlgorithm::updateIndividualPositions(
  */
 void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
 #ifdef DEBUG
-	if(velVec.size() != m_dbl_vel_vec_max.size()) {
+	if(velVec.size() != m_dbl_vel_max_vec.size()) {
 	   glogger
 	   << "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
-      << "Found invalid vector sizes: " << velVec.size() << " / " << m_dbl_vel_vec_max.size() << std::endl
+      << "Found invalid vector sizes: " << velVec.size() << " / " << m_dbl_vel_max_vec.size() << std::endl
       << GEXCEPTION;
 	}
 
@@ -1134,17 +1159,17 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
 	bool overflowFound = false;
 	for (std::size_t i = 0; i < velVec.size(); i++) {
 #ifdef DEBUG
-		if(m_dbl_vel_vec_max[i] <= 0.) {
+		if(m_dbl_vel_max_vec[i] <= 0.) {
 		   glogger
 		   << "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
-         << "Found invalid max value: " << m_dbl_vel_vec_max[i] << std::endl
+         << "Found invalid max value: " << m_dbl_vel_max_vec[i] << std::endl
          << GEXCEPTION;
 		}
 #endif /* DEBUG */
 
-		if (Gem::Common::gfabs(velVec[i]) > m_dbl_vel_vec_max[i]) {
+		if (Gem::Common::gfabs(velVec[i]) > m_dbl_vel_max_vec[i]) {
 			overflowFound = true;
-			currentPercentage = Gem::Common::gfabs(velVec[i]) / m_dbl_vel_vec_max[i];
+			currentPercentage = Gem::Common::gfabs(velVec[i]) / m_dbl_vel_max_vec[i];
 			if (currentPercentage > maxPercentage) {
 				maxPercentage = currentPercentage;
 			}
@@ -1307,10 +1332,10 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 	// Compare the best neighborhood individual with the globally best individual and
 	// update it, if necessary. Initialize it in the first generation.
 	if (inFirstIteration()) {
-		m_global_best_vec = (m_neighborhood_bests_vec.at(bestLocalId))->clone<GParameterSet>();
+		m_global_best_ptr = (m_neighborhood_bests_vec.at(bestLocalId))->clone<GParameterSet>();
 	} else {
-		if (this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), m_global_best_vec->transformedFitness())) {
-			m_global_best_vec->GObject::load(m_neighborhood_bests_vec.at(bestLocalId));
+		if (this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), m_global_best_ptr->transformedFitness())) {
+			m_global_best_ptr->GObject::load(m_neighborhood_bests_vec.at(bestLocalId));
 		}
 	}
 

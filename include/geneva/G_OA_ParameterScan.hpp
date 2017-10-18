@@ -119,14 +119,14 @@ class GParameterScan
 
 		 ar
 		 & make_nvp("GOptimizationAlgorithmT_GBrokerExecutorT", boost::serialization::base_object<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
-		 & BOOST_SERIALIZATION_NVP(scanRandomly_)
-		 & BOOST_SERIALIZATION_NVP(nMonitorInds_)
-		 & BOOST_SERIALIZATION_NVP(bVec_)
-		 & BOOST_SERIALIZATION_NVP(int32Vec_)
-		 & BOOST_SERIALIZATION_NVP(dVec_)
-		 & BOOST_SERIALIZATION_NVP(fVec_)
-		 & BOOST_SERIALIZATION_NVP(simpleScanItems_)
-		 & BOOST_SERIALIZATION_NVP(scansPerformed_);
+		 & BOOST_SERIALIZATION_NVP(m_scanRandomly)
+		 & BOOST_SERIALIZATION_NVP(m_nMonitorInds)
+		 & BOOST_SERIALIZATION_NVP(m_b_vec)
+		 & BOOST_SERIALIZATION_NVP(m_int32_vec)
+		 & BOOST_SERIALIZATION_NVP(m_d_vec)
+		 & BOOST_SERIALIZATION_NVP(m_f_vec)
+		 & BOOST_SERIALIZATION_NVP(m_simpleScanItems)
+		 & BOOST_SERIALIZATION_NVP(m_scansPerformed);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -153,6 +153,10 @@ public:
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
+
+
+	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
+	 virtual G_API_GENEVA void resetToOptimizationStart();
 
 	 /** @brief Returns information about the type of optimization algorithm */
 	 virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
@@ -277,24 +281,24 @@ private:
 	 std::shared_ptr<parSet> getParameterSet(std::size_t&);
 	 /** @brief Switches to the next parameter set */
 	 bool switchToNextParameterSet();
-	 /** @brief Fills all parameter objects into the allParVec_ vector */
+	 /** @brief Fills all parameter objects into the m_all_par_vec vector */
 	 void fillAllParVec();
-	 /** @brief Clears the allParVec_ vector */
+	 /** @brief Clears the m_all_par_vec vector */
 	 void clearAllParVec();
 
-	 bool cycleLogicHalt_ = false; ///< Temporary flag used to specify that the optimization should be halted
-	 bool scanRandomly_ = true;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
-	 std::size_t nMonitorInds_ = DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
+	 bool m_cycleLogicHalt = false; ///< Temporary flag used to specify that the optimization should be halted
+	 bool m_scanRandomly = true;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
+	 std::size_t m_nMonitorInds = DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
-	 std::vector<std::shared_ptr<bScanPar>>      bVec_;     ///< Holds boolean parameters to be scanned
-	 std::vector<std::shared_ptr<int32ScanPar>>  int32Vec_; ///< Holds 32 bit integer parameters to be scanned
-	 std::vector<std::shared_ptr<dScanPar>>      dVec_;     ///< Holds double values to be scanned
-	 std::vector<std::shared_ptr<fScanPar>>      fVec_;     ///< Holds float values to be scanned
+	 std::vector<std::shared_ptr<bScanPar>>      m_b_vec;     ///< Holds boolean parameters to be scanned
+	 std::vector<std::shared_ptr<int32ScanPar>>  m_int32_vec; ///< Holds 32 bit integer parameters to be scanned
+	 std::vector<std::shared_ptr<dScanPar>>      m_d_vec;     ///< Holds double values to be scanned
+	 std::vector<std::shared_ptr<fScanPar>>      m_f_vec;     ///< Holds float values to be scanned
 
-	 std::vector<std::shared_ptr<scanParInterface>> allParVec_; /// Holds pointers to all parameter objects
+	 std::vector<std::shared_ptr<scanParInterface>> m_all_par_vec; /// Holds pointers to all parameter objects
 
-	 std::size_t simpleScanItems_ = 0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
-	 std::size_t scansPerformed_  = 0; ///< Holds the number of processed items so far while a simple scan is performed
+	 std::size_t m_simpleScanItems = 0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
+	 std::size_t m_scansPerformed  = 0; ///< Holds the number of processed items so far while a simple scan is performed
 
 	 std::vector<std::shared_ptr<GParameterSet>> m_oldWorkItems_vec; ///< Temporarily holds old returned work items
 

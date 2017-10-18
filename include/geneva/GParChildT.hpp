@@ -230,6 +230,17 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Resets the settings of this population to what was configured when
+	  * the optimize()-call was issued
+	  */
+	 virtual void resetToOptimizationStart() {
+		 // There is nothing to reset here, so we simply call the
+		 // function of the parent class
+		 GOptimizationAlgorithmT<executor_type>::resetToOptimizationStart();
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Specifies the default size of the population plus the number of parents.
 	  * The population will be filled with additional individuals later, as required --
 	  * see GParChildT<executor_type>::adjustPopulation() . Also, all error checking is done in

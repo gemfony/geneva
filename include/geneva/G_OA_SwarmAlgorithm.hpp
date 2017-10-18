@@ -85,7 +85,7 @@ class GSwarmAlgorithm
 		 & BOOST_SERIALIZATION_NVP(m_n_neighborhoods)
 		 & BOOST_SERIALIZATION_NVP(m_default_n_neighborhood_members)
 		 & BOOST_SERIALIZATION_NVP(m_n_neighborhood_members_vec)
-		 & BOOST_SERIALIZATION_NVP(m_global_best_vec)
+		 & BOOST_SERIALIZATION_NVP(m_global_best_ptr)
 		 & BOOST_SERIALIZATION_NVP(m_neighborhood_bests_vec)
 		 & BOOST_SERIALIZATION_NVP(m_c_personal)
 		 & BOOST_SERIALIZATION_NVP(m_c_neighborhood)
@@ -94,9 +94,9 @@ class GSwarmAlgorithm
 		 & BOOST_SERIALIZATION_NVP(m_update_rule)
 		 & BOOST_SERIALIZATION_NVP(m_random_fill_up)
 		 & BOOST_SERIALIZATION_NVP(m_repulsion_threshold)
-		 & BOOST_SERIALIZATION_NVP(m_dbl_lower_parameter_boundaries)
-		 & BOOST_SERIALIZATION_NVP(m_dbl_upper_parameter_boundaries)
-		 & BOOST_SERIALIZATION_NVP(m_dbl_vel_vec_max)
+		 & BOOST_SERIALIZATION_NVP(m_dbl_lower_parameter_boundaries_vec)
+		 & BOOST_SERIALIZATION_NVP(m_dbl_upper_parameter_boundaries_vec)
+		 & BOOST_SERIALIZATION_NVP(m_dbl_vel_max_vec)
 		 & BOOST_SERIALIZATION_NVP(m_velocity_range_percentage);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
@@ -125,6 +125,9 @@ public:
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
+
+	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
+	 virtual G_API_GENEVA void resetToOptimizationStart();
 
 	 /** @brief Sets the number of neighborhoods and the number of members in them */
 	 G_API_GENEVA void setSwarmSizes(std::size_t, std::size_t);
@@ -287,7 +290,8 @@ protected:
 	 std::size_t m_default_n_neighborhood_members = ((DEFAULTNNEIGHBORHOODMEMBERS <= 1) ? 2 : DEFAULTNNEIGHBORHOODMEMBERS); ///< The desired number of individuals belonging to each neighborhood
 	 std::vector<std::size_t> m_n_neighborhood_members_vec = std::vector<std::size_t>(m_n_neighborhoods, 0); ///< The current number of individuals belonging to each neighborhood
 
-	 std::shared_ptr<GParameterSet> m_global_best_vec; ///< The globally best individual
+	 std::shared_ptr<GParameterSet> m_global_best_ptr; ///< The globally best individual
+
 	 std::vector<std::shared_ptr<GParameterSet>> m_neighborhood_bests_vec = std::vector<std::shared_ptr<GParameterSet>>(m_n_neighborhoods); ///< The collection of best individuals from each neighborhood
 	 std::vector<std::shared_ptr<GParameterSet>> m_velocities_vec = std::vector<std::shared_ptr<GParameterSet>>(); ///< Holds velocities, as calculated in the previous iteration
 
@@ -301,9 +305,9 @@ protected:
 
 	 std::uint32_t m_repulsion_threshold = DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
 
-	 std::vector<double> m_dbl_lower_parameter_boundaries = std::vector<double>(); ///< Holds lower boundaries of double parameters
-	 std::vector<double> m_dbl_upper_parameter_boundaries = std::vector<double>(); ///< Holds upper boundaries of double parameters
-	 std::vector<double> m_dbl_vel_vec_max = std::vector<double>(); ///< Holds the maximum allowed values of double-type velocities
+	 std::vector<double> m_dbl_lower_parameter_boundaries_vec = std::vector<double>(); ///< Holds lower boundaries of double parameters
+	 std::vector<double> m_dbl_upper_parameter_boundaries_vec = std::vector<double>(); ///< Holds upper boundaries of double parameters
+	 std::vector<double> m_dbl_vel_max_vec = std::vector<double>(); ///< Holds the maximum allowed values of double-type velocities
 
 	 double m_velocity_range_percentage = DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
 

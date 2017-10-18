@@ -203,6 +203,20 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Resets the settings of this population to what was configured when
+	  * the optimize()-call was issued
+	  */
+	 virtual void resetToOptimizationStart() {
+		 // Remove any remaining old work items
+		 m_old_work_items.clear();
+
+		 // There is no more work to be done here, so we simply call the
+		 // function of the parent class
+		 GParChildT<executor_type>::resetToOptimizationStart();
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Returns information about the type of optimization algorithm. This function needs
 	  * to be overloaded by the actual algorithms to return the correct type.
 	  *
