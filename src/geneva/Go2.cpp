@@ -246,7 +246,6 @@ Go2::Go2(const Go2 &cp)
 
 	//--------------------------------------------
 	// Copy the algorithms vectors over
-	Gem::Common::copyCloneableSmartPointerContainer(cp.m_cl_algorithms_vec, m_cl_algorithms_vec);
 	Gem::Common::copyCloneableSmartPointerContainer(cp.m_algorithms_vec, m_algorithms_vec);
 
 	//--------------------------------------------
@@ -266,7 +265,6 @@ Go2::Go2(const Go2 &cp)
 Go2::~Go2() {
 	this->clear(); // Get rid of the local individuals
 	m_algorithms_vec.clear(); // Get rid of the optimization algorithms
-	m_cl_algorithms_vec.clear(); // Get rid of algorithms registered on the command line
 }
 
 /***************************************************************************/
@@ -491,9 +489,6 @@ void Go2::load_(const GObject *cp) {
 
 	// Copy the algorithm vectors over
 	Gem::Common::copyCloneableSmartPointerContainer(p_load->m_algorithms_vec, m_algorithms_vec);
-	Gem::Common::copyCloneableSmartPointerContainer(p_load->m_cl_algorithms_vec, m_cl_algorithms_vec);
-
-	// Cross check other data has been added
 }
 
 /******************************************************************************/
@@ -573,20 +568,13 @@ std::size_t Go2::getNAlgorithms() const {
 
 /******************************************************************************/
 /**
- * Retrieves the currently registered number of command line algorithms
- */
-std::size_t Go2::getNCLAlgorithms() const {
-	return m_cl_algorithms_vec.size();
-}
-
-/******************************************************************************/
-/**
  * Allows to add an optimization algorithm to the chain. If any individuals have
- * been registered, the algorithm will unload them.
+ * been stored in these algorithms, Go2 will unload them and store them for later
+ * usage.
  *
  * @param alg A base pointer to another optimization algorithm
  */
-void Go2::addAlgorithm(std::shared_ptr<GOABase > alg) {
+void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 	// Check that the pointer is not empty
 	if (!alg) {
 		glogger
@@ -605,6 +593,19 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase > alg) {
 	}
 
 	m_algorithms_vec.push_back(alg);
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the algorithms that were registered with this class. Note that
+ * this function gives you access to the actual objects used for the
+ * optimization, so altering their configuration will alter the course of the
+ * optimization.
+ *
+ * @return The algorithms that were registered with this class
+ */
+std::vector<std::shared_ptr<GOABase>> Go2::getRegisteredAlgorithms() {
+	return m_algorithms_vec;
 }
 
 /******************************************************************************/
@@ -670,25 +671,15 @@ void Go2::registerContentCreator(
 /**
  * Perform the actual optimization cycle. Note that we assume that individuals
  * have either been registered with the Go2 object or with the first algorithm
- * which has been added to the object.
+ * which has been added to the object. When no algorithm was added to the Go2
+ * object (either on the command line or by passing a mnemonic or smart pointer),
+ * a default algorithm will be used. Check the #define DEFAULTOPTALG for information
+ * on the type of algorithm being used. The default algorithm may also be altered
+ * by the user.
  *
  * @param offset An offset at which the first algorithm should start
  */
 void Go2::optimize(const std::uint32_t &offset) {
-	// Algorithms specified manually in main() take precedence
-	// before those specified on the command line. E.g., a line
-	// "go & ea_ptr;" (where ea_ptr pointed to an evolutionary
-	// algorithm) will add this algorithm as the first entry to
-	// the m_algorithms_vec vector.
-	if (!m_cl_algorithms_vec.empty()) {
-		// Add algorithms that have been specified on the command line
-		std::vector<std::shared_ptr<GOABase>> ::iterator pers_it;
-		for (pers_it = m_cl_algorithms_vec.begin(); pers_it != m_cl_algorithms_vec.end(); ++pers_it) {
-			this->addAlgorithm(*pers_it);
-		}
-		m_cl_algorithms_vec.clear();
-	}
-
 	// Check that algorithms have indeed been registered. If not, try to add a default algorithm
 	if (m_algorithms_vec.empty()) {
 		if (!m_default_algorithm) {
@@ -715,7 +706,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 		<< GEXCEPTION;
 	}
 
-	// Load the checkpoint file or creat individuals from the content creator
+	// Load the checkpoint file or create individuals from the content creator
 	if(m_cp_file != "empty") {
 		// Load the external data
 		m_algorithms_vec[0]->loadCheckpoint(boost::filesystem::path(m_cp_file));
@@ -1204,7 +1195,7 @@ void Go2::parseCommandLine(
 				}
 
 				// Retrieve an algorithm from the factory and add it to the list
-				m_cl_algorithms_vec.push_back(p->get());
+				m_algorithms_vec.push_back(p->get());
 			}
 		}
 

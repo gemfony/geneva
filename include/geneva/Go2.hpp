@@ -258,6 +258,9 @@ public:
 	 /** @brief Allows to retrieve the maximum running time for a client */
 	 G_API_GENEVA std::chrono::duration<double> getMaxClientTime() const;
 
+	 /** @brief Retrieves the algorithms that were registered with this class */
+	 G_API_GENEVA std::vector<std::shared_ptr<GOABase>> getRegisteredAlgorithms();
+
 protected:
 	 /***************************************************************************/
 	 /**
