@@ -45,6 +45,14 @@
 
 using namespace Gem::Geneva;
 
+const std::size_t NRESETS = 3; // The number of resets performed for each algorithm
+
+/**
+ * This manual test checks the functionality of the
+ * resetToOptimizationStart() function of optimization algorithms.
+ * We simply use the Go2 class so we may use its command line
+ * parsing ability to retrieve algorithms.
+ */
 int main(int argc, char **argv) {
 	Go2 go(argc, argv, "./config/Go2.json");
 
@@ -65,23 +73,27 @@ int main(int argc, char **argv) {
 	std::shared_ptr<GFunctionIndividualFactory>
 		gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
-	// Add a content creator so Go2 can generate its own individuals, if necessary
-	go.registerContentCreator(gfi_ptr);
+	// Check that algorithms were indeed registered
+	if(go.getNAlgorithms() < 1) {
+		glogger
+		<< "In GResetToOptimizationStart-test: Error!" << std::endl
+	   << "No algorithms were registered." << std::endl
+		<< GEXCEPTION;
+	}
 
-	// Add a default optimization algorithm to the Go2 object. This is optional.
-	// Indeed "ea" is the default setting anyway. However, if you do not like it, you
-	// can register another default algorithm here, which will then be used, unless
-	// you specify other algorithms on the command line. You can also add a smart
-	// pointer to an optimization algorithm here instead of its mnemonic.
-	go.registerDefaultAlgorithm("ea");
+	// Retrieve the registered algorithms
+	auto algorithms_vec = go.getRegisteredAlgorithms();
 
-	// Perform the actual optimization
-	std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+	for(auto alg: algorithms_vec) {
+		for(std::size_t resetCounter=0; resetCounter<NRESETS; resetCounter++) {
+			alg->push_back(gfi_ptr->get());
+			alg->optimize();
+			alg->resetToOptimizationStart();
 
-	// Here you can do something with the best individual ("p") found.
-	// We simply print its content here, by means of an operator<< implemented
-	// in the GFunctionIndividual code.
-	std::cout
-	<< "Best result found:" << std::endl
-	<< p << std::endl;
+			std::cout << "Algorithm was reset" << std::endl;
+		}
+	}
+
+	std::cout << "Done ..." << std::endl;
+	return(0);
 }

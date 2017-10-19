@@ -169,8 +169,6 @@ public:
 
 	 /** @brief Retrieves the currently registered number of algorithms */
 	 G_API_GENEVA std::size_t getNAlgorithms() const;
-	 /** @brief Retrieves the currently registered number of command line algorithms */
-	 G_API_GENEVA std::size_t getNCLAlgorithms() const;
 
 	 /** @brief Allows to register a content creator */
 	 G_API_GENEVA void registerContentCreator(
@@ -323,8 +321,6 @@ private:
 	 //---------------------------------------------------------------------------
 	 // The list of "chained" optimization algorithms
 	 std::vector<std::shared_ptr<GOABase>> m_algorithms_vec;
-	 // Algorithms that were specified on the command line
-	 std::vector<std::shared_ptr<GOABase>> m_cl_algorithms_vec;
 	 // The default algorithm (if any)
 	 std::shared_ptr<GOABase> m_default_algorithm;
 	 // A string representation of the default algorithm
