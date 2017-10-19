@@ -232,7 +232,9 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Performs the necessary administratory work of doing check-pointing
+	  * Performs the necessary administratory work of doing check-pointing. Special
+	  * work necessary for a given optimization algorithm may be performed in the
+	  * virtual function saveCheckpoint(), which is called by this function.
 	  *
 	  * @param better A boolean which indicates whether a better result was found
 	  */
@@ -279,7 +281,7 @@ public:
 	 /**
 	  * Loads the state of the class from disc
 	  */
-	 virtual void loadCheckpoint(const bf::path& cpFile) {
+	 virtual void loadCheckpoint(const bf::path& cpFile) BASE {
 		 // Extract the name of the optimization algorithm used for this file
 		 std::string opt_desc = this->extractOptAlgFromPath(cpFile);
 
@@ -547,7 +549,7 @@ public:
 	  *
 	  * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
 	  */
-	 virtual void optimize(const std::uint32_t& offset) override {
+	 virtual void optimize(const std::uint32_t& offset) final {
 		 // Reset the generation counter
 		 m_iteration = offset;
 
@@ -642,18 +644,18 @@ public:
 	 /**
 	  * A little convenience function that helps to avoid having to specify explicit scopes
 	  */
-	 virtual void optimize() override {
+	 virtual void optimize() final {
 		 GOptimizableI::optimize();
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Emits information specific to this class (basic information in each iteration
-	  * plus some user-defined information via pluggable optimazation monitors)
+	  * plus some user-defined information via pluggable optimization monitors)
 	  *
 	  * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
 	  */
-	 virtual void informationUpdate(const infoMode& im) BASE {
+	 void informationUpdate(const infoMode& im) {
 		 // Act on the information mode provided
 		 switch(im) {
 			 case Gem::Geneva::infoMode::INFOINIT:
@@ -1112,7 +1114,7 @@ public:
 	  *
 	  * @return The number of processable items in the current iteration
 	  */
-	 virtual std::size_t getNProcessableItems() const {
+	 virtual std::size_t getNProcessableItems() const BASE {
 		 return this->size();
 	 }
 
@@ -1502,7 +1504,7 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves the best individual found up to now (which is the best individual
+	  * Retrieves the best individual found up to now (which is usually the best individual
 	  * in the priority queue).
 	  */
 	 virtual std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
@@ -1568,7 +1570,7 @@ protected:
 	 /**
 	  * Allows to set the personality type of the individuals
 	  */
-	 virtual void setIndividualPersonalities() {
+	 void setIndividualPersonalities() {
 		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->setPersonality(this->getPersonalityTraits());
@@ -1684,7 +1686,7 @@ protected:
 	  * Lets individuals know about the current iteration of the optimization
 	  * cycle.
 	  */
-	 virtual void markIteration() BASE {
+	 void markIteration() {
 		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->setAssignedIteration(m_iteration);
