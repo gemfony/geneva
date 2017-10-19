@@ -88,9 +88,11 @@ int main(int argc, char **argv) {
 		for(std::size_t resetCounter=0; resetCounter<NRESETS; resetCounter++) {
 			alg->push_back(gfi_ptr->get());
 			alg->optimize();
-			alg->resetToOptimizationStart();
 
-			std::cout << "Algorithm was reset" << std::endl;
+			if(resetCounter < NRESETS) {
+				alg->resetToOptimizationStart();
+				std::cout << "Algorithm was reset" << std::endl;
+			}
 		}
 	}
 
