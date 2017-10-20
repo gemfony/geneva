@@ -58,14 +58,16 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The GAlgorithmTemplateT class template demomstrates which functions need
- * to be implemented for a new optimization algorithm. Please note that you
+ * The GAlgorithmTemplateT class template demonstrates which functions need to or
+ * may be overloaded for a new optimization algorithm. Not all functions are needed
+ * -- refer to the comments for each function below. Please note that you
  * do not need to implement this class as a template. For most users deriving
  * from GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutor<GParameterSet>>
  * will suffice. This will simplify some of the code, as you do not need to
  * care for some of the C++ template oddities, such as having to preface iterators
- * over individuals with the "template" keyword. When compiling on Microsoft
- * Windows, preface each function with the G_API_GENEVA macro.
+ * over individuals with the "template" keyword. When splitting header and implementation
+ * and compiling on Microsoft Windows, preface each header function with the G_API_GENEVA
+ * macro.
  */
 template <typename executor_type>
 class GAlgorithmTemplateT
@@ -81,6 +83,9 @@ class GAlgorithmTemplateT
 		 ar
 		 & make_nvp("GOptimizationAlgorithmT_GBrokerExecutorT",
 			 boost::serialization::base_object<GOptimizationAlgorithmT<executor_type>>(*this));
+
+		 // Add local variables to this function, if they need to be saved / loaded
+		 // when dealing with checkpoint files of this algorithm.
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -88,25 +93,33 @@ class GAlgorithmTemplateT
 public:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor
+	  * The default constructor.
+	  *
+	  * Add additional actions here, where needed. Note that, for serialization
+	  * to work, a default constructor needs to be made available.
 	  */
-	 GAlgorithmTemplateT() {
-		 // nothing
-	 }
+	 GAlgorithmTemplateT() = default;
 
 	 /***************************************************************************/
 	 /**
-	  * A standard copy constructor
+	  * A standard copy constructor.
+	  *
+	  * Add local data as needed.
 	  *
 	  * @param cp A copy of another GAlgorithmTemplateT<executor_type> object
 	  */
-	 GAlgorithmTemplateT(const GAlgorithmTemplateT<executor_type>& cp) {
+	 GAlgorithmTemplateT(const GAlgorithmTemplateT<executor_type>& cp)
+	 	: GOptimizationAlgorithmT<executor_type>(cp)
+	 	// copy local data here or fill out the function body, as needed
+	 {
 		 // nothing
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * The destructor
+	  * The destructor.
+	  *
+	  * Add any necessary clean-up work.
 	  */
 	 virtual ~GAlgorithmTemplateT() {
 		 // nothing
@@ -114,46 +127,75 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
+	  * The standard assignment operator.
+	  *
+	  * No need to change anything here, but keep the function in place.
 	  *
 	  * @param cp A copy of another GAlgorithmTemplateT<executor_type> object
 	  */
 	 const GAlgorithmTemplateT& operator=(const GAlgorithmTemplateT<executor_type>& cp) {
-		 //  nothing
+		 this->load_(&cp);
+		 return *this;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GAlgorithmTemplateT object
+	  * Checks for equality with another GAlgorithmTemplateT object.
+	  *
+	  * No need to change anything here, but keep the function in place.
 	  *
 	  * @param cp A copy of another GAlgorithmTemplateT<executor_type> object
 	  */
 	 bool operator==(const GAlgorithmTemplateT<executor_type>& cp) const {
-		 // nothing
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for inequality with another GAlgorithmTemplateT object
+	  * Checks for inequality with another GAlgorithmTemplateT object.
+	  *
+	  * No need to change anything here, but keep the function in place.
 	  *
 	  * @param cp A copy of another GAlgorithmTemplateT<executor_type> object
 	  */
 	 bool operator!=(const GAlgorithmTemplateT<executor_type>& cp) const {
-		 // nothing
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Loads the state of the class from disc
+	  * Loads the state of the class from disc.
+	  *
+	  * Unless you need to do anything special after loading a checkpoint,
+	  * this function may be removed. If you leave it in place, make sure
+	  * the corresponding function of the parent class is called.
 	  */
 	 virtual void loadCheckpoint(const bf::path& cpFile) override {
-
+		 GOptimizationAlgorithmT<executor_type>::loadCheckpoint(cpFile);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Searches for compliance with expectations with respect to another
 	  * object of the same type.
+	  *
+	  * Leave the structure of this function intact, but add compare_t-calls for local
+	  * data needing to be compared in tests. You can add POD-data directly, or objects
+	  * which directly or indirectly derive from Gem::Common::GCommonInterfaceT<> (this
+	  * class specifies the common interface for the majority of classes in the Geneva
+	  * framework).
 	  *
 	  * @param cp A copy of another GAlgorithmTemplateT<executor_type> object, camouflaged as a GObject
 	  * @param e The expectation for the comparison (see e.g. operator ==)
@@ -164,7 +206,22 @@ public:
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit // the limit for allowed deviations of floating point types
 	 ) const override {
-		 // nothing
+		 using namespace Gem::Common;
+
+		 // Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
+		 const GEvolutionaryAlgorithmT<executor_type> *p_load
+			 = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT<executor_type>>(cp, this);
+
+		 GToken token("GEvolutionaryAlgorithmT", e);
+
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GOptimizationAlgorithmT<executor_type>>(IDENTITY(*this, *p_load), token);
+
+		 // ... and then the local data
+		 // compare_t(IDENTITY(some_local_pod_or_gci_derivative, p_load->some_local_pod_or_gci_derivative), token);
+
+		 // React on deviations from the expectation
+		 token.evaluate();
 	 }
 
 	 /***************************************************************************/
@@ -177,6 +234,9 @@ public:
  	  * starting points. Actual implementations of optimization algorithms derived
  	  * from this class may have to perform additional work by overloading (and
  	  * calling) this function.
+ 	  *
+ 	  * Add and reset any data that was changed during an optimize() call and
+ 	  * that you wish to be reset before calling optimize() again.
  	  */
 	 virtual void resetToOptimizationStart() {
 
@@ -184,10 +244,27 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns information about the type of optimization algorithm
+	  * Returns information about the type of optimization algorithm.
+	  *
+	  * Change this to a unique string prefaced by "PERSONALITY_" and
+	  * ending in a descriptive mnemonic for your algorithm
+	  *
+	  * @return The type of optimization algorithm
 	  */
 	 virtual std::string getOptimizationAlgorithm() const override {
-
+		 return std::string("PERSONALITY_TMPL");
+	 }
+	 ‚
+	 /***************************************************************************/
+	 /**
+ 	  * Returns the name of this optimization algorithm
+ 	  *
+ 	  * Change this to a descriptive string for your algorithm not used elsewhere
+ 	  *
+ 	  * @return The name assigned to this optimization algorithm
+ 	  */
+	 virtual std::string getAlgorithmName() const override {
+		 return std::string("Optimization Algorithm Template");
 	 }
 
 	 /***************************************************************************/
@@ -195,14 +272,6 @@ public:
 	  * Retrieves the number of processable items for the current iteration
 	  */
 	 virtual std::size_t getNProcessableItems() const override {
-
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this optimization algorithm
-	  */
-	 virtual std::string getAlgorithmName() const override {
 
 	 }
 

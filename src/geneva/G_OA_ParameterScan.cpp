@@ -208,7 +208,7 @@ bool GParameterScan::operator!=(const GParameterScan &cp) const {
  *
  * @return The type of optimization algorithm
  */
-std::string GParameterScan::getOptimizationAlgorithm() const {
+std::string GParameterScan::getAlgorithmPersonalityType() const {
 	return "PERSONALITY_PS";
 }
 

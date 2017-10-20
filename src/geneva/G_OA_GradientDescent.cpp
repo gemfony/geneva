@@ -143,7 +143,7 @@ bool GGradientDescent::operator!=(const GGradientDescent &cp) const {
  *
  * @return The type of optimization algorithm
  */
-std::string GGradientDescent::getOptimizationAlgorithm() const {
+std::string GGradientDescent::getAlgorithmPersonalityType() const {
 	return "PERSONALITY_GD";
 }
 

@@ -66,7 +66,7 @@ void GOptimizableI::optimize() {
  *
  * @return The type of optimization algorithm
  */
-std::string GOptimizableI::getOptimizationAlgorithm() const {
+std::string GOptimizableI::getAlgorithmPersonalityType() const {
 	return std::string("PERSONALITY_NONE");
 }
 

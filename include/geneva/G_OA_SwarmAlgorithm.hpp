@@ -133,7 +133,7 @@ public:
 	 G_API_GENEVA void setSwarmSizes(std::size_t, std::size_t);
 
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
+	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
 
 	 /** @brief Allows to set a static multiplier for personal distances */
 	 G_API_GENEVA void setCPersonal(double);

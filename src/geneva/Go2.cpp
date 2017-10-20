@@ -702,7 +702,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 		glogger
 		<< "In Go2::optimize(): Error!" << std::endl
 	   << "Checkpoint file " << m_cp_file << " does not" << std::endl
-	   << "fit requirements of first algorithm " << m_algorithms_vec[0]->getOptimizationAlgorithm() << std::endl
+	   << "fit requirements of first algorithm " << m_algorithms_vec[0]->getAlgorithmPersonalityType() << std::endl
 		<< GEXCEPTION;
 	}
 

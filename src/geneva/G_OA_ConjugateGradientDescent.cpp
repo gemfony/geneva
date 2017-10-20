@@ -115,7 +115,7 @@ bool GConjugateGradientDescent::operator!=(const GConjugateGradientDescent &cp) 
  *
  * @return The type of optimization algorithm
  */
-std::string GConjugateGradientDescent::getOptimizationAlgorithm() const {
+std::string GConjugateGradientDescent::getAlgorithmPersonalityType() const {
 	return "PERSONALITY_GD";
 }
 

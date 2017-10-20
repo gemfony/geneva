@@ -125,7 +125,7 @@ public:
 	 virtual G_API_GENEVA void resetToOptimizationStart();
 
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
+	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
 
 	 /** @brief Retrieves the number of starting points of the algorithm */
 	 G_API_GENEVA std::size_t getNStartingPoints() const;

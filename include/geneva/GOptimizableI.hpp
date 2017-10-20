@@ -215,7 +215,7 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Returns one-word information about the type of optimization algorithm. */
-	 virtual G_API_GENEVA std::string getOptimizationAlgorithm() const BASE;
+	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const BASE;
 
 	 /** @brief Returns a descriptive name assigned to this algorithm */
 	 virtual G_API_GENEVA std::string getAlgorithmName() const = 0;

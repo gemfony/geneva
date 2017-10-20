@@ -109,7 +109,7 @@ public:
 	 ) const override;
 
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
+	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
 
 	 /** @brief Retrieves the number of processable items for the current iteration */
 	 virtual G_API_GENEVA std::size_t getNProcessableItems() const override;

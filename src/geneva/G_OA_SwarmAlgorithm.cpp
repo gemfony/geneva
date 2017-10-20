@@ -164,7 +164,7 @@ bool GSwarmAlgorithm::operator!=(const GSwarmAlgorithm &cp) const {
  *
  * @return The type of optimization algorithm
  */
-std::string GSwarmAlgorithm::getOptimizationAlgorithm() const {
+std::string GSwarmAlgorithm::getAlgorithmPersonalityType() const {
 	return "PERSONALITY_SWARM";
 }
 

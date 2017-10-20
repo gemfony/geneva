@@ -206,7 +206,7 @@ public:
 	 bool operator==(const GOptimizationAlgorithmT<executor_type>& cp) const {
 		 using namespace Gem::Common;
 		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 this->compare(cp, expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			 return true;
 		 } catch(g_expectation_violation&) {
 			 return false;
@@ -223,7 +223,7 @@ public:
 	 bool operator!=(const GOptimizationAlgorithmT<executor_type>& cp) const {
 		 using namespace Gem::Common;
 		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 this->compare(cp, expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
 			 return true;
 		 } catch(g_expectation_violation&) {
 			 return false;
@@ -244,7 +244,7 @@ public:
 		 // Determine a suitable name for the checkpoint file
 		 bf::path output_file;
 		 output_file = getCheckpointPath() / bf::path(
-			 "checkpoint-" + this->getOptimizationAlgorithm() + "-" +
+			 "checkpoint-" + this->getAlgorithmPersonalityType() + "-" +
 			 (this->halted() ? "final" : boost::lexical_cast<std::string>(getIteration())) + "-" +
 			 boost::lexical_cast<std::string>(std::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) + "-" +
 			 getCheckpointBaseName()
@@ -286,11 +286,11 @@ public:
 		 std::string opt_desc = this->extractOptAlgFromPath(cpFile);
 
 		 // Make sure it fits our own algorithm
-		 if(opt_desc != this->getOptimizationAlgorithm()) {
+		 if(opt_desc != this->getAlgorithmPersonalityType()) {
 			 glogger
 			 << "In GOptimizationAlgorithmT<>::loadCheckpoint(): Error!" << std::endl
 		    << "Checkpoint file " << cpFile << std::endl
-			 << "seems to belong to another algorithm. Expected " << this->getOptimizationAlgorithm() << std::endl
+			 << "seems to belong to another algorithm. Expected " << this->getAlgorithmPersonalityType() << std::endl
 			 << "but got " << opt_desc << std::endl
 			 << GEXCEPTION;
 		 }
@@ -1373,7 +1373,7 @@ public:
 		 std::string opt_desc = this->extractOptAlgFromPath(p);
 
 		 // Make sure it fits our own algorithm
-		 if(opt_desc != this->getOptimizationAlgorithm()) {
+		 if(opt_desc != this->getAlgorithmPersonalityType()) {
 			 return false;
 		 } else {
 			 return true;

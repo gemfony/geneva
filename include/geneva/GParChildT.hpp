@@ -576,7 +576,7 @@ public:
 	 /** @brief Returns the name of this optimization algorithm */
 	 virtual std::string getAlgorithmName() const override = 0;
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual std::string getOptimizationAlgorithm() const override = 0;
+	 virtual std::string getAlgorithmPersonalityType() const override = 0;
 
 	 /***************************************************************************/
 	 /**

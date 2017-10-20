@@ -217,12 +217,11 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns information about the type of optimization algorithm. This function needs
-	  * to be overloaded by the actual algorithms to return the correct type.
+	  * Returns information about the type of optimization algorithm.
 	  *
 	  * @return The type of optimization algorithm
 	  */
-	 virtual std::string getOptimizationAlgorithm() const override {
+	 virtual std::string getAlgorithmPersonalityType() const override {
 		 return std::string("PERSONALITY_EA");
 	 }
 

@@ -220,7 +220,7 @@ public:
 	  *
 	  * @return The type of optimization algorithm
 	  */
-	 virtual std::string getOptimizationAlgorithm() const override {
+	 virtual std::string getAlgorithmPersonalityType() const override {
 		 return std::string("PERSONALITY_SA");
 	 }
 
