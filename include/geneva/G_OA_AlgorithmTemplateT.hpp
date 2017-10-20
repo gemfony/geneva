@@ -236,10 +236,12 @@ public:
  	  * calling) this function.
  	  *
  	  * Add and reset any data that was changed during an optimize() call and
- 	  * that you wish to be reset before calling optimize() again.
+ 	  * that you wish to be reset before calling optimize() again. Make sure the
+ 	  * call to the parent class'es reset function remains in place.
  	  */
 	 virtual void resetToOptimizationStart() {
-
+		 // Call our parent class'es function
+		 GOptimizationAlgorithmT<executor_type>::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -270,27 +272,36 @@ public:
 	 /***************************************************************************/
 	 /**
 	  * Retrieves the number of processable items for the current iteration
+	  *
+	  * Alter this function to return the number of processible items in this class
 	  */
 	 virtual std::size_t getNProcessableItems() const override {
-
+		 return 0;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Adds local configuration options to a GParserBuilder object
+	  *
+	  * Add local configuration options as needd (compare one of
+	  * the other optimization algorithms for the syntax), but make sure
+	  * to keep the call to our parent function in place.
 	  */
 	 virtual void addConfigurationOptions (
 		 Gem::Common::GParserBuilder& gpb
 	 ) override {
-
+		 // Call our parent class'es function first
+		 GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Emits a name for this class / object
+	  *
+	  * Add some clear-text description of this optimization algorithm
 	  */
 	 virtual std::string name() const override {
-
+		 return std::string("algorithm template");
 	 }
 
 	 /***************************************************************************/
@@ -298,10 +309,14 @@ public:
 	  * Adds the individuals of this iteration to a priority queue. The
  	  * queue will be sorted by the first evaluation criterion of the individuals
  	  * and may either have a limited or unlimited size, depending on user-
- 	  * settings
+ 	  * settings.
+ 	  *
+ 	  * You can either remove this function or add some specific settings. Removing
+ 	  * it will result in the parent class'es function being used. This is the
+ 	  * most likely case, as this is for specialist usage only.
 	  */
 	 virtual void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
-
+		  GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateGlobalBestsPQ(bestIndividuals);
 	 }
 
 	 /***************************************************************************/
@@ -309,21 +324,14 @@ public:
 	  * Adds the individuals of this iteration to a priority queue. The
 	  * queue will be sorted by the first evaluation criterion of the individuals
 	  * and may either have a limited or unlimited size, depending on user-
-	  * settings
+	  * settings.
+	  *
+	  * You can either remove this function or add some specific settings. Removing
+ 	  * it will result in the parent class'es function being used. This is the
+ 	  * most likely case, as this is for specialist usage only.
 	  */
 	 virtual void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
-
-	 }
-
-	 /**
-	  * If individuals have been stored in this population, they are added to the
-	  * priority queue. This happens before the optimization cycle starts, so that
-	  * best individuals from a previous "chained" optimization run aren't lost.
-	  * Only those individuals are stored in the priority queue that do not have the
-	  * "dirty flag" set.
-	  */
-	 virtual void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
-
+		 GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateIterationBestsPQ(bestIndividuals);
 	 }
 
 protected:

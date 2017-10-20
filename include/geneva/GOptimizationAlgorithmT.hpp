@@ -1324,7 +1324,7 @@ public:
 	  * Only those individuals are stored in the priority queue that do not have the
 	  * "dirty flag" set.
 	  */
-	 virtual void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE {
+	 void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals) {
 		 const bool CLONE = true;
 
 		 // We simply add all *clean* individuals to the queue -- only the best ones will actually be added
