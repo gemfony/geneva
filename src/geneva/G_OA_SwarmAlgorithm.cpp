@@ -335,7 +335,6 @@ void GSwarmAlgorithm::resetToOptimizationStart() {
 	m_dbl_vel_max_vec.clear(); // Holds the maximum allowed values of double-type velocities
 
 	m_last_iteration_individuals_vec.clear(); // A temporary copy of the last iteration's individuals
-	m_old_work_items.clear(); // Temporarily holds old returned work items
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
@@ -790,6 +789,8 @@ std::tuple<double, double> GSwarmAlgorithm::cycleLogic() {
  * Fixes the population after a job submission. We do nothing by default. This
  * function was introduced to avoid having to add a separate cycleLogic to
  * GSwarmAlgorithm.
+ *
+ * TODO: Change name to fixAfterJobSubmission ?
  */
 void GSwarmAlgorithm::adjustNeighborhoods() {
 	std::size_t firstNIPos; // Will hold the expected first position of a neighborhood
@@ -1206,18 +1207,20 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	this->workOn(
 		data
 		, workItemPos
-		, m_old_work_items
 		, false // do not resubmit unprocessed items
 		, "GSwarmAlgorithm::runFitnessCalculation()"
 	);
 
+	// Retrieve a vector of old work items
+	auto old_work_items = this->getOldWorkItems();
+
 	// Update the iteration of older individuals (they will keep their old neighborhood id)
 	// and attach them to the data vector
-	for(auto item: m_old_work_items) {
+	for(auto item: old_work_items) {
 		item->setAssignedIteration(this->getIteration());
 		this->push_back(item);
 	}
-	m_old_work_items.clear();
+	old_work_items.clear();
 
 	//--------------------------------------------------------------------------------
 	// Take care of unprocessed items
@@ -1249,6 +1252,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	}
 
 	// The population will be fixed in the GSwarmAlgorithm::adjustNeighborhoods() function
+	// TODO: Change to fixAfterJobSubmission
 }
 
 /******************************************************************************/

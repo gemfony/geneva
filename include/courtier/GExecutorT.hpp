@@ -101,6 +101,7 @@ namespace Courtier {
 // TODO: Take care of making some of theses classes serializable
 // TODO: In GOptimizationAlgorithmT(cpp/hpp): serialize-exports instantiations with processable_type == GParameterSet
 // TODO: Some variables are still not listet in all Gemfony-API functions
+// TODO: Do we need to serialize further items ?
 
 /******************************************************************************/
 /**
@@ -260,10 +261,10 @@ public:
 	  * via the workItemPos vector, which items were processed.
 	  *
 	  * TODO: Catch exceptions in this loop or in the entire function
+	  * TODO: Allow passing a range / a pair of iterators instead of a std::vector
 	  *
 	  * @param workItems A vector with work items to be evaluated beyond the broker
 	  * @param workItemPos A vector of the item positions to be worked on
-	  * @param oldWorkItems Will hold old work items after the job submission
 	  * @param resubmitUnprocessed Indicates whether unprocessed items should be resubmitted
 	  * @param caller Optionally holds information on the caller
 	  * @return A boolean indicating whether all expected items have returned
@@ -271,7 +272,6 @@ public:
 	 bool workOn(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool>& workItemPos
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 		 , bool resubmitUnprocessed = false
 		 , const std::string &caller = std::string()
 	 ) {
@@ -287,6 +287,9 @@ public:
 			 , "GBaseExecutorT<processable_type>::workOn()"
 		 );
 
+		 // Clear old work items not retrieved after the last iteration
+		 m_old_work_items_vec.clear();
+
 		 // The expected number of work items from the current iteration is
 		 // equal to the number of unprocessed items
 		 m_expectedNumber = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
@@ -295,11 +298,9 @@ public:
 			 return true;
 		 }
 
-		 // Make sure the vector of old work items is empty
-		 oldWorkItems.clear();
-
 		 // Perform necessary setup work for an iteration (a facility for derived classes)
-		 this->iterationInit(workItems, workItemPos, oldWorkItems);
+		 // TODO: Is passing old work items still needed ?
+		 this->iterationInit(workItems, workItemPos, m_old_work_items_vec);
 
 		 std::size_t nResubmissions = 0;
 		 do {
@@ -314,7 +315,7 @@ public:
 			 completed = waitForReturn(
 				 workItems
 				 , workItemPos
-				 , oldWorkItems
+				 , m_old_work_items_vec
 			 );
 
 			 // We may leave if all items have returned
@@ -322,21 +323,22 @@ public:
 
 			 // We may leave if the user hasn't asked to resubmit unprocessed items
 			 if(!resubmitUnprocessed) break;
-		 } while(m_maxResubmissions>0?(++nResubmissions < m_maxResubmissions):true);
+		 } while(m_maxResubmissions>0 ? (++nResubmissions < m_maxResubmissions) : true);
 		 // Note: m_maxResubmissions will result in an endless loop of resubmissions
 
 		 // Perform necessary cleanup work for an iteration (a facility for derived classes)
-		 this->iterationFinalize(workItems, workItemPos, oldWorkItems);
+		 // TODO: Is passing m_old_work_items_vec still needed here ?
+		 this->iterationFinalize(workItems, workItemPos, m_old_work_items_vec);
 
 		 // Find out about the number of returned items
 		 m_n_notReturnedLast = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
 		 m_n_returnedLast    = m_expectedNumber - m_n_notReturnedLast;
-		 m_n_oldWorkItems    = oldWorkItems.size();
+		 m_n_oldWorkItems    = m_old_work_items_vec.size();
 
 		 // Sort old work items according to their ids so they can be readily used by the caller
 		 std::sort(
-			 oldWorkItems.begin()
-			 , oldWorkItems.end()
+			 m_old_work_items_vec.begin()
+			 , m_old_work_items_vec.end()
 			 , [](std::shared_ptr<processable_type> x_ptr, std::shared_ptr<processable_type> y_ptr) -> bool {
 				 using namespace boost;
 				 return x_ptr->getSubmissionPosition() < y_ptr->getSubmissionPosition();
@@ -351,6 +353,17 @@ public:
 
 		 // Note: unprocessed items will be returned to the caller, which needs to deal with them
 		 return completed;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves a copy of the old work items vector. Calling this function will
+	  * clear the vector!
+	  *
+	  * @return A copy of the old work items vector
+	  */
+	 std::vector<std::shared_ptr<processable_type>> getOldWorkItems() {
+		 return std::move(m_old_work_items_vec);
 	 }
 
 	 /***************************************************************************/
@@ -549,8 +562,10 @@ protected:
 	 std::size_t m_maxResubmissions = DEFAULTMAXRESUBMISSIONS; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
 
 	 std::size_t m_n_returnedLast = 0; ///< The number of individuals returned in the last iteration cycle
-	 std::size_t m_n_notReturnedLast = 0; ///< The number of individuals MOT returned in the last iteration cycle
+	 std::size_t m_n_notReturnedLast = 0; ///< The number of individuals NOT returned in the last iteration cycle
 	 std::size_t m_n_oldWorkItems = 0; ///< The number of old work items returned in a given iteration
+
+	 std::vector<std::shared_ptr<processable_type>> m_old_work_items_vec; ///< Temporarily holds old work items of the current iteration
 };
 
 /******************************************************************************/

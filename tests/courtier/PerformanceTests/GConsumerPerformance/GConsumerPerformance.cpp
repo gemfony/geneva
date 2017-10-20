@@ -310,7 +310,6 @@ void connectorProducer(
 		bool complete = brokerConnector.workOn(
 			data
 			, workItemPos
-			, oldWorkItems
 			, false // Do not resubmit unprocessed items
 		);
 
@@ -324,6 +323,9 @@ void connectorProducer(
 				return p->processing_was_unsuccessful();
 			}
 		);
+
+		// Receive a list of old work items
+		oldWorkItems = brokerConnector.getOldWorkItems();
 
 		nReceivedItemsNew += boost::numeric_cast<std::uint32_t>(data.size());
 		nReceivedItemsOld += boost::numeric_cast<std::uint32_t>(oldWorkItems.size());
@@ -362,21 +364,21 @@ void brokerProducer(
 	}
 
 	// Create a buffer port and register it with the broker
-	GBufferPortT_ptr CurrentBufferPort_(new Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD>>());
-	GBROKER(WORKLOAD)->enrol(CurrentBufferPort_);
+	GBufferPortT_ptr CurrentBufferPort(new Gem::Courtier::GBufferPortT<std::shared_ptr<WORKLOAD>>());
+	GBROKER(WORKLOAD)->enrol(CurrentBufferPort);
 
 	// Start the loop
 	std::uint32_t cycleCounter = 0;
 	while(cycleCounter++ < nProductionCycles) {
 		// Submit the required number of items directly to the broker
 		for(std::size_t i=0; i<nContainerObjects; i++) {
-			CurrentBufferPort_->push_raw(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
+			CurrentBufferPort->push_raw(std::shared_ptr<WORKLOAD>(new WORKLOAD(nContainerEntries)));
 		}
 
 		// Wait for all items to return
 		std::shared_ptr<WORKLOAD> p;
 		for(std::size_t i=0; i<nContainerObjects; i++) {
-			CurrentBufferPort_->pop_processed(p);
+			CurrentBufferPort->pop_processed(p);
 			if(!p) {
 				raiseException(
 					"In brokerProducer: " << "got invalid item" << std::endl
@@ -388,7 +390,7 @@ void brokerProducer(
 	}
 
 	// Get rid of the buffer port object
-	CurrentBufferPort_.reset();
+	CurrentBufferPort.reset();
 
 	std::cout << "brokerProducer " << id << " has finished producing" << std::endl << std::endl;
 }

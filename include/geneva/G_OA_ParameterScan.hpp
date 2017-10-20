@@ -300,8 +300,6 @@ private:
 	 std::size_t m_simpleScanItems = 0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file
 	 std::size_t m_scansPerformed  = 0; ///< Holds the number of processed items so far while a simple scan is performed
 
-	 std::vector<std::shared_ptr<GParameterSet>> m_oldWorkItems_vec; ///< Temporarily holds old returned work items
-
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */

@@ -283,9 +283,6 @@ void GParameterScan::resetToOptimizationStart() {
 	// Make sure we start with a fresh central vector of parameter objects
 	this->clearAllParVec();
 
-	// Remove any remaining old work items
-	m_oldWorkItems_vec.clear();
-
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
 	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::resetToOptimizationStart();
@@ -898,7 +895,6 @@ void GParameterScan::runFitnessCalculation() {
 	complete = this->workOn(
 		data
 		, workItemPos
-		, m_oldWorkItems_vec
 		, true // resubmit unprocessed items
 		, "GParameterScan::runFitnessCalculation()"
 	);

@@ -300,8 +300,6 @@ void GGradientDescent::resetToOptimizationStart() {
 	dblUpperParameterBoundaries_.clear(); // Holds upper boundaries of double parameters; Will be extracted in init()
 	adjustedFiniteStep_.clear(); // A step-size normalized to each parameter range; Will be recalculated in init()
 
-	m_old_work_items.clear(); // Temporarily holds old returned work items
-
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
 	GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::resetToOptimizationStart();
@@ -546,12 +544,10 @@ void GGradientDescent::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
 
-	std::vector<std::shared_ptr<GParameterSet>> old_work_items;
 	std::vector<bool> workItemPos(this->size(), Gem::Courtier::GBC_UNPROCESSED);
 	complete = this->workOn(
 		this->data
 		, workItemPos
-		, old_work_items
 		, true // resubmit unprocessed items
 		, "GBrokerGD::runFitnessCalculation()"
 	);

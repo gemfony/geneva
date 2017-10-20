@@ -196,8 +196,6 @@ private:
 	 std::vector<double> dblUpperParameterBoundaries_ = std::vector<double>(); ///< Holds upper boundaries of double parameters; Will be extracted in init()
 	 std::vector<double> adjustedFiniteStep_ = std::vector<double>(); ///< A step-size normalized to each parameter range; Will be recalculated in init()
 
-	 std::vector<std::shared_ptr<GParameterSet>> m_old_work_items; ///< Temporarily holds old returned work items
-
 	 /** @brief Lets individuals know about their position in the population */
 	 void markIndividualPositions();
 

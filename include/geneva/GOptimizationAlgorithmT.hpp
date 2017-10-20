@@ -41,6 +41,7 @@
 #include <ctime>
 #include <chrono>
 #include <type_traits>
+#include <utility>
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
@@ -1442,17 +1443,23 @@ protected:
 	 bool workOn(
 		 std::vector<std::shared_ptr<GParameterSet>>& workItems
 		 , std::vector<bool>& workItemPos
-		 , std::vector<std::shared_ptr<GParameterSet>>& oldWorkItems
 		 , bool resubmitUnprocessed = false
 		 , const std::string &caller = std::string()
 	 ) {
 		 return m_executor.workOn(
 			workItems
 			, workItemPos
-		   , oldWorkItems
 		 	, resubmitUnprocessed
 		 	, caller
 		 );
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves a vector of old work items after job submission
+	  */
+	 std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems() {
+		 return std::move(m_executor.getOldWorkItems());
 	 }
 
 	 /***************************************************************************/

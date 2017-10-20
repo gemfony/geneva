@@ -85,7 +85,7 @@ if [ ! -d ./output ]; then
 fi
 
 # Start the server
-(${PROGNAME} -s -e 7 --port=${PORT} >& ./output/output_server) &
+(${PROGNAME} --nProductionCycles=100 -s -e 7 --port=${PORT} >& ./output/output_server) &
 
 # Start the workers
 for i in `seq 1 ${NCLIENTS}`; do

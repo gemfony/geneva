@@ -312,7 +312,6 @@ protected:
 	 double m_velocity_range_percentage = DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
 	 std::vector<std::shared_ptr<GParameterSet>> m_last_iteration_individuals_vec; ///< A temporary copy of the last iteration's individuals
-	 std::vector<std::shared_ptr<GParameterSet>> m_old_work_items; ///< Temporarily holds old returned work items
 
 private:
 	 /***************************************************************************/

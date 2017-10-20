@@ -206,9 +206,6 @@ public:
 	  * the optimize()-call was issued
 	  */
 	 virtual void resetToOptimizationStart() {
-		 // Remove any remaining old work items
-		 m_old_work_items.clear();
-
 		 // There is no more work to be done here, so we simply call the
 		 // function of the parent class
 		 G_OA_ParChildT<executor_type>::resetToOptimizationStart();
@@ -600,13 +597,13 @@ protected:
 		 this->workOn(
 			 this->data
 			 , workItemPos
-			 , m_old_work_items
 			 , false // do not resubmit unprocessed items
 			 , "GEvolutionaryAlgorithmT<executor_type>::runFitnessCalculation()"
 		 );
 
 		 //--------------------------------------------------------------------------------
 		 // Take care of unprocessed items
+		 // TODO: Check how often this happens
 		 Gem::Common::erase_according_to_flags(
 			 this->data
 			 , workItemPos
@@ -631,30 +628,35 @@ protected:
 	 /***************************************************************************/
 	 /**
      * Fixes the population after a job submission
+     *
+     * TODO: Make this a plugin for the executor?
      */
 	 void fixAfterJobSubmission() {
 		 std::size_t np = this->getNParents();
 		 std::uint32_t iteration = this->getIteration();
 
+		 // Retrieve a vector of old work items
+		 auto old_work_items = this->getOldWorkItems();
+
 		 // Remove parents from older iterations from old work items -- we do not want them.
 		 // Note that "remove_if" simply moves items not satisfying the predicate to the end of the list.
 		 // We thus need to explicitly erase these items. remove_if returns the iterator position right after
 		 // the last item not satisfying the predicate.
-		 m_old_work_items.erase(
+		 old_work_items.erase(
 			 std::remove_if(
-				 m_old_work_items.begin()
-				 , m_old_work_items.end()
+				 old_work_items.begin()
+				 , old_work_items.end()
 				 , [iteration](std::shared_ptr<GParameterSet> x) -> bool {
 					 return x->getPersonalityTraits<GEAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 				 }
 			 )
-			 , m_old_work_items.end()
+			 , old_work_items.end()
 		 );
 
 		 // Make it known to remaining old individuals that they are now part of a new iteration
 		 std::for_each(
-			 m_old_work_items.begin()
-			 , m_old_work_items.end(),
+			 old_work_items.begin()
+			 , old_work_items.end(),
 			 [iteration](std::shared_ptr <GParameterSet> p) { p->setAssignedIteration(iteration); }
 		 );
 
@@ -668,10 +670,10 @@ protected:
 		 );
 
 		 // Attach all old work items to the end of the current population and clear the array of old items
-		 for(auto item: m_old_work_items) {
+		 for(auto item: old_work_items) {
 			 this->push_back(item);
 		 }
-		 m_old_work_items.clear();
+		 old_work_items.clear();
 
 		 // Check that individuals do exist in the population. We cannot continue, if this is not the case
 		 if(this->empty()) {
@@ -1110,8 +1112,6 @@ private:
 		 , Gem::Common::DEFAULTMAXNHARDWARETHREADS
 	 )); ///< The number of threads
 	 std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
-
-	 std::vector<std::shared_ptr<GParameterSet>> m_old_work_items; ///< Temporaril
 
 public:
 	 /***************************************************************************/
