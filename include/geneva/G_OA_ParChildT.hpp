@@ -1,5 +1,5 @@
 /**
- * @file GParChildT.hpp
+ * @file G_OA_ParChildT.hpp
  */
 
 /*
@@ -43,8 +43,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#ifndef GPARCHILDT_HPP_
-#define GPARCHILDT_HPP_
+#ifndef G_OA_PARCHILDT_HPP_
+#define G_OA_PARCHILDT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -82,7 +82,7 @@ namespace Geneva {
 template <
 	typename executor_type = Gem::Courtier::GBrokerExecutorT<GParameterSet>
 >
-class GParChildT
+class G_OA_ParChildT
 	: public GOptimizationAlgorithmT<executor_type>
 {
 	 /////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ public:
 	  * vital parameters, such as the population size or the parent individuals by hand
 	  * or do so through the configuration file.
 	  */
-	 GParChildT()
+	 G_OA_ParChildT()
 		 : Gem::Geneva::GOptimizationAlgorithmT<executor_type>()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
@@ -130,7 +130,7 @@ public:
 	  *
 	  * @param cp Another GParChildT<executor_type> object
 	  */
-	 GParChildT(const GParChildT<executor_type>& cp)
+	 G_OA_ParChildT(const G_OA_ParChildT<executor_type>& cp)
 		 : GOptimizationAlgorithmT<executor_type>(cp)
 			, m_n_parents(cp.m_n_parents)
 			, m_recombination_method(cp.m_recombination_method)
@@ -146,14 +146,14 @@ public:
 	 /**
 	  * The standard destructor. All work is done in the parent class.
 	  */
-	 virtual ~GParChildT()
+	 virtual ~G_OA_ParChildT()
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GParChildT<executor_type>& operator=(const GParChildT<executor_type>& cp) {
+	 const G_OA_ParChildT<executor_type>& operator=(const G_OA_ParChildT<executor_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -165,7 +165,7 @@ public:
 	  * @param  cp A constant reference to another GParChildT<executor_type> object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 bool operator==(const GParChildT<executor_type>& cp) const {
+	 bool operator==(const G_OA_ParChildT<executor_type>& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -182,7 +182,7 @@ public:
 	  * @param  cp A constant reference to another GParChildT<executor_type> object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 bool operator!=(const GParChildT<executor_type>& cp) const {
+	 bool operator!=(const G_OA_ParChildT<executor_type>& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -208,10 +208,10 @@ public:
 	 ) const override {
 		 using namespace Gem::Common;
 
-		 // Check that we are dealing with a GParChildT<executor_type>  reference independent of this object and convert the pointer
-		 const GParChildT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GParChildT<executor_type>>(cp, this);
+		 // Check that we are dealing with a G_OA_ParChildT<executor_type>  reference independent of this object and convert the pointer
+		 const G_OA_ParChildT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_ParChildT<executor_type>>(cp, this);
 
-		 GToken token("GParChildT<executor_type>", e);
+		 GToken token("G_OA_ParChildT<executor_type>", e);
 
 		 // Compare our parent data ...
 		 Gem::Common::compare_base<GOptimizationAlgorithmT<executor_type>>(IDENTITY(*this, *p_load), token);
@@ -309,7 +309,7 @@ public:
 #ifdef DEBUG
 		 if(std::get<1>(range) <= std::get<0>(range)) {
          glogger
-         << "In GParChildT<>::getNProcessableItems(): Error!" << std::endl
+         << "In G_OA_ParChildT<>::getNProcessableItems(): Error!" << std::endl
          << "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/" << std::get<0>(range) << std::endl
          << GEXCEPTION;
       }
@@ -583,7 +583,7 @@ public:
 	  * Emits a name for this class / object
 	  */
 	 virtual std::string name() const override {
-		 return std::string("GParChildT");
+		 return std::string("G_OA_ParChildT");
 	 }
 
 protected:
@@ -608,8 +608,8 @@ protected:
 	  * @param cp A pointer to another GParChildT<executor_type> object, camouflaged as a GObject
 	  */
 	 virtual void load_(const GObject * cp) override {
-		 // Check that we are dealing with a GParChildT<executor_type>  reference independent of this object and convert the pointer
-		 const GParChildT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GParChildT<executor_type>>(cp, this);
+		 // Check that we are dealing with a G_OA_ParChildT<executor_type>  reference independent of this object and convert the pointer
+		 const G_OA_ParChildT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_ParChildT<executor_type>>(cp, this);
 
 		 // First load the parent class'es data ...
 		 GOptimizationAlgorithmT<executor_type>::load_(cp);
@@ -640,7 +640,7 @@ protected:
       // you must add mechanisms to "repair" the population.
       if((this->size()-m_n_parents) < m_default_n_children){
          glogger
-         << "In GParChildT<executor_type>::recombine():" << std::endl
+         << "In G_OA_ParChildT<executor_type>::recombine():" << std::endl
          << "Too few children. Got " << this->size()-m_n_parents << "," << std::endl
          << "but was expecting at least " << m_default_n_children << std::endl
          << GEXCEPTION;
@@ -790,7 +790,7 @@ protected:
 		 // Has the population size been set at all ?
 		 if(GOptimizationAlgorithmT<executor_type>::getDefaultPopulationSize() == 0) {
 			 glogger
-				 << "In GParChildT<executor_type>::adjustPopulation() :" << std::endl
+				 << "In G_OA_ParChildT<executor_type>::adjustPopulation() :" << std::endl
 				 << "The population size is 0." << std::endl
 				 << "Did you call GOptimizationAlgorithmT<executor_type>::setParentsAndPopulationSize() ?" << std::endl
 				 << GEXCEPTION;
@@ -800,7 +800,7 @@ protected:
 		 std::size_t this_sz = this->size();
 		 if(this_sz == 0) {
 			 glogger
-				 << "In GParChildT<executor_type>::adjustPopulation() :" << std::endl
+				 << "In G_OA_ParChildT<executor_type>::adjustPopulation() :" << std::endl
 				 << "size of population is 0. Did you add any individuals?" << std::endl
 				 << "We need at least one local individual" << std::endl
 				 << GEXCEPTION;
@@ -811,7 +811,7 @@ protected:
 		 for(it=GOptimizationAlgorithmT<executor_type>::data.begin(); it!=GOptimizationAlgorithmT<executor_type>::data.end(); ++it) {
 			 if(!(*it)) { // shared_ptr can be implicitly converted to bool
 				 glogger
-					 << "In GParChildT<executor_type>::adjustPopulation() :" << std::endl
+					 << "In G_OA_ParChildT<executor_type>::adjustPopulation() :" << std::endl
 					 << "Found empty smart pointer." << std::endl
 					 << GEXCEPTION;
 			 }
@@ -911,7 +911,7 @@ protected:
 
 		 if(!done) {
 			 glogger
-				 << "In GParChildT<executor_type>::valueRecombine():" << std::endl
+				 << "In G_OA_ParChildT<executor_type>::valueRecombine():" << std::endl
 				 << "Could not recombine." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -930,7 +930,7 @@ protected:
       for(auto ind_ptr: *this) { // std::shared_ptr may be copied
          if(ind_ptr->isDirty()) {
             glogger
-            << "In GParChildT<executor_type>::sortMuplusnuMode(): Error!" << std::endl
+            << "In G_OA_ParChildT<executor_type>::sortMuplusnuMode(): Error!" << std::endl
             << "In iteration " << GOptimizationAlgorithmT<executor_type>::getIteration() << ": Found individual in position " << pos << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
@@ -960,11 +960,11 @@ protected:
 #ifdef DEBUG
 		 if (GOptimizationAlgorithmT<executor_type>::inFirstIteration()) {
 			// Check that we do not accidently trigger value calculation -- check the whole range
-			typename GParChildT<executor_type>::iterator it;
+			typename G_OA_ParChildT<executor_type>::iterator it;
 			for (it = this->begin(); it != this->end(); ++it) {
 				if ((*it)->isDirty()) {
 					glogger
-						<< "In GParChildT<executor_type>::sortMucommanuMode(): Error!" << std::endl
+						<< "In G_OA_ParChildT<executor_type>::sortMucommanuMode(): Error!" << std::endl
 						<< "In iteration " << GOptimizationAlgorithmT<executor_type>::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
@@ -975,11 +975,11 @@ protected:
 			}
 		} else {
 			// Check that we do not accidently trigger value calculation -- check children only
-			typename GParChildT<executor_type>::iterator it;
+			typename G_OA_ParChildT<executor_type>::iterator it;
 			for (it = this->begin() + m_n_parents; it != this->end(); ++it) {
 				if ((*it)->isDirty()) {
 					glogger
-						<< "In GParChildT<executor_type>::sortMucommanuMode(): Error!" << std::endl
+						<< "In G_OA_ParChildT<executor_type>::sortMucommanuMode(): Error!" << std::endl
 						<< "In iteration " << GOptimizationAlgorithmT<executor_type>::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
@@ -1028,11 +1028,11 @@ protected:
 	 void sortMunu1pretainMode() {
 #ifdef DEBUG
 		 // Check that we do not accidently trigger value calculation
-      typename GParChildT<executor_type>::iterator it;
+      typename G_OA_ParChildT<executor_type>::iterator it;
       for(it=this->begin()+m_n_parents; it!=this->end(); ++it) {
          if((*it)->isDirty()) {
             glogger
-            << "In GParChildT<executor_type>::sortMunu1pretainMode(): Error!" << std::endl
+            << "In G_OA_ParChildT<executor_type>::sortMunu1pretainMode(): Error!" << std::endl
             << "In iteration " << GOptimizationAlgorithmT<executor_type>::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
@@ -1104,7 +1104,7 @@ public:
       return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GParChildT<executor_type>::modify_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OA_ParChildT<executor_type>::modify_GUnitTests", "GEM_TESTING");
 		 return false;
 #endif /* GEM_TESTING */
 	 }
@@ -1119,7 +1119,7 @@ public:
       GOptimizationAlgorithmT<executor_type>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GParChildT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OA_ParChildT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1133,7 +1133,7 @@ public:
       GOptimizationAlgorithmT<executor_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
-		 condnotset("GParChildT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OA_ParChildT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 };
@@ -1149,12 +1149,12 @@ public:
 namespace boost {
 namespace serialization {
 template<typename executor_type>
-struct is_abstract<Gem::Geneva::GParChildT<executor_type>> : public boost::true_type {};
+struct is_abstract<Gem::Geneva::G_OA_ParChildT<executor_type>> : public boost::true_type {};
 template<typename executor_type>
-struct is_abstract< const Gem::Geneva::GParChildT<executor_type>> : public boost::true_type {};
+struct is_abstract< const Gem::Geneva::G_OA_ParChildT<executor_type>> : public boost::true_type {};
 }
 }
 
 /******************************************************************************/
 
-#endif /* GPARCHILDT_HPP_ */
+#endif /* G_OA_PARCHILDT_HPP_ */

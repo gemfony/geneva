@@ -50,9 +50,9 @@
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GParChildT.hpp"
+#include "geneva/G_OA_ParChildT.hpp"
 #include "geneva/GSAPersonalityTraits.hpp"
-#include "geneva/GParChildT.hpp"
+#include "geneva/G_OA_ParChildT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -63,7 +63,7 @@ namespace Geneva {
  * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
  */
 template<typename executor_type>
-class GSimulatedAnnealingT : public GParChildT<executor_type>
+class GSimulatedAnnealingT : public G_OA_ParChildT<executor_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -73,7 +73,7 @@ class GSimulatedAnnealingT : public GParChildT<executor_type>
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GParChildT<executor_type>", boost::serialization::base_object<GParChildT<executor_type>>(*this))
+		 & make_nvp("G_OA_ParChildT<executor_type>", boost::serialization::base_object<G_OA_ParChildT<executor_type>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_t0)
 		 & BOOST_SERIALIZATION_NVP(m_t)
 		 & BOOST_SERIALIZATION_NVP(m_alpha)
@@ -88,7 +88,7 @@ public:
 	  * is done in the class body.
 	  */
 	 GSimulatedAnnealingT()
-		 : GParChildT<executor_type>()
+		 : G_OA_ParChildT<executor_type>()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
 		 this->setPopulationSizes(100, 1);
@@ -101,7 +101,7 @@ public:
 	  * @param cp Another GSimulatedAnnealingT object
 	  */
 	 GSimulatedAnnealingT(const GSimulatedAnnealingT<executor_type>& cp)
-		 : GParChildT<executor_type>(cp)
+		 : G_OA_ParChildT<executor_type>(cp)
 		 , m_t0(cp.m_t0)
 		 , m_t(cp.m_t)
 		 , m_alpha(cp.m_alpha)
@@ -184,7 +184,7 @@ public:
 		 GToken token("GSimulatedAnnealingT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GParChildT<executor_type>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<G_OA_ParChildT<executor_type>>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 compare_t(IDENTITY(m_t0, p_load->m_t0), token);
@@ -210,7 +210,7 @@ public:
 
 		 // There is no more work to be done here, so we simply call the
 		 // function of the parent class
-		 GParChildT<executor_type>::resetToOptimizationStart();
+		 G_OA_ParChildT<executor_type>::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -244,7 +244,7 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override {
 		 // Call our parent class'es function
-		 GParChildT<executor_type>::addConfigurationOptions(gpb);
+		 G_OA_ParChildT<executor_type>::addConfigurationOptions(gpb);
 
 		 // Add local data
 		 gpb.registerFileParameter<std::uint16_t>(
@@ -383,7 +383,7 @@ protected:
 		 const GSimulatedAnnealingT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealingT<executor_type>>(cp, this);
 
 		 // First load the parent class'es data ...
-		 GParChildT<executor_type>::load_(cp);
+		 G_OA_ParChildT<executor_type>::load_(cp);
 
 		 // ... and then our own data
 		 m_t0 = p_load->m_t0;
@@ -657,7 +657,7 @@ protected:
  	  */
 	 virtual void init() override {
 		 // To be performed before any other action. Place any further work after this call.
-		 GParChildT<executor_type>::init();
+		 G_OA_ParChildT<executor_type>::init();
 
 		 // Initialize our thread pool
 		 m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
@@ -692,7 +692,7 @@ protected:
 		 m_tp_ptr.reset();
 
 		 // Last action. Place any "local" finalization action before this call.
-		 GParChildT<executor_type>::finalize();
+		 G_OA_ParChildT<executor_type>::finalize();
 	 }
 
 	 /***************************************************************************/
@@ -804,7 +804,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent class'es function
-		 if(GParChildT<executor_type>::modify_GUnitTests()) result = true;
+		 if(G_OA_ParChildT<executor_type>::modify_GUnitTests()) result = true;
 
 	    return result;
 
@@ -821,7 +821,7 @@ public:
 	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 GParChildT<executor_type>::specificTestsNoFailureExpected_GUnitTests();
+		 G_OA_ParChildT<executor_type>::specificTestsNoFailureExpected_GUnitTests();
 
 		 //------------------------------------------------------------------------------
 		 //------------------------------------------------------------------------------
@@ -838,7 +838,7 @@ public:
 	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 GParChildT<executor_type>::specificTestsFailuresExpected_GUnitTests();
+		 G_OA_ParChildT<executor_type>::specificTestsFailuresExpected_GUnitTests();
 
 		 //------------------------------------------------------------------------------
 		 //------------------------------------------------------------------------------

@@ -60,6 +60,7 @@ SET ( OPTIMIZATIONINCLUDES
     G_OA_GradientDescentFactory.hpp
     G_OA_ParameterScan.hpp
     G_OA_ParameterScanFactory.hpp
+    G_OA_ParChildT.hpp
     G_OA_SimulatedAnnealing.hpp
     G_OA_SimulatedAnnealingFactory.hpp
     G_OA_SwarmAlgorithm.hpp
@@ -83,7 +84,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterSetMultiConstraint.hpp
 	GParameterT.hpp
 	GParameterTCollectionT.hpp
-    GParChildT.hpp
 	GPersonalityTraits.hpp
     GPluggableOptimizationMonitorsT.hpp
     GPostProcessorT.hpp
