@@ -126,7 +126,7 @@ private:
 		 & BOOST_SERIALIZATION_NVP(m_halted)
 		 & BOOST_SERIALIZATION_NVP(m_worstKnownValids_vec)
 		 & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_vec)
-		 & BOOST_SERIALIZATION_NVP(m_executor);
+		 & BOOST_SERIALIZATION_NVP(m_executor_ptr);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -175,8 +175,10 @@ public:
 			, m_emitTerminationReason(cp.m_emitTerminationReason)
 			, m_halted(cp.m_halted)
 			, m_worstKnownValids_vec(cp.m_worstKnownValids_vec)
-			, m_executor(cp.m_executor)
 	 {
+		 // Copy the executor over
+		 Gem::Common::copyCloneableSmartPointer(cp.m_executor_ptr, m_executor_ptr);
+
 		 // Copy the pluggable optimization monitors over (if any)
 		 Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors_vec, m_pluggable_monitors_vec);
 	 }
@@ -507,7 +509,7 @@ public:
 		 compare_t(IDENTITY(m_halted, p_load->m_halted), token);
 		 compare_t(IDENTITY(m_worstKnownValids_vec, p_load->m_worstKnownValids_vec), token);
 		 compare_t(IDENTITY(m_pluggable_monitors_vec, p_load->m_pluggable_monitors_vec), token);
-		 compare_t(IDENTITY(m_executor, p_load->m_executor), token);
+		 compare_t(IDENTITY(m_executor_ptr, p_load->m_executor_ptr), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();
@@ -539,6 +541,28 @@ public:
 		 m_halted = false; // Set to true when halt() has returned "true"
 
 		 m_worstKnownValids_vec.clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Adds a new executor to the class, replacing the default executor. The
+	  * executor is responsible for evaluating the individuals.
+	  *
+	  * TODO: Prevent registration while the optimization is running
+	  *
+	  * @param executor_ptr A pointer to an executor
+	  */
+	 void registerExecutor(std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr) {
+		 if(!m_executor_ptr) {
+			 glogger
+			 << "In GOptimizationAlgorithmT<executor_type>::registerExecutor(): Warning!" << std::endl
+	       << "Tried to register empty executor-pointer. We will leave the existing" << std::endl
+			 << "executor in place" << std::endl
+			 << GWARNING;
+		 }
+
+		 // Register the new executor
+		 m_executor_ptr = executor_ptr;
 	 }
 
 	 /***************************************************************************/
@@ -1132,7 +1156,8 @@ public:
 		 GObject::addConfigurationOptions(gpb);
 
 		 // Add configuration options for the executor
-		 m_executor.addConfigurationOptions(gpb);
+		 // TODO: How to pass appropriate cofligs here ?
+		 // m_executor_ptr->addConfigurationOptions(gpb);
 
 		 // Add local data
 		 gpb.registerFileParameter<std::uint32_t>(
@@ -1433,7 +1458,7 @@ protected:
 		 m_halted = p_load->m_halted;
 		 m_worstKnownValids_vec = p_load->m_worstKnownValids_vec;
 		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors_vec, m_pluggable_monitors_vec);
-		 m_executor = p_load->m_executor;
+		 Gem::Common::copyCloneableSmartPointer(p_load->m_executor_ptr, m_executor_ptr);
 	 }
 
 	 /***************************************************************************/
@@ -1446,7 +1471,7 @@ protected:
 		 , bool resubmitUnprocessed = false
 		 , const std::string &caller = std::string()
 	 ) {
-		 return m_executor.workOn(
+		 return m_executor_ptr->workOn(
 			workItems
 			, workItemPos
 		 	, resubmitUnprocessed
@@ -1459,7 +1484,7 @@ protected:
 	  * Retrieves a vector of old work items after job submission
 	  */
 	 std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems() {
-		 return std::move(m_executor.getOldWorkItems());
+		 return std::move(m_executor_ptr->getOldWorkItems());
 	 }
 
 	 /***************************************************************************/
@@ -1665,8 +1690,19 @@ protected:
 	  * as their first action, call this function.
 	  */
 	 virtual void init() BASE {
+		 // Add an executor, of none has been registered
+		 if(!m_executor_ptr) {
+			 glogger
+			 << "In G_OA_BaseT<>::init():" << std::endl
+		    << "No executor was registered. Using default multi-threaded executor" << std::endl
+			 << GLOGGING;
+
+			 // TODO: This should be initialized with a suitable number of threads
+			 m_executor_ptr = std::shared_ptr<Gem::Courtier::GMTExecutorT<GParameterSet>>(new Gem::Courtier::GMTExecutorT<GParameterSet>());
+		 }
+
 		 // Initialize the broker connector
-		 m_executor.init();
+		 m_executor_ptr->init();
 	 }
 
 	 /***************************************************************************/
@@ -1677,7 +1713,7 @@ protected:
 	  */
 	 virtual void finalize() BASE {
 		 // Finalize the broker connector
-		 m_executor.finalize();
+		 m_executor_ptr->finalize();
 	 }
 
 	 /***************************************************************************/
@@ -2185,6 +2221,7 @@ private:
 	 std::vector<std::shared_ptr<GBasePluggableOMT<G_OA_BaseT<executor_type>>>> m_pluggable_monitors_vec; ///< A collection of monitors
 
 	 executor_type m_executor; ///< Takes care of the evaluation of objects
+	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> m_executor_ptr; ///< Holds the current executor for this algorithm
 
 public:
 	 /***************************************************************************/

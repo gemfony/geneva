@@ -899,10 +899,17 @@ public:
 	 virtual void addConfigurationOptions(
 		 Gem::Common::GParserBuilder &gpb
 	 ) override {
-		 // Call our parent class's function
+		 // Call our parent class's function ...
 		 GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
 
-		 // No local data
+		 // ... then add local dara
+		 gpb.registerFileParameter<std::uint16_t>(
+			 "nEvaluationThreads" // The name of the variable
+			 , Gem::Courtier::DEFAULTNSTDTHREADS // The default value
+			 , [this](std::uint16_t nt) { this->setNThreads(nt); }
+		 )
+			 << "The number of threads used to simultaneously evaluate work items" << std::endl
+			 << "0 means \"automatic\"";
 	 }
 
 	 /***************************************************************************/
