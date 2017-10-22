@@ -49,7 +49,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OptimizationAlgorithm_BaseT.hpp"
+#include "geneva/G_OA_BaseT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OA_SwarmAlgorithm_PersonalityTraits.hpp"
 
@@ -64,14 +64,14 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * The GSwarmAlgorithm class implements a swarm optimization algorithm, based on the infrastructure
- * provided by the G_OptimizationAlgorithm_BaseT class. Its population is based on a constant number
+ * provided by the G_OA_BaseT class. Its population is based on a constant number
  * of neighborhoods, whose amount of members is allowed to vary. This happens so that late
  * arrivals in case of networked execution can still be integrated into later iterations.
  *
  * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
 class GSwarmAlgorithm
-	:public G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
+	:public G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -81,7 +81,7 @@ class GSwarmAlgorithm
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OptimizationAlgorithm_BaseT_GParameterSet", boost::serialization::base_object<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
+		 & make_nvp("G_OA_BaseT_GParameterSet", boost::serialization::base_object<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_n_neighborhoods)
 		 & BOOST_SERIALIZATION_NVP(m_default_n_neighborhood_members)
 		 & BOOST_SERIALIZATION_NVP(m_n_neighborhood_members_vec)

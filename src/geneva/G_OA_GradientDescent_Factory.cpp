@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-	: GOptimizationAlgorithmFactoryT<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GGradientDescent.json")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GGradientDescentFactory::GGradientDescentFactory()
 GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GGradientDescentFactory::GGradientDescentFactory(
  * The copy constructor
  */
 GGradientDescentFactory::GGradientDescentFactory(const GGradientDescentFactory& cp)
-	: GOptimizationAlgorithmFactoryT<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -105,7 +105,7 @@ std::string GGradientDescentFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GGradientDescentFactory::getObject_(
+std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GGradientDescentFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -127,10 +127,10 @@ std::shared_ptr<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GP
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GGradientDescentFactory::postProcess_(
-	std::shared_ptr<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
+	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

@@ -1,5 +1,5 @@
 /**
- * @file G_OptimizationAlgorithm_BaseT.cpp
+ * @file G_OA_BaseT.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OptimizationAlgorithm_BaseT.hpp"
+#include "geneva/G_OA_BaseT.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 

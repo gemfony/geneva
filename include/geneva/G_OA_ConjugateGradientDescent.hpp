@@ -48,10 +48,10 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OptimizationAlgorithm_BaseT.hpp"
+#include "geneva/G_OA_BaseT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OA_GradientDescent_PersonalityTraits.hpp"
-#include "geneva/G_OptimizationAlgorithm_BaseT.hpp"
+#include "geneva/G_OA_BaseT.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GTestIndividual1.hpp"
@@ -69,7 +69,7 @@ namespace Geneva {
  * networked execution for the evaluation step).
  */
 class GConjugateGradientDescent
-	:public G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
+	:public G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -79,8 +79,8 @@ class GConjugateGradientDescent
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OptimizationAlgorithm_BaseT_GBrokerExecutorT",
-			 boost::serialization::base_object<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this));
+		 & make_nvp("G_OA_BaseT_GBrokerExecutorT",
+			 boost::serialization::base_object<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this));
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////

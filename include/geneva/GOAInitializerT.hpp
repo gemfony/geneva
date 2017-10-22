@@ -49,7 +49,7 @@
 #include "common/GLogger.hpp"
 #include "common/GGlobalOptionsT.hpp"
 #include "geneva/GOAFactoryStore.hpp"
-#include "geneva/G_OptimizationAlgorithm_BaseT.hpp"
+#include "geneva/G_OA_BaseT.hpp"
 #include "geneva/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOAFactoryStore.hpp"
@@ -68,15 +68,15 @@ template <typename oaf_type>
 class GOAInitializerT {
 	// Make sure oaf_type has the expected type
 	static_assert(
-		std::is_base_of<GOptimizationAlgorithmFactoryT<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> , oaf_type>::value
-		, "GOptimizationAlgorithmFactoryT<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>> is no base of oaf_type"
+		std::is_base_of<GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> , oaf_type>::value
+		, "GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>> is no base of oaf_type"
 	);
 
 public:
 	/** @brief The initializing constructor */
 	inline GOAInitializerT() {
 		// Create a smart pointer holding the algorithm
-		std::shared_ptr<GOptimizationAlgorithmFactoryT<G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>> p(new oaf_type());
+		std::shared_ptr<GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>> p(new oaf_type());
 		std::string mnemonic = p->getMnemonic();
 
 		// Add the factory to the store, if it hasn't been stored there yet

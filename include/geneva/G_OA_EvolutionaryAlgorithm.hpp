@@ -303,7 +303,7 @@ public:
 			 case sortingMode::MUPLUSNU_SINGLEEVAL:
 			 case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 			 case sortingMode::MUCOMMANU_SINGLEEVAL:
-				 G_OptimizationAlgorithm_BaseT<executor_type>::updateGlobalBestsPQ(bestIndividuals);
+				 G_OA_BaseT<executor_type>::updateGlobalBestsPQ(bestIndividuals);
 				 break;
 
 				 //----------------------------------------------------------------------------
@@ -351,7 +351,7 @@ public:
 			 case sortingMode::MUPLUSNU_SINGLEEVAL:
 			 case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 			 case sortingMode::MUCOMMANU_SINGLEEVAL: {
-				 G_OptimizationAlgorithm_BaseT<executor_type>::updateIterationBestsPQ(bestIndividuals);
+				 G_OA_BaseT<executor_type>::updateIterationBestsPQ(bestIndividuals);
 			 } break;
 
 				 //----------------------------------------------------------------------------
