@@ -175,7 +175,7 @@ std::string GSwarmAlgorithm::getAlgorithmPersonalityType() const {
  * @param cp A pointer to another GSwarmAlgorithm object, camouflaged as a GObject
  */
 void GSwarmAlgorithm::load_(const GObject *cp) {
-	// Check that we are dealing with a GBooleanAdaptor reference independent of this object and convert the pointer
+	// Check that we are dealing with a GSwarmAlgorithm reference independent of this object and convert the pointer
 	const GSwarmAlgorithm *p_load = Gem::Common::g_convert_and_compare<GObject, GSwarmAlgorithm >(cp, this);
 
 	// First load the parent class'es data.

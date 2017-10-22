@@ -70,11 +70,11 @@ Go2::Go2()
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms and consumers
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
-	m_gi.registerOAF<GGradientDescentFactory2>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
-	m_gi.registerOAF<GParameterScanFactory2>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -109,11 +109,11 @@ Go2::Go2(
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
-	m_gi.registerOAF<GGradientDescentFactory2>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
-	m_gi.registerOAF<GParameterScanFactory2>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -145,11 +145,11 @@ Go2::Go2(const std::string &configFilename)
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
-	m_gi.registerOAF<GGradientDescentFactory2>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
-	m_gi.registerOAF<GParameterScanFactory2>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -189,11 +189,11 @@ Go2::Go2(
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
-	m_gi.registerOAF<GGradientDescentFactory2>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
-	m_gi.registerOAF<GParameterScanFactory2>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
@@ -233,11 +233,11 @@ Go2::Go2(const Go2 &cp)
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
 
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory2>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory2>();
-	m_gi.registerOAF<GGradientDescentFactory2>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory2>();
-	m_gi.registerOAF<GParameterScanFactory2>();
+	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
+	m_gi.registerOAF<GSwarmAlgorithmFactory>();
+	m_gi.registerOAF<GGradientDescentFactory>();
+	m_gi.registerOAF<GSimulatedAnnealingFactory>();
+	m_gi.registerOAF<GParameterScanFactory>();
 
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
 	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();

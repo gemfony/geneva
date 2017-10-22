@@ -41,7 +41,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GSwarmAlgorithmFactory2::GSwarmAlgorithmFactory2()
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GSwarmAlgorithm.json")
 { /* nothing */ }
@@ -50,7 +50,7 @@ GSwarmAlgorithmFactory2::GSwarmAlgorithmFactory2()
 /**
  * Initialization with the name of the config file
  */
-GSwarmAlgorithmFactory2::GSwarmAlgorithmFactory2(
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
@@ -61,7 +61,7 @@ GSwarmAlgorithmFactory2::GSwarmAlgorithmFactory2(
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GSwarmAlgorithmFactory2::GSwarmAlgorithmFactory2(
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
@@ -72,7 +72,7 @@ GSwarmAlgorithmFactory2::GSwarmAlgorithmFactory2(
 /**
  * The copy constructor
  */
-GSwarmAlgorithmFactory2::GSwarmAlgorithmFactory2(const GSwarmAlgorithmFactory2& cp)
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory& cp)
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
@@ -80,14 +80,14 @@ GSwarmAlgorithmFactory2::GSwarmAlgorithmFactory2(const GSwarmAlgorithmFactory2& 
 /**
  * The destructor
  */
-GSwarmAlgorithmFactory2::~GSwarmAlgorithmFactory2()
+GSwarmAlgorithmFactory::~GSwarmAlgorithmFactory()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GSwarmAlgorithmFactory2::getMnemonic() const {
+std::string GSwarmAlgorithmFactory::getMnemonic() const {
 	return GSwarmPersonalityTraits::nickname;
 }
 
@@ -95,7 +95,7 @@ std::string GSwarmAlgorithmFactory2::getMnemonic() const {
 /**
  * Gives access to a clear-text description of the algorithm
  */
-std::string GSwarmAlgorithmFactory2::getAlgorithmName() const {
+std::string GSwarmAlgorithmFactory::getAlgorithmName() const {
 	return std::string("Swarm Algorithm");
 }
 
@@ -105,7 +105,7 @@ std::string GSwarmAlgorithmFactory2::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GSwarmAlgorithmFactory2::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GSwarmAlgorithmFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -126,7 +126,7 @@ std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParamet
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GSwarmAlgorithmFactory2::postProcess_(
+void GSwarmAlgorithmFactory::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function

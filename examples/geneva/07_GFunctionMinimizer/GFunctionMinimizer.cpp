@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 	go.push_back(gfi());
 
 	// Create an evolutionary algorithm in multi-threaded mode
-	GEvolutionaryAlgorithmFactory2 ea("./config/GEvolutionaryAlgorithm.json");
+	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
 	std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr = ea.get<GEvolutionaryAlgorithm>();
 
 	// Add the algorithm to the Go2 object. Note that the multi-threaded ea variant will

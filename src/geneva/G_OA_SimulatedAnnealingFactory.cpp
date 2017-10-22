@@ -43,7 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2()
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GSimulatedAnnealing.json")
 { /* nothing */ }
@@ -52,7 +52,7 @@ GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2()
 /**
  * Initialization with the name of the config file
  */
-GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
@@ -63,7 +63,7 @@ GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
@@ -74,7 +74,7 @@ GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(
 /**
  * The copy constructor
  */
-GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(const GSimulatedAnnealingFactory2& cp)
+GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory& cp)
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
@@ -82,14 +82,14 @@ GSimulatedAnnealingFactory2::GSimulatedAnnealingFactory2(const GSimulatedAnneali
 /**
  * The destructor
  */
-GSimulatedAnnealingFactory2::~GSimulatedAnnealingFactory2()
+GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GSimulatedAnnealingFactory2::getMnemonic() const {
+std::string GSimulatedAnnealingFactory::getMnemonic() const {
 	return GSAPersonalityTraits::nickname;
 }
 
@@ -97,7 +97,7 @@ std::string GSimulatedAnnealingFactory2::getMnemonic() const {
 /**
  * Gives access to a clear-text description of the algorithm
  */
-std::string GSimulatedAnnealingFactory2::getAlgorithmName() const {
+std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
 	return std::string("Simulated Annealing");
 }
 
@@ -107,7 +107,7 @@ std::string GSimulatedAnnealingFactory2::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GSimulatedAnnealingFactory2::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GSimulatedAnnealingFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -128,7 +128,7 @@ std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParamet
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GSimulatedAnnealingFactory2::postProcess_(
+void GSimulatedAnnealingFactory::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function

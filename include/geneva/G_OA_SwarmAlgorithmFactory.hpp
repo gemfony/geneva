@@ -62,23 +62,23 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for swarm algorithms.
  * It will only return objects which perform all evaluation through the broker.
  */
-class GSwarmAlgorithmFactory2
+class GSwarmAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GSwarmAlgorithmFactory2();
+	 G_API_GENEVA GSwarmAlgorithmFactory();
 	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GSwarmAlgorithmFactory2(const std::string&);
+	 explicit G_API_GENEVA GSwarmAlgorithmFactory(const std::string&);
 	 /** @brief Initialization with the name of the config file and a content creator */
-	 G_API_GENEVA GSwarmAlgorithmFactory2(
+	 G_API_GENEVA GSwarmAlgorithmFactory(
 		 const std::string&
 		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GSwarmAlgorithmFactory2(const GSwarmAlgorithmFactory2&);
+	 G_API_GENEVA GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GSwarmAlgorithmFactory2();
+	 virtual G_API_GENEVA ~GSwarmAlgorithmFactory();
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 virtual G_API_GENEVA std::string getMnemonic() const override;

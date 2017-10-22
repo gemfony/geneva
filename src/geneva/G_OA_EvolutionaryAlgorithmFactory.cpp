@@ -43,7 +43,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2()
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
@@ -52,7 +52,7 @@ GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2()
 /**
  * Initialization with the name of the config file
  */
-GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
@@ -63,7 +63,7 @@ GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
@@ -74,7 +74,7 @@ GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(
 /**
  * The copy constructor
  */
-GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(const GEvolutionaryAlgorithmFactory2& cp)
+GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory& cp)
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
@@ -82,14 +82,14 @@ GEvolutionaryAlgorithmFactory2::GEvolutionaryAlgorithmFactory2(const GEvolutiona
 /**
  * The destructor
  */
-GEvolutionaryAlgorithmFactory2::~GEvolutionaryAlgorithmFactory2()
+GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GEvolutionaryAlgorithmFactory2::getMnemonic() const {
+std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {
 	return GEAPersonalityTraits::nickname;
 }
 
@@ -97,7 +97,7 @@ std::string GEvolutionaryAlgorithmFactory2::getMnemonic() const {
 /**
  * Gives access to a clear-text description of the algorithm
  */
-std::string GEvolutionaryAlgorithmFactory2::getAlgorithmName() const {
+std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
 	return std::string("Evolutionary Algorithm");
 }
 
@@ -107,7 +107,7 @@ std::string GEvolutionaryAlgorithmFactory2::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GEvolutionaryAlgorithmFactory2::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GEvolutionaryAlgorithmFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -128,7 +128,7 @@ std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParamet
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GEvolutionaryAlgorithmFactory2::postProcess_(
+void GEvolutionaryAlgorithmFactory::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function

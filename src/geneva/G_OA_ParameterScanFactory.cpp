@@ -41,7 +41,7 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GParameterScanFactory2::GParameterScanFactory2()
+GParameterScanFactory::GParameterScanFactory()
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>("./config/GParameterScan.json")
 	, m_parameterSpecCL("empty")
 { /* nothing */ }
@@ -50,7 +50,7 @@ GParameterScanFactory2::GParameterScanFactory2()
 /**
  * Initialization with the name of the config file
  */
-GParameterScanFactory2::GParameterScanFactory2(
+GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
@@ -62,7 +62,7 @@ GParameterScanFactory2::GParameterScanFactory2(
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GParameterScanFactory2::GParameterScanFactory2(
+GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
@@ -74,7 +74,7 @@ GParameterScanFactory2::GParameterScanFactory2(
 /**
  * The copy constructor
  */
-GParameterScanFactory2::GParameterScanFactory2(const GParameterScanFactory2& cp)
+GParameterScanFactory::GParameterScanFactory(const GParameterScanFactory& cp)
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
   	, m_parameterSpecCL(cp.m_parameterSpecCL)
 { /* nothing */ }
@@ -83,14 +83,14 @@ GParameterScanFactory2::GParameterScanFactory2(const GParameterScanFactory2& cp)
 /**
  * The destructor
  */
-GParameterScanFactory2::~GParameterScanFactory2()
+GParameterScanFactory::~GParameterScanFactory()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GParameterScanFactory2::getMnemonic() const {
+std::string GParameterScanFactory::getMnemonic() const {
 	return GPSPersonalityTraits::nickname;
 }
 
@@ -98,7 +98,7 @@ std::string GParameterScanFactory2::getMnemonic() const {
 /**
  * Gives access to a clear-text description of the algorithm
  */
-std::string GParameterScanFactory2::getAlgorithmName() const {
+std::string GParameterScanFactory::getAlgorithmName() const {
 	return std::string("Parameter Scan");
 }
 
@@ -109,7 +109,7 @@ std::string GParameterScanFactory2::getAlgorithmName() const {
  * @param visible Command line options that should always be visible
  * @param hidden Command line options that should only be visible upon request
  */
-void GParameterScanFactory2::addCLOptions(
+void GParameterScanFactory::addCLOptions(
 	boost::program_options::options_description &visible
 	, boost::program_options::options_description &hidden
 ) {
@@ -129,7 +129,7 @@ void GParameterScanFactory2::addCLOptions(
 /**
  * Allows to specify the command line parameter manually for variables to be scanned
  */
-void GParameterScanFactory2::setCLParameterSpecs(std::string parStr) {
+void GParameterScanFactory::setCLParameterSpecs(std::string parStr) {
 	m_parameterSpecCL = parStr;
 }
 
@@ -137,7 +137,7 @@ void GParameterScanFactory2::setCLParameterSpecs(std::string parStr) {
 /**
  * Allows to retrieve the command line parameter settings for variables to be scanned
  */
-std::string GParameterScanFactory2::getCLParameterSpecs() const {
+std::string GParameterScanFactory::getCLParameterSpecs() const {
 	return m_parameterSpecCL;
 }
 
@@ -145,7 +145,7 @@ std::string GParameterScanFactory2::getCLParameterSpecs() const {
 /**
  * Allows to reset the command line parameter specs
  */
-void GParameterScanFactory2::resetCLParameterSpecs() {
+void GParameterScanFactory::resetCLParameterSpecs() {
 	m_parameterSpecCL = "empty";
 }
 
@@ -155,7 +155,7 @@ void GParameterScanFactory2::resetCLParameterSpecs() {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GParameterScanFactory2::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GParameterScanFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -176,7 +176,7 @@ std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParamet
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GParameterScanFactory2::postProcess_(
+void GParameterScanFactory::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	if(m_parameterSpecCL != "empty") {

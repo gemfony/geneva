@@ -63,23 +63,23 @@ namespace Geneva {
  * It will only return evolutionary algorithms which perform all evaluation through the
  * broker.
  */
-class GEvolutionaryAlgorithmFactory2
+class GEvolutionaryAlgorithmFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GEvolutionaryAlgorithmFactory2();
+	 G_API_GENEVA GEvolutionaryAlgorithmFactory();
 	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GEvolutionaryAlgorithmFactory2(const std::string&);
+	 explicit G_API_GENEVA GEvolutionaryAlgorithmFactory(const std::string&);
 	 /** @brief Initialization with the name of the config file and a content creator */
-	 G_API_GENEVA GEvolutionaryAlgorithmFactory2(
+	 G_API_GENEVA GEvolutionaryAlgorithmFactory(
 		 const std::string&
 		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GEvolutionaryAlgorithmFactory2(const GEvolutionaryAlgorithmFactory2&);
+	 G_API_GENEVA GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory2();
+	 virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory();
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 virtual G_API_GENEVA std::string getMnemonic() const override;

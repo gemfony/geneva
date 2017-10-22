@@ -179,8 +179,9 @@ public:
 	  * Loads the state of the class from disc.
 	  *
 	  * Unless you need to do anything special after loading a checkpoint,
-	  * this function may be removed. If you leave it in place, make sure
-	  * the corresponding function of the parent class is called.
+	  * this function may be removed or kept as is. If you leave it in place
+	  * and alter it, make sure that this function corresponds to the
+	  * saveCheckpoint() function.
 	  */
 	 virtual void loadCheckpoint(const bf::path& cpFile) override {
 		 GOptimizationAlgorithmT<executor_type>::loadCheckpoint(cpFile);
@@ -338,69 +339,101 @@ protected:
 	 /***************************************************************************/
 	 /**
 	  * Loads the data of another population
+	  *
+	  * Add any local data as needed, but leave the conversion and the call to the parent class'es
+	  * function in place.
 	  */
 	 virtual void load_(const GObject *) override {
+	    // Check that we are dealing with a GAlgorithmTemplateT<executor_type> reference independent of this object and convert the pointer
+		 const GAlgorithmTemplateT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAlgorithmTemplateT<executor_type> >(cp, this);
 
+		 // First load the parent class'es data.
+		 // This will also take care of copying all individuals.
+		 GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
+
+		 // ... and then our own data
+		 // some_var = p_load->some_var;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
+	  *
+	  * This function may remain unchanged. Do not remove!
 	  */
 	 virtual GObject *clone_() const override {
-
+		 return new GAlgorithmTemplateT<executor_type>(*this);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Saves the state of the class to disc
+	  *
+	  * Unless you need to do anything special when saving a checkpoint,
+	  * this function may be removed or kept as is. If you leave it in place
+	  * and alter it, make sure that this function corresponds to the
+	  * loadCheckpoint() function.
 	  */
 	 virtual void saveCheckpoint(bf::path outputFile) const override {
-
+		 GOptimizationAlgorithmT<executor_type>::saveCheckpoint(outputFile);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Retrieves the best individual found up to now (which is usually the best individual
 	  * in the priority queue).
+	  *
+	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
+	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
 	 virtual std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
-
+		 return GOptimizationAlgorithmT<executor_type>::customGetBestGlobalIndividual();
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Retrieves a list of the best individuals found (equal to the content of
 	  * the priority queue)
+	  *
+	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
+	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
 	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override {
-
+		 return GOptimizationAlgorithmT<executor_type>::customGetBestGlobalIndividuals();
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Retrieves the best individual found in the iteration (which is the best individual
 	  * in the priority queue).
+	  *
+	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
+	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
 	 virtual std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override {
-
+		 return GOptimizationAlgorithmT<executor_type>::customGetBestIterationIndividual();
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Retrieves a list of the best individuals found in the iteration (equal to the content of
 	  * the priority queue)
+	  *
+	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
+	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
 	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override {
-
+		 return GOptimizationAlgorithmT<executor_type>::customGetBestIterationIndividuals();
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * The actual business logic to be performed during each iteration. Returns the best achieved fitness
+	  * The actual business logic to be performed during each iteration. Returns the best achieved fitness.
+	  *
+	  * It is here that most of your optimization algorithm needs to be specified.
 	  */
 	 virtual std::tuple<double, double> cycleLogic() override {
-
+		 // nothing -- fill out as needed
 	 };
 
 	 /***************************************************************************/
@@ -412,26 +445,32 @@ protected:
 	  * @return boolean indicating that a stop condition was reached
 	  */
 	 virtual bool customHalt() const BASE {
-		 /* nothing - specify your own criteria in derived classes. Make sure
-		  * to emit a suitable message if execution was halted due to a
-		  * custom criterion */
+		 // nothing, unless you have any stop criteria specific to this algorithm
 		 return false;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Does some preparatory work before the optimization starts
+	  * Does some preparatory work right before the optimization starts.
+	  *
+	  * Add any custom initialization work here, but make sure the parent classes
+	  * function is called first.
 	  */
 	 virtual void init() override {
-
+		 // Call the parent classes function
+		 GOptimizationAlgorithmT<executor_type>::init();
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Does any necessary finalization work
+	  * Does any necessary finalization work right after the optimization has ended.
+	  *
+	  * Add any custom finalization work here, but make sure the parent classes
+	  * function is called last.
 	  */
 	 virtual void finalize() override {
-
+		 // Call the parent classes function
+		 GOptimizationAlgorithmT<executor_type>::finalize();
 	 }
 
 	 /***************************************************************************/
@@ -471,7 +510,7 @@ protected:
 
 private:
 	 /***************************************************************************/
-	 // ...
+	 // Add any private data here
 
 	 /***************************************************************************/
 

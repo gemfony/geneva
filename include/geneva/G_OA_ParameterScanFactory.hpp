@@ -62,23 +62,23 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for simulated annealing.
  * It will only return objects which perform all evaluation through the broker.
  */
-class GParameterScanFactory2
+class GParameterScanFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GParameterScanFactory2();
+	 G_API_GENEVA GParameterScanFactory();
 	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GParameterScanFactory2(const std::string&);
+	 explicit G_API_GENEVA GParameterScanFactory(const std::string&);
 	 /** @brief Initialization with the name of the config file and a content creator */
-	 G_API_GENEVA GParameterScanFactory2(
+	 G_API_GENEVA GParameterScanFactory(
 		 const std::string&
 		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GParameterScanFactory2(const GParameterScanFactory2&);
+	 G_API_GENEVA GParameterScanFactory(const GParameterScanFactory&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GParameterScanFactory2();
+	 virtual G_API_GENEVA ~GParameterScanFactory();
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 virtual G_API_GENEVA std::string getMnemonic() const override;
