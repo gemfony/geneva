@@ -46,11 +46,11 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
+#include "geneva/G_OA_FactoryT.hpp"
 #include "geneva/G_OA_BaseT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_SimulatedAnnealing.hpp"
-#include "geneva/GOAInitializerT.hpp"
+#include "geneva/G_OA_InitializerT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -63,7 +63,7 @@ namespace Geneva {
  * It will only return objects which perform all evaluation through the broker.
  */
 class GSimulatedAnnealingFactory
-	: public GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
@@ -103,7 +103,7 @@ protected:
  * It will only return objects which perform all evaluation through the broker.
  */
 class G_MT_SimulatedAnnealingFactory
-	: public GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>
+	: public G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
@@ -143,7 +143,7 @@ protected:
  * It will only return objects which perform all evaluation through the broker.
  */
 class G_Serial_SimulatedAnnealingFactory
-	: public GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>
+	: public G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */

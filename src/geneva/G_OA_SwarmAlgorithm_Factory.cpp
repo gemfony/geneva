@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GSwarmAlgorithm.json")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
  * The copy constructor
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory& cp)
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -130,7 +130,7 @@ void GSwarmAlgorithmFactory::postProcess_(
 	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

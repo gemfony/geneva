@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
 	"./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
  * The copy constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory& cp)
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/
@@ -142,7 +142,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
  * The default constructor
  */
 G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory()
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(
 	"./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
 
@@ -153,7 +153,7 @@ G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory()
 G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -165,7 +165,7 @@ G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -173,7 +173,7 @@ G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory(
  * The copy constructor
  */
 G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory(const G_MT_EvolutionaryAlgorithmFactory& cp)
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(cp)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -230,7 +230,7 @@ void G_MT_EvolutionaryAlgorithmFactory::postProcess_(
 	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>::postProcess_(p_base);
+	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/
@@ -240,7 +240,7 @@ void G_MT_EvolutionaryAlgorithmFactory::postProcess_(
  * The default constructor
  */
 G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory()
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(
 	"./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
 
@@ -251,7 +251,7 @@ G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory()
 G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -263,7 +263,7 @@ G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -271,7 +271,7 @@ G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory(
  * The copy constructor
  */
 G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory(const G_Serial_EvolutionaryAlgorithmFactory& cp)
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(cp)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -328,7 +328,7 @@ void G_Serial_EvolutionaryAlgorithmFactory::postProcess_(
 	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>::postProcess_(p_base);
+	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

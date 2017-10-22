@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GParameterScanFactory::GParameterScanFactory()
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>("./config/GParameterScan.json")
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>("./config/GParameterScan.json")
 	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GParameterScanFactory::GParameterScanFactory()
 GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
   	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -66,7 +66,7 @@ GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
    , m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -75,7 +75,7 @@ GParameterScanFactory::GParameterScanFactory(
  * The copy constructor
  */
 GParameterScanFactory::GParameterScanFactory(const GParameterScanFactory& cp)
-	: GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
   	, m_parameterSpecCL(cp.m_parameterSpecCL)
 { /* nothing */ }
 
@@ -122,7 +122,7 @@ void GParameterScanFactory::addCLOptions(
 	);
 
 	// Add the parent class'es options
-	GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::addCLOptions(visible, hidden);
+	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::addCLOptions(visible, hidden);
 }
 
 /******************************************************************************/
@@ -187,7 +187,7 @@ void GParameterScanFactory::postProcess_(
 	}
 
 	// Call our parent class'es function
-	GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }
 
 /******************************************************************************/

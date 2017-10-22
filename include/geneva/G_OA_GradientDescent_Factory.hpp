@@ -46,11 +46,11 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/GOptimizationAlgorithmFactoryT.hpp"
+#include "geneva/G_OA_FactoryT.hpp"
 #include "geneva/G_OA_BaseT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_GradientDescent.hpp"
-#include "geneva/GOAInitializerT.hpp"
+#include "geneva/G_OA_InitializerT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -63,7 +63,7 @@ namespace Geneva {
  * It will only return objects which perform all evaluation through the broker.
  */
 class GGradientDescentFactory
-	: public GOptimizationAlgorithmFactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */

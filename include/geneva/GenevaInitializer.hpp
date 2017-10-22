@@ -47,9 +47,9 @@
 #include "hap/GRandomFactory.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GOAFactoryStore.hpp"
+#include "geneva/G_OA_FactoryStore.hpp"
 #include "geneva/GConsumerStore.hpp"
-#include "geneva/GOAInitializerT.hpp"
+#include "geneva/G_OA_InitializerT.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 
 
@@ -77,7 +77,7 @@ public:
 	template <typename oaf_type>
 	void registerOAF() {
 		// This will register the factory in the global factory store
-		GOAInitializerT<oaf_type> GOAFStoreRegistrant;
+		G_OA_InitializerT<oaf_type> GOAFStoreRegistrant;
 	}
 
 	/***************************************************************************/
