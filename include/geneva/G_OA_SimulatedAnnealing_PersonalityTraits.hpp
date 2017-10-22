@@ -1,5 +1,5 @@
 /**
- * @file G_OA_SimulatedAnnealing_PT.hpp
+ * @file G_OA_SimulatedAnnealing_PersonalityTraits.hpp
  */
 
 /*
@@ -58,7 +58,7 @@ namespace Geneva {
  * class is the same as for evolutionary algorithms, as in Geneva Simulated Annealing
  * uses the same framework.
  */
-class GSAPersonalityTraits
+class G_OA_SimulatedAnnealing_PersonalityTraits
 	: public GBaseParChildPersonalityTraits
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -76,19 +76,19 @@ public:
 	 static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
 	 /** @brief The default constructor */
-	 G_API_GENEVA GSAPersonalityTraits();
+	 G_API_GENEVA G_OA_SimulatedAnnealing_PersonalityTraits();
 	 /** @brief The copy contructor */
-	 G_API_GENEVA GSAPersonalityTraits(const GSAPersonalityTraits&);
+	 G_API_GENEVA G_OA_SimulatedAnnealing_PersonalityTraits(const G_OA_SimulatedAnnealing_PersonalityTraits&);
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GSAPersonalityTraits();
+	 virtual G_API_GENEVA ~G_OA_SimulatedAnnealing_PersonalityTraits();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GSAPersonalityTraits& operator=(const GSAPersonalityTraits&);
+	 G_API_GENEVA const G_OA_SimulatedAnnealing_PersonalityTraits& operator=(const G_OA_SimulatedAnnealing_PersonalityTraits&);
 
 	 /** @brief Checks for equality with another GSAPersonalityTraits object */
-	 G_API_GENEVA bool operator==(const GSAPersonalityTraits&) const;
+	 G_API_GENEVA bool operator==(const G_OA_SimulatedAnnealing_PersonalityTraits&) const;
 	 /** @brief Checks for inequality with another GSAPersonalityTraits object */
-	 G_API_GENEVA bool operator!=(const GSAPersonalityTraits&) const;
+	 G_API_GENEVA bool operator!=(const G_OA_SimulatedAnnealing_PersonalityTraits&) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
@@ -124,6 +124,6 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSAPersonalityTraits)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::G_OA_SimulatedAnnealing_PersonalityTraits)
 
 #endif //GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP

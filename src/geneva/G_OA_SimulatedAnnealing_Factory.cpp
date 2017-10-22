@@ -90,7 +90,7 @@ GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GSimulatedAnnealingFactory::getMnemonic() const {
-	return GSAPersonalityTraits::nickname;
+	return G_OA_SimulatedAnnealing_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
@@ -188,7 +188,7 @@ G_MT_SimulatedAnnealingFactory::~G_MT_SimulatedAnnealingFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string G_MT_SimulatedAnnealingFactory::getMnemonic() const {
-	return GSAPersonalityTraits::nickname;
+	return G_OA_SimulatedAnnealing_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
@@ -286,7 +286,7 @@ G_Serial_SimulatedAnnealingFactory::~G_Serial_SimulatedAnnealingFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string G_Serial_SimulatedAnnealingFactory::getMnemonic() const {
-	return GSAPersonalityTraits::nickname;
+	return G_OA_SimulatedAnnealing_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/

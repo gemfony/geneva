@@ -524,7 +524,7 @@ protected:
 				 old_work_items.begin()
 				 , old_work_items.end()
 				 , [iteration](std::shared_ptr<GParameterSet> x) -> bool {
-					 return x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
+					 return x->getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 				 }
 			 )
 			 , old_work_items.end()
@@ -541,7 +541,7 @@ protected:
 			 this->begin()
 			 , this->end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-				 return (x->getPersonalityTraits<GSAPersonalityTraits>()->isParent() > y->getPersonalityTraits<GSAPersonalityTraits>()->isParent());
+				 return (x->getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->isParent() > y->getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->isParent());
 			 }
 		 );
 
@@ -591,10 +591,10 @@ protected:
 		 // We want to have a sane population.
 		 typename GOptimizationAlgorithmT<executor_type>::iterator it;
 		 for (it = this->begin(); it != this->begin() + np; ++it) {
-			 (*it)->GParameterSet::template getPersonalityTraits<GSAPersonalityTraits>()->setIsParent();
+			 (*it)->GParameterSet::template getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->setIsParent();
 		 }
 		 for (it = this->begin() + np; it != this->end(); ++it) {
-			 (*it)->GParameterSet::template getPersonalityTraits<GSAPersonalityTraits>()->setIsChild();
+			 (*it)->GParameterSet::template getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->setIsChild();
 		 }
 
 		 // We care for too many returned individuals in the selectBest() function. Older
@@ -700,7 +700,7 @@ protected:
  	  * Retrieve a GPersonalityTraits object belonging to this algorithm
  	  */
 	 virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override {
-		 return std::shared_ptr<GSAPersonalityTraits>(new GSAPersonalityTraits());
+		 return std::shared_ptr<G_OA_SimulatedAnnealing_PersonalityTraits>(new G_OA_SimulatedAnnealing_PersonalityTraits());
 	 }
 
 private:

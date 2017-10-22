@@ -90,7 +90,7 @@ GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {
-	return GEAPersonalityTraits::nickname;
+	return G_OA_EvolutionaryAlgorithm_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
@@ -188,7 +188,7 @@ G_MT_EvolutionaryAlgorithmFactory::~G_MT_EvolutionaryAlgorithmFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string G_MT_EvolutionaryAlgorithmFactory::getMnemonic() const {
-	return GEAPersonalityTraits::nickname;
+	return G_OA_EvolutionaryAlgorithm_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
@@ -286,7 +286,7 @@ G_Serial_EvolutionaryAlgorithmFactory::~G_Serial_EvolutionaryAlgorithmFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string G_Serial_EvolutionaryAlgorithmFactory::getMnemonic() const {
-	return GEAPersonalityTraits::nickname;
+	return G_OA_EvolutionaryAlgorithm_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/

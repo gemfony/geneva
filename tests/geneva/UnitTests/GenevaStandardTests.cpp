@@ -125,10 +125,10 @@ public:
 		>;
 
 		using trait_types = boost::mpl::list<
-			GEAPersonalityTraits
+			G_OA_EvolutionaryAlgorithm_PersonalityTraits
 			, G_OA_GradientDescent_PersonalityTraits
 			, G_OA_SwarmAlgorithm_PersonalityTraits
-			, GSAPersonalityTraits
+			, G_OA_SimulatedAnnealing_PersonalityTraits
 			, G_OA_ParameterScan_PersonalityTraits
 		>;
 
