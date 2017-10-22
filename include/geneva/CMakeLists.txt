@@ -67,6 +67,7 @@ SET ( OPTIMIZATIONINCLUDES
     G_OA_SimulatedAnnealing_PersonalityTraits.hpp
     G_OA_SwarmAlgorithm.hpp
     G_OA_SwarmAlgorithm_Factory.hpp
+    G_OA_SwarmAlgorithm_PersonalityTraits.hpp
 	Go2.hpp
 	GOAFactoryStore.hpp
     GObject.hpp
@@ -90,8 +91,6 @@ SET ( OPTIMIZATIONINCLUDES
     GPluggableOptimizationMonitorsT.hpp
     GPostProcessorT.hpp
 	GRateableI.hpp
-	GScanPar.hpp
-        G_OA_SwarmAlgorithm_PersonalityTraits.hpp
 	GTestIndividual1.hpp
 )
 

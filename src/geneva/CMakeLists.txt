@@ -58,7 +58,6 @@ SET ( OPTIMIZATIONSOURCES
     GPluggableOptimizationMonitorsT
     GPostProcessorT
 	GRateableI
-	GScanPar
 	GTestIndividual1
 )
 
