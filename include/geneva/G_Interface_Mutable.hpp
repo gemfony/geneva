@@ -1,5 +1,5 @@
 /**
- * @file GMutableI.hpp
+ * @file G_Interface_Mutable.hpp
  */
 
 /*
@@ -53,12 +53,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * This is a simple interface class for mutable objects, in partucar individuals
+ * This is a interface class for mutable objects, in particular individuals
  */
-class GMutableI {
+class G_Interface_Mutable {
 public:
 	/** @brief The standard destructor */
-	virtual G_API_GENEVA ~GMutableI(){ /* nothing */ }
+	virtual G_API_GENEVA ~G_Interface_Mutable(){ /* nothing */ }
 
 	/** @brief Allows derivatives to be adapted */
 	virtual G_API_GENEVA std::size_t adapt() BASE = 0;

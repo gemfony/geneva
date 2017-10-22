@@ -60,8 +60,8 @@ GOptimizableEntity::GOptimizableEntity()
  * variables are initialized in the class body.
  */
 GOptimizableEntity::GOptimizableEntity(const std::size_t &nFitnessCriteria)
-	: GMutableI()
-	, GRateableI()
+	: G_Interface_Mutable()
+	, G_Interface_Rateable()
 	, GObject()
 	, m_n_fitness_criteria(nFitnessCriteria ? nFitnessCriteria : 1) // Note: Thus function will silently assign a minimum of 1 to m_n_fitness_criteria
 	, m_current_fitness_vec(m_n_fitness_criteria)
@@ -77,8 +77,8 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t &nFitnessCriteria)
  * @param cp A copy of another GOptimizableEntity object
  */
 GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity &cp)
-	: GMutableI(cp)
-	, GRateableI(cp)
+	: G_Interface_Mutable(cp)
+	, G_Interface_Rateable(cp)
 	, GObject(cp)
 	, m_n_fitness_criteria(cp.m_n_fitness_criteria)
 	, m_current_fitness_vec(cp.m_current_fitness_vec)

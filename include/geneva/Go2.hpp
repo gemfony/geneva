@@ -59,7 +59,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
-#include "geneva/GOptimizableI.hpp"
+#include "geneva/G_Interface_Optimizer.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
@@ -105,7 +105,7 @@ using GOABase = Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecu
  */
 class Go2
 	: public GObject
-	, public GOptimizableI
+	, public G_Interface_Optimizer
 	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
 {
 public:
@@ -215,7 +215,7 @@ public:
 	  */
 	 template <typename individual_type>
 	 std::shared_ptr<individual_type> optimize() {
-		 return GOptimizableI::optimize<individual_type>();
+		 return G_Interface_Optimizer::optimize<individual_type>();
 	 }
 
 	 /***************************************************************************/
@@ -232,7 +232,7 @@ public:
 	 std::shared_ptr<individual_type> optimize(
 		 const std::uint32_t& offset
 	 ) {
-		 return GOptimizableI::optimize<individual_type>(offset);
+		 return G_Interface_Optimizer::optimize<individual_type>(offset);
 	 }
 
 	 /***************************************************************************/

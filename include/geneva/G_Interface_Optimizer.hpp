@@ -1,5 +1,5 @@
 /**
- * @file GOptimizableI.hpp
+ * @file G_Interface_Optimizer.hpp
  */
 
 /*
@@ -58,7 +58,7 @@ namespace Geneva {
  * This class specifies the interface that needs to be implemented by optimization
  * algorithms.
  */
-class GOptimizableI {
+class G_Interface_Optimizer {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -71,9 +71,9 @@ class GOptimizableI {
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GOptimizableI();
+	 G_API_GENEVA G_Interface_Optimizer();
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GOptimizableI();
+	 virtual G_API_GENEVA ~G_Interface_Optimizer();
 
 	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
 	 virtual G_API_GENEVA void optimize(const std::uint32_t& offset) BASE = 0;
@@ -150,7 +150,7 @@ public:
 		 // Cross check that we indeed got a valid set of individuals
 		 if(bestBaseIndividuals.empty()) {
 			 glogger
-				 << "In GOptimizableI::getBestGlobalIndividuals(): Error!" << std::endl
+				 << "In G_Interface_Optimizer::getBestGlobalIndividuals(): Error!" << std::endl
 				 << "Received empty collection of best individuals." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -200,7 +200,7 @@ public:
 		 // Cross check that we indeed got a valid set of individuals
 		 if(bestBaseIndividuals.empty()) {
 			 glogger
-				 << "In GOptimizableI::getBestIterationIndividuals(): Error!" << std::endl
+				 << "In G_Interface_Optimizer::getBestIterationIndividuals(): Error!" << std::endl
 				 << "Received empty collection of best individuals." << std::endl
 				 << GEXCEPTION;
 		 }

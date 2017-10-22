@@ -1,5 +1,5 @@
 /**
- * @file GRateableI.hpp
+ * @file G_Interface_Rateable.hpp
  */
 
 /*
@@ -53,10 +53,10 @@ namespace Geneva {
 /**
  * A simple interface class for objects that can be evaluated.
  */
-class GRateableI {
+class G_Interface_Rateable {
 public:
 	/** @brief The destructor */
-	virtual G_API_GENEVA ~GRateableI();
+	virtual G_API_GENEVA ~G_Interface_Rateable();
 
 	/** @brief Retrieve a value for this class, using a fixed fitness function */
 	virtual G_API_GENEVA double fitness() const BASE = 0;

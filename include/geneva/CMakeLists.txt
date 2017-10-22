@@ -39,8 +39,10 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntFlipAdaptorT.hpp
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
+    G_Interface_Mutable.hpp
+    G_Interface_Optimizer.hpp
+    G_Interface_Rateable.hpp
     GMultiConstraintT.hpp
-	GMutableI.hpp
     GMutableParameterI.hpp
 	GNumBiGaussAdaptorT.hpp
 	GNumGaussAdaptorT.hpp
@@ -72,7 +74,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GOAFactoryStore.hpp
     GObject.hpp
 	GOptimizableEntity.hpp
-	GOptimizableI.hpp
     GOptimizationAlgorithmT.hpp
     GOptimizationAlgorithmFactoryT.hpp
     GOptimizationEnums.hpp
@@ -90,7 +91,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GPersonalityTraits.hpp
     GPluggableOptimizationMonitorsT.hpp
     GPostProcessorT.hpp
-	GRateableI.hpp
 	GTestIndividual1.hpp
 )
 

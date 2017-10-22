@@ -58,7 +58,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GOptimizableI.hpp"
+#include "geneva/G_Interface_Optimizer.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
@@ -83,7 +83,7 @@ template <
 class GOptimizationAlgorithmT
 	: public GObject
   	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
-   , public GOptimizableI
+   , public G_Interface_Optimizer
 {
 private:
 	 ///////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ private:
 		 ar
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
 		 & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>>(*this))
-		 & make_nvp("GOptimizableI", boost::serialization::base_object<GOptimizableI>(*this))
+		 & make_nvp("G_Interface_Optimizer", boost::serialization::base_object<G_Interface_Optimizer>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_iteration)
 		 & BOOST_SERIALIZATION_NVP(m_offset)
 		 & BOOST_SERIALIZATION_NVP(m_maxIteration)
@@ -646,7 +646,7 @@ public:
 	  * A little convenience function that helps to avoid having to specify explicit scopes
 	  */
 	 virtual void optimize() final {
-		 GOptimizableI::optimize();
+		 G_Interface_Optimizer::optimize();
 	 }
 
 	 /***************************************************************************/

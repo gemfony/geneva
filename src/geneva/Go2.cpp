@@ -64,7 +64,7 @@ std::once_flag f_go2;
  */
 Go2::Go2()
 	: GObject()
-	, GOptimizableI()
+	, G_Interface_Optimizer()
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
@@ -103,7 +103,7 @@ Go2::Go2(
 	, const boost::program_options::options_description &userDescriptions
 )
 	: GObject()
-	, GOptimizableI()
+	, G_Interface_Optimizer()
   	, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
@@ -138,7 +138,7 @@ Go2::Go2(
  */
 Go2::Go2(const std::string &configFilename)
 	: GObject()
-	, GOptimizableI()
+	, G_Interface_Optimizer()
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
    , m_config_filename(configFilename)
 {
@@ -182,7 +182,7 @@ Go2::Go2(
 	, const boost::program_options::options_description &userDescriptions
 )
 	: GObject()
-	, GOptimizableI()
+	, G_Interface_Optimizer()
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
    , m_config_filename(configFilename)
 {
@@ -767,13 +767,13 @@ void Go2::optimize(const std::uint32_t &offset) {
 		this->clear();
 
 		// Do the actual optimization
-		p_base->GOptimizableI::optimize<GParameterSet>(m_iterations_consumed);
+		p_base->G_Interface_Optimizer::optimize<GParameterSet>(m_iterations_consumed);
 
 		// Make sure we start with the correct iteration in the next algorithm
 		m_iterations_consumed = p_base->getIteration();
 
 		// Unload the individuals from the last algorithm and store them again in this object
-		std::vector<std::shared_ptr<GParameterSet>> bestIndividuals = p_base->GOptimizableI::getBestGlobalIndividuals < GParameterSet > ();
+		std::vector<std::shared_ptr<GParameterSet>> bestIndividuals = p_base->G_Interface_Optimizer::getBestGlobalIndividuals < GParameterSet > ();
 		std::vector<std::shared_ptr<GParameterSet>>::iterator best_it;
 		for (best_it = bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
 			this->push_back(*best_it);

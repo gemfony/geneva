@@ -549,8 +549,8 @@ public:
 
 			case Gem::Geneva::infoMode::INFOPROCESSING: {
 				// Retrieve the list of globally- and iteration bests individuals
-				auto global_bests = goa->GOptimizableI::template getBestGlobalIndividuals<GParameterSet>();
-				auto iter_bests   = goa->GOptimizableI::template getBestIterationIndividuals<GParameterSet>();
+				auto global_bests = goa->G_Interface_Optimizer::template getBestGlobalIndividuals<GParameterSet>();
+				auto iter_bests   = goa->G_Interface_Optimizer::template getBestIterationIndividuals<GParameterSet>();
 
 				// Retrieve the current iteration in the population
 				std::uint32_t iteration = goa->getIteration();
@@ -1525,7 +1525,7 @@ public:
 				double primaryFitness;
 
 				if(m_monitorBestOnly) { // Monitor the best individuals only
-					std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestGlobalIndividual<GParameterSet>();
+					std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
 					if(GBasePluggableOMT<oa_type>::useRawEvaluation_) {
 						primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 					} else {
@@ -3061,7 +3061,7 @@ public:
 				std::uint32_t iteration = goa->getIteration();
 
 				// Record the current fitness
-				std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestGlobalIndividual<GParameterSet>();
+				std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
 				(*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), double(p->fitness()));
 
 				// Update the largest known iteration and the number of recorded iterations
@@ -3070,7 +3070,7 @@ public:
 
 				// Do the actual logging
 				if(m_monitorBestOnly) {
-					std::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestGlobalIndividual<GParameterSet>();
+					std::shared_ptr<GParameterSet> best = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
 					m_nAdaptionsStore.push_back(std::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
 				} else { // Monitor all individuals
 					// Loop over all individuals of the algorithm.
@@ -3616,7 +3616,7 @@ public:
 				std::uint32_t iteration = goa->getIteration();
 
 				// Record the current fitness
-				std::shared_ptr<GParameterSet> p = goa->GOptimizableI::template getBestGlobalIndividual<GParameterSet>();
+				std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
 				(*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), double(p->fitness()));
 
 				// Update the largest known iteration and the number of recorded iterations
@@ -3628,7 +3628,7 @@ public:
 
 				// Do the actual logging
 				if(m_monitorBestOnly) {
-					std::shared_ptr<GParameterSet> best = goa->GOptimizableI::template getBestGlobalIndividual<GParameterSet>();
+					std::shared_ptr<GParameterSet> best = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
 
 					// Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
 					best->queryAdaptor(m_adaptorName, m_property, data);

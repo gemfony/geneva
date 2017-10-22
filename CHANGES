@@ -502,7 +502,7 @@ The main changes for this release include:
    either be added in main() -- in which case the parallelization mode
    chosen for the corresponding objects is used -- or on the command
    line, in which case the parallelization mode can be modified on demand.
- - Introduced a new interface class GOptimizableI, as the basis
+ - Introduced a new interface class G_Interface_Optimizer, as the basis
    of GOptimizationAlgorithmT and various wrapper classes.
  - Removed all std::pair in favor of boost::tuple (the future std::tuple).
  - Some renaming of variables. E.g.: renamed 'recoSchemes' to the

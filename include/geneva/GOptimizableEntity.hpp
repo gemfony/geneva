@@ -54,8 +54,8 @@
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GPersonalityTraits.hpp"
-#include "geneva/GMutableI.hpp"
-#include "geneva/GRateableI.hpp"
+#include "geneva/G_Interface_Mutable.hpp"
+#include "geneva/G_Interface_Rateable.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GMultiConstraintT.hpp"
 
@@ -82,8 +82,8 @@ class GSerialSwarm;
  * place at the same time.
  */
 class GOptimizableEntity
-	: public GMutableI
-	, public GRateableI
+	: public G_Interface_Mutable
+	, public G_Interface_Rateable
 	, public GObject
 {
 	friend class GSerialSwarm; ///< Needed so GSerialSwarm can set the dirty flag

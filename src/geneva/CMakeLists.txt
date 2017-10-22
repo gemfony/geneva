@@ -25,6 +25,8 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32GaussAdaptor
 	GInt32Object
 	GInt32ObjectCollection
+    G_Interface_Optimizer
+    G_Interface_Rateable
 	Go2
     G_OA_ConjugateGradientDescent
     G_OA_EvolutionaryAlgorithm
@@ -45,7 +47,6 @@ SET ( OPTIMIZATIONSOURCES
     G_OA_SwarmAlgorithm_PersonalityTraits
 	GObject
 	GOptimizableEntity
-	GOptimizableI
     GOptimizationAlgorithmT
 	GOptimizationEnums
 	GParameterBase
@@ -57,7 +58,6 @@ SET ( OPTIMIZATIONSOURCES
 	GPersonalityTraits
     GPluggableOptimizationMonitorsT
     GPostProcessorT
-	GRateableI
 	GTestIndividual1
 )
 

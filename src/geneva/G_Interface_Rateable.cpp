@@ -1,5 +1,5 @@
 /**
- * @file GOptimizableI.cpp
+ * @file GRateableI.cpp
  */
 
 /*
@@ -32,55 +32,20 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GOptimizableI.hpp"
+#include "geneva/G_Interface_Rateable.hpp"
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GOptimizableI::GOptimizableI() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * The destructor
  */
-GOptimizableI::~GOptimizableI() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * This is a simple wrapper function that forces the class to start with offset 0
- */
-void GOptimizableI::optimize() {
-	optimize(0);
-}
-
-/******************************************************************************/
-/**
- * Returns information about the type of optimization algorithm. This function needs
- * to be overloaded by the actual algorithms to return the correct type. Note that
- * the returned information may only consist of a single word and must start with
- * "PERSONALITY_".
- *
- * @return The type of optimization algorithm
- */
-std::string GOptimizableI::getAlgorithmPersonalityType() const {
-	return std::string("PERSONALITY_NONE");
-}
-
-/******************************************************************************/
-/**
- * Checks whether a given algorithm type likes to communicate via the broker
- *
- * @return A boolean indicating whether the algorithm likes to communicate via the broker
- */
-bool GOptimizableI::usesBroker() const {
-	return false;
-}
+G_Interface_Rateable::~G_Interface_Rateable() { /* nothing */ }
 
 /******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+
