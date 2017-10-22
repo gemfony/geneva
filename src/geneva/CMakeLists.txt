@@ -18,7 +18,6 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleObjectCollection
 	GenevaHelperFunctionsT
 	GenevaInitializer
-	GGDPersonalityTraits
 	GIndividualMultiConstraint
 	GIndividualStandardConsumers
 	GInt32Collection
@@ -29,18 +28,21 @@ SET ( OPTIMIZATIONSOURCES
 	Go2
     G_OA_ConjugateGradientDescent
     G_OA_EvolutionaryAlgorithm
-    G_OA_EvolutionaryAlgorithm_PT
-    G_OA_EvolutionaryAlgorithmFactory
+    G_OA_EvolutionaryAlgorithm_PersonalityTraits
+    G_OA_EvolutionaryAlgorithm_Factory
     G_OA_GradientDescent
-    G_OA_GradientDescentFactory
+    G_OA_GradientDescent_Factory
+    G_OA_GradientDescent_PersonalityTraits
     G_OA_ParameterScan
-    G_OA_ParameterScanFactory
-    G_OA_ParChildT_PT
+    G_OA_ParameterScan_Factory
+    G_OA_ParameterScan_PersonalityTraits
+    G_OA_ParChildT_PersonalityTraits
     G_OA_SimulatedAnnealing
-    G_OA_SimulatedAnnealing_PT
-    G_OA_SimulatedAnnealingFactory
+    G_OA_SimulatedAnnealing_Factory
+    G_OA_SimulatedAnnealing_PersonalityTraits
     G_OA_SwarmAlgorithm
-    G_OA_SwarmAlgorithmFactory
+    G_OA_SwarmAlgorithm_Factory
+    G_OA_SwarmAlgorithm_PersonalityTraits
 	GObject
 	GOptimizableEntity
 	GOptimizableI
@@ -55,10 +57,8 @@ SET ( OPTIMIZATIONSOURCES
 	GPersonalityTraits
     GPluggableOptimizationMonitorsT
     GPostProcessorT
-	GPSPersonalityTraits
 	GRateableI
 	GScanPar
-	GSwarmPersonalityTraits
 	GTestIndividual1
 )
 

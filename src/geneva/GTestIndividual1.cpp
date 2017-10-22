@@ -470,7 +470,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Tell the individual about its personality and duty
 		BOOST_CHECK_NO_THROW(
-			p_test->setPersonality(std::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
+			p_test->setPersonality(std::shared_ptr<G_OA_SwarmAlgorithm_PersonalityTraits>(new G_OA_SwarmAlgorithm_PersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -780,17 +780,17 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		p_pt.reset();
 
 		// Set the personality type to GD
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GGDPersonalityTraits>(new GGDPersonalityTraits())));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<G_OA_GradientDescent_PersonalityTraits>(new G_OA_GradientDescent_PersonalityTraits())));
 		BOOST_CHECK_MESSAGE(
-			p_test->getPersonality() == "GGDPersonalityTraits", "\n"
+			p_test->getPersonality() == "G_OA_GradientDescent_PersonalityTraits", "\n"
 																				 << "p_test->getPersonality() = " <<
 																				 p_test->getPersonality() << "\n"
-																				 << "expected GGDPersonalityTraits\n"
+																				 << "expected G_OA_GradientDescent_PersonalityTraits\n"
 		);
 
-		// Try to retrieve a GGDPersonalityTraits object and check that the smart pointer actually points somewhere
-		std::shared_ptr <GGDPersonalityTraits> p_pt_gd;
-		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getPersonalityTraits<GGDPersonalityTraits>());
+		// Try to retrieve a G_OA_GradientDescent_PersonalityTraits object and check that the smart pointer actually points somewhere
+		std::shared_ptr <G_OA_GradientDescent_PersonalityTraits> p_pt_gd;
+		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getPersonalityTraits<G_OA_GradientDescent_PersonalityTraits>());
 		BOOST_CHECK(p_pt_gd);
 		p_pt_gd.reset();
 
@@ -801,17 +801,17 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Set the personality type to SWARM
 		BOOST_CHECK_NO_THROW(
-			p_test->setPersonality(std::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
+			p_test->setPersonality(std::shared_ptr<G_OA_SwarmAlgorithm_PersonalityTraits>(new G_OA_SwarmAlgorithm_PersonalityTraits())));
 		BOOST_CHECK_MESSAGE(
-			p_test->getPersonality() == "GSwarmPersonalityTraits", "\n"
+			p_test->getPersonality() == "G_OA_SwarmAlgorithm_PersonalityTraits", "\n"
 																					 << "p_test->getPersonality() = " <<
 																					 p_test->getPersonality() << "\n"
-																					 << "expected GSwarmPersonalityTraits\n"
+																					 << "expected G_OA_SwarmAlgorithm_PersonalityTraits\n"
 		);
 
-		// Try to retrieve a GSwarmPersonalityTraits object and check that the smart pointer actually points somewhere
-		std::shared_ptr <GSwarmPersonalityTraits> p_pt_swarm;
-		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getPersonalityTraits<GSwarmPersonalityTraits>());
+		// Try to retrieve a G_OA_SwarmAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
+		std::shared_ptr <G_OA_SwarmAlgorithm_PersonalityTraits> p_pt_swarm;
+		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>());
 		BOOST_CHECK(p_pt_swarm);
 		p_pt_swarm.reset();
 
@@ -1032,7 +1032,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
       std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
       // Make sure the personality type is set to SWARM
-      BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<G_OA_SwarmAlgorithm_PersonalityTraits>(new G_OA_SwarmAlgorithm_PersonalityTraits())));
 
       // Trying to retrieve an EA personality object should throw
       BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEAPersonalityTraits>(), Gem::Common::gemfony_error_condition);

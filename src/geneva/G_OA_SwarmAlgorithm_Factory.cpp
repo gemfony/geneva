@@ -1,5 +1,5 @@
 /**
- * @file G_OA_GradientDescentFactory.cpp
+ * @file G_OA_SwarmAlgorithm_Factory.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_GradientDescentFactory.hpp"
+#include "geneva/G_OA_SwarmAlgorithm_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -41,16 +41,16 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GGradientDescentFactory::GGradientDescentFactory()
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
-	"./config/GGradientDescent.json")
+	"./config/GSwarmAlgorithm.json")
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the name of the config file
  */
-GGradientDescentFactory::GGradientDescentFactory(
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
@@ -61,7 +61,7 @@ GGradientDescentFactory::GGradientDescentFactory(
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GGradientDescentFactory::GGradientDescentFactory(
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
@@ -72,7 +72,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 /**
  * The copy constructor
  */
-GGradientDescentFactory::GGradientDescentFactory(const GGradientDescentFactory& cp)
+GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory& cp)
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
 { /* nothing */ }
 
@@ -80,23 +80,23 @@ GGradientDescentFactory::GGradientDescentFactory(const GGradientDescentFactory& 
 /**
  * The destructor
  */
-GGradientDescentFactory::~GGradientDescentFactory()
+GSwarmAlgorithmFactory::~GSwarmAlgorithmFactory()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GGradientDescentFactory::getMnemonic() const {
-	return GGDPersonalityTraits::nickname;
+std::string GSwarmAlgorithmFactory::getMnemonic() const {
+	return G_OA_SwarmAlgorithm_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
 /**
  * Gives access to a clear-text description of the algorithm
  */
-std::string GGradientDescentFactory::getAlgorithmName() const {
-	return std::string("Gradient Descent");
+std::string GSwarmAlgorithmFactory::getAlgorithmName() const {
+	return std::string("Swarm Algorithm");
 }
 
 /******************************************************************************/
@@ -105,16 +105,16 @@ std::string GGradientDescentFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GGradientDescentFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GSwarmAlgorithmFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
-	std::shared_ptr<GGradientDescent> target(
-		new GGradientDescent()
+	std::shared_ptr<GSwarmAlgorithm> target(
+		new GSwarmAlgorithm()
 	);
 
-	// Make the local configuration options known (up to the level of GGradientDescent)
-	target->GGradientDescent::addConfigurationOptions(gpb);
+	// Make the local configuration options known (up to the level of GSwarmAlgorithm)
+	target->GSwarmAlgorithm::addConfigurationOptions(gpb);
 
 	return target;
 }
@@ -126,7 +126,7 @@ std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParamet
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GGradientDescentFactory::postProcess_(
+void GSwarmAlgorithmFactory::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
 	// Call our parent class'es function

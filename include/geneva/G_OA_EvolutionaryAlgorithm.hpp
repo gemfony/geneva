@@ -52,7 +52,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_ParChildT.hpp"
-#include "geneva/G_OA_EvolutionaryAlgorithm_PT.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithm_PersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GTestIndividual1.hpp"

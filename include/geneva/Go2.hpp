@@ -69,11 +69,11 @@
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/G_OA_EvolutionaryAlgorithmFactory.hpp"
-#include "geneva/G_OA_GradientDescentFactory.hpp"
-#include "geneva/G_OA_ParameterScanFactory.hpp"
-#include "geneva/G_OA_SimulatedAnnealingFactory.hpp"
-#include "geneva/G_OA_SwarmAlgorithmFactory.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/G_OA_GradientDescent_Factory.hpp"
+#include "geneva/G_OA_ParameterScan_Factory.hpp"
+#include "geneva/G_OA_SimulatedAnnealing_Factory.hpp"
+#include "geneva/G_OA_SwarmAlgorithm_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {

@@ -50,7 +50,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GGDPersonalityTraits.hpp"
+#include "geneva/G_OA_GradientDescent_PersonalityTraits.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 
 #ifdef GEM_TESTING

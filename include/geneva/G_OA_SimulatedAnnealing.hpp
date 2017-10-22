@@ -51,7 +51,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_ParChildT.hpp"
-#include "geneva/G_OA_SimulatedAnnealing_PT.hpp"
+#include "geneva/G_OA_SimulatedAnnealing_PersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {

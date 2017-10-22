@@ -1,5 +1,5 @@
 /**
- * @file GPSPersonalityTraits.hpp
+ * @file G_OA_SwarmAlgorithm_PersonalityTraits.hpp
  */
 
 /*
@@ -39,12 +39,13 @@
 
 // Boost headers go here
 
-
-#ifndef GPSPERSONALITYTRAITS_HPP_
-#define GPSPERSONALITYTRAITS_HPP_
+#ifndef GSWARMPERSONALITYTRAITS_HPP_
+#define GSWARMPERSONALITYTRAITS_HPP_
 
 // Geneva headers go here
 #include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GParameterSet.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -52,9 +53,9 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
- * to gradient descents.
+ * to swarm optimization.
  */
-class GPSPersonalityTraits :public GPersonalityTraits
+class G_OA_SwarmAlgorithm_PersonalityTraits :public GPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -65,7 +66,10 @@ class GPSPersonalityTraits :public GPersonalityTraits
 
 		ar
 		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-		& BOOST_SERIALIZATION_NVP(popPos_);
+		& BOOST_SERIALIZATION_NVP(neighborhood_)
+		& BOOST_SERIALIZATION_NVP(noPositionUpdate_)
+		& BOOST_SERIALIZATION_NVP(personal_best_)
+		& BOOST_SERIALIZATION_NVP(personal_best_quality_);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -74,19 +78,19 @@ public:
    static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
 	/** @brief The default constructor */
-	G_API_GENEVA GPSPersonalityTraits();
+	G_API_GENEVA G_OA_SwarmAlgorithm_PersonalityTraits();
 	/** @brief The copy contructor */
-	G_API_GENEVA GPSPersonalityTraits(const GPSPersonalityTraits&);
+	G_API_GENEVA G_OA_SwarmAlgorithm_PersonalityTraits(const G_OA_SwarmAlgorithm_PersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual G_API_GENEVA ~GPSPersonalityTraits();
+	virtual G_API_GENEVA ~G_OA_SwarmAlgorithm_PersonalityTraits();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GPSPersonalityTraits& operator=(const GPSPersonalityTraits&);
+	G_API_GENEVA const G_OA_SwarmAlgorithm_PersonalityTraits& operator=(const G_OA_SwarmAlgorithm_PersonalityTraits&);
 
-	/** @brief Checks for equality with another GPSPersonalityTraits object */
-	G_API_GENEVA bool operator==(const GPSPersonalityTraits&) const;
-	/** @brief Checks for inequality with another GPSPersonalityTraits object */
-	G_API_GENEVA bool operator!=(const GPSPersonalityTraits&) const;
+	/** @brief Checks for equality with another GSwarmPersonalityTraits object */
+	G_API_GENEVA bool operator==(const G_OA_SwarmAlgorithm_PersonalityTraits&) const;
+	/** @brief Checks for inequality with another GSwarmPersonalityTraits object */
+	G_API_GENEVA bool operator!=(const G_OA_SwarmAlgorithm_PersonalityTraits&) const;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual G_API_GENEVA void compare(
@@ -95,10 +99,26 @@ public:
 		, const double& // the limit for allowed deviations of floating point types
 	) const override;
 
-	/** @brief Sets the position of the individual in the population */
-	G_API_GENEVA void setPopulationPosition(const std::size_t&) ;
-	/** @brief Retrieves the position of the individual in the population */
-	G_API_GENEVA std::size_t getPopulationPosition(void) const ;
+	/** @brief Specifies in which neighborhood the individual is at present */
+	G_API_GENEVA void setNeighborhood(const std::size_t&) ;
+	/** @brief Retrieves the id of the neighborhood the individual is in at present */
+	G_API_GENEVA std::size_t getNeighborhood(void) const;
+
+	/** @brief Sets the noPositionUpdate_ flag */
+	G_API_GENEVA void setNoPositionUpdate();
+	/** @brief Retrieves the current value of the noPositionUpdate_ flag */
+	G_API_GENEVA bool noPositionUpdate() const;
+	/** @brief Retrieves and resets the current value of the noPositionUpdate_ flag */
+	G_API_GENEVA bool checkNoPositionUpdateAndReset();
+
+	/** @brief Allows to add a new personal best to the individual */
+	G_API_GENEVA void registerPersonalBest(std::shared_ptr<GParameterSet>);
+	/** @brief Allows to retrieve the personal best individual */
+	G_API_GENEVA std::shared_ptr<GParameterSet> getPersonalBest() const;
+	/** @brief Resets the personal best individual */
+	G_API_GENEVA void resetPersonalBest();
+	/** @brief Retrieve quality of personally best individual */
+	G_API_GENEVA std::tuple<double, double> getPersonalBestQuality() const;
 
 	/** @brief Emits a name for this class / object */
 	virtual G_API_GENEVA std::string name() const override;
@@ -106,14 +126,22 @@ public:
    virtual G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
-	/** @brief Loads the data of another GPSPersonalityTraits object */
+	/** @brief Loads the data of another GSwarmPersonalityTraits object */
 	virtual G_API_GENEVA void load_(const GObject*) override;
 	/** @brief Creates a deep clone of this object */
 	virtual G_API_GENEVA GObject* clone_() const override;
 
 private:
 	/** @brief Stores the current position in the population */
-	std::size_t popPos_;
+	std::size_t neighborhood_;
+
+	/** @brief Determines whether the individual has been randomly initialized */
+	bool noPositionUpdate_;
+
+	/** @brief Holds the personally best GParameterSet */
+	std::shared_ptr<GParameterSet> personal_best_;
+	/** @brief The quality of the personally best individual */
+	std::tuple<double, double> personal_best_quality_;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -129,7 +157,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GPSPersonalityTraits)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::G_OA_SwarmAlgorithm_PersonalityTraits)
 
-#endif /* GPSPERSONALITYTRAITS_HPP_ */
+#endif /* GSWARMPERSONALITYTRAITS_HPP_ */
 

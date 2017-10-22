@@ -1,5 +1,5 @@
 /**
- * @file G_OA_SwarmAlgorithmFactory.hpp
+ * @file G_OA_GradientDescent_Factory.hpp
  */
 
 /*
@@ -41,15 +41,15 @@
 // Boost header files go here
 #include <boost/filesystem.hpp>
 
-#ifndef G_OA_SWARMALGORITHMFACTORY_HPP
-#define G_OA_SWARMALGORITHMFACTORY_HPP
+#ifndef G_OA_GRADIENTDESCENTFACTORY_HPP
+#define G_OA_GRADIENTDESCENTFACTORY_HPP
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_SwarmAlgorithm.hpp"
+#include "geneva/G_OA_GradientDescent.hpp"
 #include "geneva/GOAInitializerT.hpp"
 
 namespace Gem {
@@ -59,26 +59,26 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class is a specialization of the GFactoryT<> class for swarm algorithms.
+ * This class is a specialization of the GFactoryT<> class for simulated annealing.
  * It will only return objects which perform all evaluation through the broker.
  */
-class GSwarmAlgorithmFactory
+class GGradientDescentFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GSwarmAlgorithmFactory();
+	 G_API_GENEVA GGradientDescentFactory();
 	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GSwarmAlgorithmFactory(const std::string&);
+	 explicit G_API_GENEVA GGradientDescentFactory(const std::string&);
 	 /** @brief Initialization with the name of the config file and a content creator */
-	 G_API_GENEVA GSwarmAlgorithmFactory(
+	 G_API_GENEVA GGradientDescentFactory(
 		 const std::string&
 		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory&);
+	 G_API_GENEVA GGradientDescentFactory(const GGradientDescentFactory&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GSwarmAlgorithmFactory();
+	 virtual G_API_GENEVA ~GGradientDescentFactory();
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 virtual G_API_GENEVA std::string getMnemonic() const override;
@@ -102,4 +102,4 @@ protected:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* G_OA_SWARMALGORITHMFACTORY_HPP */
+#endif /* G_OA_GRADIENTDESCENTFACTORY_HPP */

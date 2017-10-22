@@ -42,7 +42,7 @@
 #define GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP
 
 // Geneva headers go here
-#include "geneva/G_OA_ParChildT_PT.hpp"
+#include "geneva/G_OA_ParChildT_PersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {

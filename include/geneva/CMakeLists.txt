@@ -28,7 +28,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp
-	GGDPersonalityTraits.hpp
 	GIndividualMultiConstraint.hpp
 	GIndividualStandardConsumerInitializerT.hpp
 	GIndividualStandardConsumers.hpp
@@ -53,19 +52,21 @@ SET ( OPTIMIZATIONINCLUDES
 	GOAInitializerT.hpp
     G_OA_ConjugateGradientDescent.hpp
     G_OA_EvolutionaryAlgorithm.hpp
-    G_OA_EvolutionaryAlgorithm_PT.hpp
-    G_OA_EvolutionaryAlgorithmFactory.hpp
+    G_OA_EvolutionaryAlgorithm_Factory.hpp
+    G_OA_EvolutionaryAlgorithm_PersonalityTraits.hpp
     G_OA_GradientDescent.hpp
-    G_OA_GradientDescentFactory.hpp
+    G_OA_GradientDescent_Factory.hpp
+    G_OA_GradientDescent_PersonalityTraits.hpp
     G_OA_ParameterScan.hpp
-    G_OA_ParameterScanFactory.hpp
+    G_OA_ParameterScan_Factory.hpp
+    G_OA_ParameterScan_PersonalityTraits.hpp
     G_OA_ParChildT.hpp
-    G_OA_ParChildT_PT.hpp
+    G_OA_ParChildT_PersonalityTraits.hpp
     G_OA_SimulatedAnnealing.hpp
-    G_OA_SimulatedAnnealing_PT.hpp
-    G_OA_SimulatedAnnealingFactory.hpp
+    G_OA_SimulatedAnnealing_Factory.hpp
+    G_OA_SimulatedAnnealing_PersonalityTraits.hpp
     G_OA_SwarmAlgorithm.hpp
-    G_OA_SwarmAlgorithmFactory.hpp
+    G_OA_SwarmAlgorithm_Factory.hpp
 	Go2.hpp
 	GOAFactoryStore.hpp
     GObject.hpp
@@ -88,10 +89,9 @@ SET ( OPTIMIZATIONINCLUDES
 	GPersonalityTraits.hpp
     GPluggableOptimizationMonitorsT.hpp
     GPostProcessorT.hpp
-	GPSPersonalityTraits.hpp
 	GRateableI.hpp
 	GScanPar.hpp
-	GSwarmPersonalityTraits.hpp
+        G_OA_SwarmAlgorithm_PersonalityTraits.hpp
 	GTestIndividual1.hpp
 )
 

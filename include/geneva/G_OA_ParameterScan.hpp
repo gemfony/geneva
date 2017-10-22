@@ -53,7 +53,7 @@
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GPSPersonalityTraits.hpp"
+#include "geneva/G_OA_ParameterScan_PersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {

@@ -507,7 +507,7 @@ void GSwarmAlgorithm::updatePersonalBest(
 	}
 #endif /* DEBUG */
 
-	p->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p);
+	p->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(p);
 }
 
 /******************************************************************************/
@@ -538,10 +538,10 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(
 	if (this->at(0)->isBetter
 		(
 			std::get<G_TRANSFORMED_FITNESS>(
-				p->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBestQuality()), p->transformedFitness()
+				p->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->getPersonalBestQuality()), p->transformedFitness()
 		)
 		) {
-		p->getPersonalityTraits<GSwarmPersonalityTraits>()->registerPersonalBest(p);
+		p->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(p);
 	}
 }
 
@@ -750,7 +750,7 @@ void GSwarmAlgorithm::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
 std::shared_ptr <GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits() const {
-	return std::shared_ptr<GSwarmPersonalityTraits>(new GSwarmPersonalityTraits());
+	return std::shared_ptr<G_OA_SwarmAlgorithm_PersonalityTraits>(new G_OA_SwarmAlgorithm_PersonalityTraits());
 }
 
 /******************************************************************************/
@@ -859,10 +859,10 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 
 					// Randomly initialize the item and prevent position updates
 					(*(data.begin() + firstNIPos))->randomInit(activityMode::ACTIVEONLY);
-					(*(data.begin() + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNoPositionUpdate();
+					(*(data.begin() + firstNIPos))->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->setNoPositionUpdate();
 
 					// Set the neighborhood as required
-					(*(data.begin() + firstNIPos))->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(n);
+					(*(data.begin() + firstNIPos))->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->setNeighborhood(n);
 				}
 			}
 		}
@@ -983,11 +983,11 @@ void GSwarmAlgorithm::updatePositions() {
 			GSwarmAlgorithm::iterator current = start + neighborhood_offset;
 
 			// Update the neighborhood ids
-			this->at(neighborhood_offset)->getPersonalityTraits<GSwarmPersonalityTraits>()->setNeighborhood(n);
+			this->at(neighborhood_offset)->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->setNeighborhood(n);
 
 			// Note: global/n bests and velocities haven't been determined yet in the first iteration and are not needed there
 			if (afterFirstIteration() &&
-				 !(*current)->getPersonalityTraits<GSwarmPersonalityTraits>()->checkNoPositionUpdateAndReset()) {
+				 !(*current)->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
 				updateIndividualPositions(
 					n, (*current), m_neighborhood_bests_vec[n], m_global_best_ptr, m_velocities_vec[neighborhood_offset], std::make_tuple(
@@ -1038,7 +1038,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 #endif /* DEBUG */
 
 	// Extract the personal best
-	std::shared_ptr <GParameterSet> personal_best = ind->getPersonalityTraits<GSwarmPersonalityTraits>()->getPersonalBest();
+	std::shared_ptr <GParameterSet> personal_best = ind->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->getPersonalBest();
 
 	// Further error checks
 #ifdef DEBUG
@@ -1240,7 +1240,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 		data.begin()
 		, data.end()
 		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-			return x->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood();
+			return x->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->getNeighborhood();
 		}
 	);
 
@@ -1248,7 +1248,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	Gem::Common::assignVecConst(m_n_neighborhood_members_vec, (std::size_t)0);
 	// Then update the number of individuals in each neighborhood
 	for(auto item: *this) {
-		m_n_neighborhood_members_vec[item->getPersonalityTraits<GSwarmPersonalityTraits>()->getNeighborhood()] += 1;
+		m_n_neighborhood_members_vec[item->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
 	// The population will be fixed in the GSwarmAlgorithm::adjustNeighborhoods() function

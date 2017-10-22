@@ -1,5 +1,5 @@
 /**
- * @file G_OA_EvolutionaryAlgorithmFactory.cpp
+ * @file G_OA_EvolutionaryAlgorithm_Factory.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_EvolutionaryAlgorithmFactory.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithm_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {

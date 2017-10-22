@@ -1,5 +1,5 @@
 /**
- * @file GSwarmPersonalityTraits.cpp
+ * @file G_OA_SwarmAlgorithm_PersonalityTraits.cpp
  */
 
 /*
@@ -32,22 +32,22 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GSwarmPersonalityTraits.hpp"
+#include "geneva/G_OA_SwarmAlgorithm_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmPersonalityTraits)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::G_OA_SwarmAlgorithm_PersonalityTraits)
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GSwarmPersonalityTraits::nickname = "swarm";
+G_API_GENEVA const std::string G_OA_SwarmAlgorithm_PersonalityTraits::nickname = "swarm";
 
 /******************************************************************************/
 /**
  * The default constructor
  */
-GSwarmPersonalityTraits::GSwarmPersonalityTraits()
+G_OA_SwarmAlgorithm_PersonalityTraits::G_OA_SwarmAlgorithm_PersonalityTraits()
 	: GPersonalityTraits(), neighborhood_(0), noPositionUpdate_(false), personal_best_() // empty
 	, personal_best_quality_(std::make_tuple(0., 0.)) { /* nothing */ }
 
@@ -57,7 +57,7 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits()
  *
  * @param cp A copy of another GSwarmPersonalityTraits object
  */
-GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits &cp)
+G_OA_SwarmAlgorithm_PersonalityTraits::G_OA_SwarmAlgorithm_PersonalityTraits(const G_OA_SwarmAlgorithm_PersonalityTraits &cp)
 	: GPersonalityTraits(cp)
 	, neighborhood_(cp.neighborhood_)
 	, noPositionUpdate_(cp.noPositionUpdate_)
@@ -76,13 +76,13 @@ GSwarmPersonalityTraits::GSwarmPersonalityTraits(const GSwarmPersonalityTraits &
 /**
  * The standard destructor
  */
-GSwarmPersonalityTraits::~GSwarmPersonalityTraits() { /* nothing */ }
+G_OA_SwarmAlgorithm_PersonalityTraits::~G_OA_SwarmAlgorithm_PersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GSwarmPersonalityTraits &GSwarmPersonalityTraits::operator=(const GSwarmPersonalityTraits &cp) {
+const G_OA_SwarmAlgorithm_PersonalityTraits &G_OA_SwarmAlgorithm_PersonalityTraits::operator=(const G_OA_SwarmAlgorithm_PersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -94,7 +94,7 @@ const GSwarmPersonalityTraits &GSwarmPersonalityTraits::operator=(const GSwarmPe
  * @param  cp A constant reference to another GSwarmPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits &cp) const {
+bool G_OA_SwarmAlgorithm_PersonalityTraits::operator==(const G_OA_SwarmAlgorithm_PersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -111,7 +111,7 @@ bool GSwarmPersonalityTraits::operator==(const GSwarmPersonalityTraits &cp) cons
  * @param  cp A constant reference to another GSwarmPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits &cp) const {
+bool G_OA_SwarmAlgorithm_PersonalityTraits::operator!=(const G_OA_SwarmAlgorithm_PersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -130,15 +130,15 @@ bool GSwarmPersonalityTraits::operator!=(const GSwarmPersonalityTraits &cp) cons
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GSwarmPersonalityTraits::compare(
+void G_OA_SwarmAlgorithm_PersonalityTraits::compare(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are dealing with a GSwarmPersonalityTraits reference independent of this object and convert the pointer
-	const GSwarmPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSwarmPersonalityTraits>(cp, this);
+	// Check that we are dealing with a G_OA_SwarmAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
+	const G_OA_SwarmAlgorithm_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_SwarmAlgorithm_PersonalityTraits>(cp, this);
 
-	GToken token("GSwarmPersonalityTraits", e);
+	GToken token("G_OA_SwarmAlgorithm_PersonalityTraits", e);
 
 	// Compare our parent data ...
 	Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
@@ -158,28 +158,28 @@ void GSwarmPersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GSwarmPersonalityTraits::name() const {
-	return std::string("GSwarmPersonalityTraits");
+std::string G_OA_SwarmAlgorithm_PersonalityTraits::name() const {
+	return std::string("G_OA_SwarmAlgorithm_PersonalityTraits");
 }
 
 /******************************************************************************/
 /**
  * Retrieves the mnemonic of the optimization algorithm
  */
-std::string GSwarmPersonalityTraits::getMnemonic() const {
-	return GSwarmPersonalityTraits::nickname;
+std::string G_OA_SwarmAlgorithm_PersonalityTraits::getMnemonic() const {
+	return G_OA_SwarmAlgorithm_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
 /**
  * Sets the noPositionUpdate_ flag
  */
-void GSwarmPersonalityTraits::setNoPositionUpdate() {
+void G_OA_SwarmAlgorithm_PersonalityTraits::setNoPositionUpdate() {
 	noPositionUpdate_ = true;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in G_OA_SwarmAlgorithm_PersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -189,12 +189,12 @@ void GSwarmPersonalityTraits::setNoPositionUpdate() {
  *
  * @return The current value of the noPositionUpdate_ flag
  */
-bool GSwarmPersonalityTraits::noPositionUpdate() const {
+bool G_OA_SwarmAlgorithm_PersonalityTraits::noPositionUpdate() const {
 	return noPositionUpdate_;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in G_OA_SwarmAlgorithm_PersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -204,14 +204,14 @@ bool GSwarmPersonalityTraits::noPositionUpdate() const {
  *
  * @return The value of the noPositionUpdate_ flag when the function was called
  */
-bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
+bool G_OA_SwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
 	bool current = noPositionUpdate_;
 	if (noPositionUpdate_) noPositionUpdate_ = false;
 	return current;
 }
 
 /* ----------------------------------------------------------------------------------
- * Tested in GSwarmPersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
+ * Tested in G_OA_SwarmAlgorithm_PersonalityTraits::specificTestsNoFailuresExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -223,13 +223,13 @@ bool GSwarmPersonalityTraits::checkNoPositionUpdateAndReset() {
  *
  * @param p A pointer to the personally best parameter set
  */
-void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr < GParameterSet > p) {
+void G_OA_SwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr < GParameterSet > p) {
 	// Some error checking
 #ifdef DEBUG
 	// Does it point anywhere ?
 	if(!p) {
 	   glogger
-	   << "In GSwarmPersonalityTraits::registerPersonalBest():" << std::endl
+	   << "In G_OA_SwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
       << "Got empty smart pointer." << std::endl
       << GEXCEPTION;
 	}
@@ -237,7 +237,7 @@ void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr < GParameterS
 	// Is the dirty flag set ?
 	if(p->isDirty()) {
 	   glogger
-	   << "In GSwarmPersonalityTraits::registerPersonalBest():" << std::endl
+	   << "In G_OA_SwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
       << "Got individual whose dirty flag is set." << std::endl
       << GEXCEPTION;
 	}
@@ -263,11 +263,11 @@ void GSwarmPersonalityTraits::registerPersonalBest(std::shared_ptr < GParameterS
  *
  * @return The personally best individual
  */
-std::shared_ptr <GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const {
+std::shared_ptr <GParameterSet> G_OA_SwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
    if(!personal_best_) {
       glogger
-      << "In GSwarmPersonalityTraits::getPersonalBest(): Error!" << std::endl
+      << "In G_OA_SwarmAlgorithm_PersonalityTraits::getPersonalBest(): Error!" << std::endl
       << "Tried to retrieve personal_best_ while pointer is empty" << std::endl
       << GEXCEPTION;
    }
@@ -286,7 +286,7 @@ std::shared_ptr <GParameterSet> GSwarmPersonalityTraits::getPersonalBest() const
  * Resets the personally best individual by assigning a default-constructed
  * parameter set.
  */
-void GSwarmPersonalityTraits::resetPersonalBest() {
+void G_OA_SwarmAlgorithm_PersonalityTraits::resetPersonalBest() {
 	personal_best_ = std::shared_ptr<GParameterSet>(); // empty
 	personal_best_quality_ = std::make_tuple(0., 0.);
 }
@@ -302,7 +302,7 @@ void GSwarmPersonalityTraits::resetPersonalBest() {
  *
  * @return The fitness of the personally best individual
  */
-std::tuple<double, double> GSwarmPersonalityTraits::getPersonalBestQuality() const {
+std::tuple<double, double> G_OA_SwarmAlgorithm_PersonalityTraits::getPersonalBestQuality() const {
 	return personal_best_quality_;
 }
 
@@ -317,8 +317,8 @@ std::tuple<double, double> GSwarmPersonalityTraits::getPersonalBestQuality() con
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GSwarmPersonalityTraits::clone_() const {
-	return new GSwarmPersonalityTraits(*this);
+GObject *G_OA_SwarmAlgorithm_PersonalityTraits::clone_() const {
+	return new G_OA_SwarmAlgorithm_PersonalityTraits(*this);
 }
 
 /******************************************************************************/
@@ -327,9 +327,9 @@ GObject *GSwarmPersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GSwarmPersonalityTraits object, camouflaged as a GObject
  */
-void GSwarmPersonalityTraits::load_(const GObject *cp) {
-	// Check that we are dealing with a GSwarmPersonalityTraits reference independent of this object and convert the pointer
-	const GSwarmPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSwarmPersonalityTraits>(cp, this);
+void G_OA_SwarmAlgorithm_PersonalityTraits::load_(const GObject *cp) {
+	// Check that we are dealing with a G_OA_SwarmAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
+	const G_OA_SwarmAlgorithm_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_SwarmAlgorithm_PersonalityTraits>(cp, this);
 
 	// Load the parent class'es data
 	GPersonalityTraits::load_(cp);
@@ -353,7 +353,7 @@ void GSwarmPersonalityTraits::load_(const GObject *cp) {
  *
  * @param neighborhood The current neighborhood of this individual
  */
-void GSwarmPersonalityTraits::setNeighborhood(const std::size_t &neighborhood) {
+void G_OA_SwarmAlgorithm_PersonalityTraits::setNeighborhood(const std::size_t &neighborhood) {
 	neighborhood_ = neighborhood;
 }
 
@@ -363,7 +363,7 @@ void GSwarmPersonalityTraits::setNeighborhood(const std::size_t &neighborhood) {
  *
  * @return The current position of this individual in the population
  */
-std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
+std::size_t G_OA_SwarmAlgorithm_PersonalityTraits::getNeighborhood(void) const {
 	return neighborhood_;
 }
 
@@ -373,7 +373,7 @@ std::size_t GSwarmPersonalityTraits::getNeighborhood(void) const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GSwarmPersonalityTraits::modify_GUnitTests() {
+bool G_OA_SwarmAlgorithm_PersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
 	bool result = false;
 
@@ -386,7 +386,7 @@ bool GSwarmPersonalityTraits::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GSwarmPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+   condnotset("G_OA_SwarmAlgorithm_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -395,7 +395,7 @@ bool GSwarmPersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void G_OA_SwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -406,7 +406,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the noPositionUpdate_ flag
-		std::shared_ptr <GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+		std::shared_ptr <G_OA_SwarmAlgorithm_PersonalityTraits> p_test = this->clone<G_OA_SwarmAlgorithm_PersonalityTraits>();
 
 		// Check setting and retrieval
 		BOOST_CHECK_NO_THROW(p_test->setNoPositionUpdate());
@@ -428,7 +428,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 	{ // Test setting and retrieval of the neighborhood
-		std::shared_ptr <GSwarmPersonalityTraits> p_test = this->clone<GSwarmPersonalityTraits>();
+		std::shared_ptr <G_OA_SwarmAlgorithm_PersonalityTraits> p_test = this->clone<G_OA_SwarmAlgorithm_PersonalityTraits>();
 
 		// Setting and retrieval of the neighborhood
 		for (std::size_t i = 0; i < 10; i++) {
@@ -440,7 +440,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   condnotset("G_OA_SwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -448,7 +448,7 @@ void GSwarmPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void G_OA_SwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -461,7 +461,7 @@ void GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GSwarmPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   condnotset("G_OA_SwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

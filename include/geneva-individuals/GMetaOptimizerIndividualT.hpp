@@ -62,7 +62,7 @@
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPluggableOptimizationMonitorsT.hpp"
-#include "geneva/G_OA_EvolutionaryAlgorithmFactory.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithm_Factory.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
 namespace Gem {

@@ -1,5 +1,5 @@
 /**
- * @file G_OA_ParameterScanFactory.cpp
+ * @file G_OA_GradientDescent_Factory.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_ParameterScanFactory.hpp"
+#include "geneva/G_OA_GradientDescent_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -41,20 +41,19 @@ namespace Geneva {
 /**
  * The default constructor
  */
-GParameterScanFactory::GParameterScanFactory()
-	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>("./config/GParameterScan.json")
-	, m_parameterSpecCL("empty")
+GGradientDescentFactory::GGradientDescentFactory()
+	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	"./config/GGradientDescent.json")
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with the name of the config file
  */
-GParameterScanFactory::GParameterScanFactory(
+GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
-  	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -62,91 +61,42 @@ GParameterScanFactory::GParameterScanFactory(
  * A constructor with the ability to switch the parallelization mode and
  * to add a content creator. It initializes a target item as needed.
  */
-GParameterScanFactory::GParameterScanFactory(
+GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
-   , m_parameterSpecCL("empty")
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
-GParameterScanFactory::GParameterScanFactory(const GParameterScanFactory& cp)
+GGradientDescentFactory::GGradientDescentFactory(const GGradientDescentFactory& cp)
 	: GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
-  	, m_parameterSpecCL(cp.m_parameterSpecCL)
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The destructor
  */
-GParameterScanFactory::~GParameterScanFactory()
+GGradientDescentFactory::~GGradientDescentFactory()
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
-std::string GParameterScanFactory::getMnemonic() const {
-	return GPSPersonalityTraits::nickname;
+std::string GGradientDescentFactory::getMnemonic() const {
+	return G_OA_GradientDescent_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
 /**
  * Gives access to a clear-text description of the algorithm
  */
-std::string GParameterScanFactory::getAlgorithmName() const {
-	return std::string("Parameter Scan");
-}
-
-/***************************************************************************/
-/**
- * Adds local command line options to a boost::program_options::options_description object.
- *
- * @param visible Command line options that should always be visible
- * @param hidden Command line options that should only be visible upon request
- */
-void GParameterScanFactory::addCLOptions(
-	boost::program_options::options_description &visible
-	, boost::program_options::options_description &hidden
-) {
-	namespace po = boost::program_options;
-
-	hidden.add_options()(
-		"parameterSpec"
-		, po::value<std::string>(&m_parameterSpecCL)->default_value(std::string("empty"))
-		, "\t[GParameterScanFactory] Specification of parameters to be scanned. Syntax: \"d(0, -10., 10., 100)\". Use a comma-separated list for more than one variable. A single entry \"s(1000)\" will lead to a random scan over all parameters of up to 1000 individuals"
-	);
-
-	// Add the parent class'es options
-	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::addCLOptions(visible, hidden);
-}
-
-/******************************************************************************/
-/**
- * Allows to specify the command line parameter manually for variables to be scanned
- */
-void GParameterScanFactory::setCLParameterSpecs(std::string parStr) {
-	m_parameterSpecCL = parStr;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the command line parameter settings for variables to be scanned
- */
-std::string GParameterScanFactory::getCLParameterSpecs() const {
-	return m_parameterSpecCL;
-}
-
-/******************************************************************************/
-/**
- * Allows to reset the command line parameter specs
- */
-void GParameterScanFactory::resetCLParameterSpecs() {
-	m_parameterSpecCL = "empty";
+std::string GGradientDescentFactory::getAlgorithmName() const {
+	return std::string("Gradient Descent");
 }
 
 /******************************************************************************/
@@ -155,16 +105,16 @@ void GParameterScanFactory::resetCLParameterSpecs() {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GParameterScanFactory::getObject_(
+std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GGradientDescentFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
-	std::shared_ptr<GParameterScan> target(
-		new GParameterScan()
+	std::shared_ptr<GGradientDescent> target(
+		new GGradientDescent()
 	);
 
-	// Make the local configuration options known (up to the level of GParameterScan)
-	target->GParameterScan::addConfigurationOptions(gpb);
+	// Make the local configuration options known (up to the level of GGradientDescent)
+	target->GGradientDescent::addConfigurationOptions(gpb);
 
 	return target;
 }
@@ -176,16 +126,9 @@ std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParamet
  *
  * @param p A smart-pointer to be acted on during post-processing
  */
-void GParameterScanFactory::postProcess_(
+void GGradientDescentFactory::postProcess_(
 	std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
 ) {
-	if(m_parameterSpecCL != "empty") {
-		std::shared_ptr<GParameterScan> p
-			= Gem::Common::convertSmartPointer<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>, GParameterScan> (p_base);
-
-		p->setParameterSpecs(m_parameterSpecCL);
-	}
-
 	// Call our parent class'es function
 	GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
 }

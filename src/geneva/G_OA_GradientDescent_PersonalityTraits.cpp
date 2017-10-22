@@ -1,5 +1,5 @@
 /**
- * @file GPSPersonalityTraits.cpp
+ * @file G_OA_GradientDescent_PersonalityTraits.cpp
  */
 
 /*
@@ -31,56 +31,58 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.eu .
  */
-#include "geneva/GPSPersonalityTraits.hpp"
+#include "geneva/G_OA_GradientDescent_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GPSPersonalityTraits)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::G_OA_GradientDescent_PersonalityTraits)
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GPSPersonalityTraits::nickname = "ps";
+G_API_GENEVA const std::string G_OA_GradientDescent_PersonalityTraits::nickname = "gd";
 
 /******************************************************************************/
 /**
  * The default constructor
  */
-GPSPersonalityTraits::GPSPersonalityTraits()
+G_OA_GradientDescent_PersonalityTraits::G_OA_GradientDescent_PersonalityTraits()
 	: GPersonalityTraits(), popPos_(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy contructor
  *
- * @param cp A copy of another GPSPersonalityTraits object
+ * @param cp A copy of another GGDPersonalityTraits object
  */
-GPSPersonalityTraits::GPSPersonalityTraits(const GPSPersonalityTraits &cp)
+G_OA_GradientDescent_PersonalityTraits::G_OA_GradientDescent_PersonalityTraits(const G_OA_GradientDescent_PersonalityTraits &cp)
 	: GPersonalityTraits(cp), popPos_(cp.popPos_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GPSPersonalityTraits::~GPSPersonalityTraits() { /* nothing */ }
+G_OA_GradientDescent_PersonalityTraits::~G_OA_GradientDescent_PersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GPSPersonalityTraits &GPSPersonalityTraits::operator=(const GPSPersonalityTraits &cp) {
+const G_OA_GradientDescent_PersonalityTraits &G_OA_GradientDescent_PersonalityTraits::operator=(
+	const G_OA_GradientDescent_PersonalityTraits &cp
+) {
 	this->load_(&cp);
 	return *this;
 }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GPSPersonalityTraits object
+ * Checks for equality with another GGDPersonalityTraits object
  *
- * @param  cp A constant reference to another GPSPersonalityTraits object
+ * @param  cp A constant reference to another GGDPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GPSPersonalityTraits::operator==(const GPSPersonalityTraits &cp) const {
+bool G_OA_GradientDescent_PersonalityTraits::operator==(const G_OA_GradientDescent_PersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -92,12 +94,12 @@ bool GPSPersonalityTraits::operator==(const GPSPersonalityTraits &cp) const {
 
 /******************************************************************************/
 /**
- * Checks for inequality with another GPSPersonalityTraits object
+ * Checks for inequality with another GGDPersonalityTraits object
  *
- * @param  cp A constant reference to another GPSPersonalityTraits object
+ * @param  cp A constant reference to another GGDPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GPSPersonalityTraits::operator!=(const GPSPersonalityTraits &cp) const {
+bool G_OA_GradientDescent_PersonalityTraits::operator!=(const G_OA_GradientDescent_PersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -116,15 +118,15 @@ bool GPSPersonalityTraits::operator!=(const GPSPersonalityTraits &cp) const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GPSPersonalityTraits::compare(
+void G_OA_GradientDescent_PersonalityTraits::compare(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are dealing with a GPSPersonalityTraits reference independent of this object and convert the pointer
-	const GPSPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GPSPersonalityTraits>(cp, this);
+	// Check that we are dealing with a G_OA_GradientDescent_PersonalityTraits reference independent of this object and convert the pointer
+	const G_OA_GradientDescent_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_GradientDescent_PersonalityTraits>(cp, this);
 
-	GToken token("GPSPersonalityTraits", e);
+	GToken token("G_OA_GradientDescent_PersonalityTraits", e);
 
 	// Compare our parent data ...
 	Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
@@ -140,16 +142,16 @@ void GPSPersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GPSPersonalityTraits::name() const {
-	return std::string("GPSPersonalityTraits");
+std::string G_OA_GradientDescent_PersonalityTraits::name() const {
+	return std::string("G_OA_GradientDescent_PersonalityTraits");
 }
 
 /******************************************************************************/
 /**
  * Retrieves the mnemonic of the optimization algorithm
  */
-std::string GPSPersonalityTraits::getMnemonic() const {
-	return GPSPersonalityTraits::nickname;
+std::string G_OA_GradientDescent_PersonalityTraits::getMnemonic() const {
+	return G_OA_GradientDescent_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
@@ -158,19 +160,19 @@ std::string GPSPersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GPSPersonalityTraits::clone_() const {
-	return new GPSPersonalityTraits(*this);
+GObject *G_OA_GradientDescent_PersonalityTraits::clone_() const {
+	return new G_OA_GradientDescent_PersonalityTraits(*this);
 }
 
 /******************************************************************************/
 /**
- * Loads the data of another GPSPersonalityTraits object
+ * Loads the data of another GGDPersonalityTraits object
  *
- * @param cp A copy of another GPSPersonalityTraits object, camouflaged as a GObject
+ * @param cp A copy of another GGDPersonalityTraits object, camouflaged as a GObject
  */
-void GPSPersonalityTraits::load_(const GObject *cp) {
-	// Check that we are dealing with a GPSPersonalityTraits reference independent of this object and convert the pointer
-	const GPSPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GPSPersonalityTraits>(cp, this);
+void G_OA_GradientDescent_PersonalityTraits::load_(const GObject *cp) {
+	// Check that we are dealing with a G_OA_GradientDescent_PersonalityTraits reference independent of this object and convert the pointer
+	const G_OA_GradientDescent_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_GradientDescent_PersonalityTraits>(cp, this);
 
 	// Load the parent class'es data
 	GPersonalityTraits::load_(cp);
@@ -185,7 +187,7 @@ void GPSPersonalityTraits::load_(const GObject *cp) {
  *
  * @param popPos The new position of this individual in the population
  */
-void GPSPersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
+void G_OA_GradientDescent_PersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
 	popPos_ = popPos;
 }
 
@@ -200,7 +202,7 @@ void GPSPersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
  *
  * @return The current position of this individual in the population
  */
-std::size_t GPSPersonalityTraits::getPopulationPosition(void) const {
+std::size_t G_OA_GradientDescent_PersonalityTraits::getPopulationPosition(void) const {
 	return popPos_;
 }
 
@@ -215,7 +217,7 @@ std::size_t GPSPersonalityTraits::getPopulationPosition(void) const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GPSPersonalityTraits::modify_GUnitTests() {
+bool G_OA_GradientDescent_PersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
 	bool result = false;
 
@@ -228,7 +230,7 @@ bool GPSPersonalityTraits::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GPSPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+   condnotset("G_OA_GradientDescent_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -237,7 +239,7 @@ bool GPSPersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GPSPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void G_OA_GradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -251,7 +253,7 @@ void GPSPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GPSPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   condnotset("G_OA_GradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -259,7 +261,7 @@ void GPSPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GPSPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void G_OA_GradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -272,7 +274,7 @@ void GPSPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GPSPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   condnotset("G_OA_GradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

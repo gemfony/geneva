@@ -1,5 +1,5 @@
 /**
- * @file G_OA_EvolutionaryAlgorithm_PT.hpp
+ * @file G_OA_ParChildT_PersonalityTraits.hpp
  */
 
 /*
@@ -39,11 +39,11 @@
 
 // Boost headers go here
 
-#ifndef GENEVA_LIBRARY_COLLECTION_G_OA_EVOLUTIONARYALGORITHM_PT_HPP
-#define GENEVA_LIBRARY_COLLECTION_G_OA_EVOLUTIONARYALGORITHM_PT_HPP
+#ifndef GENEVA_LIBRARY_COLLECTION_G_OA_PARCHILDT_PT_HPP
+#define GENEVA_LIBRARY_COLLECTION_G_OA_PARCHILDT_PT_HPP
 
 // Geneva headers go here
-#include "geneva/G_OA_ParChildT_PT.hpp"
+#include "geneva/GPersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -53,10 +53,10 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * This class adds variables and functions to GPersonalityTraits that are specific
- * to evolutionary algorithms.
+ * to populations comprising parents and children
  */
-class GEAPersonalityTraits
-	: public GBaseParChildPersonalityTraits
+class GBaseParChildPersonalityTraits
+	:public GPersonalityTraits
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -65,29 +65,28 @@ class GEAPersonalityTraits
 	 void serialize(Archive & ar, const unsigned int){
 		 using boost::serialization::make_nvp;
 		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GBaseParChildPersonalityTraits)
-		 & BOOST_SERIALIZATION_NVP(isOnParetoFront_);
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+		 & BOOST_SERIALIZATION_NVP(parentCounter_)
+		 & BOOST_SERIALIZATION_NVP(popPos_)
+		 & BOOST_SERIALIZATION_NVP(parentId_);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief An easy identifier for the class */
-	 static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
-
 	 /** @brief The default constructor */
-	 G_API_GENEVA GEAPersonalityTraits();
+	 G_API_GENEVA GBaseParChildPersonalityTraits();
 	 /** @brief The copy contructor */
-	 G_API_GENEVA GEAPersonalityTraits(const GEAPersonalityTraits&);
+	 G_API_GENEVA GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits&);
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GEAPersonalityTraits();
+	 virtual G_API_GENEVA ~GBaseParChildPersonalityTraits();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GEAPersonalityTraits& operator=(const GEAPersonalityTraits&);
+	 G_API_GENEVA const GBaseParChildPersonalityTraits& operator=(const GBaseParChildPersonalityTraits&);
 
-	 /** @brief Checks for equality with another GEAPersonalityTraits object */
-	 G_API_GENEVA bool operator==(const GEAPersonalityTraits&) const;
-	 /** @brief Checks for inequality with another GEAPersonalityTraits object */
-	 G_API_GENEVA bool operator!=(const GEAPersonalityTraits&) const;
+	 /** @brief Checks for equality with another GBaseParChildPersonalityTraits object */
+	 G_API_GENEVA bool operator==(const GBaseParChildPersonalityTraits&) const;
+	 /** @brief Checks for inequality with another GBaseParChildPersonalityTraits object */
+	 G_API_GENEVA bool operator!=(const GBaseParChildPersonalityTraits&) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
@@ -96,12 +95,29 @@ public:
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
 
-	 /** @brief Allows to check whether this individual lies on the pareto front (only yields useful results after pareto-sorting in EA) */
-	 G_API_GENEVA bool isOnParetoFront() const;
-	 /** @brief Allows to reset the pareto tag to "true" */
-	 G_API_GENEVA void resetParetoTag();
-	 /** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
-	 G_API_GENEVA void setIsNotOnParetoFront();
+	 /** @brief Marks an individual as a parent*/
+	 G_API_GENEVA bool setIsParent();
+	 /** @brief Marks an individual as a child */
+	 G_API_GENEVA bool setIsChild();
+
+	 /** @brief Checks whether this is a parent individual */
+	 G_API_GENEVA bool isParent() const;
+	 /** @brief Retrieves the current value of the parentCounter_ variable */
+	 G_API_GENEVA std::uint32_t getParentCounter() const;
+
+	 /** @brief Sets the position of the individual in the population */
+	 G_API_GENEVA void setPopulationPosition(const std::size_t&);
+	 /** @brief Retrieves the position of the individual in the population */
+	 G_API_GENEVA std::size_t getPopulationPosition(void) const;
+
+	 /** @brief Stores the parent's id with this object */
+	 G_API_GENEVA void setParentId(const std::size_t&);
+	 /** @brief Retrieves the parent id's value */
+	 G_API_GENEVA std::size_t getParentId() const;
+	 /** @brief Checks whether a parent id has been set */
+	 G_API_GENEVA bool parentIdSet() const;
+	 /** @brief Marks the parent id as unset */
+	 G_API_GENEVA void unsetParentId();
 
 	 /** @brief Emits a name for this class / object */
 	 virtual G_API_GENEVA std::string name() const override;
@@ -109,14 +125,18 @@ public:
 	 virtual G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
-	 /** @brief Loads the data of another GEAPersonalityTraits object */
+	 /** @brief Loads the data of another GBaseParChildPersonalityTraits object */
 	 virtual G_API_GENEVA void load_(const GObject*) override;
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_GENEVA GObject* clone_() const override;
 
 private:
-	 /** @brief Determines whether the individual lies on the pareto front */
-	 bool isOnParetoFront_;
+	 /** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
+	 std::uint32_t parentCounter_ = 0;
+	 /** @brief Stores the current position in the population */
+	 std::size_t popPos_ = 0;
+	 /** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
+	 std::int16_t parentId_ = -1;
 
 public:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -134,7 +154,6 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEAPersonalityTraits)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBaseParChildPersonalityTraits)
 
-#endif //GENEVA_LIBRARY_COLLECTION_G_OA_EVOLUTIONARYALGORITHM_PT_HPP
-
+#endif // GENEVA_LIBRARY_COLLECTION_G_OA_PARCHILDT_PT_HPP

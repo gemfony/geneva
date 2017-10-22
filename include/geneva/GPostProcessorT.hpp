@@ -49,7 +49,7 @@
 // Geneva headers go here
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_EvolutionaryAlgorithmFactory.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithm_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {

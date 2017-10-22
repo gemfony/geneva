@@ -1,5 +1,5 @@
 /**
- * @file G_OA_EvolutionaryAlgorithmFactory.hpp
+ * @file G_OA_EvolutionaryAlgorithm_Factory.hpp
  */
 
 /*

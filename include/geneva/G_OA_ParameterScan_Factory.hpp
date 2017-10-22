@@ -1,5 +1,5 @@
 /**
- * @file G_OA_GradientDescentFactory.hpp
+ * @file G_OA_ParameterScan_Factory.hpp
  */
 
 /*
@@ -41,15 +41,15 @@
 // Boost header files go here
 #include <boost/filesystem.hpp>
 
-#ifndef G_OA_GRADIENTDESCENTFACTORY_HPP
-#define G_OA_GRADIENTDESCENTFACTORY_HPP
+#ifndef G_OA_PARAMETERSCANFACTORY_HPP
+#define G_OA_PARAMETERSCANFACTORY_HPP
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/GOptimizationAlgorithmFactoryT.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_GradientDescent.hpp"
+#include "geneva/G_OA_ParameterScan.hpp"
 #include "geneva/GOAInitializerT.hpp"
 
 namespace Gem {
@@ -62,28 +62,41 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for simulated annealing.
  * It will only return objects which perform all evaluation through the broker.
  */
-class GGradientDescentFactory
+class GParameterScanFactory
 	: public GOptimizationAlgorithmFactoryT<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GGradientDescentFactory();
+	 G_API_GENEVA GParameterScanFactory();
 	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GGradientDescentFactory(const std::string&);
+	 explicit G_API_GENEVA GParameterScanFactory(const std::string&);
 	 /** @brief Initialization with the name of the config file and a content creator */
-	 G_API_GENEVA GGradientDescentFactory(
+	 G_API_GENEVA GParameterScanFactory(
 		 const std::string&
 		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GGradientDescentFactory(const GGradientDescentFactory&);
+	 G_API_GENEVA GParameterScanFactory(const GParameterScanFactory&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GGradientDescentFactory();
+	 virtual G_API_GENEVA ~GParameterScanFactory();
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 virtual G_API_GENEVA std::string getMnemonic() const override;
 	 /** @brief Gives access to a clear-text description of the algorithm */
 	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+
+	 /** @brief Adds local command line options to boost::program_options::options_description objects */
+	 virtual G_API_GENEVA void addCLOptions(
+		 boost::program_options::options_description&
+		 , boost::program_options::options_description&
+	 ) override;
+
+	 /** @brief Allows to specify the command line parameter manually for variables to be scanned */
+	 G_API_GENEVA void setCLParameterSpecs(std::string parStr);
+	 /** @brief Allows to retrieve the command line parameter settings for variables to be scanned */
+	 G_API_GENEVA std::string getCLParameterSpecs() const;
+	 /** @brief Allows to reset the command line parameter specs */
+	 G_API_GENEVA void resetCLParameterSpecs();
 
 protected:
 	 /** @brief Creates individuals of this type */
@@ -93,6 +106,10 @@ protected:
 	 ) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
 	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>&) override;
+
+private:
+	 /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */
+	 std::string m_parameterSpecCL;
 };
 
 /******************************************************************************/
@@ -102,4 +119,4 @@ protected:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* G_OA_GRADIENTDESCENTFACTORY_HPP */
+#endif /* G_OA_PARAMETERSCANFACTORY_HPP */

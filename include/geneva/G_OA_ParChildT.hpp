@@ -54,7 +54,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/G_OA_ParChildT_PT.hpp"
+#include "geneva/G_OA_ParChildT_PersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {
