@@ -28,6 +28,7 @@ SET ( OPTIMIZATIONSOURCES
     G_Interface_Optimizer
     G_Interface_Rateable
 	Go2
+    G_OptimizationAlgorithm_BaseT
     G_OA_ConjugateGradientDescent
     G_OA_EvolutionaryAlgorithm
     G_OA_EvolutionaryAlgorithm_PersonalityTraits
@@ -47,7 +48,6 @@ SET ( OPTIMIZATIONSOURCES
     G_OA_SwarmAlgorithm_PersonalityTraits
 	GObject
 	GOptimizableEntity
-    GOptimizationAlgorithmT
 	GOptimizationEnums
 	GParameterBase
 	GParameterObjectCollection

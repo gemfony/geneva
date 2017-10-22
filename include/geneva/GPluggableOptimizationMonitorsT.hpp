@@ -57,7 +57,7 @@
 #include "common/GLogger.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/G_OptimizationAlgorithm_BaseT.hpp"
 #include "geneva/GParameterSet.hpp"
 
 namespace Gem {
@@ -66,9 +66,9 @@ namespace Geneva {
 /******************************************************************************/
 /*
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
- * information from within optimization algorithms. They can be plugged into GOptimizationAlgorithmT<oa_type>
+ * information from within optimization algorithms. They can be plugged into G_OptimizationAlgorithm_BaseT<oa_type>
  * derivatives. A requirement is that they implement a function "informationFunction"
- * according to the API of GOptimizationAlgorithmT<>::GBasePluggableOMT .
+ * according to the API of G_OptimizationAlgorithm_BaseT<>::GBasePluggableOMT .
  */
 
 /******************************************************************************/
@@ -1875,11 +1875,11 @@ public:
  */
 template <typename fp_type>
 class GProgressPlotterT
-	: public GProgressPlotterTT<fp_type, GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public GProgressPlotterTT<fp_type, G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
 	 // Simple inherit all constructors
-	 using GProgressPlotterTT<fp_type, GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::GProgressPlotterTT;
+	 using GProgressPlotterTT<fp_type, G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::GProgressPlotterTT;
 };
 
 /******************************************************************************/
@@ -4526,25 +4526,25 @@ public:
  */
 template <typename num_type>
 class GAdaptorPropertyLoggerT
-	: public GAdaptorPropertyLoggerTT<num_type, GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public GAdaptorPropertyLoggerTT<num_type, G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
 {
 public:
-	 using GAdaptorPropertyLoggerTT<num_type, GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::GAdaptorPropertyLoggerTT;
+	 using GAdaptorPropertyLoggerTT<num_type, G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::GAdaptorPropertyLoggerTT;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-using GStandardMonitor = GStandardMonitorT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
-using GFitnessMonitor = GFitnessMonitorT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
-using GCollectiveMonitor = GCollectiveMonitorT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GStandardMonitor = GStandardMonitorT<Gem::Geneva::G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GFitnessMonitor = GFitnessMonitorT<Gem::Geneva::G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GCollectiveMonitor = GCollectiveMonitorT<Gem::Geneva::G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
 using GProgressPlotter = GProgressPlotterT<double>;
-using GAllSolutionFileLogger = GAllSolutionFileLoggerT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
-using GIterationResultsFileLogger = GIterationResultsFileLoggerT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
-using GNAdpationsLogger = GNAdpationsLoggerT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GAllSolutionFileLogger = GAllSolutionFileLoggerT<Gem::Geneva::G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GIterationResultsFileLogger = GIterationResultsFileLoggerT<Gem::Geneva::G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GNAdpationsLogger = GNAdpationsLoggerT<Gem::Geneva::G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
 template <typename num_type> using GAdaptorPropertyLogger = GAdaptorPropertyLoggerT<num_type>;
-using GProcessingTimesLogger = GProcessingTimesLoggerT<Gem::Geneva::GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GProcessingTimesLogger = GProcessingTimesLoggerT<Gem::Geneva::G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
 
 /******************************************************************************/
 

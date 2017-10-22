@@ -48,10 +48,10 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/G_OptimizationAlgorithm_BaseT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OA_GradientDescent_PersonalityTraits.hpp"
-#include "geneva/GOptimizationAlgorithmT.hpp"
+#include "geneva/G_OptimizationAlgorithm_BaseT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -62,7 +62,7 @@ namespace Geneva {
  * may be overloaded for a new optimization algorithm. Not all functions are needed
  * -- refer to the comments for each function below. Please note that you
  * do not need to implement this class as a template. For most users deriving
- * from GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutor<GParameterSet>>
+ * from G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutor<GParameterSet>>
  * will suffice. This will simplify some of the code, as you do not need to
  * care for some of the C++ template oddities, such as having to preface iterators
  * over individuals with the "template" keyword. When splitting header and implementation
@@ -71,7 +71,7 @@ namespace Geneva {
  */
 template <typename executor_type>
 class GAlgorithmTemplateT
-	: public GOptimizationAlgorithmT<executor_type>
+	: public G_OptimizationAlgorithm_BaseT<executor_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -81,8 +81,8 @@ class GAlgorithmTemplateT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GOptimizationAlgorithmT_GBrokerExecutorT",
-			 boost::serialization::base_object<GOptimizationAlgorithmT<executor_type>>(*this));
+		 & make_nvp("G_OptimizationAlgorithm_BaseT_GBrokerExecutorT",
+			 boost::serialization::base_object<G_OptimizationAlgorithm_BaseT<executor_type>>(*this));
 
 		 // Add local variables to this function, if they need to be saved / loaded
 		 // when dealing with checkpoint files of this algorithm.
@@ -109,7 +109,7 @@ public:
 	  * @param cp A copy of another GAlgorithmTemplateT<executor_type> object
 	  */
 	 GAlgorithmTemplateT(const GAlgorithmTemplateT<executor_type>& cp)
-	 	: GOptimizationAlgorithmT<executor_type>(cp)
+	 	: G_OptimizationAlgorithm_BaseT<executor_type>(cp)
 	 	// copy local data here or fill out the function body, as needed
 	 {
 		 // nothing
@@ -184,7 +184,7 @@ public:
 	  * saveCheckpoint() function.
 	  */
 	 virtual void loadCheckpoint(const bf::path& cpFile) override {
-		 GOptimizationAlgorithmT<executor_type>::loadCheckpoint(cpFile);
+		 G_OptimizationAlgorithm_BaseT<executor_type>::loadCheckpoint(cpFile);
 	 }
 
 	 /***************************************************************************/
@@ -216,7 +216,7 @@ public:
 		 GToken token("GEvolutionaryAlgorithmT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GOptimizationAlgorithmT<executor_type>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<G_OptimizationAlgorithm_BaseT<executor_type>>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 // compare_t(IDENTITY(some_local_pod_or_gci_derivative, p_load->some_local_pod_or_gci_derivative), token);
@@ -242,7 +242,7 @@ public:
  	  */
 	 virtual void resetToOptimizationStart() {
 		 // Call our parent class'es function
-		 GOptimizationAlgorithmT<executor_type>::resetToOptimizationStart();
+		 G_OptimizationAlgorithm_BaseT<executor_type>::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -292,7 +292,7 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override {
 		 // Call our parent class'es function first
-		 GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
+		 G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
 	 }
 
 	 /***************************************************************************/
@@ -317,7 +317,7 @@ public:
  	  * most likely case, as this is for specialist usage only.
 	  */
 	 virtual void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
-		  GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateGlobalBestsPQ(bestIndividuals);
+		  G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateGlobalBestsPQ(bestIndividuals);
 	 }
 
 	 /***************************************************************************/
@@ -332,7 +332,7 @@ public:
  	  * most likely case, as this is for specialist usage only.
 	  */
 	 virtual void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
-		 GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateIterationBestsPQ(bestIndividuals);
+		 G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateIterationBestsPQ(bestIndividuals);
 	 }
 
 protected:
@@ -349,7 +349,7 @@ protected:
 
 		 // First load the parent class'es data.
 		 // This will also take care of copying all individuals.
-		 GOptimizationAlgorithmT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
+		 G_OptimizationAlgorithm_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::load_(cp);
 
 		 // ... and then our own data
 		 // some_var = p_load->some_var;
@@ -375,7 +375,7 @@ protected:
 	  * loadCheckpoint() function.
 	  */
 	 virtual void saveCheckpoint(bf::path outputFile) const override {
-		 GOptimizationAlgorithmT<executor_type>::saveCheckpoint(outputFile);
+		 G_OptimizationAlgorithm_BaseT<executor_type>::saveCheckpoint(outputFile);
 	 }
 
 	 /***************************************************************************/
@@ -387,7 +387,7 @@ protected:
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
 	 virtual std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
-		 return GOptimizationAlgorithmT<executor_type>::customGetBestGlobalIndividual();
+		 return G_OptimizationAlgorithm_BaseT<executor_type>::customGetBestGlobalIndividual();
 	 }
 
 	 /***************************************************************************/
@@ -399,7 +399,7 @@ protected:
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
 	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override {
-		 return GOptimizationAlgorithmT<executor_type>::customGetBestGlobalIndividuals();
+		 return G_OptimizationAlgorithm_BaseT<executor_type>::customGetBestGlobalIndividuals();
 	 }
 
 	 /***************************************************************************/
@@ -411,7 +411,7 @@ protected:
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
 	 virtual std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override {
-		 return GOptimizationAlgorithmT<executor_type>::customGetBestIterationIndividual();
+		 return G_OptimizationAlgorithm_BaseT<executor_type>::customGetBestIterationIndividual();
 	 }
 
 	 /***************************************************************************/
@@ -423,7 +423,7 @@ protected:
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
 	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override {
-		 return GOptimizationAlgorithmT<executor_type>::customGetBestIterationIndividuals();
+		 return G_OptimizationAlgorithm_BaseT<executor_type>::customGetBestIterationIndividuals();
 	 }
 
 	 /***************************************************************************/
@@ -440,7 +440,7 @@ protected:
 	 /**
 	  * It is possible for derived classes to specify in overloaded versions of this
 	  * function under which conditions the optimization should be stopped. The
-	  * function is called from GOptimizationAlgorithmT<executor_type>::halt .
+	  * function is called from G_OptimizationAlgorithm_BaseT<executor_type>::halt .
 	  *
 	  * @return boolean indicating that a stop condition was reached
 	  */
@@ -458,7 +458,7 @@ protected:
 	  */
 	 virtual void init() override {
 		 // Call the parent classes function
-		 GOptimizationAlgorithmT<executor_type>::init();
+		 G_OptimizationAlgorithm_BaseT<executor_type>::init();
 	 }
 
 	 /***************************************************************************/
@@ -470,7 +470,7 @@ protected:
 	  */
 	 virtual void finalize() override {
 		 // Call the parent classes function
-		 GOptimizationAlgorithmT<executor_type>::finalize();
+		 G_OptimizationAlgorithm_BaseT<executor_type>::finalize();
 	 }
 
 	 /***************************************************************************/

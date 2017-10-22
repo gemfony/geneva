@@ -279,7 +279,7 @@ public:
 			 return boost::numeric_cast<std::uint32_t>(m_maxIterationCL);
 		 } else {
 			 glogger
-				 << "In GOptimizationAlgorithmT<>::getMaxIterationCL(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_BaseT<>::getMaxIterationCL(): Error!" << std::endl
 				 << "m_maxIterationCL wasn't set" << std::endl
 				 << GEXCEPTION;
 
@@ -314,7 +314,7 @@ public:
 			 return boost::numeric_cast<std::uint32_t>(m_maxStallIterationCL);
 		 } else {
 			 glogger
-				 << "In GOptimizationAlgorithmT<>::getMaxStallIterationCL(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_BaseT<>::getMaxStallIterationCL(): Error!" << std::endl
 				 << "m_maxStallIterationCL wasn't set" << std::endl
 				 << GEXCEPTION;
 
@@ -350,7 +350,7 @@ public:
 			 return maxDuration;
 		 } else {
 			 glogger
-				 << "In GOptimizationAlgorithmT<>::getMaxTimeCL(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_BaseT<>::getMaxTimeCL(): Error!" << std::endl
 				 << "m_maxSecondsCL wasn't set" << std::endl
 				 << GEXCEPTION;
 

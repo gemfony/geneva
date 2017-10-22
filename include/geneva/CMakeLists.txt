@@ -52,6 +52,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumIntT.hpp
 	GNumT.hpp
 	GOAInitializerT.hpp
+    G_OptimizationAlgorithm_BaseT.hpp
     G_OA_ConjugateGradientDescent.hpp
     G_OA_EvolutionaryAlgorithm.hpp
     G_OA_EvolutionaryAlgorithm_Factory.hpp
@@ -74,7 +75,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GOAFactoryStore.hpp
     GObject.hpp
 	GOptimizableEntity.hpp
-    GOptimizationAlgorithmT.hpp
     GOptimizationAlgorithmFactoryT.hpp
     GOptimizationEnums.hpp
 	GParameterBase.hpp
