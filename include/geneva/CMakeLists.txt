@@ -2,7 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( OPTIMIZATIONINCLUDES
 	GAdaptorT.hpp
-	GBaseParChildPersonalityTraits.hpp
 	GBooleanAdaptor.hpp
 	GBooleanCollection.hpp
 	GBooleanObject.hpp
@@ -24,7 +23,6 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleGaussAdaptor.hpp
 	GDoubleObject.hpp
 	GDoubleObjectCollection.hpp
-	GEAPersonalityTraits.hpp
 	GenevaHelperFunctionsT.hpp
 	GenevaInitializer.hpp
 	GFPBiGaussAdaptorT.hpp
@@ -55,13 +53,16 @@ SET ( OPTIMIZATIONINCLUDES
 	GOAInitializerT.hpp
     G_OA_ConjugateGradientDescent.hpp
     G_OA_EvolutionaryAlgorithm.hpp
+    G_OA_EvolutionaryAlgorithm_PT.hpp
     G_OA_EvolutionaryAlgorithmFactory.hpp
     G_OA_GradientDescent.hpp
     G_OA_GradientDescentFactory.hpp
     G_OA_ParameterScan.hpp
     G_OA_ParameterScanFactory.hpp
     G_OA_ParChildT.hpp
+    G_OA_ParChildT_PT.hpp
     G_OA_SimulatedAnnealing.hpp
+    G_OA_SimulatedAnnealing_PT.hpp
     G_OA_SimulatedAnnealingFactory.hpp
     G_OA_SwarmAlgorithm.hpp
     G_OA_SwarmAlgorithmFactory.hpp
@@ -89,7 +90,6 @@ SET ( OPTIMIZATIONINCLUDES
     GPostProcessorT.hpp
 	GPSPersonalityTraits.hpp
 	GRateableI.hpp
-	GSAPersonalityTraits.hpp
 	GScanPar.hpp
 	GSwarmPersonalityTraits.hpp
 	GTestIndividual1.hpp

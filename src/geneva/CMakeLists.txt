@@ -2,7 +2,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( OPTIMIZATIONSOURCES
     GAdaptorT
-	GBaseParChildPersonalityTraits
 	GBooleanAdaptor
 	GBooleanCollection
 	GBooleanObject
@@ -17,7 +16,6 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleGaussAdaptor
 	GDoubleObject
 	GDoubleObjectCollection
-	GEAPersonalityTraits
 	GenevaHelperFunctionsT
 	GenevaInitializer
 	GGDPersonalityTraits
@@ -31,12 +29,15 @@ SET ( OPTIMIZATIONSOURCES
 	Go2
     G_OA_ConjugateGradientDescent
     G_OA_EvolutionaryAlgorithm
+    G_OA_EvolutionaryAlgorithm_PT
     G_OA_EvolutionaryAlgorithmFactory
     G_OA_GradientDescent
     G_OA_GradientDescentFactory
     G_OA_ParameterScan
     G_OA_ParameterScanFactory
+    G_OA_ParChildT_PT
     G_OA_SimulatedAnnealing
+    G_OA_SimulatedAnnealing_PT
     G_OA_SimulatedAnnealingFactory
     G_OA_SwarmAlgorithm
     G_OA_SwarmAlgorithmFactory
@@ -56,7 +57,6 @@ SET ( OPTIMIZATIONSOURCES
     GPostProcessorT
 	GPSPersonalityTraits
 	GRateableI
-	GSAPersonalityTraits
 	GScanPar
 	GSwarmPersonalityTraits
 	GTestIndividual1

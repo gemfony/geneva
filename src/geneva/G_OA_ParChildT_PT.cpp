@@ -1,5 +1,5 @@
 /**
- * @file GBaseParChildPersonalityTraits.cpp
+ * @file G_OA_ParChildT_PT.cpp
  */
 
 /*
@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GBaseParChildPersonalityTraits.hpp"
+#include "geneva/G_OA_ParChildT_PT.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBaseParChildPersonalityTraits)
 
@@ -56,9 +56,9 @@ GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits(
 	const GBaseParChildPersonalityTraits &cp
 )
 	: GPersonalityTraits(cp)
-	, parentCounter_(cp.parentCounter_)
-	, popPos_(cp.popPos_)
-	, parentId_(cp.parentId_)
+	  , parentCounter_(cp.parentCounter_)
+	  , popPos_(cp.popPos_)
+	  , parentId_(cp.parentId_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -123,7 +123,9 @@ bool GBaseParChildPersonalityTraits::operator!=(const GBaseParChildPersonalityTr
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GBaseParChildPersonalityTraits::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	const GObject &cp
+	, const Gem::Common::expectation &e
+	, const double &limit
 ) const {
 	using namespace Gem::Common;
 
@@ -158,9 +160,9 @@ std::string GBaseParChildPersonalityTraits::name() const {
  */
 std::string GBaseParChildPersonalityTraits::getMnemonic() const {
 	glogger
-	<< "In GBaseParChildPersonalityTraits::getMnemonic(): Error!" << std::endl
-   << "This function should never have been called" << std::endl
-   << GEXCEPTION;
+		<< "In GBaseParChildPersonalityTraits::getMnemonic(): Error!" << std::endl
+		<< "This function should never have been called" << std::endl
+		<< GEXCEPTION;
 
 	return "none";
 }
@@ -314,9 +316,9 @@ std::size_t GBaseParChildPersonalityTraits::getParentId() const {
 	if (parentId_ >= 0) return parentId_;
 	else {
 		glogger
-		<< "In GBaseParChildPersonalityTraits::getParentId():" << std::endl
-		<< "parentId_ is unset" << std::endl
-		<< GEXCEPTION;
+			<< "In GBaseParChildPersonalityTraits::getParentId():" << std::endl
+			<< "parentId_ is unset" << std::endl
+			<< GEXCEPTION;
 	}
 
 	// Make the compiler happy
@@ -379,7 +381,7 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBaseParChildPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+	condnotset("GBaseParChildPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -465,7 +467,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -493,7 +495,7 @@ void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests() 
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

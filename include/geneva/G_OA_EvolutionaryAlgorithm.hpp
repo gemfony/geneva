@@ -52,7 +52,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_ParChildT.hpp"
-#include "geneva/GEAPersonalityTraits.hpp"
+#include "geneva/G_OA_EvolutionaryAlgorithm_PT.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GTestIndividual1.hpp"
@@ -66,6 +66,8 @@ namespace Geneva {
  */
 const sortingMode DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * This is a specialization of the GParChildT<executor_type> class. The class adds
@@ -1245,6 +1247,9 @@ public:
 };
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+
 // Some typedefs for the different execution modes
 using GEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>;
 using GSerialEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>>;

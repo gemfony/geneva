@@ -41,3 +41,4 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSerialSimulatedAnnealing)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMTSimulatedAnnealing)
 
 /******************************************************************************/
+

@@ -61,10 +61,8 @@ using namespace boost::unit_test;
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GBooleanCollection.hpp"
-#include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GPSPersonalityTraits.hpp"
-#include "geneva/GSAPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -122,6 +120,7 @@ public:
 			, GParameterSet
 		>;
 
+		// TODO: Add tests for algorithm types
 		using algorithm_types = boost::mpl::list<
 		>;
 
@@ -135,7 +134,7 @@ public:
 
 		using individual_types = boost::mpl::list<
 			Gem::Tests::GTestIndividual1
-			// , Gem::Tests::GTestIndividual3
+			// , Gem::Tests::GTestIndividual3 // TODO: Add test for GTestIndividual3
 			, GFunctionIndividual
 			, GDelayIndividual
 			, GExternalEvaluatorIndividual

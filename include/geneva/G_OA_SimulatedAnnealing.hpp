@@ -51,12 +51,13 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_ParChildT.hpp"
-#include "geneva/GSAPersonalityTraits.hpp"
-#include "geneva/G_OA_ParChildT.hpp"
+#include "geneva/G_OA_SimulatedAnnealing_PT.hpp"
 
 namespace Gem {
 namespace Geneva {
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * This is a specialization of the GParameterSetParChild class. The class adds
@@ -848,6 +849,8 @@ public:
 	 /***************************************************************************/
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 // Some typedefs for the different execution modes
 using GBrokerSimulatedAnnealing = GSimulatedAnnealingT<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>;

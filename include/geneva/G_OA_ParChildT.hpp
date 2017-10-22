@@ -54,11 +54,13 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GOptimizationAlgorithmT.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GBaseParChildPersonalityTraits.hpp"
+#include "geneva/G_OA_ParChildT_PT.hpp"
 
 namespace Gem {
 namespace Geneva {
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * The GParChildT<executor_type> class adds the notion of parents and children to
@@ -1144,8 +1146,10 @@ public:
 } /* namespace Gem */
 
 /******************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
+// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 namespace boost {
 namespace serialization {
 template<typename executor_type>

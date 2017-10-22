@@ -61,7 +61,6 @@
 #include "geneva/GConstrainedDoubleObjectCollection.hpp"
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/GEAPersonalityTraits.hpp"
 #include "geneva/GGDPersonalityTraits.hpp"
 #include "geneva/GSwarmPersonalityTraits.hpp"
 #include "common/GExceptions.hpp"

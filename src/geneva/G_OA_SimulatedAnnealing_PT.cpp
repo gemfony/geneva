@@ -1,5 +1,5 @@
 /**
- * @file GEAPersonalityTraits.cpp
+ * @file G_OA_SimulatedAnnealing_PT.cpp
  */
 
 /*
@@ -32,56 +32,56 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/GEAPersonalityTraits.hpp"
+#include "geneva/G_OA_SimulatedAnnealing_PT.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEAPersonalityTraits)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSAPersonalityTraits)
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GEAPersonalityTraits::nickname = "ea";
+G_API_GENEVA const std::string GSAPersonalityTraits::nickname = "sa";
 
 /******************************************************************************/
 /**
  * The default constructor
  */
-GEAPersonalityTraits::GEAPersonalityTraits()
-	: GBaseParChildPersonalityTraits(), isOnParetoFront_(true) { /* nothing */ }
+GSAPersonalityTraits::GSAPersonalityTraits()
+	: GBaseParChildPersonalityTraits() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy contructor
  *
- * @param cp A copy of another GEAPersonalityTraits object
+ * @param cp A copy of another GSAPersonalityTraits object
  */
-GEAPersonalityTraits::GEAPersonalityTraits(const GEAPersonalityTraits &cp)
-	: GBaseParChildPersonalityTraits(cp), isOnParetoFront_(cp.isOnParetoFront_) { /* nothing */ }
+GSAPersonalityTraits::GSAPersonalityTraits(const GSAPersonalityTraits &cp)
+	: GBaseParChildPersonalityTraits(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-GEAPersonalityTraits::~GEAPersonalityTraits() { /* nothing */ }
+GSAPersonalityTraits::~GSAPersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GEAPersonalityTraits &GEAPersonalityTraits::operator=(const GEAPersonalityTraits &cp) {
+const GSAPersonalityTraits &GSAPersonalityTraits::operator=(const GSAPersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GEAPersonalityTraits object
+ * Checks for equality with another GSAPersonalityTraits object
  *
- * @param  cp A constant reference to another GEAPersonalityTraits object
+ * @param  cp A constant reference to another GSAPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool GEAPersonalityTraits::operator==(const GEAPersonalityTraits &cp) const {
+bool GSAPersonalityTraits::operator==(const GSAPersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -93,12 +93,12 @@ bool GEAPersonalityTraits::operator==(const GEAPersonalityTraits &cp) const {
 
 /******************************************************************************/
 /**
- * Checks for inequality with another GEAPersonalityTraits object
+ * Checks for inequality with another GSAPersonalityTraits object
  *
- * @param  cp A constant reference to another GEAPersonalityTraits object
+ * @param  cp A constant reference to another GSAPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool GEAPersonalityTraits::operator!=(const GEAPersonalityTraits &cp) const {
+bool GSAPersonalityTraits::operator!=(const GSAPersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -117,21 +117,20 @@ bool GEAPersonalityTraits::operator!=(const GEAPersonalityTraits &cp) const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GEAPersonalityTraits::compare(
+void GSAPersonalityTraits::compare(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are dealing with a GEAPersonalityTraits reference independent of this object and convert the pointer
-	const GEAPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GEAPersonalityTraits>(cp, this);
+	// Check that we are dealing with a GSAPersonalityTraits reference independent of this object and convert the pointer
+	const GSAPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSAPersonalityTraits>(cp, this);
 
-	GToken token("GEAPersonalityTraits", e);
+	GToken token("GSAPersonalityTraits", e);
 
 	// Compare our parent data ...
 	Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
-	// ... and then the local data
-	compare_t(IDENTITY(isOnParetoFront_, p_load->isOnParetoFront_), token);
+	// ... no local data
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -141,16 +140,16 @@ void GEAPersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GEAPersonalityTraits::name() const {
-	return std::string("GEAPersonalityTraits");
+std::string GSAPersonalityTraits::name() const {
+	return std::string("GSAPersonalityTraits");
 }
 
 /******************************************************************************/
 /**
  * Retrieves the mnemonic of the optimization algorithm
  */
-std::string GEAPersonalityTraits::getMnemonic() const {
-	return GEAPersonalityTraits::nickname;
+std::string GSAPersonalityTraits::getMnemonic() const {
+	return GSAPersonalityTraits::nickname;
 }
 
 /******************************************************************************/
@@ -159,53 +158,25 @@ std::string GEAPersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *GEAPersonalityTraits::clone_() const {
-	return new GEAPersonalityTraits(*this);
+GObject *GSAPersonalityTraits::clone_() const {
+	return new GSAPersonalityTraits(*this);
 }
 
 /******************************************************************************/
 /**
- * Loads the data of another GEAPersonalityTraits object
+ * Loads the data of another GSAPersonalityTraits object
  *
- * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GObject
+ * @param cp A copy of another GSAPersonalityTraits object, camouflaged as a GObject
  */
-void GEAPersonalityTraits::load_(const GObject *cp) {
-	// Check that we are dealing with a GEAPersonalityTraits reference independent of this object and convert the pointer
-	const GEAPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GEAPersonalityTraits>(cp, this);
+void GSAPersonalityTraits::load_(const GObject *cp) {
+	// Check that we are dealing with a GSAPersonalityTraits reference independent of this object and convert the pointer
+	const GSAPersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSAPersonalityTraits>(cp, this);
 
 	// Load the parent class'es data
 	GBaseParChildPersonalityTraits::load_(cp);
 
 	// Then load our local data
-	isOnParetoFront_ = p_load->isOnParetoFront_;
-}
-
-/******************************************************************************/
-/**
- * Allows to check whether this individual lies on the pareto front (only yields
- * useful results after pareto-sorting in EA)
- *
- * @return A boolean indicating whether this object lies on the current pareto front
- */
-bool GEAPersonalityTraits::isOnParetoFront() const {
-	return isOnParetoFront_;
-}
-
-/******************************************************************************/
-/**
- * Allows to reset the pareto tag to "true"
- */
-void GEAPersonalityTraits::resetParetoTag() {
-	isOnParetoFront_ = true;
-}
-
-/******************************************************************************/
-/**
- * Allows to specify that this individual does not lie on the pareto front
- * of the current iteration
- */
-void GEAPersonalityTraits::setIsNotOnParetoFront() {
-	isOnParetoFront_ = false;
+	// no local data ...
 }
 
 /******************************************************************************/
@@ -214,7 +185,7 @@ void GEAPersonalityTraits::setIsNotOnParetoFront() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GEAPersonalityTraits::modify_GUnitTests() {
+bool GSAPersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
 	bool result = false;
 
@@ -223,7 +194,7 @@ bool GEAPersonalityTraits::modify_GUnitTests() {
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GEAPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+	condnotset("GSAPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -232,7 +203,7 @@ bool GEAPersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void GSAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -244,7 +215,7 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GSAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -252,7 +223,7 @@ void GEAPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void GSAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -264,7 +235,7 @@ void GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GEAPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GSAPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
