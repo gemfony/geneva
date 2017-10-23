@@ -551,8 +551,12 @@ public:
 	  * executor is responsible for evaluating the individuals.
 	  *
 	  * @param executor_ptr A pointer to an executor
+	  * @param executorConfigFile The name of a file used to configure the executor
 	  */
-	 void registerExecutor(std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr) {
+	 void registerExecutor(
+		 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
+	 	 , const std::string& executorConfigFile
+	 ) {
 		 if(!m_executor_ptr) {
 			 glogger
 			 << "In GOptimizationAlgorithmT<executor_type>::registerExecutor(): Warning!" << std::endl
@@ -575,6 +579,19 @@ public:
 
 		 // Register the new executor
 		 m_executor_ptr = executor_ptr;
+
+		 // Give the executor a chance to configure itself from
+		 // user-defined configuration options
+		 Gem::Common::GParserBuilder gpb;
+		 m_executor_ptr->addConfigurationOptions(gpb);
+		 if (!gpb.parseConfigFile(executorConfigFile)) {
+			 glogger
+				 << "In GOptimizationAlgorithmT<executor_type>::registerExecutor(): Error!" << std::endl
+				 << "Could not parse configuration file " << executorConfigFile << std::endl
+				 << GEXCEPTION;
+		 }
+
+		 // TODO: Check that the new executor has the desired configuration
 	 }
 
 	 /***************************************************************************/
@@ -1367,10 +1384,9 @@ public:
 		 // We simply add all *clean* individuals to the queue -- only the best ones will actually be added
 		 // (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
 		 // resized as required by its maximum allowed size.
-		 G_OA_BaseT<executor_type>::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 if((*it)->isClean()) {
-				 bestIndividuals.add(*it, CLONE);
+		 for(auto ind_ptr: *this) {
+			 if(ind_ptr->isClean()) {
+				 bestIndividuals.add(ind_ptr, CLONE);
 			 }
 		 }
 	 }
@@ -1615,10 +1631,7 @@ protected:
 	  * Allows to set the personality type of the individuals
 	  */
 	 void setIndividualPersonalities() {
-		 typename G_OA_BaseT<executor_type>::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->setPersonality(this->getPersonalityTraits());
-		 }
+		 for(auto ind_ptr: *this) { ind_ptr->setPersonality(this->getPersonalityTraits()); }
 	 }
 
 	 /***************************************************************************/
@@ -1626,8 +1639,7 @@ protected:
 	  * Resets the individual's personality types
 	  */
 	 void resetIndividualPersonalities() {
-		 typename G_OA_BaseT<executor_type>::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) (*it)->resetPersonality();
+		 for(auto ind_ptr: *this) { ind_ptr->resetPersonality(); }
 	 }
 
 	 /***************************************************************************/
@@ -1742,10 +1754,7 @@ protected:
 	  * cycle.
 	  */
 	 void markIteration() {
-		 typename G_OA_BaseT<executor_type>::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->setAssignedIteration(m_iteration);
-		 }
+		 for(auto ind: *this) { ind->setAssignedIteration(m_iteration); }
 	 }
 
 	 /***************************************************************************/
@@ -1756,25 +1765,23 @@ protected:
 	  * evaluation, the second value the potentially transformed value.
 	  */
 	 void updateWorstKnownValid() {
-		 typename G_OA_BaseT<executor_type>::iterator it;
 		 std::size_t nFitnessCriteria = (*(this->begin()))->getNumberOfFitnessCriteria();
 
 		 // Is this the first call ? Fill m_worstKnownValids_vec with data
 		 if(inFirstIteration()) {
-			 for(it=this->begin(); it!=this->end(); ++it) {
-				 (*it)->populateWorstKnownValid();
-			 }
+			 for(auto ind_ptr: *this) { ind_ptr->populateWorstKnownValid(); }
 
 			 // Initialize our own, local m_worstKnownValids_vec
 			 m_worstKnownValids_vec = (*(this->begin()))->getWorstKnownValids();
 		 }
 
-		 for(it=this->begin(); it!=this->end(); ++it) {
+		 std::size_t ind_cnt = 0;
+		 for(auto ind_ptr: *this) {
 #ifdef DEBUG
-			 if((*it)->getNumberOfFitnessCriteria() != nFitnessCriteria) {
+			 if(ind_ptr->getNumberOfFitnessCriteria() != nFitnessCriteria) {
 				 glogger
 					 << "In G_OA_BaseT<>::updateWorstKnownValid(): Error!" << std::endl
-					 << "Got " << (*it)->getNumberOfFitnessCriteria() << " fitness criteria in individual " << (it-this->begin()) << std::endl
+					 << "Got " << ind_ptr->getNumberOfFitnessCriteria() << " fitness criteria in individual " << ind_cnt << std::endl
 					 << "but expected " << nFitnessCriteria << " criteria" << std::endl
 					 << GEXCEPTION;
 			 }
@@ -1788,11 +1795,13 @@ protected:
 			 }
 #endif /* DEBUG */
 
-			 if((*it)->isClean() && (*it)->isValid()) { // Is this an individual which has been evaluated and fulfills all constraints ?
+			 if(ind_ptr->isClean() && ind_ptr->isValid()) { // Is this an individual which has been evaluated and fulfills all constraints ?
 				 for(std::size_t id=0; id<nFitnessCriteria; id++) {
-					 (*it)->challengeWorstValidFitness(m_worstKnownValids_vec.at(id), id);
+					 ind_ptr->challengeWorstValidFitness(m_worstKnownValids_vec.at(id), id);
 				 }
 			 }
+
+			 ind_cnt++;
 		 }
 	 }
 
@@ -1802,10 +1811,7 @@ protected:
 	  */
 	 void markWorstKnownValid() {
 		 this->updateWorstKnownValid();
-		 typename G_OA_BaseT<executor_type>::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->setWorstKnownValid(m_worstKnownValids_vec);
-		 }
+		 for(auto ind_ptr: *this) { ind_ptr->setWorstKnownValid(m_worstKnownValids_vec); }
 	 }
 
 	 /***************************************************************************/
@@ -1814,10 +1820,7 @@ protected:
 	  * act on the information regarding best or worst evaluations found
 	  */
 	 void triggerEvaluationUpdate() {
-		 typename G_OA_BaseT<executor_type>::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->postEvaluationUpdate();
-		 }
+		 for(auto ind_ptr: *this) { ind_ptr->postEvaluationUpdate();}
 	 }
 
 	 /***************************************************************************/
@@ -1843,10 +1846,7 @@ protected:
 	  * Let individuals know the number of stalls encountered so far
 	  */
 	 void markNStalls() {
-		 typename G_OA_BaseT<executor_type>::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->setNStalls(m_stallCounter);
-		 }
+		 for(auto ind_ptr: *this) { ind_ptr->setNStalls(m_stallCounter); }
 	 }
 
 	 /***************************************************************************/
@@ -2180,10 +2180,7 @@ private:
 	  * Marks the globally best known fitness in all individuals
 	  */
 	 void markBestFitness() {
-		 typename G_OA_BaseT<executor_type>::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness());
-		 }
+		 for(auto ind_ptr: *this) { ind_ptr->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness()); }
 	 }
 
 	 /***************************************************************************/
