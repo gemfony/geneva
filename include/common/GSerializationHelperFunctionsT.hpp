@@ -266,7 +266,7 @@ void load(
 /**
  * Loads a time point from an archive
  */
-template<class Archive>
+template<typename Archive>
 void save(
 	Archive& ar
 	, std::chrono::system_clock::time_point const& val
@@ -281,7 +281,7 @@ void save(
 /**
  * Saves a time point to an archive
  */
-template<class Archive>
+template<typename Archive>
 void load(
 	Archive& ar
 	, std::chrono::system_clock::time_point& val
@@ -290,6 +290,35 @@ void load(
 	std::chrono::milliseconds::rep representation;
 	ar & make_nvp("timpoint_milliseconds", representation);
 	val = std::chrono::system_clock::time_point(std::chrono::milliseconds(representation));
+}
+
+/******************************************************************************/
+/**
+ * Serialization of std::atomic<bool>
+ */
+template<typename Archive>
+void save(
+	Archive & ar
+	, std::atomic<bool> const& b
+	, unsigned int version
+){
+	bool value = b.load();
+	ar & make_nvp("bool_val", value);
+}
+
+/******************************************************************************/
+/**
+ * Deserialization of std::atomic<bool>
+ */
+template<typename Archive>
+void load(
+	Archive & ar
+	, std::atomic<bool>& b
+	, unsigned int version
+){
+	bool value = false;
+	ar & make_nvp("bool_val", value);
+	b.store(value);
 }
 
 /******************************************************************************/
@@ -304,9 +333,10 @@ void load(
 BOOST_SERIALIZATION_SPLIT_FREE(boost::logic::tribool)
 BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::duration<double>)
 BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::system_clock::time_point)
+BOOST_SERIALIZATION_SPLIT_FREE(std::atomic<bool>)
 
 /*
-template<class Archive, typename clock_type>
+template<typename Archive, typename clock_type>
 inline void serialize(
 	Archive & ar
 	, std::chrono::time_point<clock_type>& time_point

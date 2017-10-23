@@ -904,11 +904,11 @@ public:
 
 		 // ... then add local dara
 		 gpb.registerFileParameter<std::uint16_t>(
-			 "nEvaluationThreads" // The name of the variable
+			 "nProcessingThreads" // The name of the variable in the configuration file
 			 , Gem::Courtier::DEFAULTNSTDTHREADS // The default value
 			 , [this](std::uint16_t nt) { this->setNThreads(nt); }
 		 )
-			 << "The number of threads used to simultaneously evaluate work items" << std::endl
+			 << "The number of threads used to simultaneously process work items" << std::endl
 			 << "0 means \"automatic\"";
 	 }
 
@@ -1081,6 +1081,8 @@ protected:
 		 m_gtp_ptr->wait();
 
 		 // Mark all positions as "processed"
+		 // TODO: If an exception was thrown in user-code in one of the positions,
+		 // mark item as unprocessed
 		 for(auto item: workItemPos) {
 			 item = GBC_PROCESSED;
 		 }

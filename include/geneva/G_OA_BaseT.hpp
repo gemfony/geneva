@@ -173,9 +173,11 @@ public:
 			, m_terminationFile(cp.m_terminationFile)
 			, m_terminateOnFileModification(cp.m_terminateOnFileModification)
 			, m_emitTerminationReason(cp.m_emitTerminationReason)
-			, m_halted(cp.m_halted)
 			, m_worstKnownValids_vec(cp.m_worstKnownValids_vec)
 	 {
+		 // Copy atomics over
+		 m_halted.store(cp.m_halted.load());
+
 		 // Copy the executor over
 		 Gem::Common::copyCloneableSmartPointer(cp.m_executor_ptr, m_executor_ptr);
 
@@ -548,8 +550,6 @@ public:
 	  * Adds a new executor to the class, replacing the default executor. The
 	  * executor is responsible for evaluating the individuals.
 	  *
-	  * TODO: Prevent registration while the optimization is running
-	  *
 	  * @param executor_ptr A pointer to an executor
 	  */
 	 void registerExecutor(std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr) {
@@ -559,6 +559,18 @@ public:
 	       << "Tried to register empty executor-pointer. We will leave the existing" << std::endl
 			 << "executor in place" << std::endl
 			 << GWARNING;
+
+			 return;
+		 }
+
+		 if(!m_halted) {
+			 glogger
+			 << "In GOptimizationAlgorithmT<executor_type>::registerExecutor(): Warning!" << std::endl
+			 << "Tried to register an executor while the optimization is already running" << std::endl
+			 << "The new executor will be ignored." << std::endl
+			 << GWARNING;
+
+			 return;
 		 }
 
 		 // Register the new executor
@@ -1455,7 +1467,7 @@ protected:
 		 m_maxDuration = p_load->m_maxDuration;
 		 m_minDuration = p_load->m_minDuration;
 		 m_emitTerminationReason = p_load->m_emitTerminationReason;
-		 m_halted = p_load->m_halted;
+		 m_halted.store(p_load->m_halted.load());
 		 m_worstKnownValids_vec = p_load->m_worstKnownValids_vec;
 		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors_vec, m_pluggable_monitors_vec);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_executor_ptr, m_executor_ptr);
@@ -1690,7 +1702,7 @@ protected:
 	  * as their first action, call this function.
 	  */
 	 virtual void init() BASE {
-		 // Add an executor, of none has been registered
+		 // Add an executor, if none has been registered
 		 if(!m_executor_ptr) {
 			 glogger
 			 << "In G_OA_BaseT<>::init():" << std::endl
@@ -2216,7 +2228,7 @@ private:
 	 std::string m_terminationFile = DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
 	 bool m_terminateOnFileModification = false;
 	 bool m_emitTerminationReason = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
-	 bool m_halted = false; ///< Set to true when halt() has returned "true"
+	 std::atomic<bool> m_halted { false }; ///< Set to true when halt() has returned "true"
 	 std::vector<std::tuple<double, double>> m_worstKnownValids_vec; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 	 std::vector<std::shared_ptr<GBasePluggableOMT<G_OA_BaseT<executor_type>>>> m_pluggable_monitors_vec; ///< A collection of monitors
 
