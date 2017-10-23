@@ -126,7 +126,9 @@ private:
 		 & BOOST_SERIALIZATION_NVP(m_halted)
 		 & BOOST_SERIALIZATION_NVP(m_worstKnownValids_vec)
 		 & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_vec)
-		 & BOOST_SERIALIZATION_NVP(m_executor_ptr);
+		 & BOOST_SERIALIZATION_NVP(m_executor_ptr)
+		 & BOOST_SERIALIZATION_NVP(m_default_execMode)
+		 & BOOST_SERIALIZATION_NVP(m_default_executor_config);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -174,6 +176,8 @@ public:
 			, m_terminateOnFileModification(cp.m_terminateOnFileModification)
 			, m_emitTerminationReason(cp.m_emitTerminationReason)
 			, m_worstKnownValids_vec(cp.m_worstKnownValids_vec)
+	 	   , m_default_execMode(cp.m_default_execMode)
+	 	   , m_default_executor_config(cp.m_default_executor_config)
 	 {
 		 // Copy atomics over
 		 m_halted.store(cp.m_halted.load());
@@ -512,6 +516,8 @@ public:
 		 compare_t(IDENTITY(m_worstKnownValids_vec, p_load->m_worstKnownValids_vec), token);
 		 compare_t(IDENTITY(m_pluggable_monitors_vec, p_load->m_pluggable_monitors_vec), token);
 		 compare_t(IDENTITY(m_executor_ptr, p_load->m_executor_ptr), token);
+		 compare_t(IDENTITY(m_default_execMode, p_load->m_default_execMode), token);
+		 compare_t(IDENTITY(m_default_executor_config, p_load->m_default_executor_config), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();
@@ -528,7 +534,7 @@ public:
 	  * from this class may have to perform additional work by overloading (and
 	  * calling) this function.
 	  */
-	 virtual void resetToOptimizationStart() {
+	 virtual void resetToOptimizationStart() BASE {
 		 this->clear(); // Remove all individuals found in this population
 
 		 m_iteration = 0; // The current iteration
@@ -540,7 +546,7 @@ public:
 
 		 m_stallCounter = 0; // Counts the number of iterations without improvement
 
-		 m_halted = false; // Set to true when halt() has returned "true"
+		 m_halted = true; // Also means: No optimization is currently running
 
 		 m_worstKnownValids_vec.clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 	 }
@@ -557,9 +563,9 @@ public:
 		 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
 	 	 , const std::string& executorConfigFile
 	 ) {
-		 if(!m_executor_ptr) {
+		 if(!executor_ptr) {
 			 glogger
-			 << "In GOptimizationAlgorithmT<executor_type>::registerExecutor(): Warning!" << std::endl
+			 << "In G_OA_BaseT<executor_type>::registerExecutor(): Warning!" << std::endl
 	       << "Tried to register empty executor-pointer. We will leave the existing" << std::endl
 			 << "executor in place" << std::endl
 			 << GWARNING;
@@ -569,7 +575,7 @@ public:
 
 		 if(!m_halted) {
 			 glogger
-			 << "In GOptimizationAlgorithmT<executor_type>::registerExecutor(): Warning!" << std::endl
+			 << "In G_OA_BaseT<executor_type>::registerExecutor(): Warning!" << std::endl
 			 << "Tried to register an executor while the optimization is already running" << std::endl
 			 << "The new executor will be ignored." << std::endl
 			 << GWARNING;
@@ -586,7 +592,7 @@ public:
 		 m_executor_ptr->addConfigurationOptions(gpb);
 		 if (!gpb.parseConfigFile(executorConfigFile)) {
 			 glogger
-				 << "In GOptimizationAlgorithmT<executor_type>::registerExecutor(): Error!" << std::endl
+				 << "In G_OA_BaseT<executor_type>::registerExecutor(): Error!" << std::endl
 				 << "Could not parse configuration file " << executorConfigFile << std::endl
 				 << GEXCEPTION;
 		 }
@@ -609,9 +615,6 @@ public:
 
 		 // Set the iteration offset
 		 m_offset = offset;
-
-		 // Let the algorithm know that the optimization process hasn't been halted yet
-		 m_halted = false; // general halt criterion
 
 		 // Store any *clean* individuals that have been added to this algorithm
 		 // in the priority queue. This happens so that best individuals from a
@@ -641,6 +644,9 @@ public:
 
 		 // Give derived classes the opportunity to perform any other necessary preparatory work.
 		 init();
+
+		 // Let the algorithm know that the optimization process hasn't been halted yet.
+		 m_halted = false; // general halt criterion
 
 		 // Initialize the start time with the current time.
 		 m_startTime = std::chrono::system_clock::now();
@@ -1184,10 +1190,6 @@ public:
 		 // Call our parent class'es function
 		 GObject::addConfigurationOptions(gpb);
 
-		 // Add configuration options for the executor
-		 // TODO: How to pass appropriate cofligs here ?
-		 // m_executor_ptr->addConfigurationOptions(gpb);
-
 		 // Add local data
 		 gpb.registerFileParameter<std::uint32_t>(
 			 "maxIteration" // The name of the variable
@@ -1318,6 +1320,23 @@ public:
 			 , [this](bool etr){ this->setEmitTerminationReason(etr); }
 		 )
 			 << "Triggers emission (1) or omission (0) of information about reasons for termination";
+
+		 gpb.registerFileParameter<execMode, std::string>(
+			 "defaultExecMode" // The name of the variable
+			 , "defaultExecConfig"
+			 , this->m_default_execMode // The default value
+			 , this->m_default_executor_config
+			 , [this](execMode e, std::string config){ this->m_default_execMode = e; this->m_default_executor_config = config; }
+			 , "defaultExecutor"
+		 )
+			 << "The default executor type to be used for this algorithm." << std::endl
+			 << "0: serial" << std::endl
+		 	 << "1: multi-threaded" << std::endl
+		    << "2: brokered" << std::endl << Gem::Common::nextComment()
+			 << "The configuration file for the default executor. Note that it needs to fit the executor type.";
+
+		 execMode m_default_execMode = execMode::BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
+		 std::string m_default_executor_config = "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
 	 }
 
 	 /***************************************************************************/
@@ -1487,6 +1506,8 @@ protected:
 		 m_worstKnownValids_vec = p_load->m_worstKnownValids_vec;
 		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors_vec, m_pluggable_monitors_vec);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_executor_ptr, m_executor_ptr);
+		 m_default_execMode = p_load->m_default_execMode;
+		 m_default_executor_config = p_load->m_default_executor_config;
 	 }
 
 	 /***************************************************************************/
@@ -1512,7 +1533,7 @@ protected:
 	  * Retrieves a vector of old work items after job submission
 	  */
 	 std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems() {
-		 return std::move(m_executor_ptr->getOldWorkItems());
+		 return m_executor_ptr->getOldWorkItems();
 	 }
 
 	 /***************************************************************************/
@@ -1716,16 +1737,29 @@ protected:
 	 virtual void init() BASE {
 		 // Add an executor, if none has been registered
 		 if(!m_executor_ptr) {
+			 auto executor_ptr = this->getExecutor(m_default_execMode);
+
+#ifdef DEBUG
+			 if(!executor_ptr) {
+				 glogger
+					 << "In G_OA_BaseT<>::init(): Error!" << std::endl
+				    << "Did not receive a valid executor" << std::endl
+					 << GEXCEPTION;
+			 }
+#endif
+
 			 glogger
-			 << "In G_OA_BaseT<>::init():" << std::endl
-		    << "No executor was registered. Using default multi-threaded executor" << std::endl
+			 << "In G_OA_BaseT<>::init(): No explicit executor was registered. Using default" << std::endl
+			 << "\"" << executor_ptr->name() << "\" with config \"" << this->m_default_executor_config << "\" instead" << std::endl
 			 << GLOGGING;
 
-			 // TODO: This should be initialized with a suitable number of threads
-			 m_executor_ptr = std::shared_ptr<Gem::Courtier::GMTExecutorT<GParameterSet>>(new Gem::Courtier::GMTExecutorT<GParameterSet>());
+			 this->registerExecutor(
+				 executor_ptr
+				 , this->m_default_executor_config
+			 );
 		 }
 
-		 // Initialize the broker connector
+		 // Initialize the executor
 		 m_executor_ptr->init();
 	 }
 
@@ -2192,6 +2226,31 @@ private:
 	 }
 
 	 /***************************************************************************/
+	 /**
+	  * Retrieves an executor for the given execution mode
+	  */
+	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> getExecutor(const execMode& e) {
+		 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr;
+
+		 switch(e) {
+			 case execMode::SERIAL:
+				 executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(new Gem::Courtier::GSerialExecutorT<GParameterSet>());
+				 break;
+
+			 case execMode::MULTITHREADED:
+				 executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(new Gem::Courtier::GMTExecutorT<GParameterSet>());
+				 break;
+
+			 case execMode::BROKER:
+			 	 std::cout << "Creating broker executor" << std::endl;
+				 executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(new Gem::Courtier::GBrokerExecutorT<GParameterSet>());
+				 break;
+		 }
+
+		 return executor_ptr;
+	 }
+
+	 /***************************************************************************/
 
 	 std::uint32_t m_iteration = 0; ///< The current iteration
 	 std::uint32_t m_offset = DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
@@ -2225,12 +2284,14 @@ private:
 	 std::string m_terminationFile = DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
 	 bool m_terminateOnFileModification = false;
 	 bool m_emitTerminationReason = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
-	 std::atomic<bool> m_halted { false }; ///< Set to true when halt() has returned "true"
+	 std::atomic<bool> m_halted { true }; ///< Set to true when halt() has returned "true"
 	 std::vector<std::tuple<double, double>> m_worstKnownValids_vec; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 	 std::vector<std::shared_ptr<GBasePluggableOMT<G_OA_BaseT<executor_type>>>> m_pluggable_monitors_vec; ///< A collection of monitors
 
 	 executor_type m_executor; ///< Takes care of the evaluation of objects
 	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> m_executor_ptr; ///< Holds the current executor for this algorithm
+	 execMode m_default_execMode = execMode::BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
+	 std::string m_default_executor_config = "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
 
 public:
 	 /***************************************************************************/

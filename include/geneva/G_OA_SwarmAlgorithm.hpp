@@ -127,7 +127,7 @@ public:
 	 ) const override;
 
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-	 virtual G_API_GENEVA void resetToOptimizationStart();
+	 virtual G_API_GENEVA void resetToOptimizationStart() override;
 
 	 /** @brief Sets the number of neighborhoods and the number of members in them */
 	 G_API_GENEVA void setSwarmSizes(std::size_t, std::size_t);

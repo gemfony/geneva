@@ -207,7 +207,7 @@ public:
 	  * Resets the settings of this population to what was configured when
 	  * the optimize()-call was issued
 	  */
-	 virtual void resetToOptimizationStart() {
+	 virtual void resetToOptimizationStart() override {
 		 // There is no more work to be done here, so we simply call the
 		 // function of the parent class
 		 G_OA_ParChildT<executor_type>::resetToOptimizationStart();

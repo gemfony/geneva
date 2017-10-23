@@ -660,7 +660,7 @@ public:
 
 
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-	 virtual G_API_GENEVA void resetToOptimizationStart();
+	 virtual G_API_GENEVA void resetToOptimizationStart() override;
 
 	 /** @brief Returns information about the type of optimization algorithm */
 	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const override;

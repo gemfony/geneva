@@ -202,7 +202,7 @@ public:
 	  * Resets the settings of this population to what was configured when
 	  * the optimize()-call was issued
 	  */
-	 virtual void resetToOptimizationStart() {
+	 virtual void resetToOptimizationStart() override {
 		 // Reset the temperature
 		 m_t = m_t0;
 
