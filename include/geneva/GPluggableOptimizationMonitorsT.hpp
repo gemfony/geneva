@@ -57,19 +57,11 @@
 #include "common/GLogger.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 
 namespace Gem {
 namespace Geneva {
-
-/******************************************************************************/
-/*
- * This is a collection of simple pluggable modules suitable for emitting certain specialized
- * information from within optimization algorithms. They can be plugged into G_OptimizationAlgorithm_Base
- * derivatives. A requirement is that they implement a function "informationFunction"
- * according to the API of GBasePluggableOM .
- */
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

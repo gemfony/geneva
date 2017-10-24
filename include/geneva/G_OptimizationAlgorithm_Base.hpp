@@ -67,6 +67,14 @@
 namespace Gem {
 namespace Geneva {
 
+/******************************************************************************/
+/*
+ * This is a collection of simple pluggable modules suitable for emitting certain specialized
+ * information from within optimization algorithms. They can be plugged into G_OptimizationAlgorithm_Base
+ * derivatives. A requirement is that they implement a function "informationFunction"
+ * according to the API of GBasePluggableOM .
+ */
+
 // Forward declaration
 class G_OptimizationAlgorithm_Base;
 
@@ -2623,13 +2631,12 @@ public:
 /******************************************************************************/
 // Some serialization-related exports and declarations
 
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBasePluggableOM)
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_Base)
 
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)
-
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBasePluggableOM)
 
 /******************************************************************************/
 
