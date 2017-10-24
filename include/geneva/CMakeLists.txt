@@ -53,6 +53,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumT.hpp
     G_OptimizationAlgorithm_Base.hpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp
+    G_OptimizationAlgorithm_GradientDescent.hpp
     G_OptimizationAlgorithm_ParChild.hpp
     G_OptimimzationAlgorithm_ParameterScan.hpp
     G_OptimizationAlgorithm_SimulatedAnnealing.hpp
@@ -61,7 +62,6 @@ SET ( OPTIMIZATIONINCLUDES
     G_OA_EvolutionaryAlgorithm_PersonalityTraits.hpp
     G_OA_FactoryT.hpp
     G_OA_FactoryStore.hpp
-    G_OA_GradientDescent.hpp
     G_OA_GradientDescent_Factory.hpp
     G_OA_GradientDescent_PersonalityTraits.hpp
     G_OA_InitializerT.hpp

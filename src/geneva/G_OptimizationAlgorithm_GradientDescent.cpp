@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_GradientDescent.hpp"
+#include "geneva/G_OptimizationAlgorithm_GradientDescent.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent)
 
