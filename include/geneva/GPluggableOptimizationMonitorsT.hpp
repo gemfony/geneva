@@ -71,7 +71,7 @@ namespace Geneva {
  * It will usually already be registered as a pluggable optimization monitor, when
  * you instantiate a new optimization algorithm.
  */
-class GStandardMonitorT
+class GStandardMonitor
 	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
@@ -94,14 +94,14 @@ public:
 	/**
 	 * The default constructor
 	 */
-	GStandardMonitorT()
+	GStandardMonitor()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * The copy constructor
 	 */
-	GStandardMonitorT(const GStandardMonitorT& cp)
+	GStandardMonitor(const GStandardMonitor& cp)
 		: GBasePluggableOM(cp)
 	{ /* nothing */ }
 
@@ -109,14 +109,14 @@ public:
 	/**
 	 * The destructor
 	 */
-	virtual ~GStandardMonitorT()
+	virtual ~GStandardMonitor()
 	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 	 * A standard assignment operator
 	 */
-	const GStandardMonitorT& operator=(const GStandardMonitorT& cp) {
+	const GStandardMonitor& operator=(const GStandardMonitor& cp) {
 		this->load_(&cp);
 		return *this;
 	}
@@ -128,7 +128,7 @@ public:
 	 * @param  cp A constant reference to another GStandardMonitorT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GStandardMonitorT& cp) const {
+	virtual bool operator==(const GStandardMonitor& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -145,7 +145,7 @@ public:
 	 * @param  cp A constant reference to another GStandardMonitorT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GStandardMonitorT& cp) const {
+	virtual bool operator!=(const GStandardMonitor& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -197,7 +197,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GStandardMonitorT");
+		return std::string("GStandardMonitor");
 	}
 
 	/***************************************************************************/
@@ -216,10 +216,10 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GStandardMonitorT reference independent of this object and convert the pointer
-		const GStandardMonitorT *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GStandardMonitor reference independent of this object and convert the pointer
+		const GStandardMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GStandardMonitorT", e);
+		GToken token("GStandardMonitor", e);
 
 		// Compare our parent data ...
 		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
@@ -238,8 +238,8 @@ protected:
 	 * cp A pointer to another GStandardMonitorT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GStandardMonitorT reference independent of this object and convert the pointer
-		const GStandardMonitorT *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GStandardMonitor reference independent of this object and convert the pointer
+		const GStandardMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
 		GBasePluggableOM::load_(cp);
@@ -252,7 +252,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GStandardMonitorT(*this);
+		return new GStandardMonitor(*this);
 	}
 
 public:
@@ -279,7 +279,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GStandardMonitorT::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GStandardMonitor::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -296,7 +296,7 @@ public:
 		// Call the parent classes' functions
 		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GStandardMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GStandardMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -313,7 +313,7 @@ public:
 		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GStandardMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GStandardMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 	/***************************************************************************/
@@ -4523,7 +4523,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-using GStandardMonitor = GStandardMonitorT;
+using GStandardMonitor = GStandardMonitor;
 using GFitnessMonitor = GFitnessMonitorT;
 using GCollectiveMonitor = GCollectiveMonitorT;
 using GProgressPlotter = GProgressPlotterT<double>;
