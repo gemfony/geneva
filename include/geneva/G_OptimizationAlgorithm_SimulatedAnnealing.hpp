@@ -51,7 +51,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_ParChild.hpp"
-#include "geneva/G_OA_SimulatedAnnealing_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -523,7 +523,7 @@ protected:
 				 old_work_items.begin()
 				 , old_work_items.end()
 				 , [iteration](std::shared_ptr<GParameterSet> x) -> bool {
-					 return x->getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
+					 return x->getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 				 }
 			 )
 			 , old_work_items.end()
@@ -540,7 +540,7 @@ protected:
 			 this->begin()
 			 , this->end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-				 return (x->getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->isParent() > y->getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->isParent());
+				 return (x->getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->isParent() > y->getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->isParent());
 			 }
 		 );
 
@@ -590,10 +590,10 @@ protected:
 		 // We want to have a sane population.
 		 typename G_OptimizationAlgorithm_Base::iterator it;
 		 for (it = this->begin(); it != this->begin() + np; ++it) {
-			 (*it)->GParameterSet::template getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->setIsParent();
+			 (*it)->GParameterSet::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->setIsParent();
 		 }
 		 for (it = this->begin() + np; it != this->end(); ++it) {
-			 (*it)->GParameterSet::template getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->setIsChild();
+			 (*it)->GParameterSet::template getPersonalityTraits<GSimulatedAnnealing_PersonalityTraits>()->setIsChild();
 		 }
 
 		 // We care for too many returned individuals in the selectBest() function. Older
@@ -699,7 +699,7 @@ protected:
  	  * Retrieve a GPersonalityTraits object belonging to this algorithm
  	  */
 	 virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override {
-		 return std::shared_ptr<G_OA_SimulatedAnnealing_PersonalityTraits>(new G_OA_SimulatedAnnealing_PersonalityTraits());
+		 return std::shared_ptr<GSimulatedAnnealing_PersonalityTraits>(new GSimulatedAnnealing_PersonalityTraits());
 	 }
 
 private:

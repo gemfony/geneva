@@ -61,8 +61,10 @@ SET ( OPTIMIZATIONINCLUDES
     G_OptimizationAlgorithm_ParChild.hpp
     G_OptimizationAlgorithm_ParameterScan.hpp
     G_OptimizationAlgorithm_ParameterScan_Factory.hpp
+    G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp
     G_OptimizationAlgorithm_SimulatedAnnealing.hpp
     G_OptimizationAlgorithm_SimulatedAnnealing_Factory.hpp
+    G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp
     G_OptimizationAlgorithm_SwarmAlgorithm.hpp
     G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp
     G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp
@@ -70,9 +72,7 @@ SET ( OPTIMIZATIONINCLUDES
     G_OA_FactoryT.hpp
     G_OA_FactoryStore.hpp
     G_OA_InitializerT.hpp
-    G_OA_ParameterScan_PersonalityTraits.hpp
     G_OA_ParChildT_PersonalityTraits.hpp
-    G_OA_SimulatedAnnealing_PersonalityTraits.hpp
 	Go2.hpp
     GObject.hpp
 	GOptimizableEntity.hpp

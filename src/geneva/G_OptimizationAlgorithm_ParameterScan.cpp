@@ -1332,7 +1332,7 @@ void GParameterScan::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
 std::shared_ptr <GPersonalityTraits> GParameterScan::getPersonalityTraits() const {
-	return std::shared_ptr<G_OA_ParameterScan_PersonalityTraits>(new G_OA_ParameterScan_PersonalityTraits());
+	return std::shared_ptr<GParameterScan_PersonalityTraits>(new GParameterScan_PersonalityTraits());
 }
 
 /******************************************************************************/

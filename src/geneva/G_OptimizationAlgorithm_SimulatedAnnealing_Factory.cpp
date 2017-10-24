@@ -90,7 +90,7 @@ GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GSimulatedAnnealingFactory::getMnemonic() const {
-	return G_OA_SimulatedAnnealing_PersonalityTraits::nickname;
+	return GSimulatedAnnealing_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/

@@ -61,10 +61,10 @@
 #include "geneva/GConstrainedDoubleObject.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp"
-#include "geneva/G_OA_SimulatedAnnealing_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp"
 #include "geneva/G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp"
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
-#include "geneva/G_OA_ParameterScan_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GCommonEnums.hpp"
 

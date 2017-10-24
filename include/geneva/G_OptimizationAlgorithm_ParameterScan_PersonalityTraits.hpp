@@ -54,7 +54,7 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to gradient descents.
  */
-class G_OA_ParameterScan_PersonalityTraits :public GPersonalityTraits
+class GParameterScan_PersonalityTraits :public GPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -74,19 +74,19 @@ public:
    static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
 	/** @brief The default constructor */
-	G_API_GENEVA G_OA_ParameterScan_PersonalityTraits();
+	G_API_GENEVA GParameterScan_PersonalityTraits();
 	/** @brief The copy contructor */
-	G_API_GENEVA G_OA_ParameterScan_PersonalityTraits(const G_OA_ParameterScan_PersonalityTraits&);
+	G_API_GENEVA GParameterScan_PersonalityTraits(const GParameterScan_PersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual G_API_GENEVA ~G_OA_ParameterScan_PersonalityTraits();
+	virtual G_API_GENEVA ~GParameterScan_PersonalityTraits();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const G_OA_ParameterScan_PersonalityTraits& operator=(const G_OA_ParameterScan_PersonalityTraits&);
+	G_API_GENEVA const GParameterScan_PersonalityTraits& operator=(const GParameterScan_PersonalityTraits&);
 
 	/** @brief Checks for equality with another GPSPersonalityTraits object */
-	G_API_GENEVA bool operator==(const G_OA_ParameterScan_PersonalityTraits&) const;
+	G_API_GENEVA bool operator==(const GParameterScan_PersonalityTraits&) const;
 	/** @brief Checks for inequality with another GPSPersonalityTraits object */
-	G_API_GENEVA bool operator!=(const G_OA_ParameterScan_PersonalityTraits&) const;
+	G_API_GENEVA bool operator!=(const GParameterScan_PersonalityTraits&) const;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual G_API_GENEVA void compare(
@@ -129,7 +129,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::G_OA_ParameterScan_PersonalityTraits)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan_PersonalityTraits)
 
 #endif /* GPSPERSONALITYTRAITS_HPP_ */
 

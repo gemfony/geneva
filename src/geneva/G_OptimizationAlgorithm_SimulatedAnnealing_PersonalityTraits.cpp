@@ -32,22 +32,22 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_SimulatedAnnealing_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::G_OA_SimulatedAnnealing_PersonalityTraits)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSimulatedAnnealing_PersonalityTraits)
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string G_OA_SimulatedAnnealing_PersonalityTraits::nickname = "sa";
+G_API_GENEVA const std::string GSimulatedAnnealing_PersonalityTraits::nickname = "sa";
 
 /******************************************************************************/
 /**
  * The default constructor
  */
-G_OA_SimulatedAnnealing_PersonalityTraits::G_OA_SimulatedAnnealing_PersonalityTraits()
+GSimulatedAnnealing_PersonalityTraits::GSimulatedAnnealing_PersonalityTraits()
 	: GBaseParChildPersonalityTraits() { /* nothing */ }
 
 /******************************************************************************/
@@ -56,20 +56,20 @@ G_OA_SimulatedAnnealing_PersonalityTraits::G_OA_SimulatedAnnealing_PersonalityTr
  *
  * @param cp A copy of another GSAPersonalityTraits object
  */
-G_OA_SimulatedAnnealing_PersonalityTraits::G_OA_SimulatedAnnealing_PersonalityTraits(const G_OA_SimulatedAnnealing_PersonalityTraits &cp)
+GSimulatedAnnealing_PersonalityTraits::GSimulatedAnnealing_PersonalityTraits(const GSimulatedAnnealing_PersonalityTraits &cp)
 	: GBaseParChildPersonalityTraits(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-G_OA_SimulatedAnnealing_PersonalityTraits::~G_OA_SimulatedAnnealing_PersonalityTraits() { /* nothing */ }
+GSimulatedAnnealing_PersonalityTraits::~GSimulatedAnnealing_PersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const G_OA_SimulatedAnnealing_PersonalityTraits &G_OA_SimulatedAnnealing_PersonalityTraits::operator=(const G_OA_SimulatedAnnealing_PersonalityTraits &cp) {
+const GSimulatedAnnealing_PersonalityTraits &GSimulatedAnnealing_PersonalityTraits::operator=(const GSimulatedAnnealing_PersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -81,7 +81,7 @@ const G_OA_SimulatedAnnealing_PersonalityTraits &G_OA_SimulatedAnnealing_Persona
  * @param  cp A constant reference to another GSAPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool G_OA_SimulatedAnnealing_PersonalityTraits::operator==(const G_OA_SimulatedAnnealing_PersonalityTraits &cp) const {
+bool GSimulatedAnnealing_PersonalityTraits::operator==(const GSimulatedAnnealing_PersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -98,7 +98,7 @@ bool G_OA_SimulatedAnnealing_PersonalityTraits::operator==(const G_OA_SimulatedA
  * @param  cp A constant reference to another GSAPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool G_OA_SimulatedAnnealing_PersonalityTraits::operator!=(const G_OA_SimulatedAnnealing_PersonalityTraits &cp) const {
+bool GSimulatedAnnealing_PersonalityTraits::operator!=(const GSimulatedAnnealing_PersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -117,15 +117,15 @@ bool G_OA_SimulatedAnnealing_PersonalityTraits::operator!=(const G_OA_SimulatedA
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void G_OA_SimulatedAnnealing_PersonalityTraits::compare(
+void GSimulatedAnnealing_PersonalityTraits::compare(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are dealing with a G_OA_SimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
-	const G_OA_SimulatedAnnealing_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_SimulatedAnnealing_PersonalityTraits>(cp, this);
+	// Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
+	const GSimulatedAnnealing_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing_PersonalityTraits>(cp, this);
 
-	GToken token("G_OA_SimulatedAnnealing_PersonalityTraits", e);
+	GToken token("GSimulatedAnnealing_PersonalityTraits", e);
 
 	// Compare our parent data ...
 	Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
@@ -140,16 +140,16 @@ void G_OA_SimulatedAnnealing_PersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string G_OA_SimulatedAnnealing_PersonalityTraits::name() const {
-	return std::string("G_OA_SimulatedAnnealing_PersonalityTraits");
+std::string GSimulatedAnnealing_PersonalityTraits::name() const {
+	return std::string("GSimulatedAnnealing_PersonalityTraits");
 }
 
 /******************************************************************************/
 /**
  * Retrieves the mnemonic of the optimization algorithm
  */
-std::string G_OA_SimulatedAnnealing_PersonalityTraits::getMnemonic() const {
-	return G_OA_SimulatedAnnealing_PersonalityTraits::nickname;
+std::string GSimulatedAnnealing_PersonalityTraits::getMnemonic() const {
+	return GSimulatedAnnealing_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
@@ -158,8 +158,8 @@ std::string G_OA_SimulatedAnnealing_PersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *G_OA_SimulatedAnnealing_PersonalityTraits::clone_() const {
-	return new G_OA_SimulatedAnnealing_PersonalityTraits(*this);
+GObject *GSimulatedAnnealing_PersonalityTraits::clone_() const {
+	return new GSimulatedAnnealing_PersonalityTraits(*this);
 }
 
 /******************************************************************************/
@@ -168,9 +168,9 @@ GObject *G_OA_SimulatedAnnealing_PersonalityTraits::clone_() const {
  *
  * @param cp A copy of another GSAPersonalityTraits object, camouflaged as a GObject
  */
-void G_OA_SimulatedAnnealing_PersonalityTraits::load_(const GObject *cp) {
-	// Check that we are dealing with a G_OA_SimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
-	const G_OA_SimulatedAnnealing_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_SimulatedAnnealing_PersonalityTraits>(cp, this);
+void GSimulatedAnnealing_PersonalityTraits::load_(const GObject *cp) {
+	// Check that we are dealing with a GSimulatedAnnealing_PersonalityTraits reference independent of this object and convert the pointer
+	const GSimulatedAnnealing_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealing_PersonalityTraits>(cp, this);
 
 	// Load the parent class'es data
 	GBaseParChildPersonalityTraits::load_(cp);
@@ -185,7 +185,7 @@ void G_OA_SimulatedAnnealing_PersonalityTraits::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool G_OA_SimulatedAnnealing_PersonalityTraits::modify_GUnitTests() {
+bool GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
 	bool result = false;
 
@@ -194,7 +194,7 @@ bool G_OA_SimulatedAnnealing_PersonalityTraits::modify_GUnitTests() {
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("G_OA_SimulatedAnnealing_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+	condnotset("GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -203,7 +203,7 @@ bool G_OA_SimulatedAnnealing_PersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void G_OA_SimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -215,7 +215,7 @@ void G_OA_SimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_G
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("G_OA_SimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -223,7 +223,7 @@ void G_OA_SimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_G
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void G_OA_SimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void GSimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -235,7 +235,7 @@ void G_OA_SimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GU
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("G_OA_SimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GSimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

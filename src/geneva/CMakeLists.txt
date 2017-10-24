@@ -37,15 +37,15 @@ SET ( OPTIMIZATIONSOURCES
     G_OptimizationAlgorithm_GradientDescent_PersonalityTraits
     G_OptimizationAlgorithm_ParameterScan
     G_OptimizationAlgorithm_ParameterScan_Factory
+    G_OptimizationAlgorithm_ParameterScan_PersonalityTraits
     G_OptimizationAlgorithm_SimulatedAnnealing
     G_OptimizationAlgorithm_SimulatedAnnealing_Factory
+    G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits
     G_OptimizationAlgorithm_SwarmAlgorithm
     G_OptimizationAlgorithm_SwarmAlgorithm_Factory
     G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits
     G_OA_ConjugateGradientDescent
-    G_OA_ParameterScan_PersonalityTraits
     G_OA_ParChildT_PersonalityTraits
-    G_OA_SimulatedAnnealing_PersonalityTraits
 	GObject
 	GOptimizableEntity
 	GOptimizationEnums

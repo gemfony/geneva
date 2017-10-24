@@ -91,7 +91,7 @@ GParameterScanFactory::~GParameterScanFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GParameterScanFactory::getMnemonic() const {
-	return G_OA_ParameterScan_PersonalityTraits::nickname;
+	return GParameterScan_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
