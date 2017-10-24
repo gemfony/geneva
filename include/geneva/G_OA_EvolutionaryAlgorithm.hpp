@@ -51,7 +51,7 @@
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_ParChildT.hpp"
+#include "geneva/G_OptimizationAlgorithm_ParChild.hpp"
 #include "geneva/G_OA_EvolutionaryAlgorithm_PersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
@@ -74,7 +74,7 @@ const sortingMode DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * an infrastructure for evolutionary algorithms.
  */
 class GEvolutionaryAlgorithmT
-	: public G_OA_ParChildT
+	: public G_OptimizationAlgorithm_ParChild
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -84,7 +84,7 @@ class GEvolutionaryAlgorithmT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_ParChildT", boost::serialization::base_object<G_OA_ParChildT>(*this))
+		 & make_nvp("G_OptimizationAlgorithm_ParChild", boost::serialization::base_object<G_OptimizationAlgorithm_ParChild>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_sorting_mode)
 		 & BOOST_SERIALIZATION_NVP(m_n_threads);
 	 }
@@ -97,7 +97,7 @@ public:
 	  * is done in the class body.
 	  */
 	 GEvolutionaryAlgorithmT()
-		 : G_OA_ParChildT()
+		 : G_OptimizationAlgorithm_ParChild()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
 		 this->setPopulationSizes(100, 1);
@@ -110,7 +110,7 @@ public:
 	  * @param cp Another GEvolutionaryAlgorithmT object
 	  */
 	 GEvolutionaryAlgorithmT(const GEvolutionaryAlgorithmT& cp)
-		 : G_OA_ParChildT(cp)
+		 : G_OptimizationAlgorithm_ParChild(cp)
 		 , m_sorting_mode(cp.m_sorting_mode)
 		 , m_n_threads(cp.m_n_threads)
 	 {
@@ -191,7 +191,7 @@ public:
 		 GToken token("GEvolutionaryAlgorithmT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<G_OA_ParChildT>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<G_OptimizationAlgorithm_ParChild>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 compare_t(IDENTITY(m_sorting_mode, p_load->m_sorting_mode), token);
@@ -209,7 +209,7 @@ public:
 	 virtual void resetToOptimizationStart() override {
 		 // There is no more work to be done here, so we simply call the
 		 // function of the parent class
-		 G_OA_ParChildT::resetToOptimizationStart();
+		 G_OptimizationAlgorithm_ParChild::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -381,7 +381,7 @@ public:
 	 ) override
 	 {
 		 // Call our parent class'es function
-		 G_OA_ParChildT::addConfigurationOptions(gpb);
+		 G_OptimizationAlgorithm_ParChild::addConfigurationOptions(gpb);
 
 		 // Add local data
 		 gpb.registerFileParameter<std::uint16_t>(
@@ -456,7 +456,7 @@ protected:
 		 const GEvolutionaryAlgorithmT *p_load = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT>(cp, this);
 
 		 // First load the parent class'es data ...
-		 G_OA_ParChildT::load_(cp);
+		 G_OptimizationAlgorithm_ParChild::load_(cp);
 
 		 // ... and then our own data
 		 m_sorting_mode = p_load->m_sorting_mode;
@@ -836,7 +836,7 @@ protected:
  	  */
 	 virtual void init() override {
 		 // To be performed before any other action. Place any further work after this call.
-		 G_OA_ParChildT::init();
+		 G_OptimizationAlgorithm_ParChild::init();
 
 		 // Initialize our thread pool
 		 m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
@@ -871,7 +871,7 @@ protected:
 		 m_tp_ptr.reset();
 
 		 // Last action. Place any "local" finalization action before this call.
-		 G_OA_ParChildT::finalize();
+		 G_OptimizationAlgorithm_ParChild::finalize();
 	 }
 
 	 /***************************************************************************/
@@ -1127,7 +1127,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent class'es function
-		 if (G_OA_ParChildT::modify_GUnitTests()) result = true;
+		 if (G_OptimizationAlgorithm_ParChild::modify_GUnitTests()) result = true;
 
 		 if(sortingMode::MUPLUSNU_SINGLEEVAL == this->getSortingScheme()) {
 			 this->setSortingScheme(sortingMode::MUCOMMANU_SINGLEEVAL);
@@ -1177,7 +1177,7 @@ public:
 	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 G_OA_ParChildT::specificTestsNoFailureExpected_GUnitTests();
+		 G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests();
 
 		 //------------------------------------------------------------------------------
 
@@ -1188,7 +1188,7 @@ public:
 			 p_test->fillWithObjects(100);
 
 			 // Run the parent class'es tests
-			 p_test->G_OA_ParChildT::specificTestsNoFailureExpected_GUnitTests();
+			 p_test->G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests();
 		 }
 
 		 //------------------------------------------------------------------------------
@@ -1235,7 +1235,7 @@ public:
 	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 G_OA_ParChildT::specificTestsFailuresExpected_GUnitTests();
+		 G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
 		 condnotset("GEvolutionaryAlgorithmT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

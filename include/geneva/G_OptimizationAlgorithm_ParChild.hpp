@@ -1,5 +1,5 @@
 /**
- * @file G_OA_ParChildT.hpp
+ * @file G_OptimizationAlgorithm_ParChild.hpp
  */
 
 /*
@@ -81,7 +81,7 @@ namespace Geneva {
  * The population will then be "filled up" with missing individuals as required, before the
  * optimization starts.
  */
-class G_OA_ParChildT
+class G_OptimizationAlgorithm_ParChild
 	: public G_OptimizationAlgorithm_Base
 {
 	 /////////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ public:
 	  * vital parameters, such as the population size or the parent individuals by hand
 	  * or do so through the configuration file.
 	  */
-	 G_OA_ParChildT()
+	 G_OptimizationAlgorithm_ParChild()
 		 : Gem::Geneva::G_OptimizationAlgorithm_Base()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
@@ -129,7 +129,7 @@ public:
 	  *
 	  * @param cp Another GParChildT object
 	  */
-	 G_OA_ParChildT(const G_OA_ParChildT& cp)
+	 G_OptimizationAlgorithm_ParChild(const G_OptimizationAlgorithm_ParChild& cp)
 		 : G_OptimizationAlgorithm_Base(cp)
 			, m_n_parents(cp.m_n_parents)
 			, m_recombination_method(cp.m_recombination_method)
@@ -145,14 +145,14 @@ public:
 	 /**
 	  * The standard destructor. All work is done in the parent class.
 	  */
-	 virtual ~G_OA_ParChildT()
+	 virtual ~G_OptimizationAlgorithm_ParChild()
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * The standard assignment operator
 	  */
-	 const G_OA_ParChildT& operator=(const G_OA_ParChildT& cp) {
+	 const G_OptimizationAlgorithm_ParChild& operator=(const G_OptimizationAlgorithm_ParChild& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -164,7 +164,7 @@ public:
 	  * @param  cp A constant reference to another GParChildT object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 bool operator==(const G_OA_ParChildT& cp) const {
+	 bool operator==(const G_OptimizationAlgorithm_ParChild& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -181,7 +181,7 @@ public:
 	  * @param  cp A constant reference to another GParChildT object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 bool operator!=(const G_OA_ParChildT& cp) const {
+	 bool operator!=(const G_OptimizationAlgorithm_ParChild& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -207,10 +207,10 @@ public:
 	 ) const override {
 		 using namespace Gem::Common;
 
-		 // Check that we are dealing with a G_OA_ParChildT  reference independent of this object and convert the pointer
-		 const G_OA_ParChildT *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_ParChildT>(cp, this);
+		 // Check that we are dealing with a G_OptimizationAlgorithm_ParChild  reference independent of this object and convert the pointer
+		 const G_OptimizationAlgorithm_ParChild *p_load = Gem::Common::g_convert_and_compare<GObject, G_OptimizationAlgorithm_ParChild>(cp, this);
 
-		 GToken token("G_OA_ParChildT", e);
+		 GToken token("G_OptimizationAlgorithm_ParChild", e);
 
 		 // Compare our parent data ...
 		 Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
@@ -308,7 +308,7 @@ public:
 #ifdef DEBUG
 		 if(std::get<1>(range) <= std::get<0>(range)) {
          glogger
-         << "In G_OA_ParChildT<>::getNProcessableItems(): Error!" << std::endl
+         << "In G_OptimizationAlgorithm_ParChild<>::getNProcessableItems(): Error!" << std::endl
          << "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/" << std::get<0>(range) << std::endl
          << GEXCEPTION;
       }
@@ -582,7 +582,7 @@ public:
 	  * Emits a name for this class / object
 	  */
 	 virtual std::string name() const override {
-		 return std::string("G_OA_ParChildT");
+		 return std::string("G_OptimizationAlgorithm_ParChild");
 	 }
 
 protected:
@@ -607,8 +607,8 @@ protected:
 	  * @param cp A pointer to another GParChildT object, camouflaged as a GObject
 	  */
 	 virtual void load_(const GObject * cp) override {
-		 // Check that we are dealing with a G_OA_ParChildT  reference independent of this object and convert the pointer
-		 const G_OA_ParChildT *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_ParChildT>(cp, this);
+		 // Check that we are dealing with a G_OptimizationAlgorithm_ParChild  reference independent of this object and convert the pointer
+		 const G_OptimizationAlgorithm_ParChild *p_load = Gem::Common::g_convert_and_compare<GObject, G_OptimizationAlgorithm_ParChild>(cp, this);
 
 		 // First load the parent class'es data ...
 		 G_OptimizationAlgorithm_Base::load_(cp);
@@ -639,7 +639,7 @@ protected:
       // you must add mechanisms to "repair" the population.
       if((this->size()-m_n_parents) < m_default_n_children){
          glogger
-         << "In G_OA_ParChildT::recombine():" << std::endl
+         << "In G_OptimizationAlgorithm_ParChild::recombine():" << std::endl
          << "Too few children. Got " << this->size()-m_n_parents << "," << std::endl
          << "but was expecting at least " << m_default_n_children << std::endl
          << GEXCEPTION;
@@ -789,7 +789,7 @@ protected:
 		 // Has the population size been set at all ?
 		 if(G_OptimizationAlgorithm_Base::getDefaultPopulationSize() == 0) {
 			 glogger
-				 << "In G_OA_ParChildT::adjustPopulation() :" << std::endl
+				 << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
 				 << "The population size is 0." << std::endl
 				 << "Did you call G_OptimizationAlgorithm_Base::setParentsAndPopulationSize() ?" << std::endl
 				 << GEXCEPTION;
@@ -799,7 +799,7 @@ protected:
 		 std::size_t this_sz = this->size();
 		 if(this_sz == 0) {
 			 glogger
-				 << "In G_OA_ParChildT::adjustPopulation() :" << std::endl
+				 << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
 				 << "size of population is 0. Did you add any individuals?" << std::endl
 				 << "We need at least one local individual" << std::endl
 				 << GEXCEPTION;
@@ -810,7 +810,7 @@ protected:
 		 for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
 			 if(!(*it)) { // shared_ptr can be implicitly converted to bool
 				 glogger
-					 << "In G_OA_ParChildT::adjustPopulation() :" << std::endl
+					 << "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
 					 << "Found empty smart pointer." << std::endl
 					 << GEXCEPTION;
 			 }
@@ -910,7 +910,7 @@ protected:
 
 		 if(!done) {
 			 glogger
-				 << "In G_OA_ParChildT::valueRecombine():" << std::endl
+				 << "In G_OptimizationAlgorithm_ParChild::valueRecombine():" << std::endl
 				 << "Could not recombine." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -929,7 +929,7 @@ protected:
       for(auto ind_ptr: *this) { // std::shared_ptr may be copied
          if(ind_ptr->isDirty()) {
             glogger
-            << "In G_OA_ParChildT::sortMuplusnuMode(): Error!" << std::endl
+            << "In G_OptimizationAlgorithm_ParChild::sortMuplusnuMode(): Error!" << std::endl
             << "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << pos << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
@@ -959,11 +959,11 @@ protected:
 #ifdef DEBUG
 		 if (G_OptimizationAlgorithm_Base::inFirstIteration()) {
 			// Check that we do not accidently trigger value calculation -- check the whole range
-			typename G_OA_ParChildT::iterator it;
+			typename G_OptimizationAlgorithm_ParChild::iterator it;
 			for (it = this->begin(); it != this->end(); ++it) {
 				if ((*it)->isDirty()) {
 					glogger
-						<< "In G_OA_ParChildT::sortMucommanuMode(): Error!" << std::endl
+						<< "In G_OptimizationAlgorithm_ParChild::sortMucommanuMode(): Error!" << std::endl
 						<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
@@ -974,11 +974,11 @@ protected:
 			}
 		} else {
 			// Check that we do not accidently trigger value calculation -- check children only
-			typename G_OA_ParChildT::iterator it;
+			typename G_OptimizationAlgorithm_ParChild::iterator it;
 			for (it = this->begin() + m_n_parents; it != this->end(); ++it) {
 				if ((*it)->isDirty()) {
 					glogger
-						<< "In G_OA_ParChildT::sortMucommanuMode(): Error!" << std::endl
+						<< "In G_OptimizationAlgorithm_ParChild::sortMucommanuMode(): Error!" << std::endl
 						<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
@@ -1027,11 +1027,11 @@ protected:
 	 void sortMunu1pretainMode() {
 #ifdef DEBUG
 		 // Check that we do not accidently trigger value calculation
-      typename G_OA_ParChildT::iterator it;
+      typename G_OptimizationAlgorithm_ParChild::iterator it;
       for(it=this->begin()+m_n_parents; it!=this->end(); ++it) {
          if((*it)->isDirty()) {
             glogger
-            << "In G_OA_ParChildT::sortMunu1pretainMode(): Error!" << std::endl
+            << "In G_OptimizationAlgorithm_ParChild::sortMunu1pretainMode(): Error!" << std::endl
             << "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
@@ -1103,7 +1103,7 @@ public:
       return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("G_OA_ParChildT::modify_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OptimizationAlgorithm_ParChild::modify_GUnitTests", "GEM_TESTING");
 		 return false;
 #endif /* GEM_TESTING */
 	 }
@@ -1118,7 +1118,7 @@ public:
       G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("G_OA_ParChildT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1132,7 +1132,7 @@ public:
       G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
-		 condnotset("G_OA_ParChildT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 };
@@ -1146,7 +1146,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OA_ParChildT)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_ParChild)
 
 /******************************************************************************/
 

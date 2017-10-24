@@ -50,7 +50,7 @@
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_ParChildT.hpp"
+#include "geneva/G_OptimizationAlgorithm_ParChild.hpp"
 #include "geneva/G_OA_SimulatedAnnealing_PersonalityTraits.hpp"
 
 namespace Gem {
@@ -63,7 +63,7 @@ namespace Geneva {
  * This is a specialization of the GParameterSetParChild class. The class adds
  * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
  */
-class GSimulatedAnnealingT : public G_OA_ParChildT
+class GSimulatedAnnealingT : public G_OptimizationAlgorithm_ParChild
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -73,7 +73,7 @@ class GSimulatedAnnealingT : public G_OA_ParChildT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_ParChildT", boost::serialization::base_object<G_OA_ParChildT>(*this))
+		 & make_nvp("G_OptimizationAlgorithm_ParChild", boost::serialization::base_object<G_OptimizationAlgorithm_ParChild>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_t0)
 		 & BOOST_SERIALIZATION_NVP(m_t)
 		 & BOOST_SERIALIZATION_NVP(m_alpha)
@@ -88,7 +88,7 @@ public:
 	  * is done in the class body.
 	  */
 	 GSimulatedAnnealingT()
-		 : G_OA_ParChildT()
+		 : G_OptimizationAlgorithm_ParChild()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
 		 this->setPopulationSizes(100, 1);
@@ -101,7 +101,7 @@ public:
 	  * @param cp Another GSimulatedAnnealingT object
 	  */
 	 GSimulatedAnnealingT(const GSimulatedAnnealingT& cp)
-		 : G_OA_ParChildT(cp)
+		 : G_OptimizationAlgorithm_ParChild(cp)
 		 , m_t0(cp.m_t0)
 		 , m_t(cp.m_t)
 		 , m_alpha(cp.m_alpha)
@@ -184,7 +184,7 @@ public:
 		 GToken token("GSimulatedAnnealingT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<G_OA_ParChildT>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<G_OptimizationAlgorithm_ParChild>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 compare_t(IDENTITY(m_t0, p_load->m_t0), token);
@@ -207,7 +207,7 @@ public:
 
 		 // There is no more work to be done here, so we simply call the
 		 // function of the parent class
-		 G_OA_ParChildT::resetToOptimizationStart();
+		 G_OptimizationAlgorithm_ParChild::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -241,7 +241,7 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override {
 		 // Call our parent class'es function
-		 G_OA_ParChildT::addConfigurationOptions(gpb);
+		 G_OptimizationAlgorithm_ParChild::addConfigurationOptions(gpb);
 
 		 // Add local data
 		 gpb.registerFileParameter<std::uint16_t>(
@@ -380,7 +380,7 @@ protected:
 		 const GSimulatedAnnealingT *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealingT>(cp, this);
 
 		 // First load the parent class'es data ...
-		 G_OA_ParChildT::load_(cp);
+		 G_OptimizationAlgorithm_ParChild::load_(cp);
 
 		 // ... and then our own data
 		 m_t0 = p_load->m_t0;
@@ -656,7 +656,7 @@ protected:
  	  */
 	 virtual void init() override {
 		 // To be performed before any other action. Place any further work after this call.
-		 G_OA_ParChildT::init();
+		 G_OptimizationAlgorithm_ParChild::init();
 
 		 // Initialize our thread pool
 		 m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
@@ -691,7 +691,7 @@ protected:
 		 m_tp_ptr.reset();
 
 		 // Last action. Place any "local" finalization action before this call.
-		 G_OA_ParChildT::finalize();
+		 G_OptimizationAlgorithm_ParChild::finalize();
 	 }
 
 	 /***************************************************************************/
@@ -801,7 +801,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent class'es function
-		 if(G_OA_ParChildT::modify_GUnitTests()) result = true;
+		 if(G_OptimizationAlgorithm_ParChild::modify_GUnitTests()) result = true;
 
 	    return result;
 
@@ -818,7 +818,7 @@ public:
 	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 G_OA_ParChildT::specificTestsNoFailureExpected_GUnitTests();
+		 G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests();
 
 		 //------------------------------------------------------------------------------
 		 //------------------------------------------------------------------------------
@@ -835,7 +835,7 @@ public:
 	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 G_OA_ParChildT::specificTestsFailuresExpected_GUnitTests();
+		 G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests();
 
 		 //------------------------------------------------------------------------------
 		 //------------------------------------------------------------------------------
