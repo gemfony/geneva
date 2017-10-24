@@ -111,12 +111,12 @@ std::shared_ptr<G_OptimizationAlgorithm_Base> GSimulatedAnnealingFactory::getObj
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
-	std::shared_ptr<GBrokerSimulatedAnnealing> target(
-		new GBrokerSimulatedAnnealing()
+	std::shared_ptr<GSimulatedAnnealing> target(
+		new GSimulatedAnnealing()
 	);
 
-	// Make the local configuration options known (up to the level of GBrokerSimulatedAnnealing)
-	target->GBrokerSimulatedAnnealing::addConfigurationOptions(gpb);
+	// Make the local configuration options known (up to the level of GSimulatedAnnealing)
+	target->GSimulatedAnnealing::addConfigurationOptions(gpb);
 
 	return target;
 }

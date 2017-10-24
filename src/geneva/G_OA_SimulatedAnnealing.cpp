@@ -36,7 +36,7 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBrokerSimulatedAnnealing)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSimulatedAnnealing)
 
 /******************************************************************************/
 

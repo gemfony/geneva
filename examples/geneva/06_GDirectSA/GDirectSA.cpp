@@ -324,7 +324,7 @@ int main(int argc, char **argv){
 	/****************************************************************************/
 
 	// Create an empty population
-	std::shared_ptr<GSimulatedAnnealingT> pop_ptr(new GSimulatedAnnealingT());
+	std::shared_ptr<GSimulatedAnnealing> pop_ptr(new GSimulatedAnnealing());
 
 	// General settings
 	pop_ptr->setPopulationSizes(populationSize,nParents);
