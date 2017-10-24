@@ -30,6 +30,7 @@ SET ( OPTIMIZATIONSOURCES
 	Go2
     G_OptimizationAlgorithm_Base
     G_OptimizationAlgorithm_EvolutionaryAlgorithm
+    G_OptimizationAlgorithm_SimulatedAnnealing
     G_OA_ConjugateGradientDescent
     G_OA_EvolutionaryAlgorithm_PersonalityTraits
     G_OA_EvolutionaryAlgorithm_Factory
@@ -40,7 +41,6 @@ SET ( OPTIMIZATIONSOURCES
     G_OA_ParameterScan_Factory
     G_OA_ParameterScan_PersonalityTraits
     G_OA_ParChildT_PersonalityTraits
-    G_OA_SimulatedAnnealing
     G_OA_SimulatedAnnealing_Factory
     G_OA_SimulatedAnnealing_PersonalityTraits
     G_OA_SwarmAlgorithm

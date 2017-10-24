@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_SimulatedAnnealing.hpp"
+#include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing.hpp"
 
 /******************************************************************************/
 
