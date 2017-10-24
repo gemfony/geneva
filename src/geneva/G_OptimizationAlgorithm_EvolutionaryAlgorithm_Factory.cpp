@@ -90,7 +90,7 @@ GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {
-	return G_OA_EvolutionaryAlgorithm_PersonalityTraits::nickname;
+	return GEvolutionaryAlgorithm_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/

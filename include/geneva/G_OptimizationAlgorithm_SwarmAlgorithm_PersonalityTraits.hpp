@@ -55,7 +55,7 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to swarm optimization.
  */
-class G_OA_SwarmAlgorithm_PersonalityTraits :public GPersonalityTraits
+class GSwarmAlgorithm_PersonalityTraits :public GPersonalityTraits
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -78,19 +78,19 @@ public:
    static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
 	/** @brief The default constructor */
-	G_API_GENEVA G_OA_SwarmAlgorithm_PersonalityTraits();
+	G_API_GENEVA GSwarmAlgorithm_PersonalityTraits();
 	/** @brief The copy contructor */
-	G_API_GENEVA G_OA_SwarmAlgorithm_PersonalityTraits(const G_OA_SwarmAlgorithm_PersonalityTraits&);
+	G_API_GENEVA GSwarmAlgorithm_PersonalityTraits(const GSwarmAlgorithm_PersonalityTraits&);
 	/** @brief The standard destructor */
-	virtual G_API_GENEVA ~G_OA_SwarmAlgorithm_PersonalityTraits();
+	virtual G_API_GENEVA ~GSwarmAlgorithm_PersonalityTraits();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const G_OA_SwarmAlgorithm_PersonalityTraits& operator=(const G_OA_SwarmAlgorithm_PersonalityTraits&);
+	G_API_GENEVA const GSwarmAlgorithm_PersonalityTraits& operator=(const GSwarmAlgorithm_PersonalityTraits&);
 
 	/** @brief Checks for equality with another GSwarmPersonalityTraits object */
-	G_API_GENEVA bool operator==(const G_OA_SwarmAlgorithm_PersonalityTraits&) const;
+	G_API_GENEVA bool operator==(const GSwarmAlgorithm_PersonalityTraits&) const;
 	/** @brief Checks for inequality with another GSwarmPersonalityTraits object */
-	G_API_GENEVA bool operator!=(const G_OA_SwarmAlgorithm_PersonalityTraits&) const;
+	G_API_GENEVA bool operator!=(const GSwarmAlgorithm_PersonalityTraits&) const;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual G_API_GENEVA void compare(
@@ -157,7 +157,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::G_OA_SwarmAlgorithm_PersonalityTraits)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarmAlgorithm_PersonalityTraits)
 
 #endif /* GSWARMPERSONALITYTRAITS_HPP_ */
 

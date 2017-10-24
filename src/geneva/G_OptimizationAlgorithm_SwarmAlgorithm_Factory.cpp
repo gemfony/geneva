@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_SwarmAlgorithm_Factory.hpp"
+#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -88,7 +88,7 @@ GSwarmAlgorithmFactory::~GSwarmAlgorithmFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GSwarmAlgorithmFactory::getMnemonic() const {
-	return G_OA_SwarmAlgorithm_PersonalityTraits::nickname;
+	return GSwarmAlgorithm_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/

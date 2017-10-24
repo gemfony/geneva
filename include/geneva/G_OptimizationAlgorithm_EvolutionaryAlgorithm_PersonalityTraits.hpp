@@ -1,5 +1,5 @@
 /**
- * @file G_OA_EvolutionaryAlgorithm_PersonalityTraits.hpp
+ * @file G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp
  */
 
 /*
@@ -55,7 +55,7 @@ namespace Geneva {
  * This class adds variables and functions to GPersonalityTraits that are specific
  * to evolutionary algorithms.
  */
-class G_OA_EvolutionaryAlgorithm_PersonalityTraits
+class GEvolutionaryAlgorithm_PersonalityTraits
 	: public GBaseParChildPersonalityTraits
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -75,19 +75,19 @@ public:
 	 static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
 	 /** @brief The default constructor */
-	 G_API_GENEVA G_OA_EvolutionaryAlgorithm_PersonalityTraits();
+	 G_API_GENEVA GEvolutionaryAlgorithm_PersonalityTraits();
 	 /** @brief The copy contructor */
-	 G_API_GENEVA G_OA_EvolutionaryAlgorithm_PersonalityTraits(const G_OA_EvolutionaryAlgorithm_PersonalityTraits&);
+	 G_API_GENEVA GEvolutionaryAlgorithm_PersonalityTraits(const GEvolutionaryAlgorithm_PersonalityTraits&);
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~G_OA_EvolutionaryAlgorithm_PersonalityTraits();
+	 virtual G_API_GENEVA ~GEvolutionaryAlgorithm_PersonalityTraits();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const G_OA_EvolutionaryAlgorithm_PersonalityTraits& operator=(const G_OA_EvolutionaryAlgorithm_PersonalityTraits&);
+	 G_API_GENEVA const GEvolutionaryAlgorithm_PersonalityTraits& operator=(const GEvolutionaryAlgorithm_PersonalityTraits&);
 
 	 /** @brief Checks for equality with another GEAPersonalityTraits object */
-	 G_API_GENEVA bool operator==(const G_OA_EvolutionaryAlgorithm_PersonalityTraits&) const;
+	 G_API_GENEVA bool operator==(const GEvolutionaryAlgorithm_PersonalityTraits&) const;
 	 /** @brief Checks for inequality with another GEAPersonalityTraits object */
-	 G_API_GENEVA bool operator!=(const G_OA_EvolutionaryAlgorithm_PersonalityTraits&) const;
+	 G_API_GENEVA bool operator!=(const GEvolutionaryAlgorithm_PersonalityTraits&) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
@@ -134,7 +134,7 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::G_OA_EvolutionaryAlgorithm_PersonalityTraits)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm_PersonalityTraits)
 
 #endif //GENEVA_LIBRARY_COLLECTION_G_OA_EVOLUTIONARYALGORITHM_PT_HPP
 

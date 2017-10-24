@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_GradientDescent_Factory.hpp"
+#include "geneva/G_OptimizationAlgorithm_GradientDescent_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -88,7 +88,7 @@ GGradientDescentFactory::~GGradientDescentFactory()
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GGradientDescentFactory::getMnemonic() const {
-	return G_OA_GradientDescent_PersonalityTraits::nickname;
+	return GGradientDescent_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/

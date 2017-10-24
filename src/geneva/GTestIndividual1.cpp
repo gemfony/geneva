@@ -417,7 +417,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality and duty
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<G_OA_EvolutionaryAlgorithm_PersonalityTraits>(new G_OA_EvolutionaryAlgorithm_PersonalityTraits())));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(new GEvolutionaryAlgorithm_PersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -443,7 +443,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty());
 
 		// Tell the individual about its personality
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<G_OA_EvolutionaryAlgorithm_PersonalityTraits>(new G_OA_EvolutionaryAlgorithm_PersonalityTraits())));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(new GEvolutionaryAlgorithm_PersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -470,7 +470,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Tell the individual about its personality and duty
 		BOOST_CHECK_NO_THROW(
-			p_test->setPersonality(std::shared_ptr<G_OA_SwarmAlgorithm_PersonalityTraits>(new G_OA_SwarmAlgorithm_PersonalityTraits())));
+			p_test->setPersonality(std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(new GSwarmAlgorithm_PersonalityTraits())));
 
 		// Calling the process() function with the "evaluate" call should clear the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->process());
@@ -760,17 +760,17 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		);
 
 		// Set the personality type to EA
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<G_OA_EvolutionaryAlgorithm_PersonalityTraits>(new G_OA_EvolutionaryAlgorithm_PersonalityTraits())));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(new GEvolutionaryAlgorithm_PersonalityTraits())));
 		BOOST_CHECK_MESSAGE(
-			p_test->getPersonality() == "G_OA_EvolutionaryAlgorithm_PersonalityTraits", "\n"
+			p_test->getPersonality() == "GEvolutionaryAlgorithm_PersonalityTraits", "\n"
 																				 << "p_test->getPersonality() = " <<
 																				 p_test->getPersonality() << "\n"
 																				 << "expected EA\n"
 		);
 
-		// Try to retrieve a G_OA_EvolutionaryAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
-		std::shared_ptr <G_OA_EvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
-		BOOST_CHECK_NO_THROW(p_pt_ea = p_test->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>());
+		// Try to retrieve a GEvolutionaryAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
+		std::shared_ptr <GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
+		BOOST_CHECK_NO_THROW(p_pt_ea = p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>());
 		BOOST_CHECK(p_pt_ea);
 		p_pt_ea.reset();
 
@@ -780,17 +780,17 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		p_pt.reset();
 
 		// Set the personality type to GD
-		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<G_OA_GradientDescent_PersonalityTraits>(new G_OA_GradientDescent_PersonalityTraits())));
+		BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GGradientDescent_PersonalityTraits>(new GGradientDescent_PersonalityTraits())));
 		BOOST_CHECK_MESSAGE(
-			p_test->getPersonality() == "G_OA_GradientDescent_PersonalityTraits", "\n"
+			p_test->getPersonality() == "GGradientDescent_PersonalityTraits", "\n"
 																				 << "p_test->getPersonality() = " <<
 																				 p_test->getPersonality() << "\n"
-																				 << "expected G_OA_GradientDescent_PersonalityTraits\n"
+																				 << "expected GGradientDescent_PersonalityTraits\n"
 		);
 
-		// Try to retrieve a G_OA_GradientDescent_PersonalityTraits object and check that the smart pointer actually points somewhere
-		std::shared_ptr <G_OA_GradientDescent_PersonalityTraits> p_pt_gd;
-		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getPersonalityTraits<G_OA_GradientDescent_PersonalityTraits>());
+		// Try to retrieve a GGradientDescent_PersonalityTraits object and check that the smart pointer actually points somewhere
+		std::shared_ptr <GGradientDescent_PersonalityTraits> p_pt_gd;
+		BOOST_CHECK_NO_THROW(p_pt_gd = p_test->getPersonalityTraits<GGradientDescent_PersonalityTraits>());
 		BOOST_CHECK(p_pt_gd);
 		p_pt_gd.reset();
 
@@ -801,17 +801,17 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Set the personality type to SWARM
 		BOOST_CHECK_NO_THROW(
-			p_test->setPersonality(std::shared_ptr<G_OA_SwarmAlgorithm_PersonalityTraits>(new G_OA_SwarmAlgorithm_PersonalityTraits())));
+			p_test->setPersonality(std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(new GSwarmAlgorithm_PersonalityTraits())));
 		BOOST_CHECK_MESSAGE(
-			p_test->getPersonality() == "G_OA_SwarmAlgorithm_PersonalityTraits", "\n"
+			p_test->getPersonality() == "GSwarmAlgorithm_PersonalityTraits", "\n"
 																					 << "p_test->getPersonality() = " <<
 																					 p_test->getPersonality() << "\n"
-																					 << "expected G_OA_SwarmAlgorithm_PersonalityTraits\n"
+																					 << "expected GSwarmAlgorithm_PersonalityTraits\n"
 		);
 
-		// Try to retrieve a G_OA_SwarmAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
-		std::shared_ptr <G_OA_SwarmAlgorithm_PersonalityTraits> p_pt_swarm;
-		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getPersonalityTraits<G_OA_SwarmAlgorithm_PersonalityTraits>());
+		// Try to retrieve a GSwarmAlgorithm_PersonalityTraits object and check that the smart pointer actually points somewhere
+		std::shared_ptr <GSwarmAlgorithm_PersonalityTraits> p_pt_swarm;
+		BOOST_CHECK_NO_THROW(p_pt_swarm = p_test->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>());
 		BOOST_CHECK(p_pt_swarm);
 		p_pt_swarm.reset();
 
@@ -1020,8 +1020,8 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
       BOOST_CHECK_NO_THROW(p_test->resetPersonality());
 
       // Trying to retrieve an EA personality object should throw
-      std::shared_ptr<G_OA_EvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
-      BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>(), Gem::Common::gemfony_error_condition);
+      std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
+      BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), Gem::Common::gemfony_error_condition);
    }
 #endif /* DEBUG */
 
@@ -1032,10 +1032,10 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
       std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
       // Make sure the personality type is set to SWARM
-      BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<G_OA_SwarmAlgorithm_PersonalityTraits>(new G_OA_SwarmAlgorithm_PersonalityTraits())));
+      BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(new GSwarmAlgorithm_PersonalityTraits())));
 
       // Trying to retrieve an EA personality object should throw
-      BOOST_CHECK_THROW(p_test->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>(), Gem::Common::gemfony_error_condition);
+      BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), Gem::Common::gemfony_error_condition);
    }
 #endif /* DEBUG */
 

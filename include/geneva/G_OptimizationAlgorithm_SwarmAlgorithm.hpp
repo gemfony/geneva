@@ -51,7 +51,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "geneva/G_OA_SwarmAlgorithm_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GTestIndividual1.hpp"

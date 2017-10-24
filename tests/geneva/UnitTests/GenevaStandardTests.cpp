@@ -61,9 +61,9 @@ using namespace boost::unit_test;
 #include "geneva/GInt32Collection.hpp"
 #include "geneva/GDoubleCollection.hpp"
 #include "geneva/GBooleanCollection.hpp"
-#include "geneva/G_OA_GradientDescent_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.hpp"
 #include "geneva/G_OA_ParameterScan_PersonalityTraits.hpp"
-#include "geneva/G_OA_SwarmAlgorithm_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GTestIndividual1.hpp"
@@ -125,9 +125,9 @@ public:
 		>;
 
 		using trait_types = boost::mpl::list<
-			G_OA_EvolutionaryAlgorithm_PersonalityTraits
-			, G_OA_GradientDescent_PersonalityTraits
-			, G_OA_SwarmAlgorithm_PersonalityTraits
+			GEvolutionaryAlgorithm_PersonalityTraits
+			, GGradientDescent_PersonalityTraits
+			, GSwarmAlgorithm_PersonalityTraits
 			, G_OA_SimulatedAnnealing_PersonalityTraits
 			, G_OA_ParameterScan_PersonalityTraits
 		>;

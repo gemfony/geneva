@@ -1,5 +1,5 @@
 /**
- * @file G_OA_GradientDescent_PersonalityTraits.cpp
+ * @file G_OA_EvolutionaryAlgorithm_PersonalityTraits.cpp
  */
 
 /*
@@ -31,58 +31,57 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.eu .
  */
-#include "geneva/G_OA_GradientDescent_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::G_OA_GradientDescent_PersonalityTraits)
+#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp"
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm_PersonalityTraits)
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string G_OA_GradientDescent_PersonalityTraits::nickname = "gd";
+G_API_GENEVA const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea";
 
 /******************************************************************************/
 /**
  * The default constructor
  */
-G_OA_GradientDescent_PersonalityTraits::G_OA_GradientDescent_PersonalityTraits()
-	: GPersonalityTraits(), popPos_(0) { /* nothing */ }
+GEvolutionaryAlgorithm_PersonalityTraits::GEvolutionaryAlgorithm_PersonalityTraits()
+	: GBaseParChildPersonalityTraits(), isOnParetoFront_(true) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy contructor
  *
- * @param cp A copy of another GGDPersonalityTraits object
+ * @param cp A copy of another GEAPersonalityTraits object
  */
-G_OA_GradientDescent_PersonalityTraits::G_OA_GradientDescent_PersonalityTraits(const G_OA_GradientDescent_PersonalityTraits &cp)
-	: GPersonalityTraits(cp), popPos_(cp.popPos_) { /* nothing */ }
+GEvolutionaryAlgorithm_PersonalityTraits::GEvolutionaryAlgorithm_PersonalityTraits(const GEvolutionaryAlgorithm_PersonalityTraits &cp)
+	: GBaseParChildPersonalityTraits(cp), isOnParetoFront_(cp.isOnParetoFront_) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The standard destructor
  */
-G_OA_GradientDescent_PersonalityTraits::~G_OA_GradientDescent_PersonalityTraits() { /* nothing */ }
+GEvolutionaryAlgorithm_PersonalityTraits::~GEvolutionaryAlgorithm_PersonalityTraits() { /* nothing */ }
 
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const G_OA_GradientDescent_PersonalityTraits &G_OA_GradientDescent_PersonalityTraits::operator=(
-	const G_OA_GradientDescent_PersonalityTraits &cp
-) {
+const GEvolutionaryAlgorithm_PersonalityTraits &GEvolutionaryAlgorithm_PersonalityTraits::operator=(const GEvolutionaryAlgorithm_PersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GGDPersonalityTraits object
+ * Checks for equality with another GEAPersonalityTraits object
  *
- * @param  cp A constant reference to another GGDPersonalityTraits object
+ * @param  cp A constant reference to another GEAPersonalityTraits object
  * @return A boolean indicating whether both objects are equal
  */
-bool G_OA_GradientDescent_PersonalityTraits::operator==(const G_OA_GradientDescent_PersonalityTraits &cp) const {
+bool GEvolutionaryAlgorithm_PersonalityTraits::operator==(const GEvolutionaryAlgorithm_PersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -94,12 +93,12 @@ bool G_OA_GradientDescent_PersonalityTraits::operator==(const G_OA_GradientDesce
 
 /******************************************************************************/
 /**
- * Checks for inequality with another GGDPersonalityTraits object
+ * Checks for inequality with another GEAPersonalityTraits object
  *
- * @param  cp A constant reference to another GGDPersonalityTraits object
+ * @param  cp A constant reference to another GEAPersonalityTraits object
  * @return A boolean indicating whether both objects are inequal
  */
-bool G_OA_GradientDescent_PersonalityTraits::operator!=(const G_OA_GradientDescent_PersonalityTraits &cp) const {
+bool GEvolutionaryAlgorithm_PersonalityTraits::operator!=(const GEvolutionaryAlgorithm_PersonalityTraits &cp) const {
 	using namespace Gem::Common;
 	try {
 		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -118,40 +117,40 @@ bool G_OA_GradientDescent_PersonalityTraits::operator!=(const G_OA_GradientDesce
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void G_OA_GradientDescent_PersonalityTraits::compare(
+void GEvolutionaryAlgorithm_PersonalityTraits::compare(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
 
-	// Check that we are dealing with a G_OA_GradientDescent_PersonalityTraits reference independent of this object and convert the pointer
-	const G_OA_GradientDescent_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_GradientDescent_PersonalityTraits>(cp, this);
+	// Check that we are dealing with a GEvolutionaryAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
+	const GEvolutionaryAlgorithm_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm_PersonalityTraits>(cp, this);
 
-	GToken token("G_OA_GradientDescent_PersonalityTraits", e);
+	GToken token("GEvolutionaryAlgorithm_PersonalityTraits", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(popPos_, p_load->popPos_), token);
+	compare_t(IDENTITY(isOnParetoFront_, p_load->isOnParetoFront_), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
 }
 
-/***********************************************************************************/
+/******************************************************************************/
 /**
  * Emits a name for this class / object
  */
-std::string G_OA_GradientDescent_PersonalityTraits::name() const {
-	return std::string("G_OA_GradientDescent_PersonalityTraits");
+std::string GEvolutionaryAlgorithm_PersonalityTraits::name() const {
+	return std::string("GEvolutionaryAlgorithm_PersonalityTraits");
 }
 
 /******************************************************************************/
 /**
  * Retrieves the mnemonic of the optimization algorithm
  */
-std::string G_OA_GradientDescent_PersonalityTraits::getMnemonic() const {
-	return G_OA_GradientDescent_PersonalityTraits::nickname;
+std::string GEvolutionaryAlgorithm_PersonalityTraits::getMnemonic() const {
+	return GEvolutionaryAlgorithm_PersonalityTraits::nickname;
 }
 
 /******************************************************************************/
@@ -160,56 +159,54 @@ std::string G_OA_GradientDescent_PersonalityTraits::getMnemonic() const {
  *
  * @return A clone of this object, camouflaged as a GObject
  */
-GObject *G_OA_GradientDescent_PersonalityTraits::clone_() const {
-	return new G_OA_GradientDescent_PersonalityTraits(*this);
+GObject *GEvolutionaryAlgorithm_PersonalityTraits::clone_() const {
+	return new GEvolutionaryAlgorithm_PersonalityTraits(*this);
 }
 
 /******************************************************************************/
 /**
- * Loads the data of another GGDPersonalityTraits object
+ * Loads the data of another GEAPersonalityTraits object
  *
- * @param cp A copy of another GGDPersonalityTraits object, camouflaged as a GObject
+ * @param cp A copy of another GEAPersonalityTraits object, camouflaged as a GObject
  */
-void G_OA_GradientDescent_PersonalityTraits::load_(const GObject *cp) {
-	// Check that we are dealing with a G_OA_GradientDescent_PersonalityTraits reference independent of this object and convert the pointer
-	const G_OA_GradientDescent_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_GradientDescent_PersonalityTraits>(cp, this);
+void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GObject *cp) {
+	// Check that we are dealing with a GEvolutionaryAlgorithm_PersonalityTraits reference independent of this object and convert the pointer
+	const GEvolutionaryAlgorithm_PersonalityTraits *p_load = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm_PersonalityTraits>(cp, this);
 
 	// Load the parent class'es data
-	GPersonalityTraits::load_(cp);
+	GBaseParChildPersonalityTraits::load_(cp);
 
-	// and then the local data
-	popPos_ = p_load->popPos_;
+	// Then load our local data
+	isOnParetoFront_ = p_load->isOnParetoFront_;
 }
 
 /******************************************************************************/
 /**
- * Sets the position of the individual in the population
+ * Allows to check whether this individual lies on the pareto front (only yields
+ * useful results after pareto-sorting in EA)
  *
- * @param popPos The new position of this individual in the population
+ * @return A boolean indicating whether this object lies on the current pareto front
  */
-void G_OA_GradientDescent_PersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
-	popPos_ = popPos;
+bool GEvolutionaryAlgorithm_PersonalityTraits::isOnParetoFront() const {
+	return isOnParetoFront_;
 }
-
-/* ----------------------------------------------------------------------------------
- * So far untested
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**
- * Retrieves the position of the individual in the population
- *
- * @return The current position of this individual in the population
+ * Allows to reset the pareto tag to "true"
  */
-std::size_t G_OA_GradientDescent_PersonalityTraits::getPopulationPosition(void) const {
-	return popPos_;
+void GEvolutionaryAlgorithm_PersonalityTraits::resetParetoTag() {
+	isOnParetoFront_ = true;
 }
 
-/* ----------------------------------------------------------------------------------
- * So far untested
- * ----------------------------------------------------------------------------------
+/******************************************************************************/
+/**
+ * Allows to specify that this individual does not lie on the pareto front
+ * of the current iteration
  */
+void GEvolutionaryAlgorithm_PersonalityTraits::setIsNotOnParetoFront() {
+	isOnParetoFront_ = false;
+}
 
 /******************************************************************************/
 /**
@@ -217,20 +214,16 @@ std::size_t G_OA_GradientDescent_PersonalityTraits::getPopulationPosition(void) 
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool G_OA_GradientDescent_PersonalityTraits::modify_GUnitTests() {
+bool GEvolutionaryAlgorithm_PersonalityTraits::modify_GUnitTests() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GPersonalityTraits::modify_GUnitTests()) result = true;
-
-	this->setPopulationPosition(this->getPopulationPosition() + 1);
-	result = true;
+	if (GBaseParChildPersonalityTraits::modify_GUnitTests()) result = true;
 
 	return result;
-
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("G_OA_GradientDescent_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+	condnotset("GEvolutionaryAlgorithm_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -239,21 +232,19 @@ bool G_OA_GradientDescent_PersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void G_OA_GradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
-
+	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
 
 	// --------------------------------------------------------------------------
-
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("G_OA_GradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -261,20 +252,19 @@ void G_OA_GradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUni
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void G_OA_GradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
 
 	// --------------------------------------------------------------------------
-
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("G_OA_GradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	condnotset("GEvolutionaryAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -282,3 +272,4 @@ void G_OA_GradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnit
 
 } /* namespace Geneva */
 } /* namespace Gem */
+

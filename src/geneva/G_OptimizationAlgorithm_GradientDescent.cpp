@@ -410,7 +410,7 @@ void GGradientDescent::updateChildParameters() {
 			this->at(childPos)->GObject::load(this->at(i));
 
 			// Update the child's position in the population
-			this->at(childPos)->getPersonalityTraits<G_OA_GradientDescent_PersonalityTraits>()->setPopulationPosition(childPos);
+			this->at(childPos)->getPersonalityTraits<GGradientDescent_PersonalityTraits>()->setPopulationPosition(childPos);
 
 			// Make a note of the current parameter's value
 			double origParmVal = parmVec[j];
@@ -661,7 +661,7 @@ void GGradientDescent::finalize() {
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
 std::shared_ptr <GPersonalityTraits> GGradientDescent::getPersonalityTraits() const {
-	return std::shared_ptr<G_OA_GradientDescent_PersonalityTraits>(new G_OA_GradientDescent_PersonalityTraits());
+	return std::shared_ptr<GGradientDescent_PersonalityTraits>(new GGradientDescent_PersonalityTraits());
 }
 
 /******************************************************************************/
@@ -750,7 +750,7 @@ void GGradientDescent::adjustPopulation() {
  */
 void GGradientDescent::markIndividualPositions() {
 	for (std::size_t pos = 0; pos < this->size(); pos++) {
-		this->at(pos)->getPersonalityTraits<G_OA_GradientDescent_PersonalityTraits>()->setPopulationPosition(pos);
+		this->at(pos)->getPersonalityTraits<GGradientDescent_PersonalityTraits>()->setPopulationPosition(pos);
 	}
 }
 

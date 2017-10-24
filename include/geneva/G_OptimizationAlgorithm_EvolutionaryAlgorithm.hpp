@@ -52,7 +52,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_ParChild.hpp"
-#include "geneva/G_OA_EvolutionaryAlgorithm_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GTestIndividual1.hpp"
@@ -268,7 +268,7 @@ public:
 		 paretoInds.clear();
 
 		 for(auto it=this->begin(); it!= this->end(); ++it) {
-			 if((*it)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) {
+			 if((*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) {
 				 paretoInds.push_back(*it);
 			 }
 		 }
@@ -648,7 +648,7 @@ protected:
 				 old_work_items.begin()
 				 , old_work_items.end()
 				 , [iteration](std::shared_ptr<GParameterSet> x) -> bool {
-					 return x->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
+					 return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent() && x->getAssignedIteration() != iteration;
 				 }
 			 )
 			 , old_work_items.end()
@@ -666,7 +666,7 @@ protected:
 			 this->begin()
 			 , this->end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-				 return (x->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isParent() > y->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isParent());
+				 return (x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent() > y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isParent());
 			 }
 		 );
 
@@ -715,10 +715,10 @@ protected:
 		 // Mark the first this->m_n_parents individuals as parents and the rest of the individuals as children.
 		 // We want to have a sane population.
 		 for (auto it = this->begin(); it != this->begin() + np; ++it) {
-			 (*it)->GParameterSet::template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->setIsParent();
+			 (*it)->GParameterSet::template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->setIsParent();
 		 }
 		 for (auto it = this->begin() + np; it != this->end(); ++it) {
-			 (*it)->GParameterSet::template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->setIsChild();
+			 (*it)->GParameterSet::template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->setIsChild();
 		 }
 
 		 // We care for too many returned individuals in the selectBest() function. Older
@@ -879,7 +879,7 @@ protected:
  	  * Retrieve a GPersonalityTraits object belonging to this algorithm
  	  */
 	 virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override {
-		 return std::shared_ptr<G_OA_EvolutionaryAlgorithm_PersonalityTraits>(new G_OA_EvolutionaryAlgorithm_PersonalityTraits());
+		 return std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(new GEvolutionaryAlgorithm_PersonalityTraits());
 	 }
 
 private:
@@ -901,7 +901,7 @@ private:
 
 		 // Mark all individuals as being on the pareto front initially
 		 for (it = this->begin(); it != this->end(); ++it) {
-			 (*it)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->resetParetoTag();
+			 (*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->resetParetoTag();
 		 }
 
 		 // Compare all parameters
@@ -909,16 +909,16 @@ private:
 			 for (it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
 				 // If we already know that this individual is *not*
 				 // on the front we do not have to do any tests
-				 if (!(*it_cmp)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) continue;
+				 if (!(*it_cmp)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) continue;
 
 				 // Check if it dominates it_cmp. If so, mark it accordingly
 				 if (aDominatesB(*it, *it_cmp)) {
-					 (*it_cmp)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
+					 (*it_cmp)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
 				 }
 
 				 // If a it dominated by it_cmp, we mark it accordingly and break the loop
 				 if (aDominatesB(*it_cmp, *it)) {
-					 (*it)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
+					 (*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
 					 break;
 				 }
 			 }
@@ -931,14 +931,14 @@ private:
 			 this->begin()
 			 , this->end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-				 return x->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront();
+				 return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront();
 			 }
 		 );
 
 		 // Count the number of individuals on the pareto front
 		 std::size_t nIndividualsOnParetoFront = 0;
 		 for (it = this->begin(); it != this->end(); ++it) {
-			 if ((*it)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
+			 if ((*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
 		 }
 
 		 // If the number of individuals on the pareto front exceeds the number of parents, we
@@ -991,12 +991,12 @@ private:
 
 		 // Mark the last iterations parents as not being on the pareto front
 		 for (it = this->begin(); it != this->begin() + this->m_n_parents; ++it) {
-			 (*it)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
+			 (*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
 		 }
 
 		 // Mark all children as being on the pareto front initially
 		 for (it = this->begin() + this->m_n_parents; it != this->end(); ++it) {
-			 (*it)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->resetParetoTag();
+			 (*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->resetParetoTag();
 		 }
 
 		 // Compare all parameters of all children
@@ -1004,16 +1004,16 @@ private:
 			 for (it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
 				 // If we already know that this individual is *not*
 				 // on the front we do not have to do any tests
-				 if (!(*it_cmp)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) continue;
+				 if (!(*it_cmp)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) continue;
 
 				 // Check if it dominates it_cmp. If so, mark it accordingly
 				 if (aDominatesB(*it, *it_cmp)) {
-					 (*it_cmp)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
+					 (*it_cmp)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
 				 }
 
 				 // If a it dominated by it_cmp, we mark it accordingly and break the loop
 				 if (aDominatesB(*it_cmp, *it)) {
-					 (*it)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
+					 (*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->setIsNotOnParetoFront();
 					 break;
 				 }
 			 }
@@ -1029,14 +1029,14 @@ private:
 			 this->begin()
 			 , this->end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) {
-				 return x->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront();
+				 return x->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront() > y->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront();
 			 }
 		 );
 
 		 // Count the number of individuals on the pareto front
 		 std::size_t nIndividualsOnParetoFront = 0;
 		 for (it = this->begin(); it != this->end(); ++it) {
-			 if ((*it)->template getPersonalityTraits<G_OA_EvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
+			 if ((*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) nIndividualsOnParetoFront++;
 		 }
 
 		 // If the number of individuals on the pareto front exceeds the number of parents, we
