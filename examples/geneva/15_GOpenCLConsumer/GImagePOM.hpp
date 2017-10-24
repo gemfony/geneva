@@ -45,6 +45,7 @@
 
 // Geneva headers go here
 #include "geneva/GPluggableOptimizationMonitorsT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "GImageIndividual.hpp"
 
 namespace Gem {
@@ -69,7 +70,7 @@ const boost::uint16_t DEFAULTYDIMPROGRESS=192;
  * This class saves the best image of each iteration to disk
  */
 class GImagePOM
-	: public GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT
+	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -79,7 +80,7 @@ class GImagePOM
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(*this))
+		 & make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM>(*this))
 		 & BOOST_SERIALIZATION_NVP(resultImageDirectory_)
 		 & BOOST_SERIALIZATION_NVP(dimX_)
 		 & BOOST_SERIALIZATION_NVP(dimY_)
@@ -111,7 +112,7 @@ public:
     * @param cp A copy of another GImagePOM object
     */
    GImagePOM(const GImagePOM& cp)
-		: GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT(cp)
+		: GBasePluggableOM(cp)
 		, resultImageDirectory_(cp.resultImageDirectory_)
 		, dimX_(cp.dimX_)
 	  	, dimY_(cp.dimY_)
@@ -191,7 +192,7 @@ public:
 		 GToken token("GImagePOM", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(resultImageDirectory_, p_load->resultImageDirectory_), token);
@@ -317,7 +318,7 @@ protected:
 		 const GImagePOM *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		 // Load the parent classes' data ...
-		 GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::load_(cp);
+		 GBasePluggableOM::load_(cp);
 
 		 // ... and then our local data
 		 this->resultImageDirectory_ = p_load->resultImageDirectory_;
@@ -376,7 +377,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent classes' functions
-		 if(GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::modify_GUnitTests()) {
+		 if(GBasePluggableOM::modify_GUnitTests()) {
 			 result = true;
 		 }
 
@@ -400,7 +401,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::specificTestsNoFailureExpected_GUnitTests();
+		 GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GImagePOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -416,7 +417,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GOptimizationAlgorithmT<GParameterSet>::GBasePluggableOMT::specificTestsFailuresExpected_GUnitTests();
+		 GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GImagePOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

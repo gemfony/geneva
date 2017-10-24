@@ -68,7 +68,7 @@ namespace Geneva {
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
  * information from within optimization algorithms. They can be plugged into G_OptimizationAlgorithm_Base<oa_type>
  * derivatives. A requirement is that they implement a function "informationFunction"
- * according to the API of G_OptimizationAlgorithm_Base<>::GBasePluggableOMT .
+ * according to the API of G_OptimizationAlgorithm_Base<>::GBasePluggableOM .
  */
 
 /******************************************************************************/
@@ -81,7 +81,7 @@ namespace Geneva {
  */
 template <typename oa_type>
 class GStandardMonitorT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -91,8 +91,8 @@ class GStandardMonitorT
 		using boost::serialization::make_nvp;
 
 		ar & make_nvp(
-			"GBasePluggableOMT"
-			, boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this)
+			"GBasePluggableOM"
+			, boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this)
 		);
 	}
 
@@ -111,7 +111,7 @@ public:
 	 * The copy constructor
 	 */
 	GStandardMonitorT(const GStandardMonitorT<oa_type>& cp)
-		: GBasePluggableOMT<oa_type>(cp)
+		: GBasePluggableOM<oa_type>(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -231,7 +231,7 @@ public:
 		GToken token("GStandardMonitorT<oa_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -251,7 +251,7 @@ protected:
 		const GStandardMonitorT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOMT<oa_type>::load_(cp);
+		GBasePluggableOM<oa_type>::load_(cp);
 
 		// ... no local data
 	}
@@ -279,7 +279,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -303,7 +303,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GStandardMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -319,7 +319,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GStandardMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -341,7 +341,7 @@ public:
  */
 template <typename oa_type>
 class GFitnessMonitorT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -351,7 +351,7 @@ class GFitnessMonitorT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT", boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM", boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(m_xDim)
 	  	& BOOST_SERIALIZATION_NVP(m_yDim)
 		& BOOST_SERIALIZATION_NVP(m_nMonitorInds)
@@ -376,7 +376,7 @@ public:
 	 * The copy constructor
 	 */
 	GFitnessMonitorT(const GFitnessMonitorT<oa_type>& cp)
-		: GBasePluggableOMT<oa_type>(cp)
+		: GBasePluggableOM<oa_type>(cp)
 	  	, m_xDim(cp.m_xDim)
 	  	, m_yDim(cp.m_yDim)
 		, m_nMonitorInds(cp.m_nMonitorInds)
@@ -688,7 +688,7 @@ public:
 		GToken token("GFitnessMonitorT<oa_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_xDim, p_load->m_xDim), token);
@@ -715,7 +715,7 @@ protected:
 		const GFitnessMonitorT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOMT<oa_type>::load_(cp);
+		GBasePluggableOM<oa_type>::load_(cp);
 
 		// ... and then our local data
 		m_xDim = p_load->m_xDim;
@@ -763,7 +763,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -787,7 +787,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GFitnessMonitorT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -803,7 +803,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GFitnessMonitorT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -821,7 +821,7 @@ public:
  */
 template <typename oa_type>
 class GCollectiveMonitorT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -831,7 +831,7 @@ class GCollectiveMonitorT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this));
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this));
 
 		// Some preparation needed if this is a load operation.
 		// This is needed to work around a problem in Boost 1.58
@@ -857,7 +857,7 @@ public:
 	 * The copy constructor
 	 */
 	GCollectiveMonitorT(const GCollectiveMonitorT<oa_type>& cp)
-		: GBasePluggableOMT<oa_type>(cp)
+		: GBasePluggableOM<oa_type>(cp)
 	{
 		Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors, m_pluggable_monitors);
 	}
@@ -930,7 +930,7 @@ public:
 	 * Allows to register a new pluggable monitor
 	 */
 	void registerPluggableOM(
-		std::shared_ptr<Gem::Geneva::GBasePluggableOMT<oa_type>> om_ptr
+		std::shared_ptr<Gem::Geneva::GBasePluggableOM<oa_type>> om_ptr
 	) {
 		if(om_ptr) {
 			m_pluggable_monitors.push_back(om_ptr);
@@ -988,7 +988,7 @@ public:
 		GToken token("GCollectiveMonitorT<oa_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_pluggable_monitors, p_load->m_pluggable_monitors), token);
@@ -1009,7 +1009,7 @@ protected:
 		const GCollectiveMonitorT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOMT<oa_type>::load_(cp);
+		GBasePluggableOM<oa_type>::load_(cp);
 
 		// ... and then our local data
 		Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors, m_pluggable_monitors);
@@ -1025,7 +1025,7 @@ protected:
 
 
 private:
-	std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOMT<oa_type>>> m_pluggable_monitors; ///< The collection of monitors
+	std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM<oa_type>>> m_pluggable_monitors; ///< The collection of monitors
 
 public:
 	/***************************************************************************/
@@ -1042,7 +1042,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -1066,7 +1066,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GCollectiveMonitorT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1082,7 +1082,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GCollectiveMonitorT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -1101,7 +1101,7 @@ public:
  */
 template <typename fp_type, typename oa_type>
 class GProgressPlotterTT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1111,7 +1111,7 @@ class GProgressPlotterTT
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this))
+			& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
 			& BOOST_SERIALIZATION_NVP(m_fp_profVarVec)
 			& BOOST_SERIALIZATION_NVP(m_gpd)
 			& BOOST_SERIALIZATION_NVP(m_progressPlotter2D_oa)
@@ -1164,7 +1164,7 @@ public:
 	 * The copy constructor
 	 */
 	GProgressPlotterTT(const GProgressPlotterTT<fp_type, oa_type>& cp)
-		: GBasePluggableOMT<oa_type>(cp)
+		: GBasePluggableOM<oa_type>(cp)
 		, m_gpd(cp.m_gpd)
 		, m_fileName(cp.m_fileName)
 		, m_canvasDimensions(cp.m_canvasDimensions)
@@ -1526,7 +1526,7 @@ public:
 
 				if(m_monitorBestOnly) { // Monitor the best individuals only
 					std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
-					if(GBasePluggableOMT<oa_type>::m_useRawEvaluation) {
+					if(GBasePluggableOM<oa_type>::m_useRawEvaluation) {
 						primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 					} else {
 						primaryFitness = p->transformedFitness();
@@ -1596,7 +1596,7 @@ public:
 					typename oa_type::iterator it;
 					for(it=goa->begin(); it!=goa->end(); ++it) {
 
-						if(GBasePluggableOMT<oa_type>::m_useRawEvaluation) {
+						if(GBasePluggableOM<oa_type>::m_useRawEvaluation) {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 						} else {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
@@ -1728,7 +1728,7 @@ public:
 		GToken token("GProgressPlotterTT<fp_type, oa_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fp_profVarVec, p_load->m_fp_profVarVec), token);
@@ -1759,7 +1759,7 @@ protected:
 		const GProgressPlotterTT<fp_type, oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOMT<oa_type>::load_(cp);
+		GBasePluggableOM<oa_type>::load_(cp);
 
 		// ... and then our local data
 		Gem::Common::copyCloneableObjectsContainer(p_load->m_fp_profVarVec, m_fp_profVarVec);
@@ -1817,7 +1817,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -1841,7 +1841,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GProgressPlotterTT<fp_type, oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1857,7 +1857,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GProgressPlotterTT<fp_type, oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -1902,7 +1902,7 @@ public:
  */
 template <typename oa_type>
 class GAllSolutionFileLoggerT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1912,7 +1912,7 @@ class GAllSolutionFileLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_boundaries)
 		& BOOST_SERIALIZATION_NVP(m_boundariesActive)
@@ -2051,7 +2051,7 @@ public:
 		GToken token("GAllSolutionFileLoggerT<oa_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2283,7 +2283,7 @@ protected:
 		const GAllSolutionFileLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOMT<oa_type>::load_(cp);
+		GBasePluggableOM<oa_type>::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -2371,7 +2371,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -2395,7 +2395,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAllSolutionFileLoggerT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -2411,7 +2411,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAllSolutionFileLoggerT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -2429,7 +2429,7 @@ public:
  */
 template <typename oa_type>
 class GIterationResultsFileLoggerT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2439,7 +2439,7 @@ class GIterationResultsFileLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_withCommas)
 		& BOOST_SERIALIZATION_NVP(m_useRawFitness);
@@ -2555,7 +2555,7 @@ public:
 		GToken token("GIterationResultsFileLoggerT<oa_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2693,7 +2693,7 @@ protected:
 		const GIterationResultsFileLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOMT<oa_type>::load_(cp);
+		GBasePluggableOM<oa_type>::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -2731,7 +2731,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -2755,7 +2755,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GIterationResultsFileLoggerT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -2771,7 +2771,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GIterationResultsFileLoggerT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -2790,7 +2790,7 @@ public:
  */
 template <typename oa_type>
 class GNAdpationsLoggerT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2800,7 +2800,7 @@ class GNAdpationsLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_canvasDimensions)
 		& BOOST_SERIALIZATION_NVP(m_gpd)
@@ -2928,7 +2928,7 @@ public:
 		GToken token("GNAdpationsLoggerT<oa_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -3173,7 +3173,7 @@ protected:
 		const GNAdpationsLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<oa_type>>(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOMT<oa_type>::load_(cp);
+		GBasePluggableOM<oa_type>::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -3233,7 +3233,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -3257,7 +3257,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GNAdpationsLoggerT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -3273,7 +3273,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GNAdpationsLoggerT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -3291,7 +3291,7 @@ public:
  */
 template <typename num_type, typename oa_type>
 class GAdaptorPropertyLoggerTT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -3301,7 +3301,7 @@ class GAdaptorPropertyLoggerTT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_adaptorName)
 		& BOOST_SERIALIZATION_NVP(m_property)
@@ -3450,7 +3450,7 @@ public:
 		GToken token("GAdaptorPropertyLoggerTT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -3729,7 +3729,7 @@ protected:
 		const GAdaptorPropertyLoggerTT<num_type, oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerTT<num_type, oa_type>>(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOMT<oa_type>::load_(cp);
+		GBasePluggableOM<oa_type>::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -3792,7 +3792,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -3816,7 +3816,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAdaptorPropertyLoggerTT<num_type, oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -3832,7 +3832,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GAdaptorPropertyLoggerTT<num_type, oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -3852,7 +3852,7 @@ public:
  */
 template <typename oa_type>
 class GProcessingTimesLoggerT
-	: public GBasePluggableOMT<oa_type>
+	: public GBasePluggableOM<oa_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -3862,7 +3862,7 @@ class GProcessingTimesLoggerT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<oa_type>>(*this))
+		 & make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_fileName_pth)
 		 & BOOST_SERIALIZATION_NVP(m_canvasDimensions_pth)
 		 & BOOST_SERIALIZATION_NVP(m_gpd_pth)
@@ -4016,7 +4016,7 @@ public:
 		 GToken token("GProcessingTimesLoggerT<oa_type>", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBasePluggableOMT<oa_type>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_fileName_pth, p_load->m_fileName_pth), token);
@@ -4395,7 +4395,7 @@ protected:
 		 const GProcessingTimesLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		 // Load the parent classes' data ...
-		 GBasePluggableOMT<oa_type>::load_(cp);
+		 GBasePluggableOM<oa_type>::load_(cp);
 
 		 // ... and then our local data
 		 m_fileName_pth = p_load->m_fileName_pth;
@@ -4470,7 +4470,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent classes' functions
-		 if(GBasePluggableOMT<oa_type>::modify_GUnitTests()) {
+		 if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
 			 result = true;
 		 }
 
@@ -4494,7 +4494,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		 GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GProcessingTimesLoggerT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -4510,7 +4510,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		 GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GProcessingTimesLoggerT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
