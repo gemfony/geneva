@@ -73,7 +73,7 @@ const sortingMode DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * This is a specialization of the GParChildT<executor_type> class. The class adds
  * an infrastructure for evolutionary algorithms.
  */
-class GEvolutionaryAlgorithmT
+class GEvolutionaryAlgorithm
 	: public G_OptimizationAlgorithm_ParChild
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -96,7 +96,7 @@ public:
 	  * The default constructor. All initialization work of member variable
 	  * is done in the class body.
 	  */
-	 GEvolutionaryAlgorithmT()
+	 GEvolutionaryAlgorithm()
 		 : G_OptimizationAlgorithm_ParChild()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
@@ -107,9 +107,9 @@ public:
 	 /**
 	  * A standard copy constructor
 	  *
-	  * @param cp Another GEvolutionaryAlgorithmT object
+	  * @param cp Another GEvolutionaryAlgorithm object
 	  */
-	 GEvolutionaryAlgorithmT(const GEvolutionaryAlgorithmT& cp)
+	 GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 		 : G_OptimizationAlgorithm_ParChild(cp)
 		 , m_sorting_mode(cp.m_sorting_mode)
 		 , m_n_threads(cp.m_n_threads)
@@ -122,26 +122,26 @@ public:
 	 /**
      * The standard destructor. All work is done in the parent class.
      */
-	 virtual ~GEvolutionaryAlgorithmT()
+	 virtual ~GEvolutionaryAlgorithm()
 	 { /* nothing */ }
 
 	 /***************************************************************************/
  	 /**
 	  * The standard assignment operator
 	  */
-	 const GEvolutionaryAlgorithmT& operator=(const GEvolutionaryAlgorithmT& cp) {
+	 const GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GEvolutionaryAlgorithmT object
+	  * Checks for equality with another GEvolutionaryAlgorithm object
 	  *
-	  * @param  cp A constant reference to another GEvolutionaryAlgorithmT object
+	  * @param  cp A constant reference to another GEvolutionaryAlgorithm object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 virtual bool operator==(const GEvolutionaryAlgorithmT& cp) const {
+	 virtual bool operator==(const GEvolutionaryAlgorithm& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -153,12 +153,12 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for inequality with another GEvolutionaryAlgorithmT object
+	  * Checks for inequality with another GEvolutionaryAlgorithm object
 	  *
-	  * @param  cp A constant reference to another GEvolutionaryAlgorithmT object
+	  * @param  cp A constant reference to another GEvolutionaryAlgorithm object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 virtual bool operator!=(const GEvolutionaryAlgorithmT& cp) const {
+	 virtual bool operator!=(const GEvolutionaryAlgorithm& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -185,10 +185,10 @@ public:
 		 using namespace Gem::Common;
 
 		 // Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
-		 const GEvolutionaryAlgorithmT *p_load
-			 = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT>(cp, this);
+		 const GEvolutionaryAlgorithm *p_load
+			 = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm>(cp, this);
 
-		 GToken token("GEvolutionaryAlgorithmT", e);
+		 GToken token("GEvolutionaryAlgorithm", e);
 
 		 // Compare our parent data ...
 		 Gem::Common::compare_base<G_OptimizationAlgorithm_ParChild>(IDENTITY(*this, *p_load), token);
@@ -412,7 +412,7 @@ public:
  	  * Emits a name for this class / object
  	  */
 	 virtual std::string name() const override {
-		 return std::string("GEvolutionaryAlgorithmT");
+		 return std::string("GEvolutionaryAlgorithm");
 	 }
 
 	 /***************************************************************************/
@@ -446,14 +446,14 @@ public:
 protected:
 	 /***************************************************************************/
 	 /**
- 	  * Loads the data of another GEvolutionaryAlgorithmT object, camouflaged as a GObject.
+ 	  * Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject.
      *
- 	  * @param cp A pointer to another GEvolutionaryAlgorithmT object, camouflaged as a GObject
+ 	  * @param cp A pointer to another GEvolutionaryAlgorithm object, camouflaged as a GObject
  	  */
 	 virtual void load_(const GObject *cp) override {
-		 // Check that we are dealing with a GEvolutionaryAlgorithmT reference independent
+		 // Check that we are dealing with a GEvolutionaryAlgorithm reference independent
 		 // of this object and convert the pointer
-		 const GEvolutionaryAlgorithmT *p_load = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT>(cp, this);
+		 const GEvolutionaryAlgorithm *p_load = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithm>(cp, this);
 
 		 // First load the parent class'es data ...
 		 G_OptimizationAlgorithm_ParChild::load_(cp);
@@ -470,7 +470,7 @@ protected:
  	  * @return A deep copy of this object
  	  */
 	 virtual GObject *clone_() const override {
-		 return new GEvolutionaryAlgorithmT(*this);
+		 return new GEvolutionaryAlgorithm(*this);
 	 }
 
 	 /***************************************************************************/
@@ -569,7 +569,7 @@ protected:
 		 for(std::size_t i=this->getNParents(); i<this->size(); i++) {
 			 if(!this->at(i)->isDirty()) {
 			 	 glogger
-				 << "In GEvolutionaryAlgorithmT::runFitnessCalculation(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
 				 << "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
 				 << "but found \"clean\" individual in position " << i << std::endl
 				 << GEXCEPTION;
@@ -579,7 +579,7 @@ protected:
 
 		 if(this->size() != this->getDefaultPopulationSize()) {
 			 glogger
-				 << "In GEvolutionaryAlgorithmT::runFitnessCalculation(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
 				 << "Size of data vector (" << this->size() << ") should be " << this->getDefaultPopulationSize() << std::endl
 				 << GEXCEPTION;
 		 }
@@ -599,7 +599,7 @@ protected:
 			 this->data
 			 , workItemPos
 			 , false // do not resubmit unprocessed items
-			 , "GEvolutionaryAlgorithmT::runFitnessCalculation()"
+			 , "GEvolutionaryAlgorithm::runFitnessCalculation()"
 		 );
 
 		 //--------------------------------------------------------------------------------
@@ -679,14 +679,14 @@ protected:
 		 // Check that individuals do exist in the population. We cannot continue, if this is not the case
 		 if(this->empty()) {
 			 glogger
-				 << "In GEvolutionaryAlgorithmT::fixAfterJobSubmission(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
 				 << "Population holds no data" << std::endl
 				 << GEXCEPTION;
 		 } else {
 			 // Emit a warning if no children have returned
 			 if(this->size() <= this->getNParents()) {
 				 glogger
-					 << "In GEvolutionaryAlgorithmT::fixAfterJobSubmission(): Warning!" << std::endl
+					 << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Warning!" << std::endl
 					 << "No child individuals have returned" << std::endl
 					 << "We need to fill up the population with clones from parent individuals" << std::endl
 					 << GWARNING;
@@ -696,7 +696,7 @@ protected:
 		 // Check that the dirty flag of the last individual isn't set. This is a severe error.
 		 if(this->back()->isDirty()) {
 			 glogger
-				 << "In GEvolutionaryAlgorithmT::fixAfterJobSubmission(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
 				 << "The last individual in the population has the dirty" << std::endl
 				 << "flag set, so we cannot use it for cloning" << std::endl
 				 << GEXCEPTION;
@@ -890,7 +890,7 @@ private:
  	  * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
  	  */
 	 void sortMuPlusNuParetoMode() {
-		 typename GEvolutionaryAlgorithmT::iterator it, it_cmp;
+		 typename GEvolutionaryAlgorithm::iterator it, it_cmp;
 
 		 // We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
 		 it = this->begin();
@@ -980,7 +980,7 @@ private:
  	  * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
  	  */
 	 void sortMuCommaNuParetoMode() {
-		 typename GEvolutionaryAlgorithmT::iterator it, it_cmp;
+		 typename GEvolutionaryAlgorithm::iterator it, it_cmp;
 
 		 // We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
 		 it = this->begin();
@@ -1182,7 +1182,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 		 { // Call the parent class'es function
-			 std::shared_ptr<GEvolutionaryAlgorithmT> p_test = this->template clone<GEvolutionaryAlgorithmT>();
+			 std::shared_ptr<GEvolutionaryAlgorithm> p_test = this->template clone<GEvolutionaryAlgorithm>();
 
 			 // Fill p_test with individuals
 			 p_test->fillWithObjects(100);
@@ -1194,7 +1194,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 		 { // Check setting and retrieval of the population size and number of parents/children
-			 std::shared_ptr <GEvolutionaryAlgorithmT> p_test = this->template clone<GEvolutionaryAlgorithmT>();
+			 std::shared_ptr <GEvolutionaryAlgorithm> p_test = this->template clone<GEvolutionaryAlgorithm>();
 
 			 // Set the default population size and number of children to different numbers
 			 for (std::size_t nChildren = 5; nChildren < 10; nChildren++) {
@@ -1224,7 +1224,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GEvolutionaryAlgorithmT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1238,7 +1238,7 @@ public:
 		 G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
-		 condnotset("GEvolutionaryAlgorithmT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1247,12 +1247,6 @@ public:
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-// Some typedefs for the different execution modes
-// TODO: Kust rename everything to GEvolutionaryAlgorithm
-using GEvolutionaryAlgorithm = GEvolutionaryAlgorithmT;
-
 /******************************************************************************/
 
 } /* namespace Geneva */

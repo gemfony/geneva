@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_EvolutionaryAlgorithm.hpp"
+#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp"
 
 /******************************************************************************/
 

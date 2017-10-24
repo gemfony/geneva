@@ -57,7 +57,7 @@
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/G_OA_EvolutionaryAlgorithm.hpp"
+#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
