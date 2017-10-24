@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_ParameterScan.hpp"
+#include "geneva/G_OptimimzationAlgorithm_ParameterScan.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::bScanPar)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::int32ScanPar)
