@@ -45,7 +45,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GThreadPool.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/G_OA_EvolutionaryAlgorithm_Factory.hpp"
+#include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GDelayIndividual.hpp"

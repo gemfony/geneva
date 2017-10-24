@@ -31,7 +31,7 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.eu .
  */
-#include "geneva/G_OA_SwarmAlgorithm.hpp"
+#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmAlgorithm)
 

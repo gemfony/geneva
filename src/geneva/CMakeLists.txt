@@ -30,21 +30,20 @@ SET ( OPTIMIZATIONSOURCES
 	Go2
     G_OptimizationAlgorithm_Base
     G_OptimizationAlgorithm_EvolutionaryAlgorithm
+    G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory
     G_OptimizationAlgorithm_GradientDescent
-    G_OptimimzationAlgorithm_ParameterScan
+    G_OptimizationAlgorithm_ParameterScan
+    G_OptimizationAlgorithm_ParameterScan_Factory
     G_OptimizationAlgorithm_SimulatedAnnealing
+    G_OptimizationAlgorithm_SwarmAlgorithm
     G_OA_ConjugateGradientDescent
     G_OA_EvolutionaryAlgorithm_PersonalityTraits
-    G_OA_EvolutionaryAlgorithm_Factory
     G_OA_GradientDescent_Factory
     G_OA_GradientDescent_PersonalityTraits
-    G_OA_ParameterScan_Factory
     G_OA_ParameterScan_PersonalityTraits
     G_OA_ParChildT_PersonalityTraits
     G_OA_SimulatedAnnealing_Factory
     G_OA_SimulatedAnnealing_PersonalityTraits
-    G_OA_SwarmAlgorithm
-    G_OA_SwarmAlgorithm_Factory
     G_OA_SwarmAlgorithm_PersonalityTraits
 	GObject
 	GOptimizableEntity

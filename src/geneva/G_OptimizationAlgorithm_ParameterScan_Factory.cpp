@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_ParameterScan_Factory.hpp"
+#include "geneva/G_OptimizationAlgorithm_ParameterScan_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {

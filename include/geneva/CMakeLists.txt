@@ -53,24 +53,24 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumT.hpp
     G_OptimizationAlgorithm_Base.hpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp
+    G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp
     G_OptimizationAlgorithm_GradientDescent.hpp
     G_OptimizationAlgorithm_ParChild.hpp
-    G_OptimimzationAlgorithm_ParameterScan.hpp
+    G_OptimizationAlgorithm_ParameterScan.hpp
+    G_OptimizationAlgorithm_ParameterScan_Factory.hpp
     G_OptimizationAlgorithm_SimulatedAnnealing.hpp
+    G_OptimizationAlgorithm_SwarmAlgorithm.hpp
     G_OA_ConjugateGradientDescent.hpp
-    G_OA_EvolutionaryAlgorithm_Factory.hpp
     G_OA_EvolutionaryAlgorithm_PersonalityTraits.hpp
     G_OA_FactoryT.hpp
     G_OA_FactoryStore.hpp
     G_OA_GradientDescent_Factory.hpp
     G_OA_GradientDescent_PersonalityTraits.hpp
     G_OA_InitializerT.hpp
-    G_OA_ParameterScan_Factory.hpp
     G_OA_ParameterScan_PersonalityTraits.hpp
     G_OA_ParChildT_PersonalityTraits.hpp
     G_OA_SimulatedAnnealing_Factory.hpp
     G_OA_SimulatedAnnealing_PersonalityTraits.hpp
-    G_OA_SwarmAlgorithm.hpp
     G_OA_SwarmAlgorithm_Factory.hpp
     G_OA_SwarmAlgorithm_PersonalityTraits.hpp
 	Go2.hpp

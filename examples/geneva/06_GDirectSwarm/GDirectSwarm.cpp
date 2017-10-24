@@ -58,7 +58,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "common/GParserBuilder.hpp"
 #include "geneva/GenevaInitializer.hpp"
-#include "geneva/G_OA_SwarmAlgorithm.hpp"
+#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm.hpp"
 
 // The individual that should be optimized
 #include "geneva-individuals/GFunctionIndividual.hpp"
