@@ -63,8 +63,7 @@ namespace Geneva {
  * This is a specialization of the GParameterSetParChild class. The class adds
  * an infrastructure for simulated annealing (Geneva-style, i.e. with larger populations).
  */
-template<typename executor_type>
-class GSimulatedAnnealingT : public G_OA_ParChildT<executor_type>
+class GSimulatedAnnealingT : public G_OA_ParChildT
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -74,7 +73,7 @@ class GSimulatedAnnealingT : public G_OA_ParChildT<executor_type>
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_ParChildT<executor_type>", boost::serialization::base_object<G_OA_ParChildT<executor_type>>(*this))
+		 & make_nvp("G_OA_ParChildT", boost::serialization::base_object<G_OA_ParChildT>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_t0)
 		 & BOOST_SERIALIZATION_NVP(m_t)
 		 & BOOST_SERIALIZATION_NVP(m_alpha)
@@ -89,7 +88,7 @@ public:
 	  * is done in the class body.
 	  */
 	 GSimulatedAnnealingT()
-		 : G_OA_ParChildT<executor_type>()
+		 : G_OA_ParChildT()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
 		 this->setPopulationSizes(100, 1);
@@ -101,8 +100,8 @@ public:
 	  *
 	  * @param cp Another GSimulatedAnnealingT object
 	  */
-	 GSimulatedAnnealingT(const GSimulatedAnnealingT<executor_type>& cp)
-		 : G_OA_ParChildT<executor_type>(cp)
+	 GSimulatedAnnealingT(const GSimulatedAnnealingT& cp)
+		 : G_OA_ParChildT(cp)
 		 , m_t0(cp.m_t0)
 		 , m_t(cp.m_t)
 		 , m_alpha(cp.m_alpha)
@@ -123,7 +122,7 @@ public:
  	 /**
 	  * The standard assignment operator
 	  */
-	 const GSimulatedAnnealingT& operator=(const GSimulatedAnnealingT<executor_type>& cp) {
+	 const GSimulatedAnnealingT& operator=(const GSimulatedAnnealingT& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -135,7 +134,7 @@ public:
 	  * @param  cp A constant reference to another GSimulatedAnnealingT object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 virtual bool operator==(const GSimulatedAnnealingT<executor_type>& cp) const {
+	 virtual bool operator==(const GSimulatedAnnealingT& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -152,7 +151,7 @@ public:
 	  * @param  cp A constant reference to another GSimulatedAnnealingT object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 virtual bool operator!=(const GSimulatedAnnealingT<executor_type>& cp) const {
+	 virtual bool operator!=(const GSimulatedAnnealingT& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -179,13 +178,13 @@ public:
 		 using namespace Gem::Common;
 
 		 // Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
-		 const GSimulatedAnnealingT<executor_type> *p_load
-			 = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealingT<executor_type>>(cp, this);
+		 const GSimulatedAnnealingT *p_load
+			 = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealingT>(cp, this);
 
 		 GToken token("GSimulatedAnnealingT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<G_OA_ParChildT<executor_type>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<G_OA_ParChildT>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 compare_t(IDENTITY(m_t0, p_load->m_t0), token);
@@ -208,7 +207,7 @@ public:
 
 		 // There is no more work to be done here, so we simply call the
 		 // function of the parent class
-		 G_OA_ParChildT<executor_type>::resetToOptimizationStart();
+		 G_OA_ParChildT::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -242,7 +241,7 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override {
 		 // Call our parent class'es function
-		 G_OA_ParChildT<executor_type>::addConfigurationOptions(gpb);
+		 G_OA_ParChildT::addConfigurationOptions(gpb);
 
 		 // Add local data
 		 gpb.registerFileParameter<std::uint16_t>(
@@ -305,7 +304,7 @@ public:
 	 void setTDegradationStrength(double alpha) {
 		 if (alpha <= 0.) {
 			 glogger
-				 << "In GSimulatedAnnealingT<executor_type>::setTDegradationStrength(const double&):" << std::endl
+				 << "In GSimulatedAnnealingT::setTDegradationStrength(const double&):" << std::endl
 				 << "Got negative alpha: " << alpha << std::endl
 				 << GEXCEPTION;
 		 }
@@ -332,7 +331,7 @@ public:
 	 void setT0(double t0) {
 		 if (t0 <= 0.) {
 			 glogger
-				 << "In GSimulatedAnnealingT<executor_type>::setT0(const double&):" << std::endl
+				 << "In GSimulatedAnnealingT::setT0(const double&):" << std::endl
 				 << "Got negative start temperature: " << t0 << std::endl
 				 << GEXCEPTION;
 		 }
@@ -376,12 +375,12 @@ protected:
  	  * @param cp A pointer to another GSimulatedAnnealingT object, camouflaged as a GObject
  	  */
 	 virtual void load_(const GObject *cp) override {
-		 // Check that we are dealing with a GSimulatedAnnealingT<executor_type> reference independent
+		 // Check that we are dealing with a GSimulatedAnnealingT reference independent
 		 // of this object and convert the pointer
-		 const GSimulatedAnnealingT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealingT<executor_type>>(cp, this);
+		 const GSimulatedAnnealingT *p_load = Gem::Common::g_convert_and_compare<GObject, GSimulatedAnnealingT>(cp, this);
 
 		 // First load the parent class'es data ...
-		 G_OA_ParChildT<executor_type>::load_(cp);
+		 G_OA_ParChildT::load_(cp);
 
 		 // ... and then our own data
 		 m_t0 = p_load->m_t0;
@@ -397,7 +396,7 @@ protected:
  	  * @return A deep copy of this object
  	  */
 	 virtual GObject *clone_() const override {
-		 return new GSimulatedAnnealingT<executor_type>(*this);
+		 return new GSimulatedAnnealingT(*this);
 	 }
 
 	 /***************************************************************************/
@@ -410,7 +409,7 @@ protected:
 		 // in the parent class.
 		 if (this->m_n_parents == 0) {
 			 glogger
-				 << "In GSimulatedAnnealingT<executor_type>::populationSanityChecks(): Error!" << std::endl
+				 << "In GSimulatedAnnealingT::populationSanityChecks(): Error!" << std::endl
 				 << "Number of parents is set to 0"
 				 << GEXCEPTION;
 		 }
@@ -419,7 +418,7 @@ protected:
 		 std::size_t popSize = this->getPopulationSize();
 		 if (popSize <= this->m_n_parents) {
 			 glogger
-				 << "In GSimulatedAnnealingT<executor_type>::populationSanityChecks() :" << std::endl
+				 << "In GSimulatedAnnealingT::populationSanityChecks() :" << std::endl
 				 << "Requested size of population is too small :" << popSize << " " << this->m_n_parents << std::endl
 				 << GEXCEPTION;
 		 }
@@ -466,7 +465,7 @@ protected:
 		 for(std::size_t i=this->getNParents(); i<this->size(); i++) {
 			 if(!this->at(i)->isDirty()) {
 			 	 glogger
-				 << "In GSimulatedAnnealingT<executor_type>::runFitnessCalculation(): Error!" << std::endl
+				 << "In GSimulatedAnnealingT::runFitnessCalculation(): Error!" << std::endl
 				 << "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
 				 << "but found \"clean\" individual in position " << i << std::endl
 				 << GEXCEPTION;
@@ -484,7 +483,7 @@ protected:
 			 this->data
 			 , workItemPos
 			 , false // do not resubmit unprocessed items
-			 , "GSimulatedAnnealingT<executor_type>::runFitnessCalculation()"
+			 , "GSimulatedAnnealingT::runFitnessCalculation()"
 		 );
 
 		 //--------------------------------------------------------------------------------
@@ -554,14 +553,14 @@ protected:
 		 // Check that individuals do exist in the population. We cannot continue, if this is not the case
 		 if(this->empty()) {
 			 glogger
-				 << "In GSimulatedAnnealingT<executor_type>::fixAfterJobSubmission(): Error!" << std::endl
+				 << "In GSimulatedAnnealingT::fixAfterJobSubmission(): Error!" << std::endl
 				 << "Population holds no data" << std::endl
 				 << GEXCEPTION;
 		 } else {
 			 // Emit a warning if no children have returned
 			 if(this->size() <= this->getNParents()) {
 				 glogger
-					 << "In GSimulatedAnnealingT<executor_type>::fixAfterJobSubmission(): Warning!" << std::endl
+					 << "In GSimulatedAnnealingT::fixAfterJobSubmission(): Warning!" << std::endl
 					 << "No child individuals have returned" << std::endl
 					 << "We need to fill up the population with clones from parent individuals" << std::endl
 					 << GWARNING;
@@ -571,7 +570,7 @@ protected:
 		 // Check that the dirty flag of the last individual isn't set. This is a severe error.
 		 if(this->back()->isDirty()) {
 			 glogger
-				 << "In GSimulatedAnnealingT<executor_type>::fixAfterJobSubmission(): Error!" << std::endl
+				 << "In GSimulatedAnnealingT::fixAfterJobSubmission(): Error!" << std::endl
 				 << "The last individual in the population has the dirty" << std::endl
 				 << "flag set, so we cannot use it for cloning" << std::endl
 				 << GEXCEPTION;
@@ -589,7 +588,7 @@ protected:
 
 		 // Mark the first this->m_n_parents individuals as parents and the rest of the individuals as children.
 		 // We want to have a sane population.
-		 typename G_OA_BaseT<executor_type>::iterator it;
+		 typename G_OA_BaseT::iterator it;
 		 for (it = this->begin(); it != this->begin() + np; ++it) {
 			 (*it)->GParameterSet::template getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->setIsParent();
 		 }
@@ -617,7 +616,7 @@ protected:
    	 // should have been taken care of in fixAfterJobSubmission() .
    	 if(this->size() < this->getDefaultPopulationSize()) {
       	 glogger
-      	 << "In GSimulatedAnnealingT<executor_type>::selectBest(): Error!" << std::endl
+      	 << "In GSimulatedAnnealingT::selectBest(): Error!" << std::endl
       	 << "Size of population is smaller than expected: " << this->size() << " / " << this->getDefaultPopulationSize() << std::endl
       	 << GEXCEPTION;
    	 }
@@ -657,7 +656,7 @@ protected:
  	  */
 	 virtual void init() override {
 		 // To be performed before any other action. Place any further work after this call.
-		 G_OA_ParChildT<executor_type>::init();
+		 G_OA_ParChildT::init();
 
 		 // Initialize our thread pool
 		 m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
@@ -674,7 +673,7 @@ protected:
 
 			 glogger
 				 << "========================================================================" << std::endl
-				 << "In GSimulatedAnnealingT<executor_type>::finalize():" << std::endl
+				 << "In GSimulatedAnnealingT::finalize():" << std::endl
 				 << "There were errors during thread execution:" << std::endl
 				 << std::endl;
 
@@ -692,7 +691,7 @@ protected:
 		 m_tp_ptr.reset();
 
 		 // Last action. Place any "local" finalization action before this call.
-		 G_OA_ParChildT<executor_type>::finalize();
+		 G_OA_ParChildT::finalize();
 	 }
 
 	 /***************************************************************************/
@@ -802,12 +801,12 @@ public:
 		 bool result = false;
 
 		 // Call the parent class'es function
-		 if(G_OA_ParChildT<executor_type>::modify_GUnitTests()) result = true;
+		 if(G_OA_ParChildT::modify_GUnitTests()) result = true;
 
 	    return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GSimulatedAnnealingT<executor_type>::modify_GUnitTests", "GEM_TESTING");
+		 condnotset("GSimulatedAnnealingT::modify_GUnitTests", "GEM_TESTING");
 		 return false;
 #endif /* GEM_TESTING */
 	 }
@@ -819,13 +818,13 @@ public:
 	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 G_OA_ParChildT<executor_type>::specificTestsNoFailureExpected_GUnitTests();
+		 G_OA_ParChildT::specificTestsNoFailureExpected_GUnitTests();
 
 		 //------------------------------------------------------------------------------
 		 //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GSimulatedAnnealingT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GSimulatedAnnealingT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -836,13 +835,13 @@ public:
 	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 G_OA_ParChildT<executor_type>::specificTestsFailuresExpected_GUnitTests();
+		 G_OA_ParChildT::specificTestsFailuresExpected_GUnitTests();
 
 		 //------------------------------------------------------------------------------
 		 //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */
-		 condnotset("GSimulatedAnnealingT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GSimulatedAnnealingT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -853,9 +852,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 // Some typedefs for the different execution modes
-using GBrokerSimulatedAnnealing = GSimulatedAnnealingT<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>;
-using GSerialSimulatedAnnealing = GSimulatedAnnealingT<Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>>;
-using GMTSimulatedAnnealing = GSimulatedAnnealingT<Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>>;
+// TODO: Simply rename to GSimulatedAnnealing
+using GBrokerSimulatedAnnealing = GSimulatedAnnealingT;
 
 /******************************************************************************/
 
@@ -863,7 +861,5 @@ using GMTSimulatedAnnealing = GSimulatedAnnealingT<Gem::Courtier::GMTExecutorT<G
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBrokerSimulatedAnnealing)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialSimulatedAnnealing)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMTSimulatedAnnealing)
 
 #endif /* G_OA_SIMULATEDANNEALING_HPP_ */

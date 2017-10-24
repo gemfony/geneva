@@ -64,16 +64,21 @@ using namespace Gem::Common;
  * @param ab The parameters a and b of the line best describing all measurements, so that f(x)=a+b*x
  */
 void startReferenceMeasurement(
-	G_Serial_EvolutionaryAlgorithmFactory& ea_factory
-	, GDelayIndividualFactory& gdif
+	GDelayIndividualFactory& gdif
 	, std::tuple<double,double,double,double>& ab
 ) {
 	std::cout << "Starting reference measurement" << std::endl;
 
 	std::vector<std::tuple<double, double>> referenceExecutionTimes;
 
+	// Create a factory for serial EA algorithms
+	GEvolutionaryAlgorithmFactory ea_serial_factory("./config/GEvolutionaryAlgorithm.json");
+
 	// Create an evolutionary algorithm
-	auto ea_alg_master = ea_factory.get<GSerialEvolutionaryAlgorithm>();
+	auto ea_alg_master = ea_serial_factory.get<GEvolutionaryAlgorithm>();
+
+	// Register an appropriate executor
+	ea_alg_master->registerExecutor(execMode::SERIAL, "./config/GSerialExecutor.json");
 
 	//---------------------------------------------------------------------
 	// Loop until no valid individuals can be retrieved anymore
@@ -93,7 +98,7 @@ void startReferenceMeasurement(
 			std::cout << "Serial measurement " << i << " in iteration " << iter << std::endl;
 
 			// Create a clone of the evolutionary algorithm
-			auto ea_alg = ea_alg_master->clone<GSerialEvolutionaryAlgorithm>();
+			auto ea_alg = ea_alg_master->clone<GEvolutionaryAlgorithm>();
 
 			// Make the individual known to the optimizer
 			ea_alg->push_back(gdi_ptr);
@@ -255,9 +260,6 @@ int main(int argc, char **argv) {
 	// ... and for parallel measurements
 	GDelayIndividualFactory gdif_par("./config/GDelayIndividual.json");
 
-	// Create a factory for serial EA algorithms
-	G_Serial_EvolutionaryAlgorithmFactory ea_serial_factory("./config/GEvolutionaryAlgorithm.json");
-
 	// Add default optimization algorithms to the parallel Go2 object
 	go_parallel.registerDefaultAlgorithm("ea");
 
@@ -265,7 +267,7 @@ int main(int argc, char **argv) {
 	Gem::Common::GThreadPool tp(2);
 
 	// Start the reference and parallel threads
-	tp.async_schedule([&](){ startReferenceMeasurement(ea_serial_factory, gdif_ref, ab); });
+	tp.async_schedule([&](){ startReferenceMeasurement(gdif_ref, ab); });
 	tp.async_schedule([&](){ startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes); });
 	std::cout << "Waiting for threads to return" << std::endl;
 	// And wait for their return

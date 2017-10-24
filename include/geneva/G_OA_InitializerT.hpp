@@ -68,15 +68,15 @@ template <typename oaf_type>
 class G_OA_InitializerT {
 	// Make sure oaf_type has the expected type
 	static_assert(
-		std::is_base_of<G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> , oaf_type>::value
-		, "G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>> is no base of oaf_type"
+		std::is_base_of<G_OA_FactoryT<G_OA_BaseT> , oaf_type>::value
+		, "G_OA_FactoryT<G_OA_BaseT is no base of oaf_type"
 	);
 
 public:
 	/** @brief The initializing constructor */
 	inline G_OA_InitializerT() {
 		// Create a smart pointer holding the algorithm
-		std::shared_ptr<G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>> p(new oaf_type());
+		std::shared_ptr<G_OA_FactoryT<G_OA_BaseT>> p(new oaf_type());
 		std::string mnemonic = p->getMnemonic();
 
 		// Add the factory to the store, if it hasn't been stored there yet

@@ -71,9 +71,9 @@ namespace Geneva {
 /******************************************************************************/
 // Different types of optimization targets
 enum class metaOptimizationTarget : Gem::Common::ENUMBASETYPE {
-	 BESTFITNESS = 0,
-	 MINSOLVERCALLS = 1,
-	 MC_MINSOLVER_BESTFITNESS = 2 // Multi-criterion optimization with least number of solver calls and best average fitness as targets
+ BESTFITNESS = 0,
+ MINSOLVERCALLS = 1,
+ MC_MINSOLVER_BESTFITNESS = 2 // Multi-criterion optimization with least number of solver calls and best average fitness as targets
 };
 
 /******************************************************************************/
@@ -924,10 +924,10 @@ protected:
 		 ind_factory_->setAdaptAdProb(adaptAdProb);
 
 		 // Set up a population factory for serial execution
-		 G_Serial_EvolutionaryAlgorithmFactory ea(subEA_config_);
+		 GEvolutionaryAlgorithmFactory ea(subEA_config_);
 
 		 // Run the required number of optimizations
-		 std::shared_ptr<GSerialEvolutionaryAlgorithm> ea_ptr;
+		 std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr;
 
 		 std::uint32_t nChildren = boost::numeric_cast<std::uint32_t>(nch_ptr->value());
 		 std::uint32_t nParents = boost::numeric_cast<std::uint32_t>(npar_ptr->value());
@@ -941,7 +941,13 @@ protected:
 
 		 for (std::size_t opt = 0; opt < nRunsPerOptimization_; opt++) {
 			 std::cout << "Starting measurement " << opt + 1 << " / " << nRunsPerOptimization_ << std::endl;
-			 ea_ptr = ea.get<GSerialEvolutionaryAlgorithm>();
+			 ea_ptr = ea.get<GEvolutionaryAlgorithm>();
+
+			 // Register an executor
+			 ea_ptr->registerExecutor(
+				 execMode::SERIAL
+			    , "./config/GMetaOptimizerSerialExecutor.json"
+			 );
 
 			 // Set the population parameters
 			 ea_ptr->setPopulationSizes(popSize, nParents);
@@ -994,7 +1000,7 @@ protected:
 			 ea_ptr->optimize();
 
 			 // Retrieve the best individual
-			 std::shared_ptr <GParameterSet> bestIndividual = ea_ptr->getBestGlobalIndividual<GParameterSet>();
+			 std::shared_ptr<GParameterSet> bestIndividual = ea_ptr->getBestGlobalIndividual<GParameterSet>();
 
 			 // Retrieve the number of iterations
 			 iterationsConsumed = ea_ptr->getIteration();
@@ -1573,7 +1579,7 @@ const std::size_t P_YDIM = 1400;
  */
 template<typename ind_type>
 class GOptOptMonitorT
-	: public GBasePluggableOMT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public GBasePluggableOMT<G_OA_BaseT>
 {
 	 // Make sure this class can only be instantiated if individual_type is a derivative of GParameterSet
 	 static_assert(
@@ -1589,7 +1595,7 @@ class GOptOptMonitorT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>>(*this))
+		 & make_nvp("GBasePluggableOMT",	boost::serialization::base_object<GBasePluggableOMT<G_OA_BaseT>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_fileName)
 		 & BOOST_SERIALIZATION_NVP(m_gpd)
 		 & BOOST_SERIALIZATION_NVP(m_progressPlotter)
@@ -1628,7 +1634,7 @@ public:
 	  * @param cp A copy of another GOptOptMonitorT object
 	  */
 	 GOptOptMonitorT(const GOptOptMonitorT<ind_type> &cp)
-		 : GBasePluggableOMT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+		 : GBasePluggableOMT<G_OA_BaseT>(cp)
 			, m_fileName(cp.m_fileName)
 			, m_gpd("Progress information", 2, 4) // We do not want to copy progress information of another object
 			, m_progressPlotter(new Gem::Common::GGraph2D())
@@ -1712,7 +1718,7 @@ public:
 		 GToken token("GOptOptMonitorT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBasePluggableOMT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<GBasePluggableOMT<G_OA_BaseT>>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -1753,7 +1759,7 @@ public:
 	  */
 	 virtual void informationFunction(
 		 const infoMode& im
-		 , G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>> * const goa
+		 , G_OA_BaseT * const goa
 	 ) override {
 		 using namespace Gem::Common;
 
@@ -1870,7 +1876,7 @@ protected:
 
 		 // Trigger loading of our parent class'es data
 		 // Load the parent classes' data ...
-		 GBasePluggableOMT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::load_(cp);
+		 GBasePluggableOMT<G_OA_BaseT>::load_(cp);
 
 		 // Load local data
 		 m_fileName = p_load->m_fileName;
@@ -1928,7 +1934,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent classes' functions
-		 if(GBasePluggableOMT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::modify_GUnitTests()) {
+		 if(GBasePluggableOMT<G_OA_BaseT>::modify_GUnitTests()) {
 			 result = true;
 		 }
 
@@ -1952,7 +1958,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GBasePluggableOMT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::specificTestsNoFailureExpected_GUnitTests();
+		 GBasePluggableOMT<G_OA_BaseT>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GOptOptMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1968,7 +1974,7 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GBasePluggableOMT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::specificTestsFailuresExpected_GUnitTests();
+		 GBasePluggableOMT<G_OA_BaseT>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("GOptOptMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

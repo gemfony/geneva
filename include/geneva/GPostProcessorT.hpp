@@ -47,6 +47,7 @@
 #define GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP
 
 // Geneva headers go here
+#include "courtier/GExecutorT.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_EvolutionaryAlgorithm_Factory.hpp"
@@ -278,7 +279,8 @@ class GEvolutionaryAlgorithmPostOptimizer
 		 ar
 		 & make_nvp("GPostProcessorBaseT_GParameterSet"
 						, boost::serialization::base_object<GPostProcessorBaseT<GParameterSet>>(*this))
-		 & BOOST_SERIALIZATION_NVP(m_configFile)
+		 & BOOST_SERIALIZATION_NVP(m_oa_configFile)
+		 & BOOST_SERIALIZATION_NVP(m_executor_configFile)
 		 & BOOST_SERIALIZATION_NVP(m_executionMode);
 
 		 // TODO: How to initialize the ea factory
@@ -291,7 +293,8 @@ public:
 	 /** @brief Initialization with the execution mode and configuration file */
 	 GEvolutionaryAlgorithmPostOptimizer(
 		 execMode executionMode
-	 	 , std::string configFile
+	 	 , const std::string& oa_configFile
+		 , const std::string& executor_configFile
 	 );
 	 /** @brief The copy constructor */
 	 GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp);
@@ -318,10 +321,15 @@ public:
 	 /** @brief Allows to retrieve the current execution mode */
 	 execMode getExecMode() const;
 
-	 /** @brief Allows to specify the name of a configuration file */
-	 void setConfigFile(std::string configFile);
-	 /** @brief Allows to retrieve the configuration file */
-	 std::string getConfigFile() const;
+	 /** @brief Allows to specify the name of a configuration file for the optimization algorithm */
+	 void setOAConfigFile(std::string oaConfigFile);
+	 /** @brief Allows to retrieve the configuration file for the optimization algorithm */
+	 std::string getOAConfigFile() const;
+
+	 /** @brief Allows to specify the name of a configuration file for the executor */
+	 void setExecutorConfigFile(std::string executorConfigFile);
+	 /** @brief Allows to retrieve the configuration file for the executor */
+	 std::string getExecutorConfigFile() const;
 
 protected:
 	 /**************************************************************************/
@@ -338,7 +346,8 @@ private:
 
 	 /**************************************************************************/
 	 // Data
-	 std::string m_configFile; ///< The name of the configuration file for this evolutionary algorithm
+	 std::string m_oa_configFile; ///< The name of the configuration file for this evolutionary algorithm
+	 std::string m_executor_configFile; ///< The name of the configuration file for the executor
 	 execMode m_executionMode = execMode::SERIAL; ///< Whether to run the post-optimizer in serial or multi-threaded mode
 };
 

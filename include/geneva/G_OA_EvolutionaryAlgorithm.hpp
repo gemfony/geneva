@@ -73,9 +73,8 @@ const sortingMode DEFAULTEASORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
  * This is a specialization of the GParChildT<executor_type> class. The class adds
  * an infrastructure for evolutionary algorithms.
  */
-template<typename executor_type>
 class GEvolutionaryAlgorithmT
-	: public G_OA_ParChildT<executor_type>
+	: public G_OA_ParChildT
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -85,7 +84,7 @@ class GEvolutionaryAlgorithmT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_ParChildT<executor_type>", boost::serialization::base_object<G_OA_ParChildT<executor_type>>(*this))
+		 & make_nvp("G_OA_ParChildT", boost::serialization::base_object<G_OA_ParChildT>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_sorting_mode)
 		 & BOOST_SERIALIZATION_NVP(m_n_threads);
 	 }
@@ -98,7 +97,7 @@ public:
 	  * is done in the class body.
 	  */
 	 GEvolutionaryAlgorithmT()
-		 : G_OA_ParChildT<executor_type>()
+		 : G_OA_ParChildT()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
 		 this->setPopulationSizes(100, 1);
@@ -110,8 +109,8 @@ public:
 	  *
 	  * @param cp Another GEvolutionaryAlgorithmT object
 	  */
-	 GEvolutionaryAlgorithmT(const GEvolutionaryAlgorithmT<executor_type>& cp)
-		 : G_OA_ParChildT<executor_type>(cp)
+	 GEvolutionaryAlgorithmT(const GEvolutionaryAlgorithmT& cp)
+		 : G_OA_ParChildT(cp)
 		 , m_sorting_mode(cp.m_sorting_mode)
 		 , m_n_threads(cp.m_n_threads)
 	 {
@@ -130,7 +129,7 @@ public:
  	 /**
 	  * The standard assignment operator
 	  */
-	 const GEvolutionaryAlgorithmT& operator=(const GEvolutionaryAlgorithmT<executor_type>& cp) {
+	 const GEvolutionaryAlgorithmT& operator=(const GEvolutionaryAlgorithmT& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -142,7 +141,7 @@ public:
 	  * @param  cp A constant reference to another GEvolutionaryAlgorithmT object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 virtual bool operator==(const GEvolutionaryAlgorithmT<executor_type>& cp) const {
+	 virtual bool operator==(const GEvolutionaryAlgorithmT& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -159,7 +158,7 @@ public:
 	  * @param  cp A constant reference to another GEvolutionaryAlgorithmT object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 virtual bool operator!=(const GEvolutionaryAlgorithmT<executor_type>& cp) const {
+	 virtual bool operator!=(const GEvolutionaryAlgorithmT& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -186,13 +185,13 @@ public:
 		 using namespace Gem::Common;
 
 		 // Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
-		 const GEvolutionaryAlgorithmT<executor_type> *p_load
-			 = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT<executor_type>>(cp, this);
+		 const GEvolutionaryAlgorithmT *p_load
+			 = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT>(cp, this);
 
 		 GToken token("GEvolutionaryAlgorithmT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<G_OA_ParChildT<executor_type>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<G_OA_ParChildT>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 compare_t(IDENTITY(m_sorting_mode, p_load->m_sorting_mode), token);
@@ -210,7 +209,7 @@ public:
 	 virtual void resetToOptimizationStart() override {
 		 // There is no more work to be done here, so we simply call the
 		 // function of the parent class
-		 G_OA_ParChildT<executor_type>::resetToOptimizationStart();
+		 G_OA_ParChildT::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -250,7 +249,7 @@ public:
 	 /***************************************************************************/
 	 /**
  	  * Retrieves information about the current sorting scheme (see
- 	  * G_OA_EvolutionaryAlgorithm<executor_type>::setSortingScheme() for further information).
+ 	  * G_OA_EvolutionaryAlgorithm::setSortingScheme() for further information).
  	  *
  	  * @return The current sorting scheme
  	  */
@@ -292,7 +291,7 @@ public:
 #ifdef DEBUG
 		 if(this->empty()) {
 			 glogger
-				 << "In G_OA_EvolutionaryAlgorithm<executor_type>::updateGlobalBestsPQ() :" << std::endl
+				 << "In G_OA_EvolutionaryAlgorithm::updateGlobalBestsPQ() :" << std::endl
 				 << "Tried to retrieve the best individuals even though the population is empty." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -303,7 +302,7 @@ public:
 			 case sortingMode::MUPLUSNU_SINGLEEVAL:
 			 case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 			 case sortingMode::MUCOMMANU_SINGLEEVAL:
-				 G_OA_BaseT<executor_type>::updateGlobalBestsPQ(bestIndividuals);
+				 G_OA_BaseT::updateGlobalBestsPQ(bestIndividuals);
 				 break;
 
 				 //----------------------------------------------------------------------------
@@ -340,7 +339,7 @@ public:
 #ifdef DEBUG
 		 if(this->empty()) {
 			 glogger
-				 << "G_OA_EvolutionaryAlgorithm<executor_type>::updateIterationBestsPQ() :" << std::endl
+				 << "G_OA_EvolutionaryAlgorithm::updateIterationBestsPQ() :" << std::endl
 				 << "Tried to retrieve the best individuals even though the population is empty." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -351,7 +350,7 @@ public:
 			 case sortingMode::MUPLUSNU_SINGLEEVAL:
 			 case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 			 case sortingMode::MUCOMMANU_SINGLEEVAL: {
-				 G_OA_BaseT<executor_type>::updateIterationBestsPQ(bestIndividuals);
+				 G_OA_BaseT::updateIterationBestsPQ(bestIndividuals);
 			 } break;
 
 				 //----------------------------------------------------------------------------
@@ -382,7 +381,7 @@ public:
 	 ) override
 	 {
 		 // Call our parent class'es function
-		 G_OA_ParChildT<executor_type>::addConfigurationOptions(gpb);
+		 G_OA_ParChildT::addConfigurationOptions(gpb);
 
 		 // Add local data
 		 gpb.registerFileParameter<std::uint16_t>(
@@ -452,12 +451,12 @@ protected:
  	  * @param cp A pointer to another GEvolutionaryAlgorithmT object, camouflaged as a GObject
  	  */
 	 virtual void load_(const GObject *cp) override {
-		 // Check that we are dealing with a GEvolutionaryAlgorithmT<executor_type> reference independent
+		 // Check that we are dealing with a GEvolutionaryAlgorithmT reference independent
 		 // of this object and convert the pointer
-		 const GEvolutionaryAlgorithmT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT<executor_type>>(cp, this);
+		 const GEvolutionaryAlgorithmT *p_load = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT>(cp, this);
 
 		 // First load the parent class'es data ...
-		 G_OA_ParChildT<executor_type>::load_(cp);
+		 G_OA_ParChildT::load_(cp);
 
 		 // ... and then our own data
 		 m_sorting_mode = p_load->m_sorting_mode;
@@ -471,7 +470,7 @@ protected:
  	  * @return A deep copy of this object
  	  */
 	 virtual GObject *clone_() const override {
-		 return new GEvolutionaryAlgorithmT<executor_type>(*this);
+		 return new GEvolutionaryAlgorithmT(*this);
 	 }
 
 	 /***************************************************************************/
@@ -484,7 +483,7 @@ protected:
 		 // in the parent class.
 		 if (this->m_n_parents == 0) {
 			 glogger
-				 << "In G_OA_EvolutionaryAlgorithm<executor_type>::populationSanityChecks(): Error!" << std::endl
+				 << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << std::endl
 				 << "Number of parents is set to 0"
 				 << GEXCEPTION;
 		 }
@@ -501,7 +500,7 @@ protected:
 			 ) {
 			 std::ostringstream error;
 			 error
-				 << "In G_OA_EvolutionaryAlgorithm<executor_type>::populationSanityChecks() :" << std::endl
+				 << "In G_OA_EvolutionaryAlgorithm::populationSanityChecks() :" << std::endl
 				 << "Requested size of population is too small :" << popSize << " " << this->m_n_parents << std::endl
 				 << "Sorting scheme is ";
 
@@ -570,7 +569,7 @@ protected:
 		 for(std::size_t i=this->getNParents(); i<this->size(); i++) {
 			 if(!this->at(i)->isDirty()) {
 			 	 glogger
-				 << "In GEvolutionaryAlgorithmT<executor_type>::runFitnessCalculation(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithmT::runFitnessCalculation(): Error!" << std::endl
 				 << "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
 				 << "but found \"clean\" individual in position " << i << std::endl
 				 << GEXCEPTION;
@@ -580,7 +579,7 @@ protected:
 
 		 if(this->size() != this->getDefaultPopulationSize()) {
 			 glogger
-				 << "In GEvolutionaryAlgorithmT<executor_type>::runFitnessCalculation(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithmT::runFitnessCalculation(): Error!" << std::endl
 				 << "Size of data vector (" << this->size() << ") should be " << this->getDefaultPopulationSize() << std::endl
 				 << GEXCEPTION;
 		 }
@@ -600,7 +599,7 @@ protected:
 			 this->data
 			 , workItemPos
 			 , false // do not resubmit unprocessed items
-			 , "GEvolutionaryAlgorithmT<executor_type>::runFitnessCalculation()"
+			 , "GEvolutionaryAlgorithmT::runFitnessCalculation()"
 		 );
 
 		 //--------------------------------------------------------------------------------
@@ -680,14 +679,14 @@ protected:
 		 // Check that individuals do exist in the population. We cannot continue, if this is not the case
 		 if(this->empty()) {
 			 glogger
-				 << "In GEvolutionaryAlgorithmT<executor_type>::fixAfterJobSubmission(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithmT::fixAfterJobSubmission(): Error!" << std::endl
 				 << "Population holds no data" << std::endl
 				 << GEXCEPTION;
 		 } else {
 			 // Emit a warning if no children have returned
 			 if(this->size() <= this->getNParents()) {
 				 glogger
-					 << "In GEvolutionaryAlgorithmT<executor_type>::fixAfterJobSubmission(): Warning!" << std::endl
+					 << "In GEvolutionaryAlgorithmT::fixAfterJobSubmission(): Warning!" << std::endl
 					 << "No child individuals have returned" << std::endl
 					 << "We need to fill up the population with clones from parent individuals" << std::endl
 					 << GWARNING;
@@ -697,7 +696,7 @@ protected:
 		 // Check that the dirty flag of the last individual isn't set. This is a severe error.
 		 if(this->back()->isDirty()) {
 			 glogger
-				 << "In GEvolutionaryAlgorithmT<executor_type>::fixAfterJobSubmission(): Error!" << std::endl
+				 << "In GEvolutionaryAlgorithmT::fixAfterJobSubmission(): Error!" << std::endl
 				 << "The last individual in the population has the dirty" << std::endl
 				 << "flag set, so we cannot use it for cloning" << std::endl
 				 << GEXCEPTION;
@@ -738,7 +737,7 @@ protected:
 		 // function is called
 		 if((this->size()-this->m_n_parents) < this->m_default_n_children){
 			 glogger
-				 << "In G_OA_EvolutionaryAlgorithm<executor_type>::select():" << std::endl
+				 << "In G_OA_EvolutionaryAlgorithm::select():" << std::endl
 				 << "Too few children. Got " << (this->size() - this->getNParents()) << "," << std::endl
 				 << "but was expecting at least " << this->getDefaultNChildren() << std::endl
 				 << GEXCEPTION;
@@ -798,7 +797,7 @@ protected:
 		 // should have been taken care of in fixAfterJobSubmission() .
 		 if(this->size() < this->getDefaultPopulationSize()) {
 			 glogger
-				 << "In G_OA_EvolutionaryAlgorithm<executor_type>::selectBest(): Error!" << std::endl
+				 << "In G_OA_EvolutionaryAlgorithm::selectBest(): Error!" << std::endl
 				 << "Size of population is smaller than expected: " << this->size() << " / " << this->getDefaultPopulationSize() << std::endl
 				 << GEXCEPTION;
 		 }
@@ -837,7 +836,7 @@ protected:
  	  */
 	 virtual void init() override {
 		 // To be performed before any other action. Place any further work after this call.
-		 G_OA_ParChildT<executor_type>::init();
+		 G_OA_ParChildT::init();
 
 		 // Initialize our thread pool
 		 m_tp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
@@ -855,7 +854,7 @@ protected:
 
 			 glogger
 				 << "========================================================================" << std::endl
-				 << "In G_OA_EvolutionaryAlgorithm<executor_type>::finalize():" << std::endl
+				 << "In G_OA_EvolutionaryAlgorithm::finalize():" << std::endl
 				 << "There were errors during thread execution:" << std::endl
 				 << std::endl;
 
@@ -872,7 +871,7 @@ protected:
 		 m_tp_ptr.reset();
 
 		 // Last action. Place any "local" finalization action before this call.
-		 G_OA_ParChildT<executor_type>::finalize();
+		 G_OA_ParChildT::finalize();
 	 }
 
 	 /***************************************************************************/
@@ -891,7 +890,7 @@ private:
  	  * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
  	  */
 	 void sortMuPlusNuParetoMode() {
-		 typename GEvolutionaryAlgorithmT<executor_type>::iterator it, it_cmp;
+		 typename GEvolutionaryAlgorithmT::iterator it, it_cmp;
 
 		 // We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
 		 it = this->begin();
@@ -981,7 +980,7 @@ private:
  	  * http://en.wikipedia.org/wiki/Pareto_efficiency for a discussion of this topic.
  	  */
 	 void sortMuCommaNuParetoMode() {
-		 typename GEvolutionaryAlgorithmT<executor_type>::iterator it, it_cmp;
+		 typename GEvolutionaryAlgorithmT::iterator it, it_cmp;
 
 		 // We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
 		 it = this->begin();
@@ -1092,7 +1091,7 @@ private:
 		 std::size_t nCriteriaB = b->getNumberOfFitnessCriteria();
 		 if(nCriteriaA != nCriteriaB) {
 			 glogger
-				 << "In G_OA_EvolutionaryAlgorithm<executor_type>::aDominatesB(): Error!" << std::endl
+				 << "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
 				 << "Number of fitness criteria differ: " << nCriteriaA << " / " << nCriteriaB << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1128,7 +1127,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent class'es function
-		 if (G_OA_ParChildT<executor_type>::modify_GUnitTests()) result = true;
+		 if (G_OA_ParChildT::modify_GUnitTests()) result = true;
 
 		 if(sortingMode::MUPLUSNU_SINGLEEVAL == this->getSortingScheme()) {
 			 this->setSortingScheme(sortingMode::MUCOMMANU_SINGLEEVAL);
@@ -1140,7 +1139,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("G_OA_EvolutionaryAlgorithm<executor_type>::modify_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OA_EvolutionaryAlgorithm::modify_GUnitTests", "GEM_TESTING");
 	return false;
 #endif /* GEM_TESTING */
 	 }
@@ -1167,7 +1166,7 @@ public:
 		 }
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("G_OA_EvolutionaryAlgorithm<executor_type>::fillWithObjects", "GEM_TESTING");
+		 condnotset("G_OA_EvolutionaryAlgorithm::fillWithObjects", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1178,24 +1177,24 @@ public:
 	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 G_OA_ParChildT<executor_type>::specificTestsNoFailureExpected_GUnitTests();
+		 G_OA_ParChildT::specificTestsNoFailureExpected_GUnitTests();
 
 		 //------------------------------------------------------------------------------
 
 		 { // Call the parent class'es function
-			 std::shared_ptr<GEvolutionaryAlgorithmT<executor_type>> p_test = this->template clone<GEvolutionaryAlgorithmT<executor_type>>();
+			 std::shared_ptr<GEvolutionaryAlgorithmT> p_test = this->template clone<GEvolutionaryAlgorithmT>();
 
 			 // Fill p_test with individuals
 			 p_test->fillWithObjects(100);
 
 			 // Run the parent class'es tests
-			 p_test->G_OA_ParChildT<executor_type>::specificTestsNoFailureExpected_GUnitTests();
+			 p_test->G_OA_ParChildT::specificTestsNoFailureExpected_GUnitTests();
 		 }
 
 		 //------------------------------------------------------------------------------
 
 		 { // Check setting and retrieval of the population size and number of parents/children
-			 std::shared_ptr <GEvolutionaryAlgorithmT<executor_type>> p_test = this->template clone<GEvolutionaryAlgorithmT<executor_type>>();
+			 std::shared_ptr <GEvolutionaryAlgorithmT> p_test = this->template clone<GEvolutionaryAlgorithmT>();
 
 			 // Set the default population size and number of children to different numbers
 			 for (std::size_t nChildren = 5; nChildren < 10; nChildren++) {
@@ -1225,7 +1224,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GEvolutionaryAlgorithmT<executor_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GEvolutionaryAlgorithmT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1236,10 +1235,10 @@ public:
 	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-		 G_OA_ParChildT<executor_type>::specificTestsFailuresExpected_GUnitTests();
+		 G_OA_ParChildT::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
-		 condnotset("GEvolutionaryAlgorithmT<executor_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GEvolutionaryAlgorithmT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1251,9 +1250,8 @@ public:
 /******************************************************************************/
 
 // Some typedefs for the different execution modes
-using GEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>;
-using GSerialEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>>;
-using GMTEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>>;
+// TODO: Kust rename everything to GEvolutionaryAlgorithm
+using GEvolutionaryAlgorithm = GEvolutionaryAlgorithmT;
 
 /******************************************************************************/
 
@@ -1261,7 +1259,5 @@ using GMTEvolutionaryAlgorithm = GEvolutionaryAlgorithmT<Gem::Courtier::GMTExecu
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSerialEvolutionaryAlgorithm)
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMTEvolutionaryAlgorithm)
 
 #endif /* G_OA_EVOLUTIONARYALGORITHM_HPP_ */

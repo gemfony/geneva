@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: G_OA_FactoryT<G_OA_BaseT>(
 	"./config/GGradientDescent.json")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GGradientDescentFactory::GGradientDescentFactory()
 GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: G_OA_FactoryT<G_OA_BaseT>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OA_BaseT>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GGradientDescentFactory::GGradientDescentFactory(
  * The copy constructor
  */
 GGradientDescentFactory::GGradientDescentFactory(const GGradientDescentFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: G_OA_FactoryT<G_OA_BaseT>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -105,7 +105,7 @@ std::string GGradientDescentFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GGradientDescentFactory::getObject_(
+std::shared_ptr<G_OA_BaseT> GGradientDescentFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -127,10 +127,10 @@ std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GGra
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GGradientDescentFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
+	std::shared_ptr<G_OA_BaseT>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
+	G_OA_FactoryT<G_OA_BaseT>::postProcess_(p_base);
 }
 
 /******************************************************************************/

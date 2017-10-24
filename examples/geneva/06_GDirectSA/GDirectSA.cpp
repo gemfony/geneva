@@ -322,90 +322,40 @@ int main(int argc, char **argv){
 	}
 
 	/****************************************************************************/
-	// Act depending on the parallelisation mode. Unfortunately, since we
-	// have no common base class (G_OA_BaseT is a template),
-	// we need to replicate some code.
 
-	// Create the actual populations
+	// Create an empty population
+	std::shared_ptr<GSimulatedAnnealingT> pop_ptr(new GSimulatedAnnealingT());
+
+	// General settings
+	pop_ptr->setPopulationSizes(populationSize,nParents);
+	pop_ptr->setMaxIteration(maxIterations);
+	pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
+	pop_ptr->setReportIteration(reportIteration);
+	pop_ptr->setRecombinationMethod(rScheme);
+
+	// Add individuals to the population.
+	for(auto ind: parentIndividuals) {
+		pop_ptr->push_back(ind);
+	}
+
+	// Register executors, depending on the parallelisation mode, possibly adding
+	// a local consumer in broker-mode
 	switch (parallelizationMode) {
 		//----------------------------------------------------------------------------
 		case execMode::SERIAL: // Serial execution
-		{
-			// Will hold the final result
-			std::shared_ptr<GFunctionIndividual> p;
-
-			// Create an empty population
-			std::shared_ptr<GSerialSimulatedAnnealing> pop_ptr(new GSerialSimulatedAnnealing());
-
-			// General settings
-			pop_ptr->setPopulationSizes(populationSize,nParents);
-			pop_ptr->setMaxIteration(maxIterations);
-			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
-			pop_ptr->setReportIteration(reportIteration);
-			pop_ptr->setRecombinationMethod(rScheme);
-
-			// Add individuals to the population.
-			for(auto ind: parentIndividuals) {
-				pop_ptr->push_back(ind);
-			}
-
-			// Perform the actual optimization
-			pop_ptr->optimize();
-
-			// Do something with the best individual found
-			p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
-
-			// Here you can do something with the best individual ("p") found.
-			// We simply print its content here, by means of an operator<< implemented
-			// in the GFunctionIndividual code.
-			std::cout
-				<< "Best result found:" << std::endl
-				<< p << std::endl;
-		}
+			pop_ptr->registerExecutor(execMode::SERIAL, "./config/GSerialExecutor.json");
 			break;
 
 			//----------------------------------------------------------------------------
 		case execMode::MULTITHREADED: // Multi-threaded execution
-		{
-			// Will hold the final result
-			std::shared_ptr<GFunctionIndividual> p;
+			pop_ptr->registerExecutor(execMode::MULTITHREADED, "./config/GMTExecutor.json");
 
-			// Create an empty population
-			std::shared_ptr<GMTSimulatedAnnealing> pop_ptr(new GMTSimulatedAnnealing());
-
-			// General settings
-			pop_ptr->setPopulationSizes(populationSize,nParents);
-			pop_ptr->setMaxIteration(maxIterations);
-			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
-			pop_ptr->setReportIteration(reportIteration);
-			pop_ptr->setRecombinationMethod(rScheme);
-
-			// Settings specific to the chosen parallelisation mode
-			pop_ptr->setNThreads(nEvaluationThreads);
-
-			// Add individuals to the population.
-			for(auto ind: parentIndividuals) {
-				pop_ptr->push_back(ind);
-			}
-
-			// Perform the actual optimization
-			pop_ptr->optimize();
-
-			// Do something with the best individual found
-			p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
-
-			// Here you can do something with the best individual ("p") found.
-			// We simply print its content here, by means of an operator<< implemented
-			// in the GFunctionIndividual code.
-			std::cout
-				<< "Best result found:" << std::endl
-				<< p << std::endl;
-		}
+			// Configure the number of threads
+			pop_ptr->getExecutor<Gem::Courtier::GMTExecutorT<GParameterSet>>()->setNThreads(nEvaluationThreads);
 			break;
 
 			//----------------------------------------------------------------------------
 		case execMode::BROKER: // Execution with networked consumer and possibly a local, multi-threaded consumer
-		{
 			if(addLocalConsumer) {
 				// Create a multi-threaded consumer. This
 				// is mainly for testing and benchmarking
@@ -418,48 +368,24 @@ int main(int argc, char **argv){
 				GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
 			}
 
-			// Will hold the final result
-			std::shared_ptr<GFunctionIndividual> p;
-
-			// Create an empty population
-			std::shared_ptr<GBrokerSimulatedAnnealing> pop_ptr(new GBrokerSimulatedAnnealing());
-
-			// General settings
-			pop_ptr->setPopulationSizes(populationSize,nParents);
-			pop_ptr->setMaxIteration(maxIterations);
-			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
-			pop_ptr->setReportIteration(reportIteration);
-			pop_ptr->setRecombinationMethod(rScheme);
-
-			// Add individuals to the population.
-			for(auto ind: parentIndividuals) {
-				pop_ptr->push_back(ind);
-			}
-
-			// Perform the actual optimization
-			pop_ptr->optimize();
-
-			// Do something with the best individual found
-			p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
-
-			// Here you can do something with the best individual ("p") found.
-			// We simply print its content here, by means of an operator<< implemented
-			// in the GFunctionIndividual code.
-			std::cout
-				<< "Best result found:" << std::endl
-				<< p << std::endl;
-		}
+			pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");
 			break;
 
 			//----------------------------------------------------------------------------
-		default:
-		{
-			glogger
-			<< "In main(): Received invalid parallelization mode " << parallelizationMode << std::endl
-			<< GEXCEPTION;
-		}
-			break;
 	}
+
+	// Perform the actual optimization
+	pop_ptr->optimize();
+
+	// Retrieve the best individual found
+	auto p = pop_ptr->getBestGlobalIndividual<GFunctionIndividual>();
+
+	// Here you can do something with the best individual ("p") found.
+	// We simply print its content here, by means of an operator<< implemented
+	// in the GFunctionIndividual code.
+	std::cout
+		<< "Best result found:" << std::endl
+		<< p << std::endl;
 
 	/****************************************************************************/
 	// Terminate

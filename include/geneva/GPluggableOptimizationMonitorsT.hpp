@@ -1526,7 +1526,7 @@ public:
 
 				if(m_monitorBestOnly) { // Monitor the best individuals only
 					std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
-					if(GBasePluggableOMT<oa_type>::useRawEvaluation_) {
+					if(GBasePluggableOMT<oa_type>::m_useRawEvaluation) {
 						primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 					} else {
 						primaryFitness = p->transformedFitness();
@@ -1596,7 +1596,7 @@ public:
 					typename oa_type::iterator it;
 					for(it=goa->begin(); it!=goa->end(); ++it) {
 
-						if(GBasePluggableOMT<oa_type>::useRawEvaluation_) {
+						if(GBasePluggableOMT<oa_type>::m_useRawEvaluation) {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 						} else {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
@@ -1872,14 +1872,16 @@ public:
 /**
  * A partial specialization of GProgressPlotterTT for the broker executor.
  * We simply use the parent constructors.
+ *
+ * TODO: This can now be unified with GProgressPlotterT
  */
 template <typename fp_type>
 class GProgressPlotterT
-	: public GProgressPlotterTT<fp_type, G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public GProgressPlotterTT<fp_type, G_OA_BaseT>
 {
 public:
 	 // Simple inherit all constructors
-	 using GProgressPlotterTT<fp_type, G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::GProgressPlotterTT;
+	 using GProgressPlotterTT<fp_type, G_OA_BaseT>::GProgressPlotterTT;
 };
 
 /******************************************************************************/
@@ -4526,25 +4528,25 @@ public:
  */
 template <typename num_type>
 class GAdaptorPropertyLoggerT
-	: public GAdaptorPropertyLoggerTT<num_type, G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public GAdaptorPropertyLoggerTT<num_type, G_OA_BaseT>
 {
 public:
-	 using GAdaptorPropertyLoggerTT<num_type, G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::GAdaptorPropertyLoggerTT;
+	 using GAdaptorPropertyLoggerTT<num_type, G_OA_BaseT>::GAdaptorPropertyLoggerTT;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-using GStandardMonitor = GStandardMonitorT<Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
-using GFitnessMonitor = GFitnessMonitorT<Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
-using GCollectiveMonitor = GCollectiveMonitorT<Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GStandardMonitor = GStandardMonitorT<Gem::Geneva::G_OA_BaseT>;
+using GFitnessMonitor = GFitnessMonitorT<Gem::Geneva::G_OA_BaseT>;
+using GCollectiveMonitor = GCollectiveMonitorT<Gem::Geneva::G_OA_BaseT>;
 using GProgressPlotter = GProgressPlotterT<double>;
-using GAllSolutionFileLogger = GAllSolutionFileLoggerT<Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
-using GIterationResultsFileLogger = GIterationResultsFileLoggerT<Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
-using GNAdpationsLogger = GNAdpationsLoggerT<Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GAllSolutionFileLogger = GAllSolutionFileLoggerT<Gem::Geneva::G_OA_BaseT>;
+using GIterationResultsFileLogger = GIterationResultsFileLoggerT<Gem::Geneva::G_OA_BaseT>;
+using GNAdpationsLogger = GNAdpationsLoggerT<Gem::Geneva::G_OA_BaseT>;
 template <typename num_type> using GAdaptorPropertyLogger = GAdaptorPropertyLoggerT<num_type>;
-using GProcessingTimesLogger = GProcessingTimesLoggerT<Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>;
+using GProcessingTimesLogger = GProcessingTimesLoggerT<Gem::Geneva::G_OA_BaseT>;
 
 /******************************************************************************/
 

@@ -97,6 +97,7 @@ int main(int argc, char **argv) {
 			new GEvolutionaryAlgorithmPostOptimizer(
 				execModePP
 				, "./config/GPostEvolutionaryAlgorithm.json"
+				, "./config/GSerialExecutor.json"
 			)
 		);
 

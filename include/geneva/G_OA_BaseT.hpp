@@ -67,19 +67,236 @@
 namespace Gem {
 namespace Geneva {
 
-// Forward declarations, as these classes are only defined at the end of this file
-template <typename oa_type> class GBasePluggableOMT;
+/*******************************************************************************/
+/////////////////////////////////////////////////////////////////////////////////
+/*******************************************************************************/
+/**
+ * The base class of all pluggable optimization monitors
+ */
+template <typename oa_type>
+class GBasePluggableOMT : public GObject
+{
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-/***************************************************************************/
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
+
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+		 & BOOST_SERIALIZATION_NVP(m_useRawEvaluation);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
+
+public:
+	 /***************************************************************************/
+	 /**
+	  * The default constructor. Some member variables may be initialized in the class body.
+	  */
+	 GBasePluggableOMT()
+	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	  * The copy constructor
+	  */
+	 GBasePluggableOMT(
+		 const GBasePluggableOMT<oa_type>& cp
+	 )
+		 : m_useRawEvaluation(cp.m_useRawEvaluation)
+	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	  * The Destructor
+	  */
+	 virtual ~GBasePluggableOMT()
+	 { /* nothing */ }
+
+	 /************************************************************************/
+	 /**
+	  * Checks for equality with another GBasePluggableOMT<oa_type> object
+	  *
+	  * @param  cp A constant reference to another GBasePluggableOMT<oa_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 virtual bool operator==(const GBasePluggableOMT<oa_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
+
+	 /************************************************************************/
+	 /**
+	  * Checks for inequality with another GBasePluggableOMT<oa_type> object
+	  *
+	  * @param  cp A constant reference to another GBasePluggableOMT<oa_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 virtual bool operator!=(const GBasePluggableOMT<oa_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  *
+	  * @param cp A constant reference to another GObject object
+	  * @param e The expected outcome of the comparison
+	  * @param limit The maximum deviation for floating point values (important for similarity checks)
+	  */
+	 virtual void compare(
+		 const GObject& cp
+		 , const Gem::Common::expectation& e
+		 , const double& limit
+	 ) const override {
+		 using namespace Gem::Common;
+
+		 // Check that we are dealing with a GBasePluggableOMT<oa_type> reference independent of this object and convert the pointer
+		 const GBasePluggableOMT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOMT<oa_type>>(cp, this);
+
+		 GToken token("GBasePluggableOMT<oa_type>", e);
+
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+
+		 // ... and then our local data
+		 compare_t(IDENTITY(m_useRawEvaluation, p_load->m_useRawEvaluation), token);
+
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Overload this function in derived classes, specifying actions for
+	  * initialization, the optimization cycles and finalization.
+	  */
+	 virtual void informationFunction(
+		 const infoMode& im
+		 , oa_type * const goa
+	 ) BASE = 0;
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the m_useRawEvaluation variable
+	  */
+	 void setUseRawEvaluation(bool useRaw) {
+		 m_useRawEvaluation = useRaw;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the value of the m_useRawEvaluation variable
+	  */
+	 bool getUseRawEvaluation() const {
+		 return m_useRawEvaluation;
+	 }
+
+protected:
+	 /************************************************************************/
+	 /**
+	  * Loads the data of another object
+	  *
+	  * cp A pointer to another GBasePluggableOMT<oa_type> object, camouflaged as a GObject
+	  */
+	 virtual void load_(const GObject* cp) override {
+		 // Check that we are dealing with a GBasePluggableOMT<oa_type> reference independent of this object and convert the pointer
+		 const GBasePluggableOMT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOMT<oa_type>>(cp, this);
+
+		 // Load the parent classes' data ...
+		 GObject::load_(cp);
+
+		 // ... and then our local data
+		 m_useRawEvaluation = p_load->m_useRawEvaluation;
+	 }
+
+	 /************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual GObject* clone_() const override = 0;
+
+	 /***************************************************************************/
+	 bool m_useRawEvaluation = false; ///< Specifies whether the true (unmodified) evaluation should be used
+
+public:
+	 /************************************************************************/
+	 /**
+	  * Applies modifications to this object. This is needed for testing purposes
+	  */
+	 virtual bool modify_GUnitTests() override {
+#ifdef GEM_TESTING
+		 bool result = false;
+
+		 // Call the parent class'es function
+		 if(GObject::modify_GUnitTests()) result = true;
+
+		 if(true == this->getUseRawEvaluation()) {
+			 this->setUseRawEvaluation(false);
+		 } else {
+			 this->setUseRawEvaluation(true);
+		 }
+		 result = true;
+
+		 return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		 condnotset("GBasePluggableOMT<oa_type>", "GEM_TESTING");
+			return false;
+#endif /* GEM_TESTING */
+	 }
+
+	 /************************************************************************/
+	 /**
+	  * Performs self tests that are expected to succeed. This is needed for testing purposes
+	  */
+	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		 // Call the parent class'es function
+		 GObject::specificTestsNoFailureExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		 condnotset("GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	 }
+
+	 /************************************************************************/
+	 /**
+	  * Performs self tests that are expected to fail. This is needed for testing purposes
+	  */
+	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+#ifdef GEM_TESTING
+		 // Call the parent class'es function
+		 GObject::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		 condnotset("GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	 }
+
+	 /************************************************************************/
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * This class implements basic operations found in iteration-based optimization algorithms.
  * E.g., one might want to stop the optimization after a given number of cycles, or after
  * a given amount of time. The class also defines the interface functions common to these
  * algorithms, such as a general call to "optimize()".
  */
-template <
-	typename executor_type = Gem::Courtier::GBrokerExecutorT<GParameterSet>
->
 class G_OA_BaseT
 	: public GObject
   	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
@@ -145,7 +362,7 @@ public:
 	  *
 	  * @param cp A constant reference to another G_OA_BaseT object
 	  */
-	 G_OA_BaseT(const G_OA_BaseT<executor_type>& cp)
+	 G_OA_BaseT(const G_OA_BaseT& cp)
 		 : GObject(cp)
 			, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>(cp)
 			, m_iteration(cp.m_iteration)
@@ -200,19 +417,19 @@ public:
 	 /**
 	  * A standard assignment operator
 	  */
-	 const G_OA_BaseT<executor_type>& operator=(const G_OA_BaseT<executor_type>& cp) {
+	 const G_OA_BaseT& operator=(const G_OA_BaseT& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another G_OA_BaseT<executor_type> object
+	  * Checks for equality with another G_OA_BaseT object
 	  *
-	  * @param  cp A constant reference to another G_OA_BaseT<executor_type> object
+	  * @param  cp A constant reference to another G_OA_BaseT object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 bool operator==(const G_OA_BaseT<executor_type>& cp) const {
+	 bool operator==(const G_OA_BaseT& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -224,12 +441,12 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for inequality with another G_OA_BaseT<executor_type> object
+	  * Checks for inequality with another G_OA_BaseT object
 	  *
-	  * @param  cp A constant reference to another G_OA_BaseT<executor_type> object
+	  * @param  cp A constant reference to another G_OA_BaseT object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 bool operator!=(const G_OA_BaseT<executor_type>& cp) const {
+	 bool operator!=(const G_OA_BaseT& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -352,14 +569,14 @@ public:
 		 // Do some basic checks
 		 if(cpBaseName == "empty" || cpBaseName.empty()) {
 			 glogger
-				 << "In G_OA_BaseT<executor_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+				 << "In G_OA_BaseT::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				 << "Error: Invalid cpBaseName: " << cpBaseName << std::endl
 				 << GEXCEPTION;
 		 }
 
 		 if(cpDirectory == "empty" || cpDirectory.empty()) {
 			 glogger
-				 << "In G_OA_BaseT<executor_type>::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+				 << "In G_OA_BaseT::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				 << "Error: Invalid cpDirectory: " << cpDirectory << std::endl
 				 << GEXCEPTION;
 		 }
@@ -369,19 +586,19 @@ public:
 		 // Check that the provided directory exists
 		 if(!boost::filesystem::exists(cpDirectory)) {
 			 glogger
-				 << "In G_OA_BaseT<executor_type>::setCheckpointBaseName(): Warning!" << std::endl
+				 << "In G_OA_BaseT::setCheckpointBaseName(): Warning!" << std::endl
 				 << "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl
 				 << GWARNING;
 
 			 if(!boost::filesystem::create_directory(cpDirectory)) {
 				 glogger
-					 << "In G_OA_BaseT<executor_type>::setCheckpointBaseName(): Error!" << std::endl
+					 << "In G_OA_BaseT::setCheckpointBaseName(): Error!" << std::endl
 					 << "Could not create directory " << cpDirectory << std::endl
 					 << GEXCEPTION;
 			 }
 		 } else if(!boost::filesystem::is_directory(cpDirectory)) {
 			 glogger
-				 << "In G_OA_BaseT<executor_type>::setCheckpointBaseName(): Error!" << std::endl
+				 << "In G_OA_BaseT::setCheckpointBaseName(): Error!" << std::endl
 				 << cpDirectory << " exists but is no directory." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -475,10 +692,10 @@ public:
 	 ) const override {
 		 using namespace Gem::Common;
 
-		 // Check that we are dealing with a G_OA_BaseT<executor_type> reference independent of this object and convert the pointer
-		 const G_OA_BaseT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_BaseT<executor_type>>(cp, this);
+		 // Check that we are dealing with a G_OA_BaseT reference independent of this object and convert the pointer
+		 const G_OA_BaseT *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_BaseT>(cp, this);
 
-		 GToken token("G_OA_BaseT<executor_type>", e);
+		 GToken token("G_OA_BaseT", e);
 
 		 // Compare our parent data ...
 		 Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
@@ -565,7 +782,7 @@ public:
 	 ) {
 		 if(!executor_ptr) {
 			 glogger
-			 << "In G_OA_BaseT<executor_type>::registerExecutor(): Warning!" << std::endl
+			 << "In G_OA_BaseT::registerExecutor(): Warning!" << std::endl
 	       << "Tried to register empty executor-pointer. We will leave the existing" << std::endl
 			 << "executor in place" << std::endl
 			 << GWARNING;
@@ -575,7 +792,7 @@ public:
 
 		 if(!m_halted) {
 			 glogger
-			 << "In G_OA_BaseT<executor_type>::registerExecutor(): Warning!" << std::endl
+			 << "In G_OA_BaseT::registerExecutor(): Warning!" << std::endl
 			 << "Tried to register an executor while the optimization is already running" << std::endl
 			 << "The new executor will be ignored." << std::endl
 			 << GWARNING;
@@ -592,12 +809,44 @@ public:
 		 m_executor_ptr->addConfigurationOptions(gpb);
 		 if (!gpb.parseConfigFile(executorConfigFile)) {
 			 glogger
-				 << "In G_OA_BaseT<executor_type>::registerExecutor(): Error!" << std::endl
+				 << "In G_OA_BaseT::registerExecutor(): Error!" << std::endl
 				 << "Could not parse configuration file " << executorConfigFile << std::endl
 				 << GEXCEPTION;
 		 }
 
 		 // TODO: Check that the new executor has the desired configuration
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Adds a new executor to the class, using the chosen execution mode
+	  *
+	  * @param e The execution mode
+	  * @param executorConfigFile The name of a file used to configure the executor
+	  */
+	 void registerExecutor(
+		 execMode e
+		 , const std::string& executorConfigFile
+	 ) {
+		 auto executor_ptr = this->createExecutor(e);
+		 this->registerExecutor(executor_ptr, executorConfigFile);
+	 }
+
+	 /***************************************************************************/
+	 /**
+ 	  * Gives access to the current executor, converted to a given target type.
+ 	  * The executor is internally stored via its base class, so we need to
+ 	  * convert it to its final type in order to configure it via its API. The
+ 	  * function is only accessible when converting to a derived class of GBaseExecutorT.
+ 	  * You need to take care yourself that the stored class matches the one you
+ 	  * are converting to. The function will throw (via dynamic_pointer_cast), if
+ 	  * this is not the case.
+ 	  */
+	 template <typename target_type>
+	 std::shared_ptr<target_type> getExecutor(
+		 typename std::enable_if<std::is_base_of<Gem::Courtier::GBaseExecutorT<GParameterSet>, target_type>::value>::type *dummy = nullptr
+	 ) {
+		 return std::dynamic_pointer_cast<target_type>(m_executor_ptr);
 	 }
 
 	 /***************************************************************************/
@@ -770,7 +1019,7 @@ public:
 	  * function does NOT take ownership of the optimization monitor.
 	  */
 	 void registerPluggableOM(
-		 std::shared_ptr<GBasePluggableOMT<G_OA_BaseT<executor_type>>> pluggableOM
+		 std::shared_ptr<GBasePluggableOMT<G_OA_BaseT>> pluggableOM
 	 ) {
 		 if(pluggableOM) {
 			 m_pluggable_monitors_vec.push_back(pluggableOM);
@@ -1153,7 +1402,7 @@ public:
 #ifdef DEBUG
 		 if(pos >= this->size()) {
 			 glogger
-				 << "In G_OA_BaseT<executor_type>::individual_cast<>() : Error" << std::endl
+				 << "In G_OA_BaseT::individual_cast<>() : Error" << std::endl
 				 << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
 				 << GEXCEPTION;
 
@@ -1353,7 +1602,7 @@ public:
 #ifdef DEBUG
 		 if(this->empty()) {
 			 glogger
-				 << "In G_OA_BaseT<executor_type>::updateGlobalBestsPQ() :" << std::endl
+				 << "In G_OA_BaseT::updateGlobalBestsPQ() :" << std::endl
 				 << "Tried to retrieve the best individuals even though the population is empty." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1379,7 +1628,7 @@ public:
 #ifdef DEBUG
 		 if(this->empty()) {
 			 glogger
-				 << "In G_OA_BaseT<executor_type>::updateIterationBestsPQ() :" << std::endl
+				 << "In G_OA_BaseT::updateIterationBestsPQ() :" << std::endl
 				 << "Tried to retrieve the best individuals even though the population is empty." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1467,8 +1716,8 @@ protected:
 	  * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
 	  */
 	 virtual void load_(const GObject* cp) override {
-		 // Check that we are dealing with a G_OA_BaseT<executor_type> reference independent of this object and convert the pointer
-		 const G_OA_BaseT<executor_type> *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_BaseT<executor_type>>(cp, this);
+		 // Check that we are dealing with a G_OA_BaseT reference independent of this object and convert the pointer
+		 const G_OA_BaseT *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_BaseT>(cp, this);
 
 		 // Load the parent class'es data
 		 GObject::load_(cp);
@@ -1709,7 +1958,7 @@ protected:
 	 /**
 	  * It is possible for derived classes to specify in overloaded versions of this
 	  * function under which conditions the optimization should be stopped. The
-	  * function is called from G_OA_BaseT<executor_type>::halt .
+	  * function is called from G_OA_BaseT::halt .
 	  *
 	  * @return boolean indicating that a stop condition was reached
 	  */
@@ -1737,7 +1986,7 @@ protected:
 	 virtual void init() BASE {
 		 // Add an executor, if none has been registered
 		 if(!m_executor_ptr) {
-			 auto executor_ptr = this->getExecutor(m_default_execMode);
+			 auto executor_ptr = this->createExecutor(m_default_execMode);
 
 #ifdef DEBUG
 			 if(!executor_ptr) {
@@ -1917,7 +2166,7 @@ private:
 	 /**
 	  * This function returns true once a given time (set with
 	  * GOptimizationAlgorithm<GParameterSet>::setMaxTime()) has passed.
-	  * It is used in the G_OA_BaseT<executor_type>::halt() function.
+	  * It is used in the G_OA_BaseT::halt() function.
 	  *
 	  * @return A boolean indicating whether a given amount of time has passed
 	  */
@@ -2229,7 +2478,7 @@ private:
 	 /**
 	  * Retrieves an executor for the given execution mode
 	  */
-	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> getExecutor(const execMode& e) {
+	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> createExecutor(const execMode& e) {
 		 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr;
 
 		 switch(e) {
@@ -2242,7 +2491,7 @@ private:
 				 break;
 
 			 case execMode::BROKER:
-			 	 std::cout << "Creating broker executor" << std::endl;
+				 std::cout << "Creating broker executor" << std::endl;
 				 executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(new Gem::Courtier::GBrokerExecutorT<GParameterSet>());
 				 break;
 		 }
@@ -2286,9 +2535,8 @@ private:
 	 bool m_emitTerminationReason = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
 	 std::atomic<bool> m_halted { true }; ///< Set to true when halt() has returned "true"
 	 std::vector<std::tuple<double, double>> m_worstKnownValids_vec; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-	 std::vector<std::shared_ptr<GBasePluggableOMT<G_OA_BaseT<executor_type>>>> m_pluggable_monitors_vec; ///< A collection of monitors
+	 std::vector<std::shared_ptr<GBasePluggableOMT<G_OA_BaseT>>> m_pluggable_monitors_vec; ///< A collection of monitors
 
-	 executor_type m_executor; ///< Takes care of the evaluation of objects
 	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> m_executor_ptr; ///< Holds the current executor for this algorithm
 	 execMode m_default_execMode = execMode::BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
 	 std::string m_default_executor_config = "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
@@ -2366,253 +2614,16 @@ public:
 /*******************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************/
-/**
- * The base class of all pluggable optimization monitors
- */
-template <typename oa_type>
-class GBasePluggableOMT : public GObject
-{
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
-
-	 template<typename Archive>
-	 void serialize(Archive & ar, const unsigned int){
-		 using boost::serialization::make_nvp;
-
-		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-		 & BOOST_SERIALIZATION_NVP(useRawEvaluation_);
-	 }
-	 ///////////////////////////////////////////////////////////////////////
-
-public:
-	 /***************************************************************************/
-	 /**
-	  * The default constructor. Some member variables may be initialized in the class body.
-	  */
-	 GBasePluggableOMT()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The copy constructor
-	  */
-	 GBasePluggableOMT(
-		 const GBasePluggableOMT<oa_type>& cp
-	 )
-		 : useRawEvaluation_(cp.useRawEvaluation_)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The Destructor
-	  */
-	 virtual ~GBasePluggableOMT()
-	 { /* nothing */ }
-
-	 /************************************************************************/
-	 /**
-	  * Checks for equality with another GBasePluggableOMT<oa_type> object
-	  *
-	  * @param  cp A constant reference to another GBasePluggableOMT<oa_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 virtual bool operator==(const GBasePluggableOMT<oa_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /************************************************************************/
-	 /**
-	  * Checks for inequality with another GBasePluggableOMT<oa_type> object
-	  *
-	  * @param  cp A constant reference to another GBasePluggableOMT<oa_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 virtual bool operator!=(const GBasePluggableOMT<oa_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GBasePluggableOMT<oa_type> reference independent of this object and convert the pointer
-		 const GBasePluggableOMT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOMT<oa_type>>(cp, this);
-
-		 GToken token("GBasePluggableOMT<oa_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(useRawEvaluation_, p_load->useRawEvaluation_), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Overload this function in derived classes, specifying actions for
-	  * initialization, the optimization cycles and finalization.
-	  */
-	 virtual void informationFunction(
-		 const infoMode& im
-		 , oa_type * const goa
-	 ) BASE = 0;
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to set the useRawEvaluation_ variable
-	  */
-	 void setUseRawEvaluation(bool useRaw) {
-		 useRawEvaluation_ = useRaw;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to retrieve the value of the useRawEvaluation_ variable
-	  */
-	 bool getUseRawEvaluation() const {
-		 return useRawEvaluation_;
-	 }
-
-protected:
-	 /************************************************************************/
-	 /**
-	  * Loads the data of another object
-	  *
-	  * cp A pointer to another GBasePluggableOMT<oa_type> object, camouflaged as a GObject
-	  */
-	 virtual void load_(const GObject* cp) override {
-		 // Check that we are dealing with a GBasePluggableOMT<oa_type> reference independent of this object and convert the pointer
-		 const GBasePluggableOMT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOMT<oa_type>>(cp, this);
-
-		 // Load the parent classes' data ...
-		 GObject::load_(cp);
-
-		 // ... and then our local data
-		 useRawEvaluation_ = p_load->useRawEvaluation_;
-	 }
-
-	 /************************************************************************/
-	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const override = 0;
-
-	 /***************************************************************************/
-	 bool useRawEvaluation_ = false; ///< Specifies whether the true (unmodified) evaluation should be used
-
-public:
-	 /************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  */
-	 virtual bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 bool result = false;
-
-		 // Call the parent class'es function
-		 if(GObject::modify_GUnitTests()) result = true;
-
-		 if(true == this->getUseRawEvaluation()) {
-			 this->setUseRawEvaluation(false);
-		 } else {
-			 this->setUseRawEvaluation(true);
-		 }
-		 result = true;
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GBasePluggableOMT<oa_type>", "GEM_TESTING");
-			return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent class'es function
-		 GObject::specificTestsNoFailureExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GBasePluggableOMT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent class'es function
-		 GObject::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GBasePluggableOMT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /************************************************************************/
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */
 
 /******************************************************************************/
-/**
- * @brief The content of the BOOST_SERIALIZATION_ASSUME_ABSTRACT(T) macro. Needed for Boost.Serialization
- */
-namespace boost {
-namespace serialization {
-template<typename executor_type>
-struct is_abstract<Gem::Geneva::G_OA_BaseT<executor_type>> : public boost::true_type {};
-template<typename executor_type>
-struct is_abstract< const Gem::Geneva::G_OA_BaseT<executor_type>> : public boost::true_type {};
+// Some serialization-related exports and declarations
 
-template<typename oa_type>
-struct is_abstract<Gem::Geneva::GBasePluggableOMT<oa_type>> : public boost::true_type {};
-template<typename oa_type>
-struct is_abstract< const Gem::Geneva::GBasePluggableOMT<oa_type>> : public boost::true_type {};
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OA_BaseT)
 
-}
-}
-
-/******************************************************************************/
+// TODO: Export base pluggable OMT
 
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)

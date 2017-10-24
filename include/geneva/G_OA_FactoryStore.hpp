@@ -49,7 +49,7 @@
 #include "geneva/GParameterSet.hpp"
 
 // A global store for optimization algorithm factories
-using goa_factory = Gem::Geneva::G_OA_FactoryT<Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>>>;
+using goa_factory = Gem::Geneva::G_OA_FactoryT<Gem::Geneva::G_OA_BaseT>;
 using GOAStore = Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<goa_factory>> >;
 #define GOAFactoryStore GOAStore::Instance(0)
 

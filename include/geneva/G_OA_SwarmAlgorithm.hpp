@@ -71,7 +71,7 @@ namespace Geneva {
  * TODO: Mark checkpoints so the serialization mode can be determined automatically (e.g. using file extension ??)
  */
 class GSwarmAlgorithm
-	:public G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
+	:public G_OA_BaseT
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -81,7 +81,7 @@ class GSwarmAlgorithm
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_BaseT_GParameterSet", boost::serialization::base_object<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
+		 & make_nvp("G_OA_BaseT_GParameterSet", boost::serialization::base_object<G_OA_BaseT>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_n_neighborhoods)
 		 & BOOST_SERIALIZATION_NVP(m_default_n_neighborhood_members)
 		 & BOOST_SERIALIZATION_NVP(m_n_neighborhood_members_vec)

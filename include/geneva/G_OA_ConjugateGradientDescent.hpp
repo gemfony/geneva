@@ -68,8 +68,7 @@ namespace Geneva {
  * is delegated to the Broker (which may in turn use other means, such as threads or
  * networked execution for the evaluation step).
  */
-class GConjugateGradientDescent
-	:public G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
+class GConjugateGradientDescent : public G_OA_BaseT
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -79,8 +78,8 @@ class GConjugateGradientDescent
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_BaseT_GBrokerExecutorT",
-			 boost::serialization::base_object<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this));
+		 & make_nvp("G_OA_BaseT",
+			 boost::serialization::base_object<G_OA_BaseT>(*this));
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////

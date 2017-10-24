@@ -95,7 +95,7 @@ G_API_GENEVA void setRNFParameters(const std::uint16_t&);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
-using GOABase = Gem::Geneva::G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>;
+using GOABase = Gem::Geneva::G_OA_BaseT;
 
 /******************************************************************************/
 /**

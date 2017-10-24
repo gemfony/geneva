@@ -48,10 +48,12 @@ namespace Geneva {
  */
 GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
 	execMode executionMode
-	, std::string configFile
+	, const std::string& oa_configFile
+	, const std::string& executor_configFile
 ) :
 	GPostProcessorBaseT<GParameterSet>()
-	, m_configFile(configFile)
+	, m_oa_configFile(oa_configFile)
+	, m_executor_configFile(executor_configFile)
 	, m_executionMode((executionMode == execMode::SERIAL || executionMode == execMode::MULTITHREADED) ? executionMode : execMode::SERIAL)
 {
 	switch (executionMode) {
@@ -78,7 +80,8 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
  */
 GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp) :
 	GPostProcessorBaseT<GParameterSet>(cp)
-	, m_configFile(cp.m_configFile)
+	, m_oa_configFile(cp.m_oa_configFile)
+	, m_executor_configFile(cp.m_executor_configFile)
 	, m_executionMode(cp.m_executionMode) // We assume that a valid execution mode is stored here
 { /* nothing */ }
 
@@ -137,8 +140,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::operator!=(const GEvolutionaryAlgorith
 /**
  * Returns the name of this class
  */
-std::string GEvolutionaryAlgorithmPostOptimizer::name() const
-{
+std::string GEvolutionaryAlgorithmPostOptimizer::name() const {
 	return std::string("GEvolutionaryAlgorithmPostOptimizer");
 }
 
@@ -160,38 +162,17 @@ void GEvolutionaryAlgorithmPostOptimizer::compare(
 
 	// Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
 	const GEvolutionaryAlgorithmPostOptimizer *p_load
-		= Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(
-			cp
-			, this
-		);
+		= Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
 
-	GToken token(
-		"GEvolutionaryAlgorithmPostOptimizer"
-		, e
-	);
+	GToken token("GEvolutionaryAlgorithmPostOptimizer", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GPostProcessorBaseT < GParameterSet>>
-	(IDENTITY(
-		*this
-		, *p_load
-	), token);
+	Gem::Common::compare_base<GPostProcessorBaseT<GParameterSet>>(IDENTITY(*this, *p_load), token);
 
 	// ... and then our local data
-	compare_t(
-		IDENTITY(
-			m_configFile
-			, p_load->m_configFile
-		)
-		, token
-	);
-	compare_t(
-		IDENTITY(
-			m_executionMode
-			, p_load->m_executionMode
-		)
-		, token
-	);
+	compare_t(IDENTITY(m_oa_configFile, p_load->m_oa_configFile), token);
+	compare_t(IDENTITY(m_executor_configFile, p_load->m_executor_configFile), token);
+	compare_t(IDENTITY(m_executionMode, p_load->m_executionMode), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -224,8 +205,7 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode)
 /**
  * Allows to retrieve the current execution mode
  */
-execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const
-{
+execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
 	return m_executionMode;
 }
 
@@ -233,18 +213,32 @@ execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const
 /**
  * Allows to specify the name of a configuration file
  */
-void GEvolutionaryAlgorithmPostOptimizer::setConfigFile(std::string configFile)
-{
-	m_configFile = configFile;
+void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(std::string oa_configFile) {
+	m_oa_configFile = oa_configFile;
 }
 
 /******************************************************************************/
 /**
  * Allows to retrieve the configuration file
  */
-std::string GEvolutionaryAlgorithmPostOptimizer::getConfigFile() const
-{
-	return m_configFile;
+std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
+	return m_oa_configFile;
+}
+
+/******************************************************************************/
+/**
+ * Allows to specify the name of a configuration file for the executor
+ */
+void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(std::string executorConfigFile) {
+	m_executor_configFile = executorConfigFile;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve the configuration file for the executor
+ */
+std::string GEvolutionaryAlgorithmPostOptimizer::getExecutorConfigFile() const {
+	return m_executor_configFile;
 }
 
 /******************************************************************************/
@@ -255,16 +249,14 @@ void GEvolutionaryAlgorithmPostOptimizer::load_(const Gem::Common::GSerializable
 {
 	// Check that we are dealing with a GEvolutionaryAlgorithmPostOptimizer reference independent of this object and convert the pointer
 	const GEvolutionaryAlgorithmPostOptimizer *p_load
-		= Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(
-			cp
-			, this
-		);
+		= Gem::Common::g_convert_and_compare<Gem::Common::GSerializableFunctionObjectT<GParameterSet>, GEvolutionaryAlgorithmPostOptimizer>(cp, this);
 
 	// Load our parent class'es data ...
 	GPostProcessorBaseT<GParameterSet>::load_(cp);
 
 	// ... and then our local data
-	m_configFile = p_load->m_configFile;
+	m_oa_configFile = p_load->m_oa_configFile;
+	m_executor_configFile = p_load->m_executor_configFile;
 	m_executionMode = p_load->m_executionMode;
 }
 
@@ -272,8 +264,7 @@ void GEvolutionaryAlgorithmPostOptimizer::load_(const Gem::Common::GSerializable
 /**
  * Creates a deep clone of this object
  */
-Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithmPostOptimizer::clone_() const
-{
+Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithmPostOptimizer::clone_() const {
 	return new GEvolutionaryAlgorithmPostOptimizer(*this);
 }
 
@@ -281,9 +272,7 @@ Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithm
 /**
  * The actual post-processing takes place here (no further checks)
  */
-bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p)
-{
-
+bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
 	// Make sure p is clean
 	if (p.isDirty()) {
 		glogger
@@ -292,83 +281,44 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p)
 			<< GEXCEPTION;
 	}
 
-	switch(m_executionMode) {
-		case execMode::MULTITHREADED:
-		{
-			// Clone the individual for post-processing
-			std::shared_ptr <GParameterSet> p_unopt_ptr = p.template clone<GParameterSet>();
-
-			// Make sure the post-optimization does not trigger post-optimization recursively ...
-			p_unopt_ptr->vetoPostProcessing(true);
-
-			G_MT_EvolutionaryAlgorithmFactory eaFactory(m_configFile);
-			std::shared_ptr<GMTEvolutionaryAlgorithm> ea_ptr = eaFactory.get<GMTEvolutionaryAlgorithm>();
-
-			// Add our individual to the algorithm
-			ea_ptr->push_back(p_unopt_ptr);
-
-			// Perform the actual (sub-)optimization
-			ea_ptr->optimize();
-
-			// Retrieve the best individual
-			std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
-
-			// Make sure subsequent optimization cycles may generally perform post-optimization again.
-			// THis needs to be done on the optimized individual, as it will be loaded into the
-			// original individual.
-			p_opt_ptr->vetoPostProcessing(false);
-
-			// Load the parameter data into the argument base_type (will also clear the dirty flag)
-			p.cannibalize(*p_opt_ptr);
-
-			return true;
-		}
-			break;
-
-		case execMode::SERIAL:
-		{
-			// Clone the individual for post-processing
-			std::shared_ptr <GParameterSet> p_unopt_ptr = p.template clone<GParameterSet>();
-
-			// Make sure the post-optimization does not trigger post-optimization recursively ...
-			p_unopt_ptr->vetoPostProcessing(true);
-
-			G_Serial_EvolutionaryAlgorithmFactory eaFactory(m_configFile);
-			std::shared_ptr<GSerialEvolutionaryAlgorithm> ea_ptr = eaFactory.get<GSerialEvolutionaryAlgorithm>();
-
-			// Add our individual to the algorithm
-			ea_ptr->push_back(p_unopt_ptr);
-
-			// Perform the actual (sub-)optimization
-			ea_ptr->optimize();
-
-			// Retrieve the best individual
-			std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
-
-			// Make sure subsequent optimization cycles may generally perform post-optimization again.
-			// THis needs to be done on the optimized individual, as it will be loaded into the
-			// original individual.
-			p_opt_ptr->vetoPostProcessing(false);
-
-			// Load the parameter data into the argument base_type (will also clear the dirty flag)
-			p.cannibalize(*p_opt_ptr);
-
-			return true;
-		}
-			break;
-
-		default:
-		{
-			glogger
-				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
-				<< "Got invalid execution mode " << m_executionMode << std::endl
-				<< GEXCEPTION;
-		}
-			break;
+	if(m_executionMode == execMode::BROKER) {
+		glogger
+			<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
+			<< "Got invalid execution mode " << m_executionMode << std::endl
+			<< GEXCEPTION;
 	}
 
-	// Make the compiler happy
-	return false;
+	// Clone the individual for post-processing
+	std::shared_ptr<GParameterSet> p_unopt_ptr = p.template clone<GParameterSet>();
+
+	// Make sure the post-optimization does not trigger post-optimization recursively ...
+	p_unopt_ptr->vetoPostProcessing(true);
+
+	// Retrieve an evolutionary algorithm
+	GEvolutionaryAlgorithmFactory eaFactory(m_oa_configFile);
+	auto ea_ptr = eaFactory.get<GEvolutionaryAlgorithm>();
+
+	// Add an executor to the algorithm
+	ea_ptr->registerExecutor(m_executionMode, m_executor_configFile);
+
+	// Add our individual to the algorithm
+	ea_ptr->push_back(p_unopt_ptr);
+
+	// Perform the actual (sub-)optimization
+	ea_ptr->optimize();
+
+	// Retrieve the best individual
+	std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
+
+	// Make sure subsequent optimization cycles may generally perform post-optimization again.
+	// THis needs to be done on the optimized individual, as it will be loaded into the
+	// original individual.
+	p_opt_ptr->vetoPostProcessing(false);
+
+	// Load the parameter data into the argument base_type (will also clear the dirty flag)
+	p.cannibalize(*p_opt_ptr);
+
+	return true;
 }
 
 /******************************************************************************/

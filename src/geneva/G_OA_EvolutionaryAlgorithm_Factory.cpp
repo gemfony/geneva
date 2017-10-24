@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: G_OA_FactoryT<G_OA_BaseT>(
 	"./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: G_OA_FactoryT<G_OA_BaseT>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OA_BaseT>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
  * The copy constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: G_OA_FactoryT<G_OA_BaseT>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -107,7 +107,7 @@ std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GEvolutionaryAlgorithmFactory::getObject_(
+std::shared_ptr<G_OA_BaseT> GEvolutionaryAlgorithmFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -129,206 +129,10 @@ std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GEvo
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GEvolutionaryAlgorithmFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
+	std::shared_ptr<G_OA_BaseT>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory()
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(
-	"./config/GEvolutionaryAlgorithm.json")
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Initialization with the name of the config file
- */
-G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory(
-	const std::string &configFile
-)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A constructor with the ability to switch the parallelization mode and
- * to add a content creator. It initializes a target item as needed.
- */
-G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory(
-	const std::string &configFile
-	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
-)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-G_MT_EvolutionaryAlgorithmFactory::G_MT_EvolutionaryAlgorithmFactory(const G_MT_EvolutionaryAlgorithmFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-G_MT_EvolutionaryAlgorithmFactory::~G_MT_EvolutionaryAlgorithmFactory()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Gives access to the mnemonics / nickname describing an algorithm
- */
-std::string G_MT_EvolutionaryAlgorithmFactory::getMnemonic() const {
-	return G_OA_EvolutionaryAlgorithm_PersonalityTraits::nickname;
-}
-
-/******************************************************************************/
-/**
- * Gives access to a clear-text description of the algorithm
- */
-std::string G_MT_EvolutionaryAlgorithmFactory::getAlgorithmName() const {
-	return std::string("Evolutionary Algorithm");
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>> G_MT_EvolutionaryAlgorithmFactory::getObject_(
-	Gem::Common::GParserBuilder &gpb
-	, const std::size_t &id
-) {
-	std::shared_ptr<GMTEvolutionaryAlgorithm> target(
-		new GMTEvolutionaryAlgorithm()
-	);
-
-	// Make the local configuration options known (up to the level of GMTEvolutionaryAlgorithm)
-	target->GMTEvolutionaryAlgorithm::addConfigurationOptions(gpb);
-
-	return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object.
- *
- * @param p A smart-pointer to be acted on during post-processing
- */
-void G_MT_EvolutionaryAlgorithmFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>& p_base
-) {
-	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>::postProcess_(p_base);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory()
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(
-	"./config/GEvolutionaryAlgorithm.json")
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Initialization with the name of the config file
- */
-G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory(
-	const std::string &configFile
-)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A constructor with the ability to switch the parallelization mode and
- * to add a content creator. It initializes a target item as needed.
- */
-G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory(
-	const std::string &configFile
-	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
-)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-G_Serial_EvolutionaryAlgorithmFactory::G_Serial_EvolutionaryAlgorithmFactory(const G_Serial_EvolutionaryAlgorithmFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-G_Serial_EvolutionaryAlgorithmFactory::~G_Serial_EvolutionaryAlgorithmFactory()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Gives access to the mnemonics / nickname describing an algorithm
- */
-std::string G_Serial_EvolutionaryAlgorithmFactory::getMnemonic() const {
-	return G_OA_EvolutionaryAlgorithm_PersonalityTraits::nickname;
-}
-
-/******************************************************************************/
-/**
- * Gives access to a clear-text description of the algorithm
- */
-std::string G_Serial_EvolutionaryAlgorithmFactory::getAlgorithmName() const {
-	return std::string("Evolutionary Algorithm");
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>> G_Serial_EvolutionaryAlgorithmFactory::getObject_(
-	Gem::Common::GParserBuilder &gpb
-	, const std::size_t &id
-) {
-	std::shared_ptr<GSerialEvolutionaryAlgorithm> target(
-		new GSerialEvolutionaryAlgorithm()
-	);
-
-	// Make the local configuration options known (up to the level of GMTEvolutionaryAlgorithm)
-	target->GSerialEvolutionaryAlgorithm::addConfigurationOptions(gpb);
-
-	return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object.
- *
- * @param p A smart-pointer to be acted on during post-processing
- */
-void G_Serial_EvolutionaryAlgorithmFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>& p_base
-) {
-	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>::postProcess_(p_base);
+	G_OA_FactoryT<G_OA_BaseT>::postProcess_(p_base);
 }
 
 /******************************************************************************/

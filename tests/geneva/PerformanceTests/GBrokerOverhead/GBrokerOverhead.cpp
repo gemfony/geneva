@@ -44,6 +44,7 @@
 // Geneva header files go here
 #include "courtier/GCourtierHelperFunctions.hpp"
 #include "courtier/GCourtierEnums.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "geneva/Go2.hpp"
@@ -380,106 +381,60 @@ int main(int argc, char **argv){
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	// We can now start creating populations. We refer to them through the base class.
+	// We can now start creating populations. Executors are registered for different execution modes
 
-	// Create the actual populations
+	std::shared_ptr<GEvolutionaryAlgorithm> pop_ptr(new GEvolutionaryAlgorithm());
+
 	switch (parallelizationMode) {
-		//-----------------------------------------------------------------------------------------------------
 		case execMode::SERIAL: // Serial execution
-		{
 			std::cout << "Using serial execution." << std::endl;
-			// Create an empty population
-			std::shared_ptr<GSerialEvolutionaryAlgorithm> pop_ptr(new GSerialEvolutionaryAlgorithm());
-
-			// Add individuals to the population
-			for (std::size_t p = 0; p < nParents; p++) {
-				pop_ptr->push_back(parentIndividuals[p]);
-			}
-
-			// Specify some general population settings
-			pop_ptr->setPopulationSizes(
-				populationSize
-				, nParents
-			);
-			pop_ptr->setMaxIteration(maxIterations);
-			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
-			pop_ptr->setReportIteration(reportIteration);
-			pop_ptr->setRecombinationMethod(rScheme);
-			pop_ptr->setSortingScheme(smode);
-
-			// Do the actual optimization
-			pop_ptr->optimize();
-		}
+			pop_ptr->registerExecutor(execMode::SERIAL, "./config/GSerialExecutor.json");
 			break;
 
-			//-----------------------------------------------------------------------------------------------------
 		case execMode::MULTITHREADED: // Multi-threaded execution
-		{
-			std::cout << "Using plain multithreaded execution." << std::endl;
+			std::cout << "Using plain multi-threaded execution." << std::endl;
+			pop_ptr->registerExecutor(execMode::MULTITHREADED, "./config/GMTExecutor.json");
 
-			// Create an empty population
-			std::shared_ptr<GMTEvolutionaryAlgorithm > pop_ptr(new GMTEvolutionaryAlgorithm());
+			// Set the number of threads used in the executor
+			pop_ptr->getExecutor<Gem::Courtier::GMTExecutorT<GParameterSet>>()->setNThreads(nEvaluationThreads);
 
-			// Add individuals to the population
-			for (std::size_t p = 0; p < nParents; p++) {
-				pop_ptr->push_back(parentIndividuals[p]);
-			}
-
-			// Specify some general population settings
-			pop_ptr->setPopulationSizes(
-				populationSize
-				, nParents
-			);
-			pop_ptr->setMaxIteration(maxIterations);
-			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
-			pop_ptr->setReportIteration(reportIteration);
-			pop_ptr->setRecombinationMethod(rScheme);
-			pop_ptr->setSortingScheme(smode);
-
-			// Population-specific settings
-			pop_ptr->setNThreads(nEvaluationThreads);
-
-			// Do the actual optimization
-			pop_ptr->optimize();
-		}
 			break;
 
-			//-----------------------------------------------------------------------------------------------------
 		case execMode::BROKER: // Execution with multi-threaded consumer. Note that we use BROKER here, even though no networked execution takes place
 		{
-			std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
-
 			// Create a consumer and make it known to the global broker
-			std::shared_ptr<Gem::Courtier::GStdThreadConsumerT<GParameterSet>> gbtc(new Gem::Courtier::GStdThreadConsumerT<GParameterSet>());
-			gbtc->setNThreadsPerWorker(nEvaluationThreads);
-			GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
+			std::shared_ptr<Gem::Courtier::GStdThreadConsumerT<GParameterSet>> stc(new Gem::Courtier::GStdThreadConsumerT<GParameterSet>());
+			stc->setNThreadsPerWorker(nEvaluationThreads);
+			GBROKER(Gem::Geneva::GParameterSet)->enrol(stc);
 
-			// Create an empty population
-			std::shared_ptr<GEvolutionaryAlgorithm > pop_ptr(new GEvolutionaryAlgorithm());
-
-			// Add individuals to the population
-			for (std::size_t p = 0; p < nParents; p++) {
-				pop_ptr->push_back(parentIndividuals[p]);
-			}
-
-			// Specify some general population settings
-			pop_ptr->setPopulationSizes(
-				populationSize
-				, nParents
+			std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
+			pop_ptr->registerExecutor(
+				execMode::BROKER
+				, "./config/GBrokerExecutor.json"
 			);
-			pop_ptr->setMaxIteration(maxIterations);
-			pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
-			pop_ptr->setReportIteration(reportIteration);
-			pop_ptr->setRecombinationMethod(rScheme);
-			pop_ptr->setSortingScheme(smode);
-
-			// Do the actual optimization
-			pop_ptr->optimize();
 		}
 			break;
 	}
 
-	//--------------------------------------------------------------------------------------------
+	// Add individuals to the population
+	for (std::size_t p = 0; p < nParents; p++) {
+		pop_ptr->push_back(parentIndividuals[p]);
+	}
+
+	// Specify some general population settings
+	pop_ptr->setPopulationSizes(
+		populationSize
+		, nParents
+	);
+	pop_ptr->setMaxIteration(maxIterations);
+	pop_ptr->setMaxTime(std::chrono::minutes(maxMinutes));
+	pop_ptr->setReportIteration(reportIteration);
+	pop_ptr->setRecombinationMethod(rScheme);
+	pop_ptr->setSortingScheme(smode);
+
+	// Do the actual optimization
+	pop_ptr->optimize();
+
 	// Terminate
 	return 0;
 }

@@ -76,7 +76,7 @@ const double DEFAULTSTEPSIZE=0.1;
  * networked execution for the evaluation step).
  */
 class GGradientDescent
-	:public G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
+	:public G_OA_BaseT
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -87,7 +87,7 @@ class GGradientDescent
 
 		 ar
 		 & make_nvp("G_OA_BaseT_GBrokerExecutorT",
-			 boost::serialization::base_object<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(*this))
+			 boost::serialization::base_object<G_OA_BaseT>(*this))
 		 & BOOST_SERIALIZATION_NVP(nStartingPoints_)
 		 & BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
 		 & BOOST_SERIALIZATION_NVP(finiteStep_)

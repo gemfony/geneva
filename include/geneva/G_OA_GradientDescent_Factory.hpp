@@ -63,7 +63,7 @@ namespace Geneva {
  * It will only return objects which perform all evaluation through the broker.
  */
 class GGradientDescentFactory
-	: public G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>
+	: public G_OA_FactoryT<G_OA_BaseT>
 {
 public:
 	 /** @brief The default constructor */
@@ -87,12 +87,12 @@ public:
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 virtual G_API_GENEVA std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> getObject_(
+	 virtual G_API_GENEVA std::shared_ptr<G_OA_BaseT> getObject_(
 		 Gem::Common::GParserBuilder&
 		 , const std::size_t&
 	 ) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>&) override;
+	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<G_OA_BaseT>&) override;
 };
 
 /******************************************************************************/

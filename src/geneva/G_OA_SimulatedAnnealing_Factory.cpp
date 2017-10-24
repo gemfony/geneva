@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(
+	: G_OA_FactoryT<G_OA_BaseT>(
 	"./config/GSimulatedAnnealing.json")
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile)
+	: G_OA_FactoryT<G_OA_BaseT>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OA_BaseT>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
  * The copy constructor
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>(cp)
+	: G_OA_FactoryT<G_OA_BaseT>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -107,7 +107,7 @@ std::string GSimulatedAnnealingFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GSimulatedAnnealingFactory::getObject_(
+std::shared_ptr<G_OA_BaseT> GSimulatedAnnealingFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -129,206 +129,10 @@ std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>> GSim
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GSimulatedAnnealingFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>& p_base
+	std::shared_ptr<G_OA_BaseT>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GBrokerExecutorT<GParameterSet>>>::postProcess_(p_base);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory()
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(
-	"./config/GSimulatedAnnealing.json")
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Initialization with the name of the config file
- */
-G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory(
-	const std::string &configFile
-)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A constructor with the ability to switch the parallelization mode and
- * to add a content creator. It initializes a target item as needed.
- */
-G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory(
-	const std::string &configFile
-	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
-)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-G_MT_SimulatedAnnealingFactory::G_MT_SimulatedAnnealingFactory(const G_MT_SimulatedAnnealingFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-G_MT_SimulatedAnnealingFactory::~G_MT_SimulatedAnnealingFactory()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Gives access to the mnemonics / nickname describing an algorithm
- */
-std::string G_MT_SimulatedAnnealingFactory::getMnemonic() const {
-	return G_OA_SimulatedAnnealing_PersonalityTraits::nickname;
-}
-
-/******************************************************************************/
-/**
- * Gives access to a clear-text description of the algorithm
- */
-std::string G_MT_SimulatedAnnealingFactory::getAlgorithmName() const {
-	return std::string("Simulated Annealing");
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>> G_MT_SimulatedAnnealingFactory::getObject_(
-	Gem::Common::GParserBuilder &gpb
-	, const std::size_t &id
-) {
-	std::shared_ptr<GMTSimulatedAnnealing> target(
-		new GMTSimulatedAnnealing()
-	);
-
-	// Make the local configuration options known (up to the level of GBrokerSimulatedAnnealing)
-	target->GMTSimulatedAnnealing::addConfigurationOptions(gpb);
-
-	return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object.
- *
- * @param p A smart-pointer to be acted on during post-processing
- */
-void G_MT_SimulatedAnnealingFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>& p_base
-) {
-	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GMTExecutorT<GParameterSet>>>::postProcess_(p_base);
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory()
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(
-	"./config/GSimulatedAnnealing.json")
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Initialization with the name of the config file
- */
-G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory(
-	const std::string &configFile
-)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A constructor with the ability to switch the parallelization mode and
- * to add a content creator. It initializes a target item as needed.
- */
-G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory(
-	const std::string &configFile
-	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
-)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(configFile, contentCreatorPtr)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-G_Serial_SimulatedAnnealingFactory::G_Serial_SimulatedAnnealingFactory(const G_Serial_SimulatedAnnealingFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-G_Serial_SimulatedAnnealingFactory::~G_Serial_SimulatedAnnealingFactory()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Gives access to the mnemonics / nickname describing an algorithm
- */
-std::string G_Serial_SimulatedAnnealingFactory::getMnemonic() const {
-	return G_OA_SimulatedAnnealing_PersonalityTraits::nickname;
-}
-
-/******************************************************************************/
-/**
- * Gives access to a clear-text description of the algorithm
- */
-std::string G_Serial_SimulatedAnnealingFactory::getAlgorithmName() const {
-	return std::string("Simulated Annealing");
-}
-
-/******************************************************************************/
-/**
- * Creates items of this type
- *
- * @return Items of the desired type
- */
-std::shared_ptr<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>> G_Serial_SimulatedAnnealingFactory::getObject_(
-	Gem::Common::GParserBuilder &gpb
-	, const std::size_t &id
-) {
-	std::shared_ptr<GSerialSimulatedAnnealing> target(
-		new GSerialSimulatedAnnealing()
-	);
-
-	// Make the local configuration options known (up to the level of GBrokerSimulatedAnnealing)
-	target->GSerialSimulatedAnnealing::addConfigurationOptions(gpb);
-
-	return target;
-}
-
-/******************************************************************************/
-/**
- * Allows to act on the configuration options received from the configuration file. Here
- * we can add the options described in describeLocalOptions to the object.
- *
- * @param p A smart-pointer to be acted on during post-processing
- */
-void G_Serial_SimulatedAnnealingFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>& p_base
-) {
-	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT<Gem::Courtier::GSerialExecutorT<GParameterSet>>>::postProcess_(p_base);
+	G_OA_FactoryT<G_OA_BaseT>::postProcess_(p_base);
 }
 
 /******************************************************************************/
