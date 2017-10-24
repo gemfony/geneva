@@ -222,12 +222,12 @@ public:
 	 /**
 	  * Allows to register a pluggable optimization monitor
 	  */
-	 void registerPluggableOM(std::shared_ptr<GBasePluggableOM<oa_type>> pluggableOM) {
+	 void registerPluggableOM(std::shared_ptr<GBasePluggableOM> pluggableOM) {
 		 if (pluggableOM) {
 			 m_pluggableOM = pluggableOM;
 		 } else {
 			 glogger
-				 << "In GoptimizationAlgorithmFactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor"
+				 << "In G_OA_FactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor"
 				 << std::endl
 				 << GEXCEPTION;
 		 }
@@ -400,7 +400,7 @@ protected:
 	 virtual std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override = 0;
 
 	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_contentCreatorPtr; ///< Holds an object capable of producing objects of the desired type
-	 std::shared_ptr<GBasePluggableOM<oa_type>> m_pluggableOM; // A user-defined means for information retrieval
+	 std::shared_ptr<GBasePluggableOM> m_pluggableOM; // A user-defined means for information retrieval
 
 private:
 	 /***************************************************************************/

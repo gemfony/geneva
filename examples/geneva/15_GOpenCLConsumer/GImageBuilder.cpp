@@ -396,8 +396,8 @@ int main(int argc, char **argv) {
    go.push_back(imageIndividual_ptr);
 
    // Create an evolutionary algorithm in broker mode
-   GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json", execMode::BROKER);
-   std::shared_ptr<GBaseEA> ea_ptr = ea.get<GBaseEA>();
+   GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
+   std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr = ea.get<GEvolutionaryAlgorithm>();
 
    // Add the algorithm
    go & ea_ptr;

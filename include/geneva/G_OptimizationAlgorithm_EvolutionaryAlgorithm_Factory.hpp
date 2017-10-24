@@ -74,7 +74,7 @@ public:
 	 /** @brief Initialization with the name of the config file and a content creator */
 	 G_API_GENEVA GEvolutionaryAlgorithmFactory(
 		 const std::string&
-		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
+		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory&);

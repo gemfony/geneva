@@ -415,7 +415,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
  * Allows to register a pluggable optimization monitor
  */
 void Go2::registerPluggableOM(
-	std::shared_ptr<GBasePluggableOM<GOABase>> pluggableOM
+	std::shared_ptr<GBasePluggableOM> pluggableOM
 ) {
 	if (pluggableOM) {
 		m_pluggable_monitors_vec.push_back(pluggableOM);

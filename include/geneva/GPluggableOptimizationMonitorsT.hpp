@@ -66,9 +66,9 @@ namespace Geneva {
 /******************************************************************************/
 /*
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
- * information from within optimization algorithms. They can be plugged into G_OptimizationAlgorithm_Base<oa_type>
+ * information from within optimization algorithms. They can be plugged into G_OptimizationAlgorithm_Base
  * derivatives. A requirement is that they implement a function "informationFunction"
- * according to the API of G_OptimizationAlgorithm_Base<>::GBasePluggableOM .
+ * according to the API of GBasePluggableOM .
  */
 
 /******************************************************************************/
@@ -79,9 +79,8 @@ namespace Geneva {
  * It will usually already be registered as a pluggable optimization monitor, when
  * you instantiate a new optimization algorithm.
  */
-template <typename oa_type>
 class GStandardMonitorT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -92,7 +91,7 @@ class GStandardMonitorT
 
 		ar & make_nvp(
 			"GBasePluggableOM"
-			, boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this)
+			, boost::serialization::base_object<GBasePluggableOM>(*this)
 		);
 	}
 
@@ -110,8 +109,8 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GStandardMonitorT(const GStandardMonitorT<oa_type>& cp)
-		: GBasePluggableOM<oa_type>(cp)
+	GStandardMonitorT(const GStandardMonitorT& cp)
+		: GBasePluggableOM(cp)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -125,19 +124,19 @@ public:
 	/**
 	 * A standard assignment operator
 	 */
-	const GStandardMonitorT<oa_type>& operator=(const GStandardMonitorT<oa_type>& cp) {
+	const GStandardMonitorT& operator=(const GStandardMonitorT& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/************************************************************************/
 	/**
-	 * Checks for equality with another GStandardMonitorT<oa_type> object
+	 * Checks for equality with another GStandardMonitorT object
 	 *
-	 * @param  cp A constant reference to another GStandardMonitorT<oa_type> object
+	 * @param  cp A constant reference to another GStandardMonitorT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GStandardMonitorT<oa_type>& cp) const {
+	virtual bool operator==(const GStandardMonitorT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -149,12 +148,12 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Checks for inequality with another GStandardMonitorT<oa_type> object
+	 * Checks for inequality with another GStandardMonitorT object
 	 *
-	 * @param  cp A constant reference to another GStandardMonitorT<oa_type> object
+	 * @param  cp A constant reference to another GStandardMonitorT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GStandardMonitorT<oa_type>& cp) const {
+	virtual bool operator!=(const GStandardMonitorT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -170,7 +169,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT: {
@@ -206,7 +205,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GStandardMonitorT<oa_type>");
+		return std::string("GStandardMonitorT");
 	}
 
 	/***************************************************************************/
@@ -225,13 +224,13 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GStandardMonitorT<oa_type> reference independent of this object and convert the pointer
-		const GStandardMonitorT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GStandardMonitorT reference independent of this object and convert the pointer
+		const GStandardMonitorT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GStandardMonitorT<oa_type>", e);
+		GToken token("GStandardMonitorT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		// ... no local data
 
@@ -244,14 +243,14 @@ protected:
 	/**
 	 * Loads the data of another object
 	 *
-	 * cp A pointer to another GStandardMonitorT<oa_type> object, camouflaged as a GObject
+	 * cp A pointer to another GStandardMonitorT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GStandardMonitorT<oa_type> reference independent of this object and convert the pointer
-		const GStandardMonitorT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GStandardMonitorT reference independent of this object and convert the pointer
+		const GStandardMonitorT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOM<oa_type>::load_(cp);
+		GBasePluggableOM::load_(cp);
 
 		// ... no local data
 	}
@@ -261,7 +260,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GStandardMonitorT<oa_type>(*this);
+		return new GStandardMonitorT(*this);
 	}
 
 public:
@@ -279,7 +278,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -288,7 +287,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GStandardMonitorT<oa_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GStandardMonitorT::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -303,7 +302,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GStandardMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -319,7 +318,7 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 		condnotset("GStandardMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -339,9 +338,8 @@ public:
  * will be output in the same histogram both for the best individual(s) found so far
  * and for the best individual(s) of each iteration.
  */
-template <typename oa_type>
 class GFitnessMonitorT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -351,7 +349,7 @@ class GFitnessMonitorT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOM", boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM", boost::serialization::base_object<GBasePluggableOM>(*this))
 		& BOOST_SERIALIZATION_NVP(m_xDim)
 	  	& BOOST_SERIALIZATION_NVP(m_yDim)
 		& BOOST_SERIALIZATION_NVP(m_nMonitorInds)
@@ -375,8 +373,8 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GFitnessMonitorT(const GFitnessMonitorT<oa_type>& cp)
-		: GBasePluggableOM<oa_type>(cp)
+	GFitnessMonitorT(const GFitnessMonitorT& cp)
+		: GBasePluggableOM(cp)
 	  	, m_xDim(cp.m_xDim)
 	  	, m_yDim(cp.m_yDim)
 		, m_nMonitorInds(cp.m_nMonitorInds)
@@ -398,19 +396,19 @@ public:
 	/**
 	 * A standard assignment operator
 	 */
-	const GFitnessMonitorT<oa_type>& operator=(const GFitnessMonitorT<oa_type>& cp) {
+	const GFitnessMonitorT& operator=(const GFitnessMonitorT& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/***************************************************************************/
 	/**
-	 * Checks for equality with another GFitnessMonitorT<oa_type> object
+	 * Checks for equality with another GFitnessMonitorT object
 	 *
-	 * @param  cp A constant reference to another GFitnessMonitorT<oa_type> object
+	 * @param  cp A constant reference to another GFitnessMonitorT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GFitnessMonitorT<oa_type>& cp) const {
+	virtual bool operator==(const GFitnessMonitorT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -422,12 +420,12 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Checks for inequality with another GFitnessMonitorT<oa_type> object
+	 * Checks for inequality with another GFitnessMonitorT object
 	 *
-	 * @param  cp A constant reference to another GFitnessMonitorT<oa_type> object
+	 * @param  cp A constant reference to another GFitnessMonitorT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GFitnessMonitorT<oa_type>& cp) const {
+	virtual bool operator!=(const GFitnessMonitorT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -538,7 +536,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT: {
@@ -558,7 +556,7 @@ public:
 				// We expect both sizes to be identical
 				if(global_bests.size() != iter_bests.size()) {
 					glogger
-					<< "In GFitnessMonitorT<oa_type>::informationFunction(): Error!" << std::endl
+					<< "In GFitnessMonitorT::informationFunction(): Error!" << std::endl
 					<< "global_bests.size() = " << global_bests.size() << " != iter_bests.size() = " << iter_bests.size() << std::endl
 					<< GEXCEPTION;
 				}
@@ -570,7 +568,7 @@ public:
 					// Reset the number of monitored individuals to a suitable value, if necessary.
 					if(m_nMonitorInds > global_bests.size()) {
 						glogger
-						<< "In GFitnessMonitorT<oa_type>::informationFunction(): Warning!" << std::endl
+						<< "In GFitnessMonitorT::informationFunction(): Warning!" << std::endl
 						<< "Requested number of individuals to be monitored in iteration " << iteration << " is larger" << std::endl
 						<< "than the number of best individuals " << m_nMonitorInds << " / " << global_bests.size() << std::endl
 						<< GWARNING;
@@ -609,7 +607,7 @@ public:
 					// individuals will then be lost -- the program will warn about this.
 					if(m_nMonitorInds > global_bests.size()) {
 						glogger
-						<< "In GFitnessMonitorT<oa_type>::informationFunction(): Warning!" << std::endl
+						<< "In GFitnessMonitorT::informationFunction(): Warning!" << std::endl
 						<< "Requested number of individuals to be monitored in iteration " << iteration << " is larger" << std::endl
 						<< "than the number of best individuals " << m_nMonitorInds << " / " << global_bests.size() << std::endl
 						<< "This seems to be a result of a varying number of best individuals." << std::endl
@@ -652,7 +650,7 @@ public:
 
 			default: {
 				glogger
-				<< "In GFitnessMonitorT<oa_type>::informationFunction(): Received invalid infoMode " << im << std::endl
+				<< "In GFitnessMonitorT::informationFunction(): Received invalid infoMode " << im << std::endl
 				<< GEXCEPTION;
 			} break;
 		}
@@ -663,7 +661,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GFitnessMonitorT<oa_type>");
+		return std::string("GFitnessMonitorT");
 	}
 
 	/***************************************************************************/
@@ -682,13 +680,13 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GFitnessMonitorT<oa_type> reference independent of this object and convert the pointer
+		// Check that we are dealing with a GFitnessMonitorT reference independent of this object and convert the pointer
 		const GFitnessMonitorT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GFitnessMonitorT<oa_type>", e);
+		GToken token("GFitnessMonitorT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_xDim, p_load->m_xDim), token);
@@ -708,14 +706,14 @@ protected:
 	/**
 	 * Loads the data of another object
 	 *
-	 * cp A pointer to another GFitnessMonitorT<oa_type> object, camouflaged as a GObject
+	 * cp A pointer to another GFitnessMonitorT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GFitnessMonitorT<oa_type> reference independent of this object and convert the pointer
-		const GFitnessMonitorT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GFitnessMonitorT reference independent of this object and convert the pointer
+		const GFitnessMonitorT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOM<oa_type>::load_(cp);
+		GBasePluggableOM::load_(cp);
 
 		// ... and then our local data
 		m_xDim = p_load->m_xDim;
@@ -733,7 +731,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GFitnessMonitorT<oa_type>(*this);
+		return new GFitnessMonitorT(*this);
 	}
 
 private:
@@ -763,7 +761,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -772,7 +770,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GFitnessMonitorT<oa_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GFitnessMonitorT::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -787,9 +785,9 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GFitnessMonitorT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GFitnessMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -803,10 +801,10 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GFitnessMonitorT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GFitnessMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 /***************************************************************************/
@@ -819,9 +817,8 @@ public:
  * This class accepts a number of other pluggable monitors and executes them
  * in sequence.
  */
-template <typename oa_type>
 class GCollectiveMonitorT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -831,7 +828,7 @@ class GCollectiveMonitorT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this));
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM>(*this));
 
 		// Some preparation needed if this is a load operation.
 		// This is needed to work around a problem in Boost 1.58
@@ -856,8 +853,8 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GCollectiveMonitorT(const GCollectiveMonitorT<oa_type>& cp)
-		: GBasePluggableOM<oa_type>(cp)
+	GCollectiveMonitorT(const GCollectiveMonitorT& cp)
+		: GBasePluggableOM(cp)
 	{
 		Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors, m_pluggable_monitors);
 	}
@@ -873,19 +870,19 @@ public:
 	/**
 	 * A standard assignment operator
 	 */
-	const GCollectiveMonitorT<oa_type>& operator=(const GCollectiveMonitorT<oa_type>& cp) {
+	const GCollectiveMonitorT& operator=(const GCollectiveMonitorT& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/************************************************************************/
 	/**
-	 * Checks for equality with another GCollectiveMonitorT<oa_type> object
+	 * Checks for equality with another GCollectiveMonitorT object
 	 *
-	 * @param  cp A constant reference to another GCollectiveMonitorT<oa_type> object
+	 * @param  cp A constant reference to another GCollectiveMonitorT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GCollectiveMonitorT<oa_type>& cp) const {
+	virtual bool operator==(const GCollectiveMonitorT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -897,12 +894,12 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Checks for inequality with another GCollectiveMonitorT<oa_type> object
+	 * Checks for inequality with another GCollectiveMonitorT object
 	 *
-	 * @param  cp A constant reference to another GCollectiveMonitorT<oa_type> object
+	 * @param  cp A constant reference to another GCollectiveMonitorT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GCollectiveMonitorT<oa_type>& cp) const {
+	virtual bool operator!=(const GCollectiveMonitorT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -918,7 +915,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) override {
 		for(auto pm_ptr : m_pluggable_monitors) { // std::shared_ptr may be copied
 			pm_ptr->informationFunction(im,goa);
@@ -930,13 +927,13 @@ public:
 	 * Allows to register a new pluggable monitor
 	 */
 	void registerPluggableOM(
-		std::shared_ptr<Gem::Geneva::GBasePluggableOM<oa_type>> om_ptr
+		std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr
 	) {
 		if(om_ptr) {
 			m_pluggable_monitors.push_back(om_ptr);
 		} else {
 			glogger
-			<< "In GCollectiveMonitorT<oa_type>::registerPluggableOM(): Error!" << std::endl
+			<< "In GCollectiveMonitorT::registerPluggableOM(): Error!" << std::endl
 			<< "Got empty pointer to pluggable optimization monitor." << std::endl
 			<< GEXCEPTION;
 		}
@@ -963,7 +960,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GCollectiveMonitorT<oa_type>");
+		return std::string("GCollectiveMonitorT");
 	}
 
 	/***************************************************************************/
@@ -982,13 +979,13 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GCollectiveMonitorT<oa_type> reference independent of this object and convert the pointer
-		const GCollectiveMonitorT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GCollectiveMonitorT reference independent of this object and convert the pointer
+		const GCollectiveMonitorT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GCollectiveMonitorT<oa_type>", e);
+		GToken token("GCollectiveMonitorT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_pluggable_monitors, p_load->m_pluggable_monitors), token);
@@ -1002,14 +999,14 @@ protected:
 	/**
 	 * Loads the data of another object
 	 *
-	 * cp A pointer to another GCollectiveMonitorT<oa_type> object, camouflaged as a GObject
+	 * cp A pointer to another GCollectiveMonitorT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GCollectiveMonitorT<oa_type> reference independent of this object and convert the pointer
-		const GCollectiveMonitorT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GCollectiveMonitorT reference independent of this object and convert the pointer
+		const GCollectiveMonitorT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOM<oa_type>::load_(cp);
+		GBasePluggableOM::load_(cp);
 
 		// ... and then our local data
 		Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors, m_pluggable_monitors);
@@ -1020,12 +1017,12 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GCollectiveMonitorT<oa_type>(*this);
+		return new GCollectiveMonitorT(*this);
 	}
 
 
 private:
-	std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM<oa_type>>> m_pluggable_monitors; ///< The collection of monitors
+	std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM>> m_pluggable_monitors; ///< The collection of monitors
 
 public:
 	/***************************************************************************/
@@ -1042,7 +1039,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -1051,7 +1048,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GCollectiveMonitorT<oa_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GCollectiveMonitorT::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -1066,9 +1063,9 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GCollectiveMonitorT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GCollectiveMonitorT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -1082,10 +1079,10 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GCollectiveMonitorT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GCollectiveMonitorT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 	/***************************************************************************/
@@ -1099,9 +1096,9 @@ public:
  * best individuals of a population, creating a graphical output using ROOT. It
  * supports floating point types only. double and float values may not be mixed.
  */
-template <typename fp_type, typename oa_type>
+template <typename fp_type>
 class GProgressPlotterTT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1111,7 +1108,7 @@ class GProgressPlotterTT
 		using boost::serialization::make_nvp;
 
 		ar
-			& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
+			& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM>(*this))
 			& BOOST_SERIALIZATION_NVP(m_fp_profVarVec)
 			& BOOST_SERIALIZATION_NVP(m_gpd)
 			& BOOST_SERIALIZATION_NVP(m_progressPlotter2D_oa)
@@ -1163,8 +1160,8 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GProgressPlotterTT(const GProgressPlotterTT<fp_type, oa_type>& cp)
-		: GBasePluggableOM<oa_type>(cp)
+	GProgressPlotterTT(const GProgressPlotterTT<fp_type>& cp)
+		: GBasePluggableOM(cp)
 		, m_gpd(cp.m_gpd)
 		, m_fileName(cp.m_fileName)
 		, m_canvasDimensions(cp.m_canvasDimensions)
@@ -1190,19 +1187,19 @@ public:
 	/**
 	 * A standard assignment operator
 	 */
-	const GProgressPlotterTT<fp_type, oa_type>& operator=(const GProgressPlotterTT<fp_type, oa_type>& cp) {
+	const GProgressPlotterTT<fp_type>& operator=(const GProgressPlotterTT<fp_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/************************************************************************/
 	/**
-	 * Checks for equality with another GProgressPlotterTT<fp_type, oa_type> object
+	 * Checks for equality with another GProgressPlotterTT<fp_type> object
 	 *
-	 * @param  cp A constant reference to another GProgressPlotterTT<fp_type, oa_type> object
+	 * @param  cp A constant reference to another GProgressPlotterTT<fp_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GProgressPlotterTT<fp_type, oa_type>& cp) const {
+	virtual bool operator==(const GProgressPlotterTT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -1214,12 +1211,12 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Checks for inequality with another GProgressPlotterTT<fp_type, oa_type> object
+	 * Checks for inequality with another GProgressPlotterTT<fp_type> object
 	 *
-	 * @param  cp A constant reference to another GProgressPlotterTT<fp_type, oa_type> object
+	 * @param  cp A constant reference to another GProgressPlotterTT<fp_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GProgressPlotterTT<fp_type, oa_type>& cp) const {
+	virtual bool operator!=(const GProgressPlotterTT<fp_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -1441,7 +1438,7 @@ public:
 			default:
 			{
 				glogger
-				<< "In GProgressPlotterTT<fp_type, oa_type>::getLabel(): Error" << std::endl
+				<< "In GProgressPlotterTT<fp_type>::getLabel(): Error" << std::endl
 				<< "Invalid mode " << var_mode << " requested" << std::endl
 				<< GEXCEPTION;
 			}
@@ -1460,7 +1457,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -1507,7 +1504,7 @@ public:
 					default:
 					{
 						glogger
-						<< "NOTE: In GProgressPlotterTT<fp_type, oa_type>::informationFunction(infoMode::INFOINIT):" << std::endl
+						<< "NOTE: In GProgressPlotterTT<fp_type>::informationFunction(infoMode::INFOINIT):" << std::endl
 						<< "Number of profiling dimensions " << this->nProfileVars() << " can not be displayed." << std::endl
 						<< "No graphical output will be created." << std::endl
 						<< GLOGGING;
@@ -1526,7 +1523,7 @@ public:
 
 				if(m_monitorBestOnly) { // Monitor the best individuals only
 					std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
-					if(GBasePluggableOM<oa_type>::m_useRawEvaluation) {
+					if(GBasePluggableOM::m_useRawEvaluation) {
 						primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 					} else {
 						primaryFitness = p->transformedFitness();
@@ -1593,10 +1590,10 @@ public:
 						}
 					}
 				} else { // Monitor all individuals
-					typename oa_type::iterator it;
+					G_OptimizationAlgorithm_Base::iterator it;
 					for(it=goa->begin(); it!=goa->end(); ++it) {
 
-						if(GBasePluggableOM<oa_type>::m_useRawEvaluation) {
+						if(GBasePluggableOM::m_useRawEvaluation) {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 						} else {
 							primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
@@ -1691,7 +1688,7 @@ public:
 			default:
 			{
 				glogger
-				<< "In GProgressPlotterTT<fp_type, oa_type>::informationFunction(): Received invalid infoMode " << im << std::endl
+				<< "In GProgressPlotterTT<fp_type>::informationFunction(): Received invalid infoMode " << im << std::endl
 				<< GEXCEPTION;
 			}
 				break;
@@ -1703,7 +1700,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GProgressPlotterTT<fp_type, oa_type>");
+		return std::string("GProgressPlotterTT<fp_type>");
 	}
 
 	/***************************************************************************/
@@ -1723,12 +1720,12 @@ public:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GProgressPlotterTT<fp_type reference independent of this object and convert the pointer
-		const GProgressPlotterTT<fp_type, oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GProgressPlotterTT<fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GProgressPlotterTT<fp_type, oa_type>", e);
+		GToken token("GProgressPlotterTT<fp_type>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fp_profVarVec, p_load->m_fp_profVarVec), token);
@@ -1752,14 +1749,14 @@ protected:
 	/**
 	 * Loads the data of another object
 	 *
-	 * cp A pointer to another GProgressPlotterTT<fp_type, oa_type> object, camouflaged as a GObject
+	 * cp A pointer to another GProgressPlotterTT<fp_type> object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GProgressPlotterTT<fp_type, oa_type> reference independent of this object and convert the pointer
-		const GProgressPlotterTT<fp_type, oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GProgressPlotterTT<fp_type> reference independent of this object and convert the pointer
+		const GProgressPlotterTT<fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOM<oa_type>::load_(cp);
+		GBasePluggableOM::load_(cp);
 
 		// ... and then our local data
 		Gem::Common::copyCloneableObjectsContainer(p_load->m_fp_profVarVec, m_fp_profVarVec);
@@ -1780,7 +1777,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GProgressPlotterTT<fp_type, oa_type>(*this);
+		return new GProgressPlotterTT<fp_type>(*this);
 	}
 
 private:
@@ -1817,7 +1814,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -1826,7 +1823,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GProgressPlotterTT<fp_type, oa_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GProgressPlotterTT<fp_type>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -1841,9 +1838,9 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GProgressPlotterTT<fp_type, oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GProgressPlotterTT<fp_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -1857,10 +1854,10 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GProgressPlotterTT<fp_type, oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GProgressPlotterTT<fp_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 	/***************************************************************************/
@@ -1877,11 +1874,11 @@ public:
  */
 template <typename fp_type>
 class GProgressPlotterT
-	: public GProgressPlotterTT<fp_type, G_OptimizationAlgorithm_Base>
+	: public GProgressPlotterTT<fp_type>
 {
 public:
 	 // Simple inherit all constructors
-	 using GProgressPlotterTT<fp_type, G_OptimizationAlgorithm_Base>::GProgressPlotterTT;
+	 using GProgressPlotterTT<fp_type>::GProgressPlotterTT;
 };
 
 /******************************************************************************/
@@ -1900,9 +1897,8 @@ public:
  * if individual_type is either a derivative of GParamterSet or is an object of the
  * GParameterSet class itself.
  */
-template <typename oa_type>
 class GAllSolutionFileLoggerT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -1912,7 +1908,7 @@ class GAllSolutionFileLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_boundaries)
 		& BOOST_SERIALIZATION_NVP(m_boundariesActive)
@@ -1959,7 +1955,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GAllSolutionFileLoggerT(const GAllSolutionFileLoggerT<oa_type>& cp)
+	GAllSolutionFileLoggerT(const GAllSolutionFileLoggerT& cp)
 		: m_fileName(cp.m_fileName)
 		, m_boundaries(cp.m_boundaries)
 		, m_boundariesActive(cp.m_boundariesActive)
@@ -1982,19 +1978,19 @@ public:
 	/**
 	 * A standard assignment operator
 	 */
-	const GAllSolutionFileLoggerT<oa_type>& operator=(const GAllSolutionFileLoggerT<oa_type>& cp) {
+	const GAllSolutionFileLoggerT& operator=(const GAllSolutionFileLoggerT& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/************************************************************************/
 	/**
-	 * Checks for equality with another GAllSolutionFileLoggerT<oa_type> object
+	 * Checks for equality with another GAllSolutionFileLoggerT object
 	 *
-	 * @param  cp A constant reference to another GAllSolutionFileLoggerT<oa_type> object
+	 * @param  cp A constant reference to another GAllSolutionFileLoggerT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GAllSolutionFileLoggerT<oa_type>& cp) const {
+	virtual bool operator==(const GAllSolutionFileLoggerT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -2006,12 +2002,12 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Checks for inequality with another GAllSolutionFileLoggerT<oa_type> object
+	 * Checks for inequality with another GAllSolutionFileLoggerT object
 	 *
-	 * @param  cp A constant reference to another GAllSolutionFileLoggerT<oa_type> object
+	 * @param  cp A constant reference to another GAllSolutionFileLoggerT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GAllSolutionFileLoggerT<oa_type>& cp) const {
+	virtual bool operator!=(const GAllSolutionFileLoggerT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -2026,7 +2022,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GAllSolutionFileLoggerT<oa_type>");
+		return std::string("GAllSolutionFileLoggerT");
 	}
 
 	/***************************************************************************/
@@ -2045,13 +2041,13 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GAllSolutionFileLoggerT<oa_type> reference independent of this object and convert the pointer
-		const GAllSolutionFileLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT<oa_type>>(cp, this);
+		// Check that we are dealing with a GAllSolutionFileLoggerT reference independent of this object and convert the pointer
+		const GAllSolutionFileLoggerT *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLoggerT>(cp, this);
 
-		GToken token("GAllSolutionFileLoggerT<oa_type>", e);
+		GToken token("GAllSolutionFileLoggerT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2226,7 +2222,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -2236,7 +2232,7 @@ public:
 					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 					glogger
-					<< "In GAllSolutionFileLoggerT<oa_type>::informationFunction(): Warning!" << std::endl
+					<< "In GAllSolutionFileLoggerT::informationFunction(): Warning!" << std::endl
 					<< "Attempt to output information to file " << m_fileName << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -2264,7 +2260,7 @@ public:
 			default:
 			{
 				glogger
-				<< "In GAllSolutionFileLoggerT<oa_type>: Received invalid infoMode " << im << std::endl
+				<< "In GAllSolutionFileLoggerT: Received invalid infoMode " << im << std::endl
 				<< GEXCEPTION;
 			}
 			break;
@@ -2276,14 +2272,14 @@ protected:
 	/**
 	 * Loads the data of another object
 	 *
-	 * cp A pointer to another GAllSolutionFileLoggerT<oa_type> object, camouflaged as a GObject
+	 * cp A pointer to another GAllSolutionFileLoggerT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GAllSolutionFileLoggerT<oa_type> reference independent of this object and convert the pointer
-		const GAllSolutionFileLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		// Check that we are dealing with a GAllSolutionFileLoggerT reference independent of this object and convert the pointer
+		const GAllSolutionFileLoggerT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOM<oa_type>::load_(cp);
+		GBasePluggableOM::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -2302,7 +2298,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GAllSolutionFileLoggerT<oa_type>(*this);
+		return new GAllSolutionFileLoggerT(*this);
 	}
 
 private:
@@ -2312,7 +2308,7 @@ private:
 	 */
  	void printPopulation(
 		const std::string& iterationDescription
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) {
 		// Open the external file
 		boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
@@ -2371,7 +2367,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -2380,7 +2376,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAllSolutionFileLoggerT<oa_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GAllSolutionFileLoggerT::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -2395,9 +2391,9 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAllSolutionFileLoggerT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GAllSolutionFileLoggerT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -2411,10 +2407,10 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAllSolutionFileLoggerT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GAllSolutionFileLoggerT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 	/***************************************************************************/
@@ -2427,9 +2423,8 @@ public:
  * This class prints out all evaluations of each iteration. The format is
  * eval0_0, eval0_1, ... ,eval0_n, ..., evalm_0, evalm_1, ... ,evalm_n
  */
-template <typename oa_type>
 class GIterationResultsFileLoggerT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2439,7 +2434,7 @@ class GIterationResultsFileLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_withCommas)
 		& BOOST_SERIALIZATION_NVP(m_useRawFitness);
@@ -2468,7 +2463,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GIterationResultsFileLoggerT(const GIterationResultsFileLoggerT<oa_type>& cp)
+	GIterationResultsFileLoggerT(const GIterationResultsFileLoggerT& cp)
 		: m_fileName(cp.m_fileName)
 		, m_withCommas(cp.m_withCommas)
 		, m_useRawFitness(cp.m_useRawFitness)
@@ -2485,19 +2480,19 @@ public:
 	/**
 	 * A standard assignment operator
 	 */
-	const GIterationResultsFileLoggerT<oa_type>& operator=(const GIterationResultsFileLoggerT<oa_type>& cp) {
+	const GIterationResultsFileLoggerT& operator=(const GIterationResultsFileLoggerT& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/************************************************************************/
 	/**
-	 * Checks for equality with another GIterationResultsFileLoggerT<oa_type> object
+	 * Checks for equality with another GIterationResultsFileLoggerT object
 	 *
-	 * @param  cp A constant reference to another GIterationResultsFileLoggerT<oa_type> object
+	 * @param  cp A constant reference to another GIterationResultsFileLoggerT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GIterationResultsFileLoggerT<oa_type>& cp) const {
+	virtual bool operator==(const GIterationResultsFileLoggerT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -2509,12 +2504,12 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Checks for inequality with another GIterationResultsFileLoggerT<oa_type> object
+	 * Checks for inequality with another GIterationResultsFileLoggerT object
 	 *
-	 * @param  cp A constant reference to another GIterationResultsFileLoggerT<oa_type> object
+	 * @param  cp A constant reference to another GIterationResultsFileLoggerT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GIterationResultsFileLoggerT<oa_type>& cp) const {
+	virtual bool operator!=(const GIterationResultsFileLoggerT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -2529,7 +2524,7 @@ public:
 	 * Emits a name for this class / object
 	 */
 	virtual std::string name() const override {
-		return std::string("GIterationResultsFileLoggerT<oa_type>");
+		return std::string("GIterationResultsFileLoggerT");
 	}
 
 	/***************************************************************************/
@@ -2548,14 +2543,14 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GIterationResultsFileLoggerT<oa_type>
+		// Check that we are dealing with a GIterationResultsFileLoggerT
 		// reference independent of this object and convert the pointer
-		const GIterationResultsFileLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GIterationResultsFileLoggerT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		GToken token("GIterationResultsFileLoggerT<oa_type>", e);
+		GToken token("GIterationResultsFileLoggerT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -2621,7 +2616,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) override {
 		switch(im) {
 			case Gem::Geneva::infoMode::INFOINIT:
@@ -2631,7 +2626,7 @@ public:
 					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 					glogger
-					<< "In GIterationResultsFileLoggerT<oa_type>::informationFunction(): Warning!" << std::endl
+					<< "In GIterationResultsFileLoggerT::informationFunction(): Warning!" << std::endl
 					<< "Attempt to output information to file " << m_fileName << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -2673,7 +2668,7 @@ public:
 			default:
 			{
 				glogger
-				<< "In GIterationResultsFileLoggerT<oa_type>: Received invalid infoMode " << im << std::endl
+				<< "In GIterationResultsFileLoggerT: Received invalid infoMode " << im << std::endl
 				<< GEXCEPTION;
 			}
 				break;
@@ -2685,15 +2680,15 @@ protected:
 	/**
 	 * Loads the data of another object
 	 *
-	 * cp A pointer to another GIterationResultsFileLoggerT<oa_type> object, camouflaged as a GObject
+	 * cp A pointer to another GIterationResultsFileLoggerT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GIterationResultsFileLoggerT<oa_type>
+		// Check that we are dealing with a GIterationResultsFileLoggerT
 		// reference independent of this object and convert the pointer
-		const GIterationResultsFileLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		const GIterationResultsFileLoggerT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOM<oa_type>::load_(cp);
+		GBasePluggableOM::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -2706,7 +2701,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GIterationResultsFileLoggerT<oa_type>(*this);
+		return new GIterationResultsFileLoggerT(*this);
 	}
 
 private:
@@ -2731,7 +2726,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -2740,7 +2735,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIterationResultsFileLoggerT<oa_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GIterationResultsFileLoggerT::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -2755,9 +2750,9 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIterationResultsFileLoggerT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GIterationResultsFileLoggerT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -2771,10 +2766,10 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIterationResultsFileLoggerT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GIterationResultsFileLoggerT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 	/***************************************************************************/
@@ -2788,9 +2783,8 @@ public:
  * to a file. This is mostly needed for debugging and profiling purposes. The
  * number of adaptions made is a good measure for the adaption probability.
  */
-template <typename oa_type>
 class GNAdpationsLoggerT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -2800,7 +2794,7 @@ class GNAdpationsLoggerT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_canvasDimensions)
 		& BOOST_SERIALIZATION_NVP(m_gpd)
@@ -2841,7 +2835,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GNAdpationsLoggerT(const GNAdpationsLoggerT<oa_type>& cp)
+	GNAdpationsLoggerT(const GNAdpationsLoggerT& cp)
 		: m_fileName(cp.m_fileName)
 		, m_canvasDimensions(cp.m_canvasDimensions)
 		, m_gpd(cp.m_gpd)
@@ -2867,19 +2861,19 @@ public:
 	/**
 	 * A standard assignment operator
 	 */
-	const GNAdpationsLoggerT<oa_type>& operator=(const GNAdpationsLoggerT<oa_type>& cp) {
+	const GNAdpationsLoggerT& operator=(const GNAdpationsLoggerT& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/************************************************************************/
 	/**
-	 * Checks for equality with another GNAdpationsLoggerT<oa_type> object
+	 * Checks for equality with another GNAdpationsLoggerT object
 	 *
-	 * @param  cp A constant reference to another GNAdpationsLoggerT<oa_type> object
+	 * @param  cp A constant reference to another GNAdpationsLoggerT object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GNAdpationsLoggerT<oa_type>& cp) const {
+	virtual bool operator==(const GNAdpationsLoggerT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -2891,12 +2885,12 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Checks for inequality with another GNAdpationsLoggerT<oa_type> object
+	 * Checks for inequality with another GNAdpationsLoggerT object
 	 *
-	 * @param  cp A constant reference to another GNAdpationsLoggerT<oa_type> object
+	 * @param  cp A constant reference to another GNAdpationsLoggerT object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GNAdpationsLoggerT<oa_type>& cp) const {
+	virtual bool operator!=(const GNAdpationsLoggerT& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -2922,13 +2916,13 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GNAdpationsLoggerT<oa_type> reference independent of this object and convert the pointer
-		const GNAdpationsLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<oa_type>>(cp, this);
+		// Check that we are dealing with a GNAdpationsLoggerT reference independent of this object and convert the pointer
+		const GNAdpationsLoggerT *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT>(cp, this);
 
-		GToken token("GNAdpationsLoggerT<oa_type>", e);
+		GToken token("GNAdpationsLoggerT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -3026,7 +3020,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) override {
 		using namespace Gem::Common;
 
@@ -3038,7 +3032,7 @@ public:
 					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 					glogger
-					<< "In GNAdpationsLoggerT<oa_type>::informationFunction(): Error!" << std::endl
+					<< "In GNAdpationsLoggerT::informationFunction(): Error!" << std::endl
 					<< "Attempt to output information to file " << m_fileName << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -3154,7 +3148,7 @@ public:
 			default:
 			{
 				glogger
-				<< "In GNAdpationsLoggerT<oa_type>: Received invalid infoMode " << im << std::endl
+				<< "In GNAdpationsLoggerT: Received invalid infoMode " << im << std::endl
 				<< GEXCEPTION;
 			}
 				break;
@@ -3166,14 +3160,14 @@ protected:
 	/**
 	 * Loads the data of another object
 	 *
-	 * cp A pointer to another GNAdpationsLoggerT<oa_type> object, camouflaged as a GObject
+	 * cp A pointer to another GNAdpationsLoggerT object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GNAdpationsLoggerT<oa_type> reference independent of this object and convert the pointer
-		const GNAdpationsLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT<oa_type>>(cp, this);
+		// Check that we are dealing with a GNAdpationsLoggerT reference independent of this object and convert the pointer
+		const GNAdpationsLoggerT *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLoggerT>(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOM<oa_type>::load_(cp);
+		GBasePluggableOM::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -3194,7 +3188,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GNAdpationsLoggerT<oa_type>(*this);
+		return new GNAdpationsLoggerT(*this);
 	}
 
 private:
@@ -3233,7 +3227,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -3242,7 +3236,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GNAdpationsLoggerT<oa_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GNAdpationsLoggerT::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -3257,9 +3251,9 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GNAdpationsLoggerT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNAdpationsLoggerT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -3273,10 +3267,10 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GNAdpationsLoggerT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GNAdpationsLoggerT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 	/***************************************************************************/
@@ -3289,9 +3283,9 @@ public:
  * This class allows to log chosen properties of adaptors. Such properties
  * are limited to numeric entities, that may be converted to double
  */
-template <typename num_type, typename oa_type>
+template <typename num_type>
 class GAdaptorPropertyLoggerTT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -3301,7 +3295,7 @@ class GAdaptorPropertyLoggerTT
 		using boost::serialization::make_nvp;
 
 		ar
-		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
+		& make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM>(*this))
 		& BOOST_SERIALIZATION_NVP(m_fileName)
 		& BOOST_SERIALIZATION_NVP(m_adaptorName)
 		& BOOST_SERIALIZATION_NVP(m_property)
@@ -3353,7 +3347,7 @@ public:
 	/**
 	 * The copy constructor
 	 */
-	GAdaptorPropertyLoggerTT(const GAdaptorPropertyLoggerTT<num_type, oa_type>& cp)
+	GAdaptorPropertyLoggerTT(const GAdaptorPropertyLoggerTT<num_type>& cp)
 		: m_fileName(cp.m_fileName)
 		, m_adaptorName(cp.m_adaptorName)
 		, m_property(cp.m_property)
@@ -3381,19 +3375,19 @@ public:
 	/**
 	 * A standard assignment operator
 	 */
-	const GAdaptorPropertyLoggerTT<num_type, oa_type>& operator=(const GAdaptorPropertyLoggerTT<num_type, oa_type>& cp) {
+	const GAdaptorPropertyLoggerTT<num_type>& operator=(const GAdaptorPropertyLoggerTT<num_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}
 
 	/************************************************************************/
 	/**
-	 * Checks for equality with another GAdaptorPropertyLoggerTT<num_type, oa_type> object
+	 * Checks for equality with another GAdaptorPropertyLoggerTT<num_type> object
 	 *
-	 * @param  cp A constant reference to another GAdaptorPropertyLoggerTT<num_type, oa_type> object
+	 * @param  cp A constant reference to another GAdaptorPropertyLoggerTT<num_type> object
 	 * @return A boolean indicating whether both objects are equal
 	 */
-	virtual bool operator==(const GAdaptorPropertyLoggerTT<num_type, oa_type>& cp) const {
+	virtual bool operator==(const GAdaptorPropertyLoggerTT<num_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -3405,12 +3399,12 @@ public:
 
 	/************************************************************************/
 	/**
-	 * Checks for inequality with another GAdaptorPropertyLoggerTT<num_type, oa_type> object
+	 * Checks for inequality with another GAdaptorPropertyLoggerTT<num_type> object
 	 *
-	 * @param  cp A constant reference to another GAdaptorPropertyLoggerTT<num_type, oa_type> object
+	 * @param  cp A constant reference to another GAdaptorPropertyLoggerTT<num_type> object
 	 * @return A boolean indicating whether both objects are inequal
 	 */
-	virtual bool operator!=(const GAdaptorPropertyLoggerTT<num_type, oa_type>& cp) const {
+	virtual bool operator!=(const GAdaptorPropertyLoggerTT<num_type>& cp) const {
 		using namespace Gem::Common;
 		try {
 			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -3444,13 +3438,13 @@ public:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GAdaptorPropertyLoggerTT<num_type, oa_type> reference independent of this object and convert the pointer
-		const GAdaptorPropertyLoggerTT<num_type, oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerTT<num_type, oa_type>>(cp, this);
+		// Check that we are dealing with a GAdaptorPropertyLoggerTT<num_type> reference independent of this object and convert the pointer
+		const GAdaptorPropertyLoggerTT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerTT<num_type>>(cp, this);
 
 		GToken token("GAdaptorPropertyLoggerTT", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
 		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -3581,7 +3575,7 @@ public:
 	 */
 	virtual void informationFunction(
 		const infoMode& im
-		, oa_type * const goa
+		, G_OptimizationAlgorithm_Base *const goa
 	) override {
 		using namespace Gem::Common;
 
@@ -3725,11 +3719,11 @@ protected:
 	 * cp A pointer to another GAdaptorPropertyLoggerTT<num_type object, camouflaged as a GObject
 	 */
 	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GAdaptorPropertyLoggerTT<num_type, oa_type> reference independent of this object and convert the pointer
-		const GAdaptorPropertyLoggerTT<num_type, oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerTT<num_type, oa_type>>(cp, this);
+		// Check that we are dealing with a GAdaptorPropertyLoggerTT<num_type> reference independent of this object and convert the pointer
+		const GAdaptorPropertyLoggerTT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerTT<num_type>>(cp, this);
 
 		// Load the parent classes' data ...
-		GBasePluggableOM<oa_type>::load_(cp);
+		GBasePluggableOM::load_(cp);
 
 		// ... and then our local data
 		m_fileName = p_load->m_fileName;
@@ -3751,7 +3745,7 @@ protected:
 	 * Creates a deep clone of this object
 	 */
 	virtual GObject* clone_() const override {
-		return new GAdaptorPropertyLoggerTT<num_type, oa_type>(*this);
+		return new GAdaptorPropertyLoggerTT<num_type>(*this);
 	}
 
 private:
@@ -3792,7 +3786,7 @@ public:
 		bool result = false;
 
 		// Call the parent classes' functions
-		if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		if(GBasePluggableOM::modify_GUnitTests()) {
 			result = true;
 		}
 
@@ -3801,7 +3795,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAdaptorPropertyLoggerTT<num_type, oa_type>::modify_GUnitTests", "GEM_TESTING");
+		condnotset("GAdaptorPropertyLoggerTT<num_type>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -3816,9 +3810,9 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAdaptorPropertyLoggerTT<num_type, oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GAdaptorPropertyLoggerTT<num_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -3832,10 +3826,10 @@ public:
 		using boost::unit_test_framework::test_case;
 
 		// Call the parent classes' functions
-		GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAdaptorPropertyLoggerTT<num_type, oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		condnotset("GAdaptorPropertyLoggerTT<num_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 	/***************************************************************************/
@@ -3850,9 +3844,8 @@ public:
  * for the processing times, the other showing the distribution of processing times for
  * each iteration in a 2D histogram
  */
-template <typename oa_type>
 class GProcessingTimesLoggerT
-	: public GBasePluggableOM<oa_type>
+	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -3862,7 +3855,7 @@ class GProcessingTimesLoggerT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM<oa_type>>(*this))
+		 & make_nvp("GBasePluggableOM",	boost::serialization::base_object<GBasePluggableOM>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_fileName_pth)
 		 & BOOST_SERIALIZATION_NVP(m_canvasDimensions_pth)
 		 & BOOST_SERIALIZATION_NVP(m_gpd_pth)
@@ -3921,7 +3914,7 @@ public:
 	 /**
 	  * The copy constructor
 	  */
-	 GProcessingTimesLoggerT(const GProcessingTimesLoggerT<oa_type>& cp)
+	 GProcessingTimesLoggerT(const GProcessingTimesLoggerT& cp)
 		 : m_fileName_pth(cp.m_fileName_pth)
 		 , m_canvasDimensions_pth(cp.m_canvasDimensions_pth)
 		 , m_gpd_pth(cp.m_gpd_pth)
@@ -3947,19 +3940,19 @@ public:
 	 /**
 	  * A standard assignment operator
 	  */
-	 const GProcessingTimesLoggerT<oa_type>& operator=(const GProcessingTimesLoggerT<oa_type>& cp) {
+	 const GProcessingTimesLoggerT& operator=(const GProcessingTimesLoggerT& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
 
 	 /************************************************************************/
 	 /**
-	  * Checks for equality with another GProcessingTimesLoggerT<oa_type> object
+	  * Checks for equality with another GProcessingTimesLoggerT object
 	  *
-	  * @param  cp A constant reference to another GProcessingTimesLoggerT<oa_type> object
+	  * @param  cp A constant reference to another GProcessingTimesLoggerT object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 virtual bool operator==(const GProcessingTimesLoggerT<oa_type>& cp) const {
+	 virtual bool operator==(const GProcessingTimesLoggerT& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -3971,12 +3964,12 @@ public:
 
 	 /************************************************************************/
 	 /**
-	  * Checks for inequality with another GProcessingTimesLoggerT<oa_type> object
+	  * Checks for inequality with another GProcessingTimesLoggerT object
 	  *
-	  * @param  cp A constant reference to another GProcessingTimesLoggerT<oa_type> object
+	  * @param  cp A constant reference to another GProcessingTimesLoggerT object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 virtual bool operator!=(const GProcessingTimesLoggerT<oa_type>& cp) const {
+	 virtual bool operator!=(const GProcessingTimesLoggerT& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -3991,7 +3984,7 @@ public:
 	  * Emits a name for this class / object
 	  */
 	 virtual std::string name() const override {
-		 return std::string("GProcessingTimesLoggerT<oa_type>");
+		 return std::string("GProcessingTimesLoggerT");
 	 }
 
 	 /***************************************************************************/
@@ -4010,13 +4003,13 @@ public:
 	 ) const override {
 		 using namespace Gem::Common;
 
-		 // Check that we are dealing with a GProcessingTimesLoggerT<oa_type> reference independent of this object and convert the pointer
-		 const GProcessingTimesLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GProcessingTimesLoggerT<oa_type>>(cp, this);
+		 // Check that we are dealing with a GProcessingTimesLoggerT reference independent of this object and convert the pointer
+		 const GProcessingTimesLoggerT *p_load = Gem::Common::g_convert_and_compare<GObject, GProcessingTimesLoggerT>(cp, this);
 
-		 GToken token("GProcessingTimesLoggerT<oa_type>", e);
+		 GToken token("GProcessingTimesLoggerT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBasePluggableOM<oa_type>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_fileName_pth, p_load->m_fileName_pth), token);
@@ -4148,7 +4141,7 @@ public:
 			 m_nBinsX = nBinsX;
 		 } else {
 			 glogger
-				 << "In GProcessingTimesLoggerT<oa_type>::setNBinsX(): Error!" << std::endl
+				 << "In GProcessingTimesLoggerT::setNBinsX(): Error!" << std::endl
 				 << "nBinsX is set to 0" << std::endl
 				 << GEXCEPTION;
 		 }
@@ -4172,7 +4165,7 @@ public:
 			 m_nBinsY = nBinsY;
 		 } else {
 			 glogger
-				 << "In GProcessingTimesLoggerT<oa_type>::setNBinsY(): Error!" << std::endl
+				 << "In GProcessingTimesLoggerT::setNBinsY(): Error!" << std::endl
 				 << "nBinsY is set to 0" << std::endl
 				 << GEXCEPTION;
 		 }
@@ -4194,7 +4187,7 @@ public:
 	  */
 	 virtual void informationFunction(
 		 const infoMode& im
-		 , oa_type * const goa
+		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override {
 		 switch(im) {
 			 case Gem::Geneva::infoMode::INFOINIT: {
@@ -4206,7 +4199,7 @@ public:
 					 std::string newFileName = m_fileName_pth + ".bak_" + Gem::Common::getMSSince1970();
 
 					 glogger
-						 << "In GProcessingTimesLoggerT<oa_type>::informationFunction(): Warning!" << std::endl
+						 << "In GProcessingTimesLoggerT::informationFunction(): Warning!" << std::endl
 						 << "Attempt to output information to file " << m_fileName_pth << std::endl
 						 << "which already exists. We will rename the old file to" << std::endl
 						 << newFileName << std::endl
@@ -4254,7 +4247,7 @@ public:
 					 std::string newFileName = m_fileName_pth2 + ".bak_" + Gem::Common::getMSSince1970();
 
 					 glogger
-						 << "In GProcessingTimesLoggerT<oa_type>::informationFunction(): Warning!" << std::endl
+						 << "In GProcessingTimesLoggerT::informationFunction(): Warning!" << std::endl
 						 << "Attempt to output information to file " << m_fileName_pth2 << std::endl
 						 << "which already exists. We will rename the old file to" << std::endl
 						 << newFileName << std::endl
@@ -4307,7 +4300,7 @@ public:
 					 std::string newFileName = m_fileName_txt + ".bak_" + Gem::Common::getMSSince1970();
 
 					 glogger
-						 << "In GProcessingTimesLoggerT<oa_type>::informationFunction(): Warning!" << std::endl
+						 << "In GProcessingTimesLoggerT::informationFunction(): Warning!" << std::endl
 						 << "Attempt to output information to file " << m_fileName_pth2 << std::endl
 						 << "which already exists. We will rename the old file to" << std::endl
 						 << newFileName << std::endl
@@ -4388,14 +4381,14 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  *
-	  * cp A pointer to another GProcessingTimesLoggerT<oa_type> object, camouflaged as a GObject
+	  * cp A pointer to another GProcessingTimesLoggerT object, camouflaged as a GObject
 	  */
 	 virtual void load_(const GObject* cp) override {
-		 // Check that we are dealing with a GProcessingTimesLoggerT<oa_type> reference independent of this object and convert the pointer
-		 const GProcessingTimesLoggerT<oa_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		 // Check that we are dealing with a GProcessingTimesLoggerT reference independent of this object and convert the pointer
+		 const GProcessingTimesLoggerT *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
 		 // Load the parent classes' data ...
-		 GBasePluggableOM<oa_type>::load_(cp);
+		 GBasePluggableOM::load_(cp);
 
 		 // ... and then our local data
 		 m_fileName_pth = p_load->m_fileName_pth;
@@ -4426,7 +4419,7 @@ protected:
 	  * Creates a deep clone of this object
 	  */
 	 virtual GObject* clone_() const override {
-		 return new GProcessingTimesLoggerT<oa_type>(*this);
+		 return new GProcessingTimesLoggerT(*this);
 	 }
 
 private:
@@ -4470,7 +4463,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent classes' functions
-		 if(GBasePluggableOM<oa_type>::modify_GUnitTests()) {
+		 if(GBasePluggableOM::modify_GUnitTests()) {
 			 result = true;
 		 }
 
@@ -4479,7 +4472,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GProcessingTimesLoggerT<oa_type>::modify_GUnitTests", "GEM_TESTING");
+		 condnotset("GProcessingTimesLoggerT::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	 }
@@ -4494,9 +4487,9 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests();
+		 GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GProcessingTimesLoggerT<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GProcessingTimesLoggerT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -4510,10 +4503,10 @@ public:
 		 using boost::unit_test_framework::test_case;
 
 		 // Call the parent classes' functions
-		 GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests();
+		 GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GProcessingTimesLoggerT<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GProcessingTimesLoggerT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 	 /***************************************************************************/
@@ -4528,25 +4521,25 @@ public:
  */
 template <typename num_type>
 class GAdaptorPropertyLoggerT
-	: public GAdaptorPropertyLoggerTT<num_type, G_OptimizationAlgorithm_Base>
+	: public GAdaptorPropertyLoggerTT<num_type>
 {
 public:
-	 using GAdaptorPropertyLoggerTT<num_type, G_OptimizationAlgorithm_Base>::GAdaptorPropertyLoggerTT;
+	 using GAdaptorPropertyLoggerTT<num_type>::GAdaptorPropertyLoggerTT;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-using GStandardMonitor = GStandardMonitorT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
-using GFitnessMonitor = GFitnessMonitorT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
-using GCollectiveMonitor = GCollectiveMonitorT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
+using GStandardMonitor = GStandardMonitorT;
+using GFitnessMonitor = GFitnessMonitorT;
+using GCollectiveMonitor = GCollectiveMonitorT;
 using GProgressPlotter = GProgressPlotterT<double>;
-using GAllSolutionFileLogger = GAllSolutionFileLoggerT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
-using GIterationResultsFileLogger = GIterationResultsFileLoggerT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
-using GNAdpationsLogger = GNAdpationsLoggerT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
+using GAllSolutionFileLogger = GAllSolutionFileLoggerT;
+using GIterationResultsFileLogger = GIterationResultsFileLoggerT;
+using GNAdpationsLogger = GNAdpationsLoggerT;
 template <typename num_type> using GAdaptorPropertyLogger = GAdaptorPropertyLoggerT<num_type>;
-using GProcessingTimesLogger = GProcessingTimesLoggerT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
+using GProcessingTimesLogger = GProcessingTimesLoggerT;
 
 /******************************************************************************/
 

@@ -67,13 +67,15 @@
 namespace Gem {
 namespace Geneva {
 
+// Forward declaration
+class G_OptimizationAlgorithm_Base;
+
 /*******************************************************************************/
 /////////////////////////////////////////////////////////////////////////////////
 /*******************************************************************************/
 /**
  * The base class of all pluggable optimization monitors
  */
-template <typename oa_type>
 class GBasePluggableOM : public GObject
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -102,7 +104,7 @@ public:
 	  * The copy constructor
 	  */
 	 GBasePluggableOM(
-		 const GBasePluggableOM<oa_type>& cp
+		 const GBasePluggableOM& cp
 	 )
 		 : m_useRawEvaluation(cp.m_useRawEvaluation)
 	 { /* nothing */ }
@@ -116,12 +118,12 @@ public:
 
 	 /************************************************************************/
 	 /**
-	  * Checks for equality with another GBasePluggableOMT<oa_type> object
+	  * Checks for equality with another GBasePluggableOMT object
 	  *
-	  * @param  cp A constant reference to another GBasePluggableOMT<oa_type> object
+	  * @param  cp A constant reference to another GBasePluggableOMT object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 virtual bool operator==(const GBasePluggableOM<oa_type>& cp) const {
+	 virtual bool operator==(const GBasePluggableOM& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -133,12 +135,12 @@ public:
 
 	 /************************************************************************/
 	 /**
-	  * Checks for inequality with another GBasePluggableOMT<oa_type> object
+	  * Checks for inequality with another GBasePluggableOMT object
 	  *
-	  * @param  cp A constant reference to another GBasePluggableOMT<oa_type> object
+	  * @param  cp A constant reference to another GBasePluggableOMT object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 virtual bool operator!=(const GBasePluggableOM<oa_type>& cp) const {
+	 virtual bool operator!=(const GBasePluggableOM& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -164,10 +166,10 @@ public:
 	 ) const override {
 		 using namespace Gem::Common;
 
-		 // Check that we are dealing with a GBasePluggableOM<oa_type> reference independent of this object and convert the pointer
-		 const GBasePluggableOM<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOM<oa_type>>(cp, this);
+		 // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
+		 const GBasePluggableOM *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOM>(cp, this);
 
-		 GToken token("GBasePluggableOM<oa_type>", e);
+		 GToken token("GBasePluggableOM", e);
 
 		 // Compare our parent data ...
 		 Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
@@ -186,7 +188,7 @@ public:
 	  */
 	 virtual void informationFunction(
 		 const infoMode& im
-		 , oa_type * const goa
+		 , G_OptimizationAlgorithm_Base * const goa
 	 ) BASE = 0;
 
 	 /***************************************************************************/
@@ -210,11 +212,11 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  *
-	  * cp A pointer to another GBasePluggableOMT<oa_type> object, camouflaged as a GObject
+	  * cp A pointer to another GBasePluggableOMT object, camouflaged as a GObject
 	  */
 	 virtual void load_(const GObject* cp) override {
-		 // Check that we are dealing with a GBasePluggableOM<oa_type> reference independent of this object and convert the pointer
-		 const GBasePluggableOM<oa_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOM<oa_type>>(cp, this);
+		 // Check that we are dealing with a GBasePluggableOM reference independent of this object and convert the pointer
+		 const GBasePluggableOM *p_load = Gem::Common::g_convert_and_compare<GObject, GBasePluggableOM>(cp, this);
 
 		 // Load the parent classes' data ...
 		 GObject::load_(cp);
@@ -252,7 +254,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GBasePluggableOM<oa_type>", "GEM_TESTING");
+		 condnotset("GBasePluggableOM", "GEM_TESTING");
 			return false;
 #endif /* GEM_TESTING */
 	 }
@@ -267,7 +269,7 @@ public:
 		 GObject::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GBasePluggableOM<oa_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -281,7 +283,7 @@ public:
 		 GObject::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GBasePluggableOM<oa_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("GBasePluggableOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1019,7 +1021,7 @@ public:
 	  * function does NOT take ownership of the optimization monitor.
 	  */
 	 void registerPluggableOM(
-		 std::shared_ptr<GBasePluggableOM<G_OptimizationAlgorithm_Base>> pluggableOM
+		 std::shared_ptr<GBasePluggableOM> pluggableOM
 	 ) {
 		 if(pluggableOM) {
 			 m_pluggable_monitors_vec.push_back(pluggableOM);
@@ -2535,7 +2537,7 @@ private:
 	 bool m_emitTerminationReason = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
 	 std::atomic<bool> m_halted { true }; ///< Set to true when halt() has returned "true"
 	 std::vector<std::tuple<double, double>> m_worstKnownValids_vec; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-	 std::vector<std::shared_ptr<GBasePluggableOM<G_OptimizationAlgorithm_Base>>> m_pluggable_monitors_vec; ///< A collection of monitors
+	 std::vector<std::shared_ptr<GBasePluggableOM>> m_pluggable_monitors_vec; ///< A collection of monitors
 
 	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> m_executor_ptr; ///< Holds the current executor for this algorithm
 	 execMode m_default_execMode = execMode::BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
@@ -2623,11 +2625,11 @@ public:
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_Base)
 
-// TODO: Export base pluggable OMT
-
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBasePluggableOM)
 
 /******************************************************************************/
 

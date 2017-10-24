@@ -38,6 +38,8 @@
 
 /******************************************************************************/
 
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBasePluggableOM)
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)

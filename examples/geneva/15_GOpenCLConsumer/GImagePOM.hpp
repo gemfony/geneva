@@ -45,7 +45,6 @@
 
 // Geneva headers go here
 #include "geneva/GPluggableOptimizationMonitorsT.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "GImageIndividual.hpp"
 
 namespace Gem {
@@ -255,7 +254,7 @@ public:
     */
    virtual void informationFunction(
       const infoMode& im
-      , GOptimizationAlgorithmT<GParameterSet> * const goa
+      , G_OptimizationAlgorithm_Base * const goa
    ) override {
       switch(im) {
 		case Gem::Geneva::infoMode::INFOINIT:
@@ -286,7 +285,7 @@ public:
 				// do not currently protect these resouces. This should be changed.
 				std::async(
 					[&]() {
-						goa->GOptimizableI::getBestIterationIndividual<GImageIndividual>()->writeImage(
+						goa->G_Interface_Optimizer::getBestIterationIndividual<GImageIndividual>()->writeImage(
 							"image"
 							, resultImageDirectory_
 							, std::tuple<std::size_t, std::size_t>(
