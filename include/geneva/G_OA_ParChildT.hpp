@@ -52,7 +52,7 @@
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OA_ParChildT_PersonalityTraits.hpp"
 
@@ -64,7 +64,7 @@ namespace Geneva {
 /******************************************************************************/
 /**
  * The GParChildT class adds the notion of parents and children to
- * the G_OA_BaseT class. The evolutionary adaptation is realized
+ * the G_OptimizationAlgorithm_Base class. The evolutionary adaptation is realized
  * through the cycle of adaption, evaluation, and sorting, as defined in this
  * class.
  *
@@ -82,7 +82,7 @@ namespace Geneva {
  * optimization starts.
  */
 class G_OA_ParChildT
-	: public G_OA_BaseT
+	: public G_OptimizationAlgorithm_Base
 {
 	 /////////////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -92,7 +92,7 @@ class G_OA_ParChildT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_BaseT_GParameterSet", boost::serialization::base_object<G_OA_BaseT>(*this))
+		 & make_nvp("G_OptimizationAlgorithm_Base", boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_n_parents)
 		 & BOOST_SERIALIZATION_NVP(m_recombination_method)
 		 & BOOST_SERIALIZATION_NVP(m_default_n_children)
@@ -112,7 +112,7 @@ public:
 	  * or do so through the configuration file.
 	  */
 	 G_OA_ParChildT()
-		 : Gem::Geneva::G_OA_BaseT()
+		 : Gem::Geneva::G_OptimizationAlgorithm_Base()
 	 {
 		 // Make sure we start with a valid population size if the user does not supply these values
 		 this->setPopulationSizes(
@@ -130,7 +130,7 @@ public:
 	  * @param cp Another GParChildT object
 	  */
 	 G_OA_ParChildT(const G_OA_ParChildT& cp)
-		 : G_OA_BaseT(cp)
+		 : G_OptimizationAlgorithm_Base(cp)
 			, m_n_parents(cp.m_n_parents)
 			, m_recombination_method(cp.m_recombination_method)
 			, m_default_n_children(cp.m_default_n_children)
@@ -213,7 +213,7 @@ public:
 		 GToken token("G_OA_ParChildT", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<G_OA_BaseT>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
 
 		 // ... and then the local data
 		 compare_t(IDENTITY(m_n_parents, p_load->m_n_parents), token);
@@ -235,7 +235,7 @@ public:
 	 virtual void resetToOptimizationStart() override {
 		 // There is nothing to reset here, so we simply call the
 		 // function of the parent class
-		 G_OA_BaseT::resetToOptimizationStart();
+		 G_OptimizationAlgorithm_Base::resetToOptimizationStart();
 	 }
 
 	 /***************************************************************************/
@@ -249,7 +249,7 @@ public:
 	  * @param nParents The desired number of parents
 	  */
 	 void setPopulationSizes(std::size_t popSize, std::size_t nParents) {
-		 G_OA_BaseT::setDefaultPopulationSize(popSize);
+		 G_OptimizationAlgorithm_Base::setDefaultPopulationSize(popSize);
 		 m_n_parents = nParents;
 	 }
 
@@ -383,7 +383,7 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 )  override {
 		 // Call our parent class'es function
-		 G_OA_BaseT::addConfigurationOptions(gpb);
+		 G_OptimizationAlgorithm_Base::addConfigurationOptions(gpb);
 
 		 // Add local data
 
@@ -480,8 +480,8 @@ public:
 
 		 std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 		 std::bernoulli_distribution amalgamationWanted(m_amalgamationLikelihood); // true with a likelihood of m_amalgamation_likelihood
-		 for (it = G_OA_BaseT::data.begin() + m_n_parents;
-				it != G_OA_BaseT::data.end(); ++it) {
+		 for (it = G_OptimizationAlgorithm_Base::data.begin() + m_n_parents;
+				it != G_OptimizationAlgorithm_Base::data.end(); ++it) {
 			 // Retrieve a random number so we can decide whether to perform cross-over or duplication
 			 // If we do perform cross-over, we always cross the best individual with another random parent
 			 if (m_n_parents > 1 && amalgamationWanted(this->m_gr)) { // Create individuals using a cross-over scheme
@@ -499,7 +499,7 @@ public:
 
 					 case duplicationScheme::VALUEDUPLICATIONSCHEME: {
 						 if (m_n_parents == 1) {
-							 (*it)->GObject::load(*(G_OA_BaseT::data.begin()));
+							 (*it)->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin()));
 							 (*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits> ()->setParentId(0);
 						 } else {
 							 // A recombination taking into account the value does not make
@@ -507,7 +507,7 @@ public:
 							 // value. Instead, this function might accidentaly trigger value
 							 // calculation. Hence we fall back to random recombination in iteration 0.
 							 // No value calculation takes place there.
-							 if (G_OA_BaseT::inFirstIteration()) {
+							 if (G_OptimizationAlgorithm_Base::inFirstIteration()) {
 								 randomRecombine(*it);
 							 } else {
 								 valueRecombine(*it, threshold);
@@ -529,7 +529,7 @@ public:
 	  */
 	 virtual void actOnStalls() override {
 		 // Make sure the actions of our parent class are carried out
-		 G_OA_BaseT::actOnStalls();
+		 G_OptimizationAlgorithm_Base::actOnStalls();
 
 		 if (this->getNParents() > 1) {
 			 // Update parent individuals. We leave the best parent untouched
@@ -611,7 +611,7 @@ protected:
 		 const G_OA_ParChildT *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_ParChildT>(cp, this);
 
 		 // First load the parent class'es data ...
-		 G_OA_BaseT::load_(cp);
+		 G_OptimizationAlgorithm_Base::load_(cp);
 
 		 // ... and then our own data
 		 m_n_parents = p_load->m_n_parents;
@@ -624,7 +624,7 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * This function is called from G_OA_BaseT::optimize() and performs the
+	  * This function is called from G_OptimizationAlgorithm_Base::optimize() and performs the
 	  * actual recombination, based on the recombination schemes defined by the user.
 	  *
 	  * Note that, in DEBUG mode, this implementation will enforce a minimum number of children,
@@ -672,7 +672,7 @@ protected:
 	  */
 	 void markParents() {
 		 typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-		 for(it=G_OA_BaseT::data.begin(); it!=G_OA_BaseT::data.begin()+m_n_parents; ++it){
+		 for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.begin()+m_n_parents; ++it){
 			 (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
 		 }
 	 }
@@ -683,7 +683,7 @@ protected:
 	  */
 	 void markChildren() {
 		 typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-		 for(it=G_OA_BaseT::data.begin()+m_n_parents; it!=G_OA_BaseT::data.end(); ++it){
+		 for(it=G_OptimizationAlgorithm_Base::data.begin()+m_n_parents; it!=G_OptimizationAlgorithm_Base::data.end(); ++it){
 			 (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
 		 }
 	 }
@@ -696,7 +696,7 @@ protected:
 	 void markIndividualPositions() {
 		 std::size_t pos = 0;
 		 typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-		 for(it=G_OA_BaseT::data.begin(); it!=G_OA_BaseT::data.end(); ++it) {
+		 for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
 			 (*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
 		 }
 	 }
@@ -704,13 +704,13 @@ protected:
 	 /***************************************************************************/
 	 /**
 	  * This function implements the logic that constitutes evolutionary algorithms. The
-	  * function is called by G_OA_BaseT for each cycle of the optimization,
+	  * function is called by G_OptimizationAlgorithm_Base for each cycle of the optimization,
 	  *
 	  * @return The value of the best individual found
 	  */
 	 virtual std::tuple<double, double> cycleLogic() override {
 		 // If this is not the first iteration, check whether we need to increase the population
-		 if(G_OA_BaseT::afterFirstIteration()) {
+		 if(G_OptimizationAlgorithm_Base::afterFirstIteration()) {
 			 performScheduledPopulationGrowth();
 		 }
 
@@ -724,7 +724,7 @@ protected:
 		 runFitnessCalculation();
 
 		 // Perform post-evaluation updates (mostly of individuals)
-		 G_OA_BaseT::postEvaluationWork();
+		 G_OptimizationAlgorithm_Base::postEvaluationWork();
 
 		 // find out the best individuals of the population
 		 selectBest();
@@ -747,12 +747,12 @@ protected:
 	 /***************************************************************************/
 	 /**
 	  * The function checks that the population size meets the requirements and does some
-	  * tagging. It is called from within G_OA_BaseT::optimize(), before the
+	  * tagging. It is called from within G_OptimizationAlgorithm_Base::optimize(), before the
 	  * actual optimization cycle starts.
 	  */
 	 virtual void init() override {
 		 // To be performed before any other action
-		 G_OA_BaseT::init();
+		 G_OptimizationAlgorithm_Base::init();
 
 		 // Perform some checks regarding population sizes
 		 populationSanityChecks();
@@ -765,7 +765,7 @@ protected:
 		 // what the desired number of children is. This is particularly important, if, in a
 		 // network environment, some individuals might not return and some individuals return
 		 // late. The factual size of the population then changes and we need to take action.
-		 m_default_n_children = G_OA_BaseT::getDefaultPopulationSize() - m_n_parents;
+		 m_default_n_children = G_OptimizationAlgorithm_Base::getDefaultPopulationSize() - m_n_parents;
 	 }
 
 	 /***************************************************************************/
@@ -774,7 +774,7 @@ protected:
 	  */
 	 virtual void finalize() override {
 		 // Last action
-		 G_OA_BaseT::finalize();
+		 G_OptimizationAlgorithm_Base::finalize();
 	 }
 
 	 /***************************************************************************/
@@ -783,15 +783,15 @@ protected:
 	  * population to the appropriate size, if required. An obvious precondition is that at
 	  * least one individual has been added to the population. Individuals that have already
 	  * been added will not be replaced. This function is called once before the optimization
-	  * cycle from within G_OA_BaseT::optimize()
+	  * cycle from within G_OptimizationAlgorithm_Base::optimize()
 	  */
 	 virtual void adjustPopulation() override {
 		 // Has the population size been set at all ?
-		 if(G_OA_BaseT::getDefaultPopulationSize() == 0) {
+		 if(G_OptimizationAlgorithm_Base::getDefaultPopulationSize() == 0) {
 			 glogger
 				 << "In G_OA_ParChildT::adjustPopulation() :" << std::endl
 				 << "The population size is 0." << std::endl
-				 << "Did you call G_OA_BaseT::setParentsAndPopulationSize() ?" << std::endl
+				 << "Did you call G_OptimizationAlgorithm_Base::setParentsAndPopulationSize() ?" << std::endl
 				 << GEXCEPTION;
 		 }
 
@@ -807,7 +807,7 @@ protected:
 
 		 // Do the smart pointers actually point to any objects ?
 		 typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-		 for(it=G_OA_BaseT::data.begin(); it!=G_OA_BaseT::data.end(); ++it) {
+		 for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
 			 if(!(*it)) { // shared_ptr can be implicitly converted to bool
 				 glogger
 					 << "In G_OA_ParChildT::adjustPopulation() :" << std::endl
@@ -817,14 +817,14 @@ protected:
 		 }
 
 		 // Fill up as required. We are now sure we have a suitable number of individuals to do so
-		 if(this_sz < G_OA_BaseT::getDefaultPopulationSize()) {
+		 if(this_sz < G_OptimizationAlgorithm_Base::getDefaultPopulationSize()) {
 			 this->resize_clone(
-				 G_OA_BaseT::getDefaultPopulationSize()
-				 , G_OA_BaseT::data[0]
+				 G_OptimizationAlgorithm_Base::getDefaultPopulationSize()
+				 , G_OptimizationAlgorithm_Base::data[0]
 			 );
 
 			 // Randomly initialize new items
-			 for(it=G_OA_BaseT::data.begin()+this_sz; it!=G_OA_BaseT::data.end(); ++it) {
+			 for(it=G_OptimizationAlgorithm_Base::data.begin()+this_sz; it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
 				 (*it)->randomInit(activityMode::ACTIVEONLY);
 			 }
 		 }
@@ -845,7 +845,7 @@ protected:
 			 this->setPopulationSizes(this->getDefaultPopulationSize() + m_growth_rate, this->getNParents());
 
 			 // Add missing items as copies of the last individual in the list
-			 this->resize_clone(G_OA_BaseT::getDefaultPopulationSize(), G_OA_BaseT::data[0]);
+			 this->resize_clone(G_OptimizationAlgorithm_Base::getDefaultPopulationSize(), G_OptimizationAlgorithm_Base::data[0]);
 		 }
 	 }
 
@@ -871,7 +871,7 @@ protected:
 		 }
 
 		 // Load the parent data into the individual
-		 child->GObject::load(*(G_OA_BaseT::data.begin() + parent_pos));
+		 child->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin() + parent_pos));
 
 		 // Let the individual know the id of the parent
 		 child->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
@@ -894,12 +894,12 @@ protected:
 	 ) {
 		 bool done=false;
 		 double randTest // get the test value
-			 = G_OA_BaseT::m_uniform_real_distribution(this->m_gr);
+			 = G_OptimizationAlgorithm_Base::m_uniform_real_distribution(this->m_gr);
 
 		 for(std::size_t par=0; par<m_n_parents; par++) {
 			 if(randTest<threshold[par]) {
 				 // Load the parent's data
-				 p->GObject::load(*(G_OA_BaseT::data.begin() + par));
+				 p->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin() + par));
 				 // Let the individual know the parent's id
 				 p->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
 				 done = true;
@@ -930,7 +930,7 @@ protected:
          if(ind_ptr->isDirty()) {
             glogger
             << "In G_OA_ParChildT::sortMuplusnuMode(): Error!" << std::endl
-            << "In iteration " << G_OA_BaseT::getIteration() << ": Found individual in position " << pos << std::endl
+            << "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << pos << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
          }
@@ -940,9 +940,9 @@ protected:
 
 		 // Only partially sort the arrays
 		 std::partial_sort(
-			 G_OA_BaseT::data.begin()
-			 , G_OA_BaseT::data.begin() + m_n_parents
-			 , G_OA_BaseT::data.end()
+			 G_OptimizationAlgorithm_Base::data.begin()
+			 , G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+			 , G_OptimizationAlgorithm_Base::data.end()
 			 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 				 return x->minOnly_fitness() < y->minOnly_fitness();
 			 }
@@ -957,14 +957,14 @@ protected:
 	  */
 	 void sortMuCommaNuMode() {
 #ifdef DEBUG
-		 if (G_OA_BaseT::inFirstIteration()) {
+		 if (G_OptimizationAlgorithm_Base::inFirstIteration()) {
 			// Check that we do not accidently trigger value calculation -- check the whole range
 			typename G_OA_ParChildT::iterator it;
 			for (it = this->begin(); it != this->end(); ++it) {
 				if ((*it)->isDirty()) {
 					glogger
 						<< "In G_OA_ParChildT::sortMucommanuMode(): Error!" << std::endl
-						<< "In iteration " << G_OA_BaseT::getIteration() << ": Found individual in position " << std::distance(
+						<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
 					) << std::endl
@@ -979,7 +979,7 @@ protected:
 				if ((*it)->isDirty()) {
 					glogger
 						<< "In G_OA_ParChildT::sortMucommanuMode(): Error!" << std::endl
-						<< "In iteration " << G_OA_BaseT::getIteration() << ": Found individual in position " << std::distance(
+						<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(
 						this->begin()
 						, it
 					) << std::endl
@@ -990,7 +990,7 @@ protected:
 		}
 #endif /* DEBUG */
 
-		 if (G_OA_BaseT::inFirstIteration()) {
+		 if (G_OptimizationAlgorithm_Base::inFirstIteration()) {
 			 // We fall back to MUPLUSNU mode in the first iteration,
 			 // as parents are new as well.
 			 this->sortMuPlusNuMode();
@@ -998,18 +998,18 @@ protected:
 		 } else {
 			 // Only sort the children
 			 std::partial_sort(
-				 G_OA_BaseT::data.begin() + m_n_parents
-				 , G_OA_BaseT::data.begin() + 2 * m_n_parents
-				 , G_OA_BaseT::data.end()
+				 G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+				 , G_OptimizationAlgorithm_Base::data.begin() + 2 * m_n_parents
+				 , G_OptimizationAlgorithm_Base::data.end()
 				 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 					 return x->minOnly_fitness() < y->minOnly_fitness();
 				 }
 			 );
 
 			 std::swap_ranges(
-				 G_OA_BaseT::data.begin()
-				 , G_OA_BaseT::data.begin() + m_n_parents
-				 , G_OA_BaseT::data.begin() + m_n_parents
+				 G_OptimizationAlgorithm_Base::data.begin()
+				 , G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+				 , G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
 			 );
 		 }
 	 }
@@ -1032,42 +1032,42 @@ protected:
          if((*it)->isDirty()) {
             glogger
             << "In G_OA_ParChildT::sortMunu1pretainMode(): Error!" << std::endl
-            << "In iteration " << G_OA_BaseT::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
+            << "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
             << " whose dirty flag is set." << std::endl
             << GEXCEPTION;
          }
       }
 #endif /* DEBUG */
 
-		 if(m_n_parents==1 || G_OA_BaseT::inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
+		 if(m_n_parents==1 || G_OptimizationAlgorithm_Base::inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
 			 sortMuPlusNuMode();
 		 } else {
 			 // Sort the children
 			 std::partial_sort(
-				 G_OA_BaseT::data.begin() + m_n_parents
-				 , G_OA_BaseT::data.begin() + 2*m_n_parents
-				 , G_OA_BaseT::data.end()
+				 G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+				 , G_OptimizationAlgorithm_Base::data.begin() + 2*m_n_parents
+				 , G_OptimizationAlgorithm_Base::data.end()
 				 , [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 					 return x->minOnly_fitness() < y->minOnly_fitness();
 				 }
 			 );
 
 			 // Retrieve the best child's and the last generation's best parent's fitness
-			 double bestTranformedChildFitness_MinOnly  = (*(G_OA_BaseT::data.begin() + m_n_parents))->minOnly_fitness();
-			 double bestTranformedParentFitness_MinOnly = (*(G_OA_BaseT::data.begin()))->minOnly_fitness();
+			 double bestTranformedChildFitness_MinOnly  = (*(G_OptimizationAlgorithm_Base::data.begin() + m_n_parents))->minOnly_fitness();
+			 double bestTranformedParentFitness_MinOnly = (*(G_OptimizationAlgorithm_Base::data.begin()))->minOnly_fitness();
 
 			 // Leave the best parent in place, if no better child was found
 			 if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) { // A better child was found. Overwrite all parents
 				 std::swap_ranges(
-					 G_OA_BaseT::data.begin()
-					 ,G_OA_BaseT::data.begin()+m_n_parents
-					 ,G_OA_BaseT::data.begin()+m_n_parents
+					 G_OptimizationAlgorithm_Base::data.begin()
+					 ,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
+					 ,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
 				 );
 			 } else {
 				 std::swap_ranges(
-					 G_OA_BaseT::data.begin()+1
-					 ,G_OA_BaseT::data.begin()+m_n_parents
-					 ,G_OA_BaseT::data.begin()+m_n_parents
+					 G_OptimizationAlgorithm_Base::data.begin()+1
+					 ,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
+					 ,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
 				 );
 			 }
 		 }
@@ -1098,7 +1098,7 @@ public:
 		 bool result = false;
 
       // Call the parent class'es function
-      if(G_OA_BaseT::modify_GUnitTests()) result = true;
+      if(G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
 
       return result;
 
@@ -1115,7 +1115,7 @@ public:
 	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-      G_OA_BaseT::specificTestsNoFailureExpected_GUnitTests();
+      G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 		 condnotset("G_OA_ParChildT::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -1129,7 +1129,7 @@ public:
 	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
-      G_OA_BaseT::specificTestsFailuresExpected_GUnitTests();
+      G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
 		 condnotset("G_OA_ParChildT::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

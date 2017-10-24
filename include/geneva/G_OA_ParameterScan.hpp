@@ -54,7 +54,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
 #include "geneva/GOptimizableEntity.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_ParameterScan_PersonalityTraits.hpp"
@@ -612,7 +612,7 @@ const std::size_t DEFAULTNMONITORINDS = 10;
  * with this class will simply store all parameters and results in an XML file.
  */
 class GParameterScan
-	:public G_OA_BaseT
+	:public G_OptimizationAlgorithm_Base
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -622,7 +622,7 @@ class GParameterScan
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_BaseT_GBrokerExecutorT", boost::serialization::base_object<G_OA_BaseT>(*this))
+		 & make_nvp("G_OptimizationAlgorithm_Base", boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_scanRandomly)
 		 & BOOST_SERIALIZATION_NVP(m_nMonitorInds)
 		 & BOOST_SERIALIZATION_NVP(m_b_vec)

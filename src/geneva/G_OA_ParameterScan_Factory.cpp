@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GParameterScanFactory::GParameterScanFactory()
-	: G_OA_FactoryT<G_OA_BaseT>("./config/GParameterScan.json")
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>("./config/GParameterScan.json")
 	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GParameterScanFactory::GParameterScanFactory()
 GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OA_BaseT>(configFile)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
   	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -66,7 +66,7 @@ GParameterScanFactory::GParameterScanFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OA_BaseT>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
    , m_parameterSpecCL("empty")
 { /* nothing */ }
 
@@ -75,7 +75,7 @@ GParameterScanFactory::GParameterScanFactory(
  * The copy constructor
  */
 GParameterScanFactory::GParameterScanFactory(const GParameterScanFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT>(cp)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(cp)
   	, m_parameterSpecCL(cp.m_parameterSpecCL)
 { /* nothing */ }
 
@@ -122,7 +122,7 @@ void GParameterScanFactory::addCLOptions(
 	);
 
 	// Add the parent class'es options
-	G_OA_FactoryT<G_OA_BaseT>::addCLOptions(visible, hidden);
+	G_OA_FactoryT<G_OptimizationAlgorithm_Base>::addCLOptions(visible, hidden);
 }
 
 /******************************************************************************/
@@ -155,7 +155,7 @@ void GParameterScanFactory::resetCLParameterSpecs() {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OA_BaseT> GParameterScanFactory::getObject_(
+std::shared_ptr<G_OptimizationAlgorithm_Base> GParameterScanFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -177,17 +177,17 @@ std::shared_ptr<G_OA_BaseT> GParameterScanFactory::getObject_(
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GParameterScanFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT>& p_base
+	std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
 ) {
 	if(m_parameterSpecCL != "empty") {
 		std::shared_ptr<GParameterScan> p
-			= Gem::Common::convertSmartPointer<G_OA_BaseT, GParameterScan> (p_base);
+			= Gem::Common::convertSmartPointer<G_OptimizationAlgorithm_Base, GParameterScan> (p_base);
 
 		p->setParameterSpecs(m_parameterSpecCL);
 	}
 
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT>::postProcess_(p_base);
+	G_OA_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
 }
 
 /******************************************************************************/

@@ -57,7 +57,7 @@
 #include "common/GLogger.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GParameterSet.hpp"
 
 namespace Gem {
@@ -66,9 +66,9 @@ namespace Geneva {
 /******************************************************************************/
 /*
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
- * information from within optimization algorithms. They can be plugged into G_OA_BaseT<oa_type>
+ * information from within optimization algorithms. They can be plugged into G_OptimizationAlgorithm_Base<oa_type>
  * derivatives. A requirement is that they implement a function "informationFunction"
- * according to the API of G_OA_BaseT<>::GBasePluggableOMT .
+ * according to the API of G_OptimizationAlgorithm_Base<>::GBasePluggableOMT .
  */
 
 /******************************************************************************/
@@ -1877,11 +1877,11 @@ public:
  */
 template <typename fp_type>
 class GProgressPlotterT
-	: public GProgressPlotterTT<fp_type, G_OA_BaseT>
+	: public GProgressPlotterTT<fp_type, G_OptimizationAlgorithm_Base>
 {
 public:
 	 // Simple inherit all constructors
-	 using GProgressPlotterTT<fp_type, G_OA_BaseT>::GProgressPlotterTT;
+	 using GProgressPlotterTT<fp_type, G_OptimizationAlgorithm_Base>::GProgressPlotterTT;
 };
 
 /******************************************************************************/
@@ -4528,25 +4528,25 @@ public:
  */
 template <typename num_type>
 class GAdaptorPropertyLoggerT
-	: public GAdaptorPropertyLoggerTT<num_type, G_OA_BaseT>
+	: public GAdaptorPropertyLoggerTT<num_type, G_OptimizationAlgorithm_Base>
 {
 public:
-	 using GAdaptorPropertyLoggerTT<num_type, G_OA_BaseT>::GAdaptorPropertyLoggerTT;
+	 using GAdaptorPropertyLoggerTT<num_type, G_OptimizationAlgorithm_Base>::GAdaptorPropertyLoggerTT;
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-using GStandardMonitor = GStandardMonitorT<Gem::Geneva::G_OA_BaseT>;
-using GFitnessMonitor = GFitnessMonitorT<Gem::Geneva::G_OA_BaseT>;
-using GCollectiveMonitor = GCollectiveMonitorT<Gem::Geneva::G_OA_BaseT>;
+using GStandardMonitor = GStandardMonitorT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
+using GFitnessMonitor = GFitnessMonitorT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
+using GCollectiveMonitor = GCollectiveMonitorT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
 using GProgressPlotter = GProgressPlotterT<double>;
-using GAllSolutionFileLogger = GAllSolutionFileLoggerT<Gem::Geneva::G_OA_BaseT>;
-using GIterationResultsFileLogger = GIterationResultsFileLoggerT<Gem::Geneva::G_OA_BaseT>;
-using GNAdpationsLogger = GNAdpationsLoggerT<Gem::Geneva::G_OA_BaseT>;
+using GAllSolutionFileLogger = GAllSolutionFileLoggerT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
+using GIterationResultsFileLogger = GIterationResultsFileLoggerT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
+using GNAdpationsLogger = GNAdpationsLoggerT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
 template <typename num_type> using GAdaptorPropertyLogger = GAdaptorPropertyLoggerT<num_type>;
-using GProcessingTimesLogger = GProcessingTimesLoggerT<Gem::Geneva::G_OA_BaseT>;
+using GProcessingTimesLogger = GProcessingTimesLoggerT<Gem::Geneva::G_OptimizationAlgorithm_Base>;
 
 /******************************************************************************/
 

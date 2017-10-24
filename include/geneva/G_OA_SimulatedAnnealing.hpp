@@ -588,7 +588,7 @@ protected:
 
 		 // Mark the first this->m_n_parents individuals as parents and the rest of the individuals as children.
 		 // We want to have a sane population.
-		 typename G_OA_BaseT::iterator it;
+		 typename G_OptimizationAlgorithm_Base::iterator it;
 		 for (it = this->begin(); it != this->begin() + np; ++it) {
 			 (*it)->GParameterSet::template getPersonalityTraits<G_OA_SimulatedAnnealing_PersonalityTraits>()->setIsParent();
 		 }

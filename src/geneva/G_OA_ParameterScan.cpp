@@ -355,7 +355,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
  * The default constructor
  */
 GParameterScan::GParameterScan()
-	: G_OA_BaseT()
+	: G_OptimizationAlgorithm_Base()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -365,7 +365,7 @@ GParameterScan::GParameterScan()
  * @param cp A copy of another GradientDescent object
  */
 GParameterScan::GParameterScan(const GParameterScan &cp)
-	: G_OA_BaseT(cp)
+	: G_OptimizationAlgorithm_Base(cp)
 	, m_cycleLogicHalt(cp.m_cycleLogicHalt)
 	, m_scanRandomly(cp.m_scanRandomly)
 	, m_nMonitorInds(cp.m_nMonitorInds)
@@ -497,7 +497,7 @@ void GParameterScan::compare(
 	GToken token("GParameterScan", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<G_OA_BaseT>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(m_cycleLogicHalt,  p_load->m_cycleLogicHalt),  token);
@@ -530,7 +530,7 @@ void GParameterScan::resetToOptimizationStart() {
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
-	G_OA_BaseT::resetToOptimizationStart();
+	G_OptimizationAlgorithm_Base::resetToOptimizationStart();
 }
 
 /******************************************************************************/
@@ -571,7 +571,7 @@ void GParameterScan::load_(const GObject *cp) {
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
-	G_OA_BaseT::load_(cp);
+	G_OptimizationAlgorithm_Base::load_(cp);
 
 	// ... and then our own data
 	m_cycleLogicHalt = p_load->m_cycleLogicHalt;
@@ -1076,7 +1076,7 @@ void GParameterScan::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	G_OA_BaseT::addConfigurationOptions(gpb);
+	G_OptimizationAlgorithm_Base::addConfigurationOptions(gpb);
 
 	gpb.registerFileParameter<std::size_t>(
 		"size" // The name of the first variable
@@ -1303,7 +1303,7 @@ bool GParameterScan::getScanRandomly() const {
  */
 void GParameterScan::init() {
 	// To be performed before any other action
-	G_OA_BaseT::init();
+	G_OptimizationAlgorithm_Base::init();
 
 	// Reset the custom halt criterion
 	m_cycleLogicHalt = false;
@@ -1324,7 +1324,7 @@ void GParameterScan::init() {
  */
 void GParameterScan::finalize() {
 	// Last action
-	G_OA_BaseT::finalize();
+	G_OptimizationAlgorithm_Base::finalize();
 }
 
 /******************************************************************************/
@@ -1383,7 +1383,7 @@ bool GParameterScan::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (G_OA_BaseT::modify_GUnitTests()) result = true;
+	if (G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */
@@ -1399,7 +1399,7 @@ bool GParameterScan::modify_GUnitTests() {
 void GParameterScan::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OA_BaseT::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1412,7 +1412,7 @@ void GParameterScan::specificTestsNoFailureExpected_GUnitTests() {
 void GParameterScan::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OA_BaseT::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */

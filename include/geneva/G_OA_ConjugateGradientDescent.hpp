@@ -48,10 +48,10 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OA_GradientDescent_PersonalityTraits.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GTestIndividual1.hpp"
@@ -68,7 +68,7 @@ namespace Geneva {
  * is delegated to the Broker (which may in turn use other means, such as threads or
  * networked execution for the evaluation step).
  */
-class GConjugateGradientDescent : public G_OA_BaseT
+class GConjugateGradientDescent : public G_OptimizationAlgorithm_Base
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -78,8 +78,8 @@ class GConjugateGradientDescent : public G_OA_BaseT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_BaseT",
-			 boost::serialization::base_object<G_OA_BaseT>(*this));
+		 & make_nvp("G_OptimizationAlgorithm_Base",
+			 boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this));
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////

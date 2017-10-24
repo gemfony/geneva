@@ -53,7 +53,7 @@ GConjugateGradientDescent::GConjugateGradientDescent()
  * @param cp A copy of another ConjugateGradientDescent object
  */
 GConjugateGradientDescent::GConjugateGradientDescent(const GConjugateGradientDescent &cp)
-	: G_OA_BaseT(cp)
+	: G_OptimizationAlgorithm_Base(cp)
 {
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
@@ -159,7 +159,7 @@ void GConjugateGradientDescent::compare(
 	GToken token("GConjugateGradientDescent", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<G_OA_BaseT>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	// ...
@@ -188,7 +188,7 @@ void GConjugateGradientDescent::load_(const GObject *cp) {
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
-	G_OA_BaseT::load_(cp);
+	G_OptimizationAlgorithm_Base::load_(cp);
 
 	// ... and then our own data
 	// ...
@@ -224,7 +224,7 @@ void GConjugateGradientDescent::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	G_OA_BaseT::addConfigurationOptions(gpb);
+	G_OptimizationAlgorithm_Base::addConfigurationOptions(gpb);
 
 	// ...
 }
@@ -245,7 +245,7 @@ void GConjugateGradientDescent::runFitnessCalculation() {
  */
 void GConjugateGradientDescent::init() {
 	// To be performed before any other action
-	G_OA_BaseT::init();
+	G_OptimizationAlgorithm_Base::init();
 
 	// ...
 }
@@ -256,7 +256,7 @@ void GConjugateGradientDescent::init() {
  */
 void GConjugateGradientDescent::finalize() {
 	// Last action
-	G_OA_BaseT::finalize();
+	G_OptimizationAlgorithm_Base::finalize();
 }
 
 /******************************************************************************/
@@ -284,7 +284,7 @@ bool GConjugateGradientDescent::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (G_OA_BaseT::modify_GUnitTests()) result = true;
+	if (G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */
@@ -300,7 +300,7 @@ bool GConjugateGradientDescent::modify_GUnitTests() {
 void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OA_BaseT::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -313,7 +313,7 @@ void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 void GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OA_BaseT::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */

@@ -58,11 +58,11 @@ GSwarmAlgorithm::GSwarmAlgorithm(
 	const std::size_t &nNeighborhoods
 	, const std::size_t &defaultNNeighborhoodMembers
 )
-	: G_OA_BaseT()
+	: G_OptimizationAlgorithm_Base()
 	, m_n_neighborhoods((nNeighborhoods>=1) ? nNeighborhoods : 1)
 	, m_default_n_neighborhood_members((defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers: 2)
 {
-	G_OA_BaseT::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
+	G_OptimizationAlgorithm_Base::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
 }
 
 /******************************************************************************/
@@ -72,7 +72,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(
  * @param cp Another GSwarmAlgorithm object
  */
 GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
-	: G_OA_BaseT(cp)
+	: G_OptimizationAlgorithm_Base(cp)
 	, m_n_neighborhoods(cp.m_n_neighborhoods)
 	, m_default_n_neighborhood_members(cp.m_default_n_neighborhood_members)
 	, m_n_neighborhood_members_vec(cp.m_n_neighborhood_members_vec)
@@ -95,7 +95,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
 	// Differences might e.g. occur if not all individuals return from their remote
 	// evaluation. adjustPopulation will take care to resize the population appropriately
 	// inside of the "optimize()" call.
-	G_OA_BaseT::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
+	G_OptimizationAlgorithm_Base::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
 
 	// Clone cp's best individuals in each neighborhood
 	if (cp.afterFirstIteration()) {
@@ -180,7 +180,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
-	G_OA_BaseT::load_(cp);
+	G_OptimizationAlgorithm_Base::load_(cp);
 
 	// ... and then our own data
 	m_default_n_neighborhood_members = p_load->m_default_n_neighborhood_members;
@@ -286,7 +286,7 @@ void GSwarmAlgorithm::compare(
 	GToken token("GSwarmAlgorithm", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<G_OA_BaseT>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(m_n_neighborhoods, p_load->m_n_neighborhoods), token);
@@ -338,7 +338,7 @@ void GSwarmAlgorithm::resetToOptimizationStart() {
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
-	G_OA_BaseT::resetToOptimizationStart();
+	G_OptimizationAlgorithm_Base::resetToOptimizationStart();
 }
 
 /******************************************************************************/
@@ -352,7 +352,7 @@ std::string GSwarmAlgorithm::name() const {
 /******************************************************************************/
 /**
  * Sets the number of neighborhoods and the default number of members in them. All work is done inside of
- * the adjustPopulation function, inside of the G_OA_BaseT<>::optimize() function.
+ * the adjustPopulation function, inside of the G_OptimizationAlgorithm_Base::optimize() function.
  *
  * @param nNeighborhoods The number of neighborhoods
  * @param defaultNNeighborhoodMembers The default number of individuals in each neighborhood
@@ -380,7 +380,7 @@ void GSwarmAlgorithm::setSwarmSizes(
 	m_default_n_neighborhood_members = (defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers : 2;
 
 	// Update our parent class'es values
-	G_OA_BaseT::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
+	G_OptimizationAlgorithm_Base::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
 }
 
 /******************************************************************************/
@@ -555,7 +555,7 @@ void GSwarmAlgorithm::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	G_OA_BaseT::addConfigurationOptions(gpb);
+	G_OptimizationAlgorithm_Base::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::size_t, std::size_t>(
@@ -642,11 +642,11 @@ std::string GSwarmAlgorithm::getAlgorithmName() const {
 /******************************************************************************/
 /**
  * This function does some preparatory work and tagging required by swarm algorithms. It is called
- * from within G_OA_BaseT::optimize(), immediately before the actual optimization cycle starts.
+ * from within G_OptimizationAlgorithm_Base::optimize(), immediately before the actual optimization cycle starts.
  */
 void GSwarmAlgorithm::init() {
 	// To be performed before any other action
-	G_OA_BaseT::init();
+	G_OptimizationAlgorithm_Base::init();
 
 	// Extract the boundaries of all parameters
 	this->at(0)->boundaries(m_dbl_lower_parameter_boundaries_vec, m_dbl_upper_parameter_boundaries_vec, activityMode::ACTIVEONLY);
@@ -710,7 +710,7 @@ void GSwarmAlgorithm::init() {
 		for (std::size_t i = 0; i < velVec.size(); i++) {
 			double range = m_dbl_vel_max_vec[i];
 			velVec[i] =
-				G_OA_BaseT::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(-range,range));
+				G_OptimizationAlgorithm_Base::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(-range,range));
 		}
 
 		// Load the array into the velocity object
@@ -742,7 +742,7 @@ void GSwarmAlgorithm::finalize() {
 	m_velocities_vec.clear();
 
 	// Last action
-	G_OA_BaseT::finalize();
+	G_OptimizationAlgorithm_Base::finalize();
 }
 
 /******************************************************************************/
@@ -756,7 +756,7 @@ std::shared_ptr <GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits() con
 /******************************************************************************/
 /**
  * This function implements the logic that constitutes each cycle of a swarm algorithm. The
- * function is called by G_OA_BaseT::optimize() for each iteration of
+ * function is called by G_OptimizationAlgorithm_Base::optimize() for each iteration of
  * the optimization,
  *
  * @return The value of the best individual found
@@ -1090,17 +1090,17 @@ void GSwarmAlgorithm::updateIndividualPositions(
 		case updateRule::SWARM_UPDATERULE_CLASSIC:
 			// Multiply each floating point value with a random fp number in the range [0,1[, times a constant
 			for (std::size_t i = 0; i < personalBestVec.size(); i++) {
-				personalBestVec[i] *= (cPersonal * G_OA_BaseT::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-				nbhBestVec[i] *= (cNeighborhood * G_OA_BaseT::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-				glbBestVec[i] *= (cGlobal * G_OA_BaseT::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				personalBestVec[i] *= (cPersonal * G_OptimizationAlgorithm_Base::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				nbhBestVec[i] *= (cNeighborhood * G_OptimizationAlgorithm_Base::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+				glbBestVec[i] *= (cGlobal * G_OptimizationAlgorithm_Base::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
 			}
 			break;
 
 		case updateRule::SWARM_UPDATERULE_LINEAR:
 			// Multiply each position with the same random floating point number times a constant
-			Gem::Common::multVecConst<double>(personalBestVec, cPersonal * G_OA_BaseT::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-			Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * G_OA_BaseT::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
-			Gem::Common::multVecConst<double>(glbBestVec, cGlobal * G_OA_BaseT::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(personalBestVec, cPersonal * G_OptimizationAlgorithm_Base::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(nbhBestVec, cNeighborhood * G_OptimizationAlgorithm_Base::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
+			Gem::Common::multVecConst<double>(glbBestVec, cGlobal * G_OptimizationAlgorithm_Base::m_uniform_real_distribution(m_gr, std::uniform_real_distribution<double>::param_type(0.,1.)));
 			break;
 	}
 
@@ -1357,7 +1357,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 /******************************************************************************/
 /**
  * Resizes the population to the desired level and does some error checks. This function implements
- * the purely virtual function G_OA_BaseT::adjustPopulation() .
+ * the purely virtual function G_OptimizationAlgorithm_Base::adjustPopulation() .
  */
 void GSwarmAlgorithm::adjustPopulation() {
 	const std::size_t currentSize = this->size();
@@ -1723,7 +1723,7 @@ bool GSwarmAlgorithm::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (G_OA_BaseT::modify_GUnitTests()) result = true;
+	if (G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
 
 	return result;
 
@@ -1740,7 +1740,7 @@ bool GSwarmAlgorithm::modify_GUnitTests() {
 void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OA_BaseT::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -1754,7 +1754,7 @@ void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 void GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OA_BaseT::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

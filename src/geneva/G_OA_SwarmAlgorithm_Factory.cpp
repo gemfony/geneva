@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
-	: G_OA_FactoryT<G_OA_BaseT>(
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(
 	"./config/GSwarmAlgorithm.json")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OA_BaseT>(configFile)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OA_BaseT>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
  * The copy constructor
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT>(cp)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -105,7 +105,7 @@ std::string GSwarmAlgorithmFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OA_BaseT> GSwarmAlgorithmFactory::getObject_(
+std::shared_ptr<G_OptimizationAlgorithm_Base> GSwarmAlgorithmFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -127,10 +127,10 @@ std::shared_ptr<G_OA_BaseT> GSwarmAlgorithmFactory::getObject_(
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GSwarmAlgorithmFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT>& p_base
+	std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT>::postProcess_(p_base);
+	G_OA_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
 }
 
 /******************************************************************************/

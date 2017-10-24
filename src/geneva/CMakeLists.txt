@@ -28,7 +28,7 @@ SET ( OPTIMIZATIONSOURCES
     G_Interface_Optimizer
     G_Interface_Rateable
 	Go2
-    G_OA_BaseT
+    G_OptimizationAlgorithm_Base
     G_OA_ConjugateGradientDescent
     G_OA_EvolutionaryAlgorithm
     G_OA_EvolutionaryAlgorithm_PersonalityTraits

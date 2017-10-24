@@ -48,10 +48,10 @@
 #include "common/GPlotDesigner.hpp"
 #include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/G_OA_GradientDescent_PersonalityTraits.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GTestIndividual1.hpp"
@@ -76,7 +76,7 @@ const double DEFAULTSTEPSIZE=0.1;
  * networked execution for the evaluation step).
  */
 class GGradientDescent
-	:public G_OA_BaseT
+	:public G_OptimizationAlgorithm_Base
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -86,8 +86,8 @@ class GGradientDescent
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("G_OA_BaseT_GBrokerExecutorT",
-			 boost::serialization::base_object<G_OA_BaseT>(*this))
+		 & make_nvp("G_OptimizationAlgorithm_Base",
+			 boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
 		 & BOOST_SERIALIZATION_NVP(nStartingPoints_)
 		 & BOOST_SERIALIZATION_NVP(nFPParmsFirst_)
 		 & BOOST_SERIALIZATION_NVP(finiteStep_)

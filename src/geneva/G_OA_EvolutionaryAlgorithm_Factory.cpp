@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
-	: G_OA_FactoryT<G_OA_BaseT>(
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(
 	"./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OA_BaseT>(configFile)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OA_BaseT>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
  * The copy constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT>(cp)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -107,7 +107,7 @@ std::string GEvolutionaryAlgorithmFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OA_BaseT> GEvolutionaryAlgorithmFactory::getObject_(
+std::shared_ptr<G_OptimizationAlgorithm_Base> GEvolutionaryAlgorithmFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -129,10 +129,10 @@ std::shared_ptr<G_OA_BaseT> GEvolutionaryAlgorithmFactory::getObject_(
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GEvolutionaryAlgorithmFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT>& p_base
+	std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT>::postProcess_(p_base);
+	G_OA_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
 }
 
 /******************************************************************************/

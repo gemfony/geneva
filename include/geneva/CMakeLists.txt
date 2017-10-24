@@ -51,11 +51,12 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumFPT.hpp
 	GNumIntT.hpp
 	GNumT.hpp
-    G_OA_BaseT.hpp
+    G_OptimizationAlgorithm_Base.hpp
     G_OA_ConjugateGradientDescent.hpp
     G_OA_EvolutionaryAlgorithm.hpp
     G_OA_EvolutionaryAlgorithm_Factory.hpp
     G_OA_EvolutionaryAlgorithm_PersonalityTraits.hpp
+    G_OA_FactoryT.hpp
     G_OA_FactoryStore.hpp
     G_OA_GradientDescent.hpp
     G_OA_GradientDescent_Factory.hpp
@@ -75,7 +76,6 @@ SET ( OPTIMIZATIONINCLUDES
 	Go2.hpp
     GObject.hpp
 	GOptimizableEntity.hpp
-        G_OA_FactoryT.hpp
     GOptimizationEnums.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp

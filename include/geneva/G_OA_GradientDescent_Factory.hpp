@@ -47,7 +47,7 @@
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
 #include "geneva/G_OA_FactoryT.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_GradientDescent.hpp"
 #include "geneva/G_OA_InitializerT.hpp"
@@ -63,7 +63,7 @@ namespace Geneva {
  * It will only return objects which perform all evaluation through the broker.
  */
 class GGradientDescentFactory
-	: public G_OA_FactoryT<G_OA_BaseT>
+	: public G_OA_FactoryT<G_OptimizationAlgorithm_Base>
 {
 public:
 	 /** @brief The default constructor */
@@ -87,12 +87,12 @@ public:
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 virtual G_API_GENEVA std::shared_ptr<G_OA_BaseT> getObject_(
+	 virtual G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
 		 Gem::Common::GParserBuilder&
 		 , const std::size_t&
 	 ) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<G_OA_BaseT>&) override;
+	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
 };
 
 /******************************************************************************/

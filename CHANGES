@@ -35,12 +35,12 @@ The main changes for this release include:
  - As Geneva must now be compiled in C++14 mode and Boost is a mixture of header-only-
    and binary-libraries, it is highly recommended to also compile Boost in C++14-mode
  - Many classes were given better names. E.g., the main optimization base class has
-   been renamed to G_OA_BaseT .
+   been renamed to G_OptimizationAlgorithm_Base .
 
 ********************************************************************************
 
- - Made GBasePluggableOMT<> independent of G_OA_BaseT<>. The monitor base class
-   is no longer an embedded class of G_OA_BaseT<>. If you develop your own
+ - Made GBasePluggableOMT<> independent of G_OptimizationAlgorithm_Base<>. The monitor base class
+   is no longer an embedded class of G_OptimizationAlgorithm_Base<>. If you develop your own
    optimization monitors, you need to derive them from a new class -- see the collection
    in GPluggableOptimizationMonitorsT.hpp for examples.
  - Added the option to specify a minimum number of iterations and a minimum time that the
@@ -361,7 +361,7 @@ The main changes for this release include:
    type. Some options are now hidden and are only shown upon explicit
    request.
  - Added the ability to catch a SIGHUP signal and let
-   G_OA_BaseT<> exit gracefully, without discarding results.
+   G_OptimizationAlgorithm_Base<> exit gracefully, without discarding results.
    This requires that GObject::sigHupHandler is registered as a signal
    handler, which needs to be done by the user, e.g. in main().
  - In networked execution, the server now tells the client how long it
@@ -505,7 +505,7 @@ The main changes for this release include:
    chosen for the corresponding objects is used -- or on the command
    line, in which case the parallelization mode can be modified on demand.
  - Introduced a new interface class G_Interface_Optimizer, as the basis
-   of G_OA_BaseT and various wrapper classes.
+   of G_OptimizationAlgorithm_Base and various wrapper classes.
  - Removed all std::pair in favor of boost::tuple (the future std::tuple).
  - Some renaming of variables. E.g.: renamed 'recoSchemes' to the
    more appropriate 'duplicationScheme', dito for this enums constants.

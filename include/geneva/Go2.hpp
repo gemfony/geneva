@@ -60,7 +60,7 @@
 #include "geneva/GObject.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/G_Interface_Optimizer.hpp"
-#include "geneva/G_OA_BaseT.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -95,7 +95,7 @@ G_API_GENEVA void setRNFParameters(const std::uint16_t&);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
-using GOABase = Gem::Geneva::G_OA_BaseT;
+using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
 
 /******************************************************************************/
 /**

@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-	: G_OA_FactoryT<G_OA_BaseT>(
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(
 	"./config/GGradientDescent.json")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GGradientDescentFactory::GGradientDescentFactory()
 GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OA_BaseT>(configFile)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OA_BaseT>(configFile, contentCreatorPtr)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GGradientDescentFactory::GGradientDescentFactory(
  * The copy constructor
  */
 GGradientDescentFactory::GGradientDescentFactory(const GGradientDescentFactory& cp)
-	: G_OA_FactoryT<G_OA_BaseT>(cp)
+	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -105,7 +105,7 @@ std::string GGradientDescentFactory::getAlgorithmName() const {
  *
  * @return Items of the desired type
  */
-std::shared_ptr<G_OA_BaseT> GGradientDescentFactory::getObject_(
+std::shared_ptr<G_OptimizationAlgorithm_Base> GGradientDescentFactory::getObject_(
 	Gem::Common::GParserBuilder &gpb
 	, const std::size_t &id
 ) {
@@ -127,10 +127,10 @@ std::shared_ptr<G_OA_BaseT> GGradientDescentFactory::getObject_(
  * @param p A smart-pointer to be acted on during post-processing
  */
 void GGradientDescentFactory::postProcess_(
-	std::shared_ptr<G_OA_BaseT>& p_base
+	std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OA_BaseT>::postProcess_(p_base);
+	G_OA_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
 }
 
 /******************************************************************************/

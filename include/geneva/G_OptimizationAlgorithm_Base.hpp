@@ -1,5 +1,5 @@
 /**
- * @file G_OA_BaseT.hpp
+ * @file G_OptimizationAlgorithm_Base.hpp
  */
 
 /*
@@ -297,7 +297,7 @@ public:
  * a given amount of time. The class also defines the interface functions common to these
  * algorithms, such as a general call to "optimize()".
  */
-class G_OA_BaseT
+class G_OptimizationAlgorithm_Base
 	: public GObject
   	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
    , public G_Interface_Optimizer
@@ -354,15 +354,15 @@ public:
 	 /**
 	  * The default constructor. Note that most variables are initialized in the class body.
 	  */
-	 G_OA_BaseT() = default;
+	 G_OptimizationAlgorithm_Base() = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The copy constructor
 	  *
-	  * @param cp A constant reference to another G_OA_BaseT object
+	  * @param cp A constant reference to another G_OptimizationAlgorithm_Base object
 	  */
-	 G_OA_BaseT(const G_OA_BaseT& cp)
+	 G_OptimizationAlgorithm_Base(const G_OptimizationAlgorithm_Base& cp)
 		 : GObject(cp)
 			, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>(cp)
 			, m_iteration(cp.m_iteration)
@@ -410,26 +410,26 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~G_OA_BaseT()
+	 virtual ~G_OptimizationAlgorithm_Base()
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * A standard assignment operator
 	  */
-	 const G_OA_BaseT& operator=(const G_OA_BaseT& cp) {
+	 const G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another G_OA_BaseT object
+	  * Checks for equality with another G_OptimizationAlgorithm_Base object
 	  *
-	  * @param  cp A constant reference to another G_OA_BaseT object
+	  * @param  cp A constant reference to another G_OptimizationAlgorithm_Base object
 	  * @return A boolean indicating whether both objects are equal
 	  */
-	 bool operator==(const G_OA_BaseT& cp) const {
+	 bool operator==(const G_OptimizationAlgorithm_Base& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -441,12 +441,12 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for inequality with another G_OA_BaseT object
+	  * Checks for inequality with another G_OptimizationAlgorithm_Base object
 	  *
-	  * @param  cp A constant reference to another G_OA_BaseT object
+	  * @param  cp A constant reference to another G_OptimizationAlgorithm_Base object
 	  * @return A boolean indicating whether both objects are inequal
 	  */
-	 bool operator!=(const G_OA_BaseT& cp) const {
+	 bool operator!=(const G_OptimizationAlgorithm_Base& cp) const {
 		 using namespace Gem::Common;
 		 try {
 			 this->compare(cp, expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
@@ -514,7 +514,7 @@ public:
 		 // Make sure it fits our own algorithm
 		 if(opt_desc != this->getAlgorithmPersonalityType()) {
 			 glogger
-			 << "In G_OA_BaseT<>::loadCheckpoint(): Error!" << std::endl
+			 << "In G_OptimizationAlgorithm_Base<>::loadCheckpoint(): Error!" << std::endl
 		    << "Checkpoint file " << cpFile << std::endl
 			 << "seems to belong to another algorithm. Expected " << this->getAlgorithmPersonalityType() << std::endl
 			 << "but got " << opt_desc << std::endl
@@ -569,14 +569,14 @@ public:
 		 // Do some basic checks
 		 if(cpBaseName == "empty" || cpBaseName.empty()) {
 			 glogger
-				 << "In G_OA_BaseT::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+				 << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				 << "Error: Invalid cpBaseName: " << cpBaseName << std::endl
 				 << GEXCEPTION;
 		 }
 
 		 if(cpDirectory == "empty" || cpDirectory.empty()) {
 			 glogger
-				 << "In G_OA_BaseT::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
+				 << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(const std::string&, const std::string&):" << std::endl
 				 << "Error: Invalid cpDirectory: " << cpDirectory << std::endl
 				 << GEXCEPTION;
 		 }
@@ -586,19 +586,19 @@ public:
 		 // Check that the provided directory exists
 		 if(!boost::filesystem::exists(cpDirectory)) {
 			 glogger
-				 << "In G_OA_BaseT::setCheckpointBaseName(): Warning!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Warning!" << std::endl
 				 << "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl
 				 << GWARNING;
 
 			 if(!boost::filesystem::create_directory(cpDirectory)) {
 				 glogger
-					 << "In G_OA_BaseT::setCheckpointBaseName(): Error!" << std::endl
+					 << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
 					 << "Could not create directory " << cpDirectory << std::endl
 					 << GEXCEPTION;
 			 }
 		 } else if(!boost::filesystem::is_directory(cpDirectory)) {
 			 glogger
-				 << "In G_OA_BaseT::setCheckpointBaseName(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
 				 << cpDirectory << " exists but is no directory." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -692,10 +692,10 @@ public:
 	 ) const override {
 		 using namespace Gem::Common;
 
-		 // Check that we are dealing with a G_OA_BaseT reference independent of this object and convert the pointer
-		 const G_OA_BaseT *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_BaseT>(cp, this);
+		 // Check that we are dealing with a G_OptimizationAlgorithm_Base reference independent of this object and convert the pointer
+		 const G_OptimizationAlgorithm_Base *p_load = Gem::Common::g_convert_and_compare<GObject, G_OptimizationAlgorithm_Base>(cp, this);
 
-		 GToken token("G_OA_BaseT", e);
+		 GToken token("G_OptimizationAlgorithm_Base", e);
 
 		 // Compare our parent data ...
 		 Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
@@ -782,7 +782,7 @@ public:
 	 ) {
 		 if(!executor_ptr) {
 			 glogger
-			 << "In G_OA_BaseT::registerExecutor(): Warning!" << std::endl
+			 << "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << std::endl
 	       << "Tried to register empty executor-pointer. We will leave the existing" << std::endl
 			 << "executor in place" << std::endl
 			 << GWARNING;
@@ -792,7 +792,7 @@ public:
 
 		 if(!m_halted) {
 			 glogger
-			 << "In G_OA_BaseT::registerExecutor(): Warning!" << std::endl
+			 << "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << std::endl
 			 << "Tried to register an executor while the optimization is already running" << std::endl
 			 << "The new executor will be ignored." << std::endl
 			 << GWARNING;
@@ -809,7 +809,7 @@ public:
 		 m_executor_ptr->addConfigurationOptions(gpb);
 		 if (!gpb.parseConfigFile(executorConfigFile)) {
 			 glogger
-				 << "In G_OA_BaseT::registerExecutor(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base::registerExecutor(): Error!" << std::endl
 				 << "Could not parse configuration file " << executorConfigFile << std::endl
 				 << GEXCEPTION;
 		 }
@@ -990,7 +990,7 @@ public:
 			 default:
 			 {
 				 glogger
-					 << "G_OA_BaseT<>::informationUpdate(" << im << "): Received invalid infoMode " << std::endl
+					 << "G_OptimizationAlgorithm_Base<>::informationUpdate(" << im << "): Received invalid infoMode " << std::endl
 					 << GEXCEPTION;
 			 }
 				 break;
@@ -1019,7 +1019,7 @@ public:
 	  * function does NOT take ownership of the optimization monitor.
 	  */
 	 void registerPluggableOM(
-		 std::shared_ptr<GBasePluggableOMT<G_OA_BaseT>> pluggableOM
+		 std::shared_ptr<GBasePluggableOMT<G_OptimizationAlgorithm_Base>> pluggableOM
 	 ) {
 		 if(pluggableOM) {
 			 m_pluggable_monitors_vec.push_back(pluggableOM);
@@ -1078,7 +1078,7 @@ public:
 		 // The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
 		 if(m_maxIteration > 0 && m_maxIteration <= m_minIteration) {
 			 glogger
-				 << "In G_OA_BaseT<>::setMaxIteration(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base<>::setMaxIteration(): Error!" << std::endl
 				 << "Maximum number of iterations " << 	m_maxIteration << " is <= the minimum number " << m_minIteration << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1110,7 +1110,7 @@ public:
 		 // The check is only valid if a maximum number of iterations has been set (i.e. is != 0)
 		 if(m_maxIteration > 0 && m_maxIteration <= m_minIteration) {
 			 glogger
-				 << "In G_OA_BaseT<>::setMinIteration(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base<>::setMinIteration(): Error!" << std::endl
 				 << "Maximum number of iterations " << 	m_maxIteration << " is <= the minimum number " << m_minIteration << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1157,7 +1157,7 @@ public:
 	 void setMaxTime(std::chrono::duration<double> maxDuration) {
 		 if(!Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < m_minDuration) {
 			 glogger
-				 << "In G_OA_BaseT<>::setMaxTime(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base<>::setMaxTime(): Error!" << std::endl
 				 << "Desired maxDuration (" << maxDuration.count() << " is smaller than m_minDuration(" << m_minDuration.count() << ")" << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1185,7 +1185,7 @@ public:
 	 void setMinTime(std::chrono::duration<double> minDuration) {
 		 if(!Gem::Common::isClose<double>(m_maxDuration.count(),0.) && m_maxDuration < minDuration) {
 			 glogger
-				 << "In G_OA_BaseT<>::setMinTime(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base<>::setMinTime(): Error!" << std::endl
 				 << "Desired maxDuration (" << m_maxDuration.count() << " is smaller than m_minDuration(" << minDuration.count() << ")" << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1402,7 +1402,7 @@ public:
 #ifdef DEBUG
 		 if(pos >= this->size()) {
 			 glogger
-				 << "In G_OA_BaseT::individual_cast<>() : Error" << std::endl
+				 << "In G_OptimizationAlgorithm_Base::individual_cast<>() : Error" << std::endl
 				 << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
 				 << GEXCEPTION;
 
@@ -1602,7 +1602,7 @@ public:
 #ifdef DEBUG
 		 if(this->empty()) {
 			 glogger
-				 << "In G_OA_BaseT::updateGlobalBestsPQ() :" << std::endl
+				 << "In G_OptimizationAlgorithm_Base::updateGlobalBestsPQ() :" << std::endl
 				 << "Tried to retrieve the best individuals even though the population is empty." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1628,7 +1628,7 @@ public:
 #ifdef DEBUG
 		 if(this->empty()) {
 			 glogger
-				 << "In G_OA_BaseT::updateIterationBestsPQ() :" << std::endl
+				 << "In G_OptimizationAlgorithm_Base::updateIterationBestsPQ() :" << std::endl
 				 << "Tried to retrieve the best individuals even though the population is empty." << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1716,8 +1716,8 @@ protected:
 	  * @param cp Another GOptimizationAlgorithm object, camouflaged as a GObject
 	  */
 	 virtual void load_(const GObject* cp) override {
-		 // Check that we are dealing with a G_OA_BaseT reference independent of this object and convert the pointer
-		 const G_OA_BaseT *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_BaseT>(cp, this);
+		 // Check that we are dealing with a G_OptimizationAlgorithm_Base reference independent of this object and convert the pointer
+		 const G_OptimizationAlgorithm_Base *p_load = Gem::Common::g_convert_and_compare<GObject, G_OptimizationAlgorithm_Base>(cp, this);
 
 		 // Load the parent class'es data
 		 GObject::load_(cp);
@@ -1822,7 +1822,7 @@ protected:
 		 // Check that the size is at least 2 (i.e. the PERSONALITY_X-part may exist)
 		 if(tokens.size() < 2) {
 			 glogger
-			 << "In G_OA_BaseT<>::extractOptAlgFromPath(): Error!" << std::endl
+			 << "In G_OptimizationAlgorithm_Base<>::extractOptAlgFromPath(): Error!" << std::endl
 		    << "Found file name " << filename << " that does not comply to rules." << std::endl
 			 << "Expected \"/some/path/word1-PERSONALITY_EA-some-other-information \"" << std::endl
 		    << GEXCEPTION;
@@ -1843,7 +1843,7 @@ protected:
 		 if(p) return p;
 		 else {
 			 glogger
-				 << "In G_OA_BaseT<T>::customGetBestGlobalIndividual(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base<T>::customGetBestGlobalIndividual(): Error!" << std::endl
 				 << "Best individual seems to be empty" << std::endl
 				 << GEXCEPTION;
 
@@ -1875,7 +1875,7 @@ protected:
 		 if(p) return p;
 		 else {
 			 glogger
-				 << "In G_OA_BaseT<T>::customGetBestIterationIndividual(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base<T>::customGetBestIterationIndividual(): Error!" << std::endl
 				 << "Best individual seems to be empty" << std::endl
 				 << GEXCEPTION;
 
@@ -1935,7 +1935,7 @@ protected:
 	 void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals) {
 		 if(0 == nRecordBestIndividuals) {
 			 glogger
-				 << "In G_OA_BaseT<>::setNRecordBestIndividuals(): Error!" << std::endl
+				 << "In G_OptimizationAlgorithm_Base<>::setNRecordBestIndividuals(): Error!" << std::endl
 				 << "Invalid number of individuals to be recorded: " << nRecordBestIndividuals << std::endl
 				 << GEXCEPTION;
 		 }
@@ -1958,7 +1958,7 @@ protected:
 	 /**
 	  * It is possible for derived classes to specify in overloaded versions of this
 	  * function under which conditions the optimization should be stopped. The
-	  * function is called from G_OA_BaseT::halt .
+	  * function is called from G_OptimizationAlgorithm_Base::halt .
 	  *
 	  * @return boolean indicating that a stop condition was reached
 	  */
@@ -1991,14 +1991,14 @@ protected:
 #ifdef DEBUG
 			 if(!executor_ptr) {
 				 glogger
-					 << "In G_OA_BaseT<>::init(): Error!" << std::endl
+					 << "In G_OptimizationAlgorithm_Base<>::init(): Error!" << std::endl
 				    << "Did not receive a valid executor" << std::endl
 					 << GEXCEPTION;
 			 }
 #endif
 
 			 glogger
-			 << "In G_OA_BaseT<>::init(): No explicit executor was registered. Using default" << std::endl
+			 << "In G_OptimizationAlgorithm_Base<>::init(): No explicit executor was registered. Using default" << std::endl
 			 << "\"" << executor_ptr->name() << "\" with config \"" << this->m_default_executor_config << "\" instead" << std::endl
 			 << GLOGGING;
 
@@ -2063,7 +2063,7 @@ protected:
 #ifdef DEBUG
 			 if(ind_ptr->getNumberOfFitnessCriteria() != nFitnessCriteria) {
 				 glogger
-					 << "In G_OA_BaseT<>::updateWorstKnownValid(): Error!" << std::endl
+					 << "In G_OptimizationAlgorithm_Base<>::updateWorstKnownValid(): Error!" << std::endl
 					 << "Got " << ind_ptr->getNumberOfFitnessCriteria() << " fitness criteria in individual " << ind_cnt << std::endl
 					 << "but expected " << nFitnessCriteria << " criteria" << std::endl
 					 << GEXCEPTION;
@@ -2071,7 +2071,7 @@ protected:
 
 			 if(!m_worstKnownValids_vec.empty() && m_worstKnownValids_vec.size() != nFitnessCriteria) {
 				 glogger
-					 << "In G_OA_BaseT<>::updateWorstKnownValid(): Error!" << std::endl
+					 << "In G_OptimizationAlgorithm_Base<>::updateWorstKnownValid(): Error!" << std::endl
 					 << "Got invalid number of evaluation criteria in m_worstKnownValids_vec:" << std::endl
 					 << "Got " << m_worstKnownValids_vec.size() << " but expected " << nFitnessCriteria << std::endl
 					 << GEXCEPTION;
@@ -2110,7 +2110,7 @@ protected:
 	 /**
 	  * Work to be performed right after the individuals were evaluated. NOTE:
 	  * this setup is sub-optimal, as this function isn't called from within
-	  * G_OA_BaseT directly, but only from derived classes. This happens
+	  * G_OptimizationAlgorithm_Base directly, but only from derived classes. This happens
 	  * to prevent an additional split of the cycleLogic function.
 	  */
 	 void postEvaluationWork() {
@@ -2166,7 +2166,7 @@ private:
 	 /**
 	  * This function returns true once a given time (set with
 	  * GOptimizationAlgorithm<GParameterSet>::setMaxTime()) has passed.
-	  * It is used in the G_OA_BaseT::halt() function.
+	  * It is used in the G_OptimizationAlgorithm_Base::halt() function.
 	  *
 	  * @return A boolean indicating whether a given amount of time has passed
 	  */
@@ -2535,7 +2535,7 @@ private:
 	 bool m_emitTerminationReason = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
 	 std::atomic<bool> m_halted { true }; ///< Set to true when halt() has returned "true"
 	 std::vector<std::tuple<double, double>> m_worstKnownValids_vec; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-	 std::vector<std::shared_ptr<GBasePluggableOMT<G_OA_BaseT>>> m_pluggable_monitors_vec; ///< A collection of monitors
+	 std::vector<std::shared_ptr<GBasePluggableOMT<G_OptimizationAlgorithm_Base>>> m_pluggable_monitors_vec; ///< A collection of monitors
 
 	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> m_executor_ptr; ///< Holds the current executor for this algorithm
 	 execMode m_default_execMode = execMode::BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
@@ -2567,7 +2567,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("G_OA_BaseT<>::modify_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OptimizationAlgorithm_Base<>::modify_GUnitTests", "GEM_TESTING");
 		 return false;
 #endif /* GEM_TESTING */
 	 }
@@ -2586,7 +2586,7 @@ public:
 		 Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("G_OA_BaseT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OptimizationAlgorithm_Base<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -2604,7 +2604,7 @@ public:
 		 Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("G_OA_BaseT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 condnotset("G_OptimizationAlgorithm_Base<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -2621,7 +2621,7 @@ public:
 /******************************************************************************/
 // Some serialization-related exports and declarations
 
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OA_BaseT)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_Base)
 
 // TODO: Export base pluggable OMT
 

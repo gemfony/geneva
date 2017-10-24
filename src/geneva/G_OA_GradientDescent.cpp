@@ -60,7 +60,7 @@ GGradientDescent::GGradientDescent(
 	, const double &finiteStep
 	, const double &stepSize
 )
-	: G_OA_BaseT()
+	: G_OptimizationAlgorithm_Base()
 	, nStartingPoints_(nStartingPoints)
 	, finiteStep_(finiteStep)
 	, stepSize_(stepSize)
@@ -73,7 +73,7 @@ GGradientDescent::GGradientDescent(
  * @param cp A copy of another GradientDescent object
  */
 GGradientDescent::GGradientDescent(const GGradientDescent &cp)
-	: G_OA_BaseT(cp)
+	: G_OptimizationAlgorithm_Base(cp)
 	, nStartingPoints_(cp.nStartingPoints_)
 	, nFPParmsFirst_(cp.nFPParmsFirst_)
 	, finiteStep_(cp.finiteStep_)
@@ -273,7 +273,7 @@ void GGradientDescent::compare(
 	GToken token("GGradientDescent", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<G_OA_BaseT>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nStartingPoints_, p_load->nStartingPoints_), token);
@@ -302,7 +302,7 @@ void GGradientDescent::resetToOptimizationStart() {
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
-	G_OA_BaseT::resetToOptimizationStart();
+	G_OptimizationAlgorithm_Base::resetToOptimizationStart();
 }
 
 /******************************************************************************/
@@ -325,7 +325,7 @@ void GGradientDescent::load_(const GObject *cp) {
 
 	// First load the parent class'es data.
 	// This will also take care of copying all individuals.
-	G_OA_BaseT::load_(cp);
+	G_OptimizationAlgorithm_Base::load_(cp);
 
 	// ... and then our own data
 	nStartingPoints_ = p_load->nStartingPoints_;
@@ -487,7 +487,7 @@ void GGradientDescent::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	G_OA_BaseT::addConfigurationOptions(gpb);
+	G_OptimizationAlgorithm_Base::addConfigurationOptions(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::size_t>(
@@ -590,7 +590,7 @@ void GGradientDescent::runFitnessCalculation() {
  */
 void GGradientDescent::init() {
 	// To be performed before any other action
-	G_OA_BaseT::init();
+	G_OptimizationAlgorithm_Base::init();
 
 	// Extract the boundaries of all parameters
 	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, activityMode::ACTIVEONLY);
@@ -653,7 +653,7 @@ void GGradientDescent::init() {
  */
 void GGradientDescent::finalize() {
 	// Last action
-	G_OA_BaseT::finalize();
+	G_OptimizationAlgorithm_Base::finalize();
 }
 
 /******************************************************************************/
@@ -707,7 +707,7 @@ void GGradientDescent::adjustPopulation() {
 #endif
 
 	// Set the default size of the population
-	G_OA_BaseT::setDefaultPopulationSize(nStartingPoints_ * (nFPParmsFirst_ + 1));
+	G_OptimizationAlgorithm_Base::setDefaultPopulationSize(nStartingPoints_ * (nFPParmsFirst_ + 1));
 
 	// First create a suitable number of start individuals and initialize them as required
 	if (nStart < nStartingPoints_) {
@@ -763,7 +763,7 @@ bool GGradientDescent::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (G_OA_BaseT::modify_GUnitTests()) result = true;
+	if (G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
 
 	return result;
 #else /* GEM_TESTING */
@@ -779,7 +779,7 @@ bool GGradientDescent::modify_GUnitTests() {
 void GGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OA_BaseT::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -792,7 +792,7 @@ void GGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 void GGradientDescent::specificTestsFailuresExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OA_BaseT::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    condnotset("GGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
