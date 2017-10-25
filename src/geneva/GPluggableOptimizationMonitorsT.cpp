@@ -682,6 +682,227 @@ void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
+/**
+ * The copy constructor
+ */
+GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor& cp) : GBasePluggableOM(cp)
+{
+	Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors, m_pluggable_monitors);
+}
+
+/******************************************************************************/
+/**
+ * A standard assignment operator
+ */
+const GCollectiveMonitor& GCollectiveMonitor::operator=(const GCollectiveMonitor& cp) {
+	this->load_(&cp);
+	return *this;
+}
+
+/************************************************************************/
+/**
+ * Checks for equality with another GCollectiveMonitorT object
+ *
+ * @param  cp A constant reference to another GCollectiveMonitorT object
+ * @return A boolean indicating whether both objects are equal
+ */
+bool GCollectiveMonitor::operator==(const GCollectiveMonitor& cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch(g_expectation_violation&) {
+		return false;
+	}
+}
+
+/************************************************************************/
+/**
+ * Checks for inequality with another GCollectiveMonitorT object
+ *
+ * @param  cp A constant reference to another GCollectiveMonitorT object
+ * @return A boolean indicating whether both objects are inequal
+ */
+bool GCollectiveMonitor::operator!=(const GCollectiveMonitor& cp) const {
+	using namespace Gem::Common;
+	try {
+		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+		return true;
+	} catch(g_expectation_violation&) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Aggregates the work of all registered pluggable monitors
+ */
+void GCollectiveMonitor::informationFunction(
+	const infoMode& im
+	, G_OptimizationAlgorithm_Base *const goa
+)  {
+	for(auto pm_ptr : m_pluggable_monitors) { // std::shared_ptr may be copied
+		pm_ptr->informationFunction(im,goa);
+	}
+}
+
+/******************************************************************************/
+/**
+ * Allows to register a new pluggable monitor
+ */
+void GCollectiveMonitor::registerPluggableOM(
+	std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr
+) {
+	if(om_ptr) {
+		m_pluggable_monitors.push_back(om_ptr);
+	} else {
+		glogger
+			<< "In GCollectiveMonitor::registerPluggableOM(): Error!" << std::endl
+			<< "Got empty pointer to pluggable optimization monitor." << std::endl
+			<< GEXCEPTION;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks if adaptors have been registered in the collective monitor
+ */
+bool GCollectiveMonitor::hasOptimizationMonitors() const {
+	return !m_pluggable_monitors.empty();
+}
+
+/******************************************************************************/
+/**
+ * Allows to clear all registered monitors
+ */
+void GCollectiveMonitor::resetPluggbleOM() {
+	m_pluggable_monitors.clear();
+}
+
+/******************************************************************************/
+/**
+ * Emits a name for this class / object
+ */
+std::string GCollectiveMonitor::name() const  {
+return std::string("GCollectiveMonitor");
+}
+
+/******************************************************************************/
+/**
+ * Searches for compliance with expectations with respect to another object
+ * of the same type
+ *
+ * @param cp A constant reference to another GObject object
+ * @param e The expected outcome of the comparison
+ * @param limit The maximum deviation for floating point values (important for similarity checks)
+ */
+void GCollectiveMonitor::compare(
+	const GObject& cp
+	, const Gem::Common::expectation& e
+	, const double& limit
+) const  {
+	using namespace Gem::Common;
+
+	// Check that we are dealing with a GCollectiveMonitor reference independent of this object and convert the pointer
+	const GCollectiveMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	GToken token("GCollectiveMonitor", e);
+
+	// Compare our parent data ...
+	Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+
+	// ... and then our local data
+	compare_t(IDENTITY(m_pluggable_monitors, p_load->m_pluggable_monitors), token);
+
+	// React on deviations from the expectation
+	token.evaluate();
+}
+
+/************************************************************************/
+/**
+ * Loads the data of another object
+ *
+ * cp A pointer to another GCollectiveMonitorT object, camouflaged as a GObject
+ */
+void GCollectiveMonitor::load_(const GObject* cp)  {
+	// Check that we are dealing with a GCollectiveMonitor reference independent of this object and convert the pointer
+	const GCollectiveMonitor *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+	// Load the parent classes' data ...
+	GBasePluggableOM::load_(cp);
+
+	// ... and then our local data
+	Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors, m_pluggable_monitors);
+}
+
+/************************************************************************/
+/**
+ * Creates a deep clone of this object
+ */
+GObject* GCollectiveMonitor::clone_() const  {
+	return new GCollectiveMonitor(*this);
+}
+
+/******************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GCollectiveMonitor::modify_GUnitTests()  {
+#ifdef GEM_TESTING
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	bool result = false;
+
+	// Call the parent classes' functions
+	if(GBasePluggableOM::modify_GUnitTests()) {
+		result = true;
+	}
+
+	// no local data -- nothing to change
+
+	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	condnotset("GCollectiveMonitor::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests()  {
+#ifdef GEM_TESTING
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	// Call the parent classes' functions
+	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	condnotset("GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests()  {
+#ifdef GEM_TESTING
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	// Call the parent classes' functions
+	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	condnotset("GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
