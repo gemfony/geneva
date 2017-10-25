@@ -1165,424 +1165,108 @@ class GAllSolutionFileLogger
 
 public:
 	/***************************************************************************/
-	/**
-	 * The default constructor. Note that some variables may be initialized in the class body.
-	 */
-	GAllSolutionFileLogger()
-	{ /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Initialization with a file name. Note that some variables may be initialized in the class body.
-	 */
-	GAllSolutionFileLogger(const std::string& fileName)
-		: m_fileName(fileName)
-	{ /* nothing */ }
-
-	/***************************************************************************/
-	/**
-	 * Initialization with a file name and boundaries.
-	 * Note that some variables may be initialized in the class body.
-	 */
+	/** @brief The default constructor */
+	GAllSolutionFileLogger() = default;
+	/** @brief Initialization with a file name */
+	GAllSolutionFileLogger(const std::string& fileName);
+	/** @brief Initialization with a file name and boundaries */
 	GAllSolutionFileLogger(
 		const std::string& fileName
 		, const std::vector<double>& boundaries
-	)
-		: m_fileName(fileName)
-		, m_boundaries(boundaries)
-		, m_boundariesActive(true)
-	{ /* nothing */ }
+	);
+	/** @brief The copy constructor */
+	GAllSolutionFileLogger(const GAllSolutionFileLogger& cp);
+	/** @brief The destructor */
+	virtual ~GAllSolutionFileLogger() = default;
 
-	/***************************************************************************/
-	/**
-	 * The copy constructor
-	 */
-	GAllSolutionFileLogger(const GAllSolutionFileLogger& cp)
-		: m_fileName(cp.m_fileName)
-		, m_boundaries(cp.m_boundaries)
-		, m_boundariesActive(cp.m_boundariesActive)
-		, m_withNameAndType(cp.m_withNameAndType)
-		, m_withCommas(cp.m_withCommas)
-		, m_useRawFitness(cp.m_useRawFitness)
-		, m_showValidity(cp.m_showValidity)
-		, m_printInitial(cp.m_printInitial)
-		, m_showIterationBoundaries(cp.m_showIterationBoundaries)
-	{ /* nothing */ }
+	/** @brief A standard assignment operator */
+	const GAllSolutionFileLogger& operator=(const GAllSolutionFileLogger& cp);
 
-	/***************************************************************************/
-	/**
-	 * The destructor
-	 */
-	virtual ~GAllSolutionFileLogger()
-	{ /* nothing */ }
+	/** @brief Checks for equality with another GAllSolutionFileLoggerT object */
+	virtual bool operator==(const GAllSolutionFileLogger& cp) const;
+	/** @brief Checks for inequality with another GAllSolutionFileLoggerT object */
+	virtual bool operator!=(const GAllSolutionFileLogger& cp) const;
 
-	/***************************************************************************/
-	/**
-	 * A standard assignment operator
-	 */
-	const GAllSolutionFileLogger& operator=(const GAllSolutionFileLogger& cp) {
-		this->load_(&cp);
-		return *this;
-	}
+	/** @brief Emits a name for this class / object */
+	virtual std::string name() const override;
 
-	/************************************************************************/
-	/**
-	 * Checks for equality with another GAllSolutionFileLoggerT object
-	 *
-	 * @param  cp A constant reference to another GAllSolutionFileLoggerT object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool operator==(const GAllSolutionFileLogger& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
-
-	/************************************************************************/
-	/**
-	 * Checks for inequality with another GAllSolutionFileLoggerT object
-	 *
-	 * @param  cp A constant reference to another GAllSolutionFileLoggerT object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	virtual bool operator!=(const GAllSolutionFileLogger& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * Emits a name for this class / object
-	 */
-	virtual std::string name() const override {
-		return std::string("GAllSolutionFileLogger");
-	}
-
-	/***************************************************************************/
-	/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GObject object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual void compare(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
-	) const override {
-		using namespace Gem::Common;
+	) const override;
 
-		// Check that we are dealing with a GAllSolutionFileLogger reference independent of this object and convert the pointer
-		const GAllSolutionFileLogger *p_load = Gem::Common::g_convert_and_compare<GObject, GAllSolutionFileLogger>(cp, this);
+	/** @brief Sets the file name */
+	void setFileName(std::string fileName);
+	/** @brief Retrieves the current file name */
+	std::string getFileName() const;
 
-		GToken token("GAllSolutionFileLogger", e);
+	/** @brief Sets the boundaries */
+	void setBoundaries(std::vector<double> boundaries);
+	/** @brief Allows to retrieve the boundaries */
+	std::vector<double> getBoundaries() const;
+	/** @brief Allows to check whether boundaries are active */
+	bool boundariesActive() const;
+	/** @brief Allows to inactivate boundaries */
+	void setBoundariesInactive();
 
-		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	/** @brief  Allows to specify whether explanations should be printed for parameter- and fitness values. */
+	void setPrintWithNameAndType(bool withNameAndType = true);
+	/** @brief Allows to check whether explanations should be printed for parameter-and fitness values */
+	bool getPrintWithNameAndType() const;
 
-		// ... and then our local data
-		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-		compare_t(IDENTITY(m_boundaries, p_load->m_boundaries), token);
-		compare_t(IDENTITY(m_boundariesActive, p_load->m_boundariesActive), token);
-		compare_t(IDENTITY(m_withNameAndType, p_load->m_withNameAndType), token);
-		compare_t(IDENTITY(m_withCommas, p_load->m_withCommas), token);
-		compare_t(IDENTITY(m_useRawFitness, p_load->m_useRawFitness), token);
-		compare_t(IDENTITY(m_showValidity, p_load->m_showValidity), token);
-	   compare_t(IDENTITY(m_printInitial, p_load->m_printInitial), token);
-		compare_t(IDENTITY(m_showIterationBoundaries, p_load->m_showIterationBoundaries), token);
+	/** @brief Allows to specify whether commas should be printed in-between values */
+	void setPrintWithCommas(bool withCommas = true);
+	/** @brief Allows to check whether commas should be printed in-between values */
+	bool getPrintWithCommas() const;
 
-		// React on deviations from the expectation
-		token.evaluate();
-	}
+	/** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
+	void setUseTrueFitness(bool useRawFitness = true);
+	/** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
+	bool getUseTrueFitness() const;
 
-	/***************************************************************************/
-	/**
-	 * Sets the file name
-	 */
-	void setFileName(std::string fileName) {
-		m_fileName = fileName;
-	}
+	/** @brief Allows to specify whether the validity of a solution should be shown */
+	void setShowValidity(bool showValidity = true);
+	/** @brief Allows to check whether the validity of a solution will be shown */
+	bool getShowValidity() const;
 
-	/***************************************************************************/
-	/**
-	 * Retrieves the current file name
-	 */
-	std::string getFileName() const {
-		return m_fileName;
-	}
+	/** @brief Allows to specifiy whether the initial population should be printed. */
+	void setPrintInitial(bool printInitial = true);
+	/** @brief Allows to check whether the initial population should be printed. */
+ 	bool getPrintInitial() const;
 
-	/***************************************************************************/
-	/**
-	 * Sets the boundaries
-	 */
-	void setBoundaries(std::vector<double> boundaries) {
-		m_boundaries = boundaries;
-		m_boundariesActive = true;
-	}
+ 	/** @brief Allows to specifiy whether a comment line should be inserted between iterations */
+   void setShowIterationBoundaries(bool showIterationBoundaries = true);
+   /** @brief Allows to check whether a comment line should be inserted between iterations */
+   bool getShowIterationBoundaries() const;
 
-	/***************************************************************************/
-	/**
-	 * Allows to retrieve the boundaries
-	 */
-	std::vector<double> getBoundaries() const {
-		return m_boundaries;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to check whether boundaries are active
-	 */
-	bool boundariesActive() const {
-		return m_boundariesActive;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to inactivate boundaries
-	 */
-	void setBoundariesInactive() {
-		m_boundariesActive = false;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to specify whether explanations should be printed for parameter-
-	 * and fitness values.
-	 */
-	void setPrintWithNameAndType(bool withNameAndType = true) {
-		m_withNameAndType = withNameAndType;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to check whether explanations should be printed for parameter-
-	 * and fitness values
-	 */
-	bool getPrintWithNameAndType() const {
-		return m_withNameAndType;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to specify whether commas should be printed in-between values
-	 */
-	void setPrintWithCommas(bool withCommas = true) {
-		m_withCommas = withCommas;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to check whether commas should be printed in-between values
-	 */
-	bool getPrintWithCommas() const {
-		return m_withCommas;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to specify whether the true (instead of the transformed) fitness should be shown
-	 */
-	void setUseTrueFitness(bool useRawFitness = true) {
-		m_useRawFitness = useRawFitness;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
-	 */
-	bool getUseTrueFitness() const {
-		return m_useRawFitness;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to specify whether the validity of a solution should be shown
-	 */
-	void setShowValidity(bool showValidity = true) {
-		m_showValidity = showValidity;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to check whether the validity of a solution will be shown
-	 */
-	bool getShowValidity() const {
-		return m_showValidity;
-	}
-
- 	/***************************************************************************/
-	/**
-	 * Allows to specifiy whether the initial population (prior to any
-	 * optimization work) should be printed.
-	 */
-	void setPrintInitial(bool printInitial = true) {
-		m_printInitial = printInitial;
-	}
-
- 	/***************************************************************************/
-	/**
-	 * Allows to check whether the initial population (prior to any
-	 * optimization work) should be printed.
-	 */
- 	bool getPrintInitial() const {
-		return m_printInitial;
-	}
-
-	/***************************************************************************/
- 	/**
-    * Allows to specifiy whether a comment line should be inserted
-    * between iterations
-    */
-   void setShowIterationBoundaries(bool showIterationBoundaries = true) {
-		m_showIterationBoundaries = showIterationBoundaries;
- 	}
-
-	/***************************************************************************/
-   /**
-    * Allows to check whether a comment line should be inserted
-    * between iterations
-    */
-   bool getShowIterationBoundaries() const {
-	   return m_showIterationBoundaries;
- 	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to emit information in different stages of the information cycle
-	 * (initialization, during each cycle and during finalization)
-	 */
+	/** @brief Allows to emit information in different stages of the information cycle */
 	virtual void informationFunction(
 		const infoMode& im
 		, G_OptimizationAlgorithm_Base *const goa
-	) override {
-		switch(im) {
-			case Gem::Geneva::infoMode::INFOINIT:
-			{
-				// If the file pointed to by m_fileName already exists, make a back-up
-				if(bf::exists(m_fileName)) {
-					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
-
-					glogger
-					<< "In GAllSolutionFileLogger::informationFunction(): Warning!" << std::endl
-					<< "Attempt to output information to file " << m_fileName << std::endl
-					<< "which already exists. We will rename the old file to" << std::endl
-					<< newFileName << std::endl
-					<< GWARNING;
-
-					bf::rename(m_fileName, newFileName);
-				}
-
-				if(m_printInitial) {
-					this->printPopulation("Initial population", goa);
-				}
-			}
-			break;
-
-			case Gem::Geneva::infoMode::INFOPROCESSING:
-			{
-				this->printPopulation("At end of iteration " + boost::lexical_cast<std::string>(goa->getIteration()), goa);
-			}
-				break;
-
-			case Gem::Geneva::infoMode::INFOEND:
-				// nothing
-			break;
-
-			default:
-			{
-				glogger
-				<< "In GAllSolutionFileLogger: Received invalid infoMode " << im << std::endl
-				<< GEXCEPTION;
-			}
-			break;
-		};
-	}
+	) override;
 
 protected:
 	/************************************************************************/
-	/**
-	 * Loads the data of another object
-	 *
-	 * cp A pointer to another GAllSolutionFileLoggerT object, camouflaged as a GObject
-	 */
-	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GAllSolutionFileLogger reference independent of this object and convert the pointer
-		const GAllSolutionFileLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		// Load the parent classes' data ...
-		GBasePluggableOM::load_(cp);
-
-		// ... and then our local data
-		m_fileName = p_load->m_fileName;
-		m_boundaries = p_load->m_boundaries;
-		m_boundariesActive = p_load->m_boundariesActive;
-		m_withNameAndType = p_load->m_withNameAndType;
-		m_withCommas = p_load->m_withCommas;
-		m_useRawFitness = p_load->m_useRawFitness;
-		m_showValidity = p_load->m_showValidity;
-		m_printInitial = p_load->m_printInitial;
-		m_showIterationBoundaries = p_load->m_showIterationBoundaries;
-	}
-
-	/************************************************************************/
-	/**
-	 * Creates a deep clone of this object
-	 */
-	virtual GObject* clone_() const override {
-		return new GAllSolutionFileLogger(*this);
-	}
+	/** @brief Loads the data of another object */
+	virtual void load_(const GObject* cp) override;
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const override;
 
 private:
  	/***************************************************************************/
-	/**
-	 * Does the actual printing
-	 */
+
+	/** @brief Does the actual printing */
  	void printPopulation(
 		const std::string& iterationDescription
 		, G_OptimizationAlgorithm_Base *const goa
-	) {
-		// Open the external file
-		boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
-
-		if(m_showIterationBoundaries) {
-			data
-				<< "#" << std::endl
-				<< "# -----------------------------------------------------------------------------" << std::endl
-				<< "# " << iterationDescription << ":" << std::endl
-			   << "#" << std::endl;
-		}
-
-		// Loop over all individuals of the algorithm.
-		for(std::size_t pos=0; pos<goa->size(); pos++) {
-			std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-
-			// Note that isGoodEnough may throw if loop acts on a "dirty" individual
-			if(!m_boundariesActive || ind->isGoodEnough(m_boundaries)) {
-				// Append the data to the external file
-				if(0 == pos && goa->inFirstIteration()) { // Only output name and type in the very first line (if at all)
-					data << ind->toCSV(m_withNameAndType, m_withCommas, m_useRawFitness, m_showValidity);
-				} else {
-					data << ind->toCSV(false, m_withCommas, m_useRawFitness, m_showValidity);
-				}
-			}
-		}
-
-		// Close the external file
-		data.close();
-	}
+	);
 
 	/***************************************************************************/
+	// Data
 
 	std::string m_fileName = "CompleteSolutionLog.txt"; ///< The name of the file to which solutions should be stored
 	std::vector<double> m_boundaries; ///< Value boundaries used to filter logged solutions
@@ -1596,65 +1280,14 @@ private:
 
 public:
 	/***************************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	virtual bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
-		bool result = false;
+	/** @brief Applies modifications to this object */
+	virtual bool modify_GUnitTests() override;
+	/** @brief Performs self tests that are expected to succeed */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override;
+	/** @brief Performs self tests that are expected to fail */
+	virtual void specificTestsFailuresExpected_GUnitTests() override;
 
-		// Call the parent classes' functions
-		if(GBasePluggableOM::modify_GUnitTests()) {
-			result = true;
-		}
-
-		// no local data -- nothing to change
-
-		return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAllSolutionFileLogger::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	}
-
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
-
-		// Call the parent classes' functions
-		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	}
-
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
-
-		// Call the parent classes' functions
-		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	}
 	/***************************************************************************/
 };
 
@@ -1685,266 +1318,62 @@ class GIterationResultsFileLogger
 
 public:
 	/***************************************************************************/
-	/**
-	 * The default constructor. Note that some variables may be initialized
-	 * in the class body.
-	 */
-	GIterationResultsFileLogger()
-	{ /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Initialization with a file name. Note that some variables may be initialized
-	 * in the class body.
-	 */
-	GIterationResultsFileLogger(const std::string& fileName)
-		: m_fileName(fileName)
-	{ /* nothing */ }
+	/** @brief The default constructor */
+	GIterationResultsFileLogger() = default;
+	/** @brief Initialization with a file name */
+	GIterationResultsFileLogger(const std::string& fileName);
+	/** @brief The copy constructor */
+	GIterationResultsFileLogger(const GIterationResultsFileLogger& cp);
+	/** @brief The destructor */
+	virtual ~GIterationResultsFileLogger() = default;
 
-	/***************************************************************************/
-	/**
-	 * The copy constructor
-	 */
-	GIterationResultsFileLogger(const GIterationResultsFileLogger& cp)
-		: m_fileName(cp.m_fileName)
-		, m_withCommas(cp.m_withCommas)
-		, m_useRawFitness(cp.m_useRawFitness)
-	{ /* nothing */ }
+	/** @brief A standard assignment operator */
+	const GIterationResultsFileLogger& operator=(const GIterationResultsFileLogger& cp);
 
-	/***************************************************************************/
-	/**
-	 * The destructor
-	 */
-	virtual ~GIterationResultsFileLogger()
-	{ /* nothing */ }
+	/** @brief Checks for equality with another GIterationResultsFileLoggerT object */
+	virtual bool operator==(const GIterationResultsFileLogger& cp) const;
+	/** @brief Checks for inequality with another GIterationResultsFileLoggerT object */
+	virtual bool operator!=(const GIterationResultsFileLogger& cp) const;
 
-	/***************************************************************************/
-	/**
-	 * A standard assignment operator
-	 */
-	const GIterationResultsFileLogger& operator=(const GIterationResultsFileLogger& cp) {
-		this->load_(&cp);
-		return *this;
-	}
+	/** @brief Emits a name for this class / object */
+	virtual std::string name() const override;
 
-	/************************************************************************/
-	/**
-	 * Checks for equality with another GIterationResultsFileLoggerT object
-	 *
-	 * @param  cp A constant reference to another GIterationResultsFileLoggerT object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool operator==(const GIterationResultsFileLogger& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
-
-	/************************************************************************/
-	/**
-	 * Checks for inequality with another GIterationResultsFileLoggerT object
-	 *
-	 * @param  cp A constant reference to another GIterationResultsFileLoggerT object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	virtual bool operator!=(const GIterationResultsFileLogger& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * Emits a name for this class / object
-	 */
-	virtual std::string name() const override {
-		return std::string("GIterationResultsFileLogger");
-	}
-
-	/***************************************************************************/
-	/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GObject object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual void compare(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
-	) const override {
-		using namespace Gem::Common;
+	) const override;
 
-		// Check that we are dealing with a GIterationResultsFileLogger
-		// reference independent of this object and convert the pointer
-		const GIterationResultsFileLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	/** @brief Sets the file name */
+	void setFileName(std::string fileName);
+	/** @brief Retrieves the current file name */
+	std::string getFileName() const;
 
-		GToken token("GIterationResultsFileLogger", e);
+	/** @brief Allows to specify whether commas should be printed in-between values */
+	void setPrintWithCommas(bool withCommas);
+	/** @brief Allows to check whether commas should be printed in-between values */
+	bool getPrintWithCommas() const;
 
-		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	/** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
+	void setUseTrueFitness(bool useRawFitness);
+	/** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
+	bool getUseTrueFitness() const;
 
-		// ... and then our local data
-		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-		compare_t(IDENTITY(m_withCommas, p_load->m_withCommas), token);
-		compare_t(IDENTITY(m_useRawFitness, p_load->m_useRawFitness), token);
-
-		// React on deviations from the expectation
-		token.evaluate();
-	}
-
-	/***************************************************************************/
-	/**
-	 * Sets the file name
-	 */
-	void setFileName(std::string fileName) {
-		m_fileName = fileName;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Retrieves the current file name
-	 */
-	std::string getFileName() const {
-		return m_fileName;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to specify whether commas should be printed in-between values
-	 */
-	void setPrintWithCommas(bool withCommas) {
-		m_withCommas = withCommas;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to check whether commas should be printed in-between values
-	 */
-	bool getPrintWithCommas() const {
-		return m_withCommas;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to specify whether the true (instead of the transformed) fitness should be shown
-	 */
-	void setUseTrueFitness(bool useRawFitness) {
-		m_useRawFitness = useRawFitness;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
-	 */
-	bool getUseTrueFitness() const {
-		return m_useRawFitness;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to emit information in different stages of the information cycle
-	 * (initialization, during each cycle and during finalization)
-	 */
+	/** @brief Allows to emit information in different stages of the information cycle */
 	virtual void informationFunction(
 		const infoMode& im
 		, G_OptimizationAlgorithm_Base *const goa
-	) override {
-		switch(im) {
-			case Gem::Geneva::infoMode::INFOINIT:
-			{
-				// If the file pointed to by m_fileName already exists, make a back-up
-				if(bf::exists(m_fileName)) {
-					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
-
-					glogger
-					<< "In GIterationResultsFileLogger::informationFunction(): Warning!" << std::endl
-					<< "Attempt to output information to file " << m_fileName << std::endl
-					<< "which already exists. We will rename the old file to" << std::endl
-					<< newFileName << std::endl
-					<< GWARNING;
-
-					bf::rename(m_fileName, newFileName);
-				}
-			}
-				break;
-
-			case Gem::Geneva::infoMode::INFOPROCESSING:
-			{
-				// Open the external file
-				boost::filesystem::ofstream data(m_fileName.c_str(), std::ofstream::app);
-				std::vector<double> fitnessVec;
-
-				// Loop over all individuals of the algorithm.
-				std::size_t nIndividuals = goa->size();
-				for(std::size_t pos=0; pos<nIndividuals; pos++) {
-					std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-					fitnessVec = goa->at(pos)->fitnessVec(m_useRawFitness);
-
-					std::size_t nFitnessCriteria = goa->at(0)->getNumberOfFitnessCriteria();
-					for(std::size_t i=0; i<nFitnessCriteria; i++) {
-						data << fitnessVec.at(i) << ((m_withCommas && (nFitnessCriteria*nIndividuals > (i+1)*(pos+1)))?", ":" ");
-					}
-				}
-				data << std::endl;
-
-				// Close the external file
-				data.close();
-			}
-				break;
-
-			case Gem::Geneva::infoMode::INFOEND:
-				// nothing
-				break;
-
-			default:
-			{
-				glogger
-				<< "In GIterationResultsFileLogger: Received invalid infoMode " << im << std::endl
-				<< GEXCEPTION;
-			}
-				break;
-		};
-	}
+	) override;
 
 protected:
 	/************************************************************************/
-	/**
-	 * Loads the data of another object
-	 *
-	 * cp A pointer to another GIterationResultsFileLoggerT object, camouflaged as a GObject
-	 */
-	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GIterationResultsFileLogger
-		// reference independent of this object and convert the pointer
-		const GIterationResultsFileLogger *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		// Load the parent classes' data ...
-		GBasePluggableOM::load_(cp);
-
-		// ... and then our local data
-		m_fileName = p_load->m_fileName;
-		m_withCommas = p_load->m_withCommas;
-		m_useRawFitness = p_load->m_useRawFitness;
-	}
-
-	/************************************************************************/
-	/**
-	 * Creates a deep clone of this object
-	 */
-	virtual GObject* clone_() const override {
-		return new GIterationResultsFileLogger(*this);
-	}
+	/** @brief Loads the data of another object */
+	virtual void load_(const GObject* cp) override;
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const override;
 
 private:
 	/***************************************************************************/
@@ -1955,65 +1384,14 @@ private:
 
 public:
 	/***************************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	virtual bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
-		bool result = false;
+	/** @brief Applies modifications to this object */
+	virtual bool modify_GUnitTests() override;
+	/** @brief Performs self tests that are expected to succeed */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests() override;
 
-		// Call the parent classes' functions
-		if(GBasePluggableOM::modify_GUnitTests()) {
-			result = true;
-		}
-
-		// no local data -- nothing to change
-
-		return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIterationResultsFileLogger::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	}
-
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
-
-		// Call the parent classes' functions
-		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	}
-
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
-
-		// Call the parent classes' functions
-		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	}
 	/***************************************************************************/
 };
 
@@ -2053,385 +1431,66 @@ class GNAdpationsLogger
 
 public:
 	/***************************************************************************/
-	/**
-	 * The default constructor. Note that some variables may be
-	 * initialized in the class body.
-	 */
-	GNAdpationsLogger()
-		: m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
-		, m_gpd("Number of adaptions per iteration", 1, 2)
-	{ /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Initialization with a file name. Note that some variables may be
-	 * initialized in the class body.
-	 */
-	explicit GNAdpationsLogger(const std::string& fileName)
-		: m_fileName(fileName)
-		, m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
-		, m_gpd("Number of adaptions per iteration", 1, 2)
-	{ /* nothing */ }
+	/** @brief The default constructor */
+	GNAdpationsLogger();
+	/** @brief Initialization with a file name */
+	explicit GNAdpationsLogger(const std::string& fileName);
+	/** @brief The copy constructor */
+	GNAdpationsLogger(const GNAdpationsLogger& cp);
+	/** @brief The destructor */
+	virtual ~GNAdpationsLogger() = default;
 
-	/***************************************************************************/
-	/**
-	 * The copy constructor
-	 */
-	GNAdpationsLogger(const GNAdpationsLogger& cp)
-		: m_fileName(cp.m_fileName)
-		, m_canvasDimensions(cp.m_canvasDimensions)
-		, m_gpd(cp.m_gpd)
-		, m_monitorBestOnly(cp.m_monitorBestOnly)
-		, m_addPrintCommand(cp.m_addPrintCommand)
-		, m_maxIteration(cp.m_maxIteration)
-		, m_nIterationsRecorded(cp.m_nIterationsRecorded)
-		, m_nAdaptionsStore(cp.m_nAdaptionsStore)
-	{
-		Gem::Common::copyCloneableSmartPointer(cp.m_nAdaptionsHist2D_oa, m_nAdaptionsHist2D_oa);
-		Gem::Common::copyCloneableSmartPointer(cp.m_nAdaptionsGraph2D_oa, m_nAdaptionsGraph2D_oa);
-		Gem::Common::copyCloneableSmartPointer(cp.m_fitnessGraph2D_oa, m_fitnessGraph2D_oa);
-	}
+	/** @brief A standard assignment operator */
+	const GNAdpationsLogger& operator=(const GNAdpationsLogger& cp);
 
-	/***************************************************************************/
-	/**
-	 * The destructor
-	 */
-	virtual ~GNAdpationsLogger()
-	{ /* nothing */ }
+	/** @brief Checks for equality with another GNAdpationsLoggerT object */
+	virtual bool operator==(const GNAdpationsLogger& cp) const;
+	/** @brief Checks for inequality with another GNAdpationsLoggerT object */
+	virtual bool operator!=(const GNAdpationsLogger& cp) const;
 
-	/***************************************************************************/
-	/**
-	 * A standard assignment operator
-	 */
-	const GNAdpationsLogger& operator=(const GNAdpationsLogger& cp) {
-		this->load_(&cp);
-		return *this;
-	}
-
-	/************************************************************************/
-	/**
-	 * Checks for equality with another GNAdpationsLoggerT object
-	 *
-	 * @param  cp A constant reference to another GNAdpationsLoggerT object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	virtual bool operator==(const GNAdpationsLogger& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
-
-	/************************************************************************/
-	/**
-	 * Checks for inequality with another GNAdpationsLoggerT object
-	 *
-	 * @param  cp A constant reference to another GNAdpationsLoggerT object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	virtual bool operator!=(const GNAdpationsLogger& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
-
-	/***************************************************************************/
-	/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GObject object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
+	/** @brief Searches for compliance with expectations with respect to another object */
 	virtual void compare(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
-	) const override {
-		using namespace Gem::Common;
+	) const override;
 
-		// Check that we are dealing with a GNAdpationsLogger reference independent of this object and convert the pointer
-		const GNAdpationsLogger *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLogger>(cp, this);
+	/** @brief Sets the file name */
+	void setFileName(std::string fileName);
+	/** @brief Retrieves the current file name */
+	std::string getFileName() const;
 
-		GToken token("GNAdpationsLogger", e);
+	/** @brief Allows to specify whether only the best individuals should be monitored */
+	void setMonitorBestOnly(bool monitorBestOnly = true);
+	/** @brief Allows to check whether only the best individuals should be monitored */
+	bool getMonitorBestOnly() const;
 
-		// Compare our parent data ...
-		Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	/** @brief Allows to set the canvas dimensions */
+	void setCanvasDimensions(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions);
+	/** @brief Allows to set the canvas dimensions using separate x and y values */
+	void setCanvasDimensions(std::uint32_t x, std::uint32_t y);
+	/** @brief Gives access to the canvas dimensions */
+	std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const;
 
-		// ... and then our local data
-		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-		compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
-		compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
-		compare_t(IDENTITY(m_nAdaptionsHist2D_oa, p_load->m_nAdaptionsHist2D_oa), token);
-		compare_t(IDENTITY(m_nAdaptionsGraph2D_oa, p_load->m_nAdaptionsGraph2D_oa), token);
-		compare_t(IDENTITY(m_fitnessGraph2D_oa, p_load->m_fitnessGraph2D_oa), token);
-		compare_t(IDENTITY(m_monitorBestOnly, p_load->m_monitorBestOnly), token);
-		compare_t(IDENTITY(m_addPrintCommand, p_load->m_addPrintCommand), token);
-		compare_t(IDENTITY(m_maxIteration, p_load->m_maxIteration), token);
-		compare_t(IDENTITY(m_nIterationsRecorded, p_load->m_nIterationsRecorded), token);
-		compare_t(IDENTITY(m_nAdaptionsStore, p_load->m_nAdaptionsStore), token);
+	/** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
+	void setAddPrintCommand(bool addPrintCommand);
+	/** @brief Allows to retrieve the current value of the m_addPrintCommand variable */
+	bool getAddPrintCommand() const;
 
-		// React on deviations from the expectation
-		token.evaluate();
-	}
-
-	/***************************************************************************/
-	/**
-	 * Sets the file name
-	 */
-	void setFileName(std::string fileName) {
-		m_fileName = fileName;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Retrieves the current file name
-	 */
-	std::string getFileName() const {
-		return m_fileName;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to specify whether only the best individuals should be monitored.
-	 */
-	void setMonitorBestOnly(bool monitorBestOnly = true) {
-		m_monitorBestOnly = monitorBestOnly;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to check whether only the best individuals should be monitored.
-	 */
-	bool getMonitorBestOnly() const {
-		return m_monitorBestOnly;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to set the canvas dimensions
-	 */
-	void setCanvasDimensions(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions) {
-		m_canvasDimensions = canvasDimensions;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to set the canvas dimensions using separate x and y values
-	 */
-	void setCanvasDimensions(std::uint32_t x, std::uint32_t y) {
-		m_canvasDimensions = std::tuple<std::uint32_t,std::uint32_t>(x,y);
-	}
-
-	/***************************************************************************/
-	/**
-	 * Gives access to the canvas dimensions
-	 */
-	std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
-		return m_canvasDimensions;
-	}
-
-	/******************************************************************************/
-	/**
-	 * Allows to add a "Print" command to the end of the script so that picture files are created
-	 */
-	void setAddPrintCommand(bool addPrintCommand) {
-		m_addPrintCommand = addPrintCommand;
-	}
-
-	/******************************************************************************/
-	/**
-	 * Allows to retrieve the current value of the m_addPrintCommand variable
-	 */
-	bool getAddPrintCommand() const {
-		return m_addPrintCommand;
-	}
-
-	/***************************************************************************/
-	/**
-	 * Allows to emit information in different stages of the information cycle
-	 * (initialization, during each cycle and during finalization)
-	 */
+	/** @brief Allows to emit information in different stages of the information cycle */
 	virtual void informationFunction(
 		const infoMode& im
 		, G_OptimizationAlgorithm_Base *const goa
-	) override {
-		using namespace Gem::Common;
-
-		switch(im) {
-			case Gem::Geneva::infoMode::INFOINIT:
-			{
-				// If the file pointed to by m_fileName already exists, make a back-up
-				if(bf::exists(m_fileName)) {
-					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
-
-					glogger
-					<< "In GNAdpationsLogger::informationFunction(): Error!" << std::endl
-					<< "Attempt to output information to file " << m_fileName << std::endl
-					<< "which already exists. We will rename the old file to" << std::endl
-					<< newFileName << std::endl
-					<< GWARNING;
-
-					bf::rename(m_fileName, newFileName);
-				}
-
-				// Make sure the progress plotter has the desired size
-				m_gpd.setCanvasDimensions(m_canvasDimensions);
-
-				// Set up a graph to monitor the best fitness found
-				m_fitnessGraph2D_oa = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
-				m_fitnessGraph2D_oa->setXAxisLabel("Iteration");
-				m_fitnessGraph2D_oa->setYAxisLabel("Fitness");
-				m_fitnessGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-			}
-				break;
-
-			case Gem::Geneva::infoMode::INFOPROCESSING:
-			{
-				std::uint32_t iteration = goa->getIteration();
-
-				// Record the current fitness
-				std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
-				(*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), double(p->fitness()));
-
-				// Update the largest known iteration and the number of recorded iterations
-				m_maxIteration = iteration;
-				m_nIterationsRecorded++;
-
-				// Do the actual logging
-				if(m_monitorBestOnly) {
-					std::shared_ptr<GParameterSet> best = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
-					m_nAdaptionsStore.push_back(std::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
-				} else { // Monitor all individuals
-					// Loop over all individuals of the algorithm.
-					for(std::size_t pos=0; pos<goa->size(); pos++) {
-						std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-						m_nAdaptionsStore.push_back(std::tuple<double,double>(double(iteration), double(ind->getNAdaptions())));
-					}
-				}
-			}
-				break;
-
-			case Gem::Geneva::infoMode::INFOEND:
-			{
-				std::vector<std::tuple<double, double>>::iterator it;
-
-				if(m_monitorBestOnly) {
-					// Create the graph object
-					m_nAdaptionsGraph2D_oa = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
-					m_nAdaptionsGraph2D_oa->setXAxisLabel("Iteration");
-					m_nAdaptionsGraph2D_oa->setYAxisLabel("Number of parameter adaptions");
-					m_nAdaptionsGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-
-					// Fill the object with data
-					for(it=m_nAdaptionsStore.begin(); it!=m_nAdaptionsStore.end(); ++it) {
-						(*m_nAdaptionsGraph2D_oa) & *it;
-					}
-
-					// Add the histogram to the plot designer
-					m_gpd.registerPlotter(m_nAdaptionsGraph2D_oa);
-
-				} else { // All individuals are monitored
-					// Within m_nAdaptionsStore, find the largest number of adaptions performed
-					std::size_t maxNAdaptions = 0;
-					for(it=m_nAdaptionsStore.begin(); it!=m_nAdaptionsStore.end(); ++it) {
-						if(std::get<1>(*it) > maxNAdaptions) {
-							maxNAdaptions = boost::numeric_cast<std::size_t>(std::get<1>(*it));
-						}
-					}
-
-					// Create the histogram object
-					m_nAdaptionsHist2D_oa = std::shared_ptr<GHistogram2D>(
-						new GHistogram2D(
-							m_nIterationsRecorded
-							, maxNAdaptions+1
-							, 0., double(m_maxIteration)
-							, 0., double(maxNAdaptions)
-						)
-					);
-
-					m_nAdaptionsHist2D_oa->setXAxisLabel("Iteration");
-					m_nAdaptionsHist2D_oa->setYAxisLabel("Number of parameter adaptions");
-					m_nAdaptionsHist2D_oa->setDrawingArguments("BOX");
-
-					// Fill the object with data
-					for(it=m_nAdaptionsStore.begin(); it!=m_nAdaptionsStore.end(); ++it) {
-						(*m_nAdaptionsHist2D_oa) & *it;
-					}
-
-					// Add the histogram to the plot designer
-					m_gpd.registerPlotter(m_nAdaptionsHist2D_oa);
-				}
-
-				// Add the fitness monitor
-				m_gpd.registerPlotter(m_fitnessGraph2D_oa);
-
-				// Inform the plot designer whether it should print png files
-				m_gpd.setAddPrintCommand(m_addPrintCommand);
-
-				// Write out the result. Note that we add
-				m_gpd.writeToFile(m_fileName);
-
-				// Remove all plotters
-				m_gpd.resetPlotters();
-				m_nAdaptionsHist2D_oa.reset();
-				m_nAdaptionsGraph2D_oa.reset();
-			}
-				break;
-
-			default:
-			{
-				glogger
-				<< "In GNAdpationsLogger: Received invalid infoMode " << im << std::endl
-				<< GEXCEPTION;
-			}
-				break;
-		};
-	}
+	) override;
 
 protected:
 	/************************************************************************/
-	/**
-	 * Loads the data of another object
-	 *
-	 * cp A pointer to another GNAdpationsLoggerT object, camouflaged as a GObject
-	 */
-	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a GNAdpationsLogger reference independent of this object and convert the pointer
-		const GNAdpationsLogger *p_load = Gem::Common::g_convert_and_compare<GObject, GNAdpationsLogger>(cp, this);
 
-		// Load the parent classes' data ...
-		GBasePluggableOM::load_(cp);
-
-		// ... and then our local data
-		m_fileName = p_load->m_fileName;
-		m_canvasDimensions = p_load->m_canvasDimensions;
-		m_gpd = p_load->m_gpd;
-		Gem::Common::copyCloneableSmartPointer(p_load->m_nAdaptionsHist2D_oa, m_nAdaptionsHist2D_oa);
-		Gem::Common::copyCloneableSmartPointer(p_load->m_nAdaptionsGraph2D_oa, m_nAdaptionsGraph2D_oa);
-		Gem::Common::copyCloneableSmartPointer(p_load->m_fitnessGraph2D_oa, m_fitnessGraph2D_oa);
-		m_monitorBestOnly = p_load->m_monitorBestOnly;
-		m_addPrintCommand = p_load->m_addPrintCommand;
-		m_maxIteration = p_load->m_maxIteration;
-		m_nIterationsRecorded = p_load->m_nIterationsRecorded;
-		m_nAdaptionsStore = p_load->m_nAdaptionsStore;
-	}
-
-	/************************************************************************/
-	/**
-	 * Creates a deep clone of this object
-	 */
-	virtual GObject* clone_() const override {
-		return new GNAdpationsLogger(*this);
-	}
+	/** @brief Loads the data of another object */
+	virtual void load_(const GObject* cp) override;
+	/** @brief Creates a deep clone of this object */
+	virtual GObject* clone_() const override;
 
 private:
 	/***************************************************************************/
@@ -2456,65 +1515,14 @@ private:
 
 public:
 	/***************************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	virtual bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
 
-		bool result = false;
+	/** @brief Applies modifications to this object */
+	virtual bool modify_GUnitTests() override;
+	/** @brief Performs self tests that are expected to succeed */
+	virtual void specificTestsNoFailureExpected_GUnitTests() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	virtual void specificTestsFailuresExpected_GUnitTests() override;
 
-		// Call the parent classes' functions
-		if(GBasePluggableOM::modify_GUnitTests()) {
-			result = true;
-		}
-
-		// no local data -- nothing to change
-
-		return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GNAdpationsLogger::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	}
-
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
-
-		// Call the parent classes' functions
-		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	}
-
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		using boost::unit_test_framework::test_suite;
-		using boost::unit_test_framework::test_case;
-
-		// Call the parent classes' functions
-		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	}
 	/***************************************************************************/
 };
 
@@ -3090,6 +2098,7 @@ class GProcessingTimesLogger
 	: public GBasePluggableOM
 {
 	 ///////////////////////////////////////////////////////////////////////
+
 	 friend class boost::serialization::access;
 
 	 template<typename Archive>
@@ -3175,8 +2184,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GProcessingTimesLogger()
-	 { /* nothing */ }
+	 virtual ~GProcessingTimesLogger() = default;
 
 	 /***************************************************************************/
 	 /**
