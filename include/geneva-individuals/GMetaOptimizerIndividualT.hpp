@@ -61,7 +61,7 @@
 #include "geneva/GDoubleGaussAdaptor.hpp"
 #include "geneva/GDoubleBiGaussAdaptor.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
+#include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
 

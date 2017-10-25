@@ -89,7 +89,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GParameterT.hpp
 	GParameterTCollectionT.hpp
 	GPersonalityTraits.hpp
-    GPluggableOptimizationMonitorsT.hpp
+    GPluggableOptimizationMonitors.hpp
     GPostProcessorT.hpp
 	GTestIndividual1.hpp
 )

@@ -1,5 +1,5 @@
 /**
- * @file GPluggableOptimizationMonitorsT.hpp
+ * @file GPluggableOptimizationMonitors.hpp
  */
 
 /*
@@ -496,7 +496,7 @@ public:
 		// Check that the parameter string isn't empty
 		if(parStr.empty()) {
 			glogger
-			<< "In GPluggableOptimizationMonitorsT<>::setProfileSpec(std::string): Error!" << std::endl
+			<< "In GPluggableOptimizationMonitors<>::setProfileSpec(std::string): Error!" << std::endl
 			<< "Parameter string " << parStr << " is empty" << std::endl
 			<< GEXCEPTION;
 		}

@@ -56,7 +56,7 @@ SET ( OPTIMIZATIONSOURCES
 	GParameterSetFixedSizePriorityQueue
 	GParameterSetMultiConstraint
 	GPersonalityTraits
-    GPluggableOptimizationMonitorsT
+    GPluggableOptimizationMonitors
     GPostProcessorT
 	GTestIndividual1
 )

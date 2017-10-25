@@ -27,7 +27,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "geneva/Go2.hpp"
-#include "geneva/GPluggableOptimizationMonitorsT.hpp"
+#include "geneva/GPluggableOptimizationMonitors.hpp"
 
 // The individual that should be optimized
 #include "GImageIndividual.hpp"
