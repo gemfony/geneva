@@ -31,6 +31,7 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.eu .
  */
+
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan_PersonalityTraits)

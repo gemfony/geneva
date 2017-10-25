@@ -102,44 +102,41 @@ class GBasePluggableOM : public GObject
 public:
 	 /***************************************************************************/
 	 /** @brief The default constructor. Some member variables may be initialized in the class body.*/
-	 GBasePluggableOM();
+	 G_API_GENEVA GBasePluggableOM();
 	 /** @brief The copy constructor */
-	 GBasePluggableOM(const GBasePluggableOM& cp);
+	 G_API_GENEVA GBasePluggableOM(const GBasePluggableOM& cp);
 	 /** @brief The Destructor */
-	 virtual ~GBasePluggableOM();
+	 virtual G_API_GENEVA ~GBasePluggableOM();
 
 	 /** @brief Checks for equality with another GBasePluggableOMT object */
-	 virtual bool operator==(const GBasePluggableOM& cp) const;
+	 virtual G_API_GENEVA bool operator==(const GBasePluggableOM& cp) const;
 	 /** @brief Checks for inequality with another GBasePluggableOMT object */
-	 virtual bool operator!=(const GBasePluggableOM& cp) const;
+	 virtual G_API_GENEVA bool operator!=(const GBasePluggableOM& cp) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual void compare(
+	 virtual G_API_GENEVA void compare(
 		 const GObject& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
 	 ) const override;
 
-	 /**
-	  * @brief Overload this function in derived classes, specifying actions for
-	  * initialization, the optimization cycles and finalization.
-	  */
-	 virtual void informationFunction(
+	 /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
+	 virtual G_API_GENEVA void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base * const goa
 	 ) BASE = 0;
 
 	 /** @brief Allows to set the m_useRawEvaluation variable */
-	 void setUseRawEvaluation(bool useRaw);
+	 void G_API_GENEVA setUseRawEvaluation(bool useRaw);
 	 /** @brief Allows to retrieve the value of the m_useRawEvaluation variable */
-	 bool getUseRawEvaluation() const;
+	 bool G_API_GENEVA getUseRawEvaluation() const;
 
 protected:
 	 /************************************************************************/
 	 /** @brief Loads the data of another object */
-	 virtual void load_(const GObject* cp) override;
+	 virtual G_API_GENEVA void load_(const GObject* cp) override;
 	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const override = 0;
+	 virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 	 /***************************************************************************/
 	 // Data
@@ -150,12 +147,12 @@ public:
 	 /************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes
 	  */
-	 virtual bool modify_GUnitTests() override;
+	 virtual G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override;
+	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override;
+	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /************************************************************************/
 };
@@ -224,49 +221,49 @@ private:
 public:
 	 /***************************************************************************/
 	 /** @brief The default constructor. */
-	 G_OptimizationAlgorithm_Base() = default;
+	 G_API_GENEVA G_OptimizationAlgorithm_Base() = default;
 	 /** @brief The copy constructor */
-	 G_OptimizationAlgorithm_Base(const G_OptimizationAlgorithm_Base& cp);
+	 G_API_GENEVA G_OptimizationAlgorithm_Base(const G_OptimizationAlgorithm_Base& cp);
 	 /** @brief The destructor */
-	 virtual ~G_OptimizationAlgorithm_Base();
+	 virtual G_API_GENEVA ~G_OptimizationAlgorithm_Base();
 
 	 /** @brief A standard assignment operator */
-	 const G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp);
+	 G_API_GENEVA const G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp);
 
 	 /** @brief Checks for equality with another G_OptimizationAlgorithm_Base object */
-	 bool operator==(const G_OptimizationAlgorithm_Base& cp) const;
+	 G_API_GENEVA bool operator==(const G_OptimizationAlgorithm_Base& cp) const;
 	 /** @brief Checks for inequality with another G_OptimizationAlgorithm_Base object */
-	 bool operator!=(const G_OptimizationAlgorithm_Base& cp) const;
+	 G_API_GENEVA bool operator!=(const G_OptimizationAlgorithm_Base& cp) const;
 
 	 /** @brief Performs the necessary administratory work of doing check-pointing */
-	 void checkpoint(const bool& is_better) const;
+	 G_API_GENEVA void checkpoint(const bool& is_better) const;
 	 /** @brief Loads the state of the class from disc */
-	 virtual void loadCheckpoint(const bf::path& cpFile) BASE;
+	 virtual G_API_GENEVA void loadCheckpoint(const bf::path& cpFile) BASE;
 
 	 /** @brief Checks whether the optimization process has been halted */
-	 bool halted() const;
+	 G_API_GENEVA bool halted() const;
 
 	 /** @brief Allows to set the number of generations after which a checkpoint should be written */
-	 void setCheckpointInterval(std::int32_t cpInterval);
+	 G_API_GENEVA void setCheckpointInterval(std::int32_t cpInterval);
 	 /** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
-	 std::uint32_t getCheckpointInterval() const;
+	 G_API_GENEVA std::uint32_t getCheckpointInterval() const;
 
 	 /** @brief Allows to set the base name of the checkpoint file and the directory where it should be stored. */
-	 void setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName);
+	 G_API_GENEVA void setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName);
 	 /** @brief Allows to retrieve the base name of the checkpoint file. */
-	 std::string getCheckpointBaseName() const;
+	 G_API_GENEVA std::string getCheckpointBaseName() const;
 	 /** @brief Allows to retrieve the directory where checkpoint files should be stored */
-	 std::string getCheckpointDirectory() const;
+	 G_API_GENEVA std::string getCheckpointDirectory() const;
 	 /** @brief Allows to retrieve the directory where checkpoint files should be stored */
-	 bf::path getCheckpointPath() const;
+	 G_API_GENEVA bf::path getCheckpointPath() const;
 	 /** @brief Determines whether checkpointing should be done in Text-, XML- or Binary-mode */
-	 void setCheckpointSerializationMode(Gem::Common::serializationMode cpSerMode);
+	 G_API_GENEVA void setCheckpointSerializationMode(Gem::Common::serializationMode cpSerMode);
 	 /** @brief Retrieves the current checkpointing serialization mode */
-	 Gem::Common::serializationMode getCheckpointSerializationMode() const;
+	 G_API_GENEVA Gem::Common::serializationMode getCheckpointSerializationMode() const;
 	 /** @brief Allows to set the m_cp_overwrite flag */
-	 void setRemoveCheckpointFiles(bool cp_remove);
+	 G_API_GENEVA void setRemoveCheckpointFiles(bool cp_remove);
 	 /** @brief Allows to check whether checkpoint files will be removed */
-	 bool checkpointFilesAreRemoved() const;
+	 G_API_GENEVA bool checkpointFilesAreRemoved() const;
 
 	 /***************************************************************************/
 	 /**
@@ -277,22 +274,22 @@ public:
 	  * @param e The expected outcome of the comparison
 	  * @param limit The maximum deviation for floating point values (important for similarity checks)
 	  */
-	 virtual void compare(
+	 virtual G_API_GENEVA void compare(
 		 const GObject& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
 	 ) const override;
 
 	 /** @brief Resets the class to the state before the optimize call. */
-	 virtual void resetToOptimizationStart() BASE;
+	 virtual G_API_GENEVA void resetToOptimizationStart() BASE;
 
 	 /** @brief Adds a new executor to the class, replacing the default executor */
-	 void registerExecutor(
+	 G_API_GENEVA void registerExecutor(
 		 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
 	 	 , const std::string& executorConfigFile
 	 );
 	 /** @brief Adds a new executor to the class, using the chosen execution mode */
-	 void registerExecutor(
+	 G_API_GENEVA void registerExecutor(
 		 execMode e
 		 , const std::string& executorConfigFile
 	 );
@@ -317,97 +314,97 @@ public:
 	 /******************************************************************************/
 
 	 /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
-	 virtual void optimize(const std::uint32_t& offset) final;
+	 virtual G_API_GENEVA void optimize(const std::uint32_t& offset) final;
 	 /** @brief A convenience function that helps to avoid having to specify explicit scopes */
-	 virtual void optimize() final;
+	 virtual G_API_GENEVA void optimize() final;
 
 	 /** @brief Emits information specific to this class */
-	 void informationUpdate(const infoMode& im);
+	 G_API_GENEVA void informationUpdate(const infoMode& im);
 
 	 /** @brief Checks whether a better solution was found. */
-	 bool progress() const;
+	 G_API_GENEVA bool progress() const;
 
 	 /** @brief Allows to register a pluggable optimization monitor. */
-	 void registerPluggableOM(
+	 G_API_GENEVA void registerPluggableOM(
 		 std::shared_ptr<GBasePluggableOM> pluggableOM
 	 );
 	 /** @brief Allows to reset the local pluggable optimization monitors */
-	 void resetPluggableOM();
+	 G_API_GENEVA void resetPluggableOM();
 	 /** @brief Allows to check whether pluggable optimization monitors were registered */
-	 bool hasPluggableOptimizationMonitors() const;
+	 G_API_GENEVA bool hasPluggableOptimizationMonitors() const;
 
 	 /** @brief Retrieves the default population size */
-	 std::size_t getDefaultPopulationSize() const;
+	 G_API_GENEVA std::size_t getDefaultPopulationSize() const;
 	 /** @brief Retrieve the current population size */
-	 std::size_t getPopulationSize() const;
+	 G_API_GENEVA std::size_t getPopulationSize() const;
 
 	 /** @brief Set the number of iterations after which the optimization should be stopped */
-	 void setMaxIteration(std::uint32_t maxIteration);
+	 G_API_GENEVA void setMaxIteration(std::uint32_t maxIteration);
 	 /** @brief Retrieve the number of iterations after which optimization should be stopped */
-	 std::uint32_t getMaxIteration() const;
+	 G_API_GENEVA std::uint32_t getMaxIteration() const;
 
 	 /** @brief Sets the minimum number of iterations */
-	 void setMinIteration(std::uint32_t minIteration);
+	 G_API_GENEVA void setMinIteration(std::uint32_t minIteration);
 	 /** @brief Retrieves the currently set minimum number of iterations */
-	 std::uint32_t getMinIteration() const;
+	 G_API_GENEVA std::uint32_t getMinIteration() const;
 
 	 /** @brief Sets the maximum number of iterations allowed without improvement of the best individual */
-	 void setMaxStallIteration(std::uint32_t maxStallIteration);
+	 G_API_GENEVA void setMaxStallIteration(std::uint32_t maxStallIteration);
 	 /** @brief Retrieves the maximum number of generations allowed in an optimization run without improvement of the best individual. */
-	 std::uint32_t getMaxStallIteration() const;
+	 G_API_GENEVA std::uint32_t getMaxStallIteration() const;
 
 	 /** @brief Sets the maximum allowed processing time */
-	 void setMaxTime(std::chrono::duration<double> maxDuration);
+	 G_API_GENEVA void setMaxTime(std::chrono::duration<double> maxDuration);
 	 /** @brief Retrieves the value of the maxDuration_ parameter. */
-	 std::chrono::duration<double> getMaxTime() const;
+	 G_API_GENEVA std::chrono::duration<double> getMaxTime() const;
 
 	 /** @brief Sets the minimum required processing time */
-	 void setMinTime(std::chrono::duration<double> minDuration);
+	 G_API_GENEVA void setMinTime(std::chrono::duration<double> minDuration);
 	 /** @brief Retrieves the value of the minDuration_ parameter */
-	 std::chrono::duration<double> getMinTime() const;
+	 G_API_GENEVA std::chrono::duration<double> getMinTime() const;
 
 	 /** @brief Sets a quality threshold beyond which optimization is expected to stop */
-	 void setQualityThreshold(double qualityThreshold, bool hasQualityThreshold);
+	 G_API_GENEVA void setQualityThreshold(double qualityThreshold, bool hasQualityThreshold);
 	 /** @brief Retrieves the current value of the quality threshold and also indicates whether the threshold is active */
-	 double getQualityThreshold(bool& hasQualityThreshold) const;
+	 G_API_GENEVA double getQualityThreshold(bool& hasQualityThreshold) const;
 
 	 /** @brief Sets the name of a "termination file" */
-	 void setTerminationFile(std::string terminationFile, bool terminateOnFileModification);
+	 G_API_GENEVA void setTerminationFile(std::string terminationFile, bool terminateOnFileModification);
 	 /** @brief Retrieves the current name of the termination file and also indicates whether the "touched halt" is active */
-	 std::string getTerminationFile(bool& terminateOnFileModification) const;
+	 G_API_GENEVA std::string getTerminationFile(bool& terminateOnFileModification) const;
 
 	 /** @brief Removes the quality threshold */
-	 void resetQualityThreshold();
+	 G_API_GENEVA void resetQualityThreshold();
 	 /** @brief Checks whether a quality threshold has been set */
-	 bool hasQualityThreshold() const;
+	 G_API_GENEVA bool hasQualityThreshold() const;
 
 	 /** @brief Retrieve the current iteration of the optimization run */
-	 virtual std::uint32_t getIteration() const override;
+	 virtual G_API_GENEVA std::uint32_t getIteration() const override;
 	 /** @brief Returns the current offset used to calculate the current iteration */
-	 std::uint32_t getStartIteration() const;
+	 G_API_GENEVA std::uint32_t getStartIteration() const;
 
 	 /** @brief Sets the number of iterations after which the algorithm should report about its inner state. */
-	 void setReportIteration(std::uint32_t iter);
+	 G_API_GENEVA void setReportIteration(std::uint32_t iter);
 	 /** @brief Returns the number of iterations after which the algorithm should report about its inner state. */
-	 std::uint32_t getReportIteration() const;
+	 G_API_GENEVA std::uint32_t getReportIteration() const;
 
 	 /** @brief Retrieves the current number of failed optimization attempts */
-	 std::uint32_t getStallCounter() const;
+	 G_API_GENEVA std::uint32_t getStallCounter() const;
 
 	 /** @brief Allows to set the number of iterations without improvement, after which individuals are asked to update their internal data structures */
-	 void setStallCounterThreshold(std::uint32_t stallCounterThreshold);
+	 G_API_GENEVA void setStallCounterThreshold(std::uint32_t stallCounterThreshold);
 	 /** @brief Allows to retrieve the number of iterations without improvement, after which individuals are asked to update their internal data structures */
-	 std::uint32_t getStallCounterThreshold() const;
+	 G_API_GENEVA std::uint32_t getStallCounterThreshold() const;
 
 	 /** @brief Retrieve the best value found in the entire optimization run so far */
-	 std::tuple<double, double> getBestKnownPrimaryFitness() const;
+	 G_API_GENEVA std::tuple<double, double> getBestKnownPrimaryFitness() const;
 	 /** @brief Retrieves the best value found in the current iteration */
-	 std::tuple<double, double> getBestCurrentPrimaryFitness() const;
+	 G_API_GENEVA std::tuple<double, double> getBestCurrentPrimaryFitness() const;
 
 	 /** @brief Specifies whether information about termination reasons should be emitted */
-	 void setEmitTerminationReason(bool emitTerminatioReason = true);
+	 G_API_GENEVA void setEmitTerminationReason(bool emitTerminatioReason = true);
 	 /** @brief Retrieves information on whether information about termination reasons should be emitted */
-	 bool getEmitTerminationReason() const;
+	 G_API_GENEVA bool getEmitTerminationReason() const;
 
 	 /******************************************************************************/
 	 /**
@@ -441,30 +438,30 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Retrieve the number of processable items in the current iteration. */
-	 virtual std::size_t getNProcessableItems() const BASE;
+	 virtual G_API_GENEVA std::size_t getNProcessableItems() const BASE;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual void addConfigurationOptions (
+	 virtual G_API_GENEVA void addConfigurationOptions (
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 
 	 /** @brief Adds the individuals of this iteration to a priority queue. */
-	 virtual void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE;
+	 virtual G_API_GENEVA void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE;
 	 /** @brief Adds the individuals of this iteration to a priority queue. */
-	 virtual void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE;
+	 virtual G_API_GENEVA void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE;
 	 /** @brief If individuals have been stored in this population, they are added to the priority queue. */
-	 void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals);
+	 G_API_GENEVA void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals);
 
 	 /** @brief Emits a name for this class / object; this can be a long name with spaces */
-	 virtual std::string name() const override = 0;
+	 virtual G_API_GENEVA std::string name() const override = 0;
 
 	 /** @brief Helper function that determines whether we are currently inside of the first iteration */
-	 bool inFirstIteration() const;
+	 G_API_GENEVA bool inFirstIteration() const;
 	 /** @brief Helper function that determines whether we are after the first iteration */
-	 bool afterFirstIteration() const;
+	 G_API_GENEVA bool afterFirstIteration() const;
 
 	 /** @brief Checks whether a checkpoint-file has the same "personality" as our own algorithm */
-	 bool cp_personality_fits(const boost::filesystem::path& p) const;
+	 G_API_GENEVA bool cp_personality_fits(const boost::filesystem::path& p) const;
 
 protected:
 	 /***************************************************************************/
@@ -475,148 +472,148 @@ protected:
 
 	 /***************************************************************************/
 
-	/** @brief Loads the data of another GOptimizationAlgorithm object */
-	 virtual void load_(const GObject* cp) override;
+	 /** @brief Loads the data of another GOptimizationAlgorithm object */
+	 virtual G_API_GENEVA void load_(const GObject* cp) override;
 
 	 /** @brief Delegation of work to be performed to the private executor object */
-	 bool workOn(
+	 G_API_GENEVA bool workOn(
 		 std::vector<std::shared_ptr<GParameterSet>>& workItems
 		 , std::vector<bool>& workItemPos
 		 , bool resubmitUnprocessed = false
 		 , const std::string &caller = std::string()
 	 );
 	 /** @brief Retrieves a vector of old work items after job submission */
-	 std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
 
 	 /** @brief Re-implementation of a corresponding function in GStdPtrVectorInterface */
-	 virtual void dummyFunction() override;
+	 virtual G_API_GENEVA void dummyFunction() override;
 
 	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const override = 0;
+	 virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 	 /** @brief Saves the state of the class to disc */
-	 virtual void saveCheckpoint(bf::path outputFile) const;
+	 virtual G_API_GENEVA void saveCheckpoint(bf::path outputFile) const;
 
 	 /** @brief Extracts the short name of the optimization algorithm */
-	 std::string extractOptAlgFromPath(const boost::filesystem::path& p) const;
+	 G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path& p) const;
 
 	 /** @brief Retrieves the best individual found up to now */
-	 virtual std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
 	 /** @brief Retrieves a list of the best individuals found */
-	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
+	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
 
 	 /** @brief Retrieves the best individual found in the iteration */
-	 virtual std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
 	 /** @brief Retrieves a list of the best individuals found in the */
-	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override;
+	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override;
 
 	 /** @brief Allows to set the personality type of the individuals */
-	 void setIndividualPersonalities();
+	 G_API_GENEVA void setIndividualPersonalities();
 	 /** @brief Resets the individual's personality types */
-	 void resetIndividualPersonalities();
+	 G_API_GENEVA void resetIndividualPersonalities();
 
 	 /** @brief The actual business logic to be performed during each iteration */
-	 virtual std::tuple<double, double> cycleLogic() BASE = 0;
+	 virtual G_API_GENEVA std::tuple<double, double> cycleLogic() BASE = 0;
 
 	 /** @brief Sets the default size of the population */
-	 virtual void setDefaultPopulationSize(const std::size_t& defPopSize) BASE;
+	 virtual G_API_GENEVA void setDefaultPopulationSize(const std::size_t& defPopSize) BASE;
 
 	 /** @brief Set the number of "best" individuals to be recorded in each iteration */
-	 void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals);
+	 G_API_GENEVA void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals);
 	 /** @brief Retrieve the number of best individuals to be recorded in each iteration */
-	 std::size_t getNRecordBestIndividuals() const;
+	 G_API_GENEVA std::size_t getNRecordBestIndividuals() const;
 
 	 /** @brief Custom setting of halt criteria */
-	 virtual bool customHalt() const BASE;
+	 virtual G_API_GENEVA bool customHalt() const BASE;
 
 	 /** @brief Allows derived classes to reset the stall counter. */
-	 void resetStallCounter();
+	 G_API_GENEVA void resetStallCounter();
 
 	 /** @brief Initialization code to be run before the optimization cycle */
-	 virtual void init() BASE;
+	 virtual G_API_GENEVA void init() BASE;
 	 /** @brief Finalization code to be run after the optimization cycle */
-	 virtual void finalize() BASE;
+	 virtual G_API_GENEVA void finalize() BASE;
 
 	 /** @brief Retrieve a personality trait object belong to this algorithm */
-	 virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
+	 virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
 
 	 /** @brief Resizes the population to the desired level and does some error checks */
-	 virtual void adjustPopulation() = 0;
+	 virtual G_API_GENEVA void adjustPopulation() = 0;
 
 	 /** @brief Lets individuals know about the current iteration of the optimization cycle. */
-	 void markIteration();
+	 G_API_GENEVA void markIteration();
 
 	 /** @brief Updates the worst known valid evaluations up to the current iteration */
-	 void updateWorstKnownValid();
+	 G_API_GENEVA void updateWorstKnownValid();
 	 /** @brief Let the individuals know about the worst known valid solution so far */
-	 void markWorstKnownValid();
+	 G_API_GENEVA void markWorstKnownValid();
 
 	 /** @brief Triggers an update of the individual's evaluation */
-	 void triggerEvaluationUpdate();
+	 G_API_GENEVA void triggerEvaluationUpdate();
 
 	 /** @brief Work to be performed right after the individuals were evaluated. */
-	 void postEvaluationWork();
+	 G_API_GENEVA void postEvaluationWork();
 
 	 /** @brief Let individuals know the number of stalls encountered so far */
-	 void markNStalls();
+	 G_API_GENEVA void markNStalls();
 
 	 /** @brief Gives derived classes an opportunity to update their internal structures. */
-	 virtual void actOnStalls() BASE;
+	 virtual G_API_GENEVA void actOnStalls() BASE;
 
 	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-	 virtual void runFitnessCalculation() override = 0;
+	 virtual G_API_GENEVA void runFitnessCalculation() override = 0;
 
 private:
 	 /***************************************************************************/
 	 /** @brief Update the stall counter. */
-	 void updateStallCounter(const std::tuple<double, double>& bestEval);
+	 G_API_GENEVA void updateStallCounter(const std::tuple<double, double>& bestEval);
 
 	 /** @brief This function returns true once a given time has passed */
-	 bool timedHalt(const std::chrono::system_clock::time_point& currentTime) const;
+	 G_API_GENEVA bool timedHalt(const std::chrono::system_clock::time_point& currentTime) const;
 	 /** @brief This function checks whether a minimum amount of time has passed */
-	 bool minTimePassed(const std::chrono::system_clock::time_point& currentTime) const;
+	 G_API_GENEVA bool minTimePassed(const std::chrono::system_clock::time_point& currentTime) const;
 
 	 /** @brief This function returns true once the quality has passed a given threshold */
-	 bool qualityHalt() const;
+	 G_API_GENEVA bool qualityHalt() const;
 
 	 /** @brief This function returns true once a given number of stalls has been exceeded in a row */
-	 bool stallHalt() const;
+	 G_API_GENEVA bool stallHalt() const;
 
 	 /** @brief This function returns true once a maximum number of iterations has been exceeded */
-	 bool iterationHalt() const;
+	 G_API_GENEVA bool iterationHalt() const;
 	 /** @brief This function returns true when the minimum number of iterations has been passed. */
-	 bool minIterationPassed() const;
+	 G_API_GENEVA bool minIterationPassed() const;
 
 	 /** @brief This function returns true if a SIGHUP / CTRL_CLOSE_EVENT signal was sent */
-	 bool sigHupHalt() const;
+	 G_API_GENEVA bool sigHupHalt() const;
 
 	 /** @brief Triggers termination of the optimization run, when a file with a user-defined file is modified */
-	 bool touchHalt() const;
+	 G_API_GENEVA bool touchHalt() const;
 
 	 /** @brief A wrapper for the customHalt() function that allows us to emit the termination reason */
-	 bool customHalt_() const;
+	 G_API_GENEVA bool customHalt_() const;
 
 	 /** @brief This function checks whether a halt criterion has been reached. */
-	 bool halt() const;
+	 G_API_GENEVA bool halt() const;
 
 	 /** @brief Check whether the max-iteration halt is set */
-	 bool maxIterationHaltset() const;
+	 G_API_GENEVA bool maxIterationHaltset() const;
 	 /** @brief Check whether a halt criterion based on the number of stalls has been set */
-	 bool stallHaltSet() const;
+	 G_API_GENEVA bool stallHaltSet() const;
 
 	 /** @brief Check whether the maxDuration-halt criterion has been set */
-	 bool maxDurationHaltSet() const;
+	 G_API_GENEVA bool maxDurationHaltSet() const;
 
 	 /** @brief Check whether the quality-threshold halt-criterion has been set */
-	 bool qualityThresholdHaltSet() const;
+	 G_API_GENEVA bool qualityThresholdHaltSet() const;
 	 /** @brief Marks the globally best known fitness in all individuals */
-	 void markBestFitness();
+	 G_API_GENEVA void markBestFitness();
 
 	 /** @brief Indicates whether the stallCounterThreshold_ has been exceeded */
-	 bool stallCounterThresholdExceeded() const;
+	 G_API_GENEVA bool stallCounterThresholdExceeded() const;
 
 	 /** @brief Retrieves an executor for the given execution mode */
-	 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> createExecutor(const execMode& e);
+	 G_API_GENEVA std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> createExecutor(const execMode& e);
 
 	 /***************************************************************************/
 	 // Data
@@ -665,11 +662,11 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object */
-	 virtual bool modify_GUnitTests() override;
+	 virtual G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override;
+	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override;
+	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };

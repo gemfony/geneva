@@ -35,6 +35,7 @@ SET ( OPTIMIZATIONSOURCES
     G_OptimizationAlgorithm_GradientDescent
     G_OptimizationAlgorithm_GradientDescent_Factory
     G_OptimizationAlgorithm_GradientDescent_PersonalityTraits
+    G_OptimizationAlgorithm_ParChild
     G_OptimizationAlgorithm_ParameterScan
     G_OptimizationAlgorithm_ParameterScan_Factory
     G_OptimizationAlgorithm_ParameterScan_PersonalityTraits
