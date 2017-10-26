@@ -98,7 +98,7 @@ const bool DEFAULTALLRANDOMINIT=true;
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, consumerType& consumerType
+	, consumerType& cType
 	, bool& clientMode
 	, std::string& ip
 	, unsigned short& port
@@ -124,7 +124,7 @@ bool parseCommandLine(
 
 	gpb.registerCLParameter<consumerType>(
 		"consumerType"
-		, consumerType
+		, cType
 		, DEFAULTCONSUMERTYPE
 		, "The type of consumer to use: 0 (serial), 1 (multithreaded) or 2 (networked)"
 	);
@@ -280,7 +280,7 @@ bool parseCommandLine(
  * The main function.
  */
 int main(int argc, char **argv){
-	consumerType consumerType;
+	consumerType cType;
 	bool clientMode;
 	std::string ip;
 	unsigned short port;
@@ -310,7 +310,7 @@ int main(int argc, char **argv){
 
 	if(!parseCommandLine(
 		argc, argv
-		, consumerType
+		, cType
 		, clientMode
 		, ip
 		, port
@@ -339,7 +339,7 @@ int main(int argc, char **argv){
 	/****************************************************************************/
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
-	if(clientMode && consumerType == consumerType::NETWORKED) {
+	if(clientMode && cType == consumerType::NETWORKED) {
 		std::shared_ptr<GAsioSerialTCPClientT<GParameterSet>>
 			p(new GAsioSerialTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
@@ -359,7 +359,7 @@ int main(int argc, char **argv){
 	std::shared_ptr<GSwarmAlgorithm> pop_ptr(new GSwarmAlgorithm(nNeighborhoods, nNeighborhoodMembers));
 
 	// Create the actual populations
-	switch(consumerType) {
+	switch(cType) {
 		//---------------------------------------------------------------------------
 		case consumerType::SERIAL: // Serial execution
 		{
@@ -390,7 +390,7 @@ int main(int argc, char **argv){
 		default:
 		{
 			glogger
-			<< "In main(): Received invalid consumer type " << consumerType << std::endl
+			<< "In main(): Received invalid consumer type " << cType << std::endl
 			<< GEXCEPTION;
 		}
 			break;
