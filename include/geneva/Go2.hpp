@@ -64,7 +64,7 @@
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_FactoryStore.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
 #include "geneva/GIndividualStandardConsumers.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 #include "geneva/GConsumerStore.hpp"

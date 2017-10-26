@@ -70,9 +70,9 @@ SET ( OPTIMIZATIONINCLUDES
     G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp
     G_OA_ConjugateGradientDescent.hpp
         G_OptimizationAlgorithm_FactoryT.hpp
-    G_OA_FactoryStore.hpp
+        G_OptimizationAlgorithm_FactoryStore.hpp
         G_OptimizationAlgorithm_InitializerT.hpp
-    G_OA_ParChildT_PersonalityTraits.hpp
+        G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp
 	Go2.hpp
     GObject.hpp
 	GOptimizableEntity.hpp

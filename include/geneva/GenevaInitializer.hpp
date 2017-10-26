@@ -47,7 +47,7 @@
 #include "hap/GRandomFactory.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_FactoryStore.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
 #include "geneva/GConsumerStore.hpp"
 #include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"

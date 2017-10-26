@@ -48,11 +48,11 @@
 #include "courtier/GExecutorT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GGlobalOptionsT.hpp"
-#include "geneva/G_OA_FactoryStore.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 #include "geneva/GParameterSet.hpp"
-#include "geneva/G_OA_FactoryStore.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
 
 namespace Gem {
 namespace Geneva {

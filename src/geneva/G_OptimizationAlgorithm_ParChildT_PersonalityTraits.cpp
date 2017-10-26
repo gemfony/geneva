@@ -32,7 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#include "geneva/G_OA_ParChildT_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBaseParChildPersonalityTraits)
 
