@@ -42,7 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
 	"./config/GGradientDescent.json")
 { /* nothing */ }
 
@@ -53,7 +53,7 @@ GGradientDescentFactory::GGradientDescentFactory()
 GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -65,7 +65,7 @@ GGradientDescentFactory::GGradientDescentFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -73,7 +73,7 @@ GGradientDescentFactory::GGradientDescentFactory(
  * The copy constructor
  */
 GGradientDescentFactory::GGradientDescentFactory(const GGradientDescentFactory& cp)
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(cp)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -130,7 +130,7 @@ void GGradientDescentFactory::postProcess_(
 	std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
+	G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
 }
 
 /******************************************************************************/

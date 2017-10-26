@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
 	"./config/GEvolutionaryAlgorithm.json")
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
  * The copy constructor
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory& cp)
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(cp)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ void GEvolutionaryAlgorithmFactory::postProcess_(
 	std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
+	G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
 }
 
 /******************************************************************************/

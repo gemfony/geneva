@@ -46,7 +46,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
-#include "geneva/G_OA_FactoryT.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing.hpp"
@@ -63,7 +63,7 @@ namespace Geneva {
  * It will only return objects which perform all evaluation through the broker.
  */
 class GSimulatedAnnealingFactory
-	: public G_OA_FactoryT<G_OptimizationAlgorithm_Base>
+	: public G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>
 {
 public:
 	 /** @brief The default constructor */

@@ -61,7 +61,7 @@ namespace Geneva {
  * This class is a specialization of the GFactoryT<> class for optimization algorithms.
  */
 template<typename oa_type>
-class G_OA_FactoryT
+class G_OptimizationAlgorithm_FactoryT
 	: public Gem::Common::GFactoryT<oa_type> {
 public:
 	 /***************************************************************************/
@@ -72,7 +72,7 @@ public:
 	 /**
 	  * The standard constructor
 	  */
-	 explicit G_OA_FactoryT(
+	 explicit G_OptimizationAlgorithm_FactoryT(
 		 const std::string &configFile
 	 )
 		 : Gem::Common::GFactoryT<oa_type>(configFile)
@@ -82,7 +82,7 @@ public:
 	 /**
 	  * A constructor which adds a content creation function
 	  */
-	 G_OA_FactoryT(
+	 G_OptimizationAlgorithm_FactoryT(
 		 const std::string &configFile
 		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 	 )
@@ -94,7 +94,7 @@ public:
 	 /**
 	  * The copy constructor
 	  */
-	 G_OA_FactoryT(const G_OA_FactoryT<oa_type> &cp)
+	 G_OptimizationAlgorithm_FactoryT(const G_OptimizationAlgorithm_FactoryT<oa_type> &cp)
 		 : Gem::Common::GFactoryT<oa_type>(cp)
 		 , m_contentCreatorPtr()
 		 , m_maxIterationCL(cp.m_maxIterationCL)
@@ -116,7 +116,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~G_OA_FactoryT()
+	 virtual ~G_OptimizationAlgorithm_FactoryT()
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -141,17 +141,17 @@ public:
 		 hidden.add_options()(
 			 (this->getMnemonic() + std::string("MaxIterations")).c_str()
 			 , po::value<std::int32_t>(&m_maxIterationCL)->default_value(-1)
-			 , (std::string("\t[G_OA_FactoryT / ") + this->getMnemonic() +
+			 , (std::string("\t[G_OptimizationAlgorithm_FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxStallIterations")).c_str()
 			 , po::value<std::int32_t>(&m_maxStallIterationCL)->default_value(-1)
-			 , (std::string("\t[G_OA_FactoryT / ") + this->getMnemonic() +
+			 , (std::string("\t[G_OptimizationAlgorithm_FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed number of stalled iterations or 0 to disable limit").c_str()
 		 )(
 			 (this->getMnemonic() + std::string("MaxSeconds")).c_str()
 			 , po::value<std::int32_t>(&m_maxSecondsCL)->default_value(-1)
-			 , (std::string("\t[G_OA_FactoryT / ") + this->getMnemonic() +
+			 , (std::string("\t[G_OptimizationAlgorithm_FactoryT / ") + this->getMnemonic() +
 				 "] The maximum allowed duration in seconds or 0 to disable limit").c_str()
 		 );
 	 }
@@ -227,7 +227,7 @@ public:
 			 m_pluggableOM = pluggableOM;
 		 } else {
 			 glogger
-				 << "In G_OA_FactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor"
+				 << "In G_OptimizationAlgorithm_FactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor"
 				 << std::endl
 				 << GEXCEPTION;
 		 }
@@ -405,7 +405,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief The default constructor. Intentionally private and undefined */
-	 G_OA_FactoryT() = delete;
+	 G_OptimizationAlgorithm_FactoryT() = delete;
 
 	 std::int32_t m_maxIterationCL = -1; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 	 std::int32_t m_maxStallIterationCL = -1; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET

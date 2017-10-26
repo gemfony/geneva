@@ -44,7 +44,7 @@ namespace Geneva {
  * The default constructor
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
 	"./config/GSimulatedAnnealing.json")
 { /* nothing */ }
 
@@ -55,7 +55,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory()
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile
 )
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,7 +67,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 	const std::string &configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -75,7 +75,7 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
  * The copy constructor
  */
 GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory& cp)
-	: G_OA_FactoryT<G_OptimizationAlgorithm_Base>(cp)
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -132,7 +132,7 @@ void GSimulatedAnnealingFactory::postProcess_(
 	std::shared_ptr<G_OptimizationAlgorithm_Base>& p_base
 ) {
 	// Call our parent class'es function
-	G_OA_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
+	G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>::postProcess_(p_base);
 }
 
 /******************************************************************************/
