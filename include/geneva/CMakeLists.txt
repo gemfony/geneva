@@ -71,7 +71,7 @@ SET ( OPTIMIZATIONINCLUDES
     G_OA_ConjugateGradientDescent.hpp
         G_OptimizationAlgorithm_FactoryT.hpp
     G_OA_FactoryStore.hpp
-    G_OA_InitializerT.hpp
+        G_OptimizationAlgorithm_InitializerT.hpp
     G_OA_ParChildT_PersonalityTraits.hpp
 	Go2.hpp
     GObject.hpp

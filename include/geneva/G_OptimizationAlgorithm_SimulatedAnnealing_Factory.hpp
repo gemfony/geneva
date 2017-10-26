@@ -50,7 +50,7 @@
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing.hpp"
-#include "geneva/G_OA_InitializerT.hpp"
+#include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
 
 namespace Gem {
 namespace Geneva {

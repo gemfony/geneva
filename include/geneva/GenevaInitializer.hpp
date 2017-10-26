@@ -49,7 +49,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OA_FactoryStore.hpp"
 #include "geneva/GConsumerStore.hpp"
-#include "geneva/G_OA_InitializerT.hpp"
+#include "geneva/G_OptimizationAlgorithm_InitializerT.hpp"
 #include "geneva/GIndividualStandardConsumerInitializerT.hpp"
 
 
@@ -77,7 +77,7 @@ public:
 	template <typename oaf_type>
 	void registerOAF() {
 		// This will register the factory in the global factory store
-		G_OA_InitializerT<oaf_type> GOAFStoreRegistrant;
+		G_OptimizationAlgorithm_InitializerT<oaf_type> GOAFStoreRegistrant;
 	}
 
 	/***************************************************************************/

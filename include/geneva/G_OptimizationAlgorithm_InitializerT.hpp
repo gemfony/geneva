@@ -65,7 +65,7 @@ namespace Geneva {
  * the global algorithm store
  */
 template <typename oaf_type>
-class G_OA_InitializerT {
+class G_OptimizationAlgorithm_InitializerT {
 	// Make sure oaf_type has the expected type
 	static_assert(
 		std::is_base_of<G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base> , oaf_type>::value
@@ -74,7 +74,7 @@ class G_OA_InitializerT {
 
 public:
 	/** @brief The initializing constructor */
-	inline G_OA_InitializerT() {
+	inline G_OptimizationAlgorithm_InitializerT() {
 		// Create a smart pointer holding the algorithm
 		std::shared_ptr<G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>> p(new oaf_type());
 		std::string mnemonic = p->getMnemonic();
@@ -83,7 +83,7 @@ public:
 		GOAFactoryStore->setOnce(mnemonic, p);
 	}
 	/** @brief An empty destructor */
-	virtual inline ~G_OA_InitializerT() { /* nothing */ }
+	virtual inline ~G_OptimizationAlgorithm_InitializerT() { /* nothing */ }
 };
 
 /******************************************************************************/
