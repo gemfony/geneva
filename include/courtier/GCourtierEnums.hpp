@@ -60,17 +60,17 @@ namespace Courtier {
 /**
  * Specification of different consumer types of the broker
  */
-enum class brokerMode : Gem::Common::ENUMBASETYPE {
-	 SERIAL_BROKER = 0
-	 , MULTITHREADED_BROKER = 1
-	 , NETWORKED_BROKER = 2
-	 , LAST = static_cast<Gem::Common::ENUMBASETYPE>(brokerMode::NETWORKED_BROKER)
+enum class consumerType : Gem::Common::ENUMBASETYPE {
+	 SERIAL = 0
+	 , MULTITHREADED = 1
+	 , NETWORKED = 2
+	 , LAST = static_cast<Gem::Common::ENUMBASETYPE>(consumerType::NETWORKED)
 };
 
 /**
  * The default parallelization mode of optimization algorithms
  */
-const brokerMode DEFAULT_BROKER_MODE = brokerMode::MULTITHREADED_BROKER;
+const consumerType DEFAULT_BROKER_MODE = consumerType::MULTITHREADED;
 
 /******************************************************************************/
 /**
@@ -192,10 +192,10 @@ G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::sub
 G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::submissionReturnMode &);
 
 /** @brief Puts a Gem::Courtier::brokerMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COURTIER std::ostream& operator<<(std::ostream&, const Gem::Courtier::brokerMode&);
+G_API_COURTIER std::ostream& operator<<(std::ostream&, const Gem::Courtier::consumerType&);
 
 /** @brief Reads a Gem::Courtier::brokerMode item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COURTIER std::istream& operator>>(std::istream&, Gem::Courtier::brokerMode&);
+G_API_COURTIER std::istream& operator>>(std::istream&, Gem::Courtier::consumerType&);
 
 /******************************************************************************/
 

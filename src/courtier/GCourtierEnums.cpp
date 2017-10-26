@@ -76,7 +76,7 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::submissionReturnMode &s
 /**
  * Puts a Gem::Courtier::brokerMode into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream& operator<<(std::ostream& o, const Gem::Courtier::brokerMode& bm) {
+std::ostream& operator<<(std::ostream& o, const Gem::Courtier::consumerType& bm) {
 	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(bm);
 	o << tmp;
 	return o;
@@ -86,14 +86,14 @@ std::ostream& operator<<(std::ostream& o, const Gem::Courtier::brokerMode& bm) {
 /**
  * Reads a Gem::Courtier::brokerMode item from a stream. Needed also for boost::lexical_cast<>
  */
-std::istream& operator>>(std::istream& i, Gem::Courtier::brokerMode& bm) {
+std::istream& operator>>(std::istream& i, Gem::Courtier::consumerType& bm) {
 	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	bm = boost::numeric_cast<Gem::Courtier::brokerMode>(tmp);
+	bm = boost::numeric_cast<Gem::Courtier::consumerType>(tmp);
 #else
-	bm = static_cast<Gem::Courtier::brokerMode>(tmp);
+	bm = static_cast<Gem::Courtier::consumerType>(tmp);
 #endif /* DEBUG */
 
 	return i;

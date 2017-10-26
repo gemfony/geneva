@@ -72,7 +72,7 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 
-const brokerMode DEFAULTCONSUMERTYPE=brokerMode::MULTITHREADED_BROKER;
+const consumerType DEFAULTCONSUMERTYPE=consumerType::MULTITHREADED;
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
 const std::uint32_t DEFAULTMAXSTALLS06=0;
@@ -98,7 +98,7 @@ const bool DEFAULTALLRANDOMINIT=true;
  */
 bool parseCommandLine(
 	int argc, char **argv
-	, brokerMode& consumerType
+	, consumerType& consumerType
 	, bool& clientMode
 	, std::string& ip
 	, unsigned short& port
@@ -122,7 +122,7 @@ bool parseCommandLine(
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
 
-	gpb.registerCLParameter<brokerMode>(
+	gpb.registerCLParameter<consumerType>(
 		"consumerType"
 		, consumerType
 		, DEFAULTCONSUMERTYPE
@@ -280,7 +280,7 @@ bool parseCommandLine(
  * The main function.
  */
 int main(int argc, char **argv){
-	brokerMode consumerType;
+	consumerType consumerType;
 	bool clientMode;
 	std::string ip;
 	unsigned short port;
@@ -339,7 +339,7 @@ int main(int argc, char **argv){
 	/****************************************************************************/
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
-	if(clientMode && consumerType == brokerMode::NETWORKED_BROKER) {
+	if(clientMode && consumerType == consumerType::NETWORKED) {
 		std::shared_ptr<GAsioSerialTCPClientT<GParameterSet>>
 			p(new GAsioSerialTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
 
@@ -361,7 +361,7 @@ int main(int argc, char **argv){
 	// Create the actual populations
 	switch(consumerType) {
 		//---------------------------------------------------------------------------
-		case brokerMode::SERIAL_BROKER: // Serial execution
+		case consumerType::SERIAL: // Serial execution
 		{
 			std::shared_ptr<GSerialConsumerT<GParameterSet>> sc(new GSerialConsumerT<GParameterSet>());
 			GBROKER(Gem::Geneva::GParameterSet)->enrol(sc);
@@ -369,7 +369,7 @@ int main(int argc, char **argv){
 			break;
 
 			//---------------------------------------------------------------------------
-		case brokerMode::MULTITHREADED_BROKER: // Multi-threaded execution
+		case consumerType::MULTITHREADED: // Multi-threaded execution
 		{
 			std::shared_ptr<GStdThreadConsumerT<GParameterSet>> gbtc(new GStdThreadConsumerT<GParameterSet>());
 			gbtc->setNThreadsPerWorker(nEvaluationThreads);
@@ -378,7 +378,7 @@ int main(int argc, char **argv){
 			break;
 
 			//---------------------------------------------------------------------------
-		case brokerMode::NETWORKED_BROKER: // Networked execution (server-side)
+		case consumerType::NETWORKED: // Networked execution (server-side)
 		{
 			// Create a network consumer and enrol it with the broker
 			std::shared_ptr<GAsioSerialTCPConsumerT<GParameterSet>> gatc(new GAsioSerialTCPConsumerT<GParameterSet>(port, 0, serMode));
