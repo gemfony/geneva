@@ -44,6 +44,8 @@
 
 // Geneva headers go here
 #include "common/GLogger.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 
@@ -168,10 +170,12 @@ private:
 #ifdef DEBUG
 				// Check that we indeed got a valid item
 				if(!p) { // We didn't get a valid item after all
-				   glogger
-				   << "In GSerialConsumerT<T>::startProcessing(): Error!" << std::endl
-               << "Got empty item when it shouldn't be empty!" << std::endl
-               << GEXCEPTION;
+					using namespace Gem::Common;
+					throw gemfony_error_condition(
+						g_error_streamer(DO_LOG,  time_and_place)
+							<< "In GSerialConsumerT<T>::startProcessing(): Error!" << std::endl
+							<< "Got empty item when it shouldn't be empty!" << std::endl
+					);
 				}
 #endif /* DEBUG */
 
@@ -190,24 +194,33 @@ private:
 				}
 			}
 		} catch(Gem::Common::gemfony_error_condition& e) {
-			glogger
-			<< "In GSerialConsumerT::processItems(): Caught Gem::Common::gemfony_error_condition with message"
-			<< std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			using namespace Gem::Common;
+			throw gemfony_error_condition(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSerialConsumerT::processItems(): Caught Gem::Common::gemfony_error_condition with message"
+					<< std::endl
+					<< e.what() << std::endl
+			);
 		} catch (std::exception &e) {
-			glogger
-			<< "In GSerialConsumerT::processItems(): Caught std::exception with message" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
-		} catch (boost::exception &) {
-			glogger
-			<< "In GSerialConsumerT::processItems(): Caught boost::exception with message" << std::endl
-			<< GEXCEPTION;
+			using namespace Gem::Common;
+			throw gemfony_error_condition(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSerialConsumerT::processItems(): Caught std::exception with message" << std::endl
+					<< e.what() << std::endl
+			);
+		} catch (boost::exception &e) {
+			using namespace Gem::Common;
+			throw gemfony_error_condition(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSerialConsumerT::processItems(): Caught boost::exception with information" << std::endl
+					<< boost::diagnostic_information(e) << std::endl
+			);
 		} catch (...) {
-			glogger
-			<< "In GSerialConsumerT::processItems(): Caught unknown exception." << std::endl
-			<< GEXCEPTION;
+			using namespace Gem::Common;
+			throw gemfony_error_condition(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSerialConsumerT::processItems(): Caught unknown exception." << std::endl
+			);
 		}
 	}
 
