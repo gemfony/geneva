@@ -387,10 +387,11 @@ public:
 	 void setNRunsPerOptimization(std::size_t nRunsPerOptimization) {
 #ifdef DEBUG
 		 if(0==nRunsPerOptimization) {
-			 glogger
-				 << "In GMetaOptimizerIndividualT<ind_type>::setNRunsPerOptimization(): Error!" << std::endl
-				 << "Requested number of sub-optimizations is 0" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GMetaOptimizerIndividualT<ind_type>::setNRunsPerOptimization(): Error!" << std::endl
+					 << "Requested number of sub-optimizations is 0" << std::endl
+			 );
 		 }
 #endif
 
@@ -821,10 +822,11 @@ public:
 	  */
 	 void registerIndividualFactory(std::shared_ptr <typename ind_type::FACTORYTYPE> factory) {
 		 if (!factory) {
-			 glogger
-				 << "In GMetaOptimizerIndividualT<T>::registerIndividualFactory(): Error!" << std::endl
-				 << "Individual is empty" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GMetaOptimizerIndividualT<T>::registerIndividualFactory(): Error!" << std::endl
+					 << "Individual is empty" << std::endl
+			 );
 		 }
 
 		 ind_factory_
@@ -893,10 +895,11 @@ protected:
 #ifdef DEBUG
 		 // Check that we have been given a factory
 		 if(!ind_factory_) {
-			 glogger
-				 << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << std::endl
-				 << "No factory class for individuals has been registered" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << std::endl
+					 << "No factory class for individuals has been registered" << std::endl
+			 );
 		 }
 #endif
 
@@ -1235,10 +1238,11 @@ public:
 	  */
 	 void registerIndividualFactory(std::shared_ptr <typename ind_type::FACTORYTYPE> factory) {
 		 if (!factory) {
-			 glogger
-				 << "In GMetaOptimizerIndividualFactoryT<T>::registerIndividualFactory(): Error!" << std::endl
-				 << "Individual is empty" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GMetaOptimizerIndividualFactoryT<T>::registerIndividualFactory(): Error!" << std::endl
+					 << "Individual is empty" << std::endl
+			 );
 		 }
 
 		 ind_factory_
@@ -1855,9 +1859,10 @@ public:
 
 			 default:
 			 {
-				 glogger
-					 << "In GOptOptMonitorT<ind_type>>: Received invalid infoMode " << im << std::endl
-					 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GOptOptMonitorT<ind_type>>: Received invalid infoMode " << im << std::endl
+				 );
 			 }
 				 break;
 		 };
