@@ -87,7 +87,7 @@
 // Standard header files go here
 #include <string>
 #include <sstream>
-#include <exception>
+#include <stdexcept>
 
 // Boost header files go here
 
@@ -108,25 +108,10 @@ namespace Common {
  * General exception class to be thrown in the case of severe errors
  * in the Geneva library collection.
  */
-class gemfony_error_condition : public std::exception
+class gemfony_error_condition : public std::runtime_error
 {
 public:
-	 /** @brief The standard constructor */
-	 G_API_COMMON gemfony_error_condition(const std::string&) throw();
-	 /** @brief The copy constructor */
-	 G_API_COMMON gemfony_error_condition(const gemfony_error_condition&) throw();
-	 /** @brief The destructor */
-	 virtual G_API_COMMON ~gemfony_error_condition() throw();
-
-	 /** @brief Emits information when thrown */
-	 virtual G_API_COMMON const char* what() const throw();
-
-protected:
-	 /** @brief The default constructor: Intentionally private and undefined */
-	 gemfony_error_condition() throw() = delete;
-
-	 // Data
-	 std::string m_description; ///< Holds the actual error description
+	using std::runtime_error::runtime_error;
 };
 
 /******************************************************************************/
@@ -182,10 +167,6 @@ public:
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/** @brief Raise an exception if a given define wasn't set */
-G_API_COMMON void condnotset(const std::string&, const std::string&);
-
 /******************************************************************************/
 
 #endif /* GEXCEPTIONS_HPP_ */

@@ -67,38 +67,6 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The standard constructor
- */
-gemfony_error_condition::gemfony_error_condition(const std::string &description) throw()
-	: m_description(description)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-gemfony_error_condition::gemfony_error_condition(const gemfony_error_condition& cp) throw()
-	: std::exception(cp)
-	, m_description(cp.m_description)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-gemfony_error_condition::~gemfony_error_condition()  throw()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Emits information when thrown
- */
-const char *gemfony_error_condition::what() const throw() {
-	return m_description.c_str();
-}
-
-/******************************************************************************/
-/**
  * This function allows to output a gemfony_error_condition to a stream
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Common::gemfony_error_condition &g) {
@@ -112,21 +80,3 @@ std::ostream &operator<<(std::ostream &o, const Gem::Common::gemfony_error_condi
 
 } /* namespace Common */
 } /* namespace Gem */
-
-/******************************************************************************/
-/**
- * Raise an exception if a given define wasn't set. "F" stands for "function",
- * "D" for "define".
- */
-void condnotset(const std::string &F, const std::string &D) {
-	std::ostringstream error;
-	error
-	<< std::endl
-	<< "================================================" << std::endl
-	<< "In function " << F << " Error!" << std::endl
-	<< "Function was called even though " << D << " hasn't been set." << std::endl
-	<< "================================================" << std::endl;                               \
-        throw(Gem::Common::gemfony_error_condition(error.str()));
-}
-
-/******************************************************************************/

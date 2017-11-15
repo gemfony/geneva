@@ -139,6 +139,11 @@ G_API_COMMON
 std::string getMSSince1970();
 
 /******************************************************************************/
+/** @brief Raise an exception if a given define wasn't set */
+G_API_COMMON
+void condnotset(const std::string&, const std::string&);
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -399,6 +399,22 @@ std::string getMSSince1970() {
 }
 
 /******************************************************************************/
+/**
+ * Raise an exception if a given define wasn't set. "F" stands for "function",
+ * "D" for "define".
+ */
+void condnotset(const std::string &F, const std::string &D) {
+	std::ostringstream error;
+	error
+		<< std::endl
+		<< "================================================" << std::endl
+		<< "In function " << F << " Error!" << std::endl
+		<< "Function was called even though " << D << " hasn't been set." << std::endl
+		<< "================================================" << std::endl;                               \
+   throw(Gem::Common::gemfony_error_condition(error.str()));
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
