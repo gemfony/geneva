@@ -147,7 +147,7 @@ public:
 
 
 	 /***************************************************************************/
-	 // Various deleted functions
+	 // Prevent assignment and copying
 
 	 GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
 	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator

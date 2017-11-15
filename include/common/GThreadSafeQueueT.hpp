@@ -95,6 +95,12 @@ namespace Common {
  * Modelled after an implementation provided by Anthony Williams in his book
  * "C++ Concurrency in Action" (Manning).
  *
+ * TODO: This code might have a problem in that http://en.cppreference.com/w/cpp/thread/condition_variable
+ * says "Even if the shared variable is atomic, it must be modified under the mutex in order to correctly
+ * publish the modification to the waiting thread."
+ *
+ * TODO: Explicitly unlock before notify_one, cmp. http://en.cppreference.com/w/cpp/thread/condition_variable
+ *
  * @tparam T The type of the data stored in this class
  * @tparam t_capacity The maximum number of data items to be stored in this class (0 means unlimited)
  */

@@ -66,7 +66,11 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /** Indicates that all possible parameter values have been explored */
-class g_end_of_par : public std::exception { /* nothing */ };
+class g_end_of_par : public std::exception
+{
+public:
+	 using std::exception::exception;
+};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

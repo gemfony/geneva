@@ -71,7 +71,11 @@ namespace Geneva {
 /**
  * An exception to be thrown by the fitness function in order to simulate crashes
  */
-class fitnessException : public std::exception {};
+class fitnessException : public std::exception
+{
+public:
+	 using std::exception::exception;
+};
 
 /******************************************************************************/
 /**

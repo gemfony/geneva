@@ -117,15 +117,8 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~gemfony_error_condition() throw();
 
-	 /** @brief Allows to add further information to the exception */
-	 virtual G_API_COMMON void add(const std::string&) throw();
-	 /** @brief Allows to add further informtion, automatically terminated through a '\n' */
-	 virtual G_API_COMMON gemfony_error_condition& operator()(const std::string&) throw();
-
 	 /** @brief Emits information when thrown */
 	 virtual G_API_COMMON const char* what() const throw();
-	 /** @brief Allows to check whether any information is stored in this class */
-	 G_API_COMMON bool empty() const throw();
 
 protected:
 	 /** @brief The default constructor: Intentionally private and undefined */
@@ -146,22 +139,10 @@ G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_
  * An exception to be thrown in case of an expectation violation. This is used
  * in the compare infrastructure, but listed here to resolve a circular dependency.
  */
-class g_expectation_violation
-	: public gemfony_error_condition
+class g_expectation_violation : public gemfony_error_condition
 {
 public:
-	 /** @brief The standard constructor */
-	 G_API_COMMON g_expectation_violation(const std::string &) throw();
-
-	 /** @brief The destructor */
-	 virtual G_API_COMMON ~g_expectation_violation() throw();
-
-	 /** @brief Allows to add further informtion, automatically terminated through a '\n' */
-	 virtual G_API_COMMON g_expectation_violation &operator()(const std::string &) throw();
-
-protected:
-	 /** @brief The default constructor: Intentionally private and undefined */
-	 g_expectation_violation() = delete;
+	 using gemfony_error_condition::gemfony_error_condition;
 };
 
 /******************************************************************************/

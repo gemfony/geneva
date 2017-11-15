@@ -166,8 +166,8 @@ public:
 	) const;
 
 private:
-	std::string fname_; ///< The name of the log file
-	mutable bool first_; ///< Indicates whether any logging has already been done
+	std::string m_fname; ///< The name of the log file
+	mutable bool m_first; ///< Indicates whether any logging has already been done
 };
 
 /******************************************************************************/
@@ -187,13 +187,15 @@ public:
 	/***************************************************************************/
 	/** @brief The default constructor - needed for the singleton */
 	GLogger(void)
-		: defaultLogger_(new GConsoleLogger()) { /* nothing */ }
+		: m_default_logger(new GConsoleLogger())
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
 		* The destructor
 		*/
-	virtual ~GLogger() { /* nothing */ }
+	virtual ~GLogger()
+	{ /* nothing */ }
 
 	/***************************************************************************/
 	/**
@@ -266,7 +268,7 @@ public:
 		*/
 	void setDefaultLogTarget(std::shared_ptr <GBaseLogTarget> gblt) {
 		if (gblt) {
-			defaultLogger_ = gblt;
+			m_default_logger = gblt;
 		} else {
 			raiseException(
 				"In GLogger::setDefaultLogTarget(): Error!" << std::endl
@@ -281,7 +283,7 @@ public:
 		*/
 	void addLogTarget(std::shared_ptr <GBaseLogTarget> gblt) {
 		if (gblt) {
-			logVector_.push_back(gblt);
+			m_log_vector.push_back(gblt);
 		} else {
 			raiseException(
 				"In GLogger::addLogTarget(): Error!" << std::endl
@@ -295,7 +297,7 @@ public:
 		* Checks whether any log targets are present
 		*/
 	bool hasLogTargets(void) const {
-		return !logVector_.empty();
+		return !m_log_vector.empty();
 	}
 
 	/***************************************************************************/
@@ -303,7 +305,7 @@ public:
 		* Clears local log-targets
 		*/
 	void resetLogTargets() {
-		logVector_.clear();
+		m_log_vector.clear();
 	}
 
 	/***************************************************************************/
@@ -314,16 +316,16 @@ public:
 		*/
 	void log(const std::string &message) const {
 		// Make sure only one entity outputs data
-		std::unique_lock<std::mutex> lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(m_logger_mutex);
 
-		if (!logVector_.empty()) {
+		if (!m_log_vector.empty()) {
 			// Do the actual logging
-			for(auto cit: logVector_) { // std::shared_ptr may be copied
+			for(auto cit: m_log_vector) { // std::shared_ptr may be copied
 				cit->log(message);
 			}
 		} else {
-			if (defaultLogger_) {
-				defaultLogger_->log(message);
+			if (m_default_logger) {
+				m_default_logger->log(message);
 			} else {
 				raiseException(
 					"In GLogger::log(): Error!" << std::endl
@@ -341,16 +343,16 @@ public:
 		*/
 	void logWithSource(const std::string &message, const std::string &extension) const {
 		// Make sure only one entity outputs data
-		std::unique_lock<std::mutex> lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(m_logger_mutex);
 
-		if (!logVector_.empty()) {
+		if (!m_log_vector.empty()) {
 			// Do the actual logging
-			for(auto cit: logVector_) {
+			for(auto cit: m_log_vector) {
 				cit->logWithSource(message, extension);
 			}
 		} else {
-			if (defaultLogger_) {
-				defaultLogger_->logWithSource(message, extension);
+			if (m_default_logger) {
+				m_default_logger->logWithSource(message, extension);
 			} else {
 				raiseException(
 					"In GLogger::logWithSource(): Error!" << std::endl
@@ -367,7 +369,7 @@ public:
 		*/
 	void throwException(const std::string &error) {
 		// Make sure only one entity outputs data
-		std::unique_lock<std::mutex> lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(m_logger_mutex);
 
 		throw(Gem::Common::gemfony_error_condition(error));
 	}
@@ -378,7 +380,7 @@ public:
 		*/
 	void terminateApplication(const std::string &error) {
 		// Make sure only one entity outputs data
-		std::unique_lock<std::mutex> lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(m_logger_mutex);
 
 		std::cerr << error;
 		std::terminate();
@@ -390,7 +392,7 @@ public:
 		*/
 	void toStdOut(const std::string &message) {
 		// Make sure only one entity outputs data
-		std::unique_lock<std::mutex> lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(m_logger_mutex);
 
 		std::cout << message;
 	}
@@ -401,7 +403,7 @@ public:
 		*/
 	void toStdErr(const std::string &message) {
 		// Make sure only one entity outputs data
-		std::unique_lock<std::mutex> lk(logger_mutex_);
+		std::unique_lock<std::mutex> lk(m_logger_mutex);
 
 		std::cerr << message;
 	}
@@ -409,10 +411,10 @@ public:
 private:
 	/***************************************************************************/
 
-	std::vector<std::shared_ptr<GBaseLogTarget>> logVector_; ///< Contains the log targets
-	mutable std::mutex logger_mutex_; ///< Needed for concurrent access to the log targets
+	std::vector<std::shared_ptr<GBaseLogTarget>> m_log_vector; ///< Contains the log targets
+	mutable std::mutex m_logger_mutex; ///< Needed for concurrent access to the log targets
 
-	std::shared_ptr <GBaseLogTarget> defaultLogger_; ///< The default log target
+	std::shared_ptr <GBaseLogTarget> m_default_logger; ///< The default log target
 };
 
 /******************************************************************************/
@@ -445,21 +447,21 @@ public:
 private:
 	GManipulator() = delete; ///< Intentionally private and undefined
 
-	std::string accompInfo_; ///< Holds accompanying information
-	logType logType_; ///< Holds the type of logging event used for instantiating the manipulator
+	std::string m_accomp_info; ///< Holds accompanying information
+	logType m_log_type; ///< Holds the type of logging event used for instantiating the manipulator
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
-* Every entity in Geneva should be able to throw exceptions, regardless of whether
-* this happens from within a thread a in the context of serial execution. The output
-* should go to different log targets defined by the user, such as stdout or a file
-* (or possibly both). Emitting as much information as possible should be encouraged.
-* Hence adding information the the exception handler should be as easy as adding
-* data to a stream.
-*/
+ * Every entity in Geneva should be able to throw exceptions, regardless of whether
+ * this happens from within a thread a in the context of serial execution. The output
+ * should go to different log targets defined by the user, such as stdout or a file
+ * (or possibly both). Emitting as much information as possible should be encouraged.
+ * Hence adding information the the exception handler should be as easy as adding
+ * data to a stream.
+ */
 class GLogStreamer {
 public:
 	/** @brief The default constructor */
@@ -506,16 +508,16 @@ public:
 	 */
 	template<typename T>
 	GLogStreamer &operator<<(const T &val) {
-		oss_ << val;
+		m_oss << val;
 		return *this;
 	}
 
 	/****************************************************************************/
 
 private:
-	std::ostringstream oss_; ///< Holds the actual streamed data
-	std::string extension_; ///< Additional information about the logging source
-	boost::filesystem::path logFile_; ///< The name of a manually specified log file
+	std::ostringstream m_oss; ///< Holds the actual streamed data
+	std::string m_extension; ///< Additional information about the logging source
+	boost::filesystem::path m_log_file; ///< The name of a manually specified log file
 };
 
 /******************************************************************************/

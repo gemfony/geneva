@@ -173,14 +173,7 @@ void GToken::registerErrorMessage(const std::string &m) {
  * Allows to register an exception obtained from a failed check
  */
 void GToken::registerErrorMessage(const g_expectation_violation &g) {
-	if (!g.empty()) {
-		errorMessages_.push_back(std::string(g.what()));
-	} else {
-		glogger
-		<< "In GToken::registerErrorMessage(): Error" << std::endl
-		<< "Tried to register empty exception" << std::endl
-		<< GEXCEPTION;
-	}
+	errorMessages_.push_back(std::string(g.what()));
 }
 
 /******************************************************************************/

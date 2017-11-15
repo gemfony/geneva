@@ -118,14 +118,18 @@ void GConsoleLogger::logWithSource(
  * The default constructor
  */
 GFileLogger::GFileLogger(void)
-	: fname_("Gemfony.log"), first_(true) { /* nothing */ }
+	: m_fname("Geneva-Library-Collection.log")
+   , m_first(true)
+{ /* nothing */ }
 
 /*******************************************************************************/
 /**
  * This constructor accepts a boost path to a file name as argument
  */
 GFileLogger::GFileLogger(const boost::filesystem::path &p)
-	: fname_(p.string()), first_(true) { /* nothing */ }
+	: m_fname(p.string())
+   , m_first(true)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -139,7 +143,7 @@ GFileLogger::~GFileLogger() { /* nothing */ }
  * variable fname_. The file is reopened in append mode for every log message.
  */
 void GFileLogger::log(const std::string &msg) const {
-	boost::filesystem::ofstream ofstr(boost::filesystem::path(fname_), std::ios_base::app);
+	boost::filesystem::ofstream ofstr(boost::filesystem::path(m_fname), std::ios_base::app);
 	if (ofstr) {
 		ofstr << msg;
 		ofstr.close();
@@ -162,14 +166,14 @@ void GFileLogger::log(const std::string &msg) const {
 void GFileLogger::logWithSource(
 	const std::string &msg, const std::string &extension
 ) const {
-	boost::filesystem::ofstream ofstr(boost::filesystem::path(fname_ + "_" + extension), std::ios_base::app);
+	boost::filesystem::ofstream ofstr(boost::filesystem::path(m_fname + "_" + extension), std::ios_base::app);
 	if (ofstr) {
-		if (first_) {
+		if (m_first) {
 			ofstr
 			<< "Logging data from source " + extension << std::endl
 			<< msg;
 			ofstr.close();
-			first_ = false;
+			m_first = false;
 		} else {
 			ofstr << msg;
 			ofstr.close();
@@ -194,28 +198,28 @@ void GFileLogger::logWithSource(
 GManipulator::GManipulator(
 	const std::string &accompInfo, const logType &lt
 )
-	: accompInfo_(accompInfo), logType_(lt) { /* nothing */ }
+	: m_accomp_info(accompInfo), m_log_type(lt) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
 GManipulator::GManipulator(const GManipulator &cp)
-	: accompInfo_(cp.accompInfo_), logType_(cp.logType_) { /* nothing */ }
+	: m_accomp_info(cp.m_accomp_info), m_log_type(cp.m_log_type) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * A constructor that stores the logging type only
  */
 GManipulator::GManipulator(const logType &lt)
-	: accompInfo_(), logType_(lt) { /* nothing */ }
+	: m_accomp_info(), m_log_type(lt) { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Retrieves the stored logging type
  */
 logType GManipulator::getLogType() const {
-	return logType_;
+	return m_log_type;
 }
 
 /******************************************************************************/
@@ -223,7 +227,7 @@ logType GManipulator::getLogType() const {
  * Retrieves stored accompanying information (if any)
  */
 std::string GManipulator::getAccompInfo() const {
-	return accompInfo_;
+	return m_accomp_info;
 }
 
 /******************************************************************************/
@@ -231,7 +235,7 @@ std::string GManipulator::getAccompInfo() const {
  * Checks whether any accompanying information is available
  */
 bool GManipulator::hasAccompInfo() const {
-	return !accompInfo_.empty();
+	return !m_accomp_info.empty();
 }
 
 /******************************************************************************/
@@ -247,7 +251,7 @@ GLogStreamer::GLogStreamer(void) { /* nothing */ }
  * The copy constructor.
  */
 GLogStreamer::GLogStreamer(const GLogStreamer &cp)
-	: oss_(cp.oss_.str()), extension_(cp.extension_), logFile_(cp.logFile_) { /* nothing */ }
+	: m_oss(cp.m_oss.str()), m_extension(cp.m_extension), m_log_file(cp.m_log_file) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -255,7 +259,7 @@ GLogStreamer::GLogStreamer(const GLogStreamer &cp)
  * or as additional information in std-output logs
  */
 GLogStreamer::GLogStreamer(const std::string &extension)
-	: oss_(), extension_(extension), logFile_() { /* nothing */ }
+	: m_oss(), m_extension(extension), m_log_file() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -263,7 +267,7 @@ GLogStreamer::GLogStreamer(const std::string &extension)
  * one-time logging
  */
 GLogStreamer::GLogStreamer(boost::filesystem::path logFile)
-	: oss_(), extension_(), logFile_(logFile) { /* nothing */ }
+	: m_oss(), m_extension(), m_log_file(logFile) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -276,7 +280,7 @@ GLogStreamer::~GLogStreamer() { /* nothing */ }
  * Needed for ostringstream
  */
 GLogStreamer &GLogStreamer::operator<<(std::ostream &( *val )(std::ostream &)) {
-	oss_ << val;
+	m_oss << val;
 	return *this;
 }
 
@@ -285,7 +289,7 @@ GLogStreamer &GLogStreamer::operator<<(std::ostream &( *val )(std::ostream &)) {
  * Needed for ostringstream
  */
 GLogStreamer &GLogStreamer::operator<<(std::ios &( *val )(std::ios &)) {
-	oss_ << val;
+	m_oss << val;
 	return *this;
 }
 
@@ -294,7 +298,7 @@ GLogStreamer &GLogStreamer::operator<<(std::ios &( *val )(std::ios &)) {
  *  Needed for ostringstream
  */
 GLogStreamer &GLogStreamer::operator<<(std::ios_base &( *val )(std::ios_base &)) {
-	oss_ << val;
+	m_oss << val;
 	return *this;
 }
 
@@ -318,7 +322,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			<< "ERROR (recorded at " << Gem::Common::currentTimeAsString() << ")" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
-			<< oss_.str()
+			<< m_oss.str()
 			<< std::endl
 			<< "If you suspect that this error is due to Geneva," << std::endl
 			<< "then please consider filing a bug via" << std::endl
@@ -351,7 +355,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			<< "ERROR (recorded at " << Gem::Common::currentTimeAsString() << ")" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
-			<< oss_.str()
+			<< m_oss.str()
 			<< std::endl
 			<< "If you suspect that this error is due to Geneva," << std::endl
 			<< "then please consider filing a bug via" << std::endl
@@ -383,7 +387,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			<< "WARNING (recorded at " << Gem::Common::currentTimeAsString() << ")" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
-			<< oss_.str()
+			<< m_oss.str()
 			<< std::endl
 			<< "If you suspect that there is an underlying problem with Geneva," << std::endl
 			<< "then please consider filing a bug via" << std::endl
@@ -406,9 +410,9 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 		case Gem::Common::logType::LOGGING: {
 			// Do all necessary logging.
 			if (this->hasExtension()) {
-				glogger_ptr->logWithSource(oss_.str(), this->getExtension());
+				glogger_ptr->logWithSource(m_oss.str(), this->getExtension());
 			} else {
-				glogger_ptr->log(oss_.str());
+				glogger_ptr->log(m_oss.str());
 			}
 		} break;
 
@@ -416,7 +420,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 		case Gem::Common::logType::FILE: {
 			if (this->hasOneTimeLogFile()) {
 				GFileLogger gfl(this->getOneTimeLogFile());
-				gfl.log(oss_.str());
+				gfl.log(m_oss.str());
 			} else {
 				raiseException(
 					"In GLogStreamer::operator<<(const GManipulator&): Error!" << std::endl
@@ -429,12 +433,12 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 
 			//------------------------------------------------------------------------
 		case Gem::Common::logType::STDOUT: {
-			glogger_ptr->toStdOut(oss_.str());
+			glogger_ptr->toStdOut(m_oss.str());
 		} break;
 
 			//------------------------------------------------------------------------
 		case Gem::Common::logType::STDERR: {
-			glogger_ptr->toStdErr(oss_.str());
+			glogger_ptr->toStdErr(m_oss.str());
 		} break;
 
 			//------------------------------------------------------------------------
@@ -448,7 +452,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
  * @return The content of the ostringstream object
  */
 std::string GLogStreamer::content(void) const {
-	return oss_.str();
+	return m_oss.str();
 }
 
 /******************************************************************************/
@@ -456,7 +460,7 @@ std::string GLogStreamer::content(void) const {
  * Stores an empty string in the ostringstream object.
  */
 void GLogStreamer::reset() {
-	oss_.str("");
+	m_oss.str("");
 }
 
 /******************************************************************************/
@@ -464,7 +468,7 @@ void GLogStreamer::reset() {
  * Checks whether an extension string has been registered
  */
 bool GLogStreamer::hasExtension() const {
-	return !extension_.empty();
+	return !m_extension.empty();
 }
 
 /******************************************************************************/
@@ -472,7 +476,7 @@ bool GLogStreamer::hasExtension() const {
  * The content of the extension_ string
  */
 std::string GLogStreamer::getExtension() const {
-	return extension_;
+	return m_extension;
 }
 
 /******************************************************************************/
@@ -480,7 +484,7 @@ std::string GLogStreamer::getExtension() const {
  * Checks whether a log file name has been registered
  */
 bool GLogStreamer::hasOneTimeLogFile() const {
-	return !logFile_.empty();
+	return !m_log_file.empty();
 }
 
 /******************************************************************************/
@@ -488,7 +492,7 @@ bool GLogStreamer::hasOneTimeLogFile() const {
  * The name of the manually specified file
  */
 boost::filesystem::path GLogStreamer::getOneTimeLogFile() const {
-	return logFile_;
+	return m_log_file;
 }
 
 /******************************************************************************/

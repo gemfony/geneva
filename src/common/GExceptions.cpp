@@ -91,45 +91,10 @@ gemfony_error_condition::~gemfony_error_condition()  throw()
 
 /******************************************************************************/
 /**
- * Allows to add further information to the exception
- */
-void gemfony_error_condition::add(const std::string &newMessage) throw() {
-	m_description += newMessage;
-}
-
-/******************************************************************************/
-/**
- * Allows to add further informtion, automatically terminated by a '\n'.
- * The intended use for this feature is catching and throwing exceptions in
- * an easy way, e.g. in order to create a stack trace:
- *
- * try {
- *   // some condition
- * } catch(gemfony_error_condition& g) {
- *    throw g()
- * }
- */
-gemfony_error_condition &gemfony_error_condition::operator()(
-	const std::string &s
-) throw() {
-	this->add(s + "\n");
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Emits information when thrown
  */
 const char *gemfony_error_condition::what() const throw() {
 	return m_description.c_str();
-}
-
-/******************************************************************************/
-/**
- * Allows to check whether any information is stored in this class
- */
-bool gemfony_error_condition::empty() const throw() {
-	return m_description.empty();
 }
 
 /******************************************************************************/
@@ -139,40 +104,6 @@ bool gemfony_error_condition::empty() const throw() {
 std::ostream &operator<<(std::ostream &o, const Gem::Common::gemfony_error_condition &g) {
 	o << g.what();
 	return o;
-}
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The standard constructor
- */
-g_expectation_violation::g_expectation_violation(const std::string &description) throw()
-	: gemfony_error_condition(description) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-g_expectation_violation::~g_expectation_violation() throw() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Allows to add further informtion, automatically terminated by a '\n'.
- * The intended use for this feature is catching and throwing exceptions in
- * an easy way, e.g. in order to create a stack trace:
- *
- * try {
- *   // some condition
- * } catch(g_expectation_violation& g) {
- *    throw g()
- * }
- */
-g_expectation_violation &g_expectation_violation::operator()(
-	const std::string &s
-) throw() {
-	this->add(s + "\n");
-	return *this;
 }
 
 /******************************************************************************/
