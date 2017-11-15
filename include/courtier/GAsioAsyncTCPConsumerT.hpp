@@ -1223,7 +1223,6 @@ public:
 		 m_broker_ptr = GBROKER(processable_type);
 
 		 if (!m_broker_ptr) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
@@ -1257,7 +1256,6 @@ public:
 					 << GLOGGING;
 #endif
 			 } else {
-				 using namespace Gem::Common;
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
@@ -1266,7 +1264,6 @@ public:
 				 );
 			 }
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
@@ -1274,7 +1271,6 @@ public:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (const std::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
@@ -1282,7 +1278,6 @@ public:
 					 << e.what() << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
@@ -1401,7 +1396,6 @@ private:
 
 		 // Complain if this is an empty item
 		 if (!p) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT<>::handle_workItemComplete(): Error!" << std::endl
@@ -1432,7 +1426,6 @@ private:
 
 			 return;
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "GAsioAsyncTCPConsumerT<>::In handle_workItemComplete():" << std::endl
@@ -1467,7 +1460,6 @@ private:
 				 )
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
@@ -1475,7 +1467,6 @@ private:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
@@ -1483,7 +1474,6 @@ private:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
@@ -1505,7 +1495,6 @@ private:
 		 , const boost::system::error_code &error
 	 ) {
 		 if (error) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT<>::async_handleAccept():"
@@ -1526,7 +1515,6 @@ private:
 				 // TODO: When processing failed, allow to return an unprocessed item to the broker
 				 // like so: "if(!currentSession->process()) currentSession->restoreWorkItem();"
 			 } else {
-				 using namespace Gem::Common;
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "In AsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
@@ -1536,7 +1524,6 @@ private:
 				 // TODO: No exception here. Rather leave the session
 			 }
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
@@ -1544,7 +1531,6 @@ private:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
@@ -1552,7 +1538,6 @@ private:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl

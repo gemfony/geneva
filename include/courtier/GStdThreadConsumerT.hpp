@@ -206,7 +206,6 @@ public:
 	virtual void async_startProcessing() override {
 #ifdef DEBUG
       if(m_workerTemplates.empty()) { // Is the template vector empty ?
-			using namespace Gem::Common;
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GStdThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
@@ -239,7 +238,6 @@ public:
 	) {
 #ifdef DEBUG
       if(m_workerTemplates.empty()) { // Is the template vector empty ?
-			using namespace Gem::Common;
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GStdThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
@@ -250,7 +248,6 @@ public:
 		std::size_t pos = 0;
 		for(auto w_ptr: workerTemplates) { // std::shared_ptr may be copied
 			if(!w_ptr) { // Does the template point somewhere ?
-				using namespace Gem::Common;
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
@@ -278,7 +275,6 @@ public:
 	) {
 #ifdef DEBUG
       if(!workerTemplate) { // Does the template point somewhere ?
-			using namespace Gem::Common;
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
@@ -466,7 +462,6 @@ public:
 #ifdef DEBUG
                // Check that we indeed got a valid item
                if(!p) { // We didn't get a valid item after all
-						using namespace Gem::Common;
 						throw gemfony_exception(
 							g_error_streamer(DO_LOG,  time_and_place)
 								<< "In GStdThreadConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
@@ -500,14 +495,12 @@ public:
 					}
 				}
 			} catch(gemfony_exception& e) {
-				using namespace Gem::Common;
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::run(): Caught gemfony_exception with message" << std::endl
 						<< e.what() << std::endl
 				);
 			} catch (std::exception &e) {
-				using namespace Gem::Common;
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
@@ -516,7 +509,6 @@ public:
 				);
 			}
 			catch (boost::exception &e) {
-				using namespace Gem::Common;
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
@@ -525,7 +517,6 @@ public:
 				);
 			}
 			catch (...) {
-				using namespace Gem::Common;
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
@@ -659,7 +650,6 @@ public:
 		) const {
 #ifdef DEBUG
          if(!outer) {
-				using namespace Gem::Common;
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
@@ -681,7 +671,6 @@ public:
 #ifdef DEBUG
          if(p) p->process();
          else {
-				using namespace Gem::Common;
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::process(): Error!" << std::endl

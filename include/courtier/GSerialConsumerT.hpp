@@ -170,7 +170,6 @@ private:
 #ifdef DEBUG
 				// Check that we indeed got a valid item
 				if(!p) { // We didn't get a valid item after all
-					using namespace Gem::Common;
 					throw gemfony_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In GSerialConsumerT<T>::startProcessing(): Error!" << std::endl
@@ -194,7 +193,6 @@ private:
 				}
 			}
 		} catch(gemfony_exception& e) {
-			using namespace Gem::Common;
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSerialConsumerT::processItems(): Caught gemfony_exception with message"
@@ -202,21 +200,18 @@ private:
 					<< e.what() << std::endl
 			);
 		} catch (std::exception &e) {
-			using namespace Gem::Common;
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSerialConsumerT::processItems(): Caught std::exception with message" << std::endl
 					<< e.what() << std::endl
 			);
 		} catch (boost::exception &e) {
-			using namespace Gem::Common;
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSerialConsumerT::processItems(): Caught boost::exception with information" << std::endl
 					<< boost::diagnostic_information(e) << std::endl
 			);
 		} catch (...) {
-			using namespace Gem::Common;
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSerialConsumerT::processItems(): Caught unknown exception." << std::endl

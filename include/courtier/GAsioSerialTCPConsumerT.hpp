@@ -430,7 +430,6 @@ protected:
 			 // Indicate that we don't want to continue
 			 return CLIENT_TERMINATE;
 		 } catch (std::exception& e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPClientT<processable_type>::retrieve():" << std::endl
@@ -438,7 +437,6 @@ protected:
 					 << e.what() << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In sharedPtrFromString(): Error!" << std::endl
@@ -447,7 +445,6 @@ protected:
 		 }
 
 		 // This part of the function should never be reached. Let the audience know, then terminate.
-		 using namespace Gem::Common;
 		 throw gemfony_exception(
 			 g_error_streamer(DO_LOG,  time_and_place)
 				 << "In GAsioSerialTCPClientT<processable_type>::retrieve(): Error!" << std::endl
@@ -699,7 +696,6 @@ public:
 				 )
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
@@ -707,7 +703,6 @@ public:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
@@ -715,7 +710,6 @@ public:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_processRequest():" << std::endl
@@ -798,7 +792,6 @@ protected:
 				 ))
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
@@ -806,7 +799,6 @@ protected:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
@@ -814,7 +806,6 @@ protected:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_retrieveFromRemote():" << std::endl
@@ -860,7 +851,6 @@ protected:
 				 ))
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
@@ -868,7 +858,6 @@ protected:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
@@ -876,7 +865,6 @@ protected:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_handle_read_datasize():" << std::endl
@@ -928,7 +916,6 @@ protected:
 					 )
 				 );
 			 } catch (const boost::system::system_error &e) {
-				 using namespace Gem::Common;
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
@@ -936,7 +923,6 @@ protected:
 						 << e.what() << std::endl
 				 );
 			 } catch (const boost::exception &e) {
-				 using namespace Gem::Common;
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
@@ -944,7 +930,6 @@ protected:
 						 << boost::diagnostic_information(e) << std::endl
 				 );
 			 } catch (...) {
-				 using namespace Gem::Common;
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
 						 << "In GAsioSerialServerSessionT::async_handle_read_body():" << std::endl
@@ -1032,7 +1017,6 @@ protected:
 				 ))
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
@@ -1040,7 +1024,6 @@ protected:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
@@ -1048,7 +1031,6 @@ protected:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_submitToRemote():" << std::endl
@@ -1076,7 +1058,6 @@ protected:
 				 ))
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
@@ -1084,7 +1065,6 @@ protected:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
@@ -1092,7 +1072,6 @@ protected:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialServerSessionT::async_sendSingleCommand():" << std::endl
@@ -1350,7 +1329,6 @@ public:
 		 m_broker_ptr = GBROKER(processable_type);
 
 		 if (!m_broker_ptr) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
@@ -1379,7 +1357,6 @@ public:
 				 , m_listenerThreads
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
@@ -1387,7 +1364,6 @@ public:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
@@ -1395,7 +1371,6 @@ public:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (const std::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
@@ -1403,7 +1378,6 @@ public:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
@@ -1533,7 +1507,6 @@ private:
 
 		 // Complain if this is an empty item
 		 if (!p) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT<>::handle_workItemComplete(): Error!" << std::endl
@@ -1564,7 +1537,6 @@ private:
 
 			 return;
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "GAsioSerialTCPConsumerT<>::In handle_workItemComplete():" << std::endl
@@ -1598,7 +1570,6 @@ private:
 				 )
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
@@ -1606,7 +1577,6 @@ private:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
@@ -1614,7 +1584,6 @@ private:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_newAccept():" << std::endl
@@ -1636,7 +1605,6 @@ private:
 		 , const boost::system::error_code &error
 	 ) {
 		 if (error) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT<>::async_handleAccept():"
@@ -1653,7 +1621,6 @@ private:
 			 // Initiate the processing sequence
 			 currentSession->async_processRequest();
 		 } catch (const boost::system::system_error &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl
@@ -1661,7 +1628,6 @@ private:
 					 << e.what() << std::endl
 			 );
 		 } catch (const boost::exception &e) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl
@@ -1669,7 +1635,6 @@ private:
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GAsioSerialTCPConsumerT::async_handleAccept():" << std::endl

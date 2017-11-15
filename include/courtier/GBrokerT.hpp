@@ -578,7 +578,6 @@ private:
 	  */
 	 bool checkConsumersCapableOfFullReturn() {
 		 if (m_consumer_collection_vec.empty()) {
-			 using namespace Gem::Common;
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerT<carrier_type>::checkConsumersCapableOfFullReturn(): Error!" << std::endl
