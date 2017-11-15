@@ -107,7 +107,7 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
 
 	try {
 		this->parse();
-	} catch (const gemfony_error_condition &e) {
+	} catch (const gemfony_exception &e) {
 		glogger
 		<< "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): Error!" << std::endl
 		<< "Caught Geneva exception with message " << std::endl

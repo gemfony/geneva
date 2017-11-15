@@ -862,7 +862,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
 		BOOST_CHECK_THROW(
          p_test->transformedFitness()
-         , gemfony_error_condition
+         , gemfony_exception
       );
 	}
 #endif /* DEBUG */
@@ -876,7 +876,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to count the number of occurrences of an empty smart pointer. Should throw
-		BOOST_CHECK_THROW(p_test->count(std::shared_ptr<GDoubleObject>()), gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->count(std::shared_ptr<GDoubleObject>()), gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -888,7 +888,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
 
 		// Try to find an empty smart pointer. Should throw
-		BOOST_CHECK_THROW(p_test->find(std::shared_ptr<GDoubleObject>()), gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->find(std::shared_ptr<GDoubleObject>()), gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -901,7 +901,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Try to insert an empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), std::shared_ptr<GDoubleObject>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -914,7 +914,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Try to insert a number of empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -927,7 +927,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Try to insert a number of empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), std::shared_ptr<GDoubleObject>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -940,7 +940,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Try to insert a number of empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -953,7 +953,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Try to attach an empty smart pointer Should throw
 		BOOST_CHECK_THROW(p_test->push_back_clone(std::shared_ptr<GDoubleObject>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -966,7 +966,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Try to attach an empty smart pointer Should throw
 		BOOST_CHECK_THROW(p_test->push_back_noclone(std::shared_ptr<GDoubleObject>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -979,7 +979,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK(p_test->empty());
 
 		// Try to resize an empty collection
-		BOOST_CHECK_THROW(p_test->resize(10), gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->resize(10), gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -993,7 +993,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Try to resize an empty collection
 		BOOST_CHECK_THROW(p_test->resize_noclone(10, std::shared_ptr<GDoubleObject>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -1007,7 +1007,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 		// Try to resize an empty collection
 		BOOST_CHECK_THROW(p_test->resize_clone(10, std::shared_ptr<GDoubleObject>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	//------------------------------------------------------------------------------
@@ -1021,7 +1021,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
       // Trying to retrieve an EA personality object should throw
       std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits> p_pt_ea;
-      BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), gemfony_error_condition);
+      BOOST_CHECK_THROW(p_pt_ea = p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), gemfony_exception);
    }
 #endif /* DEBUG */
 
@@ -1035,7 +1035,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
       BOOST_CHECK_NO_THROW(p_test->setPersonality(std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(new GSwarmAlgorithm_PersonalityTraits())));
 
       // Trying to retrieve an EA personality object should throw
-      BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), gemfony_error_condition);
+      BOOST_CHECK_THROW(p_test->getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>(), gemfony_exception);
    }
 #endif /* DEBUG */
 
@@ -1050,7 +1050,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
       // Trying to retrieve an EA personality object should throw
       std::shared_ptr<GPersonalityTraits> p_pt;
-      BOOST_CHECK_THROW(p_pt = p_test->getPersonalityTraits(), gemfony_error_condition);
+      BOOST_CHECK_THROW(p_pt = p_test->getPersonalityTraits(), gemfony_exception);
    }
 #endif /* DEBUG */
 

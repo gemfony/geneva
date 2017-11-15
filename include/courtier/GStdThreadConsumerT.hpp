@@ -207,7 +207,7 @@ public:
 #ifdef DEBUG
       if(m_workerTemplates.empty()) { // Is the template vector empty ?
 			using namespace Gem::Common;
-			throw gemfony_error_condition(
+			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GStdThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
 					<< "The workerTemplates_ vector is empty when it should not be empty" << std::endl
@@ -240,7 +240,7 @@ public:
 #ifdef DEBUG
       if(m_workerTemplates.empty()) { // Is the template vector empty ?
 			using namespace Gem::Common;
-			throw gemfony_error_condition(
+			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GStdThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
 					<< "workerTemplates vector is empty when it should not be empty" << std::endl
@@ -251,7 +251,7 @@ public:
 		for(auto w_ptr: workerTemplates) { // std::shared_ptr may be copied
 			if(!w_ptr) { // Does the template point somewhere ?
 				using namespace Gem::Common;
-				throw gemfony_error_condition(
+				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
 						<< "Found empty worker template pointer in position " << pos << std::endl
@@ -279,7 +279,7 @@ public:
 #ifdef DEBUG
       if(!workerTemplate) { // Does the template point somewhere ?
 			using namespace Gem::Common;
-			throw gemfony_error_condition(
+			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
 					<< "Found empty worker template pointer" << std::endl
@@ -467,7 +467,7 @@ public:
                // Check that we indeed got a valid item
                if(!p) { // We didn't get a valid item after all
 						using namespace Gem::Common;
-						throw gemfony_error_condition(
+						throw gemfony_exception(
 							g_error_streamer(DO_LOG,  time_and_place)
 								<< "In GStdThreadConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
 								<< "Got empty item when it shouldn't be empty!" << std::endl
@@ -499,16 +499,16 @@ public:
 						continue;
 					}
 				}
-			} catch(gemfony_error_condition& e) {
+			} catch(gemfony_exception& e) {
 				using namespace Gem::Common;
-				throw gemfony_error_condition(
+				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
-						<< "In GStdThreadConsumerT<processable_type>::GWorker::run(): Caught gemfony_error_condition with message" << std::endl
+						<< "In GStdThreadConsumerT<processable_type>::GWorker::run(): Caught gemfony_exception with message" << std::endl
 						<< e.what() << std::endl
 				);
 			} catch (std::exception &e) {
 				using namespace Gem::Common;
-				throw gemfony_error_condition(
+				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
 						<< "Caught std::exception with message" << std::endl
@@ -517,7 +517,7 @@ public:
 			}
 			catch (boost::exception &e) {
 				using namespace Gem::Common;
-				throw gemfony_error_condition(
+				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
 						<< "Caught boost::exception with message" << std::endl
@@ -526,7 +526,7 @@ public:
 			}
 			catch (...) {
 				using namespace Gem::Common;
-				throw gemfony_error_condition(
+				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
 						<< "Caught unknown exception." << std::endl
@@ -660,7 +660,7 @@ public:
 #ifdef DEBUG
          if(!outer) {
 				using namespace Gem::Common;
-				throw gemfony_error_condition(
+				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
 						<< "Got empty pointer!" << std::endl
@@ -682,7 +682,7 @@ public:
          if(p) p->process();
          else {
 				using namespace Gem::Common;
-				throw gemfony_error_condition(
+				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GStdThreadConsumerT<processable_type>::GWorker::process(): Error!" << std::endl
 						<< "Received empty pointer for processable object" << std::endl

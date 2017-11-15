@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
 	// a file named GENEVA-EXCEPTION.log
 	try {
 		glogger << "Some information " << 5 << " " << 6 << std::endl << GEXCEPTION;
-	} catch(gemfony_error_condition& e) {
+	} catch(gemfony_exception& e) {
 		std::cout
 		<< "Caught exception with message" << std::endl
 		<< e << std::endl;

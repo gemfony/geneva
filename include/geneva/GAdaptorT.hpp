@@ -315,7 +315,7 @@ public:
 		 // Check the supplied probability value
 		 if (adProb < fp_type(0.) || adProb > fp_type(1.)) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type&):" << std::endl
 					 << "Bad probability value given: " << adProb << std::endl
@@ -1425,7 +1425,7 @@ public:
 			 // Setting a probability < 0 should throw
 			 BOOST_CHECK_THROW(
 				 p_test->setAdaptionProbability(-1.);
-				 , gemfony_error_condition
+				 , gemfony_exception
 			 );
 		 }
 
@@ -1437,7 +1437,7 @@ public:
 			 // Setting a probability > 1 should throw
 			 BOOST_CHECK_THROW(
 				 p_test->setAdaptionProbability(2.);
-				 , gemfony_error_condition
+				 , gemfony_exception
 			 );
 		 }
 
@@ -1449,7 +1449,7 @@ public:
 			 // Setting a probability < 0 should throw
 			 BOOST_CHECK_THROW(
 				 p_test->setAdaptAdaptionProbability(-1.);
-				 , gemfony_error_condition
+				 , gemfony_exception
 			 );
 		 }
 
@@ -1461,7 +1461,7 @@ public:
 			 // Setting a probability > 1 should throw
 			 BOOST_CHECK_THROW(
 				 p_test->setAdaptAdaptionProbability(2.);
-				 , gemfony_error_condition
+				 , gemfony_exception
 			 );
 		 }
 

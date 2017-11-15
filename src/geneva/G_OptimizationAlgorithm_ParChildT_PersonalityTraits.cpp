@@ -489,7 +489,7 @@ void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests() 
 		std::shared_ptr <GBaseParChildPersonalityTraits> p_test = this->clone<GBaseParChildPersonalityTraits>();
 
 		BOOST_CHECK_NO_THROW(p_test->unsetParentId());
-		BOOST_CHECK_THROW(p_test->getParentId(), gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->getParentId(), gemfony_exception);
 	}
 
 	// --------------------------------------------------------------------------

@@ -548,7 +548,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 		BOOST_CHECK(p_test->getAdaptor()->getAdaptorId() == adaptorId::GINT32GAUSSADAPTOR);
 
 		// Attempted conversion to an invalid target type should throw
-		BOOST_CHECK_THROW(p_test->getAdaptor<GInt32FlipAdaptor>(), gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->getAdaptor<GInt32FlipAdaptor>(), gemfony_exception);
 	}
 #endif /* DEBUG */
 

@@ -206,43 +206,43 @@ int test_main(int argc, char** const argv) {
 	testFormula(sinh(1.0)*sin(1.0));
 
 	// Test failures in formulas
-	testFormulaFailure(1/0, gemfony_error_condition);
+	testFormulaFailure(1/0, gemfony_exception);
 	testFormulaFailure(1/0, Gem::Common::math_logic_error);
 	testFormulaFailure(1/0, Gem::Common::division_by_0);
 
-	testFormulaFailure(acos(-2), gemfony_error_condition);
+	testFormulaFailure(acos(-2), gemfony_exception);
 	testFormulaFailure(acos(-2), Gem::Common::math_logic_error);
 	testFormulaFailure(acos(-2), Gem::Common::acos_invalid_range<double>);
 
-	testFormulaFailure(acos(+2), gemfony_error_condition);
+	testFormulaFailure(acos(+2), gemfony_exception);
 	testFormulaFailure(acos(+2), Gem::Common::math_logic_error);
 	testFormulaFailure(acos(+2), Gem::Common::acos_invalid_range<double>);
 
-	testFormulaFailure(asin(-2), gemfony_error_condition);
+	testFormulaFailure(asin(-2), gemfony_exception);
 	testFormulaFailure(asin(-2), Gem::Common::math_logic_error);
 	testFormulaFailure(asin(-2), Gem::Common::asin_invalid_range<double>);
 
-	testFormulaFailure(asin(+2), gemfony_error_condition);
+	testFormulaFailure(asin(+2), gemfony_exception);
 	testFormulaFailure(asin(+2), Gem::Common::math_logic_error);
 	testFormulaFailure(asin(+2), Gem::Common::asin_invalid_range<double>);
 
-	testFormulaFailure(log(0), gemfony_error_condition);
+	testFormulaFailure(log(0), gemfony_exception);
 	testFormulaFailure(log(0), Gem::Common::math_logic_error);
 	testFormulaFailure(log(0), Gem::Common::log_negative_value<double>);
 
-	testFormulaFailure(log(-1), gemfony_error_condition);
+	testFormulaFailure(log(-1), gemfony_exception);
 	testFormulaFailure(log(-1), Gem::Common::math_logic_error);
 	testFormulaFailure(log(-1), Gem::Common::log_negative_value<double>);
 
-	testFormulaFailure(log10(0), gemfony_error_condition);
+	testFormulaFailure(log10(0), gemfony_exception);
 	testFormulaFailure(log10(0), Gem::Common::math_logic_error);
 	testFormulaFailure(log10(0), Gem::Common::log10_negative_value<double>);
 
-	testFormulaFailure(log10(-1), gemfony_error_condition);
+	testFormulaFailure(log10(-1), gemfony_exception);
 	testFormulaFailure(log10(-1), Gem::Common::math_logic_error);
 	testFormulaFailure(log10(-1), Gem::Common::log10_negative_value<double>);
 
-	testFormulaFailure(sqrt(-1), gemfony_error_condition);
+	testFormulaFailure(sqrt(-1), gemfony_exception);
 	testFormulaFailure(sqrt(-1), Gem::Common::math_logic_error);
 	testFormulaFailure(sqrt(-1), Gem::Common::sqrt_negative_value<double>);
 

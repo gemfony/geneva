@@ -65,7 +65,7 @@ std::shared_ptr <T> TFactory_GUnitTests() {
 
 	try {
 		p = std::shared_ptr<T>(new T());
-	} catch (const gemfony_error_condition &g) {
+	} catch (const gemfony_exception &g) {
 		// Re-throw
 		throw g;
 	} catch (...) {

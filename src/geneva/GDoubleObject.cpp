@@ -611,7 +611,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 
 		// Add an empty std::shared_ptr<GDoubleGaussAdaptor>. This should throw
 		BOOST_CHECK_THROW(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()),
-								gemfony_error_condition);
+								gemfony_exception);
 	}
 
 	// --------------------------------------------------------------------------

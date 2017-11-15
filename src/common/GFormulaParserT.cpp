@@ -74,7 +74,7 @@ namespace Common {
  * The standard constructor
  */
 math_logic_error::math_logic_error(const std::string &errorText) throw()
-	: gemfony_error_condition(errorText) { /* nothing */ }
+	: gemfony_exception(errorText) { /* nothing */ }
 
 /******************************************************************************/
 /**

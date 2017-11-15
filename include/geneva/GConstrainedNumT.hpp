@@ -807,7 +807,7 @@ public:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Setting an upper boundary < lower boundary should throw
-			BOOST_CHECK_THROW(p_test->setBoundaries(T(1), T(0)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setBoundaries(T(1), T(0)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -822,7 +822,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->setValue(T(2)));
 
 			// Setting of boundaries incompatible with T(2) should throw
-			BOOST_CHECK_THROW(p_test->setBoundaries(T(0), T(1)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setBoundaries(T(0), T(1)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -831,7 +831,7 @@ public:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Setting an upper boundary < lower boundary should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(0), T(2), T(0)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(T(0), T(2), T(0)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -840,7 +840,7 @@ public:
 			std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			// Try to assign a value outside of the allowed boundaries should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(2), T(0), T(1)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(T(2), T(0), T(1)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -852,7 +852,7 @@ public:
 			BOOST_CHECK_NO_THROW(p_test->setValue(T(0), T(0), T(1)));
 
 			// Try to assign 2 as a value - should throw
-			BOOST_CHECK_THROW(p_test->setValue(T(2)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setValue(T(2)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -865,7 +865,7 @@ public:
 
 			// Try to assign 2 as a value - should throw
 			if(typeid(T) != typeid(bool)) {
-			   BOOST_CHECK_THROW(*p_test = T(2), gemfony_error_condition);
+			   BOOST_CHECK_THROW(*p_test = T(2), gemfony_exception);
 			}
 		}
 

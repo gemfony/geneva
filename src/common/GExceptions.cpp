@@ -64,9 +64,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This function allows to output a gemfony_error_condition to a stream
+ * This function allows to output a gemfony_exception to a stream
  */
-std::ostream &operator<<(std::ostream &o, const gemfony_error_condition &g) {
+std::ostream &operator<<(std::ostream &o, const gemfony_exception &g) {
 	o << g.what();
 	return o;
 }

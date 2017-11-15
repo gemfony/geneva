@@ -107,15 +107,15 @@
  * General exception class to be thrown in the case of severe errors
  * in the Geneva library collection.
  */
-class gemfony_error_condition : public std::runtime_error
+class gemfony_exception : public std::runtime_error
 {
 public:
 	using std::runtime_error::runtime_error;
 };
 
 /******************************************************************************/
-/** @brief This function allows to output a gemfony_error_condition to a stream */
-G_API_COMMON std::ostream& operator<<(std::ostream&, const gemfony_error_condition&);
+/** @brief This function allows to output a gemfony_exception to a stream */
+G_API_COMMON std::ostream& operator<<(std::ostream&, const gemfony_exception&);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -124,10 +124,10 @@ G_API_COMMON std::ostream& operator<<(std::ostream&, const gemfony_error_conditi
  * An exception to be thrown in case of an expectation violation. This is used
  * in the compare infrastructure, but listed here to resolve a circular dependency.
  */
-class g_expectation_violation : public gemfony_error_condition
+class g_expectation_violation : public gemfony_exception
 {
 public:
-	 using gemfony_error_condition::gemfony_error_condition;
+	 using gemfony_exception::gemfony_exception;
 };
 
 /******************************************************************************/
@@ -156,7 +156,7 @@ public:
        << "We appreciate your help!" << std::endl                                                        \
        << "The Geneva team" << std::endl                                                                 \
        << "================================================" << std::endl;                               \
-    throw(gemfony_error_condition(error.str()));                                            \
+    throw(gemfony_exception(error.str()));                                            \
   }
 
 /******************************************************************************/

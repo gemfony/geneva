@@ -167,9 +167,9 @@ public:
 			 m_post_processing_time = std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
 
 			 m_processing_successful = true;
-		 } catch(gemfony_error_condition& e) {
+		 } catch(gemfony_exception& e) {
 			 glogger
-				 << "In GProcessingContainerT<>::process(): Caught gemfony_error_condition with message" << std::endl
+				 << "In GProcessingContainerT<>::process(): Caught gemfony_exception with message" << std::endl
 				 << e.what() << std::endl
 				 << GWARNING;
 

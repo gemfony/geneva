@@ -411,7 +411,7 @@ void condnotset(const std::string &F, const std::string &D) {
 		<< "In function " << F << " Error!" << std::endl
 		<< "Function was called even though " << D << " hasn't been set." << std::endl
 		<< "================================================" << std::endl;                               \
-   throw(gemfony_error_condition(error.str()));
+   throw(gemfony_exception(error.str()));
 }
 
 /******************************************************************************/

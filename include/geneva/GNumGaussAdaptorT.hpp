@@ -844,7 +844,7 @@ public:
 		{ // Test that setting a minimal sigma < 0. throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(-1.), fp_type(2.)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(-1.), fp_type(2.)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -852,7 +852,7 @@ public:
 		{ // Test that setting a minimal sigma > the maximum sigma throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(2.), fp_type(1.)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(2.), fp_type(1.)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -860,7 +860,7 @@ public:
 		{ // Test that setting a negative sigma throws
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(-1.)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(-1.)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -869,7 +869,7 @@ public:
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------
@@ -878,7 +878,7 @@ public:
 			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-			BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), gemfony_exception);
 		}
 
 		//------------------------------------------------------------------------------

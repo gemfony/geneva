@@ -56,9 +56,9 @@ void GThreadWrapper::operator()() {
 		// Execute the actual worker task
 		f_();
 	}
-	catch(gemfony_error_condition& e) {
+	catch(gemfony_exception& e) {
 		glogger
-		<< "In GThreadWrapper::operator(): Caught gemfony_error_condition with message" << std::endl
+		<< "In GThreadWrapper::operator(): Caught gemfony_exception with message" << std::endl
 		<< e.what() << std::endl
 		<< GTERMINATION;
 	}

@@ -427,9 +427,9 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 		}
 
 		result = true;
-	} catch (const gemfony_error_condition &e) {
+	} catch (const gemfony_exception &e) {
 		glogger
-		<< "Caught gemfony_error_condition when parsing configuration file " << configFile_withBase << ":" << std::endl
+		<< "Caught gemfony_exception when parsing configuration file " << configFile_withBase << ":" << std::endl
 		<< e.what() << std::endl
 		<< GLOGGING;
 		result = false;

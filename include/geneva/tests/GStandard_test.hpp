@@ -402,7 +402,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 #ifdef DEBUG
 		std::shared_ptr<T> T_ptr1 = TFactory_GUnitTests<T>();
 		BOOST_REQUIRE(T_ptr1); // must point somewhere
-		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, gemfony_error_condition);
+		BOOST_CHECK_THROW(T_ptr1->GObject::load(T_ptr1);, gemfony_exception);
 #endif
 	}
 

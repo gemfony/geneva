@@ -118,7 +118,7 @@ namespace Common {
  * An exception to be thrown in case of mathematical errors,
  * such as division by 0
  */
-class math_logic_error : public gemfony_error_condition {
+class math_logic_error : public gemfony_exception {
 public:
 	/** @brief The standard constructor */
 	G_API_COMMON math_logic_error(const std::string &) throw();

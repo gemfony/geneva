@@ -210,25 +210,25 @@ public:
 		 try {
 			 if (!this->init()) { // Initialize the client
 				 using namespace Gem::Common;
-				 throw gemfony_error_condition(
+				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
 				 );
 			 }
 		 }
-		 catch (gemfony_error_condition &e) {
+		 catch (gemfony_exception &e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GBaseClientT<T>::run() / init:" << std::endl
-					 << "Caught gemfony_error_condition" << std::endl
+					 << "Caught gemfony_exception" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );
 		 }
 		 catch (boost::exception& e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / init: Caught boost::exception with message" << std::endl
 				 	 << boost::diagnostic_information(e) << std::endl
@@ -236,7 +236,7 @@ public:
 		 }
 		 catch (std::exception &e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / init: Caught std::exception with message" << std::endl
 					 << e.what() << std::endl
@@ -244,7 +244,7 @@ public:
 		 }
 		 catch (...) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / init: Caught unknown exception" << std::endl
 			 );
@@ -255,19 +255,19 @@ public:
 		 try {
 			 run_(); // The main loop
 		 }
-		 catch (gemfony_error_condition &e) {
+		 catch (gemfony_exception &e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / run_:" << std::endl
-					 << "Caught gemfony_error_condition" << std::endl
+					 << "Caught gemfony_exception" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );
 		 }
 		 catch (boost::exception &e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / run_: Caught boost::exception with message" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
@@ -275,7 +275,7 @@ public:
 		 }
 		 catch (std::exception &e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / run_: Caught std::exception with message" << std::endl
 					 << e.what() << std::endl
@@ -283,7 +283,7 @@ public:
 		 }
 		 catch (...) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / run_: Caught unknown exception" << std::endl
 			 );
@@ -294,25 +294,25 @@ public:
 		 try {
 			 if (!this->finally()) {
 				 using namespace Gem::Common;
-				 throw gemfony_error_condition(
+				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Finalization failed." << std::endl
 				 );
 			 }
 		 }
-		 catch (gemfony_error_condition &e) {
+		 catch (gemfony_exception &e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / finally:" << std::endl
-					 << "Caught gemfony_error_condition" << std::endl
+					 << "Caught gemfony_exception" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );
 		 }
 		 catch (boost::exception & e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / finally: Caught boost::exception with message" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
@@ -320,7 +320,7 @@ public:
 		 }
 		 catch (std::exception &e) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / finally: Caught std::exception with message" << std::endl
 					 << e.what() << std::endl
@@ -328,7 +328,7 @@ public:
 		 }
 		 catch (...) {
 			 using namespace Gem::Common;
-			 throw gemfony_error_condition(
+			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / finally: Caught unknown exception" << std::endl
 			 );
