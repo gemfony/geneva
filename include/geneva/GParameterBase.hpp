@@ -159,10 +159,11 @@ public:
 	std::size_t countParameters(
 		const activityMode& am
 	) const {
-		glogger
-		<< "In GParameterBase::countParameters()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::countParameters()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 
 		// Make the compiler happy
 		return (std::size_t)0;
@@ -183,10 +184,11 @@ public:
 		, std::vector<par_type>& uBndVec
 		, const activityMode& am
 	) const  {
-		glogger
-		<< "In GParameterBase::boundaries(std::vector<>&)" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::boundaries(std::vector<>&)" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -202,10 +204,11 @@ public:
 		std::vector<par_type>& parVec
 		, const activityMode& am
 	) const {
-		glogger
-		<< "In GParameterBase::streamline(std::vector<par_type>&)" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::streamline(std::vector<par_type>&)" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -221,10 +224,11 @@ public:
 		std::map<std::string, std::vector<par_type>>& parVec
 		, const activityMode& am
 	) const {
-		glogger
-		<< "In GParameterBase::streamline(std::map<std::string, std::vec<par_type>>)" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::streamline(std::map<std::string, std::vec<par_type>>)" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -242,10 +246,11 @@ public:
 		, std::size_t& pos
 		, const activityMode& am
 	) {
-		glogger
-		<< "In GParameterBase::assignValueVector()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::assignValueVector()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -259,10 +264,11 @@ public:
 		const std::map<std::string, std::vector<par_type>>& parMap
 		, const activityMode& am
 	) {
-		glogger
-		<< "In GParameterBase::assignValueVectors()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::assignValueVectors()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -276,10 +282,11 @@ public:
 		, const activityMode& am
 		, Gem::Hap::GRandomBase&
 	) {
-		glogger
-		<< "In GParameterBase::multiplyByRandom()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::multiplyByRandom()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -291,10 +298,11 @@ public:
 		const activityMode& am
 		, Gem::Hap::GRandomBase&
 	) {
-		glogger
-		<< "In GParameterBase::multiplyByRandom()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::multiplyByRandom()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -306,10 +314,11 @@ public:
 		const par_type& val
 		, const activityMode& am
 	) {
-		glogger
-		<< "In GParameterBase::multiplyBy()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::multiplyBy()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -321,10 +330,11 @@ public:
 		const par_type& val
 		, const activityMode& am
 	) {
-		glogger
-		<< "In GParameterBase::fixedValueInit()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::fixedValueInit()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -336,10 +346,11 @@ public:
 		std::shared_ptr<GParameterBase> p
 		, const activityMode& am
 	) {
-		glogger
-		<< "In GParameterBase::add()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::add()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -351,10 +362,11 @@ public:
 		std::shared_ptr<GParameterBase> p
 		, const activityMode& am
 	) {
-		glogger
-		<< "In GParameterBase::subtract()" << std::endl
-		<< "Function called for unsupported type!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBase::subtract()" << std::endl
+				<< "Function called for unsupported type!" << std::endl
+		);
 	}
 
 	/***************************************************************************/
@@ -399,10 +411,11 @@ public:
 		std::shared_ptr<load_type> p = std::dynamic_pointer_cast<load_type>(load_ptr);
 		if(p) return p;
 		else {
-		   glogger
-		   << "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :" << std::endl
-         << "Invalid conversion with load_type = " << typeid(load_type).name() << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :" << std::endl
+					<< "Invalid conversion with load_type = " << typeid(load_type).name() << std::endl
+			);
 
 		   // Make the compiler happy
 		   return std::shared_ptr<load_type>();

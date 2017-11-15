@@ -355,31 +355,35 @@ public:
 			} break;
 
 			case FP_INFINITE:  {
-				glogger
-				<< "In GConstrainedFPT::transfer(): Error" << std::endl
-				<< "val is infinite" << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GConstrainedFPT::transfer(): Error" << std::endl
+						<< "val is infinite" << std::endl
+				);
 			} break;
 
 			case FP_NAN:       {
-				glogger
-				<< "In GConstrainedFPT::transfer(): Error" << std::endl
-				<< "val is NaN" << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GConstrainedFPT::transfer(): Error" << std::endl
+						<< "val is NaN" << std::endl
+				);
 			} break;
 
 			case FP_SUBNORMAL: {
-				glogger
-				<< "In GConstrainedFPT::transfer(): Error" << std::endl
-				<< "val is subnormal" << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GConstrainedFPT::transfer(): Error" << std::endl
+						<< "val is subnormal" << std::endl
+				);
 			} break;
 
-			default:           {
-				glogger
-				<< "In GConstrainedFPT::transfer(): Error" << std::endl
-				<< "Unknown value type" << std::endl
-				<< GEXCEPTION;
+			default: {
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GConstrainedFPT::transfer(): Error" << std::endl
+						<< "Unknown value type" << std::endl
+				);
 			}
 		}
 #endif /* DEBUG */
@@ -403,11 +407,12 @@ public:
 				// We need floor here, as an integer cast rounds towards 0, which would be wrong for negative values of val
 				region = boost::numeric_cast<std::int64_t>(fp_region);
 			} else {
-				glogger
-				<< "In GConstrainedFPT::transfer(): Error" << std::endl
-				<< "fp_region = " << fp_region << " is too large and cannot be" << std::endl
-				<< "converted to a std::int64_t, which has a maximum value of " << (std::numeric_limits<std::int64_t>::max)() << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GConstrainedFPT::transfer(): Error" << std::endl
+						<< "fp_region = " << fp_region << " is too large and cannot be" << std::endl
+						<< "converted to a std::int64_t, which has a maximum value of " << (std::numeric_limits<std::int64_t>::max)() << std::endl
+				);
 			}
 #else   /* DEBUG */
 			region =	static_cast<std::int64_t>(Gem::Common::gfloor((localVal - (long double)(lowerBoundary)) / ((long double)(upperBoundary) - (long double)(lowerBoundary))));

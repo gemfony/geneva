@@ -209,10 +209,11 @@ public:
 		 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr
 	 ) {
 		 if (!cc_ptr) {
-			 glogger
-				 << "In GOptiomizationAlgorithmFactoryT<T>::registerContentCreator(): Error!" << std::endl
-				 << "Tried to register an empty pointer" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GOptiomizationAlgorithmFactoryT<T>::registerContentCreator(): Error!" << std::endl
+					 << "Tried to register an empty pointer" << std::endl
+			 );
 		 }
 
 		 m_contentCreatorPtr = cc_ptr;
@@ -226,10 +227,10 @@ public:
 		 if (pluggableOM) {
 			 m_pluggableOM = pluggableOM;
 		 } else {
-			 glogger
-				 << "In G_OptimizationAlgorithm_FactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor"
-				 << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In G_OptimizationAlgorithm_FactoryT<>::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
+			 );
 		 }
 	 }
 
@@ -278,10 +279,11 @@ public:
 		 if (m_maxIterationCL >= 0) {
 			 return boost::numeric_cast<std::uint32_t>(m_maxIterationCL);
 		 } else {
-			 glogger
-				 << "In G_OptimizationAlgorithm_Base<>::getMaxIterationCL(): Error!" << std::endl
-				 << "m_maxIterationCL wasn't set" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In G_OptimizationAlgorithm_Base<>::getMaxIterationCL(): Error!" << std::endl
+					 << "m_maxIterationCL wasn't set" << std::endl
+			 );
 
 			 // Make the compiler happy
 			 return std::uint32_t(0);
@@ -313,10 +315,11 @@ public:
 		 if (m_maxStallIterationCL >= 0) {
 			 return boost::numeric_cast<std::uint32_t>(m_maxStallIterationCL);
 		 } else {
-			 glogger
-				 << "In G_OptimizationAlgorithm_Base<>::getMaxStallIterationCL(): Error!" << std::endl
-				 << "m_maxStallIterationCL wasn't set" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In G_OptimizationAlgorithm_Base<>::getMaxStallIterationCL(): Error!" << std::endl
+					 << "m_maxStallIterationCL wasn't set" << std::endl
+			 );
 
 			 // Make the compiler happy
 			 return std::uint32_t(0);
@@ -349,10 +352,11 @@ public:
 			 std::chrono::duration<double> maxDuration = std::chrono::seconds(boost::numeric_cast<long>(m_maxSecondsCL));
 			 return maxDuration;
 		 } else {
-			 glogger
-				 << "In G_OptimizationAlgorithm_Base<>::getMaxTimeCL(): Error!" << std::endl
-				 << "m_maxSecondsCL wasn't set" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In G_OptimizationAlgorithm_Base<>::getMaxTimeCL(): Error!" << std::endl
+					 << "m_maxSecondsCL wasn't set" << std::endl
+			 );
 
 			 // Make the compiler happy
 			 return std::chrono::seconds(0);
