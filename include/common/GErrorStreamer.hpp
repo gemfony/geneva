@@ -1,5 +1,5 @@
 /**
- * @file GStream.hpp
+ * @file GErrorStreamer.hpp
  */
 
 /*
@@ -41,8 +41,8 @@
 
 // Boost header files go here
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GSTREAMER_HPP
-#define GENEVA_LIBRARY_COLLECTION_GSTREAMER_HPP
+#ifndef GERRORSTREAMER_HPP_
+#define GERRORSTREAMER_HPP_
 
 // Geneva header files go here
 #include "common/GLogger.hpp"
@@ -53,31 +53,41 @@ const bool DO_LOG=true;
 const bool NO_LOG=false;
 
 /******************************************************************************/
+#define time_and_place \
+	std::string(std::string("Recorded on ") + __DATE__ + " at " << __TIME__  + "\n" \
+	+ "in File " + __FILE__ + " at line " + std::to_string(__LINE__) + " :\n")
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * A simple wrapper for a stringstream, so we can more easily send data to a string.
- * The class may optionally duplicate data and send it to the global logger. This
- * will happen during string conversion, as it is targetted at the throwing of
- * exceptions.
+ * A simple wrapper for a string_error_streamer, so we can more easily send data to a string
+ * when throwing an exception. The class may optionally duplicate data and send it
+ * to the global logger. This will happen during string conversion, so we may simply
+ * construct a g_error_streamer object inside of a throw()-call.
  */
-class gstream {
+class g_error_streamer {
 public:
 	 /**************************************************************************/
 	 /**
 	  * The default constructor. We may optionally instruct the class to
 	  * also log to the global logger during string conversion.
 	  *
-	  * @param do_log
+	  * @param do_log Instructs the object to also send data to the logger
 	  */
-	 explicit gstream(bool do_log = NO_LOG) : m_do_log(do_log)
+	 g_error_streamer(
+		 bool do_log = NO_LOG
+		 , const std::string& where_and_when = std::string()
+	 )
+		 : m_do_log(do_log)
+	 	 , m_where_and_when(where_and_when)
 	 { /* nothing */ }
 
 	 /**************************************************************************/
 	 /**
 	  * The standard destructor
 	  */
-	 ~gstream() = default;
+	 ~g_error_streamer() = default;
 
 	 /**************************************************************************/
 	 /**
@@ -89,7 +99,7 @@ public:
 	  * @return A pointer to this object
 	  */
 	 template <typename value_type>
-	 gstream& operator<<(const value_type& value) {
+	 g_error_streamer& operator<<(const value_type& value) {
 		 m_stream << value;
 		 return *this;
 	 }
@@ -99,27 +109,27 @@ public:
 	  * Automatic conversion to a string. The function will optionally send the
 	  * output to the global logger.
 	  *
-	  * @return A string with the content of the wrapped stringstream object.
+	  * @return A string with the content of the wrapped string_error_streamer object.
 	  */
 	 operator std::string() const {
 		 if(m_do_log) {
 			 glogger
 				 << "========================================================" << std::endl
-				 << "In file " << __FILE__ << "near line " << __LINE__ << " :" << std::endl
-				 << m_stream.str()
+				 << "Error!" << std::endl
+				 << m_where_and_when
+				 << std::endl
+				 << m_stream.str() << std::endl
+				 << "If you suspect that there is an underlying problem with the" << std::endl
+				 << "Gemfony library collection, then please consider filing a bug via" << std::endl
+				 << "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
+				 << "through http://www.launchpad.net/geneva" << std::endl
+				 << std::endl
+				 << "We appreciate your help!" << std::endl
+				 << "The Geneva team" << std::endl
+				 << std::endl
 				 << "========================================================" << std::endl
 				 << GLOGGING;
 		 }
-		 return m_stream.str();
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Comply with the stringstream conventions
-	  *
-	  * @return The string content of the wrapped stream
-	  */
-	 std::string str() const {
 		 return m_stream.str();
 	 }
 
@@ -128,13 +138,14 @@ private:
 	 // Data
 	 std::stringstream m_stream;
 	 bool m_do_log = false;
+	 std::string m_where_and_when;
 
 	 /**************************************************************************/
 	 // Prevent copying and assignment
-	 gstream(const gstream&) = delete;
-	 gstream& operator=(gstream&) = delete;
-	 gstream(const gstream&&) = delete;
-	 gstream& operator=(gstream &&) = delete;
+	 g_error_streamer(const g_error_streamer&) = delete;
+	 g_error_streamer& operator=(g_error_streamer&) = delete;
+	 g_error_streamer(const g_error_streamer&&) = delete;
+	 g_error_streamer& operator=(g_error_streamer &&) = delete;
 
 	 /**************************************************************************/
 };
@@ -143,5 +154,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-#endif /* GENEVA_LIBRARY_COLLECTION_GSTREAMER_HPP */
+#endif /* GERRORSTREAMER_HPP_ */
 

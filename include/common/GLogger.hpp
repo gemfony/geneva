@@ -85,7 +85,6 @@
 // Geneva header files go here
 #include "common/GSingletonT.hpp"
 #include "common/GCommonEnums.hpp"
-#include "common/GExceptions.hpp"
 #include "common/GTupleIO.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 

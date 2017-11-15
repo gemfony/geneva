@@ -44,6 +44,7 @@ SET ( GENEVACOMMONINCLUDES
     GCommonMathHelperFunctions.hpp
     GCommonMathHelperFunctionsT.hpp
 	GDefaultValueT.hpp
+    GErrorStreamer.hpp
 	GExceptions.hpp
 	GExpectationChecksT.hpp
 	GFactoryT.hpp
@@ -62,7 +63,6 @@ SET ( GENEVACOMMONINCLUDES
     GStdThreadGroup.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
-    gstream.hpp
 	GThreadPool.hpp
     GThreadSafeQueueT.hpp
 	GThreadWrapper.hpp
