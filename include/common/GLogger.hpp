@@ -459,7 +459,7 @@ private:
  * this happens from within a thread a in the context of serial execution. The output
  * should go to different log targets defined by the user, such as stdout or a file
  * (or possibly both). Emitting as much information as possible should be encouraged.
- * Hence adding information the the exception handler should be as easy as adding
+ * Hence adding information to the exception handler should be as easy as adding
  * data to a stream.
  */
 class GLogStreamer {

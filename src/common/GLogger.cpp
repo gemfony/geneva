@@ -196,23 +196,30 @@ void GFileLogger::logWithSource(
  * later perusal.
  */
 GManipulator::GManipulator(
-	const std::string &accompInfo, const logType &lt
+	const std::string &accompInfo
+	, const logType &lt
 )
-	: m_accomp_info(accompInfo), m_log_type(lt) { /* nothing */ }
+	: m_accomp_info(accompInfo)
+   , m_log_type(lt)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * The copy constructor
  */
 GManipulator::GManipulator(const GManipulator &cp)
-	: m_accomp_info(cp.m_accomp_info), m_log_type(cp.m_log_type) { /* nothing */ }
+	: m_accomp_info(cp.m_accomp_info)
+   , m_log_type(cp.m_log_type)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A constructor that stores the logging type only
  */
 GManipulator::GManipulator(const logType &lt)
-	: m_accomp_info(), m_log_type(lt) { /* nothing */ }
+	: m_accomp_info()
+   , m_log_type(lt)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -251,7 +258,10 @@ GLogStreamer::GLogStreamer(void) { /* nothing */ }
  * The copy constructor.
  */
 GLogStreamer::GLogStreamer(const GLogStreamer &cp)
-	: m_oss(cp.m_oss.str()), m_extension(cp.m_extension), m_log_file(cp.m_log_file) { /* nothing */ }
+	: m_oss(cp.m_oss.str())
+   , m_extension(cp.m_extension)
+   , m_log_file(cp.m_log_file)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -259,7 +269,10 @@ GLogStreamer::GLogStreamer(const GLogStreamer &cp)
  * or as additional information in std-output logs
  */
 GLogStreamer::GLogStreamer(const std::string &extension)
-	: m_oss(), m_extension(extension), m_log_file() { /* nothing */ }
+	: m_oss()
+   , m_extension(extension)
+   , m_log_file()
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -267,7 +280,10 @@ GLogStreamer::GLogStreamer(const std::string &extension)
  * one-time logging
  */
 GLogStreamer::GLogStreamer(boost::filesystem::path logFile)
-	: m_oss(), m_extension(), m_log_file(logFile) { /* nothing */ }
+	: m_oss()
+   , m_extension()
+   , m_log_file(logFile)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
