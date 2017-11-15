@@ -162,10 +162,11 @@ private:
 
 #ifdef DEBUG
 		if(!m_grf) {
-		   glogger
-		   << "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
-         << "No connection to GRandomFactory object." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
+					<< "No connection to GRandomFactory object." << std::endl
+			);
 		}
 #endif /* DEBUG */
 

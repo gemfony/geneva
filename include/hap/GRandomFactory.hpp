@@ -131,11 +131,12 @@ public:
 	 G_BASE_GENERATOR::result_type next() {
 #ifdef DEBUG
 		 if(empty()) {
-         glogger
-         << "In random_container::next(): Error!" << std::endl
-         << "Invalid m_current_pos: " << m_current_pos << " / " << DEFAULTARRAYSIZE << std::endl
-         << GEXCEPTION;
-      }
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In random_container::next(): Error!" << std::endl
+					 << "Invalid m_current_pos: " << m_current_pos << " / " << DEFAULTARRAYSIZE << std::endl
+			 );
+		 }
 #endif
 
 		 return m_r[m_current_pos++];
@@ -154,18 +155,18 @@ private:
 		 try {
 			 std::generate(m_r.begin(), m_r.end(), [&](){ return rng(); });
 		 } catch (const std::bad_alloc &e) {
-			 // This will propagate the exception to the global error handler so it can be logged
-			 glogger
-			 << "In random_container::random_container(T_RNG&): Error!" << std::endl
-			 << "std::bad_alloc caught with message" << std::endl
-			 << e.what() << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In random_container::random_container(T_RNG&): Error!" << std::endl
+					 << "std::bad_alloc caught with message" << std::endl
+					 << e.what() << std::endl
+			 );
 		 } catch (...) {
-			 // This will propagate the exception to the global error handler so it can be logged
-			 glogger
-			 << "In random_container::random_container(T_RNG&): Error!" << std::endl
-			 << "unknown exception caught" << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In random_container::random_container(T_RNG&): Error!" << std::endl
+					 << "unknown exception caught" << std::endl
+			 );
 		 }
 	 }
 
