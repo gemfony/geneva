@@ -291,13 +291,14 @@ public:
 		// Sigma must be in the allowed value range.
 		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setSigma(" + boost::lexical_cast<std::string>(sigma) + ")"))
 		{
-			glogger
-			<< "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
-			<< "sigma is not in the allowed range: " << std::endl
-			<< minSigma_ << " <= " << sigma << " < " << maxSigma_ << std::endl
-			<< "If you want to use these values you need to" << std::endl
-			<< "adapt the allowed range first." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNumGaussAdaptorT::setSigma(const fp_type&):" << std::endl
+					<< "sigma is not in the allowed range: " << std::endl
+					<< minSigma_ << " <= " << sigma << " < " << maxSigma_ << std::endl
+					<< "If you want to use these values you need to" << std::endl
+					<< "adapt the allowed range first." << std::endl
+			);
 		}
 
 		sigma_ = sigma;
@@ -325,13 +326,14 @@ public:
 		// Sigma must be in the allowed value range.
 		if(!Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setResetSigma(" + boost::lexical_cast<std::string>(sigma_reset) + ")"))
 		{
-			glogger
-			<< "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << std::endl
-			<< "sigma_reset is not in the allowed range: " << std::endl
-			<< minSigma_ << " <= " << sigma_reset << " < " << maxSigma_ << std::endl
-			<< "If you want to use these values you need to" << std::endl
-			<< "adapt the allowed range first." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNumGaussAdaptorT::setResetSigma(const fp_type&):" << std::endl
+					<< "sigma_reset is not in the allowed range: " << std::endl
+					<< minSigma_ << " <= " << sigma_reset << " < " << maxSigma_ << std::endl
+					<< "If you want to use these values you need to" << std::endl
+					<< "adapt the allowed range first." << std::endl
+			);
 		}
 
 		sigma_reset_ = sigma_reset;
@@ -366,12 +368,13 @@ public:
 		using namespace Gem::Common;
 
 		if(minSigma < fp_type(0.) || minSigma > maxSigma || maxSigma > fp_type(1.)) {
-			glogger
-			<< "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
-			<< "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
-			<< "Expected a range [0:1]. Note: Sigma is a percentage of the allowed or" << std::endl
-			<< "preferred value range."
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNumGaussAdaptorT::setSigmaRange(const fp_type&, const fp_type&):" << std::endl
+					<< "Invalid values for minSigma and maxSigma given: " << minSigma << " / " << maxSigma << std::endl
+					<< "Expected a range [0:1]. Note: Sigma is a percentage of the allowed or" << std::endl
+					<< "preferred value range."
+			);
 		}
 
 		minSigma_ = minSigma; if(minSigma_ < DEFAULTMINSIGMA) minSigma_ = DEFAULTMINSIGMA; // Silently adapt minSigma

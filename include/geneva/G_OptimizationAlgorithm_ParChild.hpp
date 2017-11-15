@@ -194,10 +194,11 @@ public:
 #ifdef DEBUG
 		 // Check that the parent id is in a valid range
 		 if(parentId >= this->getNParents()) {
-			 glogger
-				 << "In G_OptimizationAlgorithm_ParChild::getParentIndividual<>() : Error" << std::endl
-				 << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents() << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In G_OptimizationAlgorithm_ParChild::getParentIndividual<>() : Error" << std::endl
+					 << "Requested parent id which does not exist: " << parentId << " / " << this->getNParents() << std::endl
+			 );
 
 			 // Make the compiler happy
 			 return std::shared_ptr<parent_type>();
