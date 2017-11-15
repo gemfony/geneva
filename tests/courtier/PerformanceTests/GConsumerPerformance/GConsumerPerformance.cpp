@@ -380,9 +380,9 @@ void brokerProducer(
 		for(std::size_t i=0; i<nContainerObjects; i++) {
 			CurrentBufferPort->pop_processed(p);
 			if(!p) {
-				raiseException(
-					"In brokerProducer: " << "got invalid item" << std::endl
-				);
+				glogger
+				<< "In brokerProducer: " << "got invalid item" << std::endl
+				<< GEXCEPTION;
 			}
 		}
 

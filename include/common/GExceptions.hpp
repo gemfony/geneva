@@ -105,7 +105,8 @@ namespace Common {
 // Exceptions and related definitions
 
 /**
- * General error class to be thrown in the case of severe errors
+ * General exception class to be thrown in the case of severe errors
+ * in the Geneva library collection.
  */
 class gemfony_error_condition : public std::exception
 {
@@ -177,8 +178,10 @@ public:
        << "The Geneva team" << std::endl                                                                 \
        << "================================================" << std::endl;                               \
     throw(Gem::Common::gemfony_error_condition(error.str()));                                            \
-  }                                                                                                      \
+  }
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /** @brief Raise an exception if a given define wasn't set */
 G_API_COMMON void condnotset(const std::string&, const std::string&);

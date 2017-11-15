@@ -189,7 +189,9 @@ void producer(
 				, putTimeout
 			)) {
 				if(++putTimeouts >= maxPutTimeouts) {
-					raiseException("In producer: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in iteration " << cycleCounter << std::endl);
+					glogger
+					<< "In producer: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in iteration " << cycleCounter << std::endl
+					<< GEXCEPTION;
 				}
 			}
 			totalPutTimeouts += putTimeouts;
@@ -213,7 +215,9 @@ void producer(
 				, getTimeout
 			)) {
 				if(++getTimeouts >= maxGetTimeouts) {
-					raiseException("In producer: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in iteration " << cycleCounter << std::endl);
+					glogger
+					<< "In producer: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in iteration " << cycleCounter << std::endl
+					<< GEXCEPTION;
 				}
 			}
 			totalGetTimeouts += getTimeouts;
@@ -227,7 +231,9 @@ void producer(
 		if(p_receive) {
 			nReceived++;
 		} else {
-			raiseException("In producer: Received invalid pointer" << std::endl);
+			glogger
+			<< "In producer: Received invalid pointer" << std::endl
+		   << GEXCEPTION;
 		}
 
 		// Clean the pointer for the next cycle
@@ -280,7 +286,9 @@ void processor (
 				, getTimeout
 			)){
 				if(++getTimeouts >= maxGetTimeouts) {
-					raiseException("In processor: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in cycle " << cycleCounter << std::endl);
+					glogger
+					<< "In processor: Exceeded allowed number \"" << maxGetTimeouts << "\" of get timeouts in cycle " << cycleCounter << std::endl
+					<< GEXCEPTION;
 				}
 			}
 			totalGetTimeouts += getTimeouts;
@@ -294,7 +302,9 @@ void processor (
 		if(p) {
 			p->process();
 		} else {
-			raiseException("In processor: Received invalid pointer" << std::endl);
+			glogger
+			<< "In processor: Received invalid pointer" << std::endl
+		   << GEXCEPTION;
 		}
 
 		// Submit the processed item to the buffer port
@@ -304,7 +314,9 @@ void processor (
 				, putTimeout
 			)) {
 				if(++putTimeouts >= maxPutTimeouts) {
-					raiseException("In processor: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in cycle " << cycleCounter << std::endl);
+					glogger
+					<< "In processor: Exceeded allowed number \"" << maxPutTimeouts << "\" of put timeouts in cycle " << cycleCounter << std::endl
+					<< GEXCEPTION;
 				}
 			}
 			totalPutTimeouts += putTimeouts;
