@@ -288,10 +288,11 @@ public:
 #ifdef DEBUG
 	   // Check that the object isn't empty
 	   if(this->empty()) {
-	      glogger
-	      << "In GParameterCollectionT<num_type>::toPropertyTree(): Error!" << std::endl
-	      << "Object is empty!" << std::endl
-	      << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterCollectionT<num_type>::toPropertyTree(): Error!" << std::endl
+					<< "Object is empty!" << std::endl
+			);
 	   }
 #endif /* DEBUG */
 

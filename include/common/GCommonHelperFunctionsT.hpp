@@ -68,6 +68,7 @@
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GTypeTraitsT.hpp"
 
 namespace Gem {
@@ -124,10 +125,11 @@ void ptrDifferenceCheck (
 #ifdef DEBUG
 	// Check that the two pointers point to different objects
 	if (nullptr!=p1 && p1==p2) {
-		glogger
-		<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
-		<< "p1 and p2 point to the same object!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
+				<< "p1 and p2 point to the same object!" << std::endl
+		);
 	}
 #endif
 }
@@ -151,10 +153,11 @@ void ptrDifferenceCheck (
 #ifdef DEBUG
 	// Check that the two pointers point to different objects
 	if (p1 && p1.get()==p2.get()) {
-		glogger
-		<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
-		<< "Smart pointers p1 and p2 point to the same object!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In Gem::Common::ptrEqualityCheck<T>() :" << std::endl
+				<< "Smart pointers p1 and p2 point to the same object!" << std::endl
+		);
 	}
 #endif
 }
@@ -178,11 +181,12 @@ const target_type * g_ptr_conversion (
 	if(nullptr==convert_ptr || p) {
 		return p;
 	} else {
-		glogger
-		<< "In const target_type* g_ptr_conversion<target_type, base_type>() :" << std::endl
-		<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
-		<< "to type with name " << typeid(target_type).name() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In const target_type* g_ptr_conversion<target_type, base_type>() :" << std::endl
+				<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
+				<< "to type with name " << typeid(target_type).name() << std::endl
+		);
 
 		// Make the compiler happy
 		return nullptr;
@@ -210,11 +214,12 @@ std::shared_ptr<target_type> g_ptr_conversion (
 	if(nullptr==convert_ptr.get() || p) {
 		return p;
 	} else {
-		glogger
-		<< "In std::shared_ptr<target_type> g_ptr_conversion<target_type, base_type>() :" << std::endl
-		<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
-		<< "to type with name " << typeid(target_type).name() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In std::shared_ptr<target_type> g_ptr_conversion<target_type, base_type>() :" << std::endl
+				<< "Invalid conversion from type with name " << typeid(base_type).name() << std::endl
+				<< "to type with name " << typeid(target_type).name() << std::endl
+		);
 	}
 #else
 	return std::static_pointer_cast<target_type>(convert_ptr);
@@ -533,27 +538,31 @@ void copyArrays(
 	//--------------------------------------------------------------------------
 	// Do some error checks
 	if (nullptr == from && 0 != nFrom) {
-		glogger
-		<< "In copyArrays(): Error: from-array is empty, but nFrom isn\'t:" << nFrom << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In copyArrays(): Error: from-array is empty, but nFrom isn\'t:" << nFrom << std::endl
+		);
 	}
 
 	if (nullptr != from && 0 == nFrom) {
-		glogger
-		<< "In copyArrays(): Error: from-array isn't empty, but nFrom is:" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In copyArrays(): Error: from-array isn't empty, but nFrom is:" << std::endl
+		);
 	}
 
 	if (nullptr == to && 0 != nTo) {
-		glogger
-		<< "In copyArrays(): Error: to-array is empty, but nTo isn\'t:" << nTo << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In copyArrays(): Error: to-array is empty, but nTo isn\'t:" << nTo << std::endl
+		);
 	}
 
 	if (nullptr != to && 0 == nTo) {
-		glogger
-		<< "In copyArrays(): Error: to-array isn't empty, but nTo is" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In copyArrays(): Error: to-array isn't empty, but nTo is" << std::endl
+		);
 	}
 
 	//--------------------------------------------------------------------------
@@ -606,27 +615,31 @@ void copySmartPointerArrays(
 	//--------------------------------------------------------------------------
 	// Do some error checks
 	if (nullptr == from && 0 != size_from) {
-		glogger
-		<< "In copySmartPointerArrays(): Error: from-array is empty, but size_from isn\'t:" << size_from << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In copySmartPointerArrays(): Error: from-array is empty, but size_from isn\'t:" << size_from << std::endl
+		);
 	}
 
 	if (nullptr != from && 0 == size_from) {
-		glogger
-		<< "In copySmartPointerArrays(): Error: from-array isn't empty, but size_from is:" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In copySmartPointerArrays(): Error: from-array isn't empty, but size_from is:" << std::endl
+		);
 	}
 
 	if (nullptr == to && 0 != size_to) {
-		glogger
-		<< "In copySmartPointerArrays(): Error: to-array is empty, but size_to isn\'t:" << size_to << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In copySmartPointerArrays(): Error: to-array is empty, but size_to isn\'t:" << size_to << std::endl
+		);
 	}
 
 	if (nullptr != to && 0 == size_to) {
-		glogger
-		<< "In copySmartPointerArrays(): Error: to-array isn't empty, but size_to is" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In copySmartPointerArrays(): Error: to-array isn't empty, but size_to is" << std::endl
+		);
 	}
 
 	//--------------------------------------------------------------------------
@@ -656,10 +669,11 @@ std::shared_ptr <target_type> convertSmartPointer(std::shared_ptr <source_type> 
 #ifdef DEBUG
       // Check that we have indeed been given an item and that the pointer isn't empty
       if(!p_raw) {
-         glogger
-         << "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
-         << "Error: Pointer is empty." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
+					<< "Error: Pointer is empty." << std::endl
+			);
 
          // Make the compiler happy
          return std::shared_ptr<target_type>();
@@ -669,10 +683,11 @@ std::shared_ptr <target_type> convertSmartPointer(std::shared_ptr <source_type> 
       std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(p_raw);
       if(p) return p;
       else {
-         glogger
-         << "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
-         << "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
+					<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
+			);
 
          // Make the compiler happy
          return std::shared_ptr<target_type>();
@@ -692,10 +707,11 @@ target_type *convertSimplePointer(source_type *p_raw) {
 #ifdef DEBUG
       // Check that we have indeed been given an item and that the pointer isn't empty
       if(!p_raw) {
-         glogger
-         << "In target_type * convertSimplePointer(source_type *p_raw) :" << std::endl
-         << "Error: Pointer is empty." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In target_type * convertSimplePointer(source_type *p_raw) :" << std::endl
+					<< "Error: Pointer is empty." << std::endl
+			);
 
          // Make the compiler happy
          return nullptr;
@@ -705,10 +721,11 @@ target_type *convertSimplePointer(source_type *p_raw) {
       target_type  *p = dynamic_cast<target_type>(p_raw);
       if(p) return p;
       else {
-         glogger
-         << "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
-         << "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
+					<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
+			);
 
          // Make the compiler happy
          return nullptr;
@@ -728,10 +745,11 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
 #ifdef DEBUG
       // Check that we have indeed been given an item and that the pointer isn't empty
       if(!p_raw) {
-         glogger
-         << "In const target_type * convertSimplePointer(const source_type *p_raw) :" << std::endl
-         << "Error: Pointer is empty." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In const target_type * convertSimplePointer(const source_type *p_raw) :" << std::endl
+					<< "Error: Pointer is empty." << std::endl
+			);
 
          // Make the compiler happy
          return nullptr;
@@ -741,10 +759,11 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
       const target_type  *p = dynamic_cast<const target_type *>(p_raw);
       if(p) return p;
       else {
-         glogger
-         << "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
-         << "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
+					<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
+			);
 
          // Make the compiler happy
          return nullptr;
@@ -784,10 +803,11 @@ std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 ) {
 	// Check that sep1 and sep2 differ
 	if (std::string(sep1) == std::string(sep2)) {
-		glogger
-		<< "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
-		<< "sep1 and sep2 are identical: \"" << sep1 << "\" / \"" << sep2 << "\"" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
+				<< "sep1 and sep2 are identical: \"" << sep1 << "\" / \"" << sep2 << "\"" << std::endl
+		);
 	}
 
 	std::vector<std::string> fragments = Gem::Common::splitString(raw, sep1);
@@ -798,10 +818,11 @@ std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 
 #ifdef DEBUG
       if(2 != sub_fragments.size()) {
-         glogger
-         << "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
-         << "Incorrect number of sub-fragments: " << sub_fragments.size()
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
+					<< "Incorrect number of sub-fragments: " << sub_fragments.size()
+			);
       }
 #endif /* DEBUG */
 
@@ -823,21 +844,22 @@ std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 template<typename item_type>
 item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &key) {
 	if (m.empty()) {
-		glogger
-		<< "In item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
-		<< "Map is empty" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
+				<< "Map is empty" << std::endl
+		);
 	}
 
 	typename std::map<std::string, item_type>::iterator it = m.find(key);
 	if (it != m.end()) {
 		return it->second;
 	} else {
-		glogger
-		<< "In \"item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key)\": Error!" <<
-		std::endl
-		<< "key " << key << " is not in the map." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In \"item_type& getMapItem(std::map<std::string, item_type>& m, const std::string& key)\": Error!" << std::endl
+				<< "key " << key << " is not in the map." << std::endl
+		);
 	}
 
 	// Make the compiler happy
@@ -852,23 +874,23 @@ item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &ke
 template<typename item_type>
 const item_type &getMapItem(const std::map<std::string, item_type> &m, const std::string &key) {
 	if (m.empty()) {
-		glogger
-		<< "In const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key): Error!" <<
-		std::endl
-		<< "Map is empty" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key): Error!" << std::endl
+				<< "Map is empty" << std::endl
+		);
 	}
 
 	typename std::map<std::string, item_type>::const_iterator cit = m.find(key);
 	if (cit != m.end()) {
 		return cit->second;
 	} else {
-		glogger
-		<<
-		"In \"const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key)\": Error!" <<
-		std::endl
-		<< "key " << key << " is not in the map." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<<
+				"In \"const item_type& getMapItem(const std::map<std::string, item_type>& m, const std::string& key)\": Error!" << std::endl
+				<< "key " << key << " is not in the map." << std::endl
+		);
 	}
 
 	return m.begin()->second;
@@ -888,17 +910,19 @@ void assert_sizes_match_container(
 	, const std::string& caller
 ){
 	if (end <= start) {
-		glogger
-			<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
-			<< "Invalid start or end-values: " << start << " / " << end << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
+				<< "Invalid start or end-values: " << start << " / " << end << std::endl
+		);
 	}
 
 	if (end > container.size()) {
-		glogger
-			<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
-			<< "Last id " << end << " exceeds size of vector " << container.size() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In assert_sizes_match_container() (caller " << caller << "): Error!" << std::endl
+				<< "Last id " << end << " exceeds size of vector " << container.size() << std::endl
+		);
 	}
 }
 
@@ -913,10 +937,11 @@ void assert_container_sizes_match(
 	, const std::string& caller
 ) {
 	if(container1.size() != container2.size()) {
-		glogger
-			<< "In assert_container_sizes_match() (caller " << caller << "): Error!" << std::endl
-			<< "Invalid container sizes: " << container1.size() << " / " << container2.size() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In assert_container_sizes_match() (caller " << caller << "): Error!" << std::endl
+				<< "Invalid container sizes: " << container1.size() << " / " << container2.size() << std::endl
+		);
 	}
 };
 

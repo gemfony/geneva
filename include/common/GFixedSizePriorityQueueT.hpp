@@ -67,6 +67,7 @@
 #include "common/GExceptions.hpp"
 #include <common/GExpectationChecksT.hpp>
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GCommonInterfaceT.hpp"
 
@@ -208,10 +209,11 @@ public:
 	std::shared_ptr <T> best() const {
 		if (data_.empty()) {
 			// Throw an exception
-			glogger
-			<< "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
-			<< "Priority queue is empty." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
+					<< "Priority queue is empty." << std::endl
+			);
 
 			// Make the compiler happy
 			return std::shared_ptr<T>();
@@ -227,10 +229,11 @@ public:
 	std::shared_ptr <T> worst() const {
 		if (data_.empty()) {
 			// Throw an exception
-			glogger
-			<< "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
-			<< "Priority queue is empty." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
+					<< "Priority queue is empty." << std::endl
+			);
 
 			// Make the compiler happy
 			return std::shared_ptr<T>();
@@ -407,10 +410,11 @@ public:
 	T pop() {
 		if (data_.empty()) {
 			// Throw an exception
-			glogger
-			<< "In GFixedSizePriorityQueueT<T>::pop(): Error!" << std::endl
-			<< "Priority queue is empty." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GFixedSizePriorityQueueT<T>::pop(): Error!" << std::endl
+					<< "Priority queue is empty." << std::endl
+			);
 
 			// Make the compiler happy
 			return (T) 0;

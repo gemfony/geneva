@@ -421,10 +421,11 @@ public:
 	 ) {
 #ifdef DEBUG
 		 if(pos >= this->size()) {
-			 glogger
-				 << "In G_OptimizationAlgorithm_Base::individual_cast<>() : Error" << std::endl
-				 << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In G_OptimizationAlgorithm_Base::individual_cast<>() : Error" << std::endl
+					 << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
+			 );
 
 			 // Make the compiler happy
 			 return std::shared_ptr<target_type>();

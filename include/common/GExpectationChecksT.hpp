@@ -69,6 +69,7 @@
 #include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GTypeTraitsT.hpp"
 
 namespace Gem {
@@ -1230,14 +1231,16 @@ void compare_t(
 	} catch (const g_expectation_violation &g) {
 		token.registerErrorMessage(g);
 	} catch (const std::exception &e) {
-		glogger
-		<< "Caught std::exception with message " << std::endl
-		<< e.what() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "Caught std::exception with message " << std::endl
+				<< e.what() << std::endl
+		);
 	} catch (...) {
-		glogger
-		<< "Caught unknown exception" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "Caught unknown exception" << std::endl
+		);
 	}
 }
 
@@ -1261,14 +1264,16 @@ void compare_base(
 	} catch (const g_expectation_violation &g) {
 		token.registerErrorMessage(g);
 	} catch (const std::exception &e) {
-		glogger
-		<< "Caught std::exception with message " << std::endl
-		<< e.what() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "Caught std::exception with message " << std::endl
+				<< e.what() << std::endl
+		);
 	} catch (...) {
-		glogger
-		<< "Caught unknown exception" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "Caught unknown exception" << std::endl
+		);
 	}
 }
 

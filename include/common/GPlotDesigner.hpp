@@ -80,6 +80,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GCommonEnums.hpp"
@@ -1542,12 +1543,13 @@ public:
 			x = boost::numeric_cast<x_type>(x_undet);
 		}
 		catch (bad_numeric_cast &e) {
-			glogger
-			<< "In GDataCollector1T<x_type>::operator&(const T&): Error!" << std::endl
-			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-			<< "with the message " << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GDataCollector1T<x_type>::operator&(const T&): Error!" << std::endl
+					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+					<< "with the message " << std::endl
+					<< e.what() << std::endl
+			);
 		}
 
 		// Add the converted data to our collection
@@ -1585,12 +1587,13 @@ public:
 				x = boost::numeric_cast<x_type>(*cit);
 			}
 			catch (bad_numeric_cast &e) {
-				glogger
-				<< "In GDataCollector1T::operator&(const std::vector<T>&): Error!" << std::endl
-				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-				<< "with the message " << std::endl
-				<< e.what() << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GDataCollector1T::operator&(const std::vector<T>&): Error!" << std::endl
+						<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+						<< "with the message " << std::endl
+						<< e.what() << std::endl
+				);
 			}
 
 			// Add the converted data to our collection
@@ -1985,10 +1988,11 @@ public:
 		std::size_t
 		, std::tuple<x_type, x_type>
 	) const {
-		glogger
-		<< "In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector2T<>::projectX(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<x_type>>();
@@ -2004,10 +2008,11 @@ public:
 		std::size_t
 		, std::tuple<y_type, y_type>
 	) const {
-		glogger
-		<< "In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector2T<>::projectY(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<y_type>>();
@@ -2045,12 +2050,13 @@ public:
 			y = boost::numeric_cast<y_type>(std::get<1>(point_undet));
 		}
 		catch (bad_numeric_cast &e) {
-			glogger
-			<< "In GDataCollector2T::operator&(const std::tuple<S,T>&): Error!" << std::endl
-			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-			<< "with the message " << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GDataCollector2T::operator&(const std::tuple<S,T>&): Error!" << std::endl
+					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+					<< "with the message " << std::endl
+					<< e.what() << std::endl
+			);
 		}
 
 		m_data.push_back(std::tuple<x_type, y_type>(x, y));
@@ -2091,12 +2097,13 @@ public:
 				y = boost::numeric_cast<y_type>(std::get<1>(*cit));
 			}
 			catch (bad_numeric_cast &e) {
-				glogger
-				<< "In GDataCollector2T::operator&(const std::vector<std::tuple<S,T>>&): Error!" << std::endl
-				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-				<< "with the message " << std::endl
-				<< e.what() << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GDataCollector2T::operator&(const std::vector<std::tuple<S,T>>&): Error!" << std::endl
+						<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+						<< "with the message " << std::endl
+						<< e.what() << std::endl
+				);
 			}
 
 			m_data.push_back(std::tuple<x_type, y_type>(x, y));
@@ -2416,12 +2423,13 @@ public:
 			ey = boost::numeric_cast<y_type>(std::get<3>(point_undet));
 		}
 		catch (bad_numeric_cast &e) {
-			glogger
-			<< "In GDataCollector2ET::operator&(const std::tuple<S,S,T,T>&): Error!" << std::endl
-			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-			<< "with the message " << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GDataCollector2ET::operator&(const std::tuple<S,S,T,T>&): Error!" << std::endl
+					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+					<< "with the message " << std::endl
+					<< e.what() << std::endl
+			);
 		}
 
 		m_data.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
@@ -2467,12 +2475,13 @@ public:
 				ey = boost::numeric_cast<y_type>(std::get<3>(*cit));
 			}
 			catch (bad_numeric_cast &e) {
-				glogger
-				<< "In GDataCollector2ET::operator&(const std::vector<std::tuple<S,S,T,T>>&): Error!" << std::endl
-				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-				<< "with the message " << std::endl
-				<< e.what() << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GDataCollector2ET::operator&(const std::vector<std::tuple<S,S,T,T>>&): Error!" << std::endl
+						<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+						<< "with the message " << std::endl
+						<< e.what() << std::endl
+				);
 			}
 
 			m_data.push_back(std::tuple<x_type, x_type, y_type, y_type>(x, ex, y, ey));
@@ -2964,10 +2973,11 @@ public:
 	std::shared_ptr <GDataCollector1T<x_type>> projectX(
 		std::size_t, std::tuple<x_type, x_type>
 	) const {
-		glogger
-		<< "In GDataCollector3T<>::projectX(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector3T<>::projectX(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<x_type>>();
@@ -2982,10 +2992,11 @@ public:
 	std::shared_ptr <GDataCollector1T<y_type>> projectY(
 		std::size_t, std::tuple<y_type, y_type>
 	) const {
-		glogger
-		<< "In GDataCollector3T<>::projectY(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector3T<>::projectY(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<y_type>>();
@@ -3000,10 +3011,11 @@ public:
 	std::shared_ptr <GDataCollector1T<z_type>> projectZ(
 		std::size_t, std::tuple<z_type, z_type>
 	) const {
-		glogger
-		<< "In GDataCollector3T<>::projectZ(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector3T<>::projectZ(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<z_type>>();
@@ -3043,12 +3055,13 @@ public:
 			z = boost::numeric_cast<z_type>(std::get<2>(point_undet));
 		}
 		catch (bad_numeric_cast &e) {
-			glogger
-			<< "In GDataCollector3T::operator&(const std::tuple<S,T,U>&): Error!" << std::endl
-			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-			<< "with the message " << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GDataCollector3T::operator&(const std::tuple<S,T,U>&): Error!" << std::endl
+					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+					<< "with the message " << std::endl
+					<< e.what() << std::endl
+			);
 		}
 
 		m_data.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
@@ -3091,12 +3104,13 @@ public:
 				z = boost::numeric_cast<z_type>(std::get<2>(*cit));
 			}
 			catch (bad_numeric_cast &e) {
-				glogger
-				<< "In GDataCollector3T::operator&(const std::vector<std::tuple<S,T,U>>&): Error!" << std::endl
-				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-				<< "with the message " << std::endl
-				<< e.what() << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GDataCollector3T::operator&(const std::vector<std::tuple<S,T,U>>&): Error!" << std::endl
+						<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+						<< "with the message " << std::endl
+						<< e.what() << std::endl
+				);
 			}
 
 			m_data.push_back(std::tuple<x_type, y_type, z_type>(x, y, z));
@@ -3479,10 +3493,11 @@ public:
 	std::shared_ptr <GDataCollector1T<x_type>> projectX(
 		std::size_t, std::tuple<x_type, x_type>
 	) const {
-		glogger
-		<< "In GDataCollector4T<>::projectX(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector4T<>::projectX(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<x_type>>();
@@ -3497,10 +3512,11 @@ public:
 	std::shared_ptr <GDataCollector1T<y_type>> projectY(
 		std::size_t, std::tuple<y_type, y_type>
 	) const {
-		glogger
-		<< "In GDataCollector4T<>::projectY(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector4T<>::projectY(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<y_type>>();
@@ -3515,10 +3531,11 @@ public:
 	std::shared_ptr <GDataCollector1T<z_type>> projectZ(
 		std::size_t, std::tuple<z_type, z_type>
 	) const {
-		glogger
-		<< "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<z_type>>();
@@ -3533,10 +3550,11 @@ public:
 	std::shared_ptr <GDataCollector1T<w_type>> projectW(
 		std::size_t, std::tuple<w_type, w_type>
 	) const {
-		glogger
-		<< "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
-		<< "Function was called for class with un-implemented types" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GDataCollector4T<>::projectZ(range, nBins): Error!" << std::endl
+				<< "Function was called for class with un-implemented types" << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GDataCollector1T<w_type>>();
@@ -3580,12 +3598,13 @@ public:
 			w = boost::numeric_cast<w_type>(std::get<3>(point_undet));
 		}
 		catch (bad_numeric_cast &e) {
-			glogger
-			<< "In GDataCollector4T::operator&(const std::tuple<S,T,U,W>&): Error!" << std::endl
-			<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-			<< "with the message " << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GDataCollector4T::operator&(const std::tuple<S,T,U,W>&): Error!" << std::endl
+					<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+					<< "with the message " << std::endl
+					<< e.what() << std::endl
+			);
 		}
 
 		m_data.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));
@@ -3633,12 +3652,13 @@ public:
 				w = boost::numeric_cast<w_type>(std::get<3>(*cit));
 			}
 			catch (bad_numeric_cast &e) {
-				glogger
-				<< "In GDataCollector4T::operator&(const std::vector<std::tuple<S,T,U,W>>&): Error!" << std::endl
-				<< "Encountered invalid cast with boost::numeric_cast," << std::endl
-				<< "with the message " << std::endl
-				<< e.what() << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GDataCollector4T::operator&(const std::vector<std::tuple<S,T,U,W>>&): Error!" << std::endl
+						<< "Encountered invalid cast with boost::numeric_cast," << std::endl
+						<< "with the message " << std::endl
+						<< e.what() << std::endl
+				);
 			}
 
 			m_data.push_back(std::tuple<x_type, y_type, z_type, w_type>(x, y, z, w));

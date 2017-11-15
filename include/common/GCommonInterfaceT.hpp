@@ -67,6 +67,7 @@
 // Geneva header files go here
 #include "common/GCommonEnums.hpp" // For the serialization mode
 #include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 
@@ -130,10 +131,11 @@ public:
 #ifdef DEBUG
 		 local = dynamic_cast<const g_class_type *>(this);
 		 if(!local) {
-			 glogger
-				 << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << std::endl
-				 << "Conversion failed" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << std::endl
+					 << "Conversion failed" << std::endl
+			 );
 		 }
 #else
 		 local = static_cast<const g_class_type *>(this);
@@ -276,10 +278,11 @@ public:
 		 bf::ofstream ofstr(p, std::ofstream::trunc); // Note: will overwrite existing files
 
 		 if (!ofstr) {
-			 glogger
-				 << "In GCommonInterfaceT::toFile():" << std::endl
-				 << "Problems connecting to file " << p.string() << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GCommonInterfaceT::toFile():" << std::endl
+					 << "Problems connecting to file " << p.string() << std::endl
+			 );
 		 }
 
 		 toStream(ofstr, serMod);
@@ -287,11 +290,12 @@ public:
 
 #ifdef DEBUG
 		 if(!bf::exists(bf::path(p))) {
-			 glogger
-				 << "In GCommonInterfaceT::toFile():" << std::endl
-				 << "Data was written to " << p.string() << std::endl
-				 << "but file does not seem to exist." << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GCommonInterfaceT::toFile():" << std::endl
+					 << "Data was written to " << p.string() << std::endl
+					 << "but file does not seem to exist." << std::endl
+			 );
 		 }
 #endif
 	 }
@@ -315,20 +319,22 @@ public:
 	 ) {
 		 // Check that the file exists
 		 if (!bf::exists(bf::path(p))) {
-			 glogger
-				 << "In GCommonInterfaceT::fromFile(): Error!" << std::endl
-				 << "Requested input file " << p.string() << std::endl
-				 << "does not exist." << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GCommonInterfaceT::fromFile(): Error!" << std::endl
+					 << "Requested input file " << p.string() << std::endl
+					 << "does not exist." << std::endl
+			 );
 		 }
 
 		 bf::ifstream ifstr(p);
 
 		 if (!ifstr) {
-			 glogger
-				 << "In GCommonInterfaceT::fromFile():" << std::endl
-				 << "Problem connecting to file " << p.string() << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GCommonInterfaceT::fromFile():" << std::endl
+					 << "Problem connecting to file " << p.string() << std::endl
+			 );
 		 }
 
 		 fromStream(ifstr, serMod);

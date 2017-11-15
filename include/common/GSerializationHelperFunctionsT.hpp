@@ -67,6 +67,8 @@
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
 
 namespace Gem {
 namespace Common {
@@ -165,10 +167,11 @@ std::shared_ptr<T> sharedPtrFromString(const std::string &gt_string, const Gem::
 
 		return std::shared_ptr<T>();
 	} catch (...) {
-		glogger
-		<< "In sharedPtrFromString(): Error!" << std::endl
-		<< "Caught unknown exception" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In sharedPtrFromString(): Error!" << std::endl
+				<< "Caught unknown exception" << std::endl
+		);
 	}
 
 	return gt_ptr;

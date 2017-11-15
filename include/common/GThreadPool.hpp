@@ -53,6 +53,8 @@
 
 // Geneva header files go here
 #include "common/GLogger.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GStdThreadGroup.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "GThreadWrapper.hpp"
@@ -113,17 +115,19 @@ public:
 			 if (!m_threads_started) { // double checked locking pattern
 				 // Some error checks
 				 if(0==m_nThreads.load()) {
-					 glogger
-					 << "In GThreadPool::async_schedule(F f): Error!" << std::endl
-					 << "The number of threads is set to 0" << std::endl
-					 << GEXCEPTION;
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GThreadPool::async_schedule(F f): Error!" << std::endl
+							 << "The number of threads is set to 0" << std::endl
+					 );
 				 }
 				 if(m_gtg.size() > 0) {
-					 glogger
-					 << "In GThreadPool::async_schedule(F f): Error!" << std::endl
-					 << "The thread group already has entries, although" << std::endl
-					 << "m_threads_started is set to false" << std::endl
-					 << GEXCEPTION;
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GThreadPool::async_schedule(F f): Error!" << std::endl
+							 << "The thread group already has entries, although" << std::endl
+							 << "m_threads_started is set to false" << std::endl
+					 );
 				 }
 
 				 // Store a worker (a place holder, really) in the m_io_service object

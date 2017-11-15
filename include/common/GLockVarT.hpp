@@ -69,6 +69,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 
 namespace Gem {
 namespace Common {
@@ -133,10 +134,11 @@ public:
 	 */
 	const GLockVarT<T> &operator=(const GLockVarT<T> &cp) {
 		if (locked_) {
-			glogger
-			<< "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
-			<< "Tried to assign variable while access is locked" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
+					<< "Tried to assign variable while access is locked" << std::endl
+			);
 		}
 
 		var_ = cp.value();
@@ -151,10 +153,11 @@ public:
 	 */
 	const T &operator=(const T &var) {
 		if (locked_) {
-			glogger
-			<< "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
-			<< "Tried to assign variable while access is locked" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GLockVarT<T>& operator=(GLockVarT<T>& cp): Error!" << std::endl
+					<< "Tried to assign variable while access is locked" << std::endl
+			);
 		}
 
 		var_ = var;

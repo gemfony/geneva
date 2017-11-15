@@ -58,6 +58,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
@@ -85,10 +86,11 @@ fp_type enforceRangeConstraint(
 	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
    if(lower > upper) {
-      glogger
-      << (caller=="empty"?"":("["+caller+"] ")) << "In enforceRangeConstraint<fp_type>(): Error!" << std::endl
-      << "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< (caller=="empty"?"":("["+caller+"] ")) << "In enforceRangeConstraint<fp_type>(): Error!" << std::endl
+				<< "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
+		);
    }
 
 	if (val < lower) {
@@ -131,10 +133,11 @@ bool checkRangeCompliance(
 	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
    if(lower > upper) {
-      glogger
-			<< (caller=="empty"?"":("["+caller+"] ")) << "In checkRangeCompliance<fp_type>(...): Error!" << std::endl
-      	<< "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
-      	<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< (caller=="empty"?"":("["+caller+"] ")) << "In checkRangeCompliance<fp_type>(...): Error!" << std::endl
+				<< "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
+		);
    }
 
 	return !(val < lower || val > upper);
@@ -216,11 +219,12 @@ fp_type checkValueRange(
 			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") << std::endl
 			<< GWARNING;
 		} else {
-			glogger
-			<< "In checkValueRange<fp_type>(): Error!" << std::endl
-			<< "Value " << val << (varName.empty() ? "" : (" of variable " + varName)) << " outside of allowed range " << std::endl
-			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In checkValueRange<fp_type>(): Error!" << std::endl
+					<< "Value " << val << (varName.empty() ? "" : (" of variable " + varName)) << " outside of allowed range " << std::endl
+					<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") << std::endl
+			);
 		}
 	}
 
@@ -272,12 +276,12 @@ int_type checkValueRange(
 			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") <<  std::endl
 			<< GWARNING;
 		} else {
-			glogger
-			<< "In checkValueRange<int_type>(): Error!" << std::endl
-			<< "Value " << val << " outside of allowed range " << std::endl
-			<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") <<
-			std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In checkValueRange<int_type>(): Error!" << std::endl
+					<< "Value " << val << " outside of allowed range " << std::endl
+					<< min << (lowerOpen ? " (open) - " : " (closed) - ") << max << (upperOpen ? " (open)" : " (closed)") << std::endl
+			);
 		}
 	}
 
@@ -296,10 +300,11 @@ template<typename x_type_undet>
 std::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
-		glogger
-		<< "In GBasePlotter::getMinMax(1D): Error!" << std::endl
-		<< "Got vector of invalid size " << extDat.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GBasePlotter::getMinMax(1D): Error!" << std::endl
+				<< "Got vector of invalid size " << extDat.size() << std::endl
+		);
 	}
 
 	x_type_undet min = extDat.at(0), max = min;
@@ -326,10 +331,11 @@ std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
 getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
-		glogger
-		<< "In GBasePlotter::getMinMax(2D): Error!" << std::endl
-		<< "Got vector of invalid size " << extDat.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GBasePlotter::getMinMax(2D): Error!" << std::endl
+				<< "Got vector of invalid size " << extDat.size() << std::endl
+		);
 	}
 
 	x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
@@ -359,10 +365,11 @@ std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet,
 getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
-		glogger
-		<< "In GBasePlotter::getMinMax(3D): Error!" << std::endl
-		<< "Got vector of invalid size " << extDat.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GBasePlotter::getMinMax(3D): Error!" << std::endl
+				<< "Got vector of invalid size " << extDat.size() << std::endl
+		);
 	}
 
 	x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
@@ -397,10 +404,11 @@ std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet,
 getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
-		glogger
-		<< "In GBasePlotter::getMinMax(3D): Error!" << std::endl
-		<< "Got vector of invalid size " << extDat.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GBasePlotter::getMinMax(3D): Error!" << std::endl
+				<< "Got vector of invalid size " << extDat.size() << std::endl
+		);
 	}
 
 	x_type_undet minX = std::get<0>(extDat.at(0)), maxX = minX;
@@ -432,16 +440,18 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet,
  */
 template<typename T>
 T GMean(
-	const std::vector<T> &parVec, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
+	const std::vector<T> &parVec
+	, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
 ) {
 	T mean = 0.;
 
 #ifdef DEBUG
    if(parVec.empty()) {
-      glogger
-      << "In T GMean(const std::vector<T>&): Error!" << std::endl
-      << "parVec has size 0" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In T GMean(const std::vector<T>&): Error!" << std::endl
+				<< "parVec has size 0" << std::endl
+		);
    }
 #endif /* DEBUG */
 
@@ -469,10 +479,11 @@ std::tuple<T, T> GStandardDeviation(
 
 #ifdef DEBUG
    if(parVec.size() == 0) {
-      glogger
-      << "In std::tuple<T,T> GStandardDeviation(const std::vector<T>&): Error!" << std::endl
-      << "parVec is empty" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In std::tuple<T,T> GStandardDeviation(const std::vector<T>&): Error!" << std::endl
+				<< "parVec is empty" << std::endl
+		);
    }
 #endif /* DEBUG */
 
@@ -511,18 +522,20 @@ void GVecStandardDeviation(
 #ifdef DEBUG
    // Check that there are entries in the vector
    if(parVec.size() == 0) {
-      glogger
-      << "In void GVecStandardDeviation(): Error!" << std::endl
-      << "parVec is empty" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In void GVecStandardDeviation(): Error!" << std::endl
+				<< "parVec is empty" << std::endl
+		);
    }
 
    // Check that the first entry has at least one component
    if(parVec.at(0).empty()) {
-      glogger
-      << "In void GVecStandardDeviation(): Error!" << std::endl
-      << "parVec has empty component" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In void GVecStandardDeviation(): Error!" << std::endl
+				<< "parVec has empty component" << std::endl
+		);
    }
 
    // Check that all entries have the same size
@@ -530,10 +543,11 @@ void GVecStandardDeviation(
       std::size_t sizeFirst = parVec.at(0).size(), pos=0;
       for(auto const &p: parVec) {
 			if(p.size() != sizeFirst) {
-            glogger
-            << "In void GVecStandardDeviation(): Error!" << std::endl
-            << "Found parVec component of different size: " << sizeFirst << " / " << pos << " / " << p.size() << std::endl
-            << GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In void GVecStandardDeviation(): Error!" << std::endl
+						<< "Found parVec component of different size: " << sizeFirst << " / " << pos << " / " << p.size() << std::endl
+				);
          }
          pos++;
       }
@@ -610,10 +624,11 @@ void subtractVec(
 #ifdef DEBUG
    // Do some error checking
    if(a.size() != b.size()) {
-      glogger
-      << "In subtractVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
-      << "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In subtractVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
+				<< "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
+		);
    }
 #endif /* DEBUG */
 
@@ -642,10 +657,11 @@ void addVec(
 #ifdef DEBUG
    // Do some error checking
    if(a.size() != b.size()) {
-      glogger
-      << "In addVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
-      << "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In addVec(std::vector<T>, const std::vector<T>&): Error!" << std::endl
+				<< "Found invalid sizes: " << a.size() << " / " << b.size() << std::endl
+		);
    }
 #endif /* DEBUG */
 
@@ -839,20 +855,22 @@ std::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
 ) {
 	// p may not ne 0
 	if (0. == std::get<2>(p)) {
-		glogger
-		<< "In getRatioError(): Error!" << std::endl
-		<< "Attempted division by 0." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In getRatioError(): Error!" << std::endl
+				<< "Attempted division by 0." << std::endl
+		);
 	}
 
 	fp_type sleep_time = std::get<0>(s);
 
 	// Check that the sleep-times for s and p are the same
 	if (sleep_time != std::get<0>(p)) {
-		glogger
-		<< "In getRatioError(): Error!" << std::endl
-		<< "Sleep times differ: " << sleep_time << " / " << std::get<0>(p) << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In getRatioError(): Error!" << std::endl
+				<< "Sleep times differ: " << sleep_time << " / " << std::get<0>(p) << std::endl
+		);
 	}
 
 	fp_type s_val = std::get<2>(s);
@@ -881,10 +899,11 @@ std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> getRatioErrors(
 ) {
 	// Check that both vectors have the same size, otherwise complain
 	if (sn.size() != pn.size()) {
-		glogger
-		<< "In getRatioErrors(): Error!" << std::endl
-		<< "Vectors have invalid sizes: " << sn.size() << " / " << pn.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In getRatioErrors(): Error!" << std::endl
+				<< "Vectors have invalid sizes: " << sn.size() << " / " << pn.size() << std::endl
+		);
 	}
 
 	std::vector<std::tuple<fp_type, fp_type, fp_type, fp_type>> spn;

@@ -69,6 +69,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GExpectationChecksT.hpp"
 
 // Forward declaration
@@ -361,10 +362,11 @@ public:
 #ifdef DEBUG
 		// Do some error checking
 		if(pos >= minSize) {
-		   glogger
-         << "In GStdSimpleVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
-         << "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GStdSimpleVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
+					<< "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
+			);
 		}
 #endif /* DEBUG */
 

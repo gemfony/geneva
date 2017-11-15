@@ -64,9 +64,10 @@
 #define GFACTORYT_HPP_
 
 // Geneva header files go here
-#include <common/GParserBuilder.hpp>
-#include <common/GExceptions.hpp>
-#include <common/GCommonHelperFunctionsT.hpp>
+#include "common/GParserBuilder.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -163,10 +164,11 @@ public:
 
 		// Read the configuration parameters from file
 		if (!gpb.parseConfigFile(m_configFile)) {
-			glogger
-			<< "In GFactoryT<prod_type>::operator(): Error!" << std::endl
-			<< "Could not parse configuration file " << m_configFile << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GFactoryT<prod_type>::operator(): Error!" << std::endl
+					<< "Could not parse configuration file " << m_configFile << std::endl
+			);
 		}
 
 		// Allow the factory to act on configuration options received
@@ -270,11 +272,12 @@ public:
 	 * Others don't have to due to this "pseudo-implementation".
 	 */
 	virtual std::shared_ptr <GFactoryT<prod_type>> clone() const {
-		glogger
-		<< "In GFactoryT<prod_type>::clone(): Error!" << std::endl
-		<< "Function was called when it shouldn't be." << std::endl
-		<< "This function is a trap." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GFactoryT<prod_type>::clone(): Error!" << std::endl
+				<< "Function was called when it shouldn't be." << std::endl
+				<< "This function is a trap." << std::endl
+		);
 
 		// Make the compiler happy
 		return std::shared_ptr<GFactoryT<prod_type>>();
