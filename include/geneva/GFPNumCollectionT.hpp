@@ -576,7 +576,7 @@ public:
 				p_test1->push_back(fp_type(0));
 			}
 
-			BOOST_CHECK_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test1->GParameterBase::template add<fp_type>(p_test2, activityMode::ALLPARAMETERS), gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------
@@ -590,7 +590,7 @@ public:
 				p_test1->push_back(fp_type(0));
 			}
 
-			BOOST_CHECK_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+			BOOST_CHECK_THROW(p_test1->GParameterBase::template subtract<fp_type>(p_test2, activityMode::ALLPARAMETERS), gemfony_error_condition);
 		}
 
 		//------------------------------------------------------------------------------

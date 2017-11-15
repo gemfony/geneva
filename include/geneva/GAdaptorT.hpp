@@ -1425,7 +1425,7 @@ public:
 			 // Setting a probability < 0 should throw
 			 BOOST_CHECK_THROW(
 				 p_test->setAdaptionProbability(-1.);
-				 , Gem::Common::gemfony_error_condition
+				 , gemfony_error_condition
 			 );
 		 }
 
@@ -1437,7 +1437,7 @@ public:
 			 // Setting a probability > 1 should throw
 			 BOOST_CHECK_THROW(
 				 p_test->setAdaptionProbability(2.);
-				 , Gem::Common::gemfony_error_condition
+				 , gemfony_error_condition
 			 );
 		 }
 
@@ -1449,7 +1449,7 @@ public:
 			 // Setting a probability < 0 should throw
 			 BOOST_CHECK_THROW(
 				 p_test->setAdaptAdaptionProbability(-1.);
-				 , Gem::Common::gemfony_error_condition
+				 , gemfony_error_condition
 			 );
 		 }
 
@@ -1461,7 +1461,7 @@ public:
 			 // Setting a probability > 1 should throw
 			 BOOST_CHECK_THROW(
 				 p_test->setAdaptAdaptionProbability(2.);
-				 , Gem::Common::gemfony_error_condition
+				 , gemfony_error_condition
 			 );
 		 }
 

@@ -206,7 +206,7 @@ std::vector<cl::Platform> getPlatforms() {
             << err.err()  << std::endl;
 
       std::terminate();
-   } catch(Gem::Common::gemfony_error_condition& err) {
+   } catch(gemfony_error_condition& err) {
       std::cout << err.what();
       std::terminate();
    }
@@ -237,7 +237,7 @@ std::vector<cl::Device> getDevices(const cl::Platform& platform, const cl_device
    } catch(cl::Error& err) {
       std::cout << err.what();
       std::terminate();
-   } catch(Gem::Common::gemfony_error_condition& err) {
+   } catch(gemfony_error_condition& err) {
       std::cout << err.what();
       std::terminate();
    }

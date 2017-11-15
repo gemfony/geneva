@@ -60,16 +60,13 @@
 
 #include "common/GExceptions.hpp"
 
-namespace Gem {
-namespace Common {
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * This function allows to output a gemfony_error_condition to a stream
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::gemfony_error_condition &g) {
+std::ostream &operator<<(std::ostream &o, const gemfony_error_condition &g) {
 	o << g.what();
 	return o;
 }
@@ -77,6 +74,3 @@ std::ostream &operator<<(std::ostream &o, const Gem::Common::gemfony_error_condi
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-} /* namespace Common */
-} /* namespace Gem */

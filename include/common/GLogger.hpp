@@ -370,7 +370,7 @@ public:
 		// Make sure only one entity outputs data
 		std::unique_lock<std::mutex> lk(m_logger_mutex);
 
-		throw(Gem::Common::gemfony_error_condition(error));
+		throw(gemfony_error_condition(error));
 	}
 
 	/***************************************************************************/

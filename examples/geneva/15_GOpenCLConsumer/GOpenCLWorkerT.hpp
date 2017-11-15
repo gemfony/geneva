@@ -274,7 +274,7 @@ private:
 		 } catch (cl::Error &err) {
 			 std::cerr << "Error! " << err.what() << std::endl;
 			 exit(1);
-		 } catch (Gem::Common::gemfony_error_condition &err) {
+		 } catch (gemfony_error_condition &err) {
 			 std::cerr << "Error! " << err.what() << std::endl;
 			 exit(1);
 		 }

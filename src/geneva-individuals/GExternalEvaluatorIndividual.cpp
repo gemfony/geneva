@@ -1696,7 +1696,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 		<< "Caught ptree_bad_path exception with message " << std::endl
 		<< e.what() << std::endl
 		<< GEXCEPTION;
-	} catch (const Gem::Common::gemfony_error_condition &gec) {
+	} catch (const gemfony_error_condition &gec) {
 		throw gec; // Re-throw
 	} catch (...) {
 		glogger

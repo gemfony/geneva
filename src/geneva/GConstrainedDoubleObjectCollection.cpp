@@ -517,7 +517,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 		BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
 
 		// Adding p_test2 to p_test1 should throw
-		BOOST_CHECK_THROW(p_test1->add<double>(p_test2, activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test1->add<double>(p_test2, activityMode::ALLPARAMETERS), gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------
@@ -539,7 +539,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 		BOOST_CHECK(p_test1->size() != p_test2->size() && p_test2->size() == 0);
 
 		// Subtracting p_test2 from p_test1 should throw
-		BOOST_CHECK_THROW(p_test1->subtract<double>(p_test2, activityMode::ALLPARAMETERS), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test1->subtract<double>(p_test2, activityMode::ALLPARAMETERS), gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------

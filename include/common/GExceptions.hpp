@@ -96,14 +96,13 @@
 
 // Geneva header files go here
 
-namespace Gem {
-namespace Common {
+/******************************************************************************/
+// Exceptions and related definitions. Note that we do not use the Gem::Common
+// namespace here for convenience reasons.
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-// Exceptions and related definitions
-
 /**
  * General exception class to be thrown in the case of severe errors
  * in the Geneva library collection.
@@ -116,7 +115,7 @@ public:
 
 /******************************************************************************/
 /** @brief This function allows to output a gemfony_error_condition to a stream */
-G_API_COMMON std::ostream& operator<<(std::ostream&, const Gem::Common::gemfony_error_condition&);
+G_API_COMMON std::ostream& operator<<(std::ostream&, const gemfony_error_condition&);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,11 +132,6 @@ public:
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-} /* namespace Common */
-} /* namespace Gem */
-
 /******************************************************************************/
 /**
  * This define allows easy access to throwing exceptions.
@@ -162,7 +156,7 @@ public:
        << "We appreciate your help!" << std::endl                                                        \
        << "The Geneva team" << std::endl                                                                 \
        << "================================================" << std::endl;                               \
-    throw(Gem::Common::gemfony_error_condition(error.str()));                                            \
+    throw(gemfony_error_condition(error.str()));                                            \
   }
 
 /******************************************************************************/

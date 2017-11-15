@@ -956,7 +956,7 @@ public:
 				std::ostringstream error;
 				error << "In createDataset(): Error!" << std::endl
 				<< "Received invalid data type " << t << std::endl;
-				throw(Gem::Common::gemfony_error_condition(error.str()));
+				throw(gemfony_error_condition(error.str()));
 			}
 				break;
 		}

@@ -193,11 +193,11 @@ private:
 					continue;
 				}
 			}
-		} catch(Gem::Common::gemfony_error_condition& e) {
+		} catch(gemfony_error_condition& e) {
 			using namespace Gem::Common;
 			throw gemfony_error_condition(
 				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GSerialConsumerT::processItems(): Caught Gem::Common::gemfony_error_condition with message"
+					<< "In GSerialConsumerT::processItems(): Caught gemfony_error_condition with message"
 					<< std::endl
 					<< e.what() << std::endl
 			);

@@ -118,7 +118,7 @@ GStarterIndividual::GStarterIndividual(
 			, maxSigma
 			, adProb
 		);
-	} catch (const Gem::Common::gemfony_error_condition& e) {
+	} catch (const gemfony_error_condition& e) {
 		glogger
 		<< e.what()
 		<< GTERMINATION;

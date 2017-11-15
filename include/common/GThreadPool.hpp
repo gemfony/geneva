@@ -181,11 +181,11 @@ private:
 	 void taskWrapper(F f) {
 		 try { // Execute the actual worker task
 			 f();
-		 } catch (Gem::Common::gemfony_error_condition &e) {
+		 } catch (gemfony_error_condition &e) {
 			 // Extract the error
 			 std::ostringstream error;
 			 error
-			 << "In GThreadPool::taskWrapper(F f): Caught Gem::Common::gemfony_error_condition with message" << std::endl
+			 << "In GThreadPool::taskWrapper(F f): Caught gemfony_error_condition with message" << std::endl
 			 << e.what() << std::endl;
 
 			 { // Store the error for later reference

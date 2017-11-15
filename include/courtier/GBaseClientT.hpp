@@ -216,12 +216,12 @@ public:
 				 );
 			 }
 		 }
-		 catch (Gem::Common::gemfony_error_condition &e) {
+		 catch (gemfony_error_condition &e) {
 			 using namespace Gem::Common;
 			 throw gemfony_error_condition(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GBaseClientT<T>::run() / init:" << std::endl
-					 << "Caught Gem::Common::gemfony_error_condition" << std::endl
+					 << "Caught gemfony_error_condition" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );
@@ -255,12 +255,12 @@ public:
 		 try {
 			 run_(); // The main loop
 		 }
-		 catch (Gem::Common::gemfony_error_condition &e) {
+		 catch (gemfony_error_condition &e) {
 			 using namespace Gem::Common;
 			 throw gemfony_error_condition(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / run_:" << std::endl
-					 << "Caught Gem::Common::gemfony_error_condition" << std::endl
+					 << "Caught gemfony_error_condition" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );
@@ -300,12 +300,12 @@ public:
 				 );
 			 }
 		 }
-		 catch (Gem::Common::gemfony_error_condition &e) {
+		 catch (gemfony_error_condition &e) {
 			 using namespace Gem::Common;
 			 throw gemfony_error_condition(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseClientT<T>::run() / finally:" << std::endl
-					 << "Caught Gem::Common::gemfony_error_condition" << std::endl
+					 << "Caught gemfony_error_condition" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );

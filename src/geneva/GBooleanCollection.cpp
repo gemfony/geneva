@@ -923,7 +923,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 		}
 
 		// Randomly initialize, using the internal function
-		BOOST_CHECK_THROW(p_test->randomInit_(-1., activityMode::ALLPARAMETERS, gr), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->randomInit_(-1., activityMode::ALLPARAMETERS, gr), gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------
@@ -940,7 +940,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 		}
 
 		// Randomly initialize, using the internal function
-		BOOST_CHECK_THROW(p_test->randomInit_(2., activityMode::ALLPARAMETERS, gr), Gem::Common::gemfony_error_condition);
+		BOOST_CHECK_THROW(p_test->randomInit_(2., activityMode::ALLPARAMETERS, gr), gemfony_error_condition);
 	}
 
 	// --------------------------------------------------------------------------

@@ -499,11 +499,11 @@ public:
 						continue;
 					}
 				}
-			} catch(Gem::Common::gemfony_error_condition& e) {
+			} catch(gemfony_error_condition& e) {
 				using namespace Gem::Common;
 				throw gemfony_error_condition(
 					g_error_streamer(DO_LOG,  time_and_place)
-						<< "In GStdThreadConsumerT<processable_type>::GWorker::run(): Caught Gem::Common::gemfony_error_condition with message" << std::endl
+						<< "In GStdThreadConsumerT<processable_type>::GWorker::run(): Caught gemfony_error_condition with message" << std::endl
 						<< e.what() << std::endl
 				);
 			} catch (std::exception &e) {
