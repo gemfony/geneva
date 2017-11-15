@@ -68,6 +68,7 @@
 
 #include "common/GBoundedBufferT.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GSingletonT.hpp"
 #include "common/GStdThreadGroup.hpp"
 #include "common/GCommonHelperFunctions.hpp"
