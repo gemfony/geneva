@@ -231,10 +231,11 @@ public:
 			}
 		}
 
-		glogger
-		<< "In GPreEvaluationValidityCheckT<ind_type>::check(): Error!" << std::endl
-		<< "Error: This location should never be reached" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GPreEvaluationValidityCheckT<ind_type>::check(): Error!" << std::endl
+				<< "Error: This location should never be reached" << std::endl
+		);
 
 		// Make the compiler happy -- we return MAX_DOUBLE.
 		// Note that this line should never be reached.
@@ -462,10 +463,11 @@ public:
 	 */
 	void addCheck(std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> vc_ptr) {
 		if(!vc_ptr) {
-			glogger
-			<< "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
-			<< "Got empty check pointer" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
+					<< "Got empty check pointer" << std::endl
+			);
 		}
 
 		validityChecks_.push_back(vc_ptr->GObject::template clone<GPreEvaluationValidityCheckT<ind_type>>());
@@ -715,10 +717,11 @@ protected:
 				// --------------------------------------------------------------------
 			default:
 			{
-				glogger
-				<< "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
-				<< "Got invalid combinerPolicy_ value: " << combinerPolicy_ << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
+						<< "Got invalid combinerPolicy_ value: " << combinerPolicy_ << std::endl
+				);
 
 				// Make the compiler happy -- we return MAX_DOUBLE.
 				// Note that this line should never be reached.
@@ -728,10 +731,11 @@ protected:
 				// --------------------------------------------------------------------
 		}
 
-		glogger
-		<< "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
-		<< "Error: This location should never be reached" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
+				<< "Error: This location should never be reached" << std::endl
+		);
 
 		// Make the compiler happy -- we return MAX_DOUBLE.
 		// Note that this line should never be reached.
