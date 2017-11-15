@@ -284,13 +284,14 @@ public:
 	 void setSigma1(const fp_type& sigma1) {
 		 // Sigma1 must be in the allowed value range
 		 if(sigma1 < minSigma1_ || sigma1 > maxSigma1_ || sigma1 < fp_type(0)) {
-			 glogger
-			 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):" << std::endl
-			 << "sigma1 is not in the allowed range: " << std::endl
-			 << minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << std::endl
-			 << "If you want to use these values you need to" << std::endl
-			 << "adapt the allowed range first." << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma1(const fp_type&):" << std::endl
+					 << "sigma1 is not in the allowed range: " << std::endl
+					 << minSigma1_ << " <= " << sigma1 << " < " << maxSigma1_ << std::endl
+					 << "If you want to use these values you need to" << std::endl
+					 << "adapt the allowed range first." << std::endl
+			 );
 		 }
 
 		 sigma1_ = sigma1;
@@ -325,10 +326,11 @@ public:
 		 using namespace Gem::Common;
 
 		 if(minSigma1 < fp_type(0.) || minSigma1 > maxSigma1 || maxSigma1 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
-			 glogger
-			 << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):" << std::endl
-			 << "Invalid values for minSigma1 and maxSigma1 given: " << minSigma1 << " / " << maxSigma1 << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GNumBiGaussAdaptorT::setSigma1Range(const fp_type&, const fp_type&):" << std::endl
+					 << "Invalid values for minSigma1 and maxSigma1 given: " << minSigma1 << " / " << maxSigma1 << std::endl
+			 );
 		 }
 
 		 minSigma1_ = minSigma1;
@@ -419,13 +421,14 @@ public:
 	 {
 		 // Sigma2 must be in the allowed value range
 		 if(sigma2 < minSigma2_ || sigma2 > maxSigma2_ || sigma2 < fp_type(0)) {
-			 glogger
-			 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):" << std::endl
-			 << "sigma2 is not in the allowed range: " << std::endl
-			 << minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << std::endl
-			 << "If you want to use this value for sigma you need to" << std::endl
-			 << "adapt the allowed range first." << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GNumBiGaussAdaptorT<num_type, fp_type>::setSigma2(const fp_type&):" << std::endl
+					 << "sigma2 is not in the allowed range: " << std::endl
+					 << minSigma2_ << " <= " << sigma2 << " < " << maxSigma2_ << std::endl
+					 << "If you want to use this value for sigma you need to" << std::endl
+					 << "adapt the allowed range first." << std::endl
+			 );
 		 }
 
 		 sigma2_ = sigma2;
@@ -457,10 +460,11 @@ public:
 		 using namespace Gem::Common;
 
 		 if(minSigma2 < fp_type(0.) || minSigma2 > maxSigma2 || maxSigma2 < boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)) {
-			 glogger
-			 << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):" << std::endl
-			 << "Invalid values for minSigma2 and maxSigma2 given: " << minSigma2 << " / " << maxSigma2 << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GNumBiGaussAdaptorT::setSigma2Range(const fp_type&, const fp_type&):" << std::endl
+					 << "Invalid values for minSigma2 and maxSigma2 given: " << minSigma2 << " / " << maxSigma2 << std::endl
+			 );
 		 }
 
 
@@ -547,13 +551,14 @@ public:
 	 void setDelta(const fp_type& delta)	{
 		 // Delta must be in the allowed value range
 		 if(delta < minDelta_ || delta > maxDelta_ || delta_ < fp_type(0))	{
-			 glogger
-			 << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << std::endl
-			 << "delta is not in the allowed range: " << std::endl
-			 << minDelta_ << " <= " << delta << " < " << maxDelta_ << std::endl
-			 << "If you want to use these values you need to" << std::endl
-			 << "adapt the allowed range first." << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GNumBiGaussAdaptorT::setDelta(const fp_type&):" << std::endl
+					 << "delta is not in the allowed range: " << std::endl
+					 << minDelta_ << " <= " << delta << " < " << maxDelta_ << std::endl
+					 << "If you want to use these values you need to" << std::endl
+					 << "adapt the allowed range first." << std::endl
+			 );
 		 }
 
 		 delta_ = delta;
@@ -585,10 +590,11 @@ public:
 		 , const fp_type& maxDelta
 	 ){
 		 if(minDelta < fp_type(0.) || minDelta > maxDelta || maxDelta < boost::numeric_cast<fp_type>(DEFAULTMINDELTA)) {
-			 glogger
-			 << "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):" << std::endl
-			 << "Invalid values for minDelta and maxDelta given: " << minDelta << " / " << maxDelta << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GNumBiGaussAdaptorT::setDeltaRange(const fp_type&, const fp_type&):" << std::endl
+					 << "Invalid values for minDelta and maxDelta given: " << minDelta << " / " << maxDelta << std::endl
+			 );
 		 }
 
 		 minDelta_ = minDelta;
