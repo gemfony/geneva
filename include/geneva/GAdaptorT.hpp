@@ -314,10 +314,18 @@ public:
 	 {
 		 // Check the supplied probability value
 		 if (adProb < fp_type(0.) || adProb > fp_type(1.)) {
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type&):" << std::endl
+					 << "Bad probability value given: " << adProb << std::endl
+			 );
+			 /*
 			 glogger
 				 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type&):" << std::endl
 				 << "Bad probability value given: " << adProb << std::endl
 				 << GEXCEPTION;
+			  */
 		 }
 
 		 // Check that the new value fits in the allowed value range

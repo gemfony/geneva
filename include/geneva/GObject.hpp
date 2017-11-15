@@ -88,6 +88,7 @@
 
 // Geneva header files go here
 #include "common/GDefaultValueT.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"

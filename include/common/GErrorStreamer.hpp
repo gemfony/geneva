@@ -54,7 +54,7 @@ const bool NO_LOG=false;
 
 /******************************************************************************/
 #define time_and_place \
-	std::string(std::string("Recorded on ") + __DATE__ + " at " << __TIME__  + "\n" \
+	std::string(std::string("Recorded on ") + __DATE__ + " at " + __TIME__  + "\n" \
 	+ "in File " + __FILE__ + " at line " + std::to_string(__LINE__) + " :\n")
 
 /******************************************************************************/
@@ -99,8 +99,35 @@ public:
 	  * @return A pointer to this object
 	  */
 	 template <typename value_type>
-	 g_error_streamer& operator<<(const value_type& value) {
-		 m_stream << value;
+	 g_error_streamer& operator<<(const value_type& val) {
+		 m_ostream << val;
+		 return *this;
+	 }
+
+	 /******************************************************************************/
+	 /**
+	  * Needed for stringstream
+	  */
+	 g_error_streamer& operator<<(std::ostream &( *val )(std::ostream &)) {
+		 m_ostream << val;
+		 return *this;
+	 }
+
+	 /******************************************************************************/
+	 /**
+	  * Needed for stringstream
+	  */
+	 g_error_streamer& operator<<(std::ios &( *val )(std::ios &)) {
+		 m_ostream << val;
+		 return *this;
+	 }
+
+	 /******************************************************************************/
+	 /**
+	  *  Needed for stringstream
+	  */
+	 g_error_streamer& operator<<(std::ios_base &( *val )(std::ios_base &)) {
+		 m_ostream << val;
 		 return *this;
 	 }
 
@@ -116,9 +143,11 @@ public:
 			 glogger
 				 << "========================================================" << std::endl
 				 << "Error!" << std::endl
+				 << std::endl
 				 << m_where_and_when
 				 << std::endl
-				 << m_stream.str() << std::endl
+				 << m_ostream.str() << std::endl
+				 << std::endl
 				 << "If you suspect that there is an underlying problem with the" << std::endl
 				 << "Gemfony library collection, then please consider filing a bug via" << std::endl
 				 << "http://www.gemfony.eu (link \"Bug Reports\") or" << std::endl
@@ -130,13 +159,13 @@ public:
 				 << "========================================================" << std::endl
 				 << GLOGGING;
 		 }
-		 return m_stream.str();
+		 return m_ostream.str();
 	 }
 
 private:
 	 /**************************************************************************/
 	 // Data
-	 std::stringstream m_stream;
+	 std::ostringstream m_ostream;
 	 bool m_do_log = false;
 	 std::string m_where_and_when;
 
