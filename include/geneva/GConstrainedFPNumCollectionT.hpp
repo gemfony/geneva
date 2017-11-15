@@ -354,7 +354,7 @@ public:
 
 		return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GConstrainedFPNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GConstrainedFPNumCollectionT<>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -368,7 +368,7 @@ public:
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GConstrainedFPNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GConstrainedFPNumCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -381,7 +381,7 @@ public:
 		// Call the parent classes' functions
 		GConstrainedNumCollectionT<fp_type>::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GConstrainedFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GConstrainedFPNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 };

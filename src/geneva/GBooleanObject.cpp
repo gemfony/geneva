@@ -434,7 +434,7 @@ bool GBooleanObject::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBooleanObject::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GBooleanObject::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -747,7 +747,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBooleanObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GBooleanObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -787,7 +787,7 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBooleanObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GBooleanObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

@@ -922,7 +922,7 @@ bool GParameterSet::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterSet::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterSet::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -1586,7 +1586,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterSet::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterSet::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1606,7 +1606,7 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
 	// no local data, nothing to test
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterSet::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterSet::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

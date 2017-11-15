@@ -442,7 +442,7 @@ bool GDoubleCollection::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleCollection::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleCollection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -480,7 +480,7 @@ void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 	BOOST_CHECK(!this->empty());
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleCollection::fillWithData", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleCollection::fillWithData", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -761,7 +761,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -799,7 +799,7 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

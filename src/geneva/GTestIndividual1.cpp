@@ -832,7 +832,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	// --------------------------------------------------------------------------
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("Gem::Tests::GTestIndividual1::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("Gem::Tests::GTestIndividual1::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1056,7 +1056,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GTestIndividual1::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GTestIndividual1::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

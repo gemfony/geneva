@@ -211,7 +211,7 @@ bool GInt32FlipAdaptor::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GInt32FlipAdaptor::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GInt32FlipAdaptor::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -244,7 +244,7 @@ void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -264,7 +264,7 @@ void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	// no local data - nothing to test
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

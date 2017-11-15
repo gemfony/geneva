@@ -410,7 +410,7 @@ bool GDoubleObject::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleObject::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleObject::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -574,7 +574,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -625,7 +625,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

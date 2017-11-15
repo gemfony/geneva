@@ -375,7 +375,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GParameterT<>::modify_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GParameterT<>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -392,7 +392,7 @@ public:
 		// All tests of our local functions are made in derived classes
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GParameterT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GParameterT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -406,7 +406,7 @@ public:
 		GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GParameterT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GParameterT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 

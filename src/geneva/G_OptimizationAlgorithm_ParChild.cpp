@@ -967,7 +967,7 @@ bool G_OptimizationAlgorithm_ParChild::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("G_OptimizationAlgorithm_ParChild::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("G_OptimizationAlgorithm_ParChild::modify_GUnitTests", "GEM_TESTING");
 		 return false;
 #endif /* GEM_TESTING */
 }
@@ -982,7 +982,7 @@ void G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests
 	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -996,7 +996,7 @@ void G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests(
 	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */
-	condnotset("G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

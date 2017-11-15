@@ -288,7 +288,7 @@ bool GConjugateGradientDescent::modify_GUnitTests() {
 
 	return result;
 #else /* GEM_TESTING */
-   condnotset("GConjugateGradientDescent::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConjugateGradientDescent::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -302,7 +302,7 @@ void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -315,7 +315,7 @@ void GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

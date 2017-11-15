@@ -212,7 +212,7 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
 	return true;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBooleanObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GBooleanObjectCollection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -255,7 +255,7 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t &nAddedObjects)
 	}
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBooleanObjectCollection::fillWithObjects", "GEM_TESTING");
+   Gem::Common::condnotset("GBooleanObjectCollection::fillWithObjects", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -404,7 +404,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -418,7 +418,7 @@ void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	GParameterTCollectionT<GBooleanObject>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

@@ -375,7 +375,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GParameterCollectionT<>::modify_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GParameterCollectionT<>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -391,7 +391,7 @@ public:
 		Gem::Common::GStdSimpleVectorInterfaceT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -407,7 +407,7 @@ public:
 
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GParameterCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GParameterCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 

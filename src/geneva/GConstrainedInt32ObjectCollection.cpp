@@ -191,7 +191,7 @@ bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
 	return true;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedInt32ObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConstrainedInt32ObjectCollection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -236,7 +236,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t &nAdde
 	}
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedInt32ObjectCollection::fillWithObjects", "GEM_TESTING");
+   Gem::Common::condnotset("GConstrainedInt32ObjectCollection::fillWithObjects", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -318,7 +318,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -332,7 +332,7 @@ void GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests
 	GParameterTCollectionT<GConstrainedInt32Object>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

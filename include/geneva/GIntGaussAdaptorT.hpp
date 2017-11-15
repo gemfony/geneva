@@ -316,7 +316,7 @@ public:
 		return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIntGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GIntGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	}
@@ -335,7 +335,7 @@ public:
 		//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIntGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 
@@ -348,7 +348,7 @@ public:
 		// Call the parent class'es function
 		GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		condnotset("GIntGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	}
 

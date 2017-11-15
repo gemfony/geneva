@@ -220,7 +220,7 @@ bool GStandardMonitor::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GStandardMonitor::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GStandardMonitor::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 }
@@ -237,7 +237,7 @@ void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GStandardMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GStandardMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -254,7 +254,7 @@ void GStandardMonitor::specificTestsFailuresExpected_GUnitTests() {
 	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GStandardMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GStandardMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -640,7 +640,7 @@ bool GFitnessMonitor::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GFitnessMonitor::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GFitnessMonitor::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 }
@@ -657,7 +657,7 @@ void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -674,7 +674,7 @@ void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests() {
 	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GFitnessMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GFitnessMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -866,7 +866,7 @@ bool GCollectiveMonitor::modify_GUnitTests()  {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GCollectiveMonitor::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GCollectiveMonitor::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 }
@@ -883,7 +883,7 @@ void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests()  {
 	// Call the parent classes' functions
 	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -900,7 +900,7 @@ void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests()  {
 	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1332,7 +1332,7 @@ bool GAllSolutionFileLogger::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GAllSolutionFileLogger::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GAllSolutionFileLogger::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 }
@@ -1349,7 +1349,7 @@ void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1366,7 +1366,7 @@ void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests() {
 	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1642,7 +1642,7 @@ bool GIterationResultsFileLogger::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GIterationResultsFileLogger::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GIterationResultsFileLogger::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 }
@@ -1659,7 +1659,7 @@ void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1676,7 +1676,7 @@ void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests() {
 	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -2079,7 +2079,7 @@ bool GNAdpationsLogger::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GNAdpationsLogger::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GNAdpationsLogger::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 }
@@ -2096,7 +2096,7 @@ void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -2113,7 +2113,7 @@ void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests() {
 	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -2680,7 +2680,7 @@ bool GProcessingTimesLogger::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GProcessingTimesLogger::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GProcessingTimesLogger::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 }
@@ -2697,7 +2697,7 @@ void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent classes' functions
 	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -2714,7 +2714,7 @@ void GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests() {
 	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

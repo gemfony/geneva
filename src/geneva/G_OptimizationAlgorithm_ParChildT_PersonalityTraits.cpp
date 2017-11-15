@@ -381,7 +381,7 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GBaseParChildPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBaseParChildPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -467,7 +467,7 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -495,7 +495,7 @@ void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests() 
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

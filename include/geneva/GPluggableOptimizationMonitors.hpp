@@ -1084,7 +1084,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GProgressPlotterT<fp_type>::modify_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GProgressPlotterT<fp_type>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	 }
@@ -1101,7 +1101,7 @@ public:
 		 // Call the parent classes' functions
 		 GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GProgressPlotterT<fp_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GProgressPlotterT<fp_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1118,7 +1118,7 @@ public:
 		 GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GProgressPlotterT<fp_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GProgressPlotterT<fp_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 	 /***************************************************************************/
@@ -2046,7 +2046,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GAdaptorPropertyLoggerT<num_type>::modify_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	 }
@@ -2063,7 +2063,7 @@ public:
 		 // Call the parent classes' functions
 		 GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GAdaptorPropertyLoggerT<num_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -2080,7 +2080,7 @@ public:
 		 GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GAdaptorPropertyLoggerT<num_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 	 /***************************************************************************/

@@ -212,7 +212,7 @@ bool GDoubleBiGaussAdaptor::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleBiGaussAdaptor::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleBiGaussAdaptor::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -250,7 +250,7 @@ void GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -267,7 +267,7 @@ void GDoubleBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
 	GFPBiGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GDoubleBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GDoubleBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

@@ -194,7 +194,7 @@ bool GConstrainedDoubleObjectCollection::modify_GUnitTests() {
 	return true;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedDoubleObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConstrainedDoubleObjectCollection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -243,7 +243,7 @@ void GConstrainedDoubleObjectCollection::fillWithObjects(const std::size_t &nAdd
 	//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedDoubleObjectCollection::fillWithObjects", "GEM_TESTING");
+   Gem::Common::condnotset("GConstrainedDoubleObjectCollection::fillWithObjects", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -482,7 +482,7 @@ void GConstrainedDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTes
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -545,7 +545,7 @@ void GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTest
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GConstrainedDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

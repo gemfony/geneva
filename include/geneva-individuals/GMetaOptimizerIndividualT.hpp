@@ -1106,7 +1106,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */
-		 condnotset("GMetaOptimizerIndividualT<ind_type>::modify_GUnitTests()", "GEM_TESTING");
+		 Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::modify_GUnitTests()", "GEM_TESTING");
       return false;
 #endif /* GEM_TESTING */
 	 }
@@ -1133,7 +1133,7 @@ public:
 
 		 //------------------------------------------------------------------------------
 #else /* GEM_TESTING */
-		 condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
+		 Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 	 /***************************************************************************/
@@ -1163,7 +1163,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */
-		 condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
+		 Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 	 /***************************************************************************/
@@ -1943,7 +1943,7 @@ public:
 		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GOptOptMonitorT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GOptOptMonitorT<ind_type>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
 	 }
@@ -1960,7 +1960,7 @@ public:
 		 // Call the parent classes' functions
 		 GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GOptOptMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GOptOptMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 
@@ -1977,7 +1977,7 @@ public:
 		 GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GOptOptMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GOptOptMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 	 }
 	 /***************************************************************************/

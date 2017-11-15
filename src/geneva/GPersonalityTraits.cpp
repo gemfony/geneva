@@ -173,7 +173,7 @@ bool GPersonalityTraits::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GPersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -190,7 +190,7 @@ void GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
 	// No local data -- nothing to test
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -206,7 +206,7 @@ void GPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
 	// No local data -- nothing to test
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GPersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

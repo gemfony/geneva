@@ -205,7 +205,7 @@ bool GParameterObjectCollection::modify_GUnitTests() {
 	return true;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterObjectCollection::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterObjectCollection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -290,7 +290,7 @@ void GParameterObjectCollection::fillWithObjects() {
 	BOOST_CHECK_NO_THROW(this->push_back(gdo_ptr));
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterObjectCollection::fillWithObjects", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterObjectCollection::fillWithObjects", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -572,7 +572,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -586,7 +586,7 @@ void GParameterObjectCollection::specificTestsFailuresExpected_GUnitTests() {
 	GParameterTCollectionT<GParameterBase>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

@@ -191,7 +191,7 @@ bool GBasePluggableOM::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GBasePluggableOM", "GEM_TESTING");
+	Gem::Common::condnotset("GBasePluggableOM", "GEM_TESTING");
 			return false;
 #endif /* GEM_TESTING */
 }
@@ -206,7 +206,7 @@ void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests() {
 	GObject::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -220,7 +220,7 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests() {
 	GObject::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GBasePluggableOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBasePluggableOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -2315,7 +2315,7 @@ bool G_OptimizationAlgorithm_Base::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("G_OptimizationAlgorithm_Base<>::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("G_OptimizationAlgorithm_Base<>::modify_GUnitTests", "GEM_TESTING");
 		 return false;
 #endif /* GEM_TESTING */
 }
@@ -2334,7 +2334,7 @@ void G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests() {
 	Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("G_OptimizationAlgorithm_Base<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("G_OptimizationAlgorithm_Base<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -2352,7 +2352,7 @@ void G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests() {
 	Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("G_OptimizationAlgorithm_Base<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("G_OptimizationAlgorithm_Base<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

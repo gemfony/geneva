@@ -229,7 +229,7 @@ bool GParameterScan_PersonalityTraits::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterScan_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterScan_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -252,7 +252,7 @@ void GParameterScan_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterScan_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterScan_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -273,7 +273,7 @@ void GParameterScan_PersonalityTraits::specificTestsFailuresExpected_GUnitTests(
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterScan_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterScan_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

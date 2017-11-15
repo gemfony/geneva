@@ -242,7 +242,7 @@ bool GLineFitIndividual::modify_GUnitTests() {
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GLineFitIndividual::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GLineFitIndividual::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -264,7 +264,7 @@ void GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GLineFitIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -285,7 +285,7 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GLineFitIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GLineFitIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

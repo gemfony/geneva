@@ -1387,7 +1387,7 @@ bool GParameterScan::modify_GUnitTests() {
 
 	return result;
 #else /* GEM_TESTING */
-   condnotset("GParameterScan::modify_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterScan::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -1401,7 +1401,7 @@ void GParameterScan::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1414,7 +1414,7 @@ void GParameterScan::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+   Gem::Common::condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
