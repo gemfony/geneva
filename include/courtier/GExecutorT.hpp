@@ -535,11 +535,12 @@ protected:
 			 if (GBC_UNPROCESSED == workItemPos[pos_cnt]) { // Is the item due to be submitted ? We only submit items that are marked as "unprocessed"
 #ifdef DEBUG
 				 if(!w_ptr) {
-					 glogger
-						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
-						 << "Received empty work item in position "  << pos_cnt << std::endl
-						 << "m_iteration_counter = " << m_iteration_counter << std::endl
-						 << GEXCEPTION;
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
+							 << "Received empty work item in position "  << pos_cnt << std::endl
+							 << "m_iteration_counter = " << m_iteration_counter << std::endl
+					 );
 				 }
 #endif
 
@@ -724,9 +725,10 @@ protected:
 		 const GSerialExecutorT<processable_type> *p_load = dynamic_cast<GSerialExecutorT<processable_type> const *const>(cp);
 
 		 if (!cp) { // nullptr
-			 glogger
-				 << "In GSerialExecutorT<processable_type>::load_(): Conversion error!" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GSerialExecutorT<processable_type>::load_(): Conversion error!" << std::endl
+			 );
 		 }
 
 		 // Load our parent classes data
@@ -1018,9 +1020,10 @@ protected:
 		 const GMTExecutorT<processable_type> *p_load = dynamic_cast<const GMTExecutorT<processable_type> *>(cp);
 
 		 if (!cp) { // nullptr
-			 glogger
-				 << "In GMTExecutorT<processable_type>::load_(): Conversion error!" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GMTExecutorT<processable_type>::load_(): Conversion error!" << std::endl
+			 );
 		 }
 
 		 // Load our parent classes data
@@ -1053,15 +1056,17 @@ protected:
 			 m_gtp_ptr->async_schedule([w]() -> bool { return w->process(); });
 		 } else {
 			 if (!m_gtp_ptr) {
-				 glogger
-					 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
-					 << "Threadpool pointer is empty" << std::endl
-					 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
+						 << "Threadpool pointer is empty" << std::endl
+				 );
 			 } else if(!w) {
-				 glogger
-					 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
-					 << "work item pointer is empty" << std::endl
-					 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
+						 << "work item pointer is empty" << std::endl
+				 );
 			 }
 		 }
 #else
@@ -1323,10 +1328,11 @@ public:
 	  */
 	 void setInitialWaitFactor(double initialWaitFactor) {
 		 if(initialWaitFactor <= 0.) {
-			 glogger
-				 << "In GBrokerExecutorT<processable_type>::setInitialWaitFactor(): Error!" << std::endl
-				 << "Invalid wait factor " << initialWaitFactor << " supplied. Must be > 0."
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerExecutorT<processable_type>::setInitialWaitFactor(): Error!" << std::endl
+					 << "Invalid wait factor " << initialWaitFactor << " supplied. Must be > 0."
+			 );
 		 }
 		 m_initialWaitFactor = initialWaitFactor;
 	 }
@@ -1441,9 +1447,10 @@ protected:
 		 const GBrokerExecutorT<processable_type> *p_load = dynamic_cast<const GBrokerExecutorT<processable_type> *>(cp);
 
 		 if (!p_load) { // nullptr
-			 glogger
-				 << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << std::endl
+			 );
 		 }
 
 		 // Load our parent classes data
@@ -1533,17 +1540,19 @@ private:
 	 virtual void submit(std::shared_ptr<processable_type> w_ptr) override {
 #ifdef DEBUG
 		 if(!w_ptr) {
-			 glogger
-				 << "In GBrokerExecutorT::submit(): Error!" << std::endl
-				 << "Work item is empty" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerExecutorT::submit(): Error!" << std::endl
+					 << "Work item is empty" << std::endl
+			 );
 		 }
 
 		 if(!m_CurrentBufferPort) {
-			 glogger
-				 << "In GBrokerExecutorT::submit(): Error!" << std::endl
-				 << "Current buffer port is empty when it shouldn't be" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerExecutorT::submit(): Error!" << std::endl
+					 << "Current buffer port is empty when it shouldn't be" << std::endl
+			 );
 		 }
 #endif /* DEBUG */
 
@@ -1698,10 +1707,11 @@ private:
 			 // Note that retrieve() will wait indefinitely and, once it returns,
 			 // should carry a work item.
 			 if (!w) {
-				 glogger
-					 << "In GBrokerExecutorT<>::waitForTimeOut(): Error!" << std::endl
-					 << "First item received in first iteration is empty. We cannot continue!"
-					 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GBrokerExecutorT<>::waitForTimeOut(): Error!" << std::endl
+						 << "First item received in first iteration is empty. We cannot continue!"
+				 );
 			 }
 
 			 if (
@@ -1814,11 +1824,12 @@ private:
 			 std::size_t w_pos = w_ptr->getSubmissionPosition();
 
 			 if (w_pos >= workItems.size()) {
-				 glogger
-					 << "In GBrokerExecutorT<processable_type>::addWorkItemAndCheckCompleteness(): Error!" << std::endl
-					 << "Received work item for position " << w_pos << " while" << std::endl
-					 << "only a range [0" << ", " << workItems.size() << "[ was expected." << std::endl
-					 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GBrokerExecutorT<processable_type>::addWorkItemAndCheckCompleteness(): Error!" << std::endl
+						 << "Received work item for position " << w_pos << " while" << std::endl
+						 << "only a range [0" << ", " << workItems.size() << "[ was expected." << std::endl
+				 );
 			 }
 
 			 // Re-submitted items might return twice, so we only add them
