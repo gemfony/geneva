@@ -468,19 +468,21 @@ public:
 
 		// Check the number of supplied layers
 		if (architecture.size() < 2) { // We need at least an input- and an output-layer
-			glogger
-			<< "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
-			<< "Got invalid number of layers: " << architecture.size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
+					<< "Got invalid number of layers: " << architecture.size() << std::endl
+			);
 		}
 
 		// Check that the output layer has exactly one node
 		if (architecture.back() != 1) {
-			glogger
-			<< "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
-			<< "The output layer must have exactly one node for this training data." << std::endl
-			<< "Got " << architecture.back() << " instead." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
+					<< "The output layer must have exactly one node for this training data." << std::endl
+					<< "Got " << architecture.back() << " instead." << std::endl
+			);
 		}
 
 		// Create a local random number generator.
@@ -501,10 +503,11 @@ public:
 		std::size_t layerCounter = 0;
 		for (it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
 			if (*it == 0) {
-				glogger
-				<< "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
-				<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GNeuralNetworkIndividual::createHyperCubeNetworkData(): Error!" << std::endl
+						<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
+				);
 			}
 
 			nD->push_back(*it);
@@ -563,19 +566,21 @@ public:
 
 		// Check the number of supplied layers
 		if (architecture.size() < 2) { // We need at least an input- and an output-layer
-			glogger
-			<< "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
-			<< "Got invalid number of layers: " << architecture.size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+					<< "Got invalid number of layers: " << architecture.size() << std::endl
+			);
 		}
 
 		// Check that the output layer has exactly one node
 		if (architecture.back() != 1) {
-			glogger
-			<< "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
-			<< "The output layer must have exactly one node for this training data." << std::endl
-			<< "Got " << architecture.back() << " instead." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+					<< "The output layer must have exactly one node for this training data." << std::endl
+					<< "Got " << architecture.back() << " instead." << std::endl
+			);
 		}
 
 		// Create a local random number generator.
@@ -596,10 +601,11 @@ public:
 		std::size_t layerCounter = 0;
 		for (it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
 			if (*it == 0) {
-				glogger
-				<< "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
-				<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GNeuralNetworkIndividual::createHyperSphereNetworkData(): Error!" << std::endl
+						<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
+				);
 			}
 
 			nD->push_back(*it);
@@ -710,19 +716,21 @@ public:
 
 		// Check the number of supplied layers
 		if (architecture.size() < 2) { // We need at least an input- and an output-layer
-			glogger
-			<< "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
-			<< "Got invalid number of layers: " << architecture.size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+					<< "Got invalid number of layers: " << architecture.size() << std::endl
+			);
 		}
 
 		// Check that the output layer has exactly one node
 		if (architecture.back() != 1) {
-			glogger
-			<< "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
-			<< "The output layer must have exactly one node for this training data." << std::endl
-			<< "Got " << architecture.back() << " instead." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+					<< "The output layer must have exactly one node for this training data." << std::endl
+					<< "Got " << architecture.back() << " instead." << std::endl
+			);
 		}
 
 		// Create a local random number generator.
@@ -743,10 +751,11 @@ public:
 		std::size_t layerCounter = 0;
 		for (it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
 			if (*it == 0) {
-				glogger
-				<< "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
-				<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GNeuralNetworkIndividual::createAxisCentricNetworkData(): Error!" << std::endl
+						<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
+				);
 			}
 
 			nD->push_back(*it);
@@ -819,28 +828,31 @@ public:
 
 		// Check the number of supplied layers
 		if (architecture.size() < 2) { // We need at least an input- and an output-layer
-			glogger
-			<< "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
-			<< "Got invalid number of layers: " << architecture.size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+					<< "Got invalid number of layers: " << architecture.size() << std::endl
+			);
 		}
 
 		// Check that the output layer has exactly one node
 		if (architecture.back() != 1) {
-			glogger
-			<< "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
-			<< "The output layer must have exactly one node for this training data." << std::endl
-			<< "Got " << architecture.back() << " instead." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+					<< "The output layer must have exactly one node for this training data." << std::endl
+					<< "Got " << architecture.back() << " instead." << std::endl
+			);
 		}
 
 		// We require the input dimension to be 2
 		if (architecture.front() != 2) {
-			glogger
-			<< "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
-			<< "The input layer must have exactly two node for this example." << std::endl
-			<< "Got " << architecture.front() << " instead." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+					<< "The input layer must have exactly two node for this example." << std::endl
+					<< "Got " << architecture.front() << " instead." << std::endl
+			);
 		}
 
 		// Create a local random number generator.
@@ -858,10 +870,11 @@ public:
 		std::size_t layerCounter = 0;
 		for (it = architecture.begin(); it != architecture.end(); ++it, ++layerCounter) {
 			if (*it == 0) {
-				glogger
-				<< "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
-				<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GNeuralNetworkIndividual::createSinNetworkData(): Error!" << std::endl
+						<< "Layer " << layerCounter << "has invalid size " << *it << std::endl
+				);
 			}
 
 			nD->push_back(*it);

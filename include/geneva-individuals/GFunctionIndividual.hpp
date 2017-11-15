@@ -256,10 +256,11 @@ public:
 				 result = "Negative parabola";
 				 break;
 			 default: {
-				 glogger
-				 << "In GFunctionIndividual::getStringRepresentation(): Error!" << std::endl
-				 << "Got invalid function type" << std::endl
-				 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GFunctionIndividual::getStringRepresentation(): Error!" << std::endl
+						 << "Got invalid function type" << std::endl
+				 );
 			 }
 				 break;
 		 }
@@ -305,10 +306,11 @@ public:
 				 result = "-(x^2 + y^2)";
 				 break;
 			 default: {
-				 glogger
-				 << "In GFunctionIndividual::get2DROOTFunction(): Error!" << std::endl
-				 << "Got invalid function type" << std::endl
-				 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GFunctionIndividual::get2DROOTFunction(): Error!" << std::endl
+						 << "Got invalid function type" << std::endl
+				 );
 			 }
 				 break;
 		 }
@@ -355,10 +357,11 @@ public:
 				 result.push_back(0.);
 				 break;
 			 default: {
-				 glogger
-				 << "In GFunctionIndividual::getXMin(): Error!" << std::endl
-				 << "Got invalid function type" << std::endl
-				 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GFunctionIndividual::getXMin(): Error!" << std::endl
+						 << "Got invalid function type" << std::endl
+				 );
 			 }
 				 break;
 		 }
@@ -403,10 +406,11 @@ public:
 				 result.push_back(0.);
 				 break;
 			 default: {
-				 glogger
-				 << "In GFunctionIndividual::getYMin(): Error!" << std::endl
-				 << "Got invalid function type" << std::endl
-				 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GFunctionIndividual::getYMin(): Error!" << std::endl
+						 << "Got invalid function type" << std::endl
+				 );
 			 }
 				 break;
 		 }
