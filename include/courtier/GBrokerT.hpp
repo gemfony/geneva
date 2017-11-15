@@ -68,6 +68,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GBoundedBufferT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSingletonT.hpp"
@@ -577,10 +578,12 @@ private:
 	  */
 	 bool checkConsumersCapableOfFullReturn() {
 		 if (m_consumer_collection_vec.empty()) {
-			 glogger
-				 << "In GBrokerT<carrier_type>::checkConsumersCapableOfFullReturn(): Error!" << std::endl
-				 << "No consumers registered" << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerT<carrier_type>::checkConsumersCapableOfFullReturn(): Error!" << std::endl
+					 << "No consumers registered" << std::endl
+			 );
 		 }
 
 		 bool capable_of_full_return = true;
