@@ -1223,10 +1223,12 @@ public:
 		 m_broker_ptr = GBROKER(processable_type);
 
 		 if (!m_broker_ptr) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
-				 << "Got empty broker pointer" << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
+					 << "Got empty broker pointer" << std::endl
+			 );
 		 }
 
 		 // Set the number of threads in the pool
@@ -1255,29 +1257,37 @@ public:
 					 << GLOGGING;
 #endif
 			 } else {
-				 glogger
-					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-					 << "Caught boost::system::system_error exception with messages:" << std::endl
-					 << boost::diagnostic_information(e) << std::endl
-					 << GEXCEPTION;
+				 using namespace Gem::Common;
+				 throw gemfony_error_condition(
+					 g_error_streamer(DO_LOG,  time_and_place)
+						 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
+						 << "Caught boost::system::system_error exception with messages:" << std::endl
+						 << boost::diagnostic_information(e) << std::endl
+				 );
 			 }
 		 } catch (const boost::exception &e) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-				 << "Caught boost::exception with messages:" << std::endl
-				 << boost::diagnostic_information(e) << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
+					 << "Caught boost::exception with messages:" << std::endl
+					 << boost::diagnostic_information(e) << std::endl
+			 );
 		 } catch (const std::exception &e) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-				 << "Caught std::exception with messages:" << std::endl
-				 << boost::diagnostic_information(e) << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
+					 << "Caught std::exception with messages:" << std::endl
+					 << e.what() << std::endl
+			 );
 		 } catch (...) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-				 << "Caught unknown exception" << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
+					 << "Caught unknown exception" << std::endl
+			 );
 		 }
 	 }
 
@@ -1391,10 +1401,12 @@ private:
 
 		 // Complain if this is an empty item
 		 if (!p) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT<>::handle_workItemComplete(): Error!" << std::endl
-				 << "Received empty item when filled item was expected!" << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT<>::handle_workItemComplete(): Error!" << std::endl
+					 << "Received empty item when filled item was expected!" << std::endl
+			 );
 		 }
 
 		 // Return the item to the broker. The item will be discarded
@@ -1420,10 +1432,12 @@ private:
 
 			 return;
 		 } catch (...) {
-			 glogger
-				 << "GAsioAsyncTCPConsumerT<>::In handle_workItemComplete():" << std::endl
-				 << "Caught unknown exception" << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "GAsioAsyncTCPConsumerT<>::In handle_workItemComplete():" << std::endl
+					 << "Caught unknown exception" << std::endl
+			 );
 		 }
 	 }
 
@@ -1453,22 +1467,28 @@ private:
 				 )
 			 );
 		 } catch (const boost::system::system_error &e) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
-				 << "Caught boost::system::system_error exception with messages:" << std::endl
-				 << e.what() << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
+					 << "Caught boost::system::system_error exception with messages:" << std::endl
+					 << e.what() << std::endl
+			 );
 		 } catch (const boost::exception &e) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
-				 << "Caught boost::exception exception with messages:" << std::endl
-				 << boost::diagnostic_information(e) << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
+					 << "Caught boost::exception exception with messages:" << std::endl
+					 << boost::diagnostic_information(e) << std::endl
+			 );
 		 } catch (...) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
-				 << "Caught unknown exception" << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_newAccept():" << std::endl
+					 << "Caught unknown exception" << std::endl
+			 );
 		 }
 	 }
 
@@ -1485,10 +1505,13 @@ private:
 		 , const boost::system::error_code &error
 	 ) {
 		 if (error) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT<>::async_handleAccept():"
-				 << "Terminating on error " << error << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT<>::async_handleAccept():"
+					 << "Terminating on error " << error << std::endl
+			 );
+
 			 return;
 		 }
 
@@ -1503,30 +1526,38 @@ private:
 				 // TODO: When processing failed, allow to return an unprocessed item to the broker
 				 // like so: "if(!currentSession->process()) currentSession->restoreWorkItem();"
 			 } else {
-				 glogger
-					 << "In AsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
-					 << "currentSession pointer seems to be empty" << std::endl
-					 << GEXCEPTION;
+				 using namespace Gem::Common;
+				 throw gemfony_error_condition(
+					 g_error_streamer(DO_LOG,  time_and_place)
+						 << "In AsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
+						 << "currentSession pointer seems to be empty" << std::endl
+				 );
 
 				 // TODO: No exception here. Rather leave the session
 			 }
 		 } catch (const boost::system::system_error &e) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
-				 << "Caught boost::system::system_error exception with messages:" << std::endl
-				 << e.what() << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
+					 << "Caught boost::system::system_error exception with messages:" << std::endl
+					 << e.what() << std::endl
+			 );
 		 } catch (const boost::exception &e) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
-				 << "Caught boost::exception exception with messages:" << std::endl
-				 << boost::diagnostic_information(e) << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
+					 << "Caught boost::exception exception with messages:" << std::endl
+					 << boost::diagnostic_information(e) << std::endl
+			 );
 		 } catch (...) {
-			 glogger
-				 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
-				 << "Caught unknown exception" << std::endl
-				 << GEXCEPTION;
+			 using namespace Gem::Common;
+			 throw gemfony_error_condition(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_handleAccept():" << std::endl
+					 << "Caught unknown exception" << std::endl
+			 );
 		 }
 	 }
 
