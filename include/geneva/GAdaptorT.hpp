@@ -328,12 +328,13 @@ public:
 			 , m_maxAdProb
 			 , "GAdaptorT<>::setAdaptionProbability(" + boost::lexical_cast<std::string>(adProb) + ")"
 		 )) {
-			 glogger
-				 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type& adProb):" << std::endl
-				 << "adProb value " << adProb << " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb
-				 << "]" << std::endl
-				 << "Set new boundaries first before setting a new \"adProb\" value" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type& adProb):" << std::endl
+					 << "adProb value " << adProb << " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb
+					 << "]" << std::endl
+					 << "Set new boundaries first before setting a new \"adProb\" value" << std::endl
+			 );
 		 }
 
 		 m_adProb = adProb;
@@ -379,12 +380,13 @@ public:
 			 , m_maxAdProb
 			 , "GAdaptorT<>::setResetAdaptionProbability(" + boost::lexical_cast<std::string>(adProb_reset) + ")"
 		 )) {
-			 glogger
-				 << "In GAdaptorT<T>::setResetAdaptionProbability(const fp_type&):" << std::endl
-				 << "adProb_reset value " << adProb_reset << " is outside of allowed value range [" << m_minAdProb << ", "
-				 << m_maxAdProb << "]" << std::endl
-				 << "Set new boundaries first before setting a new \"adProb_reset\" value" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<T>::setResetAdaptionProbability(const fp_type&):" << std::endl
+					 << "adProb_reset value " << adProb_reset << " is outside of allowed value range [" << m_minAdProb << ", "
+					 << m_maxAdProb << "]" << std::endl
+					 << "Set new boundaries first before setting a new \"adProb_reset\" value" << std::endl
+			 );
 		 }
 
 		 m_adProb_reset = adProb_reset;
@@ -416,10 +418,11 @@ public:
 			 , 1.
 			 , "GAdaptorT<>::setAdaptAdaptionProbability(" + boost::lexical_cast<std::string>(probability) + ")"
 		 )) {
-			 glogger
-				 << "In GAdaptorT<T>::setAdaptAdaptionProbability(const fp_type&) :" << std::endl
-				 << "Probability " << probability << " not in allowed range [0.,1.]" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<T>::setAdaptAdaptionProbability(const fp_type&) :" << std::endl
+					 << "Probability " << probability << " not in allowed range [0.,1.]" << std::endl
+			 );
 		 }
 
 		 m_adaptAdaptionProbability = probability;
@@ -456,10 +459,11 @@ public:
 	 {
 #ifdef DEBUG
 		 if (adaptAdProb < fp_type(0.)) {
-			 glogger
-				 << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
-				 << "adaptAdProb < 0: " << adaptAdProb << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<>::setAdaptAdProb(): Error!" << std::endl
+					 << "adaptAdProb < 0: " << adaptAdProb << std::endl
+			 );
 		 }
 #endif /* DEBUG */
 
@@ -571,24 +575,27 @@ public:
 	 {
 #ifdef DEBUG
 		 if (minAdProb < 0.) {
-			 glogger
-				 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
-				 << "minAdProb < 0: " << minAdProb << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+					 << "minAdProb < 0: " << minAdProb << std::endl
+			 );
 		 }
 
 		 if (maxAdProb > 1.) {
-			 glogger
-				 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
-				 << "maxAdProb > 1: " << maxAdProb << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+					 << "maxAdProb > 1: " << maxAdProb << std::endl
+			 );
 		 }
 
 		 if (minAdProb > maxAdProb) {
-			 glogger
-				 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
-				 << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+					 << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
+			 );
 		 }
 #endif /* DEBUG */
 
@@ -800,10 +807,11 @@ public:
 	 ) BASE {
 #ifdef DEBUG
 		 if (0 == nStalls) {
-			 glogger
-				 << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << std::endl
-				 << "Function called for zero nStalls" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GAdaptorT<>::updateOnStall(" << nStalls << "): Error!" << std::endl
+					 << "Function called for zero nStalls" << std::endl
+			 );
 		 }
 #endif
 
@@ -866,11 +874,12 @@ public:
 					 property
 					 , data
 				 )) {
-					 glogger
-						 << "In GAdaptorT<T>::queryPropertyFrom(): Error!" << std::endl
-						 << "Function was called for unimplemented property " << property << std::endl
-						 << "on adaptor " << adaptorName << std::endl
-						 << GEXCEPTION;
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GAdaptorT<T>::queryPropertyFrom(): Error!" << std::endl
+							 << "Function was called for unimplemented property " << property << std::endl
+							 << "on adaptor " << adaptorName << std::endl
+					 );
 				 }
 			 }
 		 }

@@ -289,10 +289,11 @@ public:
 		} if(typeid(val_type) == typeid(bool)) {
 			return boost::numeric_cast<val_type>(boost::any_cast<bool>(this->getVarVal("b", target)));
 		} else {
-			glogger
-			<< "In GOptimizableEntity::getVarVal<>(): Error!" << std::endl
-			<< "Received invalid type descriptor " << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GOptimizableEntity::getVarVal<>(): Error!" << std::endl
+					<< "Received invalid type descriptor " << std::endl
+			);
 		}
 
 		return result;
@@ -317,10 +318,11 @@ public:
 #ifdef DEBUG
       // Check that m_pt_ptr actually points somewhere
       if(!m_pt_ptr) {
-         glogger
-         << "In GOptimizableEntity::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
-         << "This should not happen." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GOptimizableEntity::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
+					<< "This should not happen." << std::endl
+			);
 
          // Make the compiler happy
          return std::shared_ptr<personality_type>();

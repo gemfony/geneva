@@ -103,6 +103,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
@@ -590,10 +591,12 @@ public:
 			this->execute();
 		} else {
 			std::string rest(iter, end);
-			glogger
-			<< "In GFormulaParserT<>::evaluate(): Error!" << std::endl
-			<< "Parsing of formula " << formula << " failed at " << rest << std::endl
-			<< GEXCEPTION;
+
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GFormulaParserT<>::evaluate(): Error!" << std::endl
+					<< "Parsing of formula " << formula << " failed at " << rest << std::endl
+			);
 		}
 
 		return stack_.at(0);
@@ -713,10 +716,11 @@ private:
 					formula = boost::xpressive::regex_replace(formula, re, value);
 				}
 			} else { // The vector is empty
-				glogger
-				<< "In GFormulaParserT::replacePlaceHolders(): Error!" << std::endl
-				<< "Vector is empty!" << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GFormulaParserT::replacePlaceHolders(): Error!" << std::endl
+						<< "Vector is empty!" << std::endl
+				);
 			}
 		}
 
@@ -747,10 +751,11 @@ private:
 			// Note: *code_ptr is a boost::variabt, boost::get has nothing to do with a boost::tuple here
 			switch (boost::get<byte_code>(*code_ptr++)) { // Read out code_ptr, then switch it to the next position
 				case byte_code::op_trap: {
-					glogger
-					<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
-					<< "byte_code::op_trap encountered" << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG, time_and_place)
+							<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+							<< "byte_code::op_trap encountered" << std::endl
+					);
 				}
 					break;
 
@@ -897,10 +902,11 @@ private:
 					break;
 
 				default: {
-					glogger
-					<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
-					<< "Invalid instruction " << static_cast<std::size_t>(boost::get<byte_code>(*code_ptr--)) << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG, time_and_place)
+							<< "In GFormulaParserT<fp_type>::execute(): Error!" << std::endl
+							<< "Invalid instruction " << static_cast<std::size_t>(boost::get<byte_code>(*code_ptr--)) << std::endl
+					);
 					// Note that the static cast is required here as strongly-typed enums cannot be
 					// cast implicitly to integers types.
 				}

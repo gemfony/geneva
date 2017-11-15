@@ -85,10 +85,11 @@ std::vector<T> fillWithData(
 	, T /* lower */
 	, T /* upper */
 ) {
-	glogger
-		<< "In generic function template <typename T> std::vector<T> fillWithData(): Error!" << std::endl
-		<< "This function should never be called directly. Use one of the specializations." << std::endl
-		<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG, time_and_place)
+			<< "In generic function template <typename T> std::vector<T> fillWithData(): Error!" << std::endl
+			<< "This function should never be called directly. Use one of the specializations." << std::endl
+	);
 
 	// Make the compiler happy
 	return std::vector<T>();
@@ -334,10 +335,11 @@ protected:
 		 Gem::Hap::GRandomBase& gr
 	 ) const {
 		 // A trap. This function needs to be re-implemented for each supported type
-		 glogger
-			 << "In baseScanParT::getRandomItem(): Error!" << std::endl
-			 << "Function called for unsupported type" << std::endl
-			 << GEXCEPTION;
+		 throw gemfony_exception(
+			 g_error_streamer(DO_LOG, time_and_place)
+				 << "In baseScanParT::getRandomItem(): Error!" << std::endl
+				 << "Function called for unsupported type" << std::endl
+		 );
 
 		 // Make the compiler happy
 		 return T(0);
@@ -741,10 +743,11 @@ private:
 	 ) {
 #ifdef DEBUG
 		 if(0 != std::get<1>(dataPoint)) {
-			 glogger
-				 << "In GParameterScan::addDataPoint(mode 0): Error!" << std::endl
-				 << "Function was called for invalid mode " << std::get<1>(dataPoint) << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterScan::addDataPoint(mode 0): Error!" << std::endl
+					 << "Function was called for invalid mode " << std::get<1>(dataPoint) << std::endl
+			 );
 		 }
 #endif
 
@@ -753,10 +756,11 @@ private:
 
 		 // Check that we haven't exceeded the size of the boolean data vector
 		 if(lPos >= dataVec.size()) {
-			 glogger
-				 << "In GParameterScan::addDataPoint(): Error!" << std::endl
-				 << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size() << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterScan::addDataPoint(): Error!" << std::endl
+					 << "Got position beyond end of data vector: " << lPos << " / " << dataVec.size() << std::endl
+			 );
 		 }
 
 		 dataVec.at(lPos) = lData;

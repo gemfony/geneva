@@ -149,10 +149,11 @@ public:
 
 		 // Cross check that we indeed got a valid set of individuals
 		 if(bestBaseIndividuals.empty()) {
-			 glogger
-				 << "In G_Interface_Optimizer::getBestGlobalIndividuals(): Error!" << std::endl
-				 << "Received empty collection of best individuals." << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In G_Interface_Optimizer::getBestGlobalIndividuals(): Error!" << std::endl
+					 << "Received empty collection of best individuals." << std::endl
+			 );
 		 }
 
 		 for(auto ind_ptr: bestBaseIndividuals) { // std::shared_ptr may be copied
@@ -199,10 +200,11 @@ public:
 
 		 // Cross check that we indeed got a valid set of individuals
 		 if(bestBaseIndividuals.empty()) {
-			 glogger
-				 << "In G_Interface_Optimizer::getBestIterationIndividuals(): Error!" << std::endl
-				 << "Received empty collection of best individuals." << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In G_Interface_Optimizer::getBestIterationIndividuals(): Error!" << std::endl
+					 << "Received empty collection of best individuals." << std::endl
+			 );
 		 }
 
 		 for(auto ind_ptr: bestBaseIndividuals) { // std::shared_ptr may be copied

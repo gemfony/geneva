@@ -85,9 +85,12 @@
 
 // Geneva header files go here
 #include "common/GLogger.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
+#include "common/GTupleIO.hpp"
 
 // aliases for ease of use
 namespace bf = boost::filesystem;
@@ -468,10 +471,12 @@ public:
 		using namespace Gem::Common;
 
 		if (cp.dimensions() != this->dimensions()) {
-			glogger
-			<< "In GCanvas::diff(): Error!" << std::endl
-			<< "Dimensions differ: " << cp.dimensions() << " / " << this->dimensions() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GCanvas::diff(): Error!" << std::endl
+					<< "Dimensions differ: (" << std::get<0>(cp.dimensions()) << ", " << std::get<1>(cp.dimensions()) << ") / ("
+					<< std::get<0>(this->dimensions()) << ", " << std::get<1>(this->dimensions()) << ")" << std::endl
+			);
 		}
 
 		float result = 0.f;
@@ -555,9 +560,10 @@ public:
 			// The file should start with a header, which should read "P3". Complain if this isn't the case
 			if (!header_found) {
 				if (s != "P3") {
-					glogger
-					<< "Error: Header should be \"P3\", but got " << s << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG, time_and_place)
+							<< "Error: Header should be \"P3\", but got " << s << std::endl
+					);
 				}
 
 				header_found = true;
@@ -572,15 +578,17 @@ public:
 				std::copy(istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
 
 				if (v.size() != 2) { // We should have received exactly two numbers
-					glogger
-					<< "Error: Got invalid number of dimensions: " << v.size() << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG, time_and_place)
+							<< "Error: Got invalid number of dimensions: " << v.size() << std::endl
+					);
 				}
 
 				if (v[0] <= 0 || v[1] <= 0) {
-					glogger
-					<< "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG, time_and_place)
+							<< "Error: Got invalid dimensions: " << v[0] << " / " << v[1] << std::endl
+					);
 				}
 
 				xDim_ = v[0];
@@ -603,18 +611,20 @@ public:
 				copy(istream_iterator<std::size_t>(iss), istream_iterator<std::size_t>(), back_inserter(v));
 
 				if (v.size() != 1) { // We should have received exactly one number
-					glogger
-					<< "Error: Did not find specification of the number of colors" << std::endl
-					<< "or an invalid number of specifications: " << v.size() << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG, time_and_place)
+							<< "Error: Did not find specification of the number of colors" << std::endl
+							<< "or an invalid number of specifications: " << v.size() << std::endl
+					);
 				}
 
 				// We only accept a single color depth for now. Except for this check, we
 				// do nothing in this block
 				if (v[0] != MAXCOLOR) {
-					glogger
-					<< "Error: Got invalid color depth " << v[0] << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG, time_and_place)
+							<< "Error: Got invalid color depth " << v[0] << std::endl
+					);
 				}
 
 				color_depth_found = true;
@@ -656,11 +666,12 @@ public:
 		// v should now contain all per-pixel information. Check the size - as
 		// we are reading triplets, the size of the vector is known.
 		if (v.size() != 3 * xDim_ * yDim_) {
-			glogger
-			<< "Error: got invalid number of entries in line." << std::endl
-			<< "Expected " << 3 * xDim_ * yDim_ << ", but got " << v.size() << std::endl
-			<< "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "Error: got invalid number of entries in line." << std::endl
+					<< "Expected " << 3 * xDim_ * yDim_ << ", but got " << v.size() << std::endl
+					<< "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << std::endl
+			);
 		}
 
 		// Add all pixel data to the canvas
@@ -689,10 +700,11 @@ public:
 		// Hand the string over to loadFromPPM() -- it will do the rest
 #ifdef DEBUG
       if(imageData.empty()) {
-         glogger
-         << "GCanvas::loadFromFile(): Error!" << std::endl
-         << "File data was empty" << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "GCanvas::loadFromFile(): Error!" << std::endl
+					<< "File data was empty" << std::endl
+			);
       }
 #endif
 
@@ -707,10 +719,11 @@ public:
 		bf::ofstream result(p);
 
 		if (!result) {
-			glogger
-			<< "In GCanvas<>::toFile(): Error!" << std::endl
-			<< "Could not open output file " << p.string() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GCanvas<>::toFile(): Error!" << std::endl
+					<< "Could not open output file " << p.string() << std::endl
+			);
 		}
 
 		result << this->toPPM();
@@ -769,11 +782,12 @@ public:
 #ifdef DEBUG
       // Check that angles are in consecutive order
       if(t.angle1 < 0.f || t.angle2 <= t.angle1 || t.angle3 <= t.angle2 || t.angle3 >= 1.f) {
-         glogger
-         << "In GCanvas<>::addTriangel(): Error!" << std::endl
-         << "Angles are not in consecutive oder: " << std::endl
-         << t << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GCanvas<>::addTriangel(): Error!" << std::endl
+					<< "Angles are not in consecutive oder: " << std::endl
+					<< t << std::endl
+			);
       }
 #endif /* DEBUG */
 

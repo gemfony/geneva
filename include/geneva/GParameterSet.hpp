@@ -266,10 +266,11 @@ public:
 			 //---------------------------------------------------------------------
 			 default:
 			 {
-				 glogger
-				 << "In GParameterSet::getVarVal(): Error!" << std::endl
-				 << "Got invalid mode setting: " << std::get<0>(target) << std::endl
-				 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GParameterSet::getVarVal(): Error!" << std::endl
+						 << "Got invalid mode setting: " << std::get<0>(target) << std::endl
+				 );
 			 }
 				 break;
 
@@ -381,10 +382,11 @@ public:
 	 ) {
 #ifdef DEBUG
 		 if(countParameters<par_type>() != parVec.size()) {
-			 glogger
-			 << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
-			 << "Sizes don't match: " <<  countParameters<par_type>() << " / " << parVec.size() << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterSet::assignValueVector(const std::vector<pat_type>&):" << std::endl
+					 << "Sizes don't match: " <<  countParameters<par_type>() << " / " << parVec.size() << std::endl
+			 );
 		 }
 #endif /* DEBUG */
 

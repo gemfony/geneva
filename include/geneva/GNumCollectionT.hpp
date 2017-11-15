@@ -252,12 +252,13 @@ public:
 	) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
-			glogger
-			<< "In GNumCollectionT<num_type>::setInitBoundaries():" << std::endl
-			<< "Invalid boundaries provided: " << std::endl
-			<< "lowerInitBoundary = " << lowerInitBoundary << std::endl
-			<< "upperInitBoundary = " << upperInitBoundary << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNumCollectionT<num_type>::setInitBoundaries():" << std::endl
+					<< "Invalid boundaries provided: " << std::endl
+					<< "lowerInitBoundary = " << lowerInitBoundary << std::endl
+					<< "upperInitBoundary = " << upperInitBoundary << std::endl
+			);
 		}
 
 		lowerInitBoundary_ = lowerInitBoundary;
@@ -325,10 +326,11 @@ public:
 #ifdef DEBUG
       // Check that the object isn't empty
       if(this->empty()) {
-         glogger
-         << "In GNumCollection<num_type>::toPropertyTree(): Error!" << std::endl
-         << "Object is empty!" << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNumCollection<num_type>::toPropertyTree(): Error!" << std::endl
+					<< "Object is empty!" << std::endl
+			);
       }
 #endif /* DEBUG */
 

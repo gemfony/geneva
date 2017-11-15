@@ -318,22 +318,24 @@ public:
 
 			// Check that the value is inside the allowed range
 			if(currentValues[pos] < lower || currentValues[pos] > upper){
-				glogger
-				<< "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << std::endl
-				<< "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
-				<< "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
-				<< "with existing value  " << currentValues[pos] << " at position " << pos << " outside of this range." << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+						<< "In GConstrainedNumT<num_type>::setBoundaries(const T&, const T&) :" << std::endl
+						<< "with typeid(num_type).name() = " << typeid(num_type).name() << std::endl
+						<< "Attempt to set new boundaries [" << lower << ":" << upper << "]" << std::endl
+						<< "with existing value  " << currentValues[pos] << " at position " << pos << " outside of this range." << std::endl
+				);
 			}
 		}
 
 		// Check that the boundaries make sense
 		if(lower > upper) {
-			glogger
-			<< "In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)" << std::endl
-			<< "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << std::endl
-			<< "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GConstrainedNumT<num_type>::setBoundaries(const num_type&, const num_type&)" << std::endl
+					<< "with typeid(num_type).name() = " << typeid(num_type).name() << " :" << std::endl
+					<< "Lower and/or upper boundary has invalid value : " << lower << " " << upper << std::endl
+			);
 		}
 
 		lowerBoundary_ = lower;
@@ -359,13 +361,14 @@ public:
 	virtual void setValue(const std::size_t& pos, const num_type& val) override {
 		// Do some error checking
 		if(val < lowerBoundary_ || val > upperBoundary_) {
-			glogger
-			<< "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
-			<< "In position " << pos << ":" << std::endl
-			<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-			<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
-			<< "upperBoundary_ = " << upperBoundary_ << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
+					<< "In position " << pos << ":" << std::endl
+					<< "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
+					<< "lowerBoundary_ = " << lowerBoundary_ << std::endl
+					<< "upperBoundary_ = " << upperBoundary_ << std::endl
+			);
 		}
 
 		// O.k., assign value

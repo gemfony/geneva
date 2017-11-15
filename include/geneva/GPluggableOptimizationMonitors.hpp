@@ -496,10 +496,11 @@ public:
 	 void setProfileSpec(std::string parStr) {
 		 // Check that the parameter string isn't empty
 		 if(parStr.empty()) {
-			 glogger
-				 << "In GPluggableOptimizationMonitors<>::setProfileSpec(std::string): Error!" << std::endl
-				 << "Parameter string " << parStr << " is empty" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GPluggableOptimizationMonitors<>::setProfileSpec(std::string): Error!" << std::endl
+					 << "Parameter string " << parStr << " is empty" << std::endl
+			 );
 		 }
 
 		 //---------------------------------------------------------------------------
@@ -698,10 +699,11 @@ public:
 				 //--------------------------------------------------------------------
 			 default:
 			 {
-				 glogger
-					 << "In GProgressPlotterT<fp_type>::getLabel(): Error" << std::endl
-					 << "Invalid mode " << var_mode << " requested" << std::endl
-					 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GProgressPlotterT<fp_type>::getLabel(): Error" << std::endl
+						 << "Invalid mode " << var_mode << " requested" << std::endl
+				 );
 			 }
 				 break;
 
@@ -948,9 +950,10 @@ public:
 
 			 default:
 			 {
-				 glogger
-					 << "In GProgressPlotterT<fp_type>::informationFunction(): Received invalid infoMode " << im << std::endl
-					 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GProgressPlotterT<fp_type>::informationFunction(): Received invalid infoMode " << im << std::endl
+				 );
 			 }
 				 break;
 		 };
@@ -1954,9 +1957,10 @@ public:
 
 			 default:
 			 {
-				 glogger
-					 << "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
-					 << GEXCEPTION;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
+				 );
 			 }
 				 break;
 		 };

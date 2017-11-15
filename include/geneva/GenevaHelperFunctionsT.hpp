@@ -63,10 +63,11 @@ namespace Geneva {
  */
 template <typename T>
 std::shared_ptr<GAdaptorT<T>> getDefaultAdaptor() {
-	glogger
-	<< "In getDefaultAdaptor():" << std::endl
-	<< "Function called with invalid type." << std::endl
-	<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG, time_and_place)
+			<< "In getDefaultAdaptor():" << std::endl
+			<< "Function called with invalid type." << std::endl
+	);
 
 	// Make the compiler happy
 	return std::shared_ptr<GAdaptorT<T>>();

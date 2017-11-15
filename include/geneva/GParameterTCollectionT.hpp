@@ -283,10 +283,11 @@ public:
 	) const override {
 		// Check that the object isn't empty
 		if(this->empty()) {
-			glogger
-			<< "In GParameterTCollectionT<T>::toPropertyTree(): Error!" << std::endl
-			<< "Object is empty!" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterTCollectionT<T>::toPropertyTree(): Error!" << std::endl
+					<< "Object is empty!" << std::endl
+			);
 		}
 
 		ptr.put(baseName + ".name", this->getParameterName());
@@ -1074,10 +1075,11 @@ protected:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			glogger
-			<< "In GParameterTCollectionT<T>::floatAdd(): Error!" << std::endl
-			<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterTCollectionT<T>::floatAdd(): Error!" << std::endl
+					<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+			);
 		}
 
 		typename GParameterTCollectionT<T>::iterator it;
@@ -1101,10 +1103,11 @@ protected:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			glogger
-			<< "In GParameterTCollectionT<T>::doubleAdd(): Error!" << std::endl
-			<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterTCollectionT<T>::doubleAdd(): Error!" << std::endl
+					<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+			);
 		}
 
 		typename GParameterTCollectionT<T>::iterator it;
@@ -1128,10 +1131,11 @@ protected:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			glogger
-			<< "In GParameterTCollectionT<T>::int32Add(): Error!" << std::endl
-			<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterTCollectionT<T>::int32Add(): Error!" << std::endl
+					<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+			);
 		}
 
 		typename GParameterTCollectionT<T>::iterator it;
@@ -1155,10 +1159,11 @@ protected:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			glogger
-			<< "In GParameterTCollectionT<T>::floatSubtract(): Error!" << std::endl
-			<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterTCollectionT<T>::floatSubtract(): Error!" << std::endl
+					<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+			);
 		}
 
 		typename GParameterTCollectionT<T>::iterator it;
@@ -1182,10 +1187,11 @@ protected:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			glogger
-			<< "In GParameterTCollectionT<T>::doubleSubtract(): Error!" << std::endl
-			<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterTCollectionT<T>::doubleSubtract(): Error!" << std::endl
+					<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+			);
 		}
 
 		typename GParameterTCollectionT<T>::iterator it;
@@ -1209,10 +1215,11 @@ protected:
 
 		// Check that both collections have the same size
 		if(this->size() != p->size()) {
-			glogger
-			<< "In GParameterTCollectionT<T>::int32Subtract(): Error!" << std::endl
-			<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterTCollectionT<T>::int32Subtract(): Error!" << std::endl
+					<< "Collections have a different size: " << this->size() << " / " << p->size() << std::endl
+			);
 		}
 
 		typename GParameterTCollectionT<T>::iterator it;
