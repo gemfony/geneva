@@ -104,10 +104,11 @@ public:
 		 if(p) {
 			 m_preProcessor = p;
 		 } else {
-			 glogger
-			 << "In GParameterSetFactory::registerPreProcessor(): Error!" << std::endl
-		    << "Got empty pre-processor" << std::endl
-			 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterSetFactory::registerPreProcessor(): Error!" << std::endl
+					 << "Got empty pre-processor" << std::endl
+			 );
 		 }
 	 }
 
@@ -119,10 +120,11 @@ public:
 		 if(p) {
 			 m_postProcessor = p;
 		 } else {
-			 glogger
-				 << "In GParameterSetFactory::registerPostProcessor(): Error!" << std::endl
-				 << "Got empty post-processor" << std::endl
-				 << GEXCEPTION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterSetFactory::registerPostProcessor(): Error!" << std::endl
+					 << "Got empty post-processor" << std::endl
+			 );
 		 }
 	 }
 

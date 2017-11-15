@@ -192,11 +192,12 @@ public:
 	void addAdaptor(std::shared_ptr<GAdaptorT<T>> gat_ptr) {
 		// Check that we have indeed been given an adaptor
 		if(!gat_ptr){
-			glogger
-			<< "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-			<< "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
-			<< "Error: Empty adaptor provided." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
+					<< "Error: Empty adaptor provided." << std::endl
+			);
 		}
 
 		if(adaptor_) { // Is an adaptor already present ?
@@ -206,10 +207,11 @@ public:
 				adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T>>();
 			}
 		} else { // None there ? This should not happen
-			glogger
-			<< "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-			<< "Found no local adaptor. This should not happen!" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+					<< "Found no local adaptor. This should not happen!" << std::endl
+			);
 		}
 	}
 
@@ -230,11 +232,12 @@ public:
 	std::shared_ptr<GAdaptorT<T>> getAdaptor() const {
 #ifdef DEBUG
 		if(!adaptor_) {
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT::getAdaptor() :" << std::endl
-         << "with typeid(T).name() = " << typeid(T).name() << std::endl
-         << "Tried to retrieve adaptor while none is present" << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT::getAdaptor() :" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Tried to retrieve adaptor while none is present" << std::endl
+			);
 		}
 #endif /* DEBUG */
 
@@ -263,11 +266,12 @@ public:
 	) const {
 #ifdef DEBUG
 		if(!adaptor_) {
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
-         << "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
-         << "Tried to access empty adaptor pointer." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+					<< "Tried to access empty adaptor pointer." << std::endl
+			);
 
 		   // Make the compiler happy
 		   return std::shared_ptr<adaptor_type>();
@@ -332,11 +336,12 @@ public:
 	virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
 #ifdef DEBUG
       if (!adaptor_) {
-         glogger
-         << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall(...):" << std::endl
-         << "with typeid(T).name() = " << typeid(T).name() << std::endl
-         << "Error: No adaptor was found." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall(...):" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Error: No adaptor was found." << std::endl
+			);
       }
 #endif /* DEBUG */
 
@@ -358,11 +363,12 @@ public:
 	) const override {
 #ifdef DEBUG
       if (!adaptor_) {
-         glogger
-         << "In GParameterBaseWithAdaptorsT<T>::queryAdaptor(...):" << std::endl
-         << "with typeid(T).name() = " << typeid(T).name() << std::endl
-         << "Error: No adaptor was found." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT<T>::queryAdaptor(...):" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Error: No adaptor was found." << std::endl
+			);
       }
 #endif /* DEBUG */
 
@@ -390,10 +396,11 @@ protected:
 #ifdef DEBUG
 		// Check that both we and the "foreign" object have an adaptor
 		if(!adaptor_ || !p_load->adaptor_) {
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::load_():" << std::endl
-         << "Missing adaptor!" << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT<T>::load_():" << std::endl
+					<< "Missing adaptor!" << std::endl
+			);
 		}
 #endif
 		// Same type: We can just load the data
@@ -426,11 +433,12 @@ protected:
 	) {
 #ifdef DEBUG
 		if (!adaptor_) {
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << std::endl
-         << "with typeid(T).name() = " << typeid(T).name() << std::endl
-         << "Error: No adaptor was found." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Error: No adaptor was found." << std::endl
+			);
 		}
 #endif /* DEBUG */
 
@@ -460,11 +468,12 @@ protected:
 	) {
 #ifdef DEBUG
 		if(!adaptor_) {
-		   glogger
-		   << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range, gr):" << std::endl
-         << "with typeid(T).name() = " << typeid(T).name() << std::endl
-         << "Error: No adaptor was found." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range, gr):" << std::endl
+					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
+					<< "Error: No adaptor was found." << std::endl
+			);
 		}
 #endif /* DEBUG */
 
@@ -592,10 +601,11 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 ) {
 #ifdef DEBUG
       if(!adaptor_) {
-         glogger
-         << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
-         << "Error: No adaptor was found." << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
+					<< "Error: No adaptor was found." << std::endl
+			);
       }
 #endif /* DEBUG */
 

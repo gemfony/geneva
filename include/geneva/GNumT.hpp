@@ -233,12 +233,13 @@ public:
 	void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
 		// Do some error checking
 		if(lowerInitBoundary >= upperInitBoundary) {
-			glogger
-			<< "In GNumT<T>::setInitBoundaries():" << std::endl
-			<< "Invalid boundaries provided: " << std::endl
-			<< "lowerInitBoundary = " << lowerInitBoundary << std::endl
-			<< "upperInitBoundary = " << upperInitBoundary << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GNumT<T>::setInitBoundaries():" << std::endl
+					<< "Invalid boundaries provided: " << std::endl
+					<< "lowerInitBoundary = " << lowerInitBoundary << std::endl
+					<< "upperInitBoundary = " << upperInitBoundary << std::endl
+			);
 		}
 
 		lowerInitBoundary_ = lowerInitBoundary;
