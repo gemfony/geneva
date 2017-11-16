@@ -83,6 +83,7 @@ The main changes for this release include:
  - Eliminated the need for new optimization algorithms to specify the submission return mode. GExecutorT
    now retrieves this information from the broker, which in turn retrieves it from registered consumers.
  - Added a new example showing how to integrate OpenCL with Geneva
+ - Exceptions are now thrown at the error-site rather than being raised by the global logger
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016
