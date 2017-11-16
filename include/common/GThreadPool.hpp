@@ -57,7 +57,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GStdThreadGroup.hpp"
 #include "common/GCommonHelperFunctions.hpp"
-#include "GThreadWrapper.hpp"
+// #include "GThreadWrapper.hpp"
 
 namespace Gem {
 namespace Common {

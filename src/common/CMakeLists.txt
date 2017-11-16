@@ -15,7 +15,6 @@ SET ( COMMONSOURCES
     GStdThreadGroup
 	GStdThreadGroup
 	GThreadPool
-	GThreadWrapper
 )
 
 
