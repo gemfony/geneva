@@ -141,7 +141,7 @@ public:
 	 operator std::string() const {
 		 using namespace Gem::Common;
 		 if(m_do_log) {
-			 glogger
+			 glogger(boost::filesystem::path(exception_file))
 				 << "========================================================" << std::endl
 				 << "Error!" << std::endl
 				 << std::endl
@@ -158,7 +158,7 @@ public:
 				 << "The Geneva team" << std::endl
 				 << std::endl
 				 << "========================================================" << std::endl
-				 << GLOGGING;
+				 << GFILE;
 		 }
 		 return m_ostream.str();
 	 }
@@ -168,6 +168,7 @@ private:
 	 // Data
 	 std::ostringstream m_ostream;
 	 bool m_do_log = false;
+	 const std::string exception_file = "./GENEVA-EXCEPTION.log";
 	 std::string m_where_and_when;
 
 	 /**************************************************************************/
