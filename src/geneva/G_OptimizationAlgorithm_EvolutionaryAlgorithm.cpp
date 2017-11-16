@@ -238,10 +238,11 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ(
 
 #ifdef DEBUG
 	if(this->empty()) {
-		glogger
-			<< "In G_OA_EvolutionaryAlgorithm::updateGlobalBestsPQ() :" << std::endl
-			<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OA_EvolutionaryAlgorithm::updateGlobalBestsPQ() :" << std::endl
+				<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -286,10 +287,11 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ(
 
 #ifdef DEBUG
 	if(this->empty()) {
-		glogger
-			<< "G_OA_EvolutionaryAlgorithm::updateIterationBestsPQ() :" << std::endl
-			<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "G_OA_EvolutionaryAlgorithm::updateIterationBestsPQ() :" << std::endl
+				<< "Tried to retrieve the best individuals even though the population is empty." << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -428,10 +430,11 @@ void GEvolutionaryAlgorithm::populationSanityChecks() const {
 	// Note that a number of checks (e.g. population size != 0) has already been done
 	// in the parent class.
 	if (this->m_n_parents == 0) {
-		glogger
-			<< "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << std::endl
-			<< "Number of parents is set to 0"
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OA_EvolutionaryAlgorithm::populationSanityChecks(): Error!" << std::endl
+				<< "Number of parents is set to 0"
+		);
 	}
 
 	// In MUCOMMANU_SINGLEEVAL mode we want to have at least as many children as parents,
@@ -468,9 +471,10 @@ void GEvolutionaryAlgorithm::populationSanityChecks() const {
 				break;
 		};
 
-		glogger
-			<< error.str()
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< error.str()
+		);
 	}
 }
 
@@ -514,20 +518,22 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 	// parents are clean, e.g. when they were extracted from another optimization.
 	for(std::size_t i=this->getNParents(); i<this->size(); i++) {
 		if(!this->at(i)->isDirty()) {
-			glogger
-				<< "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
-				<< "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
-				<< "but found \"clean\" individual in position " << i << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
+					<< "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
+					<< "but found \"clean\" individual in position " << i << std::endl
+			);
 		}
 	}
 
 
 	if(this->size() != this->getDefaultPopulationSize()) {
-		glogger
-			<< "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
-			<< "Size of data vector (" << this->size() << ") should be " << this->getDefaultPopulationSize() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
+				<< "Size of data vector (" << this->size() << ") should be " << this->getDefaultPopulationSize() << std::endl
+		);
 	}
 #endif
 
@@ -624,10 +630,11 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 
 	// Check that individuals do exist in the population. We cannot continue, if this is not the case
 	if(this->empty()) {
-		glogger
-			<< "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
-			<< "Population holds no data" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
+				<< "Population holds no data" << std::endl
+		);
 	} else {
 		// Emit a warning if no children have returned
 		if(this->size() <= this->getNParents()) {
@@ -641,11 +648,12 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 
 	// Check that the dirty flag of the last individual isn't set. This is a severe error.
 	if(this->back()->isDirty()) {
-		glogger
-			<< "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
-			<< "The last individual in the population has the dirty" << std::endl
-			<< "flag set, so we cannot use it for cloning" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
+				<< "The last individual in the population has the dirty" << std::endl
+				<< "flag set, so we cannot use it for cloning" << std::endl
+		);
 	}
 
 
@@ -682,11 +690,12 @@ void GEvolutionaryAlgorithm::selectBest() {
 	// you must add mechanisms to "repair" the population before this
 	// function is called
 	if((this->size()-this->m_n_parents) < this->m_default_n_children){
-		glogger
-			<< "In G_OA_EvolutionaryAlgorithm::select():" << std::endl
-			<< "Too few children. Got " << (this->size() - this->getNParents()) << "," << std::endl
-			<< "but was expecting at least " << this->getDefaultNChildren() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OA_EvolutionaryAlgorithm::select():" << std::endl
+				<< "Too few children. Got " << (this->size() - this->getNParents()) << "," << std::endl
+				<< "but was expecting at least " << this->getDefaultNChildren() << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -742,10 +751,11 @@ void GEvolutionaryAlgorithm::selectBest() {
 	// Make sure our population is not smaller than its nominal size -- this
 	// should have been taken care of in fixAfterJobSubmission() .
 	if(this->size() < this->getDefaultPopulationSize()) {
-		glogger
-			<< "In G_OA_EvolutionaryAlgorithm::selectBest(): Error!" << std::endl
-			<< "Size of population is smaller than expected: " << this->size() << " / " << this->getDefaultPopulationSize() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OA_EvolutionaryAlgorithm::selectBest(): Error!" << std::endl
+				<< "Size of population is smaller than expected: " << this->size() << " / " << this->getDefaultPopulationSize() << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -796,19 +806,17 @@ void GEvolutionaryAlgorithm::finalize() {
 		std::vector<std::string> errors;
 		errors = m_tp_ptr->getErrors();
 
-		glogger
-			<< "========================================================================" << std::endl
-			<< "In G_OA_EvolutionaryAlgorithm::finalize():" << std::endl
-			<< "There were errors during thread execution:" << std::endl
-			<< std::endl;
+		std::ostringstream error_list;
+		for(auto e: errors) { error_list << e << std::endl; }
 
-		for (std::vector<std::string>::iterator it = errors.begin(); it != errors.end(); ++it) {
-			glogger << *it << std::endl;
-		}
-
-		glogger << std::endl
-				  << "========================================================================" << std::endl
-				  << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "========================================================================" << std::endl
+				<< "In G_OA_EvolutionaryAlgorithm::finalize():" << std::endl
+				<< "There were errors during thread execution:" << std::endl
+				<< error_list.str()
+				<< "========================================================================" << std::endl
+		);
 	}
 
 	// Terminate our thread pool
@@ -1033,10 +1041,11 @@ bool GEvolutionaryAlgorithm::aDominatesB(
 #ifdef DEBUG
 	std::size_t nCriteriaB = b->getNumberOfFitnessCriteria();
 	if(nCriteriaA != nCriteriaB) {
-		glogger
-			<< "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
-			<< "Number of fitness criteria differ: " << nCriteriaA << " / " << nCriteriaB << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
+				<< "Number of fitness criteria differ: " << nCriteriaA << " / " << nCriteriaB << std::endl
+		);
 	}
 #endif
 

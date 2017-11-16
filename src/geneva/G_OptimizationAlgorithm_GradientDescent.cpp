@@ -61,9 +61,9 @@ GGradientDescent::GGradientDescent(
 	, const double &stepSize
 )
 	: G_OptimizationAlgorithm_Base()
-	, nStartingPoints_(nStartingPoints)
-	, finiteStep_(finiteStep)
-	, stepSize_(stepSize)
+	  , nStartingPoints_(nStartingPoints)
+	  , finiteStep_(finiteStep)
+	  , stepSize_(stepSize)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -74,14 +74,14 @@ GGradientDescent::GGradientDescent(
  */
 GGradientDescent::GGradientDescent(const GGradientDescent &cp)
 	: G_OptimizationAlgorithm_Base(cp)
-	, nStartingPoints_(cp.nStartingPoints_)
-	, nFPParmsFirst_(cp.nFPParmsFirst_)
-	, finiteStep_(cp.finiteStep_)
-	, stepSize_(cp.stepSize_)
-	, stepRatio_(cp.stepRatio_) // Will be recalculated in init()
-	, dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_) // Will be extracted in init()
-	, dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_) // Will be extracted in init()
-	, adjustedFiniteStep_(cp.adjustedFiniteStep_) // Will be recalculated in init()
+	  , nStartingPoints_(cp.nStartingPoints_)
+	  , nFPParmsFirst_(cp.nFPParmsFirst_)
+	  , finiteStep_(cp.finiteStep_)
+	  , stepSize_(cp.stepSize_)
+	  , stepRatio_(cp.stepRatio_) // Will be recalculated in init()
+	  , dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_) // Will be extracted in init()
+	  , dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_) // Will be extracted in init()
+	  , adjustedFiniteStep_(cp.adjustedFiniteStep_) // Will be recalculated in init()
 {
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
@@ -166,10 +166,11 @@ std::size_t GGradientDescent::getNStartingPoints() const {
 void GGradientDescent::setNStartingPoints(std::size_t nStartingPoints) {
 	// Do some error checking
 	if (nStartingPoints == 0) {
-		glogger
-		<< "In GGradientDescent::setNStartingPoints(const std::size_t&):" << std::endl
-		<< "Got invalid number of starting points." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::setNStartingPoints(const std::size_t&):" << std::endl
+				<< "Got invalid number of starting points." << std::endl
+		);
 	}
 
 	nStartingPoints_ = nStartingPoints;
@@ -184,11 +185,12 @@ void GGradientDescent::setNStartingPoints(std::size_t nStartingPoints) {
 void GGradientDescent::setFiniteStep(double finiteStep) {
 	// Check that finiteStep_ has an appropriate value
 	if (finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
-		glogger
-		<< "In GGradientDescent::setFiniteStep(double): Error!" << std::endl
-		<< "Invalid values of finiteStep_: " << finiteStep_ << std::endl
-		<< "Must be in the range ]0.:1000.]" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::setFiniteStep(double): Error!" << std::endl
+				<< "Invalid values of finiteStep_: " << finiteStep_ << std::endl
+				<< "Must be in the range ]0.:1000.]" << std::endl
+		);
 	}
 
 	finiteStep_ = finiteStep;
@@ -213,11 +215,12 @@ double GGradientDescent::getFiniteStep() const {
 void GGradientDescent::setStepSize(double stepSize) {
 	// Check that stepSize_ has an appropriate value
 	if (stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
-		glogger
-		<< "In GGradientDescent::setStepSize(double): Error!" << std::endl
-		<< "Invalid values of stepSize_: " << stepSize_ << std::endl
-		<< "Must be in the range ]0.:1000.]" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::setStepSize(double): Error!" << std::endl
+				<< "Invalid values of stepSize_: " << stepSize_ << std::endl
+				<< "Must be in the range ]0.:1000.]" << std::endl
+		);
 	}
 
 	stepSize_ = stepSize;
@@ -376,13 +379,13 @@ std::tuple<double, double> GGradientDescent::cycleLogic() {
 	for (it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
 		std::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 		std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION,
-																									USETRANSFORMEDFITNESS);
+			USETRANSFORMEDFITNESS);
 
 		if (this->at(0)->isBetter(
-				std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate)
-				, std::get<G_TRANSFORMED_FITNESS>(bestFitness)
-			)
-		) {
+			std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate)
+			, std::get<G_TRANSFORMED_FITNESS>(bestFitness)
+		)
+			) {
 			bestFitness = fitnessCandidate;
 		}
 	}
@@ -441,10 +444,11 @@ void GGradientDescent::updateParentIndividuals() {
 #ifdef DEBUG
 		// Make sure the parents are clean
 		if(this->at(i)->isDirty()) {
-		   glogger
-		   << "In GGradientDescent::updateParentIndividuals():" << std::endl
-         << "Found individual in position " << i << " with active dirty flag" << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GGradientDescent::updateParentIndividuals():" << std::endl
+					<< "Found individual in position " << i << " with active dirty flag" << std::endl
+			);
 		}
 #endif /* DEBUG */
 
@@ -465,10 +469,11 @@ void GGradientDescent::updateParentIndividuals() {
 					((long double) (this->at(childPos)->minOnly_fitness()) - (long double) (parentFitness))
 				);
 			} catch (boost::bad_numeric_cast &e) {
-				glogger
-				<< "In GGradientDescent::updateParentIndividuals(): Error!" << std::endl
-				<< "Bad conversion with message " << e.what() << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GGradientDescent::updateParentIndividuals(): Error!" << std::endl
+						<< "Bad conversion with message " << e.what() << std::endl
+				);
 			}
 		}
 
@@ -495,26 +500,26 @@ void GGradientDescent::addConfigurationOptions(
 		, DEFAULTGDSTARTINGPOINTS // The default value
 		, [this](std::size_t nsp) { this->setNStartingPoints(nsp); }
 	)
-	<< "The number of simultaneous gradient descents";
+		<< "The number of simultaneous gradient descents";
 
 	gpb.registerFileParameter<double>(
 		"finiteStep" // The name of the variable
 		, DEFAULTFINITESTEP // The default value
 		, [this](double fs) { this->setFiniteStep(fs); }
 	)
-	<< "The size of the adjustment in the difference quotient," << std::endl
-	<< "specified in per mill of the allowed or expected value" << std::endl
-	<< "range of a parameter";
+		<< "The size of the adjustment in the difference quotient," << std::endl
+		<< "specified in per mill of the allowed or expected value" << std::endl
+		<< "range of a parameter";
 
 	gpb.registerFileParameter<double>(
 		"stepSize" // The name of the variable
 		, DEFAULTSTEPSIZE // The default value
 		, [this](double ss) { this->setStepSize(ss); }
 	)
-	<< "The size of each step into the" << std::endl
-	<< "direction of steepest descent," << std::endl
-	<< "specified in per mill of the allowed or expected value" << std::endl
-	<< "range of a parameter";
+		<< "The size of each step into the" << std::endl
+		<< "direction of steepest descent," << std::endl
+		<< "specified in per mill of the allowed or expected value" << std::endl
+		<< "range of a parameter";
 }
 
 /******************************************************************************/
@@ -533,10 +538,11 @@ void GGradientDescent::runFitnessCalculation() {
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// Make sure the evaluated individuals have the dirty flag set
 		if(this->afterFirstIteration() && !(*it)->isDirty()) {
-			glogger
-				<< "In GBrokerGD::runFitnessCalculation():" << std::endl
-				<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GBrokerGD::runFitnessCalculation():" << std::endl
+					<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
+			);
 		}
 	}
 #endif /* DEBUG */
@@ -557,10 +563,11 @@ void GGradientDescent::runFitnessCalculation() {
 
 	// Check if all work items have returned
 	if (!complete) {
-		glogger
-			<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
-			<< "No complete set of items received" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
+				<< "No complete set of items received" << std::endl
+		);
 	}
 
 	// Check if work items exists whose processing function has thrown an exception.
@@ -573,12 +580,13 @@ void GGradientDescent::runFitnessCalculation() {
 			return p->processing_was_unsuccessful();
 		}
 	) != this->end()) {
-		glogger
-			<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
-			<< "At least one individual could not be processed" << std::endl
-			<< "due to errors in the (possibly user-supplied) process() function." << std::endl
-			<< "This is a severe error and we cannot continue" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
+				<< "At least one individual could not be processed" << std::endl
+				<< "due to errors in the (possibly user-supplied) process() function." << std::endl
+				<< "This is a severe error and we cannot continue" << std::endl
+		);
 	}
 
 	//--------------------------------------------------------------------------------
@@ -596,32 +604,35 @@ void GGradientDescent::init() {
 	this->at(0)->boundaries(dblLowerParameterBoundaries_, dblUpperParameterBoundaries_, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
-   // Size matters!
-   if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
-      glogger
-      << "In GGradientDescent::init(): Error!" << std::endl
-      << "Found invalid sizes: "
-      << dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
-      << GEXCEPTION;
-   }
+	// Size matters!
+	if(dblLowerParameterBoundaries_.size() != dblUpperParameterBoundaries_.size()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::init(): Error!" << std::endl
+				<< "Found invalid sizes: "
+				<< dblLowerParameterBoundaries_.size() << " / " << dblUpperParameterBoundaries_.size() << std::endl
+		);
+	}
 
-   // Check that stepSize_ has an appropriate value
-   if(stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
-      glogger
-      << "In GGradientDescent::init(): Error!" << std::endl
-      << "Invalid values of stepSize_: " << stepSize_ << std::endl
-      << "Must be in the range ]0.:1000.]" << std::endl
-      << GEXCEPTION;
-   }
+	// Check that stepSize_ has an appropriate value
+	if(stepSize_ <= 0. || stepSize_ > 1000.) { // Specified in per mill of the allowed or preferred value range
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::init(): Error!" << std::endl
+				<< "Invalid values of stepSize_: " << stepSize_ << std::endl
+				<< "Must be in the range ]0.:1000.]" << std::endl
+		);
+	}
 
-   // Check that finiteStep_ has an appropriate value
-   if(finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
-      glogger
-      << "In GGradientDescent::init(): Error!" << std::endl
-      << "Invalid values of finiteStep_: " << finiteStep_ << std::endl
-      << "Must be in the range ]0.:1000.]" << std::endl
-      << GEXCEPTION;
-   }
+	// Check that finiteStep_ has an appropriate value
+	if(finiteStep_ <= 0. || finiteStep_ > 1000.) { // Specified in per mill of the allowed or preferred value range
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::init(): Error!" << std::endl
+				<< "Invalid values of finiteStep_: " << finiteStep_ << std::endl
+				<< "Must be in the range ]0.:1000.]" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	// Set the step ratio. We do the calculation in long double precision to preserve accuracy
@@ -637,10 +648,11 @@ void GGradientDescent::init() {
 			adjustedFiniteStep_.push_back(boost::numeric_cast<double>(finiteStepRatio * parameterRange));
 		}
 	} catch (boost::bad_numeric_cast &e) {
-		glogger
-		<< "In GGradientDescent::init(): Error!" << std::endl
-		<< "Bad conversion with message " << e.what() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::init(): Error!" << std::endl
+				<< "Bad conversion with message " << e.what() << std::endl
+		);
 	}
 
 	// Tell individuals about their position in the population
@@ -676,10 +688,11 @@ void GGradientDescent::adjustPopulation() {
 
 	// We need at least one individual
 	if (nStart == 0) {
-		glogger
-		<< "In GGradientDescent::adjustPopulation():" << std::endl
-		<< "You didn't add any individuals to the collection. We need at least one." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::adjustPopulation():" << std::endl
+				<< "You didn't add any individuals to the collection. We need at least one." << std::endl
+		);
 	}
 
 	// Update the number of active floating point parameters in the individuals
@@ -687,21 +700,23 @@ void GGradientDescent::adjustPopulation() {
 
 	// Check that the first individual has floating point parameters (double for the moment)
 	if (nFPParmsFirst_ == 0) {
-		glogger
-		<< "In GGradientDescent::adjustPopulation():" << std::endl
-		<< "No floating point parameters in individual." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::adjustPopulation():" << std::endl
+				<< "No floating point parameters in individual." << std::endl
+		);
 	}
 
 	// Check that all individuals currently available have the same amount of parameters
 #ifdef DEBUG
 	for(std::size_t i=1; i<this->size(); i++) {
 		if(this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) != nFPParmsFirst_) {
-		   glogger
-		   << "In GGradientDescent::adjustPopulation():" << std::endl
-         << "Found individual in position " <<  i << " with different" << std::endl
-         << "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) << "/" << nFPParmsFirst_ << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GGradientDescent::adjustPopulation():" << std::endl
+					<< "Found individual in position " <<  i << " with different" << std::endl
+					<< "number of floating point parameters than the first one: " << this->at(i)->countParameters<double>(activityMode::ACTIVEONLY) << "/" << nFPParmsFirst_ << std::endl
+			);
 		}
 	}
 #endif
@@ -734,11 +749,12 @@ void GGradientDescent::adjustPopulation() {
 	// each of size nFPParmsFirst_.
 #ifdef DEBUG
 	if(this->size() != nStartingPoints_*(nFPParmsFirst_ + 1)) {
-	   glogger
-	   << "In GGradientDescent::adjustPopulation():" << std::endl
-      << "Population size is " << this->size() << std::endl
-      << "but expected " << nStartingPoints_*(nFPParmsFirst_ + 1) << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GGradientDescent::adjustPopulation():" << std::endl
+				<< "Population size is " << this->size() << std::endl
+				<< "but expected " << nStartingPoints_*(nFPParmsFirst_ + 1) << std::endl
+		);
 	}
 #endif /* DEBUG */
 }
@@ -767,7 +783,7 @@ bool GGradientDescent::modify_GUnitTests() {
 
 	return result;
 #else /* GEM_TESTING */
-   Gem::Common::condnotset("GGradientDescent::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GGradientDescent::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -781,7 +797,7 @@ void GGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -794,7 +810,7 @@ void GGradientDescent::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

@@ -272,10 +272,11 @@ void GConstrainedDoubleObject::assignDoubleValueVector(
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-	   glogger
-	   << "In GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
-      << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GConstrainedDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+		);
 	}
 #endif
 
@@ -293,7 +294,8 @@ void GConstrainedDoubleObject::assignDoubleValueVectors(
 	this->setValue(
 		this->transfer(
 			Gem::Common::getMapItem(
-				parMap, this->getParameterName()
+				parMap
+				, this->getParameterName()
 			).at(0)
 		)
 	);
@@ -412,7 +414,7 @@ bool GConstrainedDoubleObject::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GConstrainedDoubleObject::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GConstrainedDoubleObject::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -517,7 +519,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -553,7 +555,7 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

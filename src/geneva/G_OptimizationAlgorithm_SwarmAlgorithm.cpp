@@ -59,8 +59,8 @@ GSwarmAlgorithm::GSwarmAlgorithm(
 	, const std::size_t &defaultNNeighborhoodMembers
 )
 	: G_OptimizationAlgorithm_Base()
-	, m_n_neighborhoods((nNeighborhoods>=1) ? nNeighborhoods : 1)
-	, m_default_n_neighborhood_members((defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers: 2)
+	  , m_n_neighborhoods((nNeighborhoods>=1) ? nNeighborhoods : 1)
+	  , m_default_n_neighborhood_members((defaultNNeighborhoodMembers >= 2) ? defaultNNeighborhoodMembers: 2)
 {
 	G_OptimizationAlgorithm_Base::setDefaultPopulationSize(m_n_neighborhoods * m_default_n_neighborhood_members);
 }
@@ -73,22 +73,22 @@ GSwarmAlgorithm::GSwarmAlgorithm(
  */
 GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
 	: G_OptimizationAlgorithm_Base(cp)
-	, m_n_neighborhoods(cp.m_n_neighborhoods)
-	, m_default_n_neighborhood_members(cp.m_default_n_neighborhood_members)
-	, m_n_neighborhood_members_vec(cp.m_n_neighborhood_members_vec)
-	, m_global_best_ptr((cp.afterFirstIteration()) ? (cp.m_global_best_ptr)->clone<GParameterSet>() : std::shared_ptr<GParameterSet>())
-	, m_neighborhood_bests_vec(m_n_neighborhoods) // We copy the smart pointers over later
-	, m_c_personal(cp.m_c_personal)
-	, m_c_neighborhood(cp.m_c_neighborhood)
-	, m_c_global(cp.m_c_global)
-	, m_c_velocity(cp.m_c_velocity)
-	, m_update_rule(cp.m_update_rule)
-	, m_random_fill_up(cp.m_random_fill_up)
-	, m_repulsion_threshold(cp.m_repulsion_threshold)
-	, m_dbl_lower_parameter_boundaries_vec(cp.m_dbl_lower_parameter_boundaries_vec)
-	, m_dbl_upper_parameter_boundaries_vec(cp.m_dbl_upper_parameter_boundaries_vec)
-	, m_dbl_vel_max_vec(cp.m_dbl_vel_max_vec)
-	, m_velocity_range_percentage(cp.m_velocity_range_percentage)
+	  , m_n_neighborhoods(cp.m_n_neighborhoods)
+	  , m_default_n_neighborhood_members(cp.m_default_n_neighborhood_members)
+	  , m_n_neighborhood_members_vec(cp.m_n_neighborhood_members_vec)
+	  , m_global_best_ptr((cp.afterFirstIteration()) ? (cp.m_global_best_ptr)->clone<GParameterSet>() : std::shared_ptr<GParameterSet>())
+	  , m_neighborhood_bests_vec(m_n_neighborhoods) // We copy the smart pointers over later
+	  , m_c_personal(cp.m_c_personal)
+	  , m_c_neighborhood(cp.m_c_neighborhood)
+	  , m_c_global(cp.m_c_global)
+	  , m_c_velocity(cp.m_c_velocity)
+	  , m_update_rule(cp.m_update_rule)
+	  , m_random_fill_up(cp.m_random_fill_up)
+	  , m_repulsion_threshold(cp.m_repulsion_threshold)
+	  , m_dbl_lower_parameter_boundaries_vec(cp.m_dbl_lower_parameter_boundaries_vec)
+	  , m_dbl_upper_parameter_boundaries_vec(cp.m_dbl_upper_parameter_boundaries_vec)
+	  , m_dbl_vel_max_vec(cp.m_dbl_vel_max_vec)
+	  , m_velocity_range_percentage(cp.m_velocity_range_percentage)
 {
 	// Note that this setting might differ from nCPIndividuals, as it is not guaranteed
 	// that cp has, at the time of copying, all individuals present in each neighborhood.
@@ -364,16 +364,16 @@ void GSwarmAlgorithm::setSwarmSizes(
 	// Enforce useful settings
 	if (nNeighborhoods == 0) {
 		glogger
-		<< "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << std::endl
-		<< "Requested number of neighborhoods is 0. Setting to 1." << std::endl
-		<< GWARNING;
+			<< "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << std::endl
+			<< "Requested number of neighborhoods is 0. Setting to 1." << std::endl
+			<< GWARNING;
 	}
 
 	if (defaultNNeighborhoodMembers <= 1) {
 		glogger
-		<< "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << std::endl
-		<< "Requested number of members in each neighborhood is too small. Setting to 2." << std::endl
-		<< GWARNING;
+			<< "In GSwarmAlgorithm::setSwarmSizes(): Warning!" << std::endl
+			<< "Requested number of members in each neighborhood is too small. Setting to 2." << std::endl
+			<< GWARNING;
 	}
 
 	m_n_neighborhoods = (nNeighborhoods >= 1) ? nNeighborhoods : 1;
@@ -435,12 +435,13 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
 ) const {
 #ifdef DEBUG
 	if(neighborhood >= m_n_neighborhoods) {
-	   glogger
-	   << "In GSwarmAlgorithm::getFirstNIPosVec():" << std::endl
-      << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
-      << "The number of neighborhoods is " << m_n_neighborhoods << "," << std::endl
-      << "hence the maximum allowed value of the id is " << m_n_neighborhoods-1 << "." << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::getFirstNIPosVec():" << std::endl
+				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
+				<< "The number of neighborhoods is " << m_n_neighborhoods << "," << std::endl
+				<< "hence the maximum allowed value of the id is " << m_n_neighborhoods-1 << "." << std::endl
+		);
 	}
 
 	// TODO: Add check for array sizes
@@ -470,12 +471,13 @@ std::size_t GSwarmAlgorithm::getFirstNIPosVec(
 std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const {
 #ifdef DEBUG
 	if(neighborhood >= m_n_neighborhoods) {
-	   glogger
-	   << "In GSwarmAlgorithm::getLastNIPos():" << std::endl
-      << "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
-      << "The number of neighborhoods is " << m_n_neighborhoods << " ." << std::endl
-      << "hence the maximum allowed value of the id is " << m_n_neighborhoods-1 << "." << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::getLastNIPos():" << std::endl
+				<< "Received id " << neighborhood << " of a neighborhood which does not exist." << std::endl
+				<< "The number of neighborhoods is " << m_n_neighborhoods << " ." << std::endl
+				<< "hence the maximum allowed value of the id is " << m_n_neighborhoods-1 << "." << std::endl
+		);
 	}
 #endif
 
@@ -492,18 +494,20 @@ void GSwarmAlgorithm::updatePersonalBest(
 	std::shared_ptr < GParameterSet > p
 ) {
 #ifdef DEBUG
-   if(!p) {
-      glogger
-      << "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
-      << "Got empty p" << std::endl
-      << GEXCEPTION;
-   }
+	if(!p) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
+				<< "Got empty p" << std::endl
+		);
+	}
 
 	if(p->isDirty()) {
-	   glogger
-	   << "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
-      << "p has its dirty flag set: " << p->isDirty() << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
+				<< "p has its dirty flag set: " << p->isDirty() << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -520,18 +524,20 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(
 	std::shared_ptr < GParameterSet > p
 ) {
 #ifdef DEBUG
-   if(!p) {
-      glogger
-      << "In GSwarmAlgorithm::updatePersonalBestIfBetter():" << std::endl
-      << "Got empty p" << std::endl
-      << GEXCEPTION;
-   }
+	if(!p) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updatePersonalBestIfBetter():" << std::endl
+				<< "Got empty p" << std::endl
+		);
+	}
 
 	if(!p->isClean()) {
-	   glogger
-	   << "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << std::endl
-      << "dirty flag of individual is set." << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << std::endl
+				<< "dirty flag of individual is set." << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -566,67 +572,67 @@ void GSwarmAlgorithm::addConfigurationOptions(
 		, [this](std::size_t nh, std::size_t nhm) { this->setSwarmSizes(nh, nhm); }
 		, "swarmSize"
 	)
-	<< "The desired number of neighborhoods in the population" << Gem::Common::nextComment()
-	<< "The desired number of members in each neighborhood";
+		<< "The desired number of neighborhoods in the population" << Gem::Common::nextComment()
+		<< "The desired number of members in each neighborhood";
 
 	gpb.registerFileParameter<double>(
 		"cPersonal" // The name of the variable
 		, DEFAULTCPERSONAL // The default value
 		, [this](double cp) { this->setCPersonal(cp); }
 	)
-	<< "A constant to be multiplied with the personal direction vector";
+		<< "A constant to be multiplied with the personal direction vector";
 
 	gpb.registerFileParameter<double>(
 		"cNeighborhood" // The name of the variable
 		, DEFAULTCNEIGHBORHOOD // The default value
 		, [this](double cn) { this->setCNeighborhood(cn); }
 	)
-	<< "A constant to be multiplied with the neighborhood direction vector";
+		<< "A constant to be multiplied with the neighborhood direction vector";
 
 	gpb.registerFileParameter<double>(
 		"cGlobal" // The name of the variable
 		, DEFAULTCGLOBAL // The default value
 		, [this](double cg) { this->setCGlobal(cg); }
 	)
-	<< "A constant to be multiplied with the global direction vector";
+		<< "A constant to be multiplied with the global direction vector";
 
 	gpb.registerFileParameter<double>(
 		"cVelocity" // The name of the variable
 		, DEFAULTCVELOCITY // The default value
 		, [this](double cv) { this->setCVelocity(cv); }
 	)
-	<< "A constant to be multiplied with the old velocity vector";
+		<< "A constant to be multiplied with the old velocity vector";
 
 	gpb.registerFileParameter<double>(
 		"velocityRangePercentage" // The name of the variable
 		, DEFAULTVELOCITYRANGEPERCENTAGE // The default value
 		, [this](double vrp) { this->setVelocityRangePercentage(vrp); }
 	)
-	<< "Sets the velocity-range percentage";
+		<< "Sets the velocity-range percentage";
 
 	gpb.registerFileParameter<updateRule>(
 		"updateRule" // The name of the variable
 		, DEFAULTUPDATERULE // The default value
 		, [this](updateRule ur) { this->setUpdateRule(ur); }
 	)
-	<< "Specifies whether a linear (0) or classical (1)" << std::endl
-	<< "update rule should be used";
+		<< "Specifies whether a linear (0) or classical (1)" << std::endl
+		<< "update rule should be used";
 
 	gpb.registerFileParameter<bool>(
 		"randomFillUp" // The name of the variable
 		, true // The default value
 		, [this](bool nhrf) { this->setNeighborhoodsRandomFillUp(nhrf); }
 	)
-	<< "Specifies whether neighborhoods should be filled up" << std::endl
-	<< "randomly (true) or start with equal values (false)";
+		<< "Specifies whether neighborhoods should be filled up" << std::endl
+		<< "randomly (true) or start with equal values (false)";
 
 	gpb.registerFileParameter<std::uint32_t>(
 		"repulsionThreshold" // The name of the variable
 		, DEFREPULSIONTHRESHOLD // The default value
 		, [this](std::uint32_t rt) { this->setRepulsionThreshold(rt); }
 	)
-	<< "The number of stalls as of which the algorithm switches to repulsive mode" << std::endl
-	<< "Set this to 0 in order to disable this feature";
+		<< "The number of stalls as of which the algorithm switches to repulsive mode" << std::endl
+		<< "Set this to 0 in order to disable this feature";
 }
 
 /******************************************************************************/
@@ -652,14 +658,15 @@ void GSwarmAlgorithm::init() {
 	this->at(0)->boundaries(m_dbl_lower_parameter_boundaries_vec, m_dbl_upper_parameter_boundaries_vec, activityMode::ACTIVEONLY);
 
 #ifdef DEBUG
-   // Size matters!
-   if(m_dbl_lower_parameter_boundaries_vec.size() != m_dbl_upper_parameter_boundaries_vec.size()) {
-      glogger
-      << "In GSwarmAlgorithm::init(): Error!" << std::endl
-      << "Found invalid sizes: "
-      << m_dbl_lower_parameter_boundaries_vec.size() << " / " << m_dbl_upper_parameter_boundaries_vec.size() << std::endl
-      << GEXCEPTION;
-   }
+	// Size matters!
+	if(m_dbl_lower_parameter_boundaries_vec.size() != m_dbl_upper_parameter_boundaries_vec.size()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::init(): Error!" << std::endl
+				<< "Found invalid sizes: "
+				<< m_dbl_lower_parameter_boundaries_vec.size() << " / " << m_dbl_upper_parameter_boundaries_vec.size() << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	// Calculate the allowed maximum values of the velocities
@@ -677,10 +684,11 @@ void GSwarmAlgorithm::init() {
 	for(auto ind: *this) {
 #ifdef DEBUG
 		if(!ind) {
-			glogger
-				<< "In GSwarmAlgorithm::init(): Error!" << std::endl
-				<< "Found empty std::shared_ptr in position " << pos << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSwarmAlgorithm::init(): Error!" << std::endl
+					<< "Found empty std::shared_ptr in position " << pos << std::endl
+			);
 		}
 #endif /* DEBUG */
 
@@ -697,12 +705,13 @@ void GSwarmAlgorithm::init() {
 #ifdef DEBUG
 		// Check that the number of parameters equals those in the velocity boundaries
 		if(velVec.size() != m_dbl_lower_parameter_boundaries_vec.size() || velVec.size() != m_dbl_vel_max_vec.size()) {
-			glogger
-				<< "In GSwarmAlgorithm::init(): Error! (2)" << std::endl
-				<< "Found invalid sizes: " << velVec.size()
-				<< " / " << m_dbl_lower_parameter_boundaries_vec.size() << std::endl
-				<< " / " << m_dbl_vel_max_vec.size() << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSwarmAlgorithm::init(): Error! (2)" << std::endl
+					<< "Found invalid sizes: " << velVec.size()
+					<< " / " << m_dbl_lower_parameter_boundaries_vec.size() << std::endl
+					<< " / " << m_dbl_vel_max_vec.size() << std::endl
+			);
 		}
 #endif /* DEBUG */
 
@@ -798,12 +807,13 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 #ifdef DEBUG
 	// Check that m_last_iteration_individuals_vec has the desired size in iterations other than the first
 	if(afterFirstIteration() && m_last_iteration_individuals_vec.size() != m_default_n_neighborhood_members*m_n_neighborhoods) {
-		glogger
-			<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
-			<< "m_last_iteration_individuals_vec has incorrect size! Expected" << std::endl
-			<< "m_default_n_neighborhood_members*m_n_neighborhoods = " << m_default_n_neighborhood_members*m_n_neighborhoods << std::endl
-			<< "but found " << m_last_iteration_individuals_vec.size() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
+				<< "m_last_iteration_individuals_vec has incorrect size! Expected" << std::endl
+				<< "m_default_n_neighborhood_members*m_n_neighborhoods = " << m_default_n_neighborhood_members*m_n_neighborhoods << std::endl
+				<< "but found " << m_last_iteration_individuals_vec.size() << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -845,10 +855,11 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 #ifdef DEBUG
 				// At least one individual must have returned.
 				if(this->empty()) {
-					glogger
-						<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
-						<< "No items found in the population. Cannot fix." << std::endl
-						<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG,  time_and_place)
+							<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
+							<< "No items found in the population. Cannot fix." << std::endl
+					);
 				}
 #endif
 
@@ -874,10 +885,11 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 #ifdef DEBUG
 	// Check that the population has the expected size
 	if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
-		glogger
-			<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
-			<< "The population has an incorrect size of " << this->size() << ", expected " << m_n_neighborhoods*m_default_n_neighborhood_members << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
+				<< "The population has an incorrect size of " << this->size() << ", expected " << m_n_neighborhoods*m_default_n_neighborhood_members << std::endl
+		);
 	}
 #endif
 
@@ -916,18 +928,20 @@ void GSwarmAlgorithm::updatePositions() {
 	// Check that all neighborhoods have the default size
 	for(std::size_t n=0; n<m_n_neighborhoods; n++) {
 		if(m_n_neighborhood_members_vec[n] != m_default_n_neighborhood_members) {
-			glogger
-				<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
-				<< "m_n_neighborhood_members_vec[" << n << "] has invalid size " << m_n_neighborhood_members_vec[n] << std::endl
-				<< "but expected size " << m_default_n_neighborhood_members << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
+					<< "m_n_neighborhood_members_vec[" << n << "] has invalid size " << m_n_neighborhood_members_vec[n] << std::endl
+					<< "but expected size " << m_default_n_neighborhood_members << std::endl
+			);
 		}
 
 		if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
-			glogger
-				<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
-				<< "The population has an incorrect size of " << this->size() << ", expected " << m_n_neighborhoods*m_default_n_neighborhood_members << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
+					<< "The population has an incorrect size of " << this->size() << ", expected " << m_n_neighborhoods*m_default_n_neighborhood_members << std::endl
+			);
 		}
 	}
 #endif
@@ -941,14 +955,15 @@ void GSwarmAlgorithm::updatePositions() {
 	}
 
 #ifdef DEBUG
-   // Cross-check that we have the nominal amount of individuals
-   if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
-      glogger
-      << "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
-      << "Invalid number of individuals found." << std::endl
-      << "Expected " << m_n_neighborhoods*m_default_n_neighborhood_members << " but got " << this->size() << std::endl
-      << GEXCEPTION;
-   }
+	// Cross-check that we have the nominal amount of individuals
+	if(this->size() != m_n_neighborhoods*m_default_n_neighborhood_members) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
+				<< "Invalid number of individuals found." << std::endl
+				<< "Expected " << m_n_neighborhoods*m_default_n_neighborhood_members << " but got " << this->size() << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	// First update all positions
@@ -956,26 +971,29 @@ void GSwarmAlgorithm::updatePositions() {
 #ifdef DEBUG
 		if(afterFirstIteration()) {
 			if(!m_neighborhood_bests_vec[n]) {
-			   glogger
-			   << "In GSwarmAlgorithm::updatePositions():" << std::endl
-            << "m_neighborhood_bests_vec[" << n << "] is empty." << std::endl
-            << GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GSwarmAlgorithm::updatePositions():" << std::endl
+						<< "m_neighborhood_bests_vec[" << n << "] is empty." << std::endl
+				);
 			}
 
 			if(n==0 && !m_global_best_ptr) { // Only check for the first n
-			   glogger
-			   << "In GSwarmAlgorithm::updatePositions():" << std::endl
-            << "m_global_best_ptr is empty." << std::endl
-            << GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GSwarmAlgorithm::updatePositions():" << std::endl
+						<< "m_global_best_ptr is empty." << std::endl
+				);
 			}
 		}
 
-	   // Check that the number if individuals in each neighborhoods has the expected value
+		// Check that the number if individuals in each neighborhoods has the expected value
 		if(m_n_neighborhood_members_vec[n] != m_default_n_neighborhood_members) {
-		  glogger
-		  << "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
-        << "Invalid number of members in neighborhood " << n << ": " << m_n_neighborhood_members_vec[n] << std::endl
-        << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSwarmAlgorithm::updatePositions(): Error!" << std::endl
+					<< "Invalid number of members in neighborhood " << n << ": " << m_n_neighborhood_members_vec[n] << std::endl
+			);
 		}
 #endif /* DEBUG */
 
@@ -1030,10 +1048,11 @@ void GSwarmAlgorithm::updateIndividualPositions(
 #ifdef DEBUG
 	// Do some error checking
 	if(!ind) {
-	   glogger
-	   << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-      << "Found empty individual \"ind\"" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
+				<< "Found empty individual \"ind\"" << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -1043,31 +1062,35 @@ void GSwarmAlgorithm::updateIndividualPositions(
 	// Further error checks
 #ifdef DEBUG
 	if(!personal_best) {
-	   glogger
-	   << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-      << "Found empty individual \"personal_best\"" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
+				<< "Found empty individual \"personal_best\"" << std::endl
+		);
 	}
 
 	if(!neighborhood_best) {
-	   glogger
-	   << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-      << "Found empty individual \"neighborhood_best\"" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
+				<< "Found empty individual \"neighborhood_best\"" << std::endl
+		);
 	}
 
 	if(!global_best) {
-	   glogger
-	   << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-      << "Found empty individual \"global_best\"" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
+				<< "Found empty individual \"global_best\"" << std::endl
+		);
 	}
 
 	if(!velocity) {
-	   glogger
-	   << "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
-      << "Found empty individual \"velocity\"" << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
+				<< "Found empty individual \"velocity\"" << std::endl
+		);
 	}
 
 #endif /* DEBUG */
@@ -1146,10 +1169,11 @@ void GSwarmAlgorithm::updateIndividualPositions(
 void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
 #ifdef DEBUG
 	if(velVec.size() != m_dbl_vel_max_vec.size()) {
-	   glogger
-	   << "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
-      << "Found invalid vector sizes: " << velVec.size() << " / " << m_dbl_vel_max_vec.size() << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
+				<< "Found invalid vector sizes: " << velVec.size() << " / " << m_dbl_vel_max_vec.size() << std::endl
+		);
 	}
 
 #endif
@@ -1161,10 +1185,11 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
 	for (std::size_t i = 0; i < velVec.size(); i++) {
 #ifdef DEBUG
 		if(m_dbl_vel_max_vec[i] <= 0.) {
-		   glogger
-		   << "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
-         << "Found invalid max value: " << m_dbl_vel_max_vec[i] << std::endl
-         << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
+					<< "Found invalid max value: " << m_dbl_vel_max_vec[i] << std::endl
+			);
 		}
 #endif /* DEBUG */
 
@@ -1182,10 +1207,11 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
 		for (std::size_t i = 0; i < velVec.size(); i++) {
 #ifdef DEBUG
 			if(maxPercentage <= 0.) {
-			   glogger
-			   << "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
-            << "Invalid maxPercentage: " << maxPercentage << std::endl
-            << GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GSwarmAlgorithm::pruneVelocity(): Error!" << std::endl
+						<< "Invalid maxPercentage: " << maxPercentage << std::endl
+				);
 			}
 #endif
 			velVec[i] /= maxPercentage;
@@ -1274,11 +1300,12 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 	std::size_t pos = 0;
 	for(auto ind: *this) {
 		if(ind->isDirty()) {
-			glogger
-				<< "In GSwarmAlgorithm::findBests(): Error!" << std::endl
-				<< "Found individual in position " << pos << " in iteration " << this->getIteration() << std::endl
-				<< "whose dirty flag is set." << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSwarmAlgorithm::findBests(): Error!" << std::endl
+					<< "Found individual in position " << pos << " in iteration " << this->getIteration() << std::endl
+					<< "whose dirty flag is set." << std::endl
+			);
 		}
 
 		pos++;
@@ -1346,7 +1373,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 	// Identify the best fitness in the current iteration
 	for (std::size_t i = 0; i < this->size(); i++) {
 		if (this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()),
-								 std::get<G_TRANSFORMED_FITNESS>(bestIterationFitness))) {
+			std::get<G_TRANSFORMED_FITNESS>(bestIterationFitness))) {
 			bestIterationFitness = this->at(i)->getFitnessTuple();
 		}
 	}
@@ -1365,12 +1392,13 @@ void GSwarmAlgorithm::adjustPopulation() {
 	const std::size_t nNeighborhoods = getNNeighborhoods();
 
 	if (currentSize == 0) {
-		glogger
-		<< "In GSwarmAlgorithm::adjustPopulation() :" << std::endl
-		<< "No individuals found in the population." << std::endl
-		<< "You need to add at least one individual before" << std::endl
-		<< "the call to optimize<>()" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::adjustPopulation() :" << std::endl
+				<< "No individuals found in the population." << std::endl
+				<< "You need to add at least one individual before" << std::endl
+				<< "the call to optimize<>()" << std::endl
+		);
 	} else if (currentSize == 1) {
 		// Fill up with random items to the number of neighborhoods
 		for (std::size_t i = 1; i < m_n_neighborhoods; i++) {
@@ -1437,11 +1465,12 @@ void GSwarmAlgorithm::adjustPopulation() {
 	// As the above switch statement is quite complicated, cross check that we now
 	// indeed have at least the required number of individuals
 	if(this->size() < defaultPopSize) {
-	   glogger
-	   << "In GSwarmAlgorithm::adjustPopulation() :" << std::endl
-      << "Expected at least a population size of " << defaultPopSize << std::endl
-      << "but found a size of " << this->size() << ", which is too small." << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::adjustPopulation() :" << std::endl
+				<< "Expected at least a population size of " << defaultPopSize << std::endl
+				<< "but found a size of " << this->size() << ", which is too small." << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -1460,10 +1489,11 @@ void GSwarmAlgorithm::adjustPopulation() {
 void GSwarmAlgorithm::fillUpNeighborhood1() {
 	// Do some error checking
 	if (this->size() != m_n_neighborhoods) {
-		glogger
-		<< "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl
-		<< "Invalid size: " << this->size() << " Expected " << m_n_neighborhoods << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl
+				<< "Invalid size: " << this->size() << " Expected " << m_n_neighborhoods << std::endl
+		);
 	}
 
 	if (m_default_n_neighborhood_members == 1) return; // nothing to do
@@ -1480,10 +1510,11 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
 			if (m_random_fill_up) {
 #ifdef DEBUG
 				if(!(*(this->begin()+n+1))) {
-				   glogger
-				   << "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl
-               << "Found empty position " << n << std::endl
-               << GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG,  time_and_place)
+							<< "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl
+							<< "Found empty position " << n << std::endl
+					);
 				}
 #endif /* DEBUG */
 
@@ -1585,10 +1616,11 @@ double GSwarmAlgorithm::getCVelocity() const {
 void GSwarmAlgorithm::setVelocityRangePercentage(double velocityRangePercentage) {
 	// Do some error checking
 	if (velocityRangePercentage <= 0. || velocityRangePercentage > 1.) {
-		glogger
-		<< "In GSwarmAlgorithm::setVelocityRangePercentage()" << std::endl
-		<< "Invalid velocityRangePercentage: " << velocityRangePercentage << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm::setVelocityRangePercentage()" << std::endl
+				<< "Invalid velocityRangePercentage: " << velocityRangePercentage << std::endl
+		);
 	}
 
 	m_velocity_range_percentage = velocityRangePercentage;
@@ -1728,7 +1760,7 @@ bool GSwarmAlgorithm::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GSwarmAlgorithm::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GSwarmAlgorithm::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -1743,7 +1775,7 @@ void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1757,7 +1789,7 @@ void GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests() {
 	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

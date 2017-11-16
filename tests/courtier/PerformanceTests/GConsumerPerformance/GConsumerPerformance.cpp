@@ -380,9 +380,10 @@ void brokerProducer(
 		for(std::size_t i=0; i<nContainerObjects; i++) {
 			CurrentBufferPort->pop_processed(p);
 			if(!p) {
-				glogger
-				<< "In brokerProducer: " << "got invalid item" << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In brokerProducer: " << "got invalid item" << std::endl
+				);
 			}
 		}
 

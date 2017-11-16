@@ -28,7 +28,7 @@ namespace Geneva {
  * The default constructor
  */
 GOpenCLCanvas::GOpenCLCanvas()
-   : Gem::Common::GCanvas8()
+	: Gem::Common::GCanvas8()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -36,8 +36,8 @@ GOpenCLCanvas::GOpenCLCanvas()
  * Initialization with dimensions and colors
  */
 GOpenCLCanvas::GOpenCLCanvas(
-      const std::tuple<std::size_t, std::size_t>& dim
-      , const std::tuple<float,float,float>& color
+	const std::tuple<std::size_t, std::size_t>& dim
+	, const std::tuple<float,float,float>& color
 ) : Gem::Common::GCanvas8(dim,color)
 { /* nothing */ }
 
@@ -46,7 +46,7 @@ GOpenCLCanvas::GOpenCLCanvas(
  * Initialization from data held in a string -- uses the PPM-P3 format
  */
 GOpenCLCanvas::GOpenCLCanvas(const std::string& ppmData)
-   : Gem::Common::GCanvas8(ppmData)
+	: Gem::Common::GCanvas8(ppmData)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -54,7 +54,7 @@ GOpenCLCanvas::GOpenCLCanvas(const std::string& ppmData)
  * Copy construction
  */
 GOpenCLCanvas::GOpenCLCanvas(const GOpenCLCanvas& cp)
-  : Gem::Common::GCanvas8(cp)
+	: Gem::Common::GCanvas8(cp)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -69,8 +69,8 @@ GOpenCLCanvas::~GOpenCLCanvas()
  * The assignment operator
  */
 const GOpenCLCanvas& GOpenCLCanvas::operator=(const GOpenCLCanvas& cp) {
-   Gem::Common::GCanvas8::operator=(cp);
-   return *this;
+	Gem::Common::GCanvas8::operator=(cp);
+	return *this;
 }
 
 /******************************************************************************/
@@ -78,7 +78,7 @@ const GOpenCLCanvas& GOpenCLCanvas::operator=(const GOpenCLCanvas& cp) {
  * Find out the deviation between this and another canvas
  */
 float GOpenCLCanvas::diff(const GOpenCLCanvas& cp) const {
-   return Gem::Common::GCanvas8::diff(cp);
+	return Gem::Common::GCanvas8::diff(cp);
 }
 
 /******************************************************************************/
@@ -86,23 +86,23 @@ float GOpenCLCanvas::diff(const GOpenCLCanvas& cp) const {
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
 std::tuple<std::shared_ptr<cl_uchar>, std::size_t> GOpenCLCanvas::getOpenCLCanvasI() const {
-   std::shared_ptr<cl_uchar> oclCanvasData(
+	std::shared_ptr<cl_uchar> oclCanvasData(
 		new cl_uchar[4*this->getNPixels()]
 		, [](cl_uchar *a) { delete [] a; }
 	);
-   std::size_t offset = 0;
-   for(std::size_t i_y=0; i_y<yDim_; i_y++) {
-      for(std::size_t i_x=0; i_x<xDim_; i_x++) {
-         offset = 4*(i_y*xDim_ + i_x);
+	std::size_t offset = 0;
+	for(std::size_t i_y=0; i_y<yDim_; i_y++) {
+		for(std::size_t i_x=0; i_x<xDim_; i_x++) {
+			offset = 4*(i_y*xDim_ + i_x);
 
-         oclCanvasData.get()[offset+0] = (cl_uchar)(canvasData_[i_x][i_y].r*255.0f);
-         oclCanvasData.get()[offset+1] = (cl_uchar)(canvasData_[i_x][i_y].g*255.0f);
-         oclCanvasData.get()[offset+2] = (cl_uchar)(canvasData_[i_x][i_y].b*255.0f);
-         oclCanvasData.get()[offset+3] = (cl_uchar)255;
-      }
-   }
+			oclCanvasData.get()[offset+0] = (cl_uchar)(canvasData_[i_x][i_y].r*255.0f);
+			oclCanvasData.get()[offset+1] = (cl_uchar)(canvasData_[i_x][i_y].g*255.0f);
+			oclCanvasData.get()[offset+2] = (cl_uchar)(canvasData_[i_x][i_y].b*255.0f);
+			oclCanvasData.get()[offset+3] = (cl_uchar)255;
+		}
+	}
 
-   return std::tuple<std::shared_ptr<cl_uchar>, std::size_t>(oclCanvasData, 4*this->getNPixels());
+	return std::tuple<std::shared_ptr<cl_uchar>, std::size_t>(oclCanvasData, 4*this->getNPixels());
 }
 
 
@@ -111,28 +111,29 @@ std::tuple<std::shared_ptr<cl_uchar>, std::size_t> GOpenCLCanvas::getOpenCLCanva
  * Loads the canvas data from a cl_uchar array
  */
 void GOpenCLCanvas::loadFromOpenCLArrayI(const std::tuple<std::shared_ptr<cl_uchar>, std::size_t>& c) {
-   std::shared_ptr<cl_uchar> oclCanvasData = std::get<0>(c);
-   std::size_t nEntries = std::get<1>(c);
+	std::shared_ptr<cl_uchar> oclCanvasData = std::get<0>(c);
+	std::size_t nEntries = std::get<1>(c);
 
-   // Check that our dimension fit the number of entries in the array
-   if(xDim_*yDim_*4 != nEntries) {
-      glogger
-      << "In GOpenCLCanvas::loadFromOpenCLArray(): Error!" << std::endl
-      << "Dimensions don't fit: " << xDim_ << "/" << yDim_ << "/" << 4*xDim_*yDim_ << "/" << nEntries << std::endl
-      << GEXCEPTION;
-   }
+	// Check that our dimension fit the number of entries in the array
+	if(xDim_*yDim_*4 != nEntries) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOpenCLCanvas::loadFromOpenCLArray(): Error!" << std::endl
+				<< "Dimensions don't fit: " << xDim_ << "/" << yDim_ << "/" << 4*xDim_*yDim_ << "/" << nEntries << std::endl
+		);
+	}
 
-   // Transfer the data row-wise into the canvas
-   std::size_t offset = 0;
-   for(std::size_t i_y=0; i_y<yDim_; i_y++) {
-      for(std::size_t i_x=0; i_x<xDim_; i_x++) {
-         offset = 4*(i_y*xDim_ + i_x);
+	// Transfer the data row-wise into the canvas
+	std::size_t offset = 0;
+	for(std::size_t i_y=0; i_y<yDim_; i_y++) {
+		for(std::size_t i_x=0; i_x<xDim_; i_x++) {
+			offset = 4*(i_y*xDim_ + i_x);
 
-         canvasData_[i_x][i_y].r = (float)(oclCanvasData.get()[offset+0])/255.f;
-         canvasData_[i_x][i_y].g = (float)(oclCanvasData.get()[offset+1])/255.f;
-         canvasData_[i_x][i_y].b = (float)(oclCanvasData.get()[offset+2])/255.f;
-      }
-   }
+			canvasData_[i_x][i_y].r = (float)(oclCanvasData.get()[offset+0])/255.f;
+			canvasData_[i_x][i_y].g = (float)(oclCanvasData.get()[offset+1])/255.f;
+			canvasData_[i_x][i_y].b = (float)(oclCanvasData.get()[offset+2])/255.f;
+		}
+	}
 }
 
 /******************************************************************************/
@@ -140,23 +141,23 @@ void GOpenCLCanvas::loadFromOpenCLArrayI(const std::tuple<std::shared_ptr<cl_uch
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
 std::tuple<std::shared_ptr<cl_float>, std::size_t> GOpenCLCanvas::getOpenCLCanvasF() const {
-   std::shared_ptr<cl_float> oclCanvasData(
+	std::shared_ptr<cl_float> oclCanvasData(
 		new cl_float[4*this->getNPixels()]
 		, [](cl_float *a){ delete [] a; }
 	);
-   std::size_t offset = 0;
-   for(std::size_t i_y=0; i_y<yDim_; i_y++) {
-      for(std::size_t i_x=0; i_x<xDim_; i_x++) {
-         offset = 4*(i_y*xDim_ + i_x);
+	std::size_t offset = 0;
+	for(std::size_t i_y=0; i_y<yDim_; i_y++) {
+		for(std::size_t i_x=0; i_x<xDim_; i_x++) {
+			offset = 4*(i_y*xDim_ + i_x);
 
-         oclCanvasData.get()[offset + 0] = static_cast<cl_float>(canvasData_[i_x][i_y].r);
-         oclCanvasData.get()[offset + 1] = static_cast<cl_float>(canvasData_[i_x][i_y].g);
-         oclCanvasData.get()[offset + 2] = static_cast<cl_float>(canvasData_[i_x][i_y].b);
-         oclCanvasData.get()[offset + 3] = static_cast<cl_float>(255.f);
-      }
-   }
+			oclCanvasData.get()[offset + 0] = static_cast<cl_float>(canvasData_[i_x][i_y].r);
+			oclCanvasData.get()[offset + 1] = static_cast<cl_float>(canvasData_[i_x][i_y].g);
+			oclCanvasData.get()[offset + 2] = static_cast<cl_float>(canvasData_[i_x][i_y].b);
+			oclCanvasData.get()[offset + 3] = static_cast<cl_float>(255.f);
+		}
+	}
 
-   return std::tuple<std::shared_ptr<cl_float>, std::size_t>(oclCanvasData, 4*this->getNPixels());
+	return std::tuple<std::shared_ptr<cl_float>, std::size_t>(oclCanvasData, 4*this->getNPixels());
 }
 
 
@@ -165,28 +166,29 @@ std::tuple<std::shared_ptr<cl_float>, std::size_t> GOpenCLCanvas::getOpenCLCanva
  * Loads the canvas data from a cl_uchar array
  */
 void GOpenCLCanvas::loadFromOpenCLArrayF(const std::tuple<std::shared_ptr<cl_float>, std::size_t>& c) {
-   std::shared_ptr<cl_float> oclCanvasData = std::get<0>(c);
-   std::size_t nEntries = std::get<1>(c);
+	std::shared_ptr<cl_float> oclCanvasData = std::get<0>(c);
+	std::size_t nEntries = std::get<1>(c);
 
-   // Check that our dimension fit the number of entries in the array
-   if(4*xDim_*yDim_ != nEntries) {
-      glogger
-      << "In GOpenCLCanvas::loadFromOpenCLArrayF(): Error!" << std::endl
-      << "Dimensions don't fit: " << xDim_ << "/" << yDim_ << "/" << 4*xDim_*yDim_ << "/" << nEntries << std::endl
-      << GEXCEPTION;
-   }
+	// Check that our dimension fit the number of entries in the array
+	if(4*xDim_*yDim_ != nEntries) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOpenCLCanvas::loadFromOpenCLArrayF(): Error!" << std::endl
+				<< "Dimensions don't fit: " << xDim_ << "/" << yDim_ << "/" << 4*xDim_*yDim_ << "/" << nEntries << std::endl
+		);
+	}
 
-   // Transfer the data row-wise into the canvas
-   std::size_t offset = 0;
-   for(std::size_t i_y=0; i_y<yDim_; i_y++) {
-      for(std::size_t i_x=0; i_x<xDim_; i_x++) {
-         offset = 4*(i_y*xDim_ + i_x);
+	// Transfer the data row-wise into the canvas
+	std::size_t offset = 0;
+	for(std::size_t i_y=0; i_y<yDim_; i_y++) {
+		for(std::size_t i_x=0; i_x<xDim_; i_x++) {
+			offset = 4*(i_y*xDim_ + i_x);
 
-         canvasData_[i_x][i_y].r = static_cast<float>(oclCanvasData.get()[offset + 0]);
-         canvasData_[i_x][i_y].g = static_cast<float>(oclCanvasData.get()[offset + 1]);
-         canvasData_[i_x][i_y].b = static_cast<float>(oclCanvasData.get()[offset + 2]);
-      }
-   }
+			canvasData_[i_x][i_y].r = static_cast<float>(oclCanvasData.get()[offset + 0]);
+			canvasData_[i_x][i_y].g = static_cast<float>(oclCanvasData.get()[offset + 1]);
+			canvasData_[i_x][i_y].b = static_cast<float>(oclCanvasData.get()[offset + 2]);
+		}
+	}
 }
 
 /******************************************************************************/
@@ -194,23 +196,23 @@ void GOpenCLCanvas::loadFromOpenCLArrayF(const std::tuple<std::shared_ptr<cl_flo
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
 std::tuple<std::shared_ptr<cl_float4>, std::size_t> GOpenCLCanvas::getOpenCLCanvasF4() const {
-   std::shared_ptr<cl_float4> oclCanvasData(
+	std::shared_ptr<cl_float4> oclCanvasData(
 		new cl_float4[this->getNPixels()]
 		, [](cl_float4 *a){ delete [] a; }
 	);
-   std::size_t offset = 0;
-   for(std::size_t i_y=0; i_y<yDim_; i_y++) {
-      for(std::size_t i_x=0; i_x<xDim_; i_x++) {
-         offset = i_y*xDim_ + i_x;
+	std::size_t offset = 0;
+	for(std::size_t i_y=0; i_y<yDim_; i_y++) {
+		for(std::size_t i_x=0; i_x<xDim_; i_x++) {
+			offset = i_y*xDim_ + i_x;
 
-         oclCanvasData.get()[offset].s[0] = static_cast<cl_float>(canvasData_[i_x][i_y].r);
-         oclCanvasData.get()[offset].s[1] = static_cast<cl_float>(canvasData_[i_x][i_y].g);
-         oclCanvasData.get()[offset].s[2] = static_cast<cl_float>(canvasData_[i_x][i_y].b);
-         oclCanvasData.get()[offset].s[3] = static_cast<cl_float>(255.f);
-      }
-   }
+			oclCanvasData.get()[offset].s[0] = static_cast<cl_float>(canvasData_[i_x][i_y].r);
+			oclCanvasData.get()[offset].s[1] = static_cast<cl_float>(canvasData_[i_x][i_y].g);
+			oclCanvasData.get()[offset].s[2] = static_cast<cl_float>(canvasData_[i_x][i_y].b);
+			oclCanvasData.get()[offset].s[3] = static_cast<cl_float>(255.f);
+		}
+	}
 
-   return std::tuple<std::shared_ptr<cl_float4>, std::size_t>(oclCanvasData, this->getNPixels());
+	return std::tuple<std::shared_ptr<cl_float4>, std::size_t>(oclCanvasData, this->getNPixels());
 }
 
 
@@ -219,28 +221,29 @@ std::tuple<std::shared_ptr<cl_float4>, std::size_t> GOpenCLCanvas::getOpenCLCanv
  * Loads the canvas data from a cl_uchar array
  */
 void GOpenCLCanvas::loadFromOpenCLArrayF4(const std::tuple<std::shared_ptr<cl_float4>, std::size_t>& c) {
-   std::shared_ptr<cl_float4> oclCanvasData = std::get<0>(c);
-   std::size_t nEntries = std::get<1>(c);
+	std::shared_ptr<cl_float4> oclCanvasData = std::get<0>(c);
+	std::size_t nEntries = std::get<1>(c);
 
-   // Check that our dimension fit the number of entries in the array
-   if(xDim_*yDim_ != nEntries) {
-      glogger
-      << "In GOpenCLCanvas::loadFromOpenCLArrayF4(): Error!" << std::endl
-      << "Dimensions don't fit: " << xDim_ << "/" << yDim_ << "/" << xDim_*yDim_ << "/" << nEntries << std::endl
-      << GEXCEPTION;
-   }
+	// Check that our dimension fit the number of entries in the array
+	if(xDim_*yDim_ != nEntries) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOpenCLCanvas::loadFromOpenCLArrayF4(): Error!" << std::endl
+				<< "Dimensions don't fit: " << xDim_ << "/" << yDim_ << "/" << xDim_*yDim_ << "/" << nEntries << std::endl
+		);
+	}
 
-   // Transfer the data row-wise into the canvas
-   std::size_t offset = 0;
-   for(std::size_t i_y=0; i_y<yDim_; i_y++) {
-      for(std::size_t i_x=0; i_x<xDim_; i_x++) {
-         offset = i_y*xDim_ + i_x;
+	// Transfer the data row-wise into the canvas
+	std::size_t offset = 0;
+	for(std::size_t i_y=0; i_y<yDim_; i_y++) {
+		for(std::size_t i_x=0; i_x<xDim_; i_x++) {
+			offset = i_y*xDim_ + i_x;
 
-         canvasData_[i_x][i_y].r = static_cast<float>(oclCanvasData.get()[offset].s[0]);
-         canvasData_[i_x][i_y].g = static_cast<float>(oclCanvasData.get()[offset].s[1]);
-         canvasData_[i_x][i_y].b = static_cast<float>(oclCanvasData.get()[offset].s[2]);
-      }
-   }
+			canvasData_[i_x][i_y].r = static_cast<float>(oclCanvasData.get()[offset].s[0]);
+			canvasData_[i_x][i_y].g = static_cast<float>(oclCanvasData.get()[offset].s[1]);
+			canvasData_[i_x][i_y].b = static_cast<float>(oclCanvasData.get()[offset].s[2]);
+		}
+	}
 }
 
 /******************************************************************************/
@@ -248,7 +251,7 @@ void GOpenCLCanvas::loadFromOpenCLArrayF4(const std::tuple<std::shared_ptr<cl_fl
   * Convenience function for the calculation of the difference between two canvasses
   */
 float operator-(const GOpenCLCanvas& x, const GOpenCLCanvas& y) {
-   return x.diff(y);
+	return x.diff(y);
 }
 
 /******************************************************************************/

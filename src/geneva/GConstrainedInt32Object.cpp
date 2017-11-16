@@ -271,10 +271,11 @@ void GConstrainedInt32Object::assignInt32ValueVector(
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-	   glogger
-	   << "In GConstrainedInt32Object::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
-      << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GConstrainedInt32Object::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
+				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+		);
 	}
 #endif
 
@@ -436,7 +437,7 @@ bool GConstrainedInt32Object::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GConstrainedInt32Object::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GConstrainedInt32Object::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -473,7 +474,7 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -509,7 +510,7 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

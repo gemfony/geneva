@@ -70,7 +70,7 @@ GParsableI::GParsableI(
 	const std::string &optionNameVar, const std::string &commentVar
 )
 	: m_option_name(GParsableI::makeVector(optionNameVar)), m_comment(GParsableI::makeVector(commentVar)),
-	  m_cl(0) { /* nothing */ }
+	m_cl(0) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -93,11 +93,12 @@ GParsableI::~GParsableI() { /* nothing */ }
  */
 std::string GParsableI::optionName(std::size_t pos) const {
 	if (m_option_name.size() <= pos) {
-		glogger
-		<< "In GParsableI::optionName(std::size_t): Error!" << std::endl
-		<< "Tried to access item at position " << pos << std::endl
-		<< "where the size of the vector is " << m_option_name.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParsableI::optionName(std::size_t): Error!" << std::endl
+				<< "Tried to access item at position " << pos << std::endl
+				<< "where the size of the vector is " << m_option_name.size() << std::endl
+		);
 	}
 
 	return m_option_name.at(pos);
@@ -109,11 +110,12 @@ std::string GParsableI::optionName(std::size_t pos) const {
  */
 std::string GParsableI::comment(std::size_t pos) const {
 	if (m_comment.size() <= pos) {
-		glogger
-		<< "In GParsableI::m_comment(std::size_t): Error!" << std::endl
-		<< "Tried to access item at position " << pos << std::endl
-		<< "where the size of the vector is " << m_comment.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParsableI::m_comment(std::size_t): Error!" << std::endl
+				<< "Tried to access item at position " << pos << std::endl
+				<< "where the size of the vector is " << m_comment.size() << std::endl
+		);
 	}
 
 	return m_comment.at(pos);
@@ -174,19 +176,21 @@ GParsableI &GParsableI::operator<<(std::ios_base &( *val )(std::ios_base &)) {
  */
 GParsableI &GParsableI::operator<<(const commentLevel &cl) {
 #ifdef DEBUG
-   if(m_comment.empty()) {
-      glogger
-       << "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
-       << "No comments in vector" << std::endl
-       << GEXCEPTION;
-   }
+	if(m_comment.empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
+				<< "No comments in vector" << std::endl
+		);
+	}
 
-   if(m_comment.size() <= cl.getCommentLevel()) {
-      glogger
-      << "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
-      << "Invalid comment level " << cl.getCommentLevel() << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
-      << GEXCEPTION;
-   }
+	if(m_comment.size() <= cl.getCommentLevel()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
+				<< "Invalid comment level " << cl.getCommentLevel() << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	m_cl = cl.getCommentLevel();
@@ -199,19 +203,21 @@ GParsableI &GParsableI::operator<<(const commentLevel &cl) {
  */
 GParsableI &GParsableI::operator<<(const nextComment &nC) {
 #ifdef DEBUG
-   if(m_comment.empty()) {
-      glogger
-       << "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
-       << "No comments in vector" << std::endl
-       << GEXCEPTION;
-   }
+	if(m_comment.empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
+				<< "No comments in vector" << std::endl
+		);
+	}
 
-   if(m_comment.size() <= (m_cl+1)) {
-      glogger
-      << "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
-      << "Invalid comment level " << m_cl+1 << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
-      << GEXCEPTION;
-   }
+	if(m_comment.size() <= (m_cl+1)) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
+				<< "Invalid comment level " << m_cl+1 << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	// Increment the comment level
@@ -325,7 +331,7 @@ GCLParsableI::~GCLParsableI() { /* nothing */ }
 GParserBuilder::GParserBuilder()
 	: m_configfile_Base_name("empty") {
 #if defined(_MSC_VER)  && (_MSC_VER >= 1020)
-   char* jsonBaseName_ch = 0;
+	char* jsonBaseName_ch = 0;
    size_t sz = 0;
    if (0 == _dupenv_s(&jsonBaseName_ch, &sz, "GENEVA_CONFIG_BASENAME") && nullptr != jsonBaseName_ch) {
       // Only convert to a string if the environment variable exists
@@ -388,10 +394,10 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 		// If not, create a default version
 		if (!bf::exists(configFile_withBase)) {
 			glogger
-			<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
-			<< "Configuration file " << configFile_withBase << " does not exist." << std::endl
-			<< "We will try to create a file with default values for you." << std::endl
-			<< GLOGGING;
+				<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
+				<< "Configuration file " << configFile_withBase << " does not exist." << std::endl
+				<< "We will try to create a file with default values for you." << std::endl
+				<< GLOGGING;
 
 			std::string header = "This configuration file was automatically created by GParserBuilder;";
 			this->writeConfigFile(
@@ -402,18 +408,20 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 		} else { // configFile exists
 			// Is it a regular file ?
 			if (!bf::is_regular_file(configFile_withBase)) {
-				glogger
-				<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
-				<< configFile_withBase << " exists but is no regular file." << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
+						<< configFile_withBase << " exists but is no regular file." << std::endl
+				);
 			}
 
 			// We require the file to have the json extension
 			if (!bf::path(configFile_withBase).has_extension() || bf::path(configFile_withBase).extension() != ".json") {
-				glogger
-				<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
-				<< configFile_withBase << " does not have the required extension \".json\"" << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
+						<< configFile_withBase << " does not have the required extension \".json\"" << std::endl
+				);
 			}
 		}
 
@@ -429,20 +437,20 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 		result = true;
 	} catch (const gemfony_exception &e) {
 		glogger
-		<< "Caught gemfony_exception when parsing configuration file " << configFile_withBase << ":" << std::endl
-		<< e.what() << std::endl
-		<< GLOGGING;
+			<< "Caught gemfony_exception when parsing configuration file " << configFile_withBase << ":" << std::endl
+			<< e.what() << std::endl
+			<< GLOGGING;
 		result = false;
 	} catch (const std::exception &e) {
 		glogger
-		<< "Caught std::exception when parsing configuration file " << configFile_withBase << ":" << std::endl
-		<< e.what() << std::endl
-		<< GLOGGING;
+			<< "Caught std::exception when parsing configuration file " << configFile_withBase << ":" << std::endl
+			<< e.what() << std::endl
+			<< GLOGGING;
 		result = false;
 	} catch (...) {
 		glogger
-		<< "Unknown error while parsing the configuration file " << configFile_withBase << std::endl
-		<< GLOGGING;
+			<< "Unknown error while parsing the configuration file " << configFile_withBase << std::endl
+			<< GLOGGING;
 		result = false;
 	}
 
@@ -480,53 +488,59 @@ void GParserBuilder::writeConfigFile(
 	{
 		// Is configFile a directory ?
 		if (is_directory(configFile_withBase)) {
-			glogger
-			<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-			<< configFile_withBase << " is a directory." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+					<< configFile_withBase << " is a directory." << std::endl
+			);
 		}
 
 		// We do not allow to overwrite existing files
 		if (exists(configFile_withBase) && is_regular_file(configFile_withBase)) {
-			glogger
-			<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-			<< "You have specified an existing file (" << configFile_withBase << ")." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+					<< "You have specified an existing file (" << configFile_withBase << ")." << std::endl
+			);
 		}
 
 		// Check that the target path exists and is a directory
 		if (!exists(path(configFile_withBase).remove_filename()) ||
 			 !is_directory(path(configFile_withBase).remove_filename())) {
-			glogger
-			<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-			<< "The target path " << path(configFile_withBase).remove_filename() <<
-			" does not exist or is no directory." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+					<< "The target path " << path(configFile_withBase).remove_filename() <<
+					" does not exist or is no directory." << std::endl
+			);
 		}
 
 		// Check that the configuration file has the required extension
 		if (!path(configFile_withBase).has_extension() || path(configFile_withBase).extension() != ".json") {
-			glogger
-			<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-			<< configFile_withBase << " does not have the required extension \".json\"" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
+					<< configFile_withBase << " does not have the required extension \".json\"" << std::endl
+			);
 		}
 	}
 
 	// Open the required configuration file
 	boost::filesystem::ofstream ofs(configFile_withBase);
 	if (!ofs) {
-		glogger
-		<< "In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile_withBase <<
-		std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile_withBase <<
+				std::endl
+		);
 	}
 
 	// Do some error checking
 	if (m_file_parameter_proxies.size() == 0) {
-		glogger
-		<< "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
+		);
 	}
 
 	// Create a property tree object;
@@ -593,7 +607,7 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
 
 		// Add further options from the parameter objects
 		std::vector<std::shared_ptr < GCLParsableI>> ::iterator
-		it;
+			it;
 		for (it = m_cl_parameter_proxies.begin(); it != m_cl_parameter_proxies.end(); ++it) {
 			(*it)->save(desc);
 		}
@@ -610,8 +624,8 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
 		} else {
 			if (verbose) {
 				std::cout
-				<< "GParserBuilder::parseCommandLine():" << std::endl
-				<< "Working with the following options:" << std::endl;
+					<< "GParserBuilder::parseCommandLine():" << std::endl
+					<< "Working with the following options:" << std::endl;
 				for (it = m_cl_parameter_proxies.begin(); it != m_cl_parameter_proxies.end(); ++it) {
 					std::cout << (*it)->content() << std::endl;
 				}
@@ -620,15 +634,15 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
 		}
 	} catch (const po::error &e) {
 		glogger
-		<< "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
-		<< "Error parsing the command line:" << std::endl
-		<< e.what() << std::endl
-		<< GTERMINATION;
+			<< "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
+			<< "Error parsing the command line:" << std::endl
+			<< e.what() << std::endl
+			<< GTERMINATION;
 	} catch (...) {
 		glogger
-		<< "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
-		<< "Unknown error while parsing the command line" << std::endl
-		<< GTERMINATION;
+			<< "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
+			<< "Unknown error while parsing the command line" << std::endl
+			<< GTERMINATION;
 	}
 
 	return result;

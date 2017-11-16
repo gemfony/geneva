@@ -159,10 +159,11 @@ std::string GBaseParChildPersonalityTraits::name() const {
  * Retrieves the mnemonic of the optimization algorithm
  */
 std::string GBaseParChildPersonalityTraits::getMnemonic() const {
-	glogger
-		<< "In GBaseParChildPersonalityTraits::getMnemonic(): Error!" << std::endl
-		<< "This function should never have been called" << std::endl
-		<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GBaseParChildPersonalityTraits::getMnemonic(): Error!" << std::endl
+			<< "This function should never have been called" << std::endl
+	);
 
 	return "none";
 }
@@ -315,10 +316,11 @@ void GBaseParChildPersonalityTraits::setParentId(const std::size_t &parentId) {
 std::size_t GBaseParChildPersonalityTraits::getParentId() const {
 	if (parentId_ >= 0) return parentId_;
 	else {
-		glogger
-			<< "In GBaseParChildPersonalityTraits::getParentId():" << std::endl
-			<< "parentId_ is unset" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBaseParChildPersonalityTraits::getParentId():" << std::endl
+				<< "parentId_ is unset" << std::endl
+		);
 	}
 
 	// Make the compiler happy

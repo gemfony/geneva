@@ -43,10 +43,10 @@ namespace Geneva {
  */
 GParameterBase::GParameterBase()
 	: GObject()
-  	, GMutableParameterI()
-  	, adaptionsActive_(true)
-  	, randomInitializationBlocked_(false)
-  	, parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
+	  , GMutableParameterI()
+	  , adaptionsActive_(true)
+	  , randomInitializationBlocked_(false)
+	  , parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -57,10 +57,10 @@ GParameterBase::GParameterBase()
  */
 GParameterBase::GParameterBase(const GParameterBase &cp)
 	: GObject(cp)
-  	, GMutableParameterI(cp)
-  	, adaptionsActive_(cp.adaptionsActive_)
-  	, randomInitializationBlocked_(cp.randomInitializationBlocked_)
-  	, parameterName_(cp.parameterName_)
+	  , GMutableParameterI(cp)
+	  , adaptionsActive_(cp.adaptionsActive_)
+	  , randomInitializationBlocked_(cp.randomInitializationBlocked_)
+	  , parameterName_(cp.parameterName_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -293,18 +293,20 @@ bool GParameterBase::amMatch(const activityMode &am) const {
 			break;
 
 		default: {
-			glogger
-			<< "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
-			<< "Got invalid activity mode " << am << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
+					<< "Got invalid activity mode " << am << std::endl
+			);
 		}
 			break;
 	}
 
-	glogger
-	<< "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
-	<< "This line should never be reached" << std::endl
-	<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
+			<< "This line should never be reached" << std::endl
+	);
 
 	// Make the compiler happy
 	return false;
@@ -827,10 +829,11 @@ void GParameterBase::booleanMultiplyByRandom(
 	, Gem::Hap::GRandomBase& gr
 ) {
 	// Complain: This function should not be called for boolean values
-	glogger
-	<< "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << std::endl
-	<< "This function should not be called for boolean parameters" << std::endl
-	<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GParameterBase::booleanMultiplyByRandom(min,max): Error!" << std::endl
+			<< "This function should not be called for boolean parameters" << std::endl
+	);
 }
 
 /******************************************************************************/
@@ -875,10 +878,11 @@ void GParameterBase::booleanMultiplyByRandom(
 	, Gem::Hap::GRandomBase& gr
 ) {
 	// Complain: This function should not be called for boolean values
-	glogger
-	<< "In GParameterBase::booleanMultiplyByRandom(): Error!" << std::endl
-	<< "This function should not be called for boolean parameters" << std::endl
-	<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GParameterBase::booleanMultiplyByRandom(): Error!" << std::endl
+			<< "This function should not be called for boolean parameters" << std::endl
+	);
 }
 
 /******************************************************************************/
@@ -886,7 +890,8 @@ void GParameterBase::booleanMultiplyByRandom(
  * Multiplication with a constant value
  */
 void GParameterBase::floatMultiplyBy(
-	const float &value, const activityMode &am
+	const float &value
+	, const activityMode &am
 ) {
 	/* Do nothing by default */
 }
@@ -896,7 +901,8 @@ void GParameterBase::floatMultiplyBy(
  * Multiplication with a constant value
  */
 void GParameterBase::doubleMultiplyBy(
-	const double &value, const activityMode &am
+	const double &value
+	, const activityMode &am
 ) {
 	/* Do nothing by default */
 }
@@ -906,7 +912,8 @@ void GParameterBase::doubleMultiplyBy(
  * Multiplication with a constant value
  */
 void GParameterBase::int32MultiplyBy(
-	const std::int32_t &value, const activityMode &am
+	const std::int32_t &value
+	, const activityMode &am
 ) {
 	/* Do nothing by default */
 }
@@ -916,13 +923,15 @@ void GParameterBase::int32MultiplyBy(
  * Multiplication with a random value in the range [0,1[
  */
 void GParameterBase::booleanMultiplyBy(
-	const bool &value, const activityMode &am
+	const bool &value
+	, const activityMode &am
 ) {
 	// Complain: This function should not be called for boolean values
-	glogger
-	<< "In GParameterBase::booleanMultiplyBy(): Error!" << std::endl
-	<< "This function should not be called for boolean parameters" << std::endl
-	<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GParameterBase::booleanMultiplyBy(): Error!" << std::endl
+			<< "This function should not be called for boolean parameters" << std::endl
+	);
 }
 
 /******************************************************************************/
@@ -930,7 +939,8 @@ void GParameterBase::booleanMultiplyBy(
  * Initialization with a constant value
  */
 void GParameterBase::floatFixedValueInit(
-	const float &value, const activityMode &am
+	const float &value
+	, const activityMode &am
 ) {
 	/* Do nothing by default */
 }
@@ -950,7 +960,8 @@ void GParameterBase::doubleFixedValueInit(
  * Initialization with a constant value
  */
 void GParameterBase::int32FixedValueInit(
-	const std::int32_t &value, const activityMode &am
+	const std::int32_t &value
+	, const activityMode &am
 ) {
 	/* Do nothing by default */
 }
@@ -960,7 +971,8 @@ void GParameterBase::int32FixedValueInit(
  * Initialization with a constant value
  */
 void GParameterBase::booleanFixedValueInit(
-	const bool &value, const activityMode &am
+	const bool &value
+	, const activityMode &am
 ) {
 	/* Do nothing by default */
 }
@@ -970,8 +982,8 @@ void GParameterBase::booleanFixedValueInit(
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::floatAdd(
-	std::shared_ptr < GParameterBase > , const
-activityMode &am
+	std::shared_ptr < GParameterBase >
+	, const activityMode &am
 ) {
 /* Do nothing by default */
 }
@@ -981,8 +993,8 @@ activityMode &am
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::doubleAdd(
-	std::shared_ptr < GParameterBase > , const
-activityMode &am
+	std::shared_ptr < GParameterBase >
+	, const activityMode &am
 ) {
 /* Do nothing by default */
 }
@@ -992,8 +1004,8 @@ activityMode &am
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::int32Add(
-	std::shared_ptr < GParameterBase > , const
-activityMode &am
+	std::shared_ptr < GParameterBase >
+	, const activityMode &am
 ) {
 /* Do nothing by default */
 }
@@ -1003,15 +1015,15 @@ activityMode &am
  * Adds the "same-type" parameters of another GParameterBase object to this one
  */
 void GParameterBase::booleanAdd(
-	std::shared_ptr < GParameterBase > , const
-activityMode &am
+	std::shared_ptr < GParameterBase >
+	, const activityMode &am
 ) {
 // Complain: This function should not be called for boolean values
-glogger
-<< "In GParameterBase::booleanAdd(): Error!" << std::endl
-<< "This function should not be called for boolean parameters" << std::endl
-<<
-GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GParameterBase::booleanAdd(): Error!" << std::endl
+			<< "This function should not be called for boolean parameters" << std::endl
+	);
 }
 
 /******************************************************************************/
@@ -1019,8 +1031,8 @@ GEXCEPTION;
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::floatSubtract(
-	std::shared_ptr < GParameterBase > , const
-activityMode &am
+	std::shared_ptr < GParameterBase >
+	, const activityMode &am
 ) {
 /* Do nothing by default */
 }
@@ -1030,8 +1042,8 @@ activityMode &am
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::doubleSubtract(
-	std::shared_ptr < GParameterBase > , const
-activityMode &am
+	std::shared_ptr < GParameterBase >
+	, const activityMode &am
 ) {
 /* Do nothing by default */
 }
@@ -1041,8 +1053,8 @@ activityMode &am
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::int32Subtract(
-	std::shared_ptr < GParameterBase > , const
-activityMode &am
+	std::shared_ptr < GParameterBase >
+	, const activityMode &am
 ) {
 /* Do nothing by default */
 }
@@ -1052,15 +1064,15 @@ activityMode &am
  * Subtracts the "same-type" parameters of another GParameterBase object from this one
  */
 void GParameterBase::booleanSubtract(
-	std::shared_ptr < GParameterBase > , const
-activityMode &am
+	std::shared_ptr < GParameterBase >
+	, const activityMode &am
 ) {
-// Complain: This function should not be called for boolean values
-glogger
-<< "In GParameterBase::booleanSubtract(): Error!" << std::endl
-<< "This function should not be called for boolean parameters" << std::endl
-<<
-GEXCEPTION;
+	// Complain: This function should not be called for boolean values
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GParameterBase::booleanSubtract(): Error!" << std::endl
+			<< "This function should not be called for boolean parameters" << std::endl
+	);
 }
 
 /******************************************************************************/
@@ -1118,7 +1130,7 @@ bool GParameterBase::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GParameterBase::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterBase::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -1260,7 +1272,7 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GParameterBase::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterBase::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1282,7 +1294,7 @@ void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
 	//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GParameterBase::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterBase::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

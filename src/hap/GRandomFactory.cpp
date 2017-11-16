@@ -67,10 +67,10 @@ GRandomFactory::GRandomFactory() {
 
 	if (m_multiple_call_trap) {
 		glogger
-		<< "Error in GRandomFactory::GRandomFactory():" << std::endl
-		<< "Class has been instantiated before." << std::endl
-		<< "and may be instantiated only once" << std::endl
-		<< GTERMINATION;
+			<< "Error in GRandomFactory::GRandomFactory():" << std::endl
+			<< "Class has been instantiated before." << std::endl
+			<< "and may be instantiated only once" << std::endl
+			<< GTERMINATION;
 	} else {
 		m_multiple_call_trap.store(true);
 	}
@@ -299,10 +299,11 @@ void GRandomFactory::producer(std::uint32_t seed) {
 				// First do some error-checking
 #ifdef DEBUG
 				if(!p) {
-					glogger
-						<< "In RandomFactory::producer(): Error!" << std::endl
-						<< "Got empty recycling pointer" << std::endl
-						<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG,  time_and_place)
+							<< "In RandomFactory::producer(): Error!" << std::endl
+							<< "Got empty recycling pointer" << std::endl
+					);
 				}
 
 #endif /* DEBUG */
@@ -319,10 +320,11 @@ void GRandomFactory::producer(std::uint32_t seed) {
 #ifdef DEBUG
 					// p should never be empty here
 					if(!p) {
-						glogger
-							<< "In RandomFactory::producer(): Error!" << std::endl
-							<< "Got empty pointer after unsuccesfull submission" << std::endl
-							<< GEXCEPTION;
+						throw gemfony_exception(
+							g_error_streamer(DO_LOG,  time_and_place)
+								<< "In RandomFactory::producer(): Error!" << std::endl
+								<< "Got empty pointer after unsuccesfull submission" << std::endl
+						);
 					}
 #endif
 					std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -333,29 +335,33 @@ void GRandomFactory::producer(std::uint32_t seed) {
 			}
 		}
 	} catch (std::bad_alloc &e) {
-		glogger
-			<< "In GRandomFactory::producer(): Error!" << std::endl
-			<< "Caught std::bad_alloc exception with message" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GRandomFactory::producer(): Error!" << std::endl
+				<< "Caught std::bad_alloc exception with message" << std::endl
+				<< e.what() << std::endl
+		);
 	} catch (std::invalid_argument &e) {
-		glogger
-			<< "In GRandomFactory::producer(): Error!" << std::endl
-			<< "Caught std::invalid_argument exception with message" << std::endl
-			<< e.what() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GRandomFactory::producer(): Error!" << std::endl
+				<< "Caught std::invalid_argument exception with message" << std::endl
+				<< e.what() << std::endl
+		);
 	} catch (std::system_error& e) {
-		glogger
-			<< "In GRandomFactory::producer(): Error!" << std::endl
-			<< "Caught std::system_error exception with message" << std::endl
-			<< e.what() << std::endl
-			<< "which might indicate that a mutex could not be locked." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GRandomFactory::producer(): Error!" << std::endl
+				<< "Caught std::system_error exception with message" << std::endl
+				<< e.what() << std::endl
+				<< "which might indicate that a mutex could not be locked." << std::endl
+		);
 	} catch (...) {
-		glogger
-			<< "In GRandomFactory::producer(): Error!" << std::endl
-			<< "Caught unkown exception." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GRandomFactory::producer(): Error!" << std::endl
+				<< "Caught unkown exception." << std::endl
+		);
 	}
 }
 

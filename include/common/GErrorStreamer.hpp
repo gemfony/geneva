@@ -139,6 +139,7 @@ public:
 	  * @return A string with the content of the wrapped string_error_streamer object.
 	  */
 	 operator std::string() const {
+		 using namespace Gem::Common;
 		 if(m_do_log) {
 			 glogger
 				 << "========================================================" << std::endl

@@ -61,13 +61,13 @@ GOptimizableEntity::GOptimizableEntity()
  */
 GOptimizableEntity::GOptimizableEntity(const std::size_t &nFitnessCriteria)
 	: G_Interface_Mutable()
-	, G_Interface_Rateable()
-	, GObject()
-	, m_n_fitness_criteria(nFitnessCriteria ? nFitnessCriteria : 1) // Note: Thus function will silently assign a minimum of 1 to m_n_fitness_criteria
-	, m_current_fitness_vec(m_n_fitness_criteria)
-	, m_worst_known_valids_vec(m_n_fitness_criteria)
-	, m_marked_as_invalid_by_user(OE_NOT_MARKED_AS_INVALID) // Means: the object has not been marked as invalid by the user in the evaluation function
-	, m_best_past_primary_fitness(std::make_tuple(0., 0.))
+	  , G_Interface_Rateable()
+	  , GObject()
+	  , m_n_fitness_criteria(nFitnessCriteria ? nFitnessCriteria : 1) // Note: Thus function will silently assign a minimum of 1 to m_n_fitness_criteria
+	  , m_current_fitness_vec(m_n_fitness_criteria)
+	  , m_worst_known_valids_vec(m_n_fitness_criteria)
+	  , m_marked_as_invalid_by_user(OE_NOT_MARKED_AS_INVALID) // Means: the object has not been marked as invalid by the user in the evaluation function
+	  , m_best_past_primary_fitness(std::make_tuple(0., 0.))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -78,25 +78,25 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t &nFitnessCriteria)
  */
 GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity &cp)
 	: G_Interface_Mutable(cp)
-	, G_Interface_Rateable(cp)
-	, GObject(cp)
-	, m_n_fitness_criteria(cp.m_n_fitness_criteria)
-	, m_current_fitness_vec(cp.m_current_fitness_vec)
-	, m_worst_known_valids_vec(cp.m_worst_known_valids_vec)
-	, m_marked_as_invalid_by_user(cp.m_marked_as_invalid_by_user)
-	, m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
-	, m_n_stalls(cp.m_n_stalls)
-	, m_dirty_flag(cp.m_dirty_flag)
-	, m_maximize(cp.m_maximize)
-	, m_assigned_iteration(cp.m_assigned_iteration)
-	, m_validity_level(cp.m_validity_level)
-	, m_eval_policy(cp.m_eval_policy)
-	, m_sigmoid_steepness(cp.m_sigmoid_steepness)
-	, m_sigmoid_extremes(cp.m_sigmoid_extremes)
-	, m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
-	, m_max_retries_until_valid(cp.m_max_retries_until_valid)
-	, m_n_adaptions(cp.m_n_adaptions)
-	, m_evaluation_id(cp.m_evaluation_id)
+	  , G_Interface_Rateable(cp)
+	  , GObject(cp)
+	  , m_n_fitness_criteria(cp.m_n_fitness_criteria)
+	  , m_current_fitness_vec(cp.m_current_fitness_vec)
+	  , m_worst_known_valids_vec(cp.m_worst_known_valids_vec)
+	  , m_marked_as_invalid_by_user(cp.m_marked_as_invalid_by_user)
+	  , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
+	  , m_n_stalls(cp.m_n_stalls)
+	  , m_dirty_flag(cp.m_dirty_flag)
+	  , m_maximize(cp.m_maximize)
+	  , m_assigned_iteration(cp.m_assigned_iteration)
+	  , m_validity_level(cp.m_validity_level)
+	  , m_eval_policy(cp.m_eval_policy)
+	  , m_sigmoid_steepness(cp.m_sigmoid_steepness)
+	  , m_sigmoid_extremes(cp.m_sigmoid_extremes)
+	  , m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
+	  , m_max_retries_until_valid(cp.m_max_retries_until_valid)
+	  , m_n_adaptions(cp.m_n_adaptions)
+	  , m_evaluation_id(cp.m_evaluation_id)
 {
 	// Copy the personality pointer over
 	Gem::Common::copyCloneableSmartPointer(cp.m_pt_ptr, m_pt_ptr);
@@ -218,10 +218,11 @@ void GOptimizableEntity::registerConstraint(
 	std::shared_ptr < GPreEvaluationValidityCheckT<GOptimizableEntity>> c_ptr
 ) {
 	if (!c_ptr) {
-		glogger
-		<< "In GOptimizableEntity::registerConstraint(): Error!" << std::endl
-		<< "Tried to register empty constraint object" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::registerConstraint(): Error!" << std::endl
+				<< "Tried to register empty constraint object" << std::endl
+		);
 	}
 
 	// We store clones, so individual objects do not share the same object
@@ -500,19 +501,21 @@ double GOptimizableEntity::fitness(
 			this->enforceFitnessUpdate();
 
 #ifdef DEBUG
-         // Check if the dirty flag is still set. This should only happen in special cases
-         if(true==m_dirty_flag) { // Note that m_dirty_flag may also assume the state boost::logic::indeterminate, if evaluation was delayed
-            glogger
-            << "In GOptimizableEntity::fitness(...): Error!" << std::endl
-            << "Dirty flag is still set in a location where it shouldn't be" << std::endl
-            << GEXCEPTION;
-         }
+			// Check if the dirty flag is still set. This should only happen in special cases
+			if(true==m_dirty_flag) { // Note that m_dirty_flag may also assume the state boost::logic::indeterminate, if evaluation was delayed
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GOptimizableEntity::fitness(...): Error!" << std::endl
+						<< "Dirty flag is still set in a location where it shouldn't be" << std::endl
+				);
+			}
 #endif /* DEBUG */
 		} else {
-			glogger
-			<< "In GOptimizableEntity::fitness():" << std::endl
-			<< "Tried to perform re-evaluation when this action was not allowed" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GOptimizableEntity::fitness():" << std::endl
+					<< "Tried to perform re-evaluation when this action was not allowed" << std::endl
+			);
 		}
 	}
 
@@ -543,13 +546,14 @@ double GOptimizableEntity::fitness(
 	const std::size_t &id, bool reevaluationAllowed, bool useTransformedFitness
 ) const {
 #ifdef DEBUG
-   // This function should only be called for clean (i.e. evaluated) individuals
-   if(!this->isClean()) {
-      glogger
-      << "In GOptimizableEntity::fitness(...) const: Error!" << std::endl
-      << "Dirty flag is still set in a location where it shouldn't be" << std::endl
-      << GEXCEPTION;
-   }
+	// This function should only be called for clean (i.e. evaluated) individuals
+	if(!this->isClean()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::fitness(...) const: Error!" << std::endl
+				<< "Dirty flag is still set in a location where it shouldn't be" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	// Return the desired result -- there should be no situation where the dirtyFlag is still set
@@ -584,12 +588,13 @@ void GOptimizableEntity::registerSecondaryResult(
 	const std::size_t &id, const double &secondaryValue
 ) {
 #ifdef DEBUG
-   if(m_current_fitness_vec.size() <= id || 0==id) {
-      glogger
-      << "In GOptimizableEntity::registerSecondaryResult(...): Error!" << std::endl
-      << "Invalid position in vector: " << id << " (expected min 1 and max " <<  m_current_fitness_vec.size()-1 << ")" << std::endl
-      << GEXCEPTION;
-   }
+	if(m_current_fitness_vec.size() <= id || 0==id) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::registerSecondaryResult(...): Error!" << std::endl
+				<< "Invalid position in vector: " << id << " (expected min 1 and max " <<  m_current_fitness_vec.size()-1 << ")" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(id)) = secondaryValue;
@@ -622,12 +627,13 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 
 			// Use the external evaluation function (needed e.g. when using a GPGPU for the evaluation step)
 #ifdef DEBUG
-         if(fitnessVec.size() != getNumberOfFitnessCriteria()) {
-            glogger
-            << "In GOptimizableEntity::enforceFitnessUpdate(): Error!" << std::endl
-            << "Invalid size of external evaluation criteria: " << fitnessVec.size() << " (expected " << getNumberOfFitnessCriteria() << ")" << std::endl
-            <<  GEXCEPTION;
-         }
+			if(fitnessVec.size() != getNumberOfFitnessCriteria()) {
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GOptimizableEntity::enforceFitnessUpdate(): Error!" << std::endl
+						<< "Invalid size of external evaluation criteria: " << fitnessVec.size() << " (expected " << getNumberOfFitnessCriteria() << ")" << std::endl
+				);
+			}
 #endif
 
 			// Assign the actual fitness values
@@ -789,26 +795,29 @@ void GOptimizableEntity::challengeWorstValidFitness(
 	std::tuple<double, double> &worstCandidate, const std::size_t &id
 ) {
 #ifdef DEBUG
-   if(id >= this->getNumberOfFitnessCriteria()) {
-      glogger
-      << "In GOptimizableEntity::challengeWorstValidFitness(): Error!" << std::endl
-      << "Requested fitness id " << id << " exceeds allowed range " << this->getNumberOfFitnessCriteria() << std::endl
-      << GEXCEPTION;
-   }
+	if(id >= this->getNumberOfFitnessCriteria()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::challengeWorstValidFitness(): Error!" << std::endl
+				<< "Requested fitness id " << id << " exceeds allowed range " << this->getNumberOfFitnessCriteria() << std::endl
+		);
+	}
 
-   if(!this->isClean()) {
-      glogger
-      << "In GOptimizableEntity::challengeWorstValidFitness(): Error!" << std::endl
-      << "Function called for dirty individual or with delayed evaluation" << std::endl
-      << GEXCEPTION;
-   }
+	if(!this->isClean()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::challengeWorstValidFitness(): Error!" << std::endl
+				<< "Function called for dirty individual or with delayed evaluation" << std::endl
+		);
+	}
 
-   if(!this->isValid()) {
-      glogger
-      << "In GOptimizableEntity::challengeWorstValidFitness(): Error!" << std::endl
-      << "Function called for invalid individual" << std::endl
-      << GEXCEPTION;
-   }
+	if(!this->isValid()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::challengeWorstValidFitness(): Error!" << std::endl
+				<< "Function called for invalid individual" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	double rawFitness = this->fitness(id, PREVENTREEVALUATION, USERAWFITNESS);
@@ -847,14 +856,15 @@ std::tuple<double, double> GOptimizableEntity::getFitnessTuple(const std::uint32
 void GOptimizableEntity::setFitness_(const std::vector<double> &f_vec) {
 #ifdef DEBUG
 	if(
-      f_vec.size() != this->getNumberOfFitnessCriteria()
-	   || m_current_fitness_vec.size() != this->getNumberOfFitnessCriteria()
-	) {
-	   glogger
-	   << "In GOptimizableEntity::setFitness_(...): Error!" << std::endl
-      << "Invalid size of fitness vector: " << std::endl
-      << f_vec.size() << " / " << m_current_fitness_vec.size() << " / expected: " << this->getNumberOfFitnessCriteria() << std::endl
-      << GEXCEPTION;
+		f_vec.size() != this->getNumberOfFitnessCriteria()
+		|| m_current_fitness_vec.size() != this->getNumberOfFitnessCriteria()
+		) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::setFitness_(...): Error!" << std::endl
+				<< "Invalid size of fitness vector: " << std::endl
+				<< f_vec.size() << " / " << m_current_fitness_vec.size() << " / expected: " << this->getNumberOfFitnessCriteria() << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -975,10 +985,11 @@ double GOptimizableEntity::getSteepness() const {
  */
 void GOptimizableEntity::setSteepness(double steepness) {
 	if (steepness <= 0.) {
-		glogger
-		<< "In GOptimizableEntity::setSteepness(double steepness): Error!" << std::endl
-		<< "Invalid value of steepness parameter: " << steepness << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::setSteepness(double steepness): Error!" << std::endl
+				<< "Invalid value of steepness parameter: " << steepness << std::endl
+		);
 	}
 
 	m_sigmoid_steepness = steepness;
@@ -998,10 +1009,11 @@ double GOptimizableEntity::getBarrier() const {
  */
 void GOptimizableEntity::setBarrier(double barrier) {
 	if (barrier <= 0.) {
-		glogger
-		<< "In GOptimizableEntity::setBarrier(double barrier): Error!" << std::endl
-		<< "Invalid value of barrier parameter: " << barrier << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::setBarrier(double barrier): Error!" << std::endl
+				<< "Invalid value of barrier parameter: " << barrier << std::endl
+		);
 	}
 
 	m_sigmoid_extremes = barrier;
@@ -1112,10 +1124,11 @@ boost::logic::tribool GOptimizableEntity::setDirtyFlag(
  */
 bool GOptimizableEntity::isValid() const {
 	if (this->isDirty()) {
-		glogger
-		<< "In GOptimizableEntity::isValid(): Error!" << std::endl
-		<< "Function was called while dirty flag was set" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::isValid(): Error!" << std::endl
+				<< "Function was called while dirty flag was set" << std::endl
+		);
 	}
 
 	if (m_validity_level <= 1. && !m_marked_as_invalid_by_user && !this->allRawResultsAtWorst()) {
@@ -1247,10 +1260,11 @@ std::tuple<double, double> GOptimizableEntity::getWorstKnownValid(
 	const std::uint32_t &id
 ) const {
 #ifdef DEBUG
-   glogger
-   << "In GOptimizableEntity::getWorstKnownValid(" << id << "): Error!" << std::endl
-   << "Expected id of max " << m_worst_known_valids_vec.size() - 1 << std::endl
-   << GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GOptimizableEntity::getWorstKnownValid(" << id << "): Error!" << std::endl
+			<< "Expected id of max " << m_worst_known_valids_vec.size() - 1 << std::endl
+	);
 #endif /* DEBUG */
 
 	return m_worst_known_valids_vec.at(id);
@@ -1272,12 +1286,13 @@ std::vector<std::tuple<double, double>> GOptimizableEntity::getWorstKnownValids(
  */
 void GOptimizableEntity::populateWorstKnownValid() {
 #ifdef DEBUG
-   if(m_worst_known_valids_vec.size() != m_n_fitness_criteria) {
-      glogger
-      << "In GOptimizableEntity::populateWorstKnownValid(): Error!" << std::endl
-      << "Invalid size of m_worst_known_valids_vec: " << m_worst_known_valids_vec.size() << " (expected " << m_n_fitness_criteria << ")" << std::endl
-      << GEXCEPTION;
-   }
+	if(m_worst_known_valids_vec.size() != m_n_fitness_criteria) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::populateWorstKnownValid(): Error!" << std::endl
+				<< "Invalid size of m_worst_known_valids_vec: " << m_worst_known_valids_vec.size() << " (expected " << m_n_fitness_criteria << ")" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	for (std::size_t i = 0; i < m_n_fitness_criteria; i++) {
@@ -1291,19 +1306,21 @@ void GOptimizableEntity::populateWorstKnownValid() {
  */
 void GOptimizableEntity::postEvaluationUpdate() {
 #ifdef DEBUG
-   if((m_n_fitness_criteria) != m_current_fitness_vec.size()) {
-      glogger
-      << "In GOptimizableEntity::postEvaluationUpdate(): Error!" << std::endl
-      << "Number of expected fitness criteria " << m_n_fitness_criteria << " does not match actual number " << m_current_fitness_vec.size() << std::endl
-      << GEXCEPTION;
-   }
+	if((m_n_fitness_criteria) != m_current_fitness_vec.size()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::postEvaluationUpdate(): Error!" << std::endl
+				<< "Number of expected fitness criteria " << m_n_fitness_criteria << " does not match actual number " << m_current_fitness_vec.size() << std::endl
+		);
+	}
 
-   if(m_worst_known_valids_vec.empty()) {
-      glogger
-      << "In GOptimizableEntity::postEvaluationUpdate(): Error!" << std::endl
-      << "m_worst_known_valids_vec does not seem to be initialized" << std::endl
-      << GEXCEPTION;
-   }
+	if(m_worst_known_valids_vec.empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::postEvaluationUpdate(): Error!" << std::endl
+				<< "m_worst_known_valids_vec does not seem to be initialized" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == m_eval_policy && this->isInValid()) {
@@ -1400,11 +1417,12 @@ double GOptimizableEntity::weighedSquaredSumCombiner(const std::vector<double> &
 	std::vector<double>::const_iterator cit_weights;
 
 	if (m_current_fitness_vec.size() != weights.size()) {
-		glogger
-		<< "In GOptimizableEntity::weighedSquaredSumCombine(): Error!" << std::endl
-		<< "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: " << m_current_fitness_vec.size() <<
-		" / " << weights.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::weighedSquaredSumCombine(): Error!" << std::endl
+				<< "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: " << m_current_fitness_vec.size() <<
+				" / " << weights.size() << std::endl
+		);
 	}
 
 	for (cit_eval = m_current_fitness_vec.begin(), cit_weights = weights.begin();
@@ -1426,12 +1444,13 @@ void GOptimizableEntity::markAsInvalid() {
 	if (!m_marked_as_invalid_by_user.isLocked()) {
 		m_marked_as_invalid_by_user = true;
 	} else {
-		glogger
-		<< "In GOptimizableEntity::markAsInvalid(): Error!" << std::endl
-		<< "Tried to mark individual as invalid while changes to this property" << std::endl
-		<< "were not allowed. This function may only be called from inside the" << std::endl
-		<< "fitness evaluation!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::markAsInvalid(): Error!" << std::endl
+				<< "Tried to mark individual as invalid while changes to this property" << std::endl
+				<< "were not allowed. This function may only be called from inside the" << std::endl
+				<< "fitness evaluation!" << std::endl
+		);
 	}
 }
 
@@ -1529,51 +1548,51 @@ void GOptimizableEntity::addConfigurationOptions(
 		, Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION // The default value
 		, [this](evaluationPolicy ep) { this->setEvaluationPolicy(ep); }
 	)
-	<< "Specifies which strategy should be used to calculate the evaluation:" << std::endl
-	<< "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions" << std::endl
-	<<
-	"1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions" <<
-	std::endl
-	<<
-	"2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations" <<
-	std::endl
-	<<
-	"3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise";
+		<< "Specifies which strategy should be used to calculate the evaluation:" << std::endl
+		<< "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions" << std::endl
+		<<
+		"1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions" <<
+		std::endl
+		<<
+		"2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations" <<
+		std::endl
+		<<
+		"3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise";
 
 	gpb.registerFileParameter<double>(
 		"steepness" // The name of the variable
 		, Gem::Geneva::FITNESSSIGMOIDSTEEPNESS // The default value
 		, [this](double ss) { this->setSteepness(ss); }
 	)
-	<< "When using a sigmoid function to transform the individual's fitness," << std::endl
-	<< "this parameter influences the steepness of the function at the center of the sigmoid." << std::endl
-	<< "The parameter must have a value > 0.";
+		<< "When using a sigmoid function to transform the individual's fitness," << std::endl
+		<< "this parameter influences the steepness of the function at the center of the sigmoid." << std::endl
+		<< "The parameter must have a value > 0.";
 
 	gpb.registerFileParameter<double>(
 		"barrier" // The name of the variable
 		, Gem::Geneva::WORSTALLOWEDVALIDFITNESS // The default value
 		, [this](double barrier) { this->setBarrier(barrier); }
 	)
-	<< "When using a sigmoid function to transform the individual's fitness," << std::endl
-	<< "this parameter sets the upper/lower boundary of the sigmoid." << std::endl
-	<< "The parameter must have a value > 0.;";
+		<< "When using a sigmoid function to transform the individual's fitness," << std::endl
+		<< "this parameter sets the upper/lower boundary of the sigmoid." << std::endl
+		<< "The parameter must have a value > 0.;";
 
 	gpb.registerFileParameter<std::size_t>(
 		"maxUnsuccessfulAdaptions" // The name of the variable
 		, DEFMAXUNSUCCESSFULADAPTIONS // The default value
 		, [this](std::size_t mua) { this->setMaxUnsuccessfulAdaptions(mua); }
 	)
-	<< "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
+		<< "The maximum number of unsuccessful adaptions in a row for one call to adapt()";
 
 	gpb.registerFileParameter<std::size_t>(
 		"maxRetriesUntilValid" // The name of the variable
 		, DEFMAXRETRIESUNTILVALID // The default value
 		, [this](std::size_t mruv) { this->setMaxRetriesUntilValid(mruv); }
 	)
-	<< "The maximum allowed number of retries during the" << std::endl
-	<< "adaption of individuals until a valid solution was found" << std::endl
-	<< "A parameter set is considered to be \"valid\" if" << std::endl
-	<< "it passes all validity checks;";
+		<< "The maximum allowed number of retries during the" << std::endl
+		<< "adaption of individuals until a valid solution was found" << std::endl
+		<< "A parameter set is considered to be \"valid\" if" << std::endl
+		<< "it passes all validity checks;";
 
 
 
@@ -1593,10 +1612,11 @@ void GOptimizableEntity::setPersonality(
 ) {
 	// Make sure we haven't been given an empty pointer
 	if (!gpt) {
-		glogger
-		<< "In GOptimizableEntity::setPersonality(): Error!" << std::endl
-		<< "Received empty personality traits pointer" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::setPersonality(): Error!" << std::endl
+				<< "Received empty personality traits pointer" << std::endl
+		);
 	}
 
 	// Add the personality traits object to our local pointer
@@ -1630,10 +1650,11 @@ std::string GOptimizableEntity::getMnemonic() const {
 	if(m_pt_ptr) {
 		return m_pt_ptr->getMnemonic();
 	} else {
-		glogger
-			<< "In GOptimizableEntity::getMnemonic():" << std::endl
-			<< "Pointer to personality traits object is empty." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::getMnemonic():" << std::endl
+				<< "Pointer to personality traits object is empty." << std::endl
+		);
 	}
 
 	// Make the compiler happy
@@ -1672,10 +1693,11 @@ std::shared_ptr <GPersonalityTraits> GOptimizableEntity::getPersonalityTraits() 
 #ifdef DEBUG
 	// Do some error checking
 	if(!m_pt_ptr) {
-	   glogger
-	   << "In GOptimizableEntity::getPersonalityTraits():" << std::endl
-      << "Pointer to personality traits object is empty." << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GOptimizableEntity::getPersonalityTraits():" << std::endl
+				<< "Pointer to personality traits object is empty." << std::endl
+		);
 	}
 #endif
 
@@ -1784,7 +1806,7 @@ bool GOptimizableEntity::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GOptimizableEntity::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GOptimizableEntity::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -1840,9 +1862,9 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK_NO_THROW(p_test->setAssignedIteration(i));
 			BOOST_CHECK_MESSAGE(
 				p_test->getAssignedIteration() == i, "\n"
-																 << "p_test->getAssignedIteration() = " <<
-																 p_test->getAssignedIteration() << "\n"
-																 << "i = " << i << "\n"
+				<< "p_test->getAssignedIteration() = " <<
+				p_test->getAssignedIteration() << "\n"
+				<< "i = " << i << "\n"
 			);
 		}
 	}
@@ -1856,10 +1878,10 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK_NO_THROW(p_test->setBestKnownPrimaryFitness(std::make_tuple(d, d)));
 			BOOST_CHECK_MESSAGE(
 				p_test->getBestKnownPrimaryFitness() == std::make_tuple(d, d), "\n"
-																  << "p_test->getBestKnownPrimaryFitness() = " <<
-																  Gem::Common::g_to_string(p_test->getBestKnownPrimaryFitness()) <<
-																  "\n"
-																  << "d = " << d << "\n"
+				<< "p_test->getBestKnownPrimaryFitness() = " <<
+				Gem::Common::g_to_string(p_test->getBestKnownPrimaryFitness()) <<
+				"\n"
+				<< "d = " << d << "\n"
 			);
 		}
 	}
@@ -1873,8 +1895,8 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK_NO_THROW(p_test->setNStalls(i));
 			BOOST_CHECK_MESSAGE(
 				p_test->getNStalls() == i, "\n"
-													<< "p_test->getNStalls() = " << p_test->getNStalls() << "\n"
-													<< "i = " << i << "\n"
+				<< "p_test->getNStalls() = " << p_test->getNStalls() << "\n"
+				<< "i = " << i << "\n"
 			);
 		}
 	}
@@ -1882,7 +1904,7 @@ void GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1902,7 +1924,7 @@ void GOptimizableEntity::specificTestsFailuresExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GOptimizableEntity::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GOptimizableEntity::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

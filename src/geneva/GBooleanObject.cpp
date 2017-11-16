@@ -242,10 +242,11 @@ bool GBooleanObject::randomInit_(
 ) {
 	// Do some error checks
 	if(!Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanObject::randomInit_(probability)")) {
-		glogger
-			<< "In GBooleanObject::randomInit_(probability): Error!" << std::endl
-			<< "Probability " << probability << " not in allowed value range [0,1]" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBooleanObject::randomInit_(probability): Error!" << std::endl
+				<< "Probability " << probability << " not in allowed value range [0,1]" << std::endl
+		);
 	}
 
 	std::bernoulli_distribution bernoulli_distribution(probability);
@@ -326,12 +327,13 @@ void GBooleanObject::booleanStreamline(
 	std::map<std::string, std::vector<bool>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
-   if((this->getParameterName()).empty()) {
-      glogger
-      << "In GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool>>& parVec) const: Error!" << std::endl
-      << "No name was assigned to the object" << std::endl
-      << GEXCEPTION;
-   }
+	if((this->getParameterName()).empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBooleanObject::booleanStreamline(std::map<std::string, std::vector<bool>>& parVec) const: Error!" << std::endl
+				<< "No name was assigned to the object" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::vector<bool> parameters;
@@ -378,10 +380,11 @@ void GBooleanObject::assignBooleanValueVector(
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-	   glogger
-	   << "In GBooleanObject::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
-      << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBooleanObject::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
+				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+		);
 	}
 #endif
 
@@ -434,7 +437,7 @@ bool GBooleanObject::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GBooleanObject::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBooleanObject::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -476,9 +479,9 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		GBooleanObject gbo;
 		BOOST_CHECK_MESSAGE (
 			gbo.value() == Gem::Common::GDefaultValueT<bool>::value(), "\n"
-																						  << "gbo.value() = " << gbo.value()
-																						  << "DEFBOVAL = " <<
-																						  Gem::Common::GDefaultValueT<bool>::value()
+			<< "gbo.value() = " << gbo.value()
+			<< "DEFBOVAL = " <<
+			Gem::Common::GDefaultValueT<bool>::value()
 		);
 	}
 
@@ -489,8 +492,8 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 		BOOST_CHECK_MESSAGE (
 			gbo1.value() == false && gbo2.value() == gbo1.value(), "\n"
-																					 << "gbo1.value() = " << gbo1.value()
-																					 << "gbo2.value() = " << gbo2.value()
+			<< "gbo1.value() = " << gbo1.value()
+			<< "gbo2.value() = " << gbo2.value()
 		);
 	}
 
@@ -508,9 +511,9 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		double ratio = double(nTrue) / double(nFalse);
 		BOOST_CHECK_MESSAGE(
 			ratio > LOWERBND && ratio < UPPERBND, "\n"
-															  << "ratio = " << ratio << "\n"
-															  << "nTrue = " << nTrue << "\n"
-															  << "nFalse = " << nFalse << "\n"
+			<< "ratio = " << ratio << "\n"
+			<< "nTrue = " << nTrue << "\n"
+			<< "nFalse = " << nFalse << "\n"
 		);
 	}
 
@@ -538,9 +541,9 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		double ratio = double(nTrue) / double(nFalse);
 		BOOST_CHECK_MESSAGE(
 			ratio > 0.8 && ratio < 1.2, "\n"
-												 << "ratio = " << ratio << "\n"
-												 << "nTrue = " << nTrue << "\n"
-												 << "nFalse = " << nFalse << "\n"
+			<< "ratio = " << ratio << "\n"
+			<< "nTrue = " << nTrue << "\n"
+			<< "nFalse = " << nFalse << "\n"
 		);
 	}
 
@@ -619,13 +622,13 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 			BOOST_CHECK_MESSAGE(
 				double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax, "\n"
-																										  << "d = " << d << "\n"
-																										  << "Allowed window = " <<
-																										  expectedTrueMin << " - " <<
-																										  expectedTrueMax << "\n"
-																										  << "nTests = " << nTests << "\n"
-																										  << "nTrue = " << nTrue << "\n"
-																										  << "nFalse = " << nFalse << "\n"
+				<< "d = " << d << "\n"
+				<< "Allowed window = " <<
+				expectedTrueMin << " - " <<
+				expectedTrueMax << "\n"
+				<< "nTests = " << nTests << "\n"
+				<< "nTrue = " << nTrue << "\n"
+				<< "nFalse = " << nFalse << "\n"
 			);
 		}
 	}
@@ -747,7 +750,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GBooleanObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBooleanObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -787,7 +790,7 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GBooleanObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBooleanObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

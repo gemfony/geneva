@@ -277,10 +277,11 @@ void createRandomVector(
 
 		default:
 		{
-			glogger
-				<< "In createRandomVector(): Error!" << std::endl
-				<< "Received invalid distType " << dType << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In createRandomVector(): Error!" << std::endl
+					<< "Received invalid distType " << dType << std::endl
+			);
 		}
 			break;
 	}
@@ -324,10 +325,11 @@ int main(int argc, char **argv) {
 
 		default:
 		{
-			glogger
-				<< "In main(): Error!" << std::endl
-				<< "Received invalid rnrProductionMode " << rnrProductionMode << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In main(): Error!" << std::endl
+					<< "Received invalid rnrProductionMode " << rnrProductionMode << std::endl
+			);
 		}
 			break;
 	};

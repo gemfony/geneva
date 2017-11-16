@@ -81,7 +81,7 @@ GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(
 	const std::size_t& nFitnessCriteria
 )
 	: GParameterSet(nFitnessCriteria)
-	, minima_(nFitnessCriteria)
+	  , minima_(nFitnessCriteria)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -109,7 +109,7 @@ GMultiCriterionParabolaIndividual::~GMultiCriterionParabolaIndividual()
  */
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual& cp)
 	: GParameterSet(cp)
-	, minima_(cp.minima_)
+	  , minima_(cp.minima_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -131,11 +131,12 @@ const GMultiCriterionParabolaIndividual& GMultiCriterionParabolaIndividual::oper
 void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double>& minima) {
 #ifdef DEBUG
 	if(minima.size() != this->getNumberOfFitnessCriteria()) {
-		glogger
-		<< "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
-		<< "Invalid size of minima vector. Expected " << this->getNumberOfFitnessCriteria() << std::endl
-		<< "but got " << minima.size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
+				<< "Invalid size of minima vector. Expected " << this->getNumberOfFitnessCriteria() << std::endl
+				<< "but got " << minima.size() << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -158,11 +159,12 @@ void GMultiCriterionParabolaIndividual::load_(const GObject* cp)
 
 #ifdef DEBUG
 	if((p_load->minima_).size() != minima_.size() || (p_load->minima_).size() != this->getNumberOfFitnessCriteria()) {
-		glogger
-		<< "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
-		<< "Invalid size of minima vector. Expected " << minima_.size() << "/" << this->getNumberOfFitnessCriteria() << std::endl
-		<< "but got " << (p_load->minima_).size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
+				<< "Invalid size of minima vector. Expected " << minima_.size() << "/" << this->getNumberOfFitnessCriteria() << std::endl
+				<< "but got " << (p_load->minima_).size() << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -213,12 +215,12 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
  */
 GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(const std::string& cF)
 	: Gem::Common::GFactoryT<GParameterSet>(cF)
-	, par_min_(-10.)
-	, par_max_( 10.)
-	, minima_string_("-1., 0., 1.")
-	, minima_()
-	, nPar_(NPAR_MC) // The actual number will be determined by the external configuration file
-	, firstParsed_(true)
+	  , par_min_(-10.)
+	  , par_max_( 10.)
+	  , minima_string_("-1., 0., 1.")
+	  , minima_()
+	  , nPar_(NPAR_MC) // The actual number will be determined by the external configuration file
+	  , firstParsed_(true)
 { /* nothing */ }
 
 /******************************************************************************/

@@ -226,12 +226,13 @@ void GDoubleObject::doubleStreamline(
 	std::map<std::string, std::vector<double>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
-   if((this->getParameterName()).empty()) {
-      glogger
-      << "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
-      << "No name was assigned to the object" << std::endl
-      << GEXCEPTION;
-   }
+	if((this->getParameterName()).empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GDoubleObject::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
+				<< "No name was assigned to the object" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::vector<double> parameters;
@@ -279,10 +280,11 @@ void GDoubleObject::assignDoubleValueVector(
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-	   glogger
-	   << "In GDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
-      << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GDoubleObject::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+		);
 	}
 #endif
 
@@ -410,7 +412,7 @@ bool GDoubleObject::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GDoubleObject::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GDoubleObject::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -574,7 +576,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GDoubleObject::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -611,7 +613,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 
 		// Add an empty std::shared_ptr<GDoubleGaussAdaptor>. This should throw
 		BOOST_CHECK_THROW(p_test->addAdaptor(std::shared_ptr<GDoubleGaussAdaptor>()),
-								gemfony_exception);
+			gemfony_exception);
 	}
 
 	// --------------------------------------------------------------------------
@@ -625,7 +627,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GDoubleObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GDoubleObject::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

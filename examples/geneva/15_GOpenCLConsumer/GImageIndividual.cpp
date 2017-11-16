@@ -105,52 +105,59 @@ void GImageIndividual::init(
 	, const double& loc_maxAdProb
 ) {
 	if(startSize>=0. && startSize < minSize) {
-		glogger
-			<< "In GImageIndividual::init() : Error!" << std::endl
-			<< "Invalid values for minSize and startSize provided: " << minSize << " / " << startSize << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::init() : Error!" << std::endl
+				<< "Invalid values for minSize and startSize provided: " << minSize << " / " << startSize << std::endl
+		);
 	}
 
 	if(startSize>=0. && startSize > maxSize) {
-		glogger
-			<< "In GImageIndividual::init() : Error!" << std::endl
-			<< "Invalid values for maxSize and startSize provided: " << maxSize << " / " << startSize << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::init() : Error!" << std::endl
+				<< "Invalid values for maxSize and startSize provided: " << maxSize << " / " << startSize << std::endl
+		);
 	}
 
 	if(minSize >= maxSize || minSize < 0. || maxSize > 1.) {
-		glogger
-			<< "In GImageIndividual::init() : Error!" << std::endl
-			<< "Invalid values for minSize and maxSize provided: " << minSize << " / " << maxSize << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::init() : Error!" << std::endl
+				<< "Invalid values for minSize and maxSize provided: " << minSize << " / " << maxSize << std::endl
+		);
 	}
 
 	if(adaptAdProb < 0. || adaptAdProb > 1.) {
-		glogger
-			<< "In GImageIndividual::init() : Error!" << std::endl
-			<< "Invalid value for adaptAdProb provided: " << adaptAdProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::init() : Error!" << std::endl
+				<< "Invalid value for adaptAdProb provided: " << adaptAdProb << std::endl
+		);
 	}
 
 	if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
-		glogger
-			<< "In GImageIndividual::init() : Error!" << std::endl
-			<< "Invalid value for loc_adaptAdProb provided: " << loc_adaptAdProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::init() : Error!" << std::endl
+				<< "Invalid value for loc_adaptAdProb provided: " << loc_adaptAdProb << std::endl
+		);
 	}
 
 	if(minAdProb >= maxAdProb || minAdProb < 0 || maxAdProb > 1 || adProb < minAdProb || adProb > maxAdProb) {
-		glogger
-			<< "In GImageIndividual::init() : Error!" << std::endl
-			<< "Invalid values for minAdprob, maxAdProb or adProb provided: " << minAdProb << " / " << maxAdProb << " / " << adProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::init() : Error!" << std::endl
+				<< "Invalid values for minAdprob, maxAdProb or adProb provided: " << minAdProb << " / " << maxAdProb << " / " << adProb << std::endl
+		);
 	}
 
 	if(loc_minAdProb >= loc_maxAdProb || loc_minAdProb < 0 || loc_maxAdProb > 1 || loc_adProb < loc_minAdProb || loc_adProb > loc_maxAdProb) {
-		glogger
-			<< "In GImageIndividual::init() : Error!" << std::endl
-			<< "Invalid values for loc_minAdprob, loc_maxAdProb or loc_adProb provided: " << loc_minAdProb << " / " << loc_maxAdProb << " / " << loc_adProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::init() : Error!" << std::endl
+				<< "Invalid values for loc_minAdprob, loc_maxAdProb or loc_adProb provided: " << loc_minAdProb << " / " << loc_maxAdProb << " / " << loc_adProb << std::endl
+		);
 	}
 
 	nTriangles_ = nTriangles;
@@ -382,10 +389,11 @@ std::size_t GImageIndividual::getNTriangles() const {
 std::vector<Gem::Common::t_circle> GImageIndividual::getTriangleData() const {
 #ifdef DEBUG
 	if(this->size() != 10*nTriangles_+3) { // including background color
-		glogger
-			<< "In GImageIndividual::getTriangleData(): Error!" << std::endl
-			<< "Invalid number of entries in this class " << this->size() << " / " << nTriangles_ << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::getTriangleData(): Error!" << std::endl
+				<< "Invalid number of entries in this class " << this->size() << " / " << nTriangles_ << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -489,10 +497,11 @@ void GImageIndividual::writeImage(
 ) {
 	// Cross-check that we can safely access the fitness
 	if(this->isDirty()) {
-		glogger
-			<< "In GImageIndividual::writeImage():" << std::endl
-			<< "Individual has dirty flag set when it shouldn't"
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividual::writeImage():" << std::endl
+				<< "Individual has dirty flag set when it shouldn't"
+		);
 	}
 
 	// Write the generated image out
@@ -545,10 +554,11 @@ GObject* GImageIndividual::clone_() const {
  * @return The value of this object
  */
 double GImageIndividual::fitnessCalculation() {
-	glogger
-		<< "In GImageIndividual::fitnessCalculation(): Error!" << std::endl
-		<< "This function is not supposed to be called for this individual." << std::endl
-		<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GImageIndividual::fitnessCalculation(): Error!" << std::endl
+			<< "This function is not supposed to be called for this individual." << std::endl
+	);
 
 	// Make the exception
 	return 0.;
@@ -1117,11 +1127,12 @@ double GImageIndividualFactory::getLocAdProb() const
 void GImageIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 #ifdef DEBUG
 	if(adaptAdProb < 0. || adaptAdProb > 1.) {
-		glogger
-			<< "In GImageIndividualFactory::setAdaptAdProb(): Error!" << std::endl
-			<< "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
-			<< "Expected range of [0:1]" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividualFactory::setAdaptAdProb(): Error!" << std::endl
+				<< "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
+				<< "Expected range of [0:1]" << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -1135,11 +1146,12 @@ void GImageIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 void GImageIndividualFactory::setLocAdaptAdProb(double loc_adaptAdProb) {
 #ifdef DEBUG
 	if(loc_adaptAdProb < 0. || loc_adaptAdProb > 1.) {
-		glogger
-			<< "In GImageIndividualFactory::setLocAdaptAdProb(): Error!" << std::endl
-			<< "Invalid value for loc_adaptAdProb given: " << loc_adaptAdProb << std::endl
-			<< "Expected range of [0:1]" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividualFactory::setLocAdaptAdProb(): Error!" << std::endl
+				<< "Invalid value for loc_adaptAdProb given: " << loc_adaptAdProb << std::endl
+				<< "Expected range of [0:1]" << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -1172,24 +1184,27 @@ void GImageIndividualFactory::setAdProbRange(
 ) {
 #ifdef DEBUG
 	if(minAdProb < 0.) {
-		glogger
-			<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
-			<< "minAdProb < 0: " << minAdProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "minAdProb < 0: " << minAdProb << std::endl
+		);
 	}
 
 	if(minAdProb > maxAdProb) {
-		glogger
-			<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
-			<< "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
+		);
 	}
 
 	if(maxAdProb > 1.) {
-		glogger
-			<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
-			<< "maxAdProb > 1: " << maxAdProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "maxAdProb > 1: " << maxAdProb << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -1207,24 +1222,27 @@ void GImageIndividualFactory::setLocAdProbRange(
 ) {
 #ifdef DEBUG
 	if(minLocAdProb < 0.) {
-		glogger
-			<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
-			<< "minLocAdProb < 0: " << minLocAdProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
+				<< "minLocAdProb < 0: " << minLocAdProb << std::endl
+		);
 	}
 
 	if(minLocAdProb > maxLocAdProb) {
-		glogger
-			<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
-			<< "Invalid minLocAdProb and/or maxLocAdProb: " << minLocAdProb << " / " << maxLocAdProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
+				<< "Invalid minLocAdProb and/or maxLocAdProb: " << minLocAdProb << " / " << maxLocAdProb << std::endl
+		);
 	}
 
 	if(maxLocAdProb > 1.) {
-		glogger
-			<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
-			<< "maxLocAdProb > 1: " << maxLocAdProb << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GImageIndividualFactory::setLocAdProbRange(): Error!" << std::endl
+				<< "maxLocAdProb > 1: " << maxLocAdProb << std::endl
+		);
 	}
 #endif /* DEBUG */
 

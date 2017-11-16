@@ -64,8 +64,8 @@ std::once_flag f_go2;
  */
 Go2::Go2()
 	: GObject()
-	, G_Interface_Optimizer()
-   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
+	  , G_Interface_Optimizer()
+	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms and consumers
@@ -103,8 +103,8 @@ Go2::Go2(
 	, const boost::program_options::options_description &userDescriptions
 )
 	: GObject()
-	, G_Interface_Optimizer()
-  	, Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
+	  , G_Interface_Optimizer()
+	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
@@ -138,9 +138,9 @@ Go2::Go2(
  */
 Go2::Go2(const std::string &configFilename)
 	: GObject()
-	, G_Interface_Optimizer()
-   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
-   , m_config_filename(configFilename)
+	  , G_Interface_Optimizer()
+	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
+	  , m_config_filename(configFilename)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
@@ -182,9 +182,9 @@ Go2::Go2(
 	, const boost::program_options::options_description &userDescriptions
 )
 	: GObject()
-	, G_Interface_Optimizer()
-   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
-   , m_config_filename(configFilename)
+	  , G_Interface_Optimizer()
+	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
+	  , m_config_filename(configFilename)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
@@ -222,13 +222,13 @@ Go2::Go2(
  */
 Go2::Go2(const Go2 &cp)
 	: GObject(cp)
-   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>(cp)
-   , m_client_mode(cp.m_client_mode)
-   , m_config_filename(cp.m_config_filename)
-   , m_consumer_name(cp.m_consumer_name)
-   , m_n_producer_threads(cp.m_n_producer_threads)
-   , m_offset(cp.m_offset)
-   , m_sorted(cp.m_sorted)
+	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>(cp)
+	  , m_client_mode(cp.m_client_mode)
+	  , m_config_filename(cp.m_config_filename)
+	  , m_consumer_name(cp.m_consumer_name)
+	  , m_n_producer_threads(cp.m_n_producer_threads)
+	  , m_offset(cp.m_offset)
+	  , m_sorted(cp.m_sorted)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
@@ -372,10 +372,11 @@ void Go2::registerDefaultAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
 	std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 	if (!GOAFactoryStore->get(mn, p)) {
-		glogger
-		<< "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
-		<< "Got invalid algorithm mnemonic " << mn << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
+				<< "Got invalid algorithm mnemonic " << mn << std::endl
+		);
 	}
 
 	this->registerDefaultAlgorithm(p->get());
@@ -391,10 +392,11 @@ void Go2::registerDefaultAlgorithm(const std::string &mn) {
 void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
 	// Check that the pointer isn't empty
 	if (!default_algorithm) {
-		glogger
-		<< "In Go2::registerDefaultAlgorithm(): Error!" << std::endl
-		<< "Got empty algorithm." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::registerDefaultAlgorithm(): Error!" << std::endl
+				<< "Got empty algorithm." << std::endl
+		);
 	}
 
 	if (!default_algorithm->empty()) { // Have individuals been registered ?
@@ -420,9 +422,10 @@ void Go2::registerPluggableOM(
 	if (pluggableOM) {
 		m_pluggable_monitors_vec.push_back(pluggableOM);
 	} else {
-		glogger
-		<< "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::registerPluggableOM(): Tried to register empty pluggable optimization monitor" << std::endl
+		);
 	}
 }
 
@@ -511,11 +514,12 @@ int Go2::clientRun() {
 	if (
 		GO2_DEF_NOCONSUMER == m_consumer_name
 		|| !GConsumerStore->exists(m_consumer_name)
-	) {
-		glogger
-		<< "In Go2::clientRun(): Error!" << std::endl
-		<< "Received invalid consumer name: " << m_consumer_name << std::endl
-		<< GEXCEPTION;
+		) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::clientRun(): Error!" << std::endl
+				<< "Received invalid consumer name: " << m_consumer_name << std::endl
+		);
 	}
 
 	// Retrieve the client worker from the consumer
@@ -524,19 +528,21 @@ int Go2::clientRun() {
 	if (GConsumerStore->get(m_consumer_name)->needsClient()) {
 		p = GConsumerStore->get(m_consumer_name)->getClient();
 	} else {
-		glogger
-		<< "In Go2::clientRun(): Error!" << std::endl
-		<< "Trying to execute clientRun() on consumer " << m_consumer_name << std::endl
-		<< "which does not require a client" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::clientRun(): Error!" << std::endl
+				<< "Trying to execute clientRun() on consumer " << m_consumer_name << std::endl
+				<< "which does not require a client" << std::endl
+		);
 	}
 
 	// Check for errors
 	if (!p) {
-		glogger
-		<< "In Go2::clientRun(): Error!" << std::endl
-		<< "Received empty client from consumer " << m_consumer_name << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::clientRun(): Error!" << std::endl
+				<< "Received empty client from consumer " << m_consumer_name << std::endl
+		);
 	}
 
 	// Set the maximum runtime of the client
@@ -577,10 +583,11 @@ std::size_t Go2::getNAlgorithms() const {
 void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 	// Check that the pointer is not empty
 	if (!alg) {
-		glogger
-		<< "In Go2::addAlgorithm(): Error!" << std::endl
-		<< "Tried to register an empty pointer" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::addAlgorithm(): Error!" << std::endl
+				<< "Tried to register an empty pointer" << std::endl
+		);
 	}
 
 	if (!alg->empty()) { // Have individuals been registered ?
@@ -632,10 +639,11 @@ void Go2::addAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
 	std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 	if (!GOAFactoryStore->get(mn, p)) {
-		glogger
-		<< "In Go2::addAlgorithm(std::string): Error!" << std::endl
-		<< "Got invalid algorithm mnemonic " << mn << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::addAlgorithm(std::string): Error!" << std::endl
+				<< "Got invalid algorithm mnemonic " << mn << std::endl
+		);
 	}
 
 	this->addAlgorithm(p->get()); // The factory might add a monitor to the object
@@ -658,10 +666,11 @@ void Go2::registerContentCreator(
 	std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr
 ) {
 	if (!cc_ptr) {
-		glogger
-		<< "In Go2::registerContentCreator(): Error!" << std::endl
-		<< "Tried to register an empty pointer" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::registerContentCreator(): Error!" << std::endl
+				<< "Tried to register an empty pointer" << std::endl
+		);
 	}
 
 	m_content_creator_ptr = cc_ptr;
@@ -688,10 +697,10 @@ void Go2::optimize(const std::uint32_t &offset) {
 			this->registerDefaultAlgorithm(m_default_algorithm_str);
 
 			glogger
-			<< "In Go2::optimize(): INFORMATION:" << std::endl
-			<< "No user-defined optimization algorithm available." << std::endl
-			<< "Using default algorithm \"" << m_default_algorithm_str << "\" instead." << std::endl
-			<< GLOGGING;
+				<< "In Go2::optimize(): INFORMATION:" << std::endl
+				<< "No user-defined optimization algorithm available." << std::endl
+				<< "Using default algorithm \"" << m_default_algorithm_str << "\" instead." << std::endl
+				<< GLOGGING;
 		}
 
 		m_algorithms_vec.push_back(m_default_algorithm->clone<GOABase>());
@@ -699,11 +708,12 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 	// Check whether a possible checkpoint file fits the first algorithm in the chain
 	if(m_cp_file != "empty" && !m_algorithms_vec[0]->cp_personality_fits(boost::filesystem::path(m_cp_file))) {
-		glogger
-		<< "In Go2::optimize(): Error!" << std::endl
-	   << "Checkpoint file " << m_cp_file << " does not" << std::endl
-	   << "fit requirements of first algorithm " << m_algorithms_vec[0]->getAlgorithmPersonalityType() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::optimize(): Error!" << std::endl
+				<< "Checkpoint file " << m_cp_file << " does not" << std::endl
+				<< "fit requirements of first algorithm " << m_algorithms_vec[0]->getAlgorithmPersonalityType() << std::endl
+		);
 	}
 
 	// Load the checkpoint file or create individuals from the content creator
@@ -723,22 +733,24 @@ void Go2::optimize(const std::uint32_t &offset) {
 						this->push_back(p_ind);
 					} else { // No valid item received, the factory has run empty
 						if (this->empty()) { // Still empty ?
-							glogger
-								<< "In Go2::optimize(): Error!" << std::endl
-								<< "The content creator did not deliver any individuals" << std::endl
-								<< "and none have been registered so far." << std::endl
-								<< "No way to continue." << std::endl
-								<< GEXCEPTION;
+							throw gemfony_exception(
+								g_error_streamer(DO_LOG,  time_and_place)
+									<< "In Go2::optimize(): Error!" << std::endl
+									<< "The content creator did not deliver any individuals" << std::endl
+									<< "and none have been registered so far." << std::endl
+									<< "No way to continue." << std::endl
+							);
 						}
 						break;
 					}
 				}
 			} else {
-				glogger
-					<< "In Go2::optimize(): Error!" << std::endl
-					<< "Neither a content creator nor individuals have been registered." << std::endl
-					<< "No way to continue." << std::endl
-					<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In Go2::optimize(): Error!" << std::endl
+						<< "Neither a content creator nor individuals have been registered." << std::endl
+						<< "No way to continue." << std::endl
+				);
 			}
 		}
 
@@ -807,28 +819,31 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual()
 
 	// Do some error checking
 	if (this->empty()) {
-		glogger
-		<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
-		<< "No individuals found" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
+				<< "No individuals found" << std::endl
+		);
 	}
 
 	for (it = this->begin(); it != this->end(); ++it) {
 		if ((*it)->isDirty()) {
-			glogger
-			<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
-			<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag is set" <<
-			std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
+					<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag is set" <<
+					std::endl
+			);
 		}
 	}
 
 	if (!m_sorted) {
-		glogger
-		<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
-		<< "Tried to retrieve best individual" << std::endl
-		<< "from an unsorted population." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
+				<< "Tried to retrieve best individual" << std::endl
+				<< "from an unsorted population." << std::endl
+		);
 	}
 
 	// Simply return the best individual. This will result in an implicit downcast
@@ -847,19 +862,21 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGloba
 
 	// Do some error checking
 	if (this->empty()) {
-		glogger
-		<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
-		<< "No individuals found" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
+				<< "No individuals found" << std::endl
+		);
 	}
 
 	for (it = this->begin(); it != this->end(); ++it) {
 		if ((*it)->isDirty()) {
-			glogger
-			<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
-			<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag is set" <<
-			std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
+					<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag is set" <<
+					std::endl
+			);
 		}
 	}
 
@@ -880,10 +897,11 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGloba
  * @return The best individual found
  */
 std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIterationIndividual() {
-	glogger
-	<< "In Go2::customGetBestIterationIndividual(): Error!" << std::endl
-	<< "This function should not be called" << std::endl
-	<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In Go2::customGetBestIterationIndividual(): Error!" << std::endl
+			<< "This function should not be called" << std::endl
+	);
 
 	// Make the compiler happy
 	return std::shared_ptr<Gem::Geneva::GParameterSet>();
@@ -897,10 +915,11 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIterationIndividua
  * @return The best individual found
  */
 std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestIterationIndividuals() {
-	glogger
-	<< "In Go2::customGetBestIterationIndividuals(): Error!" << std::endl
-	<< "This function should not be called" << std::endl
-	<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In Go2::customGetBestIterationIndividuals(): Error!" << std::endl
+			<< "This function should not be called" << std::endl
+	);
 
 	// Make the compiler happy
 	return std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>>();
@@ -932,7 +951,7 @@ void Go2::addConfigurationOptions(
 		, GO2_DEF_NPRODUCERTHREADS
 		, [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
 	)
-	<< "The number of threads simultaneously producing random numbers";
+		<< "The number of threads simultaneously producing random numbers";
 }
 
 /******************************************************************************/
@@ -1045,9 +1064,9 @@ void Go2::parseCommandLine(
 
 		std::ostringstream oa_help;
 		oa_help
-		<< "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
-		<< GOAFactoryStore->size() << " algorithms have been registered: " << std::endl
-		<< algorithm_description;
+			<< "A comma-separated list of optimization algorithms, e.g. \"arg1,arg2\". "
+			<< GOAFactoryStore->size() << " algorithms have been registered: " << std::endl
+			<< algorithm_description;
 
 		// Extract a list of consumer mnemonics and clear-text descriptions
 		std::string consumer_description;
@@ -1073,7 +1092,7 @@ void Go2::parseCommandLine(
 			("showAll", "Show all available options")
 			("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
 			("cp_file,f", po::value<std::string>(&checkpointFile)->default_value("empty"),
-			 "A file (including its path) holding a checkpoint for a given optimization algorithm")
+				"A file (including its path) holding a checkpoint for a given optimization algorithm")
 			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
 			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION), "The maximum runtime for a client in the form \"hh:mm:ss\". Note that a client may run longer as this time-frame if its work load still runs. The default value \"00:00:00\" means: \"no time limit\"")
 			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("btc"), consumer_help.str().c_str());
@@ -1133,28 +1152,31 @@ void Go2::parseCommandLine(
 
 		// No consumer specified, although brokered execution was requested
 		if (vm.count("consumer") != 1) {
-			glogger
-			<< "In Go2::parseCommandLine(): Error!" << std::endl
-			<< "You need to specify exactly one consumer for brokered execution," << std::endl
-			<< "on the command line. Found " << vm.count("consumer") << "." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In Go2::parseCommandLine(): Error!" << std::endl
+					<< "You need to specify exactly one consumer for brokered execution," << std::endl
+					<< "on the command line. Found " << vm.count("consumer") << "." << std::endl
+			);
 		}
 
 		// Check that the requested consumer actually exists
 		if (vm.count("consumer") && !GConsumerStore->exists(m_consumer_name)) {
-			glogger
-			<< "In Go2::parseCommandLine(): Error!" << std::endl
-			<< "You have requested a consumer with name " << m_consumer_name << std::endl
-			<< "which could not be found in the consumer store." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In Go2::parseCommandLine(): Error!" << std::endl
+					<< "You have requested a consumer with name " << m_consumer_name << std::endl
+					<< "which could not be found in the consumer store." << std::endl
+			);
 		}
 
 		if (m_client_mode && !GConsumerStore->get(m_consumer_name)->needsClient()) {
-			glogger
-			<< "In Go2::parseCommandLine(): Error!" << std::endl
-			<< "Requested client mode even though consumer " << m_consumer_name << " does not require a client" <<
-			std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In Go2::parseCommandLine(): Error!" << std::endl
+					<< "Requested client mode even though consumer " << m_consumer_name << " does not require a client" <<
+					std::endl
+			);
 		}
 
 		std::cout << "Using consumer " << m_consumer_name << std::endl;
@@ -1171,10 +1193,10 @@ void Go2::parseCommandLine(
 				GBROKER(Gem::Geneva::GParameterSet)->enrol(GConsumerStore->get(m_consumer_name));
 			} else {
 				glogger
-				<< "In Go2::parseCommandLine(): Note!" << std::endl
-				<< "Could not register requested consumer," << std::endl
-				<< "as a consumer was already registered with the broker" << std::endl
-				<< GLOGGING;
+					<< "In Go2::parseCommandLine(): Note!" << std::endl
+					<< "Could not register requested consumer," << std::endl
+					<< "as a consumer was already registered with the broker" << std::endl
+					<< GLOGGING;
 			}
 		}
 
@@ -1187,11 +1209,12 @@ void Go2::parseCommandLine(
 				// Retrieve the algorithm factory from the global store
 				std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 				if (!GOAFactoryStore->get(*it, p)) {
-					glogger
-					<< "In Go2::parseCommandLine(int, char**): Error!" << std::endl
-					<< "Got invalid algorithm mnemonic \"" << *it << "\"." << std::endl
-					<< "No algorithm found for this string." << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG,  time_and_place)
+							<< "In Go2::parseCommandLine(int, char**): Error!" << std::endl
+							<< "Got invalid algorithm mnemonic \"" << *it << "\"." << std::endl
+							<< "No algorithm found for this string." << std::endl
+					);
 				}
 
 				// Retrieve an algorithm from the factory and add it to the list
@@ -1206,10 +1229,11 @@ void Go2::parseCommandLine(
 		m_max_client_duration = Gem::Common::duration_from_string(maxClientDuration);
 	}
 	catch (const po::error &e) {
-		glogger
-		<< "Error parsing the command line:" << std::endl
-		<< e.what() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "Error parsing the command line:" << std::endl
+				<< e.what() << std::endl
+		);
 	}
 }
 
@@ -1231,9 +1255,9 @@ void Go2::parseConfigFile(const std::string &configFilename) {
 	// Do the actual parsing
 	if (!gpb.parseConfigFile(configFilename)) {
 		glogger
-		<< "In Go2::parseConfigFile: Error!" << std::endl
-		<< "Could not parse configuration file " << configFilename << std::endl
-		<< GTERMINATION;
+			<< "In Go2::parseConfigFile: Error!" << std::endl
+			<< "Could not parse configuration file " << configFilename << std::endl
+			<< GTERMINATION;
 	}
 }
 

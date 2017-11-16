@@ -107,15 +107,17 @@ int main(int argc, char **argv) {
 
 #ifdef DEBUG
 			if(g->getParameterSize() != *it) {
-				glogger
-				<< "In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
+				);
 			}
 
 			if(!go.empty()) {
-				glogger
-				<< "In main(): go contains " << go.size() << " items when it should be empty." << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In main(): go contains " << go.size() << " items when it should be empty." << std::endl
+				);
 			}
 #endif /* DEBUG */
 
@@ -152,10 +154,10 @@ int main(int argc, char **argv) {
 		std::tuple<double,double> timing2 = GStandardDeviation<double>(timeConsumed);
 
 		std::cout
-		<< std::endl
-		<< "best result = " << std::get<0>(resultY) << " +/- " << std::get<1>(resultY) << std::endl
-		<< "timing      = " << std::get<0>(timing2) << " +/- " << std::get<1>(timing2) << " s" << std::endl
-		<< std::endl;
+			<< std::endl
+			<< "best result = " << std::get<0>(resultY) << " +/- " << std::get<1>(resultY) << std::endl
+			<< "timing      = " << std::get<0>(timing2) << " +/- " << std::get<1>(timing2) << " s" << std::endl
+			<< std::endl;
 
 		xyWE resultE(double(*it), 0., std::get<0>(resultY), std::get<1>(resultY));
 		xyWE timingE(double(*it), 0., std::get<0>(timing2), std::get<1>(timing2));

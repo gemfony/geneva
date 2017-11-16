@@ -48,12 +48,12 @@ namespace Geneva {
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
 	: GParameterSet()
-  	, m_program_name(GEEI_DEF_PROGNAME)
-  	, m_custom_options(GEEI_DEF_CUSTOMOPTIONS)
-   , m_parameter_file_base_name(GEEI_DEF_PARFILEBASENAME)
-   , m_n_results(GEEI_DEF_NRESULTS)
-   , runID_(GEEI_DEF_RUNID)
-   , m_remove_exec_temporaries(GEEI_DEF_REMOVETEMPORARIES)
+	  , m_program_name(GEEI_DEF_PROGNAME)
+	  , m_custom_options(GEEI_DEF_CUSTOMOPTIONS)
+	  , m_parameter_file_base_name(GEEI_DEF_PARFILEBASENAME)
+	  , m_n_results(GEEI_DEF_NRESULTS)
+	  , runID_(GEEI_DEF_RUNID)
+	  , m_remove_exec_temporaries(GEEI_DEF_REMOVETEMPORARIES)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -62,12 +62,12 @@ GExternalEvaluatorIndividual::GExternalEvaluatorIndividual()
  */
 GExternalEvaluatorIndividual::GExternalEvaluatorIndividual(const GExternalEvaluatorIndividual &cp)
 	: GParameterSet(cp) // copies all local collections
-   , m_program_name(cp.m_program_name)
-   , m_custom_options(cp.m_custom_options)
-   , m_parameter_file_base_name(cp.m_parameter_file_base_name)
-   , m_n_results(cp.m_n_results)
-   , runID_(cp.runID_)
-   , m_remove_exec_temporaries(cp.m_remove_exec_temporaries)
+	  , m_program_name(cp.m_program_name)
+	  , m_custom_options(cp.m_custom_options)
+	  , m_parameter_file_base_name(cp.m_parameter_file_base_name)
+	  , m_n_results(cp.m_n_results)
+	  , runID_(cp.runID_)
+	  , m_remove_exec_temporaries(cp.m_remove_exec_temporaries)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -193,10 +193,11 @@ std::string GExternalEvaluatorIndividual::getCustomOptions() const {
  */
 void GExternalEvaluatorIndividual::setExchangeBaseName(const std::string &parameterFile) {
 	if (parameterFile.empty() || parameterFile == "empty") {
-		glogger
-		<< "In GExternalEvaluatorIndividual::setExchangeBaseName(): Error!" << std::endl
-		<< "Invalid file name \"" << parameterFile << "\"" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividual::setExchangeBaseName(): Error!" << std::endl
+				<< "Invalid file name \"" << parameterFile << "\"" << std::endl
+		);
 	}
 
 	m_parameter_file_base_name = parameterFile;
@@ -218,10 +219,11 @@ std::string GExternalEvaluatorIndividual::getExchangeBaseName() const {
  */
 void GExternalEvaluatorIndividual::setNExpectedResults(const std::size_t &nResults) {
 	if (0 == nResults) {
-		glogger
-		<< "In GExternalEvaluatorIndividual::setNExpectedResults(): Error!" << std::endl
-		<< "Got invalid number of expected results: " << nResults << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividual::setNExpectedResults(): Error!" << std::endl
+				<< "Got invalid number of expected results: " << nResults << std::endl
+		);
 	}
 
 	m_n_results = nResults;
@@ -321,13 +323,13 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 
 	if (errorCode) { // Something went wrong
 		glogger
-		<< "In GExternalEvaluatorIndividual::fitnessCalculation():" << std::endl
-		<< "Execution of external command failed." << std::endl
-		<< "Command: " << command << std::endl
-		<< "Error code: " << errorCode << std::endl
-		<< "Program output:" << std::endl
-		<< Gem::Common::loadTextDataFromFile(commandOutputFileName) << std::endl
-		<< GWARNING;
+			<< "In GExternalEvaluatorIndividual::fitnessCalculation():" << std::endl
+			<< "Execution of external command failed." << std::endl
+			<< "Command: " << command << std::endl
+			<< "Error code: " << errorCode << std::endl
+			<< "Program output:" << std::endl
+			<< Gem::Common::loadTextDataFromFile(commandOutputFileName) << std::endl
+			<< GWARNING;
 
 		// O.k., so the external application crashed or returned an error.
 		// All we can do here is to return the worst case. As long as crashes
@@ -343,10 +345,11 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 	} else { // Everything is o.k., lets retrieve the evaluation
 		// Check that the result file exists
 		if (!bf::exists(resultFileName)) {
-			glogger
-			<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-			<< "Result file " << resultFileName << " does not seem to exist." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+					<< "Result file " << resultFileName << " does not seem to exist." << std::endl
+			);
 		}
 
 		// Parse the results
@@ -354,45 +357,50 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 		try {
 			pt::read_xml(resultFileName, ptr_in);
 		} catch (const boost::property_tree::xml_parser::xml_parser_error &e) {
-			glogger
-			<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error  " << std::endl
-			<< "Caught boost::property_tree::xml_parser::xml_parser_error" << std::endl
-			<< "for file " << e.filename() << " (line " << e.line() << ")" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error  " << std::endl
+					<< "Caught boost::property_tree::xml_parser::xml_parser_error" << std::endl
+					<< "for file " << e.filename() << " (line " << e.line() << ")" << std::endl
+			);
 		} catch (const std::exception &e) {
-			glogger
-			<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error reading " << resultFileName << std::endl
-			<< "with message " << e.what() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error reading " << resultFileName << std::endl
+					<< "with message " << e.what() << std::endl
+			);
 		}
 
 		// Check that only a single result was returned
 		std::size_t nExternalIndividuals = ptr_in.get<std::size_t>(batch + ".nIndividuals");
 		if (1 != nExternalIndividuals) {
-			glogger
-			<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-			<< "Number of result individuals != 1: " << nExternalIndividuals << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+					<< "Number of result individuals != 1: " << nExternalIndividuals << std::endl
+			);
 		}
 
 		// Check that the number of results provided by the result file matches the number of expected results
 		std::size_t externalNResults = ptr_in.get<std::size_t>("batch.individuals.individual0.nResults");
 		if (externalNResults != m_n_results) {
-			glogger
-			<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-			<< "Result file provides nResults = " << externalNResults << std::endl
-			<< "while we expected " << m_n_results << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+					<< "Result file provides nResults = " << externalNResults << std::endl
+					<< "while we expected " << m_n_results << std::endl
+			);
 		}
 
 		// Check that the evaluation id matches our local id
 		std::string externalEvaluationID = ptr_in.get<std::string>("batch.individuals.individual0.id");
 		if (externalEvaluationID != this->getCurrentEvaluationID()) {
-			glogger
-			<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-			<< "Local evaluation id " << this->getCurrentEvaluationID() << " does not match external id " <<
-			externalEvaluationID << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
+					<< "Local evaluation id " << this->getCurrentEvaluationID() << " does not match external id " <<
+					externalEvaluationID << std::endl
+			);
 		}
 
 		// Check whether the results represent useful values
@@ -443,10 +451,11 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
  */
 void GExternalEvaluatorIndividual::setRunId(std::string runID) {
 	if (runID.empty() || "empty" == runID) {
-		glogger
-		<< "In GExternalEvaluatorIndividual::setRunId(): Error!" << std::endl
-		<< "Attempt to set an invalid run id: \"" << runID << "\"" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividual::setRunId(): Error!" << std::endl
+				<< "Attempt to set an invalid run id: \"" << runID << "\"" << std::endl
+		);
 	}
 
 	runID_ = runID;
@@ -543,17 +552,17 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
 	// Check that the file name isn't empty
 	if (m_programName.value().empty()) {
 		glogger
-		<< "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): Error!" << std::endl
-		<< "Program name was empty" << std::endl
-		<< GEXCEPTION;
+			<< "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): Error!" << std::endl
+			<< "Program name was empty" << std::endl
+			<< GTERMINATION;
 	}
 
 	// Check that the file exists
 	if (!bf::exists(m_programName.value())) {
 		glogger
-		<< "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): Error!" << std::endl
-		<< "External program " << m_programName.value() << " does not seem to exist" << std::endl
-		<< GTERMINATION;
+			<< "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): Error!" << std::endl
+			<< "External program " << m_programName.value() << " does not seem to exist" << std::endl
+			<< GTERMINATION;
 	}
 
 	// Collect all command-line arguments
@@ -572,11 +581,11 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
 	// Let the audience know
 	if (errorCode) {
 		glogger
-		<< "In GExternalEvaluatorIndividual::~GExternalEvaluatorIndividualFactory(): Error" << std::endl
-		<< "Execution of external command failed." << std::endl
-		<< "Command: " << command << std::endl
-		<< "Error code: " << errorCode << std::endl
-		<< GTERMINATION;
+			<< "In GExternalEvaluatorIndividual::~GExternalEvaluatorIndividualFactory(): Error" << std::endl
+			<< "Execution of external command failed." << std::endl
+			<< "Command: " << command << std::endl
+			<< "Error code: " << errorCode << std::endl
+			<< GTERMINATION;
 	}
 }
 
@@ -677,10 +686,11 @@ double GExternalEvaluatorIndividualFactory::getAdaptAdProb() const {
 void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 #ifdef DEBUG
 	if(adaptAdProb < 0.) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setAdaptAdProb(): Error!" << std::endl
-		<< "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setAdaptAdProb(): Error!" << std::endl
+				<< "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -702,24 +712,27 @@ std::tuple<double, double> GExternalEvaluatorIndividualFactory::getAdProbRange()
 void GExternalEvaluatorIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb) {
 #ifdef DEBUG
 	if(minAdProb < 0.) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
-		<< "minAdProb < 0: " << minAdProb << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "minAdProb < 0: " << minAdProb << std::endl
+		);
 	}
 
 	if(minAdProb > maxAdProb) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
-		<< "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
+		);
 	}
 
 	if(maxAdProb > 1.) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
-		<< "maxAdProb > 1: " << maxAdProb << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "maxAdProb > 1: " << maxAdProb << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -825,17 +838,19 @@ void GExternalEvaluatorIndividualFactory::setDeltaRange(std::tuple<double, doubl
 	double max = std::get<1>(range);
 
 	if (min < 0) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << std::endl
-		<< "min must be >= 0. Got : " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << std::endl
+				<< "min must be >= 0. Got : " << max << std::endl
+		);
 	}
 
 	if (min >= max) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << std::endl
-		<< "Invalid range specified: " << min << " / " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setDeltaRange(): Error" << std::endl
+				<< "Invalid range specified: " << min << " / " << max << std::endl
+		);
 	}
 
 	m_minDelta = min;
@@ -875,17 +890,19 @@ void GExternalEvaluatorIndividualFactory::setSigma1Range(std::tuple<double, doub
 	double max = std::get<1>(range);
 
 	if (min < 0) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << std::endl
-		<< "min must be >= 0. Got : " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << std::endl
+				<< "min must be >= 0. Got : " << max << std::endl
+		);
 	}
 
 	if (min >= max) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << std::endl
-		<< "Invalid range specified: " << min << " / " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setSigma1Range(): Error" << std::endl
+				<< "Invalid range specified: " << min << " / " << max << std::endl
+		);
 	}
 
 	m_minSigma1 = min;
@@ -925,17 +942,19 @@ void GExternalEvaluatorIndividualFactory::setSigma2Range(std::tuple<double, doub
 	double max = std::get<1>(range);
 
 	if (min < 0) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << std::endl
-		<< "min must be >= 0. Got : " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << std::endl
+				<< "min must be >= 0. Got : " << max << std::endl
+		);
 	}
 
 	if (min >= max) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << std::endl
-		<< "Invalid range specified: " << min << " / " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setSigma2Range(): Error" << std::endl
+				<< "Invalid range specified: " << min << " / " << max << std::endl
+		);
 	}
 
 	m_minSigma2 = min;
@@ -1048,18 +1067,20 @@ void GExternalEvaluatorIndividualFactory::setUseBiGaussian(bool useBiGaussian) {
 void GExternalEvaluatorIndividualFactory::setProgramName(std::string programName) {
 	// Check that the file name isn't empty
 	if (programName.empty()) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << std::endl
-		<< "File name was empty" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << std::endl
+				<< "File name was empty" << std::endl
+		);
 	}
 
 	// Check that the file exists
 	if (!bf::exists(programName)) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << std::endl
-		<< "External program " << programName << " does not seem to exist" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << std::endl
+				<< "External program " << programName << " does not seem to exist" << std::endl
+		);
 	}
 
 	m_programName.setValue(programName);
@@ -1099,10 +1120,11 @@ std::string GExternalEvaluatorIndividualFactory::getCustomOptions() const {
 void GExternalEvaluatorIndividualFactory::setParameterFileBaseName(std::string parameterFileBaseName) {
 	// Check that the name isn't empty
 	if (parameterFileBaseName.empty()) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setParameterFileBaseName(): Error!" << std::endl
-		<< "Name was empty" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setParameterFileBaseName(): Error!" << std::endl
+				<< "Name was empty" << std::endl
+		);
 	}
 
 	m_parameterFileBaseName = parameterFileBaseName;
@@ -1124,11 +1146,12 @@ std::string GExternalEvaluatorIndividualFactory::getParameterFileBaseName() cons
  */
 void GExternalEvaluatorIndividualFactory::setInitValues(std::string initValues) {
 	if (initValues != "random" && initValues != "min" && initValues != "max") {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setInitValues(): Error!" << std::endl
-		<< "Invalid argument: " << initValues << std::endl
-		<< "Expected \"min\", \"max\", or \"random\"." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setInitValues(): Error!" << std::endl
+				<< "Invalid argument: " << initValues << std::endl
+				<< "Expected \"min\", \"max\", or \"random\"." << std::endl
+		);
 	}
 
 	m_initValues.setValue(initValues);
@@ -1196,8 +1219,8 @@ void GExternalEvaluatorIndividualFactory::archive(
 
 			getCurrentEvaluationID()
 
-		<<
-		std::endl;
+					 <<
+					 std::endl;
 	}
 
 	// Create a suitable extension and exchange file names for this object
@@ -1239,13 +1262,13 @@ void GExternalEvaluatorIndividualFactory::archive(
 
 	// Let the audience know
 	if(errorCode) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::archive(): Error" << std::endl
-		<< "Execution of external command failed." << std::endl
-		<< "Command: " << command << std::endl
-		<< "Error code: " << errorCode << std::endl
-		<<
-		GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::archive(): Error" << std::endl
+				<< "Execution of external command failed." << std::endl
+				<< "Command: " << command << std::endl
+				<< "Error code: " << errorCode << std::endl
+		);
 	}
 
 	// Clean up (remove) the parameter file. This will only be done if no error occurred
@@ -1286,122 +1309,122 @@ void GExternalEvaluatorIndividualFactory::describeLocalOptions_(Gem::Common::GPa
 	gpb.registerFileParameter<double>(
 		"adProb", m_adProb.reference(), GEEI_DEF_ADPROB
 	)
-	<< "The probability for random adaption of values in evolutionary algorithms";
+		<< "The probability for random adaption of values in evolutionary algorithms";
 
 	gpb.registerFileParameter<double>(
 		"adaptAdProb", m_adaptAdProb.reference(), GEEI_DEF_ADAPTADPROB
 	)
-	<< "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature";
+		<< "Determines the rate of adaption of adProb. Set to 0, if you do not need this feature";
 
 	gpb.registerFileParameter<double>(
 		"minAdProb", m_minAdProb.reference(), GEEI_DEF_MINADPROB
 	)
-	<< "The lower allowed boundary for adProb-variation";
+		<< "The lower allowed boundary for adProb-variation";
 
 	gpb.registerFileParameter<double>(
 		"maxAdProb", m_maxAdProb.reference(), GEEI_DEF_MAXADPROB
 	)
-	<< "The upper allowed boundary for adProb-variation";
+		<< "The upper allowed boundary for adProb-variation";
 
 
 	gpb.registerFileParameter<std::uint32_t>(
 		"adaptionThreshold", m_adaptionThreshold.reference(), GEEI_DEF_ADAPTIONTHRESHOLD
 	)
-	<< "The number of calls to an adaptor after which adaption takes place";
+		<< "The number of calls to an adaptor after which adaption takes place";
 
 	gpb.registerFileParameter<bool>(
 		"useBiGaussian", m_useBiGaussian.reference(), GEEI_DEF_USEBIGAUSSIAN
 	)
-	<< "Whether to use a double gaussion for the adaption of parmeters in ES";
+		<< "Whether to use a double gaussion for the adaption of parmeters in ES";
 
 	gpb.registerFileParameter<double>(
 		"sigma1", m_sigma1.reference(), GEEI_DEF_SIGMA1
 	)
-	<< "The sigma for gauss-adaption in ES" << std::endl
-	<< "(or the sigma of the left peak of a double gaussian)";
+		<< "The sigma for gauss-adaption in ES" << std::endl
+		<< "(or the sigma of the left peak of a double gaussian)";
 
 	gpb.registerFileParameter<double>(
 		"sigmaSigma1", m_sigmaSigma1.reference(), GEEI_DEF_SIGMASIGMA1
 	)
-	<< "Influences the self-adaption of gauss-mutation in ES";
+		<< "Influences the self-adaption of gauss-mutation in ES";
 
 	gpb.registerFileParameter<double>(
 		"minSigma1", m_minSigma1.reference(), GEEI_DEF_MINSIGMA1
 	)
-	<< "The minimum value of sigma1";
+		<< "The minimum value of sigma1";
 
 	gpb.registerFileParameter<double>(
 		"maxSigma1", m_maxSigma1.reference(), GEEI_DEF_MAXSIGMA1
 	)
-	<< "The maximum value of sigma1";
+		<< "The maximum value of sigma1";
 
 	gpb.registerFileParameter<double>(
 		"sigma2", m_sigma2.reference(), GEEI_DEF_SIGMA2
 	)
-	<< "The sigma of the right peak of a double gaussian (if any)";
+		<< "The sigma of the right peak of a double gaussian (if any)";
 
 	gpb.registerFileParameter<double>(
 		"sigmaSigma2", m_sigmaSigma2.reference(), GEEI_DEF_SIGMASIGMA2
 	)
-	<< "Influences the self-adaption of gauss-mutation in ES";
+		<< "Influences the self-adaption of gauss-mutation in ES";
 
 	gpb.registerFileParameter<double>(
 		"minSigma2", m_minSigma2.reference(), GEEI_DEF_MINSIGMA2
 	)
-	<< "The minimum value of sigma2";
+		<< "The minimum value of sigma2";
 
 	gpb.registerFileParameter<double>(
 		"maxSigma2", m_maxSigma2.reference(), GEEI_DEF_MAXSIGMA2
 	)
-	<< "The maximum value of sigma2";
+		<< "The maximum value of sigma2";
 
 	gpb.registerFileParameter<double>(
 		"delta", m_delta.reference(), GEEI_DEF_DELTA
 	)
-	<< "The start distance between both peaks used for bi-gaussian mutations in ES";
+		<< "The start distance between both peaks used for bi-gaussian mutations in ES";
 
 	gpb.registerFileParameter<double>(
 		"sigmaDelta", m_sigmaDelta.reference(), GEEI_DEF_SIGMADELTA
 	)
-	<< "The width of the gaussian used for mutations of the delta parameter";
+		<< "The width of the gaussian used for mutations of the delta parameter";
 
 	gpb.registerFileParameter<double>(
 		"minDelta", m_minDelta.reference(), GEEI_DEF_MINDELTA
 	)
-	<< "The minimum allowed value of delta";
+		<< "The minimum allowed value of delta";
 
 	gpb.registerFileParameter<double>(
 		"maxDelta", m_maxDelta.reference(), GEEI_DEF_MAXDELTA
 	)
-	<< "The maximum allowed value of delta";
+		<< "The maximum allowed value of delta";
 
 	gpb.registerFileParameter<std::string>(
 		"programName", m_programName.reference() // Upon repeated filling this option will do nothing
 		, GEEI_DEF_PROGNAME
 	)
-	<< "The name of the external evaluation program";
+		<< "The name of the external evaluation program";
 
 	gpb.registerFileParameter<std::string>(
 		"customOptions", m_customOptions.reference(), GEEI_DEF_CUSTOMOPTIONS
 	)
-	<< "Any custom options you wish to pass to the external evaluator";
+		<< "Any custom options you wish to pass to the external evaluator";
 
 	gpb.registerFileParameter<std::string>(
 		"parameterFile", m_parameterFileBaseName.reference(), GEEI_DEF_PARFILEBASENAME
 	)
-	<< "The base name assigned to parameter files" << std::endl
-	<< "in addition to data identifying this specific evaluation";
+		<< "The base name assigned to parameter files" << std::endl
+		<< "in addition to data identifying this specific evaluation";
 
 	gpb.registerFileParameter<std::string>(
 		"initValues", m_initValues.reference(), GEEI_DEF_STARTMODE
 	)
-	<< "Indicates, whether individuals should be initialized randomly (random)," << std::endl
-	<< "with the lower (min) or upper (max) boundary of their value ranges";
+		<< "Indicates, whether individuals should be initialized randomly (random)," << std::endl
+		<< "with the lower (min) or upper (max) boundary of their value ranges";
 
 	gpb.registerFileParameter<bool>(
 		"removeExecTemporaries", m_removeExecTemporaries.reference(), GEEI_DEF_REMOVETEMPORARIES
 	)
-	<< "Indicates, whether files created during external execution should be removed";
+		<< "Indicates, whether files created during external execution should be removed";
 }
 
 /******************************************************************************/
@@ -1417,18 +1440,20 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 
 	// Check that the file name isn't empty
 	if (m_programName.value().empty()) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << std::endl
-		<< "File name was empty" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << std::endl
+				<< "File name was empty" << std::endl
+		);
 	}
 
 	// Check that the file exists
 	if (!bf::exists(m_programName.value())) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << std::endl
-		<< "External program " << m_programName.value() << " does not seem to exist" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << std::endl
+				<< "External program " << m_programName.value() << " does not seem to exist" << std::endl
+		);
 	}
 
 	// Make sure the property tree is empty
@@ -1449,12 +1474,13 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 		);
 
 		if (errorCode) {
-			glogger
-			<< "In GExternalEvaluatorIndividual::setUpPropertyTree(//1//): Error" << std::endl
-			<< "Execution of external command failed." << std::endl
-			<< "Command: " << command << std::endl
-			<< "Error code: " << errorCode << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividual::setUpPropertyTree(//1//): Error" << std::endl
+					<< "Execution of external command failed." << std::endl
+					<< "Command: " << command << std::endl
+					<< "Error code: " << errorCode << std::endl
+			);
 		}
 	}
 
@@ -1479,12 +1505,13 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 		);
 
 		if (errorCode) {
-			glogger
-			<< "In GExternalEvaluatorIndividual::setUpPropertyTree(//2//): Error" << std::endl
-			<< "Execution of external command failed." << std::endl
-			<< "Command: " << command << std::endl
-			<< "Error code: " << errorCode << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividual::setUpPropertyTree(//2//): Error" << std::endl
+					<< "Execution of external command failed." << std::endl
+					<< "Command: " << command << std::endl
+					<< "Error code: " << errorCode << std::endl
+			);
 		}
 
 		// Parse the setup file
@@ -1519,10 +1546,11 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 	this->setUpPropertyTree();
 
 	if (m_ptr.empty()) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
-		<< "Property tree is empty." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+				<< "Property tree is empty." << std::endl
+		);
 	}
 
 	// Set up an adaptor for the collection, so they know how to be adapted
@@ -1551,10 +1579,11 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 		// Extract the number of individuals
 		std::size_t nIndividuals = m_ptr.get<std::size_t>("batch.nIndividuals");
 		if (1 != nIndividuals) {
-			glogger
-			<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
-			<< "Received invalid number of setup-individuals: " << nIndividuals << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+					<< "Received invalid number of setup-individuals: " << nIndividuals << std::endl
+			);
 		}
 
 		// Get the run-id
@@ -1618,11 +1647,12 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 						// Add the object to the individual
 						p->push_back(gcdo_ptr);
 					} else {
-						glogger
-						<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
-						<< (cit->second).get<std::string>("type") << " provided as type name." << std::endl
-						<< "Currently only GConstrainedDoubleObject is supported." << std::endl
-						<< GEXCEPTION;
+						throw gemfony_exception(
+							g_error_streamer(DO_LOG,  time_and_place)
+								<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+								<< (cit->second).get<std::string>("type") << " provided as type name." << std::endl
+								<< "Currently only GConstrainedDoubleObject is supported." << std::endl
+						);
 					}
 
 					if (++varCounter >= nVar) {
@@ -1635,10 +1665,11 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 				}
 			}
 		} else {
-			glogger
-			<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
-			<< "No variables were specified" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+					<< "No variables were specified" << std::endl
+			);
 		}
 
 		// If boundaries have been specified, add the required boundary objects to the individual.
@@ -1675,8 +1706,8 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 
 #ifdef DEBUG
 			glogger
-			<< "Found " << boundsCounter << " bounds" << std::endl
-			<< GLOGGING;
+				<< "Found " << boundsCounter << " bounds" << std::endl
+				<< GLOGGING;
 #endif /* DEBUG */
 
 			// Add the check combiner to the individual
@@ -1691,17 +1722,19 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 		p->setRemoveExecTemporaries(m_removeExecTemporaries);
 		p->setRunId(runID);
 	} catch (const pt::ptree_bad_path &e) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
-		<< "Caught ptree_bad_path exception with message " << std::endl
-		<< e.what() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Error!" << std::endl
+				<< "Caught ptree_bad_path exception with message " << std::endl
+				<< e.what() << std::endl
+		);
 	} catch (const gemfony_exception &gec) {
 		throw gec; // Re-throw
 	} catch (...) {
-		glogger
-		<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Caught unknown exception!" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GExternalEvaluatorIndividualFactory::postProcess_(): Caught unknown exception!" << std::endl
+		);
 	}
 }
 

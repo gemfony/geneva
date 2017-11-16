@@ -67,7 +67,7 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &C)
  */
 GDoubleSumConstraint::GDoubleSumConstraint(const GDoubleSumConstraint &cp)
 	: GParameterSetConstraint(cp)
-  	, C_(cp.C_)
+	  , C_(cp.C_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -740,15 +740,15 @@ void GFunctionIndividual::addConfigurationOptions(
 		, GO_DEF_EVALFUNCTION // The default value
 		, [this](solverFunction sf) { this->setDemoFunction(sf); }
 	)
-	<< "Specifies which demo function should be used:" << std::endl
-	<< "0: Parabola" << std::endl
-	<< "1: Berlich" << std::endl
-	<< "2: Rosenbrock" << std::endl
-	<< "3: Ackley" << std::endl
-	<< "4: Rastrigin" << std::endl
-	<< "5: Schwefel" << std::endl
-	<< "6: Salomon" << std::endl
-	<< "7: Negative Parabola" << std::endl;
+		<< "Specifies which demo function should be used:" << std::endl
+		<< "0: Parabola" << std::endl
+		<< "1: Berlich" << std::endl
+		<< "2: Rosenbrock" << std::endl
+		<< "3: Ackley" << std::endl
+		<< "4: Rastrigin" << std::endl
+		<< "5: Schwefel" << std::endl
+		<< "6: Salomon" << std::endl
+		<< "7: Negative Parabola" << std::endl;
 }
 
 /******************************************************************************/
@@ -853,13 +853,14 @@ double GFunctionIndividual::fitnessCalculation() {
 			// or http://www.it.lut.fi/ip/evo/functions/node5.html .
 		case solverFunction::ROSENBROCK: {
 #ifdef DEBUG
-		// Check the size of the parameter vector -- must be at least 2
-		if(parameterSize < 2) {
-		   glogger
-		   << "In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
-         << "Need to use at least two input dimensions, but got " << parameterSize << std::endl
-         << GEXCEPTION;
-		}
+			// Check the size of the parameter vector -- must be at least 2
+			if(parameterSize < 2) {
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GFunctionIndividual::fitnessCalculation() / ROSENBROCK: Error!" << std::endl
+						<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl
+				);
+			}
 #endif /* DEBUG */
 
 			for (std::size_t i = 0; i < (parameterSize - 1); i++) {
@@ -872,13 +873,14 @@ double GFunctionIndividual::fitnessCalculation() {
 			// The Ackeley function (see e.g. http://www.it.lut.fi/ip/evo/functions/node14.html)
 		case solverFunction::ACKLEY: {
 #ifdef DEBUG
-		// Check the size of the parameter vector -- must be at least 2
-		if(parameterSize < 2) {
-		   glogger
-		   << "In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
-         << "Need to use at least two input dimensions, but got " << parameterSize << std::endl
-         << GEXCEPTION;
-		}
+			// Check the size of the parameter vector -- must be at least 2
+			if(parameterSize < 2) {
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GFunctionIndividual::fitnessCalculation() / ACKLEY: Error!" << std::endl
+						<< "Need to use at least two input dimensions, but got " << parameterSize << std::endl
+				);
+			}
 #endif /* DEBUG */
 
 			for (std::size_t i = 0; i < (parameterSize - 1); i++) {
@@ -936,10 +938,11 @@ double GFunctionIndividual::fitnessCalculation() {
 			//-----------------------------------------------------------
 
 		default: {
-			glogger
-			<< "In GFunctionIndividual::fitnessCalculation(): Error!" << std::endl
-			<< "Got invalid function type " << demoFunction_ << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GFunctionIndividual::fitnessCalculation(): Error!" << std::endl
+					<< "Got invalid function type " << demoFunction_ << std::endl
+			);
 		}
 			break;
 
@@ -988,29 +991,29 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr <Gem::Geneva::GFunctio
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string &configFile)
 	: GParameterSetFactory(configFile)
-  	, adProb_(GFI_DEF_ADPROB)
-  	, adaptAdProb_(GFI_DEF_ADAPTADPROB)
-  	, minAdProb_(GFI_DEF_MINADPROB)
-  	, maxAdProb_(GFI_DEF_MAXADPROB)
-  	, adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
-  	, useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
-   , sigma1_(GFI_DEF_SIGMA1)
-   , sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
-  	, minSigma1_(GFI_DEF_MINSIGMA1)
-  	, maxSigma1_(GFI_DEF_MAXSIGMA1)
-   , sigma2_(GFI_DEF_SIGMA2)
-   , sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
-  	, minSigma2_(GFI_DEF_MINSIGMA2)
-  	, maxSigma2_(GFI_DEF_MAXSIGMA2)
-   , delta_(GFI_DEF_DELTA)
-  	, sigmaDelta_(GFI_DEF_SIGMADELTA)
-  	, minDelta_(GFI_DEF_MINDELTA)
-  	, maxDelta_(GFI_DEF_MAXDELTA)
-	, parDim_(GFI_DEF_PARDIM)
-  	, minVar_(GFI_DEF_MINVAR)
-  	, maxVar_(GFI_DEF_MAXVAR)
-  	, pT_(GFI_DEF_PARAMETERTYPE)
-	, iM_(GFI_DEF_INITMODE)
+	  , adProb_(GFI_DEF_ADPROB)
+	  , adaptAdProb_(GFI_DEF_ADAPTADPROB)
+	  , minAdProb_(GFI_DEF_MINADPROB)
+	  , maxAdProb_(GFI_DEF_MAXADPROB)
+	  , adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
+	  , useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
+	  , sigma1_(GFI_DEF_SIGMA1)
+	  , sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
+	  , minSigma1_(GFI_DEF_MINSIGMA1)
+	  , maxSigma1_(GFI_DEF_MAXSIGMA1)
+	  , sigma2_(GFI_DEF_SIGMA2)
+	  , sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
+	  , minSigma2_(GFI_DEF_MINSIGMA2)
+	  , maxSigma2_(GFI_DEF_MAXSIGMA2)
+	  , delta_(GFI_DEF_DELTA)
+	  , sigmaDelta_(GFI_DEF_SIGMADELTA)
+	  , minDelta_(GFI_DEF_MINDELTA)
+	  , maxDelta_(GFI_DEF_MAXDELTA)
+	  , parDim_(GFI_DEF_PARDIM)
+	  , minVar_(GFI_DEF_MINVAR)
+	  , maxVar_(GFI_DEF_MAXVAR)
+	  , pT_(GFI_DEF_PARAMETERTYPE)
+	  , iM_(GFI_DEF_INITMODE)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1019,29 +1022,29 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string &config
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const GFunctionIndividualFactory &cp)
 	: GParameterSetFactory(cp)
-  	, adProb_(cp.adProb_)
-  	, adaptAdProb_(cp.adaptAdProb_)
-  	, minAdProb_(cp.minAdProb_)
-  	, maxAdProb_(cp.maxAdProb_)
-  	, adaptionThreshold_(cp.adaptionThreshold_)
-  	, useBiGaussian_(cp.useBiGaussian_)
-  	, sigma1_(cp.sigma1_)
-  	, sigmaSigma1_(cp.sigmaSigma1_)
-  	, minSigma1_(cp.minSigma1_)
-  	, maxSigma1_(cp.maxSigma1_)
-  	, sigma2_(cp.sigma2_)
-  	, sigmaSigma2_(cp.sigmaSigma2_)
-  	, minSigma2_(cp.minSigma2_)
-  	, maxSigma2_(cp.maxSigma2_)
-  	, delta_(cp.delta_)
-  	, sigmaDelta_(cp.sigmaDelta_)
-  	, minDelta_(cp.minDelta_)
-  	, maxDelta_(cp.maxDelta_)
-  	, parDim_(cp.parDim_)
-  	, minVar_(cp.minVar_)
-  	, maxVar_(cp.maxVar_)
-  	, pT_(cp.pT_)
-  	, iM_(cp.iM_)
+	  , adProb_(cp.adProb_)
+	  , adaptAdProb_(cp.adaptAdProb_)
+	  , minAdProb_(cp.minAdProb_)
+	  , maxAdProb_(cp.maxAdProb_)
+	  , adaptionThreshold_(cp.adaptionThreshold_)
+	  , useBiGaussian_(cp.useBiGaussian_)
+	  , sigma1_(cp.sigma1_)
+	  , sigmaSigma1_(cp.sigmaSigma1_)
+	  , minSigma1_(cp.minSigma1_)
+	  , maxSigma1_(cp.maxSigma1_)
+	  , sigma2_(cp.sigma2_)
+	  , sigmaSigma2_(cp.sigmaSigma2_)
+	  , minSigma2_(cp.minSigma2_)
+	  , maxSigma2_(cp.maxSigma2_)
+	  , delta_(cp.delta_)
+	  , sigmaDelta_(cp.sigmaDelta_)
+	  , minDelta_(cp.minDelta_)
+	  , maxDelta_(cp.maxDelta_)
+	  , parDim_(cp.parDim_)
+	  , minVar_(cp.minVar_)
+	  , maxVar_(cp.maxVar_)
+	  , pT_(cp.pT_)
+	  , iM_(cp.iM_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1050,29 +1053,29 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const GFunctionIndividual
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory()
 	: GParameterSetFactory("empty")
-  	, adProb_(GFI_DEF_ADPROB)
-  	, adaptAdProb_(GFI_DEF_ADAPTADPROB)
-  	, minAdProb_(GFI_DEF_MINADPROB)
-  	, maxAdProb_(GFI_DEF_MAXADPROB)
-  	, adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
-  	, useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
-  	, sigma1_(GFI_DEF_SIGMA1)
-  	, sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
-  	, minSigma1_(GFI_DEF_MINSIGMA1)
-  	, maxSigma1_(GFI_DEF_MAXSIGMA1)
-	, sigma2_(GFI_DEF_SIGMA2)
-  	, sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
-  	, minSigma2_(GFI_DEF_MINSIGMA2)
-  	, maxSigma2_(GFI_DEF_MAXSIGMA2)
-  	, delta_(GFI_DEF_DELTA)
-  	, sigmaDelta_(GFI_DEF_SIGMADELTA)
-	, minDelta_(GFI_DEF_MINDELTA)
-  	, maxDelta_(GFI_DEF_MAXDELTA)
-  	, parDim_(GFI_DEF_PARDIM)
-  	, minVar_(GFI_DEF_MINVAR)
-  	, maxVar_(GFI_DEF_MAXVAR)
-  	, pT_(GFI_DEF_PARAMETERTYPE)
-  	, iM_(GFI_DEF_INITMODE)
+	  , adProb_(GFI_DEF_ADPROB)
+	  , adaptAdProb_(GFI_DEF_ADAPTADPROB)
+	  , minAdProb_(GFI_DEF_MINADPROB)
+	  , maxAdProb_(GFI_DEF_MAXADPROB)
+	  , adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
+	  , useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
+	  , sigma1_(GFI_DEF_SIGMA1)
+	  , sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
+	  , minSigma1_(GFI_DEF_MINSIGMA1)
+	  , maxSigma1_(GFI_DEF_MAXSIGMA1)
+	  , sigma2_(GFI_DEF_SIGMA2)
+	  , sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
+	  , minSigma2_(GFI_DEF_MINSIGMA2)
+	  , maxSigma2_(GFI_DEF_MAXSIGMA2)
+	  , delta_(GFI_DEF_DELTA)
+	  , sigmaDelta_(GFI_DEF_SIGMADELTA)
+	  , minDelta_(GFI_DEF_MINDELTA)
+	  , maxDelta_(GFI_DEF_MAXDELTA)
+	  , parDim_(GFI_DEF_PARDIM)
+	  , minVar_(GFI_DEF_MINVAR)
+	  , maxVar_(GFI_DEF_MAXVAR)
+	  , pT_(GFI_DEF_PARAMETERTYPE)
+	  , iM_(GFI_DEF_INITMODE)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1133,10 +1136,11 @@ std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> GFunctionIndividualFacto
  */
 void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
 	if (parDim == 0) {
-		glogger
-		<< "In GFunctionIndividualFactory::setParDim(): Error!" << std::endl
-		<< "Dimension of the function is set to 0" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setParDim(): Error!" << std::endl
+				<< "Dimension of the function is set to 0" << std::endl
+		);
 	}
 
 	parDim_ = parDim;
@@ -1159,10 +1163,11 @@ void GFunctionIndividualFactory::setVarBoundaries(std::tuple<double, double> bou
 	double max = std::get<1>(boundaries);
 
 	if (min >= max) {
-		glogger
-		<< "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << std::endl
-		<< "Received invalid boundaries " << min << " / " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setVarBoundaries(): Error!" << std::endl
+				<< "Received invalid boundaries " << min << " / " << max << std::endl
+		);
 	}
 
 	setMinVar(min);
@@ -1332,17 +1337,19 @@ void GFunctionIndividualFactory::setDeltaRange(std::tuple<double, double> range)
 	double max = std::get<1>(range);
 
 	if (min < 0) {
-		glogger
-		<< "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
-		<< "min must be >= 0. Got : " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
+				<< "min must be >= 0. Got : " << max << std::endl
+		);
 	}
 
 	if (min >= max) {
-		glogger
-		<< "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
-		<< "Invalid range specified: " << min << " / " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setDeltaRange(): Error" << std::endl
+				<< "Invalid range specified: " << min << " / " << max << std::endl
+		);
 	}
 
 	minDelta_ = min;
@@ -1382,17 +1389,19 @@ void GFunctionIndividualFactory::setSigma1Range(std::tuple<double, double> range
 	double max = std::get<1>(range);
 
 	if (min < 0) {
-		glogger
-		<< "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
-		<< "min must be >= 0. Got : " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
+				<< "min must be >= 0. Got : " << max << std::endl
+		);
 	}
 
 	if (min >= max) {
-		glogger
-		<< "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
-		<< "Invalid range specified: " << min << " / " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setSigma1Range(): Error" << std::endl
+				<< "Invalid range specified: " << min << " / " << max << std::endl
+		);
 	}
 
 	minSigma1_ = min;
@@ -1432,17 +1441,19 @@ void GFunctionIndividualFactory::setSigma2Range(std::tuple<double, double> range
 	double max = std::get<1>(range);
 
 	if (min < 0) {
-		glogger
-		<< "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
-		<< "min must be >= 0. Got : " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
+				<< "min must be >= 0. Got : " << max << std::endl
+		);
 	}
 
 	if (min >= max) {
-		glogger
-		<< "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
-		<< "Invalid range specified: " << min << " / " << max << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setSigma2Range(): Error" << std::endl
+				<< "Invalid range specified: " << min << " / " << max << std::endl
+		);
 	}
 
 	minSigma2_ = min;
@@ -1599,12 +1610,13 @@ double GFunctionIndividualFactory::getAdaptAdProb() const {
  */
 void GFunctionIndividualFactory::setAdaptAdProb(double adaptAdProb) {
 #ifdef DEBUG
-   if(adaptAdProb < 0.) {
-      glogger
-      << "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << std::endl
-      << "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
-      << GEXCEPTION;
-   }
+	if(adaptAdProb < 0.) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setAdaptAdProb(): Error!" << std::endl
+				<< "Invalid value for adaptAdProb given: " << adaptAdProb << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	adaptAdProb_ = adaptAdProb;
@@ -1624,26 +1636,29 @@ std::tuple<double, double> GFunctionIndividualFactory::getAdProbRange() const {
  */
 void GFunctionIndividualFactory::setAdProbRange(double minAdProb, double maxAdProb) {
 #ifdef DEBUG
-   if(minAdProb < 0.) {
-      glogger
-      << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
-      << "minAdProb < 0: " << minAdProb << std::endl
-      << GEXCEPTION;
-   }
+	if(minAdProb < 0.) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "minAdProb < 0: " << minAdProb << std::endl
+		);
+	}
 
-   if(minAdProb > maxAdProb) {
-      glogger
-      << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
-      << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
-      << GEXCEPTION;
-   }
+	if(minAdProb > maxAdProb) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
+		);
+	}
 
-   if(maxAdProb > 1.) {
-      glogger
-      << "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
-      << "maxAdProb > 1: " << maxAdProb << std::endl
-      << GEXCEPTION;
-   }
+	if(maxAdProb > 1.) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GFunctionIndividualFactory::setAdProbRange(): Error!" << std::endl
+				<< "maxAdProb > 1: " << maxAdProb << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	minAdProb_ = minAdProb;
@@ -1954,10 +1969,11 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			break;
 
 		default: {
-			glogger
-			<< "In GFunctionIndividualFactory::postProcess_(): Error!"
-			<< "Found invalid pT_: " << pT_ << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GFunctionIndividualFactory::postProcess_(): Error!"
+					<< "Found invalid pT_: " << pT_ << std::endl
+			);
 		}
 			break;
 	}

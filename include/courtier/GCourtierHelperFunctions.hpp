@@ -57,6 +57,7 @@
 // Geneva headers go here
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
 namespace Gem {

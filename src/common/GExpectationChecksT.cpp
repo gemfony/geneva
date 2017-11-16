@@ -54,7 +54,7 @@ GToken::GToken(
 	const std::string &caller, const Gem::Common::expectation &e
 )
 	: testCounter_(std::tuple<std::size_t, std::size_t>(std::size_t(0), std::size_t(0))), caller_(caller),
-	  e_(e) { /* nothing */ }
+	e_(e) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -161,10 +161,11 @@ void GToken::registerErrorMessage(const std::string &m) {
 	if (!m.empty()) {
 		errorMessages_.push_back(m);
 	} else {
-		glogger
-		<< "In GToken::registerErrorMessage(): Error" << std::endl
-		<< "Tried to register empty error message" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GToken::registerErrorMessage(): Error" << std::endl
+				<< "Tried to register empty error message" << std::endl
+		);
 	}
 }
 
@@ -252,10 +253,10 @@ G_API_COMMON void GToken::evaluate() const {
  */
 std::ostream &operator<<(std::ostream &s, const GToken &g) {
 	s
-	<< "GToken for caller " << g.getCallerName() << " with expectation  " << g.getExpectationStr() << ":" << std::endl
-	<< "Test counter:     " << g.getTestCounter() << std::endl
-	<< "Success counter:  " << g.getSuccessCounter() << std::endl
-	<< g.getErrorMessages() << std::endl;
+		<< "GToken for caller " << g.getCallerName() << " with expectation  " << g.getExpectationStr() << ":" << std::endl
+		<< "Test counter:     " << g.getTestCounter() << std::endl
+		<< "Success counter:  " << g.getSuccessCounter() << std::endl
+		<< g.getErrorMessages() << std::endl;
 	return s;
 }
 
@@ -307,11 +308,11 @@ void compare(
 	if (!expectationMet) {
 		std::ostringstream error;
 		error
-		<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
-		<< "[" << std::endl
-		<< x_name << " = " << x << std::endl
-		<< y_name << " = " << y << std::endl
-		<< "]" << std::endl;
+			<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
+			<< "[" << std::endl
+			<< x_name << " = " << x << std::endl
+			<< y_name << " = " << y << std::endl
+			<< "]" << std::endl;
 		throw g_expectation_violation(error.str());
 	}
 }

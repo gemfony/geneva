@@ -389,9 +389,10 @@ int main(int argc, char **argv){
 			//----------------------------------------------------------------------------
 		default:
 		{
-			glogger
-			<< "In main(): Received invalid consumer type " << cType << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In main(): Received invalid consumer type " << cType << std::endl
+			);
 		}
 			break;
 	}

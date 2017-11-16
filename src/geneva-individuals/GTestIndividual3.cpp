@@ -259,12 +259,13 @@ std::shared_ptr <float> GTestIndividual3::getPlainData() const {
 	using namespace Gem::Geneva;
 
 #ifdef DEBUG
-   if(this->size() != GTI_DEF_NITEMS) {
-      glogger
-      << "In GTestIndividual3::getPlainData(): Error!" << std::endl
-      << "Invalid number of entries in this class " << this->size() << " / " << GTI_DEF_NITEMS << std::endl
-      << GEXCEPTION;
-   }
+	if(this->size() != GTI_DEF_NITEMS) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GTestIndividual3::getPlainData(): Error!" << std::endl
+				<< "Invalid number of entries in this class " << this->size() << " / " << GTI_DEF_NITEMS << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	// Note that we need to provide a deleter as we are dealing with an array. See e.g. http://stackoverflow.com/questions/13061979/shared-ptr-to-an-array-should-it-be-used

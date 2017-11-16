@@ -141,10 +141,11 @@ const GBooleanCollection &GBooleanCollection::operator=(
 void GBooleanCollection::flip(const std::size_t& pos) {
 #ifdef DEBUG
 	if(this->size() <= pos) {
-		glogger
-		<< "In GBooleanCollection::flip(const std::size_t& " << pos << "): Error!" << std::endl
-		<< "Tried to exist position beyond end of vector of size " << this->size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBooleanCollection::flip(const std::size_t& " << pos << "): Error!" << std::endl
+				<< "Tried to exist position beyond end of vector of size " << this->size() << std::endl
+		);
 	}
 #endif
 
@@ -218,10 +219,11 @@ bool GBooleanCollection::randomInit_(
 
 	// Do some error checks
 	if(!Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanCollection::randomInit_(probability)")) {
-		glogger
-		<< "In GBooleanCollection::randomInit_(probability): Error!" << std::endl
-	   << "Probability " << probability << " not in allowed value range [0,1]" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBooleanCollection::randomInit_(probability): Error!" << std::endl
+				<< "Probability " << probability << " not in allowed value range [0,1]" << std::endl
+		);
 	}
 
 	// Obtain access to a random number generator
@@ -373,12 +375,13 @@ void GBooleanCollection::booleanStreamline(
 	std::map<std::string, std::vector<bool>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
-   if((this->getParameterName()).empty()) {
-      glogger
-      << "In GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<bool>>& parVec) const: Error!" << std::endl
-      << "No name was assigned to the object" << std::endl
-      << GEXCEPTION;
-   }
+	if((this->getParameterName()).empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBooleanCollection::booleanStreamline(std::map<std::string, std::vector<bool>>& parVec) const: Error!" << std::endl
+				<< "No name was assigned to the object" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::vector<bool> parameters;
@@ -421,17 +424,20 @@ std::size_t GBooleanCollection::countBoolParameters(
  * Assigns part of a value vector to the parameter
  */
 void GBooleanCollection::assignBooleanValueVector(
-	const std::vector<bool> &parVec, std::size_t &pos, const activityMode &am
+	const std::vector<bool> &parVec
+	, std::size_t &pos
+	, const activityMode &am
 ) {
 	for (GBooleanCollection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-      // Do we have a valid position ?
-      if(pos >= parVec.size()) {
-         glogger
-         << "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
-         << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-         << GEXCEPTION;
-      }
+		// Do we have a valid position ?
+		if(pos >= parVec.size()) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GBooleanCollection::assignBooleanValueVector(const std::vector<bool>&, std::size_t&):" << std::endl
+					<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+			);
+		}
 #endif
 
 		(*it) = parVec[pos];
@@ -472,7 +478,7 @@ bool GBooleanCollection::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GBooleanCollection::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBooleanCollection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -523,8 +529,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		GBooleanCollection gbc2(gbc1);
 		BOOST_CHECK_MESSAGE(
 			gbc2.size() == 1 && gbc2.at(0) == true, "\n"
-																 << "gbc2.size() = " << gbc2.size()
-																 << "gbc2.at(0) = " << gbc2.at(0)
+			<< "gbc2.size() = " << gbc2.size()
+			<< "gbc2.at(0) = " << gbc2.at(0)
 		);
 	}
 
@@ -535,8 +541,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		BOOST_CHECK_MESSAGE(
 			gbc.size() == nItems, "\n"
-										 << "gbc.size() = " << gbc.size() << "\n"
-										 << "nItems = " << nItems
+			<< "gbc.size() = " << gbc.size() << "\n"
+			<< "nItems = " << nItems
 		);
 
 		// Count the number of true and false values
@@ -551,9 +557,9 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		double ratio = double(nTrue) / double(nFalse);
 		BOOST_CHECK_MESSAGE(
 			ratio > LOWERBND && ratio < UPPERBND, "\n"
-															  << "ratio = " << ratio << "\n"
-															  << "nTrue = " << nTrue << "\n"
-															  << "nFalse = " << nFalse << "\n"
+			<< "ratio = " << ratio << "\n"
+			<< "nTrue = " << nTrue << "\n"
+			<< "nFalse = " << nFalse << "\n"
 		);
 	}
 
@@ -564,8 +570,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		BOOST_CHECK_MESSAGE(
 			gbc.size() == nItems, "\n"
-										 << "gbc.size() = " << gbc.size()
-										 << "nItems = " << nItems
+			<< "gbc.size() = " << gbc.size()
+			<< "nItems = " << nItems
 		);
 
 		// Count the number of true and false values
@@ -577,8 +583,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		BOOST_CHECK_MESSAGE(
 			nTrue == nItems, "\n"
-								  << "nTrue = " << nTrue << "\n"
-								  << "nItems = " << nItems << "\n"
+			<< "nTrue = " << nTrue << "\n"
+			<< "nItems = " << nItems << "\n"
 		);
 	}
 
@@ -589,8 +595,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		BOOST_CHECK_MESSAGE(
 			gbc.size() == nItems, "\n"
-										 << "gbc.size() = " << gbc.size()
-										 << "nItems = " << nItems
+			<< "gbc.size() = " << gbc.size()
+			<< "nItems = " << nItems
 		);
 
 		// Count the number of true and false values
@@ -605,9 +611,9 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		double ratio = double(nTrue) / double(nFalse);
 		BOOST_CHECK_MESSAGE(
 			ratio > LOWERBND && ratio < UPPERBND, "\n"
-															  << "ratio = " << ratio << "\n"
-															  << "nTrue = " << nTrue << "\n"
-															  << "nFalse = " << nFalse << "\n"
+			<< "ratio = " << ratio << "\n"
+			<< "nTrue = " << nTrue << "\n"
+			<< "nFalse = " << nFalse << "\n"
 		);
 	}
 
@@ -642,9 +648,9 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		double ratio = double(nTrue) / double(nFalse);
 		BOOST_CHECK_MESSAGE(
 			ratio > LOWERBND && ratio < UPPERBND, "\n"
-															  << "ratio = " << ratio << "\n"
-															  << "nTrue = " << nTrue << "\n"
-															  << "nFalse = " << nFalse << "\n"
+			<< "ratio = " << ratio << "\n"
+			<< "nTrue = " << nTrue << "\n"
+			<< "nFalse = " << nFalse << "\n"
 		);
 	}
 
@@ -674,8 +680,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		// Cross-check
 		BOOST_CHECK_MESSAGE(
 			nTrue == 0, "\n"
-							<< "nTrue = " << nTrue << "\n"
-							<< "nFalse = " << nFalse << "\n"
+			<< "nTrue = " << nTrue << "\n"
+			<< "nFalse = " << nFalse << "\n"
 		);
 	}
 
@@ -705,8 +711,8 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 		// Cross-check
 		BOOST_CHECK_MESSAGE(
 			nTrue == nItems, "\n"
-								  << "nTrue = " << nTrue << "\n"
-								  << "nFalse = " << nFalse << "\n"
+			<< "nTrue = " << nTrue << "\n"
+			<< "nFalse = " << nFalse << "\n"
 		);
 	}
 
@@ -740,13 +746,13 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 			BOOST_CHECK_MESSAGE(
 				double(nTrue) > expectedTrueMin && double(nTrue) < expectedTrueMax, "\n"
-																										  << "d = " << d << "\n"
-																										  << "Allowed window = " <<
-																										  expectedTrueMin << " - " <<
-																										  expectedTrueMax << "\n"
-																										  << "nItems = " << nItems << "\n"
-																										  << "nTrue = " << nTrue << "\n"
-																										  << "nFalse = " << nFalse << "\n"
+				<< "d = " << d << "\n"
+				<< "Allowed window = " <<
+				expectedTrueMin << " - " <<
+				expectedTrueMax << "\n"
+				<< "nItems = " << nItems << "\n"
+				<< "nTrue = " << nTrue << "\n"
+				<< "nFalse = " << nFalse << "\n"
 			);
 		}
 	}
@@ -876,7 +882,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GBooleanCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBooleanCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -954,7 +960,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GBooleanCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBooleanCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

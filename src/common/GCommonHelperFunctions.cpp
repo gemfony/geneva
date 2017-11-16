@@ -104,11 +104,12 @@ unsigned int getNHardwareThreads(
 std::string loadTextDataFromFile(const boost::filesystem::path &p) {
 	// Check that the file exists
 	if (!boost::filesystem::exists(p)) {
-		glogger
-		<< "In loadTextDataFromFile(): Error!" << std::endl
-		<< "Tried to load data from file " << p.string() << std::endl
-		<< "which does not exist" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In loadTextDataFromFile(): Error!" << std::endl
+				<< "Tried to load data from file " << p.string() << std::endl
+				<< "which does not exist" << std::endl
+		);
 	}
 
 	boost::filesystem::ifstream sourceFileStream(p);
@@ -153,7 +154,7 @@ int runExternalCommand(
 
 	// MOstly for external debugging
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-   std::cout << "Executing external command \"" << localCommand << "\" ...";
+	std::cout << "Executing external command \"" << localCommand << "\" ...";
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
 	// Assign the full command (mostly needed for external error-evaluation)
@@ -163,7 +164,7 @@ int runExternalCommand(
 	int errorCode = system(localCommand.c_str());
 
 #ifdef GEM_COMMON_PRINT_COMMANDLINE
-   std::cout << "... done." << std::endl;
+	std::cout << "... done." << std::endl;
 #endif /* GEM_COMMON_PRINT_COMMANDLINE */
 
 	// The error code will be returned as the function valiue
@@ -207,12 +208,13 @@ std::vector<std::string> splitString(const std::string &str, const char *sep) {
 	std::vector<std::string> result;
 
 #ifdef DEBUG
-   if(1 != std::string(sep).size()) {
-      glogger
-      << "In splitString(): Error!" << std::endl
-      << "Supplied separator \"" << sep << "\" has invalid size " << std::string(sep).size() << std::endl
-      << GEXCEPTION;
-   }
+	if(1 != std::string(sep).size()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In splitString(): Error!" << std::endl
+				<< "Supplied separator \"" << sep << "\" has invalid size " << std::string(sep).size() << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	using tokenizer = boost::tokenizer<boost::char_separator<char>>;
@@ -253,11 +255,12 @@ std::vector<unsigned int> stringToUIntVec(
 
 	if (from != to || !success) {
 		std::string rest(from, to);
-		glogger
-		<< "In stringToUIntVec(const std::string& raw): Error!" << std::endl
-		<< "Parsing failed." << std::endl
-		<< "Stopped at: \": " << rest << "\"" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In stringToUIntVec(const std::string& raw): Error!" << std::endl
+				<< "Parsing failed." << std::endl
+				<< "Stopped at: \": " << rest << "\"" << std::endl
+		);
 	}
 
 	return result;
@@ -285,11 +288,12 @@ std::vector<double> stringToDoubleVec(const std::string &raw) {
 
 	if (from != to || !success) {
 		std::string rest(from, to);
-		glogger
-		<< "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
-		<< "Parsing failed." << std::endl
-		<< "Stopped at: \": " << rest << "\"" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In stringToDoubleVec(const std::string& raw): Error!" << std::endl
+				<< "Parsing failed." << std::endl
+				<< "Stopped at: \": " << rest << "\"" << std::endl
+		);
 	}
 
 	return result;
@@ -324,11 +328,12 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const s
 
 	if (from != to || !success) {
 		std::string rest(from, to);
-		glogger
-		<< "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
-		<< "Parsing failed." << std::endl
-		<< "Stopped at: \"" << rest << "\"" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In stringToUIntTupleVec(const std::string& raw): Error!" << std::endl
+				<< "Parsing failed." << std::endl
+				<< "Stopped at: \"" << rest << "\"" << std::endl
+		);
 	}
 
 	return result;
@@ -362,10 +367,11 @@ std::chrono::duration<double> duration_from_string(const std::string& duration_s
 			break;
 
 		default:
-			glogger
-			<< "In Gem::Common::duration_from_string(\"" << duration_string << "\"): Error!" << std::endl
-		   << "Invalid number of fields present: " << timings.size() << std::endl
-		   << GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In Gem::Common::duration_from_string(\"" << duration_string << "\"): Error!" << std::endl
+					<< "Invalid number of fields present: " << timings.size() << std::endl
+			);
 			break;
 	}
 

@@ -566,12 +566,13 @@ float gmix(
 	const float &bottom, const float &top, const float &alpha
 ) {
 #ifdef DEBUG
-   if(alpha < 0.f || alpha > 1.f) {
-		glogger
-		<< "In GMix<float>(): Error!" << std::endl
-		<< "alpha should be in the range [0.f,1.f], but has value " << alpha << std::endl
-		<< GEXCEPTION;
-   }
+	if(alpha < 0.f || alpha > 1.f) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GMix<float>(): Error!" << std::endl
+				<< "alpha should be in the range [0.f,1.f], but has value " << alpha << std::endl
+		);
+	}
 #endif
 
 	return bottom * (1.f - alpha) + top * alpha;
@@ -585,12 +586,13 @@ double gmix(
 	const double &bottom, const double &top, const double &alpha
 ) {
 #ifdef DEBUG
-   if(alpha < 0. || alpha > 1.) {
-		glogger
-		<< "In GMix<double>(): Error!" << std::endl
-		<< "alpha should be in the range [0.,1.], but has value " << alpha << std::endl
-	   << GEXCEPTION;
-   }
+	if(alpha < 0. || alpha > 1.) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GMix<double>(): Error!" << std::endl
+				<< "alpha should be in the range [0.,1.], but has value " << alpha << std::endl
+		);
+	}
 #endif
 
 	return bottom * (1. - alpha) + top * alpha;

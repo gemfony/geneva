@@ -200,12 +200,13 @@ void GConstrainedDoubleCollection::doubleStreamline(
 	std::map<std::string, std::vector<double>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
-   if((this->getParameterName()).empty()) {
-      glogger
-      << "In GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
-      << "No name was assigned to the object" << std::endl
-      << GEXCEPTION;
-   }
+	if((this->getParameterName()).empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GConstrainedDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
+				<< "No name was assigned to the object" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::vector<double> parameters;
@@ -257,13 +258,14 @@ void GConstrainedDoubleCollection::assignDoubleValueVector(
 ) {
 	for (std::size_t i = 0; i < this->size(); i++) {
 #ifdef DEBUG
-		  // Do we have a valid position ?
-		  if(pos >= parVec.size()) {
-		     glogger
-		     << "In GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
-           << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-           << GEXCEPTION;
-		  }
+		// Do we have a valid position ?
+		if(pos >= parVec.size()) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GConstrainedDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+					<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+			);
+		}
 #endif
 
 		this->setValue(i, this->transfer(parVec[pos]));
@@ -357,10 +359,11 @@ void GConstrainedDoubleCollection::doubleAdd(
 
 	// Cross-check that the sizes match
 	if(this->size() != p->size()) {
-		glogger
-		<< "In GConstrainedDoubleCollection::doubleAdd():" << std::endl
-		<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GConstrainedDoubleCollection::doubleAdd():" << std::endl
+				<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+		);
 	}
 
 	for(std::size_t pos = 0; pos<this->size(); pos++) {
@@ -381,10 +384,11 @@ void GConstrainedDoubleCollection::doubleSubtract(
 
 	// Cross-check that the sizes match
 	if(this->size() != p->size()) {
-		glogger
-		<< "In GConstrainedDoubleCollection::doubleSubtract():" << std::endl
-		<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GConstrainedDoubleCollection::doubleSubtract():" << std::endl
+				<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+		);
 	}
 
 	for(std::size_t pos = 0; pos<this->size(); pos++) {
@@ -443,7 +447,7 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GConstrainedDoubleCollection::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GConstrainedDoubleCollection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -498,7 +502,7 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -512,7 +516,7 @@ void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	GConstrainedFPNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GBrokerEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GBrokerEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

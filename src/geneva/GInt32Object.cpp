@@ -226,12 +226,13 @@ void GInt32Object::int32Streamline(
 	std::map<std::string, std::vector<std::int32_t>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
-   if((this->getParameterName()).empty()) {
-      glogger
-      << "In GInt32Object::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& parVec) const: Error!" << std::endl
-      << "No name was assigned to the object" << std::endl
-      << GEXCEPTION;
-   }
+	if((this->getParameterName()).empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GInt32Object::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& parVec) const: Error!" << std::endl
+				<< "No name was assigned to the object" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::vector<std::int32_t> parameters;
@@ -277,10 +278,11 @@ void GInt32Object::assignInt32ValueVector(
 #ifdef DEBUG
 	// Do we have a valid position ?
 	if(pos >= parVec.size()) {
-	   glogger
-	   << "In GBooleanObject::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
-      << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBooleanObject::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
+				<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+		);
 	}
 #endif
 
@@ -323,8 +325,8 @@ void GInt32Object::int32MultiplyByRandom(
 	std::uniform_real_distribution<double> uniform_real_distribution(0., 1.);
 	GParameterT<std::int32_t>::setValue(
 		boost::numeric_cast<std::int32_t>(
-		  boost::numeric_cast<double>(GParameterT<std::int32_t>::value())
-		  * uniform_real_distribution(gr)
+			boost::numeric_cast<double>(GParameterT<std::int32_t>::value())
+			* uniform_real_distribution(gr)
 		)
 	);
 }
@@ -413,7 +415,7 @@ bool GInt32Object::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GInt32Object::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GInt32Object::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -507,7 +509,7 @@ void GInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GInt32Object::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GInt32Object::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -560,7 +562,7 @@ void GInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GInt32Object::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GInt32Object::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

@@ -440,10 +440,11 @@ void GFitnessMonitor::informationFunction(
 
 			// We expect both sizes to be identical
 			if(global_bests.size() != iter_bests.size()) {
-				glogger
-					<< "In GFitnessMonitor::informationFunction(): Error!" << std::endl
-					<< "global_bests.size() = " << global_bests.size() << " != iter_bests.size() = " << iter_bests.size() << std::endl
-					<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GFitnessMonitor::informationFunction(): Error!" << std::endl
+						<< "global_bests.size() = " << global_bests.size() << " != iter_bests.size() = " << iter_bests.size() << std::endl
+				);
 			}
 
 			//------------------------------------------------------------------------------
@@ -534,9 +535,10 @@ void GFitnessMonitor::informationFunction(
 		} break;
 
 		default: {
-			glogger
-				<< "In GFitnessMonitor::informationFunction(): Received invalid infoMode " << im << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GFitnessMonitor::informationFunction(): Received invalid infoMode " << im << std::endl
+			);
 		} break;
 	}
 }
@@ -615,7 +617,7 @@ void GFitnessMonitor::load_(const GObject* cp) {
  * Creates a deep clone of this object
  */
 GObject* GFitnessMonitor::clone_() const {
-return new GFitnessMonitor(*this);
+	return new GFitnessMonitor(*this);
 }
 /******************************************************************************/
 /**
@@ -756,10 +758,11 @@ void GCollectiveMonitor::registerPluggableOM(
 	if(om_ptr) {
 		m_pluggable_monitors.push_back(om_ptr);
 	} else {
-		glogger
-			<< "In GCollectiveMonitor::registerPluggableOM(): Error!" << std::endl
-			<< "Got empty pointer to pluggable optimization monitor." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GCollectiveMonitor::registerPluggableOM(): Error!" << std::endl
+				<< "Got empty pointer to pluggable optimization monitor." << std::endl
+		);
 	}
 }
 
@@ -784,7 +787,7 @@ void GCollectiveMonitor::resetPluggbleOM() {
  * Emits a name for this class / object
  */
 std::string GCollectiveMonitor::name() const  {
-return std::string("GCollectiveMonitor");
+	return std::string("GCollectiveMonitor");
 }
 
 /******************************************************************************/
@@ -1230,9 +1233,10 @@ void GAllSolutionFileLogger::informationFunction(
 
 		default:
 		{
-			glogger
-				<< "In GAllSolutionFileLogger: Received invalid infoMode " << im << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GAllSolutionFileLogger: Received invalid infoMode " << im << std::endl
+			);
 		}
 			break;
 	};
@@ -1583,9 +1587,10 @@ void GIterationResultsFileLogger::informationFunction(
 
 		default:
 		{
-			glogger
-				<< "In GIterationResultsFileLogger: Received invalid infoMode " << im << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GIterationResultsFileLogger: Received invalid infoMode " << im << std::endl
+			);
 		}
 			break;
 	};
@@ -2013,9 +2018,10 @@ void GNAdpationsLogger::informationFunction(
 
 		default:
 		{
-			glogger
-				<< "In GNAdpationsLogger: Received invalid infoMode " << im << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GNAdpationsLogger: Received invalid infoMode " << im << std::endl
+			);
 		}
 			break;
 	};
@@ -2376,10 +2382,11 @@ void GProcessingTimesLogger::setNBinsX(std::size_t nBinsX) {
 	if(nBinsX > 0) {
 		m_nBinsX = nBinsX;
 	} else {
-		glogger
-			<< "In GProcessingTimesLogger::setNBinsX(): Error!" << std::endl
-			<< "nBinsX is set to 0" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GProcessingTimesLogger::setNBinsX(): Error!" << std::endl
+				<< "nBinsX is set to 0" << std::endl
+		);
 	}
 }
 
@@ -2400,10 +2407,11 @@ void GProcessingTimesLogger::setNBinsY(std::size_t nBinsY) {
 	if(nBinsY > 0) {
 		m_nBinsY = nBinsY;
 	} else {
-		glogger
-			<< "In GProcessingTimesLogger::setNBinsY(): Error!" << std::endl
-			<< "nBinsY is set to 0" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GProcessingTimesLogger::setNBinsY(): Error!" << std::endl
+				<< "nBinsY is set to 0" << std::endl
+		);
 	}
 }
 

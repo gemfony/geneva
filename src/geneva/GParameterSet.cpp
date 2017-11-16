@@ -45,9 +45,9 @@ namespace Geneva {
  */
 GParameterSet::GParameterSet()
 	: GOptimizableEntity()
-   , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
-  	, Gem::Courtier::GProcessingContainerT<GParameterSet>()
-  	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
+	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
+	  , Gem::Courtier::GProcessingContainerT<GParameterSet>()
+	  , perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -56,9 +56,9 @@ GParameterSet::GParameterSet()
  */
 GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
 	: GOptimizableEntity(nFitnessCriteria)
-   , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
-   , Gem::Courtier::GProcessingContainerT<GParameterSet>()
-  	, perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
+	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
+	  , Gem::Courtier::GProcessingContainerT<GParameterSet>()
+	  , perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -70,9 +70,9 @@ GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
  */
 GParameterSet::GParameterSet(const GParameterSet &cp)
 	: GOptimizableEntity(cp)
-   , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>(cp)
-  	, Gem::Courtier::GProcessingContainerT<GParameterSet>(cp)
-	, perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
+	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>(cp)
+	  , Gem::Courtier::GProcessingContainerT<GParameterSet>(cp)
+	  , perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -198,10 +198,11 @@ boost::any GParameterSet::getVarVal(
 	} else if (descr == "b") {
 		result = GParameterSet::getVarItem<bool>(target);
 	} else {
-		glogger
-		<< "In GParameterSet::getVarVal(): Error!" << std::endl
-		<< "Received invalid type description" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::getVarVal(): Error!" << std::endl
+				<< "Received invalid type description" << std::endl
+		);
 	}
 
 	return result;
@@ -215,21 +216,23 @@ boost::any GParameterSet::getVarVal(
  */
 bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 #ifdef DEBUG
-   // Does the number of fitness criteria match the number of boundaries ?
-   if(boundaries.size() != this->getNumberOfFitnessCriteria()) {
-      glogger
-      << "In GParameterSet::isGoodEnough(): Error!" << std::endl
-      << "Number of boundaries does not match number of fitness criteria" << std::endl
-      << GEXCEPTION;
-   }
+	// Does the number of fitness criteria match the number of boundaries ?
+	if(boundaries.size() != this->getNumberOfFitnessCriteria()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::isGoodEnough(): Error!" << std::endl
+				<< "Number of boundaries does not match number of fitness criteria" << std::endl
+		);
+	}
 
-   // Is the dirty flag set ?
-   if(this->isDirty()) {
-      glogger
-      << "In GParameterSet::isGoodEnough(): Error!" << std::endl
-      << "Trying to compare fitness values although dirty flag is set" << std::endl
-      << GEXCEPTION;
-   }
+	// Is the dirty flag set ?
+	if(this->isDirty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::isGoodEnough(): Error!" << std::endl
+				<< "Trying to compare fitness values although dirty flag is set" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	// Check the fitness values. If we find at least one
@@ -272,10 +275,11 @@ std::shared_ptr <GParameterSet> GParameterSet::amalgamate(const std::shared_ptr 
  */
 void GParameterSet::setPerItemCrossOverProbability(double perItemCrossOverProbability) {
 	if (perItemCrossOverProbability < 0. || perItemCrossOverProbability > 1.) {
-		glogger
-		<< "In GParameterSet::setPerItemCrossOverProbability(" << perItemCrossOverProbability << "): Error!" << std::endl
-		<< "Variable outside of allowed ranged [0:1]" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::setPerItemCrossOverProbability(" << perItemCrossOverProbability << "): Error!" << std::endl
+				<< "Variable outside of allowed ranged [0:1]" << std::endl
+		);
 	}
 
 	perItemCrossOverProbability_ = perItemCrossOverProbability;
@@ -326,10 +330,11 @@ void GParameterSet::queryAdaptor(
 void GParameterSet::cannibalize(GParameterSet& cp) {
 	// Check whether the "foreign" entity has the dirty flag set
 	if(cp.isDirty()) {
-		glogger
-		<< "In GParameterSet::cannibalize(const GParameterSet& cp): Error!" << std::endl
-	   << "cp has the dirty flag set" << std::endl
-	 	<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::cannibalize(const GParameterSet& cp): Error!" << std::endl
+				<< "cp has the dirty flag set" << std::endl
+		);
 	}
 
 	// Make sure we have no local parameters
@@ -387,10 +392,11 @@ GObject *GParameterSet::clone_() const {
  * @return The fitness of this object
  */
 double GParameterSet::fitnessCalculation() {
-	glogger
-	<< "In GParameterSet::fitnessCalculation()" << std::endl
-	<< "Function called directly which should not happen" << std::endl
-	<< GEXCEPTION;
+	throw gemfony_exception(
+		g_error_streamer(DO_LOG,  time_and_place)
+			<< "In GParameterSet::fitnessCalculation()" << std::endl
+			<< "Function called directly which should not happen" << std::endl
+	);
 
 	// Make the compiler happy
 	return 0.;
@@ -431,10 +437,11 @@ void GParameterSet::perItemCrossOver(const GParameterSet &cp, const double &like
 #ifdef DEBUG
 	// Do some error checking
 	if(likelihood < 0. || likelihood > 1.) {
-	   glogger
-	   << "In GParameterSet::crossOver(): Error!" << std::endl
-	   << "Received invalid likelihood: " << likelihood << std::endl
-	   << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::crossOver(): Error!" << std::endl
+				<< "Received invalid likelihood: " << likelihood << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -455,31 +462,35 @@ void GParameterSet::perItemCrossOver(const GParameterSet &cp, const double &like
 	cp.streamline(cp_int_vec);
 
 #ifdef DEBUG
-   // Do some error checking
-   if(this_double_vec.size() != cp_double_vec.size()) {
-      glogger
-      << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-      << "Got invalid sizes (double): " << this_double_vec.size() << " / " << cp_double_vec.size() << std::endl
-      << GEXCEPTION;
-    }
-   if(this_float_vec.size() != cp_float_vec.size()) {
-      glogger
-      << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-      << "Got invalid sizes (float): " << this_float_vec.size() << " / " << cp_float_vec.size() << std::endl
-      << GEXCEPTION;
-    }
-   if(this_bool_vec.size() != cp_bool_vec.size()) {
-      glogger
-      << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-      << "Got invalid sizes (bool): " << this_bool_vec.size() << " / " << cp_bool_vec.size() << std::endl
-      << GEXCEPTION;
-    }
-   if(this_int_vec.size() != cp_int_vec.size()) {
-      glogger
-      << "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-      << "Got invalid sizes (std::int32_t): " << this_int_vec.size() << " / " << cp_int_vec.size() << std::endl
-      << GEXCEPTION;
-    }
+	// Do some error checking
+	if(this_double_vec.size() != cp_double_vec.size()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+				<< "Got invalid sizes (double): " << this_double_vec.size() << " / " << cp_double_vec.size() << std::endl
+		);
+	}
+	if(this_float_vec.size() != cp_float_vec.size()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+				<< "Got invalid sizes (float): " << this_float_vec.size() << " / " << cp_float_vec.size() << std::endl
+		);
+	}
+	if(this_bool_vec.size() != cp_bool_vec.size()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+				<< "Got invalid sizes (bool): " << this_bool_vec.size() << " / " << cp_bool_vec.size() << std::endl
+		);
+	}
+	if(this_int_vec.size() != cp_int_vec.size()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::perItemCrossOver(): Error!" << std::endl
+				<< "Got invalid sizes (std::int32_t): " << this_int_vec.size() << " / " << cp_int_vec.size() << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	// Do the actual cross-over
@@ -643,15 +654,15 @@ void GParameterSet::addConfigurationOptions(
 		, false // The default value
 		, [this](bool mm) { this->setMaxMode(mm); }
 	)
-	<< "Specifies whether the individual should be maximized (1) or minimized (0)" << std::endl
-	<< "Note that minimization is the by far most common option.";
+		<< "Specifies whether the individual should be maximized (1) or minimized (0)" << std::endl
+		<< "Note that minimization is the by far most common option.";
 
 	gpb.registerFileParameter<double>(
 		"perItemCrossOverProbability" // The name of the variable
 		, DEFAULTPERITEMEXCHANGELIKELIHOOD // The default value
 		, [this](double piel) { this->setPerItemCrossOverProbability(piel); }
 	)
-	<< "The likelihood for two data items to be exchanged";
+		<< "The likelihood for two data items to be exchanged";
 }
 
 /******************************************************************************/
@@ -680,13 +691,14 @@ void GParameterSet::toPropertyTree(
 	pt::ptree &ptr, const std::string &baseName
 ) const {
 #ifdef DEBUG
-   // Check if the object is empty. If so, complain
-   if(this->empty()) {
-      glogger
-      << "In GParameterSet::toPropertyTree(): Error!" << std::endl
-      << "Object is empty." << std::endl
-      << GEXCEPTION;
-   }
+	// Check if the object is empty. If so, complain
+	if(this->empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::toPropertyTree(): Error!" << std::endl
+				<< "Object is empty." << std::endl
+		);
+	}
 #endif
 
 	bool dirtyFlag = this->isDirty();
@@ -724,10 +736,11 @@ void GParameterSet::toPropertyTree(
 			break;
 
 		default: {
-			glogger
-			<< "In GParameterSet::toPropertyTree(): Error!" << std::endl
-			<< "Got invalid evaluation policy: " << this->getEvaluationPolicy() << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParameterSet::toPropertyTree(): Error!" << std::endl
+					<< "Got invalid evaluation policy: " << this->getEvaluationPolicy() << std::endl
+			);
 		}
 			break;
 	}
@@ -922,7 +935,7 @@ bool GParameterSet::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GParameterSet::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterSet::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -1028,9 +1041,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 					for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
 						BOOST_CHECK_MESSAGE (
 							p_gdc->at(gdc_cnt) == d, "\n"
-															 << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
-															 << "expected " << d << "\n"
-															 << "iteration = " << gdc_cnt << "\n"
+							<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+							<< "expected " << d << "\n"
+							<< "iteration = " << gdc_cnt << "\n"
 						);
 					}
 					counter++;
@@ -1096,10 +1109,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 					for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
 						BOOST_CHECK_MESSAGE (
 							p_gdc->at(gdc_cnt) == d * FPFIXEDVALINITMAX, "\n"
-																						<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) <<
-																						"\n"
-																						<< "expected " << d * FPFIXEDVALINITMAX << "\n"
-																						<< "iteration = " << gdc_cnt << "\n"
+							<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) <<
+							"\n"
+							<< "expected " << d * FPFIXEDVALINITMAX << "\n"
+							<< "iteration = " << gdc_cnt << "\n"
 						);
 					}
 					counter++;
@@ -1151,10 +1164,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
 					BOOST_CHECK_MESSAGE (
 						p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt), "\n"
-																				  << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
-																				  << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) <<
-																				  "\n"
-																				  << "iteration = " << gdc_cnt << "\n"
+						<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+						<< "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) <<
+						"\n"
+						<< "iteration = " << gdc_cnt << "\n"
 					);
 				}
 				counter++;
@@ -1204,10 +1217,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
 					BOOST_CHECK_MESSAGE (
 						p_gdc->at(gdc_cnt) != p_gdc_0->at(gdc_cnt), "\n"
-																				  << "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
-																				  << "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) <<
-																				  "\n"
-																				  << "iteration = " << gdc_cnt << "\n"
+						<< "p_gdc->at(gdc_cnt) = " << p_gdc->at(gdc_cnt) << "\n"
+						<< "p_gdc_0->at(gdc_cnt) = " << p_gdc_0->at(gdc_cnt) <<
+						"\n"
+						<< "iteration = " << gdc_cnt << "\n"
 					);
 				}
 				counter++;
@@ -1261,14 +1274,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
 					BOOST_CHECK_MESSAGE (
 						p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) + FPADD, "\n"
-																							 << "p_gdc->at(gdc_cnt) = " <<
-																							 p_gdc->at(gdc_cnt) << "\n"
-																							 << "p_gdc_0->at(gdc_cnt) = " <<
-																							 p_gdc_0->at(gdc_cnt) << "\n"
-																							 << "FPADD = " << FPADD
-																							 << "p_gdc_0->at(gdc_cnt) + FPADD = " <<
-																							 p_gdc_0->at(gdc_cnt) + FPADD << "\n"
-																							 << "iteration = " << gdc_cnt << "\n"
+						<< "p_gdc->at(gdc_cnt) = " <<
+						p_gdc->at(gdc_cnt) << "\n"
+						<< "p_gdc_0->at(gdc_cnt) = " <<
+						p_gdc_0->at(gdc_cnt) << "\n"
+						<< "FPADD = " << FPADD
+						<< "p_gdc_0->at(gdc_cnt) + FPADD = " <<
+						p_gdc_0->at(gdc_cnt) + FPADD << "\n"
+						<< "iteration = " << gdc_cnt << "\n"
 					);
 				}
 				counter++;
@@ -1322,14 +1335,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				for (std::size_t gdc_cnt = 0; gdc_cnt < NGDOUBLECOLL; gdc_cnt++) {
 					BOOST_CHECK_MESSAGE (
 						p_gdc->at(gdc_cnt) == p_gdc_0->at(gdc_cnt) - FPSUBTRACT, "\n"
-																									<< "p_gdc->at(gdc_cnt) = " <<
-																									p_gdc->at(gdc_cnt) << "\n"
-																									<< "p_gdc_0->at(gdc_cnt) = " <<
-																									p_gdc_0->at(gdc_cnt) << "\n"
-																									<< "FPSUBTRACT = " << FPSUBTRACT
-																									<< "p_gdc_0->at(gdc_cnt) - FPSUBTRACT = " <<
-																									p_gdc_0->at(gdc_cnt) - FPSUBTRACT << "\n"
-																									<< "iteration = " << gdc_cnt << "\n"
+						<< "p_gdc->at(gdc_cnt) = " <<
+						p_gdc->at(gdc_cnt) << "\n"
+						<< "p_gdc_0->at(gdc_cnt) = " <<
+						p_gdc_0->at(gdc_cnt) << "\n"
+						<< "FPSUBTRACT = " << FPSUBTRACT
+						<< "p_gdc_0->at(gdc_cnt) - FPSUBTRACT = " <<
+						p_gdc_0->at(gdc_cnt) - FPSUBTRACT << "\n"
+						<< "iteration = " << gdc_cnt << "\n"
 					);
 				}
 				counter++;
@@ -1569,7 +1582,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK_MESSAGE(
 				orig_i_active != rand_i_active,
 				"orig_i_active: " << Gem::Common::vecToString(orig_i_active) << "\n" << "rand_i_active: " <<
-				Gem::Common::vecToString(rand_i_active) << "\n"
+										Gem::Common::vecToString(rand_i_active) << "\n"
 			);
 			BOOST_CHECK(orig_b_active.size() == NBOOLACTIVE);
 			BOOST_CHECK(rand_b_active.size() == NBOOLACTIVE);
@@ -1586,7 +1599,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	//---------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GParameterSet::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterSet::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1606,7 +1619,7 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
 	// no local data, nothing to test
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GParameterSet::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterSet::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

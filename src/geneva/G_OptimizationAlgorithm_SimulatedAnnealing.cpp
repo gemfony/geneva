@@ -175,7 +175,7 @@ void GSimulatedAnnealing::resetToOptimizationStart() {
  * @return The type of optimization algorithm
  */
 std::string GSimulatedAnnealing::getAlgorithmPersonalityType() const {
-return std::string("PERSONALITY_SA");
+	return std::string("PERSONALITY_SA");
 }
 
 /******************************************************************************/
@@ -185,7 +185,7 @@ return std::string("PERSONALITY_SA");
   * @return The name assigned to this optimization algorithm
   */
 std::string GSimulatedAnnealing::getAlgorithmName() const {
-return std::string("Simulated Annealing");
+	return std::string("Simulated Annealing");
 }
 
 /******************************************************************************/
@@ -260,10 +260,11 @@ std::uint16_t GSimulatedAnnealing::getNThreads() const {
   */
 void GSimulatedAnnealing::setTDegradationStrength(double alpha) {
 	if (alpha <= 0.) {
-		glogger
-			<< "In GSimulatedAnnealing::setTDegradationStrength(const double&):" << std::endl
-			<< "Got negative alpha: " << alpha << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSimulatedAnnealing::setTDegradationStrength(const double&):" << std::endl
+				<< "Got negative alpha: " << alpha << std::endl
+		);
 	}
 
 	m_alpha = alpha;
@@ -287,10 +288,11 @@ double GSimulatedAnnealing::getTDegradationStrength() const {
   */
 void GSimulatedAnnealing::setT0(double t0) {
 	if (t0 <= 0.) {
-		glogger
-			<< "In GSimulatedAnnealing::setT0(const double&):" << std::endl
-			<< "Got negative start temperature: " << t0 << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSimulatedAnnealing::setT0(const double&):" << std::endl
+				<< "Got negative start temperature: " << t0 << std::endl
+		);
 	}
 
 	m_t0 = t0;
@@ -352,7 +354,7 @@ void GSimulatedAnnealing::load_(const GObject *cp) {
   * @return A deep copy of this object
   */
 GObject * GSimulatedAnnealing::clone_() const {
-return new GSimulatedAnnealing(*this);
+	return new GSimulatedAnnealing(*this);
 }
 
 /******************************************************************************/
@@ -364,19 +366,21 @@ void GSimulatedAnnealing::populationSanityChecks() const {
 	// Note that a number of checks (e.g. population size != 0) has already been done
 	// in the parent class.
 	if (this->m_n_parents == 0) {
-	glogger
-	<< "In GSimulatedAnnealing::populationSanityChecks(): Error!" << std::endl
-	<< "Number of parents is set to 0"
-	<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSimulatedAnnealing::populationSanityChecks(): Error!" << std::endl
+				<< "Number of parents is set to 0"
+		);
 	}
 
 	// We need at least as many children as parents
 	std::size_t popSize = this->getPopulationSize();
 	if (popSize <= this->m_n_parents) {
-	glogger
-	<< "In GSimulatedAnnealing::populationSanityChecks() :" << std::endl
-	<< "Requested size of population is too small :" << popSize << " " << this->m_n_parents << std::endl
-	<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSimulatedAnnealing::populationSanityChecks() :" << std::endl
+				<< "Requested size of population is too small :" << popSize << " " << this->m_n_parents << std::endl
+		);
 	}
 }
 
@@ -420,11 +424,12 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 	// parents are clean, e.g. when they were extracted from another optimization.
 	for(std::size_t i=this->getNParents(); i<this->size(); i++) {
 		if(!this->at(i)->isDirty()) {
-			glogger
-				<< "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << std::endl
-				<< "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
-				<< "but found \"clean\" individual in position " << i << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << std::endl
+					<< "Tried to evaluate children in range " << std::get<0>(range) << " - " << std::get<1>(range) << std::endl
+					<< "but found \"clean\" individual in position " << i << std::endl
+			);
 		}
 	}
 #endif
@@ -508,10 +513,11 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 
 	// Check that individuals do exist in the population. We cannot continue, if this is not the case
 	if(this->empty()) {
-		glogger
-			<< "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << std::endl
-			<< "Population holds no data" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << std::endl
+				<< "Population holds no data" << std::endl
+		);
 	} else {
 		// Emit a warning if no children have returned
 		if(this->size() <= this->getNParents()) {
@@ -525,11 +531,12 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 
 	// Check that the dirty flag of the last individual isn't set. This is a severe error.
 	if(this->back()->isDirty()) {
-		glogger
-			<< "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << std::endl
-			<< "The last individual in the population has the dirty" << std::endl
-			<< "flag set, so we cannot use it for cloning" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << std::endl
+				<< "The last individual in the population has the dirty" << std::endl
+				<< "flag set, so we cannot use it for cloning" << std::endl
+		);
 	}
 
 
@@ -571,10 +578,11 @@ void GSimulatedAnnealing::selectBest() {
 	// Make sure our population is not smaller than its nominal size -- this
 	// should have been taken care of in fixAfterJobSubmission() .
 	if(this->size() < this->getDefaultPopulationSize()) {
-		glogger
-			<< "In GSimulatedAnnealing::selectBest(): Error!" << std::endl
-			<< "Size of population is smaller than expected: " << this->size() << " / " << this->getDefaultPopulationSize() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSimulatedAnnealing::selectBest(): Error!" << std::endl
+				<< "Size of population is smaller than expected: " << this->size() << " / " << this->getDefaultPopulationSize() << std::endl
+		);
 	}
 #endif /* DEBUG */
 
@@ -601,9 +609,9 @@ void GSimulatedAnnealing::selectBest() {
 std::tuple<std::size_t,std::size_t> GSimulatedAnnealing::getEvaluationRange() const {
 // We evaluate all individuals in the first iteration This happens so pluggable
 // optimization monitors do not need to distinguish between algorithms
-return std::tuple<std::size_t, std::size_t>(
-this->inFirstIteration() ? 0 : this->getNParents(), this->size()
-);
+	return std::tuple<std::size_t, std::size_t>(
+		this->inFirstIteration() ? 0 : this->getNParents(), this->size()
+	);
 }
 
 /******************************************************************************/
@@ -627,20 +635,20 @@ void GSimulatedAnnealing::finalize() {
 	if (m_tp_ptr->hasErrors()) {
 		std::vector<std::string> errors = m_tp_ptr->getErrors();
 
-		glogger
-			<< "========================================================================" << std::endl
-			<< "In GSimulatedAnnealing::finalize():" << std::endl
-			<< "There were errors during thread execution:" << std::endl
-			<< std::endl;
+		std::ostringstream list_of_errors;
+		for(auto e: errors) { list_of_errors << e << std::endl; }
 
-		for(auto e: errors) {
-			glogger << e << std::endl;
-		}
-
-		glogger
-			<< std::endl
-			<< "========================================================================" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "========================================================================" << std::endl
+				<< std::endl
+				<< "In GSimulatedAnnealing::finalize():" << std::endl
+				<< "There were errors during thread execution:" << std::endl
+				<< std::endl
+				<< list_of_errors.str()
+				<< std::endl
+				<< "========================================================================" << std::endl
+		);
 	}
 
 	// Terminate our thread pool

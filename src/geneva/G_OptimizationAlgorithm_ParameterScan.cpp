@@ -88,10 +88,11 @@ std::vector<float> fillWithData<float>(
 
 	// We require at least 2 steps, unless we are are in random mode
 	if (nSteps < 2) {
-		glogger
-			<< "In std::vector<float> fillWithData<float>(): Error!" << std::endl
-			<< "Number of requested steps is too low: " << nSteps << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In std::vector<float> fillWithData<float>(): Error!" << std::endl
+				<< "Number of requested steps is too low: " << nSteps << std::endl
+		);
 	}
 
 	for (std::size_t i = 0; i < nSteps; i++) {
@@ -113,10 +114,11 @@ std::vector<double> fillWithData<double>(
 
 	// We require at least 2 steps, unless we are are in random mode
 	if (nSteps < 2) {
-		glogger
-			<< "In std::vector<float> fillWithData<double>(): Error!" << std::endl
-			<< "Number of requested steps is too low: " << nSteps << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In std::vector<float> fillWithData<double>(): Error!" << std::endl
+				<< "Number of requested steps is too low: " << nSteps << std::endl
+		);
 	}
 
 	for (std::size_t i = 0; i < nSteps; i++) {
@@ -290,8 +292,8 @@ std::shared_ptr <fScanPar> fScanPar::clone() const {
  */
 std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 	os
-	<< "###########################################################" << std::endl
-	<< "# New parSet object:" << std::endl;
+		<< "###########################################################" << std::endl
+		<< "# New parSet object:" << std::endl;
 
 	// Boolean data
 	if (!pS.bParVec.empty()) {
@@ -366,11 +368,11 @@ GParameterScan::GParameterScan()
  */
 GParameterScan::GParameterScan(const GParameterScan &cp)
 	: G_OptimizationAlgorithm_Base(cp)
-	, m_cycleLogicHalt(cp.m_cycleLogicHalt)
-	, m_scanRandomly(cp.m_scanRandomly)
-	, m_nMonitorInds(cp.m_nMonitorInds)
-	, m_simpleScanItems(cp.m_simpleScanItems)
-	, m_scansPerformed(cp.m_scansPerformed)
+	  , m_cycleLogicHalt(cp.m_cycleLogicHalt)
+	  , m_scanRandomly(cp.m_scanRandomly)
+	  , m_nMonitorInds(cp.m_nMonitorInds)
+	  , m_simpleScanItems(cp.m_simpleScanItems)
+	  , m_scansPerformed(cp.m_scansPerformed)
 {
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
@@ -645,12 +647,13 @@ std::tuple<double, double> GParameterScan::cycleLogic() {
 	std::tuple<double, double> newEval = std::make_tuple(0., 0.);
 	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-      if(!(*it)->isClean()) {
-         glogger
-         << "In GParameterScan::cycleLogic(): Error!" << std::endl
-         << "Individual in position " << (it-this->begin()) << " is not clean" << std::endl
-         << GEXCEPTION;
-      }
+		if(!(*it)->isClean()) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParameterScan::cycleLogic(): Error!" << std::endl
+					<< "Individual in position " << (it-this->begin()) << " is not clean" << std::endl
+			);
+		}
 #endif
 
 		newEval = (*it)->getFitnessTuple();
@@ -783,10 +786,11 @@ void GParameterScan::updateSelectedParameters() {
 
 				//---------------------------------------------------------------------
 			default: {
-				glogger
-				<< "In GParameterScan::updateSelectedParameters(): Error!" << std::endl
-				<< "Encountered invalid mode " << mode << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GParameterScan::updateSelectedParameters(): Error!" << std::endl
+						<< "Encountered invalid mode " << mode << std::endl
+				);
 			}
 				break;
 		}
@@ -911,10 +915,11 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 
 		if (modeSet) {
 			if (std::get<0>(var) != mode) {
-				glogger
-				<< "In GParameterScan::getParameterSet(): Error!" << std::endl
-				<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GParameterScan::getParameterSet(): Error!" << std::endl
+						<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
+				);
 			}
 		} else {
 			mode = std::get<0>(var);
@@ -931,10 +936,11 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 
 		if (modeSet) {
 			if (std::get<0>(var) != mode) {
-				glogger
-				<< "In GParameterScan::getParameterSet(): Error!" << std::endl
-				<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GParameterScan::getParameterSet(): Error!" << std::endl
+						<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
+				);
 			}
 		} else {
 			mode = std::get<0>(var);
@@ -951,10 +957,11 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 
 		if (modeSet) {
 			if (std::get<0>(var) != mode) {
-				glogger
-				<< "In GParameterScan::getParameterSet(): Error!" << std::endl
-				<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GParameterScan::getParameterSet(): Error!" << std::endl
+						<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
+				);
 			}
 		} else {
 			mode = std::get<0>(var);
@@ -971,10 +978,11 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 
 		if (modeSet) {
 			if (std::get<0>(var) != mode) {
-				glogger
-				<< "In GParameterScan::getParameterSet(): Error!" << std::endl
-				<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
-				<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In GParameterScan::getParameterSet(): Error!" << std::endl
+						<< "Expected mode " << mode << " but got " << std::get<0>(var) << std::endl
+				);
 			}
 		} else {
 			mode = std::get<0>(var);
@@ -998,7 +1006,7 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
  */
 bool GParameterScan::switchToNextParameterSet() {
 	std::vector<std::shared_ptr < scanParInterface>> ::iterator
-	it = m_all_par_vec.begin();
+		it = m_all_par_vec.begin();
 
 	// Switch to the next parameter set
 	while (true) {
@@ -1057,9 +1065,9 @@ void GParameterScan::clearAllParVec() {
 bool GParameterScan::customHalt() const {
 	if (this->m_cycleLogicHalt) {
 		glogger
-		<< "Terminating the loop as no items are left to be" << std::endl
-		<< "processed in parameter scan." << std::endl
-		<< GLOGGING;
+			<< "Terminating the loop as no items are left to be" << std::endl
+			<< "processed in parameter scan." << std::endl
+			<< GLOGGING;
 		return true;
 	} else {
 		return false;
@@ -1083,22 +1091,22 @@ void GParameterScan::addConfigurationOptions(
 		, DEFAULTPOPULATIONSIZE
 		, [this](std::size_t dps) { this->setDefaultPopulationSize(dps); }
 	)
-	<< "The total size of the population";
+		<< "The total size of the population";
 
 	gpb.registerFileParameter<std::string>(
 		"parameterOptions"
 		, std::string("d(0, -10., 10., 100), d(1, -10., 10., 100)")
 		, [this](std::string parSpecs) { this->setParameterSpecs(parSpecs); }
 	)
-	<< "Specification of the parameters to be used in the parameter scan" << std::endl;
+		<< "Specification of the parameters to be used in the parameter scan" << std::endl;
 
 	gpb.registerFileParameter<bool>(
 		"scanRandomly" // The name of the variable
 		, true // The default value
 		, [this](bool sr) { this->setScanRandomly(sr); }
 	)
-	<< "Indicates whether scans of individual variables should be done randomly" << std::endl
-	<< "(1) or on a grid (0)";
+		<< "Indicates whether scans of individual variables should be done randomly" << std::endl
+		<< "(1) or on a grid (0)";
 
 	// Override the default value of maxStallIteration, as the parent
 	// default does not make sense for us (we do not need stall iterations)
@@ -1125,10 +1133,11 @@ void GParameterScan::runFitnessCalculation() {
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// Make sure the evaluated individuals have the dirty flag set
 		if(!(*it)->isDirty()) {
-			glogger
-				<< "In GParameterScan::runFitnessCalculation():" << std::endl
-				<< "Found individual in position " << std::distance(this->begin(), it) << ", whose dirty flag isn't set" << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParameterScan::runFitnessCalculation():" << std::endl
+					<< "Found individual in position " << std::distance(this->begin(), it) << ", whose dirty flag isn't set" << std::endl
+			);
 		}
 	}
 #endif /* DEBUG */
@@ -1149,10 +1158,11 @@ void GParameterScan::runFitnessCalculation() {
 
 	// Check if all work items have returned
 	if (!complete) {
-		glogger
-			<< "In GParameterScan::runFitnessCalculation(): Error!" << std::endl
-			<< "No complete set of items received" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterScan::runFitnessCalculation(): Error!" << std::endl
+				<< "No complete set of items received" << std::endl
+		);
 	}
 
 	// Check if work items exists whose processing function has thrown an exception.
@@ -1165,12 +1175,13 @@ void GParameterScan::runFitnessCalculation() {
 			return p->processing_was_unsuccessful();
 		}
 	) != this->end()) {
-		glogger
-			<< "In GParameterScan::runFitnessCalculation(): Error!" << std::endl
-			<< "At least one individual could not be processed" << std::endl
-			<< "due to errors in the (possibly user-supplied) process() function." << std::endl
-			<< "This is a severe error and we cannot continue" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterScan::runFitnessCalculation(): Error!" << std::endl
+				<< "At least one individual could not be processed" << std::endl
+				<< "due to errors in the (possibly user-supplied) process() function." << std::endl
+				<< "This is a severe error and we cannot continue" << std::endl
+		);
 	}
 
 	//--------------------------------------------------------------------------------
@@ -1185,10 +1196,11 @@ void GParameterScan::runFitnessCalculation() {
 void GParameterScan::setParameterSpecs(std::string parStr) {
 	// Check that the parameter string isn't empty
 	if (parStr.empty()) {
-		glogger
-		<< "In GParameterScan::addParameterSpecs(): Error!" << std::endl
-		<< "Parameter string " << parStr << " is empty" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterScan::addParameterSpecs(): Error!" << std::endl
+				<< "Parameter string " << parStr << " is empty" << std::endl
+		);
 	}
 
 	//---------------------------------------------------------------------------
@@ -1347,10 +1359,11 @@ void GParameterScan::adjustPopulation() {
 
 	// An empty population is an error
 	if (nStart == 0) {
-		glogger
-		<< "In GParameterScan::adjustPopulation(): Error!" << std::endl
-		<< "You didn't add any individuals to the collection. We need at least one." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterScan::adjustPopulation(): Error!" << std::endl
+				<< "You didn't add any individuals to the collection. We need at least one." << std::endl
+		);
 	}
 
 	// We want exactly one individual in the beginning. All other registered
@@ -1362,10 +1375,11 @@ void GParameterScan::adjustPopulation() {
 
 	// Check that we have a valid default population size
 	if (0 == this->getDefaultPopulationSize()) {
-		glogger
-		<< "In GParameterScan::adjustPopulation(): Error!" << std::endl
-		<< "Default-size of the population is 0" << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterScan::adjustPopulation(): Error!" << std::endl
+				<< "Default-size of the population is 0" << std::endl
+		);
 	}
 
 	// Create the desired number of (identical) individuals in the population.
@@ -1387,7 +1401,7 @@ bool GParameterScan::modify_GUnitTests() {
 
 	return result;
 #else /* GEM_TESTING */
-   Gem::Common::condnotset("GParameterScan::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterScan::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -1401,7 +1415,7 @@ void GParameterScan::specificTestsNoFailureExpected_GUnitTests() {
 	// Call the parent class'es function
 	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -1414,7 +1428,7 @@ void GParameterScan::specificTestsFailuresExpected_GUnitTests() {
 	// Call the parent class'es function
 	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

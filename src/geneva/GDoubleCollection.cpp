@@ -214,12 +214,13 @@ void GDoubleCollection::doubleStreamline(
 	std::map<std::string, std::vector<double>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
-   if((this->getParameterName()).empty()) {
-      glogger
-      << "In GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
-      << "No name was assigned to the object" << std::endl
-      << GEXCEPTION;
-   }
+	if((this->getParameterName()).empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GDoubleCollection::doubleStreamline(std::map<std::string, std::vector<double>>& parVec) const: Error!" << std::endl
+				<< "No name was assigned to the object" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::vector<double> parameters;
@@ -271,13 +272,14 @@ void GDoubleCollection::assignDoubleValueVector(
 ) {
 	for (GDoubleCollection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-		  // Do we have a valid position ?
-		  if(pos >= parVec.size()) {
-		     glogger
-		     << "In GDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
-           << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-           << GEXCEPTION;
-		  }
+		// Do we have a valid position ?
+		if(pos >= parVec.size()) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GDoubleCollection::assignDoubleValueVector(const std::vector<double>&, std::size_t&):" << std::endl
+					<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+			);
+		}
 #endif
 
 		(*it) = parVec[pos];
@@ -373,9 +375,10 @@ void GDoubleCollection::doubleAdd(
 
 	// Cross-check that the sizes match
 	if(this->size() != p->size()) {
-		glogger
-		<< "In GDoubleCollection::doubleAdd():" << std::endl
-		<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GDoubleCollection::doubleAdd():" << std::endl
+				<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl );
 	}
 
 	for(std::size_t pos = 0; pos<this->size(); pos++) {
@@ -396,10 +399,11 @@ activityMode &am
 
 // Cross-check that the sizes match
 	if(this->size() != p->size()) {
-		glogger
-		<< "In GDoubleCollection::doubleSubtract():" << std::endl
-		<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GDoubleCollection::doubleSubtract():" << std::endl
+				<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+		);
 	}
 
 	for(std::size_t pos = 0; pos<this->size(); pos++) {
@@ -442,7 +446,7 @@ bool GDoubleCollection::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GDoubleCollection::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GDoubleCollection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -480,7 +484,7 @@ void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 	BOOST_CHECK(!this->empty());
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GDoubleCollection::fillWithData", "GEM_TESTING");
+	Gem::Common::condnotset("GDoubleCollection::fillWithData", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -761,7 +765,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GDoubleCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GDoubleCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -799,7 +803,7 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GDoubleCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GDoubleCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

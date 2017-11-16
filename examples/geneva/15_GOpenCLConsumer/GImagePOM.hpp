@@ -88,42 +88,42 @@ class GImagePOM
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-   /*
-    * The standard constructor.
-    *
-    * @param resultDirectory The directory to which result information should be written
-    * @param emitBestOnly Whether only the best individuals should be emitted
-    */
-   GImagePOM(
-      const std::string& resultDirectory
-      , const bool& emitBestOnly
-   )
-		: resultImageDirectory_(GImagePOM::trailingSlash(resultDirectory))
-		, dimX_(DEFAULTXDIMPROGRESS)
-	  	, dimY_(DEFAULTYDIMPROGRESS)
-		, emitBestOnly_(emitBestOnly)
-   { /* nothing */ }
+	 /*
+	  * The standard constructor.
+	  *
+	  * @param resultDirectory The directory to which result information should be written
+	  * @param emitBestOnly Whether only the best individuals should be emitted
+	  */
+	 GImagePOM(
+		 const std::string& resultDirectory
+		 , const bool& emitBestOnly
+	 )
+		 : resultImageDirectory_(GImagePOM::trailingSlash(resultDirectory))
+			, dimX_(DEFAULTXDIMPROGRESS)
+			, dimY_(DEFAULTYDIMPROGRESS)
+			, emitBestOnly_(emitBestOnly)
+	 { /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The copy constructor
-    *
-    * @param cp A copy of another GImagePOM object
-    */
-   GImagePOM(const GImagePOM& cp)
-		: GBasePluggableOM(cp)
-		, resultImageDirectory_(cp.resultImageDirectory_)
-		, dimX_(cp.dimX_)
-	  	, dimY_(cp.dimY_)
-		, emitBestOnly_(cp.emitBestOnly_)
-   { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The copy constructor
+	  *
+	  * @param cp A copy of another GImagePOM object
+	  */
+	 GImagePOM(const GImagePOM& cp)
+		 : GBasePluggableOM(cp)
+			, resultImageDirectory_(cp.resultImageDirectory_)
+			, dimX_(cp.dimX_)
+			, dimY_(cp.dimY_)
+			, emitBestOnly_(cp.emitBestOnly_)
+	 { /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * The destructor
-    */
-   virtual ~GImagePOM()
-   { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The destructor
+	  */
+	 virtual ~GImagePOM()
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -212,98 +212,100 @@ public:
 	 }
 
 	 /***************************************************************************/
-   /**
-    * Allows to set the image dimensions of the image written to disk
-    */
-   void setImageDimensions(
-		const std::tuple<std::size_t, std::size_t>& dim
-		, const std::size_t& factor
-   ) {
-      dimX_ = factor*std::get<0>(dim);
-      dimY_ = factor*std::get<1>(dim);
-   }
+	 /**
+	  * Allows to set the image dimensions of the image written to disk
+	  */
+	 void setImageDimensions(
+		 const std::tuple<std::size_t, std::size_t>& dim
+		 , const std::size_t& factor
+	 ) {
+		 dimX_ = factor*std::get<0>(dim);
+		 dimY_ = factor*std::get<1>(dim);
+	 }
 
-   /***************************************************************************/
-   /**
-    * Returns the dimensions used to store result images
-    */
-   std::tuple<std::size_t, std::size_t> getImageDimensions() const {
-      return std::tuple<std::size_t, std::size_t>(dimX_, dimY_);
-   }
+	 /***************************************************************************/
+	 /**
+	  * Returns the dimensions used to store result images
+	  */
+	 std::tuple<std::size_t, std::size_t> getImageDimensions() const {
+		 return std::tuple<std::size_t, std::size_t>(dimX_, dimY_);
+	 }
 
-   /***************************************************************************/
-   /**
-    * Allows to specify whether only images for improved iterations should be emitted
-    */
-   void setEmitBestOnly(const bool& emitBestOnly) {
-      emitBestOnly_ = emitBestOnly;
-   }
+	 /***************************************************************************/
+	 /**
+	  * Allows to specify whether only images for improved iterations should be emitted
+	  */
+	 void setEmitBestOnly(const bool& emitBestOnly) {
+		 emitBestOnly_ = emitBestOnly;
+	 }
 
-   /***************************************************************************/
-   /**
-    * Allows to check whether only images for improved iterations should be emitted
-    */
-   bool getEmitBestOnly() const {
-      return emitBestOnly_;
-   }
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether only images for improved iterations should be emitted
+	  */
+	 bool getEmitBestOnly() const {
+		 return emitBestOnly_;
+	 }
 
-   /***************************************************************************/
-   /**
-    * Allows to emit information in different stages of the information cycle
-    * (initialization, during each cycle and during finalization)
-    */
-   virtual void informationFunction(
-      const infoMode& im
-      , G_OptimizationAlgorithm_Base * const goa
-   ) override {
-      switch(im) {
-		case Gem::Geneva::infoMode::INFOINIT:
-      {
-         // Check that the target directory for result files exists. If not, try to create it.
-         if(!boost::filesystem::exists(boost::filesystem::path(resultImageDirectory_))) {
-            if(!boost::filesystem::create_directory(boost::filesystem::path(resultImageDirectory_))) {
-               glogger
-               << "Error: could not create directory " << resultImageDirectory_ << std::endl
-               << GEXCEPTION;
-            }
-         } else { // Check that resultImageDirectory_ is indeed a directory and not a file
-            if(!boost::filesystem::is_directory(boost::filesystem::path(resultImageDirectory_))) {
-               glogger
-               << "Error: " << resultImageDirectory_ << " is not a directory" << std::endl
-               << GEXCEPTION;
-            }
-         }
-      }
-      break;
+	 /***************************************************************************/
+	 /**
+	  * Allows to emit information in different stages of the information cycle
+	  * (initialization, during each cycle and during finalization)
+	  */
+	 virtual void informationFunction(
+		 const infoMode& im
+		 , G_OptimizationAlgorithm_Base * const goa
+	 ) override {
+		 switch(im) {
+			 case Gem::Geneva::infoMode::INFOINIT:
+			 {
+				 // Check that the target directory for result files exists. If not, try to create it.
+				 if(!boost::filesystem::exists(boost::filesystem::path(resultImageDirectory_))) {
+					 if(!boost::filesystem::create_directory(boost::filesystem::path(resultImageDirectory_))) {
+						 throw gemfony_exception(
+							 g_error_streamer(DO_LOG,  time_and_place)
+								 << "Error: could not create directory " << resultImageDirectory_ << std::endl
+						 );
+					 }
+				 } else { // Check that resultImageDirectory_ is indeed a directory and not a file
+					 if(!boost::filesystem::is_directory(boost::filesystem::path(resultImageDirectory_))) {
+						 throw gemfony_exception(
+							 g_error_streamer(DO_LOG,  time_and_place)
+								 << "Error: " << resultImageDirectory_ << " is not a directory" << std::endl
+						 );
+					 }
+				 }
+			 }
+				 break;
 
-      case Gem::Geneva::infoMode::INFOPROCESSING:
-      {
-         // Trigger output of a result picture
-         if(!emitBestOnly_ || (emitBestOnly_ && goa->progress())) {
-				// TODO: We assume that access to dimX_/dimY_ and resultImageDirectory_ is read-only
-				// (i.e. no entity writes to these quantities during an optimization run). Hence we
-				// do not currently protect these resouces. This should be changed.
-				std::async(
-					[&]() {
-						goa->G_Interface_Optimizer::getBestIterationIndividual<GImageIndividual>()->writeImage(
-							"image"
-							, resultImageDirectory_
-							, std::tuple<std::size_t, std::size_t>(
-								dimX_
-								, dimY_
-							)
-						);
-					}
-				);
-         }
-      }
-      break;
+			 case Gem::Geneva::infoMode::INFOPROCESSING:
+			 {
+				 // Trigger output of a result picture
+				 if(!emitBestOnly_ || (emitBestOnly_ && goa->progress())) {
+					 // TODO: We assume that access to dimX_/dimY_ and resultImageDirectory_ is read-only
+					 // (i.e. no entity writes to these quantities during an optimization run). Hence we
+					 // do not currently protect these resouces. This should be changed.
+					 std::async(
+						 [&]() {
+							 goa->G_Interface_Optimizer::getBestIterationIndividual<GImageIndividual>()->writeImage(
+								 "image"
+								 , resultImageDirectory_
+								 , std::tuple<std::size_t, std::size_t>(
+									 dimX_
+									 , dimY_
+								 )
+							 );
+						 }
+					 );
+				 }
+			 }
+				 break;
 
-      case Gem::Geneva::infoMode::INFOEND:
-      // nothing
-      break;
-      };
-   }
+			 case Gem::Geneva::infoMode::INFOEND:
+				 // nothing
+				 break;
+		 };
+	 }
 
 protected:
 	 /************************************************************************/
@@ -336,30 +338,30 @@ protected:
 
 
 private:
-   /***************************************************************************/
-   /**
-    * The default constructor. It is intentionally private, as it is only needed
-    * for (de-)serialization purposes.
-    */
-   GImagePOM()
-   { /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The default constructor. It is intentionally private, as it is only needed
+	  * for (de-)serialization purposes.
+	  */
+	 GImagePOM()
+	 { /* nothing */ }
 
-   /***************************************************************************/
-   /**
-    * Adds a slash to the end of the path if necessary
-    */
-   static std::string trailingSlash(const std::string& path) {
-      if(path[path.size() - 1] != '/') return path + '/';
-      else return path;
-   }
+	 /***************************************************************************/
+	 /**
+	  * Adds a slash to the end of the path if necessary
+	  */
+	 static std::string trailingSlash(const std::string& path) {
+		 if(path[path.size() - 1] != '/') return path + '/';
+		 else return path;
+	 }
 
- 	/***************************************************************************/
-	// Class data
+	 /***************************************************************************/
+	 // Class data
 
-   std::string resultImageDirectory_ = "./results/"; ///< The target directory for results
-   std::size_t dimX_ = DEFAULTXDIMPROGRESS;
- 	std::size_t dimY_ = DEFAULTYDIMPROGRESS; ///< The dimensions of the candidate image written to disk
-   bool emitBestOnly_ = true; ///< Indicates whether images should only be written for improved iterations
+	 std::string resultImageDirectory_ = "./results/"; ///< The target directory for results
+	 std::size_t dimX_ = DEFAULTXDIMPROGRESS;
+	 std::size_t dimY_ = DEFAULTYDIMPROGRESS; ///< The dimensions of the candidate image written to disk
+	 bool emitBestOnly_ = true; ///< Indicates whether images should only be written for improved iterations
 
 public:
 	 /***************************************************************************/

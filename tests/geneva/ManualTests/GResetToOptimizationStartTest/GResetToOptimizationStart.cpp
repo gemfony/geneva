@@ -75,10 +75,11 @@ int main(int argc, char **argv) {
 
 	// Check that algorithms were indeed registered
 	if(go.getNAlgorithms() < 1) {
-		glogger
-		<< "In GResetToOptimizationStart-test: Error!" << std::endl
-	   << "No algorithms were registered." << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GResetToOptimizationStart-test: Error!" << std::endl
+				<< "No algorithms were registered." << std::endl
+		);
 	}
 
 	// Retrieve the registered algorithms

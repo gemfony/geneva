@@ -206,12 +206,13 @@ void GInt32Collection::int32Streamline(
 	std::map<std::string, std::vector<std::int32_t>> &parVec, const activityMode &am
 ) const {
 #ifdef DEBUG
-   if((this->getParameterName()).empty()) {
-      glogger
-      << "In GInt32Collection::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& parVec) const: Error!" << std::endl
-      << "No name was assigned to the object" << std::endl
-      << GEXCEPTION;
-   }
+	if((this->getParameterName()).empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GInt32Collection::int32Streamline(std::map<std::string, std::vector<std::int32_t>>& parVec) const: Error!" << std::endl
+				<< "No name was assigned to the object" << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::vector<std::int32_t> parameters;
@@ -261,13 +262,14 @@ void GInt32Collection::assignInt32ValueVector(
 ) {
 	for (GInt32Collection::iterator it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-      // Do we have a valid position ?
-      if(pos >= parVec.size()) {
-         glogger
-         << "In GInt32Collection::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
-         << "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
-         << GEXCEPTION;
-      }
+		// Do we have a valid position ?
+		if(pos >= parVec.size()) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GInt32Collection::assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&):" << std::endl
+					<< "Tried to access position beyond end of vector: " << parVec.size() << "/" << pos << std::endl
+			);
+		}
 #endif
 
 		(*it) = parVec[pos];
@@ -367,10 +369,11 @@ void GInt32Collection::int32Add(
 
 	// Cross-check that the sizes match
 	if(this->size() != p->size()) {
-		glogger
-			<< "In GInt32Collection::int32Add():" << std::endl
-			<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GInt32Collection::int32Add():" << std::endl
+				<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+		);
 	}
 
 	for(std::size_t pos = 0; pos<this->size(); pos++) {
@@ -391,10 +394,11 @@ void GInt32Collection::int32Subtract(
 
 // Cross-check that the sizes match
 	if(this->size() != p->size()) {
-		glogger
-			<< "In GInt32Collection::int32Subtract():" << std::endl
-			<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GInt32Collection::int32Subtract():" << std::endl
+				<< "Sizes of vectors don't match: " << this->size() << "/" << p->size() << std::endl
+		);
 	}
 
 	for(std::size_t pos = 0; pos<this->size(); pos++) {
@@ -437,7 +441,7 @@ bool GInt32Collection::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GInt32Collection::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GInt32Collection::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -476,7 +480,7 @@ void GInt32Collection::specificTestsNoFailureExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GInt32Collection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GInt32Collection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -514,7 +518,7 @@ void GInt32Collection::specificTestsFailuresExpected_GUnitTests() {
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GInt32Collection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GInt32Collection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

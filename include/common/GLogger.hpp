@@ -86,7 +86,7 @@
 #include "common/GSingletonT.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GTupleIO.hpp"
-#include "common/GCommonHelperFunctions.hpp"
+#include "common/GExceptions.hpp"
 
 namespace Gem {
 namespace Common {

@@ -49,7 +49,7 @@ G_API_GENEVA const std::string GSwarmAlgorithm_PersonalityTraits::nickname = "sw
  */
 GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits()
 	: GPersonalityTraits(), neighborhood_(0), noPositionUpdate_(false), personal_best_() // empty
-	, personal_best_quality_(std::make_tuple(0., 0.)) { /* nothing */ }
+	  , personal_best_quality_(std::make_tuple(0., 0.)) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -59,10 +59,10 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits()
  */
 GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(const GSwarmAlgorithm_PersonalityTraits &cp)
 	: GPersonalityTraits(cp)
-	, neighborhood_(cp.neighborhood_)
-	, noPositionUpdate_(cp.noPositionUpdate_)
-	, personal_best_() // empty at this point
-	, personal_best_quality_(cp.personal_best_quality_)
+	  , neighborhood_(cp.neighborhood_)
+	  , noPositionUpdate_(cp.noPositionUpdate_)
+	  , personal_best_() // empty at this point
+	  , personal_best_quality_(cp.personal_best_quality_)
 {
 	// Copy the personal_best_ vector over
 	Gem::Common::copyCloneableSmartPointer(cp.personal_best_, personal_best_);
@@ -228,18 +228,20 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr < G
 #ifdef DEBUG
 	// Does it point anywhere ?
 	if(!p) {
-	   glogger
-	   << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
-      << "Got empty smart pointer." << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
+				<< "Got empty smart pointer." << std::endl
+		);
 	}
 
 	// Is the dirty flag set ?
 	if(p->isDirty()) {
-	   glogger
-	   << "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
-      << "Got individual whose dirty flag is set." << std::endl
-      << GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
+				<< "Got individual whose dirty flag is set." << std::endl
+		);
 	}
 #endif
 
@@ -265,12 +267,13 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr < G
  */
 std::shared_ptr <GParameterSet> GSwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
-   if(!personal_best_) {
-      glogger
-      << "In GSwarmAlgorithm_PersonalityTraits::getPersonalBest(): Error!" << std::endl
-      << "Tried to retrieve personal_best_ while pointer is empty" << std::endl
-      << GEXCEPTION;
-   }
+	if(!personal_best_) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GSwarmAlgorithm_PersonalityTraits::getPersonalBest(): Error!" << std::endl
+				<< "Tried to retrieve personal_best_ while pointer is empty" << std::endl
+		);
+	}
 #endif
 
 	return personal_best_;
@@ -386,7 +389,7 @@ bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests", "GEM_TESTING");
    return false;
 #endif /* GEM_TESTING */
 }
@@ -440,7 +443,7 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTest
 	//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -461,7 +464,7 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests
 	//---------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-   Gem::Common::condnotset("GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

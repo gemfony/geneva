@@ -109,11 +109,11 @@ GParameterPropertyParser::GParameterPropertyParser(const std::string &rw)
 		this->parse();
 	} catch (const gemfony_exception &e) {
 		glogger
-		<< "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): Error!" << std::endl
-		<< "Caught Geneva exception with message " << std::endl
-		<< e.what() << std::endl
-		<< "Terminating the application" << std::endl
-		<< GTERMINATION;
+			<< "In GParameterPropertyParser::GParameterPropertyParser(const std::string& raw): Error!" << std::endl
+			<< "Caught Geneva exception with message " << std::endl
+			<< e.what() << std::endl
+			<< "Terminating the application" << std::endl
+			<< GTERMINATION;
 	}
 }
 
@@ -189,10 +189,11 @@ void GParameterPropertyParser::parse() {
 
 	if (!success || from != to) {
 		std::string rest(from, to);
-		glogger
-		<< "In GParameterPropertyParser::parse(): Error[1]!" << std::endl
-		<< "Parsing of variable descriptions failed. Unparsed fragement: " << rest << std::endl
-		<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterPropertyParser::parse(): Error[1]!" << std::endl
+				<< "Parsing of variable descriptions failed. Unparsed fragement: " << rest << std::endl
+		);
 	}
 
 	// Process each individual string
@@ -224,68 +225,71 @@ void GParameterPropertyParser::parse() {
 				from, to, simpleScanParser[push_back(boost::phoenix::ref(sSpecVec), _1)], space
 			);
 		} else {
-			glogger
-			<< "In GParameterPropertyParser::parse(): Error!" << std::endl
-			<< "Invalid type specifier: " << std::get<0>(*it) << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParameterPropertyParser::parse(): Error!" << std::endl
+					<< "Invalid type specifier: " << std::get<0>(*it) << std::endl
+			);
 		}
 
 		if (!success || from != to) {
 			std::string rest(from, to);
-			glogger
-			<< "In GParameterPropertyParser::parse(): Error[2]!" << std::endl
-			<< "Parsing of variable descriptions failed. Unparsed fragment: " << rest << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParameterPropertyParser::parse(): Error[2]!" << std::endl
+					<< "Parsing of variable descriptions failed. Unparsed fragment: " << rest << std::endl
+			);
 		}
 
 		// We only accept a single "simple-scan" entry. Complain, if more than one was found
 		if (sSpecVec.size() > 1) {
-			glogger
-			<< "In GParameterPropertyParser::parse(): Error!" << std::endl
-			<< "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
-			<< "maximum of 1 is allowed" << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParameterPropertyParser::parse(): Error!" << std::endl
+					<< "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
+					<< "maximum of 1 is allowed" << std::endl
+			);
 		} else if (sSpecVec.size() == 1) { // If we did find a "simple scan" entry, we will discard the other entries.
 			if (!dSpecVec.empty()) {
 				glogger
-				<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
-				<< "You have specified both a simple-scan component and " << std::endl
-				<< "scan-components for double variables. These entries" << std::endl
-				<< "will be discarded" << std::endl
-				<< GWARNING;
+					<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
+					<< "You have specified both a simple-scan component and " << std::endl
+					<< "scan-components for double variables. These entries" << std::endl
+					<< "will be discarded" << std::endl
+					<< GWARNING;
 
 				dSpecVec.clear();
 			}
 
 			if (!fSpecVec.empty()) {
 				glogger
-				<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
-				<< "You have specified both a simple-scan component and " << std::endl
-				<< "scan-components for float variables. These entries" << std::endl
-				<< "will be discarded" << std::endl
-				<< GWARNING;
+					<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
+					<< "You have specified both a simple-scan component and " << std::endl
+					<< "scan-components for float variables. These entries" << std::endl
+					<< "will be discarded" << std::endl
+					<< GWARNING;
 
 				fSpecVec.clear();
 			}
 
 			if (!iSpecVec.empty()) {
 				glogger
-				<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
-				<< "You have specified both a simple-scan component and " << std::endl
-				<< "scan-components for integer variables. These entries" << std::endl
-				<< "will be discarded" << std::endl
-				<< GWARNING;
+					<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
+					<< "You have specified both a simple-scan component and " << std::endl
+					<< "scan-components for integer variables. These entries" << std::endl
+					<< "will be discarded" << std::endl
+					<< GWARNING;
 
 				iSpecVec.clear();
 			}
 
 			if (!bSpecVec.empty()) {
 				glogger
-				<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
-				<< "You have specified both a simple-scan component and " << std::endl
-				<< "scan-components for boolean variables. These entries" << std::endl
-				<< "will be discarded" << std::endl
-				<< GWARNING;
+					<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
+					<< "You have specified both a simple-scan component and " << std::endl
+					<< "scan-components for boolean variables. These entries" << std::endl
+					<< "will be discarded" << std::endl
+					<< GWARNING;
 
 				bSpecVec.clear();
 			}
@@ -305,13 +309,14 @@ std::size_t GParameterPropertyParser::getNSimpleScanItems() const {
 		return std::size_t(0);
 	} else { // Return the data of the first item
 #ifdef DEBUG
-      if(sSpecVec.size() > 1) {
-         glogger
-         << "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << std::endl
-         << "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
-         << "maximum of 1 is allowed" << std::endl
-         << GEXCEPTION;
-      }
+		if(sSpecVec.size() > 1) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GParameterPropertyParser::getNSimpleScanItems() const: Error!" << std::endl
+					<< "Found " << sSpecVec.size() << "simple scan entries where a" << std::endl
+					<< "maximum of 1 is allowed" << std::endl
+			);
+		}
 #endif
 
 		return (sSpecVec.front()).nItems;

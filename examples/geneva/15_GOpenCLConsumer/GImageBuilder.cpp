@@ -64,14 +64,14 @@ const cl_device_type DEFAULTDEVICETYPE = CL_DEVICE_TYPE_ALL; // GPU+CPU
  */
 void assembleCommandLineOptions(
 	boost::program_options::options_description& user_options
-   , bool& showDevices
-   , std::string& deviceDescription
-   , std::string& logAll
-   , std::string& logResults
-   , std::string& monitorNAdaptions
-   , std::string& logSigma
-   , bool& logImages
-   , bool& emitBestOnly
+	, bool& showDevices
+	, std::string& deviceDescription
+	, std::string& logAll
+	, std::string& logResults
+	, std::string& monitorNAdaptions
+	, std::string& logSigma
+	, bool& logImages
+	, bool& emitBestOnly
 ) {
 	user_options.add_options()(
 		"showDevices"
@@ -116,70 +116,70 @@ void assembleCommandLineOptions(
  * profiling purposes
  */
 std::shared_ptr<GCollectiveMonitor> getPOM(
-   const std::string& logAll
-   , const std::string& logResults
-   , const std::string& monitorNAdaptions
-   , const std::string& logSigma
-   , const bool& logImages
-   , const bool& emitBestOnly
-   , const std::tuple<std::size_t, std::size_t>& imageDimensions
+	const std::string& logAll
+	, const std::string& logResults
+	, const std::string& monitorNAdaptions
+	, const std::string& logSigma
+	, const bool& logImages
+	, const bool& emitBestOnly
+	, const std::tuple<std::size_t, std::size_t>& imageDimensions
 ) {
-   std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr(new GCollectiveMonitor());
+	std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr(new GCollectiveMonitor());
 
-   if(logAll != "empty") {
-      std::shared_ptr<GAllSolutionFileLogger> allsolutionLogger_ptr(new GAllSolutionFileLogger(logAll));
+	if(logAll != "empty") {
+		std::shared_ptr<GAllSolutionFileLogger> allsolutionLogger_ptr(new GAllSolutionFileLogger(logAll));
 
-      allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
-      allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
-      allsolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
-      allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
+		allsolutionLogger_ptr->setPrintWithNameAndType(true); // Output information about variable names and types
+		allsolutionLogger_ptr->setPrintWithCommas(true); // Output commas between values
+		allsolutionLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
+		allsolutionLogger_ptr->setShowValidity(true); // Indicate, whether this is a valid solution
 
-      collectiveMonitor_ptr->registerPluggableOM(allsolutionLogger_ptr);
-   }
+		collectiveMonitor_ptr->registerPluggableOM(allsolutionLogger_ptr);
+	}
 
-   if(logResults != "empty") {
-      std::shared_ptr<GIterationResultsFileLogger> iterationResultLogger_ptr(new GIterationResultsFileLogger(logResults));
+	if(logResults != "empty") {
+		std::shared_ptr<GIterationResultsFileLogger> iterationResultLogger_ptr(new GIterationResultsFileLogger(logResults));
 
-      iterationResultLogger_ptr->setPrintWithCommas(true); // Output commas between values
-      iterationResultLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
+		iterationResultLogger_ptr->setPrintWithCommas(true); // Output commas between values
+		iterationResultLogger_ptr->setUseTrueFitness(false); // Output "transformed" fitness, not the "true" value
 
-      collectiveMonitor_ptr->registerPluggableOM(iterationResultLogger_ptr);
-   }
+		collectiveMonitor_ptr->registerPluggableOM(iterationResultLogger_ptr);
+	}
 
-   if(monitorNAdaptions != "empty") {
-      std::shared_ptr<GNAdpationsLogger> nAdaptionsLogger_ptr(new GNAdpationsLogger(monitorNAdaptions));
+	if(monitorNAdaptions != "empty") {
+		std::shared_ptr<GNAdpationsLogger> nAdaptionsLogger_ptr(new GNAdpationsLogger(monitorNAdaptions));
 
-      nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
-      nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
+		nAdaptionsLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
+		nAdaptionsLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
 
-      collectiveMonitor_ptr->registerPluggableOM(nAdaptionsLogger_ptr);
-   }
+		collectiveMonitor_ptr->registerPluggableOM(nAdaptionsLogger_ptr);
+	}
 
-   if(logSigma != "empty") {
-      std::shared_ptr<GAdaptorPropertyLogger<double> >
-         sigmaLogger_ptr(new GAdaptorPropertyLogger<double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
+	if(logSigma != "empty") {
+		std::shared_ptr<GAdaptorPropertyLogger<double> >
+			sigmaLogger_ptr(new GAdaptorPropertyLogger<double>(logSigma, "GDoubleGaussAdaptor", "sigma"));
 
-      sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
-      sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
+		sigmaLogger_ptr->setMonitorBestOnly(false); // Output information for all individuals
+		sigmaLogger_ptr->setAddPrintCommand(true); // Create a PNG file if Root-file is executed
 
-      collectiveMonitor_ptr->registerPluggableOM(sigmaLogger_ptr);
-   }
+		collectiveMonitor_ptr->registerPluggableOM(sigmaLogger_ptr);
+	}
 
-   // Create an additional POM for the image emission, of requested
-   if(logImages) {
-      std::shared_ptr<GImagePOM >
-         imageLogger_ptr(new GImagePOM("./results/", emitBestOnly));
+	// Create an additional POM for the image emission, of requested
+	if(logImages) {
+		std::shared_ptr<GImagePOM >
+			imageLogger_ptr(new GImagePOM("./results/", emitBestOnly));
 
-      imageLogger_ptr->setImageDimensions(imageDimensions, 1);
+		imageLogger_ptr->setImageDimensions(imageDimensions, 1);
 
-      collectiveMonitor_ptr->registerPluggableOM(imageLogger_ptr);
-   }
+		collectiveMonitor_ptr->registerPluggableOM(imageLogger_ptr);
+	}
 
-   if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
-      return collectiveMonitor_ptr;
-   } else {
-      return std::shared_ptr<GCollectiveMonitor>(); // empty pointer indicates that no monitor was requested
-   }
+	if(collectiveMonitor_ptr->hasOptimizationMonitors()) {
+		return collectiveMonitor_ptr;
+	} else {
+		return std::shared_ptr<GCollectiveMonitor>(); // empty pointer indicates that no monitor was requested
+	}
 }
 
 /********************************************************************************/
@@ -189,30 +189,31 @@ std::shared_ptr<GCollectiveMonitor> getPOM(
  * Returns the platforms available on this computer
  */
 std::vector<cl::Platform> getPlatforms() {
-   std::vector<cl::Platform> platforms;
+	std::vector<cl::Platform> platforms;
 
-   try{
-      // Extract the platforms
-      cl::Platform::get(&platforms);
+	try{
+		// Extract the platforms
+		cl::Platform::get(&platforms);
 
-      if(platforms.empty()) {
-         glogger
-         << "In getPlatforms(): Error!" << std::endl
-         << "No platforms found ..." << std::endl
-         << GEXCEPTION;
-      }
-   } catch(cl::Error& err) {
-      std::cout << err.what() << std::endl
-            << err.err()  << std::endl;
+		if(platforms.empty()) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In getPlatforms(): Error!" << std::endl
+					<< "No platforms found ..." << std::endl
+			);
+		}
+	} catch(cl::Error& err) {
+		std::cout << err.what() << std::endl
+					 << err.err()  << std::endl;
 
-      std::terminate();
-   } catch(gemfony_exception& err) {
-      std::cout << err.what();
-      std::terminate();
-   }
+		std::terminate();
+	} catch(gemfony_exception& err) {
+		std::cout << err.what();
+		std::terminate();
+	}
 
-   // Let the audience know
-   return platforms;
+	// Let the audience know
+	return platforms;
 }
 
 /********************************************************************************/
@@ -222,28 +223,29 @@ std::vector<cl::Platform> getPlatforms() {
  * Emits the devices of a specified device type for a given platform
  */
 std::vector<cl::Device> getDevices(const cl::Platform& platform, const cl_device_type& t) {
-   std::vector<cl::Device> devices;
+	std::vector<cl::Device> devices;
 
-   try{
-      // Extract a vector of devices
-      platform.getDevices(t, &devices);
+	try{
+		// Extract a vector of devices
+		platform.getDevices(t, &devices);
 
-      if(devices.empty()) {
-         glogger
-         << "In getDevices(): Error!" << std::endl
-         << "No devices found ..." << std::endl
-         << GEXCEPTION;
-      }
-   } catch(cl::Error& err) {
-      std::cout << err.what();
-      std::terminate();
-   } catch(gemfony_exception& err) {
-      std::cout << err.what();
-      std::terminate();
-   }
+		if(devices.empty()) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In getDevices(): Error!" << std::endl
+					<< "No devices found ..." << std::endl
+			);
+		}
+	} catch(cl::Error& err) {
+		std::cout << err.what();
+		std::terminate();
+	} catch(gemfony_exception& err) {
+		std::cout << err.what();
+		std::terminate();
+	}
 
-   // Let the audience know
-   return devices;
+	// Let the audience know
+	return devices;
 }
 
 /********************************************************************************/
@@ -253,16 +255,16 @@ std::vector<cl::Device> getDevices(const cl::Platform& platform, const cl_device
  * Prints out information about all devices
  */
 void printDeviceInfo() {
-   std::vector<cl::Platform> platforms = getPlatforms();
-   for(std::size_t p=0; p<platforms.size(); p++) {
-      // Identify the platform
-      std::cout << "Platform " << p << ": " << platforms[p].getInfo<CL_PLATFORM_NAME>() << std::endl << std::flush;
+	std::vector<cl::Platform> platforms = getPlatforms();
+	for(std::size_t p=0; p<platforms.size(); p++) {
+		// Identify the platform
+		std::cout << "Platform " << p << ": " << platforms[p].getInfo<CL_PLATFORM_NAME>() << std::endl << std::flush;
 
-      std::vector<cl::Device> devices = getDevices(platforms[p], DEFAULTDEVICETYPE);
-      for(std::size_t d=0; d<devices.size(); d++) {
-         std::cout << "Device " << d << ": " << devices[d].getInfo<CL_DEVICE_NAME>() << std::endl << std::flush;
-      }
-   }
+		std::vector<cl::Device> devices = getDevices(platforms[p], DEFAULTDEVICETYPE);
+		for(std::size_t d=0; d<devices.size(); d++) {
+			std::cout << "Device " << d << ": " << devices[d].getInfo<CL_DEVICE_NAME>() << std::endl << std::flush;
+		}
+	}
 }
 
 /********************************************************************************/
@@ -272,54 +274,55 @@ void printDeviceInfo() {
  * Retrieves workers to be added to the GBoostThreadConsumerT
  */
 std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker> > getWorkers(
-   std::string deviceDescription
-   , std::tuple<std::size_t, std::size_t>& imageDimensions
+	std::string deviceDescription
+	, std::tuple<std::size_t, std::size_t>& imageDimensions
 ) {
-   bool first = true;
+	bool first = true;
 
-   // Dissect the deviceDescription
-   std::vector<std::tuple<unsigned int, unsigned int> > deviceIds = Gem::Common::stringToUIntTupleVec(deviceDescription);
-   std::vector<std::tuple<unsigned int, unsigned int> >::iterator it;
+	// Dissect the deviceDescription
+	std::vector<std::tuple<unsigned int, unsigned int> > deviceIds = Gem::Common::stringToUIntTupleVec(deviceDescription);
+	std::vector<std::tuple<unsigned int, unsigned int> >::iterator it;
 
-   // Will hold the workers
-   std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker>> workers;
+	// Will hold the workers
+	std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker>> workers;
 
-   // Retrieve the workers
-   std::vector<cl::Platform> platforms = getPlatforms();
-   for(std::size_t p=0; p<platforms.size(); p++) {
-      std::vector<cl::Device> devices = getDevices(platforms[p], DEFAULTDEVICETYPE);
-      for(std::size_t d=0; d<devices.size(); d++) {
-         for(it=deviceIds.begin(); it!=deviceIds.end(); ++it) {
-            if(p == std::get<0>(*it) && d==std::get<1>(*it)) {
-               std::shared_ptr<GImageOpenCLWorker> worker_ptr = std::shared_ptr<GImageOpenCLWorker>(
-                     new GImageOpenCLWorker(
-                           devices[d]
-                          , "./config/GImageOpenCLWorker.json"
-                     )
-               );
+	// Retrieve the workers
+	std::vector<cl::Platform> platforms = getPlatforms();
+	for(std::size_t p=0; p<platforms.size(); p++) {
+		std::vector<cl::Device> devices = getDevices(platforms[p], DEFAULTDEVICETYPE);
+		for(std::size_t d=0; d<devices.size(); d++) {
+			for(it=deviceIds.begin(); it!=deviceIds.end(); ++it) {
+				if(p == std::get<0>(*it) && d==std::get<1>(*it)) {
+					std::shared_ptr<GImageOpenCLWorker> worker_ptr = std::shared_ptr<GImageOpenCLWorker>(
+						new GImageOpenCLWorker(
+							devices[d]
+							, "./config/GImageOpenCLWorker.json"
+						)
+					);
 
-               if(first) {
-                  imageDimensions = worker_ptr->getImageDimensions();
-                  first=false;
-               }
+					if(first) {
+						imageDimensions = worker_ptr->getImageDimensions();
+						first=false;
+					}
 
-               workers.push_back(worker_ptr);
+					workers.push_back(worker_ptr);
 
-               std::cout
-               << "Added device " << devices[d].getInfo<CL_DEVICE_NAME>() << " of platform " << platforms[p].getInfo<CL_PLATFORM_NAME>() << std::endl;
-            }
-         }
-      }
-   }
+					std::cout
+						<< "Added device " << devices[d].getInfo<CL_DEVICE_NAME>() << " of platform " << platforms[p].getInfo<CL_PLATFORM_NAME>() << std::endl;
+				}
+			}
+		}
+	}
 
-   if(workers.empty()) {
-      glogger
-      << "In getWorkers(): Error!" << std::endl
-      << "No workers could be retrieved" << std::endl
-      << GEXCEPTION;
-   }
+	if(workers.empty()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In getWorkers(): Error!" << std::endl
+				<< "No workers could be retrieved" << std::endl
+		);
+	}
 
-   return workers;
+	return workers;
 }
 
 /********************************************************************************/
@@ -331,29 +334,29 @@ std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker> > getWo
 int main(int argc, char **argv) {
 	boost::program_options::options_description user_options;
 
-   bool showDevices = false;
-   std::string deviceDescription;
-   std::string logAll = "empty";
-   std::string logResults = "empty";
-   std::string monitorNAdaptions = "empty";
-   std::string logSigma = "empty";
-   bool logImages;
-   bool emitBestOnly;
+	bool showDevices = false;
+	std::string deviceDescription;
+	std::string logAll = "empty";
+	std::string logResults = "empty";
+	std::string monitorNAdaptions = "empty";
+	std::string logSigma = "empty";
+	bool logImages;
+	bool emitBestOnly;
 
-   assembleCommandLineOptions(
+	assembleCommandLineOptions(
 		user_options
-    , showDevices
-    , deviceDescription
-    , logAll
-    , logResults
-    , monitorNAdaptions
-    , logSigma
-    , logImages
-    , emitBestOnly
-   );
+		, showDevices
+		, deviceDescription
+		, logAll
+		, logResults
+		, monitorNAdaptions
+		, logSigma
+		, logImages
+		, emitBestOnly
+	);
 
-   // Create the optimizer
-   Go2 go(argc, argv, "./config/Go2.json", user_options);
+	// Create the optimizer
+	Go2 go(argc, argv, "./config/Go2.json", user_options);
 
 	//---------------------------------------------------------------------------
 	// As we are dealing with a server, register a signal handler that allows us
@@ -361,49 +364,49 @@ int main(int argc, char **argv) {
 	signal(G_SIGHUP, GObject::sigHupHandler);
 
 	//---------------------------------------------------------------------------
-   // If we have only been asked to print device info, do so and exit
-   if(showDevices) {
-      printDeviceInfo();
-      exit(0);
-   }
+	// If we have only been asked to print device info, do so and exit
+	if(showDevices) {
+		printDeviceInfo();
+		exit(0);
+	}
 
-   // Retrieve workers
-   std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker>> workers;
-   std::tuple<std::size_t, std::size_t> imageDimensions;
-   workers = getWorkers(deviceDescription, imageDimensions);
+	// Retrieve workers
+	std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker>> workers;
+	std::tuple<std::size_t, std::size_t> imageDimensions;
+	workers = getWorkers(deviceDescription, imageDimensions);
 
-   // Set up the consumer
-   GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", workers);
+	// Set up the consumer
+	GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", workers);
 
-   // Register pluggable optimization monitors, if requested by the user
-   std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr = getPOM(
-      logAll
-      , logResults
-      , monitorNAdaptions
-      , logSigma
-      , logImages, emitBestOnly, imageDimensions
-   );
+	// Register pluggable optimization monitors, if requested by the user
+	std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr = getPOM(
+		logAll
+		, logResults
+		, monitorNAdaptions
+		, logSigma
+		, logImages, emitBestOnly, imageDimensions
+	);
 
-   if(collectiveMonitor_ptr) {
-      go.registerPluggableOM(collectiveMonitor_ptr);
-   }
+	if(collectiveMonitor_ptr) {
+		go.registerPluggableOM(collectiveMonitor_ptr);
+	}
 
-   // Create an image individual factory and create the first individual
-   GImageIndividualFactory f("config/GImageIndividual.json");
-   std::shared_ptr<GParameterSet> imageIndividual_ptr  = f();
+	// Create an image individual factory and create the first individual
+	GImageIndividualFactory f("config/GImageIndividual.json");
+	std::shared_ptr<GParameterSet> imageIndividual_ptr  = f();
 
-   // Attach the individual to the collection
-   go.push_back(imageIndividual_ptr);
+	// Attach the individual to the collection
+	go.push_back(imageIndividual_ptr);
 
-   // Create an evolutionary algorithm in broker mode
-   GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
-   std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr = ea.get<GEvolutionaryAlgorithm>();
+	// Create an evolutionary algorithm in broker mode
+	GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
+	std::shared_ptr<GEvolutionaryAlgorithm> ea_ptr = ea.get<GEvolutionaryAlgorithm>();
 
-   // Add the algorithm
-   go & ea_ptr;
+	// Add the algorithm
+	go & ea_ptr;
 
-   // Perform the actual optimization and extract the best individual
-   std::shared_ptr<GImageIndividual> p = go.optimize<GImageIndividual>();
+	// Perform the actual optimization and extract the best individual
+	std::shared_ptr<GImageIndividual> p = go.optimize<GImageIndividual>();
 }
 
 /********************************************************************************/

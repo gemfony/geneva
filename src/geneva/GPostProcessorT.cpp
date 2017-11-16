@@ -193,10 +193,11 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode)
 
 		case execMode::BROKER:
 		default: {
-			glogger
-				<< "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl
-				<< "Got invalid execution mode " << executionMode << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl
+					<< "Got invalid execution mode " << executionMode << std::endl
+			);
 		}
 	}
 }
@@ -275,17 +276,19 @@ Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithm
 bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
 	// Make sure p is clean
 	if (p.isDirty()) {
-		glogger
-			<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
-			<< "Provided base_type has dirty flag set." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
+				<< "Provided base_type has dirty flag set." << std::endl
+		);
 	}
 
 	if(m_executionMode == execMode::BROKER) {
-		glogger
-			<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
-			<< "Got invalid execution mode " << m_executionMode << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
+				<< "Got invalid execution mode " << m_executionMode << std::endl
+		);
 	}
 
 	// Clone the individual for post-processing

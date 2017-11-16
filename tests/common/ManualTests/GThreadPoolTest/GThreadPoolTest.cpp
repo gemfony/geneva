@@ -108,11 +108,12 @@ public:
 		);
 
 		if(true==simulateCrash) {
-			glogger
-			<< "In testTask::process(): Error!" << std::endl
-			<< "SHF-Exception (Some Horrible Failure)" << std::endl
-			<< "occurred, as requested ..." << std::endl
-			<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In testTask::process(): Error!" << std::endl
+					<< "SHF-Exception (Some Horrible Failure)" << std::endl
+					<< "occurred, as requested ..." << std::endl
+			);
 		}
 	}
 

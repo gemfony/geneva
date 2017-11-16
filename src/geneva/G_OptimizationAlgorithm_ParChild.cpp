@@ -235,14 +235,15 @@ std::size_t G_OptimizationAlgorithm_ParChild::getDefaultNChildren() const {
 std::size_t G_OptimizationAlgorithm_ParChild::getNProcessableItems() const {
 	std::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
 
-	#ifdef DEBUG
+#ifdef DEBUG
 	if(std::get<1>(range) <= std::get<0>(range)) {
-	glogger
-	<< "In G_OptimizationAlgorithm_ParChild<>::getNProcessableItems(): Error!" << std::endl
-	<< "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/" << std::get<0>(range) << std::endl
-	<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OptimizationAlgorithm_ParChild<>::getNProcessableItems(): Error!" << std::endl
+				<< "Upper boundary of range <= lower boundary: " << std::get<1>(range) << "/" << std::get<0>(range) << std::endl
+		);
 	}
-	#endif /* DEBUG */
+#endif /* DEBUG */
 
 	return std::get<1>(range) - std::get<0>(range);
 }
@@ -366,10 +367,11 @@ void G_OptimizationAlgorithm_ParChild::addConfigurationOptions (
  */
 void G_OptimizationAlgorithm_ParChild::setAmalgamationLikelihood(double amalgamationLikelihood) {
 	if (amalgamationLikelihood < 0. || amalgamationLikelihood > 1.) {
-		glogger
-			<< "In setCrossOverLikelihood(" << amalgamationLikelihood << "): Error!" << std::endl
-			<< "Received invalid likelihood for amalgamation. Must be in the range [0:1]." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In setCrossOverLikelihood(" << amalgamationLikelihood << "): Error!" << std::endl
+				<< "Received invalid likelihood for amalgamation. Must be in the range [0:1]." << std::endl
+		);
 	}
 
 	m_amalgamationLikelihood = amalgamationLikelihood;
@@ -515,11 +517,12 @@ void G_OptimizationAlgorithm_ParChild::recombine() {
 	// children is present. If individuals can get lost in your setting,
 	// you must add mechanisms to "repair" the population.
 	if((this->size()-m_n_parents) < m_default_n_children){
-		glogger
-			<< "In G_OptimizationAlgorithm_ParChild::recombine():" << std::endl
-			<< "Too few children. Got " << this->size()-m_n_parents << "," << std::endl
-			<< "but was expecting at least " << m_default_n_children << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OptimizationAlgorithm_ParChild::recombine():" << std::endl
+				<< "Too few children. Got " << this->size()-m_n_parents << "," << std::endl
+				<< "but was expecting at least " << m_default_n_children << std::endl
+		);
 	}
 #endif
 
@@ -609,10 +612,11 @@ std::tuple<double, double> G_OptimizationAlgorithm_ParChild::cycleLogic() {
 #ifdef DEBUG
 	// The dirty flag of this individual shouldn't be set
 	if(!this->at(0)->isClean()) {
-		glogger
-			<< "In GBaseParChiltT<>::cycleLogic(): Error!" << std::endl
-			<< "Expected clean individual in best position" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GBaseParChiltT<>::cycleLogic(): Error!" << std::endl
+				<< "Expected clean individual in best position" << std::endl
+		);
 	}
 
 #endif /* DEBUG */
@@ -665,31 +669,34 @@ void G_OptimizationAlgorithm_ParChild::finalize() {
 void G_OptimizationAlgorithm_ParChild::adjustPopulation() {
 	// Has the population size been set at all ?
 	if(G_OptimizationAlgorithm_Base::getDefaultPopulationSize() == 0) {
-		glogger
-			<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
-			<< "The population size is 0." << std::endl
-			<< "Did you call G_OptimizationAlgorithm_Base::setParentsAndPopulationSize() ?" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
+				<< "The population size is 0." << std::endl
+				<< "Did you call G_OptimizationAlgorithm_Base::setParentsAndPopulationSize() ?" << std::endl
+		);
 	}
 
 	// Check how many individuals have been added already. At least one is required.
 	std::size_t this_sz = this->size();
 	if(this_sz == 0) {
-		glogger
-			<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
-			<< "size of population is 0. Did you add any individuals?" << std::endl
-			<< "We need at least one local individual" << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
+				<< "size of population is 0. Did you add any individuals?" << std::endl
+				<< "We need at least one local individual" << std::endl
+		);
 	}
 
 	// Do the smart pointers actually point to any objects ?
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 	for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
 		if(!(*it)) { // shared_ptr can be implicitly converted to bool
-			glogger
-				<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
-				<< "Found empty smart pointer." << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
+					<< "Found empty smart pointer." << std::endl
+			);
 		}
 	}
 
@@ -786,10 +793,11 @@ void G_OptimizationAlgorithm_ParChild::valueRecombine(
 	}
 
 	if(!done) {
-		glogger
-			<< "In G_OptimizationAlgorithm_ParChild::valueRecombine():" << std::endl
-			<< "Could not recombine." << std::endl
-			<< GEXCEPTION;
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In G_OptimizationAlgorithm_ParChild::valueRecombine():" << std::endl
+				<< "Could not recombine." << std::endl
+		);
 	}
 }
 
@@ -805,11 +813,12 @@ void G_OptimizationAlgorithm_ParChild::sortMuPlusNuMode() {
 	std::size_t pos = 0;
 	for(auto ind_ptr: *this) { // std::shared_ptr may be copied
 		if(ind_ptr->isDirty()) {
-			glogger
-				<< "In G_OptimizationAlgorithm_ParChild::sortMuplusnuMode(): Error!" << std::endl
-				<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << pos << std::endl
-				<< " whose dirty flag is set." << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In G_OptimizationAlgorithm_ParChild::sortMuplusnuMode(): Error!" << std::endl
+					<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << pos << std::endl
+					<< " whose dirty flag is set." << std::endl
+			);
 		}
 		pos++;
 	}
@@ -839,14 +848,15 @@ void G_OptimizationAlgorithm_ParChild::sortMuCommaNuMode() {
 		typename G_OptimizationAlgorithm_ParChild::iterator it;
 		for (it = this->begin(); it != this->end(); ++it) {
 			if ((*it)->isDirty()) {
-				glogger
-					<< "In G_OptimizationAlgorithm_ParChild::sortMucommanuMode(): Error!" << std::endl
-					<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(
-					this->begin()
-					, it
-				) << std::endl
-					<< " whose dirty flag is set." << std::endl
-					<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In G_OptimizationAlgorithm_ParChild::sortMucommanuMode(): Error!" << std::endl
+						<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(
+						this->begin()
+						, it
+					) << std::endl
+						<< " whose dirty flag is set." << std::endl
+				);
 			}
 		}
 	} else {
@@ -854,14 +864,15 @@ void G_OptimizationAlgorithm_ParChild::sortMuCommaNuMode() {
 		typename G_OptimizationAlgorithm_ParChild::iterator it;
 		for (it = this->begin() + m_n_parents; it != this->end(); ++it) {
 			if ((*it)->isDirty()) {
-				glogger
-					<< "In G_OptimizationAlgorithm_ParChild::sortMucommanuMode(): Error!" << std::endl
-					<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(
-					this->begin()
-					, it
-				) << std::endl
-					<< " whose dirty flag is set." << std::endl
-					<< GEXCEPTION;
+				throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+						<< "In G_OptimizationAlgorithm_ParChild::sortMucommanuMode(): Error!" << std::endl
+						<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(
+						this->begin()
+						, it
+					) << std::endl
+						<< " whose dirty flag is set." << std::endl
+				);
 			}
 		}
 	}
@@ -907,11 +918,12 @@ void G_OptimizationAlgorithm_ParChild::sortMunu1pretainMode() {
 	typename G_OptimizationAlgorithm_ParChild::iterator it;
 	for(it=this->begin()+m_n_parents; it!=this->end(); ++it) {
 		if((*it)->isDirty()) {
-			glogger
-				<< "In G_OptimizationAlgorithm_ParChild::sortMunu1pretainMode(): Error!" << std::endl
-				<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
-				<< " whose dirty flag is set." << std::endl
-				<< GEXCEPTION;
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG,  time_and_place)
+					<< "In G_OptimizationAlgorithm_ParChild::sortMunu1pretainMode(): Error!" << std::endl
+					<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << std::distance(this->begin(),it) << std::endl
+					<< " whose dirty flag is set." << std::endl
+			);
 		}
 	}
 #endif /* DEBUG */

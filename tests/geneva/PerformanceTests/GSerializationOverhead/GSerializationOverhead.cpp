@@ -183,9 +183,10 @@ int main(int argc, char **argv) {
 					break;
 
 				default:
-					glogger
-					<< "Error in main(): Incorrect object type requested: " << o << std::endl
-					<< GEXCEPTION;
+					throw gemfony_exception(
+						g_error_streamer(DO_LOG,  time_and_place)
+							<< "Error in main(): Incorrect object type requested: " << o << std::endl
+					);
 					break;
 			}
 		}
