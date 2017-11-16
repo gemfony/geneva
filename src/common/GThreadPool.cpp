@@ -215,6 +215,7 @@ void GThreadPool::clearErrors() {
  * Waits for all submitted jobs to be cleared from the pool. Note that this
  * function may NOT be called from a task running inside of the pool.
  */
+
 void GThreadPool::wait() {
 	// Make sure no new jobs may be submitted
 	std::unique_lock<std::mutex> job_lck(m_task_submission_mutex);
@@ -222,6 +223,7 @@ void GThreadPool::wait() {
 	{ // Makes sure cnt_lck is released
 		// Acquire the lock, then return it as long as the condition hasn't been fulfilled
 		std::unique_lock<std::mutex> cnt_lck(m_task_counter_mutex);
+
 		while (m_tasksInFlight.load() > 0) { // Deal with spurious wake-ups
 			m_condition.wait(cnt_lck);
 		}
