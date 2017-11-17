@@ -46,7 +46,7 @@ namespace Geneva {
 GParameterSet::GParameterSet()
 	: GOptimizableEntity()
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
-	  , Gem::Courtier::GProcessingContainerT<GParameterSet>()
+	  , Gem::Courtier::GProcessingContainerT<GParameterSet, double>()
 	  , perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
@@ -57,7 +57,7 @@ GParameterSet::GParameterSet()
 GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
 	: GOptimizableEntity(nFitnessCriteria)
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
-	  , Gem::Courtier::GProcessingContainerT<GParameterSet>()
+	  , Gem::Courtier::GProcessingContainerT<GParameterSet, double>()
 	  , perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
@@ -71,7 +71,7 @@ GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
 GParameterSet::GParameterSet(const GParameterSet &cp)
 	: GOptimizableEntity(cp)
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>(cp)
-	  , Gem::Courtier::GProcessingContainerT<GParameterSet>(cp)
+	  , Gem::Courtier::GProcessingContainerT<GParameterSet, double>(cp)
 	  , perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
 { /* nothing */ }
 
@@ -368,7 +368,7 @@ void GParameterSet::load_(const GObject *cp) {
 	// Load the parent class'es data
 	GOptimizableEntity::load_(cp);
 	Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::operator=(*p_load);
-	Gem::Courtier::GProcessingContainerT<GParameterSet>::load_pc(p_load);
+	Gem::Courtier::GProcessingContainerT<GParameterSet, double>::load_pc(p_load);
 
 	// and then our local data
 	perItemCrossOverProbability_ = p_load->perItemCrossOverProbability_;
@@ -588,14 +588,28 @@ std::shared_ptr <GParameterSet> GParameterSet::parameter_clone() const {
 /******************************************************************************/
 /**
  * Performs all necessary (remote-)processing steps for this object.
- *
- * @return A boolean which indicates whether processing was done
  */
-bool GParameterSet::process_() {
+void GParameterSet::process_() {
 	this->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+}
 
-	// Let the audience know that we were successful
-	return true;
+/******************************************************************************/
+/**
+ * Overloaded from GProcessingContainerT as a means to return a result from the
+ * process()-function after pre-/postprocessing.
+ */
+double GParameterSet::get_processing_result() const noexcept {
+	try {
+		return this->fitness();
+	} catch(...) {
+		glogger
+			<< "In GParameterSet::get_processing_result(: Caught exception from const fitness function." << std::endl
+			<< "Cannot continue" << std::endl
+			<< GTERMINATION;
+	}
+
+	// Make the compiker happy
+	return 0.;
 }
 
 /******************************************************************************/

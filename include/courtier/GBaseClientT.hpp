@@ -99,7 +99,7 @@ class GBaseClientT :
 {
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
-		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type>, processable_type>::value
+		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
 		 , "GBaseClientT: processable_type does not adhere to the GProcessingContainerT interface"
 	 );
 

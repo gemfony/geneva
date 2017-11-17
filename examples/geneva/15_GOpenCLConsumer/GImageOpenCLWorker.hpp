@@ -38,6 +38,7 @@
 #define GIMAGEOPENCLWORKER_HPP_
 
 // Geneva headers go here
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 

@@ -577,7 +577,7 @@ void GGradientDescent::runFitnessCalculation() {
 		this->begin()
 		, this->end()
 		, [this](std::shared_ptr<GParameterSet> p) -> bool {
-			return p->processing_was_unsuccessful();
+			return !p->processing_was_successful();
 		}
 	) != this->end()) {
 		throw gemfony_exception(

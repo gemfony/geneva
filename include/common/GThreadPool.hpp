@@ -182,7 +182,7 @@ public:
 						 glogger
 						 << "In GThreadPool::async_schedule():" << std::endl
 						 << "promise.set_exception() has thrown." << std::endl
-						 << "Cannot continue" << std::endl
+						 << "We cannot continue" << std::endl
 						 << GTERMINATION;
 					 }
 				 }
@@ -288,8 +288,7 @@ public:
 		 m_io_service.post(
 			 [this, promise_ptr, f = std::bind<R>(std::forward<F>(f), std::forward<Args>(args)...)]() {
 				 try {
-					 auto result = f();
-					 promise_ptr->set_value(result);
+					 promise_ptr->set_value(f());
 				 } catch(...) {
 					 try { // Whatever was thrown may be stored in the promise
 						 promise_ptr->set_exception(std::current_exception());
@@ -297,7 +296,7 @@ public:
 						 glogger
 							 << "In GThreadPool::async_schedule():" << std::endl
 							 << "promise.set_exception() has thrown." << std::endl
-							 << "Cannot continue" << std::endl
+							 << "We cannot continue" << std::endl
 							 << GTERMINATION;
 					 }
 				 }

@@ -614,8 +614,7 @@ void GOptimizableEntity::enforceFitnessUpdate(std::function<std::vector<double>(
 
 	// Find out, whether this is a valid solution
 	if (
-		this->parameterSetFulfillsConstraints(
-			m_validity_level) // Needs to be called first, or else the m_validity_level will not be filled
+		this->parameterSetFulfillsConstraints(m_validity_level) // Needs to be called first, or else the m_validity_level will not be filled
 		|| evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy
 		) {
 		// Marking individuals as invalid happens inside of the user-supplied fitness

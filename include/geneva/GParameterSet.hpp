@@ -85,7 +85,7 @@ namespace Geneva {
 class GParameterSet
 	: public GOptimizableEntity
    , public Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>
-	, public Gem::Courtier::GProcessingContainerT<GParameterSet>
+	, public Gem::Courtier::GProcessingContainerT<GParameterSet, double>
 {
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
@@ -98,7 +98,7 @@ class GParameterSet
 		 ar
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
 		 & make_nvp("GStdPtrVectorInterfaceT_GParameterBase", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>>(*this))
-		 & make_nvp("GProcessingContainerT_ParameterSet", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet>>(*this))
+		 & make_nvp("GProcessingContainerT_ParameterSet_double", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet, double>>(*this))
 		 & BOOST_SERIALIZATION_NVP(perItemCrossOverProbability_);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
@@ -581,7 +581,10 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Do the required processing for this object */
-	 virtual G_API_GENEVA bool process_() override;
+	 virtual G_API_GENEVA void process_() override;
+
+	 /** @brief Allows to give an indication of the processing result (if any); may not throw. */
+	 virtual G_API_GENEVA double get_processing_result() const noexcept override;
 
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA virtual void load_(const GObject*) override;

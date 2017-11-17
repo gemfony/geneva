@@ -525,8 +525,8 @@ void GImageIndividual::writeImage(
  */
 void GImageIndividual::load_(const GObject* cp)
 {
-	// Check that we are indeed dealing with a GBoundedNumT<T> reference
-	const GImageIndividual *p_load = GObject::gobject_conversion<GImageIndividual>(cp);
+	// Check that we are indeed dealing with a GImageIndividual reference
+	const GImageIndividual *p_load = Gem::Common::g_convert_and_compare<GObject, GImageIndividual>(cp, this);
 
 	// Load our parent's data
 	GParameterSet::load_(cp);

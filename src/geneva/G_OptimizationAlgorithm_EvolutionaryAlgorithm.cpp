@@ -569,7 +569,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 	Gem::Common::erase_if(
 		this->data
 		, [this](std::shared_ptr<GParameterSet> p) -> bool {
-			return p->processing_was_unsuccessful();
+			return !p->processing_was_successful();
 		}
 	);
 

@@ -38,6 +38,8 @@
 // Standard headers go here
 #include <tuple>
 #include <chrono>
+#include <type_traits>
+#include <exception>
 
 // Boost headers go here
 #include <boost/archive/xml_oarchive.hpp>
@@ -77,8 +79,16 @@ namespace Courtier {
  * This class can serve as a base class for items to be submitted through the broker. You need to
  * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
  * derived classes to be serializable and to trigger serialization of this class.
+ *
+ * @tparam processable_type The type of the class derived from GProcessingContainerT
+ * @tparam processing_result_type The result type of the process_ call
  */
-template<typename submission_type>
+template<
+	typename processable_type
+	, typename processing_result_type
+	, class = typename std::enable_if<!std::is_void<processing_result_type>::value>::type
+	, class = typename std::enable_if< std::is_pod <processing_result_type>::value>::type
+>
 class GProcessingContainerT
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -99,13 +109,14 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_pre_processing_time)
 		 & BOOST_SERIALIZATION_NVP(m_processing_time)
 		 & BOOST_SERIALIZATION_NVP(m_post_processing_time)
-		 & BOOST_SERIALIZATION_NVP(m_processing_successful);
+		 & BOOST_SERIALIZATION_NVP(m_processing_was_successful);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 using payload_type = submission_type;
+	 using payload_type = processable_type;
+	 using result_type  = processing_result_type;
 
 	 /***************************************************************************/
 	 /**
@@ -119,13 +130,13 @@ public:
 	  *
 	  * @param cp A copy of another GSubmissionContainer object
 	  */
-	 GProcessingContainerT(const GProcessingContainerT<submission_type> &cp)
+	 GProcessingContainerT(const GProcessingContainerT<processable_type, processing_result_type> &cp)
 		 : m_submission_counter(cp.m_submission_counter)
 			, m_submission_position(cp.m_submission_position)
 			, m_bufferport_id(cp.m_bufferport_id)
 			, m_preProcessingDisabled(cp.m_preProcessingDisabled)
 			, m_postProcessingDisabled(cp.m_postProcessingDisabled)
-			, m_processing_successful(cp.m_processing_successful)
+	 	   , m_processing_was_successful(cp.m_processing_was_successful)
 	 {
 		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -143,101 +154,62 @@ public:
 	  * post-processing allows to run a sub-optimization. The amount of time
 	  * needed for processing is done for logging purposes. Where one of the
 	  * processing functions returns false or throws an exception, the function
-	  * returns false, otherwise true.
+	  * returns false, otherwise true. The function does some diagnostic work
+	  * by measuring the processing times and it targetted at longer running
+	  * processing calls.
 	  *
-	  * @return A boolean indicating whether processing was successful
+	  * @return The result of the processing calls
 	  */
-	 bool process() {
+	 processing_result_type process() {
 		 try {
-			 m_processing_successful = false;
+			 // Reset the check for successful execution
+			 m_processing_was_successful = false;
 
+			 // Perform the actual processing
 			 auto startTime = std::chrono::high_resolution_clock::now();
-			 if (!this->preProcess_()) return false;
+			 this->preProcess_();
 			 auto afterPreProcessing = std::chrono::high_resolution_clock::now();
-			 if (!this->process_()) return false;
+			 this->process_();
 			 auto afterProcessing = std::chrono::high_resolution_clock::now();
-			 if (!this->postProcess_()) return false;
+			 this->postProcess_();
 			 auto afterPostProcessing = std::chrono::high_resolution_clock::now();
 
-			 // Make a not of the time needed for each step
+			 // Make a note of the time needed for each step
 			 m_pre_processing_time = std::chrono::duration<double>(afterPreProcessing - startTime).count();
 			 m_processing_time = std::chrono::duration<double>(afterProcessing - afterPreProcessing).count();
 			 m_post_processing_time = std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
 
-			 m_processing_successful = true;
-		 } catch(gemfony_exception& e) {
+			 m_processing_was_successful = true;
+		 } catch(std::exception& e) {
+			 // Let the audience know
 			 glogger
-				 << "In GProcessingContainerT<>::process(): Caught gemfony_exception with message" << std::endl
+				 << "In GProcessingContainerT<>::process():" << std::endl
+				 << "Processing has thrown an exception with message" << std::endl
 				 << e.what() << std::endl
+				 << "We will rethrow this exception" << std::endl
 				 << GWARNING;
 
-			 m_processing_successful = false;
-		 } catch(boost::exception&){
-			 glogger
-				 << "In GProcessingContainerT<>::process(): Caught boost::exception with message" << std::endl
-				 << GWARNING;
-
-			 m_processing_successful = false;
-		 } catch(std::exception& e){
-			 glogger
-				 << "In GProcessingContainerT<>::process(): Caught std::exception with message" << std::endl
-				 << e.what() << std::endl
-				 << GWARNING;
-
-			 m_processing_successful = false;
-		 } catch(...){
-			 glogger
-				 << "GProcessingContainerT<>::process(): Caught unknown exception" << std::endl
-				 << GWARNING;
-
-			 m_processing_successful = false;
-		 }
-
-		 // Give processing times a valid state
-		 if(!m_processing_successful) {
+			 // Do some cleanup
 			 m_pre_processing_time = 0.;
 			 m_processing_time = 0.;
 			 m_post_processing_time = 0.;
+
+			 m_processing_was_successful = false;
+
+			 // Rethrow the caught exception
+			 throw e;
+		 } catch(...) {
+			 m_processing_was_successful = false;
+
+			 // Let the audience know
+			 glogger
+				 << "In GProcessingContainerT<>::process():" << std::endl
+				 << "Processing has thrown an unknown exception." << std::endl
+				 << "We cannot continue."
+				 << GTERMINATION;
 		 }
 
-		 return m_processing_successful;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Check whether processing was successful
-	  */
-	 bool processing_was_successful() const {
-		 return m_processing_successful;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Check whether processing was unsuccessful. This is a convenience function
-	  * to make the code more readable.
-	  */
-	 bool processing_was_unsuccessful() const {
-		 return !m_processing_successful;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Mark processing as having failed
-	  *
-	  * TODO: This may be overwritten in the process() function
-	  */
-	 void mark_processing_as_unsuccessful() {
-		 m_processing_successful = false;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Mark processing as successful
-	  *
-	  * TODO: This may be overwritten in the process() function
-	  */
-	 void force_mark_processing_as_successful() {
-		 m_processing_successful = true;
+		 return this->get_processing_result();
 	 }
 
 	 /***************************************************************************/
@@ -251,8 +223,26 @@ public:
 	  *
 	  * @param cD_ptr A pointer to the object whose data should be loaded
 	  */
-	 virtual void loadConstantData(std::shared_ptr<submission_type>) BASE
+	 virtual void loadConstantData(std::shared_ptr<processable_type>) BASE
 	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks if processing was successful
+	  *
+	  * @return A boolean indicating whether processing was successful
+	  */
+	 bool processing_was_successful() const {
+		 return m_processing_was_successful;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Enforces processing to be marked as successful
+	  */
+	 void force_mark_processing_as_successful() {
+		 m_processing_was_successful = true;
+	 };
 
 	 /***************************************************************************/
 	 /**
@@ -325,7 +315,7 @@ public:
 	 /**
 	  * Allows to register a pre-processor object
 	  */
-	 void registerPreProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> pre_processor_ptr) {
+	 void registerPreProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> pre_processor_ptr) {
 		 if(pre_processor_ptr) {
 			 m_pre_processor_ptr = pre_processor_ptr;
 		 }
@@ -356,7 +346,7 @@ public:
 	 /**
 	  * Allows to register a post-processor object
 	  */
-	 void registerPostProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> post_processor_ptr) {
+	 void registerPostProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> post_processor_ptr) {
 		 if(post_processor_ptr) {
 			 m_post_processor_ptr = post_processor_ptr;
 		 }
@@ -372,11 +362,12 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Loads the data of another GProcessingContainerT<submission_type> object
+	  * Loads the data of another GProcessingContainerT<processable_type, processing_result_type> object
 	  */
-	 void load_pc(const GProcessingContainerT<submission_type> *cp) {
-		 // Check that we are dealing with a GProcessingContainerT<submission_type> reference independent of this object and convert the pointer
-		 const GProcessingContainerT<submission_type> *p_load = Gem::Common::g_convert_and_compare<GProcessingContainerT<submission_type>, GProcessingContainerT<submission_type>>(cp, this);
+	 void load_pc(const GProcessingContainerT<processable_type, processing_result_type> *cp) {
+		 // Check that we are dealing with a GProcessingContainerT<processable_type, processing_result_type> reference independent of this object and convert the pointer
+		 const GProcessingContainerT<processable_type, processing_result_type> *p_load
+			 = Gem::Common::g_convert_and_compare<GProcessingContainerT<processable_type, processing_result_type>, GProcessingContainerT<processable_type, processing_result_type>>(cp, this);
 
 		 // Load local data
 		 m_submission_counter = p_load->m_submission_counter;
@@ -390,8 +381,12 @@ public:
 
 protected:
 	 /***************************************************************************/
+
 	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
-	 virtual G_API_COURTIER bool process_() BASE = 0;
+	 virtual G_API_COURTIER void process_() BASE = 0;
+
+	 /** @brief Allows derived classes to give an indication of the processing result (if any); may not throw. */
+	 virtual G_API_COURTIER processing_result_type get_processing_result() const noexcept BASE = 0;
 
 private:
 	 /***************************************************************************/
@@ -399,15 +394,11 @@ private:
 	  * Specifies tasks to be performed before the process_ call. Note: This function
 	  * will reset the m_mayBePreProcessed-flag.
   	  */
-	 bool preProcess_() {
-		 bool success = true;
-
+	 void preProcess_() {
 		 if(this->mayBePreProcessed() && m_pre_processor_ptr) {
-			 submission_type& p = dynamic_cast<submission_type&>(*this);
-			 success = (*m_pre_processor_ptr)(p);
+			 processable_type& p = dynamic_cast<processable_type&>(*this);
+			 (*m_pre_processor_ptr)(p);
 		 }
-
-		 return success;
 	 }
 
 	 /***************************************************************************/
@@ -415,35 +406,31 @@ private:
 	  * Specifies tasks to be performed after the process_ call. Note: This function
 	  * will reset the m_mayBePostProcessed-flag.
   	  */
-	 bool postProcess_() {
-		 bool success = true;
-
+	 void postProcess_() {
 		 if(this->mayBePostProcessed() && m_post_processor_ptr) {
-			 submission_type& p = dynamic_cast<submission_type&>(*this);
-			 success = (*m_post_processor_ptr)(p);
+			 processable_type& p = dynamic_cast<processable_type&>(*this);
+			 (*m_post_processor_ptr)(p);
 		 }
-
-		 return success;
 	 }
 
 	 /***************************************************************************/
 	 // Data
 
-	 ITERATION_COUNTER_TYPE  m_submission_counter = 0;
+	 ITERATION_COUNTER_TYPE m_submission_counter = 0;
 	 SUBMISSION_POSITION_TYPE m_submission_position = 0;
 	 BUFFERPORT_ID_TYPE m_bufferport_id = BUFFERPORT_ID_TYPE();
 
 	 bool m_preProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
 	 bool m_postProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
 
-	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> m_pre_processor_ptr; ///< Actions to be performed before processing
-	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<submission_type>> m_post_processor_ptr; ///< Actions to be performed after processing
+	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> m_pre_processor_ptr; ///< Actions to be performed before processing
+	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> m_post_processor_ptr; ///< Actions to be performed after processing
 
 	 double m_pre_processing_time = 0.; ///< The amount of time needed for pre-processing (in seconds)
 	 double m_processing_time = 0.; ///< The amount of time needed for the actual processing step (in seconds)
 	 double m_post_processing_time = 0.; ///< The amount of time needed for post-processing (in seconds)
 
-	 bool m_processing_successful = false; ///< Indicates whether an error has occurred during processing - the item may then be in an undefined state
+	 bool m_processing_was_successful = false; ///< Indicates whether an error has occurred during processing
 };
 
 /******************************************************************************/
@@ -455,11 +442,11 @@ private:
 /** @brief Mark this class as abstract */
 namespace boost {
 namespace serialization {
-template<typename submission_type>
-struct is_abstract<Gem::Courtier::GProcessingContainerT<submission_type>> : public boost::true_type {
+template<typename processable_type, typename processing_result_type>
+struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {
 };
-template<typename submission_type>
-struct is_abstract<const Gem::Courtier::GProcessingContainerT<submission_type>> : public boost::true_type {
+template<typename processable_type, typename processing_result_type>
+struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {
 };
 }
 }
