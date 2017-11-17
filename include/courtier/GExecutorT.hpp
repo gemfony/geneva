@@ -299,8 +299,7 @@ public:
 		 }
 
 		 // Perform necessary setup work for an iteration (a facility for derived classes)
-		 // TODO: Is passing old work items still needed ?
-		 this->iterationInit(workItems, workItemPos, m_old_work_items_vec);
+		 this->iterationInit(workItems, workItemPos);
 
 		 std::size_t nResubmissions = 0;
 		 do {
@@ -318,17 +317,13 @@ public:
 				 , m_old_work_items_vec
 			 );
 
-			 // We may leave if all items have returned
-			 if(completed) break;
-
-			 // We may leave if the user hasn't asked to resubmit unprocessed items
-			 if(!resubmitUnprocessed) break;
+			 // We may leave if all items have returned or the user
+			 // hasn't asked to resubmit unprocessed items
+			 if(completed || !resubmitUnprocessed) break;
 		 } while(m_maxResubmissions>0 ? (++nResubmissions < m_maxResubmissions) : true);
-		 // Note: m_maxResubmissions will result in an endless loop of resubmissions
 
 		 // Perform necessary cleanup work for an iteration (a facility for derived classes)
-		 // TODO: Is passing m_old_work_items_vec still needed here ?
-		 this->iterationFinalize(workItems, workItemPos, m_old_work_items_vec);
+		 this->iterationFinalize(workItems, workItemPos);
 
 		 // Find out about the number of returned items
 		 m_n_notReturnedLast = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
@@ -351,7 +346,7 @@ public:
 		 // Update the iteration counter
 		 m_iteration_counter++;
 
-		 // Note: unprocessed items will be returned to the caller, which needs to deal with them
+		 // Note: unprocessed items will be returned to the caller who needs to deal with them
 		 return completed;
 	 }
 
@@ -504,7 +499,6 @@ protected:
 	 virtual void iterationInit(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) BASE { /* nothing */ }
 
 	 /***************************************************************************/
@@ -516,7 +510,6 @@ protected:
 	 virtual void iterationFinalize(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) BASE { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1482,11 +1475,10 @@ protected:
 	 virtual void iterationInit(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 // Make sure the parent classes iterationInit function is executed first
 		 // This function will also update the iteration start time
-		 GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos, oldWorkItems);
+		 GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos);
 	 }
 
 	 /***************************************************************************/
@@ -1497,7 +1489,6 @@ protected:
 	 virtual void iterationFinalize(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 // Calculate average return times of work items.
 		 m_lastAverage =
@@ -1509,6 +1500,9 @@ protected:
 			 m_lastAverage
 			 * boost::numeric_cast<double>(GBaseExecutorT<processable_type>::m_expectedNumber)
 			 * m_waitFactor;
+
+		 // Make sure the parent classes iterationFinalize function is executed last
+		 GBaseExecutorT<processable_type>::iterationFinalize(workItems, workItemPos);
 	 }
 
 	 /***************************************************************************/

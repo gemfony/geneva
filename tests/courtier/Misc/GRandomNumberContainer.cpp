@@ -68,7 +68,7 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
  * @param cp A copy of another GRandomNumberContainer object
  */
 GRandomNumberContainer::GRandomNumberContainer(const GRandomNumberContainer& cp)
-	: Gem::Courtier::GProcessingContainerT<GRandomNumberContainer>(cp)
+	: Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>(cp)
 	, randomNumbers_(cp.randomNumbers_)
 { /* nothing */ }
 
@@ -87,8 +87,15 @@ GRandomNumberContainer::~GRandomNumberContainer() {
  *
  * @return A boolean which indicates whether a useful result was obtained
  */
-bool GRandomNumberContainer::process_() {
+void GRandomNumberContainer::process_() {
 	std::sort(randomNumbers_.begin(), randomNumbers_.end());
+}
+
+/********************************************************************************************/
+/**
+ * Allows to give an indication of the processing result; may not throw.
+ */
+bool GRandomNumberContainer::get_processing_result() const noexcept {
 	return true;
 }
 

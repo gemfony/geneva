@@ -74,7 +74,7 @@ namespace Tests {
  * This class implements the simplest-possible container object, used for tests of the courtier lib.
  */
 class GSimpleContainer
-	:public Gem::Courtier::GProcessingContainerT<GSimpleContainer>
+	:public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -83,8 +83,8 @@ class GSimpleContainer
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GProcessingContainerT_GSimpleContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GSimpleContainer>>(*this))
-		& BOOST_SERIALIZATION_NVP(storedNumber_);
+		ar & make_nvp("GProcessingContainerT_GSimpleContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>>(*this))
+		& BOOST_SERIALIZATION_NVP(m_stored_number);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -101,13 +101,16 @@ public:
 
 protected:
 	 /** @brief Allows to specify the tasks to be performed for this object */
-	 virtual bool process_();
+	 virtual void process_();
+
+	 /** @brief Allows to give an indication of the processing result; may not throw. */
+	 virtual bool get_processing_result() const noexcept override;
 
 private:
 	/** @brief The default constructor -- only needed for de-serialization purposes */
 	GSimpleContainer();
 
-	std::size_t storedNumber_; ///< Holds the pay-load of this object
+	std::size_t m_stored_number; ///< Holds the pay-load of this object
 };
 
 /**********************************************************************************************/

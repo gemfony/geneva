@@ -74,7 +74,7 @@ namespace Tests {
  * This class implements a container of random objects, used for tests of the courtier lib.
  */
 class GRandomNumberContainer
-	:public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer>
+	:public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -83,7 +83,7 @@ class GRandomNumberContainer
 	void serialize(Archive & ar, const unsigned int){
 		using boost::serialization::make_nvp;
 
-		ar & make_nvp("GProcessingContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GRandomNumberContainer>>(*this))
+		ar & make_nvp("GProcessingContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>>(*this))
 		& BOOST_SERIALIZATION_NVP(randomNumbers_);
 	}
 	///////////////////////////////////////////////////////////////////////
@@ -101,7 +101,10 @@ public:
 
 protected:
 	 /** @brief Allows to specify the tasks to be performed for this object */
-	 virtual bool process_();
+	 virtual void process_();
+
+	 /** @brief Allows to give an indication of the processing result; may not throw. */
+	 virtual bool get_processing_result() const noexcept override;
 
 private:
 	/** @brief The default constructor -- only needed for de-serialization purposes */

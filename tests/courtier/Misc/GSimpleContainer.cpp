@@ -45,7 +45,7 @@ namespace Tests {
  * The default constructor -- only needed for de-serialization purposes.
  */
 GSimpleContainer::GSimpleContainer()
-	: storedNumber_(0)
+	: m_stored_number(0)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -55,7 +55,7 @@ GSimpleContainer::GSimpleContainer()
  * @param snr The number to be stored in the object
  */
 GSimpleContainer::GSimpleContainer(const std::size_t& snr)
-	: storedNumber_(snr)
+	: m_stored_number(snr)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -65,8 +65,8 @@ GSimpleContainer::GSimpleContainer(const std::size_t& snr)
  * @param cp A copy of another GSimpleContainer object
  */
 GSimpleContainer::GSimpleContainer(const GSimpleContainer& cp)
-	: Gem::Courtier::GProcessingContainerT<GSimpleContainer>(cp)
-	, storedNumber_(cp.storedNumber_)
+	: Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>(cp)
+	, m_stored_number(cp.m_stored_number)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -82,8 +82,15 @@ GSimpleContainer::~GSimpleContainer()
  *
  * @return A boolean which indicates whether a useful result was obtained
  */
-bool GSimpleContainer::process_() {
+void GSimpleContainer::process_() {
 	/* nothing */
+}
+
+/********************************************************************************************/
+/**
+ * Allows to give an indication of the processing result; may not throw.
+ */
+bool GSimpleContainer::get_processing_result() const noexcept {
 	return true;
 }
 
@@ -92,7 +99,7 @@ bool GSimpleContainer::process_() {
  * Prints out this functions stored number
  */
 void GSimpleContainer::print() {
-	std::cout << "storedNumber_ = " << storedNumber_ << std::endl;
+	std::cout << "storedNumber_ = " << m_stored_number << std::endl;
 }
 
 /********************************************************************************************/

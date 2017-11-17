@@ -320,7 +320,7 @@ void connectorProducer(
 		Gem::Common::erase_if(
 			data
 			, [](std::shared_ptr<WORKLOAD> p) -> bool {
-				return p->processing_was_unsuccessful();
+				return !p->processing_was_successful();
 			}
 		);
 
