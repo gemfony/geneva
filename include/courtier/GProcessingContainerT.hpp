@@ -111,8 +111,7 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 GProcessingContainerT()
-	 { /* nothing */ }
+	 GProcessingContainerT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -122,11 +121,11 @@ public:
 	  */
 	 GProcessingContainerT(const GProcessingContainerT<submission_type> &cp)
 		 : m_submission_counter(cp.m_submission_counter)
-		 , m_submission_position(cp.m_submission_position)
-		 , m_bufferport_id(cp.m_bufferport_id)
-	 	 , m_preProcessingDisabled(cp.m_preProcessingDisabled)
- 		 , m_postProcessingDisabled(cp.m_postProcessingDisabled)
-	 	 , m_processing_successful(cp.m_processing_successful)
+			, m_submission_position(cp.m_submission_position)
+			, m_bufferport_id(cp.m_bufferport_id)
+			, m_preProcessingDisabled(cp.m_preProcessingDisabled)
+			, m_postProcessingDisabled(cp.m_postProcessingDisabled)
+			, m_processing_successful(cp.m_processing_successful)
 	 {
 		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -136,8 +135,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GProcessingContainerT()
-	 { /* nothing */ }
+	 virtual ~GProcessingContainerT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -402,14 +400,14 @@ private:
 	  * will reset the m_mayBePreProcessed-flag.
   	  */
 	 bool preProcess_() {
-		 bool result = true;
+		 bool success = true;
 
 		 if(this->mayBePreProcessed() && m_pre_processor_ptr) {
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
-			 result = (*m_pre_processor_ptr)(p);
+			 success = (*m_pre_processor_ptr)(p);
 		 }
 
-		 return result;
+		 return success;
 	 }
 
 	 /***************************************************************************/
@@ -418,14 +416,14 @@ private:
 	  * will reset the m_mayBePostProcessed-flag.
   	  */
 	 bool postProcess_() {
-		 bool result = true;
+		 bool success = true;
 
 		 if(this->mayBePostProcessed() && m_post_processor_ptr) {
 			 submission_type& p = dynamic_cast<submission_type&>(*this);
-			 result = (*m_post_processor_ptr)(p);
+			 success = (*m_post_processor_ptr)(p);
 		 }
 
-		 return result;
+		 return success;
 	 }
 
 	 /***************************************************************************/

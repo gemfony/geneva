@@ -43,6 +43,7 @@
 #include <sstream>
 #include <vector>
 #include <chrono>
+#include <atomic>
 
 // Boost headers go here
 
@@ -302,7 +303,7 @@ void load(
 template<typename Archive>
 void save(
 	Archive & ar
-	, std::atomic<bool> const& b
+	, const std::atomic<bool>& b
 	, unsigned int version
 ){
 	bool value = b.load();
