@@ -47,6 +47,7 @@
 #include <type_traits>
 #include <tuple>
 #include <chrono>
+#include <exception>
 
 // Boost headers go here
 #include <boost/lexical_cast.hpp>
@@ -63,6 +64,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 #ifndef GEXECUTOR_HPP_
 #define GEXECUTOR_HPP_
@@ -480,17 +482,6 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief Submits a single work item */
-	 virtual void submit(std::shared_ptr<processable_type>) = 0;
-
-	 /** @brief Waits for work items to return */
-	 virtual bool waitForReturn(
-		 std::vector<std::shared_ptr<processable_type>>&
-		 , std::vector<bool>&
-		 , std::vector<std::shared_ptr<processable_type>>&
-	 ) = 0;
-
-	 /***************************************************************************/
 	 /**
 	  * Allow to perform necessary setup work for an iteration. Derived classes
 	  * should make sure this base function is called first when they overload
@@ -545,6 +536,22 @@ protected:
 			 pos_cnt++;
 		 }
 	 }
+
+	 /***************************************************************************/
+
+	 /** @brief Submits a single work item */
+	 virtual void submit(
+		 std::shared_ptr<processable_type>
+	 ) = 0;
+
+	 /***************************************************************************/
+
+	 /** @brief Waits for work items to return */
+	 virtual bool waitForReturn(
+		 std::vector<std::shared_ptr<processable_type>>&
+		 , std::vector<bool>&
+		 , std::vector<std::shared_ptr<processable_type>>&
+	 ) = 0;
 
 	 /***************************************************************************/
 	 // Local data
@@ -744,10 +751,44 @@ protected:
 	  * our base class stipulates that processable_type is a derivative of
 	  * GProcessingContainerT<processable_type> .
 	  *
-	  * @param w The work item to be processed
+	  * @param w_ptr The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr <processable_type> w) override {
-		 w->process();
+	 virtual void submit(
+		 std::shared_ptr<processable_type> w_ptr
+	 ) override {
+		 using result_type = typename processable_type::result_type;
+
+		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
+		 std::future<typename processable_type::result_type> f = promise_ptr->get_future();
+
+		 try {
+			 promise_ptr->set_value(w_ptr->process());
+		 } catch(boost::exception& e) {
+			 // Convert to a std::runtime_exception
+			 std::runtime_error r(boost::diagnostic_information(e));
+
+			 try { // Whatever was thrown may be stored in the promise
+				 promise_ptr->set_exception(std::make_exception_ptr(r));
+			 } catch(...) { // Unfortunately set_exception() may throw too
+				 glogger
+					 << "In GSerialExecutorT<processable_type>::submit():" << std::endl
+					 << "promise.set_exception() has thrown." << std::endl
+					 << "We cannot continue" << std::endl
+					 << GTERMINATION;
+			 }
+		 } catch(...) {
+			 try { // Whatever was thrown may be stored in the promise
+				 promise_ptr->set_exception(std::current_exception());
+			 } catch(...) { // Unfortunately set_exception() may throw too
+				 glogger
+					 << "In GSerialExecutorT<processable_type>::submit():" << std::endl
+					 << "promise.set_exception() has thrown." << std::endl
+					 << "We cannot continue" << std::endl
+					 << GTERMINATION;
+			 }
+		 }
+
+		 // return f;
 	 }
 
 	 /***************************************************************************/
@@ -1041,12 +1082,45 @@ protected:
 	  * execution, we simply let a thread pool executed a lambda function
 	  * which takes care of the processing.
 	  *
-	  * @param w The work item to be processed
+	  * @param w_ptr The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr<processable_type> w) override {
-#ifdef DEBUG
-		 if (m_gtp_ptr && w) {
-			 m_gtp_ptr->async_schedule([w]() -> bool { return w->process(); });
+	 virtual void submit(
+		 std::shared_ptr<processable_type> w_ptr
+	 ) override {
+		 using result_type = typename processable_type::result_type;
+
+		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
+		 std::future<typename processable_type::result_type> f = promise_ptr->get_future();
+
+		 if (m_gtp_ptr && w_ptr) {
+			 m_gtp_ptr->async_schedule([w_ptr, promise_ptr]() -> void {
+				 try {
+					 promise_ptr->set_value(w_ptr->process());
+				 } catch(boost::exception& e) {
+					 // Convert to a std::runtime_exception
+					 std::runtime_error r(boost::diagnostic_information(e));
+
+					 try { // Whatever was thrown may be stored in the promise
+						 promise_ptr->set_exception(std::make_exception_ptr(r));
+					 } catch(...) { // Unfortunately set_exception() may throw too
+						 glogger
+							 << "In GMTExecutorT<processable_type>::submit():" << std::endl
+							 << "promise.set_exception() has thrown." << std::endl
+							 << "We cannot continue" << std::endl
+							 << GTERMINATION;
+					 }
+				 } catch(...) {
+					 try { // Whatever was thrown may be stored in the promise
+						 promise_ptr->set_exception(std::current_exception());
+					 } catch(...) { // Unfortunately set_exception() may throw too
+						 glogger
+							 << "In GMTExecutorT<processable_type>::submit():" << std::endl
+							 << "promise.set_exception() has thrown." << std::endl
+							 << "We cannot continue" << std::endl
+							 << GTERMINATION;
+					 }
+				 }
+			 });
 		 } else {
 			 if (!m_gtp_ptr) {
 				 throw gemfony_exception(
@@ -1054,7 +1128,7 @@ protected:
 						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
 						 << "Threadpool pointer is empty" << std::endl
 				 );
-			 } else if(!w) {
+			 } else if(!w_ptr) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
@@ -1062,9 +1136,8 @@ protected:
 				 );
 			 }
 		 }
-#else
-		 m_gtp_ptr->async_schedule([w]() -> bool { return w->process(); });
-#endif /* DEBUG */
+
+		 // return f;
 	 }
 
 	 /***************************************************************************/
@@ -1531,8 +1604,9 @@ private:
 	  *
 	  * @param w The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr<processable_type> w_ptr) override {
-#ifdef DEBUG
+	 virtual void submit(
+		 std::shared_ptr<processable_type> w_ptr
+	 ) override {
 		 if(!w_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -1548,7 +1622,6 @@ private:
 					 << "Current buffer port is empty when it shouldn't be" << std::endl
 			 );
 		 }
-#endif /* DEBUG */
 
 		 // Store the id of the buffer port in the item
 		 w_ptr->setBufferId(m_CurrentBufferPort->getUniqueTag());
