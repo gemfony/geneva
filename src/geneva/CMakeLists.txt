@@ -26,7 +26,6 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32Object
 	GInt32ObjectCollection
     G_Interface_Optimizer
-    G_Interface_Rateable
 	Go2
     G_OptimizationAlgorithm_Base
     G_OptimizationAlgorithm_EvolutionaryAlgorithm

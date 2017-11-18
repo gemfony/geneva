@@ -39,18 +39,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-G_Interface_Optimizer::G_Interface_Optimizer() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-G_Interface_Optimizer::~G_Interface_Optimizer() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * This is a simple wrapper function that forces the class to start with offset 0
  */
 void G_Interface_Optimizer::optimize() {

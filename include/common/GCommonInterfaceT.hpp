@@ -110,9 +110,6 @@ public:
 	 /** @brief The copy constructor -- no data, hence empty*/
 	 GCommonInterfaceT(const GCommonInterfaceT<g_class_type>& cp) { /* nothing */ }
 
-	 /** @brief The standard destructor */
-	 virtual ~GCommonInterfaceT() { /* nothing */ }
-
 	 /***************************************************************************/
 	 /**
 	  * Converts the class(-hierarchy) to a serial representation that is
@@ -492,6 +489,13 @@ public:
 	  */
 
 protected:
+	 /********************************************x^^*******************************/
+	 /**
+	  * The standard destructor. Making this destructor protected follows this
+	  * discussion: http://www.gotw.ca/publications/mill18.htm
+	  */
+	 ~GCommonInterfaceT() = default;
+
 	 /***************************************************************************/
 	 /** @brief Loads the data of another g_class_type */
 	 virtual G_API_COMMON void load_(const g_class_type*) BASE = 0;

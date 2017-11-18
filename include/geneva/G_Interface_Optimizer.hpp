@@ -71,9 +71,7 @@ class G_Interface_Optimizer {
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA G_Interface_Optimizer();
-	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~G_Interface_Optimizer();
+	 G_API_GENEVA G_Interface_Optimizer() = default;
 
 	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
 	 virtual G_API_GENEVA void optimize(const std::uint32_t& offset) BASE = 0;
@@ -225,6 +223,12 @@ public:
 	 virtual G_API_GENEVA bool usesBroker() const BASE;
 
 protected:
+	 /**
+ 	  * The standard destructor. Making this destructor protected follows this
+ 	  * discussion: http://www.gotw.ca/publications/mill18.htm
+ 	  */
+	 G_API_GENEVA ~G_Interface_Optimizer() = default;
+
 	 /***************************************************************************/
 	 /** @brief Retrieves the best individual found globally */
 	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() BASE = 0;
