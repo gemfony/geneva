@@ -47,6 +47,7 @@
 #include <type_traits>
 #include <tuple>
 #include <chrono>
+#include <exception>
 
 // Boost headers go here
 #include <boost/lexical_cast.hpp>
@@ -63,6 +64,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 #ifndef GEXECUTOR_HPP_
 #define GEXECUTOR_HPP_
@@ -156,8 +158,8 @@ public:
 	  * @param cp A copy of another GBrokerConnector object
 	  */
 	 GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
-	 	: Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(cp)
-	   , m_maxResubmissions(cp.m_maxResubmissions)
+		 : Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(cp)
+			, m_maxResubmissions(cp.m_maxResubmissions)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -480,17 +482,6 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief Submits a single work item */
-	 virtual void submit(std::shared_ptr<processable_type>) = 0;
-
-	 /** @brief Waits for work items to return */
-	 virtual bool waitForReturn(
-		 std::vector<std::shared_ptr<processable_type>>&
-		 , std::vector<bool>&
-		 , std::vector<std::shared_ptr<processable_type>>&
-	 ) = 0;
-
-	 /***************************************************************************/
 	 /**
 	  * Allow to perform necessary setup work for an iteration. Derived classes
 	  * should make sure this base function is called first when they overload
@@ -545,6 +536,22 @@ protected:
 			 pos_cnt++;
 		 }
 	 }
+
+	 /***************************************************************************/
+
+	 /** @brief Submits a single work item */
+	 virtual void submit(
+		 std::shared_ptr<processable_type>
+	 ) = 0;
+
+	 /***************************************************************************/
+
+	 /** @brief Waits for work items to return */
+	 virtual bool waitForReturn(
+		 std::vector<std::shared_ptr<processable_type>>&
+		 , std::vector<bool>&
+		 , std::vector<std::shared_ptr<processable_type>>&
+	 ) = 0;
 
 	 /***************************************************************************/
 	 // Local data
@@ -744,10 +751,29 @@ protected:
 	  * our base class stipulates that processable_type is a derivative of
 	  * GProcessingContainerT<processable_type> .
 	  *
-	  * @param w The work item to be processed
+	  * @param w_ptr The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr <processable_type> w) override {
-		 w->process();
+	 virtual void submit(
+		 std::shared_ptr<processable_type> w_ptr
+	 ) override {
+		 try {
+			 // process may throw ...
+			 w_ptr->process();
+		 } catch(...) {
+			 // We catch every error but make sure to mark processing as unsuccessful
+			 // in the work item. We also inform the audience.
+
+			 w_ptr->force_mark_processing_as_unsuccessful();
+
+			 glogger
+				 << "In GSerialExecutorT<processable_type>::submit():" << std::endl
+				 << "Caught an exception while processing the work item" << std::endl
+				 << "Exception information should have been stored in the" << std::endl
+				 << "work item itself. We have marked processing as" << std::endl
+				 << "unsuccessful in the work item but leave it to the" << std::endl
+				 << "submitter to deal with this." << std::endl
+				 << GWARNING;
+		 }
 	 }
 
 	 /***************************************************************************/
@@ -760,12 +786,28 @@ protected:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
-		 // Mark all positions as "processed"
-		 for(auto item: workItemPos) {
-			 item = GBC_PROCESSED;
+		 // All data comes from the parent function, so we do not need to wait
+		 // for returns. All we need to do is to take care of unprocessed items.
+
+		 // Mark all positions, for which processing was successful, as "processed"
+		 std::size_t pos = 0;
+		 std::size_t nProcessed = 0;
+		 for(auto &item: workItems) {
+			 if(item->processing_was_successful()) {
+				 workItemPos.at(pos) = GBC_PROCESSED;
+				 ++nProcessed;
+			 } else {
+				 workItemPos.at(pos) = GBC_UNPROCESSED;
+			 }
+
+			 ++pos;
 		 }
 
-		 return true;
+		 if(nProcessed == workItems.size()) {
+			 return true;
+		 } else {
+			 return false;
+		 }
 	 }
 };
 
@@ -801,7 +843,7 @@ public:
 	  */
 	 GMTExecutorT()
 		 : GBaseExecutorT<processable_type>()
-	 	 , m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
+			, m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -810,7 +852,7 @@ public:
 	  */
 	 GMTExecutorT(std::uint16_t nThreads)
 		 : GBaseExecutorT<processable_type>()
-		 , m_n_threads(nThreads)
+			, m_n_threads(nThreads)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -821,7 +863,7 @@ public:
 	  */
 	 GMTExecutorT(const GMTExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
-	 	 , m_n_threads(cp.m_n_threads)
+			, m_n_threads(cp.m_n_threads)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -963,7 +1005,7 @@ public:
 
 			 glogger
 				 << "In GMTExecutorT<processable_type>::finalize(): Warning!" << std::endl
-			 	 << "There were errors during thread execution in GThreadPool:" << std::endl
+				 << "There were errors during thread execution in GThreadPool:" << std::endl
 				 << oss.str() << std::endl
 				 << GWARNING;
 		 }
@@ -1037,16 +1079,39 @@ protected:
 
 	 /***************************************************************************/
 	 /**
+	  * Allow to perform necessary setup work for an iteration.
+	  */
+	 virtual void iterationInit(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+		 , std::vector<bool> &workItemPos
+	 ) override {
+		 // Make sure the parent classes iterationInit function is executed first
+		 // This function will also update the iteration start time
+		 GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos);
+
+		 // We want an empty futures vector for a new submission cycle,
+		 // so we do not deal with old errors.
+		 m_future_vec.clear();
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Submits a single work item. As we are dealing with multi-threaded
 	  * execution, we simply let a thread pool executed a lambda function
 	  * which takes care of the processing.
 	  *
-	  * @param w The work item to be processed
+	  * @param w_ptr The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr<processable_type> w) override {
-#ifdef DEBUG
-		 if (m_gtp_ptr && w) {
-			 m_gtp_ptr->async_schedule([w]() -> bool { return w->process(); });
+	 virtual void submit(
+		 std::shared_ptr<processable_type> w_ptr
+	 ) override {
+		 using result_type = typename processable_type::result_type;
+
+		 if (m_gtp_ptr && w_ptr) { // Do we have a valid thread pool and a valid work item ?
+			 // async_schedule emits a future, which is std::moved into the std::vector
+			 m_future_vec.push_back(
+				 m_gtp_ptr->async_schedule( [w_ptr](){ return w_ptr->process(); })
+			 );
 		 } else {
 			 if (!m_gtp_ptr) {
 				 throw gemfony_exception(
@@ -1054,7 +1119,7 @@ protected:
 						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
 						 << "Threadpool pointer is empty" << std::endl
 				 );
-			 } else if(!w) {
+			 } else if(!w_ptr) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
@@ -1062,9 +1127,8 @@ protected:
 				 );
 			 }
 		 }
-#else
-		 m_gtp_ptr->async_schedule([w]() -> bool { return w->process(); });
-#endif /* DEBUG */
+
+		 // return f;
 	 }
 
 	 /***************************************************************************/
@@ -1076,16 +1140,103 @@ protected:
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
+		 using result_type = typename processable_type::result_type;
+
+		 // Wait for the threadpool to run empty
 		 m_gtp_ptr->wait();
 
-		 // Mark all positions as "processed"
-		 // TODO: If an exception was thrown in user-code in one of the positions,
-		 // mark item as unprocessed
-		 for(auto item: workItemPos) {
-			 item = GBC_PROCESSED;
+		 // Calculate the number of items that should have been processed
+		 std::size_t expectedNumber
+			 = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
+
+#ifdef DEBUG
+		 // Check that the futures vector has the expected size
+		 if(m_future_vec.size() != expectedNumber) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
+					 << "Expected " << expectedNumber << " items in m_future_vec, but got " << m_future_vec.size() << std::endl
+			 );
 		 }
 
-		 return true;
+		 // Check that the workItemPos and workItems vector have the expected sizes
+		 Gem::Common::assert_container_sizes_match(
+			 workItems
+			 , workItemPos
+			 , "GMTExecutorT<processable_type>::waitForReturn()"
+		 );
+#endif
+
+		 // Mark all positions as "processed", unless there was an error during processing
+		 std::size_t pos = 0;
+		 std::size_t nProcessed = 0;
+		 std::size_t nSkipped = 0;
+		 for(auto &item: workItems) {
+			 // Skip over items that already have the processed flag set
+			 if(GBC_PROCESSED == workItemPos.at(pos)) {
+
+				 nProcessed++;
+				 nSkipped++;
+				 pos++; // We do not reach the increment at the end of this for-loop
+				 continue;
+			 }
+
+			 // Retrieve the future and check for errors
+			 try {
+				 // Note that the workItems vector may have a different size than the
+				 // futures vector. Hence we need to deduct the number of skipped items
+				 result_type r = m_future_vec.at(pos-nSkipped).get();
+
+				 workItemPos.at(pos) = GBC_PROCESSED;
+				 nProcessed++;
+			 } catch(std::out_of_range& e) {
+				 // We rethrow the exception, as we assume that it originated from addressing the vector above
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
+						 << "Caught std::out_of_range exception with message" << std::endl
+						 << "-------------------------------------------------" << std::endl
+						 << std::endl
+						 << e.what() << std::endl
+						 << std::endl
+						 << "-------------------------------------------------" << std::endl
+						 << std::endl
+				 );
+			 } catch(...) {
+				 // So an exception was thrown during execution. We mark the position as unprocessed
+				 // and do some error checking
+
+				 workItemPos.at(pos) = GBC_UNPROCESSED;
+
+#ifdef DEBUG
+				 // There should be no case where an exception was thrown inside of
+				 // the process call but the item is marked as being successfully processed.
+				 if(workItems.at(pos)->processing_was_successful()) {
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
+							 << "Item is marked as \"successfully processed\", while an" << std::endl
+							 << "exceptions seems to have been thrown inside of the process() call" << std::endl
+						 	 << "Work item has the following information: " << std::endl
+							 << "-------------------------------------------------" << std::endl
+							 << std::endl
+						 	 << item->get_and_clear_exceptions() << std::endl
+						 	 << std::endl
+							 << "-------------------------------------------------" << std::endl
+						 	 << std::endl
+					 );
+				 }
+#endif
+			 }
+
+			 ++pos;
+		 }
+
+		 if(nProcessed == workItems.size()) {
+			 return true;
+		 } else {
+			 return false;
+		 }
 	 }
 
 private:
@@ -1093,6 +1244,8 @@ private:
 
 	 std::uint16_t m_n_threads; ///< The number of threads
 	 std::shared_ptr<Gem::Common::GThreadPool> m_gtp_ptr; ///< Temporarily holds a thread pool
+
+	 std::vector<std::future<typename processable_type::result_type>> m_future_vec; ///< Holds futures stored during the submit call
 };
 
 /******************************************************************************/
@@ -1140,7 +1293,7 @@ public:
 	  */
 	 GBrokerExecutorT()
 		 : GBaseExecutorT<processable_type>()
-		 , m_gpd("Maximum waiting times and returned items", 1, 2)
+			, m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -1163,15 +1316,15 @@ public:
 	  */
 	 GBrokerExecutorT(const GBrokerExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
-		 , m_waitFactor(cp.m_waitFactor)
-		 , m_initialWaitFactor(cp.m_initialWaitFactor)
-		 , m_capable_of_full_return(cp.m_capable_of_full_return)
-		 , m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
-		 , m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
-		 , m_lastReturnTime(cp.m_lastReturnTime)
-		 , m_lastAverage(cp.m_lastAverage)
-		 , m_remainingTime(cp.m_remainingTime)
-		 , m_maxTimeout(cp.m_maxTimeout)
+			, m_waitFactor(cp.m_waitFactor)
+			, m_initialWaitFactor(cp.m_initialWaitFactor)
+			, m_capable_of_full_return(cp.m_capable_of_full_return)
+			, m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
+			, m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
+			, m_lastReturnTime(cp.m_lastReturnTime)
+			, m_lastAverage(cp.m_lastAverage)
+			, m_remainingTime(cp.m_remainingTime)
+			, m_maxTimeout(cp.m_maxTimeout)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -1371,7 +1524,7 @@ public:
 		 } else {
 			 glogger
 				 << "In GBrokerExecutorT<>::init():" << std::endl
-			    << "At least one consumer is not capable of full return" << std::endl
+				 << "At least one consumer is not capable of full return" << std::endl
 				 << GLOGGING;
 		 }
 #endif
@@ -1531,8 +1684,9 @@ private:
 	  *
 	  * @param w The work item to be processed
 	  */
-	 virtual void submit(std::shared_ptr<processable_type> w_ptr) override {
-#ifdef DEBUG
+	 virtual void submit(
+		 std::shared_ptr<processable_type> w_ptr
+	 ) override {
 		 if(!w_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -1548,7 +1702,6 @@ private:
 					 << "Current buffer port is empty when it shouldn't be" << std::endl
 			 );
 		 }
-#endif /* DEBUG */
 
 		 // Store the id of the buffer port in the item
 		 w_ptr->setBufferId(m_CurrentBufferPort->getUniqueTag());

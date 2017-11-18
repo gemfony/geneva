@@ -62,6 +62,7 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
+#include <boost/exception/diagnostic_information.hpp>
 
 #ifndef GSUBMISSIONCONTAINERBASE_HPP_
 #define GSUBMISSIONCONTAINERBASE_HPP_
@@ -69,6 +70,8 @@
 // Geneva headers go here
 #include "common/GSerializeTupleT.hpp"
 #include "common/GSerializableFunctionObjectT.hpp"
+#include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
 namespace Gem {
@@ -106,10 +109,12 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_postProcessingDisabled)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processor_ptr)
 		 & BOOST_SERIALIZATION_NVP(m_post_processor_ptr)
-		 & BOOST_SERIALIZATION_NVP(m_pre_processing_time)
-		 & BOOST_SERIALIZATION_NVP(m_processing_time)
-		 & BOOST_SERIALIZATION_NVP(m_post_processing_time)
-		 & BOOST_SERIALIZATION_NVP(m_processing_was_successful);
+		 & BOOST_SERIALIZATION_NVP(m_processing_was_successful)
+		 & BOOST_SERIALIZATION_NVP(m_stored_result)
+		 & BOOST_SERIALIZATION_NVP(m_stored_exceptions)
+		 & BOOST_SERIALIZATION_NVP(m_has_exceptions);
+
+		 // Note that we do not serialize the temporary timings
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -137,6 +142,9 @@ public:
 			, m_preProcessingDisabled(cp.m_preProcessingDisabled)
 			, m_postProcessingDisabled(cp.m_postProcessingDisabled)
 	 	   , m_processing_was_successful(cp.m_processing_was_successful)
+	 	   , m_stored_result(cp.m_stored_result)
+	 	   , m_stored_exceptions(cp.m_stored_exceptions)
+	 	   , m_has_exceptions(cp.m_has_exceptions)
 	 {
 		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -152,19 +160,20 @@ public:
 	 /**
 	  * Perform the actual processing steps. E.g. in optimization algorithms,
 	  * post-processing allows to run a sub-optimization. The amount of time
-	  * needed for processing is done for logging purposes. Where one of the
-	  * processing functions returns false or throws an exception, the function
-	  * returns false, otherwise true. The function does some diagnostic work
-	  * by measuring the processing times and it targetted at longer running
-	  * processing calls.
+	  * needed for processing is measured for logging purposes. Where one of the
+	  * processing functions throws an exception, the function will store the
+	  * necessary exception information locally and rethrow the exception.
 	  *
 	  * @return The result of the processing calls
 	  */
-	 processing_result_type process() {
-		 try {
-			 // Reset the check for successful execution
-			 m_processing_was_successful = false;
+	 result_type process() {
+		 std::ostringstream exceptions_stream;
 
+		 // Reset the check for successful execution and exceptions. This is a new run
+		 m_processing_was_successful = false;
+		 m_has_exceptions = false;
+
+		 try {
 			 // Perform the actual processing
 			 auto startTime = std::chrono::high_resolution_clock::now();
 			 this->preProcess_();
@@ -180,13 +189,31 @@ public:
 			 m_post_processing_time = std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
 
 			 m_processing_was_successful = true;
-		 } catch(std::exception& e) {
-			 // Let the audience know
-			 glogger
+		 } catch(boost::exception& e) {
+			 m_has_exceptions = true;
+			 exceptions_stream
 				 << "In GProcessingContainerT<>::process():" << std::endl
+				 << "Processing has thrown a boost exception with message" << std::endl
+				 << boost::diagnostic_information(e) << std::endl
+				 << "We will rethrow this exception" << std::endl;
+		 } catch(std::exception& e) {
+			 m_has_exceptions = true;
+			 exceptions_stream
+				 << "In GProcessingContainerT<processable_type>::process():" << std::endl
 				 << "Processing has thrown an exception with message" << std::endl
 				 << e.what() << std::endl
-				 << "We will rethrow this exception" << std::endl
+				 << "We will rethrow this exception" << std::endl;
+		 } catch(...) {
+			 m_has_exceptions = true;
+			 exceptions_stream
+				 << "In GProcessingContainerT<processable_type>::process():" << std::endl
+				 << "Processing has thrown an unknown exception." << std::endl;
+		 }
+
+		 if(this->hasExceptions()) {
+			 // Let the audience know
+			 glogger
+				 << exceptions_stream.str()
 				 << GWARNING;
 
 			 // Do some cleanup
@@ -194,22 +221,27 @@ public:
 			 m_processing_time = 0.;
 			 m_post_processing_time = 0.;
 
+			 // Mark the processing as invalid and store the exceptions for later reference
 			 m_processing_was_successful = false;
+			 m_stored_exceptions = exceptions_stream.str();
 
-			 // Rethrow the caught exception
-			 throw e;
-		 } catch(...) {
-			 m_processing_was_successful = false;
-
-			 // Let the audience know
-			 glogger
-				 << "In GProcessingContainerT<>::process():" << std::endl
-				 << "Processing has thrown an unknown exception." << std::endl
-				 << "We cannot continue."
-				 << GTERMINATION;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << exceptions_stream.str()
+			 );
 		 }
 
-		 return this->get_processing_result();
+		 // This part of the code should never be reached if an exception was thrown
+		 m_stored_result = this->get_processing_result();
+		 return m_stored_result;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieval of the stored result
+	  */
+	 result_type getStoredResult() const noexcept {
+		 return m_stored_result;
 	 }
 
 	 /***************************************************************************/
@@ -232,7 +264,7 @@ public:
 	  *
 	  * @return A boolean indicating whether processing was successful
 	  */
-	 bool processing_was_successful() const {
+	 bool processing_was_successful() const noexcept {
 		 return m_processing_was_successful;
 	 }
 
@@ -240,15 +272,23 @@ public:
 	 /**
 	  * Enforces processing to be marked as successful
 	  */
-	 void force_mark_processing_as_successful() {
+	 void force_mark_processing_as_successful() noexcept {
 		 m_processing_was_successful = true;
+	 };
+
+	 /***************************************************************************/
+	 /**
+	  * Enforces processing to be marked as unsuccessful
+	  */
+	 void force_mark_processing_as_unsuccessful() noexcept {
+		 m_processing_was_successful = false;
 	 };
 
 	 /***************************************************************************/
 	 /**
 	  * Allows to set the counter of a given submission
 	  */
-	 void setSubmissionCounter(const ITERATION_COUNTER_TYPE& counter) {
+	 void setSubmissionCounter(const ITERATION_COUNTER_TYPE& counter)  noexcept {
 		 m_submission_counter = counter;
 	 }
 
@@ -256,7 +296,7 @@ public:
 	 /**
 	  * Allows to retrieve the counter of a given submission
 	  */
-	 ITERATION_COUNTER_TYPE getSubmissionCounter() const {
+	 ITERATION_COUNTER_TYPE getSubmissionCounter() const noexcept {
 		 return m_submission_counter;
 	 }
 
@@ -264,7 +304,7 @@ public:
 	 /**
 	  * Allows to set the position inside of a given submission
 	  */
-	 void setSubmissionPosition(const SUBMISSION_POSITION_TYPE& pos) {
+	 void setSubmissionPosition(const SUBMISSION_POSITION_TYPE& pos) noexcept {
 		 m_submission_position = pos;
 	 }
 
@@ -272,7 +312,7 @@ public:
 	 /**
 	  * Allows to retrieve the position inside of a given submission
 	  */
-	 SUBMISSION_POSITION_TYPE getSubmissionPosition() const {
+	 SUBMISSION_POSITION_TYPE getSubmissionPosition() const noexcept {
 		 return m_submission_position;
 	 }
 
@@ -280,7 +320,7 @@ public:
 	 /**
 	  * Allows to set the id inside of the originating buffer
 	  */
-	 void setBufferId(const BUFFERPORT_ID_TYPE& id) {
+	 void setBufferId(const BUFFERPORT_ID_TYPE& id) noexcept {
 		 m_bufferport_id = id;
 	 }
 
@@ -288,7 +328,7 @@ public:
 	 /**
 	  * Allows to retrieve the id of the originating buffer
 	  */
-	 BUFFERPORT_ID_TYPE getBufferId() const {
+	 BUFFERPORT_ID_TYPE getBufferId() const noexcept {
 		 return m_bufferport_id;
 	 }
 
@@ -297,7 +337,7 @@ public:
 	  * Allows to check whether any user-defined pre-processing before the process()-
 	  * step may occur. This may alter the individual's data.
 	  */
-	 bool mayBePreProcessed() const {
+	 bool mayBePreProcessed() const noexcept {
 		 return !m_preProcessingDisabled;
 	 }
 
@@ -307,7 +347,7 @@ public:
 	  * recursive pre-processing). See e.g. GEvolutionaryAlgorithmPostOptimizerT. Once a veto
 	  * exists, no pre-processing will occur until the veto is lifted.
 	  */
-	 void vetoPreProcessing(bool veto) {
+	 void vetoPreProcessing(bool veto) noexcept {
 		 m_preProcessingDisabled = veto;
 	 }
 
@@ -315,7 +355,9 @@ public:
 	 /**
 	  * Allows to register a pre-processor object
 	  */
-	 void registerPreProcessor(std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> pre_processor_ptr) {
+	 void registerPreProcessor(
+		 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<processable_type>> pre_processor_ptr
+	 ) {
 		 if(pre_processor_ptr) {
 			 m_pre_processor_ptr = pre_processor_ptr;
 		 }
@@ -362,12 +404,35 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Loads the data of another GProcessingContainerT<processable_type, processing_result_type> object
+	  * Checks whether exceptions are stored in this object
+	  *
+	  * @return A boolean indicating whether exceptions are stored in this class
 	  */
-	 void load_pc(const GProcessingContainerT<processable_type, processing_result_type> *cp) {
-		 // Check that we are dealing with a GProcessingContainerT<processable_type, processing_result_type> reference independent of this object and convert the pointer
-		 const GProcessingContainerT<processable_type, processing_result_type> *p_load
-			 = Gem::Common::g_convert_and_compare<GProcessingContainerT<processable_type, processing_result_type>, GProcessingContainerT<processable_type, processing_result_type>>(cp, this);
+	 bool hasExceptions() const noexcept {
+		 return m_has_exceptions;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves and clears exceptions and the m_has_exceptions flag.
+	  */
+	 std::string get_and_clear_exceptions() {
+		 std::string stored_exceptions = m_stored_exceptions;
+
+		 m_stored_exceptions.clear();
+		 m_has_exceptions = false;
+
+		 return stored_exceptions;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Loads the data of another GProcessingContainerT<processable_type, result_type> object
+	  */
+	 void load_pc(const GProcessingContainerT<processable_type, result_type> *cp) {
+		 // Check that we are dealing with a GProcessingContainerT<processable_type, result_type> reference independent of this object and convert the pointer
+		 const GProcessingContainerT<processable_type, result_type> *p_load
+			 = Gem::Common::g_convert_and_compare<GProcessingContainerT<processable_type, result_type>, GProcessingContainerT<processable_type, result_type>>(cp, this);
 
 		 // Load local data
 		 m_submission_counter = p_load->m_submission_counter;
@@ -375,6 +440,11 @@ public:
 		 m_bufferport_id = p_load->m_bufferport_id;
 		 m_preProcessingDisabled = p_load->m_preProcessingDisabled;
 		 m_postProcessingDisabled = p_load->m_postProcessingDisabled;
+		 m_processing_was_successful = p_load->m_processing_was_successful;
+		 m_stored_result = p_load->m_stored_result;
+		 m_stored_exceptions = p_load->m_stored_exceptions;
+		 m_has_exceptions = p_load->m_has_exceptions;
+
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processor_ptr, m_post_processor_ptr);
 	 }
@@ -386,7 +456,7 @@ protected:
 	 virtual G_API_COURTIER void process_() BASE = 0;
 
 	 /** @brief Allows derived classes to give an indication of the processing result (if any); may not throw. */
-	 virtual G_API_COURTIER processing_result_type get_processing_result() const noexcept BASE = 0;
+	 virtual G_API_COURTIER result_type get_processing_result() const noexcept BASE = 0;
 
 private:
 	 /***************************************************************************/
@@ -431,6 +501,11 @@ private:
 	 double m_post_processing_time = 0.; ///< The amount of time needed for post-processing (in seconds)
 
 	 bool m_processing_was_successful = false; ///< Indicates whether an error has occurred during processing
+
+	 result_type m_stored_result = result_type(0); ///< Buffers results of the process() call
+
+	 std::string m_stored_exceptions = ""; ///< Stores exceptions that may have occurred during processing
+	 bool m_has_exceptions = false; ///< Indicates whether the object holds exception data
 };
 
 /******************************************************************************/
@@ -442,11 +517,11 @@ private:
 /** @brief Mark this class as abstract */
 namespace boost {
 namespace serialization {
-template<typename processable_type, typename processing_result_type>
-struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {
+template<typename processable_type, typename result_type>
+struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, result_type>> : public boost::true_type {
 };
-template<typename processable_type, typename processing_result_type>
-struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {
+template<typename processable_type, typename result_type>
+struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, result_type>> : public boost::true_type {
 };
 }
 }

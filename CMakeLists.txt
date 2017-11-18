@@ -130,6 +130,16 @@ ADD_SUBDIRECTORY (examples)
 # ADD_SUBDIRECTORY (incubator)
 
 ################################################################################
+# Custom target for all compilable items in the distribution
+ADD_CUSTOM_TARGET(
+    "gemfony-build-all"  DEPENDS
+    core
+    examples
+    tests
+    COMMENT "Build the entire Gemfony library collection"
+)
+
+################################################################################
 # Additional information files to be copied
 
 SET ( INFORMATIONFILES

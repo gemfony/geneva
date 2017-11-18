@@ -101,7 +101,7 @@ public:
 
 protected:
 	 /** @brief Allows to specify the tasks to be performed for this object */
-	 virtual void process_();
+	 virtual void process_() override;
 
 	 /** @brief Allows to give an indication of the processing result; may not throw. */
 	 virtual bool get_processing_result() const noexcept override;

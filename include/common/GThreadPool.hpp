@@ -167,20 +167,33 @@ public:
 			 m_tasksInFlight++;
 		 }
 
-		 using R = std::result_of_t<F(Args&&...)>;
-		 auto promise_ptr = std::make_shared<std::promise<R>>();
-		 std::future<R> res = promise_ptr->get_future();
+		 using result_type = std::result_of_t<F(Args&&...)>;
+		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
+		 std::future<result_type> result = promise_ptr->get_future();
 
 		 m_io_service.post(
-			 [this, promise_ptr, f = std::bind<R>(std::forward<F>(f), std::forward<Args>(args)...)]() {
+			 [this, promise_ptr, f = std::bind<result_type>(std::forward<F>(f), std::forward<Args>(args)...)]() {
 				 try {
 					 f();
+				 } catch(boost::exception& e) {
+					 // Convert to a std::runtime_exception
+					 std::runtime_error r(boost::diagnostic_information(e));
+
+					 try { // Whatever was thrown may be stored in the promise
+						 promise_ptr->set_exception(std::make_exception_ptr(r));
+					 } catch(...) { // Unfortunately set_exception() may throw too
+						 glogger
+							 << "In GThreadPool::async_schedule(/void/)::" << std::endl
+							 << "promise.set_exception() has thrown." << std::endl
+							 << "We cannot continue" << std::endl
+							 << GTERMINATION;
+					 }
 				 } catch(...) {
 					 try { // Whatever was thrown may be stored in the promise
 						 promise_ptr->set_exception(std::current_exception());
 					 } catch(...) { // Unfortunately set_exception() may throw too
 						 glogger
-						 << "In GThreadPool::async_schedule():" << std::endl
+						 << "In GThreadPool::async_schedule(/void/):" << std::endl
 						 << "promise.set_exception() has thrown." << std::endl
 						 << "We cannot continue" << std::endl
 						 << GTERMINATION;
@@ -193,11 +206,10 @@ public:
 #ifdef DEBUG
 					 if(0==m_tasksInFlight.load()) {
 						 glogger
-							 << "In GThreadPool::taskWrapper(F f): Error!" << std::endl
+							 << "In GThreadPool::async_schedule(/void/):" << std::endl
 							 << "Trying to decrement a task counter that is already 0" << std::endl
-							 << GWARNING;
-
-						 // We do not use an exception here, as taskWrapper runs inside of a thread
+							 << "We cannot continue"
+							 << GTERMINATION;
 					 }
 #endif /* DEBUG */
 					 m_tasksInFlight--;
@@ -207,7 +219,7 @@ public:
 			 }
 		 );
 
-		 return res;
+		 return result;
 	 };
 
 	 /***************************************************************************/
@@ -281,20 +293,33 @@ public:
 			 m_tasksInFlight++;
 		 }
 
-		 using R = std::result_of_t<F(Args&&...)>;
-		 auto promise_ptr = std::make_shared<std::promise<R>>();
-		 std::future<R> res = promise_ptr->get_future();
+		 using result_type = std::result_of_t<F(Args&&...)>;
+		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
+		 std::future<result_type> result = promise_ptr->get_future();
 
 		 m_io_service.post(
-			 [this, promise_ptr, f = std::bind<R>(std::forward<F>(f), std::forward<Args>(args)...)]() {
+			 [this, promise_ptr, f = std::bind<result_type>(std::forward<F>(f), std::forward<Args>(args)...)]() {
 				 try {
 					 promise_ptr->set_value(f());
+				 } catch(boost::exception& e) {
+					 // Convert to a std::runtime_exception
+					 std::runtime_error r(boost::diagnostic_information(e));
+
+					 try { // Whatever was thrown may be stored in the promise
+						 promise_ptr->set_exception(std::make_exception_ptr(r));
+					 } catch(...) { // Unfortunately set_exception() may throw too
+						 glogger
+							 << "In GThreadPool::async_schedule(/non-void/)::" << std::endl
+							 << "promise.set_exception() has thrown." << std::endl
+							 << "We cannot continue" << std::endl
+							 << GTERMINATION;
+					 }
 				 } catch(...) {
 					 try { // Whatever was thrown may be stored in the promise
 						 promise_ptr->set_exception(std::current_exception());
 					 } catch(...) { // Unfortunately set_exception() may throw too
 						 glogger
-							 << "In GThreadPool::async_schedule():" << std::endl
+							 << "In GThreadPool::async_schedule(/non-void/):" << std::endl
 							 << "promise.set_exception() has thrown." << std::endl
 							 << "We cannot continue" << std::endl
 							 << GTERMINATION;
@@ -306,11 +331,10 @@ public:
 #ifdef DEBUG
 					 if(0==m_tasksInFlight.load()) {
 						 glogger
-							 << "In GThreadPool::taskWrapper(F f): Error!" << std::endl
+							 << "In GThreadPool::async_schedule(/non-void/):" << std::endl
 							 << "Trying to decrement a task counter that is already 0" << std::endl
-							 << GWARNING;
-
-						 // We do not use an exception here, as taskWrapper runs inside of a thread
+							 << "We cannot continue"
+							 << GTERMINATION;
 					 }
 #endif /* DEBUG */
 					 m_tasksInFlight--;
@@ -319,7 +343,7 @@ public:
 			 }
 		 );
 
-		 return res;
+		 return result;
 	 };
 
 private:
