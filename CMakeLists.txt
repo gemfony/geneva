@@ -159,6 +159,16 @@ SET ( INFORMATIONFILES
 INSTALL ( FILES ${INFORMATIONFILES} DESTINATION ${INSTALL_PREFIX_DOCS} )
 
 ################################################################################
+# Add a target to compile everything
+
+ADD_CUSTOM_TARGET( "gemfony-build-all" DEPENDS
+    "core"
+    "examples"
+    "tests"
+    COMMENT "Building all of geneva"
+)
+
+################################################################################
 # Code for the creation of reference documentation for Geneva
 #
 FIND_PACKAGE(Doxygen)
