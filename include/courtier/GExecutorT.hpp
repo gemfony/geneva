@@ -1677,7 +1677,6 @@ protected:
 		 }
 	 }
 
-private:
 	 /***************************************************************************/
 	 /**
 	  * Submits a single work item.
@@ -1710,6 +1709,7 @@ private:
 		 m_CurrentBufferPort->push_raw(w_ptr);
 	 }
 
+private:
 	 /***************************************************************************/
 	 /**
 	  * Retrieves an item from the broker, waiting indefinitely for returns
