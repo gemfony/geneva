@@ -341,8 +341,8 @@ void GParameterSet::cannibalize(GParameterSet& cp) {
 	this->clear();
 
 	// Copy all "foreign" parameters over
-	for(auto t: cp) {
-		this->push_back(t);
+	for(auto t_ptr: cp) {
+		this->push_back(t_ptr);
 	}
 
 	// Empty the foreign GParmaeterSet object
@@ -638,8 +638,8 @@ std::size_t GParameterSet::customAdaptions() {
 	std::size_t nAdaptions = 0;
 
 	GParameterSet::iterator it;
-	for (auto par: *this) {
-		nAdaptions += par->adapt(m_gr);
+	for (auto par_ptr: *this) {
+		nAdaptions += par_ptr->adapt(m_gr);
 	}
 
 	return nAdaptions;
@@ -938,8 +938,8 @@ bool GParameterSet::modify_GUnitTests() {
 	if(GOptimizableEntity::modify_GUnitTests()) result = true;
 	if(Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::modify_GUnitTests()) result = true;
 
-	for(auto o: *this) {
-		if(o->modify_GUnitTests()) result = true;
+	for(auto o_ptr: *this) {
+		if(o_ptr->modify_GUnitTests()) result = true;
 	}
 
 	if(this->randomInit(activityMode::ALLPARAMETERS)) {

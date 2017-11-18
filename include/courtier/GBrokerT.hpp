@@ -139,8 +139,8 @@ public:
 		 if (true == m_finalized.load()) return;
 
 		 // Shut down all consumers
-		 for(auto c: m_consumer_collection_vec) {
-			 c->shutdown();
+		 for(auto c_ptr: m_consumer_collection_vec) {
+			 c_ptr->shutdown();
 		 }
 
 		 {
@@ -586,8 +586,8 @@ private:
 		 }
 
 		 bool capable_of_full_return = true;
-		 for(auto item: m_consumer_collection_vec) {
-			 if (!item->capableOfFullReturn()) {
+		 for(auto item_ptr: m_consumer_collection_vec) {
+			 if (!item_ptr->capableOfFullReturn()) {
 				 capable_of_full_return = false;
 				 break; // stop the loop
 			 }

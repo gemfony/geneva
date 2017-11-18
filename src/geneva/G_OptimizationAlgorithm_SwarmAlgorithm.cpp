@@ -681,9 +681,9 @@ void GSwarmAlgorithm::init() {
 
 	// Create copies of our individuals in the m_velocities_vec vector.
 	std::size_t pos = 0;
-	for(auto ind: *this) {
+	for(auto ind_ptr: *this) {
 #ifdef DEBUG
-		if(!ind) {
+		if(!ind_ptr) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::init(): Error!" << std::endl
@@ -696,7 +696,7 @@ void GSwarmAlgorithm::init() {
 		// to have assigned anything else than a GParameterSet derivative to
 		// the swarm, then the following line will throw in DEBUG mode or return
 		// undefined results in RELEASE mode
-		std::shared_ptr<GParameterSet> p(ind->clone<GParameterSet>());
+		std::shared_ptr<GParameterSet> p(ind_ptr->clone<GParameterSet>());
 
 		// Extract the parameter vector
 		std::vector<double> velVec;
@@ -949,8 +949,8 @@ void GSwarmAlgorithm::updatePositions() {
 	m_last_iteration_individuals_vec.clear();
 	if (afterFirstIteration()) {
 		// Clone the individuals and copy them over
-		for(auto ind: *this) {
-			m_last_iteration_individuals_vec.push_back(ind->clone<GParameterSet>());
+		for(auto ind_ptr: *this) {
+			m_last_iteration_individuals_vec.push_back(ind_ptr->clone<GParameterSet>());
 		}
 	}
 
@@ -1242,9 +1242,9 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 
 	// Update the iteration of older individuals (they will keep their old neighborhood id)
 	// and attach them to the data vector
-	for(auto item: old_work_items) {
-		item->setAssignedIteration(this->getIteration());
-		this->push_back(item);
+	for(auto item_ptr: old_work_items) {
+		item_ptr->setAssignedIteration(this->getIteration());
+		this->push_back(item_ptr);
 	}
 	old_work_items.clear();
 
@@ -1273,8 +1273,8 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	// Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
 	Gem::Common::assignVecConst(m_n_neighborhood_members_vec, (std::size_t)0);
 	// Then update the number of individuals in each neighborhood
-	for(auto item: *this) {
-		m_n_neighborhood_members_vec[item->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood()] += 1;
+	for(auto item_ptr: *this) {
+		m_n_neighborhood_members_vec[item_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
 	// The population will be fixed in the GSwarmAlgorithm::adjustNeighborhoods() function
@@ -1298,8 +1298,8 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 
 #ifdef DEBUG
 	std::size_t pos = 0;
-	for(auto ind: *this) {
-		if(ind->isDirty()) {
+	for(auto ind_ptr: *this) {
+		if(ind_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::findBests(): Error!" << std::endl
@@ -1314,12 +1314,12 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 
 	// Update the personal bests of all individuals
 	if (inFirstIteration()) {
-		for (auto ind: *this) {
-			updatePersonalBest(ind);
+		for (auto ind_ptr: *this) {
+			updatePersonalBest(ind_ptr);
 		}
 	} else {
-		for (auto ind: *this) {
-			updatePersonalBestIfBetter(ind);
+		for (auto ind_ptr: *this) {
+			updatePersonalBestIfBetter(ind_ptr);
 		}
 	}
 

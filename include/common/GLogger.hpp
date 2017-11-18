@@ -346,7 +346,7 @@ public:
 
 		if (!m_log_vector.empty()) {
 			// Do the actual logging
-			for(auto cit: m_log_vector) {
+			for(auto cit: m_log_vector) { // std::shared_ptr max be copied
 				cit->logWithSource(message, extension);
 			}
 		} else {

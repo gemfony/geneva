@@ -506,8 +506,8 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 	);
 
 	// Attach all old work items to the end of the current population and clear the array of old items
-	for(auto item: old_work_items) {
-		this->push_back(item);
+	for(auto item_ptr: old_work_items) {
+		this->push_back(item_ptr);
 	}
 	old_work_items.clear();
 

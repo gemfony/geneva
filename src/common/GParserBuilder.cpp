@@ -429,9 +429,9 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 		pt::read_json(configFile_withBase, ptr);
 
 		// Load the data into our objects and execute the relevant call-back functions
-		for(auto proxy: m_file_parameter_proxies) {
-			proxy->load(ptr);
-			proxy->executeCallBackFunction();
+		for(auto proxy_ptr: m_file_parameter_proxies) { // std::shared_ptr may be copied
+			proxy_ptr->load(ptr);
+			proxy_ptr->executeCallBackFunction();
 		}
 
 		result = true;

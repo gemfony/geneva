@@ -623,8 +623,8 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 	);
 
 	// Attach all old work items to the end of the current population and clear the array of old items
-	for(auto item: old_work_items) {
-		this->push_back(item);
+	for(auto item_ptr: old_work_items) {
+		this->push_back(item_ptr);
 	}
 	old_work_items.clear();
 
@@ -1102,8 +1102,8 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &nIndividuals) {
 	}
 
 	// Make sure we have unique data items
-	for(auto ind: *this) {
-		ind->randomInit(activityMode::ALLPARAMETERS);
+	for(auto ind_ptr: *this) {
+		ind_ptr->randomInit(activityMode::ALLPARAMETERS);
 	}
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw

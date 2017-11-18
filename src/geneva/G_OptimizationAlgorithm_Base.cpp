@@ -1852,7 +1852,7 @@ void G_OptimizationAlgorithm_Base::finalize() {
  * cycle.
  */
 void G_OptimizationAlgorithm_Base::markIteration() {
-	for(auto ind: *this) { ind->setAssignedIteration(m_iteration); }
+	for(auto ind_ptr: *this) { ind_ptr->setAssignedIteration(m_iteration); }
 }
 
 /******************************************************************************/
@@ -2326,8 +2326,8 @@ bool G_OptimizationAlgorithm_Base::modify_GUnitTests() {
 	if(Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::modify_GUnitTests()) result = true;
 
 	// Try to change the objects contained in the collection
-	for(auto o: *this) {
-		if(o->modify_GUnitTests()) result = true;
+	for(auto o_ptr: *this) {
+		if(o_ptr->modify_GUnitTests()) result = true;
 	}
 
 	this->setMaxIteration(this->getMaxIteration() + 1);

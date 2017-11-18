@@ -194,9 +194,9 @@ Gem::Common::GFixedSizePriorityQueueT<GParameterSet> * GParameterSetFixedSizePri
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 	pos = 0;
 	std::deque<std::shared_ptr < GParameterSet>> ::const_iterator cit;
-	for (cit = data_.begin(); cit != data_.end(); ++cit) {
+	for (cit = m_data.begin(); cit != m_data.end(); ++cit) {
 		if (true == (*cit)->isDirty()) {
-			pos = std::distance(data_.begin(), cit);
+			pos = std::distance(m_data.begin(), cit);
 			return false;
 		}
 	}
@@ -211,8 +211,8 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 	std::ostringstream oss;
 	std::deque<std::shared_ptr < GParameterSet>> ::const_iterator cit;
-	for (cit = data_.begin(); cit != data_.end(); ++cit) {
-		oss << "(" << std::distance(data_.begin(), cit) << ", " << ((*cit)->isDirty() ? "d" : "c") << ") ";
+	for (cit = m_data.begin(); cit != m_data.end(); ++cit) {
+		oss << "(" << std::distance(m_data.begin(), cit) << ", " << ((*cit)->isDirty() ? "d" : "c") << ") ";
 	}
 
 	return oss.str();

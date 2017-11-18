@@ -97,9 +97,9 @@ class GFixedSizePriorityQueueT
 
 		ar
 		& make_nvp("GCommonInterfaceT_GFixedSizePriorityQueueT_T", boost::serialization::base_object<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(*this))
-		& BOOST_SERIALIZATION_NVP(data_)
-		& BOOST_SERIALIZATION_NVP(maxSize_)
-		& BOOST_SERIALIZATION_NVP(higherIsBetter_);
+		& BOOST_SERIALIZATION_NVP(m_data)
+		& BOOST_SERIALIZATION_NVP(m_maxSize)
+		& BOOST_SERIALIZATION_NVP(m_higherIsBetter);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -109,7 +109,7 @@ public:
 	 * The default constructor. Note that some variables may be initialized in the class body.
 	 */
 	GFixedSizePriorityQueueT()
-		: GFixedSizePriorityQueueT(10, false /* higherIsBetter_ */ )
+		: GFixedSizePriorityQueueT(10, false /* m_higherIsBetter */ )
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -119,7 +119,7 @@ public:
 	 * @param maxSize The maximum size of the queue
 	 */
 	explicit GFixedSizePriorityQueueT(const std::size_t &maxSize)
-		: GFixedSizePriorityQueueT(maxSize, false /* higherIsBetter_ */ )
+		: GFixedSizePriorityQueueT(maxSize, false /* m_higherIsBetter */ )
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -133,9 +133,9 @@ public:
 		const std::size_t &maxSize
 		, const bool &higherIsBetter
 	)
-		: data_()
-		, maxSize_(maxSize)
-		, higherIsBetter_(higherIsBetter)
+		: m_data()
+		, m_maxSize(maxSize)
+		, m_higherIsBetter(higherIsBetter)
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -143,11 +143,11 @@ public:
 	 * The copy constructor
 	 */
 	GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T> &cp)
-		: maxSize_(cp.maxSize_)
-		, higherIsBetter_(cp.higherIsBetter_)
+		: m_maxSize(cp.m_maxSize)
+		, m_higherIsBetter(cp.m_higherIsBetter)
 	{
-		for(auto cit: data_) { // std::shared_ptr may be copied
-			data_.push_back(cit->template clone<T>());
+		for(auto cit_ptr: m_data) { // std::shared_ptr may be copied
+			m_data.push_back(cit_ptr->template clone<T>());
 		}
 	}
 
@@ -156,7 +156,7 @@ public:
 	 * The destructor
 	 */
 	virtual ~GFixedSizePriorityQueueT() {
-		data_.clear();
+		m_data.clear();
 	}
 
 	/***************************************************************************/
@@ -207,7 +207,7 @@ public:
 	 * Gives access to the best item without copying it
 	 */
 	std::shared_ptr <T> best() const {
-		if (data_.empty()) {
+		if (m_data.empty()) {
 			// Throw an exception
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -218,7 +218,7 @@ public:
 			// Make the compiler happy
 			return std::shared_ptr<T>();
 		} else {
-			return data_.front();
+			return m_data.front();
 		}
 	}
 
@@ -227,7 +227,7 @@ public:
 	 * Gives access to the worst item without copying it
 	 */
 	std::shared_ptr <T> worst() const {
-		if (data_.empty()) {
+		if (m_data.empty()) {
 			// Throw an exception
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -238,7 +238,7 @@ public:
 			// Make the compiler happy
 			return std::shared_ptr<T>();
 		} else {
-			return data_.back();
+			return m_data.back();
 		}
 	}
 
@@ -249,7 +249,7 @@ public:
 	 * considered to be better.
 	 */
 	void setMaxMode(bool maxMode) {
-		higherIsBetter_ = maxMode;
+		m_higherIsBetter = maxMode;
 	}
 
 	/***************************************************************************/
@@ -257,7 +257,7 @@ public:
 	 * Allows to retrieve the current value of higherIsBetter_
 	 */
 	bool getMaxMode() const {
-		return higherIsBetter_;
+		return m_higherIsBetter;
 	}
 
 	/***************************************************************************/
@@ -278,34 +278,34 @@ public:
 		// - If the queue is unlimited
 		// - If the queue isn't full yet
 		// - If the item is better than the worst one contained in the queue
-		if (0 == maxSize_ || data_.size() < maxSize_ ||
+		if (0 == m_maxSize || m_data.size() < m_maxSize ||
 			 isBetter(this->evaluation(item), this->evaluation(this->worst()))) {
 			if (do_clone) {
-				data_.push_back(item->template clone<T>());
+				m_data.push_back(item->template clone<T>());
 			} else {
-				data_.push_back(item);
+				m_data.push_back(item);
 			}
 		}
 
 		// Sort the data according to their ids, so we may remove duplicates
 		std::sort(
-			data_.begin(), data_.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+			m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 				return this->id(x) < this->id(y);
 			}
 		);
 
 		// Remove duplicate items
-		data_.erase(
+		m_data.erase(
 			std::unique(
-				data_.begin(), data_.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+				m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 					return this->id(x) == this->id(y);
 				}
-			), data_.end()
+			), m_data.end()
 		);
 
 		// Sort the data according to the evaluation
 		std::sort(
-			data_.begin(), data_.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+			m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 				if (this->getMaxMode()) { // higher is better
 					if (this->evaluation(x) > this->evaluation(y)) return true;
 					else return false;
@@ -318,9 +318,9 @@ public:
 
 		// Remove surplus work items, if the queue has reached the corresponding size
 		// As the worst items are not at the end of the queue, they will be removed, if
-		// they are beyond the allowed size. This will only have an effect if maxSize_ is != 0 .
-		if (maxSize_ && data_.size() > maxSize_) {
-			data_.resize(maxSize_);
+		// they are beyond the allowed size. This will only have an effect if m_maxSize is != 0 .
+		if (m_maxSize && m_data.size() > m_maxSize) {
+			m_data.resize(m_maxSize);
 		}
 	}
 
@@ -340,9 +340,9 @@ public:
 		, bool do_clone = false
 		, bool replace = false
 	) {
-		double worstKnownEvaluation = Gem::Common::getWorstCase<double>(higherIsBetter_);
-		if (true == replace || data_.empty()) {
-			data_.clear();
+		double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_higherIsBetter);
+		if (true == replace || m_data.empty()) {
+			m_data.clear();
 		} else {
 			// Data already exists, we know better than the worst known valid
 			worstKnownEvaluation = this->evaluation(this->worst());
@@ -357,18 +357,18 @@ public:
 			// - If the queue is unlimited
 			// - If the queue isn't full yet
 			// - If the item is better than the worst one already contained in the queue
-			if (0 == maxSize_ || data_.size() < maxSize_ || isBetter(this->evaluation(*cit), worstKnownEvaluation)) {
+			if (0 == m_maxSize || m_data.size() < m_maxSize || isBetter(this->evaluation(*cit), worstKnownEvaluation)) {
 				if (do_clone) {
-					data_.push_back((*cit)->template clone<T>());
+					m_data.push_back((*cit)->template clone<T>());
 				} else {
-					data_.push_back(*cit);
+					m_data.push_back(*cit);
 				}
 			}
 		}
 
 		// Sort the data according to their ids, so we may remove duplicates
 		std::sort(
-			data_.begin(), data_.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+			m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 				return this->id(x) < this->id(y);
 			}
 		);
@@ -376,16 +376,16 @@ public:
 		// TODO: What happens here in the case multiple identical items were added ? Won't this remove all
 		// items after the first duplicate ?
 		// Remove duplicate items
-		data_.erase(
+		m_data.erase(
 			std::unique(
-				data_.begin(), data_.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+				m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 					return this->id(x) == this->id(y);
 				}
-			), data_.end()
+			), m_data.end()
 		);
 
 		std::sort(
-			data_.begin(), data_.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+			m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 				if (this->getMaxMode()) { // higher is better
 					if (this->evaluation(x) > this->evaluation(y)) return true;
 					else return false;
@@ -397,9 +397,9 @@ public:
 		);
 
 		// Remove surplus work items, if the queue has reached the corresponding size
-		// This will only have an effect if maxSize_ is != 0
-		if (maxSize_ && data_.size() > maxSize_) {
-			data_.resize(maxSize_);
+		// This will only have an effect if m_maxSize is != 0
+		if (m_maxSize && m_data.size() > m_maxSize) {
+			m_data.resize(m_maxSize);
 		}
 	}
 
@@ -408,7 +408,7 @@ public:
 	 * Removes the best item from the queue and returns it
 	 */
 	T pop() {
-		if (data_.empty()) {
+		if (m_data.empty()) {
 			// Throw an exception
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -419,8 +419,8 @@ public:
 			// Make the compiler happy
 			return (T) 0;
 		} else {
-			T item = data_.front();
-			data_.pop_front();
+			T item = m_data.front();
+			m_data.pop_front();
 			return item;
 		}
 	}
@@ -434,7 +434,7 @@ public:
 
 		typename std::deque<std::shared_ptr < T>> ::iterator
 		it;
-		for (it = data_.begin(); it != data_.end(); ++it) {
+		for (it = m_data.begin(); it != m_data.end(); ++it) {
 			result.push_back(*it);
 		}
 
@@ -446,7 +446,7 @@ public:
 	 * Returns the current size of the queue
 	 */
 	std::size_t size() const {
-		return data_.size();
+		return m_data.size();
 	}
 
 	/***************************************************************************/
@@ -454,7 +454,7 @@ public:
 	 * Checks whether the data is empty
 	 */
 	bool empty() const {
-		return data_.empty();
+		return m_data.empty();
 	}
 
 	/***************************************************************************/
@@ -462,7 +462,7 @@ public:
 	 * Allows to clear the queue
 	 */
 	void clear() {
-		data_.clear();
+		m_data.clear();
 	}
 
 	/***************************************************************************/
@@ -470,12 +470,12 @@ public:
 	 * Sets the maximum size of the priority queue
 	 */
 	void setMaxSize(std::size_t maxSize) {
-		// Make sure the current size of data_ complies with maxSize
-		if (data_.size() > maxSize) {
-			data_.resize(maxSize);
+		// Make sure the current size of m_data complies with maxSize
+		if (m_data.size() > maxSize) {
+			m_data.resize(maxSize);
 		}
 
-		maxSize_ = maxSize;
+		m_maxSize = maxSize;
 	}
 
 	/***************************************************************************/
@@ -483,7 +483,7 @@ public:
 	 * Retrieves the maximum size of the priority queue
 	 */
 	std::size_t getMaxSize() const {
-		return maxSize_;
+		return m_maxSize;
 	}
 
 	/***************************************************************************/
@@ -519,9 +519,9 @@ public:
 		Gem::Common::compare_base<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(IDENTITY(*this, *p_load), token);
 
 		// ... and then our local data
-		compare_t(IDENTITY(data_, p_load->data_), token);
-		compare_t(IDENTITY(maxSize_, p_load->maxSize_), token);
-		compare_t(IDENTITY(higherIsBetter_, p_load->higherIsBetter_), token);
+		compare_t(IDENTITY(m_data, p_load->m_data), token);
+		compare_t(IDENTITY(m_maxSize, p_load->m_maxSize), token);
+		compare_t(IDENTITY(m_higherIsBetter, p_load->m_higherIsBetter), token);
 
 		// React on deviations from the expectation
 		token.evaluate();
@@ -537,9 +537,9 @@ protected:
 		const GFixedSizePriorityQueueT<T> *p_load = Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
 
 		// Load local data
-		Gem::Common::copyCloneableSmartPointerContainer(p_load->data_, data_);
-		maxSize_ = p_load->maxSize_;
-		higherIsBetter_ = p_load->higherIsBetter_;
+		Gem::Common::copyCloneableSmartPointerContainer(p_load->m_data, m_data);
+		m_maxSize = p_load->m_maxSize;
+		m_higherIsBetter = p_load->m_higherIsBetter;
 	}
 
 	/***************************************************************************/
@@ -551,7 +551,7 @@ protected:
 	 * Checks whether value x is better than value y
 	 */
 	bool isBetter(std::shared_ptr <T> new_item, std::shared_ptr <T> old_item) const {
-		if (higherIsBetter_) {
+		if (m_higherIsBetter) {
 			if (this->evaluation(new_item) > this->evaluation(old_item)) return true;
 			else return false;
 		} else { // lower is better
@@ -565,7 +565,7 @@ protected:
 	 * Checks whether value x is better than value y
 	 */
 	bool isBetter(std::shared_ptr <T> new_item, const double &old_item) const {
-		if (higherIsBetter_) {
+		if (m_higherIsBetter) {
 			if (this->evaluation(new_item) > old_item) return true;
 			else return false;
 		} else { // lower is better
@@ -579,7 +579,7 @@ protected:
 	 * Checks whether value x is better than value y
 	 */
 	bool isBetter(const double &new_item, std::shared_ptr <T> old_item) const {
-		if (higherIsBetter_) {
+		if (m_higherIsBetter) {
 			if (new_item > this->evaluation(old_item)) return true;
 			else return false;
 		} else { // lower is better
@@ -593,7 +593,7 @@ protected:
 	 * Checks whether value x is better than value y
 	 */
 	bool isBetter(const double &new_item, const double &old_item) const {
-		if (higherIsBetter_) {
+		if (m_higherIsBetter) {
 			if (new_item > old_item) return true;
 			else return false;
 		} else { // lower is better
@@ -609,10 +609,10 @@ protected:
 	/** @brief Returns a unique id for a work item */
 	virtual G_API_COMMON std::string id(const std::shared_ptr <T> &) const BASE = 0;
 
-	std::deque<std::shared_ptr<T>> data_; ///< Holds the actual data
+	std::deque<std::shared_ptr<T>> m_data; ///< Holds the actual data
 
-	std::size_t maxSize_ = 10; ///< The maximum number of work-items
-	bool higherIsBetter_ = false; ///< Indicates whether higher evaluations of items indicate a higher priority
+	std::size_t m_maxSize = 10; ///< The maximum number of work-items
+	bool m_higherIsBetter = false; ///< Indicates whether higher evaluations of items indicate a higher priority
 };
 
 /******************************************************************************/

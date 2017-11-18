@@ -792,8 +792,8 @@ protected:
 		 // Mark all positions, for which processing was successful, as "processed"
 		 std::size_t pos = 0;
 		 std::size_t nProcessed = 0;
-		 for(auto &item: workItems) {
-			 if(item->processing_was_successful()) {
+		 for(auto item_ptr: workItems) { // std::shared_ptr may be copied
+			 if(item_ptr->processing_was_successful()) {
 				 workItemPos.at(pos) = GBC_PROCESSED;
 				 ++nProcessed;
 			 } else {
@@ -999,7 +999,7 @@ public:
 			 std::vector<std::string> errors;
 			 errors = m_gtp_ptr->getErrors();
 
-			 for(auto error: errors) {
+			 for(auto error: errors) { // std::string may be copied here
 				 oss << error << std::endl;
 			 }
 
@@ -1171,7 +1171,7 @@ protected:
 		 std::size_t pos = 0;
 		 std::size_t nProcessed = 0;
 		 std::size_t nSkipped = 0;
-		 for(auto &item: workItems) {
+		 for(auto &item_ptr: workItems) { // std::shared_ptr may be copied
 			 // Skip over items that already have the processed flag set
 			 if(GBC_PROCESSED == workItemPos.at(pos)) {
 
@@ -1220,7 +1220,7 @@ protected:
 						 	 << "Work item has the following information: " << std::endl
 							 << "-------------------------------------------------" << std::endl
 							 << std::endl
-						 	 << item->get_and_clear_exceptions() << std::endl
+						 	 << item_ptr->get_and_clear_exceptions() << std::endl
 						 	 << std::endl
 							 << "-------------------------------------------------" << std::endl
 						 	 << std::endl
