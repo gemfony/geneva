@@ -198,10 +198,14 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GSerializableFunctionObjectT<processable_type> * clone_() const override = 0;
+
 	 /** @brief overload this function to make this class operational */
 	 virtual G_API_COMMON bool process_(processable_type& p) BASE = 0;
+
+private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_COMMON GSerializableFunctionObjectT<processable_type> * clone_() const override = 0;
 };
 
 /******************************************************************************/
