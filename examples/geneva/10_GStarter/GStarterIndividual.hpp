@@ -66,8 +66,8 @@ namespace Geneva {
  * This enum denotes the possible demo function types
  */
 enum class targetFunction : Gem::Common::ENUMBASETYPE {
-	PARABOLA=0
-	, NOISYPARABOLA=1
+	 PARABOLA=0
+	 , NOISYPARABOLA=1
 };
 
 // Make sure targetFunction can be streamed
@@ -93,181 +93,183 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::PARABOLA;
  */
 class GStarterIndividual : public GParameterSet
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int) {
-		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		& BOOST_SERIALIZATION_NVP(targetFunction_);
-	}
+	 template<class Archive>
+	 void serialize(Archive & ar, const unsigned int) {
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		 & BOOST_SERIALIZATION_NVP(targetFunction_);
+	 }
 
-	///////////////////////////////////////////////////////////////////////
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The default constructor */
-	GStarterIndividual();
-	/** @brief A constructor that receives all arguments */
-	GStarterIndividual(
-		const std::size_t&
-		, const std::vector<double>&
-		, const std::vector<double>&
-		, const std::vector<double>&
-		, const double&
-		, const double&
-		, const double&
-		, const double&
-		, const double&
-	);
-	/** @brief A standard copy constructor */
-	GStarterIndividual(const GStarterIndividual&);
-	/** @brief The standard destructor */
-	virtual ~GStarterIndividual();
+	 /** @brief The default constructor */
+	 GStarterIndividual();
+	 /** @brief A constructor that receives all arguments */
+	 GStarterIndividual(
+		 const std::size_t&
+		 , const std::vector<double>&
+		 , const std::vector<double>&
+		 , const std::vector<double>&
+		 , const double&
+		 , const double&
+		 , const double&
+		 , const double&
+		 , const double&
+	 );
+	 /** @brief A standard copy constructor */
+	 GStarterIndividual(const GStarterIndividual&);
+	 /** @brief The standard destructor */
+	 virtual ~GStarterIndividual();
 
-	/** @brief A standard assignment operator */
-	const GStarterIndividual& operator=(const GStarterIndividual&);
+	 /** @brief A standard assignment operator */
+	 const GStarterIndividual& operator=(const GStarterIndividual&);
 
-	/** @brief Checks for equality with another GFunctionIndividual object */
-	bool operator==(const GStarterIndividual&) const;
-	/** @brief Checks for inequality with another GFunctionIndividual object */
-	bool operator!=(const GStarterIndividual& cp) const;
+	 /** @brief Checks for equality with another GFunctionIndividual object */
+	 bool operator==(const GStarterIndividual&) const;
+	 /** @brief Checks for inequality with another GFunctionIndividual object */
+	 bool operator!=(const GStarterIndividual& cp) const;
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare(
-		const GObject& // the other object
-		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		, const double& // the limit for allowed deviations of floating point types
-	) const final;
+	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
+	 virtual void compare(
+		 const GObject& // the other object
+		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		 , const double& // the limit for allowed deviations of floating point types
+	 ) const final;
 
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
 
-	/** @brief Allows to set the demo function */
-	void setTargetFunction(targetFunction);
-	/** @brief Allows to retrieve the current demo function */
-	targetFunction getTargetFunction() const;
+	 /** @brief Allows to set the demo function */
+	 void setTargetFunction(targetFunction);
+	 /** @brief Allows to retrieve the current demo function */
+	 targetFunction getTargetFunction() const;
 
-	/** @brief Retrieves the average value of the sigma used in local Gauss adaptors */
-	double getAverageSigma() const;
+	 /** @brief Retrieves the average value of the sigma used in local Gauss adaptors */
+	 double getAverageSigma() const;
 
-	/** @brief Emit information about this individual */
-	std::string print();
+	 /** @brief Emit information about this individual */
+	 std::string print();
 
-	/***************************************************************************/
-	/**
-	 * This function is used to unify the setup from within the constructor
-	 * and factory.
-	 */
-	static void addContent(
-		GStarterIndividual& p
-		, const std::size_t& prod_id
-		, const std::vector<double>& startValues
-		, const std::vector<double>& lowerBoundaries
-		, const std::vector<double>& upperBoundaries
-		, const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
-		, const double& adProb
-	) {
-		// Some error checking
+	 /***************************************************************************/
+	 /**
+	  * This function is used to unify the setup from within the constructor
+	  * and factory.
+	  */
+	 static void addContent(
+		 GStarterIndividual& p
+		 , const std::size_t& prod_id
+		 , const std::vector<double>& startValues
+		 , const std::vector<double>& lowerBoundaries
+		 , const std::vector<double>& upperBoundaries
+		 , const double& sigma
+		 , const double& sigmaSigma
+		 , const double& minSigma
+		 , const double& maxSigma
+		 , const double& adProb
+	 ) {
+		 // Some error checking
 #ifdef DEBUG
-		// Check whether values have been provided
-		if(startValues.empty()) {
-			glogger
-			<< "In GStarterIndividual::addContent(): Error!" << std::endl
-			<< "No parameters given" << std::endl
-			<< GTERMINATION;
-		}
+		 // Check whether values have been provided
+		 if(startValues.empty()) {
+			 glogger
+				 << "In GStarterIndividual::addContent(): Error!" << std::endl
+				 << "No parameters given" << std::endl
+				 << GTERMINATION;
+		 }
 
-		// Check whether all sizes match
-		if(startValues.size() != lowerBoundaries.size() || startValues.size() != upperBoundaries.size()) {
-			glogger
-			<< "In GStarterIndividual::addContent(): Error!" << std::endl
-			<< "Invalid sizes" << startValues.size() << " / " << lowerBoundaries.size() << " / " << upperBoundaries.size() << std::endl
-			<< GTERMINATION;
-		}
+		 // Check whether all sizes match
+		 if(startValues.size() != lowerBoundaries.size() || startValues.size() != upperBoundaries.size()) {
+			 glogger
+				 << "In GStarterIndividual::addContent(): Error!" << std::endl
+				 << "Invalid sizes" << startValues.size() << " / " << lowerBoundaries.size() << " / " << upperBoundaries.size() << std::endl
+				 << GTERMINATION;
+		 }
 
-		// Check that start values and boundaries have valid values
-		for(std::size_t i=0; i<startValues.size(); i++) {
-			Gem::Common::checkValueRange( // We expect the start value to be in the range [lower, upper[
-					startValues.at(i)
-					, lowerBoundaries.at(i)
-					, upperBoundaries.at(i)
-					, false // closed lower boundary
-					, true  // open upper boundary
-			);
-		}
+		 // Check that start values and boundaries have valid values
+		 for(std::size_t i=0; i<startValues.size(); i++) {
+			 Gem::Common::checkValueRange( // We expect the start value to be in the range [lower, upper[
+				 startValues.at(i)
+				 , lowerBoundaries.at(i)
+				 , upperBoundaries.at(i)
+				 , false // closed lower boundary
+				 , true  // open upper boundary
+			 );
+		 }
 
 #endif /* DEBUG */
 
-		// Add the required number of GConstrainedDoubleObject objects to the individual
-		for(std::size_t i=0; i<startValues.size(); i++) {
-			std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
-			if(Gem::Common::GFACTTORYFIRSTID == prod_id) { // First individual, initialization with standard values
-				gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
-					new GConstrainedDoubleObject(
-						startValues.at(i)
-						, lowerBoundaries.at(i)
-						, upperBoundaries.at(i)
-					)
-				);
-			} else { // Random initialization for all other individuals
-				gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
-					new GConstrainedDoubleObject(
-						lowerBoundaries.at(i)
-						, upperBoundaries.at(i)
-					)
-				);
-			}
+		 // Add the required number of GConstrainedDoubleObject objects to the individual
+		 for(std::size_t i=0; i<startValues.size(); i++) {
+			 std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
+			 if(Gem::Common::GFACTTORYFIRSTID == prod_id) { // First individual, initialization with standard values
+				 gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
+					 new GConstrainedDoubleObject(
+						 startValues.at(i)
+						 , lowerBoundaries.at(i)
+						 , upperBoundaries.at(i)
+					 )
+				 );
+			 } else { // Random initialization for all other individuals
+				 gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
+					 new GConstrainedDoubleObject(
+						 lowerBoundaries.at(i)
+						 , upperBoundaries.at(i)
+					 )
+				 );
+			 }
 
-			std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
-				new GDoubleGaussAdaptor(
-					sigma
-					, sigmaSigma
-					, minSigma
-					, maxSigma
-				)
-			);
+			 std::shared_ptr<GDoubleGaussAdaptor> gdga_ptr(
+				 new GDoubleGaussAdaptor(
+					 sigma
+					 , sigmaSigma
+					 , minSigma
+					 , maxSigma
+				 )
+			 );
 
-			gdga_ptr->setAdaptionProbability(adProb);
-			gcdo_ptr->addAdaptor(gdga_ptr);
+			 gdga_ptr->setAdaptionProbability(adProb);
+			 gcdo_ptr->addAdaptor(gdga_ptr);
 
-			p.push_back(gcdo_ptr);
-		}
-	}
+			 p.push_back(gcdo_ptr);
+		 }
+	 }
 
 protected:
-	/***************************************************************************/
-	/** @brief Loads the data of another GStarterIndividual */
-	virtual void load_(const GObject*) final;
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const final;
+	 /***************************************************************************/
+	 /** @brief Loads the data of another GStarterIndividual */
+	 virtual void load_(const GObject*) final;
 
-	/** @brief The actual value calculation takes place here */
-	virtual double fitnessCalculation() final;
+	 /** @brief The actual value calculation takes place here */
+	 virtual double fitnessCalculation() final;
 
-	/***************************************************************************/
+	 /***************************************************************************/
 
 private:
-	targetFunction targetFunction_ = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
+	 targetFunction targetFunction_ = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
 
-	/***************************************************************************/
-	/** @brief A simple n-dimensional parabola */
-	double parabola(const std::vector<double>& parVec) const;
-	/** @brief A "noisy" parabola */
-	double noisyParabola(const std::vector<double>& parVec) const;
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual GObject* clone_() const final;
 
-	/***************************************************************************/
+	 /***************************************************************************/
+	 /** @brief A simple n-dimensional parabola */
+	 double parabola(const std::vector<double>& parVec) const;
+	 /** @brief A "noisy" parabola */
+	 double noisyParabola(const std::vector<double>& parVec) const;
+
+	 /***************************************************************************/
 
 public:
-	/** @brief Applies modifications to this object. */
-	virtual bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. */
-	virtual void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. */
-	virtual void specificTestsFailuresExpected_GUnitTests();
+	 /** @brief Applies modifications to this object. */
+	 virtual bool modify_GUnitTests();
+	 /** @brief Performs self tests that are expected to succeed. */
+	 virtual void specificTestsNoFailureExpected_GUnitTests();
+	 /** @brief Performs self tests that are expected to fail. */
+	 virtual void specificTestsFailuresExpected_GUnitTests();
 };
 
 /** @brief Allows to output a GStarterIndividual or convert it to a string using boost::lexical_cast */
@@ -283,32 +285,32 @@ class GStarterIndividualFactory
 	: public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
-	/** @brief The standard constructor */
-	GStarterIndividualFactory(const std::string&);
-	/** @brief The destructor */
-	virtual ~GStarterIndividualFactory();
+	 /** @brief The standard constructor */
+	 GStarterIndividualFactory(const std::string&);
+	 /** @brief The destructor */
+	 virtual ~GStarterIndividualFactory();
 
 protected:
-	/** @brief Creates individuals of this type */
-	virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
-	/** @brief Allows to describe local configuration options in derived classes */
-	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
-	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(std::shared_ptr<GParameterSet>&);
+	 /** @brief Creates individuals of this type */
+	 virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	 /** @brief Allows to describe local configuration options in derived classes */
+	 virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+	 /** @brief Allows to act on the configuration options received from the configuration file */
+	 virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
-	/** @brief The default constructor. Intentionally private and undefined */
-	GStarterIndividualFactory() = delete;
+	 /** @brief The default constructor. Intentionally private and undefined */
+	 GStarterIndividualFactory() = delete;
 
-	double adProb_; ///< Probability for a parameter to be mutated
-	double sigma_; ///< Step-width
-	double sigmaSigma_; ///< Speed of sigma_-adaption
-	double minSigma_; ///< Minimum allowed sigma value
-	double maxSigma_; ///< Maximum allowed sigma value
+	 double adProb_; ///< Probability for a parameter to be mutated
+	 double sigma_; ///< Step-width
+	 double sigmaSigma_; ///< Speed of sigma_-adaption
+	 double minSigma_; ///< Minimum allowed sigma value
+	 double maxSigma_; ///< Maximum allowed sigma value
 
-	std::vector<double> startValues_; ///< Start values for all parameters
-	std::vector<double> lowerBoundaries_; ///< Lower boundaries for all parameters
-	std::vector<double> upperBoundaries_; ///< Upper boundaroes for all parameters
+	 std::vector<double> startValues_; ///< Start values for all parameters
+	 std::vector<double> lowerBoundaries_; ///< Lower boundaries for all parameters
+	 std::vector<double> upperBoundaries_; ///< Upper boundaroes for all parameters
 };
 
 /******************************************************************************/

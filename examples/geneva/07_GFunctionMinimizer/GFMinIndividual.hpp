@@ -65,8 +65,8 @@ namespace Geneva {
  * This enum denotes the possible demo function types
  */
 enum class targetFunction : Gem::Common::ENUMBASETYPE {
-	GFM_PARABOLA=0
-	, GFM_NOISYPARABOLA=1
+	 GFM_PARABOLA=0
+	 , GFM_NOISYPARABOLA=1
 };
 
 // Make sure targetFunction can be streamed
@@ -96,62 +96,65 @@ const targetFunction GO_DEF_TARGETFUNCTION = targetFunction::GFM_PARABOLA;
 class GFMinIndividual
 	: public GParameterSet
 {
-	/////////////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 /////////////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int) {
-		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		& BOOST_SERIALIZATION_NVP(targetFunction_);
-	}
+	 template<class Archive>
+	 void serialize(Archive & ar, const unsigned int) {
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
+		 & BOOST_SERIALIZATION_NVP(targetFunction_);
+	 }
 
-	/////////////////////////////////////////////////////////////////////////////
+	 /////////////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The default constructor */
-	GFMinIndividual();
-	/** @brief A standard copy constructor */
-	GFMinIndividual(const GFMinIndividual&);
-	/** @brief The standard destructor */
-	virtual ~GFMinIndividual();
+	 /** @brief The default constructor */
+	 GFMinIndividual();
+	 /** @brief A standard copy constructor */
+	 GFMinIndividual(const GFMinIndividual&);
+	 /** @brief The standard destructor */
+	 virtual ~GFMinIndividual();
 
-	/** @brief A standard assignment operator */
-	const GFMinIndividual& operator=(const GFMinIndividual&);
+	 /** @brief A standard assignment operator */
+	 const GFMinIndividual& operator=(const GFMinIndividual&);
 
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
 
-	/** @brief Allows to set the demo function */
-	void setTargetFunction(targetFunction);
-	/** @brief Allows to retrieve the current demo function */
-	targetFunction getTargetFunction() const;
+	 /** @brief Allows to set the demo function */
+	 void setTargetFunction(targetFunction);
+	 /** @brief Allows to retrieve the current demo function */
+	 targetFunction getTargetFunction() const;
 
-	/** @brief Retrieves the average value of the sigma used in Gauss adaptors */
-	double getAverageSigma() const;
+	 /** @brief Retrieves the average value of the sigma used in Gauss adaptors */
+	 double getAverageSigma() const;
 
 protected:
-	/***************************************************************************/
-	/** @brief Loads the data of another GFMinIndividual */
-	virtual void load_(const GObject*) final;
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const final;
+	 /***************************************************************************/
+	 /** @brief Loads the data of another GFMinIndividual */
+	 virtual void load_(const GObject*) final;
 
-	/** @brief The actual value calculation takes place here */
-	virtual double fitnessCalculation() final;
+	 /** @brief The actual value calculation takes place here */
+	 virtual double fitnessCalculation() final;
 
-	/***************************************************************************/
+	 /***************************************************************************/
 
 private:
-	targetFunction targetFunction_ = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual GObject* clone_() const final;
 
-	/***************************************************************************/
-	/** @brief A simple n-dimensional parabola */
-	double parabola(const std::vector<double>& parVec) const;
-	/** @brief A "noisy" parabola */
-	double noisyParabola(const std::vector<double>& parVec) const;
+	 /***************************************************************************/
+	 targetFunction targetFunction_ = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
 
-	/***************************************************************************/
+	 /***************************************************************************/
+	 /** @brief A simple n-dimensional parabola */
+	 double parabola(const std::vector<double>& parVec) const;
+	 /** @brief A "noisy" parabola */
+	 double noisyParabola(const std::vector<double>& parVec) const;
+
+	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -171,31 +174,31 @@ class GFMinIndividualFactory
 	: public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
-	/** @brief The standard constructor */
-	GFMinIndividualFactory(const std::string&);
-	/** @brief The destructor */
-	virtual ~GFMinIndividualFactory();
+	 /** @brief The standard constructor */
+	 GFMinIndividualFactory(const std::string&);
+	 /** @brief The destructor */
+	 virtual ~GFMinIndividualFactory();
 
 protected:
-	/** @brief Creates individuals of this type */
-	virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
-	/** @brief Allows to describe local configuration options in derived classes */
-	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
-	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(std::shared_ptr<GParameterSet>&);
+	 /** @brief Creates individuals of this type */
+	 virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	 /** @brief Allows to describe local configuration options in derived classes */
+	 virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+	 /** @brief Allows to act on the configuration options received from the configuration file */
+	 virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
-	/** @brief The default constructor. Intentionally private and undefined */
-	GFMinIndividualFactory() = delete;
+	 /** @brief The default constructor. Intentionally private and undefined */
+	 GFMinIndividualFactory() = delete;
 
-	double adProb_;
-	double sigma_;
-	double sigmaSigma_;
-	double minSigma_;
-	double maxSigma_;
-	std::size_t parDim_;
-	double minVar_;
-	double maxVar_;
+	 double adProb_;
+	 double sigma_;
+	 double sigmaSigma_;
+	 double minSigma_;
+	 double maxSigma_;
+	 std::size_t parDim_;
+	 double minVar_;
+	 double maxVar_;
 };
 
 /******************************************************************************/

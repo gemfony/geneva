@@ -63,51 +63,52 @@ const std::size_t NPAR_MC = 3;
  */
 class GMultiCriterionParabolaIndividual :public GParameterSet
 {
-	friend class GMultiCriterionParabolaIndividualFactory;
+	 friend class GMultiCriterionParabolaIndividualFactory;
 
-	/***************************************************************************/
-	/**
-	 * This function triggers serialization of this class and its
-	 * base classes.
-	 */
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
-		using boost::serialization::make_nvp;
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-	}
+	 /***************************************************************************/
+	 /**
+	  * This function triggers serialization of this class and its
+	  * base classes.
+	  */
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int) {
+		 using boost::serialization::make_nvp;
+		 ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+	 }
 
-	/** @brief Make the class accessible to Boost.Serialization */
-	friend class boost::serialization::access;
-	/***************************************************************************/
+	 /** @brief Make the class accessible to Boost.Serialization */
+	 friend class boost::serialization::access;
+	 /***************************************************************************/
 
 public:
-	/** @brief The standard constructor */
-	GMultiCriterionParabolaIndividual(const std::size_t&);
-	/** @brief A standard copy constructor */
-	GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual&);
-	/** @brief The destructor */
-	virtual ~GMultiCriterionParabolaIndividual();
+	 /** @brief The standard constructor */
+	 GMultiCriterionParabolaIndividual(const std::size_t&);
+	 /** @brief A standard copy constructor */
+	 GMultiCriterionParabolaIndividual(const GMultiCriterionParabolaIndividual&);
+	 /** @brief The destructor */
+	 virtual ~GMultiCriterionParabolaIndividual();
 
-	/** @brief A standard assignment operator */
-	const GMultiCriterionParabolaIndividual& operator=(const GMultiCriterionParabolaIndividual&);
+	 /** @brief A standard assignment operator */
+	 const GMultiCriterionParabolaIndividual& operator=(const GMultiCriterionParabolaIndividual&);
 
-	/** @brief Assigns a number of minima to this object */
-	void setMinima(const std::vector<double>&);
+	 /** @brief Assigns a number of minima to this object */
+	 void setMinima(const std::vector<double>&);
 
 protected:
-	/** @brief Loads the data of another GMultiCriterionParabolaIndividual */
-	virtual void load_(const GObject*) final;
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const final;
+	 /** @brief Loads the data of another GMultiCriterionParabolaIndividual */
+	 virtual void load_(const GObject*) final;
 
-	/** @brief The actual fitness calculation takes place here. */
-	virtual double fitnessCalculation() final;
+	 /** @brief The actual fitness calculation takes place here. */
+	 virtual double fitnessCalculation() final;
 
 private:
-	/** @brief The default constructor -- intentionally private*/
-	GMultiCriterionParabolaIndividual();
-	/** @brief Holds the minima needed for multi-criterion optimization */
-	std::vector<double> minima_;
+	 /** @brief Creates a deep clone of this object */
+	 virtual GObject* clone_() const final;
+
+	 /** @brief The default constructor -- intentionally private*/
+	 GMultiCriterionParabolaIndividual();
+	 /** @brief Holds the minima needed for multi-criterion optimization */
+	 std::vector<double> minima_;
 };
 
 /******************************************************************************/
@@ -120,27 +121,27 @@ class GMultiCriterionParabolaIndividualFactory
 	:public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
-	/** @brief The standard constructor for this class */
-	GMultiCriterionParabolaIndividualFactory(const std::string&);
-	/** @brief The destructor */
-	virtual ~GMultiCriterionParabolaIndividualFactory();
+	 /** @brief The standard constructor for this class */
+	 GMultiCriterionParabolaIndividualFactory(const std::string&);
+	 /** @brief The destructor */
+	 virtual ~GMultiCriterionParabolaIndividualFactory();
 
 protected:
-	/** @brief Creates individuals of this type */
-	virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
-	/** @brief Allows to describe local configuration options in derived classes */
-	virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
-	/** @brief Allows to act on the configuration options received from the configuration file */
-	virtual void postProcess_(std::shared_ptr<GParameterSet>&);
+	 /** @brief Creates individuals of this type */
+	 virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	 /** @brief Allows to describe local configuration options in derived classes */
+	 virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+	 /** @brief Allows to act on the configuration options received from the configuration file */
+	 virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
-	Gem::Common::GOneTimeRefParameterT<double> par_min_; ///< The lower boundary of the initialization range
-	Gem::Common::GOneTimeRefParameterT<double> par_max_; ///< The upper boundary of the initialization range
-	Gem::Common::GOneTimeRefParameterT<std::string> minima_string_; ///< The minima encoded as a string
+	 Gem::Common::GOneTimeRefParameterT<double> par_min_; ///< The lower boundary of the initialization range
+	 Gem::Common::GOneTimeRefParameterT<double> par_max_; ///< The upper boundary of the initialization range
+	 Gem::Common::GOneTimeRefParameterT<std::string> minima_string_; ///< The minima encoded as a string
 
-	std::vector<double> minima_; ///< The desired minima of the parabolas
-	std::size_t nPar_; ///< The number of parameters to be added to the individual
-	bool firstParsed_; ///< Set to false when the configuration files were parsed for the first time
+	 std::vector<double> minima_; ///< The desired minima of the parabolas
+	 std::size_t nPar_; ///< The number of parameters to be added to the individual
+	 bool firstParsed_; ///< Set to false when the configuration files were parsed for the first time
 };
 
 /******************************************************************************/

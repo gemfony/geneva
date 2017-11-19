@@ -328,6 +328,7 @@ protected:
 		 this->emitBestOnly_ = p_load->emitBestOnly_;
 	 }
 
+private:
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
@@ -336,8 +337,6 @@ protected:
 		 return new GImagePOM(*this);
 	 }
 
-
-private:
 	 /***************************************************************************/
 	 /**
 	  * The default constructor. It is intentionally private, as it is only needed

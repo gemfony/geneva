@@ -198,13 +198,15 @@ protected:
 	 /******************************************************************************/
 	 /** @brief Loads the data of another GImageIndividual */
 	 virtual void load_(const GObject*) override;
-	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const override;
 
 	 /** @brief The actual fitness calculation takes place here. */
 	 virtual double fitnessCalculation() override;
 
 private:
+	 /******************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual GObject* clone_() const override;
+
 	 /******************************************************************************/
 	 // Parameters
 

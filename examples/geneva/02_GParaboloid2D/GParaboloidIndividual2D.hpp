@@ -57,44 +57,44 @@ namespace Geneva {
  */
 class GParaboloidIndividual2D :public GParameterSet
 {
+	 /** @brief Make the class accessible to Boost.Serialization */
+	 friend class boost::serialization::access;
+
+	 /**************************************************************/
+	 /**
+	  * This function triggers serialization of this class and its
+	  * base classes.
+	  */
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int) {
+		 using boost::serialization::make_nvp;
+		 // Serialize the base class
+		 ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+		 // Add other variables here like this:
+		 // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
+	 }
+	 /**************************************************************/
 public:
-	/** @brief The default constructor */
-	GParaboloidIndividual2D();
-	/** @brief A standard copy constructor */
-	GParaboloidIndividual2D(const GParaboloidIndividual2D&);
-	/** @brief The standard destructor */
-	virtual ~GParaboloidIndividual2D();
+	 /** @brief The default constructor */
+	 GParaboloidIndividual2D();
+	 /** @brief A standard copy constructor */
+	 GParaboloidIndividual2D(const GParaboloidIndividual2D&);
+	 /** @brief The standard destructor */
+	 virtual ~GParaboloidIndividual2D();
 
 protected:
-	/** @brief Loads the data of another GParaboloidIndividual2D */
-	virtual void load_(const GObject*) final;
-	/** @brief Creates a deep clone of this object */
-	virtual GObject* clone_() const final;
+	 /** @brief Loads the data of another GParaboloidIndividual2D */
+	 virtual void load_(const GObject*) final;
 
-	/** @brief The actual fitness calculation takes place here. */
-	virtual double fitnessCalculation() final;
+	 /** @brief The actual fitness calculation takes place here. */
+	 virtual double fitnessCalculation() final;
 
 private:
-	/** @brief Make the class accessible to Boost.Serialization */
-	friend class boost::serialization::access;
+	 /** @brief Creates a deep clone of this object */
+	 virtual GObject* clone_() const final;
 
-	/**************************************************************/
-	/**
-	 * This function triggers serialization of this class and its
-	 * base classes.
-	 */
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
-		using boost::serialization::make_nvp;
-		// Serialize the base class
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-		// Add other variables here like this:
-		// ar & BOOST_SERIALIZATION_NVP(sampleVariable);
-	}
-	/**************************************************************/
-
-	const double PAR_MIN_;
-	const double PAR_MAX_;
+	 const double PAR_MIN_;
+	 const double PAR_MAX_;
 };
 
 /******************************************************************/
