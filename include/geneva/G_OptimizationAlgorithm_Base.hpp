@@ -184,7 +184,6 @@ private:
 		 ar
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
 		 & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>>(*this))
-		 & make_nvp("G_Interface_Optimizer", boost::serialization::base_object<G_Interface_Optimizer>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_iteration)
 		 & BOOST_SERIALIZATION_NVP(m_offset)
 		 & BOOST_SERIALIZATION_NVP(m_maxIteration)

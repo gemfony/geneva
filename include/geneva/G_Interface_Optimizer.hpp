@@ -59,16 +59,6 @@ namespace Geneva {
  * algorithms.
  */
 class G_Interface_Optimizer {
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
-
-	 template<typename Archive>
-	 void serialize(Archive &, const unsigned int){
-		 using boost::serialization::make_nvp;
-		 /* nothing */
-	 }
-	 ///////////////////////////////////////////////////////////////////////
-
 public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA G_Interface_Optimizer() = default;
@@ -245,7 +235,7 @@ protected:
 	 /***************************************************************************/
 
 private:
-	std::mutex m_get_best_mutex; ///< Protects access to the best individual of an iteration
+	 std::mutex m_get_best_mutex; ///< Protects access to the best individual of an iteration
 };
 
 /******************************************************************************/
