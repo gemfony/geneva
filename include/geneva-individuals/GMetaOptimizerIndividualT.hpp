@@ -859,16 +859,6 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Creates a deep clone of this object
-	  *
-	  * @return A deep clone of this object, camouflaged as a GObject
-	  */
-	 virtual GObject *clone_() const final {
-		 return new GMetaOptimizerIndividualT<ind_type>(*this);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * The actual value calculation takes place here
 	  *
 	  * @param The id of the target function (ignored here)
@@ -1070,9 +1060,19 @@ protected:
 		 return std::string();
 	 }
 
+private:
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object
+	  *
+	  * @return A deep clone of this object, camouflaged as a GObject
+	  */
+	 virtual GObject *clone_() const final {
+		 return new GMetaOptimizerIndividualT<ind_type>(*this);
+	 }
+
 	 /***************************************************************************/
 
-private:
 	 std::size_t nRunsPerOptimization_; ///< The number of runs performed for each (sub-)optimization
 	 double fitnessTarget_; ///< The quality target to be reached by
 	 std::uint32_t iterationThreshold_; ///< The maximum allowed number of iterations
@@ -1896,6 +1896,7 @@ protected:
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_sigmaSigmaPlotter, m_sigmaSigmaPlotter);
 	 }
 
+private:
 	 /***************************************************************************/
 	 /**
 		* Creates a deep clone of this object
@@ -1906,7 +1907,6 @@ protected:
 		 return new GOptOptMonitorT<ind_type>(*this);
 	 }
 
-private:
 	 /***************************************************************************/
 
 	 GOptOptMonitorT() : m_gpd("empty", 1, 1) { /* empty */ }; ///< Default constructor; Intentionally private (only needed for serialization)

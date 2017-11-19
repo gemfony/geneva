@@ -150,15 +150,15 @@ public:
 protected:
 	 /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
 	 G_API_INDIVIDUALS virtual void load_(const GObject*) final;
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS GObject* clone_() const final;
-
 	 /** @brief The actual adaption operations */
 	 virtual G_API_INDIVIDUALS std::size_t customAdaptions() final;
 	 /** @brief The actual fitness calculation takes place here */
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
 private:
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_INDIVIDUALS GObject* clone_() const final;
+
 	 double m_fixedSleepTime; ///< The amount of time the evaluation function should sleep before continuing (seconds)
 
 	 bool m_mayCrash = false; ///< Indicates whether the fitness function may throw at the end of the sleep time

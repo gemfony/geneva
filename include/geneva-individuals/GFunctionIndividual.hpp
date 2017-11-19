@@ -423,15 +423,16 @@ protected:
 	 /** @brief Loads the data of another GFunctionIndividual */
 	 virtual G_API_INDIVIDUALS void load_(const GObject *) final;
 
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS GObject *clone_() const final;
-
 	 /** @brief The actual value calculation takes place here */
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
 	 /***************************************************************************/
 
 private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_INDIVIDUALS GObject *clone_() const final;
+
 	 solverFunction demoFunction_; ///< Specifies which demo function should be used
 };
 
@@ -728,10 +729,10 @@ protected:
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 virtual G_API_INDIVIDUALS void load_(const GObject *);
 
+private:
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_INDIVIDUALS GObject *clone_() const;
 
-private:
 	 double C_; ///< The constant that should not be exceeded by the sum of parameters
 };
 
@@ -791,10 +792,10 @@ protected:
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 virtual G_API_INDIVIDUALS void load_(const GObject *);
 
+private:
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_INDIVIDUALS GObject *clone_() const;
 
-private:
 	 double C_; ///< The constant that should not be exceeded by the sum of parameters
 	 double gap_; ///< A tolerance around C_ that is still considered to be valid
 };
@@ -853,10 +854,10 @@ protected:
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 virtual G_API_INDIVIDUALS void load_(const GObject *);
 
+private:
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_INDIVIDUALS GObject *clone_() const;
 
-private:
 	 /** @brief The diameter of the sphere */
 	 double diameter_;
 };

@@ -737,14 +737,6 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Creates a deep clone of this object.
-	  */
-	 virtual GBaseExecutorT<processable_type>* clone_() const override {
-		 return new GSerialExecutorT<processable_type>(*this);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Submits a single work item. In the case of serial execution, all work
 	  * is done inside of this function. We rely on the process() function which
 	  * is guaranteed to be part of the processable_type interface (note that
@@ -809,6 +801,17 @@ protected:
 			 return false;
 		 }
 	 }
+
+private:
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object.
+	  */
+	 virtual GBaseExecutorT<processable_type>* clone_() const override {
+		 return new GSerialExecutorT<processable_type>(*this);
+	 }
+
+	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -1068,15 +1071,6 @@ protected:
 		 m_n_threads = p_load->m_n_threads;
 	 }
 
-
-	 /***************************************************************************/
-	 /**
-	  * Creates a deep clone of this object.
-	  */
-	 virtual GBaseExecutorT<processable_type>* clone_() const override {
-		 return new GMTExecutorT<processable_type>(*this);
-	 }
-
 	 /***************************************************************************/
 	 /**
 	  * Allow to perform necessary setup work for an iteration.
@@ -1240,6 +1234,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object.
+	  */
+	 virtual GBaseExecutorT<processable_type>* clone_() const override {
+		 return new GMTExecutorT<processable_type>(*this);
+	 }
+
 	 /***************************************************************************/
 
 	 std::uint16_t m_n_threads; ///< The number of threads
@@ -1615,14 +1617,6 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Creates a deep clone of this object.
-	  */
-	 virtual GBaseExecutorT<processable_type>* clone_() const override {
-		 return new GBrokerExecutorT<processable_type>(*this);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to perform necessary setup work for an iteration
 	  */
 	 virtual void iterationInit(
@@ -1710,6 +1704,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object.
+	  */
+	 virtual GBaseExecutorT<processable_type>* clone_() const override {
+		 return new GBrokerExecutorT<processable_type>(*this);
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Retrieves an item from the broker, waiting indefinitely for returns

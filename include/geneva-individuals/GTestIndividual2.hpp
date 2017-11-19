@@ -73,11 +73,11 @@ namespace Tests {
  * The types of objects to be tested in this class
  */
 enum class PERFOBJECTTYPE : Gem::Common::ENUMBASETYPE {
-	PERFGDOUBLEOBJECT = 0,
-	PERFGCONSTRDOUBLEOBJECT = 1,
-	PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 2,
-	PERFGDOUBLECOLLECTION = 3,
-	PERFGCONSTRAINEDDOUBLECOLLECTION = 4
+	 PERFGDOUBLEOBJECT = 0,
+	 PERFGCONSTRDOUBLEOBJECT = 1,
+	 PERFGCONSTRAINEDDOUBLEOBJECTCOLLECTION = 2,
+	 PERFGDOUBLECOLLECTION = 3,
+	 PERFGCONSTRAINEDDOUBLECOLLECTION = 4
 };
 
 const PERFOBJECTTYPE POTMIN = PERFOBJECTTYPE::PERFGDOUBLEOBJECT;
@@ -97,65 +97,65 @@ G_API_INDIVIDUALS std::istream &operator>>(std::istream &, Gem::Tests::PERFOBJEC
  * weakening data protection.
  */
 class GTestIndividual2 : public Gem::Geneva::GParameterSet {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive &ar, const unsigned int) {
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive &ar, const unsigned int) {
+		 using boost::serialization::make_nvp;
 
-		ar
-			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The default constructor */
-	G_API_INDIVIDUALS GTestIndividual2(const std::size_t &, const PERFOBJECTTYPE &);
-	/** @brief The copy constructor */
-	G_API_INDIVIDUALS GTestIndividual2(const GTestIndividual2 &);
+	 /** @brief The default constructor */
+	 G_API_INDIVIDUALS GTestIndividual2(const std::size_t &, const PERFOBJECTTYPE &);
+	 /** @brief The copy constructor */
+	 G_API_INDIVIDUALS GTestIndividual2(const GTestIndividual2 &);
 
-	/** @brief The standard destructor */
-	virtual G_API_INDIVIDUALS ~GTestIndividual2();
+	 /** @brief The standard destructor */
+	 virtual G_API_INDIVIDUALS ~GTestIndividual2();
 
-	/** @brief A standard assignment operator */
-	G_API_INDIVIDUALS const GTestIndividual2 &operator=(const GTestIndividual2 &);
+	 /** @brief A standard assignment operator */
+	 G_API_INDIVIDUALS const GTestIndividual2 &operator=(const GTestIndividual2 &);
 
-	/** @brief Checks for equality with another GTestIndividual2 object */
-	G_API_INDIVIDUALS bool operator==(const GTestIndividual2 &cp) const;
-	/** @brief Checks for inequality with another GTestIndividual2 object */
-	G_API_INDIVIDUALS bool operator!=(const GTestIndividual2 &cp) const;
+	 /** @brief Checks for equality with another GTestIndividual2 object */
+	 G_API_INDIVIDUALS bool operator==(const GTestIndividual2 &cp) const;
+	 /** @brief Checks for inequality with another GTestIndividual2 object */
+	 G_API_INDIVIDUALS bool operator!=(const GTestIndividual2 &cp) const;
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_INDIVIDUALS void compare(
-		const GObject & // the other object
-		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		, const double & // the limit for allowed deviations of floating point types
-	) const final;
+	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
+	 virtual G_API_INDIVIDUALS void compare(
+		 const GObject & // the other object
+		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		 , const double & // the limit for allowed deviations of floating point types
+	 ) const final;
 
 protected:
-	/** @brief Loads the data of another GTestIndividual2 */
-	virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+	 /** @brief Loads the data of another GTestIndividual2 */
+	 virtual G_API_INDIVIDUALS void load_(const GObject *) final;
 
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_INDIVIDUALS GObject *clone_() const final;
-
-	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API_INDIVIDUALS double fitnessCalculation() final;
+	 /** @brief The actual fitness calculation takes place here. */
+	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
 private:
-	/** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
-	GTestIndividual2();
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_INDIVIDUALS GObject *clone_() const final;
+
+	 /** @brief The default constructor -- protected, as it is only needed for (de-)serialization purposes */
+	 GTestIndividual2();
 
 public:
-	/** @brief Applies modifications to this object. */
-	virtual G_API_INDIVIDUALS bool modify_GUnitTests();
+	 /** @brief Applies modifications to this object. */
+	 virtual G_API_INDIVIDUALS bool modify_GUnitTests();
 
-	/** @brief Performs self tests that are expected to succeed. */
-	virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests();
+	 /** @brief Performs self tests that are expected to succeed. */
+	 virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests();
 
-	/** @brief Performs self tests that are expected to fail. */
-	virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests();
+	 /** @brief Performs self tests that are expected to fail. */
+	 virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/
