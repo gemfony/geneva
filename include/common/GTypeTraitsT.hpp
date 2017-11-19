@@ -67,7 +67,7 @@ namespace Common {
 /******************************************************************************/
 // This simple class is used to simplify detection of classes that have the common
 // interface of Gemfony libraries.
-class gemfony_common_interface {};
+class gemfony_common_interface_indicator {};
 
 /**
  * A type trait helping to check whether a class has the Gemfony Scientific library
@@ -77,7 +77,7 @@ class gemfony_common_interface {};
 template<typename T>
 struct has_gemfony_common_interface {
 	enum {
-		value = std::is_base_of<gemfony_common_interface, T>::value
+		value = std::is_base_of<gemfony_common_interface_indicator, T>::value
 	};
 };
 

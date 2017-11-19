@@ -90,7 +90,7 @@ class GCommonInterfaceT
 	 // The problem here is that GCommonInterfaceT<g_class_type> is usually the base class of g_class_type and thus an incomplete
 	 // type at the time type traits are applied. Hence we use another (trivial) base class that simplifies
 	 // detection.
-	: private gemfony_common_interface
+	: private gemfony_common_interface_indicator
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
