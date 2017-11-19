@@ -155,14 +155,14 @@ private:
 	*/
 	void processItems() {
 		try {
-			std::shared_ptr <processable_type> p;
+			std::shared_ptr<processable_type> p;
 			std::chrono::milliseconds timeout(200);
 
 			while (true) {
 				// Have we been asked to stop ?
 				if (GBaseConsumerT<processable_type>::stopped()) break;
 
-				// If we didn't get a valid item, start again with the while loop
+				// If we didn't get a (valid) item, start again with the while loop
 				if (!m_broker_ptr->get(p, timeout)) {
 					continue;
 				}
@@ -178,21 +178,47 @@ private:
 				}
 #endif /* DEBUG */
 
-				// Do the actual work
-				p->process();
+				// Do the actual work. We check for processing exceptions here. When
+				// found, processing will continue, but we make the user aware of the
+				// fact in a warning. Decisions on the fate of the work item should be
+				// taken by the recipient of the work item.
+				try {
+					p->process();
+				} catch(const g_processing_exception& e) {
+					glogger
+						<< "The work item has flagged a processing exception with the message" << std::endl
+					   << e << std::endl
+					   << "GSerialConsumerT will continue with other work items. It is up to" << std::endl
+					   << "the recipient of the work item to decide on the fate of the work item" << std::endl
+						<< GWARNING;
+				}
 
 				// Return the item to the broker. The item will be discarded
 				// if the requested target queue cannot be found.
 				try {
 					while (!m_broker_ptr->put(p, timeout)) { // Items can get lost here
 						// Terminate if we have been asked to stop
-						if (GBaseConsumerT<processable_type>::stopped()) break;
+						if (GBaseConsumerT<processable_type>::stopped()) {
+							glogger
+								<< "In GSerialConsimerT::processItems():" << std::endl
+								<< "The consumer has been instructed to stop." << std::endl
+							   << "The current item will be discarded" << std::endl
+							   << GWARNING;
+
+							break;
+						}
 					}
 				} catch (Gem::Courtier::buffer_not_present &) {
+					glogger
+						<< "In GSerialConsimerT::processItems():" << std::endl
+						<< "Target buffer could not be found. The item" << std::endl
+						<< "will be discarded" << std::endl
+						<< GWARNING;
+
 					continue;
 				}
 			}
-		} catch(gemfony_exception& e) {
+		} catch(gemfony_exception& e) { // Exceptions caught here will terminate the loop
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSerialConsumerT::processItems(): Caught gemfony_exception with message"

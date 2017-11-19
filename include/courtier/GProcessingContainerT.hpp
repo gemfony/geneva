@@ -78,6 +78,10 @@ namespace Gem {
 namespace Courtier {
 
 /******************************************************************************/
+// An exception to be thrown if an exception was thrown during processing
+class g_processing_exception : public gemfony_exception { using gemfony_exception::gemfony_exception; };
+
+/******************************************************************************/
 /**
  * This class can serve as a base class for items to be submitted through the broker. You need to
  * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
@@ -141,10 +145,10 @@ public:
 			, m_bufferport_id(cp.m_bufferport_id)
 			, m_preProcessingDisabled(cp.m_preProcessingDisabled)
 			, m_postProcessingDisabled(cp.m_postProcessingDisabled)
-	 	   , m_processing_was_successful(cp.m_processing_was_successful)
-	 	   , m_stored_result(cp.m_stored_result)
-	 	   , m_stored_exceptions(cp.m_stored_exceptions)
-	 	   , m_has_exceptions(cp.m_has_exceptions)
+			, m_processing_was_successful(cp.m_processing_was_successful)
+			, m_stored_result(cp.m_stored_result)
+			, m_stored_exceptions(cp.m_stored_exceptions)
+			, m_has_exceptions(cp.m_has_exceptions)
 	 {
 		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -225,7 +229,7 @@ public:
 			 m_processing_was_successful = false;
 			 m_stored_exceptions = exceptions_stream.str();
 
-			 throw gemfony_exception(
+			 throw g_processing_exception( // Note: this is a specific exception to flag errors during processing
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << exceptions_stream.str()
 			 );
@@ -467,6 +471,21 @@ protected:
 
 	 /** @brief Allows derived classes to give an indication of the processing result (if any); may not throw. */
 	 virtual G_API_COURTIER result_type get_processing_result() const noexcept BASE = 0;
+
+	 /***************************************************************************/
+	 /**
+	  * This function allows derived classes to specify custom error conditions by
+	  * setting their own exception messages. The function will also set the internal
+	  * flags that indicate than an error has occurred and that processing was not
+	  * successful.
+	  */
+	 void force_set_error(
+		 const std::string& error_info
+	 ) {
+		 m_stored_exceptions = error_info;
+		 m_has_exceptions = true;
+		 m_processing_was_successful = false;
+	 }
 
 private:
 	 /***************************************************************************/
