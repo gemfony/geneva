@@ -270,15 +270,6 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Creates a deep copy of this object. Purely virtual as this class
-	 * should not be instantiable.
-	 *
-	 * @return A pointer to a deep clone of this object
-	 */
-	virtual GObject *clone_() const override = 0;
-
-	/***************************************************************************/
-	/**
 	 * Triggers random initialization of the parameter
 	 */
 	virtual bool randomInit_(
@@ -298,6 +289,17 @@ protected:
 	 * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+private:
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep copy of this object. Purely virtual as this class
+	  * should not be instantiable.
+	  *
+	  * @return A pointer to a deep clone of this object
+	  */
+	 virtual GObject *clone_() const override = 0;
+
 
 public:
 

@@ -117,11 +117,14 @@ public:
 protected:
 	/** @brief Loads the data of another GTestIndividual1 */
 	virtual G_API_GENEVA void load_(const GObject*) final;
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const final;
 
 	/** @brief The actual fitness calculation takes place here. */
 	virtual G_API_GENEVA double fitnessCalculation() final;
+
+private:
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA GObject* clone_() const final;
+
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes

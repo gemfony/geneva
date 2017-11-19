@@ -248,11 +248,11 @@ protected:
 		m_allowed_mnemonics = p_load->m_allowed_mnemonics;
 	}
 
+private:
 	/**************************************************************************/
 	/** @brief Creates a deep clone of this object; purely virtual */
 	virtual Gem::Common::GSerializableFunctionObjectT<base_type> * clone_() const override = 0;
 
-private:
 	/**************************************************************************/
 	// Data
 

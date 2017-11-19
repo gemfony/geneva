@@ -245,10 +245,6 @@ protected:
 	}
 
 	/***************************************************************************/
-	/** @brief Creates a deep clone of this object. Purely virtual, needs to be defined by derived classes */
-	virtual GObject* clone_() const override = 0;
-
-	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter collection. Note that this
 	 * function assumes that the collection has been completely set up. Data
@@ -274,6 +270,11 @@ protected:
 	 * Tested in GIntNumCollectionT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object. Purely virtual, needs to be defined by derived classes */
+	 virtual GObject* clone_() const override = 0;
 
 public:
 	/***************************************************************************/

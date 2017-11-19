@@ -215,10 +215,6 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief This function creates a deep copy of this object */
-	 virtual GObject *clone_() const override = 0;
-
-	 /***************************************************************************/
 	 /**
 	  * The actual adaption of the supplied value takes place here
 	  *
@@ -265,6 +261,11 @@ protected:
 			 );
 		 }
 	 }
+
+private:
+	 /***************************************************************************/
+	 /** @brief This function creates a deep copy of this object */
+	 virtual GObject *clone_() const override = 0;
 
 public:
 	 /***************************************************************************/

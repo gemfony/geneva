@@ -769,10 +769,6 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief This function creates a deep copy of this object */
-	 virtual GObject *clone_() const override = 0;
-
-	 /***************************************************************************/
 	 /**
 	  * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	  * algorithm to adapt to changing geometries of the quality surface.
@@ -811,6 +807,11 @@ protected:
 		 , const num_type&
 		 , Gem::Hap::GRandomBase& gr
 	 ) override = 0;
+
+private:
+	 /***************************************************************************/
+	 /** @brief This function creates a deep copy of this object */
+	 virtual GObject *clone_() const override = 0;
 
 public:
 	 /***************************************************************************/

@@ -228,6 +228,7 @@ protected:
 		// no local data
 	}
 
+private:
 	/***************************************************************************/
 	/**
 	 * This function creates a deep copy of this object. The function is purely virtual, as we

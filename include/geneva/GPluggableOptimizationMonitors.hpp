@@ -127,6 +127,8 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another object */
 	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+
+private:
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_GENEVA  GObject* clone_() const override;
 
@@ -230,10 +232,12 @@ protected:
 	 /************************************************************************/
 	 /** @brief Loads the data of another object */
 	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+
+private:
+	 /************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_GENEVA  GObject* clone_() const override;
 
-private:
 	 /************************************************************************/
 
 	 std::uint32_t m_xDim = DEFAULTXDIMOM; ///< The dimension of the canvas in x-direction
@@ -329,12 +333,15 @@ public:
 	 ) const override;
 
 protected:
+	 /***************************************************************************/
 	 /** @brief Loads the data of another object */
 	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+
+private:
+	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_GENEVA  GObject* clone_() const override;
 
-private:
 	 std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM>> m_pluggable_monitors; ///< The collection of monitors
 
 public:
@@ -1036,6 +1043,7 @@ protected:
 		 m_addPrintCommand = p_load->m_addPrintCommand;
 	 }
 
+private:
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
@@ -1044,7 +1052,8 @@ protected:
 		 return new GProgressPlotterT<fp_type>(*this);
 	 }
 
-private:
+	 /************************************************************************/
+
 	 std::vector<parPropSpec<fp_type>> m_fp_profVarVec; ///< Holds information about variables to be profiled
 
 	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
@@ -1257,11 +1266,12 @@ protected:
 
 	 /** @brief Loads the data of another object */
 	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
+
 
 private:
 	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA  GObject* clone_() const override;
 
 	 /** @brief Does the actual printing */
 	 G_API_GENEVA void printPopulation(
@@ -1376,11 +1386,11 @@ protected:
 
 	 /** @brief Loads the data of another object */
 	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
 
 private:
 	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA  GObject* clone_() const override;
 
 	 std::string m_fileName = "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
 	 bool m_withCommas = true; ///< When set to true, commas will be printed in-between values
@@ -1493,11 +1503,11 @@ protected:
 
 	 /** @brief Loads the data of another object */
 	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
 
 private:
 	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA  GObject* clone_() const override;
 
 	 std::string m_fileName = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
@@ -1995,6 +2005,7 @@ protected:
 		 m_adaptorPropertyStore = p_load->m_adaptorPropertyStore;
 	 }
 
+private:
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
@@ -2003,8 +2014,7 @@ protected:
 		 return new GAdaptorPropertyLoggerT<num_type>(*this);
 	 }
 
-private:
-	 /***************************************************************************/
+	 /************************************************************************/
 
 	 std::string m_fileName = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
@@ -2218,11 +2228,13 @@ protected:
 
 	 /** @brief Loads the data of another object */
 	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+
+private:
+	 /************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_GENEVA  GObject* clone_() const override;
 
-private:
-	 /***************************************************************************/
+	 /************************************************************************/
 
 	 std::string m_fileName_pth = "processingTimingsHist.C"; ///< The name of the file to which timings should be written in ROOT format
 	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions_pth; ///< The dimensions of the canvas

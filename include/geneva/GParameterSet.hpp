@@ -588,8 +588,6 @@ protected:
 
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA virtual void load_(const GObject*) override;
-	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA virtual GObject* clone_() const override;
 
 	 /** @brief The actual fitness calculation takes place here */
 	 virtual G_API_GENEVA double fitnessCalculation() override ;
@@ -598,6 +596,9 @@ protected:
 
 private:
 	 explicit G_API_GENEVA GParameterSet(const float&) = delete; ///< Intentionally private and undefined
+
+	 /** @brief Creates a deep clone of this object */
+	 G_API_GENEVA virtual GObject* clone_() const override;
 
 	 /** @brief Uniformly distributed integer random numbers */
 	 std::uniform_int_distribution<std::size_t> m_uniform_int;

@@ -157,8 +157,6 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject */
 	 virtual G_API_GENEVA void load_(const GObject *cp) override;
-	 /** @brief Creates a deep copy of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Some error checks related to population sizes */
 	 virtual G_API_GENEVA void populationSanityChecks() const override;
@@ -187,6 +185,9 @@ protected:
 	 virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 private:
+	 /** @brief Creates a deep copy of this object */
+	 virtual G_API_GENEVA GObject *clone_() const override;
+
 	 /** @brief Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU mode). */
 	 G_API_GENEVA void sortMuPlusNuParetoMode();
 	 /** @brief Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU mode). */

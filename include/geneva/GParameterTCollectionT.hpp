@@ -344,13 +344,6 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Declared purely virtual, as this class is not
-	 * intended to be used directly.
-	 */
-	virtual GObject* clone_() const override = 0;
-
-	/***************************************************************************/
-	/**
 	 * Re-implementation of a corresponding function in GStdPtrVectorInterface.
 	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
@@ -1228,6 +1221,14 @@ protected:
 			(*it)->template subtract<std::int32_t>(*p_it, am);
 		}
 	}
+
+private:
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object. Declared purely virtual, as this class is not
+	  * intended to be used directly.
+	  */
+	 virtual GObject* clone_() const override = 0;
 
 public:
 	/***************************************************************************/
