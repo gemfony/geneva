@@ -167,7 +167,7 @@ public:
 			 m_tasksInFlight++;
 		 }
 
-		 using result_type = std::result_of_t<F(Args&&...)>;
+		 using result_type = typename std::result_of_t<F(Args&&...)>;
 		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
 		 std::future<result_type> result = promise_ptr->get_future();
 
@@ -293,7 +293,7 @@ public:
 			 m_tasksInFlight++;
 		 }
 
-		 using result_type = std::result_of_t<F(Args&&...)>;
+		 using result_type = typename std::result_of_t<F(Args&&...)>;
 		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
 		 std::future<result_type> result = promise_ptr->get_future();
 

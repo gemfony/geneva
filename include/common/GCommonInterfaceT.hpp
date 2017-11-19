@@ -499,8 +499,15 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another g_class_type */
 	 virtual G_API_COMMON void load_(const g_class_type*) BASE = 0;
+
+	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_COMMON g_class_type* clone_() const BASE = 0;
+
+private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 // virtual G_API_COMMON g_class_type* clone_() const BASE = 0;
 };
 
 /******************************************************************************/

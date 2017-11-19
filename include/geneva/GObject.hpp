@@ -118,7 +118,7 @@ namespace Geneva {
  * std::shared_ptr<GObject>, hence this class has a very central role.
  */
 class GObject
-	:public Gem::Common::GCommonInterfaceT<GObject>
+	: public Gem::Common::GCommonInterfaceT<GObject>
 {
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -134,9 +134,9 @@ class GObject
 
 public:
 	/** @brief The default constructor */
-	G_API_GENEVA GObject() ;
+	G_API_GENEVA GObject();
 	/** @brief The copy constructor */
-	G_API_GENEVA GObject(const GObject& cp) ;
+	G_API_GENEVA GObject(const GObject& cp);
 	/** @brief The destructor */
 	virtual G_API_GENEVA ~GObject();
 
