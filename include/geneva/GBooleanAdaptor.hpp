@@ -113,14 +113,17 @@ public:
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual G_API_GENEVA void load_(const GObject*) override;
-	/** @brief Creates a deep clone of this object. */
-	virtual G_API_GENEVA GObject* clone_() const override;
+
 	/** @brief Flip the value up or down by 1, depending on a random number */
 	virtual G_API_GENEVA void customAdaptions(
 		bool&
 		, const bool&
 		, Gem::Hap::GRandomBase&
 	) override;
+
+private:
+	 /** @brief Creates a deep clone of this object. */
+	 virtual G_API_GENEVA GObject* clone_() const override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

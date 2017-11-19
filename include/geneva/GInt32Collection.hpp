@@ -111,8 +111,6 @@ public:
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual G_API_GENEVA void load_(const GObject* cp) override;
-	/** @brief Creates a deep clone of this object. */
-	virtual G_API_GENEVA GObject* clone_() const override;
 
 	/** @brief Attach our local values to the vector. */
 	virtual G_API_GENEVA void int32Streamline(std::vector<std::int32_t>&, const activityMode& am) const override;
@@ -144,6 +142,10 @@ protected:
 	 virtual G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
 	 virtual G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+
+private:
+	 /** @brief Creates a deep clone of this object. */
+	 virtual G_API_GENEVA GObject* clone_() const override;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

@@ -128,8 +128,6 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another population */
 	 virtual G_API_GENEVA void load_(const GObject *) override;
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
 	 virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
@@ -149,8 +147,9 @@ protected:
 
 private:
 	 /***************************************************************************/
-	 // ...
-
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA GObject *clone_() const override;
+	 
 public
 	 /***************************************************************************/:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */

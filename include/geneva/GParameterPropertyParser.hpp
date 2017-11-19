@@ -262,6 +262,7 @@ protected:
 		nSteps        = p_load->nSteps;
 	}
 
+private:
 	/************************************************************************/
 	/**
 	 * Creates a deep clone of this object

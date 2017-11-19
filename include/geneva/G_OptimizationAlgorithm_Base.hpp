@@ -135,13 +135,15 @@ protected:
 	 /************************************************************************/
 	 /** @brief Loads the data of another object */
 	 virtual G_API_GENEVA void load_(const GObject* cp) override;
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 	 /***************************************************************************/
 	 // Data
 
 	 bool m_useRawEvaluation = false; ///< Specifies whether the true (unmodified) evaluation should be used
+
+private:
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA GObject* clone_() const override = 0;
 
 public:
 	 /************************************************************************/
@@ -489,9 +491,6 @@ protected:
 	 /** @brief Re-implementation of a corresponding function in GStdPtrVectorInterface */
 	 virtual G_API_GENEVA void dummyFunction() override;
 
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject* clone_() const override = 0;
-
 	 /** @brief Saves the state of the class to disc */
 	 virtual G_API_GENEVA void saveCheckpoint(bf::path outputFile) const;
 
@@ -566,6 +565,10 @@ protected:
 
 private:
 	 /***************************************************************************/
+
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA GObject* clone_() const override = 0;
+
 	 /** @brief Update the stall counter. */
 	 G_API_GENEVA void updateStallCounter(const std::tuple<double, double>& bestEval);
 

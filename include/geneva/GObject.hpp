@@ -120,101 +120,103 @@ namespace Geneva {
 class GObject
 	: public Gem::Common::GCommonInterfaceT<GObject>
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive &ar, const unsigned int)  {
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive &ar, const unsigned int)  {
+		 using boost::serialization::make_nvp;
 
-		ar
-		& make_nvp("GCommonInterfaceT_GObject", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GObject>>(*this));
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar
+		 & make_nvp("GCommonInterfaceT_GObject", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GObject>>(*this));
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The default constructor */
-	G_API_GENEVA GObject();
-	/** @brief The copy constructor */
-	G_API_GENEVA GObject(const GObject& cp);
-	/** @brief The destructor */
-	virtual G_API_GENEVA ~GObject();
+	 /** @brief The default constructor */
+	 G_API_GENEVA GObject();
+	 /** @brief The copy constructor */
+	 G_API_GENEVA GObject(const GObject& cp);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~GObject();
 
-	/** @brief Allows derived classes to assign other class'es values */
-	G_API_GENEVA const GObject& operator=(const GObject&);
+	 /** @brief Allows derived classes to assign other class'es values */
+	 G_API_GENEVA const GObject& operator=(const GObject&);
 
-	/** @brief Checks for equality with another GObject object */
-	virtual G_API_GENEVA bool operator==(const GObject&) const;
-	/** @brief Checks for inequality with another GObject object */
-	virtual G_API_GENEVA bool operator!=(const GObject&) const;
+	 /** @brief Checks for equality with another GObject object */
+	 virtual G_API_GENEVA bool operator==(const GObject&) const;
+	 /** @brief Checks for inequality with another GObject object */
+	 virtual G_API_GENEVA bool operator!=(const GObject&) const;
 
-	/** @brief Writes a configuration file to disk */
-	G_API_GENEVA void writeConfigFile(const std::string&, const std::string&);
-	/** @brief Reads a configuration file from disk */
-	G_API_GENEVA void readConfigFile(const std::string&);
+	 /** @brief Writes a configuration file to disk */
+	 G_API_GENEVA void writeConfigFile(const std::string&, const std::string&);
+	 /** @brief Reads a configuration file from disk */
+	 G_API_GENEVA void readConfigFile(const std::string&);
 
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
-	/***************************************************************************/
-	/**
-	 * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent
-	 */
-	static G_API_GENEVA bool G_SIGHUP_SENT() {
-		return (1==GObject::GenevaSigHupSent);
-	}
+	 /***************************************************************************/
+	 /**
+	  * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent
+	  */
+	 static G_API_GENEVA bool G_SIGHUP_SENT() {
+		 return (1==GObject::GenevaSigHupSent);
+	 }
 
-	/***************************************************************************/
-	/**
-	 * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function should work
-	 * both for Windows and Unix-Systems.
-	 */
-	static G_API_GENEVA void sigHupHandler(int signum) {
-		if(G_SIGHUP == signum) {
-			GObject::GenevaSigHupSent = 1;
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function should work
+	  * both for Windows and Unix-Systems.
+	  */
+	 static G_API_GENEVA void sigHupHandler(int signum) {
+		 if(G_SIGHUP == signum) {
+			 GObject::GenevaSigHupSent = 1;
+		 }
+	 }
 
-	/** @brief Emits a name for this class / object */
-	virtual G_API_GENEVA std::string name() const override;
+	 /** @brief Emits a name for this class / object */
+	 virtual G_API_GENEVA std::string name() const override;
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA void compare(
-		const GObject& // the other object
-		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		, const double& // the limit for allowed deviations of floating point types
-	) const override;
+	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
+	 virtual G_API_GENEVA void compare(
+		 const GObject& // the other object
+		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		 , const double& // the limit for allowed deviations of floating point types
+	 ) const override;
 
-	/** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
-		const GObject&
-		, const Gem::Common::expectation&
-		, const double&
-		, const std::string&
-		, const std::string&
-		, const bool&
-	) const;
+	 /** @brief Checks whether this object fulfills a given expectation in relation to another object */
+	 virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
+		 const GObject&
+		 , const Gem::Common::expectation&
+		 , const double&
+		 , const std::string&
+		 , const std::string&
+		 , const bool&
+	 ) const;
 
 protected:
-	/***************************************************************************/
-	/** @brief Loads the data of another GObject */
-	virtual G_API_GENEVA void load_(const GObject*) override;
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const override = 0;
+	 /***************************************************************************/
+	 /** @brief Loads the data of another GObject */
+	 virtual G_API_GENEVA void load_(const GObject*) override;
 
 private:
-	// Needed to allow interruption of the optimization run without loss of data
-	// Npte that "volatile" is needed in order for the signal handler to work
-	static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA GObject* clone_() const override = 0;
+
+	 // Needed to allow interruption of the optimization run without loss of data
+	 // Npte that "volatile" is needed in order for the signal handler to work
+	 static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
 
 public:
-	/***************************************************************************/
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API_GENEVA bool modify_GUnitTests();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests();
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
+	 /***************************************************************************/
+	 /** @brief Applies modifications to this object. This is needed for testing purposes */
+	 virtual G_API_GENEVA bool modify_GUnitTests();
+	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests();
+	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/

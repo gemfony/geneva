@@ -271,8 +271,6 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another Go2 object */
 	 virtual G_API_GENEVA void load_(const GObject *) override;
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Retrieves the best individual found */
 	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
@@ -287,6 +285,10 @@ protected:
 	 virtual G_API_GENEVA void runFitnessCalculation() override;
 
 private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA GObject *clone_() const override;
+
 	 /** @brief Sets the number of random number production threads */
 	 void setNProducerThreads(const std::uint16_t&);
 

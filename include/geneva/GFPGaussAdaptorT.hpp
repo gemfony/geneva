@@ -259,10 +259,6 @@ protected:
 	}
 
 	/***************************************************************************/
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const override = 0;
-
-	/***************************************************************************/
 	/**
 	 * The actual adaption of the supplied value takes place here.
 	 *
@@ -286,6 +282,11 @@ protected:
 	 * - Tested in GNumGaussAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
 	 * ----------------------------------------------------------------------------------
 	 */
+
+private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object. */
+	 virtual GObject* clone_() const override = 0;
 
 public:
 	/***************************************************************************/

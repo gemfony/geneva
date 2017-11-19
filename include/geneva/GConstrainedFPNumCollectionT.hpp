@@ -306,10 +306,6 @@ protected:
 	}
 
 	/***************************************************************************/
-	/** @brief Creates a deep copy of this object */
-	virtual GObject *clone_() const override = 0;
-
-	/***************************************************************************/
 	/**
 	 * Triggers random initialization of the parameter collection
 	 */
@@ -337,6 +333,11 @@ protected:
 	GConstrainedFPNumCollectionT()
 		: GConstrainedNumCollectionT<fp_type> ()
 	{ /* nothing */ }
+
+private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep copy of this object */
+	 virtual GObject *clone_() const override = 0;
 
 public:
 	/***************************************************************************/

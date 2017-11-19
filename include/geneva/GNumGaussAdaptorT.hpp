@@ -563,15 +563,6 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * This function creates a deep copy of this object. Purely virtual so this class cannot
-	 * be instantiated directly.
-	 *
-	 * @return A deep copy of this object
-	 */
-	virtual GObject *clone_() const override = 0;
-
-	/***************************************************************************/
-	/**
 	 * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	 * algorithm to adapt to changing geometries of the quality surface.
 	 *
@@ -634,13 +625,23 @@ protected:
 		return true;
 	}
 
-protected: // For performance reasons, so we do not have to go through access functions
+	// "protected" for performance reasons, so we do not have to go through access functions
 	/***************************************************************************/
 	fp_type sigma_; ///< The width of the gaussian used to adapt values
 	fp_type sigma_reset_; ///< The value to which sigma_ will be reset if "updateOnStall()" is called
 	fp_type sigmaSigma_; ///< affects sigma_ adaption
 	fp_type minSigma_; ///< minimum allowed value for sigma_
 	fp_type maxSigma_; ///< maximum allowed value for sigma_
+
+private:
+	 /***************************************************************************/
+	 /**
+	  * This function creates a deep copy of this object. Purely virtual so this class cannot
+	  * be instantiated directly.
+	  *
+	  * @return A deep copy of this object
+	  */
+	 virtual GObject *clone_() const override = 0;
 
 public:
 	/***************************************************************************/

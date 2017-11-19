@@ -65,294 +65,295 @@ template <typename int_type>
 class GIntGaussAdaptorT
 	:public GNumGaussAdaptorT<int_type, double>
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
 
-		ar
-			& make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<int_type, double>>(*this));
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar
+		 & make_nvp("GNumGaussAdaptorT_int", boost::serialization::base_object<GNumGaussAdaptorT<int_type, double>>(*this));
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/***************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GIntGaussAdaptorT()
-		: GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The default constructor
+	  */
+	 GIntGaussAdaptorT()
+		 : GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA)
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The copy constructor
-	 *
-	 * @param cp A copy of another GIntGaussAdaptorT<int_type> object
-	 */
-	GIntGaussAdaptorT(const GIntGaussAdaptorT<int_type>& cp)
-		: GNumGaussAdaptorT<int_type, double>(cp)
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The copy constructor
+	  *
+	  * @param cp A copy of another GIntGaussAdaptorT<int_type> object
+	  */
+	 GIntGaussAdaptorT(const GIntGaussAdaptorT<int_type>& cp)
+		 : GNumGaussAdaptorT<int_type, double>(cp)
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Initialization with a adaption probability.  Note that we need to use a different default
-	 * value for sigma, as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA
-	 * might not be suitable for us.
-	 *
-	 * @param adProb The adaption probability
-	 */
-	explicit GIntGaussAdaptorT(const double& adProb)
-		: GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * Initialization with a adaption probability.  Note that we need to use a different default
+	  * value for sigma, as there is a "natural" gap of 1 between integers, and the DEFAULTSIGMA
+	  * might not be suitable for us.
+	  *
+	  * @param adProb The adaption probability
+	  */
+	 explicit GIntGaussAdaptorT(const double& adProb)
+		 : GNumGaussAdaptorT<int_type, double>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA, DEFAULTMAXSIGMA, adProb)
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * This constructor lets a user set all sigma parameters in one go.
-	 *
-	 * @param sigma The initial value for the sigma_ parameter
-	 * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-	 * @param minSigma The minimal value allowed for sigma_
-	 * @param maxSigma The maximal value allowed for sigma_
-	 */
-	GIntGaussAdaptorT(
-		const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
-	)
-		: GNumGaussAdaptorT<int_type, double> (sigma, sigmaSigma, minSigma, maxSigma)
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * This constructor lets a user set all sigma parameters in one go.
+	  *
+	  * @param sigma The initial value for the sigma_ parameter
+	  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
+	  * @param minSigma The minimal value allowed for sigma_
+	  * @param maxSigma The maximal value allowed for sigma_
+	  */
+	 GIntGaussAdaptorT(
+		 const double& sigma
+		 , const double& sigmaSigma
+		 , const double& minSigma
+		 , const double& maxSigma
+	 )
+		 : GNumGaussAdaptorT<int_type, double> (sigma, sigmaSigma, minSigma, maxSigma)
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * This constructor lets a user set all sigma parameters, as well as the adaption
-	 * probability in one go.
-	 *
-	 * @param sigma The initial value for the sigma_ parameter
-	 * @param sigmaSigma The initial value for the sigmaSigma_ parameter
-	 * @param minSigma The minimal value allowed for sigma_
-	 * @param maxSigma The maximal value allowed for sigma_
-	 * @param adProb The adaption probability
-	 */
-	GIntGaussAdaptorT(
-		const double& sigma
-		, const double& sigmaSigma
-		, const double& minSigma
-		, const double& maxSigma
-		, const double& adProb
-	)
-		: GNumGaussAdaptorT<int_type, double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * This constructor lets a user set all sigma parameters, as well as the adaption
+	  * probability in one go.
+	  *
+	  * @param sigma The initial value for the sigma_ parameter
+	  * @param sigmaSigma The initial value for the sigmaSigma_ parameter
+	  * @param minSigma The minimal value allowed for sigma_
+	  * @param maxSigma The maximal value allowed for sigma_
+	  * @param adProb The adaption probability
+	  */
+	 GIntGaussAdaptorT(
+		 const double& sigma
+		 , const double& sigmaSigma
+		 , const double& minSigma
+		 , const double& maxSigma
+		 , const double& adProb
+	 )
+		 : GNumGaussAdaptorT<int_type, double> (sigma, sigmaSigma, minSigma, maxSigma, adProb)
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The destructor
-	 */
-	virtual ~GIntGaussAdaptorT()
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The destructor
+	  */
+	 virtual ~GIntGaussAdaptorT()
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The standard assignment operator
-	 */
-	const GIntGaussAdaptorT<int_type>& operator=(const GIntGaussAdaptorT<int_type>& cp) {
-		this->load_(&cp);
-		return *this;
-	}
+	 /***************************************************************************/
+	 /**
+	  * The standard assignment operator
+	  */
+	 const GIntGaussAdaptorT<int_type>& operator=(const GIntGaussAdaptorT<int_type>& cp) {
+		 this->load_(&cp);
+		 return *this;
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Checks for equality with another GIntGaussAdaptorT<int_type> object
-	 *
-	 * @param  cp A constant reference to another GIntGaussAdaptorT<int_type> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GIntGaussAdaptorT<int_type>& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * Checks for equality with another GIntGaussAdaptorT<int_type> object
+	  *
+	  * @param  cp A constant reference to another GIntGaussAdaptorT<int_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 bool operator==(const GIntGaussAdaptorT<int_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Checks for inequality with another GIntGaussAdaptorT<int_type> object
-	 *
-	 * @param  cp A constant reference to another GIntGaussAdaptorT<int_type> object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GIntGaussAdaptorT<int_type>& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * Checks for inequality with another GIntGaussAdaptorT<int_type> object
+	  *
+	  * @param  cp A constant reference to another GIntGaussAdaptorT<int_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 bool operator!=(const GIntGaussAdaptorT<int_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GObject object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-	virtual void compare(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-	) const override {
-		using namespace Gem::Common;
+	 /***************************************************************************/
+	 /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  *
+	  * @param cp A constant reference to another GObject object
+	  * @param e The expected outcome of the comparison
+	  * @param limit The maximum deviation for floating point values (important for similarity checks)
+	  */
+	 virtual void compare(
+		 const GObject& cp
+		 , const Gem::Common::expectation& e
+		 , const double& limit
+	 ) const override {
+		 using namespace Gem::Common;
 
-		// Check that we are dealing with a GIntGaussAdaptorT<int_type> reference independent of this object and convert the pointer
-		const GIntGaussAdaptorT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
+		 // Check that we are dealing with a GIntGaussAdaptorT<int_type> reference independent of this object and convert the pointer
+		 const GIntGaussAdaptorT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
 
-		GToken token("GIntGaussAdaptorT<int_type>", e);
+		 GToken token("GIntGaussAdaptorT<int_type>", e);
 
-		// Compare our parent data ...
-		Gem::Common::compare_base<GNumGaussAdaptorT<int_type, double>>(IDENTITY(*this, *p_load), token);
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GNumGaussAdaptorT<int_type, double>>(IDENTITY(*this, *p_load), token);
 
-		// // ... no local data
+		 // // ... no local data
 
-		// React on deviations from the expectation
-		token.evaluate();
-	}
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
 
-	/***************************************************************************/
-	/** @brief Retrieves the id of this adaptor */
-	virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
+	 /***************************************************************************/
+	 /** @brief Retrieves the id of this adaptor */
+	 virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
-	/***************************************************************************/
-	/**
-	 * Emits a name for this class / object
-	 */
-	virtual std::string name() const override {
-		return std::string("GIntGaussAdaptorT");
-	}
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 virtual std::string name() const override {
+		 return std::string("GIntGaussAdaptorT");
+	 }
 
 protected:
-	/***************************************************************************/
-	/**
-	 * Loads the data of another GObject
-	 *
-	 * @param cp A copy of another GIntGaussAdaptorT<int_type> object, camouflaged as a GObject
-	 */
-	virtual void load_(const GObject* cp) override {
-		// Convert the pointer to our target type and check for self-assignment
-		const GIntGaussAdaptorT<int_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
+	 /***************************************************************************/
+	 /**
+	  * Loads the data of another GObject
+	  *
+	  * @param cp A copy of another GIntGaussAdaptorT<int_type> object, camouflaged as a GObject
+	  */
+	 virtual void load_(const GObject* cp) override {
+		 // Convert the pointer to our target type and check for self-assignment
+		 const GIntGaussAdaptorT<int_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
 
-		// Load our parent class'es data ...
-		GNumGaussAdaptorT<int_type, double>::load_(cp);
+		 // Load our parent class'es data ...
+		 GNumGaussAdaptorT<int_type, double>::load_(cp);
 
-		// ... no local data
-	}
+		 // ... no local data
+	 }
 
-	/***************************************************************************/
-	/** @brief Creates a deep clone of this object. */
-	virtual GObject* clone_() const override = 0;
+	 /***************************************************************************/
+	 /**
+	  * The actual adaption of the supplied value takes place here.
+	  *
+	  * @param value The value that is going to be adapted in situ
+	  * @param range A typical range for the parameter with type num_type
+	  */
+	 virtual void customAdaptions(
+		 int_type& value
+		 , const int_type& range
+		 , Gem::Hap::GRandomBase& gr
+	 ) override {
+		 using namespace Gem::Common;
+		 using namespace Gem::Hap;
 
-	/***************************************************************************/
-	/**
-	 * The actual adaption of the supplied value takes place here.
-	 *
-	 * @param value The value that is going to be adapted in situ
-	 * @param range A typical range for the parameter with type num_type
-	 */
-	virtual void customAdaptions(
-		int_type& value
-		, const int_type& range
-		, Gem::Hap::GRandomBase& gr
-	) override {
-		using namespace Gem::Common;
-		using namespace Gem::Hap;
+		 // Calculate a suitable addition to the current parameter value
+		 int_type addition = static_cast<int_type>(
+			 static_cast<double>(range)
+			 * GAdaptorT<int_type, double>::m_normal_distribution(
+				 gr
+				 , std::normal_distribution<double>::param_type(0., this->getSigma())
+			 )
+		 );
 
-		// Calculate a suitable addition to the current parameter value
-		int_type addition = static_cast<int_type>(
-				static_cast<double>(range)
-                * GAdaptorT<int_type, double>::m_normal_distribution(
-							gr
-							, std::normal_distribution<double>::param_type(0., this->getSigma())
-                )
-		);
+		 if(addition == 0) { // Enforce a minimal change of 1.
+			 bool flipDirection = GAdaptorT<int_type, double>::m_weighted_bool(gr, std::bernoulli_distribution::param_type(0.5));
+			 addition = flipDirection?1:-1;
+		 }
 
-		if(addition == 0) { // Enforce a minimal change of 1.
-			bool flipDirection = GAdaptorT<int_type, double>::m_weighted_bool(gr, std::bernoulli_distribution::param_type(0.5));
-			addition = flipDirection?1:-1;
-		}
+		 // adapt the value in situ. Note that this changes
+		 // the argument of this function
+		 value += addition;
+	 }
 
-		// adapt the value in situ. Note that this changes
-		// the argument of this function
-		value += addition;
-	}
+	 /* ----------------------------------------------------------------------------------
+	  * - Tested in GNumGaussAdaptorT<int_type, double>::specificTestsNoFailuresExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
 
-	/* ----------------------------------------------------------------------------------
-	 * - Tested in GNumGaussAdaptorT<int_type, double>::specificTestsNoFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
+private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object. */
+	 virtual GObject* clone_() const override = 0;
 
 public:
-	/***************************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	virtual bool modify_GUnitTests() override {
+	 /***************************************************************************/
+	 /**
+	  * Applies modifications to this object. This is needed for testing purposes
+	  *
+	  * @return A boolean which indicates whether modifications were made
+	  */
+	 virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
-		bool result = false;
+		 bool result = false;
 
-		// Call the parent class'es function
-		if(GNumGaussAdaptorT<int_type, double>::modify_GUnitTests()) result = true;
+		 // Call the parent class'es function
+		 if(GNumGaussAdaptorT<int_type, double>::modify_GUnitTests()) result = true;
 
-		return result;
+		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		Gem::Common::condnotset("GIntGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GIntGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
-	}
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 /***************************************************************************/
+	 /**
+	  * Performs self tests that are expected to succeed. This is needed for testing purposes
+	  */
+	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
-		// Call the parent class'es function
-		GNumGaussAdaptorT<int_type, double>::specificTestsNoFailureExpected_GUnitTests();
+		 // Call the parent class'es function
+		 GNumGaussAdaptorT<int_type, double>::specificTestsNoFailureExpected_GUnitTests();
 
-		//------------------------------------------------------------------------------
-		// nothing yet
-		//------------------------------------------------------------------------------
+		 //------------------------------------------------------------------------------
+		 // nothing yet
+		 //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
-	}
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 /***************************************************************************/
+	 /**
+	  * Performs self tests that are expected to fail. This is needed for testing purposes
+	  */
+	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
-		// Call the parent class'es function
-		GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests();
+		 // Call the parent class'es function
+		 GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
-	}
+	 }
 
-	/***************************************************************************/
+	 /***************************************************************************/
 };
 
 

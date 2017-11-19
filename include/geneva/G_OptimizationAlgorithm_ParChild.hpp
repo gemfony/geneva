@@ -221,8 +221,6 @@ public:
 
 protected:
 	 /***************************************************************************/
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override = 0;
 	 /** @brief Adapts all children of this population */
 	 virtual G_API_GENEVA void adaptChildren() = 0;
 	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
@@ -292,6 +290,12 @@ protected:
 	 double m_amalgamationLikelihood = DEFAULTAMALGAMATIONLIKELIHOOD; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
 
 private:
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 virtual G_API_GENEVA GObject *clone_() const override = 0;
+
+	 /***************************************************************************/
+
 	 std::uniform_int_distribution<std::size_t> m_uniform_int_distribution; ///< Access to uniformly distributed random numbers
 
 public:

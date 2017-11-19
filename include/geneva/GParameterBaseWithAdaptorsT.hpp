@@ -66,519 +66,522 @@ namespace Geneva {
 template <typename T>
 class GParameterBaseWithAdaptorsT:	public GParameterBase
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int) {
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int) {
+		 using boost::serialization::make_nvp;
 
-		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterBase)
-		& BOOST_SERIALIZATION_NVP(adaptor_);
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterBase)
+		 & BOOST_SERIALIZATION_NVP(adaptor_);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/***************************************************************************/
-	/**
-	 * The default constructor. adaptor_ will be initialized with the default adaptor for this
-	 * type
-	 */
-	GParameterBaseWithAdaptorsT()
-		: GParameterBase()
-		, adaptor_(Gem::Geneva::getDefaultAdaptor<T>())
-	{ /* nothing */	}
+	 /***************************************************************************/
+	 /**
+	  * The default constructor. adaptor_ will be initialized with the default adaptor for this
+	  * type
+	  */
+	 GParameterBaseWithAdaptorsT()
+		 : GParameterBase()
+			, adaptor_(Gem::Geneva::getDefaultAdaptor<T>())
+	 { /* nothing */	}
 
-	/***************************************************************************/
-	/**
-	 * The copy constructor.
-	 *
-	 * @param cp A copy of another GParameterBaseWithAdaptorsT object
-	 */
-	GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
-		: GParameterBase(cp)
-		, adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T>>())
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The copy constructor.
+	  *
+	  * @param cp A copy of another GParameterBaseWithAdaptorsT object
+	  */
+	 GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
+		 : GParameterBase(cp)
+			, adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T>>())
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The destructor. All cleanup work is done by std::shared_ptr.
-	 */
-	virtual ~GParameterBaseWithAdaptorsT()
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The destructor. All cleanup work is done by std::shared_ptr.
+	  */
+	 virtual ~GParameterBaseWithAdaptorsT()
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The standard assignment operator
-	 */
-	const GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
-		this->load_(&cp);
-		return *this;
-	}
+	 /***************************************************************************/
+	 /**
+	  * The standard assignment operator
+	  */
+	 const GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
+		 this->load_(&cp);
+		 return *this;
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
+	  *
+	  * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
-	 *
-	 * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
+	  *
+	  * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Searches for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GObject object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-	virtual void compare(
-		const GObject& cp
-		, const Gem::Common::expectation& e
-		, const double& limit
-	) const override {
-		using namespace Gem::Common;
+	 /***************************************************************************/
+	 /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  *
+	  * @param cp A constant reference to another GObject object
+	  * @param e The expected outcome of the comparison
+	  * @param limit The maximum deviation for floating point values (important for similarity checks)
+	  */
+	 virtual void compare(
+		 const GObject& cp
+		 , const Gem::Common::expectation& e
+		 , const double& limit
+	 ) const override {
+		 using namespace Gem::Common;
 
-		// Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
-		const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
+		 // Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
+		 const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
 
-		GToken token("GParameterBaseWithAdaptorsT<T>", e);
+		 GToken token("GParameterBaseWithAdaptorsT<T>", e);
 
-		// Compare our parent data ...
-		Gem::Common::compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
 
-		// We access the relevant data of one of the parent classes directly for simplicity reasons
-		compare_t(IDENTITY(adaptor_, p_load->adaptor_), token);
+		 // We access the relevant data of one of the parent classes directly for simplicity reasons
+		 compare_t(IDENTITY(adaptor_, p_load->adaptor_), token);
 
-		// React on deviations from the expectation
-		token.evaluate();
-	}
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Adds an adaptor to this object. Please note that this class takes ownership of the adaptor
-	 * by cloning it.
-	 *
-	 * @param gat_ptr A std::shared_ptr to an adaptor
-	 */
-	void addAdaptor(std::shared_ptr<GAdaptorT<T>> gat_ptr) {
-		// Check that we have indeed been given an adaptor
-		if(!gat_ptr){
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
-					<< "Error: Empty adaptor provided." << std::endl
-			);
-		}
+	 /***************************************************************************/
+	 /**
+	  * Adds an adaptor to this object. Please note that this class takes ownership of the adaptor
+	  * by cloning it.
+	  *
+	  * @param gat_ptr A std::shared_ptr to an adaptor
+	  */
+	 void addAdaptor(std::shared_ptr<GAdaptorT<T>> gat_ptr) {
+		 // Check that we have indeed been given an adaptor
+		 if(!gat_ptr){
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+					 << "with typeid(T).name() = " << typeid(T).name() << ":" << std::endl
+					 << "Error: Empty adaptor provided." << std::endl
+			 );
+		 }
 
-		if(adaptor_) { // Is an adaptor already present ?
-			if (adaptor_->getAdaptorId() == gat_ptr->getAdaptorId()) {
-				adaptor_->GObject::load(gat_ptr);
-			} else { // Different type - need to clone and assign to gat_ptr
-				adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T>>();
-			}
-		} else { // None there ? This should not happen
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-					<< "Found no local adaptor. This should not happen!" << std::endl
-			);
-		}
-	}
+		 if(adaptor_) { // Is an adaptor already present ?
+			 if (adaptor_->getAdaptorId() == gat_ptr->getAdaptorId()) {
+				 adaptor_->GObject::load(gat_ptr);
+			 } else { // Different type - need to clone and assign to gat_ptr
+				 adaptor_ = gat_ptr->GObject::template clone<GAdaptorT<T>>();
+			 }
+		 } else { // None there ? This should not happen
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
+					 << "Found no local adaptor. This should not happen!" << std::endl
+			 );
+		 }
+	 }
 
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
-	 * Effects of adding different adaptors to empty/full object tested in GInt32Object::specificTestsNoFailureExpected_GUnitTests()
-	 * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
+	 /* ----------------------------------------------------------------------------------
+	  * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	  * Effects of adding different adaptors to empty/full object tested in GInt32Object::specificTestsNoFailureExpected_GUnitTests()
+	  * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
 
-	/***************************************************************************/
-	/**
-	 * Retrieves the adaptor. Throws in DBEUG mode , if we have no adaptor. It is assumed
-	 * that only the object holding the "master" adaptor pointer should be allowed to modify it.
-	 *
-	 * @return A std::shared_ptr to the adaptor
-	 */
-	std::shared_ptr<GAdaptorT<T>> getAdaptor() const {
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the adaptor. Throws in DBEUG mode , if we have no adaptor. It is assumed
+	  * that only the object holding the "master" adaptor pointer should be allowed to modify it.
+	  *
+	  * @return A std::shared_ptr to the adaptor
+	  */
+	 std::shared_ptr<GAdaptorT<T>> getAdaptor() const {
 #ifdef DEBUG
-		if(!adaptor_) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT::getAdaptor() :" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
-					<< "Tried to retrieve adaptor while none is present" << std::endl
-			);
-		}
+		 if(!adaptor_) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT::getAdaptor() :" << std::endl
+					 << "with typeid(T).name() = " << typeid(T).name() << std::endl
+					 << "Tried to retrieve adaptor while none is present" << std::endl
+			 );
+		 }
 #endif /* DEBUG */
 
-		return adaptor_;
-	}
+		 return adaptor_;
+	 }
 
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
-	 * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
+	 /* ----------------------------------------------------------------------------------
+	  * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	  * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
 
-	/***************************************************************************/
-	/**
-	 * Transforms the adaptor stored in this class to the desired target type. The function
-	 * will check in DEBUG mode whether an adaptor was indeed stored in this class. It will
-	 * also complain in DEBUG mode if this function was called while no local adaptor was
-	 * stored here. Note that this function will only be accessible to the compiler if adaptor_type
-	 * is a derivative of GAdaptorT<T>, thanks to the magic of std::enable_if and type_traits.
-	 *
-	 * @return The desired adaptor instance, using its "natural" type
-	 */
-	template <typename adaptor_type>
-	std::shared_ptr<adaptor_type> getAdaptor(
-		typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type *dummy = nullptr
-	) const {
+	 /***************************************************************************/
+	 /**
+	  * Transforms the adaptor stored in this class to the desired target type. The function
+	  * will check in DEBUG mode whether an adaptor was indeed stored in this class. It will
+	  * also complain in DEBUG mode if this function was called while no local adaptor was
+	  * stored here. Note that this function will only be accessible to the compiler if adaptor_type
+	  * is a derivative of GAdaptorT<T>, thanks to the magic of std::enable_if and type_traits.
+	  *
+	  * @return The desired adaptor instance, using its "natural" type
+	  */
+	 template <typename adaptor_type>
+	 std::shared_ptr<adaptor_type> getAdaptor(
+		 typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type *dummy = nullptr
+	 ) const {
 #ifdef DEBUG
-		if(!adaptor_) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
-					<< "Tried to access empty adaptor pointer." << std::endl
-			);
+		 if(!adaptor_) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
+					 << "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
+					 << "Tried to access empty adaptor pointer." << std::endl
+			 );
 
-		   // Make the compiler happy
-		   return std::shared_ptr<adaptor_type>();
-		}
+			 // Make the compiler happy
+			 return std::shared_ptr<adaptor_type>();
+		 }
 #endif /* DEBUG */
 
-		// Does error checks on the conversion internally
-		return Gem::Common::convertSmartPointer<GAdaptorT<T>,adaptor_type>(adaptor_);
-	}
+		 // Does error checks on the conversion internally
+		 return Gem::Common::convertSmartPointer<GAdaptorT<T>,adaptor_type>(adaptor_);
+	 }
 
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
-	 * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests() and
-	 * GInt32Object::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
+	 /* ----------------------------------------------------------------------------------
+	  * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	  * Failures/throws tested in GDoubleObject::specificTestsFailuresExpected_GUnitTests() and
+	  * GInt32Object::specificTestsFailuresExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
 
-	/***************************************************************************/
-	/**
-	 * This function resets the local adaptor_ pointer.
-	 */
-	void resetAdaptor() {
-		adaptor_ = getDefaultAdaptor<T>();
-	}
+	 /***************************************************************************/
+	 /**
+	  * This function resets the local adaptor_ pointer.
+	  */
+	 void resetAdaptor() {
+		 adaptor_ = getDefaultAdaptor<T>();
+	 }
 
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
+	 /* ----------------------------------------------------------------------------------
+	  * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
 
-	/***************************************************************************/
-	/**
-	 * Indicates whether an adaptor is present
-	 *
-	 * @return A boolean indicating whether adaptors are present
-	 */
-	bool hasAdaptor() const override {
-		if(adaptor_) return true;
-		return false;
-	}
+	 /***************************************************************************/
+	 /**
+	  * Indicates whether an adaptor is present
+	  *
+	  * @return A boolean indicating whether adaptors are present
+	  */
+	 bool hasAdaptor() const override {
+		 if(adaptor_) return true;
+		 return false;
+	 }
 
-	/* ----------------------------------------------------------------------------------
-	 * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
+	 /* ----------------------------------------------------------------------------------
+	  * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
 
-	/***************************************************************************/
-	/**
-	 * Emits a name for this class / object
-	 */
-	virtual std::string name() const override {
-		return std::string("GParameterBaseWithAdaptorsT");
-	}
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 virtual std::string name() const override {
+		 return std::string("GParameterBaseWithAdaptorsT");
+	 }
 
-	/******************************************************************************/
-	/**
-	 * Triggers updates when the optimization process has stalled
-	 *
-	 * @param nStalls The number of consecutive stalls up to this point
-	 * @return A boolean indicating whether updates were performed
-	 */
-	virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
+	 /******************************************************************************/
+	 /**
+	  * Triggers updates when the optimization process has stalled
+	  *
+	  * @param nStalls The number of consecutive stalls up to this point
+	  * @return A boolean indicating whether updates were performed
+	  */
+	 virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
 #ifdef DEBUG
-      if (!adaptor_) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall(...):" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
-					<< "Error: No adaptor was found." << std::endl
-			);
-      }
+		 if (!adaptor_) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall(...):" << std::endl
+					 << "with typeid(T).name() = " << typeid(T).name() << std::endl
+					 << "Error: No adaptor was found." << std::endl
+			 );
+		 }
 #endif /* DEBUG */
 
-		return this->adaptor_->updateOnStall(nStalls, this->range());
-	}
+		 return this->adaptor_->updateOnStall(nStalls, this->range());
+	 }
 
-	/******************************************************************************/
-	/**
-	 * Retrieves information from an adaptor on a given property
-	 *
-	 * @param adaoptorName The name of the adaptor to be queried
-	 * @param property The property for which information is sought
-	 * @param data A vector, to which the properties should be added
-	 */
-	virtual void queryAdaptor(
-		const std::string& adaptorName
-		, const std::string& property
-		, std::vector<boost::any>& data
-	) const override {
+	 /******************************************************************************/
+	 /**
+	  * Retrieves information from an adaptor on a given property
+	  *
+	  * @param adaoptorName The name of the adaptor to be queried
+	  * @param property The property for which information is sought
+	  * @param data A vector, to which the properties should be added
+	  */
+	 virtual void queryAdaptor(
+		 const std::string& adaptorName
+		 , const std::string& property
+		 , std::vector<boost::any>& data
+	 ) const override {
 #ifdef DEBUG
-      if (!adaptor_) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT<T>::queryAdaptor(...):" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
-					<< "Error: No adaptor was found." << std::endl
-			);
-      }
+		 if (!adaptor_) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT<T>::queryAdaptor(...):" << std::endl
+					 << "with typeid(T).name() = " << typeid(T).name() << std::endl
+					 << "Error: No adaptor was found." << std::endl
+			 );
+		 }
 #endif /* DEBUG */
 
-		// Note: The following will throw if the adaptor with name "adaptorName" has
-		// no property named "property".
-		this->adaptor_->queryPropertyFrom(adaptorName, property, data);
-	}
+		 // Note: The following will throw if the adaptor with name "adaptorName" has
+		 // no property named "property".
+		 this->adaptor_->queryPropertyFrom(adaptorName, property, data);
+	 }
 
 protected:
-	/***************************************************************************/
-	/**
-	 * Loads the data of another GParameterBaseWithAdaptorsT object, which
-	 * is camouflaged as a GObject.
-	 *
-	 * @param cp A copy of another GParameterBaseWithAdaptorsT, camouflaged as a GObject
-	 */
-	virtual void load_(const GObject* cp) override {
-		// Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
-		const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
+	 /***************************************************************************/
+	 /**
+	  * Loads the data of another GParameterBaseWithAdaptorsT object, which
+	  * is camouflaged as a GObject.
+	  *
+	  * @param cp A copy of another GParameterBaseWithAdaptorsT, camouflaged as a GObject
+	  */
+	 virtual void load_(const GObject* cp) override {
+		 // Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
+		 const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
 
-		// Load our parent class'es data ...
-		GParameterBase::load_(cp);
+		 // Load our parent class'es data ...
+		 GParameterBase::load_(cp);
 
-		// and then our local data
+		 // and then our local data
 #ifdef DEBUG
-		// Check that both we and the "foreign" object have an adaptor
-		if(!adaptor_ || !p_load->adaptor_) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT<T>::load_():" << std::endl
-					<< "Missing adaptor!" << std::endl
-			);
-		}
+		 // Check that both we and the "foreign" object have an adaptor
+		 if(!adaptor_ || !p_load->adaptor_) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT<T>::load_():" << std::endl
+					 << "Missing adaptor!" << std::endl
+			 );
+		 }
 #endif
-		// Same type: We can just load the data
-		if (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId()) {
-			adaptor_->GObject::load(p_load->adaptor_);
-		} else { // Different type - need to convert
-			adaptor_ = p_load->adaptor_->GObject::template clone<GAdaptorT<T>>();
-		}
-	}
+		 // Same type: We can just load the data
+		 if (adaptor_->getAdaptorId() == p_load->adaptor_->getAdaptorId()) {
+			 adaptor_->GObject::load(p_load->adaptor_);
+		 } else { // Different type - need to convert
+			 adaptor_ = p_load->adaptor_->GObject::template clone<GAdaptorT<T>>();
+		 }
+	 }
 
-	/***************************************************************************/
-	/** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
-	virtual GObject* clone_() const override = 0;
-	/** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
-	virtual T range() const = 0;
+	 /***************************************************************************/
 
-	/***************************************************************************/
-	/**
-	 * This function applies our adaptor to a value. Note that the argument of
-	 * this function will get changed.
-	 *
-	 * @param value The parameter to be adapted
-	 * @param range A typical value range of underlying parameter types
-	 * @return The number of adaptions that were carried out
-	 */
-	std::size_t applyAdaptor(
-		T &value
-		, const T& range
-		, Gem::Hap::GRandomBase& gr
-	) {
+	 /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
+	 virtual T range() const = 0;
+
+	 /***************************************************************************/
+	 /**
+	  * This function applies our adaptor to a value. Note that the argument of
+	  * this function will get changed.
+	  *
+	  * @param value The parameter to be adapted
+	  * @param range A typical value range of underlying parameter types
+	  * @return The number of adaptions that were carried out
+	  */
+	 std::size_t applyAdaptor(
+		 T &value
+		 , const T& range
+		 , Gem::Hap::GRandomBase& gr
+	 ) {
 #ifdef DEBUG
-		if (!adaptor_) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
-					<< "Error: No adaptor was found." << std::endl
-			);
-		}
+		 if (!adaptor_) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << std::endl
+					 << "with typeid(T).name() = " << typeid(T).name() << std::endl
+					 << "Error: No adaptor was found." << std::endl
+			 );
+		 }
 #endif /* DEBUG */
 
-		// Apply the adaptor
-		return adaptor_->adapt(value, range, gr);
-	}
+		 // Apply the adaptor
+		 return adaptor_->adapt(value, range, gr);
+	 }
 
-	/* ----------------------------------------------------------------------------------
-	 * Tested / used indirectly through GParameterT<T>::adaptImpl()
-	 * Failures/throws tested in GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
+	 /* ----------------------------------------------------------------------------------
+	  * Tested / used indirectly through GParameterT<T>::adaptImpl()
+	  * Failures/throws tested in GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
 
-	/***************************************************************************/
-	/**
-	 * This function applies our adaptor to a collection of values. Note that the argument
-	 * of this function will get changed.
-	 *
-	 * @param collection A vector of values that shall be adapted
-	 * @param range A typical value range of underlying parameter types
-	 * @return The number of adaptions that were carried out
-	 */
-	std::size_t applyAdaptor(
-		std::vector<T> &collection
-		, const T& range
-		, Gem::Hap::GRandomBase& gr
-	) {
+	 /***************************************************************************/
+	 /**
+	  * This function applies our adaptor to a collection of values. Note that the argument
+	  * of this function will get changed.
+	  *
+	  * @param collection A vector of values that shall be adapted
+	  * @param range A typical value range of underlying parameter types
+	  * @return The number of adaptions that were carried out
+	  */
+	 std::size_t applyAdaptor(
+		 std::vector<T> &collection
+		 , const T& range
+		 , Gem::Hap::GRandomBase& gr
+	 ) {
 #ifdef DEBUG
-		if(!adaptor_) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range, gr):" << std::endl
-					<< "with typeid(T).name() = " << typeid(T).name() << std::endl
-					<< "Error: No adaptor was found." << std::endl
-			);
-		}
+		 if(!adaptor_) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range, gr):" << std::endl
+					 << "with typeid(T).name() = " << typeid(T).name() << std::endl
+					 << "Error: No adaptor was found." << std::endl
+			 );
+		 }
 #endif /* DEBUG */
 
-		// Apply the adaptor to each data item in turn
-		return adaptor_->adapt(collection, range, gr);
-	}
+		 // Apply the adaptor to each data item in turn
+		 return adaptor_->adapt(collection, range, gr);
+	 }
 
-	/* ----------------------------------------------------------------------------------
-	 * Tested / used indirectly through GParameterCollectionT<T>::adaptImpl()
-	 * Failures/throws tested in GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests()
-	 * ----------------------------------------------------------------------------------
-	 */
+	 /* ----------------------------------------------------------------------------------
+	  * Tested / used indirectly through GParameterCollectionT<T>::adaptImpl()
+	  * Failures/throws tested in GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
 
 private:
-	/***************************************************************************/
-	/**
-	 * @brief Holds the adaptor used for adaption of the values stored in derived classes.
-	 */
-	std::shared_ptr<GAdaptorT<T>> adaptor_;
+	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
+	 virtual GObject* clone_() const override = 0;
+
+	 /***************************************************************************/
+	 /**
+	  * @brief Holds the adaptor used for adaption of the values stored in derived classes.
+	  */
+	 std::shared_ptr<GAdaptorT<T>> adaptor_;
 
 public:
-	/***************************************************************************/
-	/**
-	 * Applies modifications to this object. This is needed for testing purposes
-	 *
-	 * @return A boolean which indicates whether modifications were made
-	 */
-	virtual bool modify_GUnitTests() override {
+	 /***************************************************************************/
+	 /**
+	  * Applies modifications to this object. This is needed for testing purposes
+	  *
+	  * @return A boolean which indicates whether modifications were made
+	  */
+	 virtual bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
-		bool result = false;
+		 bool result = false;
 
-		// Call the parent classes' functions
-		if(GParameterBase::modify_GUnitTests()) result = true;
+		 // Call the parent classes' functions
+		 if(GParameterBase::modify_GUnitTests()) result = true;
 
-		return result;
+		 return result;
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::modify_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::modify_GUnitTests", "GEM_TESTING");
 		return false;
 #endif /* GEM_TESTING */
-	}
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to succeed. This is needed for testing purposes
-	 */
-	virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 /***************************************************************************/
+	 /**
+	  * Performs self tests that are expected to succeed. This is needed for testing purposes
+	  */
+	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
-		// Call the parent classes' functions
-		GParameterBase::specificTestsNoFailureExpected_GUnitTests();
+		 // Call the parent classes' functions
+		 GParameterBase::specificTestsNoFailureExpected_GUnitTests();
 
-		// Get a random number generator
-		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+		 // Get a random number generator
+		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
 
-		//------------------------------------------------------------------------------
+		 //------------------------------------------------------------------------------
 
-		{ // Test that trying to reset the adaptor will not remove it
-			std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
+		 { // Test that trying to reset the adaptor will not remove it
+			 std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
 
-			// Make sure no adaptor is present
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			BOOST_CHECK(p_test->hasAdaptor() == true);
+			 // Make sure no adaptor is present
+			 BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			 BOOST_CHECK(p_test->hasAdaptor() == true);
 
-			T testVal = T(0);
-			// We have a local adaptor, so trying to call the applyAdaptor() function should not throw
-			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal, T(1), gr));
-		}
+			 T testVal = T(0);
+			 // We have a local adaptor, so trying to call the applyAdaptor() function should not throw
+			 BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal, T(1), gr));
+		 }
 
-		//------------------------------------------------------------------------------
+		 //------------------------------------------------------------------------------
 
-		{ // Test that trying to call applyAdaptor(collection) after resetting the adaptor works
-			std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
+		 { // Test that trying to call applyAdaptor(collection) after resetting the adaptor works
+			 std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
 
-			// Make sure no adaptor is present
-			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			BOOST_CHECK(p_test->hasAdaptor() == true);
+			 // Make sure no adaptor is present
+			 BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			 BOOST_CHECK(p_test->hasAdaptor() == true);
 
-			std::vector<T> testVec;
-			for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
-			// We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
-			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec, T(1), gr));
-		}
+			 std::vector<T> testVec;
+			 for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
+			 // We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
+			 BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec, T(1), gr));
+		 }
 
-		//------------------------------------------------------------------------------
+		 //------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
-	}
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Performs self tests that are expected to fail. This is needed for testing purposes
-	 */
-	virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 /***************************************************************************/
+	 /**
+	  * Performs self tests that are expected to fail. This is needed for testing purposes
+	  */
+	 virtual void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
-		// Call the parent classes' functions
-		GParameterBase::specificTestsFailuresExpected_GUnitTests();
+		 // Call the parent classes' functions
+		 GParameterBase::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+		 Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
-	}
+	 }
 
-	/***************************************************************************/
+	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -600,13 +603,13 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 	, Gem::Hap::GRandomBase& gr
 ) {
 #ifdef DEBUG
-      if(!adaptor_) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
-					<< "Error: No adaptor was found." << std::endl
-			);
-      }
+	if(!adaptor_) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl
+				<< "Error: No adaptor was found." << std::endl
+		);
+	}
 #endif /* DEBUG */
 
 	std::size_t nAdapted = 0;

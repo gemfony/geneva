@@ -105,6 +105,8 @@ public:
 protected:
 	/** @brief Loads the data of another GObject */
 	virtual G_API_GENEVA void load_(const GObject*) override;
+
+private:
 	/** @brief Creates a deep clone of this object. */
 	virtual G_API_GENEVA GObject* clone_() const override;
 

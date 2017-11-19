@@ -356,16 +356,6 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Creates a deep clone of this object
-	  *
-	  * This function may remain unchanged. Do not remove!
-	  */
-	 virtual GObject *clone_() const override {
-		 return new G_OA_AlgorithmTemplateT(*this);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Saves the state of the class to disc
 	  *
 	  * Unless you need to do anything special when saving a checkpoint,
@@ -508,6 +498,16 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object
+	  *
+	  * This function may remain unchanged. Do not remove!
+	  */
+	 virtual GObject *clone_() const override {
+		 return new G_OA_AlgorithmTemplateT(*this);
+	 }
+
 	 /***************************************************************************/
 	 // Add any private data here
 

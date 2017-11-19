@@ -346,17 +346,18 @@ protected:
 
 	/***************************************************************************/
 	/**
-	 * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
-	 */
-	virtual GObject* clone_() const override = 0;
-
-	/***************************************************************************/
-	/**
 	 * Re-implementation of a corresponding function in GStdSimpleVectorInterface.
 	 * Making the vector wrapper purely virtual allows the compiler to perform
 	 * further optimizations.
 	 */
 	virtual void dummyFunction() override { /* nothing */ }
+
+private:
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
+	  */
+	 virtual GObject* clone_() const override = 0;
 
 public:
 	/***************************************************************************/
