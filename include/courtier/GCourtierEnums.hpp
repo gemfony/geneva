@@ -100,6 +100,18 @@ const std::size_t DEFAULTPROCESSEDBUFFERSIZE=Gem::Common::DEFAULTBUFFERSIZE;
 
 /******************************************************************************/
 /**
+ * Needed by the executor to distinguish between successfully processed items,
+ * items that have not returned (for unknown reasons, e.g. network failure)
+ * and items for which an exception was thrown during processing.
+ */
+enum class processingStatus : Gem::Common::ENUMBASETYPE {
+	 PROCESSED = 0
+	 , UNPROCESSED = 1
+	 , ERROR_FLAGGED = 2
+};
+
+/******************************************************************************/
+/**
  * Indicates processed or unprocessed work items
  */
 const bool GBC_UNPROCESSED = true;
@@ -190,6 +202,12 @@ G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::sub
 
 /** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::submissionReturnMode &);
+
+/** @brief Puts a Gem::Courtier::processingStatus into a stream. Needed also for boost::lexical_cast<> */
+G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::processingStatus &);
+
+/** @brief Reads a Gem::Courtier::processingStatus item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::processingStatus &);
 
 /** @brief Puts a Gem::Courtier::brokerMode into a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::ostream& operator<<(std::ostream&, const Gem::Courtier::consumerType&);

@@ -545,8 +545,13 @@ protected:
 	 ) = 0;
 
 	 /***************************************************************************/
+	 /**
+	  * Waits for work items to return and checks for completeness
+	  * (i.e. all items have returned and there were no exceptions).
+	  *
+	  * @return A boolean indicating whether all items were processed successfully
+	  */
 
-	 /** @brief Waits for work items to return */
 	 virtual bool waitForReturn(
 		 std::vector<std::shared_ptr<processable_type>>&
 		 , std::vector<bool>&
@@ -770,36 +775,33 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Waits for work items to return. Mostlty empty, as all work is done inside
-	  * of the submit() function.
+	  * Waits for work items to return and checks for completeness
+	  * (i.e. all items have returned and there were no exceptions).
 	  */
 	 virtual bool waitForReturn(
 		 std::vector<std::shared_ptr < processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
+		 bool complete = true; // Indicates whether "all items exist and there were no errors"
+
 		 // All data comes from the parent function, so we do not need to wait
 		 // for returns. All we need to do is to take care of unprocessed items.
 
 		 // Mark all positions, for which processing was successful, as "processed"
 		 std::size_t pos = 0;
-		 std::size_t nProcessed = 0;
 		 for(auto item_ptr: workItems) { // std::shared_ptr may be copied
 			 if(item_ptr->processing_was_successful()) {
 				 workItemPos.at(pos) = GBC_PROCESSED;
-				 ++nProcessed;
 			 } else {
 				 workItemPos.at(pos) = GBC_UNPROCESSED;
+				 complete = false;
 			 }
 
 			 ++pos;
 		 }
 
-		 if(nProcessed == workItems.size()) {
-			 return true;
-		 } else {
-			 return false;
-		 }
+		 return complete;
 	 }
 
 private:
@@ -1127,7 +1129,8 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Waits for the thread pool to run empty.
+	  * Waits for the thread pool to run empty and checks for completeness
+	  * (i.e. all items have returned and there were no exceptions).
 	  */
 	 virtual bool waitForReturn(
 		 std::vector<std::shared_ptr < processable_type>>& workItems
@@ -1655,20 +1658,46 @@ protected:
 	 /***************************************************************************/
 	 /**
 	  * Waits for all items to return or possibly until a timeout has been reached.
+	  * Checks for completeness (i.e. all items have returned and there were no exceptions).
+	  *
+	  * @return A boolean indicating whether all items where processed successfully
 	  */
 	 virtual bool waitForReturn(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
+		 bool all_returned = false;
+		 bool complete = true;
+
+		 // Wait for all items to return or until a timeout was reached
 		 if(m_capable_of_full_return) {
 			 // Wait until all work items have returned (possibly indefinitely)
-			 return this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
+			 all_returned = this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
 		 } else {
 			 // Wait for a given amount of time, decided upon by the function.
 			 // Items that have not returned in time may return in a later iteration
-			 return this->waitForTimeOut(workItems, workItemPos, oldWorkItems);
+			 all_returned = this->waitForTimeOut(workItems, workItemPos, oldWorkItems);
 		 }
+
+		 // When not all items have returned, the caller may have to do more work.
+		 // So let the audience know.
+		 if(!all_returned) complete = false;
+
+		 // Check for errors in the work items and make sure they have been marked accordingly
+		 // Set the complete-flag to false where there were errors. Mark all positions, for
+		 // which processing was successful, as "processed"
+		 std::size_t pos = 0;
+		 for(auto item_ptr: workItems) { // std::shared_ptr may be copied
+			 if(item_ptr->processing_was_unsuccessful()) {
+				 workItemPos.at(pos) = GBC_UNPROCESSED;
+				 complete = false;
+			 }
+
+			 ++pos;
+		 }
+
+		 return complete;
 	 }
 
 	 /***************************************************************************/

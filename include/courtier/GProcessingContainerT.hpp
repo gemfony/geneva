@@ -270,6 +270,16 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Checks if processing was successful
+	  *
+	  * @return A boolean indicating whether processing was successful
+	  */
+	 bool processing_was_unsuccessful() const noexcept {
+		 return !m_processing_was_successful;
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Enforces processing to be marked as successful
 	  */
 	 void force_mark_processing_as_successful() noexcept {
