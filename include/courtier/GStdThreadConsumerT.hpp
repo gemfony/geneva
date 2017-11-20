@@ -92,7 +92,6 @@ public:
 	 GStdThreadConsumerT()
 		 : Gem::Courtier::GBaseConsumerT<processable_type>()
 			, m_threadsPerWorker(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
-			, m_broker_ptr(GBROKER(processable_type))
 			, m_workerTemplates(1, std::shared_ptr<GWorker>(new GDefaultWorker()))
 	 { /* nothing */ }
 
@@ -391,7 +390,6 @@ private:
 
 	 std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
 	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds the processing threads
-	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr; ///< A shortcut to the broker so we do not have to go through the singleton
 	 std::vector<std::shared_ptr<GWorker>> m_workers; ///< Holds the current worker objects
 	 std::vector<std::shared_ptr<GWorker>> m_workerTemplates; ///< All workers will be created as a clone of these workers
 
@@ -449,7 +447,7 @@ public:
 					  if (m_outer->stopped()) break;
 
 					  // If we didn't get a valid item, start again with the while loop
-					  if (!m_outer->m_broker_ptr->get(p, timeout)) {
+					  if (!m_broker_ptr->get(p, timeout)) {
 						  continue;
 					  }
 
@@ -479,7 +477,7 @@ public:
 					  // if the requested target queue cannot be found.
 					  try {
 						  std::size_t retCounter = 0;
-						  while (!m_outer->m_broker_ptr->put(p, timeout)) { // This can lead to a loss of items
+						  while (!m_broker_ptr->put(p, timeout)) { // This can lead to a loss of items
 							  // Terminate if we have been asked to stop
 							  if (m_outer->stopped()) break;
 							  retCounter++;
@@ -591,6 +589,8 @@ public:
 
 		  bool m_parsed = false; ///< Indicates whether parsing has been completed
 		  bool m_runLoopHasCommenced = false; ///< Allows to check whether the while loop inside of the run function has started
+
+		  std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
 
 	 public:
 		  /************************************************************************/
