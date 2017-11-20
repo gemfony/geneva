@@ -278,13 +278,6 @@ G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationA
 
 /******************************************************************************/
 /**
- * The destructor
- */
-G_OptimizationAlgorithm_Base::~G_OptimizationAlgorithm_Base()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * A standard assignment operator
  */
 const G_OptimizationAlgorithm_Base& G_OptimizationAlgorithm_Base::operator=(const G_OptimizationAlgorithm_Base& cp) {
@@ -2062,7 +2055,7 @@ bool G_OptimizationAlgorithm_Base::stallHalt() const {
  * @return A boolean indicating whether the maximum number of iterations has been exceeded
  */
 bool G_OptimizationAlgorithm_Base::iterationHalt() const {
-	if(m_iteration >= (m_maxIteration + m_offset)) {
+	if(m_iteration >= m_maxIteration) {
 		if(m_emitTerminationReason) {
 			std::cout
 				<< "Terminating optimization run because" << std::endl

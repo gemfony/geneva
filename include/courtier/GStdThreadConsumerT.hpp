@@ -220,7 +220,7 @@ public:
 			 << GLOGGING;
 		 for (std::size_t w = 0; w < m_workerTemplates.size(); w++) {
 			 for (std::size_t i = 0; i < m_threadsPerWorker; i++) {
-				 std::shared_ptr <GWorker> p_worker = (m_workerTemplates.at(w))->clone(i, this);
+				 std::shared_ptr<GWorker> p_worker = (m_workerTemplates.at(w))->clone(i, this);
 				 m_gtg.create_thread(
 					 [p_worker]() -> void { p_worker->run(); }
 				 );
@@ -392,8 +392,8 @@ private:
 	 std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
 	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds the processing threads
 	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr; ///< A shortcut to the broker so we do not have to go through the singleton
-	 std::vector<std::shared_ptr <GWorker>> m_workers; ///< Holds the current worker objects
-	 std::vector<std::shared_ptr <GWorker>> m_workerTemplates; ///< All workers will be created as a clone of these workers
+	 std::vector<std::shared_ptr<GWorker>> m_workers; ///< Holds the current worker objects
+	 std::vector<std::shared_ptr<GWorker>> m_workerTemplates; ///< All workers will be created as a clone of these workers
 
 public:
 	 /***************************************************************************/
@@ -407,15 +407,8 @@ public:
 	 class GWorker {
 	 public:
 		  /************************************************************************/
-		  /**
-			* The default constructor
-			*/
-		  GWorker()
-			  : m_thread_id(0)
-				 , m_outer(nullptr)
-				 , m_parsed(false)
-				 , m_runLoopHasCommenced(false)
-		  { /* nothing */ }
+		  /** @brief The default constructor */
+		  GWorker() = default;
 
 	 protected:
 		  /************************************************************************/
@@ -429,9 +422,8 @@ public:
 			  , const GStdThreadConsumerT<processable_type> *c_ptr
 		  )
 			  : m_thread_id(thread_id)
-				 , m_outer(c_ptr)
-				 , m_parsed(cp.m_parsed)
-				 , m_runLoopHasCommenced(false)
+			  , m_outer(c_ptr)
+			  , m_parsed(cp.m_parsed)
 		  { /* nothing */ }
 
 	 public:
@@ -439,7 +431,7 @@ public:
 		  /**
 			* The destructor
 			*/
-		  virtual ~GWorker() { /* nothing */ }
+		  virtual ~GWorker() = default;
 
 		  /************************************************************************/
 		  /**
@@ -591,26 +583,27 @@ public:
 
 		  /************************************************************************/
 
-		  std::size_t m_thread_id; ///< The id of the thread running this class'es operator()
-		  const GStdThreadConsumerT<processable_type> *m_outer;
+		  std::size_t m_thread_id = 0; ///< The id of the thread running this class'es operator()
+		  const GStdThreadConsumerT<processable_type> *m_outer = nullptr;
 
 	 private:
 		  /************************************************************************/
 
-		  bool m_parsed; ///< Indicates whether parsing has been completed
-		  bool m_runLoopHasCommenced; ///< Allows to check whether the while loop inside of the run function has started
+		  bool m_parsed = false; ///< Indicates whether parsing has been completed
+		  bool m_runLoopHasCommenced = false; ///< Allows to check whether the while loop inside of the run function has started
 
 	 public:
 		  /************************************************************************/
 		  // Some purely virtual functions
 
 		  /** @brief Creation of deep clones of this object('s derivatives) */
-		  virtual std::shared_ptr <GWorker> clone(
-			  const std::size_t &, const GStdThreadConsumerT<processable_type> *
-		  ) const = 0;
+		  virtual std::shared_ptr<GWorker> clone(
+			  const std::size_t &
+			  , const GStdThreadConsumerT<processable_type> *
+		  ) const BASE = 0;
 
 		  /** @brief Actual per-item work is done here -- Implement this in derived classes */
-		  virtual void process(std::shared_ptr <processable_type> p) = 0;
+		  virtual void process(std::shared_ptr <processable_type> p) BASE = 0;
 	 };
 
 	 /***************************************************************************/
@@ -633,8 +626,12 @@ public:
 			* The copy constructor.
 			*/
 		  GDefaultWorker(
-			  const GDefaultWorker &cp, const std::size_t &thread_id, const GStdThreadConsumerT<processable_type> *outer
-		  ) : GWorker(cp, thread_id, outer) { /* nothing */ }
+			  const GDefaultWorker &cp
+			  , const std::size_t &thread_id
+			  , const GStdThreadConsumerT<processable_type> *outer
+		  )
+			  : GWorker(cp, thread_id, outer)
+		  { /* nothing */ }
 
 	 public:
 		  /************************************************************************/
@@ -648,7 +645,8 @@ public:
 			* Create a deep clone of this object, camouflaged as a GWorker
 			*/
 		  virtual std::shared_ptr <GWorker> clone(
-			  const std::size_t &thread_id, const GStdThreadConsumerT<processable_type> *outer
+			  const std::size_t &thread_id
+			  , const GStdThreadConsumerT<processable_type> *outer
 		  ) const {
 #ifdef DEBUG
 			  if(!outer) {

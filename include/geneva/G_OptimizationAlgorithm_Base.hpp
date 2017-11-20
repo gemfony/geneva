@@ -226,7 +226,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA G_OptimizationAlgorithm_Base(const G_OptimizationAlgorithm_Base& cp);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~G_OptimizationAlgorithm_Base();
+	 virtual G_API_GENEVA ~G_OptimizationAlgorithm_Base() = default;
 
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA const G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp);
