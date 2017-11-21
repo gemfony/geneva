@@ -77,8 +77,8 @@ const std::uint16_t DEFAULTTHREADSPERWORKER = 1;
  */
 template<class processable_type>
 class GStdThreadConsumerT
-	: public Gem::Courtier::GBaseConsumerT<processable_type> {
-private:
+	: public Gem::Courtier::GBaseConsumerT<processable_type>
+{
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
 		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
@@ -92,7 +92,7 @@ public:
 	  */
 	 GStdThreadConsumerT()
 		 : Gem::Courtier::GBaseConsumerT<processable_type>()
-			, m_threadsPerWorker(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
+		 , m_threadsPerWorker(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -368,6 +368,7 @@ private:
 
 	 std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
 	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds the processing threads
+
 	 std::vector<std::shared_ptr<GLocalConsumerWorkerT<processable_type>>> m_workers; ///< Holds the current worker objects
 	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_workerTemplate; ///< All workers will be created as a clone of this worker
 

@@ -48,6 +48,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
+#include "courtier/GWorkerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -61,194 +62,245 @@ namespace Courtier {
  */
 template<class processable_type>
 class GSerialConsumerT
-	: public Gem::Courtier::GBaseConsumerT<processable_type> {
+	: public Gem::Courtier::GBaseConsumerT<processable_type>
+{
+	 // Make sure processable_type adheres to the GProcessingContainerT interface
+	 static_assert(
+		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
+		 , "processable_type does not adhere to the GProcessingContainerT interface"
+	 );
+
 public:
-	/***************************************************************************/
-	/**
-	 * The default constructor. Nothing special here.
+	 /***************************************************************************/
+	 /**
+	  * The default constructor
+	  */
+	 GSerialConsumerT() = default;
+
+	 /***************************************************************************/
+	 /**
+	  * Standard destructor
+	  */
+	 virtual ~GSerialConsumerT() = default;
+
+	 /***************************************************************************/
+	 /**
+	 * A unique identifier for a given consumer
+	 *
+	 * @return A unique identifier for a given consumer
 	 */
-	GSerialConsumerT()
-		: Gem::Courtier::GBaseConsumerT<processable_type>(), m_broker_ptr(GBROKER(processable_type))
-	{ /* nothing */ }
+	 virtual std::string getConsumerName() const override {
+		 return std::string("GSerialConsumerT");
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Standard destructor
+	 /***************************************************************************/
+	 /**
+	  * Returns a short identifier for this consumer
+	  */
+	 virtual std::string getMnemonic() const override {
+		 return std::string("sc");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	 * Finalization code. Sends all threads an interrupt signal.
 	 */
-	virtual  ~GSerialConsumerT()
-	{ /* nothing */ }
+	 virtual void shutdown() override {
+		 // This will set the GBaseConsumerT<processable_type>::stop_ flag
+		 GBaseConsumerT<processable_type>::shutdown();
+		 // Wait for our local threads to join
+		 m_processingThread.join();
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Starts a single worker thread. Termination of the thread is
-	 * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
-	 */
-	virtual void async_startProcessing() override {
-		m_processingThread = std::move(std::thread(
-			[this]() { this->processItems(); }
-		));
-	}
+	 /***************************************************************************/
+	 /**
+	  * Returns an indication whether full return can be expected from this
+	  * consumer. Since evaluation is performed in a single thread, we assume that this
+	  * is possible and return true. If you believe that this is not the case,
+	  * make sure to set m_capableOfFullReturn to false using the setCapableOfFullReturn()
+	  * function. Note that, while processing-errors will likely be caught,
+	  * "full return" does not mean "fully processed return", as errors (be it in
+	  * user- or Geneva-code) are always possible.
+	  */
+	 virtual bool capableOfFullReturn() const override {
+		 return m_capableOfFullReturn;
+	 }
 
-	/***************************************************************************/
-	/**
-	* Finalization code. Sends all threads an interrupt signal.
-	*/
-	virtual void shutdown() override {
-		// This will set the GBaseConsumerT<processable_type>::stop_ flag
-		GBaseConsumerT<processable_type>::shutdown();
-		// Wait for our local threads to join
-		m_processingThread.join();
-	}
+	 /***************************************************************************/
+	 /**
+	  * Allows to specifcy whether this consumer is capable of full return
+	  */
+	 void setCapableOfFullReturn(bool capableOfFullReturn) {
+		 glogger
+			 << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():" << std::endl
+			 << "m_capableOfFullReturn will be set to " << (capableOfFullReturn?"true":"false") << std::endl
+			 << GLOGGING;
+		 m_capableOfFullReturn = capableOfFullReturn;
+	 }
 
-	/***************************************************************************/
-	/**
-	* A unique identifier for a given consumer
-	*
-	* @return A unique identifier for a given consumer
-	*/
-	virtual std::string getConsumerName() const override {
-		return std::string("GSerialConsumerT");
-	}
-
-	/***************************************************************************/
-	/**
-	 * Returns a short identifier for this consumer
-	 */
-	virtual std::string getMnemonic() const override {
-		return std::string("sc");
-	}
-
-	/***************************************************************************/
-	/**
-	 * Returns an indication whether full return can be expected from this
-	 * consumer. Since evaluation is performed serially, we assume that this
-	 * is possible and return true.
-	 */
-	virtual bool capableOfFullReturn() const override {
-		return true;
-	}
-
- 	/***************************************************************************/
- 	/**
+	 /***************************************************************************/
+	 /**
   	 * Returns the (possibly estimated) number of concurrent processing units.
   	 * A return value of 0 means "unknown".
   	 */
- 	virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
-		// Mark the answer as exact
-		exact=true;
-		// Return the result
-	 	return boost::numeric_cast<std::size_t>(1);
- 	}
+	 virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
+		 // Mark the answer as exact
+		 exact=true;
+		 // Return the result
+		 return boost::numeric_cast<std::size_t>(1);
+	 }
 
-private:
-	/***************************************************************************/
+	 /***************************************************************************/
+	 /**
+	  * Starts a single worker thread. Termination of the thread is
+	  * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
+	  */
+	 virtual void async_startProcessing() override {
+		 // Add a default worker if no worker was registered
+		 if(!m_workerTemplate) {
+			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
+			 this->registerWorkerTemplate(default_worker);
+		 }
 
-	GSerialConsumerT(const GSerialConsumerT<processable_type> &); ///< Intentionally left undefined
-	const GSerialConsumerT<processable_type> &operator=(
-		const GSerialConsumerT<processable_type> &); ///< Intentionally left undefined
+		 glogger
+			 << "Starting single thread in GSerialConsumerT<processable_type>" << std::endl
+			 << GLOGGING;
 
-	/***************************************************************************/
-	/**
-	* The function that gets new items from the broker, processes them
-	* and returns them when finished. As this function is the main
-	* execution point of a thread, we need to catch all exceptions.
-	*/
-	void processItems() {
-		try {
-			std::shared_ptr<processable_type> p;
-			std::chrono::milliseconds timeout(200);
+	    // The actual worker
+		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> p_worker
+			 = std::dynamic_pointer_cast<GLocalConsumerWorkerT<processable_type>>(m_workerTemplate->clone());
 
-			while (true) {
-				// Have we been asked to stop ?
-				if (GBaseConsumerT<processable_type>::stopped()) break;
+		 // The "broker ferry" holding the connection to the broker
+		 std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr(
+			 new GBrokerFerryT<processable_type>(
+				 //----------------------
+				 std::size_t(0) // we only have one worker
+				 //----------------------
+				 , [this](
+					 const std::chrono::milliseconds& timeout
+				 ) -> std::shared_ptr<processable_type> {
+					 std::shared_ptr<processable_type> p;
+					 m_broker_ptr->get(p, timeout);
+					 return p;
+				 }
+				 //----------------------
+				 , [this](
+					 std::shared_ptr<processable_type> p
+					 , const std::chrono::milliseconds& timeout
+				 ) -> void { m_broker_ptr->put(p, timeout); }
+				 //----------------------
+				 , [this]() -> bool { return this->stopped(); }
+				 //----------------------
+			 )
+		 );
 
-				// If we didn't get a (valid) item, start again with the while loop
-				if (!m_broker_ptr->get(p, timeout)) {
-					continue;
-				}
+		 // Register the broker ferry with the worker
+		 p_worker->registerBrokerFerry(broker_ferry_ptr);
 
+		 m_processingThread = std::move(std::thread(
+			 [p_worker]() -> void { p_worker->run(); }
+		 ));
+
+		 // Store the worker for later reference
+		 m_worker = p_worker;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to register a single worker template with this class.
+	  */
+	 void registerWorkerTemplate(
+		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> workerTemplate
+	 ) {
 #ifdef DEBUG
-				// Check that we indeed got a valid item
-				if(!p) { // We didn't get a valid item after all
-					throw gemfony_exception(
-						g_error_streamer(DO_LOG,  time_and_place)
-							<< "In GSerialConsumerT<T>::startProcessing(): Error!" << std::endl
-							<< "Got empty item when it shouldn't be empty!" << std::endl
-					);
-				}
+		 if(!workerTemplate) { // Does the template point somewhere ?
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GSerialConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
+					 << "Found empty worker template pointer" << std::endl
+			 );
+		 }
 #endif /* DEBUG */
 
-				// Do the actual work. We check for processing exceptions here. When
-				// found, processing will continue, but we make the user aware of the
-				// fact in a warning. Decisions on the fate of the work item should be
-				// taken by the recipient of the work item.
-				try {
-					p->process();
-				} catch(const g_processing_exception& e) {
-					glogger
-						<< "The work item has flagged a processing exception with the message" << std::endl
-					   << e << std::endl
-					   << "GSerialConsumerT will continue with other work items. It is up to" << std::endl
-					   << "the recipient of the work item to decide on the fate of the work item" << std::endl
-						<< GWARNING;
-				}
+		 m_workerTemplate = workerTemplate;
+	 }
 
-				// Return the item to the broker. The item will be discarded
-				// if the requested target queue cannot be found.
-				try {
-					while (!m_broker_ptr->put(p, timeout)) { // Items can get lost here
-						// Terminate if we have been asked to stop
-						if (GBaseConsumerT<processable_type>::stopped()) {
-							glogger
-								<< "In GSerialConsimerT::processItems():" << std::endl
-								<< "The consumer has been instructed to stop." << std::endl
-							   << "The current item will be discarded" << std::endl
-							   << GWARNING;
+	 /***************************************************************************/
+	 /**
+	  * Sets up a consumer and registers it with the broker. This function accepts
+	  * a worker as argument.
+	  */
+	 static void setup(
+		 const std::string &configFile,
+		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
+	 ) {
+		 std::shared_ptr <GSerialConsumerT<processable_type>> consumer_ptr(
+			 new GSerialConsumerT<processable_type>()
+		 );
 
-							break;
-						}
-					}
-				} catch (Gem::Courtier::buffer_not_present &) {
-					glogger
-						<< "In GSerialConsimerT::processItems():" << std::endl
-						<< "Target buffer could not be found. The item" << std::endl
-						<< "will be discarded" << std::endl
-						<< GWARNING;
+		 consumer_ptr->registerWorkerTemplate(worker_ptr);
+		 consumer_ptr->parseConfigFile(configFile);
 
-					continue;
-				}
-			}
-		} catch(gemfony_exception& e) { // Exceptions caught here will terminate the loop
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GSerialConsumerT::processItems(): Caught gemfony_exception with message"
-					<< std::endl
-					<< e.what() << std::endl
-			);
-		} catch (std::exception &e) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GSerialConsumerT::processItems(): Caught std::exception with message" << std::endl
-					<< e.what() << std::endl
-			);
-		} catch (boost::exception &e) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GSerialConsumerT::processItems(): Caught boost::exception with information" << std::endl
-					<< boost::diagnostic_information(e) << std::endl
-			);
-		} catch (...) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GSerialConsumerT::processItems(): Caught unknown exception." << std::endl
-			);
-		}
-	}
+		 GBROKER(processable_type)->enrol(consumer_ptr);
+	 }
 
-	/***************************************************************************/
+protected:
+	 /***************************************************************************/
+	 /**
+	  * Adds local configuration options to a GParserBuilder object. We have only
+	  * a single local option -- the number of threads
+	  *
+	  * @param gpb The GParserBuilder object, to which configuration options will be added
+	  */
+	 virtual void addConfigurationOptions(
+		 Gem::Common::GParserBuilder &gpb
+	 ) override {
+		 // Call our parent class'es function
+		 GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
 
-	std::thread m_processingThread;
-	std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr; ///< A shortcut to the broker so we do not have to go through the singleton
+		 // Add local data
+		 // ... no local configuration
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Adds local command line options to a boost::program_options::options_description object.
+	  *
+	  * @param visible Command line options that should always be visible
+	  * @param hidden Command line options that should only be visible upon request
+	  */
+	 virtual void addCLOptions(
+		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
+	 ) override {
+		 namespace po = boost::program_options;
+
+		 // ... no local configuration
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Takes a boost::program_options::variables_map object and checks for supplied options.
+	  */
+	 virtual void actOnCLOptions(const boost::program_options::variables_map &vm) override
+	 { /* nothing */ }
+
+private:
+	 /***************************************************************************/
+
+	 GSerialConsumerT(const GSerialConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
+	 const GSerialConsumerT<processable_type> &operator=(const GSerialConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
+
+
+	 /***************************************************************************/
+
+	 std::thread m_processingThread;
+
+	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
+
+	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_worker; ///< Holds the worker assigned to this consumer
+	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_workerTemplate; ///< Holds an external worker assigned to this consumer
+
+	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/
