@@ -273,13 +273,6 @@ protected:
 		 , const std::vector<double>& threshold
 	 );
 
-	 /** @brief Selection, MUPLUSNU_SINGLEEVAL style */
-	 G_API_GENEVA void sortMuPlusNuMode();
-	 /** @brief Selection, MUCOMMANU_SINGLEEVAL style */
-	 G_API_GENEVA void sortMuCommaNuMode();
-	 /** @brief Selection, MUNU1PRETAIN_SINGLEEVAL style */
-	 G_API_GENEVA void sortMunu1pretainMode();
-
 	 /***************************************************************************/
 
 	 std::size_t m_n_parents = DEFPARCHILDNPARENTS; ///< The number of parents

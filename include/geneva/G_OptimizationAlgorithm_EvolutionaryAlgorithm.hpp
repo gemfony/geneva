@@ -188,6 +188,13 @@ private:
 	 /** @brief Creates a deep copy of this object */
 	 virtual G_API_GENEVA GObject *clone_() const override;
 
+	 /** @brief Selection, MUPLUSNU_SINGLEEVAL style */
+	 G_API_GENEVA void sortMuPlusNuMode();
+	 /** @brief Selection, MUCOMMANU_SINGLEEVAL style */
+	 G_API_GENEVA void sortMuCommaNuMode();
+	 /** @brief Selection, MUNU1PRETAIN_SINGLEEVAL style */
+	 G_API_GENEVA void sortMunu1pretainMode();
+
 	 /** @brief Selection according to the pareto tag, also taking into account the parents of a population (i.e. in MUPLUSNU mode). */
 	 G_API_GENEVA void sortMuPlusNuParetoMode();
 	 /** @brief Selection according to the pareto tag, not taking into account the parents of a population (i.e. in MUCOMMANU mode). */
