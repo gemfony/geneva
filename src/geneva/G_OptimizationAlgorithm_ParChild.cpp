@@ -878,28 +878,21 @@ void G_OptimizationAlgorithm_ParChild::sortMuCommaNuMode() {
 	}
 #endif /* DEBUG */
 
-	if (G_OptimizationAlgorithm_Base::inFirstIteration()) {
-		// We fall back to MUPLUSNU mode in the first iteration,
-		// as parents are new as well.
-		this->sortMuPlusNuMode();
-		return;
-	} else {
-		// Only sort the children
-		std::partial_sort(
-			G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
-			, G_OptimizationAlgorithm_Base::data.begin() + 2 * m_n_parents
-			, G_OptimizationAlgorithm_Base::data.end()
-			, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-				return x->minOnly_fitness() < y->minOnly_fitness();
-			}
-		);
+	// Only sort the children
+	std::partial_sort(
+		G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+		, G_OptimizationAlgorithm_Base::data.begin() + 2 * m_n_parents
+		, G_OptimizationAlgorithm_Base::data.end()
+		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
+			return x->minOnly_fitness() < y->minOnly_fitness();
+		}
+	);
 
-		std::swap_ranges(
-			G_OptimizationAlgorithm_Base::data.begin()
-			, G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
-			, G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
-		);
-	}
+	std::swap_ranges(
+		G_OptimizationAlgorithm_Base::data.begin()
+		, G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+		, G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+	);
 }
 
 /******************************************************************************/
@@ -928,37 +921,33 @@ void G_OptimizationAlgorithm_ParChild::sortMunu1pretainMode() {
 	}
 #endif /* DEBUG */
 
-	if(m_n_parents==1 || G_OptimizationAlgorithm_Base::inFirstIteration()) { // Falls back to MUPLUSNU_SINGLEEVAL mode
-		sortMuPlusNuMode();
-	} else {
-		// Sort the children
-		std::partial_sort(
-			G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
-			, G_OptimizationAlgorithm_Base::data.begin() + 2*m_n_parents
-			, G_OptimizationAlgorithm_Base::data.end()
-			, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
-				return x->minOnly_fitness() < y->minOnly_fitness();
-			}
-		);
-
-		// Retrieve the best child's and the last generation's best parent's fitness
-		double bestTranformedChildFitness_MinOnly  = (*(G_OptimizationAlgorithm_Base::data.begin() + m_n_parents))->minOnly_fitness();
-		double bestTranformedParentFitness_MinOnly = (*(G_OptimizationAlgorithm_Base::data.begin()))->minOnly_fitness();
-
-		// Leave the best parent in place, if no better child was found
-		if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) { // A better child was found. Overwrite all parents
-			std::swap_ranges(
-				G_OptimizationAlgorithm_Base::data.begin()
-				,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
-				,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
-			);
-		} else {
-			std::swap_ranges(
-				G_OptimizationAlgorithm_Base::data.begin()+1
-				,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
-				,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
-			);
+	// Sort the children
+	std::partial_sort(
+		G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+		, G_OptimizationAlgorithm_Base::data.begin() + 2*m_n_parents
+		, G_OptimizationAlgorithm_Base::data.end()
+		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
+			return x->minOnly_fitness() < y->minOnly_fitness();
 		}
+	);
+
+	// Retrieve the best child's and the last generation's best parent's fitness
+	double bestTranformedChildFitness_MinOnly  = (*(G_OptimizationAlgorithm_Base::data.begin() + m_n_parents))->minOnly_fitness();
+	double bestTranformedParentFitness_MinOnly = (*(G_OptimizationAlgorithm_Base::data.begin()))->minOnly_fitness();
+
+	// Leave the best parent in place, if no better child was found
+	if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) { // A better child was found. Overwrite all parents
+		std::swap_ranges(
+			G_OptimizationAlgorithm_Base::data.begin()
+			,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
+			,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
+		);
+	} else {
+		std::swap_ranges(
+			G_OptimizationAlgorithm_Base::data.begin()+1
+			,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
+			,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
+		);
 	}
 }
 

@@ -708,7 +708,7 @@ void GEvolutionaryAlgorithm::selectBest() {
 
 			//----------------------------------------------------------------------------
 		case sortingMode::MUNU1PRETAIN_SINGLEEVAL: {
-			if (this->inFirstIteration()) {
+			if (1==m_n_parents || this->inFirstIteration()) {
 				this->sortMuPlusNuMode();
 			} else {
 				this->sortMunu1pretainMode();

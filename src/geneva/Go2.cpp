@@ -1095,7 +1095,7 @@ void Go2::parseCommandLine(
 				"A file (including its path) holding a checkpoint for a given optimization algorithm")
 			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
 			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION), "The maximum runtime for a client in the form \"hh:mm:ss\". Note that a client may run longer as this time-frame if its work load still runs. The default value \"00:00:00\" means: \"no time limit\"")
-			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("btc"), consumer_help.str().c_str());
+			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str());
 
 		// Add additional options coming from the algorithms and consumers
 		boost::program_options::options_description visible("Global algorithm- and consumer-options");

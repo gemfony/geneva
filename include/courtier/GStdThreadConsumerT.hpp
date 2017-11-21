@@ -39,6 +39,9 @@
 #include <type_traits>
 #include <thread>
 #include <mutex>
+#include <vector>
+#include <algorithm>
+#include <functional>
 
 // Boost headers go here
 
@@ -56,6 +59,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
+#include "courtier/GWorkerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -82,9 +86,6 @@ private:
 	 );
 
 public:
-	 class GWorker; ///< Forward declaration
-	 class GDefaultWorker; ///< Forward declaration
-
 	 /***************************************************************************/
 	 /**
 	  * The default constructor.
@@ -92,7 +93,6 @@ public:
 	 GStdThreadConsumerT()
 		 : Gem::Courtier::GBaseConsumerT<processable_type>()
 			, m_threadsPerWorker(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
-			, m_workerTemplates(1, std::shared_ptr<GWorker>(new GDefaultWorker()))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -160,27 +160,42 @@ public:
 	  * Returns a short identifier for this consumer
 	  */
 	 virtual std::string getMnemonic() const override {
-		 return std::string("btc");
+		 return std::string("stc");
 	 }
 
 	 /***************************************************************************/
 	 /**
-		* Retrieves the number of workers registered with this class
-		*/
-	 std::size_t getNWorkers() const {
-		 return m_workerTemplates.size();
+	  * Allows to check whether a worker template was registered
+	  */
+	 bool hasWorkerTemplate() const {
+		 if(this->m_workerTemplate) { return true; }
+		 return false;
 	 }
 
 	 /***************************************************************************/
 	 /**
-		* Returns an indication whether full return can be expected from this
-		* consumer. Since evaluation is performed in threads, we assume that this
-		* is possible and return true. Note that it is up to the user to ensure
-		* that either his code does not crash or that exceptions are caught and
-		* the thread becomes available again.
-		*/
+	  * Returns an indication whether full return can be expected from this
+	  * consumer. Since evaluation is performed in threads, we assume that this
+	  * is possible and return true. If you believe that this is not the case,
+	  * make sure to set m_capableOfFullReturn to false using the setCapableOfFullReturn()
+	  * function. Note that, while processing-errors will likely be caught,
+	  * "full return" does not mean "fully processed return", as errors (be it in
+	  * user- or Geneva-code) are always possible.
+	  */
 	 virtual bool capableOfFullReturn() const override {
-		 return true;
+		 return m_capableOfFullReturn;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to specifcy whether this consumer is capable of full return
+	  */
+	 void setCapableOfFullReturn(bool capableOfFullReturn) {
+		 glogger
+		 	<< "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():" << std::endl
+	    	<< "m_capableOfFullReturn will be set to " << (capableOfFullReturn?"true":"false") << std::endl
+		 	<< GLOGGING;
+		 m_capableOfFullReturn = capableOfFullReturn;
 	 }
 
 	 /***************************************************************************/
@@ -194,7 +209,7 @@ public:
 		 // Mark the answer as exact
 		 exact=true;
 		 // Return the result
-		 return boost::numeric_cast<std::size_t>(this->getNWorkers() * this->getNThreadsPerWorker());
+		 return boost::numeric_cast<std::size_t>(this->getNThreadsPerWorker());
 	 }
 
 	 /***************************************************************************/
@@ -203,76 +218,64 @@ public:
 	 * Termination of the threads is triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
 	 virtual void async_startProcessing() override {
-#ifdef DEBUG
-		 if(m_workerTemplates.empty()) { // Is the template vector empty ?
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GStdThreadConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
-					 << "The workerTemplates_ vector is empty when it should not be empty" << std::endl
-			 );
+		 // Add a default worker if no worker was registered
+		 if(!m_workerTemplate) {
+			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
+			 this->registerWorkerTemplate(default_worker);
 		 }
-#endif /* DEBUG */
 
 		 // Start m_threadsPerWorker threads for each registered worker template
 		 glogger
-			 << "Starting " << m_threadsPerWorker << " processing threads for " << m_workerTemplates.size() << " worker(s)" << "each in GStdThreadConsumerT" << std::endl
+			 << "Starting " << m_threadsPerWorker << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
 			 << GLOGGING;
-		 for (std::size_t w = 0; w < m_workerTemplates.size(); w++) {
-			 for (std::size_t i = 0; i < m_threadsPerWorker; i++) {
-				 std::shared_ptr<GWorker> p_worker = (m_workerTemplates.at(w))->clone(i, this);
-				 m_gtg.create_thread(
-					 [p_worker]() -> void { p_worker->run(); }
-				 );
-				 m_workers.push_back(p_worker);
-			 }
-		 }
-	 }
+		 for (std::size_t worker_id = 0; worker_id < m_threadsPerWorker; worker_id++) {
+			 // The actual worker
+			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> p_worker
+				 = std::dynamic_pointer_cast<GLocalConsumerWorkerT<processable_type>>(m_workerTemplate->clone());
 
-	 /***************************************************************************/
-	 /**
-	  * Allows to register a set of worker templates with this class. Note that all
-	  * existing worker templates will be deleted. The class will not take ownership
-	  * of the worker templates.
-	  */
-	 void registerWorkerTemplates(
-		 const std::vector<std::shared_ptr<GWorker>>& workerTemplates
-	 ) {
-#ifdef DEBUG
-		 if(m_workerTemplates.empty()) { // Is the template vector empty ?
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
-					 << "workerTemplates vector is empty when it should not be empty" << std::endl
+			 // The "broker ferry" holding the connection to the broker
+			 std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr(
+				new GBrokerFerryT<processable_type>(
+					//----------------------
+					worker_id
+					//----------------------
+					, [this](
+						const std::chrono::milliseconds& timeout
+					) -> std::shared_ptr<processable_type> {
+						std::shared_ptr<processable_type> p;
+						m_broker_ptr->get(p, timeout);
+						return p;
+					}
+					//----------------------
+					, [this](
+						std::shared_ptr<processable_type> p
+						, const std::chrono::milliseconds& timeout
+					) -> void { m_broker_ptr->put(p, timeout); }
+					//----------------------
+				 	, [this]() -> bool { return this->stopped(); }
+					//----------------------
+				)
 			 );
+
+			 // Register the broker ferry with the worker
+			 p_worker->registerBrokerFerry(broker_ferry_ptr);
+
+			 // Start the actual thread
+			 m_gtg.create_thread(
+				 [p_worker]() -> void { p_worker->run(); }
+			 );
+
+			 // Store the worker for later reference
+			 m_workers.push_back(p_worker);
 		 }
-
-		 std::size_t pos = 0;
-		 for(auto w_ptr: workerTemplates) { // std::shared_ptr may be copied
-			 if(!w_ptr) { // Does the template point somewhere ?
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG,  time_and_place)
-						 << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplates(): Error!" << std::endl
-						 << "Found empty worker template pointer in position " << pos << std::endl
-				 );
-			 }
-			 pos++;
-		 }
-#endif /* DEBUG */
-
-		 m_workerTemplates.clear();
-		 m_workerTemplates = workerTemplates;
-
-		 assert(workerTemplates.size() == m_workerTemplates.size());
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to register a single worker template with this class. Note that all
-	  * existing worker templates will be deleted. The class will not take ownership
-	  * of the worker template.
+	  * Allows to register a single worker template with this class.
 	  */
 	 void registerWorkerTemplate(
-		 std::shared_ptr<GWorker> workerTemplate
+		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> workerTemplate
 	 ) {
 #ifdef DEBUG
 		 if(!workerTemplate) { // Does the template point somewhere ?
@@ -284,24 +287,7 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 m_workerTemplates.clear();
-		 m_workerTemplates.push_back(workerTemplate);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Sets up a consumer and registers it with the broker. This function accepts
-	  * a set of workers as argument.
-	  */
-	 static void setup(
-		 const std::string &configFile
-		 , std::vector<std::shared_ptr <typename Gem::Courtier::GStdThreadConsumerT<processable_type>::GWorker>> workers
-	 ) {
-		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
-			 new GStdThreadConsumerT<processable_type>());
-		 consumer_ptr->registerWorkerTemplates(workers);
-		 consumer_ptr->parseConfigFile(configFile);
-		 GBROKER(processable_type)->enrol(consumer_ptr);
+		 m_workerTemplate = workerTemplate;
 	 }
 
 	 /***************************************************************************/
@@ -311,25 +297,15 @@ public:
 	  */
 	 static void setup(
 		 const std::string &configFile,
-		 std::shared_ptr <typename Gem::Courtier::GStdThreadConsumerT<processable_type>::GWorker> worker_ptr
+		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
 	 ) {
 		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
-			 new GStdThreadConsumerT<processable_type>());
+			 new GStdThreadConsumerT<processable_type>()
+		 );
+
 		 consumer_ptr->registerWorkerTemplate(worker_ptr);
 		 consumer_ptr->parseConfigFile(configFile);
-		 GBROKER(processable_type)->enrol(consumer_ptr);
-	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Sets up a consumer and registers it with the broker. This function uses
-	  * the default worker.
-	  */
-	 static void setup(
-		 const std::string &configFile
-	 ) {
-		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(new GStdThreadConsumerT<processable_type>());
-		 consumer_ptr->parseConfigFile(configFile);
 		 GBROKER(processable_type)->enrol(consumer_ptr);
 	 }
 
@@ -372,7 +348,7 @@ protected:
 
 		 hidden.add_options()
 			 ("threadsPerWorker", po::value<std::size_t>(&m_threadsPerWorker)->default_value(m_threadsPerWorker),
-				 "\t[btc] The number of threads used to process each worker");
+				 "\t[stc] The number of threads used to process each worker");
 	 }
 
 	 /***************************************************************************/
@@ -385,305 +361,17 @@ protected:
 private:
 	 /***************************************************************************/
 
-	 GStdThreadConsumerT(const GStdThreadConsumerT<processable_type> &); ///< Intentionally left undefined
-	 const GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &); ///< Intentionally left undefined
+	 GStdThreadConsumerT(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
+	 const GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
+
+	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
 
 	 std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
 	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds the processing threads
-	 std::vector<std::shared_ptr<GWorker>> m_workers; ///< Holds the current worker objects
-	 std::vector<std::shared_ptr<GWorker>> m_workerTemplates; ///< All workers will be created as a clone of these workers
+	 std::vector<std::shared_ptr<GLocalConsumerWorkerT<processable_type>>> m_workers; ///< Holds the current worker objects
+	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_workerTemplate; ///< All workers will be created as a clone of this worker
 
-public:
-	 /***************************************************************************/
-	 /**
-	  * A nested class that performs the actual work inside of a thread.
-	  * Classes derived from GStdThreadConsumerT may use their own derivative
-	  * from this class and store complex information associated with the execution
-	  * inside of the worker threads. Note that a GWorker(-derivative) must be
-	  * copy-constructible and implement the clone() function.
-	  */
-	 class GWorker {
-	 public:
-		  /************************************************************************/
-		  /** @brief The default constructor */
-		  GWorker() = default;
-
-	 protected:
-		  /************************************************************************/
-		  /**
-			* The copy constructor. We do not copy the thread id, as it is set by
-			* async_startprocessing().
-			*/
-		  GWorker(
-			  const GWorker &cp
-			  , const std::size_t &thread_id
-			  , const GStdThreadConsumerT<processable_type> *c_ptr
-		  )
-			  : m_thread_id(thread_id)
-			  , m_outer(c_ptr)
-			  , m_parsed(cp.m_parsed)
-		  { /* nothing */ }
-
-	 public:
-		  /************************************************************************/
-		  /**
-			* The destructor
-			*/
-		  virtual ~GWorker() = default;
-
-		  /************************************************************************/
-		  /**
-			* The main entry point for the execution
-			*/
-		  void run() {
-			  try {
-				  m_runLoopHasCommenced = false;
-
-				  std::shared_ptr<processable_type> p;
-				  std::chrono::milliseconds timeout(200);
-
-				  while (true) {
-					  // Have we been asked to stop ?
-					  if (m_outer->stopped()) break;
-
-					  // If we didn't get a valid item, start again with the while loop
-					  if (!m_broker_ptr->get(p, timeout)) {
-						  continue;
-					  }
-
-#ifdef DEBUG
-					  // Check that we indeed got a valid item
-					  if(!p) { // We didn't get a valid item after all
-						  throw gemfony_exception(
-							  g_error_streamer(DO_LOG,  time_and_place)
-								  << "In GStdThreadConsumerT<processable_type>::GWorker::run(): Error!" << std::endl
-								  << "Got empty item when it shouldn't be empty!" << std::endl
-						  );
-					  }
-#endif /* DEBUG */
-
-					  // Perform setup work once for the loop, as soon as we have
-					  // a processable item. Such setup work might require information
-					  // from that item, so we pass it to the function.
-					  if (!m_runLoopHasCommenced) {
-						  processInit(p);
-						  m_runLoopHasCommenced = true;
-					  }
-
-					  // Initiate the actual processing
-					  this->process(p);
-
-					  // Return the item to the broker. The item will be discarded
-					  // if the requested target queue cannot be found.
-					  try {
-						  std::size_t retCounter = 0;
-						  while (!m_broker_ptr->put(p, timeout)) { // This can lead to a loss of items
-							  // Terminate if we have been asked to stop
-							  if (m_outer->stopped()) break;
-							  retCounter++;
-						  }
-					  } catch (Gem::Courtier::buffer_not_present &) {
-						  continue;
-					  }
-				  }
-			  } catch(gemfony_exception& e) {
-				  throw gemfony_exception(
-					  g_error_streamer(DO_LOG,  time_and_place)
-						  << "In GStdThreadConsumerT<processable_type>::GWorker::run(): Caught gemfony_exception with message" << std::endl
-						  << e.what() << std::endl
-				  );
-			  } catch (std::exception &e) {
-				  throw gemfony_exception(
-					  g_error_streamer(DO_LOG,  time_and_place)
-						  << "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
-						  << "Caught std::exception with message" << std::endl
-						  << e.what() << std::endl
-				  );
-			  }
-			  catch (boost::exception &e) {
-				  throw gemfony_exception(
-					  g_error_streamer(DO_LOG,  time_and_place)
-						  << "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
-						  << "Caught boost::exception with message" << std::endl
-						  << boost::diagnostic_information(e) << std::endl
-				  );
-			  }
-			  catch (...) {
-				  throw gemfony_exception(
-					  g_error_streamer(DO_LOG,  time_and_place)
-						  << "In GStdThreadConsumerT<processable_type>::GWorker::run():" << std::endl
-						  << "Caught unknown exception." << std::endl
-				  );
-			  }
-
-			  // Perform any final work
-			  processFinalize();
-		  }
-
-		  /************************************************************************/
-		  /**
-			* Retrieve this class'es id
-			*/
-		  std::size_t getThreadId() const {
-			  return m_thread_id;
-		  }
-
-		  /************************************************************************/
-		  /**
-			* Parses a given configuration file. Note that parsing is done but once.
-			*
-			* @param configFile The name of a configuration file
-			*/
-		  void parseConfigFile(const std::string &configFile) {
-			  if (m_parsed) return;
-
-			  // Create a parser builder object -- local options will be added to it
-			  Gem::Common::GParserBuilder gpb;
-
-			  // Add configuration options of this and of derived classes
-			  addConfigurationOptions(gpb);
-
-			  // Do the actual parsing. Note that this
-			  // will try to write out a default configuration file,
-			  // if no existing config file can be found
-			  gpb.parseConfigFile(configFile);
-
-			  m_parsed = true;
-		  }
-
-	 protected:
-		  /************************************************************************/
-		  /**
-			* Initialization code for processing. Can be specified in derived classes.
-			*
-			* @param p A pointer to a processable item meant to allow item-based setup
-			*/
-		  virtual void processInit(std::shared_ptr <processable_type> p) { /* nothing */ }
-
-		  /************************************************************************/
-		  /**
-			* Finalization code for processing. Can be specified in derived classes.
-			*/
-		  virtual void processFinalize() { /* nothing */ }
-
-		  /************************************************************************/
-		  /**
-			* Adds local configuration options to a GParserBuilder object. We have no local
-			* data, hence this function is empty. It could have been declared purely virtual,
-			* however, we do not want to force derived classes to implement this function,
-			* as it might not always be needed.
-			*
-			* @param gpb The GParserBuilder object, to which configuration options will be added
-			*/
-		  virtual void addConfigurationOptions(
-			  Gem::Common::GParserBuilder &gpb
-		  ) { /* nothing -- no local data */ }
-
-		  /************************************************************************/
-
-		  std::size_t m_thread_id = 0; ///< The id of the thread running this class'es operator()
-		  const GStdThreadConsumerT<processable_type> *m_outer = nullptr;
-
-	 private:
-		  /************************************************************************/
-
-		  bool m_parsed = false; ///< Indicates whether parsing has been completed
-		  bool m_runLoopHasCommenced = false; ///< Allows to check whether the while loop inside of the run function has started
-
-		  std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
-
-	 public:
-		  /************************************************************************/
-		  // Some purely virtual functions
-
-		  /** @brief Creation of deep clones of this object('s derivatives) */
-		  virtual std::shared_ptr<GWorker> clone(
-			  const std::size_t &
-			  , const GStdThreadConsumerT<processable_type> *
-		  ) const BASE = 0;
-
-		  /** @brief Actual per-item work is done here -- Implement this in derived classes */
-		  virtual void process(std::shared_ptr <processable_type> p) BASE = 0;
-	 };
-
-	 /***************************************************************************/
-	 /**
-	  * The default derivative of GWorker that is used when no other worker has
-	  * been registered with our outer class.
-	  */
-	 class GDefaultWorker
-		 : public GStdThreadConsumerT<processable_type>::GWorker {
-	 public:
-		  /************************************************************************/
-		  /**
-			* The default constructor
-			*/
-		  GDefaultWorker() : GWorker() { /* nothing */ }
-
-	 protected:
-		  /************************************************************************/
-		  /**
-			* The copy constructor.
-			*/
-		  GDefaultWorker(
-			  const GDefaultWorker &cp
-			  , const std::size_t &thread_id
-			  , const GStdThreadConsumerT<processable_type> *outer
-		  )
-			  : GWorker(cp, thread_id, outer)
-		  { /* nothing */ }
-
-	 public:
-		  /************************************************************************/
-		  /**
-			* The destructor
-			*/
-		  virtual ~GDefaultWorker() { /* nothing */ }
-
-		  /************************************************************************/
-		  /**
-			* Create a deep clone of this object, camouflaged as a GWorker
-			*/
-		  virtual std::shared_ptr <GWorker> clone(
-			  const std::size_t &thread_id
-			  , const GStdThreadConsumerT<processable_type> *outer
-		  ) const {
-#ifdef DEBUG
-			  if(!outer) {
-				  throw gemfony_exception(
-					  g_error_streamer(DO_LOG,  time_and_place)
-						  << "In GStdThreadConsumerT<processable_type>::GWorker::clone(): Error!" << std::endl
-						  << "Got empty pointer!" << std::endl
-				  );
-			  }
-#endif /* DEBUG */
-
-			  return std::shared_ptr<GDefaultWorker>(new GDefaultWorker(*this, thread_id, outer));
-		  }
-
-		  /************************************************************************/
-		  /**
-			* Actual per-item work is done here. Overload this function if you want
-			* to do something different here.
-			*/
-		  virtual void process(std::shared_ptr <processable_type> p) {
-			  // Do the actual work
-#ifdef DEBUG
-			  if(p) p->process();
-			  else {
-				  throw gemfony_exception(
-					  g_error_streamer(DO_LOG,  time_and_place)
-						  << "In GStdThreadConsumerT<processable_type>::GWorker::process(): Error!" << std::endl
-						  << "Received empty pointer for processable object" << std::endl
-				  );
-			  }
-#else
-			  p->process();
-#endif /* DEBUG */
-		  }
-
-		  /************************************************************************/
-	 };
+	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/

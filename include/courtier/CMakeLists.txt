@@ -14,6 +14,7 @@ SET ( COMMUNICATIONINCLUDES
     GProcessingContainerT.hpp
     GSerialConsumerT.hpp
     GStdThreadConsumerT.hpp
+    GWorkerT.hpp
 )
 
 set_source_files_properties(
