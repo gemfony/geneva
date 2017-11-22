@@ -136,6 +136,7 @@ ADD_CUSTOM_TARGET(
     core
     examples
     tests
+    # incubator
     COMMENT "Build the entire Gemfony library collection"
 )
 

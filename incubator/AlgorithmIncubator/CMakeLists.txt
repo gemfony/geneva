@@ -22,7 +22,7 @@ MESSAGE("")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --std=c++11")
 
 set(MAIN_SOURCES
-	main.cpp
+        main.cpp
 )
 
 set(EXECUTABLENAME

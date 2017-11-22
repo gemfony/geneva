@@ -65,6 +65,24 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
     ${OpenCL_LIBRARIES}
 )
 
+SET ( MONALISAINCLUDES
+    GImageIndividual.hpp
+    GImageOpenCLWorker.hpp
+    GImagePOM.hpp
+    GOpenCLCanvas.hpp
+    GOpenCLWorkerT.hpp
+)
+
+# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
+ADD_CUSTOM_TARGET(CLION_MONALISA_HEADERS SOURCES ${MONALISAINCLUDES})
+
+SET_TARGET_PROPERTIES(
+    CLION_MONALISA_HEADERS
+    PROPERTIES
+    CXX_STANDARD 14
+    CXX_STANDARD_REQUIRED 14
+)
+
 ADD_SUBDIRECTORY(pictures)
 ADD_SUBDIRECTORY(code)
 ADD_SUBDIRECTORY(config)

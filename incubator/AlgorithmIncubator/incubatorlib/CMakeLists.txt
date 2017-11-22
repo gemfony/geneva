@@ -1,9 +1,9 @@
 set(OAINCUBATOR_HEADERS
-	incubator.hpp
+        incubator.hpp
 )
 
 set(OAINCUBATOR_SOURCES
-	incubator.cpp
+        incubator.cpp
 )
 
 set(LIBRARYNAME
