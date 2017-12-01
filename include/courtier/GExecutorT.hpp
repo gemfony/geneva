@@ -2088,7 +2088,7 @@ private:
 			 m_lastReturnTime = std::chrono::high_resolution_clock::now();
 		 }
 
-		 bool completed = false;
+		 bool complete = false;
 		 bool has_errors = false;
 
 		 auto current_submission_id = this->getCurrentSubmissionId();
@@ -2101,11 +2101,18 @@ private:
 
 			 // Add the work item to the list in the desired position. Re-submitted items
 			 // might return twice, so we only add them if a processed item hasn't been added yet.
-			 if (processingStatus::DO_PROCESS == workItems.at(worker_position)->getProcessingStatus()) {
+			 // We also take care of the situation that w_ptr points to the same object as the one
+			 // stored in the workItems vector. This may happen in the case of local submission,
+			 // such as with multi-threaded or serial consumers. DO_PROCESS will have been replaced
+			 // by PROCESSED in this case.
+			 if (
+				 workItems.at(worker_position) == w_ptr // Same item
+				 || processingStatus::DO_PROCESS == workItems.at(worker_position)->getProcessingStatus()
+			 ) {
 				 // Note that also items with errors may be added here. It is up to
 				 // the caller to decide what to do with such work items.
-				 workItems.at(worker_position) = w_ptr;
-				 if (++nReturnedCurrent==this->getExpectedNumber()) completed=true;
+				 if(workItems.at(worker_position) != w_ptr) workItems.at(worker_position) = w_ptr;
+				 if (++nReturnedCurrent==this->getExpectedNumber()) complete=true;
 				 if (w_ptr->has_errors()) has_errors=true;
 			 } // no else
 		 } else { // Not a work item from the current submission cycle.
@@ -2125,7 +2132,7 @@ private:
 			 }
 		 }
 
-		 return std::make_tuple(completed, has_errors);
+		 return std::make_tuple(complete, has_errors);
 	 }
 
 	 /***************************************************************************/
