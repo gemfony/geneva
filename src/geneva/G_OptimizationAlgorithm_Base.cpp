@@ -2034,10 +2034,11 @@ bool G_OptimizationAlgorithm_Base::qualityHalt() const {
 bool G_OptimizationAlgorithm_Base::stallHalt() const {
 	if(m_stallCounter > m_maxStallIteration) {
 		if(m_emitTerminationReason) {
-			std::cout
+			glogger
 				<< "Terminating optimization run because" << std::endl
 				<< "maximum number of stalls " << m_maxStallIteration << " has been exceeded." << std::endl
-				<< "This is considered to be a criterion for convergence." << std::endl;
+				<< "This is considered to be a criterion for convergence." << std::endl
+	         << GLOGGING;
 		}
 
 		return true;
@@ -2055,9 +2056,10 @@ bool G_OptimizationAlgorithm_Base::stallHalt() const {
 bool G_OptimizationAlgorithm_Base::iterationHalt() const {
 	if(m_iteration >= m_maxIteration) {
 		if(m_emitTerminationReason) {
-			std::cout
+			glogger
 				<< "Terminating optimization run because" << std::endl
-				<< "iteration threshold " << m_maxIteration << " has been exceeded." << std::endl;
+				<< "iteration threshold " << m_maxIteration << " has been exceeded." << std::endl
+				<< GLOGGING;
 		}
 
 		return true;
@@ -2125,9 +2127,10 @@ bool G_OptimizationAlgorithm_Base::touchHalt() const {
 	// Check if the file was modified after the start of the optimization run
 	if(modTime > m_startTime) {
 		if(m_emitTerminationReason) {
-			std::cout
+			glogger
 				<< "Terminating optimization run because" << std::endl
-				<< p << " was modified after the start of the optimization" << std::endl;
+				<< p << " was modified after the start of the optimization" << std::endl
+				<< GLOGGING;
 		}
 
 		return true;
