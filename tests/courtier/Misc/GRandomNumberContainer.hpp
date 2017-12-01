@@ -76,41 +76,40 @@ namespace Tests {
 class GRandomNumberContainer
 	:public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
 
-		ar & make_nvp("GProcessingContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>>(*this))
-		& BOOST_SERIALIZATION_NVP(randomNumbers_);
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar & make_nvp("GProcessingContainerT_GRandomNumberContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>>(*this))
+		 & BOOST_SERIALIZATION_NVP(randomNumbers_);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The standard constructor -- Initialization with an amount of random numbers */
-	GRandomNumberContainer(const std::size_t&);
-	/** @brief The copy constructor */
-	GRandomNumberContainer(const GRandomNumberContainer&);
-	/** @brief The destructor */
-	virtual ~GRandomNumberContainer();
+	 /** @brief The standard constructor -- Initialization with an amount of random numbers */
+	 GRandomNumberContainer(const std::size_t&);
+	 /** @brief The copy constructor */
+	 GRandomNumberContainer(const GRandomNumberContainer&) = default;
+	 /** @brief The destructor */
+	 virtual ~GRandomNumberContainer() = default;
 
-	/** @brief Prints out this objects random number container */
-	void print();
+	 /** @brief Prints out this objects random number container */
+	 void print();
 
-protected:
+private:
+	 /** @brief The default constructor -- only needed for de-serialization purposes */
+	 GRandomNumberContainer() = default;
+
 	 /** @brief Allows to specify the tasks to be performed for this object */
 	 virtual void process_() override;
 
 	 /** @brief Allows to give an indication of the processing result; may not throw. */
 	 virtual bool get_processing_result() const noexcept override;
 
-private:
-	/** @brief The default constructor -- only needed for de-serialization purposes */
-	GRandomNumberContainer();
-
-	std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
+	 std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
 };
 
 /**********************************************************************************************/

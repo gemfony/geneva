@@ -1224,8 +1224,8 @@ void GExternalEvaluatorIndividualFactory::archive(
 	}
 
 	// Create a suitable extension and exchange file names for this object
-	std::chrono::time_point<std::chrono::system_clock> p1;
-	std::chrono::time_point<std::chrono::system_clock> p2 = std::chrono::system_clock::now();
+	std::chrono::time_point<std::chrono::high_resolution_clock> p1;
+	std::chrono::time_point<std::chrono::high_resolution_clock> p2 = std::chrono::high_resolution_clock::now();
 	std::chrono::milliseconds ms_since_1970 = std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
 	std::string extension =
 		"-since1970-"

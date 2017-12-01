@@ -42,13 +42,6 @@ namespace Tests {
 
 /********************************************************************************************/
 /**
- * The default constructor -- only needed for de-serialization purposes.
- */
-GRandomNumberContainer::GRandomNumberContainer()
-{ /* nothing */ }
-
-/********************************************************************************************/
-/**
  * The standard constructor -- Initialization with an amount of random numbers
  *
  * @param nrnr The desired amount of random numbers to be added to the randomNumbers_ vector
@@ -59,25 +52,6 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
 	for(std::size_t i=0; i<nrnr; i++) {
 		randomNumbers_.push_back(uniform_real_distribution(gr));
 	}
-}
-
-/********************************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GRandomNumberContainer object
- */
-GRandomNumberContainer::GRandomNumberContainer(const GRandomNumberContainer& cp)
-	: Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>(cp)
-	, randomNumbers_(cp.randomNumbers_)
-{ /* nothing */ }
-
-/********************************************************************************************/
-/**
- * The destructor
- */
-GRandomNumberContainer::~GRandomNumberContainer() {
-	randomNumbers_.clear();
 }
 
 /********************************************************************************************/

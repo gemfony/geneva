@@ -140,6 +140,16 @@ G_API_COMMON
 std::string getMSSince1970();
 
 /******************************************************************************/
+/** @brief Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number */
+G_API_COMMON
+std::chrono::milliseconds::rep time_point_to_milliseconds(const std::chrono::high_resolution_clock::time_point&);
+
+/******************************************************************************/
+/** @brief Converts an arithmetic number into  a std::chrono::high_resolution_clock::time_point */
+G_API_COMMON
+std::chrono::high_resolution_clock::time_point milliseconds_to_time_point(const std::chrono::milliseconds::rep&);
+
+/******************************************************************************/
 /** @brief Raise an exception if a given define wasn't set */
 G_API_COMMON
 void condnotset(const std::string&, const std::string&);

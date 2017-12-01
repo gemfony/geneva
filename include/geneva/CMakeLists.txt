@@ -24,6 +24,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GDoubleObject.hpp
 	GDoubleObjectCollection.hpp
 	GenevaHelperFunctionsT.hpp
+    GenevaHelperFunctions.hpp
 	GenevaInitializer.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
@@ -69,10 +70,10 @@ SET ( OPTIMIZATIONINCLUDES
     G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp
     G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp
     G_OA_ConjugateGradientDescent.hpp
-        G_OptimizationAlgorithm_FactoryT.hpp
-        G_OptimizationAlgorithm_FactoryStore.hpp
-        G_OptimizationAlgorithm_InitializerT.hpp
-        G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp
+    G_OptimizationAlgorithm_FactoryT.hpp
+    G_OptimizationAlgorithm_FactoryStore.hpp
+    G_OptimizationAlgorithm_InitializerT.hpp
+    G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp
 	Go2.hpp
     GObject.hpp
 	GOptimizableEntity.hpp

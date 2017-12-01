@@ -48,6 +48,8 @@
 #include <tuple>
 #include <chrono>
 #include <exception>
+#include <thread>
+#include <mutex>
 
 // Boost headers go here
 #include <boost/lexical_cast.hpp>
@@ -99,8 +101,6 @@ namespace Courtier {
 // TODO: Even in the case "capable of full return" we need to take into account
 // that work items may return unprocessed. E.g. the processing code itself
 // might throw.
-// TODO: Take care of marking some classes abstract
-// TODO: Take care of making some of theses classes serializable
 // TODO: In G_OptimizationAlgorithm_Base(cpp/hpp): serialize-exports instantiations with processable_type == GParameterSet
 // TODO: Some variables are still not listet in all Gemfony-API functions
 // TODO: Do we need to serialize further items ?
@@ -122,7 +122,7 @@ class GBaseExecutorT
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
 		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
-		 , "GBaseExecutorT: processable_type does not adhere to the GProcessingContainerT interface"
+		 , "GBaseExecutorT: processable_type does not adhere to the GProcessingContainerT<> interface"
 	 );
 
 public:
@@ -159,7 +159,7 @@ public:
 	  */
 	 GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
 		 : Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(cp)
-			, m_maxResubmissions(cp.m_maxResubmissions)
+		 , m_maxResubmissions(cp.m_maxResubmissions)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -247,92 +247,121 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Submits and retrieves a set of work items. You need to supply a vector
-	  * of booleans of the same length indicating which items need to be submitted.
-	  * "true" stands for "submit", "false" leads to the corresponding work items
-	  * being ignored. After the function returns, some or all of the work items
-	  * will have been processed. You can find out about this by querying the workItemPos
-	  * vector. Item positions that have been processed will be set to "false".
-	  * Positions remaining "true" have not been processed (but might still return in
-	  * later iterations). It is thus also possible that returned items do not belong
-	  * to the current submission cycle. They will be appended to the oldWorkItems vector.
-	  * You might thus have to post-process the work items. Note that it is impossible
-	  * to submit items that are not derived from GProcessingContainerT<processable_type>.
-	  * This function will not alter the size of the workItems vector. It does not
-	  * guarantee that all work items have indeed been processed. You can find out
-	  * via the workItemPos vector, which items were processed.
-	  *
-	  * TODO: Catch exceptions in this loop or in the entire function
-	  * TODO: Allow passing a range / a pair of iterators instead of a std::vector
+	  * Submits and retrieves a set of work items in cycles / iterations. Each
+	  * iteration reprecents a cycle of work item submission and (posssibly full) retrieval.
+	  * Iterations may not overlap, i.e. this function may not be called on the same
+	  * GExecutorT object while another call is still running. The function aims to
+	  * prevent this situation by setting and releasing a lock during its run-time.
+	  * Work items need to be derived from the GProcessingContainerT, and need to have been marked with
+	  * either IGNORE (these will not be processed) or DO_PROCESS. After processing,
+	  * they will have one of the flags IGNORE (if they were not due to be processed),
+	  * EXCEPTION_CAUGHT (if some exeption was raised during processing) or ERROR_FLAGGED
+	  * (if the user code has marked a solution as unusable). Depending on your submission
+	  * mode returning items may still have the DO_PROCESS flag set (if items did not return
+	  * in time) or RESUBMIT_FAILED (if even after resubmission no processed item has
+	  * returned). Note that items still marked as DO_PROCESS may well return in later
+	  * iterations. It is thus also possible that returned items do not belong
+	  * to the current submission cycle. They will be appended to the m_old_work_items_vec vector.
+	  * You might thus have to post-process such "old" work items. This vector will be cleared
+	  * for each new iteration. Hence, if you are interested in old work items, you need to
+	  * retrieve them first.
 	  *
 	  * @param workItems A vector with work items to be evaluated beyond the broker
-	  * @param workItemPos A vector of the item positions to be worked on
 	  * @param resubmitUnprocessed Indicates whether unprocessed items should be resubmitted
 	  * @param caller Optionally holds information on the caller
-	  * @return A boolean indicating whether all expected items have returned
+	  * @return A tuple of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
-	 bool workOn(
+	 std::tuple<bool,bool> workOn(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool>& workItemPos
 		 , bool resubmitUnprocessed = false
 		 , const std::string &caller = std::string()
 	 ) {
-		 bool completed = false;
-
-		 // Set the start time of the new iteration
-		 m_submissionStartTime = std::chrono::system_clock::now();
-
-		 // Check that both vectors have the same size
-		 Gem::Common::assert_container_sizes_match(
-			 workItems
-			 , workItemPos
-			 , "GBaseExecutorT<processable_type>::workOn()"
-		 );
-
-		 // Clear old work items not retrieved after the last iteration
-		 m_old_work_items_vec.clear();
-
-		 // The expected number of work items from the current iteration is
-		 // equal to the number of unprocessed items
-		 m_expectedNumber = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
-		 // Take care of a situation where no items have been submitted
-		 if (m_expectedNumber == 0) {
-			 return true;
+		 //------------------------------------------------------------------------------------------
+		 // Make sure only one instance of this function may be called at the same time. If locking
+		 // the mutex fails, some other call to this function is still alive, which is a severe error
+		 std::unique_lock<std::mutex> workon_lock(m_conccurrent_workon_mutex, std::defer_lock);
+		 if(!workon_lock.try_lock()) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBaseExeuctorT<processable_type>::workOn(): Another call to this function still seems" << std::endl
+					 << "to be active which is a severe error."
+			 );
 		 }
 
+		 //------------------------------------------------------------------------------------------
+		 // Reset some counters
+
+		 m_n_returnedLast = 0;
+		 m_n_notReturnedLast = 0;
+		 m_n_oldWorkItems = 0;
+		 m_n_erroneousItems = 0;
+
+		 bool completed  = false;
+		 bool has_errors = false;
+
+		 // Set the start time of the new iteration
+		 // TODO: This should be obtained from GBufferPortT -- the time when the first item was retrieved from the queue
+		 m_submissionStartTime = std::chrono::high_resolution_clock::now();
+
+		 // Clear old work items not cleared by the caller after the last iteration
+		 m_old_work_items_vec.clear();
+
+		 //------------------------------------------------------------------------------------------
+		 // The main business logic of item submission
+
 		 // Perform necessary setup work for an iteration (a facility for derived classes)
-		 this->iterationInit(workItems, workItemPos);
+		 this->iterationInit(workItems);
+
+		 // Take care of a situation where no items have been submitted
+		 if((m_expectedNumber = this->countItemsWithStatus(workItems, processingStatus::DO_PROCESS)) == 0) {
+#ifdef DEBUG
+			 // This should be a very rare situation, so we let the audience know in DEBUG mode.
+			 glogger
+				 << "In GBaseExeuctorT<processable_type>::workOn(): There were no items to be processed."
+				 << GLOGGING;
+#endif
+
+			 return std::make_tuple<bool,bool>(true /* completed */, false /* has_errors */);
+		 }
 
 		 std::size_t nResubmissions = 0;
 		 do {
 			 // Submit all work items.
-			 this->submitAllWorkItems(
-				 workItems
-				 , workItemPos
-			 );
+			 this->submitAllWorkItems(workItems);
 
 			 // Wait for work items to complete. This function needs to
 			 // be re-implemented in derived classes.
-			 completed = waitForReturn(
+			 auto item_state = waitForReturn(
 				 workItems
-				 , workItemPos
 				 , m_old_work_items_vec
 			 );
 
-			 // We may leave if all items have returned or the user
-			 // hasn't asked to resubmit unprocessed items
-			 if(completed || !resubmitUnprocessed) break;
+			 completed  = std::get<0>(item_state);
+			 has_errors = std::get<1>(item_state);
+
+			 // We leave if all items have returned, if items are missing and the user hasn't asked to resubmit
+			 // unprocessed items, or if there were errors during processing.
+			 if(completed || has_errors || !resubmitUnprocessed) break;
 		 } while(m_maxResubmissions>0 ? (++nResubmissions < m_maxResubmissions) : true);
 
 		 // Perform necessary cleanup work for an iteration (a facility for derived classes)
-		 this->iterationFinalize(workItems, workItemPos);
+		 this->iterationFinalize(workItems);
 
-		 // Find out about the number of returned items
-		 m_n_notReturnedLast = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
+		 //------------------------------------------------------------------------------------------
+		 // Do some book-keeping and clean-up
+
+		 // Find out about the number of items that have not returned (yet) from the last submission.
+		 // These are equivalent to the items that still have the DO_PROCESS flag set.
+		 m_n_notReturnedLast = this->countItemsWithStatus(workItems, processingStatus::DO_PROCESS);
+		 // The number of actually returned items is equal to the number of expected items minus the number of not returned items
 		 m_n_returnedLast    = m_expectedNumber - m_n_notReturnedLast;
-		 m_n_oldWorkItems    = m_old_work_items_vec.size();
+		 // Count the number of work items with errors. We need to count two flags
+		 m_n_erroneousItems  = this->countItemsWithStatus(workItems, processingStatus::ERROR_FLAGGED);
+		 m_n_erroneousItems += this->countItemsWithStatus(workItems, processingStatus::EXCEPTION_CAUGHT);
+		 // Remove unprocessed items from the list of old work items
+		 m_n_oldWorkItems    = this->cleanItemVectorWithoutFlag(m_old_work_items_vec, processingStatus::PROCESSED);
 
-		 // Sort old work items according to their ids so they can be readily used by the caller
+		 // Sort remaining old work items according to their position so they can be readily used by the caller.
 		 std::sort(
 			 m_old_work_items_vec.begin()
 			 , m_old_work_items_vec.end()
@@ -349,7 +378,7 @@ public:
 		 m_iteration_counter++;
 
 		 // Note: unprocessed items will be returned to the caller who needs to deal with them
-		 return completed;
+		 return std::make_tuple(completed, has_errors);
 	 }
 
 	 /***************************************************************************/
@@ -407,7 +436,7 @@ public:
 	 /**
 	  * Retrieve the number of individuals returned during the last iteration
 	  */
-	 std::size_t getNReturned() const {
+	 std::size_t getNReturned() const noexcept {
 		 return m_n_returnedLast;
 	 }
 
@@ -415,7 +444,7 @@ public:
 	 /**
 	  * Retrieve the number of individuals NOT returned during the last iteration
 	  */
-	 std::size_t getNNotReturned() const {
+	 std::size_t getNNotReturned() const noexcept {
 		 return m_n_notReturnedLast;
 	 }
 
@@ -423,15 +452,23 @@ public:
 	 /**
  	  * Retrieves the current number of old work items in this iteration
  	  */
-	 std::size_t getNOldWorkItems() const {
+	 std::size_t getNOldWorkItems() const noexcept {
 		 return m_n_oldWorkItems;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the number of work items with errors in this iteration
+	  */
+	 std::size_t getNErroneousWorkItems() const noexcept {
+		 return m_n_erroneousItems;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Retrieves the current submission id
 	  */
-	 ITERATION_COUNTER_TYPE getCurrentSubmissionId() const {
+	 ITERATION_COUNTER_TYPE getCurrentSubmissionId() const noexcept {
 		 return m_iteration_counter;
 	 }
 
@@ -489,7 +526,6 @@ protected:
 	  */
 	 virtual void iterationInit(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 	 ) BASE { /* nothing */ }
 
 	 /***************************************************************************/
@@ -500,7 +536,6 @@ protected:
 	  */
 	 virtual void iterationFinalize(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 	 ) BASE { /* nothing */ }
 
 	 /***************************************************************************/
@@ -509,32 +544,46 @@ protected:
 	  *
 	  * TODO: Take care of situations where submission may block
 	  */
-	 void submitAllWorkItems(
-		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
-	 ) {
+	 void submitAllWorkItems(std::vector<std::shared_ptr<processable_type>>& workItems) {
 		 // Submit work items
 		 SUBMISSION_POSITION_TYPE pos_cnt = 0;
 		 for(auto w_ptr: workItems) { // std::shared_ptr may be copied
-			 if (GBC_UNPROCESSED == workItemPos[pos_cnt]) { // Is the item due to be submitted ? We only submit items that are marked as "unprocessed"
 #ifdef DEBUG
-				 if(!w_ptr) {
-					 throw gemfony_exception(
-						 g_error_streamer(DO_LOG, time_and_place)
-							 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
-							 << "Received empty work item in position "  << pos_cnt << std::endl
-							 << "m_iteration_counter = " << m_iteration_counter << std::endl
-					 );
-				 }
+			 if(!w_ptr) {
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
+						 << "Received empty work item in position "  << pos_cnt << std::endl
+						 << "m_iteration_counter = " << m_iteration_counter << std::endl
+				 );
+			 }
 #endif
 
+			 // Is the item due to be submitted ?
+			 processingStatus ps = w_ptr->getProcessingStatus();
+			 if(processingStatus::DO_PROCESS == ps) {
 				 w_ptr->setSubmissionCounter(m_iteration_counter);
 				 w_ptr->setSubmissionPosition(pos_cnt);
 
 				 this->submit(w_ptr);
+			 } else if(processingStatus::IGNORE != ps) {
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
+						 << "processing status is neither DO_PROCESS nor IGNORE. We got " << ps << std::endl
+				 );
 			 }
+
 			 pos_cnt++;
 		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the expected number of work items in the current iteration
+	  */
+	 std::size_t getExpectedNumber() const noexcept {
+		 return m_expectedNumber;
 	 }
 
 	 /***************************************************************************/
@@ -549,12 +598,12 @@ protected:
 	  * Waits for work items to return and checks for completeness
 	  * (i.e. all items have returned and there were no exceptions).
 	  *
-	  * @return A boolean indicating whether all items were processed successfully
+	  * @param workItems A vector with work items to be evaluated beyond the broker
+	  * @param oldWorkItems A vector with work items that have returned after the threshold
+	  * @return A tuple of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
-
-	 virtual bool waitForReturn(
-		 std::vector<std::shared_ptr<processable_type>>&
-		 , std::vector<bool>&
+	 virtual std::tuple<bool,bool> waitForReturn(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<std::shared_ptr<processable_type>>&
 	 ) = 0;
 
@@ -563,15 +612,81 @@ protected:
 	 ITERATION_COUNTER_TYPE m_iteration_counter = ITERATION_COUNTER_TYPE(0); ///< Counts the number of submissions initiated for this object. Note: not serialized!
 
 	 std::size_t m_expectedNumber = 0; ///< The number of work items to be submitted (and expected back)
-	 std::chrono::system_clock::time_point m_submissionStartTime = std::chrono::system_clock::now(); ///< Temporary that holds the start time for the retrieval of items in a given iteration
+	 std::chrono::high_resolution_clock::time_point m_submissionStartTime = std::chrono::high_resolution_clock::now(); ///< Temporary that holds the start time for the retrieval of items in a given iteration
 
 	 std::size_t m_maxResubmissions = DEFAULTMAXRESUBMISSIONS; ///< The maximum number of re-submissions allowed if a full return of submitted items is attempted
 
 	 std::size_t m_n_returnedLast = 0; ///< The number of individuals returned in the last iteration cycle
 	 std::size_t m_n_notReturnedLast = 0; ///< The number of individuals NOT returned in the last iteration cycle
 	 std::size_t m_n_oldWorkItems = 0; ///< The number of old work items returned in a given iteration
+	 std::size_t m_n_erroneousItems = 0; ///< The number of work items with errors in the current iteration
 
 	 std::vector<std::shared_ptr<processable_type>> m_old_work_items_vec; ///< Temporarily holds old work items of the current iteration
+
+	 std::mutex m_conccurrent_workon_mutex; ///< Makes sure the workOn function is only called once at the same time on this object
+
+private:
+	 /***************************************************************************/
+	 /**
+	  * Count the number of work items in a batch with a specific flag
+	  */
+	 std::size_t countItemsWithStatus(
+		 const std::vector<std::shared_ptr<processable_type>>& workItems
+		 , const processingStatus& ps
+	 ) {
+		 return boost::numeric_cast<std::size_t>(
+			 std::count_if(
+				 workItems.begin()
+				 , workItems.end()
+				 , [ps](std::shared_ptr<processable_type> p) {
+					 if(ps == p->getProcessingStatus()) {
+						 return true;
+					 }
+					 return false;
+				 }
+			 )
+		 );
+	 }
+
+	 /***************************************************************************/
+ 	 /**
+ 	  * Removes work items without a given flag from the vector and return
+ 	  * the number of remaining items
+ 	  */
+	 std::size_t cleanItemVectorWithoutFlag(
+		 std::vector<std::shared_ptr<processable_type>>& items_vec
+		 , const processingStatus& desired_ps
+	 ) {
+		 // Remove unprocessed items from the list of old work items
+		 Gem::Common::erase_if(
+			 items_vec
+			 , [this, desired_ps](std::shared_ptr<processable_type> item_ptr) {
+				 auto ps = item_ptr->getProcessingStatus();
+				 if(ps != desired_ps) {
+#ifdef DEBUG
+					 // Some logging, as this condition should be very rare and might indicate a more general problem.
+					 glogger
+						 << "In GBaseExeuctorT<processable_type>::workOn():" << std::endl
+						 << "Removing work item in submission " << this->getCurrentSubmissionId() << std::endl
+						 << "because it does not have the desired status " << desired_ps << std::endl
+						 << "Found status " << ps << " instead." << std::endl
+						 << GLOGGING;
+#endif
+
+					 // Erase
+					 return true;
+				 }
+
+				 // Do not erase
+				 return false;
+			 }
+		 );
+
+		 // Return the number of remaining items
+		 return items_vec.size();
+	 }
+
+	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -756,20 +871,31 @@ protected:
 		 try {
 			 // process may throw ...
 			 w_ptr->process();
-		 } catch(...) {
-			 // We catch every error but make sure to mark processing as unsuccessful
-			 // in the work item. We also inform the audience.
-
-			 w_ptr->force_mark_processing_as_unsuccessful();
-
+		 } catch(const g_processing_exception& e) {
+			 // This is an expected excpetion if processing has failed. We do nothing,
+			 // it is up to the caller to decide what to do with processing errors, and
+			 // these are also stored in the processing item. We do try to create a sort
+			 // of stack trace by emitting a warning, though. Processing errors should be rare,
+			 // so might hint at some problem.
 			 glogger
 				 << "In GSerialExecutorT<processable_type>::submit():" << std::endl
-				 << "Caught an exception while processing the work item" << std::endl
+				 << "Caught a g_processing_exception exception while processing the work item" << std::endl
+				 << "with the error message" << std::endl
+				 << e.what() << std::endl
 				 << "Exception information should have been stored in the" << std::endl
-				 << "work item itself. We have marked processing as" << std::endl
-				 << "unsuccessful in the work item but leave it to the" << std::endl
+				 << "work item itself. Processing should have been marked as" << std::endl
+				 << "unsuccessful in the work item. We leave it to the" << std::endl
 				 << "submitter to deal with this." << std::endl
 				 << GWARNING;
+		 } catch(...) {
+			 // All exceptions should be caught inside of the process() call. It is a
+			 // severe error if we nevertheless catch an error here. We throw a corresponding
+			 // gemfony exception.
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GSerialExecutorT<processable_type>::submit(): Caught an" << std::endl
+					 << "unknown exception in a place where we didn't expect any exceptions" << std::endl
+			 );
 		 }
 	 }
 
@@ -777,31 +903,35 @@ protected:
 	 /**
 	  * Waits for work items to return and checks for completeness
 	  * (i.e. all items have returned and there were no exceptions).
+	  *
+	  * @param workItems A vector with work items to be evaluated beyond the broker
+	  * @param oldWorkItems A vector with work items that have returned after the threshold
+	  * @return A tuple of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
-	 virtual bool waitForReturn(
-		 std::vector<std::shared_ptr < processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
+	 virtual std::tuple<bool,bool> waitForReturn(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 bool complete = true; // Indicates whether "all items exist and there were no errors"
+		 bool has_errors = false; // Indicates whether there were any exceptions / errors
 
-		 // All data comes from the parent function, so we do not need to wait
-		 // for returns. All we need to do is to take care of unprocessed items.
-
-		 // Mark all positions, for which processing was successful, as "processed"
-		 std::size_t pos = 0;
+		 // We are dealing with serial execution on the local computer, so we
+		 // do not need to wait for return. All we need to do is to check whether
+		 // we had a "complete return". In case of complete return we should only
+		 // have positions marked "PROCESSED" or "IGNORE".
 		 for(auto item_ptr: workItems) { // std::shared_ptr may be copied
-			 if(item_ptr->processing_was_successful()) {
-				 workItemPos.at(pos) = GBC_PROCESSED;
-			 } else {
-				 workItemPos.at(pos) = GBC_UNPROCESSED;
+			 processingStatus ps = item_ptr->getProcessingStatus();
+			 if(processingStatus::PROCESSED != ps && processingStatus::IGNORE != ps) {
 				 complete = false;
+				 break;
 			 }
 
-			 ++pos;
+			 if(processingStatus::ERROR_FLAGGED == ps || processingStatus::EXCEPTION_CAUGHT == ps) {
+				 has_errors = true;
+			 }
 		 }
 
-		 return complete;
+		 return std::make_tuple(complete, has_errors);
 	 }
 
 private:
@@ -974,10 +1104,10 @@ public:
 
 	 /***************************************************************************/
 	 /**
- * Retrieves the number of threads this population uses.
- *
- * @return The maximum number of allowed threads
- */
+	  * Retrieves the number of threads this population uses.
+	  *
+	  * @return The maximum number of allowed threads
+	  */
 	 std::uint16_t getNThreads() const {
 		 return m_n_threads;
 	 }
@@ -1079,11 +1209,10 @@ protected:
 	  */
 	 virtual void iterationInit(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 	 ) override {
 		 // Make sure the parent classes iterationInit function is executed first
 		 // This function will also update the iteration start time
-		 GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos);
+		 GBaseExecutorT<processable_type>::iterationInit(workItems);
 
 		 // We want an empty futures vector for a new submission cycle,
 		 // so we do not deal with old errors.
@@ -1123,71 +1252,84 @@ protected:
 				 );
 			 }
 		 }
-
-		 // return f;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Waits for the thread pool to run empty and checks for completeness
 	  * (i.e. all items have returned and there were no exceptions).
+	  *
+	  * @param workItems A vector with work items to be evaluated beyond the broker
+	  * @param oldWorkItems A vector with work items that have returned after the threshold
+	  * @return A tuple of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
-	 virtual bool waitForReturn(
+	 virtual std::tuple<bool,bool> waitForReturn(
 		 std::vector<std::shared_ptr < processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 using result_type = typename processable_type::result_type;
 
+		 bool complete = true;
+		 bool has_errors = false; // Indicates whether there were any exceptions / errors
+
 		 // Wait for the threadpool to run empty
 		 m_gtp_ptr->wait();
 
-		 // Calculate the number of items that should have been processed
-		 std::size_t expectedNumber
-			 = boost::numeric_cast<std::size_t>(std::count(workItemPos.begin(), workItemPos.end(), GBC_UNPROCESSED));
-
 #ifdef DEBUG
 		 // Check that the futures vector has the expected size
-		 if(m_future_vec.size() != expectedNumber) {
+		 if(m_future_vec.size() != this->m_expectedNumber) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
-					 << "Expected " << expectedNumber << " items in m_future_vec, but got " << m_future_vec.size() << std::endl
+					 << "Expected " << this->m_expectedNumber << " items in m_future_vec, but got " << m_future_vec.size() << std::endl
 			 );
 		 }
-
-		 // Check that the workItemPos and workItems vector have the expected sizes
-		 Gem::Common::assert_container_sizes_match(
-			 workItems
-			 , workItemPos
-			 , "GMTExecutorT<processable_type>::waitForReturn()"
-		 );
 #endif
 
-		 // Mark all positions as "processed", unless there was an error during processing
+		 // Loop over all work items and check for errors as well as completeness.
 		 std::size_t pos = 0;
-		 std::size_t nProcessed = 0;
 		 std::size_t nSkipped = 0;
-		 for(auto &item_ptr: workItems) { // std::shared_ptr may be copied
-			 // Skip over items that already have the processed flag set
-			 if(GBC_PROCESSED == workItemPos.at(pos)) {
+		 for(auto it = workItems.begin(); it != workItems.end(); ++it, ++pos) {
+			 // Retrieval of processing status, syntactic sugar (item_ptr)
+			 auto item_ptr = *it;
+			 processingStatus ps = item_ptr->getProcessingStatus();
 
-				 nProcessed++;
+			 // Skip over items that were not due to be processed
+			 if(processingStatus::IGNORE == ps) {
 				 nSkipped++;
-				 pos++; // We do not reach the increment at the end of this for-loop
 				 continue;
+			 } else if(processingStatus::PROCESSED != ps) {
+				 complete = false;
 			 }
 
 			 // Retrieve the future and check for errors
 			 try {
 				 // Note that the workItems vector may have a different size than the
-				 // futures vector. Hence we need to deduct the number of skipped items
+				 // futures vector, as IGNOREd items are not submitted. Hence we need
+				 // to deduct the number of skipped items from the current position.
 				 result_type r = m_future_vec.at(pos-nSkipped).get();
+			 } catch(const g_processing_exception& e) {
+				 // This is an expected excpetion if processing has failed. We do nothing,
+				 // it is up to the caller to decide what to do with processing errors, and
+				 // these are also stored in the processing item. We do try to create a sort
+				 // of stack trace by emitting a warning, though. Processing errors should be rare,
+				 // so might hint at some problem.
+				 glogger
+					 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
+					 << "Caught a g_processing_exception exception while retrieving a future" << std::endl
+					 << "with the error message" << std::endl
+					 << e.what() << std::endl
+					 << "Exception information should have been stored in the" << std::endl
+					 << "work item itself. Processing should have been marked as" << std::endl
+					 << "unsuccessful in the work item. We leave it to the" << std::endl
+					 << "caller to deal with this." << std::endl
+					 << GWARNING;
 
-				 workItemPos.at(pos) = GBC_PROCESSED;
-				 nProcessed++;
+				 has_errors = true;
+				 complete = false;
 			 } catch(std::out_of_range& e) {
 				 // We rethrow the exception, as we assume that it originated from addressing the vector above
+				 // and thus is a severe, internal error that we want to know about.
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
@@ -1200,40 +1342,18 @@ protected:
 						 << std::endl
 				 );
 			 } catch(...) {
-				 // So an exception was thrown during execution. We mark the position as unprocessed
-				 // and do some error checking
-
-				 workItemPos.at(pos) = GBC_UNPROCESSED;
-
-#ifdef DEBUG
-				 // There should be no case where an exception was thrown inside of
-				 // the process call but the item is marked as being successfully processed.
-				 if(workItems.at(pos)->processing_was_successful()) {
-					 throw gemfony_exception(
-						 g_error_streamer(DO_LOG, time_and_place)
-							 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
-							 << "Item is marked as \"successfully processed\", while an" << std::endl
-							 << "exceptions seems to have been thrown inside of the process() call" << std::endl
-						 	 << "Work item has the following information: " << std::endl
-							 << "-------------------------------------------------" << std::endl
-							 << std::endl
-						 	 << item_ptr->get_and_clear_exceptions() << std::endl
-						 	 << std::endl
-							 << "-------------------------------------------------" << std::endl
-						 	 << std::endl
-					 );
-				 }
-#endif
+				 // All exceptions should be caught inside of the process() call (i.e. emanate
+				 // from future.get() . It is a severe error if we nevertheless catch an error here.
+				 // We throw a corresponding gemfony exception.
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GMTExecutorT<processable_type>::waitForReturn(): Caught an" << std::endl
+						 << "unknown exception in a place where we didn't expect any exceptions" << std::endl
+				 );
 			 }
-
-			 ++pos;
 		 }
 
-		 if(nProcessed == workItems.size()) {
-			 return true;
-		 } else {
-			 return false;
-		 }
+		 return std::make_tuple(complete, has_errors);
 	 }
 
 private:
@@ -1261,8 +1381,9 @@ private:
  * different consumers may be connected.
  */
 template<typename processable_type>
-class GBrokerExecutorT
-	: public GBaseExecutorT<processable_type> {
+class GBrokerExecutorT :
+	public GBaseExecutorT<processable_type>
+{
 	 ///////////////////////////////////////////////////////////////////////
 
 	 friend class boost::serialization::access;
@@ -1288,7 +1409,7 @@ class GBrokerExecutorT
 
 	 ///////////////////////////////////////////////////////////////////////
 
-	 using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>>;
+	 using GBufferPortT_ptr = std::shared_ptr<Gem::Courtier::GBufferPortT<processable_type>>;
 	 using GBroker_ptr = std::shared_ptr<Gem::Courtier::GBrokerT<processable_type>>;
 
 public:
@@ -1298,7 +1419,7 @@ public:
 	  */
 	 GBrokerExecutorT()
 		 : GBaseExecutorT<processable_type>()
-			, m_gpd("Maximum waiting times and returned items", 1, 2)
+	 	 , m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -1507,7 +1628,7 @@ public:
 		 // Make sure we have a valid buffer port
 		 if (!m_CurrentBufferPort) {
 			 m_CurrentBufferPort
-				 = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<std::shared_ptr<processable_type>>());
+				 = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<processable_type>());
 		 }
 
 		 // Retrieve a connection to the broker
@@ -1624,11 +1745,10 @@ protected:
 	  */
 	 virtual void iterationInit(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 	 ) override {
 		 // Make sure the parent classes iterationInit function is executed first
 		 // This function will also update the iteration start time
-		 GBaseExecutorT<processable_type>::iterationInit(workItems, workItemPos);
+		 GBaseExecutorT<processable_type>::iterationInit(workItems);
 	 }
 
 	 /***************************************************************************/
@@ -1638,13 +1758,12 @@ protected:
 	  */
 	 virtual void iterationFinalize(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 	 ) override {
 		 // Calculate average return times of work items.
 		 m_lastAverage =
 			 (GBaseExecutorT<processable_type>::m_n_returnedLast>0)
 			 ? (m_lastReturnTime - GBaseExecutorT<processable_type>::m_submissionStartTime)/GBaseExecutorT<processable_type>::m_n_returnedLast
-			 : (std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime)/GBaseExecutorT<processable_type>::m_expectedNumber; // this is an artificial number, as no items have returned
+			 : (std::chrono::high_resolution_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime)/GBaseExecutorT<processable_type>::m_expectedNumber; // this is an artificial number, as no items have returned
 
 		 m_maxTimeout =
 			 m_lastAverage
@@ -1652,57 +1771,14 @@ protected:
 			 * m_waitFactor;
 
 		 // Make sure the parent classes iterationFinalize function is executed last
-		 GBaseExecutorT<processable_type>::iterationFinalize(workItems, workItemPos);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Waits for all items to return or possibly until a timeout has been reached.
-	  * Checks for completeness (i.e. all items have returned and there were no exceptions).
-	  *
-	  * @return A boolean indicating whether all items where processed successfully
-	  */
-	 virtual bool waitForReturn(
-		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
-		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
-	 ) override {
-		 bool all_returned = false;
-		 bool complete = true;
-
-		 // Wait for all items to return or until a timeout was reached
-		 if(m_capable_of_full_return) {
-			 // Wait until all work items have returned (possibly indefinitely)
-			 all_returned = this->waitForFullReturn(workItems, workItemPos, oldWorkItems);
-		 } else {
-			 // Wait for a given amount of time, decided upon by the function.
-			 // Items that have not returned in time may return in a later iteration
-			 all_returned = this->waitForTimeOut(workItems, workItemPos, oldWorkItems);
-		 }
-
-		 // When not all items have returned, the caller may have to do more work.
-		 // So let the audience know.
-		 if(!all_returned) complete = false;
-
-		 // Check for errors in the work items and make sure they have been marked accordingly
-		 // Set the complete-flag to false where there were errors. Mark all positions, for
-		 // which processing was successful, as "processed"
-		 std::size_t pos = 0;
-		 for(auto item_ptr: workItems) { // std::shared_ptr may be copied
-			 if(item_ptr->processing_was_unsuccessful()) {
-				 workItemPos.at(pos) = GBC_UNPROCESSED;
-				 complete = false;
-			 }
-
-			 ++pos;
-		 }
-
-		 return complete;
+		 GBaseExecutorT<processable_type>::iterationFinalize(workItems);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Submits a single work item.
+	  *
+	  * TODO: Deal with exceptions in this class, e.g. during pushs
 	  *
 	  * @param w The work item to be processed
 	  */
@@ -1730,6 +1806,25 @@ protected:
 
 		 // Perform the actual submission
 		 m_CurrentBufferPort->push_raw(w_ptr);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Waits for all items to return or possibly until a timeout has been reached.
+	  * Checks for completeness (i.e. all items have returned and there were no exceptions).
+	  *
+	  * @param workItems A vector with work items to be evaluated beyond the broker
+	  * @param oldWorkItems A vector with work items that have returned after the threshold
+	  * @return A tuple of booleans indicating whether all items were processed successfully and whether there were errors
+	  */
+	 virtual std::tuple<bool,bool> waitForReturn(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
+	 ) override {
+	    return
+			 m_capable_of_full_return?
+			 this->waitForFullReturn(workItems, oldWorkItems):
+			 this->waitForTimeOut(workItems, oldWorkItems);
 	 }
 
 private:
@@ -1773,13 +1868,13 @@ private:
 
 	 /***************************************************************************/
 	 /**
-	  * Updates the maximum allowed timeframe for calculations
+	  * Updates the maximum allowed timeframe for calculations in the first iteration
 	  */
 	 void reviseMaxTime(std::size_t nReturnedCurrent) {
 		 // Are we called for the first time in the first iteration)
-		 if(nReturnedCurrent==0) {
+		 if(nReturnedCurrent==1) {
 			 std::chrono::duration<double> currentElapsed
-				 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
+				 = std::chrono::high_resolution_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
 
 			 if (this->getCurrentSubmissionId() == ITERATION_COUNTER_TYPE(0)) {
 				 // Calculate a timeout for subsequent retrievals in this iteration. In the first iteration and for the first item,
@@ -1820,7 +1915,7 @@ private:
 	  */
 	 bool passedMaxTime(std::size_t nReturnedCurrent) {
 		 std::chrono::duration<double> currentElapsed
-			 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
+			 = std::chrono::high_resolution_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
 
 		 if (currentElapsed > m_maxTimeout) {
 			 m_remainingTime = std::chrono::duration<double>(0.);
@@ -1850,13 +1945,11 @@ private:
 	  *   of the previous iteration, times a wait factor
 	  *
 	  * @param workItems The work items to be processed
-	  * @param workItemPos Booleans for each work item indicating whether processing has happened
 	  * @param oldWorkItems A collection of old work items that have returned after a timeout
-	  * @return A boolean indicating whether a complete return of items was achieved
+	  * A tuple of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
-	 bool waitForTimeOut(
+	 std::tuple<bool,bool> waitForTimeOut(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
 		 //----------------------------------------------------------------
@@ -1865,110 +1958,109 @@ private:
 		 if(m_waitFactor == 0.) {
 			 return waitForFullReturn(
 				 workItems
-				 , workItemPos
 				 , oldWorkItems
 			 );
 		 }
 
 		 //----------------------------------------------------------------
 
+		 bool has_errors = false;
+
 		 std::shared_ptr<processable_type> w;
 		 std::size_t nReturnedCurrent = 0;
 
-		 // Check if this is the first iteration. If so, wait (possibly indefinitely)
-		 // for the first item to return so we can estimate a suitable timeout
-		 if (0 == this->getSubmissionId()) { // Wait indefinitely for first item
-			 // Retrieve a single work item
-			 w = this->retrieve();
-
-			 // It is a severe error if no item is received in the first iteration.
-			 // Note that retrieve() will wait indefinitely and, once it returns,
-			 // should carry a work item.
-			 if (!w) {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GBrokerExecutorT<>::waitForTimeOut(): Error!" << std::endl
-						 << "First item received in first iteration is empty. We cannot continue!"
-				 );
-			 }
-
-			 if (
-				 this->addWorkItemAndCheckCompleteness(
-					 w
-					 , nReturnedCurrent
-					 , workItems
-					 , workItemPos
-					 , oldWorkItems
-				 )
-				 ) {
-				 // This covers the rare case that a "collection" of a *single*
-				 // work item was submitted.
-				 return true;
-			 } else {
-				 reviseMaxTime(0);
-			 }
-		 }
-
-		 //------------------------------------
-
 		 // Loop until a timeout is reached or all current items have returned
 		 while (true) {
-			 // Check if we have passed the maximum allowed time frame.
-			 // This function will also update the remaining time.
-			 if(passedMaxTime(nReturnedCurrent)) {
-				 return false; // No complete return as we have reached the timeout
+			 // Wait indefinitely fpr the first work item in the first iteration
+			 if(0 == this->getSubmissionId() && 0 == nReturnedCurrent) {
+				 // Retrieve a single work item
+				 w = this->retrieve();
+
+				 // It is a severe error if no item is received in the first iteration.
+				 // Note that retrieve() will wait indefinitely and, once it returns,
+				 // should carry a work item.
+				 if (!w) {
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GBrokerExecutorT<>::waitForTimeOut(): Error!" << std::endl
+							 << "First item received in first iteration is empty. We cannot continue!"
+					 );
+				 }
+			 } else {
+				 // Check if we have passed the maximum allowed time frame.
+				 // This function will also update the remaining time.
+				 if(passedMaxTime(nReturnedCurrent)) {
+					 return std::make_tuple(false /* is complete */, has_errors); // No complete return as we have reached the timeout
+				 }
+
+				 // Obtain the next item, observing a timeout
+				 w = retrieve(m_remainingTime);
 			 }
 
-			 // Obtain the next item
-			 w = retrieve(m_remainingTime);
-
-			 // Leave if this was the last item
-			 if (this->addWorkItemAndCheckCompleteness(
+			 // Try to add the work item to the list and check for completeness
+			 auto status = this->addWorkItemAndCheckCompleteness(
 				 w
 				 , nReturnedCurrent
 				 , workItems
-				 , workItemPos
 				 , oldWorkItems
-			 )
-				 ) {
-				 break;
-			 }
+			 );
 
 			 // Continuously revise the maxTimeout, if this is the first submission
 			 if(w && 0 == this->getSubmissionId()) {
 				 reviseMaxTime(nReturnedCurrent);
 			 }
+
+			 bool complete = std::get<0>(status);
+			 if(true == std::get<1>(status)) {
+				 has_errors = true;
+			 }
+
+			 if(complete) break;
 		 }
 
-		 return true;
+		 return std::make_tuple(true /* is complete */, has_errors);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Waits (possibly indefinitely) until all items have returned. Note that this
 	  * function may stall, if for whatever reason a work item does not return. If this
-	  * is not acceptable, use either waitForTimeout() or waitForTimeoutAndResubmit()
-	  * instead of this function. It is recommended to only use this function in
-	  * environments that are considered safe in the sense that work items will practically
-	  * always return. Local cluster environments will often fall into this category.
-	  * There may not be returns from older iterations, which are attached to the end
-	  * of the work item vector
+	  * is not acceptable, use waitForTimeout() instead of this function. It is recommended
+	  * to only use this function in environments that are considered safe in the sense
+	  * that work items will always return. Local cluster environments may fall into this
+	  * category (or the risk is considered low enough by the user to use this simpler
+	  * function). If all iteration run the "full return" strategy, the oldWorkItems
+	  * vector will remain empty.
+	  *
+	  * @param workItems The work items to be processed
+	  * @param oldWorkItems A collection of old work items that have returned after a timeout
+	  * @return A tuple of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
-	 bool waitForFullReturn(
+	 std::tuple<bool, bool> waitForFullReturn(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
 		 std::size_t nReturnedCurrent = 0;
-		 while (!addWorkItemAndCheckCompleteness(
-			 this->retrieve()
-			 , nReturnedCurrent
-			 , workItems
-			 , workItemPos
-			 , oldWorkItems
-		 ));
+		 bool has_errors = false;
+		 do {
+			 auto status = this->addWorkItemAndCheckCompleteness(
+				 this->retrieve()
+				 , nReturnedCurrent
+				 , workItems
+				 , oldWorkItems
+			 );
 
-		 return true;
+			 bool complete = std::get<0>(status);
+			 bool error_found = std::get<1>(status);
+
+			 // Make it known if there was an error
+			 if(error_found) has_errors = true;
+
+			 // Break the loop if all items were received
+			 if(complete) break;
+		 } while(true);
+
+		 return std::make_tuple(true /* is complete */, has_errors);
 	 }
 
 	 /***************************************************************************/
@@ -1976,55 +2068,64 @@ private:
 	  * Adds a work item to the corresponding vectors. This function assumes that
 	  * the work item is valid, i.e. points to a valid object.
 	  *
-	  * @return A boolean indicating whether all work items of the current iteration were received
+	  * @param w_ptr The item to be added to the (old?) work items
+	  * @param nReturnedCurrent The number of returned work items from the current iteration
+	  * @param workItems The list of work items from the current iteration
+	  * @param oldWorkItems The list of wirk items from previous iterations
+	  * @return A tuple indicating whether all work items of the current iteration were received and whether there were errors
 	  */
-	 bool addWorkItemAndCheckCompleteness(
+	 std::tuple<bool, bool> addWorkItemAndCheckCompleteness(
 		 std::shared_ptr <processable_type> w_ptr
 		 , std::size_t &nReturnedCurrent
 		 , std::vector<std::shared_ptr<processable_type>>& workItems
-		 , std::vector<bool> &workItemPos
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
 		 // If we have been passed an empty item, simply continue the outer loop
 		 if(!w_ptr) {
-			 return false;
+			 return std::make_tuple(false, false);
 		 } else {
 			 // Make the return time of the last item known
-			 m_lastReturnTime = std::chrono::system_clock::now();
+			 m_lastReturnTime = std::chrono::high_resolution_clock::now();
 		 }
 
 		 bool completed = false;
-		 auto current_iteration = GBaseExecutorT<processable_type>::m_iteration_counter;
-		 auto w_iteration = w_ptr->getSubmissionCounter();
+		 bool has_errors = false;
 
-		 if (current_iteration == w_iteration) {
-			 // Mark the position of the work item in the workItemPos vector and cross-check
-			 std::size_t w_pos = w_ptr->getSubmissionPosition();
+		 auto current_submission_id = this->getCurrentSubmissionId();
+		 auto worker_submission_id = w_ptr->getSubmissionCounter();
 
-			 if (w_pos >= workItems.size()) {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GBrokerExecutorT<processable_type>::addWorkItemAndCheckCompleteness(): Error!" << std::endl
-						 << "Received work item for position " << w_pos << " while" << std::endl
-						 << "only a range [0" << ", " << workItems.size() << "[ was expected." << std::endl
-				 );
-			 }
+		 // Did this work item originate in the current submission cycle ?
+		 if (current_submission_id == worker_submission_id) {
+			 // Extract the original position of the work item and cross-check
+			 std::size_t worker_position = w_ptr->getSubmissionPosition();
 
-			 // Re-submitted items might return twice, so we only add them
-			 // if a processed item hasn't been added yet.
-			 if (GBC_UNPROCESSED == workItemPos.at(w_pos)) {
-				 workItemPos.at(w_pos) = GBC_PROCESSED; // Successfully returned
-				 workItems.at(w_pos) = w_ptr;
-				 if (++nReturnedCurrent == GBaseExecutorT<processable_type>::m_expectedNumber) {
-					 completed = true;
-				 }
+			 // Add the work item to the list in the desired position. Re-submitted items
+			 // might return twice, so we only add them if a processed item hasn't been added yet.
+			 if (processingStatus::DO_PROCESS == workItems.at(worker_position)->getProcessingStatus()) {
+				 // Note that also items with errors may be added here. It is up to
+				 // the caller to decide what to do with such work items.
+				 workItems.at(worker_position) = w_ptr;
+				 if (++nReturnedCurrent==this->getExpectedNumber()) completed=true;
+				 if (w_ptr->has_errors()) has_errors=true;
 			 } // no else
-
-		 } else { // It could be that a previous submission did not expect a full return. Hence older items may occur
-			 oldWorkItems.push_back(w_ptr);
+		 } else { // Not a work item from the current submission cycle.
+			 // Ignore old work items with errors
+			 if (processingStatus::PROCESSED == w_ptr->getProcessingStatus()) {
+				 oldWorkItems.push_back(w_ptr);
+			 } else {
+				 // This should be rare. As we throw away items here, we want to
+				 // make a record as a frequent occurrance might indicate a problem
+				 glogger
+					<< "In GBrokerExecutorT<>::addWorkItemAndCheckCompleteness():" << std::endl
+					<< "Received old work item from submission cycle " << worker_submission_id << " (now " << current_submission_id << ")" << std::endl
+					<< "We will throw the item away as it has the status id " << w_ptr->getProcessingStatus() << std::endl
+					<< "(expected processingStatus::PROCESSED / " << processingStatus::PROCESSED << ")" << std::endl
+					<< (w_ptr->has_errors()?w_ptr->getStoredErrorDescriptions():"") << std::endl
+					<< GLOGGING;
+			 }
 		 }
 
-		 return completed;
+		 return std::make_tuple(completed, has_errors);
 	 }
 
 	 /***************************************************************************/
@@ -2038,7 +2139,7 @@ private:
 
 		 // Now do our own reporting
 		 std::chrono::duration<double> currentElapsed
-			 = std::chrono::system_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
+			 = std::chrono::high_resolution_clock::now() - GBaseExecutorT<processable_type>::m_submissionStartTime;
 		 auto current_iteration = GBaseExecutorT<processable_type>::m_iteration_counter;
 
 		 m_waiting_times_graph->add(boost::numeric_cast<double>(current_iteration), m_maxTimeout.count());
@@ -2072,7 +2173,7 @@ private:
 
 	 bool m_waitFactorWarningEmitted = false; ///< Specifies whether a warning about a small waitFactor has already been emitted
 
-	 std::chrono::system_clock::time_point m_lastReturnTime = std::chrono::system_clock::now(); ///< Temporary that holds the time of the return of the last item of an iteration
+	 std::chrono::high_resolution_clock::time_point m_lastReturnTime = std::chrono::high_resolution_clock::now(); ///< Temporary that holds the time of the return of the last item of an iteration
 	 std::chrono::duration<double> m_lastAverage = std::chrono::duration<double>(0.); ///< The average time needed for the last submission
 	 std::chrono::duration<double> m_remainingTime = std::chrono::duration<double>(0.); ///< The remaining time in the current iteration
 	 std::chrono::duration<double> m_maxTimeout = std::chrono::duration<double>(0.); ///< The maximum amount of time allowed for the entire calculation
@@ -2085,5 +2186,22 @@ private:
 
 } /* namespace Courtier */
 } /* namespace Gem */
+
+/******************************************************************************/
+// Some code for Boost.Serialization
+
+/******************************************************************************/
+// Mark GBaseExecutorT<> as abstract. This is the content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
+
+namespace boost {
+namespace serialization {
+template<typename processable_type>
+struct is_abstract<Gem::Courtier::GBaseExecutorT<processable_type>> : public boost::true_type {};
+template<typename processable_type>
+struct is_abstract<const Gem::Courtier::GBaseExecutorT<processable_type>> : public boost::true_type {};
+}
+}
+
+/******************************************************************************/
 
 #endif /* GEXECUTOR_HPP_ */

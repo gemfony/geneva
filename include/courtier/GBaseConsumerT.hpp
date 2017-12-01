@@ -73,9 +73,14 @@ namespace Courtier {
  * Derived classes such as the GAsioTCPConsumerT form the single point
  * of contact for remote clients. We do not want this class and its
  * derivatives to be copyable, hence we derive it from the
- * boost::noncopyable class. GBaseConsumer::process() is started in a separate
+ * boost::noncopyable class. GBaseConsumerT::process() is started in a separate
  * thread by the broker. GBaseConsumer::shutdown() is called by the broker
- * when the consumer is supposed to shut down.
+ * when the consumer is supposed to shut down. Please note that, for the
+ * purpose of the calculation of timeouts, the time of the first retrieval
+ * of a work item from a GBufferPortT (which is triggered by the actions of
+ * the broker) plays a role, so consumers should not retrieve items prior to
+ * a dedicated request from a client (in the case of networked execution)
+ * or a worker (in the case of multi-threaded work).
  */
 template<typename payload_type>
 class GBaseConsumerT

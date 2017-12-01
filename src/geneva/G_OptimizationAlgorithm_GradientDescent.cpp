@@ -531,61 +531,44 @@ void GGradientDescent::addConfigurationOptions(
 void GGradientDescent::runFitnessCalculation() {
 	using namespace Gem::Courtier;
 
-	bool complete = false;
-
 #ifdef DEBUG
-	GGradientDescent::iterator it;
-	for(it=this->begin(); it!=this->end(); ++it) {
+	std::size_t pos = 0;
+	for(auto item_ptr: *this) {
 		// Make sure the evaluated individuals have the dirty flag set
-		if(this->afterFirstIteration() && !(*it)->isDirty()) {
+		if(this->afterFirstIteration() && !item_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GBrokerGD::runFitnessCalculation():" << std::endl
-					<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag isn't set" << std::endl
+					<< "In GGradientDescent::runFitnessCalculation():" << std::endl
+					<< "Found individual om position " << pos << " whose dirty flag isn't set" << std::endl
 			);
 		}
+
+		pos++;
 	}
 #endif /* DEBUG */
 
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
 
-	std::vector<bool> workItemPos(this->size(), Gem::Courtier::GBC_UNPROCESSED);
-	complete = this->workOn(
+	setProcessingFlag(this->data, std::make_tuple(std::size_t(0), this->data.size()));
+	auto status = this->workOn(
 		this->data
-		, workItemPos
 		, true // resubmit unprocessed items
-		, "GBrokerGD::runFitnessCalculation()"
+		, "GGradientDescent::runFitnessCalculation()"
 	);
+
+	bool is_complete = std::get<0>(status);
+	bool has_errors  = std::get<1>(status);
 
 	//--------------------------------------------------------------------------------
 	// Some error checks
 
 	// Check if all work items have returned
-	if (!complete) {
+	if (!is_complete || has_errors) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
-				<< "No complete set of items received" << std::endl
-		);
-	}
-
-	// Check if work items exists whose processing function has thrown an exception.
-	// This is a severe error, as we need evaluations for all work items in a gradient
-	// descent.
-	if(auto it = std::find_if(
-		this->begin()
-		, this->end()
-		, [this](std::shared_ptr<GParameterSet> p) -> bool {
-			return !p->processing_was_successful();
-		}
-	) != this->end()) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GBrokerGD::runFitnessCalculation(): Error!" << std::endl
-				<< "At least one individual could not be processed" << std::endl
-				<< "due to errors in the (possibly user-supplied) process() function." << std::endl
-				<< "This is a severe error and we cannot continue" << std::endl
+				<< "In GGradientDescent::runFitnessCalculation(): Error!" << std::endl
+				<< "No complete set of items received or errors found in individuals" << std::endl
 		);
 	}
 

@@ -1582,15 +1582,13 @@ void G_OptimizationAlgorithm_Base::load_(const GObject* cp) {
 /**
  * Delegation of work to be performed to the private executor object
  */
-bool G_OptimizationAlgorithm_Base::workOn(
+std::tuple<bool,bool> G_OptimizationAlgorithm_Base::workOn(
 	std::vector<std::shared_ptr<GParameterSet>>& workItems
-	, std::vector<bool>& workItemPos
 	, bool resubmitUnprocessed
 	, const std::string &caller
 ) {
 	return m_executor_ptr->workOn(
 		workItems
-		, workItemPos
 		, resubmitUnprocessed
 		, caller
 	);

@@ -17,6 +17,7 @@ SET ( OPTIMIZATIONSOURCES
 	GDoubleObject
 	GDoubleObjectCollection
 	GenevaHelperFunctionsT
+	GenevaHelperFunctions
 	GenevaInitializer
 	GIndividualMultiConstraint
 	GIndividualStandardConsumers

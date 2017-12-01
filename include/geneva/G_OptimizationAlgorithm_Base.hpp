@@ -63,6 +63,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -478,9 +479,8 @@ protected:
 	 virtual G_API_GENEVA void load_(const GObject* cp) override;
 
 	 /** @brief Delegation of work to be performed to the private executor object */
-	 G_API_GENEVA bool workOn(
+	 G_API_GENEVA std::tuple<bool, bool> workOn(
 		 std::vector<std::shared_ptr<GParameterSet>>& workItems
-		 , std::vector<bool>& workItemPos
 		 , bool resubmitUnprocessed = false
 		 , const std::string &caller = std::string()
 	 );

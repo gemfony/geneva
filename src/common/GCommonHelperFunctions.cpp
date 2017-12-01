@@ -406,6 +406,22 @@ std::string getMSSince1970() {
 
 /******************************************************************************/
 /**
+ * Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number
+ */
+std::chrono::milliseconds::rep time_point_to_milliseconds(const std::chrono::high_resolution_clock::time_point& val) {
+	return std::chrono::duration_cast<std::chrono::milliseconds>(val.time_since_epoch()).count();
+}
+
+/******************************************************************************/
+/**
+ * Converts an arithmetic number into a std::chrono::high_resolution_clock::time_point
+ */
+std::chrono::high_resolution_clock::time_point milliseconds_to_time_point(const std::chrono::milliseconds::rep& val) {
+	return std::chrono::high_resolution_clock::time_point(std::chrono::milliseconds(val));
+}
+
+/******************************************************************************/
+/**
  * Raise an exception if a given define wasn't set. "F" stands for "function",
  * "D" for "define".
  */

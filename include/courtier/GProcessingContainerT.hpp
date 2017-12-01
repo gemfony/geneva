@@ -72,6 +72,7 @@
 #include "common/GSerializableFunctionObjectT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GErrorStreamer.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
 namespace Gem {
@@ -113,12 +114,14 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_postProcessingDisabled)
 		 & BOOST_SERIALIZATION_NVP(m_pre_processor_ptr)
 		 & BOOST_SERIALIZATION_NVP(m_post_processor_ptr)
-		 & BOOST_SERIALIZATION_NVP(m_processing_was_successful)
+		 & BOOST_SERIALIZATION_NVP(m_pre_processing_time)
+		 & BOOST_SERIALIZATION_NVP(m_processing_time)
+		 & BOOST_SERIALIZATION_NVP(m_post_processing_time)
+		 & BOOST_SERIALIZATION_NVP(m_bufferport_submission_time)
+		 & BOOST_SERIALIZATION_NVP(m_bufferport_retrieval_time)
 		 & BOOST_SERIALIZATION_NVP(m_stored_result)
-		 & BOOST_SERIALIZATION_NVP(m_stored_exceptions)
-		 & BOOST_SERIALIZATION_NVP(m_has_exceptions);
-
-		 // Note that we do not serialize the temporary timings
+		 & BOOST_SERIALIZATION_NVP(m_stored_error_descriptions)
+		 & BOOST_SERIALIZATION_NVP(m_processing_status);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -141,14 +144,18 @@ public:
 	  */
 	 GProcessingContainerT(const GProcessingContainerT<processable_type, processing_result_type> &cp)
 		 : m_submission_counter(cp.m_submission_counter)
-			, m_submission_position(cp.m_submission_position)
-			, m_bufferport_id(cp.m_bufferport_id)
-			, m_preProcessingDisabled(cp.m_preProcessingDisabled)
-			, m_postProcessingDisabled(cp.m_postProcessingDisabled)
-			, m_processing_was_successful(cp.m_processing_was_successful)
-			, m_stored_result(cp.m_stored_result)
-			, m_stored_exceptions(cp.m_stored_exceptions)
-			, m_has_exceptions(cp.m_has_exceptions)
+		 , m_submission_position(cp.m_submission_position)
+		 , m_bufferport_id(cp.m_bufferport_id)
+		 , m_preProcessingDisabled(cp.m_preProcessingDisabled)
+		 , m_postProcessingDisabled(cp.m_postProcessingDisabled)
+		 , m_pre_processing_time(cp.m_pre_processing_time)
+		 , m_processing_time(cp.m_processing_time)
+		 , m_post_processing_time(cp.m_post_processing_time)
+		 , m_bufferport_submission_time(cp.m_bufferport_submission_time)
+		 , m_bufferport_retrieval_time(cp.m_bufferport_retrieval_time)
+		 , m_stored_result(cp.m_stored_result)
+		 , m_stored_error_descriptions(cp.m_stored_error_descriptions)
+		 , m_processing_status(cp.m_processing_status)
 	 {
 		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -171,11 +178,16 @@ public:
 	  * @return The result of the processing calls
 	  */
 	 result_type process() {
-		 std::ostringstream exceptions_stream;
+		 // This function should never be called if the processing status is not set to "DO_PROCESS"
+		 if(processingStatus::DO_PROCESS != m_processing_status) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GProcessingContainerT::process(): Function called while m_processing_status was set to " << m_processing_status << std::endl
+				 	 << "Expected " << processingStatus::DO_PROCESS << "(processingStatus::DO_PROCESS)" << std::endl
+			 );
+		 }
 
-		 // Reset the check for successful execution and exceptions. This is a new run
-		 m_processing_was_successful = false;
-		 m_has_exceptions = false;
+		 std::ostringstream error_description_stream;
 
 		 try {
 			 // Perform the actual processing
@@ -192,52 +204,50 @@ public:
 			 m_processing_time = std::chrono::duration<double>(afterProcessing - afterPreProcessing).count();
 			 m_post_processing_time = std::chrono::duration<double>(afterPostProcessing - afterProcessing).count();
 
-			 m_processing_was_successful = true;
+			 m_processing_status = processingStatus::PROCESSED;
 		 } catch(boost::exception& e) {
-			 m_has_exceptions = true;
-			 exceptions_stream
+			 // Let the audience know we had an error
+			 m_processing_status = processingStatus::EXCEPTION_CAUGHT;
+			 error_description_stream
 				 << "In GProcessingContainerT<>::process():" << std::endl
 				 << "Processing has thrown a boost exception with message" << std::endl
 				 << boost::diagnostic_information(e) << std::endl
 				 << "We will rethrow this exception" << std::endl;
 		 } catch(std::exception& e) {
-			 m_has_exceptions = true;
-			 exceptions_stream
+			 // Let the audience know we had an error
+			 m_processing_status = processingStatus::EXCEPTION_CAUGHT;
+			 error_description_stream
 				 << "In GProcessingContainerT<processable_type>::process():" << std::endl
 				 << "Processing has thrown an exception with message" << std::endl
 				 << e.what() << std::endl
 				 << "We will rethrow this exception" << std::endl;
 		 } catch(...) {
-			 m_has_exceptions = true;
-			 exceptions_stream
+			 // Let the audience know we had an error
+			 m_processing_status = processingStatus::EXCEPTION_CAUGHT;
+			 error_description_stream
 				 << "In GProcessingContainerT<processable_type>::process():" << std::endl
 				 << "Processing has thrown an unknown exception." << std::endl;
 		 }
 
-		 if(this->hasExceptions()) {
-			 // Let the audience know
-			 glogger
-				 << exceptions_stream.str()
-				 << GWARNING;
-
+		 if(!this->processing_was_successful()) { // Either an exception was caught or the user has flagged an error
 			 // Do some cleanup
 			 m_pre_processing_time = 0.;
 			 m_processing_time = 0.;
 			 m_post_processing_time = 0.;
 
-			 // Mark the processing as invalid and store the exceptions for later reference
-			 m_processing_was_successful = false;
-			 m_stored_exceptions = exceptions_stream.str();
+			 // Store the exceptions for later reference
+			 if(processingStatus::EXCEPTION_CAUGHT == m_processing_status) {
+				 // Error information added by the user might already be stored in this variable. Hence we use +=
+				 m_stored_error_descriptions += error_description_stream.str();
+			 }
 
 			 throw g_processing_exception( // Note: this is a specific exception to flag errors during processing
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << exceptions_stream.str()
+				 g_error_streamer(DO_LOG, time_and_place) << m_stored_error_descriptions
 			 );
 		 }
 
 		 // This part of the code should never be reached if an exception was thrown
-		 m_stored_result = this->get_processing_result();
-		 return m_stored_result;
+		 return (m_stored_result = this->get_processing_result());
 	 }
 
 	 /***************************************************************************/
@@ -257,19 +267,18 @@ public:
 	  * that, if your individuals do not serialize important parts of an object, you need
 	  * to make sure that constant data is loaded after reloading a checkpoint.
 	  *
-	  * @param cD_ptr A pointer to the object whose data should be loaded
+	  * @param cd_ptr A pointer to the object whose data should be loaded
 	  */
-	 virtual void loadConstantData(std::shared_ptr<processable_type>) BASE
-	 { /* nothing */ }
+	 void loadConstantData(std::shared_ptr<processable_type> cd_ptr) {
+		 this->loadConstantData_(cd_ptr);
+	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks if processing was successful
-	  *
-	  * @return A boolean indicating whether processing was successful
+	  * Allows to retrieve the current processing status
 	  */
-	 bool processing_was_successful() const noexcept {
-		 return m_processing_was_successful;
+	 processingStatus getProcessingStatus() const noexcept {
+		 return m_processing_status;
 	 }
 
 	 /***************************************************************************/
@@ -279,24 +288,54 @@ public:
 	  * @return A boolean indicating whether processing was successful
 	  */
 	 bool processing_was_unsuccessful() const noexcept {
-		 return !m_processing_was_successful;
+		 return
+			 (processingStatus::EXCEPTION_CAUGHT == m_processing_status)
+			 || (processingStatus::ERROR_FLAGGED == m_processing_status);
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Enforces processing to be marked as successful
+	  * Checks if processing was successful
+	  *
+	  * @return A boolean indicating whether processing was successful
 	  */
-	 void force_mark_processing_as_successful() noexcept {
-		 m_processing_was_successful = true;
-	 };
+	 bool processing_was_successful() const noexcept {
+		 return !this->processing_was_unsuccessful();
+	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Enforces processing to be marked as unsuccessful
+	  * Syntactic sugar
 	  */
-	 void force_mark_processing_as_unsuccessful() noexcept {
-		 m_processing_was_successful = false;
-	 };
+	 bool has_errors() const noexcept {
+		 return this->processing_was_unsuccessful();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Resets the class to the status before processing. Either IGNORE (== do not
+	  * process) or DO_PROCESS may be passed.
+	  *
+	  * @param The desired new processing status
+	  */
+	 void reset_processing_status(processingStatus ps = processingStatus::IGNORE) {
+		 switch(ps) {
+			 case processingStatus::IGNORE:
+			 case processingStatus::DO_PROCESS:
+				 m_processing_status = ps;
+				 break;
+
+			 default:
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GProcessingContainerT<>::reset_processing_status(): Got invalid processing status " << ps << std::endl
+				 );
+				 break;
+		 };
+
+		 m_stored_error_descriptions.clear();
+		 m_stored_result = result_type(0);
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -418,25 +457,63 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether exceptions are stored in this object
+	  * Retrieves and clears exceptions and the processing status.
 	  *
-	  * @return A boolean indicating whether exceptions are stored in this class
+	  * @param The desired new processing status
 	  */
-	 bool hasExceptions() const noexcept {
-		 return m_has_exceptions;
+	 std::string get_and_clear_exceptions(processingStatus ps = processingStatus::IGNORE) {
+		 std::string stored_exceptions = m_stored_error_descriptions;
+		 this->reset_processing_status(ps);
+		 return stored_exceptions;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves and clears exceptions and the m_has_exceptions flag.
+	  * Allows to extract stored error descriptions
 	  */
-	 std::string get_and_clear_exceptions() {
-		 std::string stored_exceptions = m_stored_exceptions;
+	 std::string getStoredErrorDescriptions() const {
+		 return m_stored_error_descriptions;
+	 }
 
-		 m_stored_exceptions.clear();
-		 m_has_exceptions = false;
+	 /***************************************************************************/
+ 	 /**
+ 	  * Marks the time when the item was added to a GBuffferPortT raw queue
+ 	  */
+	 void markSubmissionTime() {
+		 m_bufferport_submission_time = Gem::Common::time_point_to_milliseconds(std::chrono::high_resolution_clock::now());
+	 }
 
-		 return stored_exceptions;
+	 /***************************************************************************/
+	 /**
+	  * Marks the time when the item was retrieved from the GBuffferPortT processed queue
+	  */
+	 void markRetrievalTime() {
+		 m_bufferport_retrieval_time = Gem::Common::time_point_to_milliseconds(std::chrono::high_resolution_clock::now());
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the amount of time passed (in seconds) between the
+	  * time the item was added to the raw queue and the time it was retrieved
+	  * from the processed queue.
+	  *
+	  * @return The amount of time in seconds between submission and retrieval of the item
+	  */
+	 double time_from_submission_to_retrieval() const {
+		 // Check that we have sensible timings
+		 if(
+			 std::chrono::milliseconds::rep(0)    == m_bufferport_submission_time
+			 || std::chrono::milliseconds::rep(0) == m_bufferport_retrieval_time
+		 	 || m_bufferport_submission_time >= m_bufferport_retrieval_time
+		 ) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GProcessingContainerT::time_from_submission_to_retrieval():" << std::endl
+				 	 << "Invalid m_bufferport_submission_time and/or m_bufferport_retrieval_time time: " << m_bufferport_submission_time << " / " << m_bufferport_retrieval_time << std::endl
+			 );
+		 }
+
+		 return boost::numeric_cast<double>(m_bufferport_retrieval_time-m_bufferport_submission_time)/1000.;
 	 }
 
 	 /***************************************************************************/
@@ -454,16 +531,45 @@ public:
 		 m_bufferport_id = p_load->m_bufferport_id;
 		 m_preProcessingDisabled = p_load->m_preProcessingDisabled;
 		 m_postProcessingDisabled = p_load->m_postProcessingDisabled;
-		 m_processing_was_successful = p_load->m_processing_was_successful;
 		 m_stored_result = p_load->m_stored_result;
-		 m_stored_exceptions = p_load->m_stored_exceptions;
-		 m_has_exceptions = p_load->m_has_exceptions;
+		 m_pre_processing_time = p_load->m_pre_processing_time;
+		 m_processing_time = p_load->m_processing_time;
+		 m_bufferport_submission_time = p_load->m_bufferport_submission_time;
+		 m_bufferport_retrieval_time = p_load->m_bufferport_retrieval_time;
+		 m_post_processing_time = p_load->m_post_processing_time;
+		 m_stored_error_descriptions = p_load->m_stored_error_descriptions;
+		 m_processing_status = p_load->m_processing_status;
 
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processor_ptr, m_post_processor_ptr);
 	 }
 
 protected:
+	 /***************************************************************************/
+	 /**
+	  * This function allows derived classes to specify custom error conditions by
+	  * setting their own error messages. The function will also set the internal
+	  * flags that indicate that an error has occurred and that processing was not
+	  * successful. NOTE That the error description may not be empty.
+	  *
+	  * @param An error description
+	  */
+	 void force_set_error(
+		 const std::string& error_info
+	 ) {
+		 if(error_info.empty()) {
+			 throw gemfony_exception( // Note: this is a specific exception to flag errors during processing
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GProcessingContainerT::force_set_error(): Error info is empty" << std::endl
+			 );
+		 }
+
+		 // There may already be information stored in this variable. Hence we attach the new information via +=
+		 m_stored_error_descriptions += error_info;
+		 m_processing_status = processingStatus::ERROR_FLAGGED;
+	 }
+
+private:
 	 /***************************************************************************/
 
 	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
@@ -474,20 +580,18 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * This function allows derived classes to specify custom error conditions by
-	  * setting their own exception messages. The function will also set the internal
-	  * flags that indicate than an error has occurred and that processing was not
-	  * successful.
+	  * Loads user-specified data. This function can be overloaded by derived classes. It
+	  * is mainly intended to provide a mechanism to "deposit" an item at a remote site
+	  * that holds otherwise constant data. That data then does not need to be serialized
+	  * but can be loaded whenever a new work item arrives and has been de-serialized. Note
+	  * that, if your work items do not serialize important parts of an object, you need
+	  * to make sure that constant data is loaded after reloading a checkpoint.
+	  *
+	  * @param cD_ptr A pointer to the object whose data should be loaded
 	  */
-	 void force_set_error(
-		 const std::string& error_info
-	 ) {
-		 m_stored_exceptions = error_info;
-		 m_has_exceptions = true;
-		 m_processing_was_successful = false;
-	 }
+	 virtual void loadConstantData_(std::shared_ptr<processable_type>) BASE
+	 { /* nothing */ }
 
-private:
 	 /***************************************************************************/
 	 /**
 	  * Specifies tasks to be performed before the process_ call. Note: This function
@@ -529,12 +633,13 @@ private:
 	 double m_processing_time = 0.; ///< The amount of time needed for the actual processing step (in seconds)
 	 double m_post_processing_time = 0.; ///< The amount of time needed for post-processing (in seconds)
 
-	 bool m_processing_was_successful = false; ///< Indicates whether an error has occurred during processing
+	 std::chrono::milliseconds::rep m_bufferport_submission_time{0}; ///< Arithmetic representation of the time when the item was submitted to the raw queue
+	 std::chrono::milliseconds::rep m_bufferport_retrieval_time{0};  ///< Arithmetic representation of the time when the item was retrieved from the processed queue
 
 	 result_type m_stored_result = result_type(0); ///< Buffers results of the process() call
 
-	 std::string m_stored_exceptions = ""; ///< Stores exceptions that may have occurred during processing
-	 bool m_has_exceptions = false; ///< Indicates whether the object holds exception data
+	 std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
+	 processingStatus m_processing_status = processingStatus::IGNORE; ///< By default no processing is initiated
 };
 
 /******************************************************************************/

@@ -948,20 +948,28 @@ void assert_container_sizes_match(
 /******************************************************************************/
 /**
  * Erases items from a standard container that comply with a specific condition
+ *
+ * @param container The container from which items should be erased
+ * @param predicate The predicate according to which items should be erased
+ * @return The number of erased items
  */
 template<typename container_type, typename predicate_type >
-void erase_if(
+std::size_t erase_if(
 	container_type& container
 	, const predicate_type& predicate
 ) {
+	std::size_t n_erased = 0;
 	for(auto it = container.begin(); it != container.end();) {
 		if(predicate(*it)) {
 			it = container.erase(it);
+			n_erased++;
 		}
 		else {
 			++it;
 		}
 	}
+
+	return n_erased;
 };
 
 /******************************************************************************/
@@ -1041,9 +1049,9 @@ bool timedSubmissionToBoostLockfree(
 	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
 ) {
 	bool submitted = true;
-	auto startTime = std::chrono::system_clock::now();
+	auto startTime = std::chrono::high_resolution_clock::now();
 	while(!queue.push(item)) {
-		if(std::chrono::system_clock::now()-startTime > timeout) {
+		if(std::chrono::high_resolution_clock::now()-startTime > timeout) {
 			submitted = false;
 			break; // Terminate the loop
 		}
@@ -1085,9 +1093,9 @@ bool timedRetrievalFromBoostLockfree(
 	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
 ) {
 	bool retrieved = true;
-	auto startTime = std::chrono::system_clock::now();
+	auto startTime = std::chrono::high_resolution_clock::now();
 	while(!queue.pop(item)) {
-		if(std::chrono::system_clock::now()-startTime > timeout) {
+		if(std::chrono::high_resolution_clock::now()-startTime > timeout) {
 			retrieved = false;
 			break; // Terminate the loop
 		}

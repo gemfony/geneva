@@ -1126,7 +1126,6 @@ void GParameterScan::addConfigurationOptions(
  */
 void GParameterScan::runFitnessCalculation() {
 	using namespace Gem::Courtier;
-	bool complete = false;
 
 #ifdef DEBUG
 	GParameterScan::iterator it;
@@ -1145,42 +1144,25 @@ void GParameterScan::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Submit all work items and wait for their return
 
-	std::vector<bool> workItemPos(this->size(), Gem::Courtier::GBC_UNPROCESSED);
-	complete = this->workOn(
+	setProcessingFlag(this->data, std::make_tuple(std::size_t(0), this->data.size()));
+	auto status = this->workOn(
 		data
-		, workItemPos
 		, true // resubmit unprocessed items
 		, "GParameterScan::runFitnessCalculation()"
 	);
+
+	bool is_complete = std::get<0>(status);
+	bool has_errors  = std::get<1>(status);
 
 	//--------------------------------------------------------------------------------
 	// Some error checks
 
 	// Check if all work items have returned
-	if (!complete) {
+	if (!is_complete || has_errors) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterScan::runFitnessCalculation(): Error!" << std::endl
-				<< "No complete set of items received" << std::endl
-		);
-	}
-
-	// Check if work items exists whose processing function has thrown an exception.
-	// This is a severe error, as we need evaluations for all work items in a gradient
-	// descent.
-	if(auto it = std::find_if(
-		this->begin()
-		, this->end()
-		, [this](std::shared_ptr<GParameterSet> p) -> bool {
-			return !p->processing_was_successful();
-		}
-	) != this->end()) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterScan::runFitnessCalculation(): Error!" << std::endl
-				<< "At least one individual could not be processed" << std::endl
-				<< "due to errors in the (possibly user-supplied) process() function." << std::endl
-				<< "This is a severe error and we cannot continue" << std::endl
+				<< "No complete set of items received or erroneous items found" << std::endl
 		);
 	}
 

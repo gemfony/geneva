@@ -75,6 +75,7 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GBufferPortT.hpp"
 #include "courtier/GCourtierEnums.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -91,11 +92,18 @@ public:
 /**
  * This class acts as the main mediator between producers and consumers.
  */
-template<typename carrier_type>
+template<typename processable_type>
 class GBrokerT
 	: private boost::noncopyable
 {
-	 using GBUFFERPORT = GBufferPortT<std::shared_ptr<carrier_type>>;
+	 // Make sure processable_type adheres to the GProcessingContainerT interface
+	 static_assert(
+		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
+		 , "GBaseExecutorT: processable_type does not adhere to the GProcessingContainerT<> interface"
+	 );
+
+	 // Syntactic sugar
+	 using GBUFFERPORT = GBufferPortT<processable_type>;
 	 using GBUFFERPORT_PTR = typename std::shared_ptr<GBUFFERPORT>;
 	 using RawBufferPtrMap = typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR>;
 	 using ProcessedBufferPtrMap = typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR>;
@@ -196,7 +204,7 @@ public:
 	  *
 	  * @param gbp_ptr A shared pointer to a new GBufferPortT object
 	  */
-	 void enrol(std::shared_ptr<GBufferPortT<std::shared_ptr<carrier_type>>> gbp_ptr) {
+	 void enrol(std::shared_ptr<GBufferPortT<processable_type>> gbp_ptr) {
 		 {
 			 //-----------------------------------------------------------------------
 			 // Lock the access to our internal data simultaneously for all mutexes
@@ -209,7 +217,7 @@ public:
 				 m_findProcesedBufferMutex
 				 , std::defer_lock
 			 );
-			 std::lock(
+			 std::lock( // Lock both locks simultaneously
 				 switchGetPositionLock
 				 , findProcessedBufferLock
 			 );
@@ -222,6 +230,9 @@ public:
 			 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
 			 // otherwise the following statements could be simplified. We use references
 			 // as lambda arguments, so the use count of the std::shared_ptr-objects isn't increased
+			 //
+			 // TODO: Make it known if items are removed
+			 //
 			 Gem::Common::erase_if(
 				 m_RawBuffers
 				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (p.second.use_count()==1); }
@@ -251,9 +262,9 @@ public:
 	  *
 	  * TODO: Check what happens if no consumer is registered anymore
 	  *
-	  * @param gc_ptr A pointer to a GBaseConsumerT<carrier_type> object
+	  * @param gc_ptr A pointer to a GBaseConsumerT<processable_type> object
 	  */
-	 void enrol(std::shared_ptr<GBaseConsumerT<carrier_type>> gc_ptr) {
+	 void enrol(std::shared_ptr<GBaseConsumerT<processable_type>> gc_ptr) {
 		 //-----------------------------------------------------------------------
 		 // Check whether consumers have already been enrolled. As this may happen
 		 // only once, we emit a warning and return
@@ -310,9 +321,9 @@ public:
 	 /**
 	  * Adds multiple consumers to this class and starts their threads.
 	  *
-	  * @param gc_ptr_vec A vector of pointers to GBaseConsumerT<carrier_type> objects
+	  * @param gc_ptr_vec A vector of pointers to GBaseConsumerT<processable_type> objects
 	  */
-	 void enrol(std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>> gc_ptr_vec) {
+	 void enrol(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_vec) {
 		 //-----------------------------------------------------------------------
 		 // Check whether consumers have already been enrolled. As this may happen
 		 // only once, we emit a warning and return
@@ -376,7 +387,7 @@ public:
 	  *
 	  * @param p Holds the retrieved "raw" item
 	  */
-	 void get(std::shared_ptr<carrier_type>& p) {
+	 void get(std::shared_ptr<processable_type>& p) {
 		 // Make sure we are dealing with an empty pointer
 		 p.reset();
 
@@ -403,7 +414,7 @@ public:
 	  * @return A boolean which indicates whether the operation was successful
 	  */
 	 bool get(
-		 std::shared_ptr<carrier_type> &p
+		 std::shared_ptr<processable_type> &p
 		 , std::chrono::duration<double> timeout
 	 ) {
 		 // Make sure we are dealing with an empty pointer
@@ -435,7 +446,7 @@ public:
 	  * @param p Holds the "raw" item to be submitted to the processed queue
 	  */
 	 void put(
-		 std::shared_ptr<carrier_type> p
+		 std::shared_ptr<processable_type> p
 	 ) {
 		 // Retrieve the correct processed buffer for a given uuid
 		 boost::uuids::uuid portId = p->getBufferId();
@@ -469,7 +480,7 @@ public:
 	  * @param A boolean indicating whether the item could be added to the queue in time
 	  */
 	 bool put(
-		 std::shared_ptr<carrier_type> p
+		 std::shared_ptr<processable_type> p
 		 , std::chrono::duration<double> timeout
 	 ) {
 		 // Retrieve the correct processed buffer for our uuid
@@ -580,7 +591,7 @@ private:
 		 if (m_consumer_collection_vec.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerT<carrier_type>::checkConsumersCapableOfFullReturn(): Error!" << std::endl
+					 << "In GBrokerT<processable_type>::checkConsumersCapableOfFullReturn(): Error!" << std::endl
 					 << "No consumers registered" << std::endl
 			 );
 		 }
@@ -598,8 +609,8 @@ private:
 
 	 /***************************************************************************/
 
-	 GBrokerT(const GBrokerT<carrier_type> &) = delete; ///< Intentionally left undefined
-	 const GBrokerT &operator=(const GBrokerT<carrier_type> &) = delete; ///< Intentionally left undefined
+	 GBrokerT(const GBrokerT<processable_type> &) = delete; ///< Intentionally left undefined
+	 const GBrokerT &operator=(const GBrokerT<processable_type> &) = delete; ///< Intentionally left undefined
 
 	 /***************************************************************************/
 	 // Data
@@ -621,7 +632,7 @@ private:
 	 std::atomic<bool> m_consumersPresent{false}; ///< Set to true once one or more consumers have been enrolled
 	 std::atomic<bool> m_capable_of_full_return{false}; ///< Set to true if all registered consumers are capable of full return, otherwise false
 
-	 std::vector<std::shared_ptr<GBaseConsumerT<carrier_type>>> m_consumer_collection_vec; ///< Holds the actual consumers
+	 std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> m_consumer_collection_vec; ///< Holds the actual consumers
 	 std::vector<std::string> m_consumerTypesPresent; ///< Holds identifying strings for each consumer
 };
 

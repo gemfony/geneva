@@ -563,40 +563,55 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 #endif
 
 	//--------------------------------------------------------------------------------
-	// Retrieve a vector describing the items to be modified
-	std::vector<bool> workItemPos = Gem::Courtier::getBooleanMask(
-		this->size()
-		, std::get<0>(range)
-		, std::get<1>(range)
-	);
+	// Set the "DO_PROCESS" flag in all required work items, the "IGNORE" flag in all others.
+
+	setProcessingFlag(this->data, range);
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
-	this->workOn(
+	auto status = this->workOn(
 		this->data
-		, workItemPos
 		, false // do not resubmit unprocessed items
 		, "GEvolutionaryAlgorithm::runFitnessCalculation()"
 	);
 
+	bool is_complete = std::get<0>(status);
+	bool has_errors  = std::get<1>(status);
+
 	//--------------------------------------------------------------------------------
-	// Take care of unprocessed items
-	// TODO: Check how often this happens
-	Gem::Common::erase_according_to_flags(
-		this->data
-		, workItemPos
-		, Gem::Courtier::GBC_UNPROCESSED
-		, 0
-		, this->size()
-	);
+	// Take care of unprocessed items, if these exist
+	if(!is_complete) {
+		std::size_t n_erased = Gem::Common::erase_if(
+			this->data
+			, [this](std::shared_ptr<GParameterSet> p) -> bool {
+				return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+			}
+		);
+
+#ifdef DEBUG
+		glogger
+			<< "In GEvolutionaryAlgorithm::runFitnessCalculation(): " << std::endl
+			<< "Removed " << n_erased << " unprocessed work items in iteration " << this->getIteration() << std::endl
+			<< GLOGGING;
+#endif
+	}
 
 	// Remove items for which an error has occurred during processing
-	Gem::Common::erase_if(
-		this->data
-		, [this](std::shared_ptr<GParameterSet> p) -> bool {
-			return !p->processing_was_successful();
-		}
-	);
+	if(has_errors) {
+		std::size_t n_erased = Gem::Common::erase_if(
+			this->data
+			, [this](std::shared_ptr<GParameterSet> p) -> bool {
+				return p->has_errors();
+			}
+		);
+
+#ifdef DEBUG
+		glogger
+			<< "In GEvolutionaryAlgorithm::runFitnessCalculation(): " << std::endl
+			<< "Removed " << n_erased << " erroneous work items in iteration " << this->getIteration() << std::endl
+			<< GLOGGING;
+#endif
+	}
 
 	//--------------------------------------------------------------------------------
 	// Now fix the population -- it may be smaller than its nominal size

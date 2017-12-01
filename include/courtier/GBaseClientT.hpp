@@ -414,7 +414,7 @@ protected:
 		 }
 
 		 // Maximum duration reached ?
-		 if (m_maxDuration.count() > 0. && ((std::chrono::system_clock::now() - m_startTime) >= m_maxDuration)) {
+		 if (m_maxDuration.count() > 0. && ((std::chrono::high_resolution_clock::now() - m_startTime) >= m_maxDuration)) {
 			 glogger
 				 << "Client is terminating because the maximum time frame was exceeded" << std::endl
 				 << GLOGGING;
@@ -479,7 +479,7 @@ protected:
 private:
 	 /***************************************************************************/
 
-	 std::chrono::system_clock::time_point m_startTime = std::chrono::system_clock::now(); ///< Used to store the start time of the optimization
+	 std::chrono::high_resolution_clock::time_point m_startTime = std::chrono::high_resolution_clock::now(); ///< Used to store the start time of the optimization
 	 std::chrono::duration<double> m_maxDuration = std::chrono::microseconds(0); ///< Maximum time frame for the optimization
 
 	 std::uint32_t m_processed = 0; ///< The number of processed items so far

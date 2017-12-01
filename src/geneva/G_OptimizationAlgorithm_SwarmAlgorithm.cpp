@@ -1228,14 +1228,15 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Submit work items and wait for results.
-	// TODO: hide these details
-	std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
-	this->workOn(
+	setProcessingFlag(this->data, std::make_tuple(std::size_t(0), this->data.size()));
+	auto status = this->workOn(
 		data
-		, workItemPos
 		, false // do not resubmit unprocessed items
 		, "GSwarmAlgorithm::runFitnessCalculation()"
 	);
+
+	bool is_complete = std::get<0>(status);
+	bool has_errors  = std::get<1>(status);
 
 	// Retrieve a vector of old work items
 	auto old_work_items = this->getOldWorkItems();
@@ -1249,16 +1250,39 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	old_work_items.clear();
 
 	//--------------------------------------------------------------------------------
-	// Take care of unprocessed items
-	Gem::Common::erase_according_to_flags(data, workItemPos, Gem::Courtier::GBC_UNPROCESSED, 0, data.size());
+	// Take care of unprocessed items, if these exist
+	if(!is_complete) {
+		std::size_t n_erased = Gem::Common::erase_if(
+			this->data
+			, [this](std::shared_ptr<GParameterSet> p) -> bool {
+				return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+			}
+		);
+
+#ifdef DEBUG
+		glogger
+			<< "In GSwarmAlgorithm::runFitnessCalculation(): " << std::endl
+			<< "Removed " << n_erased << " unprocessed work items in iteration " << this->getIteration() << std::endl
+			<< GLOGGING;
+#endif
+	}
 
 	// Remove items for which an error has occurred during processing
-	Gem::Common::erase_if(
-		data
-		, [this](std::shared_ptr<GParameterSet> p) -> bool {
-			return !p->processing_was_successful();
-		}
-	);
+	if(has_errors) {
+		std::size_t n_erased = Gem::Common::erase_if(
+			this->data
+			, [this](std::shared_ptr<GParameterSet> p) -> bool {
+				return p->has_errors();
+			}
+		);
+
+#ifdef DEBUG
+		glogger
+			<< "In GSwarmAlgorithm::runFitnessCalculation(): " << std::endl
+			<< "Removed " << n_erased << " erroneous work items in iteration " << this->getIteration() << std::endl
+			<< GLOGGING;
+#endif
+	}
 
 	//--------------------------------------------------------------------------------
 	// Sort according to the individuals' neighborhoods

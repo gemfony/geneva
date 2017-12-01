@@ -42,38 +42,11 @@ namespace Tests {
 
 /********************************************************************************************/
 /**
- * The default constructor -- only needed for de-serialization purposes.
- */
-GSimpleContainer::GSimpleContainer()
-	: m_stored_number(0)
-{ /* nothing */ }
-
-/********************************************************************************************/
-/**
  * The standard constructor -- Initialization with a single number (can e.g. be used as an id).
  *
  * @param snr The number to be stored in the object
  */
-GSimpleContainer::GSimpleContainer(const std::size_t& snr)
-	: m_stored_number(snr)
-{ /* nothing */ }
-
-/********************************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GSimpleContainer object
- */
-GSimpleContainer::GSimpleContainer(const GSimpleContainer& cp)
-	: Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>(cp)
-	, m_stored_number(cp.m_stored_number)
-{ /* nothing */ }
-
-/********************************************************************************************/
-/**
- * The destructor
- */
-GSimpleContainer::~GSimpleContainer()
+GSimpleContainer::GSimpleContainer(const std::size_t& snr) : m_stored_number(snr)
 { /* nothing */ }
 
 /********************************************************************************************/

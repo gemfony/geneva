@@ -76,41 +76,41 @@ namespace Tests {
 class GSimpleContainer
 	:public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
 
-		ar & make_nvp("GProcessingContainerT_GSimpleContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>>(*this))
-		& BOOST_SERIALIZATION_NVP(m_stored_number);
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar
+		 & make_nvp("GProcessingContainerT_GSimpleContainer", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>>(*this))
+		 & BOOST_SERIALIZATION_NVP(m_stored_number);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The standard constructor -- Initialization with an amount of random numbers */
-	GSimpleContainer(const std::size_t&);
-	/** @brief The copy constructor */
-	GSimpleContainer(const GSimpleContainer&);
-	/** @brief The destructor */
-	virtual ~GSimpleContainer();
+	 /** @brief The standard constructor -- Initialization with an amount of random numbers */
+	 GSimpleContainer(const std::size_t&);
+	 /** @brief The copy constructor */
+	 GSimpleContainer(const GSimpleContainer&) = default;
+	 /** @brief The destructor */
+	 virtual ~GSimpleContainer() = default;
 
-	/** @brief Prints out this objects random number container */
-	void print();
+	 /** @brief Prints out this objects random number container */
+	 void print();
 
-protected:
+private:
+	 /** @brief The default constructor -- only needed for de-serialization purposes */
+	 GSimpleContainer() = default;
+
 	 /** @brief Allows to specify the tasks to be performed for this object */
 	 virtual void process_() override;
 
 	 /** @brief Allows to give an indication of the processing result; may not throw. */
 	 virtual bool get_processing_result() const noexcept override;
 
-private:
-	/** @brief The default constructor -- only needed for de-serialization purposes */
-	GSimpleContainer();
-
-	std::size_t m_stored_number; ///< Holds the pay-load of this object
+	 std::size_t m_stored_number = 0; ///< Holds the pay-load of this object
 };
 
 /**********************************************************************************************/

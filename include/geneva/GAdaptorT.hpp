@@ -1492,17 +1492,11 @@ std::size_t GAdaptorT<bool, double>::adapt(std::vector<bool> &, const bool &, Ge
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Geneva::GAdaptorT<T>>
-	:
-		public boost::true_type
-{
-};
+struct is_abstract<Gem::Geneva::GAdaptorT<T>> : public boost::true_type
+{};
 template<typename T>
-struct is_abstract<const Gem::Geneva::GAdaptorT<T>>
-	:
-		public boost::true_type
-{
-};
+struct is_abstract<const Gem::Geneva::GAdaptorT<T>> : public boost::true_type
+{};
 }
 }
 

@@ -67,6 +67,7 @@
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -273,11 +274,10 @@ void load(
 template<typename Archive>
 void save(
 	Archive& ar
-	, std::chrono::system_clock::time_point const& val
+	, std::chrono::high_resolution_clock::time_point const& val
 	, unsigned int version
 ) {
-	std::chrono::milliseconds::rep representation
-		= std::chrono::duration_cast<std::chrono::milliseconds>(val.time_since_epoch()).count();
+	std::chrono::milliseconds::rep representation = Gem::Common::time_point_to_milliseconds(val);
 	ar & make_nvp("timpoint_milliseconds", representation);;
 }
 
@@ -288,12 +288,12 @@ void save(
 template<typename Archive>
 void load(
 	Archive& ar
-	, std::chrono::system_clock::time_point& val
+	, std::chrono::high_resolution_clock::time_point& val
 	, unsigned int version
 ) {
 	std::chrono::milliseconds::rep representation;
 	ar & make_nvp("timpoint_milliseconds", representation);
-	val = std::chrono::system_clock::time_point(std::chrono::milliseconds(representation));
+	val = Gem::Common::milliseconds_to_time_point(representation);
 }
 
 /******************************************************************************/
@@ -336,7 +336,7 @@ void load(
  */
 BOOST_SERIALIZATION_SPLIT_FREE(boost::logic::tribool)
 BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::duration<double>)
-BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::system_clock::time_point)
+BOOST_SERIALIZATION_SPLIT_FREE(std::chrono::high_resolution_clock::time_point)
 BOOST_SERIALIZATION_SPLIT_FREE(std::atomic<bool>)
 
 /*
