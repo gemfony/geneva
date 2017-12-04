@@ -1235,9 +1235,6 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 		, "GSwarmAlgorithm::runFitnessCalculation()"
 	);
 
-	bool is_complete = std::get<0>(status);
-	bool has_errors  = std::get<1>(status);
-
 	// Retrieve a vector of old work items
 	auto old_work_items = this->getOldWorkItems();
 
@@ -1251,7 +1248,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Take care of unprocessed items, if these exist
-	if(!is_complete) {
+	if(!status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
@@ -1268,7 +1265,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	}
 
 	// Remove items for which an error has occurred during processing
-	if(has_errors) {
+	if(status.has_errors) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {

@@ -118,7 +118,7 @@ fp_type enforceRangeConstraint(
 
 /******************************************************************************/
 /**
- * Checks that a given value is inside of a given set of boundaries (both inclusive)
+ * Checks that a given floating point value is inside of a given set of boundaries (both inclusive)
  *
  * @param val The value to be check
  * @param lower The lower boundary of the allowed value range
@@ -139,6 +139,33 @@ bool checkRangeCompliance(
 				<< "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
 		);
    }
+
+	return !(val < lower || val > upper);
+}
+
+/******************************************************************************/
+/**
+ * Checks that a given floating point value is inside of a given set of boundaries (both inclusive)
+ *
+ * @param val The value to be check
+ * @param lower The lower boundary of the allowed value range
+ * @param upper The upper boundary of the allowed value range
+ */
+template<typename int_type>
+bool checkRangeCompliance(
+	const int_type &val
+	, const int_type &lower
+	, const int_type &upper
+	, const std::string& caller = "empty"
+	, typename std::enable_if<std::is_integral<int_type>::value>::type *dummy = nullptr
+) {
+	if(lower > upper) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< (caller=="empty"?"":("["+caller+"] ")) << "In checkRangeCompliance<int_type>(...): Error!" << std::endl
+				<< "Lower boundary > upper boundary: " << lower << " / " << upper << std::endl
+		);
+	}
 
 	return !(val < lower || val > upper);
 }

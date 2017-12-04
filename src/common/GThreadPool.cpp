@@ -41,11 +41,7 @@ namespace Common {
 /**
  * Initialization with the "native" number of threads for this architecture
  */
-GThreadPool::GThreadPool()
-	: m_errorCounter(0)
-   , m_tasksInFlight(0)
-   , m_nThreads(getNHardwareThreads())
-   , m_threads_started(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
+GThreadPool::GThreadPool() : m_nThreads(getNHardwareThreads())
 { /* nothing */ }
 
 /******************************************************************************/
@@ -56,10 +52,7 @@ GThreadPool::GThreadPool()
  * @param nThreads The desired number of threads executing work concurrently in the pool
  */
 GThreadPool::GThreadPool(const unsigned int &nThreads)
-	: m_errorCounter(0)
-   , m_tasksInFlight(0)
-   , m_nThreads(nThreads ? nThreads : getNHardwareThreads())
-   , m_threads_started(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
+   : m_nThreads(nThreads ? nThreads : getNHardwareThreads())
 { /* nothing */ }
 
 /******************************************************************************/
@@ -83,20 +76,6 @@ GThreadPool::~GThreadPool() {
 	m_work.reset(); // This will initiate termination of all threads
 	m_gtg.join_all(); // wait for the threads to terminate
 	m_gtg.clearThreads(); // Clear the thread group
-
-	if (this->hasErrors()) {
-		std::unique_lock<std::mutex> error_lck(m_error_mutex);
-
-		std::ostringstream errors;
-		std::vector<std::string>::iterator it;
-		for (it = m_errorLog.begin(); it != m_errorLog.end(); ++it) {
-			errors << *it << std::endl;
-		}
-		glogger
-		<< "Report from GThreadPool::~GThreadPool(): There were errors during thread execution:" << std::endl
-		<< errors.str()
-		<< GWARNING;
-	}
 }
 
 /******************************************************************************/
@@ -175,39 +154,6 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
  */
 unsigned int GThreadPool::getNThreads() const {
 	return boost::numeric_cast<unsigned int>(m_gtg.size());
-}
-
-/******************************************************************************/
-/**
- * Allows to check whether any errors have occurred
- *
- * @return A boolean indicating whether any errors exist
- */
-bool GThreadPool::hasErrors() const {
-	std::unique_lock<std::mutex> error_lck(m_error_mutex);
-	return (m_errorCounter.load() > 0);
-}
-
-/******************************************************************************/
-/**
- * Retrieves the errors. We return by value in order to maintain
- * thread-safety.
- *
- * @param errorLog The vector to which the errors should be saved
- */
-std::vector<std::string> GThreadPool::getErrors() const {
-	std::unique_lock<std::mutex> error_lck(m_error_mutex);
-	return m_errorLog;
-}
-
-/******************************************************************************/
-/**
- * Clears the error logs
- */
-void GThreadPool::clearErrors() {
-	std::unique_lock<std::mutex> error_lck(m_error_mutex); // Prevent concurrent write access
-	m_errorCounter = 0;
-	m_errorLog.clear();
 }
 
 /******************************************************************************/

@@ -575,12 +575,9 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 		, "GEvolutionaryAlgorithm::runFitnessCalculation()"
 	);
 
-	bool is_complete = std::get<0>(status);
-	bool has_errors  = std::get<1>(status);
-
 	//--------------------------------------------------------------------------------
 	// Take care of unprocessed items, if these exist
-	if(!is_complete) {
+	if(!status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
@@ -597,7 +594,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 	}
 
 	// Remove items for which an error has occurred during processing
-	if(has_errors) {
+	if(status.has_errors) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
@@ -841,24 +838,6 @@ void GEvolutionaryAlgorithm::init() {
  * Does any necessary finalization work
  */
 void GEvolutionaryAlgorithm::finalize() {
-	// Check whether there were any errors during thread execution
-	if (m_tp_ptr->hasErrors()) {
-		std::vector<std::string> errors;
-		errors = m_tp_ptr->getErrors();
-
-		std::ostringstream error_list;
-		for(auto e: errors) { error_list << e << std::endl; }
-
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "========================================================================" << std::endl
-				<< "In G_OA_EvolutionaryAlgorithm::finalize():" << std::endl
-				<< "There were errors during thread execution:" << std::endl
-				<< error_list.str()
-				<< "========================================================================" << std::endl
-		);
-	}
-
 	// Terminate our thread pool
 	m_tp_ptr.reset();
 

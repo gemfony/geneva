@@ -84,18 +84,17 @@ class GBufferPortT : private boost::noncopyable
 		 , "GBufferPortT: processable_type does not adhere to the GProcessingContainerT<> interface"
 	 );
 
-
-public:
 	 using RAW_BUFFER_TYPE = typename Gem::Common::GBoundedBufferT<std::shared_ptr<processable_type>, Gem::Common::DEFAULTBUFFERSIZE>;
 	 using PROCESSED_BUFFER_TYPE = typename Gem::Common::GBoundedBufferT<std::shared_ptr<processable_type>, 0>;
 
+public:
 	 /***************************************************************************/
 	 /**
 	  * The default constructor
 	  */
 	 GBufferPortT()
-		 : m_raw_ptr(new (RAW_BUFFER_TYPE)())
-		 , m_processed_ptr(new (PROCESSED_BUFFER_TYPE)())
+		 : m_raw_ptr(new RAW_BUFFER_TYPE())
+		 , m_processed_ptr(new PROCESSED_BUFFER_TYPE())
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -153,11 +152,12 @@ public:
 		 m_raw_ptr->pop_and_block(item_ptr);
 
 		 // If this is the first retrieval, mark the time for later usage
-		 if(m_first_retrieval && item_ptr) {
+		 if(m_no_retrieval && item_ptr) {
 			 std::unique_lock<std::mutex> lock(m_first_retrieval_mutex);
-			 if(m_first_retrieval) {
-				 m_first_retrieval = false;
-				 m_first_retrieval_time = Gem::Common::time_point_to_milliseconds(std::chrono::high_resolution_clock::now());
+			 if(m_no_retrieval) {
+				 m_retrieval_start_time = std::chrono::high_resolution_clock::now();
+				 m_no_retrieval = false;
+				 m_retrievalTimeCondition.notify_all();
 			 }
 		 }
 	 }
@@ -181,12 +181,13 @@ public:
 			 , timeout
 		 );
 
-		 // If this is the first retrieval (AND we have received an item!), mark the time for later usage
-		 if(m_first_retrieval && success && item_ptr) {
+		 // If this is the first retrieval, mark the time for later usage
+		 if(m_no_retrieval && item_ptr) {
 			 std::unique_lock<std::mutex> lock(m_first_retrieval_mutex);
-			 if(m_first_retrieval) {
-				 m_first_retrieval = false;
-				 m_first_retrieval_time = Gem::Common::time_point_to_milliseconds(std::chrono::high_resolution_clock::now());
+			 if(m_no_retrieval) {
+				 m_retrieval_start_time = std::chrono::high_resolution_clock::now();
+				 m_no_retrieval = false;
+				 m_retrievalTimeCondition.notify_all();
 			 }
 		 }
 
@@ -286,26 +287,42 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves the time of first retrieval (in seconds since the epoch)
+	  * Retrieves the time of the first retrieval
 	  *
-	  * TODO: This function should block if no item was retrieved so far
+	  * @return The timepoint of the first retrieval
 	  */
-	 double getSecondsSinceFirstRetrieval() const {
+	 std::chrono::high_resolution_clock::time_point getFirstRetrievalTime() const {
 		 std::unique_lock<std::mutex> lock(m_first_retrieval_mutex);
-		 return boost::numeric_cast<double>(m_first_retrieval_time)/1000.;
+
+		 // Wait until a first work item was retrieved
+		 m_retrievalTimeCondition.wait(lock, [this]() -> bool {return !this->m_no_retrieval;});
+
+		 // Let the audience know when the first retrieval has occurred
+		 return m_retrieval_start_time;
 	 }
 
 	 /***************************************************************************/
 
 private:
-	 std::atomic<bool> m_first_retrieval{true}; ///< Indicates whether an item was already retrieved from the raw queue
-	 std::mutex m_first_retrieval_mutex; ///< Blocks access to m_first_retrieval_time
-	 std::chrono::milliseconds::rep m_first_retrieval_time = std::chrono::milliseconds::rep(0);
+	 /***************************************************************************/
+	 // Retrieval of a random uuid
+	 static boost::uuids::uuid getRandomUUID() {
+		 boost::uuids::random_generator generator;
+		 return generator();
+	 }
+
+	 /***************************************************************************/
+	 // Data
+
+	 std::atomic<bool> m_no_retrieval{true}; ///< Indicates whether an item was already retrieved from the raw queue
+	 mutable std::mutex m_first_retrieval_mutex; ///< Blocks access to m_first_retrieval_time; mutable so we can lock it in a const function
+	 std::chrono::high_resolution_clock::time_point m_retrieval_start_time = std::chrono::high_resolution_clock::now(); ///< Holds the time when the first work item was retrieved from the queue
+	 mutable std::condition_variable m_retrievalTimeCondition; ///< Regulates retrieval of the data in m_retrieval_start_time
 
 	 std::shared_ptr<RAW_BUFFER_TYPE> m_raw_ptr; ///< The queue for raw objects
 	 std::shared_ptr<PROCESSED_BUFFER_TYPE> m_processed_ptr; ///< The queue for processed objects
 
-	 const boost::uuids::uuid m_tag = (boost::uuids::random_generator())(); ///< A unique id assigned to objects of this class
+	 const boost::uuids::uuid m_tag = GBufferPortT<processable_type>::getRandomUUID(); ///< A unique id assigned to objects of this class
 };
 
 /******************************************************************************/

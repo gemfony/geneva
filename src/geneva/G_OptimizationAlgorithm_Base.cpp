@@ -1580,9 +1580,16 @@ void G_OptimizationAlgorithm_Base::load_(const GObject* cp) {
 
 /******************************************************************************/
 /**
- * Delegation of work to be performed to the private executor object
+ * Delegation of work to be performed to the private executor object. Note that
+ * the return values "is_complete" and "has_errors" may both be true, i.e. all items
+ * may have returned, but there were errors in some or all of them.
+ *
+ * @param workItems The set of work items to be processed
+ * @param resubmitUnprocessed Indicates whether unprocessed work items should be resubmitted after a timeout
+ * @param caller The name of the caller (used for error messages and logs)
+ * @return A struct which indicates whether all items have returned ("is_complete") and whether there were errors ("has_errors")
  */
-std::tuple<bool,bool> G_OptimizationAlgorithm_Base::workOn(
+Gem::Courtier::executor_status_t G_OptimizationAlgorithm_Base::workOn(
 	std::vector<std::shared_ptr<GParameterSet>>& workItems
 	, bool resubmitUnprocessed
 	, const std::string &caller

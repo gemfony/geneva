@@ -154,6 +154,8 @@ const double DEFAULTMINPERCENTAGEOFTIMEOUT = 0.7;
 const double DEFAULTBROKERWAITFACTOR2 = 1.1; // For GBrokerExecutorT
 const double DEFAULTINITIALBROKERWAITFACTOR2 = 1.;
 
+const std::uint16_t DEFAULTEXECUTORPARTIALRETURNPERCENTAGE = 0; ///< The minimum percentage of returned items in an iteration after which execution will continue
+
 /******************************************************************************/
 /**
  * A 0 time period . timedHalt will not trigger if this duration is set

@@ -89,13 +89,6 @@ public:
 	 /** @brief Blocks until all submitted jobs have been cleared from the pool */
 	 G_API_COMMON void wait();
 
-	 /** @brief Allows to check whether any errors have occurred */
-	 G_API_COMMON bool hasErrors() const;
-	 /** @brief Retrieves the errors */
-	 G_API_COMMON std::vector<std::string> getErrors() const;
-	 /** @brief Clears the error logs */
-	 G_API_COMMON void clearErrors();
-
 	 /***************************************************************************/
 	 /**
 	  * Submits the task to Boost.ASIO's io_service. This function will return immediately,
@@ -361,11 +354,7 @@ private:
 
 	 GStdThreadGroup m_gtg; ///< Holds the actual threads
 
-	 std::atomic<std::uint32_t> m_errorCounter; ///< The number of exceptions thrown by the pay load
-	 std::vector<std::string> m_errorLog; ///< Holds error descriptions emitted by the work load
-	 mutable std::mutex m_error_mutex; ///< Protects access to the error log and error counter; mutable, as "hasErrors() is const
-
-	 std::atomic<std::uint32_t> m_tasksInFlight;  ///< The number of jobs that have been submitted in this round
+	 std::atomic<std::uint32_t> m_tasksInFlight {0};  ///< The number of jobs that have been submitted in this round
 	 std::mutex m_task_counter_mutex; ///< Protects access to the "submitted" job counter
 
 	 /// Allows to prevent further job submissions, particularly when waiting for the pool to clear or when resetting the pool
@@ -377,7 +366,7 @@ private:
 	 std::condition_variable_any m_condition;
 
 	 std::atomic<unsigned int> m_nThreads; ///< The number of concurrent threads in the pool
-	 std::atomic<bool> m_threads_started; ///< Indicates whether threads have already been started
+	 std::atomic<bool> m_threads_started{false}; ///< Indicates whether threads have already been started
 };
 
 /******************************************************************************/

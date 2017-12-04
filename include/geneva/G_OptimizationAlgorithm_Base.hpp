@@ -479,7 +479,7 @@ protected:
 	 virtual G_API_GENEVA void load_(const GObject* cp) override;
 
 	 /** @brief Delegation of work to be performed to the private executor object */
-	 G_API_GENEVA std::tuple<bool, bool> workOn(
+	 G_API_GENEVA Gem::Courtier::executor_status_t workOn(
 		 std::vector<std::shared_ptr<GParameterSet>>& workItems
 		 , bool resubmitUnprocessed = false
 		 , const std::string &caller = std::string()

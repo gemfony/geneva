@@ -557,18 +557,16 @@ void GGradientDescent::runFitnessCalculation() {
 		, "GGradientDescent::runFitnessCalculation()"
 	);
 
-	bool is_complete = std::get<0>(status);
-	bool has_errors  = std::get<1>(status);
-
 	//--------------------------------------------------------------------------------
 	// Some error checks
 
-	// Check if all work items have returned
-	if (!is_complete || has_errors) {
+	// Check if all work items have returned or whether there were errors. Both
+	// cannot be tolerated, as a gradient method needs a complete set of evaluated solutions.
+	if (!status.is_complete || status.has_errors) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::runFitnessCalculation(): Error!" << std::endl
-				<< "No complete set of items received or errors found in individuals" << std::endl
+				<< "No complete set of items received or errors found in some individuals" << std::endl
 		);
 	}
 

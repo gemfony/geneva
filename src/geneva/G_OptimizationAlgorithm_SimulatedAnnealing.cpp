@@ -472,12 +472,9 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 		, "GSimulatedAnnealing::runFitnessCalculation()"
 	);
 
-	bool is_complete = std::get<0>(status);
-	bool has_errors  = std::get<1>(status);
-
 	//--------------------------------------------------------------------------------
-	// Take care of unprocessed items, if these exist
-	if(!is_complete) {
+	// Take care of unprocessed items, if these exist. We simply remove them and continue.
+	if(!status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
@@ -494,7 +491,8 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 	}
 
 	// Remove items for which an error has occurred during processing
-	if(has_errors) {
+	// We simply remove them and continue.
+	if(status.has_errors) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
@@ -682,26 +680,6 @@ void GSimulatedAnnealing::init() {
  * Does any necessary finalization work
  */
 void GSimulatedAnnealing::finalize() {
-	// Check whether there were any errors during thread execution
-	if (m_tp_ptr->hasErrors()) {
-		std::vector<std::string> errors = m_tp_ptr->getErrors();
-
-		std::ostringstream list_of_errors;
-		for(auto e: errors) { list_of_errors << e << std::endl; }
-
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "========================================================================" << std::endl
-				<< std::endl
-				<< "In GSimulatedAnnealing::finalize():" << std::endl
-				<< "There were errors during thread execution:" << std::endl
-				<< std::endl
-				<< list_of_errors.str()
-				<< std::endl
-				<< "========================================================================" << std::endl
-		);
-	}
-
 	// Terminate our thread pool
 	m_tp_ptr.reset();
 
