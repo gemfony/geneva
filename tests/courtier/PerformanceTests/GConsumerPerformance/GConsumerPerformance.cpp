@@ -315,11 +315,8 @@ void connectorProducer(
 			, false // Do not resubmit unprocessed items
 		);
 
-		bool is_complete = std::get<0>(status);
-		bool has_errors  = std::get<1>(status);
-
 		// Take care of unprocessed items, if these exist
-		if(!is_complete) {
+		if(!status.is_complete) {
 			std::size_t n_erased = Gem::Common::erase_if(
 				data
 				, [](std::shared_ptr<WORKLOAD> p) -> bool {
@@ -336,7 +333,7 @@ void connectorProducer(
 		}
 
 		// Remove items for which an error has occurred during processing
-		if(has_errors) {
+		if(status.has_errors) {
 			std::size_t n_erased = Gem::Common::erase_if(
 				data
 				, [](std::shared_ptr<WORKLOAD> p) -> bool {

@@ -149,8 +149,9 @@ private:
 /**
  * This test tries to ascertain that GThreadPool works as expected. It submits
  * a given number of jobs to the pool, waits for their execution and submits them again
- * a user-definable number of times. The user may ask the application to resize
- * the thread pool in random intervals and
+ * a user-definable number of times.
+ *
+ * TODO: Extract futures and check for errors
  */
 int main(int argc, char** argv) {
 	Gem::Hap::GRandom gr; // Instantiates a random number generator
@@ -248,11 +249,6 @@ int main(int argc, char** argv) {
 
 		// Wait for all tasks to complete and check for errors
 		gtp.wait();
-		if(gtp.hasErrors()) {
-			glogger
-			<< "Errors occurred during the execution" << std::endl
-			<< GLOGGING;
-		}
 	}
 
 	// Check that each task has been called exactly nIterations times

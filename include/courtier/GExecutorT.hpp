@@ -296,7 +296,7 @@ public:
 		 // Perform necessary setup work for an iteration
 		 this->iterationInit(workItems);
 
-		 std::size_t nResubmissions = 0;
+		 m_nResubmissions = 0;
 		 executor_status_t status {false /* is_complete */, false /* has_errors */};
 		 do {
 			 //-----------------------
@@ -332,7 +332,7 @@ public:
 			 if (
 				 !resubmitUnprocessed
 				 || (resubmitUnprocessed && m_maxResubmissions == 0)
-			    || (++nResubmissions >= m_maxResubmissions)
+			    || (++m_nResubmissions >= m_maxResubmissions)
 			 ) break;
 			 //-----------------------
 		 } while(true);
@@ -611,8 +611,14 @@ protected:
 		 // on the actual executor. m_executionStartTime will be equal to the first submission
 		 // time for serial and multi-threaded executors, but equal to the first retrieval time
 		 // from the GBufferPortT class for the broker executor. NOTE that the following call
-		 // may block, if a start time cannot yet be determined.
-		 m_executionStartTime = this->determineExecutionStartTime();
+		 // may block, if a start time cannot yet be determined. In the case of a resubmission,
+		 // we assume that processors / clients for work items are readily available and set
+		 // m_executionStartTime to the current time.
+		 if(0 == m_nResubmissions) {
+			 m_executionStartTime = this->determineExecutionStartTime();
+		 } else {
+			 m_executionStartTime = this->now();
+		 }
 
 		 return nSubmittedItems;
 	 }
@@ -786,6 +792,7 @@ private:
 
 	 /** @brief The maximum number of re-submissions allowed if a full return of submitted items is attempted*/
 	 std::size_t m_maxResubmissions = DEFAULTMAXRESUBMISSIONS;
+	 std::size_t m_nResubmissions = 0; ///< A temporary counter of the current resubmission
 
 	 std::size_t m_n_returnedLast = 0; ///< The number of individuals returned in the last iteration cycle
 	 std::size_t m_n_notReturnedLast = 0; ///< The number of individuals NOT returned in the last iteration cycle
