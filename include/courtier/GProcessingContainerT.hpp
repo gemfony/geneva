@@ -88,6 +88,8 @@ class g_processing_exception : public gemfony_exception { using gemfony_exceptio
  * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
  * derived classes to be serializable and to trigger serialization of this class.
  *
+ * TODO: Cross-check that all data is correctly loaded, copied, serialized, ...
+ *
  * @tparam processable_type The type of the class derived from GProcessingContainerT
  * @tparam processing_result_type The result type of the process_ call
  */
@@ -107,8 +109,9 @@ class GProcessingContainerT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & BOOST_SERIALIZATION_NVP(m_submission_counter)
-		 & BOOST_SERIALIZATION_NVP(m_submission_position)
+		 & BOOST_SERIALIZATION_NVP(m_iteration_counter)
+		 & BOOST_SERIALIZATION_NVP(m_resubmission_counter)
+		 & BOOST_SERIALIZATION_NVP(m_collection_position)
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_id)
 		 & BOOST_SERIALIZATION_NVP(m_preProcessingDisabled)
 		 & BOOST_SERIALIZATION_NVP(m_postProcessingDisabled)
@@ -117,8 +120,10 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_pre_processing_time)
 		 & BOOST_SERIALIZATION_NVP(m_processing_time)
 		 & BOOST_SERIALIZATION_NVP(m_post_processing_time)
-		 & BOOST_SERIALIZATION_NVP(m_bufferport_submission_time)
-		 & BOOST_SERIALIZATION_NVP(m_bufferport_retrieval_time)
+		 & BOOST_SERIALIZATION_NVP(m_bufferport_raw_retrieval_time)
+		 & BOOST_SERIALIZATION_NVP(m_bufferport_raw_submission_time)
+		 & BOOST_SERIALIZATION_NVP(m_bufferport_proc_retrieval_time)
+		 & BOOST_SERIALIZATION_NVP(m_bufferport_proc_submission_time)
 		 & BOOST_SERIALIZATION_NVP(m_stored_result)
 		 & BOOST_SERIALIZATION_NVP(m_stored_error_descriptions)
 		 & BOOST_SERIALIZATION_NVP(m_processing_status);
@@ -143,16 +148,19 @@ public:
 	  * @param cp A copy of another GSubmissionContainer object
 	  */
 	 GProcessingContainerT(const GProcessingContainerT<processable_type, processing_result_type> &cp)
-		 : m_submission_counter(cp.m_submission_counter)
-		 , m_submission_position(cp.m_submission_position)
+		 : m_iteration_counter(cp.m_iteration_counter)
+		 , m_resubmission_counter(cp.m_resubmission_counter)
+		 , m_collection_position(cp.m_collection_position)
 		 , m_bufferport_id(cp.m_bufferport_id)
 		 , m_preProcessingDisabled(cp.m_preProcessingDisabled)
 		 , m_postProcessingDisabled(cp.m_postProcessingDisabled)
 		 , m_pre_processing_time(cp.m_pre_processing_time)
 		 , m_processing_time(cp.m_processing_time)
 		 , m_post_processing_time(cp.m_post_processing_time)
-		 , m_bufferport_submission_time(cp.m_bufferport_submission_time)
-		 , m_bufferport_retrieval_time(cp.m_bufferport_retrieval_time)
+		 , m_bufferport_raw_retrieval_time(cp.m_bufferport_raw_retrieval_time)
+		 , m_bufferport_raw_submission_time(cp.m_bufferport_raw_submission_time)
+		 , m_bufferport_proc_retrieval_time(cp.m_bufferport_proc_retrieval_time)
+		 , m_bufferport_proc_submission_time(cp.m_bufferport_proc_submission_time)
 		 , m_stored_result(cp.m_stored_result)
 		 , m_stored_error_descriptions(cp.m_stored_error_descriptions)
 		 , m_processing_status(cp.m_processing_status)
@@ -229,7 +237,7 @@ public:
 				 << "Processing has thrown an unknown exception." << std::endl;
 		 }
 
-		 if(!this->processing_was_successful()) { // Either an exception was caught or the user has flagged an error
+		 if(this->has_errors()) { // Either an exception was caught or the user has flagged an error
 			 // Do some cleanup
 			 m_pre_processing_time = 0.;
 			 m_processing_time = 0.;
@@ -283,32 +291,24 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks if processing was successful
+	  * Checks whether the processed flag was set for this item
 	  *
-	  * @return A boolean indicating whether processing was successful
+	  * @return A boolean indicating whether the item was processed
 	  */
-	 bool processing_was_unsuccessful() const noexcept {
+	 bool is_processed() const noexcept {
+		 return (processingStatus::PROCESSED == this->getProcessingStatus());
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks if there were errors during processing
+	  *
+	  * @return A boolean indicating whether there were errors during processing
+	  */
+	 bool has_errors() const noexcept {
 		 return
 			 (processingStatus::EXCEPTION_CAUGHT == m_processing_status)
 			 || (processingStatus::ERROR_FLAGGED == m_processing_status);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks if processing was successful
-	  *
-	  * @return A boolean indicating whether processing was successful
-	  */
-	 bool processing_was_successful() const noexcept {
-		 return !this->processing_was_unsuccessful();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Syntactic sugar
-	  */
-	 bool has_errors() const noexcept {
-		 return this->processing_was_unsuccessful();
 	 }
 
 	 /***************************************************************************/
@@ -339,34 +339,50 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to set the counter of a given submission
+	  * Allows to set the counter of a given iteration
 	  */
-	 void setSubmissionCounter(const ITERATION_COUNTER_TYPE& counter)  noexcept {
-		 m_submission_counter = counter;
+	 void setIterationCounter(const ITERATION_COUNTER_TYPE &counter)  noexcept {
+		 m_iteration_counter = counter;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the counter of a given submission
+	  * Allows to retrieve the counter of a given iteration
 	  */
-	 ITERATION_COUNTER_TYPE getSubmissionCounter() const noexcept {
-		 return m_submission_counter;
+	 ITERATION_COUNTER_TYPE getIterationCounter() const noexcept {
+		 return m_iteration_counter;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to set the position inside of a given submission
+	  * Allows to set the counter of the current submission inside of an iteration
 	  */
-	 void setSubmissionPosition(const SUBMISSION_POSITION_TYPE& pos) noexcept {
-		 m_submission_position = pos;
+	 void setResubmissionCounter(const RESUBMISSION_COUNTER_TYPE &resubmission_counter) noexcept {
+		 m_resubmission_counter = resubmission_counter;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the position inside of a given submission
+	  * Allows to retrieve the counter of the current submission inside of an iteration
 	  */
-	 SUBMISSION_POSITION_TYPE getSubmissionPosition() const noexcept {
-		 return m_submission_position;
+	 RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
+		 return m_resubmission_counter;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the position inside of a given collection submitted to the broker
+	  */
+	 void setCollectionPosition(const COLLECTION_POSITION_TYPE &pos) noexcept {
+		 m_collection_position = pos;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the position inside of a given collection submitted to the broker
+	  */
+	 COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept {
+		 return m_collection_position;
 	 }
 
 	 /***************************************************************************/
@@ -383,6 +399,38 @@ public:
 	  */
 	 BUFFERPORT_ID_TYPE getBufferId() const noexcept {
 		 return m_bufferport_id;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the timepoint when a work item was retrieved from the raw queue
+	  */
+	 std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
+		 return m_bufferport_raw_retrieval_time;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the timepoint when a work item was submitted to the raw queue
+	  */
+	 std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
+		 return m_bufferport_raw_submission_time;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the timepoint when a work item was retrieved from the processed queue
+	  */
+	 std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
+		 return m_bufferport_proc_retrieval_time;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the timepoint when a work item was submitted to the processed queue
+	  */
+	 std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
+		 return m_bufferport_proc_submission_time;
 	 }
 
 	 /***************************************************************************/
@@ -479,41 +527,32 @@ public:
  	 /**
  	  * Marks the time when the item was added to a GBuffferPortT raw queue
  	  */
-	 void markSubmissionTime() {
-		 m_bufferport_submission_time = Gem::Common::time_point_to_milliseconds(std::chrono::high_resolution_clock::now());
+	 void markRawSubmissionTime() {
+		 m_bufferport_raw_submission_time = std::chrono::high_resolution_clock::now();
+	 }
+
+	 /***************************************************************************/
+ 	 /**
+ 	  * Marks the time when the item was retrieved from a GBuffferPortT raw queue
+ 	  */
+	 void markRawRetrievalTime() {
+		 m_bufferport_raw_retrieval_time = std::chrono::high_resolution_clock::now();
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Marks the time when the item was retrieved from the GBuffferPortT processed queue
+	  * Marks the time when the item was submitted to a GBuffferPortT processed queue
 	  */
-	 void markRetrievalTime() {
-		 m_bufferport_retrieval_time = Gem::Common::time_point_to_milliseconds(std::chrono::high_resolution_clock::now());
+	 void markProcSubmissionTime() {
+		 m_bufferport_proc_submission_time = std::chrono::high_resolution_clock::now();
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the amount of time passed (in seconds) between the
-	  * time the item was added to the raw queue and the time it was retrieved
-	  * from the processed queue.
-	  *
-	  * @return The amount of time in seconds between submission and retrieval of the item
+	  * Marks the time when the item was retrieved from a GBuffferPortT processed queue
 	  */
-	 double time_from_submission_to_retrieval() const {
-		 // Check that we have sensible timings
-		 if(
-			 std::chrono::milliseconds::rep(0)    == m_bufferport_submission_time
-			 || std::chrono::milliseconds::rep(0) == m_bufferport_retrieval_time
-		 	 || m_bufferport_submission_time >= m_bufferport_retrieval_time
-		 ) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GProcessingContainerT::time_from_submission_to_retrieval():" << std::endl
-				 	 << "Invalid m_bufferport_submission_time and/or m_bufferport_retrieval_time time: " << m_bufferport_submission_time << " / " << m_bufferport_retrieval_time << std::endl
-			 );
-		 }
-
-		 return boost::numeric_cast<double>(m_bufferport_retrieval_time-m_bufferport_submission_time)/1000.;
+	 void markProcRetrievalTime() {
+		 m_bufferport_proc_retrieval_time = std::chrono::high_resolution_clock::now();
 	 }
 
 	 /***************************************************************************/
@@ -526,16 +565,19 @@ public:
 			 = Gem::Common::g_convert_and_compare<GProcessingContainerT<processable_type, result_type>, GProcessingContainerT<processable_type, result_type>>(cp, this);
 
 		 // Load local data
-		 m_submission_counter = p_load->m_submission_counter;
-		 m_submission_position = p_load->m_submission_position;
+		 m_iteration_counter = p_load->m_iteration_counter;
+		 m_resubmission_counter = p_load->m_resubmission_counter;
+		 m_collection_position = p_load->m_collection_position;
 		 m_bufferport_id = p_load->m_bufferport_id;
 		 m_preProcessingDisabled = p_load->m_preProcessingDisabled;
 		 m_postProcessingDisabled = p_load->m_postProcessingDisabled;
 		 m_stored_result = p_load->m_stored_result;
 		 m_pre_processing_time = p_load->m_pre_processing_time;
 		 m_processing_time = p_load->m_processing_time;
-		 m_bufferport_submission_time = p_load->m_bufferport_submission_time;
-		 m_bufferport_retrieval_time = p_load->m_bufferport_retrieval_time;
+		 m_bufferport_raw_submission_time = p_load->m_bufferport_raw_submission_time;
+		 m_bufferport_raw_retrieval_time = p_load->m_bufferport_raw_retrieval_time;
+		 m_bufferport_proc_submission_time = p_load->m_bufferport_proc_submission_time;
+		 m_bufferport_proc_retrieval_time = p_load->m_bufferport_proc_retrieval_time;
 		 m_post_processing_time = p_load->m_post_processing_time;
 		 m_stored_error_descriptions = p_load->m_stored_error_descriptions;
 		 m_processing_status = p_load->m_processing_status;
@@ -619,8 +661,9 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 ITERATION_COUNTER_TYPE m_submission_counter = 0;
-	 SUBMISSION_POSITION_TYPE m_submission_position = 0;
+	 ITERATION_COUNTER_TYPE m_iteration_counter = ITERATION_COUNTER_TYPE(0);
+	 RESUBMISSION_COUNTER_TYPE m_resubmission_counter = RESUBMISSION_COUNTER_TYPE(0);
+	 COLLECTION_POSITION_TYPE m_collection_position = COLLECTION_POSITION_TYPE(0);
 	 BUFFERPORT_ID_TYPE m_bufferport_id = BUFFERPORT_ID_TYPE();
 
 	 bool m_preProcessingDisabled = false; ///< Indicates whether pre-processing was diabled entirely
@@ -633,8 +676,10 @@ private:
 	 double m_processing_time = 0.; ///< The amount of time needed for the actual processing step (in seconds)
 	 double m_post_processing_time = 0.; ///< The amount of time needed for post-processing (in seconds)
 
-	 std::chrono::milliseconds::rep m_bufferport_submission_time{0}; ///< Arithmetic representation of the time when the item was submitted to the raw queue
-	 std::chrono::milliseconds::rep m_bufferport_retrieval_time{0};  ///< Arithmetic representation of the time when the item was retrieved from the processed queue
+	 std::chrono::high_resolution_clock::time_point m_bufferport_raw_retrieval_time;   ///< Time when the item was retrieved from the raw queue
+	 std::chrono::high_resolution_clock::time_point m_bufferport_raw_submission_time;  ///< Time when the item was submitted to the raw queue
+	 std::chrono::high_resolution_clock::time_point m_bufferport_proc_retrieval_time;  ///< Time when the item was retrieved from the processed queue
+	 std::chrono::high_resolution_clock::time_point m_bufferport_proc_submission_time; ///< Time when the item was submitted to the processed queue
 
 	 result_type m_stored_result = result_type(0); ///< Buffers results of the process() call
 
@@ -649,16 +694,12 @@ private:
 
 /******************************************************************************/
 /** @brief Mark this class as abstract */
-namespace boost {
-namespace serialization {
+namespace boost { namespace serialization {
 template<typename processable_type, typename result_type>
-struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, result_type>> : public boost::true_type {
-};
+struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, result_type>> : public boost::true_type {};
 template<typename processable_type, typename result_type>
-struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, result_type>> : public boost::true_type {
-};
-}
-}
+struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, result_type>> : public boost::true_type {};
+}}
 
 /******************************************************************************/
 

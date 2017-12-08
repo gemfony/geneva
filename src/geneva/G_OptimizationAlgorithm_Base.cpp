@@ -1582,7 +1582,8 @@ void G_OptimizationAlgorithm_Base::load_(const GObject* cp) {
 /**
  * Delegation of work to be performed to the private executor object. Note that
  * the return values "is_complete" and "has_errors" may both be true, i.e. all items
- * may have returned, but there were errors in some or all of them.
+ * may have returned, but there were errors in some or all of them. The function
+ * will also make the executor use this objects iteration counter.
  *
  * @param workItems The set of work items to be processed
  * @param resubmitUnprocessed Indicates whether unprocessed work items should be resubmitted after a timeout
@@ -1594,9 +1595,15 @@ Gem::Courtier::executor_status_t G_OptimizationAlgorithm_Base::workOn(
 	, bool resubmitUnprocessed
 	, const std::string &caller
 ) {
+	auto iterationCounter = std::make_tuple<Gem::Courtier::ITERATION_COUNTER_TYPE, bool>(
+		boost::numeric_cast<Gem::Courtier::ITERATION_COUNTER_TYPE>(this->getIteration())
+		, true
+	);
+
 	return m_executor_ptr->workOn(
 		workItems
 		, resubmitUnprocessed
+		, iterationCounter
 		, caller
 	);
 }

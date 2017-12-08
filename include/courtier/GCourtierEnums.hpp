@@ -195,8 +195,9 @@ const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
  * These typedefs allow to steer the types of ids assigned to objects submitted to the broker
  */
 
-using ITERATION_COUNTER_TYPE = std::uint64_t;;
-using SUBMISSION_POSITION_TYPE = std::size_t;
+using ITERATION_COUNTER_TYPE = std::uint64_t;
+using RESUBMISSION_COUNTER_TYPE = std::size_t;
+using COLLECTION_POSITION_TYPE = std::size_t;
 using BUFFERPORT_ID_TYPE = boost::uuids::uuid;
 
 /******************************************************************************/

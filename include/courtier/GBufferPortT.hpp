@@ -108,7 +108,8 @@ public:
 	 void push_raw(std::shared_ptr<processable_type> item_ptr) {
 		 if(item_ptr) {
 			 // Make it known to the work item when it has left its origin
-			 item_ptr->markSubmissionTime();
+			 // This timing may be wrong if the submission has blocked.
+			 item_ptr->markRawSubmissionTime();
 			 // The actual submission
 			 m_raw_ptr->push_and_block(item_ptr);
 		 }
@@ -127,17 +128,27 @@ public:
 		 std::shared_ptr<processable_type> item_ptr
 		 , const std::chrono::duration<double> &timeout
 	 ) {
+		 bool success = false;
 		 if(item_ptr) {
 			 // Make it known to the work item when it has left its origin
-			 item_ptr->markSubmissionTime();
+			 item_ptr->markRawSubmissionTime();
 			 // The actual submission
-			 return m_raw_ptr->push_and_wait(
-				 item_ptr
-				 , timeout
-			 );
+			 success = m_raw_ptr->push_and_wait(item_ptr, timeout);
+
+#ifdef DEBUG
+			 // Items may be lost here. This should be a very rare occasion. Emit
+			 // a warning in DEBUG mode, as this might hint at some general problem
+			 if(!success) {
+				 glogger
+					 << "In GBufferPortT<processable_type>::push_raw(item_ptr, timeout):" << std::endl
+					 << "Submission was not successful. The work item might be discarded." << std::endl
+					 << "Timeout was " << timeout.count() << " seconds" << std::endl
+					 << GWARNING;
+			 }
+#endif
 		 }
 
-		 return false;
+		 return success;
 	 }
 
 	 /***************************************************************************/
@@ -150,6 +161,11 @@ public:
 	 void pop_raw(std::shared_ptr<processable_type> &item_ptr) {
 		 // Do the actual retrieval
 		 m_raw_ptr->pop_and_block(item_ptr);
+
+		 if(item_ptr) {
+			 // Make it known to the work item when it was taken from the raw queue for processing
+			 item_ptr->markRawRetrievalTime();
+		 }
 
 		 // If this is the first retrieval, mark the time for later usage
 		 if(m_no_retrieval && item_ptr) {
@@ -180,6 +196,10 @@ public:
 			 item_ptr
 			 , timeout
 		 );
+		 if(success && item_ptr) {
+			 // Make it known to the work item when it has returned to its origin
+			 item_ptr->markRawRetrievalTime();
+		 }
 
 		 // If this is the first retrieval, mark the time for later usage
 		 if(m_no_retrieval && item_ptr) {
@@ -203,6 +223,10 @@ public:
 	  */
 	 void push_processed(std::shared_ptr<processable_type> item_ptr) {
 		 if(item_ptr) {
+			 // Make it known to the work item when it has entered the processed queue.
+			 // This timing may be wrong if the submission has blocked.
+			 item_ptr->markProcSubmissionTime();
+			 // The actual submission
 			 m_processed_ptr->push_and_block(item_ptr);
 		 }
 	 }
@@ -220,14 +244,27 @@ public:
 		 std::shared_ptr<processable_type> item_ptr
 		 , const std::chrono::duration<double> &timeout
 	 ) {
+		 bool success = false;
 		 if(item_ptr) {
-			 return m_processed_ptr->push_and_wait(
-				 item_ptr
-				 , timeout
-			 );
+			 // Make it known to the work item when it has entered the processed queue
+			 item_ptr->markProcSubmissionTime();
+			 // The actual submission
+			 success = m_processed_ptr->push_and_wait(item_ptr, timeout);
+
+#ifdef DEBUG
+			 // Items may be lost here. This should be a very rare occasion. Emit
+			 // a warning in DEBUG mode, as this might hint at some general problem
+			 if(!success) {
+				 glogger
+					 << "In GBufferPortT<processable_type>::push_processed(item_ptr, timeout):" << std::endl
+					 << "Submission was not successful. The work item might be discarded." << std::endl
+					 << "Timeout was " << timeout.count() << " seconds" << std::endl
+					 << GWARNING;
+			 }
+#endif
 		 }
 
-		 return false;
+		 return success;
 	 }
 
 	 /***************************************************************************/
@@ -245,7 +282,7 @@ public:
 
 		 if(item_ptr) {
 			 // Make it known to the work item when it has returned to its origin
-			 item_ptr->markRetrievalTime();
+			 item_ptr->markProcRetrievalTime();
 		 }
 	 }
 
@@ -269,7 +306,7 @@ public:
 		 );
 		 if(success && item_ptr) {
 			 // Make it known to the work item when it has returned to its origin
-			 item_ptr->markRetrievalTime();
+			 item_ptr->markProcRetrievalTime();
 		 }
 
 		 return success;

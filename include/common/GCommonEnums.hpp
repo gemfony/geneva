@@ -106,7 +106,7 @@ namespace Common {
 #ifdef GENEVA_COMMON_DEFAULT_BUFFER_SIZE
 	const std::size_t DEFAULTBUFFERSIZE = GENEVA_COMMON_DEFAULT_BUFFER_SIZE;
 #else
-	const std::size_t DEFAULTBUFFERSIZE = 10000;
+	const std::size_t DEFAULTBUFFERSIZE = 50000;
 #endif
 
 /******************************************************************************/
