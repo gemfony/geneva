@@ -92,13 +92,6 @@
 namespace Gem {
 namespace Courtier {
 
-// TODO: Even in the case "capable of full return" we need to take into account
-// that work items may return unprocessed. E.g. the processing code itself
-// might throw.
-// TODO: In G_OptimizationAlgorithm_Base(cpp/hpp): serialize-exports instantiations with processable_type == GParameterSet
-// TODO: Some variables are still not listet in all Gemfony-API functions
-// TODO: Do we need to serialize further items ?
-
 /******************************************************************************/
 /**
  * Status information for the workOn function and helper functions
@@ -161,7 +154,7 @@ public:
 	  */
 	 GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
 		 : Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(cp)
-		 , m_maxResubmissions(cp.m_maxResubmissions)
+			, m_maxResubmissions(cp.m_maxResubmissions)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -293,7 +286,7 @@ public:
 		 }
 
 		 //------------------------------------------------------------------------------------------
-	    // Assign an external iteration id to the iteration counter, if requested by the user
+		 // Assign an external iteration id to the iteration counter, if requested by the user
 		 bool useExternalId = std::get<1>(externalIterationCounter);
 		 if(useExternalId) {
 			 // Extract the external iteration counter
@@ -347,8 +340,8 @@ public:
 			 if (
 				 status.is_complete  // nothing left to do
 				 || !resubmitUnprocessed || (resubmitUnprocessed && m_maxResubmissions == 0) // user is happy with unprocessed items
-			    || (++m_nResubmissions >= m_maxResubmissions) // we have tried to resubmit items but did not succeed
-			 ) {
+				 || (++m_nResubmissions >= m_maxResubmissions) // we have tried to resubmit items but did not succeed
+				 ) {
 				 // Leave the loop
 				 break;
 			 }
@@ -492,6 +485,46 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Retrieve the end time of the last cycle
+	  */
+	 std::chrono::high_resolution_clock::time_point getCycleEndTime() const {
+#ifdef DEBUG
+		 // Cross check that the cycle has indeed ended
+		 if(m_cycle_running) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBaseExecutorT<processable_type>::getCycleEndTime():" << std::endl
+					 << "There still seems to be an active cycle while the end" << std::endl
+					 << "time of the cycle is retrieved" << std::endl
+			 );
+		 }
+#endif
+
+		 return m_cycle_end_time;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieve the end time of the last iteration
+	  */
+	 std::chrono::high_resolution_clock::time_point getIterationEndTime() const {
+#ifdef DEBUG
+		 // Cross check that the cycle has indeed ended
+		 if(m_iteration_running) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBaseExecutorT<processable_type>::getIterationEndTime():" << std::endl
+					 << "There still seems to be an active iteration while the end" << std::endl
+					 << "time of the iteration is retrieved" << std::endl
+			 );
+		 }
+#endif
+
+		 return m_iteration_end_time;
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  */
@@ -551,6 +584,8 @@ protected:
 	  * General initialization function to be called prior to the first submission
 	  */
 	 virtual void iterationInit_(std::vector<std::shared_ptr<processable_type>>& workItems) BASE {
+		 // Make it known that a new iteration is about to start
+		 m_iteration_running = true;
 		 // Make it known that no items have been submitted yet in this iteration
 		 m_no_items_submitted_in_iteration = true;
 
@@ -613,6 +648,12 @@ protected:
 		 if(m_in_first_iteration) {
 			 m_in_first_iteration = false;
 		 }
+
+		 // Mark the end of processing in this iteration
+		 m_iteration_end_time = this->now();
+
+		 // Make it known that the iteration has ended
+		 m_iteration_running = false;
 	 }
 
 	 /***************************************************************************/
@@ -634,6 +675,8 @@ protected:
 	 ) BASE {
 		 // No items have so far been submitted in current cycle
 		 m_no_items_submitted_in_cycle = true;
+		 // Make it known that a new cycle is about to start
+		 m_cycle_running = true;
 	 }
 
 	 /***************************************************************************/
@@ -654,7 +697,12 @@ protected:
 	  */
 	 virtual void cycleFinalize_(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
-	 ) BASE { /* nothing */ }
+	 ) BASE {
+		 // Mark the end of processing in this cycle
+		 m_cycle_end_time = this->now();
+		 // Make it known that the cycle has ended
+		 m_cycle_running = false;
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -680,7 +728,7 @@ protected:
 			 if(!w_ptr) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
+						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems():" << std::endl
 						 << "Received empty work item in position "  << pos_cnt << std::endl
 						 << "m_iteration_counter = " << m_iteration_counter << std::endl
 				 );
@@ -947,9 +995,9 @@ private:
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseExeuctorT<processable_type>::set_external_iteration_counter():" << std::endl
-				 	 << "Tried to set external iteration counter to value " << externa_iteration_counter << " ," << std::endl
-				 	 << "while internal counter is at " << m_iteration_counter << " ." << std::endl
-				 	 << "The internal counter needs to be <= the external counter when being set" << std::endl
+					 << "Tried to set external iteration counter to value " << externa_iteration_counter << " ," << std::endl
+					 << "while internal counter is at " << m_iteration_counter << " ." << std::endl
+					 << "The internal counter needs to be <= the external counter when being set" << std::endl
 			 );
 		 }
 
@@ -959,7 +1007,7 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 /* @brief Counts the number of submissions initiated for this object; Note: not serialized! */
+	 /* @brief Counts the number of submissions initiated for this object; may also be set by the user */
 	 ITERATION_COUNTER_TYPE m_iteration_counter = ITERATION_COUNTER_TYPE(0);
 
 	 std::size_t m_expectedNumber = 0; ///< The number of work items to be submitted (and expected back)
@@ -968,10 +1016,18 @@ private:
 	 std::chrono::high_resolution_clock::time_point m_object_first_submission_time;
 	 /** @brief Temporary that holds the start time for the retrieval of items in a given iteration */
 	 std::chrono::high_resolution_clock::time_point m_iteration_first_submission_time;
+	 /** @brief Temporary that holds the start time for the retrieval of items in a given iteration */
+	 std::chrono::high_resolution_clock::time_point m_iteration_end_time;
+	 /** @brief Indicates whether an iteration is currently being processed */
+	 std::atomic<bool> m_iteration_running{true};
 	 /** @brief Temporary that holds the start time for the retrieval of items in a given cycle */
 	 std::chrono::high_resolution_clock::time_point m_cycle_first_submission_time;
 	 /** @brief The approximate time of the start of processing in an iteration */
 	 std::chrono::high_resolution_clock::time_point m_approx_cycle_start_time;
+	 /** @brief Temporary that holds the start time for the retrieval of items in a given cycle */
+	 std::chrono::high_resolution_clock::time_point m_cycle_end_time;
+	 /** @brief Indicates whether a cycle is currently being processed */
+	 std::atomic<bool> m_cycle_running{true};
 
 	 std::atomic<bool> m_no_items_submitted_in_object{true}; ///< Indicates whether items have already been submitted
 	 std::atomic<bool> m_no_items_submitted_in_iteration{true}; ///< Indicates whether items have already been submitted in an iteration
@@ -1193,8 +1249,8 @@ protected:
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSerialExecutorT<processable_type>::submit(): Caught a" << std::endl
 					 << "std::exception in a place where we didn't expect any exceptions." << std::endl
-				 	 << "Got message" << std::endl
-				 	 << e.what() << std::endl
+					 << "Got message" << std::endl
+					 << e.what() << std::endl
 			 );
 		 } catch(...) {
 			 // All exceptions should be caught inside of the process() call. It is a
@@ -1229,6 +1285,71 @@ protected:
 		 return this->checkExecutionState(workItems);
 	 }
 
+	 /***************************************************************************/
+	 /**
+	  * General initialization function to be called prior to the first submission
+	  */
+	 void init_() override {
+		 // GBaseExecutorT<processable_type> sees exactly the environment it would when called from its own class
+		 GBaseExecutorT<processable_type>::init_();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * General finalization function to be called after the last submission
+	  */
+	 void finalize_() override {
+		 // GBaseExecutorT<processable_type> sees exactly the environment it would when called from its own class
+		 GBaseExecutorT<processable_type>::finalize_();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allow to perform necessary setup work for a cycle.
+	  */
+	 void cycleInit_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes cycleInit_ function is executed first
+		 // This function will also update the iteration start time
+		 GBaseExecutorT<processable_type>::cycleInit_(workItems);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to perform necessary cleanup work for a cycle or do calculations
+	  * for the next cycle
+	  */
+	 void cycleFinalize_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes cycleFinalize_ function is executed last
+		 GBaseExecutorT<processable_type>::cycleFinalize_(workItems);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allow to perform necessary setup work for an iteration.
+	  */
+	 void iterationInit_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes iterationInit_ function is executed first
+		 GBaseExecutorT<processable_type>::iterationInit_(workItems);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to perform necessary cleanup work for an iteration or do calculations
+	  * for the next iteration
+	  */
+	 void iterationFinalize_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes iterationFinalize_ function is executed last
+		 GBaseExecutorT<processable_type>::iterationFinalize_(workItems);
+	 }
+
 private:
 	 /***************************************************************************/
 	 /**
@@ -1243,7 +1364,7 @@ private:
 	  * Retrieval of the start time of the very first cycle
 	  */
 	 std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const override {
-		return this->getObjectFirstSubmissionTime();
+		 return this->getObjectFirstSubmissionTime();
 	 }
 
 	 /***************************************************************************/
@@ -1251,7 +1372,7 @@ private:
 	 void visualize_performance() override { /* nothing */ }
 
 	 /***************************************************************************/
-	 // Data
+	 // No local data
 };
 
 /******************************************************************************/
@@ -1286,7 +1407,7 @@ public:
 	  */
 	 GMTExecutorT()
 		 : GBaseExecutorT<processable_type>()
-		 , m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
+			, m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1295,7 +1416,7 @@ public:
 	  */
 	 explicit GMTExecutorT(std::uint16_t nThreads)
 		 : GBaseExecutorT<processable_type>()
-		 , m_n_threads(nThreads)
+			, m_n_threads(nThreads)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1306,7 +1427,7 @@ public:
 	  */
 	 GMTExecutorT(const GMTExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
-		 , m_n_threads(cp.m_n_threads)
+			, m_n_threads(cp.m_n_threads)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1510,6 +1631,41 @@ protected:
 
 	 /***************************************************************************/
 	 /**
+	  * Allows to perform necessary cleanup work for an iteration or do calculations
+	  * for the next iteration.
+	  */
+	 void cycleFinalize_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes cycleFinalize_ function is executed last
+		 GBaseExecutorT<processable_type>::cycleFinalize_(workItems);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allow to perform necessary setup work for an iteration.
+	  */
+	 void iterationInit_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes iterationInit_ function is executed first
+		 GBaseExecutorT<processable_type>::iterationInit_(workItems);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to perform necessary cleanup work for an iteration or do calculations
+	  * for the next iteration
+	  */
+	 void iterationFinalize_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes iterationFinalize_ function is executed last
+		 GBaseExecutorT<processable_type>::iterationFinalize_(workItems);
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Submits a single work item. As we are dealing with multi-threaded
 	  * execution, we simply let a thread pool executed a lambda function
 	  * which takes care of the processing.
@@ -1588,8 +1744,8 @@ protected:
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GMTExecutorT<processable_type>::waitForReturn(): Caught an" << std::endl
 						 << "caught std::exception in a place where we didn't expect any exceptions" << std::endl
-					 	 << "Got error message:" << std::endl
-					    << e.what() << std::endl
+						 << "Got error message:" << std::endl
+						 << e.what() << std::endl
 				 );
 			 } catch(...) {
 				 // All exceptions should be caught inside of the process() call (i.e. emanate
@@ -1631,11 +1787,12 @@ private:
 	 void visualize_performance() override { /* nothing */ }
 
 	 /***************************************************************************/
+	 // Data
 
 	 std::uint16_t m_n_threads; ///< The number of threads
 	 std::shared_ptr<Gem::Common::GThreadPool> m_gtp_ptr; ///< Temporarily holds a thread pool
 
-	 std::vector<std::future<typename processable_type::result_type>> m_future_vec; ///< Holds futures stored during the submit call
+	 std::vector<std::future<typename processable_type::result_type>> m_future_vec; ///< Temporarily hold futures stored during the submit call
 };
 
 /******************************************************************************/
@@ -1660,17 +1817,12 @@ class GBrokerExecutorT :
 		 ar
 		 & make_nvp("GBaseExecutorT", boost::serialization::base_object<GBaseExecutorT<processable_type>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_waitFactor)
-		 & BOOST_SERIALIZATION_NVP(m_initialWaitFactor)
 		 & BOOST_SERIALIZATION_NVP(m_minPartialReturnPercentage)
 		 & BOOST_SERIALIZATION_NVP(m_capable_of_full_return)
 		 & BOOST_SERIALIZATION_NVP(m_gpd)
 		 & BOOST_SERIALIZATION_NVP(m_waiting_times_graph)
 		 & BOOST_SERIALIZATION_NVP(m_returned_items_graph)
-		 & BOOST_SERIALIZATION_NVP(m_waitFactorWarningEmitted)
-		 & BOOST_SERIALIZATION_NVP(m_lastReturnTime)
-		 & BOOST_SERIALIZATION_NVP(m_lastAverage)
-		 & BOOST_SERIALIZATION_NVP(m_remainingTime)
-		 & BOOST_SERIALIZATION_NVP(m_maxTimeout);
+		 & BOOST_SERIALIZATION_NVP(m_waitFactorWarningEmitted);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -1685,7 +1837,7 @@ public:
 	  */
 	 GBrokerExecutorT()
 		 : GBaseExecutorT<processable_type>()
-	 	 , m_gpd("Maximum waiting times and returned items", 1, 2)
+			, m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -1709,15 +1861,10 @@ public:
 	 GBrokerExecutorT(const GBrokerExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
 			, m_waitFactor(cp.m_waitFactor)
-			, m_initialWaitFactor(cp.m_initialWaitFactor)
 			, m_minPartialReturnPercentage(cp.m_minPartialReturnPercentage)
 			, m_capable_of_full_return(cp.m_capable_of_full_return)
 			, m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
 			, m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
-			, m_lastReturnTime(cp.m_lastReturnTime)
-			, m_lastAverage(cp.m_lastAverage)
-			, m_remainingTime(cp.m_remainingTime)
-			, m_maxTimeout(cp.m_maxTimeout)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -1735,9 +1882,6 @@ public:
 	 /***************************************************************************/
 	 /**
 	  * The destructor
-	  *
-	  * TODO: This is a hack. GBrokerExecutorT from factory will otherwise
-	  * overwrite the file.
 	  */
 	 virtual ~GBrokerExecutorT()
 	 {
@@ -1831,17 +1975,6 @@ public:
 			 << "A wait factor <= 0 means \"no timeout\"." << std::endl
 			 << "It is suggested to use values >= 1.";
 
-		 gpb.registerFileParameter<double>(
-			 "initialWaitFactor" // The name of the variable
-			 , DEFAULTINITIALBROKERWAITFACTOR2 // The default value
-			 , [this](double w) {
-				 this->setInitialWaitFactor(w);
-			 }
-		 )
-			 << "A static double factor for timeouts in the first iteration." << std::endl
-			 << "Set this to the inverse of the number of parallel processing" << std::endl
-			 << "units being used.";
-
 		 gpb.registerFileParameter<std::uint16_t>(
 			 "minPartialReturnPercentage" // The name of the variable
 			 , DEFAULTEXECUTORPARTIALRETURNPERCENTAGE // The default value
@@ -1869,30 +2002,6 @@ public:
 	  */
 	 double getWaitFactor() const {
 		 return m_waitFactor;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to set the initial wait factor to be applied to timeouts. A wait factor
-	  * <= 0 is not allowed.
-	  */
-	 void setInitialWaitFactor(double initialWaitFactor) {
-		 if(initialWaitFactor <= 0.) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerExecutorT<processable_type>::setInitialWaitFactor(): Error!" << std::endl
-					 << "Invalid wait factor " << initialWaitFactor << " supplied. Must be > 0."
-			 );
-		 }
-		 m_initialWaitFactor = initialWaitFactor;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to retrieve the wait factor variable
-	  */
-	 double getInitialWaitFactor() const noexcept {
-		 return m_initialWaitFactor;
 	 }
 
 	 /***************************************************************************/
@@ -1940,14 +2049,9 @@ public:
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_waitFactor, p_load->m_waitFactor), token);
-		 compare_t(IDENTITY(m_initialWaitFactor, p_load->m_initialWaitFactor), token);
 		 compare_t(IDENTITY(m_minPartialReturnPercentage, p_load->m_minPartialReturnPercentage), token);
 		 compare_t(IDENTITY(m_capable_of_full_return, p_load->m_capable_of_full_return), token);
 		 compare_t(IDENTITY(m_waitFactorWarningEmitted, p_load->m_waitFactorWarningEmitted), token);
-		 compare_t(IDENTITY(m_lastReturnTime, p_load->m_lastReturnTime), token);
-		 compare_t(IDENTITY(m_lastAverage, p_load->m_lastAverage), token);
-		 compare_t(IDENTITY(m_remainingTime, p_load->m_remainingTime), token);
-		 compare_t(IDENTITY(m_maxTimeout, p_load->m_maxTimeout), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();
@@ -1975,14 +2079,9 @@ protected:
 
 		 // Local data
 		 m_waitFactor = p_load_ptr->m_waitFactor;
-		 m_initialWaitFactor = p_load_ptr->m_initialWaitFactor;
 		 m_minPartialReturnPercentage = p_load_ptr->m_minPartialReturnPercentage;
 		 m_capable_of_full_return = p_load_ptr->m_capable_of_full_return;
 		 m_waitFactorWarningEmitted = p_load_ptr->m_waitFactorWarningEmitted;
-		 m_lastReturnTime = p_load_ptr->m_lastReturnTime;
-		 m_lastAverage = p_load_ptr->m_lastAverage;
-		 m_remainingTime = p_load_ptr->m_remainingTime;
-		 m_maxTimeout = p_load_ptr->m_maxTimeout;
 	 }
 
 	 /***************************************************************************/
@@ -2062,6 +2161,7 @@ protected:
 					 << "It is suggested not to use a wait time < 1. Current value: " << m_waitFactor << std::endl
 					 << GWARNING;
 			 }
+			 m_waitFactorWarningEmitted = true;
 		 }
 #endif
 	 }
@@ -2074,26 +2174,39 @@ protected:
 	 void cycleFinalize_(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
 	 ) override {
-		 // Calculate average return times of work items.
-		 m_lastAverage =
-			 (this->getNReturnedLast() > 0)
-			 ? (m_lastReturnTime - this->getIterationStartTime())/this->getNReturnedLast()
-			 : (this->now() - this->getIterationStartTime())/this->getExpectedNumber(); // this is an artificial number, as no items have returned
-
-		 m_maxTimeout =
-			 m_lastAverage
-			 * boost::numeric_cast<double>(this->getExpectedNumber())
-			 * m_waitFactor;
-
 		 // Make sure the parent classes cycleFinalize_ function is executed last
 		 GBaseExecutorT<processable_type>::cycleFinalize_(workItems);
 	 }
 
 	 /***************************************************************************/
 	 /**
+	  * Allow to perform necessary setup work for an iteration.
+	  */
+	 void iterationInit_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes iterationInit_ function is executed first
+		 GBaseExecutorT<processable_type>::iterationInit_(workItems);
+
+		 // Reset the maximum processing times found in an iteration
+		 m_iterationMaxProcessingTime = std::chrono::duration<double>(0.);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to perform necessary cleanup work for an iteration or do calculations
+	  * for the next iteration
+	  */
+	 void iterationFinalize_(
+		 std::vector<std::shared_ptr<processable_type>>& workItems
+	 ) override {
+		 // Make sure the parent classes iterationFinalize_ function is executed last
+		 GBaseExecutorT<processable_type>::iterationFinalize_(workItems);
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Submits a single work item.
-	  *
-	  * TODO: Deal with exceptions in this class, e.g. during pushs
 	  *
 	  * @param w The work item to be processed
 	  */
@@ -2137,7 +2250,7 @@ protected:
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 // Act depending on the capabilities of the consumer or user-preferences
-	    return
+		 return
 			 (m_capable_of_full_return || m_waitFactor == 0.)?
 			 this->waitForFullReturn(workItems, oldWorkItems):
 			 this->waitForTimeOut(workItems, oldWorkItems);
@@ -2203,9 +2316,6 @@ private:
 
 		 // Note: Old work items are cleared in the "workOn" function
 
-		 // Reset the number of returned work items
-		 m_nReturnedCurrent = 0;
-
 		 // Start to retrieve individuals and sort them into our vectors,
 		 // until a halt criterion is reached.
 		 do {
@@ -2264,7 +2374,7 @@ private:
 				 , oldWorkItems
 			 );
 		 }
-		 // Break the loop if all items (or at least the minimum percentage) were received
+			 // Break the loop if all items (or at least the minimum percentage) were received
 		 while(!status.is_complete && !this->minPartialReturnRateReached());
 
 		 // Check for the processing flags and derive the is_complete and has_errors states
@@ -2281,7 +2391,7 @@ private:
 		 std::shared_ptr<processable_type> w_ptr
 	 ) {
 		 //-----------------------------------------------
-	    // Some error checks
+		 // Some error checks
 #ifdef DEBUG
 		 // There should be no situation where we get an empty pointer here. Cross-check in debug-mode
 		 if(!w_ptr) {
@@ -2296,7 +2406,7 @@ private:
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExeuctorT<processable_type>::updateTimeout(): Work item does not" << std::endl
-				 	 << "have the PROCESSED flag set when it should have." << std::endl
+					 << "have the PROCESSED flag set when it should have." << std::endl
 			 );
 		 }
 #endif
@@ -2307,28 +2417,58 @@ private:
 		 // The current time
 		 auto now = this->now();
 
-		 // The time that has passed since the start of exection
-		 std::chrono::duration<double> currentElapsed = now - this->getIterationStartTime();
-		 // The amount of time used for processing (without submission / transfer / retrieval times)
-		 // std::chrono::duration<double> processingTime =
+		 // The time that has passed since the start of execution in this cycle
+		 std::chrono::duration<double> currentElapsed = now - this->getApproxCycleStartTime();
+
+		 // The amount of time between retrieval from the raw queue and submission to the processed queue.
+		 // We euphemistically call this "processing time", even though it may contain transfer time,
+		 // times spent in queues, etc.
+#ifdef DEBUG
+		 if(w_ptr->getRawRetrievalTime() <= w_ptr->getProcSubmissionTime()) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << std::endl
+					 << "Retrieval from the raw queue seems to have happened after" << std::endl
+				    << "the submission to the processed queue." << std::endl
+			 );
+		 }
+#endif
+		 std::chrono::duration<double> currentProcessingTime = w_ptr->getProcSubmissionTime() - w_ptr->getRawRetrievalTime();
+
+		 // Update the maximum amount of time needed for processing a work item in the iteration
+		 if(currentProcessingTime > m_iterationMaxProcessingTime) {
+			 m_iterationMaxProcessingTime = currentProcessingTime;
+		 }
+
+		 // Calculate the average return time so far. This holds true also for the very first item
+#ifdef DEBUG
+		 if(0==m_nReturnedCurrent) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << std::endl
+					 << "m_nReturnedCurrent is 0" << std::endl
+			 );
+		 }
+#endif
+		 std::chrono::duration<double> avgReturnTime = currentElapsed / boost::numeric_cast<double>(m_nReturnedCurrent);
+
+		 //-----------------------------------------------
+		 // The actual timeout calculation
+		 m_maxTimeout = m_waitFactor * (avgReturnTime * this->getExpectedNumber() + currentProcessingTime);
+
+		 //-----------------------------------------------
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether a timeout was encountered. Also updates the internal
-	  * timeout measurements.
+	  * Checks whether a timeout was encountered.
 	  */
 	 bool timeout() {
 		 std::chrono::duration<double> currentElapsed
-			 = this->now() - this->getIterationStartTime();
+			 = this->now() - this->getApproxCycleStartTime();
 
-		 if (currentElapsed >= m_maxTimeout) {
-			 m_remainingTime = std::chrono::duration<double>(0.);
-			 return true;
-		 } else {
-			 m_remainingTime = m_maxTimeout - currentElapsed;
-			 return false;
-		 }
+		 if(currentElapsed >= m_maxTimeout) return true;
+		 else return false;
 	 }
 
 	 /***************************************************************************/
@@ -2372,7 +2512,15 @@ private:
 	  * Get the remaining time for this iteration
 	  */
 	 std::chrono::duration<double> remainingTime() const {
-		 return this->m_remainingTime;
+		 // The time that has passed since the start of execution in this cycle
+		 std::chrono::duration<double> currentElapsed = this->now() - this->getApproxCycleStartTime();
+		 // Calculate the remaining time
+		 std::chrono::duration<double> remainingTime = std::chrono::duration<double>(0.);
+		 if(m_maxTimeout > currentElapsed) {
+			 remainingTime = m_maxTimeout - currentElapsed;
+		 }
+
+		 return remainingTime;
 	 }
 
 	 /***************************************************************************/
@@ -2385,9 +2533,9 @@ private:
 	 std::shared_ptr<processable_type> getNextIndividual() {
 		 std::shared_ptr<processable_type> w_ptr;
 
-		 // vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-		 // TODO: Replace by noItemsRetrievedYet atomic<bool>
-		 if(this->firstIndInFirstIteration()) {
+		 // Wait indefinitely for a processed item, if this is the very first individual retrieved.
+		 // We have no information on which we might base a timeout.
+		 if(this->firstRetrieval()) {
 			 do {
 				 // Wait indefinitely for the very first, successfully processed individual
 				 w_ptr = this->retrieve();
@@ -2410,33 +2558,82 @@ private:
 					 break;
 				 } else { // unprocessed or has an error
 					 glogger
-					 	<< "In GBrokerExecutorT<>::getNextIndividual():" << std::endl
-					   << "Received \"first\" individual which is either" << std::endl
-						<< "unprocessed or has errors. Got processing status of " << w_ptr->getProcessingStatus() << std::endl
-						<< "but expected " << processingStatus::PROCESSED << " ." << std::endl
-					   << "The item will be discarded. As this should be a rare occurance," << std::endl
-	               << "we do emit a warning here." << std::endl
-                  << GWARNING;
+						 << "In GBrokerExecutorT<>::getNextIndividual():" << std::endl
+						 << "Received \"first\" individual which is either" << std::endl
+						 << "unprocessed or has errors. Got processing status of " << w_ptr->getProcessingStatus() << std::endl
+						 << "but expected " << processingStatus::PROCESSED << " ." << std::endl
+						 << "The item will be discarded. As this should be a rare occurance," << std::endl
+						 << "we do emit a warning here." << std::endl
+						 << GWARNING;
 				 }
 			 } while(true);
 		 } else { // not the first individual in the first iteration
-			 // Obtain the next item, observing a timeout
-			 w_ptr = retrieve(this->remainingTime());
+			 // Calculate the timeout
+			 std::chrono::duration<double> remainingTime = this->remainingTime();
+			 if(remainingTime != std::chrono::duration<double>(0.)) {
+				 // Obtain the next item, observing a timeout
+				 w_ptr = this->retrieve(remainingTime);
+			 }
 		 }
 
-		 return w_ptr;
+		 return w_ptr; // Will be empty if remainingTime is 0.
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether we are dealing with the first returned individual in the
-	  * first iteration. This is identical to the first call to this function,
-	  * so we simply check and set a boolean indicating whether this is the first
-	  * retrieval.
+	  * Checks whether any calls to "retrieve() have been made yet This is identical
+	  * to the first call to this function, so we simply check and set a boolean
+	  * indicating whether this is the first retrieval.
 	  */
-	 bool firstIndInFirstIteration() const {
-		 if(true == m_first_retrieval) {
+	 bool firstRetrieval() const {
+		 if(m_first_retrieval) {
+#ifdef DEBUG
+			 if((!this->inFirstIteration() || !this->inFirstCycle() || 0<m_nReturnedCurrent)) {
+				 throw gemfony_exception(
+					 g_error_streamer(
+						 DO_LOG
+						 , time_and_place
+					 )
+						 << "In GBrokerExecutorT<processable_type>::firstRetrieval():" << std::endl
+						 << "Got true==m_first_retrieval, while one of the preconditions isn't met:" << std::endl
+						 << "this->inFirstIteration() : " << this->inFirstIteration() << std::endl
+						 << "this->inFirstCycle()     :" << this->inFirstCycle() << std::endl
+						 << "m_nReturnedCurrent       :" << m_nReturnedCurrent << " (we expect 0)" << std::endl
+				 );
+			 }
+#endif
+
 			 m_first_retrieval = false;
+			 return true;
+		 } else {
+			 return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks whether any work items have returned yet This is identical
+	  * to the first call to this function, so we simply check and set a boolean
+	  * indicating whether this is the first item.
+	  */
+	 bool firstItem() const {
+		 if(m_first_item) {
+#ifdef DEBUG
+			 if((!this->inFirstIteration() || 1 != m_nReturnedCurrent)) {
+				 throw gemfony_exception(
+					 g_error_streamer(
+						 DO_LOG
+						 , time_and_place
+					 )
+						 << "In GBrokerExecutorT<processable_type>::firstItem():" << std::endl
+						 << "Got true==m_first_item, while one of the preconditions isn't met:" << std::endl
+						 << "this->inFirstIteration() : " << this->inFirstIteration() << std::endl
+						 << "m_nReturnedCurrent       :" << m_nReturnedCurrent << " (we expect 1)" << std::endl
+				 );
+			 }
+#endif
+
+			 m_first_item = false;
 			 return true;
 		 } else {
 			 return false;
@@ -2461,9 +2658,6 @@ private:
 		 // If we have been passed an empty item, simply continue the outer loop
 		 if(!w_ptr) {
 			 return executor_status_t{false /* is_complete */, false /* has_errors */ };
-		 } else {
-			 // Make the return time of the last item known
-			 m_lastReturnTime = this->now();
 		 }
 
 		 bool complete = false;
@@ -2486,7 +2680,7 @@ private:
 			 if (
 				 workItems.at(worker_position) == w_ptr // Same item
 				 || processingStatus::DO_PROCESS == workItems.at(worker_position)->getProcessingStatus()
-			 ) {
+				 ) {
 				 // Note that also items with errors may be added here. It is up to
 				 // the caller to decide what to do with such work items.
 				 if(workItems.at(worker_position) != w_ptr) workItems.at(worker_position) = w_ptr;
@@ -2501,12 +2695,12 @@ private:
 				 // This should be rare. As we throw away items here, we want to
 				 // make a record as a frequent occurrance might indicate a problem
 				 glogger
-					<< "In GBrokerExecutorT<>::addWorkItemAndCheckCompleteness():" << std::endl
-					<< "Received old work item from submission cycle " << worker_submission_id << " (now " << current_submission_id << ")" << std::endl
-					<< "We will throw the item away as it has the status id " << w_ptr->getProcessingStatus() << std::endl
-					<< "(expected processingStatus::PROCESSED / " << processingStatus::PROCESSED << ")" << std::endl
-					<< (w_ptr->has_errors()?w_ptr->getStoredErrorDescriptions():"") << std::endl
-					<< GLOGGING;
+					 << "In GBrokerExecutorT<>::addWorkItemAndCheckCompleteness():" << std::endl
+					 << "Received old work item from submission cycle " << worker_submission_id << " (now " << current_submission_id << ")" << std::endl
+					 << "We will throw the item away as it has the status id " << w_ptr->getProcessingStatus() << std::endl
+					 << "(expected processingStatus::PROCESSED / " << processingStatus::PROCESSED << ")" << std::endl
+					 << (w_ptr->has_errors()?w_ptr->getStoredErrorDescriptions():"") << std::endl
+					 << GLOGGING;
 			 }
 		 }
 
@@ -2516,9 +2710,9 @@ private:
 	 /***************************************************************************/
 	 /**
  	  * Allows to emit information at the end of an iteration
- 	  * TODO: The content of this function is a hack. Submitted for current debugging purposes
  	  */
 	 void visualize_performance() override {
+#ifdef DEBUG
 		 // Now do our own reporting
 		 std::chrono::duration<double> currentElapsed
 			 = this->now() - this->getIterationStartTime();
@@ -2526,21 +2720,6 @@ private:
 
 		 m_waiting_times_graph->add(boost::numeric_cast<double>(current_iteration), m_maxTimeout.count());
 		 m_returned_items_graph->add(boost::numeric_cast<double>(current_iteration), boost::numeric_cast<double>(this->getNReturnedLast()));
-
-#ifdef DEBUG
-		 if (0 == current_iteration) {
-			 glogger
-				 << "Maximum waiting time in iteration " << current_iteration << ": " << m_maxTimeout.count()
-				 << " s (" << currentElapsed.count() << ", "
-				 << this->getNReturnedLast() << " / " << this->getExpectedNumber() << ", " << m_initialWaitFactor << ")" << std::endl
-				 << GLOGGING;
-		 } else {
-			 glogger
-				 << "Maximum waiting time in iteration " << current_iteration << ": " << m_maxTimeout.count()
-				 << " s (" << m_lastAverage.count() << ", "
-				 << this->getNReturnedLast() << " / " << this->getExpectedNumber() << ", " << m_waitFactor << ")" << std::endl
-				 << GLOGGING;
-		 }
 #endif
 	 }
 
@@ -2559,7 +2738,7 @@ private:
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT<processable_type>::determineInitialCycleStartTime():" << std::endl
-				 	 << "No valid buffer port found" << std::endl
+					 << "No valid buffer port found" << std::endl
 			 );
 		 }
 #endif
@@ -2570,7 +2749,6 @@ private:
 	 /***************************************************************************/
 	 // Local data
 	 double m_waitFactor = DEFAULTBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts
-	 double m_initialWaitFactor = DEFAULTINITIALBROKERWAITFACTOR2; ///< A static factor to be applied to timeouts in the first iteration
 
 	 std::uint16_t m_minPartialReturnPercentage = DEFAULTEXECUTORPARTIALRETURNPERCENTAGE; ///< Minimum percentage of returned items after which execution continues
 
@@ -2578,7 +2756,9 @@ private:
 	 GBroker_ptr m_broker_ptr; ///< A (possibly empty) pointer to a global broker
 
 	 bool m_capable_of_full_return = false; ///< Indicates whether the broker may return results without losses
-	 mutable bool m_first_retrieval = true; ///< Indicates whether this is the very first retrieval of an individual from the processed queue
+
+	 mutable bool m_first_retrieval = true; ///< Indicates whether any retrievals have taken place so far
+	 mutable bool m_first_item = true; ///< Indicates whether we are dealing with the very first individual
 
 	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
 	 std::shared_ptr<Gem::Common::GGraph2D> m_waiting_times_graph;  ///< The maximum waiting time resulting from the wait factor
@@ -2586,12 +2766,12 @@ private:
 
 	 bool m_waitFactorWarningEmitted = false; ///< Specifies whether a warning about a small waitFactor has already been emitted
 
-	 std::chrono::high_resolution_clock::time_point m_lastReturnTime = std::chrono::high_resolution_clock::now(); ///< Temporary that holds the time of the return of the last item of an iteration
 	 std::size_t m_nReturnedCurrent = 0; ///< Temporary that holds the number of returned work items duing a submission cycle (or a resubmission)
 
-	 std::chrono::duration<double> m_lastAverage = std::chrono::duration<double>(0.); ///< The average time needed for the last submission
-	 std::chrono::duration<double> m_remainingTime = std::chrono::duration<double>(0.); ///< The remaining time in the current iteration
 	 std::chrono::duration<double> m_maxTimeout = std::chrono::duration<double>(0.); ///< The maximum amount of time allowed for the entire calculation
+
+	 /** @brief The maximum processing time of a single work item in the current cycle */
+	 std::chrono::duration<double> m_iterationMaxProcessingTime = std::chrono::duration<double>(0.);
 };
 
 
