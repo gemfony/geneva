@@ -2423,6 +2423,10 @@ private:
 
 		 // The time that has passed since the start of execution in this cycle
 		 std::chrono::duration<double> currentElapsed = now - this->getApproxCycleStartTime();
+		 // Safeguard against inaccurate cycleStartTime
+		 if(currentElapsed < std::chrono::duration<double>(0.)) {
+			 currentElapsed = std::chrono::duration<double>(0.1); // 0.1 s
+		 }
 
 		 // Calculate the average return time so far. This holds true also for the very first item
 #ifdef DEBUG
@@ -2578,17 +2582,11 @@ private:
 		 if(w_ptr) {
 #ifdef DEBUG
 			 if(w_ptr->getRawRetrievalTime() >= w_ptr->getProcSubmissionTime()) {
-				 std::chrono::duration<double> procSubmissionTime
-				 	= w_ptr->getProcSubmissionTime() - this->getApproxCycleStartTime();
-				 std::chrono::duration<double> rawRetrievalTime
-					 = w_ptr->getRawRetrievalTime() - this->getApproxCycleStartTime();
-
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBrokerExeuctorT<processable_type>::getNextItem():" << std::endl
 						 << "Retrieval from the raw queue seems to have happened after" << std::endl
-						 << "the submission to the processed queue:" << std::endl
-					 	 << "raw = " << rawRetrievalTime.count() << " s / proc = " << procSubmissionTime.count() << " s " << std::endl
+						 << "the submission to the processed queue." << std::endl
 				 );
 			 }
 #endif
