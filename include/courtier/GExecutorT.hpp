@@ -52,13 +52,17 @@
 #include <mutex>
 
 // Boost headers go here
-#include <boost/lexical_cast.hpp>
+#include <boost/accumulators/accumulators.hpp>
+#include <boost/accumulators/statistics/stats.hpp>
+#include <boost/accumulators/statistics/max.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/exception/diagnostic_information.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -66,7 +70,6 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
-#include <boost/exception/diagnostic_information.hpp>
 
 #ifndef GEXECUTOR_HPP_
 #define GEXECUTOR_HPP_
@@ -2152,6 +2155,9 @@ protected:
 		 // This function will also update the iteration start time
 		 GBaseExecutorT<processable_type>::cycleInit_(workItems);
 
+		 // Reset the number of currently returned items
+		 m_nReturnedCurrent = 0;
+
 #ifdef DEBUG
 		 // Check that the waitFactor has a suitable size
 		 if(!m_waitFactorWarningEmitted) {
@@ -2187,9 +2193,6 @@ protected:
 	 ) override {
 		 // Make sure the parent classes iterationInit_ function is executed first
 		 GBaseExecutorT<processable_type>::iterationInit_(workItems);
-
-		 // Reset the maximum processing times found in an iteration
-		 m_iterationMaxProcessingTime = std::chrono::duration<double>(0.);
 	 }
 
 	 /***************************************************************************/
@@ -2321,7 +2324,7 @@ private:
 		 do {
 			 // Get the next individual. If we didn't receive a valid
 			 // item, go to the timeout check
-			 if(!(w_ptr = this->getNextIndividual())) continue;
+			 if(!(w_ptr = this->getNextItem())) continue;
 
 			 // Try to add the work item to the list and check for completeness
 			 status = this->addWorkItemAndCheckCompleteness(
@@ -2369,13 +2372,14 @@ private:
 
 		 do {
 			 status = this->addWorkItemAndCheckCompleteness(
-				 this->retrieve()
+				 this->retrieve() // Get the next item, waiting indefinitely
 				 , workItems
 				 , oldWorkItems
 			 );
-		 }
+
 			 // Break the loop if all items (or at least the minimum percentage) were received
-		 while(!status.is_complete && !this->minPartialReturnRateReached());
+			 if(status.is_complete || this->minPartialReturnRateReached()) break;
+		 } while(true);
 
 		 // Check for the processing flags and derive the is_complete and has_errors states
 		 return this->checkExecutionState(workItems);
@@ -2420,26 +2424,6 @@ private:
 		 // The time that has passed since the start of execution in this cycle
 		 std::chrono::duration<double> currentElapsed = now - this->getApproxCycleStartTime();
 
-		 // The amount of time between retrieval from the raw queue and submission to the processed queue.
-		 // We euphemistically call this "processing time", even though it may contain transfer time,
-		 // times spent in queues, etc.
-#ifdef DEBUG
-		 if(w_ptr->getRawRetrievalTime() <= w_ptr->getProcSubmissionTime()) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerExeuctorT<processable_type>::updateTimeout():" << std::endl
-					 << "Retrieval from the raw queue seems to have happened after" << std::endl
-				    << "the submission to the processed queue." << std::endl
-			 );
-		 }
-#endif
-		 std::chrono::duration<double> currentProcessingTime = w_ptr->getProcSubmissionTime() - w_ptr->getRawRetrievalTime();
-
-		 // Update the maximum amount of time needed for processing a work item in the iteration
-		 if(currentProcessingTime > m_iterationMaxProcessingTime) {
-			 m_iterationMaxProcessingTime = currentProcessingTime;
-		 }
-
 		 // Calculate the average return time so far. This holds true also for the very first item
 #ifdef DEBUG
 		 if(0==m_nReturnedCurrent) {
@@ -2452,9 +2436,20 @@ private:
 #endif
 		 std::chrono::duration<double> avgReturnTime = currentElapsed / boost::numeric_cast<double>(m_nReturnedCurrent);
 
+		 // Retrieve the current maximum processing time
+		 std::chrono::duration<double> maxProcessingTime((boost::accumulators::max)(m_acc_max));
+
 		 //-----------------------------------------------
 		 // The actual timeout calculation
-		 m_maxTimeout = m_waitFactor * (avgReturnTime * this->getExpectedNumber() + currentProcessingTime);
+		 m_maxTimeout = m_waitFactor * (avgReturnTime * this->getExpectedNumber() + maxProcessingTime);
+
+		 //-----------------------------------------------
+		 // Let the audience know in DEBUG mode
+#if defined(DEBUG) && defined(VERBOSETIMEOUTS)
+		 glogger
+			 << m_nReturnedCurrent << "\t: Got timeout of " << m_maxTimeout.count() << std::endl
+			 << GLOGGING;
+#endif
 
 		 //-----------------------------------------------
 	 }
@@ -2530,7 +2525,7 @@ private:
 	  * returns. A warning will be emitted for each retrieved item which has
 	  * errors or is unprocessed during the first retrieval.
 	  */
-	 std::shared_ptr<processable_type> getNextIndividual() {
+	 std::shared_ptr<processable_type> getNextItem() {
 		 std::shared_ptr<processable_type> w_ptr;
 
 		 // Wait indefinitely for a processed item, if this is the very first individual retrieved.
@@ -2547,7 +2542,7 @@ private:
 							 DO_LOG
 							 , time_and_place
 						 )
-							 << "In GBrokerExecutorT<processable_type>::getNextIndividual(): Received empty first individual"
+							 << "In GBrokerExecutorT<processable_type>::getNextItem(): Received empty first individual"
 							 << std::endl
 					 );
 				 }
@@ -2558,7 +2553,7 @@ private:
 					 break;
 				 } else { // unprocessed or has an error
 					 glogger
-						 << "In GBrokerExecutorT<>::getNextIndividual():" << std::endl
+						 << "In GBrokerExecutorT<>::getNextItem():" << std::endl
 						 << "Received \"first\" individual which is either" << std::endl
 						 << "unprocessed or has errors. Got processing status of " << w_ptr->getProcessingStatus() << std::endl
 						 << "but expected " << processingStatus::PROCESSED << " ." << std::endl
@@ -2574,6 +2569,33 @@ private:
 				 // Obtain the next item, observing a timeout
 				 w_ptr = this->retrieve(remainingTime);
 			 }
+		 }
+
+		 // Update the maximum amount of time needed for processing a work item in the iteration. We use the
+		 // amount of time between retrieval from the raw queue and submission to the processed queue. We
+		 // euphemistically call this "processing time", even though it may contain transfer time,
+		 // times spent in queues, etc.
+		 if(w_ptr) {
+#ifdef DEBUG
+			 if(w_ptr->getRawRetrievalTime() >= w_ptr->getProcSubmissionTime()) {
+				 std::chrono::duration<double> procSubmissionTime
+				 	= w_ptr->getProcSubmissionTime() - this->getApproxCycleStartTime();
+				 std::chrono::duration<double> rawRetrievalTime
+					 = w_ptr->getRawRetrievalTime() - this->getApproxCycleStartTime();
+
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG, time_and_place)
+						 << "In GBrokerExeuctorT<processable_type>::getNextItem():" << std::endl
+						 << "Retrieval from the raw queue seems to have happened after" << std::endl
+						 << "the submission to the processed queue:" << std::endl
+					 	 << "raw = " << rawRetrievalTime.count() << " s / proc = " << procSubmissionTime.count() << " s " << std::endl
+				 );
+			 }
+#endif
+
+			 // Calculate the processing time and update the accumulator
+			 std::chrono::duration<double> currentProcessingTime = w_ptr->getProcSubmissionTime() - w_ptr->getRawRetrievalTime();
+			 m_acc_max(currentProcessingTime.count());
 		 }
 
 		 return w_ptr; // Will be empty if remainingTime is 0.
@@ -2770,8 +2792,11 @@ private:
 
 	 std::chrono::duration<double> m_maxTimeout = std::chrono::duration<double>(0.); ///< The maximum amount of time allowed for the entire calculation
 
-	 /** @brief The maximum processing time of a single work item in the current cycle */
-	 std::chrono::duration<double> m_iterationMaxProcessingTime = std::chrono::duration<double>(0.);
+	 /** @brief Holds the maximum return times of processed individuals */
+	 boost::accumulators::accumulator_set<
+		 double
+		 , boost::accumulators::stats<boost::accumulators::tag::max>
+	 > m_acc_max;
 };
 
 

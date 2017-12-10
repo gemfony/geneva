@@ -92,7 +92,7 @@ public:
 	  */
 	 GStdThreadConsumerT()
 		 : Gem::Courtier::GBaseConsumerT<processable_type>()
-		 , m_threadsPerWorker(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
+		 , m_nWorkerThreads(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -113,11 +113,11 @@ public:
 	 */
 	 void setNThreadsPerWorker(const std::size_t &tpw) {
 		 if (tpw == 0) {
-			 m_threadsPerWorker = boost::numeric_cast<std::size_t>(
+			 m_nWorkerThreads = boost::numeric_cast<std::size_t>(
 				 Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER));
 		 }
 		 else {
-			 m_threadsPerWorker = tpw;
+			 m_nWorkerThreads = tpw;
 		 }
 	 }
 
@@ -128,7 +128,7 @@ public:
 	 * @return The maximum number of allowed threads
 	 */
 	 std::size_t getNThreadsPerWorker(void) const {
-		 return m_threadsPerWorker;
+		 return m_nWorkerThreads;
 	 }
 
 	 /***************************************************************************/
@@ -188,7 +188,7 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to specifcy whether this consumer is capable of full return
+	  * Allows to specify whether this consumer is capable of full return
 	  */
 	 void setCapableOfFullReturn(bool capableOfFullReturn) {
 		 glogger
@@ -224,11 +224,11 @@ public:
 			 this->registerWorkerTemplate(default_worker);
 		 }
 
-		 // Start m_threadsPerWorker threads for each registered worker template
+		 // Start m_nWorkerThreads threads for each registered worker template
 		 glogger
-			 << "Starting " << m_threadsPerWorker << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
+			 << "Starting " << m_nWorkerThreads << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
 			 << GLOGGING;
-		 for (std::size_t worker_id = 0; worker_id < m_threadsPerWorker; worker_id++) {
+		 for (std::size_t worker_id = 0; worker_id < m_nWorkerThreads; worker_id++) {
 			 // The actual worker
 			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> p_worker
 				 = std::dynamic_pointer_cast<GLocalConsumerWorkerT<processable_type>>(m_workerTemplate->clone());
@@ -347,8 +347,12 @@ protected:
 		 namespace po = boost::program_options;
 
 		 hidden.add_options()
-			 ("threadsPerWorker", po::value<std::size_t>(&m_threadsPerWorker)->default_value(m_threadsPerWorker),
-				 "\t[stc] The number of threads used to process each worker");
+			 ("nWorkerThreads", po::value<std::size_t>(&m_nWorkerThreads)->default_value(m_nWorkerThreads),
+				 "\t[stc] The number of threads used to process the worker");
+
+		 hidden.add_options()
+			 ("stcCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
+			 	"\t[stc] A debugging option making the multi-threaded consumer use timeouts in the executor");
 	 }
 
 	 /***************************************************************************/
@@ -366,7 +370,7 @@ private:
 
 	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
 
-	 std::size_t m_threadsPerWorker; ///< The maximum number of allowed threads in the pool
+	 std::size_t m_nWorkerThreads; ///< The maximum number of allowed threads in the pool
 	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds the processing threads
 
 	 std::vector<std::shared_ptr<GLocalConsumerWorkerT<processable_type>>> m_workers; ///< Holds the current worker objects

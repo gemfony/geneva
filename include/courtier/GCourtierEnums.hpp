@@ -114,6 +114,14 @@ enum class processingStatus : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
+ * Determines how many items contribute to the rolling average and max calculation
+ * of return times. This is calcultated as a multiple of the expected number of
+ * return items from the first iteration.
+ */
+const std::size_t NEXPECTEDITEMSMULTIPLE=2;
+
+/******************************************************************************/
+/**
  * Indicates processed or unprocessed work items
  */
 const bool GBC_UNPROCESSED = true;

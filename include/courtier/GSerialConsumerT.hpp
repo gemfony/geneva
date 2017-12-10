@@ -274,7 +274,9 @@ protected:
 	 ) override {
 		 namespace po = boost::program_options;
 
-		 // ... no local configuration
+		 hidden.add_options()
+			 ("scCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
+				 "\t[sc] A debugging option making the multi-threaded consumer use timeouts in the executor");
 	 }
 
 	 /***************************************************************************/
@@ -293,7 +295,7 @@ private:
 
 	 /***************************************************************************/
 
-	 std::thread m_processingThread;
+	 std::thread m_processingThread; ///< A single thread holding the worker
 
 	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
 
