@@ -228,19 +228,28 @@ public:
 
 			 // Find orphaned items in the two collections and remove them.
 			 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
-			 // otherwise the following statements could be simplified. We use references
-			 // as lambda arguments, so the use count of the std::shared_ptr-objects isn't increased
-			 //
-			 // TODO: Make it known if items are removed
-			 //
-			 Gem::Common::erase_if(
+			 // otherwise the following statements could be simplified.
+			 std::size_t nErasedRaw = Gem::Common::erase_if(
 				 m_RawBuffers
 				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (p.second.use_count()==1); }
 			 ); // m_RawBuffers is a std::map, so items are of type std::pair
-			 Gem::Common::erase_if(
+
+			 if(nErasedRaw > 0 ) {
+				 glogger
+					 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedRaw << " raw buffers" << std::endl
+					 << GLOGGING;
+			 }
+
+			 std::size_t nErasedProc = Gem::Common::erase_if(
 				 m_ProcessedBuffers
 				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (p.second.use_count()==1); }
 			 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
+
+			 if(nErasedProc > 0 ) {
+				 glogger
+					 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedProc << " processed buffers" << std::endl
+					 << GLOGGING;
+			 }
 
 			 // Attach the new items to the maps
 			 m_RawBuffers[gbp_tag] = gbp_ptr;
@@ -260,8 +269,6 @@ public:
 	 /**
 	  * Adds a new consumer to this class and starts its thread.
 	  *
-	  * TODO: Check what happens if no consumer is registered anymore
-	  *
 	  * @param gc_ptr A pointer to a GBaseConsumerT<processable_type> object
 	  */
 	 void enrol(std::shared_ptr<GBaseConsumerT<processable_type>> gc_ptr) {
@@ -270,7 +277,7 @@ public:
 		 // only once, we emit a warning and return
 		 if(m_consumersPresent) {
 			 glogger
-				 << "In GBrokerT<>::enrol(consumer_ptr): Consumers have already been enrolled." << std::endl
+				 << "In GBrokerT<>::enrol(consumer_ptr): A consumer has already been enrolled." << std::endl
 				 << "We will ignore the new enrolment request." << std::endl
 				 << GWARNING;
 
@@ -383,8 +390,6 @@ public:
 	  * Retrieves a "raw" item from a GBufferPortT. This function will block
 	  * if no item can be retrieved.
 	  *
-	  * TODO: Check what happens if no buffer port is registered anymore
-	  *
 	  * @param p Holds the retrieved "raw" item
 	  */
 	 void get(std::shared_ptr<processable_type>& p) {
@@ -406,8 +411,6 @@ public:
 	 /**
 	  * Retrieves a "raw" item from a GBufferPortT, observing a timeout. Note that upon
 	  * time-out an exception is thrown.
-	  *
-	  * TODO: Check what happens if no buffer port is registered anymore
 	  *
 	  * @param p Holds the retrieved "raw" item
 	  * @param timeout Time after which the function should time out

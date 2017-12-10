@@ -46,6 +46,7 @@
 
 // Geneva header files go here
 #include "common/GLogger.hpp"
+#include "common/GCommonHelperFunctions.hpp"
 
 /******************************************************************************/
 // Syntactic sugar
@@ -54,7 +55,7 @@ const bool NO_LOG=false;
 
 /******************************************************************************/
 #define time_and_place \
-	std::string(std::string("Recorded on ") + __DATE__ + " at " + __TIME__  + "\n" \
+	std::string(std::string("Recorded on ") + Gem::Common::currentTimeAsString()  + "\n" \
 	+ "in File " + __FILE__ + " at line " + std::to_string(__LINE__) + " :\n")
 
 /******************************************************************************/

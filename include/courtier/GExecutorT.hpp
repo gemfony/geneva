@@ -2466,7 +2466,15 @@ private:
 		 std::chrono::duration<double> currentElapsed
 			 = this->now() - this->getApproxCycleStartTime();
 
-		 if(currentElapsed >= m_maxTimeout) return true;
+		 if(currentElapsed >= m_maxTimeout) {
+#if defined(DEBUG) && defined(VERBOSETIMEOUTS)
+			 glogger
+			 << "Leaving after timeout of " << m_maxTimeout.count() << " was reached" << std::endl
+			 << GLOGGING;
+#endif
+
+			 return true;
+		 }
 		 else return false;
 	 }
 
