@@ -123,7 +123,7 @@ public:
 	 G_API_GENEVA Go2(const Go2&) = delete;
 
 	 /** @brief The (defaulted) destructor */
-	 G_API_GENEVA ~Go2() = default;
+	 G_API_GENEVA ~Go2() override = default;
 
 	 /** @brief Triggers execution of the client loop */
 	 G_API_GENEVA int clientRun();
