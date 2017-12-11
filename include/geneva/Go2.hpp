@@ -110,15 +110,8 @@ class Go2
 {
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA Go2();
-	 /** @brief A constructor that first parses the command line for relevant parameters */
-	 G_API_GENEVA Go2(
-		 int
-		 , char **
-		 , const boost::program_options::options_description& = boost::program_options::options_description()
-	 );
-	 /** @brief A constructor that allows to specify a default config file name */
-	 explicit G_API_GENEVA Go2(const std::string&);
+	 G_API_GENEVA Go2() = delete;
+
 	 /** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
 	 G_API_GENEVA Go2(
 		 int

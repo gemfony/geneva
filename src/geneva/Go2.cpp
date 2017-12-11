@@ -60,113 +60,9 @@ std::once_flag f_go2;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-Go2::Go2()
-	: G_Interface_Optimizer()
-	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
-{
-	//--------------------------------------------
-	// Initialize Geneva as well as the known optimization algorithms and consumers
-
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
-
-	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
-	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
-	m_gi.registerConsumer<GIndividualThreadConsumer>();
-	m_gi.registerConsumer<GIndividualSerialConsumer>();
-
-	//--------------------------------------------
-	// Random numbers are our most valuable good.
-	// Initialize all necessary variables
-	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
-}
-
-
-/******************************************************************************/
-/**
  * A constructor that first parses the command line for relevant parameters and then
- * loads data from a configuration file
- *
- * @param argc The number of command line arguments
- * @param argv An array with the arguments
- * @param od A vector of additional command line options (cmp. boost::program_options)
- */
-Go2::Go2(
-	int argc
-	, char **argv
-	, const boost::program_options::options_description &userDescriptions
-)
-	: G_Interface_Optimizer()
-	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
-{
-	//--------------------------------------------
-	// Initialize Geneva as well as the known optimization algorithms
-
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
-
-	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
-	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
-	m_gi.registerConsumer<GIndividualThreadConsumer>();
-	m_gi.registerConsumer<GIndividualSerialConsumer>();
-
-	//--------------------------------------------
-	// Load initial configuration options from the command line
-	parseCommandLine(argc, argv, userDescriptions);
-
-	//--------------------------------------------
-	// Random numbers are our most valuable good.
-	// Initialize all necessary variables
-	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
-}
-
-/******************************************************************************/
-/**
- * A constructor that only loads data from a configuration file
- *
- * @param configFilename The name of a configuration file
- */
-Go2::Go2(const std::string &configFilename)
-	: G_Interface_Optimizer()
-	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
-	  , m_config_filename(configFilename)
-{
-	//--------------------------------------------
-	// Initialize Geneva as well as the known optimization algorithms
-
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
-
-	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
-	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
-	m_gi.registerConsumer<GIndividualThreadConsumer>();
-	m_gi.registerConsumer<GIndividualSerialConsumer>();
-
-	//--------------------------------------------
-	// Parse configuration file options
-	this->parseConfigFile(configFilename);
-
-	//--------------------------------------------
-	// Random numbers are our most valuable good.
-	// Initialize all necessary variables
-	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
-}
-
-/******************************************************************************/
-/**
- * A constructor that first parses the command line for relevant parameters and then
- * loads data from a configuration file
+ * loads data from a configuration file. Additional configuration parameters may
+ * be passed by the user. This is the only allowed constructor.
  *
  * @param argc The number of command line arguments
  * @param argv An array with the arguments
@@ -962,7 +858,10 @@ void Go2::parseCommandLine(
 
 		// Do the actual parsing of the command line
 		po::variables_map vm;
-		po::store(po::parse_command_line(argc, (const char *const *) argv, general), vm);
+		po::store(
+			po::parse_command_line<char>(argc, static_cast<const char* const*>(argv), general)
+			, vm
+		);
 
 		// Emit a help message, if necessary
 		if (vm.count("help") || vm.count("showAll")) { // Allow syntax "program --help --showAll" and "program --showAll"
