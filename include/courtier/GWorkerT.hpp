@@ -395,9 +395,9 @@ public:
 		 , std::function<bool()> stop_requested
 	 )
 		 : m_worker_id(worker_id)
-		 , m_retriever(retriever)
-		 , m_submitter(submitter)
-		 , m_stop_requested(stop_requested)
+			, m_retriever(retriever)
+			, m_submitter(submitter)
+			, m_stop_requested(stop_requested)
 	 {
 		 if(!m_retriever) {
 			 glogger
@@ -501,7 +501,7 @@ protected:
 	  * The copy constructor.
 	  */
 	 GLocalConsumerWorkerT(const GLocalConsumerWorkerT<processable_type> &cp)
-	 	: GWorkerT<processable_type>(cp)
+		 : GWorkerT<processable_type>(cp)
 	 { /* nothing */ }
 
 public:
@@ -540,7 +540,7 @@ private:
 	  * Creation of deep clones of this object. Note that a new broker ferry
 	  * needs to be registered with this object.
 	  */
-	 virtual std::shared_ptr<GWorkerT<processable_type>> clone_() const override {
+	 std::shared_ptr<GWorkerT<processable_type>> clone_() const override {
 		 return std::shared_ptr<GWorkerT<processable_type>>(new GLocalConsumerWorkerT<processable_type>(*this));
 	 }
 
@@ -548,7 +548,7 @@ private:
 	 /**
 	  * Initialization code for processing.
 	  */
-	 virtual void processInit_() override {
+	 void processInit_() override {
 		 if(!m_broker_ferry_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
@@ -563,7 +563,7 @@ private:
 	  * Only actual per-item work is done here -- Error-detection instrumentation
 	  * is done in the protected "process() function of our parent class.
 	  */
-	 virtual void process_(std::shared_ptr<processable_type> p) override {
+	 void process_(std::shared_ptr<processable_type> p) override {
 		 p->process();
 	 }
 
@@ -571,7 +571,7 @@ private:
 	 /**
 	  * Finalization code for processing.
 	  */
-	 virtual void processFinalize_() override { /* nothing */ }
+	 void processFinalize_() override { /* nothing */ }
 
 	 /************************************************************************/
 	 /** @brief Retrieval of work items */
@@ -592,7 +592,7 @@ private:
 
 	 /************************************************************************/
 	 /** @brief Indicates whether the worker was asked to stop processing */
-	 virtual bool stop_requested_() const override {
+	 bool stop_requested_() const override {
 		 return this->m_broker_ferry_ptr->stop_requested();
 	 }
 

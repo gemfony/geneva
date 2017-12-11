@@ -214,7 +214,7 @@ protected:
 	  * function (defined by derived classes), until it returns false or a halt-condition
 	  * was reached.
 	  */
-	 virtual void run_() override {
+	 void run_() override {
 		 while (!this->halt() && CLIENT_CONTINUE == this->process()) { /* nothing */ }
 	 }
 
@@ -1291,7 +1291,7 @@ public:
 	  *
 	  * @return A boolean indicating whether this consumer needs a client to operate
 	  */
-	 virtual bool needsClient() const override {
+	 bool needsClient() const override {
 		 return true;
 	 }
 
@@ -1299,7 +1299,7 @@ public:
 	 /**
 	  * Emits a client suitable for processing the data emitted by this consumer
 	  */
-	 virtual std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
+	 std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
 		 std::shared_ptr <GAsioSerialTCPClientT<processable_type>> p(
 			 new GAsioSerialTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
 		 );
@@ -1314,7 +1314,7 @@ public:
 	 /**
 	  * Starts the actual processing loops
 	  */
-	 virtual void async_startProcessing() override {
+	 void async_startProcessing() override {
 		 // Open the acceptor
 		 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), m_port);
 		 m_acceptor.open(endpoint.protocol());
@@ -1390,7 +1390,7 @@ public:
 	 /**
 	  * Make sure the consumer and the server sessions shut down gracefully
 	  */
-	 virtual void shutdown() override {
+	 void shutdown() override {
 		 // Set the stop criterion
 		 GBaseConsumerT<processable_type>::shutdown();
 
@@ -1409,7 +1409,7 @@ public:
 	  *
 	  * @return A unique identifier for a given consumer
 	  */
-	 virtual std::string getConsumerName() const override {
+	 std::string getConsumerName() const override {
 		 return std::string("GAsioSerialTCPConsumerT");
 	 }
 
@@ -1417,7 +1417,7 @@ public:
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
-	 virtual std::string getMnemonic() const override {
+	 std::string getMnemonic() const override {
 		 return std::string("stcpc");
 	 }
 
@@ -1427,7 +1427,7 @@ public:
 	  * consumer. Since evaluation is performed remotely, we assume that this
 	  * is not the case.
 	  */
-	 virtual bool capableOfFullReturn() const override {
+	 bool capableOfFullReturn() const override {
 		 return false;
 	 }
 
@@ -1466,7 +1466,7 @@ public:
 	 /**
 	  * Takes a boost::program_options::variables_map object and checks for supplied options.
 	  */
-	 virtual void actOnCLOptions(const boost::program_options::variables_map &vm) override
+	 void actOnCLOptions(const boost::program_options::variables_map &vm) override
 	 { /* nothing */ }
 
 private:

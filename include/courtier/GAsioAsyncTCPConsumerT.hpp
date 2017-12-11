@@ -220,7 +220,7 @@ protected:
 	 /**
 	  * Performs initialization work
 	  */
-	 virtual bool init() override {
+	 bool init() override {
 		 // Start the io_service. It will be kept alive by m_work_ptr
 		 m_work_ptr = std::shared_ptr<boost::asio::io_service::work>(new boost::asio::io_service::work(m_io_service));
 		 m_gtp.async_schedule(
@@ -256,7 +256,7 @@ protected:
 	 /**
 	  * This is the main loop of the client, after initialization
 	  */
-	 virtual void run_() override {
+	 void run_() override {
 		 try {
 			 // Read data until a halt-condition is met
 			 while (!this->halt()) {
@@ -356,7 +356,7 @@ protected:
 	 /**
 	  * Perform necessary finalization activities
 	  */
-	 virtual bool finally() override {
+	 bool finally() override {
 		 // Make sure we don't leave any open sockets lying around.
 		 disconnect(m_socket);
 
@@ -1059,7 +1059,7 @@ public:
 	  * Returns an indication whether full return can be expected from this
 	  * consumer.
 	  */
-	 virtual bool capableOfFullReturn() const override {
+	 bool capableOfFullReturn() const override {
 		 return false;
 	 }
 	 /***************************************************************************/
@@ -1068,7 +1068,7 @@ public:
 	  * Note that this function does not make any assumptions whether processing
 	  * units are dedicated solely to a given task.
 	  */
-	 virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
+	 std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
 		 exact=false; // mark the answer as approximate
 		 return boost::numeric_cast<std::size_t>(m_connections.load());
 	 }
@@ -1185,7 +1185,7 @@ public:
 	  *
 	  * @return A boolean indicating whether this consumer needs a client to operate
 	  */
-	 virtual bool needsClient() const override {
+	 bool needsClient() const override {
 		 return true;
 	 }
 
@@ -1193,7 +1193,7 @@ public:
 	 /**
 	  * Emits a client suitable for processing the data emitted by this consumer
 	  */
-	 virtual std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
+	 std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
 		 std::shared_ptr<GAsioAsyncTCPClientT<processable_type>> p(
 			 new GAsioAsyncTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
 		 );
@@ -1208,7 +1208,7 @@ public:
 	 /**
 	  * Starts the actual processing loops
 	  */
-	 virtual void async_startProcessing() override {
+	 void async_startProcessing() override {
 		 // Open the acceptor
 		 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), m_port);
 		 m_acceptor.open(endpoint.protocol());
@@ -1290,7 +1290,7 @@ public:
 	 /**
 	  * Make sure the consumer and the server sessions shut down gracefully
 	  */
-	 virtual void shutdown() override {
+	 void shutdown() override {
 		 // Set the stop criterion
 		 GBaseConsumerT<processable_type>::shutdown();
 
@@ -1308,7 +1308,7 @@ public:
 	  *
 	  * @return A unique identifier for a given consumer
 	  */
-	 virtual std::string getConsumerName() const override {
+	 std::string getConsumerName() const override {
 		 return std::string("GAsioAsyncTCPConsumerT");
 	 }
 
@@ -1316,7 +1316,7 @@ public:
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
-	 virtual std::string getMnemonic() const override {
+	 std::string getMnemonic() const override {
 		 return std::string("ws");
 	 }
 
@@ -1355,7 +1355,7 @@ public:
 	 /**
 	  * Takes a boost::program_options::variables_map object and checks for supplied options.
 	  */
-	 virtual void actOnCLOptions(const boost::program_options::variables_map &vm) override
+	 void actOnCLOptions(const boost::program_options::variables_map &vm) override
 	 { /* nothing */ }
 
 private:

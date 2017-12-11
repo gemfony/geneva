@@ -76,7 +76,7 @@ class GSerializableFunctionObjectT
 
 		 ar
 		 & make_nvp("GCommonInterfaceT_GSerializableFunctionObjectT_T"
-		 , boost::serialization::base_object<GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>>(*this));
+						, boost::serialization::base_object<GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>>(*this));
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ public:
 	  * The copy constructor
 	  */
 	 GSerializableFunctionObjectT(const GSerializableFunctionObjectT<processable_type>& cp)
-	 	: GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>(cp)
+		 : GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>(cp)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -150,7 +150,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GSerializableFunctionObjectT<processable_type>");
 	 }
 
@@ -190,7 +190,7 @@ protected:
 	 /**
 	  * Loads the data of another GSerializableFunctionObjectT<processable_type> object
 	  */
-	 virtual void load_(const GSerializableFunctionObjectT<processable_type> *cp) override {
+	 void load_(const GSerializableFunctionObjectT<processable_type> *cp) override {
 		 // Check that we are dealing with a GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
 		 const GSerializableFunctionObjectT<processable_type> *p_load = Gem::Common::g_convert_and_compare<GSerializableFunctionObjectT<processable_type>, GSerializableFunctionObjectT<processable_type>>(cp, this);
 
@@ -205,7 +205,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GSerializableFunctionObjectT<processable_type> * clone_() const override = 0;
+	 G_API_COMMON GSerializableFunctionObjectT<processable_type> * clone_() const override = 0;
 };
 
 /******************************************************************************/

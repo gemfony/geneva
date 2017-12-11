@@ -89,7 +89,7 @@ public:
 	 *
 	 * @return A unique identifier for a given consumer
 	 */
-	 virtual std::string getConsumerName() const override {
+	 std::string getConsumerName() const override {
 		 return std::string("GSerialConsumerT");
 	 }
 
@@ -97,7 +97,7 @@ public:
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
-	 virtual std::string getMnemonic() const override {
+	 std::string getMnemonic() const override {
 		 return std::string("sc");
 	 }
 
@@ -105,7 +105,7 @@ public:
 	 /**
 	 * Finalization code. Sends all threads an interrupt signal.
 	 */
-	 virtual void shutdown() override {
+	 void shutdown() override {
 		 // This will set the GBaseConsumerT<processable_type>::stop_ flag
 		 GBaseConsumerT<processable_type>::shutdown();
 		 // Wait for our local threads to join
@@ -122,7 +122,7 @@ public:
 	  * "full return" does not mean "fully processed return", as errors (be it in
 	  * user- or Geneva-code) are always possible.
 	  */
-	 virtual bool capableOfFullReturn() const override {
+	 bool capableOfFullReturn() const override {
 		 return m_capableOfFullReturn;
 	 }
 
@@ -143,7 +143,7 @@ public:
   	 * Returns the (possibly estimated) number of concurrent processing units.
   	 * A return value of 0 means "unknown".
   	 */
-	 virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
+	 std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
 		 // Mark the answer as exact
 		 exact=true;
 		 // Return the result
@@ -155,7 +155,7 @@ public:
 	  * Starts a single worker thread. Termination of the thread is
 	  * triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	  */
-	 virtual void async_startProcessing() override {
+	 void async_startProcessing() override {
 		 // Add a default worker if no worker was registered
 		 if(!m_workerTemplate) {
 			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
@@ -166,7 +166,7 @@ public:
 			 << "Starting single thread in GSerialConsumerT<processable_type>" << std::endl
 			 << GLOGGING;
 
-	    // The actual worker
+		 // The actual worker
 		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> p_worker
 			 = std::dynamic_pointer_cast<GLocalConsumerWorkerT<processable_type>>(m_workerTemplate->clone());
 
@@ -283,7 +283,7 @@ protected:
 	 /**
 	  * Takes a boost::program_options::variables_map object and checks for supplied options.
 	  */
-	 virtual void actOnCLOptions(const boost::program_options::variables_map &vm) override
+	 void actOnCLOptions(const boost::program_options::variables_map &vm) override
 	 { /* nothing */ }
 
 private:

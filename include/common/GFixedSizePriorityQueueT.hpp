@@ -163,7 +163,7 @@ public:
 	 /**
 	  * A standard assignment operator
 	  */
-	  GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
+	 GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -490,7 +490,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GFixedSizePriorityQueueT<T>");
 	 }
 
@@ -532,7 +532,7 @@ protected:
 	 /**
 	  * Loads the data of another GFixedSizePriorityQueue<T> object
 	  */
-	 virtual void load_(const GFixedSizePriorityQueueT<T> *cp) override {
+	 void load_(const GFixedSizePriorityQueueT<T> *cp) override {
 		 // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
 		 const GFixedSizePriorityQueueT<T> *p_load = Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
 
@@ -613,7 +613,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GFixedSizePriorityQueueT<T> * clone_() const override = 0;
+	 G_API_COMMON GFixedSizePriorityQueueT<T> * clone_() const override = 0;
 };
 
 /******************************************************************************/

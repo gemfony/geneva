@@ -308,7 +308,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDecorator<dimensions::Dim2, coordinate_type>& operator=(const GDecorator<dimensions::Dim2, coordinate_type>& cp) {
+	 GDecorator<dimensions::Dim2, coordinate_type>& operator=(const GDecorator<dimensions::Dim2, coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -351,7 +351,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDecorator<Dim2, coordinate_type>");
 	 }
 
@@ -407,7 +407,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GDecorator<dimensions::Dim2, coordinate_type>* cp) override {
+	 void load_(const GDecorator<dimensions::Dim2, coordinate_type>* cp) override {
 		 // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
 		 const GDecorator<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -421,7 +421,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object (this function is purely virtual)
 	  */
-	 virtual GDecorator<dimensions::Dim2, coordinate_type>* clone_() const override = 0;
+	 GDecorator<dimensions::Dim2, coordinate_type>* clone_() const override = 0;
 
 	 /***************************************************************************/
 };
@@ -493,7 +493,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GMarker<coordinate_type>& operator=(const GMarker<coordinate_type>& cp) {
+	 GMarker<coordinate_type>& operator=(const GMarker<coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -536,7 +536,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GMarker<coordinate_type>");
 	 }
 
@@ -574,7 +574,7 @@ public:
 	 /**
 	  * Retrieves the decorator data. Plot boundaries are not taken into account.
 	  */
-	 virtual std::string decoratorData(const std::string& indent, const std::size_t& pos) const override {
+	 std::string decoratorData(const std::string& indent, const std::size_t& pos) const override {
 		 std::ostringstream data;
 
 		 data
@@ -624,7 +624,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GDecorator<dimensions::Dim2, coordinate_type>* cp) override {
+	 void load_(const GDecorator<dimensions::Dim2, coordinate_type>* cp) override {
 		 // Check that we are dealing with a GMarker reference independent of this object and convert the pointer
 		 const GMarker *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -643,7 +643,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object.
 	  */
-	 virtual GMarker<coordinate_type>* clone_() const override {
+	 GMarker<coordinate_type>* clone_() const override {
 		 return new GMarker<coordinate_type>(*this);
 	 }
 
@@ -713,7 +713,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDecorator<dimensions::Dim3, coordinate_type>& operator=(const GDecorator<dimensions::Dim3, coordinate_type>& cp) {
+	 GDecorator<dimensions::Dim3, coordinate_type>& operator=(const GDecorator<dimensions::Dim3, coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -756,7 +756,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDecorator<imensions::Dim3, coordinate_type>");
 	 }
 
@@ -813,7 +813,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GDecorator<dimensions::Dim3, coordinate_type>* cp) override {
+	 void load_(const GDecorator<dimensions::Dim3, coordinate_type>* cp) override {
 		 // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
 		 const GDecorator<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -827,7 +827,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object (this function is purely virtual)
 	  */
-	 virtual GDecorator<dimensions::Dim3, coordinate_type>* clone_() const override = 0;
+	 GDecorator<dimensions::Dim3, coordinate_type>* clone_() const override = 0;
 
 	 /***************************************************************************/
 };
@@ -899,7 +899,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDecoratorContainer<dimensions::Dim2, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) {
+	 GDecoratorContainer<dimensions::Dim2, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -942,7 +942,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDecoratorContainer<dimensions::Dim2, coordinate_type>");
 	 }
 
@@ -1023,7 +1023,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GDecoratorContainer<dimensions::Dim2, coordinate_type>* cp) override {
+	 void load_(const GDecoratorContainer<dimensions::Dim2, coordinate_type>* cp) override {
 		 // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
 		 const GDecoratorContainer<dimensions::Dim2, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -1037,7 +1037,7 @@ protected:
 	 /**
 	  * Satisfies a GStdPtrVectorInterfaceT<> requirement.
 	  */
-	 virtual void dummyFunction() override
+	 void dummyFunction() override
 	 { /* nothing */ }
 
 private:
@@ -1045,7 +1045,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object.
 	  */
-	 virtual GDecoratorContainer<dimensions::Dim2, coordinate_type>* clone_() const override {
+	 GDecoratorContainer<dimensions::Dim2, coordinate_type>* clone_() const override {
 		 return new GDecoratorContainer<dimensions::Dim2, coordinate_type>(*this);
 	 }
 };
@@ -1104,7 +1104,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDecoratorContainer<dimensions::Dim3, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) {
+	 GDecoratorContainer<dimensions::Dim3, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -1147,7 +1147,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDecoratorContainer<dimensions::Dim3, coordinate_type>");
 	 }
 
@@ -1230,7 +1230,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GDecoratorContainer<dimensions::Dim3, coordinate_type>* cp) override {
+	 void load_(const GDecoratorContainer<dimensions::Dim3, coordinate_type>* cp) override {
 		 // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
 		 const GDecoratorContainer<dimensions::Dim3, coordinate_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -1244,7 +1244,7 @@ protected:
 	 /**
 	  * Satisfies a GStdPtrVectorInterfaceT<> requirement.
 	  */
-	 virtual void dummyFunction() override
+	 void dummyFunction() override
 	 { /* nothing */ }
 
 private:
@@ -1252,7 +1252,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object.
 	  */
-	 virtual GDecoratorContainer<dimensions::Dim3, coordinate_type>* clone_() const override {
+	 GDecoratorContainer<dimensions::Dim3, coordinate_type>* clone_() const override {
 		 return new GDecoratorContainer<dimensions::Dim3, coordinate_type>(*this);
 	 }
 	 /***************************************************************************/
@@ -1342,7 +1342,7 @@ public:
 	 /** @brief Retrieves a unique name for this plotter */
 	 virtual G_API_COMMON std::string getPlotterName() const BASE = 0;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -1363,7 +1363,7 @@ public:
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 	 /***************************************************************************/
 	 // Functions to be specified in derived classes
@@ -1401,7 +1401,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
+	 G_API_COMMON GBasePlotter* clone_() const override = 0;
 
 	 /***************************************************************************/
 	 /** @brief A list of plotters that should emit their data into the same canvas */
@@ -1466,7 +1466,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDataCollector1T<x_type>& operator=(const GDataCollector1T<x_type> &cp) {
+	 GDataCollector1T<x_type>& operator=(const GDataCollector1T<x_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -1620,7 +1620,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDataCollector1T<x_type>");
 	 }
 
@@ -1665,7 +1665,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GBasePlotter* cp) override {
+	 void load_(const GBasePlotter* cp) override {
 		 // Check that we are dealing with a GDataCollector1T<x_type> reference independent of this object and convert the pointer
 		 const GDataCollector1T<x_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -1683,7 +1683,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
+	 G_API_COMMON GBasePlotter* clone_() const override = 0;
 
 	 /***************************************************************************/
 };
@@ -1751,9 +1751,9 @@ public:
 	 G_API_COMMON double getMaxX() const;
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 virtual G_API_COMMON std::string getPlotterName() const override;
+	 G_API_COMMON std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -1764,21 +1764,21 @@ public:
 
 protected:
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 GHistogram1D(); ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
@@ -1843,9 +1843,9 @@ public:
 	 G_API_COMMON double getMaxX() const;
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 virtual G_API_COMMON std::string getPlotterName() const override;
+	 G_API_COMMON std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -1856,21 +1856,21 @@ public:
 
 protected:
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 GHistogram1I(); ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
@@ -1936,7 +1936,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDataCollector2T<x_type, y_type>& operator=(const GDataCollector2T<x_type, y_type> &cp) {
+	 GDataCollector2T<x_type, y_type>& operator=(const GDataCollector2T<x_type, y_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -2176,7 +2176,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDataCollector2T<x_type, y_type>");
 	 }
 
@@ -2212,7 +2212,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GBasePlotter* cp) override {
+	 void load_(const GBasePlotter* cp) override {
 		 // Check that we are dealing with a GDataCollector2T<x_type, y_type> reference independent of this object and convert the pointer
 		 const GDataCollector2T<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2T<x_type, y_type>>(cp, this);
 
@@ -2231,7 +2231,7 @@ private:
 	 /***************************************************************************/
 
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
+	 G_API_COMMON GBasePlotter* clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -2367,7 +2367,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDataCollector2ET<x_type, y_type>& operator=(const GDataCollector2ET<x_type, y_type> &cp) {
+	 GDataCollector2ET<x_type, y_type>& operator=(const GDataCollector2ET<x_type, y_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -2541,7 +2541,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDataCollector2ET<x_type, y_type>");
 	 }
 
@@ -2577,7 +2577,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GBasePlotter* cp) override {
+	 void load_(const GBasePlotter* cp) override {
 		 // Check that we are dealing with a GDataCollector2ET<x_type, y_type> reference independent of this object and convert the pointer
 		 const GDataCollector2ET<x_type, y_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector2ET<x_type, y_type>>(cp, this);
 
@@ -2595,7 +2595,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
+	 G_API_COMMON GBasePlotter* clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -2678,9 +2678,9 @@ public:
 	 G_API_COMMON double getMaxY() const;
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 G_API_COMMON virtual std::string getPlotterName() const override;
+	 G_API_COMMON  std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -2696,21 +2696,21 @@ public:
 
 protected:
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 GHistogram2D(); ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
@@ -2776,9 +2776,9 @@ public:
 	 G_API_COMMON graphPlotMode getPlotMode() const;
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 virtual G_API_COMMON std::string getPlotterName() const override;
+	 G_API_COMMON std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -2789,21 +2789,21 @@ public:
 
 protected:
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 graphPlotMode pM_ = DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
 	 bool drawArrows_  = false; ///< When set to true, arrows will be drawn between consecutive points
@@ -2854,9 +2854,9 @@ public:
 	 G_API_COMMON graphPlotMode getPlotMode() const;
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 G_API_COMMON virtual std::string getPlotterName() const override;
+	 G_API_COMMON  std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -2867,21 +2867,21 @@ public:
 
 protected:
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 graphPlotMode pM_ = DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
 };
@@ -2936,7 +2936,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDataCollector3T<x_type, y_type, z_type>& operator=(const GDataCollector3T<x_type, y_type, z_type> &cp) {
+	 GDataCollector3T<x_type, y_type, z_type>& operator=(const GDataCollector3T<x_type, y_type, z_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -3148,7 +3148,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDataCollector3T<x_type, y_type, z_type>");
 	 }
 
@@ -3184,7 +3184,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GBasePlotter* cp) override {
+	 void load_(const GBasePlotter* cp) override {
 		 // Check that we are dealing with a GDataCollector3T<x_type, y_type, z_type> reference independent of this object and convert the pointer
 		 const GDataCollector3T<x_type, y_type, z_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector3T<x_type, y_type, z_type>>(cp, this);
 
@@ -3203,7 +3203,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
+	 G_API_COMMON GBasePlotter* clone_() const override = 0;
 };
 
 
@@ -3373,9 +3373,9 @@ public:
 	 G_API_COMMON bool getDrawLines() const;
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 virtual G_API_COMMON std::string getPlotterName() const override;
+	 G_API_COMMON std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -3386,21 +3386,21 @@ public:
 
 protected:
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 bool drawLines_ = false; ///< When set to true, lines will be drawn between consecutive points
 };
@@ -3460,7 +3460,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	  GDataCollector4T<x_type, y_type, z_type, w_type>& operator=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) {
+	 GDataCollector4T<x_type, y_type, z_type, w_type>& operator=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -3699,7 +3699,7 @@ public:
 	 /**
 	  * Returns the name of this class
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GDataCollector4T<x_type, y_type, z_type, w_type>");
 	 }
 
@@ -3735,7 +3735,7 @@ protected:
 	 /**
 	  * Loads the data of another object
 	  */
-	 virtual void load_(const GBasePlotter* cp) override {
+	 void load_(const GBasePlotter* cp) override {
 		 // Check that we are dealing with a GDataCollector4T<x_type, y_type, z_type, w_type> reference independent of this object and convert the pointer
 		 const GDataCollector4T<x_type, y_type, z_type, w_type> *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GDataCollector4T<x_type, y_type, z_type, w_type>>(cp, this);
 
@@ -3753,7 +3753,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override = 0;
+	 G_API_COMMON GBasePlotter* clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -3994,9 +3994,9 @@ public:
 	 G_API_COMMON std::size_t getNBest() const;
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 G_API_COMMON virtual std::string getPlotterName() const override;
+	 G_API_COMMON  std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -4007,21 +4007,21 @@ public:
 
 protected:
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 double minMarkerSize_ = DEFMINMARKERSIZE; ///< The minimum allowed size of the marker
 	 double maxMarkerSize_ = DEFMAXMARKERSIZE; ///< The maximum allowed size of the marker
@@ -4081,9 +4081,9 @@ public:
 	 G_API_COMMON void setNSamplesX(std::size_t);
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 virtual G_API_COMMON std::string getPlotterName() const override;
+	 G_API_COMMON std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -4094,21 +4094,21 @@ public:
 
 protected:
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 GFunctionPlotter1D(); ///< The default constructor. Intentionally private, as it is only needed for (de-)serialization
 
@@ -4170,9 +4170,9 @@ public:
 	 G_API_COMMON void setNSamplesY(std::size_t);
 
 	 /** @brief Retrieves a unique name for this plotter */
-	 G_API_COMMON virtual std::string getPlotterName() const override;
+	 G_API_COMMON  std::string getPlotterName() const override;
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -4183,21 +4183,21 @@ public:
 
 protected:
 	 /** @brief Retrieve specific header settings for this plot */
-	 virtual std::string headerData_(bool, std::size_t, const std::string&) const override;
+	 std::string headerData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves the actual data sets */
-	 virtual std::string bodyData_(bool, std::size_t, const std::string&) const override;
+	 std::string bodyData_(bool, std::size_t, const std::string&) const override;
 	 /** @brief Retrieves specific draw commands for this plot */
-	 virtual std::string footerData_(bool, std::size_t, const std::string&) const override;
+	 std::string footerData_(bool, std::size_t, const std::string&) const override;
 
 	 /** @brief Retrieve the current drawing arguments */
-	 virtual std::string drawingArguments(bool) const override;
+	 std::string drawingArguments(bool) const override;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GBasePlotter*) override;
+	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GBasePlotter* clone_() const override;
+	 G_API_COMMON GBasePlotter* clone_() const override;
 
 	 GFunctionPlotter2D(); ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
@@ -4294,7 +4294,7 @@ public:
 	 std::string indent() const;
 
 	 /** @brief Returns the name of this class */
-	 virtual G_API_COMMON std::string name() const override;
+	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -4311,11 +4311,11 @@ protected:
 	 std::string staticHeader(const std::string&) const;
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_COMMON void load_(const GPlotDesigner*) override;
+	 G_API_COMMON void load_(const GPlotDesigner*) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_COMMON GPlotDesigner* clone_() const override;
+	 G_API_COMMON GPlotDesigner* clone_() const override;
 
 	 std::vector<std::shared_ptr<GBasePlotter>> plotters_ = std::vector<std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
 

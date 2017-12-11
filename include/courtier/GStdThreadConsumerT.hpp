@@ -92,7 +92,7 @@ public:
 	  */
 	 GStdThreadConsumerT()
 		 : Gem::Courtier::GBaseConsumerT<processable_type>()
-		 , m_nWorkerThreads(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
+			, m_nWorkerThreads(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -136,7 +136,7 @@ public:
 	 * Finalization code. Sends all threads an interrupt signal.
 	 * process() then waits for them to join.
 	 */
-	 virtual void shutdown() override {
+	 void shutdown() override {
 		 // Initiate the shutdown procedure
 		 GBaseConsumerT<processable_type>::shutdown();
 
@@ -151,7 +151,7 @@ public:
 	 *
 	 * @return A unique identifier for a given consumer
 	 */
-	 virtual std::string getConsumerName() const override {
+	 std::string getConsumerName() const override {
 		 return std::string("GStdThreadConsumerT");
 	 }
 
@@ -159,7 +159,7 @@ public:
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
-	 virtual std::string getMnemonic() const override {
+	 std::string getMnemonic() const override {
 		 return std::string("stc");
 	 }
 
@@ -182,7 +182,7 @@ public:
 	  * "full return" does not mean "fully processed return", as errors (be it in
 	  * user- or Geneva-code) are always possible.
 	  */
-	 virtual bool capableOfFullReturn() const override {
+	 bool capableOfFullReturn() const override {
 		 return m_capableOfFullReturn;
 	 }
 
@@ -192,9 +192,9 @@ public:
 	  */
 	 void setCapableOfFullReturn(bool capableOfFullReturn) {
 		 glogger
-		 	<< "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():" << std::endl
-	    	<< "m_capableOfFullReturn will be set to " << (capableOfFullReturn?"true":"false") << std::endl
-		 	<< GLOGGING;
+			 << "In GStdThreadConsumerT<processable_type>::setCapableOfFullReturn():" << std::endl
+			 << "m_capableOfFullReturn will be set to " << (capableOfFullReturn?"true":"false") << std::endl
+			 << GLOGGING;
 		 m_capableOfFullReturn = capableOfFullReturn;
 	 }
 
@@ -205,7 +205,7 @@ public:
     * make any assumptions whether processing units are dedicated solely to a
     * given task.
     */
-	 virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
+	 std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
 		 // Mark the answer as exact
 		 exact=true;
 		 // Return the result
@@ -217,7 +217,7 @@ public:
 	 * Starts the worker threads. This function will not block.
 	 * Termination of the threads is triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
-	 virtual void async_startProcessing() override {
+	 void async_startProcessing() override {
 		 // Add a default worker if no worker was registered
 		 if(!m_workerTemplate) {
 			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
@@ -235,26 +235,26 @@ public:
 
 			 // The "broker ferry" holding the connection to the broker
 			 std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr(
-				new GBrokerFerryT<processable_type>(
-					//----------------------
-					worker_id
-					//----------------------
-					, [this](
-						const std::chrono::milliseconds& timeout
-					) -> std::shared_ptr<processable_type> {
-						std::shared_ptr<processable_type> p;
-						m_broker_ptr->get(p, timeout);
-						return p;
-					}
-					//----------------------
-					, [this](
-						std::shared_ptr<processable_type> p
-						, const std::chrono::milliseconds& timeout
-					) -> void { m_broker_ptr->put(p, timeout); }
-					//----------------------
-				 	, [this]() -> bool { return this->stopped(); }
-					//----------------------
-				)
+				 new GBrokerFerryT<processable_type>(
+					 //----------------------
+					 worker_id
+					 //----------------------
+					 , [this](
+						 const std::chrono::milliseconds& timeout
+					 ) -> std::shared_ptr<processable_type> {
+						 std::shared_ptr<processable_type> p;
+						 m_broker_ptr->get(p, timeout);
+						 return p;
+					 }
+					 //----------------------
+					 , [this](
+						 std::shared_ptr<processable_type> p
+						 , const std::chrono::milliseconds& timeout
+					 ) -> void { m_broker_ptr->put(p, timeout); }
+					 //----------------------
+					 , [this]() -> bool { return this->stopped(); }
+					 //----------------------
+				 )
 			 );
 
 			 // Register the broker ferry with the worker
@@ -352,14 +352,14 @@ protected:
 
 		 hidden.add_options()
 			 ("stcCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
-			 	"\t[stc] A debugging option making the multi-threaded consumer use timeouts in the executor");
+				 "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the executor");
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Takes a boost::program_options::variables_map object and checks for supplied options.
 	  */
-	 virtual void actOnCLOptions(const boost::program_options::variables_map &vm) override
+	 void actOnCLOptions(const boost::program_options::variables_map &vm) override
 	 { /* nothing */ }
 
 private:

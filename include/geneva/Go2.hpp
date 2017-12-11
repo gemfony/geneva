@@ -105,8 +105,8 @@ using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
  */
 class Go2
 	: public GObject
-	, public G_Interface_Optimizer
-	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
+	  , public G_Interface_Optimizer
+	  , public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
 {
 public:
 	 /** @brief The default constructor */
@@ -118,7 +118,7 @@ public:
 		 , const boost::program_options::options_description& = boost::program_options::options_description()
 	 );
 	 /** @brief A constructor that allows to specify a default config file name */
-	 G_API_GENEVA Go2(const std::string&);
+	 explicit G_API_GENEVA Go2(const std::string&);
 	 /** @brief A constructor that first parses the command line for relevant parameters and allows to specify a default config file name */
 	 G_API_GENEVA Go2(
 		 int
@@ -175,7 +175,7 @@ public:
 		 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief Perform the actual optimization cycle */
-	 virtual G_API_GENEVA void optimize(const std::uint32_t& = 0) override;
+	 G_API_GENEVA void optimize(const std::uint32_t& = 0) override;
 
 	 /***************************************************************************/
 	 // The following is a trivial list of getters and setters
@@ -188,10 +188,10 @@ public:
 	 G_API_GENEVA std::uint32_t getIterationOffset() const;
 
 	 /** @brief Retrieval of the current iteration */
-	 virtual G_API_GENEVA uint32_t getIteration() const override;
+	 G_API_GENEVA uint32_t getIteration() const override;
 
 	 /** @brief Returns the name of this optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	 G_API_GENEVA void parseCommandLine(
@@ -203,7 +203,7 @@ public:
 	 G_API_GENEVA void parseConfigFile(const std::string&);
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
+	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 	 /***************************************************************************/
 	 /**
@@ -237,7 +237,7 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Allows to register a default algorithm. */
 	 G_API_GENEVA void registerDefaultAlgorithm(std::shared_ptr<GOABase>);
@@ -266,28 +266,28 @@ protected:
 	  * Make the vector wrapper purely virtual allows the compiler to perform
 	  * further optimizations.
 	  */
-	 virtual void dummyFunction() override { /* nothing */ }
+	 void dummyFunction() override { /* nothing */ }
 
 	 /***************************************************************************/
 	 /** @brief Loads the data of another Go2 object */
-	 virtual G_API_GENEVA void load_(const GObject *) override;
+	 G_API_GENEVA void load_(const GObject *) override;
 
 	 /** @brief Retrieves the best individual found */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
 	 /** @brief Retrieves a list of the best individuals found */
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
 	 /** @brief Retrieves the best individual found */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
 	 /** @brief Retrieves a list of the best individuals found */
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override;
 
 	 /** @brief Satisfies a requirement of GOptimizableI */
-	 virtual G_API_GENEVA void runFitnessCalculation() override;
+	 G_API_GENEVA void runFitnessCalculation() override;
 
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override;
+	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Sets the number of random number production threads */
 	 void setNProducerThreads(const std::uint16_t&);

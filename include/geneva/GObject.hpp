@@ -176,7 +176,7 @@ public:
 	 }
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
@@ -193,17 +193,17 @@ public:
 		 , const std::string&
 		 , const std::string&
 		 , const bool&
-	 ) const;
+	 ) const BASE;
 
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GObject */
-	 virtual G_API_GENEVA void load_(const GObject*) override;
+	 G_API_GENEVA void load_(const GObject*) override;
 
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject* clone_() const override = 0;
+	 G_API_GENEVA GObject* clone_() const override = 0;
 
 	 // Needed to allow interruption of the optimization run without loss of data
 	 // Npte that "volatile" is needed in order for the signal handler to work
