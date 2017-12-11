@@ -80,14 +80,15 @@ namespace Geneva {
 
 /******************************************************************************/
 // Default values for the variables used by the optimizer
-const std::string GO2_DEF_DEFAULTCONFIGFILE="config/Go2.json";
+const std::string GO2_DEF_DEFAULTCONFIGFILE{"config/Go2.json"}; // NOLINT
 const bool GO2_DEF_CLIENTMODE=false;
 const execMode GO2_DEF_DEFAULPARALLELIZATIONMODE=execMode::MULTITHREADED;
 const bool GO2_DEF_COPYBESTONLY=true;
 const std::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
 const std::uint32_t GO2_DEF_OFFSET=0;
-const std::string GO2_DEF_OPTALGS="";
-const std::string GO2_DEF_NOCONSUMER="none";
+const std::string GO2_DEF_OPTALGS{""}; // NOLINT
+const std::string GO2_DEF_NOCONSUMER{"none"}; // NOLINT
+const bool GO2_DEF_COPYBESTINDIVIDUALSONLY=false;
 
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
@@ -130,7 +131,7 @@ public:
 	 G_API_GENEVA Go2(const Go2&);
 
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~Go2();
+	 G_API_GENEVA ~Go2() override;
 
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  Go2& operator=(const Go2&);
@@ -141,7 +142,7 @@ public:
 	 G_API_GENEVA bool operator!=(const Go2&) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -149,12 +150,11 @@ public:
 
 	 /** @brief Triggers execution of the client loop */
 	 G_API_GENEVA int clientRun();
-
 	 /** @brief Checks whether this object is running in client mode */
 	 G_API_GENEVA bool clientMode() const;
 
-	 /* @brief Specifies whether only the best individuals of a population should be copied */
-	 G_API_GENEVA void setCopyBestIndividualsOnly(const bool&);
+	 /** @brief Specifies whether only the best individuals of a population should be copied */
+	 G_API_GENEVA void setCopyBestIndividualsOnly(bool);
 	 /** @brief Checks whether only the best individuals are copied */
 	 G_API_GENEVA bool onlyBestIndividualsAreCopied() const;
 
@@ -315,7 +315,7 @@ private:
 	 std::uint32_t m_offset = GO2_DEF_OFFSET; ///< The offset to be used when starting a new optimization run
 	 bool m_sorted = false; ///< Indicates whether local individuals have been sorted
 	 std::uint32_t m_iterations_consumed = 0; ///< The number of successive iterations performed by this object so far
-
+	 bool m_copyBestIndividualsOnly = GO2_DEF_COPYBESTINDIVIDUALSONLY; ///< Indicates whether only the best individuals of an optimization run are copied to the next algorithm
 	 //---------------------------------------------------------------------------
 	 // Name and path of a checkpoint file, if supplied by the user
 	 std::string m_cp_file = "empty";

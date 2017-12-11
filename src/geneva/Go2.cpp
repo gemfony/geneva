@@ -84,7 +84,7 @@ Go2::Go2()
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
+	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
 }
 
 
@@ -127,7 +127,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
+	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
 }
 
 /******************************************************************************/
@@ -163,7 +163,7 @@ Go2::Go2(const std::string &configFilename)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
+	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
 }
 
 /******************************************************************************/
@@ -211,7 +211,7 @@ Go2::Go2(
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
+	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
 }
 
 /******************************************************************************/
@@ -229,6 +229,7 @@ Go2::Go2(const Go2 &cp)
 	  , m_n_producer_threads(cp.m_n_producer_threads)
 	  , m_offset(cp.m_offset)
 	  , m_sorted(cp.m_sorted)
+	  , m_copyBestIndividualsOnly(cp.m_copyBestIndividualsOnly)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
@@ -251,7 +252,7 @@ Go2::Go2(const Go2 &cp)
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
-	std::call_once(f_go2, std::bind(setRNFParameters, m_n_producer_threads));
+	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
 
 	//--------------------------------------------
 	// Copy the default algorithm over, if any
@@ -342,6 +343,7 @@ void Go2::compare(
 	compare_t(IDENTITY(m_offset, p_load->m_offset), token);
 	compare_t(IDENTITY(m_sorted, p_load->m_sorted), token);
 	compare_t(IDENTITY(m_iterations_consumed, p_load->m_iterations_consumed), token);
+	compare_t(IDENTITY(m_copyBestIndividualsOnly, p_load->m_copyBestIndividualsOnly), token);
 	compare_t(IDENTITY(m_default_algorithm, p_load->m_default_algorithm), token);
 
 	// React on deviations from the expectation
@@ -402,7 +404,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
 	// If any individuals have been storedn in the default algorithm, we assume
 	// that the user wants us to use them and copy them over. Note that these are not cloned.
 	if (!default_algorithm->empty()) { // Have individuals been registered ?
-		for (auto ind_ptr: *default_algorithm) this->push_back(ind_ptr);
+		for (const auto& ind_ptr: *default_algorithm) this->push_back(ind_ptr);
 		// Remove the individuals from the old algorithm
 		default_algorithm->clear();
 	}
@@ -485,6 +487,7 @@ void Go2::load_(const GObject *cp) {
 	m_offset = p_load->m_offset;
 	m_sorted = p_load->m_sorted;
 	m_iterations_consumed = p_load->m_iterations_consumed;
+	m_copyBestIndividualsOnly = p_load->m_copyBestIndividualsOnly;
 	m_cp_file = p_load->m_cp_file;
 
 	Gem::Common::copyCloneableSmartPointer<GOABase>(p_load->m_default_algorithm, m_default_algorithm);
@@ -565,6 +568,22 @@ bool Go2::clientMode() const {
 
 /******************************************************************************/
 /**
+ * Specifies whether only the best individuals of a population should be copied
+ */
+void Go2::setCopyBestIndividualsOnly(bool copyBestIndividualsOnly) {
+	m_copyBestIndividualsOnly = copyBestIndividualsOnly;
+}
+
+/******************************************************************************/
+/**
+ * Checks whether only the best individuals are copied
+ */
+bool Go2::onlyBestIndividualsAreCopied() const {
+	return m_copyBestIndividualsOnly;
+}
+
+/******************************************************************************/
+/**
  * Retrieves the currently registered number of algorithms
  */
 std::size_t Go2::getNAlgorithms() const {
@@ -593,7 +612,7 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 	// that the user wants us to add them to the optimization and copy them over.
 	// Note that these are not cloned.
 	if (!alg->empty()) { // Have individuals been registered ?
-		for (auto ind_ptr: *alg) this->push_back(ind_ptr);
+		for (const auto& ind_ptr: *alg) this->push_back(ind_ptr);
 	   // Remove the individuals from the old algorithm
 		alg->clear();
 	}
@@ -625,8 +644,8 @@ std::vector<std::shared_ptr<GOABase>> Go2::getRegisteredAlgorithms() {
  * @param alg A base pointer to another optimization algorithm
  * @return A reference to this object
  */
-Go2 &Go2::operator&(std::shared_ptr<GOABase > alg) {
-	this->addAlgorithm(alg);
+Go2 &Go2::operator&(std::shared_ptr<GOABase> alg) {
+	this->addAlgorithm(alg); // NOLINT
 	return *this;
 }
 
@@ -759,15 +778,15 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 	// Loop over all algorithms
 	m_sorted = false;
-	for (auto alg_ptr: m_algorithms_vec) {
+	for (const auto& alg_ptr: m_algorithms_vec) {
 		// Add the pluggable optimization monitors to the algorithm
-		for(auto pm_ptr: m_pluggable_monitors_vec) { // std::shared_ptr may be copied
+		for(const auto& pm_ptr: m_pluggable_monitors_vec) { // std::shared_ptr may be copied
 			alg_ptr->registerPluggableOM(pm_ptr);
 		}
 
 		// Add the individuals to the algorithm
 		std::size_t ind_pos = 0;
-		for (auto ind_ptr: *this) {
+		for (const auto& ind_ptr: *this) {
 			alg_ptr->push_back(ind_ptr);
 			std::cout << "Stored individual " << ind_pos++ << " has processing status " << ind_ptr->getProcessingStatusAsStr() << std::endl;
 		}
@@ -783,7 +802,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 		// Unload the individuals from the last algorithm and store them again in this object
 		ind_pos = 0;
-		for (auto best_ind_ptr: alg_ptr->G_Interface_Optimizer::getBestGlobalIndividuals<GParameterSet>()) {
+		for (const auto& best_ind_ptr: alg_ptr->G_Interface_Optimizer::getBestGlobalIndividuals<GParameterSet>()) {
 			this->push_back(best_ind_ptr);
 
 			std::cout << "Best individual " << ind_pos++ << " has processing status " << best_ind_ptr->getProcessingStatusAsStr() << std::endl;
@@ -826,7 +845,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual()
 	}
 
 	std::size_t pos = 0;
-	for (auto ind_ptr: *this) {
+	for (const auto& ind_ptr: *this) {
 		if (ind_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
@@ -873,7 +892,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGloba
 
 	std::size_t pos = 0;
 	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> bestIndividuals;
-	for (auto ind_ptr: *this) {
+	for (const auto& ind_ptr: *this) {
 		if (ind_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
@@ -949,12 +968,21 @@ void Go2::addConfigurationOptions(
 	GObject::addConfigurationOptions(gpb);
 
 	// Add local data
+
 	gpb.registerFileParameter<std::uint16_t>(
-		"nProducerThreads" // The name of the first variable
+		"nProducerThreads"
 		, GO2_DEF_NPRODUCERTHREADS
 		, [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
 	)
 		<< "The number of threads simultaneously producing random numbers";
+
+	gpb.registerFileParameter<bool>(
+		"copyBestIndividualsOnly"
+		, GO2_DEF_COPYBESTINDIVIDUALSONLY
+		, [this](bool copyBestIndividualsOnly) { this->setCopyBestIndividualsOnly(copyBestIndividualsOnly); }
+	)
+		<< "Indicates whether only the best individuals should be copied when" << std::endl
+		<< "switching from one optimization algorithm to the next";
 }
 
 /******************************************************************************/
@@ -1060,7 +1088,7 @@ void Go2::parseCommandLine(
 		std::string algorithm_description;
 		std::vector<std::string> keys;
 		GOAFactoryStore->getKeyVector(keys); // will clear "keys"
-		for (auto key: keys) {
+		for (const auto& key: keys) {
 			algorithm_description += (key + ":  " + GOAFactoryStore->get(key)->getAlgorithmName() + "\n");
 		}
 
@@ -1073,7 +1101,7 @@ void Go2::parseCommandLine(
 		// Extract a list of consumer mnemonics and clear-text descriptions
 		std::string consumer_description;
 		GConsumerStore->getKeyVector(keys);
-		for(auto key: keys) {
+		for(const auto& key: keys) {
 			consumer_description += (key + ":  " + GConsumerStore->get(key)->getConsumerName() + "\n");
 		}
 
@@ -1083,9 +1111,9 @@ void Go2::parseCommandLine(
 			<< GConsumerStore->size() << " consumers have been registered: " << std::endl
 			<< consumer_description;
 
-		std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
+		auto usageString = std::string("Usage: ") + argv[0] + " [options]";
 
-		boost::program_options::options_description general(usageString.c_str());
+		boost::program_options::options_description general(usageString);
 		boost::program_options::options_description basic("Basic options");
 
 		// First add local options
@@ -1096,7 +1124,8 @@ void Go2::parseCommandLine(
 			("cp_file,f", po::value<std::string>(&checkpointFile)->default_value("empty"),
 				"A file (including its path) holding a checkpoint for a given optimization algorithm")
 			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
-			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION), "The maximum runtime for a client in the form \"hh:mm:ss\". Note that a client may run longer as this time-frame if its work load still runs. The default value \"00:00:00\" means: \"no time limit\"")
+			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION),
+			   R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
 			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str());
 
 		// Add additional options coming from the algorithms and consumers
@@ -1131,11 +1160,11 @@ void Go2::parseCommandLine(
 		po::store(po::parse_command_line(argc, (const char *const *) argv, general), vm);
 
 		// Emit a help message, if necessary
-		if (vm.count("help") || vm.count("showAll")) { // Allow syntax "programm --help --showAll" and "program --showAll"
+		if (vm.count("help") || vm.count("showAll")) { // Allow syntax "program --help --showAll" and "program --showAll"
 			if (vm.count("showAll")) { // Show all options
 				std::cout << general << std::endl;
 			} else { // Just show a selection
-				boost::program_options::options_description selected(usageString.c_str());
+				boost::program_options::options_description selected(usageString);
 				if (userOptions.options().empty()) {
 					selected.add(basic).add(visible);
 				} else {
@@ -1206,7 +1235,7 @@ void Go2::parseCommandLine(
 		if (vm.count("optimizationAlgorithms")) {
 			std::vector<std::string> algs = Gem::Common::splitString(optimization_algorithms, ",");
 
-			for (auto alg_str: algs) {
+			for (const auto& alg_str: algs) {
 				// Retrieve the algorithm factory from the global store
 				std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 				if (!GOAFactoryStore->get(alg_str, p)) {

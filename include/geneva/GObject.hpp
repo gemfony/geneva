@@ -37,7 +37,7 @@
 
 // Standard header files go here
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include <cmath>
 #include <cfloat>
 #include <cstdio>
@@ -138,7 +138,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GObject(const GObject& cp);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GObject();
+	 G_API_GENEVA ~GObject() override;
 
 	 /** @brief Allows derived classes to assign other class'es values */
 	 G_API_GENEVA  GObject& operator=(const GObject&);
@@ -154,7 +154,7 @@ public:
 	 G_API_GENEVA void readConfigFile(const std::string&);
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
+	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) BASE;
 
 	 /***************************************************************************/
 	 /**
@@ -179,7 +179,7 @@ public:
 	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
