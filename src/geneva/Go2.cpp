@@ -493,7 +493,6 @@ void Go2::optimize(const std::uint32_t &offset) {
 		std::size_t ind_pos = 0;
 		for (const auto& ind_ptr: *this) {
 			alg_ptr->push_back(ind_ptr);
-			std::cout << "Stored individual " << ind_pos++ << " has processing status " << ind_ptr->getProcessingStatusAsStr() << std::endl;
 		}
 
 		// Remove our local copies
@@ -507,10 +506,14 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 		// Unload the individuals from the last algorithm and store them again in this object
 		ind_pos = 0;
-		for (const auto& best_ind_ptr: alg_ptr->G_Interface_Optimizer::getBestGlobalIndividuals<GParameterSet>()) {
-			this->push_back(best_ind_ptr);
-
-			std::cout << "Best individual " << ind_pos++ << " has processing status " << best_ind_ptr->getProcessingStatusAsStr() << std::endl;
+		if(m_copyBestIndividualsOnly) {
+			for (const auto &best_ind_ptr: alg_ptr->G_Interface_Optimizer::getBestGlobalIndividuals<GParameterSet>()) {
+				this->push_back(best_ind_ptr);
+			}
+		} else { // copy all individuals
+			for (const auto &ind_ptr: *alg_ptr) {
+				this->push_back(ind_ptr);
+			}
 		}
 
 		alg_ptr->clear(); // Get rid of local individuals in the algorithm

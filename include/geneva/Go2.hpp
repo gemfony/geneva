@@ -88,7 +88,7 @@ const std::uint16_t GO2_DEF_NPRODUCERTHREADS=0;
 const std::uint32_t GO2_DEF_OFFSET=0;
 const std::string GO2_DEF_OPTALGS{""}; // NOLINT
 const std::string GO2_DEF_NOCONSUMER{"none"}; // NOLINT
-const bool GO2_DEF_COPYBESTINDIVIDUALSONLY=false;
+const bool GO2_DEF_COPYBESTINDIVIDUALSONLY=true;
 
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
