@@ -85,7 +85,7 @@ GLineFitIndividual::~GLineFitIndividual() { /* nothing */   }
 /**
  * The standard assignment operator
  */
-const GLineFitIndividual &GLineFitIndividual::operator=(const GLineFitIndividual &cp) {
+GLineFitIndividual &GLineFitIndividual::operator=(const GLineFitIndividual &cp) {
 	this->load_(&cp);
 	return *this;
 }

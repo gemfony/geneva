@@ -166,7 +166,7 @@ GTestIndividual2::~GTestIndividual2() { /* nothing */   }
  * @param cp A copy of another GTestIndividual2 object
  * @return A constant reference to this object
  */
-const GTestIndividual2 &GTestIndividual2::operator=(const GTestIndividual2 &cp) {
+GTestIndividual2 &GTestIndividual2::operator=(const GTestIndividual2 &cp) {
 	GTestIndividual2::load_(&cp);
 	return *this;
 }

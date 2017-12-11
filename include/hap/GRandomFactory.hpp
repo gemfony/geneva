@@ -185,8 +185,8 @@ private:
 	 random_container() = delete; ///< The default constructor -- intentionally private and undefined
 	 random_container(const random_container &) = delete; ///< The copy constructor -- intentionally private and undefined
 	 random_container(random_container&&) = delete; ///< The move constructor -- intentionally private and undefined
-	 const random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
-	 const random_container &operator=(random_container &&) = delete; ///< Intentionally private and undefined
+	 random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
+	 random_container &operator=(random_container &&) = delete; ///< Intentionally private and undefined
 
 	 std::size_t m_current_pos = 0; ///< The current position in the array
 
@@ -254,8 +254,8 @@ private:
 	 // Prevent copying
 	 GRandomFactory(const GRandomFactory&) = delete;
 	 GRandomFactory(const GRandomFactory&&) = delete;
-	 const GRandomFactory& operator=(const GRandomFactory&) = delete;
-	 const GRandomFactory& operator=(const GRandomFactory&&) = delete;
+	 GRandomFactory& operator=(const GRandomFactory&) = delete;
+	 GRandomFactory& operator=(const GRandomFactory&&) = delete;
 
 	 /** @brief The production of [0,1[ random numbers takes place here */
 	 void producer(std::uint32_t seed);

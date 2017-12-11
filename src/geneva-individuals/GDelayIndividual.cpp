@@ -76,7 +76,7 @@ GDelayIndividual::~GDelayIndividual()
  * @param cp A copy of another GDelayIndividual
  * @return A constant reference to the function argument
  */
-const GDelayIndividual& GDelayIndividual::operator=(const GDelayIndividual& cp){
+GDelayIndividual& GDelayIndividual::operator=(const GDelayIndividual& cp){
 	GDelayIndividual::load_(&cp);
 	return *this;
 }

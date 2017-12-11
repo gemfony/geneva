@@ -61,13 +61,13 @@ GOptimizableEntity::GOptimizableEntity()
  */
 GOptimizableEntity::GOptimizableEntity(const std::size_t &nFitnessCriteria)
 	: G_Interface_Mutable()
-	  , G_Interface_Rateable()
-	  , GObject()
-	  , m_n_fitness_criteria(nFitnessCriteria ? nFitnessCriteria : 1) // Note: Thus function will silently assign a minimum of 1 to m_n_fitness_criteria
-	  , m_current_fitness_vec(m_n_fitness_criteria)
-	  , m_worst_known_valids_vec(m_n_fitness_criteria)
-	  , m_marked_as_invalid_by_user(OE_NOT_MARKED_AS_INVALID) // Means: the object has not been marked as invalid by the user in the evaluation function
-	  , m_best_past_primary_fitness(std::make_tuple(0., 0.))
+   , G_Interface_Rateable()
+   , GObject()
+   , m_n_fitness_criteria(nFitnessCriteria ? nFitnessCriteria : 1) // Note: Thus function will silently assign a minimum of 1 to m_n_fitness_criteria
+   , m_current_fitness_vec(m_n_fitness_criteria)
+   , m_worst_known_valids_vec(m_n_fitness_criteria)
+   , m_marked_as_invalid_by_user(OE_NOT_MARKED_AS_INVALID) // Means: the object has not been marked as invalid by the user in the evaluation function
+   , m_best_past_primary_fitness(std::make_tuple(0., 0.))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -78,25 +78,25 @@ GOptimizableEntity::GOptimizableEntity(const std::size_t &nFitnessCriteria)
  */
 GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity &cp)
 	: G_Interface_Mutable(cp)
-	  , G_Interface_Rateable(cp)
-	  , GObject(cp)
-	  , m_n_fitness_criteria(cp.m_n_fitness_criteria)
-	  , m_current_fitness_vec(cp.m_current_fitness_vec)
-	  , m_worst_known_valids_vec(cp.m_worst_known_valids_vec)
-	  , m_marked_as_invalid_by_user(cp.m_marked_as_invalid_by_user)
-	  , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
-	  , m_n_stalls(cp.m_n_stalls)
-	  , m_dirty_flag(cp.m_dirty_flag)
-	  , m_maximize(cp.m_maximize)
-	  , m_assigned_iteration(cp.m_assigned_iteration)
-	  , m_validity_level(cp.m_validity_level)
-	  , m_eval_policy(cp.m_eval_policy)
-	  , m_sigmoid_steepness(cp.m_sigmoid_steepness)
-	  , m_sigmoid_extremes(cp.m_sigmoid_extremes)
-	  , m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
-	  , m_max_retries_until_valid(cp.m_max_retries_until_valid)
-	  , m_n_adaptions(cp.m_n_adaptions)
-	  , m_evaluation_id(cp.m_evaluation_id)
+   , G_Interface_Rateable(cp)
+   , GObject(cp)
+   , m_n_fitness_criteria(cp.m_n_fitness_criteria)
+   , m_current_fitness_vec(cp.m_current_fitness_vec)
+   , m_worst_known_valids_vec(cp.m_worst_known_valids_vec)
+   , m_marked_as_invalid_by_user(cp.m_marked_as_invalid_by_user)
+   , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
+   , m_n_stalls(cp.m_n_stalls)
+   , m_dirty_flag(cp.m_dirty_flag)
+   , m_maximize(cp.m_maximize)
+   , m_assigned_iteration(cp.m_assigned_iteration)
+   , m_validity_level(cp.m_validity_level)
+   , m_eval_policy(cp.m_eval_policy)
+   , m_sigmoid_steepness(cp.m_sigmoid_steepness)
+   , m_sigmoid_extremes(cp.m_sigmoid_extremes)
+   , m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
+   , m_max_retries_until_valid(cp.m_max_retries_until_valid)
+   , m_n_adaptions(cp.m_n_adaptions)
+   , m_evaluation_id(cp.m_evaluation_id)
 {
 	// Copy the personality pointer over
 	Gem::Common::copyCloneableSmartPointer(cp.m_pt_ptr, m_pt_ptr);
@@ -105,17 +105,11 @@ GOptimizableEntity::GOptimizableEntity(const GOptimizableEntity &cp)
 	Gem::Common::copyCloneableSmartPointer(cp.m_individual_constraint_ptr, m_individual_constraint_ptr);
 }
 
-/******************************************************************************/
-/**
- * The standard destructor.
- */
-GOptimizableEntity::~GOptimizableEntity() { /* nothing */ }
-
 /***************************************************************************/
 /**
  * The standard assignment operator
  */
-const GOptimizableEntity &GOptimizableEntity::operator=(const GOptimizableEntity &cp) {
+GOptimizableEntity &GOptimizableEntity::operator=(const GOptimizableEntity &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -496,7 +490,7 @@ double GOptimizableEntity::fitness(
 	const std::size_t &id, bool reevaluationAllowed, bool useTransformedFitness
 ) {
 	// Check whether we need to recalculate the fitness
-	if (true == m_dirty_flag) {
+	if (true==m_dirty_flag) {
 		if (reevaluationAllowed) {
 			this->enforceFitnessUpdate();
 

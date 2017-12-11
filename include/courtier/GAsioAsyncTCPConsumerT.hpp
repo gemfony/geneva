@@ -686,8 +686,8 @@ private:
 	 // Prevent copy construction, moving and assignment
 	 GAsioAsyncTCPClientT(const GAsioAsyncTCPClientT<processable_type>&) = delete;
 	 GAsioAsyncTCPClientT(const GAsioAsyncTCPClientT<processable_type>&&) = delete;
-	 const GAsioAsyncTCPClientT<processable_type>& operator=(const GAsioAsyncTCPClientT<processable_type>&) = delete;
-	 const GAsioAsyncTCPClientT<processable_type>& operator=(const GAsioAsyncTCPClientT<processable_type>&&) = delete;
+	 GAsioAsyncTCPClientT<processable_type>& operator=(const GAsioAsyncTCPClientT<processable_type>&) = delete;
+	 GAsioAsyncTCPClientT<processable_type>& operator=(const GAsioAsyncTCPClientT<processable_type>&&) = delete;
 };
 
 /******************************************************************************/
@@ -979,10 +979,10 @@ private:
 	 GAsioAsyncServerSessionT() = delete; ///< Intentionally left undefined
 	 GAsioAsyncServerSessionT(const GAsioAsyncServerSessionT<processable_type>& ) = delete; ///< Intentionally left undefined
 	 GAsioAsyncServerSessionT(const GAsioAsyncServerSessionT<processable_type>&&) = delete; ///< Intentionally left undefined
-	 const GAsioAsyncServerSessionT<processable_type> &operator=(
+	 GAsioAsyncServerSessionT<processable_type> &operator=(
 		 const GAsioAsyncServerSessionT<processable_type> &
 	 ) = delete; ///< Intentionally left undefined
-	 const GAsioAsyncServerSessionT<processable_type> &operator=(
+	 GAsioAsyncServerSessionT<processable_type> &operator=(
 		 const GAsioAsyncServerSessionT<processable_type>&&
 	 ) = delete; ///< Intentionally left undefined
 

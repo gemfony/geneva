@@ -80,6 +80,9 @@ G_API_COURTIER std::vector<bool> getBooleanMask(
 	, std::size_t end
 );
 
+/** @brief Translate the processingStatus into a clear-text string */
+G_API_COURTIER std::string psToStr(const processingStatus&);
+
 /******************************************************************************/
 
 } /* namespace Courtier */

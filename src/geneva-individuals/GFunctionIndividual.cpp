@@ -81,7 +81,7 @@ GDoubleSumConstraint::~GDoubleSumConstraint()
 /**
  * A standard assignment operator
  */
-const GDoubleSumConstraint &GDoubleSumConstraint::operator=(const GDoubleSumConstraint &cp) {
+GDoubleSumConstraint &GDoubleSumConstraint::operator=(const GDoubleSumConstraint &cp) {
 	GParameterSetConstraint::load_(&cp);
 	return *this;
 }
@@ -233,7 +233,7 @@ GDoubleSumGapConstraint::~GDoubleSumGapConstraint() { /* nothing */ }
 /**
  * A standard assignment operator
  */
-const GDoubleSumGapConstraint &GDoubleSumGapConstraint::operator=(const GDoubleSumGapConstraint &cp) {
+GDoubleSumGapConstraint &GDoubleSumGapConstraint::operator=(const GDoubleSumGapConstraint &cp) {
 	GParameterSetConstraint::load_(&cp);
 	return *this;
 }
@@ -388,7 +388,7 @@ GSphereConstraint::~GSphereConstraint() { /* nothing */ }
 /**
  * A standard assignment operator
  */
-const GSphereConstraint &GSphereConstraint::operator=(const GSphereConstraint &cp) {
+GSphereConstraint &GSphereConstraint::operator=(const GSphereConstraint &cp) {
 	GParameterSetConstraint::load_(&cp);
 	return *this;
 }
@@ -656,7 +656,7 @@ GFunctionIndividual::~GFunctionIndividual()
  *
  * @param cp A copy of another GFunctionIndividual
  */
-const GFunctionIndividual &GFunctionIndividual::operator=(const GFunctionIndividual &cp) {
+GFunctionIndividual &GFunctionIndividual::operator=(const GFunctionIndividual &cp) {
 	GFunctionIndividual::load_(&cp);
 	return *this;
 }

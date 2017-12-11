@@ -114,8 +114,8 @@ protected:
 	 // Prevent copying
 	 GRandomBase(const GRandomBase&) = delete;
 	 GRandomBase(const GRandomBase&&) = delete;
-	 const GRandomBase& operator=(const GRandomBase&) = delete;
-	 const GRandomBase& operator=(const GRandomBase&&) = delete;
+	 GRandomBase& operator=(const GRandomBase&) = delete;
+	 GRandomBase& operator=(const GRandomBase&&) = delete;
 
 	 /** @brief Uniformly distributed integer numbers in the range min/max */
 	 virtual G_API_HAP result_type int_random() = 0;

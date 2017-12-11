@@ -193,7 +193,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GFunctionIndividual();
 
 	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS const GFunctionIndividual &operator=(const GFunctionIndividual &);
+	 G_API_INDIVIDUALS GFunctionIndividual &operator=(const GFunctionIndividual &);
 
 	 /** @brief Checks for equality with another GFunctionIndividual object */
 	 G_API_INDIVIDUALS bool operator==(const GFunctionIndividual &) const;
@@ -706,7 +706,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GDoubleSumConstraint();
 
 	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS const GDoubleSumConstraint &operator=(const GDoubleSumConstraint &);
+	 G_API_INDIVIDUALS GDoubleSumConstraint &operator=(const GDoubleSumConstraint &);
 
 	 /** @brief Checks for equality with another GIndividualConstraint object */
 	 G_API_INDIVIDUALS bool operator==(const GDoubleSumConstraint &) const;
@@ -769,7 +769,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GDoubleSumGapConstraint();
 
 	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS const GDoubleSumGapConstraint &operator=(const GDoubleSumGapConstraint &);
+	 G_API_INDIVIDUALS GDoubleSumGapConstraint &operator=(const GDoubleSumGapConstraint &);
 
 	 /** @brief Checks for equality with another GIndividualConstraint object */
 	 G_API_INDIVIDUALS bool operator==(const GDoubleSumGapConstraint &) const;
@@ -831,7 +831,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GSphereConstraint();
 
 	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS const GSphereConstraint &operator=(const GSphereConstraint &);
+	 G_API_INDIVIDUALS GSphereConstraint &operator=(const GSphereConstraint &);
 
 	 /** @brief Checks for equality with another GSphereConstraint object */
 	 G_API_INDIVIDUALS bool operator==(const GSphereConstraint &) const;

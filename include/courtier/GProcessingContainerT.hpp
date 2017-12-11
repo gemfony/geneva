@@ -74,6 +74,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "courtier/GCourtierEnums.hpp"
+#include "courtier/GCourtierHelperFunctions.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -287,6 +288,15 @@ public:
 	  */
 	 processingStatus getProcessingStatus() const noexcept {
 		 return m_processing_status;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the current processing status as a string (mostly for
+	  * debugging purposes).
+	  */
+	 std::string getProcessingStatusAsStr() const noexcept {
+		 return psToStr(m_processing_status);
 	 }
 
 	 /***************************************************************************/

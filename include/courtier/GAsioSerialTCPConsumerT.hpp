@@ -625,8 +625,8 @@ private:
 	 // Prevent copy construction and assignment
 	 GAsioSerialTCPClientT(const GAsioSerialTCPClientT<processable_type>&) = delete;
 	 GAsioSerialTCPClientT(const GAsioSerialTCPClientT<processable_type>&&) = delete;
-	 const GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&) = delete;
-	 const GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&&) = delete;
+	 GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&) = delete;
+	 GAsioSerialTCPClientT<processable_type>& operator=(const GAsioSerialTCPClientT<processable_type>&&) = delete;
 };
 
 /******************************************************************************/
@@ -1102,9 +1102,9 @@ private:
 	 // Prevent copying, moving and default-construction
 	 GAsioSerialServerSessionT() = delete; ///< Intentionally left undefined
 	 GAsioSerialServerSessionT(const GAsioSerialServerSessionT<processable_type> &) = delete; ///< Intentionally left undefined
-	 const GAsioSerialServerSessionT<processable_type> &operator=(const GAsioSerialServerSessionT<processable_type> &) = delete; ///< Intentionally left undefined
+	 GAsioSerialServerSessionT<processable_type> &operator=(const GAsioSerialServerSessionT<processable_type> &) = delete; ///< Intentionally left undefined
 	 GAsioSerialServerSessionT(const GAsioSerialServerSessionT<processable_type> &&) = delete; ///< Intentionally left undefined
-	 const GAsioSerialServerSessionT<processable_type> &operator=(const GAsioSerialServerSessionT<processable_type> &&) = delete; ///< Intentionally left undefined
+	 GAsioSerialServerSessionT<processable_type> &operator=(const GAsioSerialServerSessionT<processable_type> &&) = delete; ///< Intentionally left undefined
 
 	 /***************************************************************************/
 

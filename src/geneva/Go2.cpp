@@ -765,8 +765,12 @@ void Go2::optimize(const std::uint32_t &offset) {
 			alg_ptr->registerPluggableOM(pm_ptr);
 		}
 
-		// Add the individuals to the algorithm.
-		for (auto ind_ptr: *this) alg_ptr->push_back(ind_ptr);
+		// Add the individuals to the algorithm
+		std::size_t ind_pos = 0;
+		for (auto ind_ptr: *this) {
+			alg_ptr->push_back(ind_ptr);
+			std::cout << "Stored individual " << ind_pos++ << " has processing status " << ind_ptr->getProcessingStatusAsStr() << std::endl;
+		}
 
 		// Remove our local copies
 		this->clear();
@@ -778,8 +782,11 @@ void Go2::optimize(const std::uint32_t &offset) {
 		m_iterations_consumed = alg_ptr->getIteration();
 
 		// Unload the individuals from the last algorithm and store them again in this object
+		ind_pos = 0;
 		for (auto best_ind_ptr: alg_ptr->G_Interface_Optimizer::getBestGlobalIndividuals<GParameterSet>()) {
 			this->push_back(best_ind_ptr);
+
+			std::cout << "Best individual " << ind_pos++ << " has processing status " << best_ind_ptr->getProcessingStatusAsStr() << std::endl;
 		}
 
 		alg_ptr->clear(); // Get rid of local individuals in the algorithm
@@ -789,7 +796,9 @@ void Go2::optimize(const std::uint32_t &offset) {
 	// Sort the individuals according to their primary fitness so we have it easier later on
 	// to extract the best individuals found.
 	std::sort(
-		this->begin(), this->end(), [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
+		this->begin()
+		, this->end()
+		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 			return x->minOnly_fitness() < y->minOnly_fitness();
 		}
 	);

@@ -103,6 +103,32 @@ std::vector<bool> getBooleanMask(
 }
 
 /******************************************************************************/
+/**
+ * Translate the processingStatus into a clear-text string
+ *
+ * @param ps The processingStatus to be translated into a std::string
+ * @return A string representing the processing status
+ */
+G_API_COURTIER std::string psToStr(const processingStatus& ps) {
+	switch(ps) {
+		case processingStatus::IGNORE:
+			return "IGNORE";
+
+		case processingStatus::DO_PROCESS:
+			return "DO_PROCESS";
+
+		case processingStatus::PROCESSED:
+			return "PROCESSED";
+
+		case processingStatus::EXCEPTION_CAUGHT:
+			return "EXCEPTION_CAUGHT";
+
+		case processingStatus::ERROR_FLAGGED:
+			return "ERROR_FLAGGED";
+	}
+}
+
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

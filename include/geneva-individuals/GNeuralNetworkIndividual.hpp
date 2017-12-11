@@ -144,7 +144,7 @@ struct trainingSet {
 	 virtual G_API_INDIVIDUALS ~trainingSet();
 
 	 /** @brief Assigns another trainingSet's data to this object */
-	 G_API_INDIVIDUALS const trainingSet &operator=(const trainingSet &);
+	 G_API_INDIVIDUALS trainingSet &operator=(const trainingSet &);
 	 /** @brief Checks for equality with another trainingSet object */
 
 	 G_API_INDIVIDUALS bool operator==(const trainingSet &) const;
@@ -243,7 +243,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~networkData();
 
 	 /** @brief Copies the data of another networkData object */
-	 G_API_INDIVIDUALS const networkData &operator=(const networkData &);
+	 G_API_INDIVIDUALS networkData &operator=(const networkData &);
 
 	 /** @brief Checks for equality with another networkData object */
 	 G_API_INDIVIDUALS bool operator==(const networkData &) const;
@@ -420,7 +420,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GNeuralNetworkIndividual();
 
 	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS const GNeuralNetworkIndividual &operator=(const GNeuralNetworkIndividual &cp);
+	 G_API_INDIVIDUALS GNeuralNetworkIndividual &operator=(const GNeuralNetworkIndividual &cp);
 
 	 /** @brief Checks for equality with another GNeuralNetworkIndividual object */
 	 G_API_INDIVIDUALS bool operator==(const GNeuralNetworkIndividual &cp) const;

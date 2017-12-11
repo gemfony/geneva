@@ -366,7 +366,7 @@ private:
 	 /***************************************************************************/
 
 	 GStdThreadConsumerT(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
-	 const GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
+	 GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
 
 	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
 

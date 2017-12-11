@@ -119,7 +119,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GTestIndividual2();
 
 	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS const GTestIndividual2 &operator=(const GTestIndividual2 &);
+	 G_API_INDIVIDUALS GTestIndividual2 &operator=(const GTestIndividual2 &);
 
 	 /** @brief Checks for equality with another GTestIndividual2 object */
 	 G_API_INDIVIDUALS bool operator==(const GTestIndividual2 &cp) const;

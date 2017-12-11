@@ -465,7 +465,7 @@ private:
 	 GBrokerFerryT() = delete;
 	 GBrokerFerryT(const GBrokerFerryT<processable_type>&) = delete;
 	 GBrokerFerryT(GBrokerFerryT<processable_type>&&) = delete;
-	 const GBrokerFerryT<processable_type>& operator=(const GBrokerFerryT<processable_type>&) = delete;
+	 GBrokerFerryT<processable_type>& operator=(const GBrokerFerryT<processable_type>&) = delete;
 	 GBrokerFerryT<processable_type>& operator=(GBrokerFerryT<processable_type>&&) = delete;
 
 	 /************************************************************************/

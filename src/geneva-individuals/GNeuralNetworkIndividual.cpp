@@ -98,7 +98,7 @@ trainingSet::~trainingSet() {
  * @param cp A copy of another trainingSet object
  * @return A constant reference to this object
  */
-const trainingSet &trainingSet::operator=(const trainingSet &cp) {
+trainingSet &trainingSet::operator=(const trainingSet &cp) {
 	Gem::Common::copyArrays(cp.Input, Input, cp.nInputNodes, nInputNodes);
 	Gem::Common::copyArrays(cp.Output, Output, cp.nOutputNodes, nOutputNodes);
 
@@ -238,7 +238,7 @@ networkData::~networkData() {
  * @param cp A copy of another networkData object
  * @return A constant reference to this object
  */
-const networkData &networkData::operator=(const networkData &cp) {
+networkData &networkData::operator=(const networkData &cp) {
 	// Make sure the local data is copied
 	Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
 	Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>::operator=(cp);
@@ -710,7 +710,7 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */   }
  * @param cp A copy of another GNeuralNetworkIndividual object
  * @return A reference to this object
  */
-const GNeuralNetworkIndividual &GNeuralNetworkIndividual::operator=(
+GNeuralNetworkIndividual &GNeuralNetworkIndividual::operator=(
 	const GNeuralNetworkIndividual &cp
 ) {
 	GNeuralNetworkIndividual::load_(&cp);

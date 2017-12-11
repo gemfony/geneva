@@ -101,7 +101,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GLineFitIndividual();
 
 	 /** @brief The standard assignment operator */
-	 G_API_INDIVIDUALS const GLineFitIndividual &operator=(const GLineFitIndividual &);
+	 G_API_INDIVIDUALS GLineFitIndividual &operator=(const GLineFitIndividual &);
 
 	 /** @brief Checks for equality with another GLineFitIndividual object */
 	 G_API_INDIVIDUALS bool operator==(const GLineFitIndividual &cp) const;

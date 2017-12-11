@@ -170,7 +170,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GExternalEvaluatorIndividual();
 
 	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS const GExternalEvaluatorIndividual &operator=(const GExternalEvaluatorIndividual &);
+	 G_API_INDIVIDUALS GExternalEvaluatorIndividual &operator=(const GExternalEvaluatorIndividual &);
 
 	 /** @brief Checks for equality with another GExternalEvaluatorIndividual object */
 	 G_API_INDIVIDUALS bool operator==(const GExternalEvaluatorIndividual &) const;

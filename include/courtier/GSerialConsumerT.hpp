@@ -290,7 +290,7 @@ private:
 	 /***************************************************************************/
 
 	 GSerialConsumerT(const GSerialConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
-	 const GSerialConsumerT<processable_type> &operator=(const GSerialConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
+	 GSerialConsumerT<processable_type> &operator=(const GSerialConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
 
 
 	 /***************************************************************************/

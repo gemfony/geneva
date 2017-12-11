@@ -613,7 +613,7 @@ private:
 	 /***************************************************************************/
 
 	 GBrokerT(const GBrokerT<processable_type> &) = delete; ///< Intentionally left undefined
-	 const GBrokerT &operator=(const GBrokerT<processable_type> &) = delete; ///< Intentionally left undefined
+	 GBrokerT &operator=(const GBrokerT<processable_type> &) = delete; ///< Intentionally left undefined
 
 	 /***************************************************************************/
 	 // Data

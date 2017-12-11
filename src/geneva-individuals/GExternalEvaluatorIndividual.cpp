@@ -80,7 +80,7 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */ }
 /**
  * A standard assignment operator
  */
-const GExternalEvaluatorIndividual &GExternalEvaluatorIndividual::operator=(const GExternalEvaluatorIndividual &cp) {
+GExternalEvaluatorIndividual &GExternalEvaluatorIndividual::operator=(const GExternalEvaluatorIndividual &cp) {
 	GExternalEvaluatorIndividual::load_(&cp);
 	return *this;
 }

@@ -114,7 +114,7 @@ public:
 	 virtual G_API_INDIVIDUALS ~GDelayIndividual();
 
 	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS const GDelayIndividual& operator=(const GDelayIndividual&);
+	 G_API_INDIVIDUALS GDelayIndividual& operator=(const GDelayIndividual&);
 
 	 /** @brief Checks for equality with another GDelayIndividual object */
 	 G_API_INDIVIDUALS bool operator==(const GDelayIndividual&) const;

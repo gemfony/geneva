@@ -130,7 +130,7 @@ GTestIndividual3::~GTestIndividual3()
  * @param cp A copy of another GTestIndividual3 object
  * @return A constant reference to this object
  */
-const GTestIndividual3 &GTestIndividual3::operator=(const GTestIndividual3 &cp) {
+GTestIndividual3 &GTestIndividual3::operator=(const GTestIndividual3 &cp) {
 	GTestIndividual3::load_(&cp);
 	return *this;
 }

@@ -235,7 +235,7 @@ public:
 	  *
 	  * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>
 	  */
-	 const GMetaOptimizerIndividualT<ind_type> &operator=(
+	 GMetaOptimizerIndividualT<ind_type> &operator=(
 		 const GMetaOptimizerIndividualT<ind_type> &cp
 	 ) {
 		 GMetaOptimizerIndividualT<ind_type>::load_(&cp);
