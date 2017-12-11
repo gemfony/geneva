@@ -657,7 +657,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestItera
 
 /******************************************************************************/
 /**
- * Satisfies a requirement of GOptimizableI
+ * Satisfies a requirement of G_Interface_Optimizer
  */
 void Go2::runFitnessCalculation() { /* nothing */ }
 

@@ -97,7 +97,7 @@ public:
 	 /** @brief A standard copy constructor */
 	 G_API_GENEVA GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp);
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GEvolutionaryAlgorithm() = default;
+	 G_API_GENEVA ~GEvolutionaryAlgorithm() override = default;
 
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm& cp);
@@ -108,7 +108,7 @@ public:
 	 virtual G_API_GENEVA bool operator!=(const GEvolutionaryAlgorithm& cp) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit// the limit for allowed deviations of floating point types

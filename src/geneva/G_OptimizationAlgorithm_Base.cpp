@@ -417,7 +417,7 @@ void G_OptimizationAlgorithm_Base::setCheckpointInterval(std::int32_t cpInterval
  *
  * @return The number of generations after which a checkpoint should be written
  */
-std::uint32_t G_OptimizationAlgorithm_Base::getCheckpointInterval() const {
+std::int32_t G_OptimizationAlgorithm_Base::getCheckpointInterval() const {
 	return m_cp_interval;
 }
 
@@ -837,15 +837,6 @@ void G_OptimizationAlgorithm_Base::informationUpdate(const infoMode& im) {
 
 		case Gem::Geneva::infoMode::INFOEND:
 			std::cout << "End of optimization reached in algorithm \""<< this->getAlgorithmName() << "\"" << std::endl;
-			break;
-
-		default:
-		{
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "G_OptimizationAlgorithm_Base<>::informationUpdate(" << im << "): Received invalid infoMode " << std::endl
-			);
-		}
 			break;
 	};
 

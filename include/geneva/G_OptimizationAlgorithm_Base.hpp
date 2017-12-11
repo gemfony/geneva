@@ -107,7 +107,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GBasePluggableOM(const GBasePluggableOM& cp);
 	 /** @brief The Destructor */
-	 virtual G_API_GENEVA ~GBasePluggableOM();
+	 G_API_GENEVA ~GBasePluggableOM() override;
 
 	 /** @brief Checks for equality with another GBasePluggableOMT object */
 	 virtual G_API_GENEVA bool operator==(const GBasePluggableOM& cp) const;
@@ -115,7 +115,7 @@ public:
 	 virtual G_API_GENEVA bool operator!=(const GBasePluggableOM& cp) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
@@ -124,7 +124,7 @@ public:
 	 /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
 	 virtual G_API_GENEVA void informationFunction(
 		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base * const goa
+		 , G_OptimizationAlgorithm_Base * const
 	 ) BASE = 0;
 
 	 /** @brief Allows to set the m_useRawEvaluation variable */
@@ -227,7 +227,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA G_OptimizationAlgorithm_Base(const G_OptimizationAlgorithm_Base& cp);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~G_OptimizationAlgorithm_Base() = default;
+	 G_API_GENEVA ~G_OptimizationAlgorithm_Base() override = default;
 
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA  G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp);
@@ -248,7 +248,7 @@ public:
 	 /** @brief Allows to set the number of generations after which a checkpoint should be written */
 	 G_API_GENEVA void setCheckpointInterval(std::int32_t cpInterval);
 	 /** @brief Allows to retrieve the number of generations after which a checkpoint should be written */
-	 G_API_GENEVA std::uint32_t getCheckpointInterval() const;
+	 G_API_GENEVA std::int32_t getCheckpointInterval() const;
 
 	 /** @brief Allows to set the base name of the checkpoint file and the directory where it should be stored. */
 	 G_API_GENEVA void setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName);
@@ -276,7 +276,7 @@ public:
 	  * @param e The expected outcome of the comparison
 	  * @param limit The maximum deviation for floating point values (important for similarity checks)
 	  */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
@@ -316,9 +316,9 @@ public:
 	 /******************************************************************************/
 
 	 /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
-	 virtual G_API_GENEVA void optimize(const std::uint32_t& offset) final;
+	 G_API_GENEVA void optimize(const std::uint32_t& offset) final;
 	 /** @brief A convenience function that helps to avoid having to specify explicit scopes */
-	 virtual G_API_GENEVA void optimize() final;
+	 G_API_GENEVA void optimize() final;
 
 	 /** @brief Emits information specific to this class */
 	 G_API_GENEVA void informationUpdate(const infoMode& im);
@@ -444,7 +444,7 @@ public:
 	 virtual G_API_GENEVA std::size_t getNProcessableItems() const BASE;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions (
+	 G_API_GENEVA void addConfigurationOptions (
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 
