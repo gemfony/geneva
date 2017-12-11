@@ -399,12 +399,11 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
 		);
 	}
 
+	// If any individuals have been storedn in the default algorithm, we assume
+	// that the user wants us to use them and copy them over. Note that these are not cloned.
 	if (!default_algorithm->empty()) { // Have individuals been registered ?
-		GOABase::iterator it;
-		for (it = default_algorithm->begin(); it != default_algorithm->end(); ++it) {
-			this->push_back(*it);
-		}
-
+		for (auto ind_ptr: *default_algorithm) this->push_back(ind_ptr);
+		// Remove the individuals from the old algorithm
 		default_algorithm->clear();
 	}
 
@@ -590,12 +589,12 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 		);
 	}
 
+	// If any individuals have been registered with alg, we assume
+	// that the user wants us to add them to the optimization and copy them over.
+	// Note that these are not cloned.
 	if (!alg->empty()) { // Have individuals been registered ?
-		GOABase::iterator it;
-		for (it = alg->begin(); it != alg->end(); ++it) {
-			this->push_back(*it);
-		}
-
+		for (auto ind_ptr: *alg) this->push_back(ind_ptr);
+	   // Remove the individuals from the old algorithm
 		alg->clear();
 	}
 
@@ -760,40 +759,31 @@ void Go2::optimize(const std::uint32_t &offset) {
 
 	// Loop over all algorithms
 	m_sorted = false;
-	GOABase::iterator ind_it;
-	std::vector<std::shared_ptr<GOABase>>::iterator alg_it;
-	for (alg_it = m_algorithms_vec.begin(); alg_it != m_algorithms_vec.end(); ++alg_it) {
-		std::shared_ptr<GOABase> p_base = (*alg_it);
-
+	for (auto alg_ptr: m_algorithms_vec) {
 		// Add the pluggable optimization monitors to the algorithm
 		for(auto pm_ptr: m_pluggable_monitors_vec) { // std::shared_ptr may be copied
-			p_base->registerPluggableOM(pm_ptr);
+			alg_ptr->registerPluggableOM(pm_ptr);
 		}
 
 		// Add the individuals to the algorithm.
-		for (ind_it = this->begin(); ind_it != this->end(); ++ind_it) {
-			p_base->push_back(*ind_it);
-		}
+		for (auto ind_ptr: *this) alg_ptr->push_back(ind_ptr);
 
 		// Remove our local copies
 		this->clear();
 
 		// Do the actual optimization
-		p_base->G_Interface_Optimizer::optimize<GParameterSet>(m_iterations_consumed);
+		alg_ptr->G_Interface_Optimizer::optimize<GParameterSet>(m_iterations_consumed);
 
 		// Make sure we start with the correct iteration in the next algorithm
-		m_iterations_consumed = p_base->getIteration();
+		m_iterations_consumed = alg_ptr->getIteration();
 
 		// Unload the individuals from the last algorithm and store them again in this object
-		std::vector<std::shared_ptr<GParameterSet>> bestIndividuals = p_base->G_Interface_Optimizer::getBestGlobalIndividuals < GParameterSet > ();
-		std::vector<std::shared_ptr<GParameterSet>>::iterator best_it;
-		for (best_it = bestIndividuals.begin(); best_it != bestIndividuals.end(); ++best_it) {
-			this->push_back(*best_it);
+		for (auto best_ind_ptr: alg_ptr->G_Interface_Optimizer::getBestGlobalIndividuals<GParameterSet>()) {
+			this->push_back(best_ind_ptr);
 		}
 
-		bestIndividuals.clear();
-		p_base->clear(); // Get rid of local individuals in the algorithm
-		p_base->resetPluggableOM(); // Get rid of the algorithm's pluggable optimization monitors
+		alg_ptr->clear(); // Get rid of local individuals in the algorithm
+		alg_ptr->resetPluggableOM(); // Get rid of the algorithm's pluggable optimization monitors
 	}
 
 	// Sort the individuals according to their primary fitness so we have it easier later on
@@ -826,15 +816,18 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual()
 		);
 	}
 
-	for (it = this->begin(); it != this->end(); ++it) {
-		if ((*it)->isDirty()) {
+	std::size_t pos = 0;
+	for (auto ind_ptr: *this) {
+		if (ind_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
-					<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag is set" <<
+					<< "Found individual in position " << pos << " whose dirty flag is set" <<
 					std::endl
 			);
 		}
+
+		pos++;
 	}
 
 	if (!m_sorted) {
@@ -869,21 +862,22 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGloba
 		);
 	}
 
-	for (it = this->begin(); it != this->end(); ++it) {
-		if ((*it)->isDirty()) {
+	std::size_t pos = 0;
+	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> bestIndividuals;
+	for (auto ind_ptr: *this) {
+		if (ind_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
-					<< "Found individual in position " << std::distance(this->begin(), it) << " whose dirty flag is set" <<
+					<< "Found individual in position " << pos << " whose dirty flag is set" <<
 					std::endl
 			);
 		}
-	}
 
-	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> bestIndividuals;
-	for (it = this->begin(); it != this->end(); ++it) {
 		// This will result in an implicit downcast
-		bestIndividuals.push_back(*it);
+		bestIndividuals.push_back(ind_ptr);
+
+		pos++;
 	}
 
 	return bestIndividuals;
@@ -1056,10 +1050,9 @@ void Go2::parseCommandLine(
 		// Extract a list of algorithm mnemonics and clear-text descriptions
 		std::string algorithm_description;
 		std::vector<std::string> keys;
-		GOAFactoryStore->getKeyVector(keys);
-		std::vector<std::string>::iterator k_it;
-		for (k_it = keys.begin(); k_it != keys.end(); ++k_it) {
-			algorithm_description += (*k_it + ":  " + GOAFactoryStore->get(*k_it)->getAlgorithmName() + "\n");
+		GOAFactoryStore->getKeyVector(keys); // will clear "keys"
+		for (auto key: keys) {
+			algorithm_description += (key + ":  " + GOAFactoryStore->get(key)->getAlgorithmName() + "\n");
 		}
 
 		std::ostringstream oa_help;
@@ -1071,8 +1064,8 @@ void Go2::parseCommandLine(
 		// Extract a list of consumer mnemonics and clear-text descriptions
 		std::string consumer_description;
 		GConsumerStore->getKeyVector(keys);
-		for (k_it = keys.begin(); k_it != keys.end(); ++k_it) {
-			consumer_description += (*k_it + ":  " + GConsumerStore->get(*k_it)->getConsumerName() + "\n");
+		for(auto key: keys) {
+			consumer_description += (key + ":  " + GConsumerStore->get(key)->getConsumerName() + "\n");
 		}
 
 		std::ostringstream consumer_help;
@@ -1204,15 +1197,14 @@ void Go2::parseCommandLine(
 		if (vm.count("optimizationAlgorithms")) {
 			std::vector<std::string> algs = Gem::Common::splitString(optimization_algorithms, ",");
 
-			std::vector<std::string>::iterator it;
-			for (it = algs.begin(); it != algs.end(); ++it) {
+			for (auto alg_str: algs) {
 				// Retrieve the algorithm factory from the global store
 				std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
-				if (!GOAFactoryStore->get(*it, p)) {
+				if (!GOAFactoryStore->get(alg_str, p)) {
 					throw gemfony_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In Go2::parseCommandLine(int, char**): Error!" << std::endl
-							<< "Got invalid algorithm mnemonic \"" << *it << "\"." << std::endl
+							<< "Got invalid algorithm mnemonic \"" << alg_str << "\"." << std::endl
 							<< "No algorithm found for this string." << std::endl
 					);
 				}
