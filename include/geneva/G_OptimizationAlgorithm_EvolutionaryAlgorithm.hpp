@@ -132,16 +132,16 @@ public:
 	 G_API_GENEVA void extractCurrentParetoIndividuals(std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>>& paretoInds);
 
 	 /** @brief Adds the individuals of this iteration to a priority queue */
-	 virtual G_API_GENEVA void updateGlobalBestsPQ(
+	 G_API_GENEVA void updateGlobalBestsPQ(
 		 GParameterSetFixedSizePriorityQueue & bestIndividuals
 	 ) override;
 	 /** @brief Adds the individuals of this iteration to a priority queue */
-	 virtual G_API_GENEVA void updateIterationBestsPQ(
+	 G_API_GENEVA void updateIterationBestsPQ(
 		 GParameterSetFixedSizePriorityQueue& bestIndividuals
 	 ) override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions (
+	 G_API_GENEVA void addConfigurationOptions (
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 

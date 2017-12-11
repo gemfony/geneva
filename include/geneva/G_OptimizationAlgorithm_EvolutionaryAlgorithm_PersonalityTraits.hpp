@@ -75,11 +75,11 @@ public:
 	 static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
 	 /** @brief The default constructor */
-	 G_API_GENEVA GEvolutionaryAlgorithm_PersonalityTraits();
+	 G_API_GENEVA GEvolutionaryAlgorithm_PersonalityTraits() = default;
 	 /** @brief The copy contructor */
-	 G_API_GENEVA GEvolutionaryAlgorithm_PersonalityTraits(const GEvolutionaryAlgorithm_PersonalityTraits&);
+	 G_API_GENEVA GEvolutionaryAlgorithm_PersonalityTraits(const GEvolutionaryAlgorithm_PersonalityTraits&) = default;
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GEvolutionaryAlgorithm_PersonalityTraits();
+	 G_API_GENEVA ~GEvolutionaryAlgorithm_PersonalityTraits() override = default;
 
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GEvolutionaryAlgorithm_PersonalityTraits& operator=(const GEvolutionaryAlgorithm_PersonalityTraits&);
@@ -90,7 +90,7 @@ public:
 	 G_API_GENEVA bool operator!=(const GEvolutionaryAlgorithm_PersonalityTraits&) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -116,7 +116,7 @@ protected:
 
 private:
 	 /** @brief Determines whether the individual lies on the pareto front */
-	 bool isOnParetoFront_;
+	 bool isOnParetoFront_ = true;
 
 public:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */

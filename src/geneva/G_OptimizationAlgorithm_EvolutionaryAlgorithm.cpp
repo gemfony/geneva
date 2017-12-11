@@ -36,7 +36,7 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm) // NOLINT
 
 /******************************************************************************/
 
@@ -215,9 +215,9 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
 	// Make sure the vector is empty
 	paretoInds.clear();
 
-	for(auto it=this->begin(); it!= this->end(); ++it) {
-		if((*it)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) {
-			paretoInds.push_back(*it);
+	for(const auto& ind_ptr: *this) {
+		if(ind_ptr->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) {
+			paretoInds.push_back(ind_ptr);
 		}
 	}
 }
@@ -660,7 +660,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 	);
 
 	// Attach all old work items to the end of the current population and clear the array of old items
-	for(auto item_ptr: old_work_items) {
+	for(const auto& item_ptr: old_work_items) {
 		this->push_back(item_ptr);
 	}
 	old_work_items.clear();
@@ -818,7 +818,7 @@ std::tuple<std::size_t,std::size_t> GEvolutionaryAlgorithm::getEvaluationRange()
 	// We evaluate all individuals in the first iteration This happens so pluggable
 	// optimization monitors do not need to distinguish between algorithms, and
 	// MUCOMMANU selection may fall back to MUPLUSNU in the first iteration.
-	return std::tuple<std::size_t, std::size_t>(this->inFirstIteration() ? 0 : this->getNParents(), this->size());
+	return std::make_tuple<std::size_t, std::size_t>(this->inFirstIteration() ? std::size_t(0) : this->getNParents(), this->size());
 }
 
 /******************************************************************************/
@@ -863,7 +863,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 #ifdef DEBUG
 	// Check that we do not accidently trigger value calculation
 	std::size_t pos = 0;
-	for(auto ind_ptr: *this) { // std::shared_ptr may be copied
+	for(const auto& ind_ptr: *this) { // std::shared_ptr may be copied
 		if(ind_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
@@ -1272,7 +1272,7 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &nIndividuals) {
 	}
 
 	// Make sure we have unique data items
-	for(auto ind_ptr: *this) {
+	for(const auto& ind_ptr: *this) {
 		ind_ptr->randomInit(activityMode::ALLPARAMETERS);
 	}
 

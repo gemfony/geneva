@@ -34,36 +34,14 @@
 
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm_PersonalityTraits)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithm_PersonalityTraits)  // NOLINT
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea";
-
-/******************************************************************************/
-/**
- * The default constructor
- */
-GEvolutionaryAlgorithm_PersonalityTraits::GEvolutionaryAlgorithm_PersonalityTraits()
-	: GBaseParChildPersonalityTraits(), isOnParetoFront_(true) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy contructor
- *
- * @param cp A copy of another GEAPersonalityTraits object
- */
-GEvolutionaryAlgorithm_PersonalityTraits::GEvolutionaryAlgorithm_PersonalityTraits(const GEvolutionaryAlgorithm_PersonalityTraits &cp)
-	: GBaseParChildPersonalityTraits(cp), isOnParetoFront_(cp.isOnParetoFront_) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor
- */
-GEvolutionaryAlgorithm_PersonalityTraits::~GEvolutionaryAlgorithm_PersonalityTraits() { /* nothing */ }
+G_API_GENEVA const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea"; // NOLINT
 
 /***************************************************************************/
 /**
