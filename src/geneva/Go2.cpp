@@ -271,7 +271,7 @@ Go2::~Go2() {
 /**
  * The standard assignment operator
  */
-const Go2 &Go2::operator=(const Go2 &cp) {
+ Go2 &Go2::operator=(const Go2 &cp) {
 	this->load_(&cp);
 	return *this;
 }

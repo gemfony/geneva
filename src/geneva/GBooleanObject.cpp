@@ -98,7 +98,7 @@ GBooleanObject::~GBooleanObject() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GBooleanObject &GBooleanObject::operator=(
+ GBooleanObject &GBooleanObject::operator=(
 	const GBooleanObject &cp
 ) {
 	this->load_(&cp);

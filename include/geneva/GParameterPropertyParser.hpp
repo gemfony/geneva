@@ -137,7 +137,7 @@ public:
 	/**
 	 * Assignment opertor
 	 */
-	const parPropSpec<par_type>& operator=(const parPropSpec<par_type> &cp) {
+	 parPropSpec<par_type>& operator=(const parPropSpec<par_type> &cp) {
 		this->load_(&cp);
 		return *this;
 	}

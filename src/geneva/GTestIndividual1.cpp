@@ -76,7 +76,7 @@ GTestIndividual1::~GTestIndividual1() { /* nothing */   }
 /**
  * The standard assignment operator
  */
-const GTestIndividual1 &GTestIndividual1::operator=(const GTestIndividual1 &cp) {
+ GTestIndividual1 &GTestIndividual1::operator=(const GTestIndividual1 &cp) {
 	this->load_(&cp);
 	return *this;
 }

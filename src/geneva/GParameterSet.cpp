@@ -63,7 +63,7 @@ GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
 
 /******************************************************************************/
 /**
- * The copy constructor. Note that we cannot rely on the operator=() of the vector
+ * The copy ructor. Note that we cannot rely on the operator=() of the vector
  * here, as we do not know the actual type of T objects.
  *
  * @param cp A copy of another GParameterSet object
@@ -85,7 +85,7 @@ GParameterSet::~GParameterSet() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GParameterSet &GParameterSet::operator=(const GParameterSet &cp) {
+ GParameterSet &GParameterSet::operator=(const GParameterSet &cp) {
 	this->load_(&cp);
 	return *this;
 }

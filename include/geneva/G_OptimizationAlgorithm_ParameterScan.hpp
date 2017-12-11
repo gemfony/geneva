@@ -650,7 +650,7 @@ public:
 	 virtual G_API_GENEVA ~GParameterScan();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GParameterScan& operator=(const GParameterScan&);
+	 G_API_GENEVA  GParameterScan& operator=(const GParameterScan&);
 
 	 /** @brief Checks for equality with another GParameterScan object */
 	 virtual G_API_GENEVA bool operator==(const GParameterScan&) const;

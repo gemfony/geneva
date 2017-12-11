@@ -105,7 +105,7 @@ void GBooleanAdaptor::customAdaptions(
 /**
  * The standard assignment operator
  */
-const GBooleanAdaptor &GBooleanAdaptor::operator=(
+ GBooleanAdaptor &GBooleanAdaptor::operator=(
 	const GBooleanAdaptor &cp
 ) {
 	this->load_(&cp);

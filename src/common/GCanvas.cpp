@@ -70,7 +70,7 @@ coord2D::coord2D(const coord2D &cp)
 /**
  * An assignment operator
  */
-const coord2D &coord2D::operator=(const coord2D &cp) {
+ coord2D &coord2D::operator=(const coord2D &cp) {
 	x = cp.x;
 	y = cp.y;
 
@@ -99,7 +99,7 @@ float operator*(const coord2D &a, const coord2D &b) {
 /**
  * A simple assignment operator
  */
-const triangle_circle_struct &triangle_circle_struct::operator=(
+ triangle_circle_struct &triangle_circle_struct::operator=(
 	const triangle_circle_struct &cp
 ) {
 	this->middle = cp.middle;
@@ -213,7 +213,7 @@ GRgb::~GRgb() { /* nothing */ }
 /**
  * Assignment operator
  */
-const GRgb &GRgb::operator=(const GRgb &cp) {
+ GRgb &GRgb::operator=(const GRgb &cp) {
 	r = cp.r;
 	g = cp.g;
 	b = cp.b;
@@ -282,7 +282,7 @@ GColumn::~GColumn() {
  *
  * @param cp A copy of another GColumn object
  */
-const GColumn &GColumn::operator=(const GColumn &cp) {
+ GColumn &GColumn::operator=(const GColumn &cp) {
 	columnData_ = cp.columnData_;
 	return *this;
 }
@@ -382,7 +382,7 @@ GCanvas8::~GCanvas8() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GCanvas8 &GCanvas8::operator=(const GCanvas8 &cp) {
+ GCanvas8 &GCanvas8::operator=(const GCanvas8 &cp) {
 	GCanvas<8>::operator=(cp);
 	return *this;
 }
@@ -436,7 +436,7 @@ GCanvas16::~GCanvas16() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GCanvas16 &GCanvas16::operator=(const GCanvas16 &cp) {
+ GCanvas16 &GCanvas16::operator=(const GCanvas16 &cp) {
 	GCanvas<16>::operator=(cp);
 	return *this;
 }
@@ -490,7 +490,7 @@ GCanvas24::~GCanvas24() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GCanvas24 &GCanvas24::operator=(const GCanvas24 &cp) {
+ GCanvas24 &GCanvas24::operator=(const GCanvas24 &cp) {
 	GCanvas<24>::operator=(cp);
 	return *this;
 }

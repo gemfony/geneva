@@ -225,7 +225,7 @@ void GObject::load_(const GObject *cp) {
 /**
  * Allows derived classes to assign other class'es values
  */
-const GObject &GObject::operator=(const GObject &cp) {
+ GObject &GObject::operator=(const GObject &cp) {
 	this->load_(&cp);
 	return *this;
 }

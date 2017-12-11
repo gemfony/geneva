@@ -222,7 +222,7 @@ GBasePlotter::~GBasePlotter()
 /**
  * The assignment operator
  */
-const GBasePlotter& GBasePlotter::operator=(const GBasePlotter &cp) {
+ GBasePlotter& GBasePlotter::operator=(const GBasePlotter &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -608,7 +608,7 @@ GGraph2D::~GGraph2D()
 /**
  * The assignment operator
  */
-const GGraph2D& GGraph2D::operator=(const GGraph2D &cp) {
+ GGraph2D& GGraph2D::operator=(const GGraph2D &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -957,7 +957,7 @@ GGraph2ED::~GGraph2ED()
 /**
  * The assignment operator
  */
-const GGraph2ED& GGraph2ED::operator=(const GGraph2ED &cp) {
+ GGraph2ED& GGraph2ED::operator=(const GGraph2ED &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -1267,7 +1267,7 @@ GGraph3D::~GGraph3D()
 /**
  * The assignment operator
  */
-const GGraph3D& GGraph3D::operator=(const GGraph3D &cp) {
+ GGraph3D& GGraph3D::operator=(const GGraph3D &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -1601,7 +1601,7 @@ GGraph4D::~GGraph4D()
 /**
  * The assignment operator
  */
-const GGraph4D& GGraph4D::operator=(const GGraph4D &cp) {
+ GGraph4D& GGraph4D::operator=(const GGraph4D &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -2017,7 +2017,7 @@ GHistogram1D::~GHistogram1D()
 /**
  * The assignment operator
  */
-const GHistogram1D& GHistogram1D::operator=(const GHistogram1D &cp) {
+ GHistogram1D& GHistogram1D::operator=(const GHistogram1D &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -2344,7 +2344,7 @@ GHistogram1I::~GHistogram1I() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GHistogram1I& GHistogram1I::operator=(const GHistogram1I &cp) {
+ GHistogram1I& GHistogram1I::operator=(const GHistogram1I &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -2695,7 +2695,7 @@ GHistogram2D::~GHistogram2D() { /* nothing */ }
 /**
  * The assignment operator
  */
-const GHistogram2D& GHistogram2D::operator=(const GHistogram2D &cp) {
+ GHistogram2D& GHistogram2D::operator=(const GHistogram2D &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -3156,7 +3156,7 @@ GFunctionPlotter1D::~GFunctionPlotter1D()
 /**
  * The assignment operator
  */
-const GFunctionPlotter1D& GFunctionPlotter1D::operator=(const GFunctionPlotter1D &cp) {
+ GFunctionPlotter1D& GFunctionPlotter1D::operator=(const GFunctionPlotter1D &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -3439,7 +3439,7 @@ GFunctionPlotter2D::~GFunctionPlotter2D()
 /**
  * The assignment operator
  */
-const GFunctionPlotter2D& GFunctionPlotter2D::operator=(const GFunctionPlotter2D &cp) {
+ GFunctionPlotter2D& GFunctionPlotter2D::operator=(const GFunctionPlotter2D &cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -3764,7 +3764,7 @@ GPlotDesigner::~GPlotDesigner()
 /**
  * The assignment operator
  */
-const GPlotDesigner& GPlotDesigner::operator=(const GPlotDesigner &cp) {
+ GPlotDesigner& GPlotDesigner::operator=(const GPlotDesigner &cp) {
 	this->load_(&cp);
 	return *this;
 }

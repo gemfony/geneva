@@ -409,7 +409,7 @@ GParameterScan::~GParameterScan() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GParameterScan &GParameterScan::operator=(const GParameterScan &cp) {
+ GParameterScan &GParameterScan::operator=(const GParameterScan &cp) {
 	this->load_(&cp);
 	return *this;
 }

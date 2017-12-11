@@ -150,7 +150,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GIntNumCollectionT<int_type>& operator=(const GIntNumCollectionT<int_type>& cp) {
+	 GIntNumCollectionT<int_type>& operator=(const GIntNumCollectionT<int_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}

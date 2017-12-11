@@ -86,7 +86,7 @@ GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue()
 /**
  * Copy the data of another GParameterSetFixedSizePriorityQueue over
  */
-const GParameterSetFixedSizePriorityQueue& GParameterSetFixedSizePriorityQueue::operator=(
+ GParameterSetFixedSizePriorityQueue& GParameterSetFixedSizePriorityQueue::operator=(
 	const GParameterSetFixedSizePriorityQueue& cp
 ) {
 	this->load_(&cp);

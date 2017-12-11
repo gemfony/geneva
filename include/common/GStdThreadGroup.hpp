@@ -157,8 +157,8 @@ private:
 	 // Prevent copying
 	 GStdThreadGroup(const GStdThreadGroup&) = delete;
 	 GStdThreadGroup(const GStdThreadGroup&&) = delete;
-	 const GStdThreadGroup& operator=(const GStdThreadGroup&) = delete;
-	 const GStdThreadGroup& operator=(const GStdThreadGroup&&) = delete;
+	  GStdThreadGroup& operator=(const GStdThreadGroup&) = delete;
+	  GStdThreadGroup& operator=(const GStdThreadGroup&&) = delete;
 
 	 /** @brief Clears the thread vector */
 	 void clearThreads();

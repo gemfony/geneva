@@ -127,7 +127,7 @@ GBooleanCollection::~GBooleanCollection()
 /**
  * The standard assignment operator
  */
-const GBooleanCollection &GBooleanCollection::operator=(
+ GBooleanCollection &GBooleanCollection::operator=(
 	const GBooleanCollection &cp
 ) {
 	this->load_(&cp);

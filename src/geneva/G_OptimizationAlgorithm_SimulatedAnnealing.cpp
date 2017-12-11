@@ -79,7 +79,7 @@ GSimulatedAnnealing::GSimulatedAnnealing(const GSimulatedAnnealing& cp)
 /**
 * The standard assignment operator
 */
-const GSimulatedAnnealing& GSimulatedAnnealing::operator=(const GSimulatedAnnealing& cp) {
+ GSimulatedAnnealing& GSimulatedAnnealing::operator=(const GSimulatedAnnealing& cp) {
 	this->load_(&cp);
 	return *this;
 }

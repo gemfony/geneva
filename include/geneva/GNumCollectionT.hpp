@@ -167,7 +167,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GNumCollectionT<num_type>& operator=(const GNumCollectionT<num_type>& cp) {
+	  GNumCollectionT<num_type>& operator=(const GNumCollectionT<num_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

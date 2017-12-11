@@ -280,7 +280,7 @@ G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationA
 /**
  * A standard assignment operator
  */
-const G_OptimizationAlgorithm_Base& G_OptimizationAlgorithm_Base::operator=(const G_OptimizationAlgorithm_Base& cp) {
+ G_OptimizationAlgorithm_Base& G_OptimizationAlgorithm_Base::operator=(const G_OptimizationAlgorithm_Base& cp) {
 	this->load_(&cp);
 	return *this;
 }

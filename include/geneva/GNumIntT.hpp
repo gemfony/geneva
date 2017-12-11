@@ -157,7 +157,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GNumIntT<int_type>& operator=(const GNumIntT<int_type>& cp) {
+	  GNumIntT<int_type>& operator=(const GNumIntT<int_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

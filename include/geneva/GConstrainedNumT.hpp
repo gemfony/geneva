@@ -233,7 +233,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GConstrainedNumT<T>& operator=(const GConstrainedNumT<T>& cp) {
+	  GConstrainedNumT<T>& operator=(const GConstrainedNumT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

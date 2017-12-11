@@ -93,7 +93,7 @@ public:
 	 virtual G_API_GENEVA ~GConjugateGradientDescent();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GConjugateGradientDescent& operator=(const GConjugateGradientDescent&);
+	 G_API_GENEVA  GConjugateGradientDescent& operator=(const GConjugateGradientDescent&);
 
 	 /** @brief Checks for equality with another GConjugateGradientDescent object */
 	 virtual G_API_GENEVA bool operator==(const GConjugateGradientDescent&) const;
@@ -149,7 +149,7 @@ private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_GENEVA GObject *clone_() const override;
-	 
+
 public
 	 /***************************************************************************/:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */

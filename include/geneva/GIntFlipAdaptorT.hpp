@@ -118,7 +118,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GIntFlipAdaptorT<int_type>& operator=(const GIntFlipAdaptorT<int_type>& cp) {
+	 GIntFlipAdaptorT<int_type>& operator=(const GIntFlipAdaptorT<int_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}

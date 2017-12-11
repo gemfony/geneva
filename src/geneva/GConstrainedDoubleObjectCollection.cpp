@@ -85,7 +85,7 @@ GObject *GConstrainedDoubleObjectCollection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GConstrainedDoubleObjectCollection &GConstrainedDoubleObjectCollection::operator=(
+ GConstrainedDoubleObjectCollection &GConstrainedDoubleObjectCollection::operator=(
 	const GConstrainedDoubleObjectCollection &cp
 ) {
 	this->load_(&cp);

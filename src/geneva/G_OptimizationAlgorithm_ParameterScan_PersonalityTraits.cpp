@@ -69,7 +69,7 @@ GParameterScan_PersonalityTraits::~GParameterScan_PersonalityTraits() { /* nothi
 /**
  * The standard assignment operator
  */
-const GParameterScan_PersonalityTraits &GParameterScan_PersonalityTraits::operator=(const GParameterScan_PersonalityTraits &cp) {
+ GParameterScan_PersonalityTraits &GParameterScan_PersonalityTraits::operator=(const GParameterScan_PersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }

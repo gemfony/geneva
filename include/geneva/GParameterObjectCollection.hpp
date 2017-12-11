@@ -87,7 +87,7 @@ public:
 	virtual G_API_GENEVA ~GParameterObjectCollection();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GParameterObjectCollection& operator=(const GParameterObjectCollection&);
+	G_API_GENEVA  GParameterObjectCollection& operator=(const GParameterObjectCollection&);
 
 	/** @brief Checks for equality with another GParameterObjectCollection object */
 	G_API_GENEVA bool operator==(const GParameterObjectCollection&) const;

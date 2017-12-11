@@ -72,7 +72,7 @@ GBaseParChildPersonalityTraits::~GBaseParChildPersonalityTraits()
 /**
  * The standard assignment operator
  */
-const GBaseParChildPersonalityTraits &GBaseParChildPersonalityTraits::operator=(
+ GBaseParChildPersonalityTraits &GBaseParChildPersonalityTraits::operator=(
 	const GBaseParChildPersonalityTraits &cp
 ) {
 	this->load_(&cp);

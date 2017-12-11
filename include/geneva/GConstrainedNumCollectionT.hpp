@@ -200,7 +200,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GConstrainedNumCollectionT<num_type>& operator=(const GConstrainedNumCollectionT<num_type>& cp) {
+	 GConstrainedNumCollectionT<num_type>& operator=(const GConstrainedNumCollectionT<num_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}

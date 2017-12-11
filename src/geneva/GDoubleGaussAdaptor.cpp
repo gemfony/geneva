@@ -103,7 +103,7 @@ GDoubleGaussAdaptor::~GDoubleGaussAdaptor() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GDoubleGaussAdaptor &GDoubleGaussAdaptor::operator=(
+ GDoubleGaussAdaptor &GDoubleGaussAdaptor::operator=(
 	const GDoubleGaussAdaptor &cp
 ) {
 	this->load_(&cp);

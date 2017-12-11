@@ -160,7 +160,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GFPGaussAdaptorT<fp_type>& operator=(const GFPGaussAdaptorT<fp_type>& cp) {
+	 GFPGaussAdaptorT<fp_type>& operator=(const GFPGaussAdaptorT<fp_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}

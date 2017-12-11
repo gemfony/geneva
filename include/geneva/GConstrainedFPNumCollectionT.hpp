@@ -164,7 +164,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GConstrainedFPNumCollectionT<fp_type>& operator=(
+	 GConstrainedFPNumCollectionT<fp_type>& operator=(
 		const GConstrainedFPNumCollectionT<fp_type>& cp
 	) {
 		this->load_(&cp);

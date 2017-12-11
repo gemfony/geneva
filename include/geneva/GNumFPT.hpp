@@ -158,7 +158,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GNumFPT<fp_type>& operator=(const GNumFPT<fp_type>& cp) {
+	 GNumFPT<fp_type>& operator=(const GNumFPT<fp_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}

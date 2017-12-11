@@ -90,7 +90,7 @@ public:
 	virtual G_API_GENEVA ~GDoubleCollection();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GDoubleCollection& operator=(const GDoubleCollection&);
+	G_API_GENEVA  GDoubleCollection& operator=(const GDoubleCollection&);
 
 	/** @brief Checks for equality with another GDoubleCollection object */
 	G_API_GENEVA bool operator==(const GDoubleCollection&) const;

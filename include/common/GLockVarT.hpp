@@ -132,7 +132,7 @@ public:
 	 * Assignment of another object. This function will throw if the object is
 	 * locked. The default value will remain untouched.
 	 */
-	const GLockVarT<T> &operator=(const GLockVarT<T> &cp) {
+	 GLockVarT<T> &operator=(const GLockVarT<T> &cp) {
 		if (locked_) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -151,7 +151,7 @@ public:
 	/**
 	 * Assignment of a given instance of T (not wrapped into a GLockVarT<T> object
 	 */
-	const T &operator=(const T &var) {
+	 T &operator=(const T &var) {
 		if (locked_) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)

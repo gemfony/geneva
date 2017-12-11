@@ -96,7 +96,7 @@ GConstrainedDoubleCollection::~GConstrainedDoubleCollection() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GConstrainedDoubleCollection &GConstrainedDoubleCollection::operator=(
+ GConstrainedDoubleCollection &GConstrainedDoubleCollection::operator=(
 	const GConstrainedDoubleCollection &cp
 ) {
 	this->load_(&cp);

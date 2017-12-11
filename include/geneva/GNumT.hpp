@@ -144,7 +144,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GNumT<T>& operator=(const GNumT<T>& cp) {
+	  GNumT<T>& operator=(const GNumT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

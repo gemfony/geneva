@@ -163,7 +163,7 @@ public:
 	 /**
 	  * A standard assignment operator
 	  */
-	 const GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
+	  GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

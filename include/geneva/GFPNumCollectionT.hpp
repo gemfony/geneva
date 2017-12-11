@@ -148,7 +148,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GFPNumCollectionT<fp_type>& operator=(const GFPNumCollectionT<fp_type>& cp) {
+	 GFPNumCollectionT<fp_type>& operator=(const GFPNumCollectionT<fp_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}

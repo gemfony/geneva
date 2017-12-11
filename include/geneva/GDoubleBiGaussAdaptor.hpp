@@ -83,7 +83,7 @@ public:
 	 virtual G_API_GENEVA ~GDoubleBiGaussAdaptor();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GDoubleBiGaussAdaptor& operator=(const GDoubleBiGaussAdaptor&);
+	 G_API_GENEVA  GDoubleBiGaussAdaptor& operator=(const GDoubleBiGaussAdaptor&);
 
 	 /** @brief Checks for equality with another GDoubleBiGaussAdaptor object */
 	 G_API_GENEVA bool operator==(const GDoubleBiGaussAdaptor&) const;

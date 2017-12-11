@@ -230,7 +230,7 @@ public:
 	 virtual G_API_GENEVA ~G_OptimizationAlgorithm_Base() = default;
 
 	 /** @brief A standard assignment operator */
-	 G_API_GENEVA const G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp);
+	 G_API_GENEVA  G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp);
 
 	 /** @brief Checks for equality with another G_OptimizationAlgorithm_Base object */
 	 G_API_GENEVA bool operator==(const G_OptimizationAlgorithm_Base& cp) const;

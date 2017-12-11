@@ -123,7 +123,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GNumFlipAdaptorT<num_type>& operator=(const GNumFlipAdaptorT<num_type>& cp) {
+	  GNumFlipAdaptorT<num_type>& operator=(const GNumFlipAdaptorT<num_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

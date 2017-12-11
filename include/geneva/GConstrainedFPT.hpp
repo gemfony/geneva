@@ -172,7 +172,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GConstrainedFPT<fp_type>& operator=(const GConstrainedFPT<fp_type>& cp) {
+	  GConstrainedFPT<fp_type>& operator=(const GConstrainedFPT<fp_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

@@ -85,7 +85,7 @@ public:
 	virtual G_API_GENEVA ~GSwarmAlgorithm_PersonalityTraits();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GSwarmAlgorithm_PersonalityTraits& operator=(const GSwarmAlgorithm_PersonalityTraits&);
+	G_API_GENEVA  GSwarmAlgorithm_PersonalityTraits& operator=(const GSwarmAlgorithm_PersonalityTraits&);
 
 	/** @brief Checks for equality with another GSwarmPersonalityTraits object */
 	G_API_GENEVA bool operator==(const GSwarmAlgorithm_PersonalityTraits&) const;

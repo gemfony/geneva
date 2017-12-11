@@ -112,7 +112,7 @@ public:
 	 virtual G_API_GENEVA ~G_OptimizationAlgorithm_ParChild() = default;
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const G_OptimizationAlgorithm_ParChild& operator=(const G_OptimizationAlgorithm_ParChild& cp);
+	 G_API_GENEVA  G_OptimizationAlgorithm_ParChild& operator=(const G_OptimizationAlgorithm_ParChild& cp);
 
 	 /** @brief Checks for equality with another GParChildT object */
 	 G_API_GENEVA bool operator==(const G_OptimizationAlgorithm_ParChild& cp) const;

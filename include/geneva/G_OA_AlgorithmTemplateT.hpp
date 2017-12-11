@@ -132,7 +132,7 @@ public:
 	  *
 	  * @param cp A copy of another G_OA_AlgorithmTemplateT object
 	  */
-	 const G_OA_AlgorithmTemplateT& operator=(const G_OA_AlgorithmTemplateT& cp) {
+	 G_OA_AlgorithmTemplateT& operator=(const G_OA_AlgorithmTemplateT& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

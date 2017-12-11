@@ -343,9 +343,9 @@ private:
 	 /***************************************************************************/
 	 // Some deleted functions
 	 GThreadPool(const GThreadPool&) = delete; // deleted copy constructor
-	 const GThreadPool& operator=(GThreadPool&) = delete; // deleted assignment operator
+	  GThreadPool& operator=(GThreadPool&) = delete; // deleted assignment operator
 	 GThreadPool(const GThreadPool&&) = delete; // deleted move constructor
-	 const GThreadPool& operator=(GThreadPool&&) = delete; // deleted move-assignment operator
+	  GThreadPool& operator=(GThreadPool&&) = delete; // deleted move-assignment operator
 
 	 /***************************************************************************/
 

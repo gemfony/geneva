@@ -77,7 +77,7 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
 /**
 * The standard assignment operator
 */
-const GEvolutionaryAlgorithm& GEvolutionaryAlgorithm::operator=(const GEvolutionaryAlgorithm& cp) {
+ GEvolutionaryAlgorithm& GEvolutionaryAlgorithm::operator=(const GEvolutionaryAlgorithm& cp) {
 	this->load_(&cp);
 	return *this;
 }

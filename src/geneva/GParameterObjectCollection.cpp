@@ -87,7 +87,7 @@ GObject *GParameterObjectCollection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GParameterObjectCollection &GParameterObjectCollection::operator=(const GParameterObjectCollection &cp) {
+ GParameterObjectCollection &GParameterObjectCollection::operator=(const GParameterObjectCollection &cp) {
 	this->load_(&cp);
 	return *this;
 }

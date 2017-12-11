@@ -100,7 +100,7 @@ public:
 	 virtual G_API_GENEVA ~GEvolutionaryAlgorithm() = default;
 
  	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm& cp);
+	 G_API_GENEVA  GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm& cp);
 
 	 /** @brief Checks for equality with another GEvolutionaryAlgorithm object */
 	 virtual G_API_GENEVA bool operator==(const GEvolutionaryAlgorithm& cp) const;

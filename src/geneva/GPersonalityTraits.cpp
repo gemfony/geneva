@@ -66,7 +66,7 @@ GPersonalityTraits::~GPersonalityTraits()
 /**
  * The standard assignment operator
  */
-const GPersonalityTraits &GPersonalityTraits::operator=(const GPersonalityTraits &cp) {
+ GPersonalityTraits &GPersonalityTraits::operator=(const GPersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }

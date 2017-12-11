@@ -82,7 +82,7 @@ GSwarmAlgorithm_PersonalityTraits::~GSwarmAlgorithm_PersonalityTraits() { /* not
 /**
  * The standard assignment operator
  */
-const GSwarmAlgorithm_PersonalityTraits &GSwarmAlgorithm_PersonalityTraits::operator=(const GSwarmAlgorithm_PersonalityTraits &cp) {
+ GSwarmAlgorithm_PersonalityTraits &GSwarmAlgorithm_PersonalityTraits::operator=(const GSwarmAlgorithm_PersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }

@@ -59,7 +59,7 @@ namespace Geneva {
 /**
  * A standard assignment operator
  */
-const GStandardMonitor& GStandardMonitor::operator=(const GStandardMonitor& cp) {
+ GStandardMonitor& GStandardMonitor::operator=(const GStandardMonitor& cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -281,7 +281,7 @@ GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor& cp)
 /**
  * A standard assignment operator
  */
-const GFitnessMonitor& GFitnessMonitor::operator=(const GFitnessMonitor& cp) {
+ GFitnessMonitor& GFitnessMonitor::operator=(const GFitnessMonitor& cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -696,7 +696,7 @@ GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor& cp) : GBasePlug
 /**
  * A standard assignment operator
  */
-const GCollectiveMonitor& GCollectiveMonitor::operator=(const GCollectiveMonitor& cp) {
+ GCollectiveMonitor& GCollectiveMonitor::operator=(const GCollectiveMonitor& cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -952,7 +952,7 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(const GAllSolutionFileLogger& cp)
 /**
  * A standard assignment operator
  */
-const GAllSolutionFileLogger& GAllSolutionFileLogger::operator=(const GAllSolutionFileLogger& cp) {
+ GAllSolutionFileLogger& GAllSolutionFileLogger::operator=(const GAllSolutionFileLogger& cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -1400,7 +1400,7 @@ GIterationResultsFileLogger::GIterationResultsFileLogger(const GIterationResults
 /**
  * A standard assignment operator
  */
-const GIterationResultsFileLogger& GIterationResultsFileLogger::operator=(const GIterationResultsFileLogger& cp) {
+ GIterationResultsFileLogger& GIterationResultsFileLogger::operator=(const GIterationResultsFileLogger& cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -1732,7 +1732,7 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger& cp)
 /**
  * A standard assignment operator
  */
-const GNAdpationsLogger& GNAdpationsLogger::operator=(const GNAdpationsLogger& cp) {
+ GNAdpationsLogger& GNAdpationsLogger::operator=(const GNAdpationsLogger& cp) {
 	this->load_(&cp);
 	return *this;
 }
@@ -2182,7 +2182,7 @@ GProcessingTimesLogger::GProcessingTimesLogger(const GProcessingTimesLogger& cp)
 /**
  * A standard assignment operator
  */
-const GProcessingTimesLogger& GProcessingTimesLogger::operator=(const GProcessingTimesLogger& cp) {
+ GProcessingTimesLogger& GProcessingTimesLogger::operator=(const GProcessingTimesLogger& cp) {
 	this->load_(&cp);
 	return *this;
 }

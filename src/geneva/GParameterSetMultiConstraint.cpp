@@ -64,7 +64,7 @@ GParameterSetConstraint::~GParameterSetConstraint() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GParameterSetConstraint &GParameterSetConstraint::operator=(const GParameterSetConstraint &cp) {
+ GParameterSetConstraint &GParameterSetConstraint::operator=(const GParameterSetConstraint &cp) {
 	this->load_(&cp);
 	return *this;
 }

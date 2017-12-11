@@ -114,7 +114,7 @@ public:
 	 virtual G_API_GENEVA ~GParameterSet();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GParameterSet& operator=(const GParameterSet&);
+	 G_API_GENEVA  GParameterSet& operator=(const GParameterSet&);
 
 	 /** @brief Checks for equality with another Go2 object */
 	 G_API_GENEVA bool operator==(const GParameterSet&) const;

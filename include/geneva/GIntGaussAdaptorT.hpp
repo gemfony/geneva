@@ -158,7 +158,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GIntGaussAdaptorT<int_type>& operator=(const GIntGaussAdaptorT<int_type>& cp) {
+	  GIntGaussAdaptorT<int_type>& operator=(const GIntGaussAdaptorT<int_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

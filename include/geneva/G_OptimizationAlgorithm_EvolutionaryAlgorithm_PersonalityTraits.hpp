@@ -82,7 +82,7 @@ public:
 	 virtual G_API_GENEVA ~GEvolutionaryAlgorithm_PersonalityTraits();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GEvolutionaryAlgorithm_PersonalityTraits& operator=(const GEvolutionaryAlgorithm_PersonalityTraits&);
+	 G_API_GENEVA  GEvolutionaryAlgorithm_PersonalityTraits& operator=(const GEvolutionaryAlgorithm_PersonalityTraits&);
 
 	 /** @brief Checks for equality with another GEAPersonalityTraits object */
 	 G_API_GENEVA bool operator==(const GEvolutionaryAlgorithm_PersonalityTraits&) const;

@@ -85,7 +85,7 @@ GObject *GDoubleBiGaussAdaptor::clone_() const {
 /**
  * The standard assignment operator
  */
-const GDoubleBiGaussAdaptor &GDoubleBiGaussAdaptor::operator=(
+ GDoubleBiGaussAdaptor &GDoubleBiGaussAdaptor::operator=(
 	const GDoubleBiGaussAdaptor &cp
 ) {
 	this->load_(&cp);

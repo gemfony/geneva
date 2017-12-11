@@ -113,7 +113,7 @@ struct coord2D {
 	coord2D(const coord2D &);
 
 	/** @brief An assignment operator */
-	const coord2D &operator=(const coord2D &);
+	 coord2D &operator=(const coord2D &);
 
 	float x;
 	float y;
@@ -143,7 +143,7 @@ struct triangle_circle_struct {
 	float a;
 
 	/** @brief Assignment operator */
-	const triangle_circle_struct &operator=(const triangle_circle_struct &);
+	 triangle_circle_struct &operator=(const triangle_circle_struct &);
 
 	/** @brief Needed for sorting */
 	float getAlphaValue() const;
@@ -208,7 +208,7 @@ public:
 	virtual G_API_COMMON ~GRgb();
 
 	/** @brief Assignment operator */
-	G_API_COMMON const GRgb &operator=(const GRgb &);
+	G_API_COMMON  GRgb &operator=(const GRgb &);
 
 	/** @brief Explicit reset of colors */
 	G_API_COMMON void setColor(float, float, float);
@@ -252,7 +252,7 @@ public:
 	virtual G_API_COMMON ~GColumn();
 
 	/** @brief Assignment operator */
-	G_API_COMMON const GColumn &operator=(const GColumn &);
+	G_API_COMMON  GColumn &operator=(const GColumn &);
 
 	/** @brief Information about the size of this object */
 	G_API_COMMON std::size_t size() const;
@@ -355,7 +355,7 @@ public:
 	 *
 	 * @param cp A copy of another GCanvas object
 	 */
-	const GCanvas<COLORDEPTH> &operator=(const GCanvas<COLORDEPTH> &cp) {
+	 GCanvas<COLORDEPTH> &operator=(const GCanvas<COLORDEPTH> &cp) {
 		canvasData_ = cp.canvasData_;
 		xDim_ = cp.xDim_;
 		yDim_ = cp.yDim_;
@@ -977,7 +977,7 @@ public:
 	virtual G_API_COMMON ~GCanvas8();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GCanvas8 &operator=(const GCanvas8 &);
+	G_API_COMMON  GCanvas8 &operator=(const GCanvas8 &);
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1018,7 +1018,7 @@ public:
 	virtual G_API_COMMON ~GCanvas16();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GCanvas16 &operator=(const GCanvas16 &);
+	G_API_COMMON  GCanvas16 &operator=(const GCanvas16 &);
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1058,7 +1058,7 @@ public:
 	virtual G_API_COMMON ~GCanvas24();
 
 	/** @brief The assignment operator */
-	G_API_COMMON const GCanvas24 &operator=(const GCanvas24 &);
+	G_API_COMMON  GCanvas24 &operator=(const GCanvas24 &);
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */

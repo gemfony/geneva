@@ -104,7 +104,7 @@ GObject *GInt32Collection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GInt32Collection &GInt32Collection::operator=(const GInt32Collection &cp) {
+ GInt32Collection &GInt32Collection::operator=(const GInt32Collection &cp) {
 	this->load_(&cp);
 	return *this;
 }

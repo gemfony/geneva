@@ -110,7 +110,7 @@ GObject *GDoubleCollection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GDoubleCollection &GDoubleCollection::operator=(
+ GDoubleCollection &GDoubleCollection::operator=(
 	const GDoubleCollection &cp
 ) {
 	this->load_(&cp);

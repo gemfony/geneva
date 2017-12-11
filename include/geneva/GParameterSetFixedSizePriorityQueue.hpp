@@ -99,7 +99,7 @@ public:
 	G_API_GENEVA ~GParameterSetFixedSizePriorityQueue();
 
 	/** @brief Allows derived classes to assign other class'es values */
-	G_API_GENEVA const GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
+	G_API_GENEVA  GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
 
 	/** @brief Checks for equality with another GObject object */
 	virtual G_API_GENEVA bool operator==(const GParameterSetFixedSizePriorityQueue&) const;

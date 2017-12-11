@@ -82,7 +82,7 @@ public:
 	virtual G_API_GENEVA ~GInt32ObjectCollection();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GInt32ObjectCollection& operator=(const GInt32ObjectCollection&);
+	G_API_GENEVA  GInt32ObjectCollection& operator=(const GInt32ObjectCollection&);
 
 	/** @brief Checks for equality with another GInt32ObjectCollection object */
 	G_API_GENEVA bool operator==(const GInt32ObjectCollection&) const;

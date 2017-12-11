@@ -85,7 +85,7 @@ GObject *GInt32FlipAdaptor::clone_() const {
 /**
  * The standard assignment operator
  */
-const GInt32FlipAdaptor &GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor &cp) {
+ GInt32FlipAdaptor &GInt32FlipAdaptor::operator=(const GInt32FlipAdaptor &cp) {
 	this->load_(&cp);
 	return *this;
 }

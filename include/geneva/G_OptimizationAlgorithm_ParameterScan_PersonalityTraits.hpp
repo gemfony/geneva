@@ -81,7 +81,7 @@ public:
 	virtual G_API_GENEVA ~GParameterScan_PersonalityTraits();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GParameterScan_PersonalityTraits& operator=(const GParameterScan_PersonalityTraits&);
+	G_API_GENEVA  GParameterScan_PersonalityTraits& operator=(const GParameterScan_PersonalityTraits&);
 
 	/** @brief Checks for equality with another GPSPersonalityTraits object */
 	G_API_GENEVA bool operator==(const GParameterScan_PersonalityTraits&) const;

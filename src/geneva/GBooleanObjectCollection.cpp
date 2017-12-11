@@ -103,7 +103,7 @@ GObject *GBooleanObjectCollection::clone_() const {
 /**
  * The standard assignment operator
  */
-const GBooleanObjectCollection &GBooleanObjectCollection::operator=(
+ GBooleanObjectCollection &GBooleanObjectCollection::operator=(
 	const GBooleanObjectCollection &cp
 ) {
 	this->load_(&cp);

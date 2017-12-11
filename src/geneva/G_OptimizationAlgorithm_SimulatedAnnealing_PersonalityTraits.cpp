@@ -69,7 +69,7 @@ GSimulatedAnnealing_PersonalityTraits::~GSimulatedAnnealing_PersonalityTraits() 
 /**
  * The standard assignment operator
  */
-const GSimulatedAnnealing_PersonalityTraits &GSimulatedAnnealing_PersonalityTraits::operator=(const GSimulatedAnnealing_PersonalityTraits &cp) {
+ GSimulatedAnnealing_PersonalityTraits &GSimulatedAnnealing_PersonalityTraits::operator=(const GSimulatedAnnealing_PersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }

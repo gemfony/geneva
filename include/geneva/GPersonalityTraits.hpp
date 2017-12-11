@@ -84,7 +84,7 @@ public:
 	 virtual G_API_GENEVA ~GPersonalityTraits();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GPersonalityTraits &operator=(const GPersonalityTraits &);
+	 G_API_GENEVA  GPersonalityTraits &operator=(const GPersonalityTraits &);
 
 	 /** @brief Checks for equality with another GPersonalityTraits object */
 	 virtual G_API_GENEVA bool operator==(const GPersonalityTraits &) const;

@@ -82,7 +82,7 @@ G_OptimizationAlgorithm_ParChild::G_OptimizationAlgorithm_ParChild(const G_Optim
 /**
  * The standard assignment operator
  */
-const G_OptimizationAlgorithm_ParChild& G_OptimizationAlgorithm_ParChild::operator=(const G_OptimizationAlgorithm_ParChild& cp) {
+ G_OptimizationAlgorithm_ParChild& G_OptimizationAlgorithm_ParChild::operator=(const G_OptimizationAlgorithm_ParChild& cp) {
 	this->load_(&cp);
 	return *this;
 }

@@ -83,7 +83,7 @@ public:
 	virtual G_API_GENEVA ~GConstrainedDoubleObjectCollection();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GConstrainedDoubleObjectCollection& operator=(const GConstrainedDoubleObjectCollection&);
+	G_API_GENEVA  GConstrainedDoubleObjectCollection& operator=(const GConstrainedDoubleObjectCollection&);
 
 	/** @brief Checks for equality with another GConstrainedDoubleObjectCollection object */
 	G_API_GENEVA bool operator==(const GConstrainedDoubleObjectCollection&) const;

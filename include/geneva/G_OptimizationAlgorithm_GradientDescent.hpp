@@ -107,7 +107,7 @@ public:
 	 virtual G_API_GENEVA ~GGradientDescent();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GGradientDescent& operator=(const GGradientDescent&);
+	 G_API_GENEVA  GGradientDescent& operator=(const GGradientDescent&);
 
 	 /** @brief Checks for equality with another GGradientDescent object */
 	 virtual G_API_GENEVA bool operator==(const GGradientDescent&) const;

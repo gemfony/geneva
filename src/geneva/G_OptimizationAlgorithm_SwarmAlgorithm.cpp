@@ -119,7 +119,7 @@ GSwarmAlgorithm::~GSwarmAlgorithm()
 /**
  * The standard assignment operator
  */
-const GSwarmAlgorithm &GSwarmAlgorithm::operator=(const GSwarmAlgorithm &cp) {
+ GSwarmAlgorithm &GSwarmAlgorithm::operator=(const GSwarmAlgorithm &cp) {
 	this->load_(&cp);
 	return *this;
 }

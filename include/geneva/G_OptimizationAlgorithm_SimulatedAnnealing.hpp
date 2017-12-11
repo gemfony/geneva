@@ -91,7 +91,7 @@ public:
 	 virtual ~GSimulatedAnnealing() = default;
 
  	 /** @brief The standard assignment operator */
-	 const GSimulatedAnnealing& operator=(const GSimulatedAnnealing& cp);
+	  GSimulatedAnnealing& operator=(const GSimulatedAnnealing& cp);
 
 	 /** @brief Checks for equality with another GSimulatedAnnealingT object */
 	 virtual bool operator==(const GSimulatedAnnealing& cp) const;

@@ -89,7 +89,7 @@ public:
 	 virtual G_API_GENEVA ~GParameterBase();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GParameterBase& operator=(const GParameterBase&);
+	 G_API_GENEVA  GParameterBase& operator=(const GParameterBase&);
 
 	 /** @brief The adaption interface */
 	 virtual G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) override;

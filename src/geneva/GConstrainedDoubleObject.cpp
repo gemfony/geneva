@@ -107,7 +107,7 @@ GConstrainedDoubleObject::~GConstrainedDoubleObject()
 /**
  * The standard assignment operator
  */
-const GConstrainedDoubleObject &GConstrainedDoubleObject::operator=(
+ GConstrainedDoubleObject &GConstrainedDoubleObject::operator=(
 	const GConstrainedDoubleObject &cp
 ) {
 	this->load_(&cp);

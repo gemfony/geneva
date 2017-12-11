@@ -197,7 +197,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GAdaptorT<T> &operator=(const GAdaptorT<T> &cp)
+	  GAdaptorT<T> &operator=(const GAdaptorT<T> &cp)
 	 {
 		 this->load_(&cp);
 		 return *this;

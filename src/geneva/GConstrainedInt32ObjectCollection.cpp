@@ -72,7 +72,7 @@ GConstrainedInt32ObjectCollection::~GConstrainedInt32ObjectCollection() { /* not
 /**
  * The standard assignment operator
  */
-const GConstrainedInt32ObjectCollection &GConstrainedInt32ObjectCollection::operator=(
+ GConstrainedInt32ObjectCollection &GConstrainedInt32ObjectCollection::operator=(
 	const GConstrainedInt32ObjectCollection &cp
 ) {
 	this->load_(&cp);

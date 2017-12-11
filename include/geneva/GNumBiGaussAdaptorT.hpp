@@ -170,7 +170,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GNumBiGaussAdaptorT<num_type, fp_type>& operator=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) {
+	  GNumBiGaussAdaptorT<num_type, fp_type>& operator=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

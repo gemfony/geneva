@@ -83,7 +83,7 @@ public:
 	 virtual G_API_GENEVA ~GSimulatedAnnealing_PersonalityTraits();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GSimulatedAnnealing_PersonalityTraits& operator=(const GSimulatedAnnealing_PersonalityTraits&);
+	 G_API_GENEVA  GSimulatedAnnealing_PersonalityTraits& operator=(const GSimulatedAnnealing_PersonalityTraits&);
 
 	 /** @brief Checks for equality with another GSAPersonalityTraits object */
 	 G_API_GENEVA bool operator==(const GSimulatedAnnealing_PersonalityTraits&) const;

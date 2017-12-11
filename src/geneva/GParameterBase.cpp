@@ -73,7 +73,7 @@ GParameterBase::~GParameterBase() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GParameterBase &GParameterBase::operator=(const GParameterBase &cp) {
+ GParameterBase &GParameterBase::operator=(const GParameterBase &cp) {
 	this->load_(&cp);
 	return *this;
 }

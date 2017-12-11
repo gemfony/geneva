@@ -169,9 +169,7 @@ public:
 	 * @param cp A constant reference to another std::vector<std::shared_ptr<T>>
 	 * @return The argument of this function
 	 */
-	const std::vector<std::shared_ptr < T>>&
-
-	operator=(const std::vector<std::shared_ptr <T>>& cp) {
+	const std::vector<std::shared_ptr < T>>& operator=(const std::vector<std::shared_ptr <T>>& cp) {
 		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
 		typename std::vector<std::shared_ptr <T>>::iterator it;
 

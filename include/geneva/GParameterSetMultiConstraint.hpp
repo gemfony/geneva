@@ -84,7 +84,7 @@ public:
 	virtual G_API_GENEVA ~GParameterSetConstraint();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GParameterSetConstraint& operator=(const GParameterSetConstraint&);
+	G_API_GENEVA  GParameterSetConstraint& operator=(const GParameterSetConstraint&);
 
 	/** @brief Checks for equality with another GIndividualConstraint object */
 	G_API_GENEVA bool operator==(const GParameterSetConstraint&) const;
@@ -146,7 +146,7 @@ public:
 	virtual G_API_GENEVA ~GParameterSetFormulaConstraint();
 
 	/** @brief A standard assignment operator */
-	G_API_GENEVA const GParameterSetFormulaConstraint& operator=(const GParameterSetFormulaConstraint&);
+	G_API_GENEVA  GParameterSetFormulaConstraint& operator=(const GParameterSetFormulaConstraint&);
 
 	/** @brief Checks for equality with another GIndividualConstraint object */
 	G_API_GENEVA bool operator==(const GParameterSetFormulaConstraint&) const;

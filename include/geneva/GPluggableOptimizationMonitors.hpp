@@ -100,7 +100,7 @@ public:
 	 virtual G_API_GENEVA  ~GStandardMonitor() = default;
 
 	 /** @brief A standard assignment operator */
-	 const G_API_GENEVA GStandardMonitor& operator=(const GStandardMonitor& cp);
+	  G_API_GENEVA GStandardMonitor& operator=(const GStandardMonitor& cp);
 
 	 /** @brief Checks for equality with another GStandardMonitorT object */
 	 virtual G_API_GENEVA  bool operator==(const GStandardMonitor& cp) const;
@@ -186,7 +186,7 @@ public:
 	 virtual G_API_GENEVA  ~GFitnessMonitor() = default;
 
 	 /** @brief A standard assignment operator */
-	 G_API_GENEVA const GFitnessMonitor& operator=(const GFitnessMonitor& cp);
+	 G_API_GENEVA  GFitnessMonitor& operator=(const GFitnessMonitor& cp);
 
 	 /** @brief Checks for equality with another GFitnessMonitorT object */
 	 virtual G_API_GENEVA  bool operator==(const GFitnessMonitor& cp) const;
@@ -302,7 +302,7 @@ public:
 	 virtual G_API_GENEVA  ~GCollectiveMonitor() = default;
 
 	 /** @brief A standard assignment operator */
-	 G_API_GENEVA const GCollectiveMonitor& operator=(const GCollectiveMonitor& cp);
+	 G_API_GENEVA  GCollectiveMonitor& operator=(const GCollectiveMonitor& cp);
 
 	 /** @brief Checks for equality with another GCollectiveMonitorT object */
 	 virtual G_API_GENEVA  bool operator==(const GCollectiveMonitor& cp) const;
@@ -455,7 +455,7 @@ public:
 	 /**
 	  * A standard assignment operator
 	  */
-	 const GProgressPlotterT<fp_type>& operator=(const GProgressPlotterT<fp_type>& cp) {
+	  GProgressPlotterT<fp_type>& operator=(const GProgressPlotterT<fp_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -1194,7 +1194,7 @@ public:
 	 virtual G_API_GENEVA  ~GAllSolutionFileLogger() = default;
 
 	 /** @brief A standard assignment operator */
-	 G_API_GENEVA const GAllSolutionFileLogger& operator=(const GAllSolutionFileLogger& cp);
+	 G_API_GENEVA  GAllSolutionFileLogger& operator=(const GAllSolutionFileLogger& cp);
 
 	 /** @brief Checks for equality with another GAllSolutionFileLoggerT object */
 	 virtual G_API_GENEVA  bool operator==(const GAllSolutionFileLogger& cp) const;
@@ -1343,7 +1343,7 @@ public:
 	 virtual G_API_GENEVA  ~GIterationResultsFileLogger() = default;
 
 	 /** @brief A standard assignment operator */
-	 G_API_GENEVA const GIterationResultsFileLogger& operator=(const GIterationResultsFileLogger& cp);
+	 G_API_GENEVA  GIterationResultsFileLogger& operator=(const GIterationResultsFileLogger& cp);
 
 	 /** @brief Checks for equality with another GIterationResultsFileLoggerT object */
 	 virtual G_API_GENEVA  bool operator==(const GIterationResultsFileLogger& cp) const;
@@ -1456,7 +1456,7 @@ public:
 	 virtual G_API_GENEVA  ~GNAdpationsLogger() = default;
 
 	 /** @brief A standard assignment operator */
-	 G_API_GENEVA const GNAdpationsLogger& operator=(const GNAdpationsLogger& cp);
+	 G_API_GENEVA  GNAdpationsLogger& operator=(const GNAdpationsLogger& cp);
 
 	 /** @brief Checks for equality with another GNAdpationsLoggerT object */
 	 virtual G_API_GENEVA  bool operator==(const GNAdpationsLogger& cp) const;
@@ -1639,7 +1639,7 @@ public:
 	 /**
 	  * A standard assignment operator
 	  */
-	 const GAdaptorPropertyLoggerT<num_type>& operator=(const GAdaptorPropertyLoggerT<num_type>& cp) {
+	  GAdaptorPropertyLoggerT<num_type>& operator=(const GAdaptorPropertyLoggerT<num_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -2161,7 +2161,7 @@ public:
 	 virtual G_API_GENEVA  ~GProcessingTimesLogger() = default;
 
 	 /** @brief A standard assignment operator */
-	 G_API_GENEVA const GProcessingTimesLogger& operator=(const GProcessingTimesLogger& cp);
+	 G_API_GENEVA  GProcessingTimesLogger& operator=(const GProcessingTimesLogger& cp);
 
 	 /** @brief Checks for equality with another GProcessingTimesLoggerT object */
 	 virtual G_API_GENEVA  bool operator==(const GProcessingTimesLogger& cp) const;

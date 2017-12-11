@@ -82,7 +82,7 @@ public:
 	virtual G_API_GENEVA ~GGradientDescent_PersonalityTraits();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GGradientDescent_PersonalityTraits& operator=(const GGradientDescent_PersonalityTraits&);
+	G_API_GENEVA  GGradientDescent_PersonalityTraits& operator=(const GGradientDescent_PersonalityTraits&);
 
 	/** @brief Checks for equality with another GGDPersonalityTraits object */
 	G_API_GENEVA bool operator==(const GGradientDescent_PersonalityTraits&) const;

@@ -68,7 +68,7 @@ GGradientDescent_PersonalityTraits::~GGradientDescent_PersonalityTraits() { /* n
 /**
  * The standard assignment operator
  */
-const GGradientDescent_PersonalityTraits &GGradientDescent_PersonalityTraits::operator=(
+ GGradientDescent_PersonalityTraits &GGradientDescent_PersonalityTraits::operator=(
 	const GGradientDescent_PersonalityTraits &cp
 ) {
 	this->load_(&cp);

@@ -106,7 +106,7 @@ GConstrainedInt32Object::~GConstrainedInt32Object()
 /**
  * The standard assignment operator
  */
-const GConstrainedInt32Object &GConstrainedInt32Object::operator=(
+ GConstrainedInt32Object &GConstrainedInt32Object::operator=(
 	const GConstrainedInt32Object &cp
 ) {
 	this->load_(&cp);

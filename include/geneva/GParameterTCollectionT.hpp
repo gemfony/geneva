@@ -139,7 +139,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GParameterTCollectionT<T>& operator=(const GParameterTCollectionT<T>& cp) {
+	 GParameterTCollectionT<T>& operator=(const GParameterTCollectionT<T>& cp) {
 		this->load_(&cp);
 		return *this;
 	}

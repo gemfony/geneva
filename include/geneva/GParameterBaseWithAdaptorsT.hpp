@@ -112,7 +112,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
+	  GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

@@ -69,7 +69,7 @@ GEvolutionaryAlgorithm_PersonalityTraits::~GEvolutionaryAlgorithm_PersonalityTra
 /**
  * The standard assignment operator
  */
-const GEvolutionaryAlgorithm_PersonalityTraits &GEvolutionaryAlgorithm_PersonalityTraits::operator=(const GEvolutionaryAlgorithm_PersonalityTraits &cp) {
+ GEvolutionaryAlgorithm_PersonalityTraits &GEvolutionaryAlgorithm_PersonalityTraits::operator=(const GEvolutionaryAlgorithm_PersonalityTraits &cp) {
 	this->load_(&cp);
 	return *this;
 }

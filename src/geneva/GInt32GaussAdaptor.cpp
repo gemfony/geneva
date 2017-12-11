@@ -120,7 +120,7 @@ GObject *GInt32GaussAdaptor::clone_() const {
 /**
  * The standard assignment operator
  */
-const GInt32GaussAdaptor &GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor &cp) {
+ GInt32GaussAdaptor &GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor &cp) {
 	this->load_(&cp);
 	return *this;
 }

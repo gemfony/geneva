@@ -161,7 +161,7 @@ public:
 	/**
 	 * The standard assignment operator
 	 */
-	const GConstrainedIntT<int_type>& operator=(const GConstrainedIntT<int_type>& cp) {
+	 GConstrainedIntT<int_type>& operator=(const GConstrainedIntT<int_type>& cp) {
 		this->load_(&cp);
 		return *this;
 	}

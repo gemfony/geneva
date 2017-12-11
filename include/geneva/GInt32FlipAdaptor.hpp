@@ -81,7 +81,7 @@ public:
 	virtual G_API_GENEVA ~GInt32FlipAdaptor();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GInt32FlipAdaptor& operator=(const GInt32FlipAdaptor&);
+	G_API_GENEVA  GInt32FlipAdaptor& operator=(const GInt32FlipAdaptor&);
 
 	/** @brief Checks for equality with another GInt32FlipAdaptor object */
 	G_API_GENEVA bool operator==(const GInt32FlipAdaptor&) const;

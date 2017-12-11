@@ -101,7 +101,7 @@ public:
 	 virtual G_API_GENEVA ~GInt32Object();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const GInt32Object& operator=(const GInt32Object&);
+	 G_API_GENEVA  GInt32Object& operator=(const GInt32Object&);
 	 /** @brief An assignment operator for the contained value type */
 	 virtual G_API_GENEVA std::int32_t operator=(const std::int32_t&) override;
 

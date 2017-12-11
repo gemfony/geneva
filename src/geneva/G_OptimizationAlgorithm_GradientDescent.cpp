@@ -97,7 +97,7 @@ GGradientDescent::~GGradientDescent() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GGradientDescent &GGradientDescent::operator=(const GGradientDescent &cp) {
+ GGradientDescent &GGradientDescent::operator=(const GGradientDescent &cp) {
 	this->load_(&cp);
 	return *this;
 }

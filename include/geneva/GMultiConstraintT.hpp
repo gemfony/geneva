@@ -112,7 +112,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GPreEvaluationValidityCheckT<ind_type>& operator=(const GPreEvaluationValidityCheckT<ind_type>& cp) {
+	  GPreEvaluationValidityCheckT<ind_type>& operator=(const GPreEvaluationValidityCheckT<ind_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -386,7 +386,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GValidityCheckContainerT<ind_type>& operator=(const GValidityCheckContainerT<ind_type>& cp) {
+	  GValidityCheckContainerT<ind_type>& operator=(const GValidityCheckContainerT<ind_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -568,7 +568,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	 const GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp) {
+	  GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }

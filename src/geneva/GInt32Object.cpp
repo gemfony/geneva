@@ -107,7 +107,7 @@ GInt32Object::~GInt32Object() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GInt32Object &GInt32Object::operator=(const GInt32Object &cp) {
+ GInt32Object &GInt32Object::operator=(const GInt32Object &cp) {
 	this->load_(&cp);
 	return *this;
 }

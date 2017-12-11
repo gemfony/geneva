@@ -90,7 +90,7 @@ public:
 	virtual G_API_GENEVA ~GBooleanCollection();
 
 	/** @brief The standard assignment operator */
-	G_API_GENEVA const GBooleanCollection& operator=(const GBooleanCollection&);
+	G_API_GENEVA  GBooleanCollection& operator=(const GBooleanCollection&);
 
 	/** @brief Checks for equality with another GBooleanCollection object */
 	G_API_GENEVA bool operator==(const GBooleanCollection&) const;

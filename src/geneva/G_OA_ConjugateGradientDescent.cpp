@@ -69,7 +69,7 @@ GConjugateGradientDescent::~GConjugateGradientDescent() { /* nothing */ }
 /**
  * The standard assignment operator
  */
-const GConjugateGradientDescent &GConjugateGradientDescent::operator=(const GConjugateGradientDescent &cp) {
+ GConjugateGradientDescent &GConjugateGradientDescent::operator=(const GConjugateGradientDescent &cp) {
 	this->load_(&cp);
 	return *this;
 }

@@ -362,8 +362,8 @@ private:
 	 GParsableI() = delete;
 	 GParsableI(const GParsableI&) = delete;
 	 GParsableI(const GParsableI&&) = delete;
-	 const GParsableI& operator=(const GParsableI&) = delete;
-	 const GParsableI& operator=(const GParsableI&&) = delete;
+	  GParsableI& operator=(const GParsableI&) = delete;
+	  GParsableI& operator=(const GParsableI&&) = delete;
 
 	 std::vector<std::string> m_option_name; ///< The name of this parameter
 	 std::vector<std::string> m_comment; ///< A comment assigned to this parameter
@@ -421,8 +421,8 @@ private:
 	 GFileParsableI() = delete;
 	 GFileParsableI(const GFileParsableI&) = delete;
 	 GFileParsableI(const GFileParsableI&&) = delete;
-	 const GFileParsableI& operator=(const GFileParsableI&) = delete;
-	 const GFileParsableI& operator=(const GFileParsableI&&) = delete;
+	  GFileParsableI& operator=(const GFileParsableI&) = delete;
+	  GFileParsableI& operator=(const GFileParsableI&&) = delete;
 
 	 bool m_is_essential; ///< Indicates whether this is an essential variable
 };
@@ -468,8 +468,8 @@ private:
 	 GCLParsableI() = delete;
 	 GCLParsableI(const GCLParsableI&) = delete;
 	 GCLParsableI(const GCLParsableI&&) = delete;
-	 const GCLParsableI& operator=(const GCLParsableI&) = delete;
-	 const GCLParsableI& operator=(const GCLParsableI&&) = delete;
+	  GCLParsableI& operator=(const GCLParsableI&) = delete;
+	  GCLParsableI& operator=(const GCLParsableI&&) = delete;
 };
 
 /******************************************************************************/
@@ -528,8 +528,8 @@ private:
 	 GSingleParmT() = delete;
 	 GSingleParmT(const GSingleParmT<parameter_type>&) = delete;
 	 GSingleParmT(const GSingleParmT<parameter_type>&&) = delete;
-	 const GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&) = delete;
-	 const GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&&) = delete;
+	  GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&) = delete;
+	  GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&&) = delete;
 };
 
 /******************************************************************************/
@@ -662,8 +662,8 @@ private:
 	 GFileSingleParsableParameterT() = delete;
 	 GFileSingleParsableParameterT(const GFileSingleParsableParameterT<parameter_type>&) = delete;
 	 GFileSingleParsableParameterT(const GFileSingleParsableParameterT<parameter_type>&&) = delete;
-	 const GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&) = delete;
-	 const GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&&) = delete;
+	  GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&) = delete;
+	  GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&&) = delete;
 
 	 std::function<void(parameter_type)> m_call_back_func; ///< Holds the call-back function
 };
@@ -770,8 +770,8 @@ private:
 	 GFileReferenceParsableParameterT() = delete;
 	 GFileReferenceParsableParameterT(const GFileReferenceParsableParameterT<parameter_type>&) = delete;
 	 GFileReferenceParsableParameterT(const GFileReferenceParsableParameterT<parameter_type>&&) = delete;
-	 const GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&) = delete;
-	 const GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&&) = delete;
+	  GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&) = delete;
+	  GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&&) = delete;
 
 	 parameter_type &m_stored_reference; ///< Holds the reference to which the parsed value will be assigned
 };
@@ -841,8 +841,8 @@ private:
 	 GCombinedParT() = delete;
 	 GCombinedParT(const GCombinedParT<par_type0, par_type1>&) = delete;
 	 GCombinedParT(const GCombinedParT<par_type0, par_type1>&&) = delete;
-	 const GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&) = delete;
-	 const GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&&) = delete;
+	  GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&) = delete;
+	  GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&&) = delete;
 };
 
 /******************************************************************************/
@@ -1000,8 +1000,8 @@ private:
 	 GFileCombinedParsableParameterT() = delete;
 	 GFileCombinedParsableParameterT(const GFileCombinedParsableParameterT<par_type0, par_type1>&) = delete;
 	 GFileCombinedParsableParameterT(const GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
-	 const GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&) = delete;
-	 const GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
+	  GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&) = delete;
+	  GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
 
 	 std::function<void(par_type0, par_type1)> m_call_back_func; ///< Holds the call-back function
 };
@@ -1058,8 +1058,8 @@ private:
 	 GVectorParT() = delete;
 	 GVectorParT(const GVectorParT<parameter_type>&) = delete;
 	 GVectorParT(const GVectorParT<parameter_type>&&) = delete;
-	 const GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&) = delete;
-	 const GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&&) = delete;
+	  GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&) = delete;
+	  GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&&) = delete;
 };
 
 /******************************************************************************/
@@ -1214,8 +1214,8 @@ private:
 	 GFileVectorParsableParameterT() = delete;
 	 GFileVectorParsableParameterT(const GFileVectorParsableParameterT<parameter_type>&) = delete;
 	 GFileVectorParsableParameterT(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
-	 const GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&) = delete;
-	 const GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
+	  GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&) = delete;
+	  GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
 
 	 std::function<void(std::vector<parameter_type>)> m_call_back_func; ///< Holds the call-back function
 };
@@ -1347,8 +1347,8 @@ private:
 	 GFileVectorReferenceParsableParameterT() = delete;
 	 GFileVectorReferenceParsableParameterT(const GFileVectorReferenceParsableParameterT<parameter_type>&) = delete;
 	 GFileVectorReferenceParsableParameterT(const GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
-	 const GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&) = delete;
-	 const GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
+	  GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&) = delete;
+	  GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
 
 	 std::vector<parameter_type> &m_stored_reference; ///< Holds a reference to the target vector
 };
@@ -1409,8 +1409,8 @@ private:
 	 GArrayParT() = delete;
 	 GArrayParT(const GArrayParT<parameter_type, N>&) = delete;
 	 GArrayParT(const GArrayParT<parameter_type, N>&&) = delete;
-	 const GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&) = delete;
-	 const GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&&) = delete;
+	  GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&) = delete;
+	  GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&&) = delete;
 };
 
 /******************************************************************************/
@@ -1560,8 +1560,8 @@ private:
 	 GFileArrayParsableParameterT() = delete;
 	 GFileArrayParsableParameterT(const GFileArrayParsableParameterT<parameter_type, N>&) = delete;
 	 GFileArrayParsableParameterT(const GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
-	 const GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&) = delete;
-	 const GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
+	  GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&) = delete;
+	  GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
 
 	 std::function<void(std::array<parameter_type, N>)> m_call_back_func; ///< Holds the call-back function
 };
@@ -1687,8 +1687,8 @@ private:
 	 GFileArrayReferenceParsableParameterT() = delete;
 	 GFileArrayReferenceParsableParameterT(const GFileArrayReferenceParsableParameterT<parameter_type, N>&) = delete;
 	 GFileArrayReferenceParsableParameterT(const GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
-	 const GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&) = delete;
-	 const GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
+	  GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&) = delete;
+	  GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
 
 	 std::array<parameter_type, N> &m_stored_reference; ///< Holds a reference to the target vector
 };
@@ -1776,8 +1776,8 @@ private:
 	 GCLReferenceParsableParameterT() = delete;
 	 GCLReferenceParsableParameterT(const GCLReferenceParsableParameterT<parameter_type>&) = delete;
 	 GCLReferenceParsableParameterT(const GCLReferenceParsableParameterT<parameter_type>&&) = delete;
-	 const GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&) = delete;
-	 const GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&&) = delete;
+	  GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&) = delete;
+	  GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&&) = delete;
 
 	 parameter_type &m_stored_reference; ///< Holds the reference to which the parsed value will be assigned
 	 parameter_type m_def_val; ///< Holds the default value
@@ -2409,8 +2409,8 @@ private:
 	 // Prevent copying and moving
 	 GParserBuilder(const GParserBuilder&) = delete;
 	 GParserBuilder(const GParserBuilder&&) = delete;
-	 const GParserBuilder& operator=(const GParserBuilder&) = delete;
-	 const GParserBuilder& operator=(const GParserBuilder&&) = delete;
+	  GParserBuilder& operator=(const GParserBuilder&) = delete;
+	  GParserBuilder& operator=(const GParserBuilder&&) = delete;
 
 
 	 std::vector<std::shared_ptr<GFileParsableI>> m_file_parameter_proxies; ///< Holds file parameter proxies

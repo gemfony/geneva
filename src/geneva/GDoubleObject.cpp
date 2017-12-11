@@ -105,7 +105,7 @@ GDoubleObject::~GDoubleObject()
 /**
  * The standard assignment operator
  */
-const GDoubleObject &GDoubleObject::operator=(
+ GDoubleObject &GDoubleObject::operator=(
 	const GDoubleObject &cp
 ) {
 	this->load_(&cp);

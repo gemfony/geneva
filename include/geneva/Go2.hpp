@@ -133,7 +133,7 @@ public:
 	 virtual G_API_GENEVA ~Go2();
 
 	 /** @brief The standard assignment operator */
-	 G_API_GENEVA const Go2& operator=(const Go2&);
+	 G_API_GENEVA  Go2& operator=(const Go2&);
 
 	 /** @brief Checks for equality with another Go2 object */
 	 G_API_GENEVA bool operator==(const Go2&) const;

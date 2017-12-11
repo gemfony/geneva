@@ -308,7 +308,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDecorator<dimensions::Dim2, coordinate_type>& operator=(const GDecorator<dimensions::Dim2, coordinate_type>& cp) {
+	  GDecorator<dimensions::Dim2, coordinate_type>& operator=(const GDecorator<dimensions::Dim2, coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -493,7 +493,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GMarker<coordinate_type>& operator=(const GMarker<coordinate_type>& cp) {
+	  GMarker<coordinate_type>& operator=(const GMarker<coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -713,7 +713,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDecorator<dimensions::Dim3, coordinate_type>& operator=(const GDecorator<dimensions::Dim3, coordinate_type>& cp) {
+	  GDecorator<dimensions::Dim3, coordinate_type>& operator=(const GDecorator<dimensions::Dim3, coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -899,7 +899,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDecoratorContainer<dimensions::Dim2, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) {
+	  GDecoratorContainer<dimensions::Dim2, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -1104,7 +1104,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDecoratorContainer<dimensions::Dim3, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) {
+	  GDecoratorContainer<dimensions::Dim3, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 };
@@ -1298,7 +1298,7 @@ public:
 	 virtual G_API_COMMON ~GBasePlotter();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GBasePlotter& operator=(const GBasePlotter &);
+	 G_API_COMMON  GBasePlotter& operator=(const GBasePlotter &);
 
 	 /** @brief Checks for equality with another GBasePlotter object */
 	 G_API_COMMON bool operator==(const GBasePlotter&) const;
@@ -1466,7 +1466,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDataCollector1T<x_type>& operator=(const GDataCollector1T<x_type> &cp) {
+	  GDataCollector1T<x_type>& operator=(const GDataCollector1T<x_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -1735,7 +1735,7 @@ public:
 	 virtual G_API_COMMON ~GHistogram1D();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GHistogram1D& operator=(const GHistogram1D &);
+	 G_API_COMMON  GHistogram1D& operator=(const GHistogram1D &);
 
 	 /** @brief Checks for equality with another GHistogram1D object */
 	 G_API_COMMON bool operator==(const GHistogram1D&) const;
@@ -1827,7 +1827,7 @@ public:
 	 G_API_COMMON ~GHistogram1I();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GHistogram1I& operator=(const GHistogram1I &);
+	 G_API_COMMON  GHistogram1I& operator=(const GHistogram1I &);
 
 	 /** @brief Checks for equality with another GHistogram1I object */
 	 G_API_COMMON bool operator==(const GHistogram1I&) const;
@@ -1936,7 +1936,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDataCollector2T<x_type, y_type>& operator=(const GDataCollector2T<x_type, y_type> &cp) {
+	  GDataCollector2T<x_type, y_type>& operator=(const GDataCollector2T<x_type, y_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -2367,7 +2367,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDataCollector2ET<x_type, y_type>& operator=(const GDataCollector2ET<x_type, y_type> &cp) {
+	  GDataCollector2ET<x_type, y_type>& operator=(const GDataCollector2ET<x_type, y_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -2655,7 +2655,7 @@ public:
 	 virtual G_API_COMMON ~GHistogram2D();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GHistogram2D& operator=(const GHistogram2D&);
+	 G_API_COMMON  GHistogram2D& operator=(const GHistogram2D&);
 
 	 /** @brief Checks for equality with another GHistogram2D object */
 	 G_API_COMMON bool operator==(const GHistogram2D&) const;
@@ -2758,7 +2758,7 @@ public:
 	 virtual G_API_COMMON ~GGraph2D();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GGraph2D& operator=(const GGraph2D &);
+	 G_API_COMMON  GGraph2D& operator=(const GGraph2D &);
 
 	 /** @brief Checks for equality with another GGraph2D object */
 	 G_API_COMMON bool operator==(const GGraph2D&) const;
@@ -2841,7 +2841,7 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GGraph2ED();
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GGraph2ED& operator=(const GGraph2ED &);
+	 G_API_COMMON  GGraph2ED& operator=(const GGraph2ED &);
 
 	 /** @brief Checks for equality with another GGraph2ED object */
 	 G_API_COMMON bool operator==(const GGraph2ED&) const;
@@ -2936,7 +2936,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDataCollector3T<x_type, y_type, z_type>& operator=(const GDataCollector3T<x_type, y_type, z_type> &cp) {
+	  GDataCollector3T<x_type, y_type, z_type>& operator=(const GDataCollector3T<x_type, y_type, z_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -3360,7 +3360,7 @@ public:
 	 virtual G_API_COMMON ~GGraph3D();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GGraph3D& operator=(const GGraph3D &);
+	 G_API_COMMON  GGraph3D& operator=(const GGraph3D &);
 
 	 /** @brief Checks for equality with another GGraph3D object */
 	 G_API_COMMON bool operator==(const GGraph3D&) const;
@@ -3460,7 +3460,7 @@ public:
 	 /**
 	  * The assignment operator
 	  */
-	 const GDataCollector4T<x_type, y_type, z_type, w_type>& operator=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) {
+	  GDataCollector4T<x_type, y_type, z_type, w_type>& operator=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -3966,7 +3966,7 @@ public:
 	 virtual G_API_COMMON ~GGraph4D();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GGraph4D& operator=(const GGraph4D &);
+	 G_API_COMMON  GGraph4D& operator=(const GGraph4D &);
 
 	 /** @brief Checks for equality with another GGraph4D object */
 	 G_API_COMMON bool operator==(const GGraph4D&) const;
@@ -4070,7 +4070,7 @@ public:
 	 virtual G_API_COMMON ~GFunctionPlotter1D();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GFunctionPlotter1D& operator=(const GFunctionPlotter1D &);
+	 G_API_COMMON  GFunctionPlotter1D& operator=(const GFunctionPlotter1D &);
 
 	 /** @brief Checks for equality with another GFunctionPlotter1D object */
 	 G_API_COMMON bool operator==(const GFunctionPlotter1D&) const;
@@ -4156,7 +4156,7 @@ public:
 	 virtual G_API_COMMON ~GFunctionPlotter2D();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GFunctionPlotter2D& operator=(const GFunctionPlotter2D &);
+	 G_API_COMMON  GFunctionPlotter2D& operator=(const GFunctionPlotter2D &);
 
 	 /** @brief Checks for equality with another GFunctionPlotter2D object */
 	 G_API_COMMON bool operator==(const GFunctionPlotter2D&) const;
@@ -4250,7 +4250,7 @@ public:
 	 G_API_COMMON virtual ~GPlotDesigner();
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON const GPlotDesigner& operator=(const GPlotDesigner &);
+	 G_API_COMMON  GPlotDesigner& operator=(const GPlotDesigner &);
 
 	 /** @brief Checks for equality with another GPlotDesigner object */
 	 G_API_COMMON bool operator==(const GPlotDesigner&) const;
