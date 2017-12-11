@@ -87,7 +87,7 @@ public:
 		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 	 )
 		 : Gem::Common::GFactoryT<oa_type>(configFile)
-		 , m_contentCreatorPtr(contentCreatorPtr)
+			, m_contentCreatorPtr(contentCreatorPtr)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -96,10 +96,10 @@ public:
 	  */
 	 G_OptimizationAlgorithm_FactoryT(const G_OptimizationAlgorithm_FactoryT<oa_type> &cp)
 		 : Gem::Common::GFactoryT<oa_type>(cp)
-		 , m_contentCreatorPtr()
-		 , m_maxIterationCL(cp.m_maxIterationCL)
-		 , m_maxStallIterationCL(cp.m_maxStallIterationCL)
-		 , m_maxSecondsCL(cp.m_maxSecondsCL)
+			, m_contentCreatorPtr()
+			, m_maxIterationCL(cp.m_maxIterationCL)
+			, m_maxStallIterationCL(cp.m_maxStallIterationCL)
+			, m_maxSecondsCL(cp.m_maxSecondsCL)
 	 {
 		 if (cp.m_contentCreatorPtr) {
 			 if (m_contentCreatorPtr) {
@@ -163,7 +163,7 @@ public:
 	  *
 	  * @return An object of the desired algorithm type
 	  */
-	 virtual std::shared_ptr<oa_type> get() override {
+	 std::shared_ptr<oa_type> get() override {
 		 // Retrieve a work item using the methods implemented in our parent class
 		 std::shared_ptr<oa_type> p_alg = Gem::Common::GFactoryT<oa_type>::get();
 
@@ -373,14 +373,14 @@ protected:
 	 virtual void describeLocalOptions_(
 		 Gem::Common::GParserBuilder &gpb
 	 ) override {
-		/* nothing */
+		 /* nothing */
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Allows to act on the configuration options received from the configuration file or from the command line
 	  */
-	 virtual void postProcess_(std::shared_ptr<oa_type> &p) override {
+	 void postProcess_(std::shared_ptr<oa_type> &p) override {
 		 // Set local options
 
 		 // The maximum allowed number of iterations
@@ -401,7 +401,7 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Creates individuals of this type */
-	 virtual std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override = 0;
+	 std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override = 0;
 
 	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_contentCreatorPtr; ///< Holds an object capable of producing objects of the desired type
 	 std::shared_ptr<GBasePluggableOM> m_pluggableOM; // A user-defined means for information retrieval

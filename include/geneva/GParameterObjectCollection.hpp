@@ -64,99 +64,99 @@ namespace Geneva {
 class GParameterObjectCollection
 	:public GParameterTCollectionT<GParameterBase>
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
 
-		ar & make_nvp("GParameterTCollectionT_gbd",
-						  boost::serialization::base_object<GParameterTCollectionT<GParameterBase>>(*this));
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar & make_nvp("GParameterTCollectionT_gbd",
+			 boost::serialization::base_object<GParameterTCollectionT<GParameterBase>>(*this));
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/** @brief The default constructor */
-	G_API_GENEVA GParameterObjectCollection();
-	/** @brief Initialization with a number of GParameterBase objects */
-	G_API_GENEVA GParameterObjectCollection(const std::size_t&, std::shared_ptr<GParameterBase>);
-	/** @brief The copy constructor */
-	G_API_GENEVA GParameterObjectCollection(const GParameterObjectCollection&);
-	/** @brief The destructor */
-	virtual G_API_GENEVA ~GParameterObjectCollection();
+	 /** @brief The default constructor */
+	 G_API_GENEVA GParameterObjectCollection();
+	 /** @brief Initialization with a number of GParameterBase objects */
+	 G_API_GENEVA GParameterObjectCollection(const std::size_t&, std::shared_ptr<GParameterBase>);
+	 /** @brief The copy constructor */
+	 G_API_GENEVA GParameterObjectCollection(const GParameterObjectCollection&);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~GParameterObjectCollection();
 
-	/** @brief The standard assignment operator */
-	G_API_GENEVA  GParameterObjectCollection& operator=(const GParameterObjectCollection&);
+	 /** @brief The standard assignment operator */
+	 G_API_GENEVA  GParameterObjectCollection& operator=(const GParameterObjectCollection&);
 
-	/** @brief Checks for equality with another GParameterObjectCollection object */
-	G_API_GENEVA bool operator==(const GParameterObjectCollection&) const;
-	/** @brief Checks for inequality with another GParameterObjectCollection object */
-	G_API_GENEVA bool operator!=(const GParameterObjectCollection&) const;
+	 /** @brief Checks for equality with another GParameterObjectCollection object */
+	 G_API_GENEVA bool operator==(const GParameterObjectCollection&) const;
+	 /** @brief Checks for inequality with another GParameterObjectCollection object */
+	 G_API_GENEVA bool operator!=(const GParameterObjectCollection&) const;
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA void compare(
-		const GObject& // the other object
-		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		, const double& // the limit for allowed deviations of floating point types
-	) const override;
+	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
+	 virtual G_API_GENEVA void compare(
+		 const GObject& // the other object
+		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		 , const double& // the limit for allowed deviations of floating point types
+	 ) const override;
 
-	/** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-	G_API_GENEVA std::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
+	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
+	 G_API_GENEVA std::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
-	/** @brief Emits a name for this class / object */
-	virtual G_API_GENEVA std::string name() const override;
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name() const override;
 
-	/***************************************************************************/
-	/**
-	 * This function returns a parameter item at a given position of the data set.
-     * Note that this function will only be accessible to the compiler if parameter_type
-     * is a derivative of GParameterBase, thanks to the magic of std::enable_if
-     * and type_traits
-	 *
-	 * @param pos The position in our data array that shall be converted
-	 * @return A converted version of the GParameterBase object, as required by the user
-	 */
-	template <typename parameter_type>
-	const std::shared_ptr<parameter_type> at(
-		const std::size_t& pos
-		, typename std::enable_if<std::is_base_of<GParameterBase, parameter_type>::value>::type *dummy = nullptr
-	)  const {
+	 /***************************************************************************/
+	 /**
+	  * This function returns a parameter item at a given position of the data set.
+		* Note that this function will only be accessible to the compiler if parameter_type
+		* is a derivative of GParameterBase, thanks to the magic of std::enable_if
+		* and type_traits
+	  *
+	  * @param pos The position in our data array that shall be converted
+	  * @return A converted version of the GParameterBase object, as required by the user
+	  */
+	 template <typename parameter_type>
+	 const std::shared_ptr<parameter_type> at(
+		 const std::size_t& pos
+		 , typename std::enable_if<std::is_base_of<GParameterBase, parameter_type>::value>::type *dummy = nullptr
+	 )  const {
 #ifdef DEBUG
-	   if(this->empty() || pos >= this->size()) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterObjectCollection::at<>(): Error!" << std::endl
-					<< "Tried to access position " << pos << " while size is " << this->size() << std::endl
-			);
+		 if(this->empty() || pos >= this->size()) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterObjectCollection::at<>(): Error!" << std::endl
+					 << "Tried to access position " << pos << " while size is " << this->size() << std::endl
+			 );
 
-	      // Make the compiler happy
-	      return std::shared_ptr<parameter_type>();
- 	   }
+			 // Make the compiler happy
+			 return std::shared_ptr<parameter_type>();
+		 }
 #endif /* DEBUG */
 
-		// Does error checks on the conversion internally
-		return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(data.at(pos));
-	}
+		 // Does error checks on the conversion internally
+		 return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(data.at(pos));
+	 }
 
 protected:
-	/***************************************************************************/
-	/** @brief Loads the data of another GObject */
-	virtual G_API_GENEVA void load_(const GObject*) override;
+	 /***************************************************************************/
+	 /** @brief Loads the data of another GObject */
+	 G_API_GENEVA void load_(const GObject*) override;
 
 private:
-	/** @brief Creates a deep clone of this object. */
-	virtual G_API_GENEVA GObject* clone_() const override;
+	 /** @brief Creates a deep clone of this object. */
+	 G_API_GENEVA GObject* clone_() const override;
 
 public:
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API_GENEVA bool modify_GUnitTests() override;
-	/** @brief Fills the collection with GParameterBase objects */
-	G_API_GENEVA void fillWithObjects();
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 /** @brief Applies modifications to this object. This is needed for testing purposes */
+	 G_API_GENEVA bool modify_GUnitTests() override;
+	 /** @brief Fills the collection with GParameterBase objects */
+	 G_API_GENEVA void fillWithObjects();
+	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

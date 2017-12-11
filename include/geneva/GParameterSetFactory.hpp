@@ -132,7 +132,7 @@ public:
 	 /**
 	  * Production of GParameterSet-derivatives
 	  */
-	 virtual std::shared_ptr<GParameterSet> get() override {
+	 std::shared_ptr<GParameterSet> get() override {
 		 std::shared_ptr<GParameterSet> p = GFactoryT<GParameterSet>::get();
 
 		 if(m_preProcessor) {

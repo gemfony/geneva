@@ -108,8 +108,8 @@ public:
 	  * @param cp A copy of another G_OA_AlgorithmTemplateT object
 	  */
 	 G_OA_AlgorithmTemplateT(const G_OA_AlgorithmTemplateT& cp)
-	 	: G_OptimizationAlgorithm_Base(cp)
-	 	// copy local data here or fill out the function body, as needed
+		 : G_OptimizationAlgorithm_Base(cp)
+	 // copy local data here or fill out the function body, as needed
 	 {
 		 // nothing
 	 }
@@ -182,7 +182,7 @@ public:
 	  * and alter it, make sure that this function corresponds to the
 	  * saveCheckpoint() function.
 	  */
-	 virtual void loadCheckpoint(const bf::path& cpFile) override {
+	 void loadCheckpoint(const bf::path& cpFile) override {
 		 G_OptimizationAlgorithm_Base::loadCheckpoint(cpFile);
 	 }
 
@@ -253,7 +253,7 @@ public:
 	  *
 	  * @return The type of optimization algorithm
 	  */
-	 virtual std::string getOptimizationAlgorithm() const override {
+	 std::string getOptimizationAlgorithm() const override {
 		 return std::string("PERSONALITY_TMPL");
 	 }
 	 ‚
@@ -265,7 +265,7 @@ public:
  	  *
  	  * @return The name assigned to this optimization algorithm
  	  */
-	 virtual std::string getAlgorithmName() const override {
+	 std::string getAlgorithmName() const override {
 		 return std::string("Optimization Algorithm Template");
 	 }
 
@@ -275,7 +275,7 @@ public:
 	  *
 	  * Alter this function to return the number of processible items in this class
 	  */
-	 virtual std::size_t getNProcessableItems() const override {
+	 std::size_t getNProcessableItems() const override {
 		 return 0;
 	 }
 
@@ -300,7 +300,7 @@ public:
 	  *
 	  * Add some clear-text description of this optimization algorithm
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("algorithm template");
 	 }
 
@@ -315,8 +315,8 @@ public:
  	  * it will result in the parent class'es function being used. This is the
  	  * most likely case, as this is for specialist usage only.
 	  */
-	 virtual void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
-		  G_OptimizationAlgorithm_Base<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateGlobalBestsPQ(bestIndividuals);
+	 void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
+		 G_OptimizationAlgorithm_Base<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateGlobalBestsPQ(bestIndividuals);
 	 }
 
 	 /***************************************************************************/
@@ -330,7 +330,7 @@ public:
  	  * it will result in the parent class'es function being used. This is the
  	  * most likely case, as this is for specialist usage only.
 	  */
-	 virtual void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
+	 void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) override {
 		 G_OptimizationAlgorithm_Base<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::updateIterationBestsPQ(bestIndividuals);
 	 }
 
@@ -342,8 +342,8 @@ protected:
 	  * Add any local data as needed, but leave the conversion and the call to the parent class'es
 	  * function in place.
 	  */
-	 virtual void load_(const GObject *) override {
-	    // Check that we are dealing with a G_OA_AlgorithmTemplateT reference independent of this object and convert the pointer
+	 void load_(const GObject *) override {
+		 // Check that we are dealing with a G_OA_AlgorithmTemplateT reference independent of this object and convert the pointer
 		 const G_OA_AlgorithmTemplateT *p_load = Gem::Common::g_convert_and_compare<GObject, G_OA_AlgorithmTemplateT >(cp, this);
 
 		 // First load the parent class'es data.
@@ -363,7 +363,7 @@ protected:
 	  * and alter it, make sure that this function corresponds to the
 	  * loadCheckpoint() function.
 	  */
-	 virtual void saveCheckpoint(bf::path outputFile) const override {
+	 void saveCheckpoint(bf::path outputFile) const override {
 		 G_OptimizationAlgorithm_Base::saveCheckpoint(outputFile);
 	 }
 
@@ -375,7 +375,7 @@ protected:
 	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
-	 virtual std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
+	 std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
 		 return G_OptimizationAlgorithm_Base::customGetBestGlobalIndividual();
 	 }
 
@@ -387,7 +387,7 @@ protected:
 	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
-	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override {
+	 std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override {
 		 return G_OptimizationAlgorithm_Base::customGetBestGlobalIndividuals();
 	 }
 
@@ -399,7 +399,7 @@ protected:
 	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
-	 virtual std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override {
+	 std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override {
 		 return G_OptimizationAlgorithm_Base::customGetBestIterationIndividual();
 	 }
 
@@ -411,7 +411,7 @@ protected:
 	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
-	 virtual std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override {
+	 std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override {
 		 return G_OptimizationAlgorithm_Base::customGetBestIterationIndividuals();
 	 }
 
@@ -421,7 +421,7 @@ protected:
 	  *
 	  * It is here that most of your optimization algorithm needs to be specified.
 	  */
-	 virtual std::tuple<double, double> cycleLogic() override {
+	 std::tuple<double, double> cycleLogic() override {
 		 // nothing -- fill out as needed
 	 };
 
@@ -445,7 +445,7 @@ protected:
 	  * Add any custom initialization work here, but make sure the parent classes
 	  * function is called first.
 	  */
-	 virtual void init() override {
+	 void init() override {
 		 // Call the parent classes function
 		 G_OptimizationAlgorithm_Base::init();
 	 }
@@ -457,7 +457,7 @@ protected:
 	  * Add any custom finalization work here, but make sure the parent classes
 	  * function is called last.
 	  */
-	 virtual void finalize() override {
+	 void finalize() override {
 		 // Call the parent classes function
 		 G_OptimizationAlgorithm_Base::finalize();
 	 }
@@ -466,7 +466,7 @@ protected:
 	 /**
 	  * Retrieve a GPersonalityTraits object belonging to this algorithm
 	  */
-	 virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override {
+	 std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override {
 
 	 }
 
@@ -477,15 +477,15 @@ protected:
 	  * of individuals. A typical usage scenario would be the update of the adaptor
 	  * settings in evolutionary algorithms.
 	  */
-	 virtual void actOnStalls() override {
+	 void actOnStalls() override {
 
-	  }
+	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Resizes the population to the desired level and does some error checks
 	  */
-	 virtual void adjustPopulation() override {
+	 void adjustPopulation() override {
 
 	 }
 
@@ -493,7 +493,7 @@ protected:
 	 /**
 	  * Triggers fitness calculation of a number of individuals
 	  */
-	 virtual void runFitnessCalculation() override {
+	 void runFitnessCalculation() override {
 
 	 }
 
@@ -504,7 +504,7 @@ private:
 	  *
 	  * This function may remain unchanged. Do not remove!
 	  */
-	 virtual GObject *clone_() const override {
+	 GObject *clone_() const override {
 		 return new G_OA_AlgorithmTemplateT(*this);
 	 }
 
@@ -518,7 +518,7 @@ public
 	 /**
 	  * Applies modifications to this object. This is needed for testing purposes
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 
 	 }
 
@@ -526,7 +526,7 @@ public
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 
 	 }
 
@@ -534,7 +534,7 @@ public
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 
 	 }
 

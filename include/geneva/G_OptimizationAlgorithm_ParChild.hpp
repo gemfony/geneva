@@ -127,7 +127,7 @@ public:
 	 ) const override;
 
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-	 virtual G_API_GENEVA void resetToOptimizationStart() override;
+	 G_API_GENEVA void resetToOptimizationStart() override;
 
 	 /** @brief  Specifies the default size of the population plus the number of parents */
 	 G_API_GENEVA void setPopulationSizes(std::size_t popSize, std::size_t nParents);
@@ -140,7 +140,7 @@ public:
 	 G_API_GENEVA std::size_t getDefaultNChildren() const;
 
 	 /** @brief Retrieve the number of processible items in the current iteration. */
-	 virtual G_API_GENEVA std::size_t getNProcessableItems() const override;
+	 G_API_GENEVA std::size_t getNProcessableItems() const override;
 	 /** @brief Lets the user set the desired recombination method */
 	 G_API_GENEVA void setRecombinationMethod(duplicationScheme recombinationMethod);
 
@@ -175,7 +175,7 @@ public:
 	 virtual G_API_GENEVA void doRecombine();
 
 	 /** @brief Gives individuals an opportunity to update their internal structures */
-	 virtual G_API_GENEVA void actOnStalls() override;
+	 G_API_GENEVA void actOnStalls() override;
 
 	 /***************************************************************************/
 	 /**
@@ -211,20 +211,20 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief Returns the name of this optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const override = 0;
+	 G_API_GENEVA std::string getAlgorithmName() const override = 0;
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const override = 0;
+	 G_API_GENEVA std::string getAlgorithmPersonalityType() const override = 0;
 
 	 /***************************************************************************/
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 protected:
 	 /***************************************************************************/
 	 /** @brief Adapts all children of this population */
 	 virtual G_API_GENEVA void adaptChildren() = 0;
 	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-	 virtual G_API_GENEVA void runFitnessCalculation() override = 0;
+	 G_API_GENEVA void runFitnessCalculation() override = 0;
 	 /** @brief Choose new parents, based on the selection scheme set by the user */
 	 virtual G_API_GENEVA void selectBest() = 0;
 	 /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
@@ -235,7 +235,7 @@ protected:
 	 /***************************************************************************/
 
 	 /** @brief Loads the data of another GParChildT object, camouflaged as a GObject. */
-	 virtual G_API_GENEVA void load_(const GObject * cp) override;
+	 G_API_GENEVA void load_(const GObject * cp) override;
 
 	 /** @brief This function is called from G_OptimizationAlgorithm_Base::optimize() and performs the actual recombination */
 	 virtual G_API_GENEVA void recombine();
@@ -251,16 +251,16 @@ protected:
 	 G_API_GENEVA void markIndividualPositions();
 
 	 /** @brief This function implements the logic that constitutes evolutionary algorithms */
-	 virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
+	 G_API_GENEVA std::tuple<double, double> cycleLogic() override;
 
 	 /** @brief performs initialization work before the optimization loop starts */
-	 virtual G_API_GENEVA void init() override;
+	 G_API_GENEVA void init() override;
 	 /** @brief Does any necessary finalization work atfer the optimization loop has ended */
-	 virtual G_API_GENEVA void finalize() override;
+	 G_API_GENEVA void finalize() override;
 
 	 /***************************************************************************/
 	 /** @brief The function checks that the population size meets the requirements and resizes the population to the appropriate size, if required. */
-	 virtual G_API_GENEVA void adjustPopulation() override;
+	 G_API_GENEVA void adjustPopulation() override;
 
 	 /** @brief Increases the population size if requested by the user */
 	 G_API_GENEVA void performScheduledPopulationGrowth();
@@ -285,7 +285,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override = 0;
+	 G_API_GENEVA GObject *clone_() const override = 0;
 
 	 /***************************************************************************/
 
@@ -295,11 +295,11 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

@@ -64,55 +64,55 @@ namespace Geneva {
  */
 class GParameterSetConstraint: public GPreEvaluationValidityCheckT<GOptimizableEntity>
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-		using boost::serialization::make_nvp;
-		ar
-			& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GOptimizableEntity>);
-	}
-	///////////////////////////////////////////////////////////////////////
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GOptimizableEntity>);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 public:
 
-	/** @brief The default constructor */
-	G_API_GENEVA GParameterSetConstraint();
-	/** @brief The copy constructor */
-	G_API_GENEVA GParameterSetConstraint(const GParameterSetConstraint&);
-	/** @brief The destructor */
-	virtual G_API_GENEVA ~GParameterSetConstraint();
+	 /** @brief The default constructor */
+	 G_API_GENEVA GParameterSetConstraint();
+	 /** @brief The copy constructor */
+	 G_API_GENEVA GParameterSetConstraint(const GParameterSetConstraint&);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~GParameterSetConstraint();
 
-	/** @brief The standard assignment operator */
-	G_API_GENEVA  GParameterSetConstraint& operator=(const GParameterSetConstraint&);
+	 /** @brief The standard assignment operator */
+	 G_API_GENEVA  GParameterSetConstraint& operator=(const GParameterSetConstraint&);
 
-	/** @brief Checks for equality with another GIndividualConstraint object */
-	G_API_GENEVA bool operator==(const GParameterSetConstraint&) const;
-	/** @brief Checks for inequality with another GIndividualConstraint object */
-	G_API_GENEVA bool operator!=(const GParameterSetConstraint&) const;
+	 /** @brief Checks for equality with another GIndividualConstraint object */
+	 G_API_GENEVA bool operator==(const GParameterSetConstraint&) const;
+	 /** @brief Checks for inequality with another GIndividualConstraint object */
+	 G_API_GENEVA bool operator!=(const GParameterSetConstraint&) const;
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA void compare(
-		const GObject& // the other object
-		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		, const double& // the limit for allowed deviations of floating point types
-	) const override;
+	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
+	 virtual G_API_GENEVA void compare(
+		 const GObject& // the other object
+		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		 , const double& // the limit for allowed deviations of floating point types
+	 ) const override;
 
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 protected:
-	/** @brief Checks whether a given individual is valid */
-	virtual G_API_GENEVA double check_(const GOptimizableEntity *) const override;
-	/** @brief Checks whether a given GParameterSet object is valid */
-	virtual G_API_GENEVA double check_(const GParameterSet *) const = 0;
+	 /** @brief Checks whether a given individual is valid */
+	 G_API_GENEVA double check_(const GOptimizableEntity *) const override;
+	 /** @brief Checks whether a given GParameterSet object is valid */
+	 virtual G_API_GENEVA double check_(const GParameterSet *) const = 0;
 
-	/** @brief Loads the data of another GParameterSetConstraint */
-	virtual G_API_GENEVA void load_(const GObject*) override;
+	 /** @brief Loads the data of another GParameterSetConstraint */
+	 G_API_GENEVA void load_(const GObject*) override;
 
 private:
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const override = 0;
+	 /** @brief Creates a deep clone of this object */
+	 G_API_GENEVA GObject* clone_() const override = 0;
 };
 
 /******************************************************************************/
@@ -126,58 +126,58 @@ private:
  */
 class GParameterSetFormulaConstraint: public GParameterSetConstraint
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-		using boost::serialization::make_nvp;
-		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
-		& BOOST_SERIALIZATION_NVP(rawFormula_);
-	}
-	///////////////////////////////////////////////////////////////////////
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSetConstraint)
+		 & BOOST_SERIALIZATION_NVP(rawFormula_);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 public:
-	/** @brief The default constructor */
-	G_API_GENEVA GParameterSetFormulaConstraint(std::string);
-	/** @brief The copy constructor */
-	G_API_GENEVA GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint&);
-	/** @brief The destructor */
-	virtual G_API_GENEVA ~GParameterSetFormulaConstraint();
+	 /** @brief The default constructor */
+	 G_API_GENEVA GParameterSetFormulaConstraint(std::string);
+	 /** @brief The copy constructor */
+	 G_API_GENEVA GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint&);
+	 /** @brief The destructor */
+	 virtual G_API_GENEVA ~GParameterSetFormulaConstraint();
 
-	/** @brief A standard assignment operator */
-	G_API_GENEVA  GParameterSetFormulaConstraint& operator=(const GParameterSetFormulaConstraint&);
+	 /** @brief A standard assignment operator */
+	 G_API_GENEVA  GParameterSetFormulaConstraint& operator=(const GParameterSetFormulaConstraint&);
 
-	/** @brief Checks for equality with another GIndividualConstraint object */
-	G_API_GENEVA bool operator==(const GParameterSetFormulaConstraint&) const;
-	/** @brief Checks for inequality with another GIndividualConstraint object */
-	G_API_GENEVA bool operator!=(const GParameterSetFormulaConstraint&) const;
+	 /** @brief Checks for equality with another GIndividualConstraint object */
+	 G_API_GENEVA bool operator==(const GParameterSetFormulaConstraint&) const;
+	 /** @brief Checks for inequality with another GIndividualConstraint object */
+	 G_API_GENEVA bool operator!=(const GParameterSetFormulaConstraint&) const;
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA void compare(
-		const GObject& // the other object
-		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		, const double& // the limit for allowed deviations of floating point types
-	) const override;
+	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
+	 virtual G_API_GENEVA void compare(
+		 const GObject& // the other object
+		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		 , const double& // the limit for allowed deviations of floating point types
+	 ) const override;
 
-	/** @brief Adds local configuration options to a GParserBuilder object */
-	virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 protected:
-	/** @brief Checks whether a given GParameterSet object is valid */
-	virtual G_API_GENEVA double check_(const GParameterSet *) const override;
+	 /** @brief Checks whether a given GParameterSet object is valid */
+	 G_API_GENEVA double check_(const GParameterSet *) const override;
 
-	/** @brief Loads the data of another GParameterSetConstraint */
-	virtual G_API_GENEVA void load_(const GObject*) override;
+	 /** @brief Loads the data of another GParameterSetConstraint */
+	 G_API_GENEVA void load_(const GObject*) override;
 
 private:
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const override;
+	 /** @brief Creates a deep clone of this object */
+	 G_API_GENEVA GObject* clone_() const override;
 
-	/** @brief The default constructor -- intentionally private*/
-	G_API_GENEVA GParameterSetFormulaConstraint();
+	 /** @brief The default constructor -- intentionally private*/
+	 G_API_GENEVA GParameterSetFormulaConstraint();
 
-	std::string rawFormula_; ///< Holds the raw formula, in which values haven't been replaced yet
+	 std::string rawFormula_; ///< Holds the raw formula, in which values haven't been replaced yet
 };
 
 /******************************************************************************/

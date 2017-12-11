@@ -90,8 +90,8 @@ public:
 	 /** @brief The standard destructor */
 	 virtual ~GSimulatedAnnealing() = default;
 
- 	 /** @brief The standard assignment operator */
-	  GSimulatedAnnealing& operator=(const GSimulatedAnnealing& cp);
+	 /** @brief The standard assignment operator */
+	 GSimulatedAnnealing& operator=(const GSimulatedAnnealing& cp);
 
 	 /** @brief Checks for equality with another GSimulatedAnnealingT object */
 	 virtual bool operator==(const GSimulatedAnnealing& cp) const;
@@ -106,13 +106,13 @@ public:
 	 ) const override;
 
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-	 virtual void resetToOptimizationStart() override;
+	 void resetToOptimizationStart() override;
 
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual std::string getAlgorithmPersonalityType() const override;
+	 std::string getAlgorithmPersonalityType() const override;
 
 	 /** @brief Returns the name of this optimization algorithm */
-	 virtual std::string getAlgorithmName() const override;
+	 std::string getAlgorithmName() const override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual void addConfigurationOptions (
@@ -136,42 +136,42 @@ public:
 	 /** @brief Retrieves the current temperature. This function is used for simulated annealing */
 	 double getT() const;
 
-    /** @brief Emits a name for this class / object */
-	 virtual std::string name() const override;
+	 /** @brief Emits a name for this class / object */
+	 std::string name() const override;
 
 protected:
 	 /***************************************************************************/
 
 	 /** @brief Loads the data of another GSimulatedAnnealingT object, camouflaged as a GObject */
-	 virtual void load_(const GObject *cp) override;
+	 void load_(const GObject *cp) override;
 	 /** @brief Creates a deep copy of this object */
-	 virtual GObject *clone_() const override;
+	 GObject *clone_() const override;
 
 	 /** @brief Some error checks related to population sizes */
-	 virtual void populationSanityChecks() const override;
+	 void populationSanityChecks() const override;
 
 	 /** @brief Adapt all children in parallel */
-	 virtual void adaptChildren() override;
+	 void adaptChildren() override;
 
 	 /** @brief  We submit individuals to the broker connector and wait for processed items. */
-	 virtual void runFitnessCalculation() override;
+	 void runFitnessCalculation() override;
 
 	 /** @brief Fixes the population after a job submission */
 	 void fixAfterJobSubmission();
 
 	 /** @brief Choose new parents, based on the SA selection scheme. */
-	 virtual void selectBest() override;
+	 void selectBest() override;
 
 	 /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-	 virtual std::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
+	 std::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
 
 	 /** @brief Does any necessary initialization work before the optimization loop starts */
-	 virtual void init() override;
+	 void init() override;
 	 /** @brief Does any necessary finalization work after the optimization loop has ended */
-	 virtual void finalize() override;
+	 void finalize() override;
 
 	 /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-	 virtual std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+	 std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 private:
 	 /***************************************************************************/
@@ -205,9 +205,9 @@ public:
 	 /** @brief Applies modifications to this object */
 	 bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override;
+	 void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override;
+	 void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };

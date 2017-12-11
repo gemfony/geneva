@@ -223,7 +223,7 @@ public:
 	 /**
 	  * Retrieve the address of this object
 	  */
-	 virtual NAMEANDIDTYPE getVarAddress() const override {
+	 NAMEANDIDTYPE getVarAddress() const override {
 		 return var_;
 	 }
 
@@ -255,7 +255,7 @@ public:
 	  *
 	  * @return A boolean indicating whether a warp has taken place
 	  */
-	 virtual bool goToNextItem() override {
+	 bool goToNextItem() override {
 		 if(++step_ >= nSteps_) {
 			 step_ = 0;
 			 return true;
@@ -267,7 +267,7 @@ public:
 	 /**
 	  * Checks whether step_ points to the last item in the array
 	  */
-	 virtual bool isAtTerminalPosition() const override {
+	 bool isAtTerminalPosition() const override {
 		 if(step_ >= nSteps_) return true;
 		 else return false;
 	 }
@@ -276,7 +276,7 @@ public:
 	 /**
 	  * Checks whether step_ points to the first item in the array
 	  */
-	 virtual bool isAtFirstPosition() const override {
+	 bool isAtFirstPosition() const override {
 		 if(0 == step_) return true;
 		 else return false;
 	 }
@@ -285,7 +285,7 @@ public:
 	 /**
 	  * Resets the current position
 	  */
-	 virtual void resetPosition() override {
+	 void resetPosition() override {
 		 step_ = 0;
 	 }
 
@@ -293,7 +293,7 @@ public:
 	 /**
 	  * Retrieve the type descriptor
 	  */
-	 virtual std::string getTypeDescriptor() const override {
+	 std::string getTypeDescriptor() const override {
 		 return typeDescription_;
 	 }
 
@@ -325,7 +325,7 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
-	 virtual void dummyFunction() override {};
+	 void dummyFunction() override {};
 
 	 /***************************************************************************/
 	 /**
@@ -666,16 +666,16 @@ public:
 
 
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-	 virtual G_API_GENEVA void resetToOptimizationStart() override;
+	 G_API_GENEVA void resetToOptimizationStart() override;
 
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
+	 G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
 
 	 /** @brief Retrieves the number of processable items for the current iteration */
-	 virtual G_API_GENEVA std::size_t getNProcessableItems() const override;
+	 G_API_GENEVA std::size_t getNProcessableItems() const override;
 
 	 /** @brief Returns the name of this optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual G_API_GENEVA void addConfigurationOptions (
@@ -683,7 +683,7 @@ public:
 	 ) override;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
 	 G_API_GENEVA void setNMonitorInds(std::size_t);
@@ -708,28 +708,28 @@ public:
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another population */
-	 virtual G_API_GENEVA void load_(const GObject *) override;
+	 G_API_GENEVA void load_(const GObject *) override;
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override;
+	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	 virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
+	 G_API_GENEVA std::tuple<double, double> cycleLogic() override;
 	 /** @brief Does some preparatory work before the optimization starts */
-	 virtual G_API_GENEVA void init() override;
+	 G_API_GENEVA void init() override;
 	 /** @brief Does any necessary finalization work */
-	 virtual G_API_GENEVA void finalize() override;
+	 G_API_GENEVA void finalize() override;
 
 	 /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-	 virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+	 G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 	 /** @brief Resizes the population to the desired level and does some error checks */
-	 virtual G_API_GENEVA void adjustPopulation() override;
+	 G_API_GENEVA void adjustPopulation() override;
 
 	 /** @brief Triggers fitness calculation of a number of individuals */
-	 virtual G_API_GENEVA void runFitnessCalculation() override;
+	 G_API_GENEVA void runFitnessCalculation() override;
 
 	 /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
-	 virtual G_API_GENEVA bool customHalt() const override;
+	 G_API_GENEVA bool customHalt() const override;
 
 private:
 	 /***************************************************************************/
@@ -815,11 +815,11 @@ private:
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 } /* namespace Geneva */

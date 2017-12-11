@@ -81,9 +81,9 @@ public:
 	 virtual G_API_GENEVA ~GSwarmAlgorithmFactory();
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-	 virtual G_API_GENEVA std::string getMnemonic() const override;
+	 G_API_GENEVA std::string getMnemonic() const override;
 	 /** @brief Gives access to a clear-text description of the algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 protected:
 	 /** @brief Creates individuals of this type */
@@ -92,7 +92,7 @@ protected:
 		 , const std::size_t&
 	 ) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
+	 G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
 };
 
 /******************************************************************************/

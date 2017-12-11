@@ -94,7 +94,7 @@ public:
 	 G_API_GENEVA  GConstrainedInt32Object& operator=(const GConstrainedInt32Object&);
 
 	 /** @brief An assignment operator for the contained value type */
-	 virtual G_API_GENEVA std::int32_t operator=(const std::int32_t&) override;
+	 G_API_GENEVA std::int32_t operator=(const std::int32_t&) override;
 
 	 /** @brief Checks for equality with another GConstrainedInt32Object object */
 	 G_API_GENEVA bool operator==(const GConstrainedInt32Object&) const;
@@ -109,13 +109,13 @@ public:
 	 ) const override;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 protected:
 	 /** @brief Loads the data of another GObject */
-	 virtual G_API_GENEVA void load_(const GObject*) override;
+	 G_API_GENEVA void load_(const GObject*) override;
 	 /** @brief Creates a deep clone of this object. */
-	 virtual G_API_GENEVA GObject* clone_() const override;
+	 G_API_GENEVA GObject* clone_() const override;
 
 	 /** @brief Triggers random initialization of the parameter object */
 	 virtual G_API_GENEVA bool randomInit_(
@@ -124,17 +124,17 @@ protected:
 	 ) override;
 
 	 /** @brief Attach our local value to the vector. */
-	 virtual G_API_GENEVA void int32Streamline(std::vector<std::int32_t>&, const activityMode& am) const override;
+	 G_API_GENEVA void int32Streamline(std::vector<std::int32_t>&, const activityMode& am) const override;
 	 /** @brief Attach boundaries of type std::int32_t to the vectors */
-	 virtual G_API_GENEVA void int32Boundaries(std::vector<std::int32_t>&, std::vector<std::int32_t>&, const activityMode& am) const override;
+	 G_API_GENEVA void int32Boundaries(std::vector<std::int32_t>&, std::vector<std::int32_t>&, const activityMode& am) const override;
 	 /** @brief Tell the audience that we own a std::int32_t value */
-	 virtual G_API_GENEVA std::size_t countInt32Parameters(const activityMode& am) const override;
+	 G_API_GENEVA std::size_t countInt32Parameters(const activityMode& am) const override;
 	 /** @brief Assigns part of a value vector to the parameter */
-	 virtual G_API_GENEVA void assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&, const activityMode& am) override;
+	 G_API_GENEVA void assignInt32ValueVector(const std::vector<std::int32_t>&, std::size_t&, const activityMode& am) override;
 	 /** @brief Attach our local value to the vector. */
-	 virtual G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) const override;
+	 G_API_GENEVA void int32Streamline(std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) const override;
 	 /** @brief Assigns part of a value vector to the parameter */
-	 virtual G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) override;
+	 G_API_GENEVA void assignInt32ValueVectors(const std::map<std::string, std::vector<std::int32_t>>&, const activityMode& am) override;
 
 	 /** @brief Multiplication with a random value in a given range */
 	 virtual G_API_GENEVA void int32MultiplyByRandom(
@@ -144,23 +144,23 @@ protected:
 		 , Gem::Hap::GRandomBase&
 	 ) override;
 	 /** @brief Multiplication with a random value in the range [0,1[ */
-	 virtual G_API_GENEVA void int32MultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) override;
+	 G_API_GENEVA void int32MultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) override;
 	 /** @brief Multiplication with a constant value */
-	 virtual G_API_GENEVA void int32MultiplyBy(const std::int32_t& value, const activityMode& am) override;
+	 G_API_GENEVA void int32MultiplyBy(const std::int32_t& value, const activityMode& am) override;
 	 /** @brief Initialization with a constant value */
-	 virtual G_API_GENEVA void int32FixedValueInit(const std::int32_t& value, const activityMode& am) override;
+	 G_API_GENEVA void int32FixedValueInit(const std::int32_t& value, const activityMode& am) override;
 	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-	 virtual G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+	 G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-	 virtual G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+	 G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
 public:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

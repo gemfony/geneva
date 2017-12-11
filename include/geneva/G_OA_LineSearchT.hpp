@@ -109,13 +109,13 @@ public:
 	 ) const override;
 
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual G_API_GENEVA std::string getOptimizationAlgorithm() const override;
+	 G_API_GENEVA std::string getOptimizationAlgorithm() const override;
 
 	 /** @brief Retrieves the number of processable items for the current iteration */
-	 virtual G_API_GENEVA std::size_t getNProcessableItems() const override;
+	 G_API_GENEVA std::size_t getNProcessableItems() const override;
 
 	 /** @brief Returns the name of this optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual G_API_GENEVA void addConfigurationOptions (
@@ -123,30 +123,30 @@ public:
 	 ) override;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another population */
-	 virtual G_API_GENEVA void load_(const GObject *) override;
+	 G_API_GENEVA void load_(const GObject *) override;
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override;
+	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-	 virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
+	 G_API_GENEVA std::tuple<double, double> cycleLogic() override;
 	 /** @brief Does some preparatory work before the optimization starts */
-	 virtual G_API_GENEVA void init() override;
+	 G_API_GENEVA void init() override;
 	 /** @brief Does any necessary finalization work */
-	 virtual G_API_GENEVA void finalize() override;
+	 G_API_GENEVA void finalize() override;
 
 	 /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-	 virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+	 G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 	 /** @brief Resizes the population to the desired level and does some error checks */
-	 virtual G_API_GENEVA void adjustPopulation() override;
+	 G_API_GENEVA void adjustPopulation() override;
 
 	 /** @brief Triggers fitness calculation of a number of individuals */
-	 virtual G_API_GENEVA void runFitnessCalculation() override;
+	 G_API_GENEVA void runFitnessCalculation() override;
 
 private:
 	 /***************************************************************************/
@@ -155,11 +155,11 @@ private:
 public
 	 /***************************************************************************/:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

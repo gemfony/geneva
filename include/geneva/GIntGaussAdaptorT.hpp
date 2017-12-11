@@ -158,7 +158,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GIntGaussAdaptorT<int_type>& operator=(const GIntGaussAdaptorT<int_type>& cp) {
+	 GIntGaussAdaptorT<int_type>& operator=(const GIntGaussAdaptorT<int_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -229,13 +229,13 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief Retrieves the id of this adaptor */
-	 virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
+	 Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
 	 /***************************************************************************/
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GIntGaussAdaptorT");
 	 }
 
@@ -246,7 +246,7 @@ protected:
 	  *
 	  * @param cp A copy of another GIntGaussAdaptorT<int_type> object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Convert the pointer to our target type and check for self-assignment
 		 const GIntGaussAdaptorT<int_type> * p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
 
@@ -298,7 +298,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. */
-	 virtual GObject* clone_() const override = 0;
+	 GObject* clone_() const override = 0;
 
 public:
 	 /***************************************************************************/
@@ -307,7 +307,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 bool result = false;
 
@@ -326,7 +326,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
 		 GNumGaussAdaptorT<int_type, double>::specificTestsNoFailureExpected_GUnitTests();
@@ -344,7 +344,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent class'es function
 		 GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests();

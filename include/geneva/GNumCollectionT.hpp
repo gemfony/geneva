@@ -167,7 +167,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GNumCollectionT<num_type>& operator=(const GNumCollectionT<num_type>& cp) {
+	 GNumCollectionT<num_type>& operator=(const GNumCollectionT<num_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -308,7 +308,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GNumCollectionT");
 	 }
 
@@ -362,7 +362,7 @@ protected:
 	  *
 	  * @param cp A copy of another GNumCollectionT<num_type> object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject *cp) override {
+	 void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GNumCollectionT<num_type> reference independent of this object and convert the pointer
 		 const GNumCollectionT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumCollectionT<num_type>>(cp, this);
 
@@ -379,7 +379,7 @@ protected:
 	  * Returns a "comparative range". This is e.g. used to make Gauss-adaption
 	  * independent of a parameters value range
 	  */
-	 virtual num_type range() const override {
+	 num_type range() const override {
 		 return upperInitBoundary_ - lowerInitBoundary_;
 	 }
 
@@ -398,7 +398,7 @@ private:
 	  *
 	  * @return A pointer to a deep clone of this object
 	  */
-	 virtual GObject *clone_() const override = 0;
+	 GObject *clone_() const override = 0;
 
 	 /***************************************************************************/
 	 num_type lowerInitBoundary_; ///< The lower boundary for random initialization
@@ -411,7 +411,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 bool result = false;
 
@@ -430,7 +430,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterCollectionT<num_type>::specificTestsNoFailureExpected_GUnitTests();
@@ -463,7 +463,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterCollectionT<num_type>::specificTestsFailuresExpected_GUnitTests();

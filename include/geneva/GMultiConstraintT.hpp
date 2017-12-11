@@ -112,7 +112,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GPreEvaluationValidityCheckT<ind_type>& operator=(const GPreEvaluationValidityCheckT<ind_type>& cp) {
+	 GPreEvaluationValidityCheckT<ind_type>& operator=(const GPreEvaluationValidityCheckT<ind_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -307,7 +307,7 @@ protected:
 	 /**
 	  * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Check that we are dealing with a GPreEvaluationValidityCheckT<ind_type>  reference independent of this object and convert the pointer
 		 const GPreEvaluationValidityCheckT<ind_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GPreEvaluationValidityCheckT<ind_type>>(cp, this);
 
@@ -321,7 +321,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const override = 0;
+	 GObject* clone_() const override = 0;
 
 	 /***************************************************************************/
 
@@ -386,7 +386,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GValidityCheckContainerT<ind_type>& operator=(const GValidityCheckContainerT<ind_type>& cp) {
+	 GValidityCheckContainerT<ind_type>& operator=(const GValidityCheckContainerT<ind_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -476,13 +476,13 @@ public:
 protected:
 	 /***************************************************************************/
 	 /** @brief Checks whether a given parameter set is valid. To be specified in derived classes */
-	 virtual double check_(const ind_type *) const override = 0;
+	 double check_(const ind_type *) const override = 0;
 
 	 /***************************************************************************/
 	 /**
 	  * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Check that we are dealing with a GValidityCheckContainerT<ind_type>  reference independent of this object and convert the pointer
 		 const GValidityCheckContainerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GValidityCheckContainerT<ind_type>>(cp, this);
 
@@ -500,7 +500,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const override = 0;
+	 GObject* clone_() const override = 0;
 
 	 /***************************************************************************/
 };
@@ -568,7 +568,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp) {
+	 GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -661,7 +661,7 @@ protected:
 	  * DO have to take care here of a situation where the invalidity equals
 	  * MIN- or MAX_DOUBLE.
 	  */
-	 virtual double check_(const ind_type *cp) const override {
+	 double check_(const ind_type *cp) const override {
 		 // First identify invalid checks
 		 std::vector<double> invalidChecks;
 		 double validityLevel;
@@ -749,7 +749,7 @@ protected:
 	 /**
 	  * Loads the data of another GPreEvaluationValidityCheckT<ind_type>
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Check that we are dealing with a GCheckCombinerT<ind_type>  reference independent of this object and convert the pointer
 		 const GCheckCombinerT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GCheckCombinerT<ind_type>>(cp, this);
 
@@ -765,7 +765,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object
 	  */
-	 virtual GObject* clone_() const override {
+	 GObject* clone_() const override {
 		 return new GCheckCombinerT<ind_type>(*this);
 	 }
 

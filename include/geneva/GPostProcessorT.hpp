@@ -72,191 +72,191 @@ template <typename base_type>
 class GPostProcessorBaseT
 	: public Gem::Common::GSerializableFunctionObjectT<base_type>
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive &ar, const unsigned int) {
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive &ar, const unsigned int) {
+		 using boost::serialization::make_nvp;
 
-		ar
-		& make_nvp("GSerializableFunctionObjectT_base_type"
-					  , boost::serialization::base_object<Gem::Common::GSerializableFunctionObjectT<base_type>>(*this))
-		& BOOST_SERIALIZATION_NVP(m_allowed_mnemonics);
-	}
+		 ar
+		 & make_nvp("GSerializableFunctionObjectT_base_type"
+						, boost::serialization::base_object<Gem::Common::GSerializableFunctionObjectT<base_type>>(*this))
+		 & BOOST_SERIALIZATION_NVP(m_allowed_mnemonics);
+	 }
 
-	///////////////////////////////////////////////////////////////////////
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/**************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GPostProcessorBaseT()
-	{ /* nothing */ }
+	 /**************************************************************************/
+	 /**
+	  * The default constructor
+	  */
+	 GPostProcessorBaseT()
+	 { /* nothing */ }
 
-	/**************************************************************************/
-	/**
-	 * The copy constructor
-	 */
-	GPostProcessorBaseT(const GPostProcessorBaseT<base_type>& cp)
-		: m_allowed_mnemonics(cp.m_allowed_mnemonics)
-	{ /* nothing */ }
+	 /**************************************************************************/
+	 /**
+	  * The copy constructor
+	  */
+	 GPostProcessorBaseT(const GPostProcessorBaseT<base_type>& cp)
+		 : m_allowed_mnemonics(cp.m_allowed_mnemonics)
+	 { /* nothing */ }
 
-	/**************************************************************************/
-	/**
-	 * The destructor
-	 */
-	virtual ~GPostProcessorBaseT()
-	{
-		m_allowed_mnemonics.clear();
-	}
+	 /**************************************************************************/
+	 /**
+	  * The destructor
+	  */
+	 virtual ~GPostProcessorBaseT()
+	 {
+		 m_allowed_mnemonics.clear();
+	 }
 
-	/**************************************************************************/
-	/**
-	 * Checks for equality with another GPostProcessorBaseT<base_type> object
-	 *
-	 * @param  cp A constant reference to another GPostProcessorBaseT<base_type> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const GPostProcessorBaseT<base_type>& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
+	 /**************************************************************************/
+	 /**
+	  * Checks for equality with another GPostProcessorBaseT<base_type> object
+	  *
+	  * @param  cp A constant reference to another GPostProcessorBaseT<base_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 bool operator==(const GPostProcessorBaseT<base_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
 
-	/**************************************************************************/
-	/**
-	 * Checks for inequality with another GPostProcessorBaseT<base_type> object
-	 *
-	 * @param  cp A constant reference to another GPostProcessorBaseT<base_type> object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const GPostProcessorBaseT<base_type>& cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch(g_expectation_violation&) {
-			return false;
-		}
-	}
+	 /**************************************************************************/
+	 /**
+	  * Checks for inequality with another GPostProcessorBaseT<base_type> object
+	  *
+	  * @param  cp A constant reference to another GPostProcessorBaseT<base_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 bool operator!=(const GPostProcessorBaseT<base_type>& cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch(g_expectation_violation&) {
+			 return false;
+		 }
+	 }
 
-	/**************************************************************************/
-	/**
-	 * Returns the name of this class
-	 */
-	virtual std::string name() const override {
-		return std::string("GPostProcessorBaseT");
-	}
+	 /**************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name() const override {
+		 return std::string("GPostProcessorBaseT");
+	 }
 
-	/**************************************************************************/
-	/**
-	 * Checks for compliance with expectations with respect to another object
-	 * of the same type
-	 *
-	 * @param cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-	virtual void compare(
-		const Gem::Common::GSerializableFunctionObjectT<base_type> &cp
-		, const Gem::Common::expectation &e
-		, const double &limit
-	) const override {
-		using namespace Gem::Common;
+	 /**************************************************************************/
+	 /**
+	  * Checks for compliance with expectations with respect to another object
+	  * of the same type
+	  *
+	  * @param cp A constant reference to another GEvolutionaryAlgorithmPostOptimizer object
+	  * @param e The expected outcome of the comparison
+	  * @param limit The maximum deviation for floating point values (important for similarity checks)
+	  */
+	 virtual void compare(
+		 const Gem::Common::GSerializableFunctionObjectT<base_type> &cp
+		 , const Gem::Common::expectation &e
+		 , const double &limit
+	 ) const override {
+		 using namespace Gem::Common;
 
-		// Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-		const GPostProcessorBaseT<base_type> *p_load
-			= Gem::Common::g_convert_and_compare<GSerializableFunctionObjectT<base_type>, GPostProcessorBaseT<base_type>>(cp, this);
+		 // Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
+		 const GPostProcessorBaseT<base_type> *p_load
+			 = Gem::Common::g_convert_and_compare<GSerializableFunctionObjectT<base_type>, GPostProcessorBaseT<base_type>>(cp, this);
 
-		GToken token("GPostProcessorBaseT", e);
+		 GToken token("GPostProcessorBaseT", e);
 
-		// Compare our parent data ...
-		Gem::Common::compare_base<GSerializableFunctionObjectT<base_type>>(IDENTITY(*this, *p_load), token);
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GSerializableFunctionObjectT<base_type>>(IDENTITY(*this, *p_load), token);
 
-		// ... and then our local data
-		compare_t<std::set<std::string>>(IDENTITY(m_allowed_mnemonics, p_load->m_allowed_mnemonics), token);
+		 // ... and then our local data
+		 compare_t<std::set<std::string>>(IDENTITY(m_allowed_mnemonics, p_load->m_allowed_mnemonics), token);
 
-		// React on deviations from the expectation
-		token.evaluate();
-	}
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
 
 
-	/**************************************************************************/
-	/**
-	 * Permits postprocessing for a specific type
-	 */
-	void allowPostProcessingFor(const std::string& oa_mnemonic) {
-		m_allowed_mnemonics.insert(oa_mnemonic);
-	}
+	 /**************************************************************************/
+	 /**
+	  * Permits postprocessing for a specific type
+	  */
+	 void allowPostProcessingFor(const std::string& oa_mnemonic) {
+		 m_allowed_mnemonics.insert(oa_mnemonic);
+	 }
 
-	/**************************************************************************/
-	/**
-	 * Allows to check whether post-processing is allowed for a given base_type
-	 */
-	bool postProcessingAllowedFor(const base_type& ind) const {
-		if(m_allowed_mnemonics.count("all") != 0) {
-			return true;
-		}
+	 /**************************************************************************/
+	 /**
+	  * Allows to check whether post-processing is allowed for a given base_type
+	  */
+	 bool postProcessingAllowedFor(const base_type& ind) const {
+		 if(m_allowed_mnemonics.count("all") != 0) {
+			 return true;
+		 }
 
-		// Check whether the given mnemonic was registered with this class
-		if(m_allowed_mnemonics.count(ind.getMnemonic()) != 0) {
-			return true;
-		}
+		 // Check whether the given mnemonic was registered with this class
+		 if(m_allowed_mnemonics.count(ind.getMnemonic()) != 0) {
+			 return true;
+		 }
 
-		// Element was not found -- the algorithm is not eligible for post-processing
-		return false;
-	}
+		 // Element was not found -- the algorithm is not eligible for post-processing
+		 return false;
+	 }
 
 protected:
-   /**************************************************************************/
-	/** @brief Raw post-processing (no checks for eligibility); purely virtual */
-	virtual bool raw_processing_(base_type& p_raw) BASE = 0;
+	 /**************************************************************************/
+	 /** @brief Raw post-processing (no checks for eligibility); purely virtual */
+	 virtual bool raw_processing_(base_type& p_raw) BASE = 0;
 
-	/**************************************************************************/
-	/**
-	 * Post-processing is triggered here
-	 */
-	virtual bool process_(base_type& p) override {
-		if(!this->postProcessingAllowedFor(p)) {
-			return true;
-		}
+	 /**************************************************************************/
+	 /**
+	  * Post-processing is triggered here
+	  */
+	 bool process_(base_type& p) override {
+		 if(!this->postProcessingAllowedFor(p)) {
+			 return true;
+		 }
 
-		return raw_processing_(p);
-	}
+		 return raw_processing_(p);
+	 }
 
-	/**************************************************************************/
-	/**
-	 * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
-	 */
-	virtual void load_(const Gem::Common::GSerializableFunctionObjectT<base_type> *cp) override {
-		using namespace Gem::Common;
+	 /**************************************************************************/
+	 /**
+	  * Loads the data of another GEvolutionaryAlgorithmPostOptimizer object
+	  */
+	 void load_(const Gem::Common::GSerializableFunctionObjectT<base_type> *cp) override {
+		 using namespace Gem::Common;
 
-		// Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-		const GPostProcessorBaseT<base_type> *p_load
-			= g_convert_and_compare<GSerializableFunctionObjectT<base_type>, GPostProcessorBaseT<base_type>>(cp, this);
+		 // Check that we are dealing with a Gem::Common::GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
+		 const GPostProcessorBaseT<base_type> *p_load
+			 = g_convert_and_compare<GSerializableFunctionObjectT<base_type>, GPostProcessorBaseT<base_type>>(cp, this);
 
-		// Load our parent class'es data ...
-		Gem::Common::GSerializableFunctionObjectT<base_type>::load_(cp);
+		 // Load our parent class'es data ...
+		 Gem::Common::GSerializableFunctionObjectT<base_type>::load_(cp);
 
-		// ... and then our local data
-		m_allowed_mnemonics = p_load->m_allowed_mnemonics;
-	}
+		 // ... and then our local data
+		 m_allowed_mnemonics = p_load->m_allowed_mnemonics;
+	 }
 
 private:
-	/**************************************************************************/
-	/** @brief Creates a deep clone of this object; purely virtual */
-	virtual Gem::Common::GSerializableFunctionObjectT<base_type> * clone_() const override = 0;
+	 /**************************************************************************/
+	 /** @brief Creates a deep clone of this object; purely virtual */
+	 Gem::Common::GSerializableFunctionObjectT<base_type> * clone_() const override = 0;
 
-	/**************************************************************************/
-	// Data
+	 /**************************************************************************/
+	 // Data
 
-	std::set<std::string> m_allowed_mnemonics; ///< A list of mnemonics for which optimization is allowed
+	 std::set<std::string> m_allowed_mnemonics; ///< A list of mnemonics for which optimization is allowed
 };
 
 /******************************************************************************/
@@ -293,7 +293,7 @@ public:
 	 /** @brief Initialization with the execution mode and configuration file */
 	 GEvolutionaryAlgorithmPostOptimizer(
 		 execMode executionMode
-	 	 , const std::string& oa_configFile
+		 , const std::string& oa_configFile
 		 , const std::string& executor_configFile
 	 );
 	 /** @brief The copy constructor */
@@ -307,7 +307,7 @@ public:
 	 bool operator!=(const GEvolutionaryAlgorithmPostOptimizer& cp) const;
 
 	 /** @brief Returns the name of this class */
-	 virtual std::string name() const override;
+	 std::string name() const override;
 
 	 /** @brief Checks for compliance with expectations with respect to another object of the same type */
 	 virtual void compare(
@@ -334,11 +334,11 @@ public:
 protected:
 	 /**************************************************************************/
 	 /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
-	 virtual void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override;
+	 void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override;
 	 /** @brief Creates a deep clone of this object */
-	 virtual Gem::Common::GSerializableFunctionObjectT<GParameterSet> * clone_() const override;
+	 Gem::Common::GSerializableFunctionObjectT<GParameterSet> * clone_() const override;
 	 /** @brief The actual post-processing takes place here (no further checks) */
-	 virtual bool raw_processing_(GParameterSet& p) override;
+	 bool raw_processing_(GParameterSet& p) override;
 
 private:
 	 /** @brief The standard constructor */

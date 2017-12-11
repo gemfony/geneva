@@ -84,8 +84,8 @@ namespace Geneva {
  */
 class GParameterSet
 	: public GOptimizableEntity
-   , public Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>
-	, public Gem::Courtier::GProcessingContainerT<GParameterSet, double>
+	  , public Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>
+	  , public Gem::Courtier::GProcessingContainerT<GParameterSet, double>
 {
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
@@ -133,7 +133,7 @@ public:
 	 void swap(GParameterSet& cp);
 
 	 /** @brief Allows to randomly initialize parameter members */
-	 virtual G_API_GENEVA bool randomInit(const activityMode&) override;
+	 G_API_GENEVA bool randomInit(const activityMode&) override;
 
 	 /** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	 G_API_GENEVA void setMaxMode(const bool&);
@@ -142,10 +142,10 @@ public:
 	 G_API_GENEVA std::shared_ptr<GParameterSet> parameter_clone() const;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
+	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 	 /** @brief Allows to assign a name to the role of this individual(-derivative) */
-	 virtual G_API_GENEVA std::string getIndividualCharacteristic() const override;
+	 G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
 	 /** @brief Provides access to all data stored in the individual in a user defined selection */
 	 virtual G_API_GENEVA void custom_streamline(std::vector<boost::any>&) BASE;
@@ -156,7 +156,7 @@ public:
 	 G_API_GENEVA std::string toCSV(bool=false, bool=true, bool=true, bool=true) const;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Retrieves a parameter of a given type at the specified position */
 	 virtual G_API_GENEVA boost::any getVarVal(
@@ -253,7 +253,7 @@ public:
 			 }
 				 break;
 
-			 //---------------------------------------------------------------------
+				 //---------------------------------------------------------------------
 			 case 1: // var[3]
 			 case 2: // var    --> treated as var[0]
 			 {
@@ -263,7 +263,7 @@ public:
 			 }
 				 break;
 
-			 //---------------------------------------------------------------------
+				 //---------------------------------------------------------------------
 			 default:
 			 {
 				 throw gemfony_exception(
@@ -274,7 +274,7 @@ public:
 			 }
 				 break;
 
-			 //---------------------------------------------------------------------
+				 //---------------------------------------------------------------------
 		 }
 
 		 return result;
@@ -577,28 +577,28 @@ protected:
 	  * Make the vector wrapper purely virtual allows the compiler to perform
 	  * further optimizations.
 	  */
-	 virtual void dummyFunction() override { /* nothing */ }
+	 void dummyFunction() override { /* nothing */ }
 
 	 /***************************************************************************/
 	 /** @brief Do the required processing for this object */
-	 virtual G_API_GENEVA void process_() override;
+	 G_API_GENEVA void process_() override;
 
 	 /** @brief Allows to give an indication of the processing result (if any); may not throw. */
-	 virtual G_API_GENEVA double get_processing_result() const noexcept override;
+	 G_API_GENEVA double get_processing_result() const noexcept override;
 
 	 /** @brief Loads the data of another GObject */
-	 G_API_GENEVA virtual void load_(const GObject*) override;
+	 G_API_GENEVA  void load_(const GObject*) override;
 
 	 /** @brief The actual fitness calculation takes place here */
-	 virtual G_API_GENEVA double fitnessCalculation() override ;
+	 G_API_GENEVA double fitnessCalculation() override ;
 	 /* @brief The actual adaption operations. */
-	 virtual G_API_GENEVA std::size_t customAdaptions() override ;
+	 G_API_GENEVA std::size_t customAdaptions() override ;
 
 private:
 	 explicit G_API_GENEVA GParameterSet(const float&) = delete; ///< Intentionally private and undefined
 
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA virtual GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override;
 
 	 /** @brief Uniformly distributed integer random numbers */
 	 std::uniform_int_distribution<std::size_t> m_uniform_int;
@@ -609,11 +609,11 @@ private:
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 	 /***************************************************************************/
 };
 

@@ -181,7 +181,7 @@ public:
 	 /** @brief Returns all raw or transformed results in a std::vector */
 	 G_API_GENEVA std::vector<double> fitnessVec(bool) const override;
 	 /** @brief Returns all transformed fitness results in a std::vector */
-	 virtual G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
+	 G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
 
 	 /** @brief A wrapper for the non-const fitness function, so we can bind to it */
 	 G_API_GENEVA double nonConstFitness(const std::size_t&, bool, bool);

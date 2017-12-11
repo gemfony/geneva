@@ -98,23 +98,23 @@ public:
 	 ) const override;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 	 /** @brief Retrieves the mnemonic of the optimization algorithm */
-	 virtual G_API_GENEVA std::string getMnemonic() const override;
+	 G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
 	 /** @brief Loads the data of another GSAPersonalityTraits object */
-	 virtual G_API_GENEVA void load_(const GObject*) override;
+	 G_API_GENEVA void load_(const GObject*) override;
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject* clone_() const override;
+	 G_API_GENEVA GObject* clone_() const override;
 
 public:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

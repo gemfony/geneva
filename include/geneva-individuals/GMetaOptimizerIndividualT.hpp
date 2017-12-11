@@ -71,9 +71,9 @@ namespace Geneva {
 /******************************************************************************/
 // Different types of optimization targets
 enum class metaOptimizationTarget : Gem::Common::ENUMBASETYPE {
- BESTFITNESS = 0,
- MINSOLVERCALLS = 1,
- MC_MINSOLVER_BESTFITNESS = 2 // Multi-criterion optimization with least number of solver calls and best average fitness as targets
+	 BESTFITNESS = 0,
+	 MINSOLVERCALLS = 1,
+	 MC_MINSOLVER_BESTFITNESS = 2 // Multi-criterion optimization with least number of solver calls and best average fitness as targets
 };
 
 /******************************************************************************/
@@ -840,7 +840,7 @@ protected:
 	  *
 	  * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject *cp) override {
+	 void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GMetaOptimizerIndividualT<ind_type> reference independent of this object and convert the pointer
 		 const GMetaOptimizerIndividualT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GMetaOptimizerIndividualT<ind_type>>(cp, this);
 
@@ -864,7 +864,7 @@ protected:
 	  * @param The id of the target function (ignored here)
 	  * @return The value of this object, as calculated with the evaluation function
 	  */
-	 virtual double fitnessCalculation() override {
+	 double fitnessCalculation() override {
 		 bool first_maxMode = true;
 		 bool maxMode = false;
 
@@ -939,7 +939,7 @@ protected:
 			 // Register an executor
 			 ea_ptr->registerExecutor(
 				 execMode::SERIAL
-			    , "./config/GMetaOptimizerSerialExecutor.json"
+				 , "./config/GMetaOptimizerSerialExecutor.json"
 			 );
 
 			 // Set the population parameters
@@ -1089,7 +1089,7 @@ public:
 	  *
 	  * @return A boolean indicating whether
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -1118,7 +1118,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed.
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using namespace Gem::Geneva;
 
@@ -1143,7 +1143,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail.
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using namespace Gem::Geneva;
 
@@ -1696,7 +1696,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GOptOptMonitorT<>");
 	 }
 
@@ -1875,7 +1875,7 @@ protected:
 		*
 		* @param cp A copy of another GOptOptMonitorT object, camouflaged as a GObject
 		*/
-	 virtual void load_(const GObject *cp) override {
+	 void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GOptOptMonitorT<ind_type> reference independent of this object and convert the pointer
 		 const GOptOptMonitorT<ind_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GOptOptMonitorT<ind_type>>(cp, this);
 
@@ -1903,7 +1903,7 @@ private:
 		*
 		* @return A deep clone of this object
 		*/
-	 virtual GObject *clone_() const override {
+	 GObject *clone_() const override {
 		 return new GOptOptMonitorT<ind_type>(*this);
 	 }
 
@@ -1931,7 +1931,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -1957,7 +1957,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -1973,7 +1973,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;

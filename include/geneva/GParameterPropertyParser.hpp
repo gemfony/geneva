@@ -89,187 +89,187 @@ template <typename par_type>
 class parPropSpec
 	: public Gem::Common::GCommonInterfaceT<parPropSpec<par_type>>
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive &ar, const unsigned int)  {
-		using boost::serialization::make_nvp;
-		using namespace Gem::Common;
+	 template<typename Archive>
+	 void serialize(Archive &ar, const unsigned int)  {
+		 using boost::serialization::make_nvp;
+		 using namespace Gem::Common;
 
-		ar
-		& make_nvp("GCommonInterfaceT_parPropSpec_par_type", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<parPropSpec<par_type>>>(*this))
-		& BOOST_SERIALIZATION_NVP(var)
-		& BOOST_SERIALIZATION_NVP(lowerBoundary)
-	  	& BOOST_SERIALIZATION_NVP(upperBoundary)
-	 	& BOOST_SERIALIZATION_NVP(nSteps);
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar
+		 & make_nvp("GCommonInterfaceT_parPropSpec_par_type", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<parPropSpec<par_type>>>(*this))
+		 & BOOST_SERIALIZATION_NVP(var)
+		 & BOOST_SERIALIZATION_NVP(lowerBoundary)
+		 & BOOST_SERIALIZATION_NVP(upperBoundary)
+		 & BOOST_SERIALIZATION_NVP(nSteps);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	/***************************************************************************/
-	/**
-	 * The (trivial) default constructor. Class members are initialized in the
-	 * class body.
-	 */
-	parPropSpec()
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The (trivial) default constructor. Class members are initialized in the
+	  * class body.
+	  */
+	 parPropSpec()
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The copy constructor
-	 */
-	parPropSpec(const parPropSpec<par_type>& cp)
-		: var(cp.var)
-		, lowerBoundary(cp.lowerBoundary)
-		, upperBoundary(cp.upperBoundary)
-		, nSteps(cp.nSteps)
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The copy constructor
+	  */
+	 parPropSpec(const parPropSpec<par_type>& cp)
+		 : var(cp.var)
+			, lowerBoundary(cp.lowerBoundary)
+			, upperBoundary(cp.upperBoundary)
+			, nSteps(cp.nSteps)
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * The standard destructor
-	 * */
-	virtual ~parPropSpec()
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The standard destructor
+	  * */
+	 virtual ~parPropSpec()
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Assignment opertor
-	 */
+	 /***************************************************************************/
+	 /**
+	  * Assignment opertor
+	  */
 	 parPropSpec<par_type>& operator=(const parPropSpec<par_type> &cp) {
-		this->load_(&cp);
-		return *this;
-	}
+		 this->load_(&cp);
+		 return *this;
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Checks for equality with another parPropSpec<par_type> object
-	 *
-	 * @param  cp A constant reference to another parPropSpec<par_type> object
-	 * @return A boolean indicating whether both objects are equal
-	 */
-	bool operator==(const parPropSpec<par_type> &cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch (g_expectation_violation &) {
-			return false;
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * Checks for equality with another parPropSpec<par_type> object
+	  *
+	  * @param  cp A constant reference to another parPropSpec<par_type> object
+	  * @return A boolean indicating whether both objects are equal
+	  */
+	 bool operator==(const parPropSpec<par_type> &cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Checks for inequality with another parPropSpec<par_type> object
-	 *
-	 * @param  cp A constant reference to another parPropSpec<par_type> object
-	 * @return A boolean indicating whether both objects are inequal
-	 */
-	bool operator!=(const parPropSpec<par_type> &cp) const {
-		using namespace Gem::Common;
-		try {
-			this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			return true;
-		} catch (g_expectation_violation &) {
-			return false;
-		}
-	}
+	 /***************************************************************************/
+	 /**
+	  * Checks for inequality with another parPropSpec<par_type> object
+	  *
+	  * @param  cp A constant reference to another parPropSpec<par_type> object
+	  * @return A boolean indicating whether both objects are inequal
+	  */
+	 bool operator!=(const parPropSpec<par_type> &cp) const {
+		 using namespace Gem::Common;
+		 try {
+			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
+			 return true;
+		 } catch (g_expectation_violation &) {
+			 return false;
+		 }
+	 }
 
 
-	/***************************************************************************/
-	/**
-	 * Emits a name for this class / object
-	 */
-	virtual std::string name() const override {
-		return std::string("parPropSpec<T>");
-	}
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name() const override {
+		 return std::string("parPropSpec<T>");
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Checks for compliance with expectations with respect to another object
-	 * of type T. This purely virtual function ensures the well-formedness of the
-	 * compare hierarchy in derived classes.
-	 *
-	 * @param cp A constant reference to another object of the same type, camouflaged as a base object
-	 * @param e The expected outcome of the comparison
-	 * @param limit The maximum deviation for floating point values (important for similarity checks)
-	 */
-	virtual void compare(
-		const parPropSpec<par_type>& cp // the other object
-		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		, const double& limit // the limit for allowed deviations of floating point types
-	) const override {
-		using namespace Gem::Common;
+	 /***************************************************************************/
+	 /**
+	  * Checks for compliance with expectations with respect to another object
+	  * of type T. This purely virtual function ensures the well-formedness of the
+	  * compare hierarchy in derived classes.
+	  *
+	  * @param cp A constant reference to another object of the same type, camouflaged as a base object
+	  * @param e The expected outcome of the comparison
+	  * @param limit The maximum deviation for floating point values (important for similarity checks)
+	  */
+	 virtual void compare(
+		 const parPropSpec<par_type>& cp // the other object
+		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		 , const double& limit // the limit for allowed deviations of floating point types
+	 ) const override {
+		 using namespace Gem::Common;
 
-		// Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
-		const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+		 // Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
+		 const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		Gem::Common::GToken token("parPropSpec<T>", e);
+		 Gem::Common::GToken token("parPropSpec<T>", e);
 
-		// Compare our parent data ...
-		Gem::Common::compare_base<GCommonInterfaceT<parPropSpec<par_type>>>(IDENTITY(*this, *p_load), token);
+		 // Compare our parent data ...
+		 Gem::Common::compare_base<GCommonInterfaceT<parPropSpec<par_type>>>(IDENTITY(*this, *p_load), token);
 
-		// ... and then the local data
-		Gem::Common::compare_t(IDENTITY(var, p_load->var), token);
-		Gem::Common::compare_t(IDENTITY(lowerBoundary, p_load->lowerBoundary), token);
-		Gem::Common::compare_t(IDENTITY(upperBoundary, p_load->upperBoundary), token);
-		Gem::Common::compare_t(IDENTITY(nSteps, p_load->nSteps), token);
+		 // ... and then the local data
+		 Gem::Common::compare_t(IDENTITY(var, p_load->var), token);
+		 Gem::Common::compare_t(IDENTITY(lowerBoundary, p_load->lowerBoundary), token);
+		 Gem::Common::compare_t(IDENTITY(upperBoundary, p_load->upperBoundary), token);
+		 Gem::Common::compare_t(IDENTITY(nSteps, p_load->nSteps), token);
 
-		// React on deviations from the expectation
-		token.evaluate();
-	}
+		 // React on deviations from the expectation
+		 token.evaluate();
+	 }
 
-	/***************************************************************************/
-	/**
-	 * Swap with another parPropSpec
-	 */
-	void swap(parPropSpec<par_type>& b) {
-		NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
-		par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
-		par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
-		std::size_t nSteps_c = b.nSteps; b.nSteps = this->nSteps; this->nSteps = nSteps_c;
-	}
+	 /***************************************************************************/
+	 /**
+	  * Swap with another parPropSpec
+	  */
+	 void swap(parPropSpec<par_type>& b) {
+		 NAMEANDIDTYPE var_c = b.var; b.var = this->var; this->var = var_c;
+		 par_type lowerBoundary_c = b.lowerBoundary;  b.lowerBoundary = this->lowerBoundary; this->lowerBoundary = lowerBoundary_c;
+		 par_type upperBoundary_c = b.upperBoundary;  b.upperBoundary = this->upperBoundary; this->upperBoundary = upperBoundary_c;
+		 std::size_t nSteps_c = b.nSteps; b.nSteps = this->nSteps; this->nSteps = nSteps_c;
+	 }
 
-	/***************************************************************************/
-	// Data ...
+	 /***************************************************************************/
+	 // Data ...
 
-	// mode: (0, ...), (VarName[0], ...) or (VarName, ...)
-	// variable name
-	// optional index
-	NAMEANDIDTYPE var = NAMEANDIDTYPE(0,std::string(""),0);
-	par_type lowerBoundary = par_type(0); ///< The lower boundary for the parameter scan
-	par_type upperBoundary = par_type(1); ///< The upper boundary for the parameter scan
-	std::size_t nSteps = 10;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
+	 // mode: (0, ...), (VarName[0], ...) or (VarName, ...)
+	 // variable name
+	 // optional index
+	 NAMEANDIDTYPE var = NAMEANDIDTYPE(0,std::string(""),0);
+	 par_type lowerBoundary = par_type(0); ///< The lower boundary for the parameter scan
+	 par_type upperBoundary = par_type(1); ///< The upper boundary for the parameter scan
+	 std::size_t nSteps = 10;   ///< The number of steps from the lower boundary to the upper boundary (or possibly the number of random values from this parameter range, depending on the scan mode and parameter type)
 
 protected:
-	/************************************************************************/
-	/**
-	 * Loads the data of another object
-	 *
-	 * cp A pointer to another parPropSpec<T> object
-	 */
-	virtual void load_(const parPropSpec<par_type>* cp) override {
-		// Check that we are dealing with a parPropSpec<T> reference independent of this object and convert the pointer
-		const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	 /************************************************************************/
+	 /**
+	  * Loads the data of another object
+	  *
+	  * cp A pointer to another parPropSpec<T> object
+	  */
+	 virtual void load_(const parPropSpec<par_type>* cp) override {
+		 // Check that we are dealing with a parPropSpec<T> reference independent of this object and convert the pointer
+		 const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
-		// No parent class with loadable data
+		 // No parent class with loadable data
 
-		// Load local data
-		var           = p_load->var;
-		lowerBoundary = p_load->lowerBoundary;
-		upperBoundary = p_load->upperBoundary;
-		nSteps        = p_load->nSteps;
-	}
+		 // Load local data
+		 var           = p_load->var;
+		 lowerBoundary = p_load->lowerBoundary;
+		 upperBoundary = p_load->upperBoundary;
+		 nSteps        = p_load->nSteps;
+	 }
 
 private:
-	/************************************************************************/
-	/**
-	 * Creates a deep clone of this object
-	 */
-	virtual parPropSpec<par_type>* clone_() const override {
-		return new parPropSpec<par_type>(*this);
-	}
+	 /************************************************************************/
+	 /**
+	  * Creates a deep clone of this object
+	  */
+	 virtual parPropSpec<par_type>* clone_() const override {
+		 return new parPropSpec<par_type>(*this);
+	 }
 };
 
 /******************************************************************************/
@@ -279,7 +279,7 @@ private:
  * data component is the number of items to be scanned.
  */
 struct G_API_GENEVA simpleScanSpec {
-	std::size_t nItems;
+	 std::size_t nItems;
 };
 
 /******************************************************************************/
@@ -294,13 +294,13 @@ template <typename par_type>
 std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
 	if(0 == std::get<0>(s.var)) {
 		o
-		<< "index       = " << std::get<2>(s.var) << std::endl;
+			<< "index       = " << std::get<2>(s.var) << std::endl;
 	} else if(1 == std::get<0>(s.var)){
 		o
-		<< "Address     = " << std::get<1>(s.var) << "[" << std::get<2>(s.var) << "]" << std::endl;
+			<< "Address     = " << std::get<1>(s.var) << "[" << std::get<2>(s.var) << "]" << std::endl;
 	} else if (2 == std::get<0>(s.var)){
 		o
-		<< "Name        = " << std::get<1>(s.var) << std::endl;
+			<< "Name        = " << std::get<1>(s.var) << std::endl;
 	} else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
@@ -310,10 +310,10 @@ std::ostream& operator<<(std::ostream& o, const parPropSpec<par_type>& s) {
 	}
 
 	o
-	<< "mode          = " << std::get<0>(s.var) << std::endl
-	<< "lowerBoundary = " << s.lowerBoundary << std::endl
-	<< "upperBoundary = " << s.upperBoundary << std::endl
-	<< "nSteps        = " << s.nSteps << std::endl;
+		<< "mode          = " << std::get<0>(s.var) << std::endl
+		<< "lowerBoundary = " << s.lowerBoundary << std::endl
+		<< "upperBoundary = " << s.upperBoundary << std::endl
+		<< "nSteps        = " << s.nSteps << std::endl;
 
 	return o;
 }
@@ -385,83 +385,83 @@ namespace Geneva {
 class GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
 {
 public:
-	/** @brief The standard constructor -- assignment of the "raw" paramter property string */
-	G_API_GENEVA GParameterPropertyParser(const std::string&);
+	 /** @brief The standard constructor -- assignment of the "raw" paramter property string */
+	 G_API_GENEVA GParameterPropertyParser(const std::string&);
 
-	/** @brief Retrieves the raw parameter description */
-	G_API_GENEVA std::string getRawParameterDescription() const;
-	/** @brief Allows to check whether parsing has already taken place */
-	G_API_GENEVA bool isParsed() const;
+	 /** @brief Retrieves the raw parameter description */
+	 G_API_GENEVA std::string getRawParameterDescription() const;
+	 /** @brief Allows to check whether parsing has already taken place */
+	 G_API_GENEVA bool isParsed() const;
 
-	/** @brief Allows to reset the internal structures and to parse a new parameter string */
-	G_API_GENEVA void setNewParameterDescription(std::string);
+	 /** @brief Allows to reset the internal structures and to parse a new parameter string */
+	 G_API_GENEVA void setNewParameterDescription(std::string);
 
-	/** @brief Initiates parsing of the raw string */
-	G_API_GENEVA void parse();
+	 /** @brief Initiates parsing of the raw string */
+	 G_API_GENEVA void parse();
 
-	/** @brief Retrieve the number of "simple scan" items */
-	G_API_GENEVA std::size_t getNSimpleScanItems() const;
+	 /** @brief Retrieve the number of "simple scan" items */
+	 G_API_GENEVA std::size_t getNSimpleScanItems() const;
 
-	/***************************************************************************/
-	/**
-	 * This function returns a set of const_iterators that allow to retrieve
-	 * the information from the parsers. Note that these iterators may go out
-	 * of scope, if a new parameter description is supplied to this class.
-	 *
-	 * The first tuple-entry allows you to access all parameter entries. When the
-	 * function is called, it is set to the start of the vector. The second tuple
-	 * entry is set to the vector end.
-	 *
-	 * The function will throw if parsing hasn't happened yet.
-	 *
-	 * Note that this implementation is a trap. Use one of the overloads for
-	 * supported types instead.
-	 */
-	template <typename par_type>
-	std::tuple<
-		typename std::vector<parPropSpec<par_type>>::const_iterator
-		, typename std::vector<parPropSpec<par_type>>::const_iterator
-	> getIterators() const {
-		std::tuple<
-			typename std::vector<parPropSpec<par_type>>::const_iterator
-			, typename std::vector<parPropSpec<par_type>>::const_iterator
-		> result;
+	 /***************************************************************************/
+	 /**
+	  * This function returns a set of const_iterators that allow to retrieve
+	  * the information from the parsers. Note that these iterators may go out
+	  * of scope, if a new parameter description is supplied to this class.
+	  *
+	  * The first tuple-entry allows you to access all parameter entries. When the
+	  * function is called, it is set to the start of the vector. The second tuple
+	  * entry is set to the vector end.
+	  *
+	  * The function will throw if parsing hasn't happened yet.
+	  *
+	  * Note that this implementation is a trap. Use one of the overloads for
+	  * supported types instead.
+	  */
+	 template <typename par_type>
+	 std::tuple<
+		 typename std::vector<parPropSpec<par_type>>::const_iterator
+		 , typename std::vector<parPropSpec<par_type>>::const_iterator
+	 > getIterators() const {
+		 std::tuple<
+			 typename std::vector<parPropSpec<par_type>>::const_iterator
+			 , typename std::vector<parPropSpec<par_type>>::const_iterator
+		 > result;
 
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG, time_and_place)
-				<< "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!" << std::endl
-				<< "Function was called for an unsupported type" << std::endl
-		);
+		 throw gemfony_exception(
+			 g_error_streamer(DO_LOG, time_and_place)
+				 << "In generic GParameterPropertyParser::getIterators<par_type>() function: Error!" << std::endl
+				 << "Function was called for an unsupported type" << std::endl
+		 );
 
-		// Make the compiler happy
-		return result;
-	}
+		 // Make the compiler happy
+		 return result;
+	 }
 
 private:
-	/***************************************************************************/
-	/** @brief The default constructor -- intentionally private and undefined */
-	GParameterPropertyParser() = delete;
+	 /***************************************************************************/
+	 /** @brief The default constructor -- intentionally private and undefined */
+	 GParameterPropertyParser() = delete;
 
-	boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> varSpec;
-	boost::spirit::qi::rule<std::string::const_iterator, std::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;
+	 boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> varSpec;
+	 boost::spirit::qi::rule<std::string::const_iterator, std::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;
 
-	boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> identifier;
-	boost::spirit::qi::rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type> varReference;
+	 boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> identifier;
+	 boost::spirit::qi::rule<std::string::const_iterator, NAMEANDIDTYPE(), boost::spirit::ascii::space_type> varReference;
 
-	boost::spirit::qi::rule<std::string::const_iterator, simpleScanSpec()              , boost::spirit::ascii::space_type> simpleScanParser;
-	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<double>()         , boost::spirit::ascii::space_type> doubleStringParser;
-	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<float>()          , boost::spirit::ascii::space_type> floatStringParser;
-	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<std::int32_t>() , boost::spirit::ascii::space_type> intStringParser;
-	boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<bool>()           , boost::spirit::ascii::space_type> boolStringParser;
+	 boost::spirit::qi::rule<std::string::const_iterator, simpleScanSpec()              , boost::spirit::ascii::space_type> simpleScanParser;
+	 boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<double>()         , boost::spirit::ascii::space_type> doubleStringParser;
+	 boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<float>()          , boost::spirit::ascii::space_type> floatStringParser;
+	 boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<std::int32_t>() , boost::spirit::ascii::space_type> intStringParser;
+	 boost::spirit::qi::rule<std::string::const_iterator, parPropSpec<bool>()           , boost::spirit::ascii::space_type> boolStringParser;
 
-	std::string raw_; ///< Holds the "raw" parameter description
-	bool parsed_;     ///< Indicates whether the raw_ string has already been parsed
+	 std::string raw_; ///< Holds the "raw" parameter description
+	 bool parsed_;     ///< Indicates whether the raw_ string has already been parsed
 
-	std::vector<simpleScanSpec>              sSpecVec; ///< Holds parameter specifications for simple scans
-	std::vector<parPropSpec<double>>         dSpecVec; ///< Holds parameter specifications for double values
-	std::vector<parPropSpec<float>>          fSpecVec; ///< Holds parameter specifications for float values
-	std::vector<parPropSpec<std::int32_t>> iSpecVec; ///< Holds parameter specifications for integer values
-	std::vector<parPropSpec<bool>>           bSpecVec; ///< Holds parameter specifications for boolean values
+	 std::vector<simpleScanSpec>              sSpecVec; ///< Holds parameter specifications for simple scans
+	 std::vector<parPropSpec<double>>         dSpecVec; ///< Holds parameter specifications for double values
+	 std::vector<parPropSpec<float>>          fSpecVec; ///< Holds parameter specifications for float values
+	 std::vector<parPropSpec<std::int32_t>> iSpecVec; ///< Holds parameter specifications for integer values
+	 std::vector<parPropSpec<bool>>           bSpecVec; ///< Holds parameter specifications for boolean values
 };
 
 /******************************************************************************/

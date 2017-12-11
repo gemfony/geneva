@@ -135,7 +135,7 @@ public:
 protected:
 	 /************************************************************************/
 	 /** @brief Loads the data of another object */
-	 virtual G_API_GENEVA void load_(const GObject* cp) override;
+	 G_API_GENEVA void load_(const GObject* cp) override;
 
 	 /***************************************************************************/
 	 // Data
@@ -144,18 +144,18 @@ protected:
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject* clone_() const override = 0;
+	 G_API_GENEVA GObject* clone_() const override = 0;
 
 public:
 	 /************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes
 	  */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /************************************************************************/
 };
@@ -171,8 +171,8 @@ public:
  */
 class G_OptimizationAlgorithm_Base
 	: public GObject
-  	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
-   , public G_Interface_Optimizer
+	  , public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
+	  , public G_Interface_Optimizer
 {
 private:
 	 ///////////////////////////////////////////////////////////////////////
@@ -288,7 +288,7 @@ public:
 	 /** @brief Adds a new executor to the class, replacing the default executor */
 	 G_API_GENEVA void registerExecutor(
 		 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
-	 	 , const std::string& executorConfigFile
+		 , const std::string& executorConfigFile
 	 );
 	 /** @brief Adds a new executor to the class, using the chosen execution mode */
 	 G_API_GENEVA void registerExecutor(
@@ -381,7 +381,7 @@ public:
 	 G_API_GENEVA bool hasQualityThreshold() const;
 
 	 /** @brief Retrieve the current iteration of the optimization run */
-	 virtual G_API_GENEVA std::uint32_t getIteration() const override;
+	 G_API_GENEVA std::uint32_t getIteration() const override;
 	 /** @brief Returns the current offset used to calculate the current iteration */
 	 G_API_GENEVA std::uint32_t getStartIteration() const;
 
@@ -456,7 +456,7 @@ public:
 	 G_API_GENEVA void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals);
 
 	 /** @brief Emits a name for this class / object; this can be a long name with spaces */
-	 virtual G_API_GENEVA std::string name() const override = 0;
+	 G_API_GENEVA std::string name() const override = 0;
 
 	 /** @brief Helper function that determines whether we are currently inside of the first iteration */
 	 G_API_GENEVA bool inFirstIteration() const;
@@ -476,7 +476,7 @@ protected:
 	 /***************************************************************************/
 
 	 /** @brief Loads the data of another GOptimizationAlgorithm object */
-	 virtual G_API_GENEVA void load_(const GObject* cp) override;
+	 G_API_GENEVA void load_(const GObject* cp) override;
 
 	 /** @brief Delegation of work to be performed to the private executor object */
 	 G_API_GENEVA Gem::Courtier::executor_status_t workOn(
@@ -488,7 +488,7 @@ protected:
 	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
 
 	 /** @brief Re-implementation of a corresponding function in GStdPtrVectorInterface */
-	 virtual G_API_GENEVA void dummyFunction() override;
+	 G_API_GENEVA void dummyFunction() override;
 
 	 /** @brief Saves the state of the class to disc */
 	 virtual G_API_GENEVA void saveCheckpoint(bf::path outputFile) const;
@@ -497,14 +497,14 @@ protected:
 	 G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path& p) const;
 
 	 /** @brief Retrieves the best individual found up to now */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
 	 /** @brief Retrieves a list of the best individuals found */
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
 
 	 /** @brief Retrieves the best individual found in the iteration */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
 	 /** @brief Retrieves a list of the best individuals found in the */
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override;
 
 	 /** @brief Allows to set the personality type of the individuals */
 	 G_API_GENEVA void setIndividualPersonalities();
@@ -560,13 +560,13 @@ protected:
 	 virtual G_API_GENEVA void actOnStalls() BASE;
 
 	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-	 virtual G_API_GENEVA void runFitnessCalculation() override = 0;
+	 G_API_GENEVA void runFitnessCalculation() override = 0;
 
 private:
 	 /***************************************************************************/
 
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject* clone_() const override = 0;
+	 G_API_GENEVA GObject* clone_() const override = 0;
 
 	 /** @brief Update the stall counter. */
 	 G_API_GENEVA void updateStallCounter(const std::tuple<double, double>& bestEval);
@@ -665,11 +665,11 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };

@@ -96,19 +96,19 @@ public:
 	  */
 	 GNumBiGaussAdaptorT()
 		 : GAdaptorT<num_type> ()
-		 , useSymmetricSigmas_(true)
-		 , sigma1_(DEFAULTSIGMA)
-		 , sigmaSigma1_(DEFAULTSIGMASIGMA)
-		 , minSigma1_(DEFAULTMINSIGMA)
-		 , maxSigma1_(DEFAULTMAXSIGMA)
-		 , sigma2_(DEFAULTSIGMA)
-		 , sigmaSigma2_(DEFAULTSIGMASIGMA)
-		 , minSigma2_(DEFAULTMINSIGMA)
-		 , maxSigma2_(DEFAULTMAXSIGMA)
-		 , delta_(DEFAULTDELTA)
-		 , sigmaDelta_(DEFAULTSIGMADELTA)
-		 , minDelta_(DEFAULTMINDELTA)
-		 , maxDelta_(DEFAULTMAXDELTA)
+			, useSymmetricSigmas_(true)
+			, sigma1_(DEFAULTSIGMA)
+			, sigmaSigma1_(DEFAULTSIGMASIGMA)
+			, minSigma1_(DEFAULTMINSIGMA)
+			, maxSigma1_(DEFAULTMAXSIGMA)
+			, sigma2_(DEFAULTSIGMA)
+			, sigmaSigma2_(DEFAULTSIGMASIGMA)
+			, minSigma2_(DEFAULTMINSIGMA)
+			, maxSigma2_(DEFAULTMAXSIGMA)
+			, delta_(DEFAULTDELTA)
+			, sigmaDelta_(DEFAULTSIGMADELTA)
+			, minDelta_(DEFAULTMINDELTA)
+			, maxDelta_(DEFAULTMAXDELTA)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -119,19 +119,19 @@ public:
 	  */
 	 GNumBiGaussAdaptorT(const fp_type& probability)
 		 : GAdaptorT<num_type> (probability)
-		 , useSymmetricSigmas_(true)
-		 , sigma1_(DEFAULTSIGMA)
-		 , sigmaSigma1_(DEFAULTSIGMASIGMA)
-		 , minSigma1_(DEFAULTMINSIGMA)
-		 , maxSigma1_(DEFAULTMAXSIGMA)
-		 , sigma2_(DEFAULTSIGMA)
-		 , sigmaSigma2_(DEFAULTSIGMASIGMA)
-		 , minSigma2_(DEFAULTMINSIGMA)
-		 , maxSigma2_(DEFAULTMAXSIGMA)
-		 , delta_(DEFAULTDELTA)
-		 , sigmaDelta_(DEFAULTSIGMADELTA)
-		 , minDelta_(DEFAULTMINDELTA)
-		 , maxDelta_(DEFAULTMAXDELTA)
+			, useSymmetricSigmas_(true)
+			, sigma1_(DEFAULTSIGMA)
+			, sigmaSigma1_(DEFAULTSIGMASIGMA)
+			, minSigma1_(DEFAULTMINSIGMA)
+			, maxSigma1_(DEFAULTMAXSIGMA)
+			, sigma2_(DEFAULTSIGMA)
+			, sigmaSigma2_(DEFAULTSIGMASIGMA)
+			, minSigma2_(DEFAULTMINSIGMA)
+			, maxSigma2_(DEFAULTMAXSIGMA)
+			, delta_(DEFAULTDELTA)
+			, sigmaDelta_(DEFAULTSIGMADELTA)
+			, minDelta_(DEFAULTMINDELTA)
+			, maxDelta_(DEFAULTMAXDELTA)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -143,19 +143,19 @@ public:
 	  */
 	 GNumBiGaussAdaptorT(const GNumBiGaussAdaptorT<num_type, fp_type>& cp)
 		 : GAdaptorT<num_type> (cp)
-		 , useSymmetricSigmas_(true)
-		 , sigma1_(cp.sigma1_)
-		 , sigmaSigma1_(cp.sigmaSigma1_)
-		 , minSigma1_(cp.minSigma1_)
-		 , maxSigma1_(cp.maxSigma1_)
-		 , sigma2_(cp.sigma2_)
-		 , sigmaSigma2_(cp.sigmaSigma2_)
-		 , minSigma2_(cp.minSigma2_)
-		 , maxSigma2_(cp.maxSigma2_)
-		 , delta_(cp.delta_)
-		 , sigmaDelta_(cp.sigmaDelta_)
-		 , minDelta_(cp.minDelta_)
-		 , maxDelta_(cp.maxDelta_)
+			, useSymmetricSigmas_(true)
+			, sigma1_(cp.sigma1_)
+			, sigmaSigma1_(cp.sigmaSigma1_)
+			, minSigma1_(cp.minSigma1_)
+			, maxSigma1_(cp.maxSigma1_)
+			, sigma2_(cp.sigma2_)
+			, sigmaSigma2_(cp.sigmaSigma2_)
+			, minSigma2_(cp.minSigma2_)
+			, maxSigma2_(cp.maxSigma2_)
+			, delta_(cp.delta_)
+			, sigmaDelta_(cp.sigmaDelta_)
+			, minDelta_(cp.minDelta_)
+			, maxDelta_(cp.maxDelta_)
 	 { /* nothing */	}
 
 	 /***************************************************************************/
@@ -170,7 +170,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GNumBiGaussAdaptorT<num_type, fp_type>& operator=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) {
+	 GNumBiGaussAdaptorT<num_type, fp_type>& operator=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -346,7 +346,7 @@ public:
 			 sigma1_
 			 , minSigma1_
 			 , maxSigma1_
-		 	 , "GNumBiGaussAdaptorT<>::setSigma1Range()"
+			 , "GNumBiGaussAdaptorT<>::setSigma1Range()"
 		 );
 	 }
 
@@ -481,7 +481,7 @@ public:
 			 sigma2_
 			 , minSigma2_
 			 , maxSigma2_
-		 	 , "GNumBiGaussAdaptorT<>::setSigma2Range()"
+			 , "GNumBiGaussAdaptorT<>::setSigma2Range()"
 		 );
 	 }
 
@@ -669,13 +669,13 @@ public:
 
 	 /***********************************************************************************/
 	 /** @brief Retrieves the id of the adaptor */
-	 virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
+	 Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
 	 /***************************************************************************/
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GNumBiGaussAdaptorT");
 	 }
 
@@ -811,7 +811,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief This function creates a deep copy of this object */
-	 virtual GObject *clone_() const override = 0;
+	 GObject *clone_() const override = 0;
 
 public:
 	 /***************************************************************************/
@@ -820,7 +820,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -846,7 +846,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -863,7 +863,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;

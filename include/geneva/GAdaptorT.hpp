@@ -136,7 +136,7 @@ public:
 	  */
 	 GAdaptorT(const fp_type &adProb)
 		 : GObject()
-		 , m_adProb(adProb)
+			, m_adProb(adProb)
 	 {
 		 // Do some error checking
 		 // Check that m_adProb is in the allowed range. Adapt, if necessary
@@ -197,7 +197,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GAdaptorT<T> &operator=(const GAdaptorT<T> &cp)
+	 GAdaptorT<T> &operator=(const GAdaptorT<T> &cp)
 	 {
 		 this->load_(&cp);
 		 return *this;
@@ -839,7 +839,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override
+	 std::string name() const override
 	 {
 		 return std::string("GAdaptorT");
 	 }
@@ -901,7 +901,7 @@ protected:
 	  *
 	  * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject *cp) override
+	 void load_(const GObject *cp) override
 	 {
 		 // Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
 		 const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(
@@ -986,7 +986,7 @@ protected:
 	 virtual void customAdaptions(T &, const T &, Gem::Hap::GRandomBase&) BASE = 0;
 
 	 /** @brief Creates a deep copy of this object */
-	 virtual GObject *clone_(void) const override = 0;
+	 GObject *clone_(void) const override = 0;
 
 	 /***************************************************************************/
 	 // Protected data
@@ -1014,7 +1014,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override
+	 bool modify_GUnitTests() override
 	 {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
@@ -1048,7 +1048,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override
+	 void specificTestsNoFailureExpected_GUnitTests() override
 	 {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
@@ -1228,7 +1228,7 @@ public:
 				 p_test->adapt(
 					 currentValue
 					 , T(1)
-				 	 , gr
+					 , gr
 				 );
 				 BOOST_CHECK_MESSAGE (
 					 currentValue == oldValue
@@ -1248,7 +1248,7 @@ public:
 				 p_test->adapt(
 					 currentValue
 					 , T(1)
-				 	 , gr
+					 , gr
 				 );
 				 BOOST_CHECK_MESSAGE (
 					 currentValue != oldValue
@@ -1329,7 +1329,7 @@ public:
 					 if (p_test->adapt(
 						 testVal
 						 , T(1)
-					 	 , gr
+						 , gr
 					 )) {
 						 // Check that testVal has indeed been adapted
 						 BOOST_CHECK_MESSAGE(
@@ -1382,7 +1382,7 @@ public:
 				 BOOST_CHECK_NO_THROW(p_test->customAdaptions(
 					 testVal
 					 , T(1)
-				 	 , gr
+					 , gr
 				 ));
 				 BOOST_CHECK_MESSAGE(
 					 testVal != oldTestVal
@@ -1407,7 +1407,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes.
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override
+	 void specificTestsFailuresExpected_GUnitTests() override
 	 {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;

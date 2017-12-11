@@ -123,7 +123,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GNumFlipAdaptorT<num_type>& operator=(const GNumFlipAdaptorT<num_type>& cp) {
+	 GNumFlipAdaptorT<num_type>& operator=(const GNumFlipAdaptorT<num_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -199,7 +199,7 @@ public:
 	  *
 	  * @return The id of the adaptor
 	  */
-	 virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
+	 Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
 	 /* ----------------------------------------------------------------------------------
 	  * Tested in GInt32FlipAdaptor::specificTestsNoFailuresExpected_GUnitTests()
@@ -211,7 +211,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GNumFlipAdaptorT");
 	 }
 
@@ -221,7 +221,7 @@ protected:
     * Allows to randomly initialize parameter members. No local data, hence no
     * action taken.
     */
-	 virtual bool randomInit(Gem::Hap::GRandomBase&) override {
+	 bool randomInit(Gem::Hap::GRandomBase&) override {
 		 return false;
 	 }
 
@@ -276,7 +276,7 @@ private:
 	  *
 	  * @return A deep copy of this object
 	  */
-	 virtual GObject *clone_() const override = 0;
+	 GObject *clone_() const override = 0;
 
 public:
 	 /***************************************************************************/
@@ -285,7 +285,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -309,7 +309,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -326,7 +326,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;

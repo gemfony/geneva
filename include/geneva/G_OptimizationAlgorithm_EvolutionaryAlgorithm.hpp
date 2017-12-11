@@ -99,7 +99,7 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_GENEVA ~GEvolutionaryAlgorithm() = default;
 
- 	 /** @brief The standard assignment operator */
+	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm& cp);
 
 	 /** @brief Checks for equality with another GEvolutionaryAlgorithm object */
@@ -115,13 +115,13 @@ public:
 	 ) const override;
 
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-	 virtual G_API_GENEVA void resetToOptimizationStart() override;
+	 G_API_GENEVA void resetToOptimizationStart() override;
 
 	 /** @brief Returns information about the type of optimization algorithm. */
-	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
+	 G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
 
 	 /** @brief Returns the name of this optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Sets the sorting scheme */
 	 G_API_GENEVA void setSortingScheme(sortingMode smode);
@@ -145,8 +145,8 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 
-    /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Sets the number of threads this population uses for adaption */
 	 G_API_GENEVA void setNThreads(std::uint16_t nThreads);
@@ -156,37 +156,37 @@ public:
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject */
-	 virtual G_API_GENEVA void load_(const GObject *cp) override;
+	 G_API_GENEVA void load_(const GObject *cp) override;
 
 	 /** @brief Some error checks related to population sizes */
-	 virtual G_API_GENEVA void populationSanityChecks() const override;
+	 G_API_GENEVA void populationSanityChecks() const override;
 
 	 /** @brief Adapt all children in parallel */
-	 virtual G_API_GENEVA void adaptChildren() override;
+	 G_API_GENEVA void adaptChildren() override;
 
 	 /** @brief We submit individuals to the broker connector and wait for processed items */
-	 virtual G_API_GENEVA void runFitnessCalculation() override;
+	 G_API_GENEVA void runFitnessCalculation() override;
 
 	 /** @brief Fixes the population after a job submission */
 	 G_API_GENEVA void fixAfterJobSubmission();
 
 	 /** @brief Choose new parents, based on the selection scheme set by the user */
-	 virtual G_API_GENEVA void selectBest() override;
+	 G_API_GENEVA void selectBest() override;
 
 	 /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-	 virtual G_API_GENEVA std::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
+	 G_API_GENEVA std::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
 
 	 /** @brief Does any necessary initialization work before the optimization cycle starts */
-	 virtual G_API_GENEVA void init() override;
+	 G_API_GENEVA void init() override;
 	 /** @brief Does any necessary finalization work */
-	 virtual G_API_GENEVA void finalize() override;
+	 G_API_GENEVA void finalize() override;
 
 	 /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-	 virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+	 G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 private:
 	 /** @brief Creates a deep copy of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override;
+	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Selection, MUPLUSNU_SINGLEEVAL style */
 	 G_API_GENEVA void sortMuPlusNuMode();
@@ -223,9 +223,9 @@ public:
 	 /** @brief Fills the collection with individuals */
 	 G_API_GENEVA void fillWithObjects(const std::size_t &nIndividuals);
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 G_API_GENEVA virtual void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA virtual void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };

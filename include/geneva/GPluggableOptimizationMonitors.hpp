@@ -100,7 +100,7 @@ public:
 	 virtual G_API_GENEVA  ~GStandardMonitor() = default;
 
 	 /** @brief A standard assignment operator */
-	  G_API_GENEVA GStandardMonitor& operator=(const GStandardMonitor& cp);
+	 G_API_GENEVA GStandardMonitor& operator=(const GStandardMonitor& cp);
 
 	 /** @brief Checks for equality with another GStandardMonitorT object */
 	 virtual G_API_GENEVA  bool operator==(const GStandardMonitor& cp) const;
@@ -114,7 +114,7 @@ public:
 	 ) override;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA  std::string name() const override;
+	 G_API_GENEVA  std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
@@ -126,21 +126,21 @@ public:
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another object */
-	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+	 G_API_GENEVA  void load_(const GObject* cp) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override;
 
 public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object. */
-	 virtual G_API_GENEVA  bool modify_GUnitTests() override;
+	 G_API_GENEVA  bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. */
-	 virtual G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. */
-	 virtual G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/
@@ -219,7 +219,7 @@ public:
 	 ) override;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA  std::string name() const override;
+	 G_API_GENEVA  std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
@@ -231,12 +231,12 @@ public:
 protected:
 	 /************************************************************************/
 	 /** @brief Loads the data of another object */
-	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+	 G_API_GENEVA  void load_(const GObject* cp) override;
 
 private:
 	 /************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override;
 
 	 /************************************************************************/
 
@@ -252,11 +252,11 @@ private:
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA  bool modify_GUnitTests() override;
+	 G_API_GENEVA  bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };
@@ -323,7 +323,7 @@ public:
 	 G_API_GENEVA void resetPluggbleOM();
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA  std::string name() const override;
+	 G_API_GENEVA  std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
@@ -335,23 +335,23 @@ public:
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another object */
-	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+	 G_API_GENEVA  void load_(const GObject* cp) override;
 
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override;
 
 	 std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM>> m_pluggable_monitors; ///< The collection of monitors
 
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object */
-	 virtual G_API_GENEVA  bool modify_GUnitTests() override;
+	 G_API_GENEVA  bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 virtual G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override;
+	 void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };
@@ -455,7 +455,7 @@ public:
 	 /**
 	  * A standard assignment operator
 	  */
-	  GProgressPlotterT<fp_type>& operator=(const GProgressPlotterT<fp_type>& cp) {
+	 GProgressPlotterT<fp_type>& operator=(const GProgressPlotterT<fp_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -970,7 +970,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GProgressPlotterT<fp_type>");
 	 }
 
@@ -1022,7 +1022,7 @@ protected:
 	  *
 	  * cp A pointer to another GProgressPlotterTT<fp_type> object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Check that we are dealing with a GProgressPlotterT<fp_type> reference independent of this object and convert the pointer
 		 const GProgressPlotterT<fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -1048,7 +1048,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object
 	  */
-	 virtual GObject* clone_() const override {
+	 GObject* clone_() const override {
 		 return new GProgressPlotterT<fp_type>(*this);
 	 }
 
@@ -1079,7 +1079,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -1105,7 +1105,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -1121,7 +1121,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -1202,7 +1202,7 @@ public:
 	 virtual G_API_GENEVA  bool operator!=(const GAllSolutionFileLogger& cp) const;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA  std::string name() const override;
+	 G_API_GENEVA  std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
@@ -1265,13 +1265,13 @@ protected:
 	 /************************************************************************/
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+	 G_API_GENEVA  void load_(const GObject* cp) override;
 
 
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override;
 
 	 /** @brief Does the actual printing */
 	 G_API_GENEVA void printPopulation(
@@ -1296,11 +1296,11 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object */
-	 virtual G_API_GENEVA  bool modify_GUnitTests() override;
+	 G_API_GENEVA  bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 virtual G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail */
-	 virtual G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };
@@ -1351,7 +1351,7 @@ public:
 	 virtual G_API_GENEVA  bool operator!=(const GIterationResultsFileLogger& cp) const;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA  std::string name() const override;
+	 G_API_GENEVA  std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
@@ -1385,12 +1385,12 @@ protected:
 	 /************************************************************************/
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+	 G_API_GENEVA  void load_(const GObject* cp) override;
 
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override;
 
 	 std::string m_fileName = "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
 	 bool m_withCommas = true; ///< When set to true, commas will be printed in-between values
@@ -1400,11 +1400,11 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object */
-	 virtual G_API_GENEVA  bool modify_GUnitTests() override;
+	 G_API_GENEVA  bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 virtual G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };
@@ -1502,12 +1502,12 @@ protected:
 	 /************************************************************************/
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+	 G_API_GENEVA  void load_(const GObject* cp) override;
 
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override;
 
 	 std::string m_fileName = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
@@ -1531,11 +1531,11 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object */
-	 virtual G_API_GENEVA  bool modify_GUnitTests() override;
+	 G_API_GENEVA  bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 virtual G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };
@@ -1639,7 +1639,7 @@ public:
 	 /**
 	  * A standard assignment operator
 	  */
-	  GAdaptorPropertyLoggerT<num_type>& operator=(const GAdaptorPropertyLoggerT<num_type>& cp) {
+	 GAdaptorPropertyLoggerT<num_type>& operator=(const GAdaptorPropertyLoggerT<num_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -1682,7 +1682,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GAdaptorPropertyLoggerT");
 	 }
 
@@ -1983,7 +1983,7 @@ protected:
 	  *
 	  * cp A pointer to another GAdaptorPropertyLoggerTT<num_type object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Check that we are dealing with a GAdaptorPropertyLoggerT<num_type> reference independent of this object and convert the pointer
 		 const GAdaptorPropertyLoggerT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<num_type>>(cp, this);
 
@@ -2010,7 +2010,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object
 	  */
-	 virtual GObject* clone_() const override {
+	 GObject* clone_() const override {
 		 return new GAdaptorPropertyLoggerT<num_type>(*this);
 	 }
 
@@ -2043,7 +2043,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -2069,7 +2069,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -2085,7 +2085,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 using boost::unit_test_framework::test_suite;
 		 using boost::unit_test_framework::test_case;
@@ -2169,7 +2169,7 @@ public:
 	 virtual G_API_GENEVA  bool operator!=(const GProcessingTimesLogger& cp) const;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA  std::string name() const override;
+	 G_API_GENEVA  std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
@@ -2227,12 +2227,12 @@ protected:
 	 /************************************************************************/
 
 	 /** @brief Loads the data of another object */
-	 virtual G_API_GENEVA  void load_(const GObject* cp) override;
+	 G_API_GENEVA  void load_(const GObject* cp) override;
 
 private:
 	 /************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override;
 
 	 /************************************************************************/
 
@@ -2263,11 +2263,11 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object */
-	 virtual G_API_GENEVA  bool modify_GUnitTests() override;
+	 G_API_GENEVA  bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 virtual G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };

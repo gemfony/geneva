@@ -112,7 +112,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
+	 GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -322,7 +322,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GParameterBaseWithAdaptorsT");
 	 }
 
@@ -333,7 +333,7 @@ public:
 	  * @param nStalls The number of consecutive stalls up to this point
 	  * @return A boolean indicating whether updates were performed
 	  */
-	 virtual bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
+	 bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
 #ifdef DEBUG
 		 if (!adaptor_) {
 			 throw gemfony_exception(
@@ -385,7 +385,7 @@ protected:
 	  *
 	  * @param cp A copy of another GParameterBaseWithAdaptorsT, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
 		 const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
 
@@ -489,7 +489,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
-	 virtual GObject* clone_() const override = 0;
+	 GObject* clone_() const override = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -504,7 +504,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 bool result = false;
 
@@ -523,7 +523,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterBase::specificTestsNoFailureExpected_GUnitTests();
@@ -571,7 +571,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterBase::specificTestsFailuresExpected_GUnitTests();

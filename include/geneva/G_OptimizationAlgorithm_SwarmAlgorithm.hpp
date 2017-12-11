@@ -127,13 +127,13 @@ public:
 	 ) const override;
 
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-	 virtual G_API_GENEVA void resetToOptimizationStart() override;
+	 G_API_GENEVA void resetToOptimizationStart() override;
 
 	 /** @brief Sets the number of neighborhoods and the number of members in them */
 	 G_API_GENEVA void setSwarmSizes(std::size_t, std::size_t);
 
 	 /** @brief Returns information about the type of optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
+	 G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
 
 	 /** @brief Allows to set a static multiplier for personal distances */
 	 G_API_GENEVA void setCPersonal(double);
@@ -185,7 +185,7 @@ public:
 	 G_API_GENEVA bool neighborhoodsFilledUpRandomly() const;
 
 	 /** @brief Retrieves the number of processable items for the current iteration */
-	 virtual G_API_GENEVA std::size_t getNProcessableItems() const override;
+	 G_API_GENEVA std::size_t getNProcessableItems() const override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual G_API_GENEVA void addConfigurationOptions (
@@ -225,24 +225,24 @@ public:
 	 }
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 protected:
 	 /** @brief Loads the data of another population */
-	 virtual G_API_GENEVA void load_(const GObject *) override;
+	 G_API_GENEVA void load_(const GObject *) override;
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject *clone_() const override;
+	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Does some preparatory work before the optimization starts */
-	 virtual G_API_GENEVA void init() override;
+	 G_API_GENEVA void init() override;
 	 /** @brief Does any necessary finalization work */
-	 virtual G_API_GENEVA void finalize() override;
+	 G_API_GENEVA void finalize() override;
 
 	 /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-	 virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+	 G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 	 /** @brief The actual business logic to be performed during each iteration; Returns the best achieved fitness */
-	 virtual G_API_GENEVA std::tuple<double, double> cycleLogic() override;
+	 G_API_GENEVA std::tuple<double, double> cycleLogic() override;
 	 /** @brief Fixes an incomplete population */
 	 virtual G_API_GENEVA void adjustNeighborhoods() BASE;
 
@@ -252,7 +252,7 @@ protected:
 	 /** @brief Updates the best individuals found */
 	 virtual G_API_GENEVA std::tuple<double, double> findBests();
 	 /** @brief Resizes the population to the desired level and does some error checks */
-	 virtual G_API_GENEVA void adjustPopulation() override;
+	 G_API_GENEVA void adjustPopulation() override;
 
 	 /** @brief Helper function that returns the id of the first individual of a neighborhood */
 	 G_API_GENEVA std::size_t getFirstNIPos(const std::size_t&) const;
@@ -275,7 +275,7 @@ protected:
 	 virtual G_API_GENEVA void updatePositions();
 
 	 /** @brief Updates the fitness of all individuals */
-	 virtual G_API_GENEVA void runFitnessCalculation() override;
+	 G_API_GENEVA void runFitnessCalculation() override;
 	 /** @brief Adjusts the velocity vector so that its values don't exceed the allowed value range */
 	 G_API_GENEVA void pruneVelocity(std::vector<double>&);
 
@@ -285,7 +285,7 @@ protected:
 	 G_API_GENEVA void updatePersonalBestIfBetter(std::shared_ptr<GParameterSet>);
 
 	 /** @brief Returns the name of this optimization algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 std::size_t m_n_neighborhoods = (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS : 1); ///< The number of neighborhoods in the population
 	 std::size_t m_default_n_neighborhood_members = ((DEFAULTNNEIGHBORHOODMEMBERS <= 1) ? 2 : DEFAULTNNEIGHBORHOODMEMBERS); ///< The desired number of individuals belonging to each neighborhood
@@ -325,11 +325,11 @@ private:
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

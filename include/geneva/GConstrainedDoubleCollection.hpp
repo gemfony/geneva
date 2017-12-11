@@ -109,38 +109,38 @@ public:
 	 ) const override;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GConstrainedDoubleCollection object */
-	 virtual G_API_GENEVA void load_(const GObject *) override;
+	 G_API_GENEVA void load_(const GObject *) override;
 
 	 /** @brief Attach our local values to the vector. */
-	 virtual G_API_GENEVA void doubleStreamline(std::vector<double>&, const activityMode& am) const override;
+	 G_API_GENEVA void doubleStreamline(std::vector<double>&, const activityMode& am) const override;
 	 /** @brief Attach boundaries of type double to the vectors */
-	 virtual G_API_GENEVA void doubleBoundaries(std::vector<double>&, std::vector<double>&, const activityMode& am) const override;
+	 G_API_GENEVA void doubleBoundaries(std::vector<double>&, std::vector<double>&, const activityMode& am) const override;
 	 /** @brief Tell the audience that we own a number of double values */
-	 virtual G_API_GENEVA std::size_t countDoubleParameters(const activityMode& am) const override;
+	 G_API_GENEVA std::size_t countDoubleParameters(const activityMode& am) const override;
 	 /** @brief Assigns part of a value vector to the parameter */
-	 virtual G_API_GENEVA void assignDoubleValueVector(const std::vector<double>&, std::size_t&, const activityMode& am) override;
+	 G_API_GENEVA void assignDoubleValueVector(const std::vector<double>&, std::size_t&, const activityMode& am) override;
 	 /** @brief Attach our local values to the vector. */
-	 virtual G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double>>&, const activityMode& am) const override;
+	 G_API_GENEVA void doubleStreamline(std::map<std::string, std::vector<double>>&, const activityMode& am) const override;
 	 /** @brief Assigns part of a value map to the parameter */
-	 virtual G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double>>&, const activityMode& am) override;
+	 G_API_GENEVA void assignDoubleValueVectors(const std::map<std::string, std::vector<double>>&, const activityMode& am) override;
 
 	 /** @brief Multiplication with a random value in a given range */
-	 virtual G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am, Gem::Hap::GRandomBase&) override;
+	 G_API_GENEVA void doubleMultiplyByRandom(const double& min, const double& max, const activityMode& am, Gem::Hap::GRandomBase&) override;
 	 /** @brief Multiplication with a random value in the range [0,1[ */
-	 virtual G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) override;
+	 G_API_GENEVA void doubleMultiplyByRandom(const activityMode& am, Gem::Hap::GRandomBase&) override;
 	 /** @brief Multiplication with a constant value */
-	 virtual G_API_GENEVA void doubleMultiplyBy(const double& value, const activityMode& am) override;
+	 G_API_GENEVA void doubleMultiplyBy(const double& value, const activityMode& am) override;
 	 /** @brief Initialization with a constant value */
-	 virtual G_API_GENEVA void doubleFixedValueInit(const double& value, const activityMode& am) override;
+	 G_API_GENEVA void doubleFixedValueInit(const double& value, const activityMode& am) override;
 	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-	 virtual G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+	 G_API_GENEVA void doubleAdd(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
-	 virtual G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+	 G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
 	 /***************************************************************************/
 	 /** @brief The default constructor. Intentionally protected	 */
@@ -153,11 +153,11 @@ private:
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 	 /***************************************************************************/
 };
 

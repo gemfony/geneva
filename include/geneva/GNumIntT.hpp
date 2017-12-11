@@ -157,7 +157,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GNumIntT<int_type>& operator=(const GNumIntT<int_type>& cp) {
+	 GNumIntT<int_type>& operator=(const GNumIntT<int_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -169,7 +169,7 @@ public:
 	  * @param val The value to be assigned to this object
 	  * @return The value that was assigned to this object
 	  */
-	 virtual int_type operator=(const int_type& val) override {
+	 int_type operator=(const int_type& val) override {
 		 return GNumT<int_type>::operator=(val);
 	 }
 
@@ -241,7 +241,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GNumIntT");
 	 }
 
@@ -255,7 +255,7 @@ protected:
 	  *
 	  * @param cp A copy of another GNumIntT<int_type> object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject *cp) override {
+	 void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GNumIntT<int_type> reference independent of this object and convert the pointer
 		 const GNumIntT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumIntT<int_type>>(cp, this);
 
@@ -292,14 +292,14 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. Needs to be redefined in derived classes */
-	 virtual GObject* clone_() const override = 0;
+	 GObject* clone_() const override = 0;
 
 public:
 	 /***************************************************************************/
 	 /**
 	  * Applies modifications to this object. This is needed for testing purposes
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 bool result = false;
 
@@ -318,7 +318,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // A few settings
 		 const std::size_t nTests = 10000;
@@ -419,7 +419,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GNumT<int_type>::specificTestsFailuresExpected_GUnitTests();

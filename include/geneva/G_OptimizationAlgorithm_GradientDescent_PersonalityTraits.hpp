@@ -57,72 +57,72 @@ namespace Geneva {
  */
 class GGradientDescent_PersonalityTraits :public GPersonalityTraits
 {
-	///////////////////////////////////////////////////////////////////////
-	friend class boost::serialization::access;
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
 
-	template<typename Archive>
-	void serialize(Archive & ar, const unsigned int){
-		using boost::serialization::make_nvp;
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
 
-		ar
-		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-		& BOOST_SERIALIZATION_NVP(popPos_);
-	}
-	///////////////////////////////////////////////////////////////////////
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+		 & BOOST_SERIALIZATION_NVP(popPos_);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
 
 public:
-   /** @brief An easy identifier for the class */
-   static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
+	 /** @brief An easy identifier for the class */
+	 static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
-	/** @brief The default constructor */
-	G_API_GENEVA GGradientDescent_PersonalityTraits();
-	/** @brief The copy contructor */
-	G_API_GENEVA GGradientDescent_PersonalityTraits(const GGradientDescent_PersonalityTraits&);
-	/** @brief The standard destructor */
-	virtual G_API_GENEVA ~GGradientDescent_PersonalityTraits();
+	 /** @brief The default constructor */
+	 G_API_GENEVA GGradientDescent_PersonalityTraits();
+	 /** @brief The copy contructor */
+	 G_API_GENEVA GGradientDescent_PersonalityTraits(const GGradientDescent_PersonalityTraits&);
+	 /** @brief The standard destructor */
+	 virtual G_API_GENEVA ~GGradientDescent_PersonalityTraits();
 
-	/** @brief The standard assignment operator */
-	G_API_GENEVA  GGradientDescent_PersonalityTraits& operator=(const GGradientDescent_PersonalityTraits&);
+	 /** @brief The standard assignment operator */
+	 G_API_GENEVA  GGradientDescent_PersonalityTraits& operator=(const GGradientDescent_PersonalityTraits&);
 
-	/** @brief Checks for equality with another GGDPersonalityTraits object */
-	G_API_GENEVA bool operator==(const GGradientDescent_PersonalityTraits&) const;
-	/** @brief Checks for inequality with another GGDPersonalityTraits object */
-	G_API_GENEVA bool operator!=(const GGradientDescent_PersonalityTraits&) const;
+	 /** @brief Checks for equality with another GGDPersonalityTraits object */
+	 G_API_GENEVA bool operator==(const GGradientDescent_PersonalityTraits&) const;
+	 /** @brief Checks for inequality with another GGDPersonalityTraits object */
+	 G_API_GENEVA bool operator!=(const GGradientDescent_PersonalityTraits&) const;
 
-	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA void compare(
-		const GObject& // the other object
-		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		, const double& // the limit for allowed deviations of floating point types
-	) const override;
+	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
+	 virtual G_API_GENEVA void compare(
+		 const GObject& // the other object
+		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		 , const double& // the limit for allowed deviations of floating point types
+	 ) const override;
 
-	/** @brief Sets the position of the individual in the population */
-	G_API_GENEVA void setPopulationPosition(const std::size_t&) ;
-	/** @brief Retrieves the position of the individual in the population */
-	G_API_GENEVA std::size_t getPopulationPosition(void) const ;
+	 /** @brief Sets the position of the individual in the population */
+	 G_API_GENEVA void setPopulationPosition(const std::size_t&) ;
+	 /** @brief Retrieves the position of the individual in the population */
+	 G_API_GENEVA std::size_t getPopulationPosition(void) const ;
 
-	/** @brief Emits a name for this class / object */
-	virtual G_API_GENEVA std::string name() const override;
-   /** @brief Retrieves the mnemonic of the optimization algorithm */
-   virtual G_API_GENEVA std::string getMnemonic() const override;
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name() const override;
+	 /** @brief Retrieves the mnemonic of the optimization algorithm */
+	 G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
-	/** @brief Loads the data of another GGDPersonalityTraits object */
-	virtual G_API_GENEVA void load_(const GObject*) override;
-	/** @brief Creates a deep clone of this object */
-	virtual G_API_GENEVA GObject* clone_() const override;
+	 /** @brief Loads the data of another GGDPersonalityTraits object */
+	 G_API_GENEVA void load_(const GObject*) override;
+	 /** @brief Creates a deep clone of this object */
+	 G_API_GENEVA GObject* clone_() const override;
 
 private:
-	/** @brief Stores the current position in the population */
-	std::size_t popPos_;
+	 /** @brief Stores the current position in the population */
+	 std::size_t popPos_;
 
 public:
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	virtual G_API_GENEVA bool modify_GUnitTests() override;
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 /** @brief Applies modifications to this object. This is needed for testing purposes */
+	 G_API_GENEVA bool modify_GUnitTests() override;
+	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

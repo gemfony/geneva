@@ -92,7 +92,7 @@ public:
 	 G_API_GENEVA  GParameterBase& operator=(const GParameterBase&);
 
 	 /** @brief The adaption interface */
-	 virtual G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) override;
+	 G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) override;
 	 /** @brief The actual adaption logic */
 	 virtual G_API_GENEVA std::size_t adaptImpl(Gem::Hap::GRandomBase&) BASE = 0;
 
@@ -131,7 +131,7 @@ public:
 	 virtual G_API_GENEVA bool isParameterCollection() const BASE;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Allows to assign a name to this parameter */
 	 G_API_GENEVA void setParameterName(const std::string&);
@@ -538,7 +538,7 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GObject */
-	 virtual G_API_GENEVA void load_(const GObject*) override;
+	 G_API_GENEVA void load_(const GObject*) override;
 
 	 /** @brief Triggers random initialization of the parameter(-collection) */
 	 virtual G_API_GENEVA bool randomInit_(
@@ -549,7 +549,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject* clone_() const override = 0;
+	 G_API_GENEVA GObject* clone_() const override = 0;
 
 	 /***************************************************************************/
 	 bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out
@@ -559,11 +559,11 @@ private:
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

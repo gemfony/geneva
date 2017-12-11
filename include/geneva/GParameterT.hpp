@@ -117,7 +117,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GParameterT<T>& operator=(const GParameterT<T>& cp) {
+	 GParameterT<T>& operator=(const GParameterT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -291,7 +291,7 @@ public:
 	 /**
 	  * Lets the audience know whether this is a leaf or a branch object
 	  */
-	 virtual bool isLeaf() const override {
+	 bool isLeaf() const override {
 		 return true;
 	 }
 
@@ -299,7 +299,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GParameterT");
 	 }
 
@@ -328,7 +328,7 @@ protected:
 	  *
 	  * @param cp A copy of another GParameterT<T> object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Check that we are dealing with a  GParameterT<T> reference independent of this object and convert the pointer
 		 const GParameterT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterT<T>>(cp, this);
 
@@ -359,7 +359,7 @@ protected:
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const override = 0;
+	 GObject* clone_() const override = 0;
 
 public:
 	 /***************************************************************************/
@@ -368,7 +368,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 bool result = false;
 
@@ -387,7 +387,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterBaseWithAdaptorsT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -403,7 +403,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests();

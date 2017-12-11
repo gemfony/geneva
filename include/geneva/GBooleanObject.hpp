@@ -85,7 +85,7 @@ public:
 	 virtual G_API_GENEVA ~GBooleanObject();
 
 	 /** @brief An assignment operator */
-	 virtual G_API_GENEVA bool operator=(const bool&) override;
+	 G_API_GENEVA bool operator=(const bool&) override;
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GBooleanObject& operator=(const GBooleanObject&);
 
@@ -117,11 +117,11 @@ public:
 	 ) const override;
 
 	 /** @brief Emits a name for this class / object */
-	 virtual G_API_GENEVA std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 protected:
 	 /** @brief Loads the data of another GObject */
-	 virtual G_API_GENEVA void load_(const GObject*) override;
+	 G_API_GENEVA void load_(const GObject*) override;
 
 	 /** @brief Triggers random initialization of the parameter object */
 	 virtual G_API_GENEVA bool randomInit_(
@@ -136,32 +136,32 @@ protected:
 	 );
 
 	 /** @brief Returns a "comparative range" for this type */
-	 virtual G_API_GENEVA bool range() const override;
+	 G_API_GENEVA bool range() const override;
 
 	 /** @brief Attach our local value to the vector. */
-	 virtual G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode& am) const override;
+	 G_API_GENEVA void booleanStreamline(std::vector<bool>&, const activityMode& am) const override;
 	 /** @brief Attach boundaries of type bool to the vectors */
-	 virtual G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const override;
+	 G_API_GENEVA void booleanBoundaries(std::vector<bool>&, std::vector<bool>&, const activityMode& am) const override;
 	 /** @brief Tell the audience that we own a std::int32_t value */
-	 virtual std::size_t countBoolParameters(const activityMode& am) const override;
+	 std::size_t countBoolParameters(const activityMode& am) const override;
 	 /** @brief Assigns part of a value vector to the parameter */
-	 virtual G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;
+	 G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;
 	 /** @brief Attach our local value to the map. */
-	 virtual G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool>>&, const activityMode& am) const override;
+	 G_API_GENEVA void booleanStreamline(std::map<std::string, std::vector<bool>>&, const activityMode& am) const override;
 	 /** @brief Assigns part of a value map to the parameter */
-	 virtual G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool>>&, const activityMode& am) override;
+	 G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool>>&, const activityMode& am) override;
 
 private:
 	 /** @brief Creates a deep clone of this object. */
-	 virtual G_API_GENEVA GObject* clone_() const override;
+	 G_API_GENEVA GObject* clone_() const override;
 
 public:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

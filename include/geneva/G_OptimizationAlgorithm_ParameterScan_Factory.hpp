@@ -81,9 +81,9 @@ public:
 	 virtual G_API_GENEVA ~GParameterScanFactory();
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
-	 virtual G_API_GENEVA std::string getMnemonic() const override;
+	 G_API_GENEVA std::string getMnemonic() const override;
 	 /** @brief Gives access to a clear-text description of the algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const override;
+	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Adds local command line options to boost::program_options::options_description objects */
 	 virtual G_API_GENEVA void addCLOptions(
@@ -105,7 +105,7 @@ protected:
 		 , const std::size_t&
 	 ) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 virtual G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
+	 G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
 
 private:
 	 /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */

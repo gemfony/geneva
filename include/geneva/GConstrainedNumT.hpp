@@ -224,7 +224,7 @@ public:
 	  * @param The desired new external value
 	  * @return The new external value of this object
 	  */
-	 virtual T operator=(const T& val) override {
+	 T operator=(const T& val) override {
 		 GConstrainedNumT<T>::setValue(val);
 		 return val;
 	 }
@@ -233,7 +233,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GConstrainedNumT<T>& operator=(const GConstrainedNumT<T>& cp) {
+	 GConstrainedNumT<T>& operator=(const GConstrainedNumT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -419,7 +419,7 @@ public:
 	  *
 	  * @param val The new T value stored in this class
 	  */
-	 virtual void setValue(const T& val) override {
+	 void setValue(const T& val) override {
 		 // Do some error checking
 		 if(val < lowerBoundary_ || val > upperBoundary_) {
 			 throw gemfony_exception(
@@ -517,7 +517,7 @@ public:
 	  *
 	  * @return The transformed value of val_
 	  */
-	 virtual T value() const  override {
+	 T value() const  override {
 		 T mapping = this->transfer(GParameterT<T>::value());
 
 		 // Reset internal value -- possible because it is declared mutable in
@@ -584,7 +584,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GConstrainedNumT");
 	 }
 
@@ -595,7 +595,7 @@ protected:
 	  *
 	  * @param cp Another GConstrainedNumT<T> object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject *cp) override {
+	 void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GConstrainedNumT<T> reference independent of this object and convert the pointer
 		 const GConstrainedNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T>>(cp, this);
 
@@ -612,7 +612,7 @@ protected:
 	  * Returns a "comparative range". This is e.g. used to make Gauss-adaption
 	  * independent of a parameters value range
 	  */
-	 virtual T range() const override {
+	 T range() const override {
 		 return upperBoundary_ - lowerBoundary_;
 	 }
 
@@ -621,7 +621,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. */
-	 virtual G_API_GENEVA GObject* clone_() const override = 0;
+	 G_API_GENEVA GObject* clone_() const override = 0;
 
 	 /***************************************************************************/
 
@@ -635,7 +635,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 bool result = false;
 
@@ -654,7 +654,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Some general settings
 		 const T testVal = T(42);
@@ -812,7 +812,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterT<T>::specificTestsFailuresExpected_GUnitTests();

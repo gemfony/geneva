@@ -186,13 +186,13 @@ public:
 
 	 /***********************************************************************************/
 	 /** @brief Retrieves the id of the adaptor */
-	 virtual Gem::Geneva::adaptorId getAdaptorId() const override = 0;
+	 Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
 	 /***************************************************************************/
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GFPBiGaussAdaptorT");
 	 }
 
@@ -265,7 +265,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief This function creates a deep copy of this object */
-	 virtual GObject *clone_() const override = 0;
+	 GObject *clone_() const override = 0;
 
 public:
 	 /***************************************************************************/
@@ -274,7 +274,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 
 		 using boost::unit_test_framework::test_suite;
@@ -297,7 +297,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 
 		 using boost::unit_test_framework::test_suite;
@@ -315,7 +315,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 
 		 using boost::unit_test_framework::test_suite;

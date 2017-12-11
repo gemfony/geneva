@@ -144,7 +144,7 @@ public:
 	 /**
 	  * The standard assignment operator
 	  */
-	  GNumT<T>& operator=(const GNumT<T>& cp) {
+	 GNumT<T>& operator=(const GNumT<T>& cp) {
 		 this->load_(&cp);
 		 return *this;
 	 }
@@ -153,7 +153,7 @@ public:
 	 /**
 	  * An assignment operator for the contained value type
 	  */
-	 virtual T operator=(const T& val) override {
+	 T operator=(const T& val) override {
 		 return GParameterT<T>::operator=(val);
 	 }
 
@@ -286,7 +286,7 @@ public:
 	 /**
 	  * Lets the audience know whether this is a leaf or a branch object
 	  */
-	 virtual bool isLeaf() const override {
+	 bool isLeaf() const override {
 		 return true;
 	 }
 
@@ -294,7 +294,7 @@ public:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name() const override {
+	 std::string name() const override {
 		 return std::string("GNumT");
 	 }
 
@@ -331,7 +331,7 @@ protected:
 	  *
 	  * @param cp A copy of another GNumT<T> object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject *cp) override {
+	 void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GNumT<T> reference independent of this object and convert the pointer
 		 const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T>>(cp, this);
 
@@ -348,7 +348,7 @@ protected:
 	  * Returns a "comparative range". This is e.g. used to make Gauss-adaption
 	  * independent of a parameters value range
 	  */
-	 virtual T range() const override {
+	 T range() const override {
 		 return upperInitBoundary_ - lowerInitBoundary_;
 	 }
 
@@ -367,7 +367,7 @@ private:
 	  *
 	  * @return A pointer to a deep clone of this object
 	  */
-	 virtual GObject *clone_() const override = 0;
+	 GObject *clone_() const override = 0;
 
 	 /***************************************************************************/
 	 T lowerInitBoundary_; ///< The lower boundary for random initialization
@@ -381,7 +381,7 @@ public:
 	  *
 	  * @return A boolean which indicates whether modifications were made
 	  */
-	 virtual bool modify_GUnitTests() override {
+	 bool modify_GUnitTests() override {
 #ifdef GEM_TESTING
 		 bool result = false;
 
@@ -400,7 +400,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to succeed. This is needed for testing purposes
 	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
+	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
@@ -433,7 +433,7 @@ public:
 	 /**
 	  * Performs self tests that are expected to fail. This is needed for testing purposes
 	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
+	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
 		 GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
