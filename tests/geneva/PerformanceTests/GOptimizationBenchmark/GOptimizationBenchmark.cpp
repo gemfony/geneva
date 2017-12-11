@@ -68,9 +68,6 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------
 	// Server mode, serial or multi-threaded execution
 
-	// Create a copy so we may reset the Go2 object to its original settings later
-	Go2 goTmp = go;
-
 	// Load benchmark configuration options
 	GOptimizationBenchmarkConfig gbc("./config/GOptimizationBenchmark.json");
 
@@ -102,6 +99,9 @@ int main(int argc, char **argv) {
 
 		// Run the desired number of tests
 		for(std::size_t test=0; test<nTests; test++) {
+			// Create a Go2-object for the loop
+			Go2 go_loop(argc, argv, "./config/Go2.json");
+
 			// Retrieve an individual from the factory
 			std::shared_ptr<GFunctionIndividual> g = gfi.get_as<GFunctionIndividual>();
 
@@ -113,22 +113,22 @@ int main(int argc, char **argv) {
 				);
 			}
 
-			if(!go.empty()) {
+			if(!go_loop.empty()) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
-						<< "In main(): go contains " << go.size() << " items when it should be empty." << std::endl
+						<< "In main(): go contains " << go_loop.size() << " items when it should be empty." << std::endl
 				);
 			}
 #endif /* DEBUG */
 
 			// Make an individual known to the optimizer
-			go.push_back(g);
+			go_loop.push_back(g);
 
 			// Start recording of time
 			startTime = std::chrono::system_clock::now();
 
 			// Perform the actual optimization and extract the best individual
-			std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+			std::shared_ptr<GFunctionIndividual> p = go_loop.optimize<GFunctionIndividual>();
 
 			endTime = std::chrono::system_clock::now();
 
@@ -144,9 +144,6 @@ int main(int argc, char **argv) {
 
 			// Add timing information to the result vector
 			timeConsumed.push_back(std::chrono::duration<double>(endTime-startTime).count());
-
-			// Reset the go object
-			go = goTmp;
 		}
 
 		// Post process the vector, extracting mean and sigma

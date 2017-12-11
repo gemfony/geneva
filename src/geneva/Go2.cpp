@@ -44,7 +44,7 @@ namespace Geneva {
  * @param nProducerThreads The number of threads simultaneously producing random numbers
  */
 void setRNFParameters(
-	const std::uint16_t &nProducerThreads
+	std::uint16_t nProducerThreads
 ) {
 	//--------------------------------------------
 	// Random numbers are our most valuable good.
@@ -63,8 +63,7 @@ std::once_flag f_go2;
  * The default constructor
  */
 Go2::Go2()
-	: GObject()
-	  , G_Interface_Optimizer()
+	: G_Interface_Optimizer()
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
@@ -102,8 +101,7 @@ Go2::Go2(
 	, char **argv
 	, const boost::program_options::options_description &userDescriptions
 )
-	: GObject()
-	  , G_Interface_Optimizer()
+	: G_Interface_Optimizer()
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 {
 	//--------------------------------------------
@@ -137,8 +135,7 @@ Go2::Go2(
  * @param configFilename The name of a configuration file
  */
 Go2::Go2(const std::string &configFilename)
-	: GObject()
-	  , G_Interface_Optimizer()
+	: G_Interface_Optimizer()
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 	  , m_config_filename(configFilename)
 {
@@ -181,8 +178,7 @@ Go2::Go2(
 	, const std::string &configFilename
 	, const boost::program_options::options_description &userDescriptions
 )
-	: GObject()
-	  , G_Interface_Optimizer()
+	: G_Interface_Optimizer()
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 	  , m_config_filename(configFilename)
 {
@@ -212,150 +208,6 @@ Go2::Go2(
 	// Random numbers are our most valuable good.
 	// Initialize all necessary variables
 	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
-}
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * TODO: Should be non-copyable
- */
-Go2::Go2(const Go2 &cp)
-	: GObject(cp)
-	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>(cp)
-	  , m_client_mode(cp.m_client_mode)
-	  , m_config_filename(cp.m_config_filename)
-	  , m_consumer_name(cp.m_consumer_name)
-	  , m_n_producer_threads(cp.m_n_producer_threads)
-	  , m_offset(cp.m_offset)
-	  , m_sorted(cp.m_sorted)
-	  , m_copyBestIndividualsOnly(cp.m_copyBestIndividualsOnly)
-{
-	//--------------------------------------------
-	// Initialize Geneva as well as the known optimization algorithms
-
-	m_gi.registerOAF<GEvolutionaryAlgorithmFactory>();
-	m_gi.registerOAF<GSwarmAlgorithmFactory>();
-	m_gi.registerOAF<GGradientDescentFactory>();
-	m_gi.registerOAF<GSimulatedAnnealingFactory>();
-	m_gi.registerOAF<GParameterScanFactory>();
-
-	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
-	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
-	m_gi.registerConsumer<GIndividualThreadConsumer>();
-	m_gi.registerConsumer<GIndividualSerialConsumer>();
-
-	//--------------------------------------------
-	// Copy the algorithms vectors over
-	Gem::Common::copyCloneableSmartPointerContainer(cp.m_algorithms_vec, m_algorithms_vec);
-
-	//--------------------------------------------
-	// Random numbers are our most valuable good.
-	// Initialize all necessary variables
-	std::call_once(f_go2, [this](){ setRNFParameters(this->m_n_producer_threads); });
-
-	//--------------------------------------------
-	// Copy the default algorithm over, if any
-	Gem::Common::copyCloneableSmartPointer<GOABase>(cp.m_default_algorithm, m_default_algorithm);
-}
-
-/******************************************************************************/
-/**
- * The destructor
- */
-Go2::~Go2() {
-	this->clear(); // Get rid of the local individuals
-	m_algorithms_vec.clear(); // Get rid of the optimization algorithms
-}
-
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- Go2 &Go2::operator=(const Go2 &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another Go2 object
- *
- * @param  cp A constant reference to another Go2 object
- * @return A boolean indicating whether both objects are equal
- */
-bool Go2::operator==(const Go2 &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another Go2 object
- *
- * @param  cp A constant reference to another Go2 object
- * @return A boolean indicating whether both objects are inequal
- */
-bool Go2::operator!=(const Go2 &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Searches for compliance with expectations with respect to another object
- * of the same type
- *
- * @param cp A constant reference to another GObject object
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- */
-void Go2::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
-) const {
-	using namespace Gem::Common;
-
-	// Check that we are dealing with a Go2 reference independent of this object and convert the pointer
-	const Go2 *p_load = Gem::Common::g_convert_and_compare<GObject, Go2>(cp, this);
-
-	GToken token("Go2", e);
-
-	// Compare our parent data ...
-	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
-
-	// ... and then the local data
-	compare_t(IDENTITY(this->data,  p_load->data), token); // Actually data is contained in a parent class
-	compare_t(IDENTITY(m_client_mode, p_load->m_client_mode), token);
-	compare_t(IDENTITY(m_config_filename, p_load->m_config_filename), token);
-	compare_t(IDENTITY(m_consumer_name, p_load->m_consumer_name), token);
-	compare_t(IDENTITY(m_n_producer_threads, p_load->m_n_producer_threads), token);
-	compare_t(IDENTITY(m_max_client_duration.count(), p_load->m_max_client_duration.count()), token);
-	compare_t(IDENTITY(m_offset, p_load->m_offset), token);
-	compare_t(IDENTITY(m_sorted, p_load->m_sorted), token);
-	compare_t(IDENTITY(m_iterations_consumed, p_load->m_iterations_consumed), token);
-	compare_t(IDENTITY(m_copyBestIndividualsOnly, p_load->m_copyBestIndividualsOnly), token);
-	compare_t(IDENTITY(m_default_algorithm, p_load->m_default_algorithm), token);
-
-	// React on deviations from the expectation
-	token.evaluate();
-}
-
-/******************************************************************************/
-/**
- * Emits a name for this class / object
- */
-std::string Go2::name() const {
-	return std::string("Go2");
 }
 
 /******************************************************************************/
@@ -461,49 +313,6 @@ void Go2::setMaxClientTime(std::chrono::duration<double> maxDuration) {
  */
 std::chrono::duration<double> Go2::getMaxClientTime() const {
 	return m_max_client_duration;
-}
-
-
-/******************************************************************************/
-/**
- * Loads the data of another Go2 object
- *
- * @param cp A copy of another Go2 object, camouflaged as a GObject
- */
-void Go2::load_(const GObject *cp) {
-	// Check that we are dealing with a Go2 reference independent of this object and convert the pointer
-	const Go2 *p_load = Gem::Common::g_convert_and_compare<GObject, Go2>(cp, this);
-
-	// First load the parent class'es data ...
-	GObject::load_(cp);
-	Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>::operator=(*p_load);
-
-	// and then our local data
-	m_client_mode = p_load->m_client_mode;
-	m_config_filename = p_load->m_config_filename;
-	m_consumer_name = p_load->m_consumer_name;
-	m_n_producer_threads = p_load->m_n_producer_threads;
-	m_max_client_duration = p_load->m_max_client_duration;
-	m_offset = p_load->m_offset;
-	m_sorted = p_load->m_sorted;
-	m_iterations_consumed = p_load->m_iterations_consumed;
-	m_copyBestIndividualsOnly = p_load->m_copyBestIndividualsOnly;
-	m_cp_file = p_load->m_cp_file;
-
-	Gem::Common::copyCloneableSmartPointer<GOABase>(p_load->m_default_algorithm, m_default_algorithm);
-
-	// Copy the algorithm vectors over
-	Gem::Common::copyCloneableSmartPointerContainer(p_load->m_algorithms_vec, m_algorithms_vec);
-}
-
-/******************************************************************************/
-/**
- * Creates a deep clone of this object
- *
- * @return A deep clone of this object
- */
-GObject *Go2::clone_() const {
-	return new Go2(*this);
 }
 
 /******************************************************************************/
@@ -613,7 +422,7 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 	// Note that these are not cloned.
 	if (!alg->empty()) { // Have individuals been registered ?
 		for (const auto& ind_ptr: *alg) this->push_back(ind_ptr);
-	   // Remove the individuals from the old algorithm
+		// Remove the individuals from the old algorithm
 		alg->clear();
 	}
 
@@ -964,11 +773,7 @@ void Go2::addConfigurationOptions(
 ) {
 	using namespace Gem::Common;
 
-	// Call our parent class'es function
-	GObject::addConfigurationOptions(gpb);
-
-	// Add local data
-
+	// Add local data only -- no options from parent classes
 	gpb.registerFileParameter<std::uint16_t>(
 		"nProducerThreads"
 		, GO2_DEF_NPRODUCERTHREADS
@@ -1125,7 +930,7 @@ void Go2::parseCommandLine(
 				"A file (including its path) holding a checkpoint for a given optimization algorithm")
 			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
 			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION),
-			   R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
+				R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
 			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str());
 
 		// Add additional options coming from the algorithms and consumers

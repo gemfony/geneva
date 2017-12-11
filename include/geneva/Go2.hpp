@@ -92,7 +92,7 @@ const bool GO2_DEF_COPYBESTINDIVIDUALSONLY=false;
 
 /******************************************************************************/
 /** @brief Set a number of parameters of the random number factory */
-G_API_GENEVA void setRNFParameters(const std::uint16_t&);
+G_API_GENEVA void setRNFParameters(std::uint16_t);
 
 /******************************************************************************/
 /** Syntactic sugar -- make the code easier to read */
@@ -105,9 +105,8 @@ using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
  * class also hides the details of client/server mode, consumer initialization, etc.
  */
 class Go2
-	: public GObject
-	  , public G_Interface_Optimizer
-	  , public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
+	: public G_Interface_Optimizer
+	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
 {
 public:
 	 /** @brief The default constructor */
@@ -127,26 +126,11 @@ public:
 		 , const std::string&
 		 , const boost::program_options::options_description& = boost::program_options::options_description()
 	 );
-	 /** @brief A copy constructor */
-	 G_API_GENEVA Go2(const Go2&);
+	 /** @brief Deleted copy constructor */
+	 G_API_GENEVA Go2(const Go2&) = delete;
 
-	 /** @brief The destructor */
-	 G_API_GENEVA ~Go2() override;
-
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  Go2& operator=(const Go2&);
-
-	 /** @brief Checks for equality with another Go2 object */
-	 G_API_GENEVA bool operator==(const Go2&) const;
-	 /** @brief Checks for inequality with another Go2 object */
-	 G_API_GENEVA bool operator!=(const Go2&) const;
-
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const override;
+	 /** @brief The (defaulted) destructor */
+	 G_API_GENEVA ~Go2() = default;
 
 	 /** @brief Triggers execution of the client loop */
 	 G_API_GENEVA int clientRun();
@@ -203,7 +187,7 @@ public:
 	 G_API_GENEVA void parseConfigFile(const std::string&);
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
+	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 	 /***************************************************************************/
 	 /**
@@ -236,9 +220,6 @@ public:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 	 /** @brief Allows to register a default algorithm. */
 	 G_API_GENEVA void registerDefaultAlgorithm(std::shared_ptr<GOABase>);
 	 /** @brief Allows to register a default algorithm. */
@@ -269,9 +250,6 @@ protected:
 	 void dummyFunction() override { /* nothing */ }
 
 	 /***************************************************************************/
-	 /** @brief Loads the data of another Go2 object */
-	 G_API_GENEVA void load_(const GObject *) override;
-
 	 /** @brief Retrieves the best individual found */
 	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
 	 /** @brief Retrieves a list of the best individuals found */
@@ -286,9 +264,6 @@ protected:
 
 private:
 	 /***************************************************************************/
-	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA GObject *clone_() const override;
-
 	 /** @brief Sets the number of random number production threads */
 	 void setNProducerThreads(const std::uint16_t&);
 
