@@ -86,7 +86,7 @@ class GOptimizableEntity
 	  , public G_Interface_Rateable
 	  , public GObject
 {
-	 friend class GSerialSwarm; ///< Needed so GSerialSwarm can set the dirty flag
+	 friend class GSerialSwarm; ///< Needed so GSerialSwarm can set the dirty flag TODO: Is this still needed?
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
 	 ///////////////////////////////////////////////////////////////////////

@@ -256,7 +256,7 @@ public:
 	  * @param e The expected outcome of the comparison
 	  * @param limit The maximum deviation for floating point values (important for similarity checks)
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GObject &cp
 		 , const Gem::Common::expectation &e
 		 , const fp_type &limit
@@ -904,10 +904,7 @@ protected:
 	 void load_(const GObject *cp) override
 	 {
 		 // Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
-		 const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(
-			 cp
-			 , this
-		 );
+		 const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(cp, this);
 
 		 // Load the parent class'es data
 		 GObject::load_(cp);
