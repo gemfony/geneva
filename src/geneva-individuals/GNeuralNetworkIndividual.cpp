@@ -107,40 +107,6 @@ trainingSet &trainingSet::operator=(const trainingSet &cp) {
 
 /******************************************************************************/
 /**
- * Checks for equality with another trainingSet object
- *
- * @param  cp A constant reference to another trainingSet object
- * @return A boolean indicating whether both objects are equal
- */
-bool trainingSet::operator==(const trainingSet &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another trainingSet object
- *
- * @param  cp A constant reference to another trainingSet object
- * @return A boolean indicating whether both objects are in-equal
- */
-bool trainingSet::operator!=(const trainingSet &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -243,40 +209,6 @@ networkData &networkData::operator=(const networkData &cp) {
 	Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
 	Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>::operator=(cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another networkData object
- *
- * @param  cp A constant reference to another networkData object
- * @return A boolean indicating whether both objects are equal
- */
-bool networkData::operator==(const networkData &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another networkData object
- *
- * @param  cp A constant reference to another networkData object
- * @return A boolean indicating whether both objects are inequal
- */
-bool networkData::operator!=(const networkData &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -715,40 +647,6 @@ GNeuralNetworkIndividual &GNeuralNetworkIndividual::operator=(
 ) {
 	GNeuralNetworkIndividual::load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GNeuralNetworkIndividual object
- *
- * @param  cp A constant reference to another GNeuralNetworkIndividual object
- * @return A boolean indicating whether both objects are equal
- */
-bool GNeuralNetworkIndividual::operator==(const GNeuralNetworkIndividual &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GNeuralNetworkIndividual object
- *
- * @param  cp A constant reference to another GNeuralNetworkIndividual object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GNeuralNetworkIndividual::operator!=(const GNeuralNetworkIndividual &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/

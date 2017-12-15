@@ -165,11 +165,6 @@ public:
 	 /** @brief A standard assignment operator */
 	 const GImageIndividual& operator=(const GImageIndividual&);
 
-	 /** @brief Checks for equality with another GImageIndividual object */
-	 bool operator==(const GImageIndividual& cp) const;
-	 /** @brief Checks for inequality with another GImageIndividual object */
-	 bool operator!=(const GImageIndividual& cp) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual void compare(
 		 const GObject&

@@ -147,10 +147,6 @@ struct trainingSet {
 	 G_API_INDIVIDUALS trainingSet &operator=(const trainingSet &);
 	 /** @brief Checks for equality with another trainingSet object */
 
-	 G_API_INDIVIDUALS bool operator==(const trainingSet &) const;
-	 /** @brief Checks for inequality with another trainingSet object */
-	 G_API_INDIVIDUALS bool operator!=(const trainingSet &) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_INDIVIDUALS void compare(
 		 const trainingSet & // the other object
@@ -244,11 +240,6 @@ public:
 
 	 /** @brief Copies the data of another networkData object */
 	 G_API_INDIVIDUALS networkData &operator=(const networkData &);
-
-	 /** @brief Checks for equality with another networkData object */
-	 G_API_INDIVIDUALS bool operator==(const networkData &) const;
-	 /** @brief Checks for inequality with another networkData object */
-	 G_API_INDIVIDUALS bool operator!=(const networkData &) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_INDIVIDUALS void compare(
@@ -421,11 +412,6 @@ public:
 
 	 /** @brief A standard assignment operator */
 	 G_API_INDIVIDUALS GNeuralNetworkIndividual &operator=(const GNeuralNetworkIndividual &cp);
-
-	 /** @brief Checks for equality with another GNeuralNetworkIndividual object */
-	 G_API_INDIVIDUALS bool operator==(const GNeuralNetworkIndividual &cp) const;
-	 /** @brief Checks for inequality with another GNeuralNetworkIndividual object */
-	 G_API_INDIVIDUALS bool operator!=(const GNeuralNetworkIndividual &cp) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_INDIVIDUALS void compare(

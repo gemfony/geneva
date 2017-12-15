@@ -88,34 +88,6 @@ GDoubleSumConstraint &GDoubleSumConstraint::operator=(const GDoubleSumConstraint
 
 /******************************************************************************/
 /**
- * Checks for equality with another GIndividualConstraint object
- */
-bool GDoubleSumConstraint::operator==(const GDoubleSumConstraint &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GIndividualConstraint object
- */
-bool GDoubleSumConstraint::operator!=(const GDoubleSumConstraint &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -236,35 +208,6 @@ GDoubleSumGapConstraint::~GDoubleSumGapConstraint() { /* nothing */ }
 GDoubleSumGapConstraint &GDoubleSumGapConstraint::operator=(const GDoubleSumGapConstraint &cp) {
 	GParameterSetConstraint::load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GIndividualConstraint object
- */
-bool GDoubleSumGapConstraint::operator==(const GDoubleSumGapConstraint &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GIndividualConstraint object
- */
-bool GDoubleSumGapConstraint::operator!=(const GDoubleSumGapConstraint &cp) const {
-	using namespace Gem::Common;
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -391,34 +334,6 @@ GSphereConstraint::~GSphereConstraint() { /* nothing */ }
 GSphereConstraint &GSphereConstraint::operator=(const GSphereConstraint &cp) {
 	GParameterSetConstraint::load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GIndividualConstraint object
- */
-bool GSphereConstraint::operator==(const GSphereConstraint &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GIndividualConstraint object
- */
-bool GSphereConstraint::operator!=(const GSphereConstraint &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -659,40 +574,6 @@ GFunctionIndividual::~GFunctionIndividual()
 GFunctionIndividual &GFunctionIndividual::operator=(const GFunctionIndividual &cp) {
 	GFunctionIndividual::load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GFunctionIndividual object
- *
- * @param  cp A constant reference to another GFunctionIndividual object
- * @return A boolean indicating whether both objects are equal
- */
-bool GFunctionIndividual::operator==(const GFunctionIndividual &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GFunctionIndividual object
- *
- * @param  cp A constant reference to another GFunctionIndividual object
- * @return A boolean indicating whether both objects are in-equal
- */
-bool GFunctionIndividual::operator!=(const GFunctionIndividual &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/

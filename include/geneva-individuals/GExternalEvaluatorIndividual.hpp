@@ -172,11 +172,6 @@ public:
 	 /** @brief A standard assignment operator */
 	 G_API_INDIVIDUALS GExternalEvaluatorIndividual &operator=(const GExternalEvaluatorIndividual &);
 
-	 /** @brief Checks for equality with another GExternalEvaluatorIndividual object */
-	 G_API_INDIVIDUALS bool operator==(const GExternalEvaluatorIndividual &) const;
-	 /** @brief Checks for inequality with another GExternalEvaluatorIndividual object */
-	 G_API_INDIVIDUALS bool operator!=(const GExternalEvaluatorIndividual &) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_INDIVIDUALS void compare(
 		 const GObject & // the other object

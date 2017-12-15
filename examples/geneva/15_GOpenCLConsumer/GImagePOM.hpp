@@ -134,41 +134,6 @@ public:
 		 return *this;
 	 }
 
-	 /************************************************************************/
-	 /**
-	  * Checks for equality with another GImagePOM object
-	  *
-	  * @param  cp A constant reference to another GImagePOM object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 virtual bool operator==(const GImagePOM& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /************************************************************************/
-	 /**
-	  * Checks for inequality with another GImagePOM object
-	  *
-	  * @param  cp A constant reference to another GImagePOM object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 virtual bool operator!=(const GImagePOM& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-
 	 /***************************************************************************/
 	 /**
 	  * Searches for compliance with expectations with respect to another object
