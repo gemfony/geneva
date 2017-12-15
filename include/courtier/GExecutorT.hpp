@@ -166,40 +166,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GBaseExecutorT<processable_type> object
-	  *
-	  * @param  cp A constant reference to another GBaseExecutorT<processable_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GBaseExecutorT<processable_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GBaseExecutorT<processable_type> object
-	  *
-	  * @param  cp A constant reference to another GBaseExecutorT<processable_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GBaseExecutorT<processable_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * A standard assignment operator for GBaseExecutorT<processable_type> objects,
 	  *
 	  * @param cp A copy of another GBaseExecutorT<processable_type> object
@@ -1098,40 +1064,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GSerialExecutorT<processable_type> object
-	  *
-	  * @param  cp A constant reference to another GSerialExecutorT<processable_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GSerialExecutorT<processable_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GSerialExecutorT<processable_type> object
-	  *
-	  * @param  cp A constant reference to another GSerialExecutorT<processable_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GSerialExecutorT<processable_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -1436,40 +1368,6 @@ public:
 	 /***************************************************************************/
 	 /** @brief The destructor */
 	 virtual ~GMTExecutorT() = default;
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for equality with another GMTExecutorT<processable_type> object
-	  *
-	  * @param  cp A constant reference to another GMTExecutorT<processable_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GMTExecutorT<processable_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GMTExecutorT<processable_type> object
-	  *
-	  * @param  cp A constant reference to another GMTExecutorT<processable_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GMTExecutorT<processable_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -1895,40 +1793,6 @@ public:
 		 // Write out the result. This is a hack.
 		 if(m_waiting_times_graph->currentSize() > 0.) {
 			 m_gpd.writeToFile("maximumWaitingTimes.C");
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for equality with another GBrokerExecutorT<processable_type> object
-	  *
-	  * @param  cp A constant reference to another GBrokerExecutorT<processable_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GBrokerExecutorT<processable_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GBrokerExecutorT<processable_type> object
-	  *
-	  * @param  cp A constant reference to another GBrokerExecutorT<processable_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GBrokerExecutorT<processable_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
 		 }
 	 }
 
