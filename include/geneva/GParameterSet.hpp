@@ -521,7 +521,7 @@ public:
 	  */
 	 template <typename par_type>
 	 void add(
-		 std::shared_ptr<GParameterSet> p
+		 const std::shared_ptr<GParameterSet>& p
 		 , const activityMode& am
 	 ) {
 		 GParameterSet::iterator it;
@@ -541,7 +541,7 @@ public:
 	  */
 	 template <typename par_type>
 	 void subtract(
-		 std::shared_ptr<GParameterSet> p
+		 const std::shared_ptr<GParameterSet>& p
 		 , const activityMode& am
 	 ) {
 		 GParameterSet::iterator it;
@@ -554,6 +554,10 @@ public:
 			 (*it)->subtract<par_type>(*cit, am);
 		 }
 	 }
+
+	 /***************************************************************************/
+	 explicit G_API_GENEVA GParameterSet(const float&) = delete; ///< Intentionally undefined
+	 explicit G_API_GENEVA GParameterSet(const double&) = delete; ///< Intentionally undefined
 
 protected:
 	 /***************************************************************************/
@@ -587,14 +591,11 @@ protected:
 	 G_API_GENEVA std::size_t customAdaptions() override ;
 
 private:
-	 explicit G_API_GENEVA GParameterSet(const float&) = delete; ///< Intentionally private and undefined
-
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
 
 	 /** @brief Uniformly distributed integer random numbers */
 	 std::uniform_int_distribution<std::size_t> m_uniform_int;
-
 
 	 double perItemCrossOverProbability_; ///< A likelihood for "per item" cross-over operations to be performed
 

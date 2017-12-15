@@ -229,40 +229,6 @@ GBasePlotter::~GBasePlotter()
 
 /******************************************************************************/
 /**
- * Checks for equality with another GBasePlotter object
- *
- * @param  cp A constant reference to another GBasePlotter object
- * @return A boolean indicating whether both objects are equal
- */
-bool GBasePlotter::operator==(const GBasePlotter &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GBasePlotter object
- *
- * @param  cp A constant reference to another GBasePlotter object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GBasePlotter::operator!=(const GBasePlotter &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Allows to set the drawing arguments for this plot
  *
  * @param drawingArguments The drawing arguments for this plot
@@ -615,40 +581,6 @@ GGraph2D::~GGraph2D()
 
 /******************************************************************************/
 /**
- * Checks for equality with another GGraph2D object
- *
- * @param  cp A constant reference to another GGraph2D object
- * @return A boolean indicating whether both objects are equal
- */
-bool GGraph2D::operator==(const GGraph2D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GGraph2D object
- *
- * @param  cp A constant reference to another GGraph2D object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GGraph2D::operator!=(const GGraph2D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Adds arrows to the plots between consecutive points. Note that setting this
  * value to true will force "SCATTER" mode
  *
@@ -964,40 +896,6 @@ GGraph2ED::~GGraph2ED()
 
 /******************************************************************************/
 /**
- * Checks for equality with another GGraph2ED object
- *
- * @param  cp A constant reference to another GGraph2ED object
- * @return A boolean indicating whether both objects are equal
- */
-bool GGraph2ED::operator==(const GGraph2ED &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GGraph2ED object
- *
- * @param  cp A constant reference to another GGraph2ED object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GGraph2ED::operator!=(const GGraph2ED &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Determines whether a scatter plot or a curve is created
  *
  * @param pM The desired plot mode
@@ -1270,40 +1168,6 @@ GGraph3D::~GGraph3D()
  GGraph3D& GGraph3D::operator=(const GGraph3D &cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GGraph3D object
- *
- * @param  cp A constant reference to another GGraph3D object
- * @return A boolean indicating whether both objects are equal
- */
-bool GGraph3D::operator==(const GGraph3D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GGraph3D object
- *
- * @param  cp A constant reference to another GGraph3D object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GGraph3D::operator!=(const GGraph3D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -1604,40 +1468,6 @@ GGraph4D::~GGraph4D()
  GGraph4D& GGraph4D::operator=(const GGraph4D &cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GGraph4D object
- *
- * @param  cp A constant reference to another GGraph4D object
- * @return A boolean indicating whether both objects are equal
- */
-bool GGraph4D::operator==(const GGraph4D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GGraph4D object
- *
- * @param  cp A constant reference to another GGraph4D object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GGraph4D::operator!=(const GGraph4D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -2024,40 +1854,6 @@ GHistogram1D::~GHistogram1D()
 
 /******************************************************************************/
 /**
- * Checks for equality with another GHistogram1D object
- *
- * @param  cp A constant reference to another GHistogram1D object
- * @return A boolean indicating whether both objects are equal
- */
-bool GHistogram1D::operator==(const GHistogram1D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GHistogram1D object
- *
- * @param  cp A constant reference to another GHistogram1D object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GHistogram1D::operator!=(const GHistogram1D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Retrieve specific header settings for this plot
  */
 std::string GHistogram1D::headerData_(
@@ -2347,40 +2143,6 @@ GHistogram1I::~GHistogram1I() { /* nothing */ }
  GHistogram1I& GHistogram1I::operator=(const GHistogram1I &cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GHistogram1I object
- *
- * @param  cp A constant reference to another GHistogram1I object
- * @return A boolean indicating whether both objects are equal
- */
-bool GHistogram1I::operator==(const GHistogram1I &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GHistogram1I object
- *
- * @param  cp A constant reference to another GHistogram1I object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GHistogram1I::operator!=(const GHistogram1I &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -2698,40 +2460,6 @@ GHistogram2D::~GHistogram2D() { /* nothing */ }
  GHistogram2D& GHistogram2D::operator=(const GHistogram2D &cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GHistogram2D object
- *
- * @param  cp A constant reference to another GHistogram2D object
- * @return A boolean indicating whether both objects are equal
- */
-bool GHistogram2D::operator==(const GHistogram2D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GHistogram2D object
- *
- * @param  cp A constant reference to another GHistogram2D object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GHistogram2D::operator!=(const GHistogram2D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -3163,40 +2891,6 @@ GFunctionPlotter1D::~GFunctionPlotter1D()
 
 /******************************************************************************/
 /**
- * Checks for equality with another GFunctionPlotter1D object
- *
- * @param  cp A constant reference to another GFunctionPlotter1D object
- * @return A boolean indicating whether both objects are equal
- */
-bool GFunctionPlotter1D::operator==(const GFunctionPlotter1D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GFunctionPlotter1D object
- *
- * @param  cp A constant reference to another GFunctionPlotter1D object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GFunctionPlotter1D::operator!=(const GFunctionPlotter1D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Allows to set the number of sampling points of the function on the x-axis
  *
  * @param nSamplesX The number of sampling points of the function on the x-axis
@@ -3442,40 +3136,6 @@ GFunctionPlotter2D::~GFunctionPlotter2D()
  GFunctionPlotter2D& GFunctionPlotter2D::operator=(const GFunctionPlotter2D &cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GFunctionPlotter2D object
- *
- * @param  cp A constant reference to another GFunctionPlotter2D object
- * @return A boolean indicating whether both objects are equal
- */
-bool GFunctionPlotter2D::operator==(const GFunctionPlotter2D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GFunctionPlotter2D object
- *
- * @param  cp A constant reference to another GFunctionPlotter2D object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GFunctionPlotter2D::operator!=(const GFunctionPlotter2D &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -3767,40 +3427,6 @@ GPlotDesigner::~GPlotDesigner()
  GPlotDesigner& GPlotDesigner::operator=(const GPlotDesigner &cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GPlotDesigner object
- *
- * @param  cp A constant reference to another GPlotDesigner object
- * @return A boolean indicating whether both objects are equal
- */
-bool GPlotDesigner::operator==(const GPlotDesigner &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GPlotDesigner object
- *
- * @param  cp A constant reference to another GPlotDesigner object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GPlotDesigner::operator!=(const GPlotDesigner &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
 }
 
 /******************************************************************************/

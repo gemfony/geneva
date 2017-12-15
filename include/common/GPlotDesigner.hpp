@@ -315,40 +315,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-		* Checks for equality with another GDecorator<dimensions::Dim2> object
-		*
-		* @param  cp A constant reference to another GDecorator<dimensions::Dim2> object
-		 * @return A boolean indicating whether both objects are equal
-		*/
-	 bool operator==(const GDecorator<dimensions::Dim2, coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDecorator<dimensions::Dim2> object
-	  *
-	  * @param  cp A constant reference to another GDecorator<dimensions::Dim2> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDecorator<dimensions::Dim2, coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -497,40 +463,6 @@ public:
 		 this->load_(&cp);
 		 return *this;
 	 };
-
-	 /***************************************************************************/
-	 /**
-		* Checks for equality with another GMarker object
-		*
-		* @param  cp A constant reference to another GMarker object
-		 * @return A boolean indicating whether both objects are equal
-		*/
-	 bool operator==(const GMarker<coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GMarker object
-	  *
-	  * @param  cp A constant reference to another GMarker object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GMarker<coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -720,40 +652,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-		* Checks for equality with another GDecorator<dimensions::Dim3> object
-		*
-		* @param  cp A constant reference to another GDecorator<dimensions::Dim3> object
-		 * @return A boolean indicating whether both objects are equal
-		*/
-	 bool operator==(const GDecorator<dimensions::Dim3, coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDecorator<dimensions::Dim3> object
-	  *
-	  * @param  cp A constant reference to another GDecorator<dimensions::Dim3> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDecorator<dimensions::Dim3, coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -903,40 +801,6 @@ public:
 		 this->load_(&cp);
 		 return *this;
 	 };
-
-	 /***************************************************************************/
-	 /**
-		* Checks for equality with another GDecoratorContainer<dimensions::Dim2> object
-		*
-		* @param  cp A constant reference to another GDecoratorContainer<dimensions::Dim2> object
-		 * @return A boolean indicating whether both objects are equal
-		*/
-	 bool operator==(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDecoratorContainer<dimensions::Dim2> object
-	  *
-	  * @param  cp A constant reference to another GDecoratorContainer<dimensions::Dim2> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -1111,40 +975,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-		* Checks for equality with another GDecoratorContainer<dimensions::Dim3> object
-		*
-		* @param  cp A constant reference to another GDecoratorContainer<dimensions::Dim3> object
-		 * @return A boolean indicating whether both objects are equal
-		*/
-	 bool operator==(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDecoratorContainer<dimensions::Dim3> object
-	  *
-	  * @param  cp A constant reference to another GDecoratorContainer<dimensions::Dim3> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -1299,11 +1129,6 @@ public:
 
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GBasePlotter& operator=(const GBasePlotter &);
-
-	 /** @brief Checks for equality with another GBasePlotter object */
-	 G_API_COMMON bool operator==(const GBasePlotter&) const;
-	 /** @brief Checks for inequality with another GBasePlotter object */
-	 G_API_COMMON bool operator!=(const GBasePlotter&) const;
 
 	 /** @brief Allows to set the drawing arguments for this plot */
 	 G_API_COMMON void setDrawingArguments(std::string);
@@ -1469,40 +1294,6 @@ public:
 	 GDataCollector1T<x_type>& operator=(const GDataCollector1T<x_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for equality with another GDataCollector1T<x_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector1T<x_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GDataCollector1T<x_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDataCollector1T<x_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector1T<x_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDataCollector1T<x_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
 	 }
 
 	 /***************************************************************************/
@@ -1737,11 +1528,6 @@ public:
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GHistogram1D& operator=(const GHistogram1D &);
 
-	 /** @brief Checks for equality with another GHistogram1D object */
-	 G_API_COMMON bool operator==(const GHistogram1D&) const;
-	 /** @brief Checks for inequality with another GHistogram1D object */
-	 G_API_COMMON bool operator!=(const GHistogram1D&) const;
-
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
 
@@ -1828,11 +1614,6 @@ public:
 
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GHistogram1I& operator=(const GHistogram1I &);
-
-	 /** @brief Checks for equality with another GHistogram1I object */
-	 G_API_COMMON bool operator==(const GHistogram1I&) const;
-	 /** @brief Checks for inequality with another GHistogram1I object */
-	 G_API_COMMON bool operator!=(const GHistogram1I&) const;
 
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
@@ -1939,40 +1720,6 @@ public:
 	 GDataCollector2T<x_type, y_type>& operator=(const GDataCollector2T<x_type, y_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for equality with another GDataCollector2T<x_type, y_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector2T<x_type, y_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GDataCollector2T<x_type, y_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDataCollector2T<x_type, y_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector2T<x_type, y_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDataCollector2T<x_type, y_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
 	 }
 
 	 /***************************************************************************/
@@ -2374,40 +2121,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GDataCollector2ET<x_type, y_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector2ET<x_type, y_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GDataCollector2ET<x_type, y_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDataCollector2ET<x_type, y_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector2ET<x_type, y_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDataCollector2ET<x_type, y_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to add data of undetermined type to the collection in an intuitive way,
 	  * provided that it can be converted safely to the target type.
 	  *
@@ -2657,12 +2370,6 @@ public:
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GHistogram2D& operator=(const GHistogram2D&);
 
-	 /** @brief Checks for equality with another GHistogram2D object */
-	 G_API_COMMON bool operator==(const GHistogram2D&) const;
-	 /** @brief Checks for inequality with another GHistogram2D object */
-	 G_API_COMMON bool operator!=(const GHistogram2D&) const;
-
-
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
 	 /** @brief Retrieve the number of bins in y-direction */
@@ -2760,11 +2467,6 @@ public:
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GGraph2D& operator=(const GGraph2D &);
 
-	 /** @brief Checks for equality with another GGraph2D object */
-	 G_API_COMMON bool operator==(const GGraph2D&) const;
-	 /** @brief Checks for inequality with another GGraph2D object */
-	 G_API_COMMON bool operator!=(const GGraph2D&) const;
-
 	 /** @brief Adds arrows to the plots between consecutive points */
 	 G_API_COMMON void setDrawArrows(bool= true);
 	 /** @brief Retrieves the value of the drawArrows_ variable */
@@ -2842,11 +2544,6 @@ public:
 	 virtual G_API_COMMON ~GGraph2ED();
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GGraph2ED& operator=(const GGraph2ED &);
-
-	 /** @brief Checks for equality with another GGraph2ED object */
-	 G_API_COMMON bool operator==(const GGraph2ED&) const;
-	 /** @brief Checks for inequality with another GGraph2ED object */
-	 G_API_COMMON bool operator!=(const GGraph2ED&) const;
 
 	 /** @brief Determines whether a scatter plot or a curve is created */
 	 G_API_COMMON void setPlotMode(graphPlotMode);
@@ -2939,40 +2636,6 @@ public:
 	 GDataCollector3T<x_type, y_type, z_type>& operator=(const GDataCollector3T<x_type, y_type, z_type> &cp) {
 		 this->load_(&cp);
 		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for equality with another GDataCollector3T<x_type, y_type, z_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector3T<x_type, y_type, z_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GDataCollector3T<x_type, y_type, z_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDataCollector3T<x_type, y_type, z_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector3T<x_type, y_type, z_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDataCollector3T<x_type, y_type, z_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
 	 }
 
 	 /***************************************************************************/
@@ -3362,11 +3025,6 @@ public:
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GGraph3D& operator=(const GGraph3D &);
 
-	 /** @brief Checks for equality with another GGraph3D object */
-	 G_API_COMMON bool operator==(const GGraph3D&) const;
-	 /** @brief Checks for inequality with another GGraph2D object */
-	 G_API_COMMON bool operator!=(const GGraph3D&) const;
-
 	 /** @brief Adds lines to the plots between consecutive points */
 	 G_API_COMMON void setDrawLines(bool= true);
 	 /** @brief Retrieves the value of the drawLines_ variable */
@@ -3465,39 +3123,6 @@ public:
 		 return *this;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Checks for equality with another GDataCollector4T<x_type, y_type, z_type, w_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector4T<x_type, y_type, z_type, w_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GDataCollector4T<x_type, y_type, z_type, w_type> object
-	  *
-	  * @param  cp A constant reference to another GDataCollector4T<x_type, y_type, z_type, w_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch (g_expectation_violation &) {
-			 return false;
-		 }
-	 }
 	 /***************************************************************************/
 	 /**
 	  * Allows to project the graph into a histogram (x-direction). This function is a
@@ -3968,11 +3593,6 @@ public:
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GGraph4D& operator=(const GGraph4D &);
 
-	 /** @brief Checks for equality with another GGraph4D object */
-	 G_API_COMMON bool operator==(const GGraph4D&) const;
-	 /** @brief Checks for inequality with another GGraph2D object */
-	 G_API_COMMON bool operator!=(const GGraph4D&) const;
-
 	 /** @brief Allows to set the minimum marker size */
 	 G_API_COMMON void setMinMarkerSize(const double &);
 	 /** @brief Allows to set the maximum marker size */
@@ -4072,11 +3692,6 @@ public:
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GFunctionPlotter1D& operator=(const GFunctionPlotter1D &);
 
-	 /** @brief Checks for equality with another GFunctionPlotter1D object */
-	 G_API_COMMON bool operator==(const GFunctionPlotter1D&) const;
-	 /** @brief Checks for inequality with another GFunctionPlotter1D object */
-	 G_API_COMMON bool operator!=(const GFunctionPlotter1D&) const;
-
 	 /** @brief Allows to set the number of sampling points in x-direction */
 	 G_API_COMMON void setNSamplesX(std::size_t);
 
@@ -4157,12 +3772,6 @@ public:
 
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GFunctionPlotter2D& operator=(const GFunctionPlotter2D &);
-
-	 /** @brief Checks for equality with another GFunctionPlotter2D object */
-	 G_API_COMMON bool operator==(const GFunctionPlotter2D&) const;
-	 /** @brief Checks for inequality with another GFunctionPlotter2D object */
-	 G_API_COMMON bool operator!=(const GFunctionPlotter2D&) const;
-
 
 	 /** @brief Allows to set the number of sampling points in x-direction */
 	 G_API_COMMON void setNSamplesX(std::size_t);
@@ -4251,11 +3860,6 @@ public:
 
 	 /** @brief The assignment operator */
 	 G_API_COMMON  GPlotDesigner& operator=(const GPlotDesigner &);
-
-	 /** @brief Checks for equality with another GPlotDesigner object */
-	 G_API_COMMON bool operator==(const GPlotDesigner&) const;
-	 /** @brief Checks for inequality with another GPlotDesigner object */
-	 G_API_COMMON bool operator!=(const GPlotDesigner&) const;
 
 	 /* @brief Emits the overall plot */
 	 G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;

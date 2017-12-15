@@ -730,7 +730,7 @@ void GParameterSet::toPropertyTree(
 	std::size_t pos;
 	GParameterSet::const_iterator cit;
 	for (cit = this->begin(); cit != this->end(); ++cit) {
-		pos = std::distance(this->begin(), cit);
+		pos = boost::numeric_cast<std::size_t>(std::distance(this->begin(), cit));
 		base = baseName + ".vars.var" + boost::lexical_cast<std::string>(pos);
 		(*cit)->toPropertyTree(ptr, base);
 	}
