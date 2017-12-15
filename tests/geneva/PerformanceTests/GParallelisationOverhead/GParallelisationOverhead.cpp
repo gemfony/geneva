@@ -177,7 +177,7 @@ void startParallelMeasurement(
 
 			// Do the actual optimization and measure the time
 			std::chrono::system_clock::time_point startTime = std::chrono::system_clock::now();
-			go.optimize<GDelayIndividual>();
+			go.optimize();
 			std::chrono::system_clock::time_point endTime = std::chrono::system_clock::now();
 			std::chrono::duration<double> duration = endTime - startTime;
 

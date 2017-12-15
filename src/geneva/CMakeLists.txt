@@ -26,7 +26,6 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32GaussAdaptor
 	GInt32Object
 	GInt32ObjectCollection
-    G_Interface_Optimizer
 	Go2
     G_OptimizationAlgorithm_Base
     G_OptimizationAlgorithm_EvolutionaryAlgorithm

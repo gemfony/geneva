@@ -141,7 +141,7 @@ int main(int argc, char **argv) {
 	//---------------------------------------------------------------------------
 
 	// Perform the actual optimization
-	std::shared_ptr<GFunctionIndividual> p = go.optimize<GFunctionIndividual>();
+	std::shared_ptr<GFunctionIndividual> p = go.optimize()->getBestGlobalIndividual<GFunctionIndividual>();
 
 	// Here you can do something with the best individual ("p") found.
 	// We simply print its content here, by means of an operator<< implemented

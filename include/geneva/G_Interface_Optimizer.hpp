@@ -58,49 +58,17 @@ namespace Geneva {
  * This class specifies the interface that needs to be implemented by optimization
  * algorithms.
  */
+template <typename optimizer_type>
 class G_Interface_Optimizer {
 public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA G_Interface_Optimizer() = default;
 
 	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
-	 virtual G_API_GENEVA void optimize(const std::uint32_t& offset) BASE = 0;
-
-	 /** @brief A simple wrapper function that forces the class to start with offset 0 */
-	 virtual G_API_GENEVA void optimize() BASE;
+	 virtual G_API_GENEVA const optimizer_type * const optimize(const std::uint32_t& offset) BASE = 0;
 
 	 /** @brief Retrieves the current iteration of this object */
 	 virtual G_API_GENEVA std::uint32_t getIteration() const BASE = 0;
-
-	 /***************************************************************************/
-	 /**
-	  * Starts the optimization cycle and returns the best individual found, converted to
-	  * the desired target type.
-	  *
-	  * @return The best individual found during the optimization process, converted to the desired type
-	  */
-	 template <typename individual_type>
-	 std::shared_ptr<individual_type> optimize() {
-		 this->optimize(0);
-		 return this->getBestGlobalIndividual<individual_type>();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Starts the optimization cycle and returns the best individual found, converted to
-	  * the desired target type. This function uses a configurable offset for the iteration
-	  * counter
-	  *
-	  * @param offset An offset for the iteration counter
-	  * @return The best individual found during the optimization process, converted to the desired type
-	  */
-	 template <typename individual_type>
-	 std::shared_ptr<individual_type> optimize(
-		 const std::uint32_t& offset
-	 ) {
-		 this->optimize(offset);
-		 return this->getBestGlobalIndividual<individual_type>();
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -113,9 +81,9 @@ public:
 	 template <typename individual_type>
 	 std::shared_ptr<individual_type> getBestGlobalIndividual(
 		 typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = nullptr
-	 ) {
-		 std::lock_guard<std::mutex> iteration_best_lock(m_get_best_mutex);
-		 return customGetBestGlobalIndividual()->clone<individual_type>();
+	 ) const {
+		 std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
+		 return std::dynamic_pointer_cast<individual_type>(this->customGetBestGlobalIndividual());
 	 }
 
 	 /***************************************************************************/
@@ -129,8 +97,8 @@ public:
 	 template <typename individual_type>
 	 std::vector<std::shared_ptr<individual_type>> getBestGlobalIndividuals(
 		 typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type * dummy = nullptr
-	 ) {
-		 std::lock_guard<std::mutex> iteration_best_lock(m_get_best_mutex);
+	 ) const {
+		 std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
 
 		 std::vector<std::shared_ptr<individual_type>> bestIndividuals;
 		 std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestGlobalIndividuals();
@@ -139,13 +107,13 @@ public:
 		 if(bestBaseIndividuals.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In G_Interface_Optimizer::getBestGlobalIndividuals(): Error!" << std::endl
+					 << "In G_Interface_Optimizer<optimizer_type>::getBestGlobalIndividuals(): Error!" << std::endl
 					 << "Received empty collection of best individuals." << std::endl
 			 );
 		 }
 
 		 for(const auto& ind_ptr: bestBaseIndividuals) { // std::shared_ptr may be copied
-			 bestIndividuals.push_back(ind_ptr->clone<individual_type>());
+			 bestIndividuals.push_back(std::dynamic_pointer_cast<individual_type>(ind_ptr));
 		 }
 
 		 return std::move(bestIndividuals);
@@ -165,8 +133,8 @@ public:
 	 std::shared_ptr<individual_type> getBestIterationIndividual (
 		 typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = nullptr
 	 ) {
-		 std::lock_guard<std::mutex> iteration_best_lock(m_get_best_mutex);
-		 return customGetBestIterationIndividual()->clone<individual_type>();
+		 std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
+		 return customGetBestIterationIndividual()->template clone<individual_type>();
 	 }
 
 	 /***************************************************************************/
@@ -181,7 +149,7 @@ public:
 	 std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals(
 		 typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = nullptr
 	 ) {
-		 std::lock_guard<std::mutex> iteration_best_lock(m_get_best_mutex);
+		 std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
 
 		 std::vector<std::shared_ptr<individual_type>> bestIndividuals;
 		 std::vector<std::shared_ptr<GParameterSet>> bestBaseIndividuals = this->customGetBestIterationIndividuals();
@@ -190,27 +158,30 @@ public:
 		 if(bestBaseIndividuals.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In G_Interface_Optimizer::getBestIterationIndividuals(): Error!" << std::endl
+					 << "In G_Interface_Optimizer<optimizer_type>::getBestIterationIndividuals(): Error!" << std::endl
 					 << "Received empty collection of best individuals." << std::endl
 			 );
 		 }
 
 		 for(const auto& ind_ptr: bestBaseIndividuals) { // std::shared_ptr may be copied
-			 bestIndividuals.push_back(ind_ptr->clone<individual_type>());
+			 bestIndividuals.push_back(ind_ptr->template clone<individual_type>());
 		 }
 
 		 return std::move(bestIndividuals);
 	 }
 
 	 /***************************************************************************/
+	 /**
+	  * Returns one-word information about the type of optimization algorithm.
+	  */
+	 virtual std::string getAlgorithmPersonalityType() const BASE {
+		 return std::string("PERSONALITY_NONE");
+	 }
 
-	 /** @brief Returns one-word information about the type of optimization algorithm. */
-	 virtual G_API_GENEVA std::string getAlgorithmPersonalityType() const BASE;
+	 /***************************************************************************/
 
 	 /** @brief Returns a descriptive name assigned to this algorithm */
 	 virtual G_API_GENEVA std::string getAlgorithmName() const = 0;
-	 /** @brief Checks whether a given algorithm type likes to communicate via the broker */
-	 virtual G_API_GENEVA bool usesBroker() const BASE;
 
 protected:
 	 /**
@@ -221,9 +192,9 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Retrieves the best individual found globally */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() BASE = 0;
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() const BASE = 0;
 	 /** @brief Retrieves a list of the best individuals found globally*/
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() BASE = 0;
+	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() const BASE = 0;
 	 /** @brief Retrieves the best individual found in the current iteration*/
 	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() BASE = 0;
 	 /** @brief Retrieves a list of the best individuals found in the current iteration */
@@ -235,7 +206,7 @@ protected:
 	 /***************************************************************************/
 
 private:
-	 std::mutex m_get_best_mutex; ///< Protects access to the best individual of an iteration
+	 mutable std::mutex m_get_best_mutex; ///< Protects access to the best individual of an iteration
 };
 
 /******************************************************************************/

@@ -128,7 +128,7 @@ int main(int argc, char **argv) {
 			startTime = std::chrono::system_clock::now();
 
 			// Perform the actual optimization and extract the best individual
-			std::shared_ptr<GFunctionIndividual> p = go_loop.optimize<GFunctionIndividual>();
+			std::shared_ptr<GFunctionIndividual> p = go_loop.optimize()->getBestGlobalIndividual<GFunctionIndividual>();
 
 			endTime = std::chrono::system_clock::now();
 

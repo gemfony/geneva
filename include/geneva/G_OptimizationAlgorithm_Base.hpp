@@ -167,7 +167,7 @@ public:
 class G_OptimizationAlgorithm_Base
 	: public GObject
 	  , public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
-	  , public G_Interface_Optimizer
+	  , public G_Interface_Optimizer<G_OptimizationAlgorithm_Base>
 {
 private:
 	 ///////////////////////////////////////////////////////////////////////
@@ -306,9 +306,7 @@ public:
 	 /******************************************************************************/
 
 	 /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
-	 G_API_GENEVA void optimize(const std::uint32_t& offset) final;
-	 /** @brief A convenience function that helps to avoid having to specify explicit scopes */
-	 G_API_GENEVA void optimize() final;
+	 G_API_GENEVA const G_OptimizationAlgorithm_Base * const optimize(const std::uint32_t& offset=0) final;
 
 	 /** @brief Emits information specific to this class */
 	 G_API_GENEVA void informationUpdate(const infoMode& im);
@@ -487,9 +485,9 @@ protected:
 	 G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path& p) const;
 
 	 /** @brief Retrieves the best individual found up to now */
-	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() const override;
 	 /** @brief Retrieves a list of the best individuals found */
-	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() const override;
 
 	 /** @brief Retrieves the best individual found in the iteration */
 	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;

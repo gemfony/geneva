@@ -77,7 +77,7 @@ int main(int argc, char **argv) {
 	go.registerContentCreator(gsif_ptr);
 
 	// Perform the actual optimization
-	std::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize<GStarterIndividual>();
+	std::shared_ptr<GStarterIndividual> bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GStarterIndividual>();
 
 	// Do something with the best result. Here we simply print the result to stdout.
 	std::cout << bestIndividual_ptr << std::endl;

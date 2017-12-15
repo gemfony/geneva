@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 	go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
-	std::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize<GMultiCriterionParabolaIndividual>();
+	std::shared_ptr<GMultiCriterionParabolaIndividual> bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GMultiCriterionParabolaIndividual>();
 
 	// Do something with the best result
 	std::cout << bestIndividual_ptr << std::endl;

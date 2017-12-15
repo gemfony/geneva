@@ -105,7 +105,7 @@ using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
  * class also hides the details of client/server mode, consumer initialization, etc.
  */
 class Go2
-	: public G_Interface_Optimizer
+	: public G_Interface_Optimizer<Go2>
 	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
 {
 public:
@@ -152,7 +152,7 @@ public:
 		 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief Perform the actual optimization cycle */
-	 G_API_GENEVA void optimize(const std::uint32_t& = 0) final;
+	 G_API_GENEVA const Go2 * const optimize(const std::uint32_t& = 0) final;
 
 	 /***************************************************************************/
 	 // The following is a trivial list of getters and setters
@@ -181,36 +181,6 @@ public:
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
-
-	 /***************************************************************************/
-	 /**
-	  * Starts the optimization cycle and returns the best individual found, converted to
-	  * the desired target type. This is a convenience overload of the corresponding
-	  * GOptimizableI function.
-	  *
-	  * @return The best individual found during the optimization process, converted to the desired type
-	  */
-	 template <typename individual_type>
-	 std::shared_ptr<individual_type> optimize() {
-		 return G_Interface_Optimizer::optimize<individual_type>();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Starts the optimization cycle and returns the best individual found, converted to
-	  * the desired target type. This function uses a configurable offset for the iteration
-	  * counter. This is a convenience overload of the corresponding
-	  * GOptimizableI function.
-	  *
-	  * @param offset An offset for the iteration counter
-	  * @return The best individual found during the optimization process, converted to the desired type
-	  */
-	 template <typename individual_type>
-	 std::shared_ptr<individual_type> optimize(
-		 const std::uint32_t& offset
-	 ) {
-		 return G_Interface_Optimizer::optimize<individual_type>(offset);
-	 }
 
 	 /***************************************************************************/
 	 /** @brief Allows to register a default algorithm. */
@@ -244,9 +214,9 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Retrieves the best individual found */
-	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() final;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() const final;
 	 /** @brief Retrieves a list of the best individuals found */
-	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() final;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() const final;
 	 /** @brief Retrieves the best individual found */
 	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() final;
 	 /** @brief Retrieves a list of the best individuals found */

@@ -89,7 +89,7 @@ int main(int argc, char **argv) {
 
 	// Perform the actual optimization
 	std::shared_ptr<GMetaOptimizerIndividualT<GFunctionIndividual>> bestIndividual_ptr
-		= go.optimize<GMetaOptimizerIndividualT<GFunctionIndividual>>();
+		= go.optimize()->getBestGlobalIndividual<GMetaOptimizerIndividualT<GFunctionIndividual>>();
 
 	// Do something with the best result. Here we simply print the result to std-out.
 	std::cout

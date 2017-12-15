@@ -68,13 +68,13 @@ int main(int argc, char **argv) {
 	go.registerDefaultAlgorithm("ea");
 
 	// Perform the actual optimization
-	std::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize<GExternalEvaluatorIndividual>();
+	std::shared_ptr<GExternalEvaluatorIndividual> p = go.optimize()->getBestGlobalIndividual<GExternalEvaluatorIndividual>();
 
 	// Extract the best individuals found
 	std::vector<std::shared_ptr<GExternalEvaluatorIndividual>> bestInds
 		= go.getBestGlobalIndividuals<GExternalEvaluatorIndividual>();
 
-	// Note that the "archive" call is specific to the GTaoExternalEvaluatorIndividual
+	// Note that the "archive" call is specific to the GExternalEvaluatorIndividual
 	geei_ptr->archive(bestInds);
 
 	// The GTaoExternalEvaluatorIndividualFactory will, upon its deletion at the end

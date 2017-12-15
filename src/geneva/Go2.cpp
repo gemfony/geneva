@@ -74,7 +74,7 @@ Go2::Go2(
 	, const std::string &configFilename
 	, const boost::program_options::options_description &userDescriptions
 )
-	: G_Interface_Optimizer()
+	: G_Interface_Optimizer<Go2>()
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 	  , m_config_filename(configFilename)
 {
@@ -411,7 +411,7 @@ void Go2::registerContentCreator(
  *
  * @param offset An offset at which the first algorithm should start
  */
-void Go2::optimize(const std::uint32_t &offset) {
+const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 	// Check that algorithms have indeed been registered. If not, try to add a default algorithm
 	if (m_algorithms_vec.empty()) {
 		if (!m_default_algorithm) {
@@ -499,7 +499,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 		this->clear();
 
 		// Do the actual optimization
-		alg_ptr->G_Interface_Optimizer::optimize<GParameterSet>(m_iterations_consumed);
+		alg_ptr->optimize(m_iterations_consumed);
 
 		// Make sure we start with the correct iteration in the next algorithm
 		m_iterations_consumed = alg_ptr->getIteration();
@@ -507,7 +507,7 @@ void Go2::optimize(const std::uint32_t &offset) {
 		// Unload the individuals from the last algorithm and store them again in this object
 		ind_pos = 0;
 		if(m_copyBestIndividualsOnly) {
-			for (const auto &best_ind_ptr: alg_ptr->G_Interface_Optimizer::getBestGlobalIndividuals<GParameterSet>()) {
+			for (const auto &best_ind_ptr: alg_ptr->getBestGlobalIndividuals<GParameterSet>()) {
 				this->push_back(best_ind_ptr);
 			}
 		} else { // copy all individuals
@@ -531,6 +531,8 @@ void Go2::optimize(const std::uint32_t &offset) {
 	);
 
 	m_sorted = true;
+
+	return this;
 }
 
 /******************************************************************************/
@@ -540,7 +542,7 @@ void Go2::optimize(const std::uint32_t &offset) {
  *
  * @return The best individual found
  */
-std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual() {
+std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual() const {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -576,7 +578,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual()
 	}
 
 	// Simply return the best individual. This will result in an implicit downcast
-	return this->front();
+	return this->front()->clone<Gem::Geneva::GParameterSet>();
 }
 
 /******************************************************************************/
@@ -586,7 +588,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual()
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGlobalIndividuals() {
+std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGlobalIndividuals() const {
 	Go2::iterator it;
 
 	// Do some error checking
@@ -611,7 +613,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGloba
 		}
 
 		// This will result in an implicit downcast
-		bestIndividuals.push_back(ind_ptr);
+		bestIndividuals.push_back(ind_ptr->clone<Gem::Geneva::GParameterSet>());
 
 		pos++;
 	}

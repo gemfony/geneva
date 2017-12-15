@@ -641,8 +641,11 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
  * point for all optimization algorithms.
  *
  * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
+ * @return A constant pointer to this object
  */
-void G_OptimizationAlgorithm_Base::optimize(const std::uint32_t& offset) {
+const G_OptimizationAlgorithm_Base * const G_OptimizationAlgorithm_Base::optimize(
+	const std::uint32_t& offset
+) {
 	// Reset the generation counter
 	m_iteration = offset;
 
@@ -731,14 +734,8 @@ void G_OptimizationAlgorithm_Base::optimize(const std::uint32_t& offset) {
 
 	// Remove information particular to the optimization algorithms from the individuals
 	resetIndividualPersonalities();
-}
 
-/******************************************************************************/
-/**
- * A little convenience function that helps to avoid having to specify explicit scopes
- */
-void G_OptimizationAlgorithm_Base::optimize() {
-	G_Interface_Optimizer::optimize();
+	return this;
 }
 
 /******************************************************************************/
@@ -1588,7 +1585,7 @@ std::string G_OptimizationAlgorithm_Base::extractOptAlgFromPath(const boost::fil
  * Retrieves the best individual found up to now (which is usually the best individual
  * in the priority queue).
  */
-std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::customGetBestGlobalIndividual() {
+std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::customGetBestGlobalIndividual() const {
 #ifdef DEBUG
 	std::shared_ptr<GParameterSet> p = m_bestGlobalIndividuals_pq.best();
 	if(p) return p;
@@ -1603,7 +1600,7 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::customGetBestGlobal
 		return std::shared_ptr<GParameterSet>();
 	}
 #else
-	return m_bestGlobalIndividuals_pq.best();
+	return m_bestGlobalIndividuals_pq.best()->clone<GParameterSet>();
 #endif
 }
 
@@ -1612,8 +1609,14 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::customGetBestGlobal
  * Retrieves a list of the best individuals found (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::customGetBestGlobalIndividuals() {
-	return m_bestGlobalIndividuals_pq.toVector();
+std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::customGetBestGlobalIndividuals() const {
+	std::vector<std::shared_ptr<GParameterSet>> bestIndividualsVec;
+
+	for(const auto& ind_ptr: m_bestGlobalIndividuals_pq.toVector()) {
+		bestIndividualsVec.push_back(ind_ptr->clone<GParameterSet>());
+	}
+
+	return bestIndividualsVec;
 }
 
 /******************************************************************************/

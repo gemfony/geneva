@@ -395,13 +395,11 @@ public:
 	 /**
 	  * Converts the local deque to a std::vector and returns it
 	  */
-	 std::vector<std::shared_ptr < T>> toVector() {
-		 std::vector<std::shared_ptr < T>> result;
+	 std::vector<std::shared_ptr<T>> toVector() const {
+		 std::vector<std::shared_ptr<T>> result;
 
-		 typename std::deque<std::shared_ptr < T>> ::iterator
-			 it;
-		 for (it = m_data.begin(); it != m_data.end(); ++it) {
-			 result.push_back(*it);
+		 for(const auto& item_ptr: m_data) {
+			 result.push_back(item_ptr);
 		 }
 
 		 return result;

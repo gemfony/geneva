@@ -339,7 +339,7 @@ protected:
 	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
-	 std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override {
+	 std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() const override {
 		 return G_OptimizationAlgorithm_Base::customGetBestGlobalIndividual();
 	 }
 
@@ -351,7 +351,7 @@ protected:
 	  * You will not likely have to overload this function. Erase, leave in place as is, or modify
 	  * (specialist's setting!), but make sure that the parent class'es function is called.
 	  */
-	 std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override {
+	 std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() const override {
 		 return G_OptimizationAlgorithm_Base::customGetBestGlobalIndividuals();
 	 }
 

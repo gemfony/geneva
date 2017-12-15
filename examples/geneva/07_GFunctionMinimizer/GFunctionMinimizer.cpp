@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 	go & ea_ptr;
 
 	// Perform the actual optimization
-	std::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize<GFMinIndividual>();
+	std::shared_ptr<GFMinIndividual> bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GFMinIndividual>();
 
 	// Do something with the best result. Here: Simply print it, if requested
 	if(printBest) {

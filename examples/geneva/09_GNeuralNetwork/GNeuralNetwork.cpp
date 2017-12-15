@@ -127,7 +127,7 @@ int main(int argc, char **argv){
 	go.registerContentCreator(gnn_ptr);
 
 	// Perform the actual optimization and retrieve the best individual
-	std::shared_ptr<GNeuralNetworkIndividual> p = go.optimize<GNeuralNetworkIndividual>();
+	std::shared_ptr<GNeuralNetworkIndividual> p = go.optimize()->getBestGlobalIndividual<GNeuralNetworkIndividual>();
 
 	//---------------------------------------------------------------------------
 	// Output the result- and the visualization-program (if available)

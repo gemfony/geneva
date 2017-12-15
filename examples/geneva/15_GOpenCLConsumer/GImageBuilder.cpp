@@ -406,7 +406,11 @@ int main(int argc, char **argv) {
 	go & ea_ptr;
 
 	// Perform the actual optimization and extract the best individual
-	std::shared_ptr<GImageIndividual> p = go.optimize<GImageIndividual>();
+	std::shared_ptr<GImageIndividual> p = go.optimize()->getBestGlobalIndividual<GImageIndividual>();
+
+	// Note that the useful work of this program is done at the end of each
+	// iteration when it writes out the current picture. So we do nothing
+	// with the best individual here.
 }
 
 /********************************************************************************/
