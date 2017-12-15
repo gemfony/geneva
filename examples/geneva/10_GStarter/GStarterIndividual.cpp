@@ -101,7 +101,7 @@ GStarterIndividual::GStarterIndividual(
 	, const double& adProb
 )
 	: GParameterSet()
-	, targetFunction_(targetFunction::PARABOLA)
+	, m_targetFunction(targetFunction::PARABOLA)
 {
 	try {
 		// The following is a static function used both here
@@ -137,7 +137,7 @@ GStarterIndividual::GStarterIndividual(
  */
 GStarterIndividual::GStarterIndividual(const GStarterIndividual& cp)
 	: GParameterSet(cp)
-	, targetFunction_(cp.targetFunction_)
+	, m_targetFunction(cp.m_targetFunction)
 { /* nothing */	}
 
 /******************************************************************************/
@@ -183,7 +183,7 @@ void GStarterIndividual::compare(
 	Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
 
 	// ... and then the local data
-	Gem::Common::compare_t(IDENTITY(targetFunction_, p_load->targetFunction_), token);
+	Gem::Common::compare_t(IDENTITY(m_targetFunction, p_load->m_targetFunction), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -221,7 +221,7 @@ void GStarterIndividual::addConfigurationOptions (
  * @param tF The id if the demo function
  */
 void GStarterIndividual::setTargetFunction(targetFunction tF) {
-	targetFunction_ = tF;
+	m_targetFunction = tF;
 }
 
 /*******************************************************************************************/
@@ -231,7 +231,7 @@ void GStarterIndividual::setTargetFunction(targetFunction tF) {
  * @return The id of the currently selected demo function
  */
 targetFunction GStarterIndividual::getTargetFunction() const {
-	return targetFunction_;
+	return m_targetFunction;
 }
 
 /*******************************************************************************************/
@@ -273,7 +273,7 @@ std::string GStarterIndividual::print() {
 	this->streamline(parVec);
 
 	result
-	<< "GStarterIndividual with target function " << (targetFunction_==targetFunction::PARABOLA?" PARABOLA":" NOISY PARABOLA") << std::endl
+	<< "GStarterIndividual with target function " << (m_targetFunction==targetFunction::PARABOLA?" PARABOLA":" NOISY PARABOLA") << std::endl
 	<< "and fitness " << this->fitness() << " has the following parameter values:" << std::endl;
 
 	for(std::size_t i=0; i<parVec.size(); i++) {
@@ -298,7 +298,7 @@ void GStarterIndividual::load_(const GObject* cp){
 	GParameterSet::load_(cp);
 
 	// ... and then our local data
-	targetFunction_ = p_load->targetFunction_;
+	m_targetFunction = p_load->m_targetFunction;
 }
 
 /******************************************************************************/
@@ -324,7 +324,7 @@ double GStarterIndividual::fitnessCalculation() {
 	this->streamline(parVec);
 
 	// Perform the actual calculation
-	switch(targetFunction_) {
+	switch(m_targetFunction) {
 		//-----------------------------------------------------------
 		// A simple, multi-dimensional parabola
 		case targetFunction::PARABOLA:

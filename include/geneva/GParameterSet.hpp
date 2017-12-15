@@ -99,7 +99,7 @@ class GParameterSet
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
 		 & make_nvp("GStdPtrVectorInterfaceT_GParameterBase", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>>(*this))
 		 & make_nvp("GProcessingContainerT_ParameterSet_double", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet, double>>(*this))
-		 & BOOST_SERIALIZATION_NVP(perItemCrossOverProbability_);
+		 & BOOST_SERIALIZATION_NVP(m_perItemCrossOverProbability);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -592,7 +592,7 @@ private:
 	 /** @brief Uniformly distributed integer random numbers */
 	 std::uniform_int_distribution<std::size_t> m_uniform_int;
 
-	 double perItemCrossOverProbability_; ///< A likelihood for "per item" cross-over operations to be performed
+	 double m_perItemCrossOverProbability; ///< A likelihood for "per item" cross-over operations to be performed
 
 public:
 	 /***************************************************************************/

@@ -47,7 +47,7 @@ GParameterSet::GParameterSet()
 	: GOptimizableEntity()
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
 	  , Gem::Courtier::GProcessingContainerT<GParameterSet, double>()
-	  , perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
+	  , m_perItemCrossOverProbability(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -58,7 +58,7 @@ GParameterSet::GParameterSet(const std::size_t &nFitnessCriteria)
 	: GOptimizableEntity(nFitnessCriteria)
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>()
 	  , Gem::Courtier::GProcessingContainerT<GParameterSet, double>()
-	  , perItemCrossOverProbability_(DEFAULTPERITEMEXCHANGELIKELIHOOD)
+	  , m_perItemCrossOverProbability(DEFAULTPERITEMEXCHANGELIKELIHOOD)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -72,7 +72,7 @@ GParameterSet::GParameterSet(const GParameterSet &cp)
 	: GOptimizableEntity(cp)
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>(cp)
 	  , Gem::Courtier::GProcessingContainerT<GParameterSet, double>(cp)
-	  , perItemCrossOverProbability_(cp.perItemCrossOverProbability_)
+	  , m_perItemCrossOverProbability(cp.m_perItemCrossOverProbability)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -116,7 +116,7 @@ void GParameterSet::compare(
 
 	// ... and then the local data
 	compare_t(IDENTITY(this->data,  p_load->data), token); // data is actually contained in a parent class
-	compare_t(IDENTITY(perItemCrossOverProbability_, p_load->perItemCrossOverProbability_), token);
+	compare_t(IDENTITY(m_perItemCrossOverProbability, p_load->m_perItemCrossOverProbability), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -230,7 +230,7 @@ std::shared_ptr <GParameterSet> GParameterSet::amalgamate(std::shared_ptr<GParam
 	// Create a copy of this object
 	std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
 
-	this_cp->perItemCrossOver(*cp, perItemCrossOverProbability_);
+	this_cp->perItemCrossOver(*cp, m_perItemCrossOverProbability);
 
 	return this_cp;
 }
@@ -248,7 +248,7 @@ void GParameterSet::setPerItemCrossOverProbability(double perItemCrossOverProbab
 		);
 	}
 
-	perItemCrossOverProbability_ = perItemCrossOverProbability;
+	m_perItemCrossOverProbability = perItemCrossOverProbability;
 }
 
 /******************************************************************************/
@@ -256,7 +256,7 @@ void GParameterSet::setPerItemCrossOverProbability(double perItemCrossOverProbab
  * Allows to retrieve the "per item" cross-over probability
  */
 double GParameterSet::getPerItemCrossOverProbability() const {
-	return perItemCrossOverProbability_;
+	return m_perItemCrossOverProbability;
 }
 
 /******************************************************************************/
@@ -337,7 +337,7 @@ void GParameterSet::load_(const GObject *cp) {
 	Gem::Courtier::GProcessingContainerT<GParameterSet, double>::load_pc(p_load);
 
 	// and then our local data
-	perItemCrossOverProbability_ = p_load->perItemCrossOverProbability_;
+	m_perItemCrossOverProbability = p_load->m_perItemCrossOverProbability;
 }
 
 /******************************************************************************/

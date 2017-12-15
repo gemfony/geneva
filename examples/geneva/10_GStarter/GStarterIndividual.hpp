@@ -100,7 +100,7 @@ class GStarterIndividual : public GParameterSet
 	 void serialize(Archive & ar, const unsigned int) {
 		 ar
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet)
-		 & BOOST_SERIALIZATION_NVP(targetFunction_);
+		 & BOOST_SERIALIZATION_NVP(m_targetFunction);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -244,7 +244,7 @@ protected:
 	 /***************************************************************************/
 
 private:
-	 targetFunction targetFunction_ = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
+	 targetFunction m_targetFunction = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
 
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
