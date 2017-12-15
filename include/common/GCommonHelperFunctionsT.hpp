@@ -1135,6 +1135,54 @@ std::string vector_as_string(const std::vector<vec_cont_type>& vec) {
 }
 
 /******************************************************************************/
+/**
+ * Adds an operator== to every object with a Gemfony-common interface
+ */
+template<
+	typename gemfony_common_type
+	, typename = std::enable_if_t<Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>
+>
+bool operator==(
+	const gemfony_common_type& x
+	, const gemfony_common_type& y
+) {
+	try {
+		x->compare(
+			y
+			, Gem::Common::expectation::CE_EQUALITY
+			, CE_DEF_SIMILARITY_DIFFERENCE
+		);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Adds an operator!= to every object with a Gemfony-common interface
+ */
+template<
+	typename gemfony_common_type
+	, typename = std::enable_if_t<Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>
+>
+bool operator!=(
+	const gemfony_common_type& x
+	, const gemfony_common_type& y
+) {
+	try {
+		x->compare(
+			y
+			, Gem::Common::expectation::CE_INEQUALITY
+			, CE_DEF_SIMILARITY_DIFFERENCE
+		);
+		return true;
+	} catch (g_expectation_violation &) {
+		return false;
+	}
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

@@ -260,9 +260,9 @@ bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 /**
  * Perform a fusion operation between this object and another.
  */
-std::shared_ptr <GParameterSet> GParameterSet::amalgamate(const std::shared_ptr <GParameterSet> cp) const {
+std::shared_ptr <GParameterSet> GParameterSet::amalgamate(std::shared_ptr<GParameterSet> cp) const {
 	// Create a copy of this object
-	std::shared_ptr <GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
+	std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
 
 	this_cp->perItemCrossOver(*cp, perItemCrossOverProbability_);
 

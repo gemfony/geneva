@@ -107,11 +107,11 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GParameterSet();
 	 /** @brief Initialization with the number of fitness criteria */
-	 G_API_GENEVA GParameterSet(const std::size_t&);
+	 explicit G_API_GENEVA GParameterSet(const std::size_t&);
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GParameterSet(const GParameterSet&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GParameterSet();
+	 G_API_GENEVA ~GParameterSet() override;
 
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GParameterSet& operator=(const GParameterSet&);
@@ -122,7 +122,7 @@ public:
 	 G_API_GENEVA bool operator!=(const GParameterSet&) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -159,7 +159,7 @@ public:
 	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Retrieves a parameter of a given type at the specified position */
-	 virtual G_API_GENEVA boost::any getVarVal(
+	 G_API_GENEVA boost::any getVarVal(
 		 const std::string&
 		 , const std::tuple<std::size_t, std::string, std::size_t>& target
 	 ) override;
@@ -171,7 +171,7 @@ public:
 	 G_API_GENEVA bool isGoodEnough(const std::vector<double>&);
 
 	 /** @brief Perform a fusion operation between this object and another */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(const std::shared_ptr<GParameterSet>) const BASE;
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(std::shared_ptr<GParameterSet>) const BASE;
 
 	 /** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
 	 G_API_GENEVA void perItemCrossOver(const GParameterSet&, const double&);
@@ -227,10 +227,11 @@ public:
 		 std::map<std::string, std::vector<par_type>> pMap;
 		 this->streamline<par_type>(pMap);
 
-		 typename std::map<std::string, std::vector<par_type>>::const_iterator cit;
-		 for(cit=pMap.begin(); cit!=pMap.end(); ++cit) {
-			 varNames.push_back(cit->first);
+		 for(const auto& name: pMap) {
+			 varNames.push_back(name.first);
 		 }
+
+		 return varNames;
 	 }
 
 	 /***************************************************************************/
@@ -297,9 +298,8 @@ public:
 		 // Loop over all GParameterBase objects. Each object
 		 // will contribute the amount of its parameters of this type
 		 // to the result.
-		 GParameterSet::const_iterator cit;
-		 for(cit=this->begin(); cit!=this->end(); ++cit) {
-			 result += (*cit)->countParameters<par_type>(am);
+		 for(const auto& parm_ptr: *this) {
+			 result += parm_ptr->countParameters<par_type>(am);
 		 }
 
 		 return result;
@@ -328,9 +328,8 @@ public:
 		 parVec.clear();
 
 		 // Loop over all GParameterBase objects.
-		 GParameterSet::const_iterator cit;
-		 for(cit=this->begin(); cit!=this->end(); ++cit) {
-			 (*cit)->streamline<par_type>(parVec, am);
+		 for(const auto& parm_ptr: *this) {
+			 parm_ptr->streamline<par_type>(parVec, am);
 		 }
 	 }
 
@@ -357,9 +356,8 @@ public:
 		 parVec.clear();
 
 		 // Loop over all GParameterBase objects.
-		 GParameterSet::const_iterator cit;
-		 for(cit=this->begin(); cit!=this->end(); ++cit) {
-			 (*cit)->streamline<par_type>(parVec, am);
+		 for(const auto& parm_ptr: *this) {
+			 parm_ptr->streamline<par_type>(parVec, am);
 		 }
 	 }
 
@@ -395,9 +393,8 @@ public:
 
 		 // Loop over all GParameterBase objects. Each object will extract the relevant
 		 // parameters and increment the position counter as required.
-		 GParameterSet::const_iterator cit;
-		 for(cit=this->begin(); cit!=this->end(); ++cit) {
-			 (*cit)->assignValueVector<par_type>(parVec, pos, am);
+		 for(const auto& parm_ptr: *this) {
+			 parm_ptr->assignValueVector<par_type>(parVec, pos, am);
 		 }
 
 		 // As we have modified our internal data sets, make sure the dirty flag is set
@@ -417,9 +414,8 @@ public:
 		 , const activityMode& am = activityMode::DEFAULTACTIVITYMODE
 	 ) {
 		 // Loop over all GParameterBase objects. Each object will extract the relevant parameters
-		 GParameterSet::const_iterator cit;
-		 for(cit=this->begin(); cit!=this->end(); ++cit) {
-			 (*cit)->assignValueVectors<par_type>(parMap, am);
+		 for(const auto& parm_ptr: *this) {
+			 parm_ptr->assignValueVectors<par_type>(parMap, am);
 		 }
 
 		 // As we have modified our internal data sets, make sure the dirty flag is set
@@ -448,9 +444,8 @@ public:
 		 uBndVec.clear();
 
 		 // Loop over all GParameterBase objects.
-		 GParameterSet::const_iterator cit;
-		 for(cit=this->begin(); cit!=this->end(); ++cit) {
-			 (*cit)->boundaries<par_type>(lBndVec, uBndVec, am);
+		 for(const auto& parm_ptr: *this) {
+			 parm_ptr->boundaries<par_type>(lBndVec, uBndVec, am);
 		 }
 	 }
 
@@ -470,9 +465,8 @@ public:
 		 , const activityMode& am
 	 ) {
 		 // Loop over all GParameterBase objects.
-		 GParameterSet::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->multiplyByRandom<par_type>(min, max, am, m_gr);
+		 for(auto& parm_ptr: *this) {
+			 parm_ptr->multiplyByRandom<par_type>(min, max, am, m_gr);
 		 }
 	 }
 
@@ -485,9 +479,8 @@ public:
 		 const activityMode& am
 	 ) {
 		 // Loop over all GParameterBase objects.
-		 GParameterSet::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->multiplyByRandom<par_type>(am, m_gr);
+		 for(auto& parm_ptr: *this) {
+			 parm_ptr->multiplyByRandom<par_type>(am, m_gr);
 		 }
 	 }
 
@@ -501,9 +494,8 @@ public:
 		 , const activityMode& am
 	 ) {
 		 // Loop over all GParameterBase objects.
-		 GParameterSet::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->multiplyBy<par_type>(val, am);
+		 for(auto& parm_ptr: *this) {
+			 parm_ptr->multiplyBy<par_type>(val, am);
 		 }
 	 }
 
@@ -587,7 +579,7 @@ protected:
 	 G_API_GENEVA double get_processing_result() const noexcept override;
 
 	 /** @brief Loads the data of another GObject */
-	 G_API_GENEVA  void load_(const GObject*) override;
+	 G_API_GENEVA void load_(const GObject*) override;
 
 	 /** @brief The actual fitness calculation takes place here */
 	 G_API_GENEVA double fitnessCalculation() override ;

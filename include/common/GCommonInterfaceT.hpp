@@ -427,7 +427,6 @@ public:
 		 }
 	 }
 
-
 	 /***************************************************************************/
 	 /**
 	  * Creates a clone of this object, storing it in a std::shared_ptr<g_class_type>
