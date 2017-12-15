@@ -114,40 +114,6 @@ public:
 
 	 /**************************************************************************/
 	 /**
-	  * Checks for equality with another GPostProcessorBaseT<base_type> object
-	  *
-	  * @param  cp A constant reference to another GPostProcessorBaseT<base_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GPostProcessorBaseT<base_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /**************************************************************************/
-	 /**
-	  * Checks for inequality with another GPostProcessorBaseT<base_type> object
-	  *
-	  * @param  cp A constant reference to another GPostProcessorBaseT<base_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GPostProcessorBaseT<base_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /**************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -300,11 +266,6 @@ public:
 	 GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp);
 	 /** @brief The destructor */
 	 virtual ~GEvolutionaryAlgorithmPostOptimizer();
-
-	 /** @brief Checks for equality with another GEvolutionaryAlgorithmPostOptimizer object */
-	 bool operator==(const GEvolutionaryAlgorithmPostOptimizer& cp) const;
-	 /** @brief Checks for inequality with another GEvolutionaryAlgorithmPostOptimizer object */
-	 bool operator!=(const GEvolutionaryAlgorithmPostOptimizer& cp) const;
 
 	 /** @brief Returns the name of this class */
 	 std::string name() const override;

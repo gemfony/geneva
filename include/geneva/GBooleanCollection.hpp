@@ -92,11 +92,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GBooleanCollection& operator=(const GBooleanCollection&);
 
-	 /** @brief Checks for equality with another GBooleanCollection object */
-	 G_API_GENEVA bool operator==(const GBooleanCollection&) const;
-	 /** @brief Checks for inequality with another GBooleanCollection object */
-	 G_API_GENEVA bool operator!=(const GBooleanCollection&) const;
-
 	 /** @brief FLips the value at a given position */
 	 G_API_GENEVA void flip(const std::size_t&);
 

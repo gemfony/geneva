@@ -128,40 +128,6 @@ GObject *GBooleanObject::clone_() const {
 
 /******************************************************************************/
 /**
- * Checks for equality with another GBooleanObject object
- *
- * @param  cp A constant reference to another GBooleanObject object
- * @return A boolean indicating whether both objects are equal
- */
-bool GBooleanObject::operator==(const GBooleanObject &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GBooleanObject object
- *
- * @param  cp A constant reference to another GBooleanObject object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GBooleanObject::operator!=(const GBooleanObject &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Flips the value of this object
  */
 void GBooleanObject::flip() {

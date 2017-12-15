@@ -109,11 +109,6 @@ public:
 	 /** @brief The Destructor */
 	 G_API_GENEVA ~GBasePluggableOM() override;
 
-	 /** @brief Checks for equality with another GBasePluggableOMT object */
-	 virtual G_API_GENEVA bool operator==(const GBasePluggableOM& cp) const;
-	 /** @brief Checks for inequality with another GBasePluggableOMT object */
-	 virtual G_API_GENEVA bool operator!=(const GBasePluggableOM& cp) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const GObject& cp
@@ -231,11 +226,6 @@ public:
 
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA  G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp);
-
-	 /** @brief Checks for equality with another G_OptimizationAlgorithm_Base object */
-	 G_API_GENEVA bool operator==(const G_OptimizationAlgorithm_Base& cp) const;
-	 /** @brief Checks for inequality with another G_OptimizationAlgorithm_Base object */
-	 G_API_GENEVA bool operator!=(const G_OptimizationAlgorithm_Base& cp) const;
 
 	 /** @brief Performs the necessary administratory work of doing check-pointing */
 	 G_API_GENEVA void checkpoint(const bool& is_better) const;

@@ -96,11 +96,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GConstrainedDoubleCollection& operator=(const GConstrainedDoubleCollection&);
 
-	 /** @brief Checks for equality with another GConstrainedDoubleCollection object */
-	 G_API_GENEVA bool operator==(const GConstrainedDoubleCollection&) const;
-	 /** @brief Checks for inequality with another GConstrainedDoubleCollection object */
-	 G_API_GENEVA bool operator!=(const GConstrainedDoubleCollection&) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object

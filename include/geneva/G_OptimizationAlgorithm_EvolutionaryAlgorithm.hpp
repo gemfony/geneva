@@ -102,11 +102,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm& cp);
 
-	 /** @brief Checks for equality with another GEvolutionaryAlgorithm object */
-	 virtual G_API_GENEVA bool operator==(const GEvolutionaryAlgorithm& cp) const;
-	 /** @brief Checks for inequality with another GEvolutionaryAlgorithm object */
-	 virtual G_API_GENEVA bool operator!=(const GEvolutionaryAlgorithm& cp) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const GObject& cp // the other object

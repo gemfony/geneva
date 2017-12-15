@@ -119,40 +119,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GPreEvaluationValidityCheckT<ind_type> object
-	  *
-	  * @param  cp A constant reference to another GPreEvaluationValidityCheckT<ind_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GPreEvaluationValidityCheckT<ind_type> object
-	  *
-	  * @param  cp A constant reference to another GPreEvaluationValidityCheckT<ind_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GPreEvaluationValidityCheckT<ind_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *
@@ -393,40 +359,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GValidityCheckContainerT<ind_type> object
-	  *
-	  * @param  cp A constant reference to another GValidityCheckContainerT<ind_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GValidityCheckContainerT<ind_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GValidityCheckContainerT<ind_type> object
-	  *
-	  * @param  cp A constant reference to another GValidityCheckContainerT<ind_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GValidityCheckContainerT<ind_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *
@@ -571,40 +503,6 @@ public:
 	 GCheckCombinerT<ind_type>& operator=(const GCheckCombinerT<ind_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for equality with another GCheckCombinerT<ind_type> object
-	  *
-	  * @param  cp A constant reference to another GCheckCombinerT<ind_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GCheckCombinerT<ind_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GCheckCombinerT<ind_type> object
-	  *
-	  * @param  cp A constant reference to another GCheckCombinerT<ind_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GCheckCombinerT<ind_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
 	 }
 
 	 /***************************************************************************/

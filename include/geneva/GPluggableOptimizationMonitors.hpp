@@ -102,11 +102,6 @@ public:
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA GStandardMonitor& operator=(const GStandardMonitor& cp);
 
-	 /** @brief Checks for equality with another GStandardMonitorT object */
-	 virtual G_API_GENEVA  bool operator==(const GStandardMonitor& cp) const;
-	 /** @brief Checks for inequality with another GStandardMonitorT object */
-	 virtual G_API_GENEVA  bool operator!=(const GStandardMonitor& cp) const;
-
 	 /** @brief Aggregates the work of all registered pluggable monitors */
 	 virtual G_API_GENEVA  void informationFunction(
 		 const infoMode& im
@@ -187,11 +182,6 @@ public:
 
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA  GFitnessMonitor& operator=(const GFitnessMonitor& cp);
-
-	 /** @brief Checks for equality with another GFitnessMonitorT object */
-	 virtual G_API_GENEVA  bool operator==(const GFitnessMonitor& cp) const;
-	 /** @brief Checks for inequality with another GFitnessMonitorT object */
-	 virtual G_API_GENEVA  bool operator!=(const GFitnessMonitor& cp) const;
 
 	 /** @brief Allows to specify a different name for the result file */
 	 G_API_GENEVA void setResultFileName(const std::string &resultFile);
@@ -303,11 +293,6 @@ public:
 
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA  GCollectiveMonitor& operator=(const GCollectiveMonitor& cp);
-
-	 /** @brief Checks for equality with another GCollectiveMonitorT object */
-	 virtual G_API_GENEVA  bool operator==(const GCollectiveMonitor& cp) const;
-	 /** @brief Checks for inequality with another GCollectiveMonitorT object */
-	 virtual G_API_GENEVA  bool operator!=(const GCollectiveMonitor& cp) const;
 
 	 /** @brief Aggregates the work of all registered pluggable monitors */
 	 virtual G_API_GENEVA  void informationFunction(
@@ -458,40 +443,6 @@ public:
 	 GProgressPlotterT<fp_type>& operator=(const GProgressPlotterT<fp_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
-	 }
-
-	 /************************************************************************/
-	 /**
-	  * Checks for equality with another GProgressPlotterTT<fp_type> object
-	  *
-	  * @param  cp A constant reference to another GProgressPlotterTT<fp_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 virtual bool operator==(const GProgressPlotterT<fp_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /************************************************************************/
-	 /**
-	  * Checks for inequality with another GProgressPlotterTT<fp_type> object
-	  *
-	  * @param  cp A constant reference to another GProgressPlotterTT<fp_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 virtual bool operator!=(const GProgressPlotterT<fp_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
 	 }
 
 	 /**************************************************************************/
@@ -1196,11 +1147,6 @@ public:
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA  GAllSolutionFileLogger& operator=(const GAllSolutionFileLogger& cp);
 
-	 /** @brief Checks for equality with another GAllSolutionFileLoggerT object */
-	 virtual G_API_GENEVA  bool operator==(const GAllSolutionFileLogger& cp) const;
-	 /** @brief Checks for inequality with another GAllSolutionFileLoggerT object */
-	 virtual G_API_GENEVA  bool operator!=(const GAllSolutionFileLogger& cp) const;
-
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA  std::string name() const override;
 
@@ -1345,11 +1291,6 @@ public:
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA  GIterationResultsFileLogger& operator=(const GIterationResultsFileLogger& cp);
 
-	 /** @brief Checks for equality with another GIterationResultsFileLoggerT object */
-	 virtual G_API_GENEVA  bool operator==(const GIterationResultsFileLogger& cp) const;
-	 /** @brief Checks for inequality with another GIterationResultsFileLoggerT object */
-	 virtual G_API_GENEVA  bool operator!=(const GIterationResultsFileLogger& cp) const;
-
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA  std::string name() const override;
 
@@ -1457,11 +1398,6 @@ public:
 
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA  GNAdpationsLogger& operator=(const GNAdpationsLogger& cp);
-
-	 /** @brief Checks for equality with another GNAdpationsLoggerT object */
-	 virtual G_API_GENEVA  bool operator==(const GNAdpationsLogger& cp) const;
-	 /** @brief Checks for inequality with another GNAdpationsLoggerT object */
-	 virtual G_API_GENEVA  bool operator!=(const GNAdpationsLogger& cp) const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object */
 	 virtual G_API_GENEVA  void compare(
@@ -1642,40 +1578,6 @@ public:
 	 GAdaptorPropertyLoggerT<num_type>& operator=(const GAdaptorPropertyLoggerT<num_type>& cp) {
 		 this->load_(&cp);
 		 return *this;
-	 }
-
-	 /************************************************************************/
-	 /**
-	  * Checks for equality with another GAdaptorPropertyLoggerTT<num_type> object
-	  *
-	  * @param  cp A constant reference to another GAdaptorPropertyLoggerTT<num_type> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 virtual bool operator==(const GAdaptorPropertyLoggerT<num_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /************************************************************************/
-	 /**
-	  * Checks for inequality with another GAdaptorPropertyLoggerTT<num_type> object
-	  *
-	  * @param  cp A constant reference to another GAdaptorPropertyLoggerTT<num_type> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 virtual bool operator!=(const GAdaptorPropertyLoggerT<num_type>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
 	 }
 
 	 /***************************************************************************/
@@ -2162,11 +2064,6 @@ public:
 
 	 /** @brief A standard assignment operator */
 	 G_API_GENEVA  GProcessingTimesLogger& operator=(const GProcessingTimesLogger& cp);
-
-	 /** @brief Checks for equality with another GProcessingTimesLoggerT object */
-	 virtual G_API_GENEVA  bool operator==(const GProcessingTimesLogger& cp) const;
-	 /** @brief Checks for inequality with another GProcessingTimesLoggerT object */
-	 virtual G_API_GENEVA  bool operator!=(const GProcessingTimesLogger& cp) const;
 
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA  std::string name() const override;

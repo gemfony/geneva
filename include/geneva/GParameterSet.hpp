@@ -116,11 +116,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GParameterSet& operator=(const GParameterSet&);
 
-	 /** @brief Checks for equality with another Go2 object */
-	 G_API_GENEVA bool operator==(const GParameterSet&) const;
-	 /** @brief Checks for inequality with another Go2 object */
-	 G_API_GENEVA bool operator!=(const GParameterSet&) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const GObject& // the other object

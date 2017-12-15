@@ -139,42 +139,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another G_OA_AlgorithmTemplateT object.
-	  *
-	  * No need to change anything here, but keep the function in place.
-	  *
-	  * @param cp A copy of another G_OA_AlgorithmTemplateT object
-	  */
-	 bool operator==(const G_OA_AlgorithmTemplateT& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another G_OA_AlgorithmTemplateT object.
-	  *
-	  * No need to change anything here, but keep the function in place.
-	  *
-	  * @param cp A copy of another G_OA_AlgorithmTemplateT object
-	  */
-	 bool operator!=(const G_OA_AlgorithmTemplateT& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Loads the state of the class from disc.
 	  *
 	  * Unless you need to do anything special after loading a checkpoint,

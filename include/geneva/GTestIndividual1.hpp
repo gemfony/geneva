@@ -102,11 +102,6 @@ public:
 	/** @brief The standard assignment operator */
 	G_API_GENEVA  GTestIndividual1& operator=(const GTestIndividual1&);
 
-	/** @brief Checks for equality with another GTestIndividual1 object */
-	G_API_GENEVA bool operator==(const GTestIndividual1& cp) const;
-	/** @brief Checks for inequality with another GTestIndividual1 object */
-	G_API_GENEVA bool operator!=(const GTestIndividual1& cp) const;
-
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
 	virtual G_API_GENEVA void compare(
 		const GObject& // the other object

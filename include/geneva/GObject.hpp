@@ -143,11 +143,6 @@ public:
 	 /** @brief Allows derived classes to assign other class'es values */
 	 G_API_GENEVA  GObject& operator=(const GObject&);
 
-	 /** @brief Checks for equality with another GObject object */
-	 virtual G_API_GENEVA bool operator==(const GObject&) const;
-	 /** @brief Checks for inequality with another GObject object */
-	 virtual G_API_GENEVA bool operator!=(const GObject&) const;
-
 	 /** @brief Writes a configuration file to disk */
 	 G_API_GENEVA void writeConfigFile(const std::string&, const std::string&);
 	 /** @brief Reads a configuration file from disk */

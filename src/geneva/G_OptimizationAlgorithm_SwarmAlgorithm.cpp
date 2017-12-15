@@ -126,40 +126,6 @@ GSwarmAlgorithm::~GSwarmAlgorithm()
 
 /******************************************************************************/
 /**
- * Checks for equality with another GSwarmAlgorithm object
- *
- * @param  cp A constant reference to another GSwarmAlgorithm object
- * @return A boolean indicating whether both objects are equal
- */
-bool GSwarmAlgorithm::operator==(const GSwarmAlgorithm &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GSwarmAlgorithm object
- *
- * @param  cp A constant reference to another GSwarmAlgorithm object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GSwarmAlgorithm::operator!=(const GSwarmAlgorithm &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Returns information about the type of optimization algorithm.
  *
  * @return The type of optimization algorithm

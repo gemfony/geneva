@@ -101,11 +101,6 @@ public:
 	 /** @brief Allows derived classes to assign other class'es values */
 	 G_API_GENEVA  GParameterSetFixedSizePriorityQueue& operator=(const GParameterSetFixedSizePriorityQueue&);
 
-	 /** @brief Checks for equality with another GObject object */
-	 virtual G_API_GENEVA bool operator==(const GParameterSetFixedSizePriorityQueue&) const;
-	 /** @brief Checks for inequality with another GObject object */
-	 virtual G_API_GENEVA bool operator!=(const GParameterSetFixedSizePriorityQueue&) const;
-
 	 /** @brief Checks whether no item has the dirty flag set */
 	 G_API_GENEVA bool allClean(std::size_t&) const;
 	 /** @brief Emits information about the "dirty flag" of all items */

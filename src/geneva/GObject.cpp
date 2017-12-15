@@ -232,56 +232,6 @@ void GObject::load_(const GObject *cp) {
 
 /******************************************************************************/
 /**
- * Checks for equality with another GObject object
- *
- * @param  cp A constant reference to another GObject object
- * @return A boolean indicating whether both objects are equal
- */
-bool GObject::operator==(const GObject &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GObject object
- *
- * @param  cp A constant reference to another GObject object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GObject::operator!=(const GObject &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Creates a deep clone of this object, storing it in a std::shared_ptr<GObject>
- *
- * @return A std::shared_ptr<GObject> to a clone of the derived object
- */
-// std::shared_ptr <GObject> GObject::clone() const {
-// 	return std::shared_ptr<GObject>(clone_());
-// }
-
-/* ----------------------------------------------------------------------------------
- * Tested in GObject::specificTestsNoFailureExpected_GUnitTests() as well as in
- * the Geneva standard test suite.
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
  * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
  * of this function that is overloaded in derived classes.
  *

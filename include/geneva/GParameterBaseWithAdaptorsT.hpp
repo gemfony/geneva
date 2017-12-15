@@ -119,40 +119,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for equality with another GParameterBaseWithAdaptorsT<T> object
-	  *
-	  * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
-	  * @return A boolean indicating whether both objects are equal
-	  */
-	 bool operator==(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks for inequality with another GParameterBaseWithAdaptorsT<T> object
-	  *
-	  * @param  cp A constant reference to another GParameterBaseWithAdaptorsT<T> object
-	  * @return A boolean indicating whether both objects are inequal
-	  */
-	 bool operator!=(const GParameterBaseWithAdaptorsT<T>& cp) const {
-		 using namespace Gem::Common;
-		 try {
-			 this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-			 return true;
-		 } catch(g_expectation_violation&) {
-			 return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *

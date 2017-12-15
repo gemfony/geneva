@@ -90,11 +90,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GBooleanAdaptor& operator=(const GBooleanAdaptor&);
 
-	 /** @brief Checks for equality with another GBooleanAdaptor object */
-	 G_API_GENEVA bool operator==(const GBooleanAdaptor&) const;
-	 /** @brief Checks for inequality with another GBooleanAdaptor object */
-	 G_API_GENEVA bool operator!=(const GBooleanAdaptor&) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object

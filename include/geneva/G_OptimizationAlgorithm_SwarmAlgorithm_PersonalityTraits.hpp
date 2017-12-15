@@ -87,11 +87,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GSwarmAlgorithm_PersonalityTraits& operator=(const GSwarmAlgorithm_PersonalityTraits&);
 
-	 /** @brief Checks for equality with another GSwarmPersonalityTraits object */
-	 G_API_GENEVA bool operator==(const GSwarmAlgorithm_PersonalityTraits&) const;
-	 /** @brief Checks for inequality with another GSwarmPersonalityTraits object */
-	 G_API_GENEVA bool operator!=(const GSwarmAlgorithm_PersonalityTraits&) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object

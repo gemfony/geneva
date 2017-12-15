@@ -93,11 +93,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 GSimulatedAnnealing& operator=(const GSimulatedAnnealing& cp);
 
-	 /** @brief Checks for equality with another GSimulatedAnnealingT object */
-	 virtual bool operator==(const GSimulatedAnnealing& cp) const;
-	 /** @brief Checks for inequality with another GSimulatedAnnealingT object */
-	 virtual bool operator!=(const GSimulatedAnnealing& cp) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual void compare(
 		 const GObject& cp // the other object

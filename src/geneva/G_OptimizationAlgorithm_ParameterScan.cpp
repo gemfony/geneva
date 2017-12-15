@@ -416,40 +416,6 @@ GParameterScan::~GParameterScan() { /* nothing */ }
 
 /******************************************************************************/
 /**
- * Checks for equality with another GParameterScan object
- *
- * @param  cp A constant reference to another GParameterScan object
- * @return A boolean indicating whether both objects are equal
- */
-bool GParameterScan::operator==(const GParameterScan &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GParameterScan object
- *
- * @param  cp A constant reference to another GParameterScan object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GParameterScan::operator!=(const GParameterScan &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Returns information about the type of optimization algorithm. This function needs
  * to be overloaded by the actual algorithms to return the correct type.
  *

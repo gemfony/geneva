@@ -114,11 +114,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GSwarmAlgorithm& operator=(const GSwarmAlgorithm&);
 
-	 /** @brief Checks for equality with another GSwarmAlgorithm object */
-	 virtual G_API_GENEVA bool operator==(const GSwarmAlgorithm&) const;
-	 /** @brief Checks for inequality with another GSwarmAlgorithm object */
-	 virtual G_API_GENEVA bool operator!=(const GSwarmAlgorithm&) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object

@@ -105,11 +105,6 @@ public:
 	 /** @brief An assignment operator for the contained value type */
 	 G_API_GENEVA std::int32_t operator=(const std::int32_t&) override;
 
-	 /** @brief Checks for equality with another GInt32Object object */
-	 G_API_GENEVA bool operator==(const GInt32Object&) const;
-	 /** @brief Checks for inequality with another GInt32Object object */
-	 G_API_GENEVA bool operator!=(const GInt32Object&) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object

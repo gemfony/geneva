@@ -66,40 +66,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * Checks for equality with another GStandardMonitorT object
- *
- * @param  cp A constant reference to another GStandardMonitorT object
- * @return A boolean indicating whether both objects are equal
- */
-bool GStandardMonitor::operator==(const GStandardMonitor& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GStandardMonitorT object
- *
- * @param  cp A constant reference to another GStandardMonitorT object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GStandardMonitor::operator!=(const GStandardMonitor& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Aggregates the work of all registered pluggable monitors
  */
 void GStandardMonitor::informationFunction(
@@ -284,40 +250,6 @@ GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor& cp)
  GFitnessMonitor& GFitnessMonitor::operator=(const GFitnessMonitor& cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GFitnessMonitorT object
- *
- * @param  cp A constant reference to another GFitnessMonitorT object
- * @return A boolean indicating whether both objects are equal
- */
-bool GFitnessMonitor::operator==(const GFitnessMonitor& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GFitnessMonitorT object
- *
- * @param  cp A constant reference to another GFitnessMonitorT object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GFitnessMonitor::operator!=(const GFitnessMonitor& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -701,40 +633,6 @@ GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor& cp) : GBasePlug
 	return *this;
 }
 
-/************************************************************************/
-/**
- * Checks for equality with another GCollectiveMonitorT object
- *
- * @param  cp A constant reference to another GCollectiveMonitorT object
- * @return A boolean indicating whether both objects are equal
- */
-bool GCollectiveMonitor::operator==(const GCollectiveMonitor& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
-/************************************************************************/
-/**
- * Checks for inequality with another GCollectiveMonitorT object
- *
- * @param  cp A constant reference to another GCollectiveMonitorT object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GCollectiveMonitor::operator!=(const GCollectiveMonitor& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
 /******************************************************************************/
 /**
  * Aggregates the work of all registered pluggable monitors
@@ -955,40 +853,6 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(const GAllSolutionFileLogger& cp)
  GAllSolutionFileLogger& GAllSolutionFileLogger::operator=(const GAllSolutionFileLogger& cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/******************************************************************************/
-/**
- * Checks for equality with another GAllSolutionFileLoggerT object
- *
- * @param  cp A constant reference to another GAllSolutionFileLoggerT object
- * @return A boolean indicating whether both objects are equal
- */
-bool GAllSolutionFileLogger::operator==(const GAllSolutionFileLogger& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GAllSolutionFileLoggerT object
- *
- * @param  cp A constant reference to another GAllSolutionFileLoggerT object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GAllSolutionFileLogger::operator!=(const GAllSolutionFileLogger& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -1405,40 +1269,6 @@ GIterationResultsFileLogger::GIterationResultsFileLogger(const GIterationResults
 	return *this;
 }
 
-/************************************************************************/
-/**
- * Checks for equality with another GIterationResultsFileLoggerT object
- *
- * @param  cp A constant reference to another GIterationResultsFileLoggerT object
- * @return A boolean indicating whether both objects are equal
- */
-bool GIterationResultsFileLogger::operator==(const GIterationResultsFileLogger& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
-/************************************************************************/
-/**
- * Checks for inequality with another GIterationResultsFileLoggerT object
- *
- * @param  cp A constant reference to another GIterationResultsFileLoggerT object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GIterationResultsFileLogger::operator!=(const GIterationResultsFileLogger& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
 /******************************************************************************/
 /**
  * Emits a name for this class / object
@@ -1735,40 +1565,6 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger& cp)
  GNAdpationsLogger& GNAdpationsLogger::operator=(const GNAdpationsLogger& cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/************************************************************************/
-/**
- * Checks for equality with another GNAdpationsLoggerT object
- *
- * @param  cp A constant reference to another GNAdpationsLoggerT object
- * @return A boolean indicating whether both objects are equal
- */
-bool GNAdpationsLogger::operator==(const GNAdpationsLogger& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
-/************************************************************************/
-/**
- * Checks for inequality with another GNAdpationsLoggerT object
- *
- * @param  cp A constant reference to another GNAdpationsLoggerT object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GNAdpationsLogger::operator!=(const GNAdpationsLogger& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
 }
 
 /******************************************************************************/
@@ -2185,40 +1981,6 @@ GProcessingTimesLogger::GProcessingTimesLogger(const GProcessingTimesLogger& cp)
  GProcessingTimesLogger& GProcessingTimesLogger::operator=(const GProcessingTimesLogger& cp) {
 	this->load_(&cp);
 	return *this;
-}
-
-/************************************************************************/
-/**
- * Checks for equality with another GProcessingTimesLoggerT object
- *
- * @param  cp A constant reference to another GProcessingTimesLoggerT object
- * @return A boolean indicating whether both objects are equal
- */
-bool GProcessingTimesLogger::operator==(const GProcessingTimesLogger& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
-}
-
-/************************************************************************/
-/**
- * Checks for inequality with another GProcessingTimesLoggerT object
- *
- * @param  cp A constant reference to another GProcessingTimesLoggerT object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GProcessingTimesLogger::operator!=(const GProcessingTimesLogger& cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch(g_expectation_violation&) {
-		return false;
-	}
 }
 
 /******************************************************************************/

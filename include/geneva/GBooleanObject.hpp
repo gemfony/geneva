@@ -89,11 +89,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GBooleanObject& operator=(const GBooleanObject&);
 
-	 /** @brief Checks for equality with another GBooleanObject object */
-	 G_API_GENEVA bool operator==(const GBooleanObject&) const;
-	 /** @brief Checks for inequality with another GBooleanObject object */
-	 G_API_GENEVA bool operator!=(const GBooleanObject&) const;
-
 	 /** @brief Triggers random initialization of the parameter object */
 	 virtual G_API_GENEVA bool randomInit(
 		 const activityMode&

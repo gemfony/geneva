@@ -114,11 +114,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  G_OptimizationAlgorithm_ParChild& operator=(const G_OptimizationAlgorithm_ParChild& cp);
 
-	 /** @brief Checks for equality with another GParChildT object */
-	 G_API_GENEVA bool operator==(const G_OptimizationAlgorithm_ParChild& cp) const;
-	 /** @brief Checks for inequality with another GParChildT object */
-	 G_API_GENEVA bool operator!=(const G_OptimizationAlgorithm_ParChild& cp) const;
-
 	 /** @broef Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& cp

@@ -114,11 +114,6 @@ public:
 	 /** @brief Determines whether adaptions are inactive for this object */
 	 G_API_GENEVA bool adaptionsInactive() const;
 
-	 /** @brief Checks for equality with another GParameter Base object */
-	 G_API_GENEVA bool operator==(const GParameterBase&) const;
-	 /** @brief Checks for inequality with another GParameterBase object */
-	 G_API_GENEVA bool operator!=(const GParameterBase&) const;
-
 	 /** @brief Triggers random initialization of the parameter(-collection) */
 	 virtual G_API_GENEVA bool randomInit(
 		 const activityMode&

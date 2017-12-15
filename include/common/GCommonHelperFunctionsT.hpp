@@ -1147,7 +1147,7 @@ bool operator==(
 	, const gemfony_common_type& y
 ) {
 	try {
-		x->compare(
+		x.compare(
 			y
 			, Gem::Common::expectation::CE_EQUALITY
 			, CE_DEF_SIMILARITY_DIFFERENCE
@@ -1171,7 +1171,7 @@ bool operator!=(
 	, const gemfony_common_type& y
 ) {
 	try {
-		x->compare(
+		x.compare(
 			y
 			, Gem::Common::expectation::CE_INEQUALITY
 			, CE_DEF_SIMILARITY_DIFFERENCE

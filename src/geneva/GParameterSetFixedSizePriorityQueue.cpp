@@ -95,40 +95,6 @@ GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue()
 
 /******************************************************************************/
 /**
- * Checks for equality with another GParameterSetFixedSizePriorityQueue object
- *
- * @param  cp A constant reference to another GParameterSetFixedSizePriorityQueue object
- * @return A boolean indicating whether both objects are equal
- */
-bool GParameterSetFixedSizePriorityQueue::operator==(const GParameterSetFixedSizePriorityQueue &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks for inequality with another GParameterSetFixedSizePriorityQueue object
- *
- * @param  cp A constant reference to another GParameterSetFixedSizePriorityQueue object
- * @return A boolean indicating whether both objects are inequal
- */
-bool GParameterSetFixedSizePriorityQueue::operator!=(const GParameterSetFixedSizePriorityQueue &cp) const {
-	using namespace Gem::Common;
-	try {
-		this->compare(cp, Gem::Common::expectation::CE_INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE);
-		return true;
-	} catch (g_expectation_violation &) {
-		return false;
-	}
-}
-
-/******************************************************************************/
-/**
  * Emits a name for this class / object
  */
 std::string GParameterSetFixedSizePriorityQueue::name() const {

@@ -95,11 +95,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GConjugateGradientDescent& operator=(const GConjugateGradientDescent&);
 
-	 /** @brief Checks for equality with another GConjugateGradientDescent object */
-	 virtual G_API_GENEVA bool operator==(const GConjugateGradientDescent&) const;
-	 /** @brief Checks for inequality with another GConjugateGradientDescent object */
-	 virtual G_API_GENEVA bool operator!=(const GConjugateGradientDescent&) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object

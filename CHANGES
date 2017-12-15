@@ -39,6 +39,7 @@ The main changes for this release include:
 
 ********************************************************************************
 
+ - There is no need anymore to give Geneva classes an operator==/!=
  - Made GBasePluggableOM<> independent of G_OptimizationAlgorithm_Base<>. The monitor base class
    is no longer an embedded class of G_OptimizationAlgorithm_Base<>. If you develop your own
    optimization monitors, you need to derive them from a new class -- see the collection

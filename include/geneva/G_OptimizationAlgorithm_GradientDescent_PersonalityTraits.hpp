@@ -84,11 +84,6 @@ public:
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GGradientDescent_PersonalityTraits& operator=(const GGradientDescent_PersonalityTraits&);
 
-	 /** @brief Checks for equality with another GGDPersonalityTraits object */
-	 G_API_GENEVA bool operator==(const GGradientDescent_PersonalityTraits&) const;
-	 /** @brief Checks for inequality with another GGDPersonalityTraits object */
-	 G_API_GENEVA bool operator!=(const GGradientDescent_PersonalityTraits&) const;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object
