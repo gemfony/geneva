@@ -754,7 +754,7 @@ public:
 						 switch(this->nProfileVars()) {
 							 case 1:
 							 {
-								 fp_type val0 = p->GOptimizableEntity::getVarVal<fp_type>(m_fp_profVarVec[0].var);
+								 fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
 
 								 if(m_observeBoundaries) {
 									 if(
@@ -770,8 +770,8 @@ public:
 
 							 case 2:
 							 {
-								 fp_type val0 = p->GOptimizableEntity::getVarVal<fp_type>(m_fp_profVarVec[0].var);
-								 fp_type val1 = p->GOptimizableEntity::getVarVal<fp_type>(m_fp_profVarVec[1].var);
+								 fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
+								 fp_type val1 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[1].var);
 
 								 if(m_observeBoundaries) {
 									 if(
@@ -788,9 +788,9 @@ public:
 
 							 case 3:
 							 {
-								 fp_type val0 = p->GOptimizableEntity::getVarVal<fp_type>(m_fp_profVarVec[0].var);
-								 fp_type val1 = p->GOptimizableEntity::getVarVal<fp_type>(m_fp_profVarVec[1].var);
-								 fp_type val2 = p->GOptimizableEntity::getVarVal<fp_type>(m_fp_profVarVec[2].var);
+								 fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
+								 fp_type val1 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[1].var);
+								 fp_type val2 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[2].var);
 
 								 if(m_observeBoundaries) {
 									 if(
@@ -824,7 +824,7 @@ public:
 							 switch(this->nProfileVars()) {
 								 case 1:
 								 {
-									 fp_type val0    = (*it)->GOptimizableEntity::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+									 fp_type val0    = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
 
 									 if(m_observeBoundaries) {
 										 if(
@@ -840,8 +840,8 @@ public:
 
 								 case 2:
 								 {
-									 fp_type val0 = (*it)->GOptimizableEntity::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
-									 fp_type val1 = (*it)->GOptimizableEntity::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
+									 fp_type val0 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+									 fp_type val1 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
 
 									 if(m_observeBoundaries) {
 										 if(
@@ -858,9 +858,9 @@ public:
 
 								 case 3:
 								 {
-									 fp_type val0 = (*it)->GOptimizableEntity::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
-									 fp_type val1 = (*it)->GOptimizableEntity::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
-									 fp_type val2 = (*it)->GOptimizableEntity::template getVarVal<fp_type>(m_fp_profVarVec[2].var);
+									 fp_type val0 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+									 fp_type val1 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
+									 fp_type val2 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[2].var);
 
 									 if(m_observeBoundaries) {
 										 if(

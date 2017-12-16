@@ -44,10 +44,10 @@
 
 // Geneva header files go here
 #include "geneva/GMultiConstraintT.hpp"
-#include "geneva/GOptimizableEntity.hpp"
+#include "geneva/GParameterSet.hpp"
 
-// Make sure the instantiation with GOptimizableEntity as template argument can be serialized
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GOptimizableEntity>)
+// Make sure the instantiation with GParameterSet as template argument can be serialized
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GParameterSet>)
 
 
 #endif /* GINDIVIDUALMULTICONSTRAINT_HPP_ */

@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
 		std::shared_ptr<GDoubleSumGapConstraint>        gap_constraint(new GDoubleSumGapConstraint(1.,0.05)); // The sum of all variables must be 1 +/- 0.05
 
 		// Create a check combiner and add the constraint objects to it
-		std::shared_ptr<GCheckCombinerT<GOptimizableEntity>> combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
+		std::shared_ptr<GCheckCombinerT<GParameterSet>> combiner_ptr(new GCheckCombinerT<GParameterSet>());
 		combiner_ptr->setCombinerPolicy(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID);
 
 		combiner_ptr->addCheck(doublesum_constraint_ptr);

@@ -50,7 +50,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "courtier/GExecutorT.hpp"
-#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -73,11 +72,11 @@ namespace Geneva {
  * algorithms acting on parameter objects.
  *
  * Populations are collections of individuals, which themselves are objects
- * exhibiting at least the GOptimizableEntity class' API, most notably the GParameterSet::fitness()
- * and GOptimizableEntity::adapt() functions.
+ * exhibiting at least the GParameterSet class' API, most notably the GParameterSet::fitness()
+ * and GParameterSet::adapt() functions.
  *
  * In order to add parents to an instance of this class use the default constructor,
- * then add at least one GOptimizableEntity-derivative to it, and call setPopulationSizes().
+ * then add at least one GParameterSet-derivative to it, and call setPopulationSizes().
  * The population will then be "filled up" with missing individuals as required, before the
  * optimization starts.
  */
@@ -175,7 +174,7 @@ public:
 	 /***************************************************************************/
 	 /**
 	  * Retrieves a specific parent individual and casts it to the desired type. Note that this
-	  * function will only be accessible to the compiler if individual_type is a derivative of GOptimizableEntity,
+	  * function will only be accessible to the compiler if individual_type is a derivative of GParameterSet,
 	  * thanks to the magic of the std::enable_if and type_traits.
 	  *
 	  * @param parent The id of the parent that should be returned
@@ -184,7 +183,7 @@ public:
 	 template <typename parent_type>
 	 std::shared_ptr<parent_type> getParentIndividual(
 		 std::size_t parentId
-		 , typename std::enable_if<std::is_base_of<GOptimizableEntity, parent_type>::value>::type *dummy = nullptr
+		 , typename std::enable_if<std::is_base_of<GParameterSet, parent_type>::value>::type *dummy = nullptr
 	 ){
 #ifdef DEBUG
 		 // Check that the parent id is in a valid range
@@ -201,7 +200,7 @@ public:
 #endif /* DEBUG */
 
 		 // Does error checks on the conversion internally
-		 return Gem::Common::convertSmartPointer<GOptimizableEntity, parent_type>(*(this->begin() + parentId));
+		 return Gem::Common::convertSmartPointer<GParameterSet, parent_type>(*(this->begin() + parentId));
 	 }
 
 	 /***************************************************************************/

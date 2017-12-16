@@ -97,7 +97,7 @@ enum class activityMode : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 /**
- * The number of calls to the GOptimizableEntity::customAdaption() function
+ * The number of calls to the GParameterSet::customAdaption() function
  * without actual modifications
  */
 const std::size_t DEFMAXUNSUCCESSFULADAPTIONS = 1000;

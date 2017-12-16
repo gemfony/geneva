@@ -53,7 +53,7 @@ namespace Gem {
 namespace Geneva {
 
 // Forward declaration
-class GOptimizableEntity;
+class GParameterSet;
 
 /******************************************************************************/
 /**
@@ -77,10 +77,10 @@ class GPreEvaluationValidityCheckT : public GObject
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
-	 // We only accept validity checks for types derived directly or indirectly from GOptimizableEntity
+	 // We only accept validity checks for types derived directly or indirectly from GParameterSet
 	 static_assert(
-		 std::is_base_of<Gem::Geneva::GOptimizableEntity , ind_type>::value
-		 , "GOptimizableEntity is no base of ind_type"
+		 std::is_base_of<Gem::Geneva::GParameterSet , ind_type>::value
+		 , "GParameterSet is no base of ind_type"
 	 );
 
 public:

@@ -34,5 +34,5 @@
 
 #include "geneva/GIndividualMultiConstraint.hpp"
 
-// Make sure the instantiation with GOptimizableEntity as template argument can be serialized
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GOptimizableEntity>)
+// Make sure the instantiation with GParameterSet as template argument can be serialized
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GParameterSet>)

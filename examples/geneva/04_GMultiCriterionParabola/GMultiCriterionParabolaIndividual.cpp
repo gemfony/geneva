@@ -74,7 +74,7 @@ std::ostream& operator<<(std::ostream& s, std::shared_ptr<Gem::Geneva::GMultiCri
 /******************************************************************************/
 /**
  * The standard constructor. Initialization with the number of fitness
- * criteria, so GOptimizableEntity can set up its internal data structures.
+ * criteria, so GParameterSet can set up its internal data structures.
  * This is the only "real" constructor, apart from the copy constructor.
  */
 GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(

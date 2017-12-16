@@ -47,7 +47,6 @@ SET ( OPTIMIZATIONSOURCES
     G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits
     G_OA_ConjugateGradientDescent
 	GObject
-	GOptimizableEntity
 	GOptimizationEnums
 	GParameterBase
 	GParameterObjectCollection

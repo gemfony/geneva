@@ -59,7 +59,6 @@
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/G_Interface_Optimizer.hpp"
-#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
@@ -403,7 +402,7 @@ public:
 	  * requested position exists.
 	  *
 	  * @param pos The position in our data array that shall be converted
-	  * @return A converted version of the GOptimizableEntity object, as required by the user
+	  * @return A converted version of the GParameterSet object, as required by the user
 	  */
 	 template <typename target_type>
 	 std::shared_ptr<target_type> individual_cast(

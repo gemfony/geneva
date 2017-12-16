@@ -53,7 +53,6 @@
 #include "common/GStdSimpleVectorInterfaceT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
-#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterSet.hpp"

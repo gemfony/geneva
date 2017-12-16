@@ -37,23 +37,34 @@
 
 // Standard header files go here
 #include <map>
+#include <typeinfo>
+#include <limits>
 
 // Boost header files go here
+#include <boost/numeric/conversion/bounds.hpp>
+#include <boost/serialization/split_member.hpp>
 
 #ifndef GPARAMETERSET_HPP_
 #define GPARAMETERSET_HPP_
 
-
 // Geneva headers go here
-#include "hap/GRandomT.hpp"
 #include "common/GExceptions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
+#include "common/GCommonMathHelperFunctions.hpp"
+#include "common/GLockVarT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GStdPtrVectorInterfaceT.hpp"
+#include "hap/GRandomT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterBase.hpp"
+#include "geneva/GenevaHelperFunctionsT.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/G_Interface_Mutable.hpp"
+#include "geneva/G_Interface_Rateable.hpp"
+#include "geneva/GPersonalityTraits.hpp"
+#include "geneva/GMultiConstraintT.hpp"
 
 #ifdef GEM_TESTING
 #include "geneva/GBooleanObject.hpp"
@@ -83,9 +94,11 @@ namespace Geneva {
  * will form the basis of many user-defined individuals.
  */
 class GParameterSet
-	: public GOptimizableEntity
-	  , public Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>
-	  , public Gem::Courtier::GProcessingContainerT<GParameterSet, double>
+	: public GObject
+   , public G_Interface_Mutable
+   , public G_Interface_Rateable
+   , public Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>
+   , public Gem::Courtier::GProcessingContainerT<GParameterSet, double>
 {
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
@@ -96,22 +109,41 @@ class GParameterSet
 	 void serialize(Archive & ar, const unsigned int){
 		 using boost::serialization::make_nvp;
 		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GOptimizableEntity)
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
 		 & make_nvp("GStdPtrVectorInterfaceT_GParameterBase", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>>(*this))
 		 & make_nvp("GProcessingContainerT_ParameterSet_double", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet, double>>(*this))
-		 & BOOST_SERIALIZATION_NVP(m_perItemCrossOverProbability);
+		 & BOOST_SERIALIZATION_NVP(m_perItemCrossOverProbability)
+		 & BOOST_SERIALIZATION_NVP(m_n_fitness_criteria)
+		 & BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness)
+		 & BOOST_SERIALIZATION_NVP(m_n_stalls)
+		 & BOOST_SERIALIZATION_NVP(m_dirty_flag)
+		 & BOOST_SERIALIZATION_NVP(m_maximize)
+		 & BOOST_SERIALIZATION_NVP(m_assigned_iteration)
+		 & BOOST_SERIALIZATION_NVP(m_validity_level)
+		 & BOOST_SERIALIZATION_NVP(m_pt_ptr)
+		 & BOOST_SERIALIZATION_NVP(m_eval_policy)
+		 & BOOST_SERIALIZATION_NVP(m_individual_constraint_ptr)
+		 & BOOST_SERIALIZATION_NVP(m_sigmoid_steepness)
+		 & BOOST_SERIALIZATION_NVP(m_sigmoid_extremes)
+		 & BOOST_SERIALIZATION_NVP(m_marked_as_invalid_by_user)
+		 & BOOST_SERIALIZATION_NVP(m_max_unsuccessful_adaptions)
+		 & BOOST_SERIALIZATION_NVP(m_max_retries_until_valid)
+		 & BOOST_SERIALIZATION_NVP(m_n_adaptions)
+		 & BOOST_SERIALIZATION_NVP(m_evaluation_id)
+		 & BOOST_SERIALIZATION_NVP(m_current_fitness_vec)
+		 & BOOST_SERIALIZATION_NVP(m_worst_known_valids_vec);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GParameterSet();
+	 G_API_GENEVA GParameterSet() = default;
 	 /** @brief Initialization with the number of fitness criteria */
 	 explicit G_API_GENEVA GParameterSet(const std::size_t&);
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GParameterSet(const GParameterSet&);
 	 /** @brief The destructor */
-	 G_API_GENEVA ~GParameterSet() override;
+	 G_API_GENEVA ~GParameterSet() override = default;
 
 	 /** @brief The standard assignment operator */
 	 G_API_GENEVA  GParameterSet& operator=(const GParameterSet&);
@@ -128,19 +160,10 @@ public:
 	 void swap(GParameterSet& cp);
 
 	 /** @brief Allows to randomly initialize parameter members */
-	 G_API_GENEVA bool randomInit(const activityMode&) override;
+	 virtual G_API_GENEVA bool randomInit(const activityMode&) BASE;
 
 	 /** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	 G_API_GENEVA void setMaxMode(const bool&);
-
-	 /** @brief Emits a GParameterSet object that only has the GParameterBase objects attached to it */
-	 G_API_GENEVA std::shared_ptr<GParameterSet> parameter_clone() const;
-
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
-
-	 /** @brief Allows to assign a name to the role of this individual(-derivative) */
-	 G_API_GENEVA std::string getIndividualCharacteristic() const override;
 
 	 /** @brief Provides access to all data stored in the individual in a user defined selection */
 	 virtual G_API_GENEVA void custom_streamline(std::vector<boost::any>&) BASE;
@@ -150,14 +173,11 @@ public:
 	 /** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
 	 G_API_GENEVA std::string toCSV(bool=false, bool=true, bool=true, bool=true) const;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 	 /** @brief Retrieves a parameter of a given type at the specified position */
-	 G_API_GENEVA boost::any getVarVal(
+	 virtual G_API_GENEVA boost::any getVarVal(
 		 const std::string&
 		 , const std::tuple<std::size_t, std::string, std::size_t>& target
-	 ) override;
+	 ) BASE;
 
 	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	 G_API_GENEVA Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference at(const std::size_t& pos);
@@ -187,6 +207,285 @@ public:
 
 	 /** @brief Retrieves parameters relevant for the evaluation from another GParameterSet */
 	 virtual G_API_GENEVA void cannibalize(GParameterSet&);
+
+	 /** @brief The adaption interface */
+	 G_API_GENEVA std::size_t adapt() override;
+
+	 /** @brief Returns the raw result of the fitness function with id 0 */
+	 G_API_GENEVA double fitness() const override;
+	 /** @brief Returns the raw result of a fitness function with a given id */
+	 G_API_GENEVA double fitness(const std::size_t&) const override;
+
+	 /** @brief Calculate or returns the result of a fitness function with a given id */
+	 G_API_GENEVA double fitness(const std::size_t&, bool, bool) override;
+	 /** @brief Calculate or returns the result of a fitness function with a given id */
+	 G_API_GENEVA double fitness(const std::size_t&, bool, bool) const override;
+
+	 /** @brief Returns the transformed result of the fitness function with id 0 */
+	 G_API_GENEVA double transformedFitness() const override;
+	 /** @brief Returns the transformed result of a fitness function with a given id */
+	 G_API_GENEVA double transformedFitness(const std::size_t&) const override;
+
+	 /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
+	 G_API_GENEVA double minOnly_fitness() const override;
+	 /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
+	 G_API_GENEVA double minOnly_fitness(const std::size_t&) const override;
+
+	 /** @brief Returns all raw fitness results in a std::vector */
+	 G_API_GENEVA std::vector<double> fitnessVec() const override;
+	 /** @brief Returns all raw or transformed results in a std::vector */
+	 G_API_GENEVA std::vector<double> fitnessVec(bool) const override;
+	 /** @brief Returns all transformed fitness results in a std::vector */
+	 G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
+
+	 /** @brief A wrapper for the non-const fitness function, so we can bind to it */
+	 G_API_GENEVA double nonConstFitness(const std::size_t&, bool, bool);
+	 /** @brief A wrapper for the const fitness function, so we can bind to it */
+	 G_API_GENEVA double constFitness(const std::size_t&, bool, bool) const;
+
+	 /** @brief Retrieve the current (not necessarily up-to-date) fitness */
+	 G_API_GENEVA double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
+
+	 /** @brief Enforce fitness (re-)calculation */
+	 G_API_GENEVA void enforceFitnessUpdate(std::function<std::vector<double>()> =  std::function<std::vector<double>()>());
+
+	 /** @brief Registers a new, secondary result value of the custom fitness calculation */
+	 G_API_GENEVA void registerSecondaryResult(const std::size_t&, const double&);
+	 /** @brief Determines the overall number of fitness criteria present for this individual */
+	 G_API_GENEVA std::size_t getNumberOfFitnessCriteria() const;
+	 /** @brief Allows to reset the number of fitness criteria */
+	 G_API_GENEVA void setNumberOfFitnessCriteria(std::size_t);
+	 /** @brief Determines whether more than one fitness criterion is present for this individual */
+	 G_API_GENEVA bool hasMultipleFitnessCriteria() const;
+
+	 /** @brief Checks the worst fitness and updates it when needed */
+	 G_API_GENEVA void challengeWorstValidFitness(std::tuple<double, double>&, const std::size_t&);
+	 /** @brief Retrieve the fitness tuple at a given evaluation position */
+	 G_API_GENEVA std::tuple<double,double> getFitnessTuple(const std::uint32_t& = 0) const;
+
+	 /** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
+	 G_API_GENEVA bool isClean() const;
+	 /** @brief Check whether the dirty flag is set */
+	 G_API_GENEVA bool isDirty() const ;
+	 /** @brief Sets the dirtyFlag_ */
+	 G_API_GENEVA void setDirtyFlag();
+	 /** @brief Checks whether evaluation was delayed */
+	 G_API_GENEVA bool evaluationDelayed() const;
+
+	 /** @brief Allows to retrieve the maximize_ parameter */
+	 G_API_GENEVA bool getMaxMode() const;
+
+	 /** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
+	 virtual G_API_GENEVA double getWorstCase() const BASE;
+	 /** @brief Retrieves the best possible evaluation result, depending on whether we are in maximization or minimization mode */
+	 virtual G_API_GENEVA double getBestCase() const BASE;
+
+	 /** @brief Retrieves the steepness_ variable (used for the sigmoid transformation) */
+	 G_API_GENEVA double getSteepness() const;
+	 /** @brief Sets the steepness variable (used for the sigmoid transformation) */
+	 G_API_GENEVA void setSteepness(double);
+
+	 /** @brief Retrieves the barrier_ variable (used for the sigmoid transformation) */
+	 G_API_GENEVA double getBarrier() const;
+	 /** @brief Sets the barrier variable (used for the sigmoid transformation) */
+	 G_API_GENEVA void setBarrier(double);
+
+	 /** @brief Sets the maximum number of calls to customAdaptions() that may pass without actual modifications */
+	 G_API_GENEVA void setMaxUnsuccessfulAdaptions(std::size_t);
+	 /** @brief Retrieves the maximum number of calls to customAdaptions that may pass without actual modifications */
+	 G_API_GENEVA std::size_t getMaxUnsuccessfulAdaptions() const;
+
+	 /** @brief Set maximum number of retries until a valid individual was found  */
+	 G_API_GENEVA void setMaxRetriesUntilValid(std::size_t maxRetriesUntilValid);
+	 /** Retrieves the maximum number of retries until a valid individual was found. */
+	 G_API_GENEVA std::size_t getMaxRetriesUntilValid() const;
+
+	 /** @brief Retrieves the number of adaptions performed during the last call to adapt() */
+	 G_API_GENEVA std::size_t getNAdaptions() const;
+
+	 /** @brief Allows to set the current iteration of the parent optimization algorithm. */
+	 G_API_GENEVA void setAssignedIteration(const std::uint32_t&);
+	 /** @brief Gives access to the parent optimization algorithm's iteration */
+	 G_API_GENEVA std::uint32_t getAssignedIteration() const;
+
+	 /** @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion */
+	 G_API_GENEVA void setNStalls(const std::uint32_t&);
+	 /** @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion */
+	 G_API_GENEVA std::uint32_t getNStalls() const;
+
+	 /** @brief Retrieves an identifier for the current personality of this object */
+	 G_API_GENEVA std::string getPersonality() const;
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves a parameter of a given type at the specified position.
+	  */
+	 template <typename val_type>
+	 val_type getVarVal(
+		 const std::tuple<std::size_t, std::string, std::size_t>& target
+	 ) {
+		 val_type result = val_type(0);
+
+		 if(typeid(val_type) == typeid(double)) {
+			 return boost::numeric_cast<val_type>(boost::any_cast<double>(this->getVarVal("d", target)));
+		 } else if(typeid(val_type) == typeid(float)) {
+			 return boost::numeric_cast<val_type>(boost::any_cast<float>(this->getVarVal("f", target)));
+		 } if(typeid(val_type) == typeid(std::int32_t)) {
+			 return boost::numeric_cast<val_type>(boost::any_cast<std::int32_t>(this->getVarVal("i", target)));
+		 } if(typeid(val_type) == typeid(bool)) {
+			 return boost::numeric_cast<val_type>(boost::any_cast<bool>(this->getVarVal("b", target)));
+		 } else {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterSet::getVarVal<>(): Error!" << std::endl
+					 << "Received invalid type descriptor " << std::endl
+			 );
+		 }
+
+		 return result;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * The function converts the local personality base pointer to the desired type
+	  * and returns it for modification by the corresponding optimization algorithm.
+	  * The base algorithms have been declared "friend" of GParameterSet and
+	  * can thus access this function. External entities have no need to do so. Note
+	  * that this function will only be accessible to the compiler if personality_type
+	  * is a derivative of GPersonalityTraits, thanks to the magic of std::enable_if
+	  * and type_traits.
+	  *
+	  * @return A std::shared_ptr converted to the desired target type
+	  */
+	 template <typename personality_type>
+	 std::shared_ptr<personality_type> getPersonalityTraits(
+		 typename std::enable_if<std::is_base_of<GPersonalityTraits, personality_type>::value>::type *dummy = nullptr
+	 ) {
+#ifdef DEBUG
+		 // Check that m_pt_ptr actually points somewhere
+		 if(!m_pt_ptr) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GParameterSet::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl
+					 << "This should not happen." << std::endl
+			 );
+
+			 // Make the compiler happy
+			 return std::shared_ptr<personality_type>();
+		 }
+#endif /* DEBUG */
+
+		 // Does error checks on the conversion internally
+		 return Gem::Common::convertSmartPointer<GPersonalityTraits, personality_type>(m_pt_ptr);
+	 }
+
+	 /* ----------------------------------------------------------------------------------
+	  * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
+	  * Tested in GParameterSet::specificTestsFailureExpected_GUnitTests()
+	  * ----------------------------------------------------------------------------------
+	  */
+
+	 /***************************************************************************/
+	 /** @brief This function returns the current personality traits base pointer */
+	 G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits();
+
+	 /** @brief Sets the current personality of this individual */
+	 G_API_GENEVA void setPersonality(
+		 std::shared_ptr<GPersonalityTraits>
+	 );
+	 /** @brief Resets the current personality to PERSONALITY_NONE */
+	 G_API_GENEVA void resetPersonality();
+	 /** @brief Retrieves the mnemonic used for the optimization of this object */
+	 G_API_GENEVA std::string getMnemonic() const;
+
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 virtual G_API_GENEVA void addConfigurationOptions(
+		 Gem::Common::GParserBuilder&
+	 ) override;
+
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name() const override;
+
+	 /** @brief Check how valid a given solution is */
+	 G_API_GENEVA double getValidityLevel() const;
+	 /** @brief Checks whether all constraints were fulfilled */
+	 G_API_GENEVA bool constraintsFulfilled() const;
+	 /** @brief Allows to register a constraint with this individual */
+	 G_API_GENEVA void registerConstraint(std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>>);
+
+	 /** @brief Allows to set the policy to use in case this individual represents an invalid solution */
+	 G_API_GENEVA void setEvaluationPolicy(evaluationPolicy evalPolicy);
+	 /** @brief Allows to retrieve the current policy in case this individual represents an invalid solution */
+	 G_API_GENEVA evaluationPolicy getEvaluationPolicy() const;
+
+	 /** @brief Checks whether this is a valid solution; meant to be called for "clean" individuals only */
+	 G_API_GENEVA bool isValid() const;
+	 /** @brief Checks whether this solution is invalid */
+	 G_API_GENEVA bool isInValid() const;
+
+	 /** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
+	 G_API_GENEVA void setWorstKnownValid(const std::vector<std::tuple<double, double>>&);
+	 /** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
+	 G_API_GENEVA std::tuple<double, double> getWorstKnownValid(const std::uint32_t&) const;
+	 /** @brief Allows to retrieve all worst known valid evaluations up to the current iteration, as set by an external optimization algorithm */
+	 G_API_GENEVA std::vector<std::tuple<double, double>> getWorstKnownValids() const;
+	 /** @brief Fills the worstKnownValid-vector with best values */
+	 G_API_GENEVA void populateWorstKnownValid();
+
+	 /** @brief Triggers an update of the internal evaluation, if necessary */
+	 G_API_GENEVA void postEvaluationUpdate();
+
+	 /** @brief Allows to set the globally best known primary fitness */
+	 G_API_GENEVA void setBestKnownPrimaryFitness(const std::tuple<double, double>&);
+	 /** @brief Retrieves the value of the globally best known primary fitness */
+	 G_API_GENEVA std::tuple<double, double> getBestKnownPrimaryFitness() const;
+
+	 /** @brief Retrieve the id assigned to the current evaluation */
+	 G_API_GENEVA std::string getCurrentEvaluationID() const;
+
+	 /** @brief Checks whether a new solution is worse then an older solution, depending on the maxMode */
+	 virtual G_API_GENEVA bool isWorse(double, const double&) const BASE;
+	 /** @brief Checks whether a new solution is better then an older solution, depending on the maxMode */
+	 virtual G_API_GENEVA bool isBetter(double, const double&) const BASE;
+
+	 /** @brief Checks whether this object is better than the argument, depending on the maxMode */
+	 G_API_GENEVA bool isBetterThan(std::shared_ptr<GParameterSet>) const;
+	 /** @brief Checks whether this object is worse than the argument, depending on the maxMode */
+	 G_API_GENEVA bool isWorseThan(std::shared_ptr<GParameterSet>) const;
+
+	 /***************************************************************************/
+	 /**
+	  * Checks if a given position of a std::tuple is better then another,
+	  * depending on our maximization mode
+	  */
+	 template <std::size_t pos>
+	 bool isWorse(
+		 std::tuple<double, double> newValue
+		 , std::tuple<double, double> oldValue
+	 ) const {
+		 if(this->getMaxMode()) {
+			 return (std::get<pos>(newValue) < std::get<pos>(oldValue));
+		 } else { // minimization
+			 return (std::get<pos>(newValue) > std::get<pos>(oldValue));
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks if a given position of a std::tuple is better then another,
+	  * depending on our maximization mode
+	  */
+	 template <std::size_t pos>
+	 bool isBetter(
+		 std::tuple<double, double> newValue
+		 , std::tuple<double, double> oldValue
+	 ) const {
+		 if(this->getMaxMode()) {
+			 return (std::get<pos>(newValue) > std::get<pos>(oldValue));
+		 } else { // minimization
+			 return (std::get<pos>(newValue) < std::get<pos>(oldValue));
+		 }
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -393,7 +692,7 @@ public:
 		 }
 
 		 // As we have modified our internal data sets, make sure the dirty flag is set
-		 GOptimizableEntity::setDirtyFlag();
+		 GParameterSet::setDirtyFlag();
 	 }
 
 	 /***************************************************************************/
@@ -414,7 +713,7 @@ public:
 		 }
 
 		 // As we have modified our internal data sets, make sure the dirty flag is set
-		 GOptimizableEntity::setDirtyFlag();
+		 GParameterSet::setDirtyFlag();
 	 }
 
 	 /***************************************************************************/
@@ -551,6 +850,8 @@ public:
 	 }
 
 	 /***************************************************************************/
+	 // Deleted functions
+
 	 explicit G_API_GENEVA GParameterSet(const float&) = delete; ///< Intentionally undefined
 	 explicit G_API_GENEVA GParameterSet(const double&) = delete; ///< Intentionally undefined
 
@@ -580,19 +881,93 @@ protected:
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
 
-	 /** @brief The actual fitness calculation takes place here */
-	 G_API_GENEVA double fitnessCalculation() override ;
 	 /* @brief The actual adaption operations. */
-	 G_API_GENEVA std::size_t customAdaptions() override ;
+	 virtual G_API_GENEVA std::size_t customAdaptions() BASE ;
+	 /** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
+	 virtual G_API_GENEVA void setMaxMode_(const bool&) BASE;
+
+	 /** @brief The fitness calculation for the main quality criterion takes place here */
+	 virtual G_API_GENEVA double fitnessCalculation() BASE;
+	 /** @brief Sets the fitness to a given set of values and clears the dirty flag */
+	 G_API_GENEVA void setFitness_(const std::vector<double>&);
+
+	 /** @brief Sets the dirtyFlag_ to any desired value */
+	 G_API_GENEVA boost::logic::tribool setDirtyFlag(const boost::logic::tribool&) ;
+
+	 /** @brief Combines secondary evaluation results by adding the individual results */
+	 G_API_GENEVA double sumCombiner() const;
+	 /** @brief Combines secondary evaluation results by adding the absolute values of individual results */
+	 G_API_GENEVA double fabsSumCombiner() const;
+	 /** @brief Combines secondary evaluation results by calculating the square root of the squared sum */
+	 G_API_GENEVA double squaredSumCombiner() const;
+	 /** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
+	 G_API_GENEVA double weighedSquaredSumCombiner(const std::vector<double>&) const;
+
+	 /** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
+	 G_API_GENEVA void markAsInvalid();
+	 /** @brief Allows to check whether this solution was marked as invalid */
+	 G_API_GENEVA bool markedAsInvalidByUser() const;
+
+	 /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
+	 G_API_GENEVA bool parameterSetFulfillsConstraints(double&) const;
 
 private:
+	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
+
+	 /** @brief Checks whether all results are at the worst possible value */
+	 bool allRawResultsAtWorst() const;
+
+	 /***************************************************************************/
+	 // Data
 
 	 /** @brief Uniformly distributed integer random numbers */
 	 std::uniform_int_distribution<std::size_t> m_uniform_int;
 
-	 double m_perItemCrossOverProbability; ///< A likelihood for "per item" cross-over operations to be performed
+	 double m_perItemCrossOverProbability = DEFAULTPERITEMEXCHANGELIKELIHOOD; ///< A likelihood for "per item" cross-over operations to be performed
+
+	 /** @brief The total number of fitness criteria */
+	 std::size_t m_n_fitness_criteria = 1;
+	 /** @brief Holds this object's internal, raw and transformed fitness */
+	 std::vector<std::tuple<double, double>> m_current_fitness_vec = std::vector<std::tuple<double, double>>(m_n_fitness_criteria);
+
+	 /** @brief The worst known evaluation up to the current iteration */
+	 std::vector<std::tuple<double, double>> m_worst_known_valids_vec = std::vector<std::tuple<double, double>>(m_n_fitness_criteria);
+	 /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
+	 Gem::Common::GLockVarT<bool> m_marked_as_invalid_by_user{OE_NOT_MARKED_AS_INVALID};
+
+	 /** @brief Holds the globally best known primary fitness of all individuals */
+	 std::tuple<double, double> m_best_past_primary_fitness{std::make_tuple(0., 0.)};
+	 /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
+	 std::uint32_t m_n_stalls = 0;
+	 /** @brief Internal representation of the adaption status of this object */
+	 boost::logic::tribool m_dirty_flag = true; // boost::logic::indeterminate refers to "delayed evaluation"
+	 /** @brief Indicates whether we are running in maximization or minimization mode */
+	 bool m_maximize = false;
+	 /** @brief The iteration of the parent algorithm's optimization cycle */
+	 std::uint32_t m_assigned_iteration = 0;
+	 /** @brief Indicates how valid a given solution is */
+	 double m_validity_level = 0.;
+	 /** @brief Holds the actual personality information */
+	 std::shared_ptr<GPersonalityTraits> m_pt_ptr;
+
+	 /** @brief Specifies what to do when the individual is marked as invalid */
+	 evaluationPolicy m_eval_policy = Gem::Geneva::evaluationPolicy::USESIMPLEEVALUATION;
+	 /** @brief Determines the "steepness" of a sigmoid function used by optimization algorithms */
+	 double m_sigmoid_steepness = Gem::Geneva::FITNESSSIGMOIDSTEEPNESS;
+	 /** @brief Determines the extreme values of a sigmoid function used by optimization algorithms */
+	 double m_sigmoid_extremes = Gem::Geneva::WORSTALLOWEDVALIDFITNESS;
+
+	 /** @brief A constraint-check to be applied to one or more components of this individual */
+	 std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>> m_individual_constraint_ptr;
+
+	 std::size_t m_max_unsuccessful_adaptions = Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
+	 std::size_t m_max_retries_until_valid = Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
+	 std::size_t m_n_adaptions = 0; ///< Stores the actual number of adaptions after a call to "adapt()"
+
+	 /** @brief A unique id that is assigned to an evaluation */
+	 std::string m_evaluation_id = "empty";
 
 public:
 	 /***************************************************************************/

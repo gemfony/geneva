@@ -47,7 +47,6 @@
 #include "common/GFormulaParserT.hpp"
 #include "geneva/GMultiConstraintT.hpp"
 #include "geneva/GIndividualMultiConstraint.hpp"
-#include "geneva/GOptimizableEntity.hpp"
 #include "geneva/GParameterSet.hpp"
 
 namespace Gem {
@@ -59,10 +58,10 @@ namespace Geneva {
 /**
  * This class implements constraint definitions based on GParameterSet-derivatives.
  * It is meant to be added to a constraint collection. The main purpose of this
- * class is to "translate" GOptimizableEntity-based constraints into constraints
+ * class is to "translate" GParameterSet-based constraints into constraints
  * based on GParameterSets
  */
-class GParameterSetConstraint: public GPreEvaluationValidityCheckT<GOptimizableEntity>
+class GParameterSetConstraint: public GPreEvaluationValidityCheckT<GParameterSet>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -71,7 +70,7 @@ class GParameterSetConstraint: public GPreEvaluationValidityCheckT<GOptimizableE
 	 void serialize(Archive & ar, const unsigned int){
 		 using boost::serialization::make_nvp;
 		 ar
-		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GOptimizableEntity>);
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPreEvaluationValidityCheckT<GParameterSet>);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 public:
@@ -98,9 +97,7 @@ public:
 
 protected:
 	 /** @brief Checks whether a given individual is valid */
-	 G_API_GENEVA double check_(const GOptimizableEntity *) const override;
-	 /** @brief Checks whether a given GParameterSet object is valid */
-	 virtual G_API_GENEVA double check_(const GParameterSet *) const = 0;
+	 G_API_GENEVA double check_(const GParameterSet *) const override = 0;
 
 	 /** @brief Loads the data of another GParameterSetConstraint */
 	 G_API_GENEVA void load_(const GObject*) override;

@@ -52,7 +52,7 @@ GParameterSetConstraint::GParameterSetConstraint() { /* nothing */ }
  * The copy constructor
  */
 GParameterSetConstraint::GParameterSetConstraint(const GParameterSetConstraint &cp)
-	: GPreEvaluationValidityCheckT<GOptimizableEntity>(cp) { /* nothing */ }
+	: GPreEvaluationValidityCheckT<GParameterSet>(cp) { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -89,7 +89,7 @@ void GParameterSetConstraint::compare(
 	GToken token("GParameterSetConstraint", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GPreEvaluationValidityCheckT<GOptimizableEntity>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base<GPreEvaluationValidityCheckT<GParameterSet>>(IDENTITY(*this, *p_load), token);
 
 	// ... no local data
 
@@ -105,18 +105,7 @@ void GParameterSetConstraint::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GPreEvaluationValidityCheckT<GOptimizableEntity>::addConfigurationOptions(gpb);
-}
-
-/******************************************************************************/
-/**
- * Checks whether a given individual is valid
- */
-double GParameterSetConstraint::check_(
-	const GOptimizableEntity *p_raw
-) const {
-	const GParameterSet *p = Gem::Common::convertSimplePointer<GOptimizableEntity, GParameterSet>(p_raw);
-	return this->check_(p);
+	GPreEvaluationValidityCheckT<GParameterSet>::addConfigurationOptions(gpb);
 }
 
 /******************************************************************************/
@@ -128,7 +117,7 @@ void GParameterSetConstraint::load_(const GObject *cp) {
 	const GParameterSetConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSetConstraint>(cp, this);
 
 	// Load our parent class'es data ...
-	GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
+	GPreEvaluationValidityCheckT<GParameterSet>::load_(cp);
 
 	// no local data
 }
@@ -241,7 +230,7 @@ void GParameterSetFormulaConstraint::load_(const GObject *cp) {
 	const GParameterSetFormulaConstraint *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterSetFormulaConstraint>(cp, this);
 
 	// Load our parent class'es data ...
-	GPreEvaluationValidityCheckT<GOptimizableEntity>::load_(cp);
+	GPreEvaluationValidityCheckT<GParameterSet>::load_(cp);
 
 	// ... and then our local data
 	rawFormula_ = p_load->rawFormula_;

@@ -76,7 +76,6 @@ SET ( OPTIMIZATIONINCLUDES
     G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp
 	Go2.hpp
     GObject.hpp
-	GOptimizableEntity.hpp
     GOptimizationEnums.hpp
 	GParameterBase.hpp
 	GParameterBaseWithAdaptorsT.hpp

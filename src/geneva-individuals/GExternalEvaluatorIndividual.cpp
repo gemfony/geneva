@@ -1642,7 +1642,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 		boost::optional<ptree &> boundsNode_opt = m_ptr.get_child_optional("batch.individuals.individual0.bounds");
 		if (boundsNode_opt) {
 			// Create a check combiner -- it will hold the boundary conditions we find here
-			std::shared_ptr <GCheckCombinerT<GOptimizableEntity>> combiner_ptr(new GCheckCombinerT<GOptimizableEntity>());
+			std::shared_ptr <GCheckCombinerT<GParameterSet>> combiner_ptr(new GCheckCombinerT<GParameterSet>());
 
 			// Loop over all children of the bounds tree
 			// Note that for now we only query GConstrainedDoubleObject objects

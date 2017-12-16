@@ -398,7 +398,7 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
 				case duplicationScheme::VALUEDUPLICATIONSCHEME: {
 					if (m_n_parents == 1) {
 						(*it)->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin()));
-						(*it)->GOptimizableEntity::getPersonalityTraits<GBaseParChildPersonalityTraits> ()->setParentId(0);
+						(*it)->GParameterSet::getPersonalityTraits<GBaseParChildPersonalityTraits> ()->setParentId(0);
 					} else {
 						// A recombination taking into account the value does not make
 						// sense in the first iteration, as parents might not have a suitable
@@ -519,7 +519,7 @@ std::tuple<std::size_t,std::size_t> G_OptimizationAlgorithm_ParChild::getAdaptio
 void G_OptimizationAlgorithm_ParChild::markParents() {
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 	for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.begin()+m_n_parents; ++it){
-		(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
+		(*it)->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
 	}
 }
 
@@ -530,7 +530,7 @@ void G_OptimizationAlgorithm_ParChild::markParents() {
 void G_OptimizationAlgorithm_ParChild::markChildren() {
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 	for(it=G_OptimizationAlgorithm_Base::data.begin()+m_n_parents; it!=G_OptimizationAlgorithm_Base::data.end(); ++it){
-		(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
+		(*it)->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
 	}
 }
 
@@ -543,7 +543,7 @@ void G_OptimizationAlgorithm_ParChild::markIndividualPositions() {
 	std::size_t pos = 0;
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 	for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
-		(*it)->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
+		(*it)->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
 	}
 }
 
@@ -724,7 +724,7 @@ void G_OptimizationAlgorithm_ParChild::randomRecombine(std::shared_ptr<GParamete
 	child->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin() + parent_pos));
 
 	// Let the individual know the id of the parent
-	child->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
+	child->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
 }
 
 /******************************************************************************/
@@ -751,7 +751,7 @@ void G_OptimizationAlgorithm_ParChild::valueRecombine(
 			// Load the parent's data
 			p->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin() + par));
 			// Let the individual know the parent's id
-			p->GOptimizableEntity::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
+			p->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
 			done = true;
 
 			break;
