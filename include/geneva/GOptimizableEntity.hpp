@@ -68,9 +68,6 @@ class GTestIndividual1; // forward declaration, needed for test purposes
 namespace Gem {
 namespace Geneva {
 
-// Forward declarations
-class GSerialSwarm;
-
 /******************************************************************************/
 /**
  * This class acts as an interface class for all objects that can take part
@@ -86,7 +83,6 @@ class GOptimizableEntity
 	  , public G_Interface_Rateable
 	  , public GObject
 {
-	 friend class GSerialSwarm; ///< Needed so GSerialSwarm can set the dirty flag TODO: Is this still needed?
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
 	 ///////////////////////////////////////////////////////////////////////

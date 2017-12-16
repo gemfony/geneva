@@ -379,6 +379,9 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		// Set the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
 
+		// Setting the dirty flag should result in DO_PROCESS being set
+		BOOST_CHECK(Gem::Courtier::processingStatus::DO_PROCESS == p_test->getProcessingStatus());
+
 		// Check that the dirty flag has indeed been set
 		BOOST_CHECK(p_test->isDirty());
 

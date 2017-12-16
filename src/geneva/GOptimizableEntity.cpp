@@ -1033,11 +1033,36 @@ std::size_t GOptimizableEntity::getNAdaptions() const {
  * has been set, the only way to reset it is to calculate the fitness of this object.
  */
 void GOptimizableEntity::setDirtyFlag() {
-	m_dirty_flag = true;
+	this->setDirtyFlag(true);
 }
 
 /* ----------------------------------------------------------------------------------
  * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
+ * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
+/******************************************************************************/
+/**
+ * Sets the dirtyFlag_ to any desired value
+ *
+ * @param dirtyFlag The new value for the dirtyFlag_ variable
+ * @return The previous value of the dirtyFlag_ variable
+ */
+boost::logic::tribool GOptimizableEntity::setDirtyFlag(
+	const boost::logic::tribool &dirtyFlag
+) {
+	bool previous = m_dirty_flag;
+	m_dirty_flag = dirtyFlag;
+
+	if(true==m_dirty_flag) {
+		// this->reset_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
+	} // TODO: Is this correct for delayed execution ?
+
+	return previous;
+}
+
+/* ----------------------------------------------------------------------------------
  * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
@@ -1053,26 +1078,6 @@ bool GOptimizableEntity::evaluationDelayed() const {
 		return false;
 	}
 }
-
-/******************************************************************************/
-/**
- * Sets the dirtyFlag_ to any desired value
- *
- * @param dirtyFlag The new value for the dirtyFlag_ variable
- * @return The previous value of the dirtyFlag_ variable
- */
-boost::logic::tribool GOptimizableEntity::setDirtyFlag(
-	const boost::logic::tribool &dirtyFlag
-) {
-	bool previous = m_dirty_flag;
-	m_dirty_flag = dirtyFlag;
-	return previous;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**
