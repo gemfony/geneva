@@ -266,8 +266,8 @@ void G_OptimizationAlgorithm_Base::checkpoint(const bool& is_better) const {
 	bf::path output_file;
 	output_file = getCheckpointPath() / bf::path(
 		"checkpoint-" + this->getAlgorithmPersonalityType() + "-" +
-		(this->halted() ? "final" : boost::lexical_cast<std::string>(getIteration())) + "-" +
-		boost::lexical_cast<std::string>(std::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) + "-" +
+		(this->halted() ? "final" : Gem::Common::to_string(getIteration())) + "-" +
+		Gem::Common::to_string(std::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) + "-" +
 		getCheckpointBaseName()
 	);
 

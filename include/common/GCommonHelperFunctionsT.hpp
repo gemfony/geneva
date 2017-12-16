@@ -1183,6 +1183,59 @@ bool operator!=(
 }
 
 /******************************************************************************/
+/**
+ * Converts integral types (except scoped enums) to a std::string
+ */
+template <typename integral_type>
+std::string to_string(
+	integral_type val
+	, typename std::enable_if<
+	std::is_integral<integral_type>::value
+	|| (std::is_enum<integral_type>::value && std::is_convertible<integral_type, int>::value)
+>::type* = 0
+) {
+	return std::to_string(val);
+}
+
+/******************************************************************************/
+/**
+ * Converts floating ppoint values to a std::string.
+ */
+template <typename fp_type>
+std::string to_string(
+	fp_type val
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type* = 0
+) {
+	// We do not want to use std::to_string here, as it depends on the locale (. vs. ,)
+	return  boost::lexical_cast<std::string>(val);
+}
+
+/******************************************************************************/
+/**
+ * Converts a scoped enum (i.e. an enum class) to a std::string. An enum class
+ * is not implicitly convertible to an integer, so we explicitly cast it to an int
+ */
+template <typename enum_type>
+std::string to_string(
+	enum_type val
+	, typename std::enable_if<std::is_enum<enum_type>::value && !std::is_convertible<enum_type, int>::value>::type* = 0
+) {
+	return std::to_string(static_cast<std::uint32_t>(val));
+}
+
+/******************************************************************************/
+/**
+ * Converts standard types (except arithmetic and enum types) to a std::string
+ */
+template <typename default_type>
+std::string to_string(
+	default_type val
+	, typename std::enable_if<!std::is_enum<default_type>::value && !std::is_arithmetic<default_type>::value>::type* = 0
+) {
+	return boost::lexical_cast<std::string>(val);
+}
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */

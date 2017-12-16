@@ -247,7 +247,7 @@ void GParameterSet::toPropertyTree(
 	std::string base;
 	std::size_t pos = 0;
 	for(const auto& item_ptr: *this) {
-		base = baseName + ".vars.var" + boost::lexical_cast<std::string>(pos);
+		base = baseName + ".vars.var" + Gem::Common::to_string(pos);
 		item_ptr->toPropertyTree(ptr, base);
 		pos++;
 	}
@@ -284,9 +284,9 @@ void GParameterSet::toPropertyTree(
 		rawFitness = dirtyFlag ? this->getWorstCase() : this->fitness(f, PREVENTREEVALUATION, USERAWFITNESS);
 		transformedFitness = dirtyFlag ? this->getWorstCase() : this->transformedFitness(f);
 
-		base = baseName + ".results.result" + boost::lexical_cast<std::string>(f);
+		base = baseName + ".results.result" + Gem::Common::to_string(f);
 		ptr.put(base, transformedFitness);
-		base = baseName + ".results.rawResult" + boost::lexical_cast<std::string>(f);
+		base = baseName + ".results.rawResult" + Gem::Common::to_string(f);
 		ptr.put(base, rawFitness);
 	}
 }
@@ -328,60 +328,60 @@ std::string GParameterSet::toCSV(
 	for(const auto& item: dData) {
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
-				varNames.push_back(item.first + "_" + boost::lexical_cast<std::string>(pos));
+				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
 				varTypes.push_back("double");
 			}
-			varValues.push_back(boost::lexical_cast<std::string>((item.second).at(pos)));
+			varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
 		}
 	}
 
 	for(const auto& item: fData) {
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
-				varNames.push_back(item.first + "_" + boost::lexical_cast<std::string>(pos));
+				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
 				varTypes.push_back("float");
 			}
-			varValues.push_back(boost::lexical_cast<std::string>((item.second).at(pos)));
+			varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
 		}
 	}
 
 	for(const auto& item: iData) {
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
-				varNames.push_back(item.first + "_" + boost::lexical_cast<std::string>(pos));
+				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
 				varTypes.push_back("int32");
 			}
-			varValues.push_back(boost::lexical_cast<std::string>((item.second).at(pos)));
+			varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
 		}
 	}
 
 	for(const auto& item: bData) {
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
-				varNames.push_back(item.first + "_" + boost::lexical_cast<std::string>(pos));
+				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
 				varTypes.push_back("bool");
 			}
-			varValues.push_back(boost::lexical_cast<std::string>((item.second).at(pos)));
+			varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
 		}
 	}
 
 	// Note: The following will output the string "dirty" if the individual is in a "dirty" state
 	for (std::size_t f = 0; f < this->getNumberOfFitnessCriteria(); f++) {
 		if (withNameAndType) {
-			varNames.push_back(std::string("Fitness_") + boost::lexical_cast<std::string>(f));
+			varNames.push_back(std::string("Fitness_") + Gem::Common::to_string(f));
 			varTypes.push_back("double");
 		}
 		if(!this->isDirty()) { // The individual has already been evaluated
 			if (useRawFitness) {
 				varValues.push_back(
-					boost::lexical_cast<std::string>(
+					Gem::Common::to_string(
 						this->fitness(
 							f
 							, PREVENTREEVALUATION
 							, USERAWFITNESS
 						)));
 			} else { // Output potentially transformed fitness
-				varValues.push_back(boost::lexical_cast<std::string>(this->transformedFitness(f)));
+				varValues.push_back(Gem::Common::to_string(this->transformedFitness(f)));
 			}
 		} else { // No evaluation was performed so far
 			varValues.push_back("dirty");
@@ -395,9 +395,9 @@ std::string GParameterSet::toCSV(
 		}
 
 		if(!this->isDirty()) { // The individual has already been evaluated
-			varValues.push_back(boost::lexical_cast<std::string>(this->isValid()));
+			varValues.push_back(Gem::Common::to_string(this->isValid()));
 		} else {
-			varValues.push_back(boost::lexical_cast<std::string>(false));
+			varValues.push_back(Gem::Common::to_string(false));
 		}
 	}
 
@@ -1057,7 +1057,7 @@ double GParameterSet::getCachedFitness(
  */
 void GParameterSet::enforceFitnessUpdate(std::function<std::vector<double>()> f) {
 	// Assign a new evaluation id
-	m_evaluation_id = std::string("eval_") + boost::lexical_cast<std::string>(boost::uuids::random_generator()());
+	m_evaluation_id = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
 
 	// We start a new evaluation. Make sure the object isn't marked as invalid,
 	// and that this state cannot be changed.

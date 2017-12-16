@@ -297,7 +297,7 @@ int main(int argc, char **argv){
 	// return when it has finished
 	if(execMode::BROKER==parallelizationMode && !serverMode) {
 		std::shared_ptr<GAsioSerialTCPClientT<GParameterSet>>
-			p(new GAsioSerialTCPClientT<GParameterSet>(ip, boost::lexical_cast<std::string>(port)));
+			p(new GAsioSerialTCPClientT<GParameterSet>(ip, Gem::Common::to_string(port)));
 
 		p->setMaxStalls(maxStalls); // 0 would mean an infinite number of stalled data retrievals
 		p->setMaxConnectionAttempts(maxConnectionAttempts);

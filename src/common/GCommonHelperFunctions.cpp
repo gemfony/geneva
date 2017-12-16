@@ -401,7 +401,7 @@ std::string getMSSince1970() {
 	std::chrono::time_point<std::chrono::system_clock> p1; // 1970
 	std::chrono::time_point<std::chrono::system_clock> p2 = std::chrono::system_clock::now();
 	std::chrono::milliseconds ms_since_1970 = std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
-	return boost::lexical_cast<std::string>(ms_since_1970.count());
+	return std::to_string(ms_since_1970.count()); // Cannot use Gem::Common::to_string here as we do not want to include GCommonHelperFunctionsT.hpp
 }
 
 /******************************************************************************/

@@ -396,7 +396,7 @@ public:
 		 std::size_t pos;
 		 for(cit=this->begin(); cit!=this->end(); ++cit) {
 			 pos = cit - this->begin();
-			 ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
+			 ptr.put(baseName + "values.value" + Gem::Common::to_string(pos), *cit);
 		 }
 		 ptr.put(baseName + ".lowerBoundary", this->getLowerBoundary());
 		 ptr.put(baseName + ".upperBoundary", this->getUpperBoundary());

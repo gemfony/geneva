@@ -88,6 +88,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GTupleIO.hpp"

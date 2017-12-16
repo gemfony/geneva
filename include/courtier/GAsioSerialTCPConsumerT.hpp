@@ -50,7 +50,6 @@
 #include <boost/asio.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/enable_shared_from_this.hpp>
@@ -469,7 +468,7 @@ protected:
 
 		 // Assemble the size header
 		 std::string sizeHeader = assembleQueryString(
-			 boost::lexical_cast<std::string>(item.size())
+			 Gem::Common::to_string(item.size())
 			 , Gem::Courtier::COMMANDLENGTH
 		 );
 		 buffers.push_back(boost::asio::buffer(sizeHeader));
@@ -971,7 +970,7 @@ protected:
 		 while (!m_broker_ptr->get(p, m_timeout)) {
 			 if (++nRetries > m_brokerRetrieveMaxRetries) {
 				 std::string idleCommand
-					 = std::string("idle(") + boost::lexical_cast<std::string>(m_noDataClientSleepMilliSeconds) +
+					 = std::string("idle(") + Gem::Common::to_string(m_noDataClientSleepMilliSeconds) +
 						std::string(")");
 				 this->async_sendSingleCommand(idleCommand);
 				 return;
@@ -989,11 +988,11 @@ protected:
 
 		 // Format the size header
 		 std::string outbound_size_header
-			 = assembleQueryString(boost::lexical_cast<std::string>(item.size()), Gem::Courtier::COMMANDLENGTH);
+			 = assembleQueryString(Gem::Common::to_string(item.size()), Gem::Courtier::COMMANDLENGTH);
 
 		 // Format a header for the serialization mode
 		 std::string serialization_header = assembleQueryString(
-			 boost::lexical_cast<std::string>(m_serializationMode), Gem::Courtier::COMMANDLENGTH
+			 Gem::Common::to_string(m_serializationMode), Gem::Courtier::COMMANDLENGTH
 		 );
 
 		 // Assemble the data buffers
@@ -1301,7 +1300,7 @@ public:
 	  */
 	 std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
 		 std::shared_ptr <GAsioSerialTCPClientT<processable_type>> p(
-			 new GAsioSerialTCPClientT<processable_type>(m_server, boost::lexical_cast<std::string>(m_port))
+			 new GAsioSerialTCPClientT<processable_type>(m_server, Gem::Common::to_string(m_port))
 		 );
 
 		 p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls

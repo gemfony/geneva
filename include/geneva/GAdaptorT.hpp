@@ -144,7 +144,7 @@ public:
 			 m_adProb
 			 , m_minAdProb
 			 , m_maxAdProb
-			 , "GAdaptorT<>::GAdaptorT(" + boost::lexical_cast<std::string>(adProb) + ")"
+			 , "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + ")"
 		 )) {
 			 glogger
 				 << "In GAdaptorT<T>::GadaptorT(const fp_type& adProb):" << std::endl << "adProb value " << m_adProb
@@ -155,13 +155,13 @@ public:
 				 m_adProb
 				 , m_minAdProb
 				 , m_maxAdProb
-				 , "GAdaptorT<>::GAdaptorT(" + boost::lexical_cast<std::string>(adProb) + " / 1)"
+				 , "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 1)"
 			 );
 			 Gem::Common::enforceRangeConstraint<fp_type>(
 				 m_adProb_reset
 				 , m_minAdProb
 				 , m_maxAdProb
-				 , "GAdaptorT<>::GAdaptorT(" + boost::lexical_cast<std::string>(adProb) + " / 2)"
+				 , "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 2)"
 			 );
 		 }
 	 }
@@ -282,7 +282,7 @@ public:
 			 adProb
 			 , m_minAdProb
 			 , m_maxAdProb
-			 , "GAdaptorT<>::setAdaptionProbability(" + boost::lexical_cast<std::string>(adProb) + ")"
+			 , "GAdaptorT<>::setAdaptionProbability(" + Gem::Common::to_string(adProb) + ")"
 		 )) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -334,7 +334,7 @@ public:
 			 adProb_reset
 			 , m_minAdProb
 			 , m_maxAdProb
-			 , "GAdaptorT<>::setResetAdaptionProbability(" + boost::lexical_cast<std::string>(adProb_reset) + ")"
+			 , "GAdaptorT<>::setResetAdaptionProbability(" + Gem::Common::to_string(adProb_reset) + ")"
 		 )) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -372,7 +372,7 @@ public:
 			 probability
 			 , 0.
 			 , 1.
-			 , "GAdaptorT<>::setAdaptAdaptionProbability(" + boost::lexical_cast<std::string>(probability) + ")"
+			 , "GAdaptorT<>::setAdaptAdaptionProbability(" + Gem::Common::to_string(probability) + ")"
 		 )) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)

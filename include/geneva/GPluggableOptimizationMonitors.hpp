@@ -636,14 +636,14 @@ public:
 			 //--------------------------------------------------------------------
 			 case 0: // parameters are identified by id
 			 {
-				 result = std::string("variable id ") + boost::lexical_cast<std::string>(var_pos);
+				 result = std::string("variable id ") + Gem::Common::to_string(var_pos);
 			 }
 				 break;
 
 				 //--------------------------------------------------------------------
 			 case 1:
 			 {
-				 result = var_name + "[" + boost::lexical_cast<std::string>(var_pos) + "]";
+				 result = var_name + "[" + Gem::Common::to_string(var_pos) + "]";
 			 }
 				 break;
 

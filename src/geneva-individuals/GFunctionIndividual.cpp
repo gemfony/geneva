@@ -1805,7 +1805,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 				if (initMode::INITPERIMETER == iM_) { *gdo_ptr = minVar_; }
 
 				gdo_ptr->addAdaptor(gat_ptr);
-				gdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
+				gdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
 
 				gdoc_ptr->push_back(gdo_ptr);
 			}
@@ -1825,7 +1825,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 				if (initMode::INITPERIMETER == iM_) { *gcdo_ptr = minVar_; }
 
 				gcdo_ptr->addAdaptor(gat_ptr);
-				gcdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
+				gcdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
 
 				gcdoc_ptr->push_back(gcdo_ptr);
 			}
@@ -1842,7 +1842,7 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 				if (initMode::INITPERIMETER == iM_) { *gcdo_ptr = minVar_; }
 
 				gcdo_ptr->addAdaptor(gat_ptr);
-				gcdo_ptr->setParameterName(std::string("var") + boost::lexical_cast<std::string>(i));
+				gcdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
 
 				p->push_back(gcdo_ptr);
 			}

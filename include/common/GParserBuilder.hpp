@@ -85,6 +85,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GDefaultValueT.hpp"
 #include "common/GCommonHelperFunctions.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -1503,7 +1504,7 @@ protected:
 
 		 for (std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_par.size(); i++) {
 			 GArrayParT<parameter_type, N>::m_par.at(i) = pt.get(
-				 (GParsableI::optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".value").c_str(),
+				 (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
 				 GArrayParT<parameter_type, N>::m_def_val.at(i));
 		 }
 	 }
@@ -1547,9 +1548,9 @@ protected:
 
 		 // Add the value and default items
 		 for (std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_def_val.size(); i++) {
-			 pt.add((GParsableI::optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".default").c_str(),
+			 pt.add((GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".default").c_str(),
 				 GArrayParT<parameter_type, N>::m_def_val.at(i));
-			 pt.add((GParsableI::optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".value").c_str(),
+			 pt.add((GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
 				 GArrayParT<parameter_type, N>::m_par.at(i));
 		 }
 	 }
@@ -1630,7 +1631,7 @@ protected:
 
 		 for (std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_par.size(); i++) {
 			 GArrayParT<parameter_type, N>::m_par.at(i) = pt.get(
-				 (GParsableI::optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".value").c_str(),
+				 (GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
 				 GArrayParT<parameter_type, N>::m_def_val.at(i));
 		 }
 	 }
@@ -1674,9 +1675,9 @@ protected:
 
 		 // Add the value and default items
 		 for (std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_def_val.size(); i++) {
-			 pt.add((GParsableI::optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".default").c_str(),
+			 pt.add((GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".default").c_str(),
 				 GArrayParT<parameter_type, N>::m_def_val.at(i));
-			 pt.add((GParsableI::optionName(0) + "." + boost::lexical_cast<std::string>(i) + ".value").c_str(),
+			 pt.add((GParsableI::optionName(0) + "." + Gem::Common::to_string(i) + ".value").c_str(),
 				 GArrayParT<parameter_type, N>::m_par.at(i));
 		 }
 	 }
@@ -1766,7 +1767,7 @@ protected:
 	 virtual std::string content() const {
 		 std::ostringstream result;
 		 result << this->optionName() << " :\t" << m_stored_reference << "\t" <<
-				  ((m_stored_reference != m_def_val) ? "default: " + boost::lexical_cast<std::string>(m_def_val) : std::string(""));
+				  ((m_stored_reference != m_def_val) ? "default: " + Gem::Common::to_string(m_def_val) : std::string(""));
 		 return result.str();
 	 }
 

@@ -474,7 +474,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// If we are in serial networked client mode, start corresponding the client code
 	if((executionMode==GCPModes::EXTERNALSERIALNETWORKING || executionMode==GCPModes::THREAEDANDSERIALNETWORKING) && !serverMode) {
-		std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
+		std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>(ip, Gem::Common::to_string(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
 		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -488,7 +488,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// If we are in async networked client mode, start corresponding the client code
 	if((executionMode==GCPModes::EXTERNALASYNCNETWORKING || executionMode==GCPModes::THREAEDANDASYNCNETWORKING) && !serverMode) {
-		std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>(ip, boost::lexical_cast<std::string>(port)));
+		std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>(ip, Gem::Common::to_string(port)));
 
 		p->setMaxStalls(0); // An infinite number of stalled data retrievals
 		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
@@ -559,7 +559,7 @@ int main(int argc, char **argv) {
 			// Start the workers
 			clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", boost::lexical_cast<std::string>(port)));
+				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", Gem::Common::to_string(port)));
 				clients.push_back(p);
 
 				worker_gtg.create_thread( [p](){ p->run(); } );
@@ -590,7 +590,7 @@ int main(int argc, char **argv) {
 			// Start the workers
 			clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", boost::lexical_cast<std::string>(port)));
+				std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>("localhost", Gem::Common::to_string(port)));
 				clients.push_back(p);
 
 				worker_gtg.create_thread( [p](){ p->run(); } );
@@ -621,7 +621,7 @@ int main(int argc, char **argv) {
 			// Start the workers
 			clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-				std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>("localhost", boost::lexical_cast<std::string>(port)));
+				std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>("localhost", Gem::Common::to_string(port)));
 				clients.push_back(p);
 
 				worker_gtg.create_thread( [p](){ p->run(); } );
@@ -652,7 +652,7 @@ int main(int argc, char **argv) {
 			// Start the workers
 			clients.clear();
 			for(std::size_t worker=0; worker<nWorkers; worker++) {
-				std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>("localhost", boost::lexical_cast<std::string>(port)));
+				std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>("localhost", Gem::Common::to_string(port)));
 				clients.push_back(p);
 
 				worker_gtg.create_thread( [p](){ p->run(); } );

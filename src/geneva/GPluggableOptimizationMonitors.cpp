@@ -399,7 +399,7 @@ void GFitnessMonitor::informationFunction(
 					std::shared_ptr <Gem::Common::GGraph2D> global_graph(new Gem::Common::GGraph2D());
 					global_graph->setXAxisLabel("Iteration");
 					global_graph->setYAxisLabel("Best Fitness");
-					global_graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
+					global_graph->setPlotLabel(std::string("Individual ") + Gem::Common::to_string(ind));
 					global_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
 					m_globalFitnessGraphVec.push_back(global_graph);
@@ -407,7 +407,7 @@ void GFitnessMonitor::informationFunction(
 					std::shared_ptr <Gem::Common::GGraph2D> iteration_graph(new Gem::Common::GGraph2D());
 					iteration_graph->setXAxisLabel("Iteration");
 					iteration_graph->setYAxisLabel("Best Fitness");
-					iteration_graph->setPlotLabel(std::string("Individual ") + boost::lexical_cast<std::string>(ind));
+					iteration_graph->setPlotLabel(std::string("Individual ") + Gem::Common::to_string(ind));
 					iteration_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
 					m_iterationFitnessGraphVec.push_back(iteration_graph);
@@ -1087,7 +1087,7 @@ void GAllSolutionFileLogger::informationFunction(
 
 		case Gem::Geneva::infoMode::INFOPROCESSING:
 		{
-			this->printPopulation("At end of iteration " + boost::lexical_cast<std::string>(goa->getIteration()), goa);
+			this->printPopulation("At end of iteration " + Gem::Common::to_string(goa->getIteration()), goa);
 		}
 			break;
 

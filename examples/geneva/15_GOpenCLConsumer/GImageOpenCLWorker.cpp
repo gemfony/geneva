@@ -293,11 +293,11 @@ void GImageOpenCLWorker::initKernels(std::shared_ptr<GParameterSet> p) {
  */
 std::string GImageOpenCLWorker::getCompilerOptions() const {
 	std::string compilerOptions =
-		" -DNTRIANGLES=" + boost::lexical_cast<std::string>(nTriangles_)
-		+ " -DXDIM=" + boost::lexical_cast<std::string>(dimX_)
-		+ " -DYDIM=" + boost::lexical_cast<std::string>(dimY_)
-		+ " -DXDIMINV=" + boost::lexical_cast<std::string>(1.f/float(dimX_))
-		+ " -DYDIMINV=" + boost::lexical_cast<std::string>(1.f/float(dimY_))
+		" -DNTRIANGLES=" + Gem::Common::to_string(nTriangles_)
+		+ " -DXDIM=" + Gem::Common::to_string(dimX_)
+		+ " -DYDIM=" + Gem::Common::to_string(dimY_)
+		+ " -DXDIMINV=" + Gem::Common::to_string(1.f/float(dimX_))
+		+ " -DYDIMINV=" + Gem::Common::to_string(1.f/float(dimY_))
 		+ Gem::Courtier::GOpenCLWorkerT<GParameterSet>::getCompilerOptions();
 
 	return compilerOptions;

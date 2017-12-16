@@ -104,6 +104,7 @@
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GErrorStreamer.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctions.hpp"
 
 namespace Gem {
@@ -158,7 +159,7 @@ class acos_invalid_range : public math_logic_error {
 public:
 	/** @brief The standard constructor */
 	acos_invalid_range(const fp_type &val) throw()
-		: math_logic_error(std::string("acos: Value ") + boost::lexical_cast<std::string>(val) +
+		: math_logic_error(std::string("acos: Value ") + Gem::Common::to_string(val) +
 								 std::string(" out of valid range [-1:1] in GFormulaParserT"))
 	{ /* nothing */ }
 
@@ -181,7 +182,7 @@ class asin_invalid_range : public math_logic_error {
 public:
 	/** @brief The standard constructor */
 	asin_invalid_range(const fp_type &val) throw()
-		: math_logic_error(std::string("asin: Value ") + boost::lexical_cast<std::string>(val) +
+		: math_logic_error(std::string("asin: Value ") + Gem::Common::to_string(val) +
 								 std::string(" out of valid range [-1:1] in GFormulaParserT")) { /* nothing */ }
 
 	/** @brief The destructor */
@@ -204,7 +205,7 @@ class log_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
 	log_negative_value(const fp_type &val) throw()
-		: math_logic_error(std::string("log: Value ") + boost::lexical_cast<std::string>(val) +
+		: math_logic_error(std::string("log: Value ") + Gem::Common::to_string(val) +
 								 std::string(" <= 0 in GFormulaParserT"))
 	{ /* nothing */ }
 
@@ -227,7 +228,7 @@ class log10_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
 	log10_negative_value(const fp_type &val) throw()
-		: math_logic_error(std::string("log10: Value ") + boost::lexical_cast<std::string>(val) +
+		: math_logic_error(std::string("log10: Value ") + Gem::Common::to_string(val) +
 								 std::string(" <= 0  in GFormulaParserT"))
 	{ /* nothing */ }
 
@@ -250,7 +251,7 @@ class sqrt_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
 	sqrt_negative_value(const fp_type &val) throw()
-		: math_logic_error(std::string("sqrt: Value ") + boost::lexical_cast<std::string>(val) +
+		: math_logic_error(std::string("sqrt: Value ") + Gem::Common::to_string(val) +
 								 std::string(" < 0  in GFormulaParserT")) { /* nothing */ }
 
 	/** @brief The destructor */
@@ -703,7 +704,7 @@ private:
 			key = cit->first;
 
 			if (1 == (cit->second).size()) { // Try just the key
-				value = boost::lexical_cast<std::string>((cit->second).at(0));
+				value = Gem::Common::to_string((cit->second).at(0));
 				re = boost::xpressive::as_xpr("{{" + key + "}}");
 				formula = boost::xpressive::regex_replace(formula, re, value);
 
@@ -711,8 +712,8 @@ private:
 				std::size_t cnt = 0;
 				typename std::vector<fp_type>::const_iterator v_cit;
 				for (v_cit = (cit->second).begin(); v_cit != (cit->second).end(); ++v_cit) {
-					value = boost::lexical_cast<std::string>(*v_cit);
-					re = boost::xpressive::as_xpr("{{" + key + "[" + boost::lexical_cast<std::string>(cnt++) + "]" + "}}");
+					value = Gem::Common::to_string(*v_cit);
+					re = boost::xpressive::as_xpr("{{" + key + "[" + Gem::Common::to_string(cnt++) + "]" + "}}");
 					formula = boost::xpressive::regex_replace(formula, re, value);
 				}
 			} else { // The vector is empty

@@ -257,8 +257,8 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 	this->toPropertyTree(ptr_out, basename);
 
 	// Create a suitable extension and exchange file names for this object
-	std::string extension = std::string("-") + boost::lexical_cast<std::string>(this->getAssignedIteration()) + "-" +
-									boost::lexical_cast<std::string>(this);
+	std::string extension = std::string("-") + Gem::Common::to_string(this->getAssignedIteration()) + "-" +
+									Gem::Common::to_string(this);
 	std::string parameterfileName = m_parameter_file_base_name + extension + ".xml";
 	std::string resultFileName = std::string("result") + extension + ".xml";
 	std::string commandOutputFileName = std::string("commandOutput") + extension + ".txt";
@@ -386,7 +386,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 			double currentResult = 0.;
 			std::string resultString;
 			for (std::size_t res = 0; res < m_n_results; res++) {
-				resultString = std::string("rawResult") + boost::lexical_cast<std::string>(res);
+				resultString = std::string("rawResult") + Gem::Common::to_string(res);
 
 				currentResult = resultsNode.get<double>(resultString);
 
@@ -1177,7 +1177,7 @@ void GExternalEvaluatorIndividualFactory::archive(
 			end();
 
 		++cit) {
-		basename = batch + ".individuals.individual" + boost::lexical_cast<std::string>(pos++);
+		basename = batch + ".individuals.individual" + Gem::Common::to_string(pos++);
 		(*cit)->
 			toPropertyTree(ptr_out, basename
 		);
@@ -1195,8 +1195,8 @@ void GExternalEvaluatorIndividualFactory::archive(
 	std::chrono::milliseconds ms_since_1970 = std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
 	std::string extension =
 		"-since1970-"
-		+ boost::lexical_cast<std::string>(ms_since_1970.count())
-		+ boost::lexical_cast<std::string>(boost::uuids::random_generator()()) + ".xml";
+		+ Gem::Common::to_string(ms_since_1970.count())
+		+ Gem::Common::to_string(boost::uuids::random_generator()()) + ".xml";
 	std::string parameterfileName = m_parameterFileBaseName.value() + extension;
 
 // Save the parameters to a file for the external evaluation
@@ -1459,7 +1459,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 
 		// "/" will be converted to "\" in runExternalCommand, if necessary
 		std::string setupFileName =
-			std::string("./setup-") + boost::lexical_cast<std::string>(this) + std::string(".xml");
+			std::string("./setup-") + Gem::Common::to_string(this) + std::string(".xml");
 		arguments.push_back("--setup");
 		arguments.push_back("--output=\"" + setupFileName + "\"");
 		arguments.push_back("--initvalues=\"" + m_initValues.value() + "\"");
@@ -1626,7 +1626,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 					}
 					else {
 						varString =
-							std::string("var") + boost::lexical_cast<std::string>(varCounter); // Create a new var string
+							std::string("var") + Gem::Common::to_string(varCounter); // Create a new var string
 					}
 				}
 			}
@@ -1665,7 +1665,7 @@ void GExternalEvaluatorIndividualFactory::postProcess_(std::shared_ptr < GParame
 					if (++boundsCounter >= nBounds) {
 						break; // Terminate the loop if we have identified all expected boundaries
 					} else {
-						boundString = std::string("bound") + boost::lexical_cast<std::string>(boundsCounter);
+						boundString = std::string("bound") + Gem::Common::to_string(boundsCounter);
 					}
 				}
 			}

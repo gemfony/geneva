@@ -84,12 +84,12 @@ public:
 		 , const std::string &configFile
 	 )
 		 : GStdThreadConsumerT<processable_type>::GWorker()
-		 , device_(1, device)
-		 , context_(device_)
-		 , queue_(context_, device_[0], CL_QUEUE_PROFILING_ENABLE)
-		 , configFile_(configFile)
-		 , codeFile_()
-		 , workGroupSize_(0)
+		 , m_device(1, device)
+		 , m_context(m_device)
+		 , m_queue(m_context, m_device[0], CL_QUEUE_PROFILING_ENABLE)
+		 , m_configFile(configFile)
+		 , m_codeFile()
+		 , m_workGroupSize(0)
 	 { /* nothing */ }
 
 protected:
@@ -106,12 +106,12 @@ protected:
 		 , const GStdThreadConsumerT <processable_type> *c_ptr
 	 )
 		 : GStdThreadConsumerT<processable_type>::GWorker(cp, thread_id, c_ptr)
-		 , device_(cp.device_)
-		 , context_(device_)
-		 , queue_(context_, device_[0], CL_QUEUE_PROFILING_ENABLE)
-		 , configFile_(cp.configFile_)
-		 , codeFile_(cp.codeFile_)
-		 , workGroupSize_(cp.workGroupSize_)
+		 , m_device(cp.m_device)
+		 , m_context(m_device)
+		 , m_queue(m_context, m_device[0], CL_QUEUE_PROFILING_ENABLE)
+		 , m_configFile(cp.m_configFile)
+		 , m_codeFile(cp.m_codeFile)
+		 , m_workGroupSize(cp.m_workGroupSize)
 	 // Many variables are further initialized in initOpenCLProgram() via processInit()
 	 { /* nothing */ }
 
@@ -147,7 +147,7 @@ protected:
 	 virtual void processInit(std::shared_ptr<processable_type> p)
 	 {
 		 // Load local options
-		 this->parseConfigFile(configFile_);
+		 this->parseConfigFile(m_configFile);
 
 		 // Perform preparatory work needed for the compilation of the OpenCL program
 		 this->initOpenCL(p);
@@ -173,7 +173,7 @@ protected:
 	 virtual std::string getCompilerOptions() const
 	 {
 		 std::string compilerOptions =
-			 " -DWORKGROUPSIZE=" + boost::lexical_cast<std::string>(workGroupSize_) + " -cl-fast-relaxed-math";
+			 " -DWORKGROUPSIZE=" + Gem::Common::to_string(m_workGroupSize) + " -cl-fast-relaxed-math";
 		 return compilerOptions;
 	 }
 
@@ -192,7 +192,7 @@ protected:
 		 comment += "The name of the file holding the OpenCL code;";
 		 gpb.registerFileParameter<std::string>(
 			 "codeFile"
-			 , codeFile_
+			 , m_codeFile
 			 , GOCLWT_DEF_CODEFILE
 			 , Gem::Common::VAR_IS_ESSENTIAL
 			 , comment
@@ -202,7 +202,7 @@ protected:
 		 comment += "The size of each work group;";
 		 gpb.registerFileParameter<std::size_t>(
 			 "workGroupSize"
-			 , workGroupSize_
+			 , m_workGroupSize
 			 , GOCLWT_DEF_WGS
 			 , Gem::Common::VAR_IS_ESSENTIAL
 			 , comment
@@ -235,18 +235,18 @@ protected:
 	  * The device we are supposed to act on. It is stored in a std::vector for
 	  * simplicity reasons, so we can more easily initialize the context_ .
 	  */
-	 const std::vector<cl::Device> device_;
-	 cl::Context context_; ///< The OpenCL context the class should act on
-	 cl::CommandQueue queue_; ///< A queue that is attached to a specific device
+	 const std::vector<cl::Device> m_device;
+	 cl::Context m_context; ///< The OpenCL context the class should act on
+	 cl::CommandQueue m_queue; ///< A queue that is attached to a specific device
 
-	 std::string configFile_; ///< The name of a configuration file
-	 std::string codeFile_; ///< The file holding the OpenCL code
-	 std::size_t workGroupSize_; ///< The number of items in each work group
+	 std::string m_configFile; ///< The name of a configuration file
+	 std::string m_codeFile; ///< The file holding the OpenCL code
+	 std::size_t m_workGroupSize; ///< The number of items in each work group
 
-	 cl::Program::Sources source_; ///< The program sources
-	 cl::Program program_; ///< The actual program object
+	 cl::Program::Sources m_source; ///< The program sources
+	 cl::Program m_program; ///< The actual program object
 
-	 cl::Event event_; ///< Synchronization in the OpenCL context
+	 cl::Event m_event; ///< Synchronization in the OpenCL context
 
 private:
 	 /***************************************************************************/
@@ -257,19 +257,19 @@ private:
 	 {
 		 try {
 			 // Initialize the program object
-			 std::string openCLSource = Gem::Common::loadTextDataFromFile(codeFile_);
-			 source_ = cl::Program::Sources(
+			 std::string openCLSource = Gem::Common::loadTextDataFromFile(m_codeFile);
+			 m_source = cl::Program::Sources(
 				 1
 				 , std::make_pair(
 					 openCLSource.c_str()
 					 , openCLSource.length() + 1
 				 ));
-			 program_ = cl::Program(
-				 context_
-				 , source_
+			 m_program = cl::Program(
+				 m_context
+				 , m_source
 			 );
-			 program_.build(
-				 device_
+			 m_program.build(
+				 m_device
 				 , (this->getCompilerOptions()).c_str());
 		 } catch (cl::Error &err) {
 			 std::cerr << "Error! " << err.what() << std::endl;

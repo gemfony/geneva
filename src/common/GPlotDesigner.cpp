@@ -371,10 +371,10 @@ std::string GBasePlotter::suffix(bool isSecondary, std::size_t pId) const {
 	std::string result;
 
 	if (!isSecondary) {
-		result = std::string("_") + boost::lexical_cast<std::string>(this->id());
+		result = std::string("_") + Gem::Common::to_string(this->id());
 	} else {
-		result = std::string("_") + boost::lexical_cast<std::string>(pId) + std::string("_") +
-					boost::lexical_cast<std::string>(this->id());
+		result = std::string("_") + Gem::Common::to_string(pId) + std::string("_") +
+					Gem::Common::to_string(this->id());
 	}
 
 	return result;
@@ -689,8 +689,8 @@ std::string GGraph2D::headerData_(
 	}
 
 	header_data
-		<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
-		<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
+		<< indent << "double " << xArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
+		<< indent << "double " << yArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
 		<< std::endl;
 
 	return header_data.str();
@@ -983,10 +983,10 @@ std::string GGraph2ED::headerData_(
 	}
 
 	header_data
-		<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << comment << std::endl
-		<< indent << "double " << exArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
-		<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
-		<< indent << "double " << eyArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
+		<< indent << "double " << xArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << comment << std::endl
+		<< indent << "double " << exArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << yArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << eyArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
 		<< std::endl;
 
 	return header_data.str();
@@ -1258,9 +1258,9 @@ std::string GGraph3D::headerData_(
 	}
 
 	header_data
-		<< indent << "double " << xArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
-		<< indent << "double " << yArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
-		<< indent << "double " << zArrayName << "[" << boost::lexical_cast<std::string>(m_data.size()) << "];" << std::endl
+		<< indent << "double " << xArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
+		<< indent << "double " << yArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << zArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
 		<< std::endl;
 
 	return header_data.str();
@@ -1694,7 +1694,7 @@ std::string GGraph4D::footerData_(
 	std::vector<std::tuple<double, double, double, double>>::const_iterator it;
 	for (it = localData.begin(); it != localData.end(); ++it) {
 		std::string polyMarkerName =
-			std::string("pm3d_") + baseName + std::string("_") + boost::lexical_cast<std::string>(pos);
+			std::string("pm3d_") + baseName + std::string("_") + Gem::Common::to_string(pos);
 
 		// create a TPolyMarker3D for a single data point
 		footer_data

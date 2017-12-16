@@ -272,7 +272,7 @@ public:
 		 std::size_t pos;
 		 for(cit=this->begin(); cit!=this->end(); ++cit) {
 			 pos = std::distance(this->begin(), cit);
-			 ptr.put(baseName + "values.value" + boost::lexical_cast<std::string>(pos), *cit);
+			 ptr.put(baseName + "values.value" + Gem::Common::to_string(pos), *cit);
 		 }
 		 ptr.put(baseName + ".initRandom", false); // Unused for the creation of a property tree
 		 ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());

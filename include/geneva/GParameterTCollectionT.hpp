@@ -268,7 +268,7 @@ public:
 		 typename GParameterTCollectionT<T>::const_iterator cit;
 		 for(cit=this->begin(); cit!=this->end(); ++cit) {
 			 pos = cit - this->begin();
-			 base = baseName + ".values.value" + boost::lexical_cast<std::string>(pos);
+			 base = baseName + ".values.value" + Gem::Common::to_string(pos);
 			 (*cit)->toPropertyTree(ptr, base);
 		 }
 	 }

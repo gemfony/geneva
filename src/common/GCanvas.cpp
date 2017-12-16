@@ -128,7 +128,7 @@ float triangle_circle_struct::getAlphaValue() const {
  * Translate to a string
  */
 std::string triangle_circle_struct::toString() const {
-	return boost::lexical_cast<std::string>(*this);
+	return Gem::Common::to_string(*this);
 }
 
 /******************************************************************************/

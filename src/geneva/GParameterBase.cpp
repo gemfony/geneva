@@ -46,7 +46,7 @@ GParameterBase::GParameterBase()
 	  , GMutableParameterI()
 	  , adaptionsActive_(true)
 	  , randomInitializationBlocked_(false)
-	  , parameterName_(boost::lexical_cast<std::string>(boost::uuids::random_generator()()))
+	  , parameterName_(Gem::Common::to_string(boost::uuids::random_generator()()))
 { /* nothing */ }
 
 /******************************************************************************/
