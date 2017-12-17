@@ -161,19 +161,10 @@ public:
 	 /** @brief Specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization (maxMode::MINIMIZE) mode */
 	 G_API_GENEVA void setMaxMode(const maxMode&);
 
-	 /** @brief Provides access to all data stored in the individual in a user defined selection */
-	 virtual G_API_GENEVA void custom_streamline(std::vector<boost::any>&) BASE;
-
 	 /** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
 	 G_API_GENEVA void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const BASE;
 	 /** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
 	 G_API_GENEVA std::string toCSV(bool=false, bool=true, bool=true, bool=true) const;
-
-	 /** @brief Retrieves a parameter of a given type at the specified position */
-	 virtual G_API_GENEVA boost::any getVarVal(
-		 const std::string&
-		 , const std::tuple<std::size_t, std::string, std::size_t>& target
-	 ) BASE;
 
 	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	 G_API_GENEVA Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference at(const std::size_t& pos);
@@ -207,25 +198,19 @@ public:
 	 /** @brief The adaption interface */
 	 G_API_GENEVA std::size_t adapt() override;
 
-	 /** @brief Returns the raw result of the fitness function with id 0 */
-	 G_API_GENEVA double fitness() const override;
 	 /** @brief Returns the raw result of a fitness function with a given id */
-	 G_API_GENEVA double fitness(const std::size_t&) const override;
+	 G_API_GENEVA double fitness(std::size_t = 0) const override;
 
 	 /** @brief Calculate or returns the result of a fitness function with a given id */
-	 G_API_GENEVA double fitness(const std::size_t&, bool, bool) override;
+	 G_API_GENEVA double fitness(std::size_t, bool, bool) override;
 	 /** @brief Calculate or returns the result of a fitness function with a given id */
-	 G_API_GENEVA double fitness(const std::size_t&, bool, bool) const override;
+	 G_API_GENEVA double fitness(std::size_t, bool, bool) const override;
 
-	 /** @brief Returns the transformed result of the fitness function with id 0 */
-	 G_API_GENEVA double transformedFitness() const override;
 	 /** @brief Returns the transformed result of a fitness function with a given id */
-	 G_API_GENEVA double transformedFitness(const std::size_t&) const override;
+	 G_API_GENEVA double transformedFitness(std::size_t = 0) const override;
 
 	 /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-	 G_API_GENEVA double minOnly_fitness() const override;
-	 /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-	 G_API_GENEVA double minOnly_fitness(const std::size_t&) const override;
+	 G_API_GENEVA double minOnly_fitness(std::size_t = 0) const override;
 
 	 /** @brief Returns all raw fitness results in a std::vector */
 	 G_API_GENEVA std::vector<double> fitnessVec() const override;
@@ -235,12 +220,12 @@ public:
 	 G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
 
 	 /** @brief A wrapper for the non-const fitness function, so we can bind to it */
-	 G_API_GENEVA double nonConstFitness(const std::size_t&, bool, bool);
+	 G_API_GENEVA double nonConstFitness(std::size_t, bool, bool);
 	 /** @brief A wrapper for the const fitness function, so we can bind to it */
-	 G_API_GENEVA double constFitness(const std::size_t&, bool, bool) const;
+	 G_API_GENEVA double constFitness(std::size_t, bool, bool) const;
 
 	 /** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	 G_API_GENEVA double getCachedFitness(const std::size_t& = 0, const bool& = USETRANSFORMEDFITNESS) const;
+	 G_API_GENEVA double getCachedFitness(std::size_t = 0, bool = USETRANSFORMEDFITNESS) const;
 
 	 /** @brief Enforce fitness (re-)calculation */
 	 G_API_GENEVA void enforceFitnessUpdate(std::function<std::vector<double>()> =  std::function<std::vector<double>()>());
@@ -286,9 +271,9 @@ public:
 	 /** @brief Sets the barrier variable (used for the sigmoid transformation) */
 	 G_API_GENEVA void setBarrier(double);
 
-	 /** @brief Sets the maximum number of calls to customAdaptions() that may pass without actual modifications */
+	 /** @brief Sets the maximum number of adaption attempts that may pass without actual modifications */
 	 G_API_GENEVA void setMaxUnsuccessfulAdaptions(std::size_t);
-	 /** @brief Retrieves the maximum number of calls to customAdaptions that may pass without actual modifications */
+	 /** @brief Retrieves the maximum number of adaption attempts that may pass without actual modifications */
 	 G_API_GENEVA std::size_t getMaxUnsuccessfulAdaptions() const;
 
 	 /** @brief Set maximum number of retries until a valid individual was found  */
@@ -884,7 +869,7 @@ protected:
 	 virtual G_API_GENEVA std::size_t customAdaptions() BASE ;
 
 	 /** @brief The fitness calculation for the main quality criterion takes place here */
-	 virtual G_API_GENEVA double fitnessCalculation() BASE;
+	 virtual G_API_GENEVA double fitnessCalculation() BASE = 0;
 	 /** @brief Sets the fitness to a given set of values and clears the dirty flag */
 	 G_API_GENEVA void setFitness_(const std::vector<double>&);
 
@@ -910,8 +895,15 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Retrieves a parameter of a given type at the specified position */
+	 G_API_GENEVA boost::any getVarVal(
+		 const std::string&
+		 , const std::tuple<std::size_t, std::string, std::size_t>& target
+	 );
+
+	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  GObject* clone_() const override = 0;
 
 	 /** @brief Checks whether all results are at the worst possible value */
 	 bool allRawResultsAtWorst() const;

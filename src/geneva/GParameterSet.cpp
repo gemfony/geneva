@@ -184,20 +184,6 @@ void GParameterSet::setMaxMode(const maxMode& mode) {
 	m_maxmode = mode;
 }
 
-/* ----------------------------------------------------------------------------------
- * So far untested
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Provides access to all data stored in the individual in a user defined selection
- *
- * @param var_vec A std::vector of user-defined types
- */
-void GParameterSet::custom_streamline(std::vector<boost::any>&)
-{ /* nothing -- override in user-code */ }
-
 /******************************************************************************/
 /**
  * Transformation of the individual's parameter objects into a boost::property_tree object
@@ -415,45 +401,6 @@ std::string GParameterSet::toCSV(
 	result << std::endl;
 
 	return result.str();
-}
-
-/******************************************************************************/
-/**
- * Emits a name for this class / object
- *
- * @return The name of this class / object
- */
-std::string GParameterSet::name() const {
-	return std::string("GParameterSet");
-}
-
-/******************************************************************************/
-/**
- * Retrieves a parameter of a given type at the specified position
- */
-boost::any GParameterSet::getVarVal(
-	const std::string &descr
-	, const std::tuple<std::size_t, std::string, std::size_t> &target
-) {
-	boost::any result;
-
-	if (descr == "d") {
-		result = GParameterSet::getVarItem<double>(target);
-	} else if (descr == "f") {
-		result = GParameterSet::getVarItem<float>(target);
-	} else if (descr == "i") {
-		result = GParameterSet::getVarItem<std::int32_t>(target);
-	} else if (descr == "b") {
-		result = GParameterSet::getVarItem<bool>(target);
-	} else {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::getVarVal(): Error!" << std::endl
-				<< "Received invalid type description" << std::endl
-		);
-	}
-
-	return result;
 }
 
 /******************************************************************************/
@@ -765,11 +712,8 @@ std::size_t GParameterSet::adapt() {
 		// adaption probabilities combined with few parameters, it may happen
 		// otherwise that individuals remain unchanged after a call to adapt()
 		while (true) { // Try again if no adaption has taken place
-			// Perform the actual adaption
-			nAdaptions = this->customAdaptions();
-
-			// Terminate, if at least one adaption was performed
-			if (nAdaptions > 0) {
+			// Perform the actual adaption; Terminate, if at least one adaption was performed
+			if ((nAdaptions = this->customAdaptions()) > 0) {
 				break;
 			}
 
@@ -788,7 +732,9 @@ std::size_t GParameterSet::adapt() {
 	}
 
 	// Make sure the individual is re-evaluated when fitness(...) is called next time
-	this->setDirtyFlag();
+	if(nAdaptions > 0) {
+		this->setDirtyFlag();
+	}
 
 	// Store the number of adaptions for later use and let the audience know
 	return (m_n_adaptions=nAdaptions);
@@ -801,21 +747,11 @@ std::size_t GParameterSet::adapt() {
 
 /******************************************************************************/
 /**
- * Returns the cached result of the fitness function with id 0. This function
- * will always return the raw fitness, as it is likely the one called by users
- * directly -- they will expect untransformed values. This is the const version
- */
-double GParameterSet::fitness() const {
-	return fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
-}
-
-/******************************************************************************/
-/**
  * Calculate or returns the result of a fitness function with a given id.This
  * function will always return the raw fitness, as it is likely the one called by users
  * directly -- they will expect untransformed values. This is the const version
  */
-double GParameterSet::fitness(const std::size_t &id) const {
+double GParameterSet::fitness(std::size_t id) const {
 	return fitness(id, PREVENTREEVALUATION, USERAWFITNESS);
 }
 
@@ -833,7 +769,7 @@ double GParameterSet::fitness(const std::size_t &id) const {
  * @return The fitness of this individual
  */
 double GParameterSet::fitness(
-	const std::size_t &id
+	std::size_t id
 	, bool reevaluationAllowed
 	, bool useTransformedFitness
 ) {
@@ -885,7 +821,7 @@ double GParameterSet::fitness(
  * @return The fitness of this individual
  */
 double GParameterSet::fitness(
-	const std::size_t &id
+	std::size_t id
 	, bool reevaluationAllowed
 	, bool useTransformedFitness
 ) const {
@@ -908,15 +844,7 @@ double GParameterSet::fitness(
 /**
  * Returns the transformed result of the fitness function with id 0
  */
-double GParameterSet::transformedFitness() const {
-	return this->transformedFitness(0);
-}
-
-/******************************************************************************/
-/**
- * Returns the transformed result of the fitness function with id 0
- */
-double GParameterSet::transformedFitness(const std::size_t &id) const {
+double GParameterSet::transformedFitness(std::size_t id) const {
 	return fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 }
 
@@ -924,15 +852,7 @@ double GParameterSet::transformedFitness(const std::size_t &id) const {
 /**
  * Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization
  */
-double GParameterSet::minOnly_fitness() const {
-	return this->minOnly_fitness(0);
-}
-
-/******************************************************************************/
-/**
- * Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization
- */
-double GParameterSet::minOnly_fitness(const std::size_t &id) const {
+double GParameterSet::minOnly_fitness(std::size_t id) const {
 	double f = fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
 	if (maxMode::MAXIMIZE == this->getMaxMode()) { // Negation will transform maximization problems into minimization problems
@@ -1004,7 +924,9 @@ std::vector<double> GParameterSet::transformedFitnessVec() const {
  * overload of the fitness() function.
  */
 double GParameterSet::nonConstFitness(
-	const std::size_t &id, bool reevaluationAllowed, bool useTransformedFitness
+	std::size_t id
+	, bool reevaluationAllowed
+	, bool useTransformedFitness
 ) {
 	return this->fitness(id, reevaluationAllowed, useTransformedFitness);
 }
@@ -1016,7 +938,9 @@ double GParameterSet::nonConstFitness(
  * overload of the fitness() function.
  */
 double GParameterSet::constFitness(
-	const std::size_t &id, bool reevaluationAllowed, bool useTransformedFitness
+	std::size_t id
+	, bool reevaluationAllowed
+	, bool useTransformedFitness
 ) const {
 	return this->fitness(id, reevaluationAllowed, useTransformedFitness);
 }
@@ -1026,7 +950,8 @@ double GParameterSet::constFitness(
  * Retrieve the current (not necessarily up-to-date) fitness
  */
 double GParameterSet::getCachedFitness(
-	const std::size_t &id, const bool &useTransformedFitness
+	std::size_t id
+	, bool useTransformedFitness
 ) const {
 	if (useTransformedFitness) {
 		return std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(id));
@@ -1442,7 +1367,7 @@ void GParameterSet::setBarrier(double barrier) {
 
 /******************************************************************************/
 /**
- * Sets the maximum number of calls to customAdaptions() that may pass without
+ * Sets the maximum number of adaption attempts that may pass without
  * actual modifications. Setting this to 0 disables this check. You should only
  * do this if you are sure that an adaption will eventually happen. Otherwise
  * you would get an endless loop.
@@ -1453,7 +1378,7 @@ void GParameterSet::setMaxUnsuccessfulAdaptions(std::size_t maxUnsuccessfulAdapt
 
 /******************************************************************************/
 /**
- * Retrieves the maximum number of calls to customAdaptions that may pass without
+ * Retrieves the maximum number of adaption attempts that may pass without
  * actual modifications
  */
 std::size_t GParameterSet::getMaxUnsuccessfulAdaptions() const {
@@ -1731,6 +1656,16 @@ void GParameterSet::addConfigurationOptions(
 		, [this](double piel) { this->setPerItemCrossOverProbability(piel); }
 	)
 		<< "The likelihood for two data items to be exchanged";
+}
+
+/******************************************************************************/
+/**
+ * Emits a name for this class / object
+ *
+ * @return The name of this class / object
+ */
+std::string GParameterSet::name() const {
+	return std::string("GParameterSet");
 }
 
 /******************************************************************************/
@@ -2155,8 +2090,6 @@ bool GParameterSet::randomInit_(const activityMode &am) {
  */
 std::size_t GParameterSet::customAdaptions() {
 	std::size_t nAdaptions = 0;
-
-	GParameterSet::iterator it;
 	for (const auto& par_ptr: *this) {
 		nAdaptions += par_ptr->adapt(m_gr);
 	}
@@ -2171,21 +2104,21 @@ std::size_t GParameterSet::customAdaptions() {
 
 /******************************************************************************/
 /**
- * The actual fitness calculation takes place here. Note: This function is a trap. You need to overload
- * this function in derived classes.
+ * The actual fitness calculation takes place here. Note: This function is a trap.
+ * You need to overload this function in derived classes.
  *
  * @return The fitness of this object
  */
-double GParameterSet::fitnessCalculation() {
-	throw gemfony_exception(
-		g_error_streamer(DO_LOG,  time_and_place)
-			<< "In GParameterSet::fitnessCalculation()" << std::endl
-			<< "Function called directly which should not happen" << std::endl
-	);
-
-	// Make the compiler happy
-	return 0.;
-}
+//double GParameterSet::fitnessCalculation() {
+//	throw gemfony_exception(
+//		g_error_streamer(DO_LOG,  time_and_place)
+//			<< "In GParameterSet::fitnessCalculation()" << std::endl
+//			<< "Function called directly which should not happen" << std::endl
+//	);
+//
+//	// Make the compiler happy
+//	return 0.;
+//}
 
 /******************************************************************************/
 /**
@@ -2386,12 +2319,31 @@ bool GParameterSet::parameterSetFulfillsConstraints(double &validityLevel) const
 
 /******************************************************************************/
 /**
- * Creates a deep clone of this object
- *
- * @return A deep clone of this object
+ * Retrieves a parameter of a given type at the specified position
  */
-GObject *GParameterSet::clone_() const {
-	return new GParameterSet(*this);
+boost::any GParameterSet::getVarVal(
+	const std::string &descr
+	, const std::tuple<std::size_t, std::string, std::size_t> &target
+) {
+	boost::any result;
+
+	if (descr == "d") {
+		result = GParameterSet::getVarItem<double>(target);
+	} else if (descr == "f") {
+		result = GParameterSet::getVarItem<float>(target);
+	} else if (descr == "i") {
+		result = GParameterSet::getVarItem<std::int32_t>(target);
+	} else if (descr == "b") {
+		result = GParameterSet::getVarItem<bool>(target);
+	} else {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In GParameterSet::getVarVal(): Error!" << std::endl
+				<< "Received invalid type description" << std::endl
+		);
+	}
+
+	return result;
 }
 
 /******************************************************************************/

@@ -65,7 +65,6 @@ using namespace boost::unit_test;
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.hpp"
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
-#include "geneva/GParameterSet.hpp"
 #include "geneva/GTestIndividual1.hpp"
 #include "geneva-individuals/GTestIndividual3.hpp"
 #include "geneva-individuals/GFunctionIndividual.hpp"
@@ -117,7 +116,6 @@ public:
 			, GDoubleCollection
 			, GBooleanCollection
 			, GConstrainedDoubleCollection
-			, GParameterSet
 		>;
 
 		// TODO: Add tests for algorithm types

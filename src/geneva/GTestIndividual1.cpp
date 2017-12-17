@@ -348,7 +348,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(*p_test2 == *p_test1);
 
 		// Modify p_test2
-		BOOST_CHECK_NO_THROW(p_test2->adapt());
+		std::size_t nAdaptions = 0;
+		BOOST_CHECK_NO_THROW(nAdaptions = p_test2->adapt());
+		// Make sure adaptions were indeed performed
+		BOOST_CHECK(nAdaptions > 0);
 		// Check that it is dirty
 		BOOST_CHECK(p_test2->isDirty());
 		// Check that p_test1 is not dirty

@@ -364,7 +364,7 @@ public:
 	 /**
 	  * Removes the best item from the queue and returns it
 	  */
-	 T pop() {
+	 std::shared_ptr<T> pop() {
 		 if (m_data.empty()) {
 			 // Throw an exception
 			 throw gemfony_exception(
@@ -374,11 +374,11 @@ public:
 			 );
 
 			 // Make the compiler happy
-			 return (T) 0;
+			 return std::shared_ptr<T>();
 		 } else {
-			 T item = m_data.front();
+			 auto item_ptr = m_data.front();
 			 m_data.pop_front();
-			 return item;
+			 return item_ptr;
 		 }
 	 }
 

@@ -58,25 +58,19 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA G_Interface_Rateable() = default;
 
-	 /** @brief Retrieve a value for this class, using a fixed fitness function */
-	 virtual G_API_GENEVA double fitness() const BASE = 0;
 	 /** @brief Retrieve a value for this class, using a fitness function with a given id */
-	 virtual G_API_GENEVA double fitness(const std::size_t&) const BASE = 0;
+	 virtual G_API_GENEVA double fitness(std::size_t) const BASE = 0;
 
 	 /** @brief Returns the transformed result of the fitness function with id 0 */
-	 virtual G_API_GENEVA double transformedFitness() const BASE = 0;
-	 /** @brief Returns the transformed result of the fitness function with id 0 */
-	 virtual G_API_GENEVA double transformedFitness(const std::size_t&) const BASE = 0;
+	 virtual G_API_GENEVA double transformedFitness(std::size_t) const BASE = 0;
 
 	 /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-	 virtual G_API_GENEVA double minOnly_fitness() const BASE = 0;
-	 /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-	 virtual G_API_GENEVA double minOnly_fitness(const std::size_t&) const BASE = 0;
+	 virtual G_API_GENEVA double minOnly_fitness(std::size_t) const BASE = 0;
 
 	 /** @brief Calculate or returns the result of a fitness function with a given id */
-	 virtual G_API_GENEVA double fitness(const std::size_t&, bool, bool) BASE = 0;
+	 virtual G_API_GENEVA double fitness(std::size_t, bool, bool) BASE = 0;
 	 /** @brief Calculate or returns the result of a fitness function with a given id */
-	 virtual G_API_GENEVA double fitness(const std::size_t&, bool, bool) const BASE = 0;
+	 virtual G_API_GENEVA double fitness(std::size_t, bool, bool) const BASE = 0;
 
 	 /** @brief Returns all raw fitness results in a std::vector */
 	 virtual G_API_GENEVA std::vector<double> fitnessVec() const BASE = 0;
