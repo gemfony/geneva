@@ -38,6 +38,41 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
+ * Puts a Gem::Geneva::maxMode item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param am the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::maxMode &am) {
+	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(am);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Geneva::maxMode item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param am The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream &operator>>(std::istream &i, Gem::Geneva::maxMode &am) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	am = boost::numeric_cast<Gem::Geneva::maxMode>(tmp);
+#else
+	am = static_cast<Gem::Geneva::maxMode>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+/**
  * Puts a Gem::Geneva::activityMode item into a stream
  *
  * @param o The ostream the item should be added to

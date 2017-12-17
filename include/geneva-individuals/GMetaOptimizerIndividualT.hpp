@@ -814,9 +814,6 @@ protected:
 	  * @return The value of this object, as calculated with the evaluation function
 	  */
 	 double fitnessCalculation() override {
-		 bool first_maxMode = true;
-		 bool maxMode = false;
-
 		 // Retrieve the parameters
 		 std::shared_ptr <GConstrainedInt32Object> npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
 		 std::shared_ptr <GConstrainedInt32Object> nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
@@ -898,12 +895,6 @@ protected:
 			 for (std::size_t ind = 0; ind < popSize; ind++) {
 				 // Retrieve an individual
 				 std::shared_ptr <GParameterSet> gi_ptr = ind_factory_->get();
-
-				 // Find out whether this is a maximization or minimization once per call to fitnessCalculation
-				 if (first_maxMode) {
-					 maxMode = gi_ptr->getMaxMode();
-					 first_maxMode = false;
-				 }
 
 				 // Set the "per item cross-over probability"
 				 gi_ptr->setPerItemCrossOverProbability(crossOverProb_ptr->value());

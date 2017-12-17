@@ -117,7 +117,7 @@ class GParameterSet
 		 & BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness)
 		 & BOOST_SERIALIZATION_NVP(m_n_stalls)
 		 & BOOST_SERIALIZATION_NVP(m_dirty_flag)
-		 & BOOST_SERIALIZATION_NVP(m_maximize)
+		 & BOOST_SERIALIZATION_NVP(m_maxmode)
 		 & BOOST_SERIALIZATION_NVP(m_assigned_iteration)
 		 & BOOST_SERIALIZATION_NVP(m_validity_level)
 		 & BOOST_SERIALIZATION_NVP(m_pt_ptr)
@@ -158,8 +158,8 @@ public:
 	 /** @brief Allows to randomly initialize parameter members */
 	 G_API_GENEVA bool randomInit(const activityMode&);
 
-	 /** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
-	 G_API_GENEVA void setMaxMode(const bool&);
+	 /** @brief Specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization (maxMode::MINIMIZE) mode */
+	 G_API_GENEVA void setMaxMode(const maxMode&);
 
 	 /** @brief Provides access to all data stored in the individual in a user defined selection */
 	 virtual G_API_GENEVA void custom_streamline(std::vector<boost::any>&) BASE;
@@ -182,7 +182,7 @@ public:
 	 G_API_GENEVA bool isGoodEnough(const std::vector<double>&);
 
 	 /** @brief Perform a fusion operation between this object and another */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(std::shared_ptr<GParameterSet>) const BASE;
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(const std::shared_ptr<GParameterSet>&) const BASE;
 
 	 /** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
 	 G_API_GENEVA void perItemCrossOver(const GParameterSet&, const double&);
@@ -268,8 +268,8 @@ public:
 	 /** @brief Checks whether evaluation was delayed */
 	 G_API_GENEVA bool evaluationDelayed() const;
 
-	 /** @brief Allows to retrieve the maximize_ parameter */
-	 G_API_GENEVA bool getMaxMode() const;
+	 /** @brief Allows to retrieve the m_maxmode parameter */
+	 G_API_GENEVA maxMode getMaxMode() const;
 
 	 /** @brief Retrieves the worst possible evaluation result, depending on whether we are in maximization or minimization mode */
 	 virtual G_API_GENEVA double getWorstCase() const BASE;
@@ -940,8 +940,8 @@ private:
 	 std::uint32_t m_n_stalls = 0;
 	 /** @brief Internal representation of the adaption status of this object */
 	 boost::logic::tribool m_dirty_flag = true; // boost::logic::indeterminate refers to "delayed evaluation"
-	 /** @brief Indicates whether we are running in maximization or minimization mode */
-	 bool m_maximize = false;
+	 /** @brief Indicates whether we are using maximization or minimization mode */
+	 maxMode m_maxmode = maxMode::MINIMIZE;
 	 /** @brief The iteration of the parent algorithm's optimization cycle */
 	 std::uint32_t m_assigned_iteration = 0;
 	 /** @brief Indicates how valid a given solution is */

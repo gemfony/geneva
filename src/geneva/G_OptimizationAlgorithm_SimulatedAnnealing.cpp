@@ -667,7 +667,10 @@ void GSimulatedAnnealing::sortSAMode() {
 
 	// Check for each parent whether it should be replaced by the corresponding child
 	for (std::size_t np = 0; np < this->m_n_parents; np++) {
-		double pPass = saProb(this->at(np)->minOnly_fitness(), this->at(this->m_n_parents + np)->minOnly_fitness());
+		double pPass = saProb(
+			this->at(np)->minOnly_fitness()
+			, this->at(this->m_n_parents + np)->minOnly_fitness()
+		);
 		if (pPass >= 1.) {
 			this->at(np)->GObject::load(this->at(this->m_n_parents + np));
 		} else {
@@ -693,29 +696,19 @@ void GSimulatedAnnealing::sortSAMode() {
 
 /******************************************************************************/
 /**
-  * Calculates the simulated annealing probability for a child to replace a parent
+  * Calculates the simulated annealing probability for a child to replace a parent.
+  * Note that this function only sees minimization problems, as maximization problems
+  * are transformed to minimization problems inside of GParameterSet.
   *
-  * TODO: Is this correct ? Optimization should only see minimization, hence detecting the
-  * max mode should be unnecessary here ?
-  *
-  * @param qParent The fitness of the parent
-  * @param qChild The fitness of the child
+  * @param fMinOnlyParent The "min only" fitness of the parent
+  * @param fMinOnlyChild The "min only" fitness of the child
   * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent
   */
-double GSimulatedAnnealing::saProb(const double &qParent, const double &qChild) {
-	// We do not have to do anything if the child is better than the parent
-	if (this->at(0)->isBetter(qChild, qParent)) {
-		return 2.;
-	}
-
-	double result = 0.;
-	if (this->at(0)->getMaxMode()) {
-		result = exp(-(qParent - qChild) / m_t);
-	} else {
-		result = exp(-(qChild - qParent) / m_t);
-	}
-
-	return result;
+double GSimulatedAnnealing::saProb(
+	const double &fMinOnlyParent
+	, const double &fMinOnlyChild
+) {
+	return exp(-(fMinOnlyChild - fMinOnlyParent) / m_t);
 }
 
 /******************************************************************************/

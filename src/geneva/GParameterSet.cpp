@@ -34,7 +34,7 @@
 
 #include "geneva/GParameterSet.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -68,7 +68,7 @@ GParameterSet::GParameterSet(const GParameterSet &cp)
    , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
    , m_n_stalls(cp.m_n_stalls)
    , m_dirty_flag(cp.m_dirty_flag)
-   , m_maximize(cp.m_maximize)
+   , m_maxmode(cp.m_maxmode)
    , m_assigned_iteration(cp.m_assigned_iteration)
    , m_validity_level(cp.m_validity_level)
    , m_eval_policy(cp.m_eval_policy)
@@ -119,7 +119,7 @@ void GParameterSet::compare(
 	compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
 	compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
 	compare_t(IDENTITY(m_dirty_flag, p_load->m_dirty_flag), token);
-	compare_t(IDENTITY(m_maximize, p_load->m_maximize), token);
+	compare_t(IDENTITY(m_maxmode, p_load->m_maxmode), token);
 	compare_t(IDENTITY(m_assigned_iteration, p_load->m_assigned_iteration), token);
 	compare_t(IDENTITY(m_validity_level, p_load->m_validity_level), token);
 	compare_t(IDENTITY(m_eval_policy, p_load->m_eval_policy), token);
@@ -173,17 +173,15 @@ bool GParameterSet::randomInit(const activityMode &am) {
 
 /******************************************************************************/
 /**
- * Specify whether we want to work in maximization (true) or minimization
- * (false) mode. This function is protected. The idea is that GParameterSet provides a public
- * wrapper for this function, so that a user can specify whether he wants to maximize or
- * minimize a given evaluation function. Optimization algorithms, in turn, only check the
- * maximization-mode of the individuals stored in them and set their own maximization mode
- * internally accordingly, using the protected, overloaded function.
+ * Allows to specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization
+ * (maxMode::MINIMIZE) mode (the default). The idea is that GParameterSet, depending on the maxMode,
+ * changes its evaluation in such a way that the optimization algorithm always sees a
+ * minimization problem.
  *
- * @param mode A boolean which indicates whether we want to work in maximization or minimization mode
+ * @param mode An enum class which indicates whether we want to work in maximization or minimization mode
  */
-void GParameterSet::setMaxMode(const bool &mode) {
-	m_maximize = mode;
+void GParameterSet::setMaxMode(const maxMode& mode) {
+	m_maxmode = mode;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -315,7 +313,7 @@ std::string GParameterSet::toCSV(
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
 				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
-				varTypes.push_back("double");
+				varTypes.emplace_back("double");
 			}
 			varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
 		}
@@ -325,7 +323,7 @@ std::string GParameterSet::toCSV(
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
 				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
-				varTypes.push_back("float");
+				varTypes.emplace_back("float");
 			}
 			varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
 		}
@@ -335,7 +333,7 @@ std::string GParameterSet::toCSV(
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
 				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
-				varTypes.push_back("int32");
+				varTypes.emplace_back("int32");
 			}
 			varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
 		}
@@ -345,7 +343,7 @@ std::string GParameterSet::toCSV(
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
 				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
-				varTypes.push_back("bool");
+				varTypes.emplace_back("bool");
 			}
 			varValues.push_back(Gem::Common::to_string((item.second).at(pos)));
 		}
@@ -355,7 +353,7 @@ std::string GParameterSet::toCSV(
 	for (std::size_t f = 0; f < this->getNumberOfFitnessCriteria(); f++) {
 		if (withNameAndType) {
 			varNames.push_back(std::string("Fitness_") + Gem::Common::to_string(f));
-			varTypes.push_back("double");
+			varTypes.emplace_back("double");
 		}
 		if(!this->isDirty()) { // The individual has already been evaluated
 			if (useRawFitness) {
@@ -370,14 +368,14 @@ std::string GParameterSet::toCSV(
 				varValues.push_back(Gem::Common::to_string(this->transformedFitness(f)));
 			}
 		} else { // No evaluation was performed so far
-			varValues.push_back("dirty");
+			varValues.emplace_back("dirty");
 		}
 	}
 
 	if (showValidity) {
 		if (withNameAndType) {
-			varNames.push_back(std::string("validity"));
-			varTypes.push_back("bool");
+			varNames.emplace_back(std::string("validity"));
+			varTypes.emplace_back("bool");
 		}
 
 		if(!this->isDirty()) { // The individual has already been evaluated
@@ -504,13 +502,13 @@ bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 	// Check the fitness values. If we find at least one
 	// which is worse than the one supplied by the boundaries
 	// vector, then this individual fails the test
-	if (true == this->getMaxMode()) { // Maximization
+	if (maxMode::MAXIMIZE == this->getMaxMode()) { // Maximization
 		for (std::size_t i = 0; i < boundaries.size(); i++) {
 			if (this->fitness(i, PREVENTREEVALUATION, USERAWFITNESS) < boundaries.at(i)) {
 				return false;
 			}
 		}
-	} else { // Minimization
+	} else { // maxMode::MINIMIZE
 		for (std::size_t i = 0; i < boundaries.size(); i++) {
 			if (this->fitness(i, PREVENTREEVALUATION, USERAWFITNESS) > boundaries.at(i)) {
 				return false;
@@ -526,7 +524,7 @@ bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 /**
  * Perform a fusion operation between this object and another.
  */
-std::shared_ptr <GParameterSet> GParameterSet::amalgamate(std::shared_ptr<GParameterSet> cp) const {
+std::shared_ptr<GParameterSet> GParameterSet::amalgamate(const std::shared_ptr<GParameterSet>& cp) const {
 	// Create a copy of this object
 	std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
 
@@ -937,7 +935,7 @@ double GParameterSet::minOnly_fitness() const {
 double GParameterSet::minOnly_fitness(const std::size_t &id) const {
 	double f = fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
-	if (true == this->getMaxMode()) { // Negation will transform maximization problems into minimization problems
+	if (maxMode::MAXIMIZE == this->getMaxMode()) { // Negation will transform maximization problems into minimization problems
 		if (boost::numeric::bounds<double>::highest() == f) {
 			return boost::numeric::bounds<double>::lowest();
 		} else if (boost::numeric::bounds<double>::lowest() == f) {
@@ -1127,7 +1125,7 @@ void GParameterSet::enforceFitnessUpdate(std::function<std::vector<double>()> f)
 			//--------------
 		} else if (evaluationPolicy::USESIGMOID == m_eval_policy) {
 			double uniformFitnessValue = 0.;
-			if (true == this->getMaxMode()) { // maximize
+			if (maxMode::MAXIMIZE == this->getMaxMode()) { // maximize
 				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
 					uniformFitnessValue = this->getWorstCase();
 				} else {
@@ -1323,7 +1321,8 @@ bool GParameterSet::isClean() const {
  * @return The value of the dirtyFlag_ variable
  */
 bool GParameterSet::isDirty() const {
-	return true == m_dirty_flag;
+	if(true==m_dirty_flag) return true;
+	else return false;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1360,12 +1359,12 @@ bool GParameterSet::evaluationDelayed() const {
 
 /******************************************************************************/
 /**
- * Allows to retrieve the maximize_ parameter
+ * Allows to retrieve the m_maxmode parameter
  *
- * @return The current value of the maximize_ parameter
+ * @return The current value of the m_maxmode parameter
  */
-bool GParameterSet::getMaxMode() const {
-	return m_maximize;
+maxMode GParameterSet::getMaxMode() const {
+	return m_maxmode;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1381,7 +1380,7 @@ bool GParameterSet::getMaxMode() const {
  * @return The worst case value, depending on maximization or minimization
  */
 double GParameterSet::getWorstCase() const {
-	return (this->getMaxMode() ? boost::numeric::bounds<double>::lowest() : boost::numeric::bounds<double>::highest());
+	return ((maxMode::MAXIMIZE == this->getMaxMode()) ? boost::numeric::bounds<double>::lowest() : boost::numeric::bounds<double>::highest());
 }
 
 /******************************************************************************/
@@ -1390,7 +1389,7 @@ double GParameterSet::getWorstCase() const {
  * maximization or minimization mode
  */
 double GParameterSet::getBestCase() const {
-	return (this->getMaxMode() ? boost::numeric::bounds<double>::highest() : boost::numeric::bounds<double>::lowest());
+	return ((maxMode::MAXIMIZE == this->getMaxMode()) ? boost::numeric::bounds<double>::highest() : boost::numeric::bounds<double>::lowest());
 }
 
 /******************************************************************************/
@@ -1718,10 +1717,10 @@ void GParameterSet::addConfigurationOptions(
 		<< "it passes all validity checks;";
 
 	// Add local data
-	gpb.registerFileParameter<bool>(
-		"maximize" // The name of the variable
-		, false // The default value
-		, [this](bool mm) { this->setMaxMode(mm); }
+	gpb.registerFileParameter<maxMode>(
+		"maxmode" // The name of the variable
+		, maxMode::MINIMIZE // The default value
+		, [this](maxMode mm) { this->setMaxMode(mm); }
 	)
 		<< "Specifies whether the individual should be maximized (1) or minimized (0)" << std::endl
 		<< "Note that minimization is the by far most common option.";
@@ -1912,7 +1911,7 @@ void GParameterSet::postEvaluationUpdate() {
 #endif /* DEBUG */
 
 	if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == m_eval_policy && this->isInValid()) {
-		if (true == this->getMaxMode()) {
+		if (maxMode::MAXIMIZE == this->getMaxMode()) {
 			for (std::size_t i = 0; i < m_n_fitness_criteria; i++) {
 				if (boost::numeric::bounds<double>::highest() == m_validity_level ||
 					 boost::numeric::bounds<double>::lowest() == m_validity_level) {
@@ -1993,7 +1992,7 @@ std::string GParameterSet::getCurrentEvaluationID() const {
  * @return true if newValue is better than oldValue, otherwise false.
  */
 bool GParameterSet::isBetter(double newValue, const double &oldValue) const {
-	if (this->getMaxMode()) {
+	if (maxMode::MAXIMIZE == this->getMaxMode()) {
 		if (newValue > oldValue) return true;
 		else return false;
 	} else { // minimization
@@ -2007,7 +2006,7 @@ bool GParameterSet::isBetter(double newValue, const double &oldValue) const {
  * Checks whether this object is better than the argument, depending on the maxMode
  */
 bool GParameterSet::isBetterThan(std::shared_ptr<GParameterSet> p) const {
-	if (this->getMaxMode()) {
+	if (maxMode::MAXIMIZE == this->getMaxMode()) {
 		if (this->transformedFitness() > p->transformedFitness()) return true;
 		else return false;
 	} else { // minimization
@@ -2021,7 +2020,7 @@ bool GParameterSet::isBetterThan(std::shared_ptr<GParameterSet> p) const {
  * Checks whether this object is worse than the argument, depending on the maxMode
  */
 bool GParameterSet::isWorseThan(std::shared_ptr<GParameterSet> p) const {
-	if (this->getMaxMode()) {
+	if (maxMode::MAXIMIZE == this->getMaxMode()) {
 		if (this->transformedFitness() < p->transformedFitness()) return true;
 		else return false;
 	} else { // minimization
@@ -2041,7 +2040,7 @@ bool GParameterSet::isWorseThan(std::shared_ptr<GParameterSet> p) const {
  * @return true of newValue is worse than oldValue, otherwise false.
  */
 bool GParameterSet::isWorse(double newValue, const double &oldValue) const {
-	if (this->getMaxMode()) {
+	if (maxMode::MAXIMIZE == this->getMaxMode()) {
 		if (newValue < oldValue) return true;
 		else return false;
 	} else { // minimization
@@ -2105,7 +2104,7 @@ void GParameterSet::load_(const GObject *cp) {
 	m_best_past_primary_fitness = p_load->m_best_past_primary_fitness;
 	m_n_stalls = p_load->m_n_stalls;
 	m_dirty_flag = p_load->m_dirty_flag;
-	m_maximize = p_load->m_maximize;
+	m_maxmode = p_load->m_maxmode;
 	m_assigned_iteration = p_load->m_assigned_iteration;
 	m_validity_level = p_load->m_validity_level;
 	m_eval_policy = p_load->m_eval_policy;
@@ -2158,7 +2157,7 @@ std::size_t GParameterSet::customAdaptions() {
 	std::size_t nAdaptions = 0;
 
 	GParameterSet::iterator it;
-	for (auto par_ptr: *this) {
+	for (const auto& par_ptr: *this) {
 		nAdaptions += par_ptr->adapt(m_gr);
 	}
 
@@ -2426,7 +2425,7 @@ bool GParameterSet::modify_GUnitTests() {
 	if (GObject::modify_GUnitTests()) result = true;
 	if(Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::modify_GUnitTests()) result = true;
 
-	for(auto o_ptr: *this) {
+	for(const auto& o_ptr: *this) {
 		if(o_ptr->modify_GUnitTests()) result = true;
 	}
 
@@ -2465,10 +2464,10 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test setting and retrieval of the maximization mode flag
 		std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
 
-		BOOST_CHECK_NO_THROW(p_test->setMaxMode(true));
-		BOOST_CHECK(p_test->getMaxMode() == true);
-		BOOST_CHECK_NO_THROW(p_test->setMaxMode(false));
-		BOOST_CHECK(p_test->getMaxMode() == false);
+		BOOST_CHECK_NO_THROW(p_test->setMaxMode(maxMode::MAXIMIZE));
+		BOOST_CHECK(p_test->getMaxMode() == maxMode::MAXIMIZE);
+		BOOST_CHECK_NO_THROW(p_test->setMaxMode(maxMode::MINIMIZE));
+		BOOST_CHECK(p_test->getMaxMode() == maxMode::MINIMIZE);
 	}
 
 	// --------------------------------------------------------------------------
@@ -2649,17 +2648,6 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 				counter++;
 			}
-		}
-
-		//-----------------------------------------------------------------
-
-		{ // Test setting and retrieval of the maximization mode flag
-			std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
-
-			BOOST_CHECK_NO_THROW(p_test->setMaxMode(true));
-			BOOST_CHECK(p_test->getMaxMode() == true);
-			BOOST_CHECK_NO_THROW(p_test->setMaxMode(false));
-			BOOST_CHECK(p_test->getMaxMode() == false);
 		}
 
 		//-----------------------------------------------------------------

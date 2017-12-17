@@ -183,24 +183,24 @@ public:
 	 using FACTORYTYPE = GFunctionIndividualFactory;
 
 	 /** @brief The default constructor */
-	 G_API_INDIVIDUALS GFunctionIndividual();
+	 G_API_INDIVIDUALS GFunctionIndividual() = default;
 	 /** @brief Initialization with the desired demo function */
-	 G_API_INDIVIDUALS GFunctionIndividual(const solverFunction &);
+	 explicit G_API_INDIVIDUALS GFunctionIndividual(const solverFunction &);
 	 /** @brief A standard copy constructor */
-	 G_API_INDIVIDUALS GFunctionIndividual(const GFunctionIndividual &);
+	 G_API_INDIVIDUALS GFunctionIndividual(const GFunctionIndividual& cp) = default;
 
 	 /** @brief The standard destructor */
-	 virtual G_API_INDIVIDUALS ~GFunctionIndividual();
+	 G_API_INDIVIDUALS ~GFunctionIndividual() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_INDIVIDUALS void compare(
+	 G_API_INDIVIDUALS void compare(
 		 const GObject & // the other object
 		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const final;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &);
+	 G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &) override;
 
 	 /** @brief Allows to set the demo function */
 	 G_API_INDIVIDUALS void setDemoFunction(solverFunction);
@@ -247,14 +247,6 @@ public:
 			 case solverFunction::NEGPARABOLA:
 				 result = "Negative parabola";
 				 break;
-			 default: {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFunctionIndividual::getStringRepresentation(): Error!" << std::endl
-						 << "Got invalid function type" << std::endl
-				 );
-			 }
-				 break;
 		 }
 
 		 return result;
@@ -296,14 +288,6 @@ public:
 				 break;
 			 case solverFunction::NEGPARABOLA:
 				 result = "-(x^2 + y^2)";
-				 break;
-			 default: {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFunctionIndividual::get2DROOTFunction(): Error!" << std::endl
-						 << "Got invalid function type" << std::endl
-				 );
-			 }
 				 break;
 		 }
 
@@ -348,14 +332,6 @@ public:
 			 case solverFunction::NEGPARABOLA:
 				 result.push_back(0.);
 				 break;
-			 default: {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFunctionIndividual::getXMin(): Error!" << std::endl
-						 << "Got invalid function type" << std::endl
-				 );
-			 }
-				 break;
 		 }
 
 		 return result;
@@ -397,14 +373,6 @@ public:
 			 case solverFunction::NEGPARABOLA:
 				 result.push_back(0.);
 				 break;
-			 default: {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFunctionIndividual::getYMin(): Error!" << std::endl
-						 << "Got invalid function type" << std::endl
-				 );
-			 }
-				 break;
 		 }
 
 		 return result;
@@ -413,19 +381,19 @@ public:
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GFunctionIndividual */
-	 virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+	 G_API_INDIVIDUALS void load_(const GObject *) final;
 
 	 /** @brief The actual value calculation takes place here */
-	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
+	 G_API_INDIVIDUALS double fitnessCalculation() final;
 
 	 /***************************************************************************/
 
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS GObject *clone_() const final;
+	 G_API_INDIVIDUALS GObject *clone_() const final;
 
-	 solverFunction demoFunction_; ///< Specifies which demo function should be used
+	 solverFunction demoFunction_ = solverFunction::PARABOLA; ///< Specifies which demo function should be used
 };
 
 /******************************************************************************/
@@ -443,7 +411,8 @@ G_API_INDIVIDUALS std::ostream &operator<<(std::ostream &, std::shared_ptr <Gem:
  * A factory for GFunctionIndividual objects
  */
 class GFunctionIndividualFactory
-	: public GParameterSetFactory {
+	: public GParameterSetFactory
+{
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
 
@@ -480,12 +449,12 @@ class GFunctionIndividualFactory
 
 public:
 	 /** @brief The standard constructor */
-	 G_API_INDIVIDUALS GFunctionIndividualFactory(const std::string &);
+	 explicit G_API_INDIVIDUALS GFunctionIndividualFactory(const std::string &);
 	 /** @brief The copy constructor */
-	 G_API_INDIVIDUALS GFunctionIndividualFactory(const GFunctionIndividualFactory &);
+	 G_API_INDIVIDUALS GFunctionIndividualFactory(const GFunctionIndividualFactory &cp) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_INDIVIDUALS ~GFunctionIndividualFactory();
+	 G_API_INDIVIDUALS ~GFunctionIndividualFactory() override = default;
 
 	 /**************************************************************************/
 	 // Getters and setters
@@ -599,18 +568,17 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Loads the data of another GFunctionIndividualFactory object */
-	 G_API_INDIVIDUALS virtual void load(std::shared_ptr <GFactoryT<GParameterSet>>);
+	 G_API_INDIVIDUALS void load(std::shared_ptr <GFactoryT<GParameterSet>>) override;
 	 /** @brief Creates a deep clone of this object */
-	 G_API_INDIVIDUALS virtual std::shared_ptr <GFactoryT<GParameterSet>> clone() const;
+	 G_API_INDIVIDUALS std::shared_ptr <GFactoryT<GParameterSet>> clone() const override;
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 G_API_INDIVIDUALS virtual std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &,
-																								 const std::size_t &);
+	 G_API_INDIVIDUALS std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 	 /** @brief Allows to describe local configuration options in derived classes */
-	 G_API_INDIVIDUALS virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
+	 G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 G_API_INDIVIDUALS virtual void postProcess_(std::shared_ptr<GParameterSet> &);
+	 G_API_INDIVIDUALS void postProcess_(std::shared_ptr<GParameterSet> &) override;
 
 private:
 	 /** @brief Set the value of the minVar_ variable */
@@ -640,29 +608,29 @@ private:
 	 /** @brief The default constructor; Only needed for (de-)serialization purposes. */
 	 GFunctionIndividualFactory();
 
-	 Gem::Common::GOneTimeRefParameterT<double> adProb_;
-	 Gem::Common::GOneTimeRefParameterT<double> adaptAdProb_;
-	 Gem::Common::GOneTimeRefParameterT<double> minAdProb_;
-	 Gem::Common::GOneTimeRefParameterT<double> maxAdProb_;
-	 Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaptionThreshold_;
-	 Gem::Common::GOneTimeRefParameterT<bool> useBiGaussian_;
-	 Gem::Common::GOneTimeRefParameterT<double> sigma1_;
-	 Gem::Common::GOneTimeRefParameterT<double> sigmaSigma1_;
-	 Gem::Common::GOneTimeRefParameterT<double> minSigma1_;
-	 Gem::Common::GOneTimeRefParameterT<double> maxSigma1_;
-	 Gem::Common::GOneTimeRefParameterT<double> sigma2_;
-	 Gem::Common::GOneTimeRefParameterT<double> sigmaSigma2_;
-	 Gem::Common::GOneTimeRefParameterT<double> minSigma2_;
-	 Gem::Common::GOneTimeRefParameterT<double> maxSigma2_;
-	 Gem::Common::GOneTimeRefParameterT<double> delta_;
-	 Gem::Common::GOneTimeRefParameterT<double> sigmaDelta_;
-	 Gem::Common::GOneTimeRefParameterT<double> minDelta_;
-	 Gem::Common::GOneTimeRefParameterT<double> maxDelta_;
-	 Gem::Common::GOneTimeRefParameterT<std::size_t> parDim_;
-	 Gem::Common::GOneTimeRefParameterT<double> minVar_;
-	 Gem::Common::GOneTimeRefParameterT<double> maxVar_;
-	 Gem::Common::GOneTimeRefParameterT<parameterType> pT_;
-	 Gem::Common::GOneTimeRefParameterT<initMode> iM_;
+	 Gem::Common::GOneTimeRefParameterT<double> adProb_{GFI_DEF_ADPROB};
+	 Gem::Common::GOneTimeRefParameterT<double> adaptAdProb_{GFI_DEF_ADAPTADPROB};
+	 Gem::Common::GOneTimeRefParameterT<double> minAdProb_{GFI_DEF_MINADPROB};
+	 Gem::Common::GOneTimeRefParameterT<double> maxAdProb_{GFI_DEF_MAXADPROB};
+	 Gem::Common::GOneTimeRefParameterT<std::uint32_t> adaptionThreshold_{GFI_DEF_ADAPTIONTHRESHOLD};
+	 Gem::Common::GOneTimeRefParameterT<bool> useBiGaussian_{GFI_DEF_USEBIGAUSSIAN};
+	 Gem::Common::GOneTimeRefParameterT<double> sigma1_{GFI_DEF_SIGMA1};
+	 Gem::Common::GOneTimeRefParameterT<double> sigmaSigma1_{GFI_DEF_SIGMASIGMA1};
+	 Gem::Common::GOneTimeRefParameterT<double> minSigma1_{GFI_DEF_MINSIGMA1};
+	 Gem::Common::GOneTimeRefParameterT<double> maxSigma1_{GFI_DEF_MAXSIGMA1};
+	 Gem::Common::GOneTimeRefParameterT<double> sigma2_{GFI_DEF_SIGMA2};
+	 Gem::Common::GOneTimeRefParameterT<double> sigmaSigma2_{GFI_DEF_SIGMASIGMA2};
+	 Gem::Common::GOneTimeRefParameterT<double> minSigma2_{GFI_DEF_MINSIGMA2};
+	 Gem::Common::GOneTimeRefParameterT<double> maxSigma2_{GFI_DEF_MAXSIGMA2};
+	 Gem::Common::GOneTimeRefParameterT<double> delta_{GFI_DEF_DELTA};
+	 Gem::Common::GOneTimeRefParameterT<double> sigmaDelta_{GFI_DEF_SIGMADELTA};
+	 Gem::Common::GOneTimeRefParameterT<double> minDelta_{GFI_DEF_MINDELTA};
+	 Gem::Common::GOneTimeRefParameterT<double> maxDelta_{GFI_DEF_MAXDELTA};
+	 Gem::Common::GOneTimeRefParameterT<std::size_t> parDim_{GFI_DEF_PARDIM};
+	 Gem::Common::GOneTimeRefParameterT<double> minVar_{GFI_DEF_MINVAR};
+	 Gem::Common::GOneTimeRefParameterT<double> maxVar_{GFI_DEF_MAXVAR};
+	 Gem::Common::GOneTimeRefParameterT<parameterType> pT_{GFI_DEF_PARAMETERTYPE};
+	 Gem::Common::GOneTimeRefParameterT<initMode> iM_{GFI_DEF_INITMODE};
 };
 
 /******************************************************************************/
@@ -688,36 +656,36 @@ class GDoubleSumConstraint : public GParameterSetConstraint {
 public:
 
 	 /** @brief The default constructor */
-	 G_API_INDIVIDUALS GDoubleSumConstraint();
+	 G_API_INDIVIDUALS GDoubleSumConstraint() = default;
 	 /** @brief Initialization with the constant */
-	 G_API_INDIVIDUALS GDoubleSumConstraint(const double &);
+	 explicit G_API_INDIVIDUALS GDoubleSumConstraint(const double &);
 	 /** @brief The copy constructor */
-	 G_API_INDIVIDUALS GDoubleSumConstraint(const GDoubleSumConstraint &);
+	 G_API_INDIVIDUALS GDoubleSumConstraint(const GDoubleSumConstraint &cp) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_INDIVIDUALS ~GDoubleSumConstraint();
+	 G_API_INDIVIDUALS ~GDoubleSumConstraint() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_INDIVIDUALS void compare(
+	 G_API_INDIVIDUALS void compare(
 		 const GObject & // the other object
 		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const final;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &);
+	 G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
 
 protected:
-	 virtual G_API_INDIVIDUALS double check_(const GParameterSet *) const;
+	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
-	 virtual G_API_INDIVIDUALS void load_(const GObject *);
+	 G_API_INDIVIDUALS void load_(const GObject *) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS GObject *clone_() const;
+	 G_API_INDIVIDUALS GObject *clone_() const override;
 
-	 double C_; ///< The constant that should not be exceeded by the sum of parameters
+	 double C_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
 };
 
 /******************************************************************************/
@@ -743,37 +711,37 @@ class GDoubleSumGapConstraint : public GParameterSetConstraint {
 public:
 
 	 /** @brief The default constructor */
-	 G_API_INDIVIDUALS GDoubleSumGapConstraint();
+	 G_API_INDIVIDUALS GDoubleSumGapConstraint() = default;
 	 /** @brief Initialization with the constant */
 	 G_API_INDIVIDUALS GDoubleSumGapConstraint(const double &, const double &);
 	 /** @brief The copy constructor */
-	 G_API_INDIVIDUALS GDoubleSumGapConstraint(const GDoubleSumGapConstraint &);
+	 G_API_INDIVIDUALS GDoubleSumGapConstraint(const GDoubleSumGapConstraint& cp) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_INDIVIDUALS ~GDoubleSumGapConstraint();
+	 G_API_INDIVIDUALS ~GDoubleSumGapConstraint() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_INDIVIDUALS void compare(
+	 G_API_INDIVIDUALS void compare(
 		 const GObject & // the other object
 		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const final;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &);
+	 G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &) override;
 
 protected:
-	 virtual G_API_INDIVIDUALS double check_(const GParameterSet *) const;
+	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
-	 virtual G_API_INDIVIDUALS void load_(const GObject *);
+	 G_API_INDIVIDUALS void load_(const GObject *) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS GObject *clone_() const;
+	 G_API_INDIVIDUALS GObject *clone_() const override;
 
-	 double C_; ///< The constant that should not be exceeded by the sum of parameters
-	 double gap_; ///< A tolerance around C_ that is still considered to be valid
+	 double C_ = 1.; ///< The constant that should not be exceeded by the sum of parameters
+	 double gap_ = 0.5; ///< A tolerance around C_ that is still considered to be valid
 };
 
 /******************************************************************************/
@@ -797,37 +765,37 @@ class GSphereConstraint : public GParameterSetConstraint {
 public:
 
 	 /** @brief The default constructor */
-	 G_API_INDIVIDUALS GSphereConstraint();
+	 G_API_INDIVIDUALS GSphereConstraint() = default;
 	 /** @brief Initialization with the diameter */
-	 G_API_INDIVIDUALS GSphereConstraint(const double &);
+	 explicit G_API_INDIVIDUALS GSphereConstraint(const double &cp);
 	 /** @brief The copy constructor */
-	 G_API_INDIVIDUALS GSphereConstraint(const GSphereConstraint &);
+	 G_API_INDIVIDUALS GSphereConstraint(const GSphereConstraint &) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_INDIVIDUALS ~GSphereConstraint();
+	 G_API_INDIVIDUALS ~GSphereConstraint() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_INDIVIDUALS void compare(
+	 G_API_INDIVIDUALS void compare(
 		 const GObject & // the other object
 		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const final;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &);
+	 G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &) override;
 
 protected:
-	 virtual G_API_INDIVIDUALS double check_(const GParameterSet *) const;
+	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
-	 virtual G_API_INDIVIDUALS void load_(const GObject *);
+	 G_API_INDIVIDUALS void load_(const GObject *) override;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_INDIVIDUALS GObject *clone_() const;
+	 G_API_INDIVIDUALS GObject *clone_() const override;
 
 	 /** @brief The diameter of the sphere */
-	 double diameter_;
+	 double diameter_ = 1.;
 };
 
 /******************************************************************************/

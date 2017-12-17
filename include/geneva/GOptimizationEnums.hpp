@@ -59,6 +59,16 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Indicates whether an individual should be maximized or minimized
+ */
+enum class maxMode : Gem::Common::ENUMBASETYPE {
+   MINIMIZE=0
+	, MAXIMIZE=1
+};
+
+
+/******************************************************************************/
+/**
  * Default population sizes -- 100 by default (parents + children)
  */
 const std::size_t DEFPARCHILDNPARENTS = 1;
@@ -87,7 +97,9 @@ const std::uint32_t DEFREPULSIONTHRESHOLD = 0;
 const std::size_t DEFMAXRETRIESUNTILVALID=10;
 
 /******************************************************************************/
-// Indicates whether only active, inactive or all parameters should be extracted
+/**
+ * Indicates whether only active, inactive or all parameters should be extracted
+ */
 enum class activityMode : Gem::Common::ENUMBASETYPE {
 	ACTIVEONLY = 0 // Extract only active parameters
 	, ALLPARAMETERS = 1 // Extract all parameters
@@ -549,6 +561,12 @@ enum class updateRule : Gem::Common::ENUMBASETYPE {
 const updateRule DEFAULTUPDATERULE = updateRule::SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
 
 /******************************************************************************/
+
+/** @brief Puts a Gem::Geneva::maxMode into a stream. Needed also for boost::lexical_cast<> */
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::maxMode&);
+
+/** @brief Reads a Gem::Geneva::maxMode from a stream. Needed also for boost::lexical_cast<> */
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::maxMode&);
 
 /** @brief Puts a Gem::Geneva::activityMode into a stream. Needed also for boost::lexical_cast<> */
 G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::activityMode&);

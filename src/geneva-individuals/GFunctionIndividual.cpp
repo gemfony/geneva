@@ -34,11 +34,11 @@
 
 #include "geneva-individuals/GFunctionIndividual.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividual)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividualFactory)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumConstraint)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumGapConstraint)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSphereConstraint)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividual) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFunctionIndividualFactory) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumConstraint) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GDoubleSumGapConstraint) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSphereConstraint) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -47,34 +47,10 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GDoubleSumConstraint::GDoubleSumConstraint()
-	: C_(1.)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with the constant
  */
 GDoubleSumConstraint::GDoubleSumConstraint(const double &C)
 	: C_(C)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GDoubleSumConstraint::GDoubleSumConstraint(const GDoubleSumConstraint &cp)
-	: GParameterSetConstraint(cp)
-	  , C_(cp.C_)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GDoubleSumConstraint::~GDoubleSumConstraint()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -167,30 +143,10 @@ GObject *GDoubleSumConstraint::clone_() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GDoubleSumGapConstraint::GDoubleSumGapConstraint()
-	: C_(1.), gap_(0.5) { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with the constant
  */
 GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &C, const double &gap)
 	: C_(C), gap_(gap) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GDoubleSumGapConstraint::GDoubleSumGapConstraint(const GDoubleSumGapConstraint &cp)
-	: GParameterSetConstraint(cp), C_(cp.C_), gap_(cp.gap_) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GDoubleSumGapConstraint::~GDoubleSumGapConstraint() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -284,30 +240,11 @@ GObject *GDoubleSumGapConstraint::clone_() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GSphereConstraint::GSphereConstraint()
-	: diameter_(1.) { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with the diameter
  */
 GSphereConstraint::GSphereConstraint(const double &diameter)
-	: diameter_(diameter) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GSphereConstraint::GSphereConstraint(const GSphereConstraint &cp)
-	: GParameterSetConstraint(cp), diameter_(cp.diameter_) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GSphereConstraint::~GSphereConstraint() { /* nothing */ }
+	: diameter_(diameter)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -405,7 +342,7 @@ GObject *GSphereConstraint::clone_() const {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::solverFunction &ur) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
+	auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
 	o << tmp;
 	return o;
 }
@@ -440,7 +377,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::solverFunction &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parameterType &ur) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
+	auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
 	o << tmp;
 	return o;
 }
@@ -475,7 +412,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::parameterType &ur) {
  * @return The std::ostream object used to add the item to
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Geneva::initMode &ur) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
+	auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
 	o << tmp;
 	return o;
 }
@@ -505,14 +442,6 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::initMode &ur) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GFunctionIndividual::GFunctionIndividual()
-	: demoFunction_(solverFunction::PARABOLA)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with the desired demo function
  *
  * @param dF The id of the demo function
@@ -520,23 +449,6 @@ GFunctionIndividual::GFunctionIndividual()
 GFunctionIndividual::GFunctionIndividual(const solverFunction &dF)
 	: demoFunction_(dF)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * A standard copy constructor
- *
- * @param cp A copy of another GFunctionIndidivual
- */
-GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual &cp)
-	: GParameterSet(cp), demoFunction_(cp.demoFunction_)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor
- */
-GFunctionIndividual::~GFunctionIndividual()
-{ /* nothing */   }
 
 /******************************************************************************/
 /**
@@ -779,17 +691,6 @@ double GFunctionIndividual::fitnessCalculation() {
 			break;
 
 			//-----------------------------------------------------------
-
-		default: {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GFunctionIndividual::fitnessCalculation(): Error!" << std::endl
-					<< "Got invalid function type " << demoFunction_ << std::endl
-			);
-		}
-			break;
-
-			//-----------------------------------------------------------
 	};
 
 	// Let the audience know
@@ -834,60 +735,6 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr <Gem::Geneva::GFunctio
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string &configFile)
 	: GParameterSetFactory(configFile)
-	  , adProb_(GFI_DEF_ADPROB)
-	  , adaptAdProb_(GFI_DEF_ADAPTADPROB)
-	  , minAdProb_(GFI_DEF_MINADPROB)
-	  , maxAdProb_(GFI_DEF_MAXADPROB)
-	  , adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
-	  , useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
-	  , sigma1_(GFI_DEF_SIGMA1)
-	  , sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
-	  , minSigma1_(GFI_DEF_MINSIGMA1)
-	  , maxSigma1_(GFI_DEF_MAXSIGMA1)
-	  , sigma2_(GFI_DEF_SIGMA2)
-	  , sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
-	  , minSigma2_(GFI_DEF_MINSIGMA2)
-	  , maxSigma2_(GFI_DEF_MAXSIGMA2)
-	  , delta_(GFI_DEF_DELTA)
-	  , sigmaDelta_(GFI_DEF_SIGMADELTA)
-	  , minDelta_(GFI_DEF_MINDELTA)
-	  , maxDelta_(GFI_DEF_MAXDELTA)
-	  , parDim_(GFI_DEF_PARDIM)
-	  , minVar_(GFI_DEF_MINVAR)
-	  , maxVar_(GFI_DEF_MAXVAR)
-	  , pT_(GFI_DEF_PARAMETERTYPE)
-	  , iM_(GFI_DEF_INITMODE)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GFunctionIndividualFactory::GFunctionIndividualFactory(const GFunctionIndividualFactory &cp)
-	: GParameterSetFactory(cp)
-	  , adProb_(cp.adProb_)
-	  , adaptAdProb_(cp.adaptAdProb_)
-	  , minAdProb_(cp.minAdProb_)
-	  , maxAdProb_(cp.maxAdProb_)
-	  , adaptionThreshold_(cp.adaptionThreshold_)
-	  , useBiGaussian_(cp.useBiGaussian_)
-	  , sigma1_(cp.sigma1_)
-	  , sigmaSigma1_(cp.sigmaSigma1_)
-	  , minSigma1_(cp.minSigma1_)
-	  , maxSigma1_(cp.maxSigma1_)
-	  , sigma2_(cp.sigma2_)
-	  , sigmaSigma2_(cp.sigmaSigma2_)
-	  , minSigma2_(cp.minSigma2_)
-	  , maxSigma2_(cp.maxSigma2_)
-	  , delta_(cp.delta_)
-	  , sigmaDelta_(cp.sigmaDelta_)
-	  , minDelta_(cp.minDelta_)
-	  , maxDelta_(cp.maxDelta_)
-	  , parDim_(cp.parDim_)
-	  , minVar_(cp.minVar_)
-	  , maxVar_(cp.maxVar_)
-	  , pT_(cp.pT_)
-	  , iM_(cp.iM_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -896,36 +743,7 @@ GFunctionIndividualFactory::GFunctionIndividualFactory(const GFunctionIndividual
  */
 GFunctionIndividualFactory::GFunctionIndividualFactory()
 	: GParameterSetFactory("empty")
-	  , adProb_(GFI_DEF_ADPROB)
-	  , adaptAdProb_(GFI_DEF_ADAPTADPROB)
-	  , minAdProb_(GFI_DEF_MINADPROB)
-	  , maxAdProb_(GFI_DEF_MAXADPROB)
-	  , adaptionThreshold_(GFI_DEF_ADAPTIONTHRESHOLD)
-	  , useBiGaussian_(GFI_DEF_USEBIGAUSSIAN)
-	  , sigma1_(GFI_DEF_SIGMA1)
-	  , sigmaSigma1_(GFI_DEF_SIGMASIGMA1)
-	  , minSigma1_(GFI_DEF_MINSIGMA1)
-	  , maxSigma1_(GFI_DEF_MAXSIGMA1)
-	  , sigma2_(GFI_DEF_SIGMA2)
-	  , sigmaSigma2_(GFI_DEF_SIGMASIGMA2)
-	  , minSigma2_(GFI_DEF_MINSIGMA2)
-	  , maxSigma2_(GFI_DEF_MAXSIGMA2)
-	  , delta_(GFI_DEF_DELTA)
-	  , sigmaDelta_(GFI_DEF_SIGMADELTA)
-	  , minDelta_(GFI_DEF_MINDELTA)
-	  , maxDelta_(GFI_DEF_MAXDELTA)
-	  , parDim_(GFI_DEF_PARDIM)
-	  , minVar_(GFI_DEF_MINVAR)
-	  , maxVar_(GFI_DEF_MAXVAR)
-	  , pT_(GFI_DEF_PARAMETERTYPE)
-	  , iM_(GFI_DEF_INITMODE)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GFunctionIndividualFactory::~GFunctionIndividualFactory() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -994,7 +812,7 @@ void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
  * Extract the minimum and maximum boundaries of the variables
  */
 std::tuple<double, double> GFunctionIndividualFactory::getVarBoundaries() const {
-	return std::tuple<double, double>(minVar_, maxVar_);
+	return std::tuple<double, double>{minVar_, maxVar_};
 }
 
 /******************************************************************************/
@@ -1168,7 +986,7 @@ void GFunctionIndividualFactory::setMinDelta(double minDelta) {
  * Allows to retrieve the allowed value range of delta
  */
 std::tuple<double, double> GFunctionIndividualFactory::getDeltaRange() const {
-	return std::tuple<double, double>(minDelta_, maxDelta_);
+	return std::tuple<double, double>{minDelta_, maxDelta_};
 }
 
 /******************************************************************************/
@@ -1220,7 +1038,7 @@ void GFunctionIndividualFactory::setMinSigma1(double minSigma1) {
  * Allows to retrieve the allowed value range of sigma1_
  */
 std::tuple<double, double> GFunctionIndividualFactory::getSigma1Range() const {
-	return std::tuple<double, double>(minSigma1_, maxSigma1_);
+	return std::tuple<double, double>{minSigma1_, maxSigma1_};
 }
 
 /******************************************************************************/
@@ -1272,7 +1090,7 @@ void GFunctionIndividualFactory::setMinSigma2(double minSigma2) {
  * Allows to retrieve the allowed value range of sigma2_
  */
 std::tuple<double, double> GFunctionIndividualFactory::getSigma2Range() const {
-	return std::tuple<double, double>(minSigma2_, maxSigma2_);
+	return std::tuple<double, double>{minSigma2_, maxSigma2_};
 }
 
 /******************************************************************************/
@@ -1470,7 +1288,7 @@ void GFunctionIndividualFactory::setAdaptAdProb(double adaptAdProb) {
  * Allows to retrieve the allowed range for adProb_ variation
  */
 std::tuple<double, double> GFunctionIndividualFactory::getAdProbRange() const {
-	return std::tuple<double, double>(minAdProb_.value(), maxAdProb_.value());
+	return std::tuple<double, double>{minAdProb_.value(), maxAdProb_.value()};
 }
 
 /******************************************************************************/
@@ -1694,29 +1512,29 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 
 	// Set up an adaptor for the collections, so they know how to be adapted
 	std::shared_ptr <GAdaptorT<double>> gat_ptr;
-	if (useBiGaussian_) {
+	if (useBiGaussian_.value()) {
 		std::shared_ptr <GDoubleBiGaussAdaptor> gdbga_ptr(new GDoubleBiGaussAdaptor());
-		gdbga_ptr->setAllSigma1(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_);
-		gdbga_ptr->setAllSigma1(sigma2_, sigmaSigma2_, minSigma2_, maxSigma2_);
-		gdbga_ptr->setAllSigma1(delta_, sigmaDelta_, minDelta_, maxDelta_);
-		gdbga_ptr->setAdaptionThreshold(adaptionThreshold_);
-		gdbga_ptr->setAdaptionProbability(adProb_);
+		gdbga_ptr->setAllSigma1(sigma1_.value(), sigmaSigma1_.value(), minSigma1_.value(), maxSigma1_.value());
+		gdbga_ptr->setAllSigma1(sigma2_.value(), sigmaSigma2_.value(), minSigma2_.value(), maxSigma2_.value());
+		gdbga_ptr->setAllSigma1(delta_.value(), sigmaDelta_.value(), minDelta_.value(), maxDelta_.value());
+		gdbga_ptr->setAdaptionThreshold(adaptionThreshold_.value());
+		gdbga_ptr->setAdaptionProbability(adProb_.value());
 		gat_ptr = gdbga_ptr;
 	} else {
 		std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(
-			new GDoubleGaussAdaptor(sigma1_, sigmaSigma1_, minSigma1_, maxSigma1_));
-		gdga_ptr->setAdaptionThreshold(adaptionThreshold_);
-		gdga_ptr->setAdaptionProbability(adProb_);
+			new GDoubleGaussAdaptor(sigma1_.value(), sigmaSigma1_.value(), minSigma1_.value(), maxSigma1_.value()));
+		gdga_ptr->setAdaptionThreshold(adaptionThreshold_.value());
+		gdga_ptr->setAdaptionProbability(adProb_.value());
 		gat_ptr = gdga_ptr;
 	}
 
 	// Store parameters pertaining to the adaption probability in the adaptor
-	gat_ptr->setAdaptAdProb(adaptAdProb_);
-	gat_ptr->setAdProbRange(minAdProb_, maxAdProb_);
+	gat_ptr->setAdaptAdProb(adaptAdProb_.value());
+	gat_ptr->setAdProbRange(minAdProb_.value(), maxAdProb_.value());
 
 	// Find out about the amount of data items to be added
 	// std::size_t nData = parDimLocal_?parDimLocal_:parDim_;
-	std::size_t nData = parDim_;
+	std::size_t nData = parDim_.value();
 
 	// Set up the data collections
 	switch (pT_.value()) {
@@ -1725,10 +1543,10 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			// Random initialization happens in the constructor.
 			std::shared_ptr <GDoubleCollection> gdc_ptr;
 
-			if (initMode::INITRANDOM == iM_) {
-				gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, maxVar_));
+			if (initMode::INITRANDOM == iM_.value()) {
+				gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_.value(), maxVar_.value()));
 			} else { // initMode::INITPERIMETER
-				gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_, minVar_, maxVar_));
+				gdc_ptr = std::shared_ptr<GDoubleCollection>(new GDoubleCollection(nData, minVar_.value(), minVar_.value(), maxVar_.value()));
 			}
 
 			gdc_ptr->addAdaptor(gat_ptr);
@@ -1744,9 +1562,9 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			std::shared_ptr <GConstrainedDoubleCollection> gcdc_ptr;
 
 			if (initMode::INITRANDOM == iM_) {
-				gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, maxVar_));
+				gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_.value(), maxVar_.value()));
 			} else { // initMode::INITPERIMETER
-				gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_, minVar_, maxVar_));
+				gcdc_ptr = std::shared_ptr<GConstrainedDoubleCollection>(new GConstrainedDoubleCollection(nData, minVar_.value(), minVar_.value(), maxVar_.value()));
 			}
 
 			gcdc_ptr->addAdaptor(gat_ptr);
@@ -1763,8 +1581,8 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			// Fill the collection with GDoubleObject objects, each equipped with a copy of our adaptor
 			// Note that addAdaptor() itself will take care of cloning the adaptor
 			for (std::size_t i = 0; i < nData; i++) {
-				std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(minVar_, maxVar_));
-				if (initMode::INITPERIMETER == iM_) { *gdo_ptr = minVar_; }
+				std::shared_ptr<GDoubleObject> gdo_ptr(new GDoubleObject(minVar_.value(), maxVar_.value()));
+				if (initMode::INITPERIMETER == iM_.value()) { *gdo_ptr = minVar_.value(); }
 
 				gdo_ptr->addAdaptor(gat_ptr);
 				gdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
@@ -1783,8 +1601,8 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			// Fill the collection with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
 			// Note that addAdaptor() itself will take care of cloning the adaptor
 			for (std::size_t i = 0; i < nData; i++) {
-				std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
-				if (initMode::INITPERIMETER == iM_) { *gcdo_ptr = minVar_; }
+				std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_.value(), maxVar_.value()));
+				if (initMode::INITPERIMETER == iM_.value()) { *gcdo_ptr = minVar_.value(); }
 
 				gcdo_ptr->addAdaptor(gat_ptr);
 				gcdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
@@ -1800,8 +1618,8 @@ void GFunctionIndividualFactory::postProcess_(std::shared_ptr < GParameterSet > 
 			// Fill the individual with GConstrainedDoubleObject objects, each equipped with a copy of our adaptor
 			// Note that addAdaptor() itself will take care of cloning the adaptor
 			for (std::size_t i = 0; i < nData; i++) {
-				std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_, maxVar_));
-				if (initMode::INITPERIMETER == iM_) { *gcdo_ptr = minVar_; }
+				std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(minVar_.value(), maxVar_.value()));
+				if (initMode::INITPERIMETER == iM_.value()) { *gcdo_ptr = minVar_.value(); }
 
 				gcdo_ptr->addAdaptor(gat_ptr);
 				gcdo_ptr->setParameterName(std::string("var") + Gem::Common::to_string(i));
