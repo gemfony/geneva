@@ -306,15 +306,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The assignment operator
-	  */
-	 GDecorator<dimensions::Dim2, coordinate_type>& operator=(const GDecorator<dimensions::Dim2, coordinate_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 };
-
-	 /***************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -454,15 +445,6 @@ public:
 	  */
 	 virtual ~GMarker()
 	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The assignment operator
-	  */
-	 GMarker<coordinate_type>& operator=(const GMarker<coordinate_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 };
 
 	 /***************************************************************************/
 	 /**
@@ -643,15 +625,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The assignment operator
-	  */
-	 GDecorator<dimensions::Dim3, coordinate_type>& operator=(const GDecorator<dimensions::Dim3, coordinate_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 };
-
-	 /***************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -792,15 +765,6 @@ public:
 	  */
 	 virtual ~GDecoratorContainer()
 	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The assignment operator
-	  */
-	 GDecoratorContainer<dimensions::Dim2, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 };
 
 	 /***************************************************************************/
 	 /**
@@ -966,15 +930,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The assignment operator
-	  */
-	 GDecoratorContainer<dimensions::Dim3, coordinate_type>& operator=(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 };
-
-	 /***************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -1126,9 +1081,6 @@ public:
 
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GBasePlotter();
-
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GBasePlotter& operator=(const GBasePlotter &);
 
 	 /** @brief Allows to set the drawing arguments for this plot */
 	 G_API_COMMON void setDrawingArguments(std::string);
@@ -1285,15 +1237,6 @@ public:
 	  */
 	 virtual ~GDataCollector1T() {
 		 m_data.clear();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * The assignment operator
-	  */
-	 GDataCollector1T<x_type>& operator=(const GDataCollector1T<x_type> &cp) {
-		 this->load_(&cp);
-		 return *this;
 	 }
 
 	 /***************************************************************************/
@@ -1525,9 +1468,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GHistogram1D();
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GHistogram1D& operator=(const GHistogram1D &);
-
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
 
@@ -1611,9 +1551,6 @@ public:
 
 	 /** @brief The destructor */
 	 G_API_COMMON ~GHistogram1I();
-
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GHistogram1I& operator=(const GHistogram1I &);
 
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
@@ -1711,15 +1648,6 @@ public:
 	  */
 	 virtual ~GDataCollector2T() {
 		 m_data.clear();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * The assignment operator
-	  */
-	 GDataCollector2T<x_type, y_type>& operator=(const GDataCollector2T<x_type, y_type> &cp) {
-		 this->load_(&cp);
-		 return *this;
 	 }
 
 	 /***************************************************************************/
@@ -2112,15 +2040,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The assignment operator
-	  */
-	 GDataCollector2ET<x_type, y_type>& operator=(const GDataCollector2ET<x_type, y_type> &cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to add data of undetermined type to the collection in an intuitive way,
 	  * provided that it can be converted safely to the target type.
 	  *
@@ -2367,9 +2286,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GHistogram2D();
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GHistogram2D& operator=(const GHistogram2D&);
-
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
 	 /** @brief Retrieve the number of bins in y-direction */
@@ -2464,9 +2380,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GGraph2D();
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GGraph2D& operator=(const GGraph2D &);
-
 	 /** @brief Adds arrows to the plots between consecutive points */
 	 G_API_COMMON void setDrawArrows(bool= true);
 	 /** @brief Retrieves the value of the drawArrows_ variable */
@@ -2542,8 +2455,6 @@ public:
 
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GGraph2ED();
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GGraph2ED& operator=(const GGraph2ED &);
 
 	 /** @brief Determines whether a scatter plot or a curve is created */
 	 G_API_COMMON void setPlotMode(graphPlotMode);
@@ -2627,15 +2538,6 @@ public:
 	  */
 	 virtual ~GDataCollector3T() {
 		 m_data.clear();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * The assignment operator
-	  */
-	 GDataCollector3T<x_type, y_type, z_type>& operator=(const GDataCollector3T<x_type, y_type, z_type> &cp) {
-		 this->load_(&cp);
-		 return *this;
 	 }
 
 	 /***************************************************************************/
@@ -3022,9 +2924,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GGraph3D();
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GGraph3D& operator=(const GGraph3D &);
-
 	 /** @brief Adds lines to the plots between consecutive points */
 	 G_API_COMMON void setDrawLines(bool= true);
 	 /** @brief Retrieves the value of the drawLines_ variable */
@@ -3112,15 +3011,6 @@ public:
 	  */
 	 virtual ~GDataCollector4T() {
 		 m_data.clear();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * The assignment operator
-	  */
-	 GDataCollector4T<x_type, y_type, z_type, w_type>& operator=(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) {
-		 this->load_(&cp);
-		 return *this;
 	 }
 
 	 /***************************************************************************/
@@ -3590,9 +3480,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GGraph4D();
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GGraph4D& operator=(const GGraph4D &);
-
 	 /** @brief Allows to set the minimum marker size */
 	 G_API_COMMON void setMinMarkerSize(const double &);
 	 /** @brief Allows to set the maximum marker size */
@@ -3689,9 +3576,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GFunctionPlotter1D();
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GFunctionPlotter1D& operator=(const GFunctionPlotter1D &);
-
 	 /** @brief Allows to set the number of sampling points in x-direction */
 	 G_API_COMMON void setNSamplesX(std::size_t);
 
@@ -3769,9 +3653,6 @@ public:
 
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GFunctionPlotter2D();
-
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GFunctionPlotter2D& operator=(const GFunctionPlotter2D &);
 
 	 /** @brief Allows to set the number of sampling points in x-direction */
 	 G_API_COMMON void setNSamplesX(std::size_t);
@@ -3857,9 +3738,6 @@ public:
 	 G_API_COMMON GPlotDesigner(const GPlotDesigner&);
 	 /** @brief The destructor */
 	 G_API_COMMON virtual ~GPlotDesigner();
-
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GPlotDesigner& operator=(const GPlotDesigner &);
 
 	 /* @brief Emits the overall plot */
 	 G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;

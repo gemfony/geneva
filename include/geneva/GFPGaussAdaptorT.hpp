@@ -158,15 +158,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GFPGaussAdaptorT<fp_type>& operator=(const GFPGaussAdaptorT<fp_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *

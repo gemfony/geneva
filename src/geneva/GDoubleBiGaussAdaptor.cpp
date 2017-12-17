@@ -81,17 +81,6 @@ GObject *GDoubleBiGaussAdaptor::clone_() const {
 	return new GDoubleBiGaussAdaptor(*this);
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GDoubleBiGaussAdaptor &GDoubleBiGaussAdaptor::operator=(
-	const GDoubleBiGaussAdaptor &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

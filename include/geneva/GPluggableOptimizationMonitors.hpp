@@ -99,9 +99,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GStandardMonitor() = default;
 
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA GStandardMonitor& operator=(const GStandardMonitor& cp);
-
 	 /** @brief Aggregates the work of all registered pluggable monitors */
 	 virtual G_API_GENEVA  void informationFunction(
 		 const infoMode& im
@@ -179,9 +176,6 @@ public:
 	 G_API_GENEVA GFitnessMonitor(const GFitnessMonitor& cp);
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GFitnessMonitor() = default;
-
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA  GFitnessMonitor& operator=(const GFitnessMonitor& cp);
 
 	 /** @brief Allows to specify a different name for the result file */
 	 G_API_GENEVA void setResultFileName(const std::string &resultFile);
@@ -290,9 +284,6 @@ public:
 	 G_API_GENEVA GCollectiveMonitor(const GCollectiveMonitor& cp);
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GCollectiveMonitor() = default;
-
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA  GCollectiveMonitor& operator=(const GCollectiveMonitor& cp);
 
 	 /** @brief Aggregates the work of all registered pluggable monitors */
 	 virtual G_API_GENEVA  void informationFunction(
@@ -435,15 +426,6 @@ public:
 	  */
 	 virtual ~GProgressPlotterT()
 	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * A standard assignment operator
-	  */
-	 GProgressPlotterT<fp_type>& operator=(const GProgressPlotterT<fp_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
 
 	 /**************************************************************************/
 	 /**
@@ -1144,9 +1126,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GAllSolutionFileLogger() = default;
 
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA  GAllSolutionFileLogger& operator=(const GAllSolutionFileLogger& cp);
-
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA  std::string name() const override;
 
@@ -1288,9 +1267,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GIterationResultsFileLogger() = default;
 
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA  GIterationResultsFileLogger& operator=(const GIterationResultsFileLogger& cp);
-
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA  std::string name() const override;
 
@@ -1395,9 +1371,6 @@ public:
 	 G_API_GENEVA GNAdpationsLogger(const GNAdpationsLogger& cp);
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GNAdpationsLogger() = default;
-
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA  GNAdpationsLogger& operator=(const GNAdpationsLogger& cp);
 
 	 /** @brief Searches for compliance with expectations with respect to another object */
 	 virtual G_API_GENEVA  void compare(
@@ -1570,15 +1543,6 @@ public:
 	  */
 	 virtual ~GAdaptorPropertyLoggerT()
 	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * A standard assignment operator
-	  */
-	 GAdaptorPropertyLoggerT<num_type>& operator=(const GAdaptorPropertyLoggerT<num_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -2061,9 +2025,6 @@ public:
 	 G_API_GENEVA GProcessingTimesLogger(const GProcessingTimesLogger& cp);
 	 /** @brief  The destructor */
 	 virtual G_API_GENEVA  ~GProcessingTimesLogger() = default;
-
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA  GProcessingTimesLogger& operator=(const GProcessingTimesLogger& cp);
 
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA  std::string name() const override;

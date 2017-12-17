@@ -43,15 +43,6 @@ namespace Geneva {
 /** A short identifier suitable for storage in a std::map */
 G_API_GENEVA const std::string GEvolutionaryAlgorithm_PersonalityTraits::nickname = "ea"; // NOLINT
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GEvolutionaryAlgorithm_PersonalityTraits &GEvolutionaryAlgorithm_PersonalityTraits::operator=(const GEvolutionaryAlgorithm_PersonalityTraits &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

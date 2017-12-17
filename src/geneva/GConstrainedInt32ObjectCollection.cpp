@@ -68,17 +68,6 @@ GConstrainedInt32ObjectCollection::GConstrainedInt32ObjectCollection(const GCons
  */
 GConstrainedInt32ObjectCollection::~GConstrainedInt32ObjectCollection() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GConstrainedInt32ObjectCollection &GConstrainedInt32ObjectCollection::operator=(
-	const GConstrainedInt32ObjectCollection &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Creates a deep clone of this object.

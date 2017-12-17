@@ -99,17 +99,6 @@ GDoubleGaussAdaptor::GDoubleGaussAdaptor(
  */
 GDoubleGaussAdaptor::~GDoubleGaussAdaptor() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GDoubleGaussAdaptor &GDoubleGaussAdaptor::operator=(
-	const GDoubleGaussAdaptor &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Creates a deep clone of this object.

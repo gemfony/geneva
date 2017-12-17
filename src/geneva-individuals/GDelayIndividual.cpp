@@ -71,18 +71,6 @@ GDelayIndividual::~GDelayIndividual()
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another GDelayIndividual
- * @return A constant reference to the function argument
- */
-GDelayIndividual& GDelayIndividual::operator=(const GDelayIndividual& cp){
-	GDelayIndividual::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

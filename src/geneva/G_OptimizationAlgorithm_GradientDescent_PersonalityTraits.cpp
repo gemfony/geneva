@@ -64,17 +64,6 @@ GGradientDescent_PersonalityTraits::GGradientDescent_PersonalityTraits(const GGr
  */
 GGradientDescent_PersonalityTraits::~GGradientDescent_PersonalityTraits() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GGradientDescent_PersonalityTraits &GGradientDescent_PersonalityTraits::operator=(
-	const GGradientDescent_PersonalityTraits &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

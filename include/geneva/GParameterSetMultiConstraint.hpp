@@ -82,9 +82,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA ~GParameterSetConstraint();
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GParameterSetConstraint& operator=(const GParameterSetConstraint&);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object
@@ -136,9 +133,6 @@ public:
 	 G_API_GENEVA GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint&);
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA ~GParameterSetFormulaConstraint();
-
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA  GParameterSetFormulaConstraint& operator=(const GParameterSetFormulaConstraint&);
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(

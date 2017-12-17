@@ -78,15 +78,6 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */ }
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- */
-GExternalEvaluatorIndividual &GExternalEvaluatorIndividual::operator=(const GExternalEvaluatorIndividual &cp) {
-	GExternalEvaluatorIndividual::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

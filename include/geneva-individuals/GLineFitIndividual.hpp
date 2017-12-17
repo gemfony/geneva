@@ -100,9 +100,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_INDIVIDUALS ~GLineFitIndividual();
 
-	 /** @brief The standard assignment operator */
-	 G_API_INDIVIDUALS GLineFitIndividual &operator=(const GLineFitIndividual &);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_INDIVIDUALS void compare(
 		 const GObject & // the other object

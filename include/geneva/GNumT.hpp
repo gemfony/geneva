@@ -142,15 +142,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GNumT<T>& operator=(const GNumT<T>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * An assignment operator for the contained value type
 	  */
 	 T operator=(const T& val) override {

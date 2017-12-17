@@ -405,15 +405,6 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
  */
 GParameterScan::~GParameterScan() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GParameterScan &GParameterScan::operator=(const GParameterScan &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs

@@ -110,15 +110,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GPreEvaluationValidityCheckT<ind_type>& operator=(const GPreEvaluationValidityCheckT<ind_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *

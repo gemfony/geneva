@@ -72,15 +72,6 @@ GTestIndividual1::GTestIndividual1(const GTestIndividual1 &cp)
  */
 GTestIndividual1::~GTestIndividual1() { /* nothing */   }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GTestIndividual1 &GTestIndividual1::operator=(const GTestIndividual1 &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

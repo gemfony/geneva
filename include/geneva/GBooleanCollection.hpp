@@ -89,9 +89,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_GENEVA ~GBooleanCollection();
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GBooleanCollection& operator=(const GBooleanCollection&);
-
 	 /** @brief FLips the value at a given position */
 	 G_API_GENEVA void flip(const std::size_t&);
 

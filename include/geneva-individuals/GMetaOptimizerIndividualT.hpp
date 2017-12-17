@@ -231,19 +231,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * A standard assignment operator
-	  *
-	  * @param cp A copy of another GMetaOptimizerIndividualT<ind_type>
-	  */
-	 GMetaOptimizerIndividualT<ind_type> &operator=(
-		 const GMetaOptimizerIndividualT<ind_type> &cp
-	 ) {
-		 GMetaOptimizerIndividualT<ind_type>::load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *

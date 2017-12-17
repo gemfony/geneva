@@ -125,18 +125,6 @@ GTestIndividual3::~GTestIndividual3()
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another GTestIndividual3 object
- * @return A constant reference to this object
- */
-GTestIndividual3 &GTestIndividual3::operator=(const GTestIndividual3 &cp) {
-	GTestIndividual3::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

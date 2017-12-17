@@ -149,17 +149,6 @@ GStarterIndividual::~GStarterIndividual()
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another GStarterIndividual
- */
-const GStarterIndividual& GStarterIndividual::operator=(const GStarterIndividual& cp){
-	GStarterIndividual::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

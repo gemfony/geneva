@@ -162,9 +162,6 @@ public:
 		 , const double& loc_maxAdProb
 	 );
 
-	 /** @brief A standard assignment operator */
-	 const GImageIndividual& operator=(const GImageIndividual&);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual void compare(
 		 const GObject&

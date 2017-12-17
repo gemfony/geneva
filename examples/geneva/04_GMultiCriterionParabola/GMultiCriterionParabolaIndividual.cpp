@@ -114,18 +114,6 @@ GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(const GMult
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another GMultiCriterionParabolaIndividual object
- * @return A constant reference to this object
- */
-const GMultiCriterionParabolaIndividual& GMultiCriterionParabolaIndividual::operator=(const GMultiCriterionParabolaIndividual& cp){
-	GMultiCriterionParabolaIndividual::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Assigns a number of minima to this object
  */
 void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double>& minima) {

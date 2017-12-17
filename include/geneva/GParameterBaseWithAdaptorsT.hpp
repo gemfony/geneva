@@ -110,15 +110,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GParameterBaseWithAdaptorsT<T>& operator=(const GParameterBaseWithAdaptorsT<T>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *

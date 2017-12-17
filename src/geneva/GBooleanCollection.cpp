@@ -123,17 +123,6 @@ GBooleanCollection::GBooleanCollection(const GBooleanCollection &cp)
 GBooleanCollection::~GBooleanCollection()
 { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GBooleanCollection &GBooleanCollection::operator=(
-	const GBooleanCollection &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * FLips the value at a given position

@@ -159,15 +159,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GConstrainedIntT<int_type>& operator=(const GConstrainedIntT<int_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * A standard assignment operator for int_type values. Note that this function
 	  * will throw an exception if the new value is not in the allowed value range.
 	  *

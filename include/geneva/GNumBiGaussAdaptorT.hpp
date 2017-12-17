@@ -168,15 +168,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GNumBiGaussAdaptorT<num_type, fp_type>& operator=(const GNumBiGaussAdaptorT<num_type, fp_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *

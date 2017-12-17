@@ -116,9 +116,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual ~GFMinIndividual();
 
-	 /** @brief A standard assignment operator */
-	 const GFMinIndividual& operator=(const GFMinIndividual&);
-
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
 

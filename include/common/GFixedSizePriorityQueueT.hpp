@@ -161,15 +161,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * A standard assignment operator
-	  */
-	 GFixedSizePriorityQueueT<T>& operator=(const GFixedSizePriorityQueueT<T>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Gives access to the best item without copying it
 	  */
 	 std::shared_ptr <T> best() const {

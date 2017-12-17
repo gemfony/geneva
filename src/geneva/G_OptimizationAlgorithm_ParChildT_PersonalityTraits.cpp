@@ -68,17 +68,6 @@ GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits(
 GBaseParChildPersonalityTraits::~GBaseParChildPersonalityTraits()
 { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GBaseParChildPersonalityTraits &GBaseParChildPersonalityTraits::operator=(
-	const GBaseParChildPersonalityTraits &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

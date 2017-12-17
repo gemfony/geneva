@@ -77,15 +77,6 @@ GSimulatedAnnealing::GSimulatedAnnealing(const GSimulatedAnnealing& cp)
 
 /******************************************************************************/
 /**
-* The standard assignment operator
-*/
- GSimulatedAnnealing& GSimulatedAnnealing::operator=(const GSimulatedAnnealing& cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
   * Searches for compliance with expectations with respect to another object
   * of the same type
   *

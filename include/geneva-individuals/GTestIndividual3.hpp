@@ -107,9 +107,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_INDIVIDUALS ~GTestIndividual3();
 
-	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS GTestIndividual3 &operator=(const GTestIndividual3 &);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_INDIVIDUALS void compare(
 		 const GObject & // the other object

@@ -83,15 +83,6 @@ GObject *GParameterObjectCollection::clone_() const {
 	return new GParameterObjectCollection(*this);
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GParameterObjectCollection &GParameterObjectCollection::operator=(const GParameterObjectCollection &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

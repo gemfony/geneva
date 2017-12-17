@@ -69,15 +69,6 @@ GParameterBase::GParameterBase(const GParameterBase &cp)
  */
 GParameterBase::~GParameterBase() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GParameterBase &GParameterBase::operator=(const GParameterBase &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Loads the data of another GObject

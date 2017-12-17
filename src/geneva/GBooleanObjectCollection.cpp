@@ -99,17 +99,6 @@ GObject *GBooleanObjectCollection::clone_() const {
 	return new GBooleanObjectCollection(*this);
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GBooleanObjectCollection &GBooleanObjectCollection::operator=(
-	const GBooleanObjectCollection &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

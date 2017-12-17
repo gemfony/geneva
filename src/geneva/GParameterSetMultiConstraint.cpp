@@ -60,15 +60,6 @@ GParameterSetConstraint::GParameterSetConstraint(const GParameterSetConstraint &
  */
 GParameterSetConstraint::~GParameterSetConstraint() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GParameterSetConstraint &GParameterSetConstraint::operator=(const GParameterSetConstraint &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

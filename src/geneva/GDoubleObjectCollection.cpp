@@ -78,17 +78,6 @@ GObject *GDoubleObjectCollection::clone_() const {
 	return new GDoubleObjectCollection(*this);
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GDoubleObjectCollection &GDoubleObjectCollection::operator=(
-	const GDoubleObjectCollection &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

@@ -115,15 +115,6 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
 GSwarmAlgorithm::~GSwarmAlgorithm()
 { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GSwarmAlgorithm &GSwarmAlgorithm::operator=(const GSwarmAlgorithm &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm.

@@ -244,15 +244,6 @@ G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationA
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- */
- G_OptimizationAlgorithm_Base& G_OptimizationAlgorithm_Base::operator=(const G_OptimizationAlgorithm_Base& cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Performs the necessary administratory work of doing check-pointing. Special
  * work necessary for a given optimization algorithm may be performed in the
  * virtual function saveCheckpoint(), which is called by this function.

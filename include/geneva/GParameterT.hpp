@@ -115,15 +115,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GParameterT<T>& operator=(const GParameterT<T>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * An assignment operator that allows us to set val_ . Note that the value is returned as
 	  * a copy, not a reference. Hence we assume here that val_ is copy-constructible.
 	  *

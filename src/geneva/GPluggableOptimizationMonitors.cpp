@@ -55,16 +55,6 @@ namespace Geneva {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-/**
- * A standard assignment operator
- */
- GStandardMonitor& GStandardMonitor::operator=(const GStandardMonitor& cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
 /**
  * Aggregates the work of all registered pluggable monitors
  */
@@ -241,15 +231,6 @@ GFitnessMonitor::GFitnessMonitor(const GFitnessMonitor& cp)
 {
 	Gem::Common::copyCloneableSmartPointerContainer(cp.m_globalFitnessGraphVec, m_globalFitnessGraphVec);
 	Gem::Common::copyCloneableSmartPointerContainer(cp.m_iterationFitnessGraphVec, m_iterationFitnessGraphVec);
-}
-
-/******************************************************************************/
-/**
- * A standard assignment operator
- */
- GFitnessMonitor& GFitnessMonitor::operator=(const GFitnessMonitor& cp) {
-	this->load_(&cp);
-	return *this;
 }
 
 /******************************************************************************/
@@ -626,15 +607,6 @@ GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor& cp) : GBasePlug
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- */
- GCollectiveMonitor& GCollectiveMonitor::operator=(const GCollectiveMonitor& cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Aggregates the work of all registered pluggable monitors
  */
 void GCollectiveMonitor::informationFunction(
@@ -845,15 +817,6 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(const GAllSolutionFileLogger& cp)
 	  , m_printInitial(cp.m_printInitial)
 	  , m_showIterationBoundaries(cp.m_showIterationBoundaries)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * A standard assignment operator
- */
- GAllSolutionFileLogger& GAllSolutionFileLogger::operator=(const GAllSolutionFileLogger& cp) {
-	this->load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**
@@ -1262,15 +1225,6 @@ GIterationResultsFileLogger::GIterationResultsFileLogger(const GIterationResults
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- */
- GIterationResultsFileLogger& GIterationResultsFileLogger::operator=(const GIterationResultsFileLogger& cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Emits a name for this class / object
  */
 std::string GIterationResultsFileLogger::name() const {
@@ -1556,15 +1510,6 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger& cp)
 	Gem::Common::copyCloneableSmartPointer(cp.m_nAdaptionsHist2D_oa, m_nAdaptionsHist2D_oa);
 	Gem::Common::copyCloneableSmartPointer(cp.m_nAdaptionsGraph2D_oa, m_nAdaptionsGraph2D_oa);
 	Gem::Common::copyCloneableSmartPointer(cp.m_fitnessGraph2D_oa, m_fitnessGraph2D_oa);
-}
-
-/******************************************************************************/
-/**
- * A standard assignment operator
- */
- GNAdpationsLogger& GNAdpationsLogger::operator=(const GNAdpationsLogger& cp) {
-	this->load_(&cp);
-	return *this;
 }
 
 /******************************************************************************/
@@ -1972,15 +1917,6 @@ GProcessingTimesLogger::GProcessingTimesLogger(const GProcessingTimesLogger& cp)
 {
 	// No need to copy the histograms over, as they will be instantiated
 	// in the INFOINIT section.
-}
-
-/******************************************************************************/
-/**
- * A standard assignment operator
- */
- GProcessingTimesLogger& GProcessingTimesLogger::operator=(const GProcessingTimesLogger& cp) {
-	this->load_(&cp);
-	return *this;
 }
 
 /******************************************************************************/

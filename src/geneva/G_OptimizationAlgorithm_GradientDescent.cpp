@@ -93,15 +93,6 @@ GGradientDescent::GGradientDescent(const GGradientDescent &cp)
  */
 GGradientDescent::~GGradientDescent() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GGradientDescent &GGradientDescent::operator=(const GGradientDescent &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs

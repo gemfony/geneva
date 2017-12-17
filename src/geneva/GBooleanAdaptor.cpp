@@ -101,17 +101,6 @@ void GBooleanAdaptor::customAdaptions(
 	value == true ? value = false : value = true;
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GBooleanAdaptor &GBooleanAdaptor::operator=(
-	const GBooleanAdaptor &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

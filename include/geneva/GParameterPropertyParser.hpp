@@ -135,15 +135,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Assignment opertor
-	  */
-	 parPropSpec<par_type>& operator=(const parPropSpec<par_type> &cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Emits a name for this class / object
 	  */
 	 std::string name() const override {

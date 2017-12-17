@@ -78,15 +78,6 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(const GSwar
  */
 GSwarmAlgorithm_PersonalityTraits::~GSwarmAlgorithm_PersonalityTraits() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GSwarmAlgorithm_PersonalityTraits &GSwarmAlgorithm_PersonalityTraits::operator=(const GSwarmAlgorithm_PersonalityTraits &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

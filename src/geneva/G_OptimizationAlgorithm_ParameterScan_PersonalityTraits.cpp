@@ -65,15 +65,6 @@ GParameterScan_PersonalityTraits::GParameterScan_PersonalityTraits(const GParame
  */
 GParameterScan_PersonalityTraits::~GParameterScan_PersonalityTraits() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GParameterScan_PersonalityTraits &GParameterScan_PersonalityTraits::operator=(const GParameterScan_PersonalityTraits &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

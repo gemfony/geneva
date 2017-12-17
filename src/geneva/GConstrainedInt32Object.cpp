@@ -102,17 +102,6 @@ GConstrainedInt32Object::GConstrainedInt32Object(const std::int32_t &val)
 GConstrainedInt32Object::~GConstrainedInt32Object()
 { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GConstrainedInt32Object &GConstrainedInt32Object::operator=(
-	const GConstrainedInt32Object &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * An assignment operator for the contained value type

@@ -65,15 +65,6 @@ GSimulatedAnnealing_PersonalityTraits::GSimulatedAnnealing_PersonalityTraits(con
  */
 GSimulatedAnnealing_PersonalityTraits::~GSimulatedAnnealing_PersonalityTraits() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GSimulatedAnnealing_PersonalityTraits &GSimulatedAnnealing_PersonalityTraits::operator=(const GSimulatedAnnealing_PersonalityTraits &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

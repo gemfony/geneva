@@ -85,15 +85,6 @@ GParameterSet::GParameterSet(const GParameterSet &cp)
 	Gem::Common::copyCloneableSmartPointer(cp.m_individual_constraint_ptr, m_individual_constraint_ptr);
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GParameterSet &GParameterSet::operator=(const GParameterSet &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

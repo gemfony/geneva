@@ -223,9 +223,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_GENEVA ~G_OptimizationAlgorithm_Base() override = default;
 
-	 /** @brief A standard assignment operator */
-	 G_API_GENEVA  G_OptimizationAlgorithm_Base& operator=(const G_OptimizationAlgorithm_Base& cp);
-
 	 /** @brief Performs the necessary administratory work of doing check-pointing */
 	 G_API_GENEVA void checkpoint(const bool& is_better) const;
 	 /** @brief Loads the state of the class from disc */

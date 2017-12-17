@@ -99,17 +99,6 @@ GFMinIndividual::GFMinIndividual(const GFMinIndividual& cp)
 GFMinIndividual::~GFMinIndividual()
 { /* nothing */	}
 
-/******************************************************************************/
-/**
- * A standard assignment operator
- *
- * @param cp A copy of another GFMinIndividual
- */
-const GFMinIndividual& GFMinIndividual::operator=(const GFMinIndividual& cp){
-	GFMinIndividual::load_(&cp);
-	return *this;
-}
-
 /*******************************************************************************************/
 /**
  * Adds local configuration options to a GParserBuilder object

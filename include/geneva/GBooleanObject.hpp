@@ -86,8 +86,6 @@ public:
 
 	 /** @brief An assignment operator */
 	 G_API_GENEVA bool operator=(const bool&) override;
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GBooleanObject& operator=(const GBooleanObject&);
 
 	 /** @brief Triggers random initialization of the parameter object */
 	 virtual G_API_GENEVA bool randomInit(

@@ -127,15 +127,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * A standard assignment operator
-	  */
-	 const GImagePOM& operator=(const GImagePOM& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *

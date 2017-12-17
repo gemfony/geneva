@@ -116,15 +116,6 @@ GObject *GInt32GaussAdaptor::clone_() const {
 	return new GInt32GaussAdaptor(*this);
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GInt32GaussAdaptor &GInt32GaussAdaptor::operator=(const GInt32GaussAdaptor &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

@@ -210,10 +210,10 @@ int main(int argc, char **argv) {
 		// to the objects contained in it.
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will create
+		// Assignment through load . Note: This will create
 		// deep copies of all objects stored in c1
-		c2 = c1;
-		*p_c3 = c1;
+		c2.load(c1);
+		p_c3->load(c1);
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
 		for(std::size_t i=0; i<10; i++) {
@@ -256,10 +256,10 @@ int main(int argc, char **argv) {
 		// to the objects contained in it.
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will create
+		// Assignment through load(). Note: This will create
 		// deep copies of all objects stored in c1
-		c2 = c1;
-		*p_c3 = c1;
+		c2.load(c1);
+		p_c3->load(c1);
 
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
@@ -311,10 +311,10 @@ int main(int argc, char **argv) {
 		c1.addAdaptor(gdga_ptr);
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will also create
+		// Assignment through load() . Note: This will also create
 		// deep copies of the adaptor
-		c2=c1;
-		*p_c3 = c1;
+		c2.load(c1);
+		p_c3->load(c1);
 
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
@@ -357,9 +357,9 @@ int main(int argc, char **argv) {
 		c1.addAdaptor(gdga_ptr);
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will also create
+		// Assignment through load() . Note: This will also create
 		// deep copies of the adaptor
-		c2 = c1;
+		c2.load(c1);
 
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
@@ -460,10 +460,10 @@ int main(int argc, char **argv) {
 		// to the objects contained in it.
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will create
+		// Assignment through load() . Note: This will create
 		// deep copies of all objects stored in c1
-		c2 = c1;
-		*p_c3 = c1;
+		c2.load(c1);
+		p_c3->load(c1);
 
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
@@ -509,10 +509,10 @@ int main(int argc, char **argv) {
 		// to the objects contained in it.
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will create
+		// Assignment through load() . Note: This will create
 		// deep copies of all objects stored in c1
-		c2 = c1;
-		*p_c3 = c1;
+		c2.load(c1);
+		p_c3->load(c1);
 
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
@@ -555,10 +555,10 @@ int main(int argc, char **argv) {
 		c1.addAdaptor(ifa_ptr);
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will also create
+		// Assignment through load() . Note: This will also create
 		// deep copies of the adaptor
-		c2=c1;
-		*p_c3 = c1;
+		c2.load(c1);
+		p_c3->load(c1);
 
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
@@ -627,10 +627,10 @@ int main(int argc, char **argv) {
 		// to the objects contained in it.
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will create
+		// Assignment through load() . Note: This will create
 		// deep copies of all objects stored in c1
-		c2 = c1;
-		*p_c3 = c1;
+		c2.load(c1);
+		p_c3->load(c1);
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
 		for(std::size_t i=0; i<10; i++) {
@@ -673,10 +673,10 @@ int main(int argc, char **argv) {
 		p_c5->addAdaptor(bad_ptr);
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will also create
+		// Assignment through load() . Note: This will also create
 		// deep copies of the adaptor
-		c2=c1;
-		*p_c5 = c1;
+		c2.load(c1);
+		p_c5->load(c1);
 
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
@@ -736,10 +736,10 @@ int main(int argc, char **argv) {
 		// to the objects contained in it (if they support this).
 
 		//-----------------------------------------------------
-		// Assignment through operator= . Note: This will create
+		// Assignment through load() . Note: This will create
 		// deep copies of all objects stored in c1
-		c2 = c1;
-		*p_c3 = c1;
+		c2.load(c1);
+		p_c3->load(c1);
 
 		//-----------------------------------------------------
 		// Access to parameter objects in the collection
@@ -829,8 +829,8 @@ int main(int argc, char **argv) {
 
 		//-----------------------------------------------------
 		// Assignment
-		a3 = a1;
-		*p_a4 = a1;
+		a3.load(a1);
+		p_a4->load(a1);
 
 		//-----------------------------------------------------
 		// Setting and retrieval of specific configuration parameters

@@ -125,9 +125,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual ~GStarterIndividual();
 
-	 /** @brief A standard assignment operator */
-	 const GStarterIndividual& operator=(const GStarterIndividual&);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual void compare(
 		 const GObject& // the other object

@@ -220,15 +220,6 @@ GBasePlotter::~GBasePlotter()
 
 /******************************************************************************/
 /**
- * The assignment operator
- */
- GBasePlotter& GBasePlotter::operator=(const GBasePlotter &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Allows to set the drawing arguments for this plot
  *
  * @param drawingArguments The drawing arguments for this plot
@@ -572,15 +563,6 @@ GGraph2D::~GGraph2D()
 
 /******************************************************************************/
 /**
- * The assignment operator
- */
- GGraph2D& GGraph2D::operator=(const GGraph2D &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Adds arrows to the plots between consecutive points. Note that setting this
  * value to true will force "SCATTER" mode
  *
@@ -887,15 +869,6 @@ GGraph2ED::~GGraph2ED()
 
 /******************************************************************************/
 /**
- * The assignment operator
- */
- GGraph2ED& GGraph2ED::operator=(const GGraph2ED &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Determines whether a scatter plot or a curve is created
  *
  * @param pM The desired plot mode
@@ -1160,15 +1133,6 @@ GGraph3D::GGraph3D(const GGraph3D &cp)
  */
 GGraph3D::~GGraph3D()
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GGraph3D& GGraph3D::operator=(const GGraph3D &cp) {
-	this->load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**
@@ -1460,15 +1424,6 @@ GGraph4D::GGraph4D(const GGraph4D &cp)
  */
 GGraph4D::~GGraph4D()
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GGraph4D& GGraph4D::operator=(const GGraph4D &cp) {
-	this->load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**
@@ -1845,15 +1800,6 @@ GHistogram1D::~GHistogram1D()
 
 /******************************************************************************/
 /**
- * The assignment operator
- */
- GHistogram1D& GHistogram1D::operator=(const GHistogram1D &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Retrieve specific header settings for this plot
  */
 std::string GHistogram1D::headerData_(
@@ -2135,15 +2081,6 @@ GHistogram1I::GHistogram1I(const GHistogram1I &cp)
  * The destructor
  */
 GHistogram1I::~GHistogram1I() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GHistogram1I& GHistogram1I::operator=(const GHistogram1I &cp) {
-	this->load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**
@@ -2452,15 +2389,6 @@ GHistogram2D::GHistogram2D(const GHistogram2D &cp)
  * The destructor
  */
 GHistogram2D::~GHistogram2D() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GHistogram2D& GHistogram2D::operator=(const GHistogram2D &cp) {
-	this->load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**
@@ -2882,15 +2810,6 @@ GFunctionPlotter1D::~GFunctionPlotter1D()
 
 /******************************************************************************/
 /**
- * The assignment operator
- */
- GFunctionPlotter1D& GFunctionPlotter1D::operator=(const GFunctionPlotter1D &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Allows to set the number of sampling points of the function on the x-axis
  *
  * @param nSamplesX The number of sampling points of the function on the x-axis
@@ -3128,15 +3047,6 @@ GFunctionPlotter2D::GFunctionPlotter2D(const GFunctionPlotter2D &cp)
  */
 GFunctionPlotter2D::~GFunctionPlotter2D()
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GFunctionPlotter2D& GFunctionPlotter2D::operator=(const GFunctionPlotter2D &cp) {
-	this->load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**
@@ -3419,15 +3329,6 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
  */
 GPlotDesigner::~GPlotDesigner()
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GPlotDesigner& GPlotDesigner::operator=(const GPlotDesigner &cp) {
-	this->load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**

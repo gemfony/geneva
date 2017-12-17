@@ -84,17 +84,6 @@ GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue()
 
 /******************************************************************************/
 /**
- * Copy the data of another GParameterSetFixedSizePriorityQueue over
- */
- GParameterSetFixedSizePriorityQueue& GParameterSetFixedSizePriorityQueue::operator=(
-	const GParameterSetFixedSizePriorityQueue& cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Emits a name for this class / object
  */
 std::string GParameterSetFixedSizePriorityQueue::name() const {

@@ -101,17 +101,6 @@ GDoubleObject::GDoubleObject(
 GDoubleObject::~GDoubleObject()
 { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GDoubleObject &GDoubleObject::operator=(
-	const GDoubleObject &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * An assignment operator

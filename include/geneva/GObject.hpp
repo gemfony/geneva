@@ -140,9 +140,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_GENEVA ~GObject() override;
 
-	 /** @brief Allows derived classes to assign other class'es values */
-	 G_API_GENEVA  GObject& operator=(const GObject&);
-
 	 /** @brief Writes a configuration file to disk */
 	 G_API_GENEVA void writeConfigFile(const std::string&, const std::string&);
 	 /** @brief Reads a configuration file from disk */

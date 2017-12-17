@@ -110,9 +110,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_GENEVA ~G_OptimizationAlgorithm_ParChild() = default;
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  G_OptimizationAlgorithm_ParChild& operator=(const G_OptimizationAlgorithm_ParChild& cp);
-
 	 /** @broef Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& cp

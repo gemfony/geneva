@@ -125,19 +125,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator.
-	  *
-	  * No need to change anything here, but keep the function in place.
-	  *
-	  * @param cp A copy of another G_OA_AlgorithmTemplateT object
-	  */
-	 G_OA_AlgorithmTemplateT& operator=(const G_OA_AlgorithmTemplateT& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Loads the state of the class from disc.
 	  *
 	  * Unless you need to do anything special after loading a checkpoint,

@@ -85,8 +85,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA ~GConstrainedDoubleObject();
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GConstrainedDoubleObject& operator=(const GConstrainedDoubleObject&);
 	 /** @brief An assignment operator for the contained value type */
 	 G_API_GENEVA double operator=(const double&) override;
 

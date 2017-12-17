@@ -59,8 +59,6 @@ namespace Geneva {
  * The purpose of this class is to provide a common base for all parameter classes, so
  * that a GParameterSet can be built from different parameter types. The class also
  * defines the interface that needs to be implemented by parameter classes.
- *
- * Note: It is required that derived classes make sure that a useful operator=() is available!
  */
 class GParameterBase
 	: public GObject
@@ -87,9 +85,6 @@ public:
 	 G_API_GENEVA GParameterBase(const GParameterBase&);
 	 /** @brief The standard destructor */
 	 virtual G_API_GENEVA ~GParameterBase();
-
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GParameterBase& operator=(const GParameterBase&);
 
 	 /** @brief The adaption interface */
 	 G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) override;

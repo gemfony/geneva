@@ -89,9 +89,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual ~GSimulatedAnnealing() = default;
 
-	 /** @brief The standard assignment operator */
-	 GSimulatedAnnealing& operator=(const GSimulatedAnnealing& cp);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual void compare(
 		 const GObject& cp // the other object

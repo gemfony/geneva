@@ -239,7 +239,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_no_failure_expected, T){
 		// Assignment
 		BOOST_REQUIRE_NO_THROW(T_ptr_assign = TFactory_GUnitTests<T>());
 		BOOST_REQUIRE(T_ptr_assign); // must point somewhere
-		BOOST_REQUIRE_NO_THROW(*T_ptr_assign = *T_ptr);
+		BOOST_REQUIRE_NO_THROW(T_ptr_assign->load(*T_ptr));
 
 		// Check for equivalence and similarity
 		BOOST_CHECK(gep.isEqual(*T_ptr_assign, *T_ptr));

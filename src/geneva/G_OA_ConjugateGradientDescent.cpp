@@ -65,15 +65,6 @@ GConjugateGradientDescent::GConjugateGradientDescent(const GConjugateGradientDes
  */
 GConjugateGradientDescent::~GConjugateGradientDescent() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GConjugateGradientDescent &GConjugateGradientDescent::operator=(const GConjugateGradientDescent &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Returns information about the type of optimization algorithm. This function needs

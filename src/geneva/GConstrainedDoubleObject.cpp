@@ -103,17 +103,6 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(const double &val)
 GConstrainedDoubleObject::~GConstrainedDoubleObject()
 { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GConstrainedDoubleObject &GConstrainedDoubleObject::operator=(
-	const GConstrainedDoubleObject &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * An assignment operator for the contained value type

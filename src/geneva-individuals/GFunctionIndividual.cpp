@@ -79,15 +79,6 @@ GDoubleSumConstraint::~GDoubleSumConstraint()
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- */
-GDoubleSumConstraint &GDoubleSumConstraint::operator=(const GDoubleSumConstraint &cp) {
-	GParameterSetConstraint::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -200,15 +191,6 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const GDoubleSumGapConstraint &
  * The destructor
  */
 GDoubleSumGapConstraint::~GDoubleSumGapConstraint() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * A standard assignment operator
- */
-GDoubleSumGapConstraint &GDoubleSumGapConstraint::operator=(const GDoubleSumGapConstraint &cp) {
-	GParameterSetConstraint::load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**
@@ -326,15 +308,6 @@ GSphereConstraint::GSphereConstraint(const GSphereConstraint &cp)
  * The destructor
  */
 GSphereConstraint::~GSphereConstraint() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * A standard assignment operator
- */
-GSphereConstraint &GSphereConstraint::operator=(const GSphereConstraint &cp) {
-	GParameterSetConstraint::load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**
@@ -564,17 +537,6 @@ GFunctionIndividual::GFunctionIndividual(const GFunctionIndividual &cp)
  */
 GFunctionIndividual::~GFunctionIndividual()
 { /* nothing */   }
-
-/******************************************************************************/
-/**
- * A standard assignment operator
- *
- * @param cp A copy of another GFunctionIndividual
- */
-GFunctionIndividual &GFunctionIndividual::operator=(const GFunctionIndividual &cp) {
-	GFunctionIndividual::load_(&cp);
-	return *this;
-}
 
 /******************************************************************************/
 /**

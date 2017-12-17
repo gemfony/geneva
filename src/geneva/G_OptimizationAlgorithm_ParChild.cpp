@@ -80,15 +80,6 @@ G_OptimizationAlgorithm_ParChild::G_OptimizationAlgorithm_ParChild(const G_Optim
 
 /******************************************************************************/
 /**
- * The standard assignment operator
- */
- G_OptimizationAlgorithm_ParChild& G_OptimizationAlgorithm_ParChild::operator=(const G_OptimizationAlgorithm_ParChild& cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

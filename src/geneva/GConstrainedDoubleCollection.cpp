@@ -92,17 +92,6 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection(const GConstrainedDou
  */
 GConstrainedDoubleCollection::~GConstrainedDoubleCollection() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GConstrainedDoubleCollection &GConstrainedDoubleCollection::operator=(
-	const GConstrainedDoubleCollection &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

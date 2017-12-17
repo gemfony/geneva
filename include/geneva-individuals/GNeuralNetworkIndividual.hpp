@@ -410,9 +410,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_INDIVIDUALS ~GNeuralNetworkIndividual();
 
-	 /** @brief A standard assignment operator */
-	 G_API_INDIVIDUALS GNeuralNetworkIndividual &operator=(const GNeuralNetworkIndividual &cp);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_INDIVIDUALS void compare(
 		 const GObject & // the other object

@@ -81,15 +81,6 @@ GObject *GInt32ObjectCollection::clone_() const {
 	return new GInt32ObjectCollection(*this);
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GInt32ObjectCollection &GInt32ObjectCollection::operator=(const GInt32ObjectCollection &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

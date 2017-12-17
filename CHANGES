@@ -36,6 +36,16 @@ The main changes for this release include:
    and binary-libraries, it is highly recommended to also compile Boost in C++14-mode
  - Many classes were given better names. E.g., the main optimization base class has
    been renamed to G_OptimizationAlgorithm_Base .
+ - Classes deriving from the Gem::Common::GCommonInterfaceT class (which applies to most
+   serializable classes) no longer need to have operator==, operator!= and operator= in
+   their interfaces
+ - Optimization-algorithms and the Go2-class have a simplified calling syntax for the
+   optimize() call. Instead of saying something like "auto bestIndividual_ptr = go.optimize<myIndividualType>();"
+   you can now call const functions inside of the Go2 (and optimization algorithm) classes.
+   This allows you in particular to extract not only the best individual, but all best individuals
+   in one go, through a call like "auto bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<myIndividualType>();"
+   for the single best individuel or "auto bestIndividuals_vec = go.optimize()->getBestGlobalIndividuals<myIndividualType>();"
+   (note the plural "s" in the second call. Calls to optimize<myIndividualType>() are no longer valid.
 
 ********************************************************************************
 
@@ -85,6 +95,12 @@ The main changes for this release include:
    now retrieves this information from the broker, which in turn retrieves it from registered consumers.
  - Added a new example showing how to integrate OpenCL with Geneva
  - Exceptions are now thrown at the error-site rather than being raised by the global logger
+ - Users may now indicate custom error conditions via a call to force_set_error("error description")
+   while their evaluation code runs. This may be useful to transport reasons for failed evaluations
+   back to the server in networked or multi-threaded execution
+ - By default, all execution (serial, multithreaded and networked) is now done through the broker.
+   There still exist multi-threaded versions of the optimization algorithms for special purposes. Users
+   should however never have to use this directly.
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016

@@ -81,17 +81,6 @@ GObject *GConstrainedDoubleObjectCollection::clone_() const {
 	return new GConstrainedDoubleObjectCollection(*this);
 }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GConstrainedDoubleObjectCollection &GConstrainedDoubleObjectCollection::operator=(
-	const GConstrainedDoubleObjectCollection &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

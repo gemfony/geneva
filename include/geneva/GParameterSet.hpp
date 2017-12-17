@@ -145,9 +145,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_GENEVA ~GParameterSet() override = default;
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GParameterSet& operator=(const GParameterSet&);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const GObject& // the other object

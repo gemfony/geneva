@@ -294,15 +294,6 @@ void GImageIndividual::init(
 	this->push_back(bg_color_b_ptr);
 }
 
-/******************************************************************************/
-/**
- * A standard assignment operator. Target file name and the target itself are not copied
- */
-const GImageIndividual& GImageIndividual::operator=(const GImageIndividual& cp) {
-	GImageIndividual::load_(&cp);
-	return *this;
-}
-
 /***************************************************************************/
 /**
  * Searches for compliance with expectations with respect to another object

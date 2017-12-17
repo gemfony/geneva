@@ -176,7 +176,7 @@ const target_type * g_ptr_conversion (
 	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
 ) {
 #ifdef DEBUG
-	const target_type *p = dynamic_cast<const target_type *>(convert_ptr);
+	auto p = dynamic_cast<const target_type *>(convert_ptr);
 
 	if(nullptr==convert_ptr || p) {
 		return p;
@@ -756,7 +756,7 @@ const target_type *convertSimplePointer(const source_type *p_raw) {
       }
 
       // Do the actual conversion
-      const target_type  *p = dynamic_cast<const target_type *>(p_raw);
+      auto *p = dynamic_cast<const target_type *>(p_raw);
       if(p) return p;
       else {
 			throw gemfony_exception(
@@ -1140,7 +1140,9 @@ std::string vector_as_string(const std::vector<vec_cont_type>& vec) {
  */
 template<
 	typename gemfony_common_type
-	, typename = std::enable_if_t<Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>
+	, typename = std::enable_if_t<
+		Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value
+	>
 >
 bool operator==(
 	const gemfony_common_type& x
@@ -1164,7 +1166,9 @@ bool operator==(
  */
 template<
 	typename gemfony_common_type
-	, typename = std::enable_if_t<Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>
+	, typename = std::enable_if_t<
+		Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value
+	>
 >
 bool operator!=(
 	const gemfony_common_type& x

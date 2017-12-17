@@ -166,18 +166,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * A standard assignment operator for GBaseExecutorT<processable_type> objects,
-	  *
-	  * @param cp A copy of another GBaseExecutorT<processable_type> object
-	  * @return A constant reference to this object
-	  */
-	 GBaseExecutorT<processable_type>& operator=(const GBaseExecutorT<processable_type> &cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Returns the name of this class
 	  */
 	 std::string name() const override {
@@ -1072,18 +1060,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * A standard assignment operator for GSerialExecutorT<processable_type> objects,
-	  *
-	  * @param cp A copy of another GSerialExecutorT<processable_type> object
-	  * @return A constant reference to this object
-	  */
-	 GSerialExecutorT<processable_type>& operator=(const GSerialExecutorT<processable_type> &cp) {
-		 GSerialExecutorT<processable_type>::load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Adds local configuration options to a GParserBuilder object
 	  *
 	  * @param gpb The GParserBuilder object to which configuration options should be added
@@ -1375,18 +1351,6 @@ public:
 	  */
 	 std::string name() const override {
 		 return std::string("GMTExecutorT<processable_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * A standard assignment operator for GMTExecutorT<processable_type> objects,
-	  *
-	  * @param cp A copy of another GMTExecutorT<processable_type> object
-	  * @return A constant reference to this object
-	  */
-	 GMTExecutorT<processable_type> &operator=(const GMTExecutorT<processable_type> &cp) {
-		 GMTExecutorT<processable_type>::load_(&cp);
-		 return *this;
 	 }
 
 	 /***************************************************************************/
@@ -1802,19 +1766,6 @@ public:
 	  */
 	 std::string name() const override {
 		 return std::string("GBrokerExecutorT<processable_type>");
-	 }
-
-
-	 /***************************************************************************/
-	 /**
-	  * A standard assignment operator for GBrokerExecutorT<processable_type> objects,
-	  *
-	  * @param cp A copy of another GBrokerExecutorT<processable_type> object
-	  * @return A constant reference to this object
-	  */
-	 GBrokerExecutorT<processable_type> &operator=(const GBrokerExecutorT<processable_type> &cp) {
-		 GBrokerExecutorT<processable_type>::load_(&cp);
-		 return *this;
 	 }
 
 	 /***************************************************************************/

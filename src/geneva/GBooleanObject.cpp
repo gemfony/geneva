@@ -94,17 +94,6 @@ GBooleanObject::GBooleanObject(const double &probability) {
  */
 GBooleanObject::~GBooleanObject() { /* nothing */ }
 
-/***************************************************************************/
-/**
- * The standard assignment operator
- */
- GBooleanObject &GBooleanObject::operator=(
-	const GBooleanObject &cp
-) {
-	this->load_(&cp);
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * An assignment operator

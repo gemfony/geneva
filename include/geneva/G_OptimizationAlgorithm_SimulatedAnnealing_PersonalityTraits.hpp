@@ -82,9 +82,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_GENEVA ~GSimulatedAnnealing_PersonalityTraits();
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GSimulatedAnnealing_PersonalityTraits& operator=(const GSimulatedAnnealing_PersonalityTraits&);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object

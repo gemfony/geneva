@@ -156,15 +156,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GNumFPT<fp_type>& operator=(const GNumFPT<fp_type>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * An assignment operator for the contained value type
 	  *
 	  * @param val The value to be assigned to this object

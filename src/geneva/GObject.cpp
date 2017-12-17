@@ -223,15 +223,6 @@ void GObject::load_(const GObject *cp) {
 
 /******************************************************************************/
 /**
- * Allows derived classes to assign other class'es values
- */
- GObject &GObject::operator=(const GObject &cp) {
-	this->load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
  * of this function that is overloaded in derived classes.
  *

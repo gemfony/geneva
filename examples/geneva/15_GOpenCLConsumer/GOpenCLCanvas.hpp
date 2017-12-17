@@ -83,9 +83,6 @@ public:
    /** @brief The destructor */
    virtual ~GOpenCLCanvas();
 
-   /** @brief The assignment operator */
-   const GOpenCLCanvas& operator=(const GOpenCLCanvas&);
-
    /** @brief Find out the deviation between this and another canvas */
    virtual float diff(const GOpenCLCanvas&) const;
 

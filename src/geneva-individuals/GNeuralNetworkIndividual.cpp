@@ -637,20 +637,6 @@ GNeuralNetworkIndividual::~GNeuralNetworkIndividual() { /* nothing */   }
 
 /******************************************************************************/
 /**
- * A standard assignment operator
- *
- * @param cp A copy of another GNeuralNetworkIndividual object
- * @return A reference to this object
- */
-GNeuralNetworkIndividual &GNeuralNetworkIndividual::operator=(
-	const GNeuralNetworkIndividual &cp
-) {
-	GNeuralNetworkIndividual::load_(&cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

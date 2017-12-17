@@ -66,15 +66,6 @@ GOpenCLCanvas::~GOpenCLCanvas()
 
 /******************************************************************************/
 /**
- * The assignment operator
- */
-const GOpenCLCanvas& GOpenCLCanvas::operator=(const GOpenCLCanvas& cp) {
-	Gem::Common::GCanvas8::operator=(cp);
-	return *this;
-}
-
-/******************************************************************************/
-/**
  * Find out the deviation between this and another canvas
  */
 float GOpenCLCanvas::diff(const GOpenCLCanvas& cp) const {

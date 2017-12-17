@@ -98,9 +98,6 @@ public:
 	 /** @brief The standard destructor */
 	 G_API_GENEVA ~GEvolutionaryAlgorithm() override = default;
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GEvolutionaryAlgorithm& operator=(const GEvolutionaryAlgorithm& cp);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const GObject& cp // the other object

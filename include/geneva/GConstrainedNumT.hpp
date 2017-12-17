@@ -231,15 +231,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The standard assignment operator
-	  */
-	 GConstrainedNumT<T>& operator=(const GConstrainedNumT<T>& cp) {
-		 this->load_(&cp);
-		 return *this;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *
@@ -751,7 +742,7 @@ public:
 
 		 //------------------------------------------------------------------------------
 
-		 { // Check that assigning a valid value using operator= results in the correct value
+		 { // Check that assigning a valid value using load results in the correct value
 			 std::shared_ptr<GConstrainedNumT<T>> p_test = this->template clone<GConstrainedNumT<T>>();
 
 			 // Make sure we can freely assign values

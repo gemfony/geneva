@@ -80,9 +80,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_GENEVA ~GBaseParChildPersonalityTraits();
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GBaseParChildPersonalityTraits& operator=(const GBaseParChildPersonalityTraits&);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(
 		 const GObject& // the other object

@@ -88,9 +88,6 @@ public:
 	 /** @brief The destructor */
 	 virtual ~GMultiCriterionParabolaIndividual();
 
-	 /** @brief A standard assignment operator */
-	 const GMultiCriterionParabolaIndividual& operator=(const GMultiCriterionParabolaIndividual&);
-
 	 /** @brief Assigns a number of minima to this object */
 	 void setMinima(const std::vector<double>&);
 

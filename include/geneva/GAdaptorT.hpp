@@ -134,9 +134,9 @@ public:
 	  *
 	  * @param adProb The likelihood for a an adaption to be actually carried out
 	  */
-	 GAdaptorT(const fp_type &adProb)
+	 explicit GAdaptorT(const fp_type &adProb)
 		 : GObject()
-			, m_adProb(adProb)
+		 , m_adProb(adProb)
 	 {
 		 // Do some error checking
 		 // Check that m_adProb is in the allowed range. Adapt, if necessary
@@ -192,16 +192,6 @@ public:
 	  */
 	 virtual ~GAdaptorT()
 	 { /* nothing */}
-
-	 /***************************************************************************/
-	 /**
-	  * The standard assignment operator
-	  */
-	 GAdaptorT<T> &operator=(const GAdaptorT<T> &cp)
-	 {
-		 this->load_(&cp);
-		 return *this;
-	 }
 
 	 /***************************************************************************/
 	 /**

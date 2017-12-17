@@ -81,9 +81,6 @@ public:
 	 /** @brief The standard destructor */
 	 G_API_GENEVA ~GEvolutionaryAlgorithm_PersonalityTraits() override = default;
 
-	 /** @brief The standard assignment operator */
-	 G_API_GENEVA  GEvolutionaryAlgorithm_PersonalityTraits& operator=(const GEvolutionaryAlgorithm_PersonalityTraits&);
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const GObject& // the other object
