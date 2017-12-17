@@ -32,6 +32,10 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GENEVA_LIBRARY_COLLECTION_GSERIALIZABLEFUNCTIONOBJECT_HPP
+#define GENEVA_LIBRARY_COLLECTION_GSERIALIZABLEFUNCTIONOBJECT_HPP
+
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -45,9 +49,6 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
-
-#ifndef GENEVA_LIBRARY_COLLECTION_GSERIALIZABLEFUNCTIONOBJECT_HPP
-#define GENEVA_LIBRARY_COLLECTION_GSERIALIZABLEFUNCTIONOBJECT_HPP
 
 // Geneva headers go here
 #include "common/GCommonInterfaceT.hpp"

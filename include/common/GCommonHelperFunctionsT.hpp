@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCOMMONHELPERFUNCTIONST_HPP_
+#define GCOMMONHELPERFUNCTIONST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -60,9 +63,6 @@
 #include <boost/checked_delete.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
 #include <boost/lockfree/policies.hpp>
-
-#ifndef GCOMMONHELPERFUNCTIONST_HPP_
-#define GCOMMONHELPERFUNCTIONST_HPP_
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctions.hpp"

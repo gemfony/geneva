@@ -32,6 +32,10 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GGLOBALOPTIONST_HPP_
+#define GGLOBALOPTIONST_HPP_
+
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -41,9 +45,6 @@
 #include <mutex>
 
 // Boost headers go here
-
-#ifndef GGLOBALOPTIONST_HPP_
-#define GGLOBALOPTIONST_HPP_
 
 // Geneva headers go here
 

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GSERIALIZETUPLET_HPP_
+#define GSERIALIZETUPLET_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -55,9 +58,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-
-#ifndef GSERIALIZETUPLET_HPP_
-#define GSERIALIZETUPLET_HPP_
 
 /******************************************************************************/
 /**

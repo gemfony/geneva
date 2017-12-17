@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GSTDSIMPLEVECTORINTERFACET_HPP_
+#define GSTDSIMPLEVECTORINTERFACET_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -60,9 +63,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-
-#ifndef GSTDSIMPLEVECTORINTERFACET_HPP_
-#define GSTDSIMPLEVECTORINTERFACET_HPP_
 
 // Geneva headers go here
 

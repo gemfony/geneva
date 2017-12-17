@@ -73,6 +73,9 @@
  * ***************************************************************************
  */
 
+#ifndef GBOUNDEDBUFFERT_HPP_
+#define GBOUNDEDBUFFERT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -94,9 +97,6 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
-
-#ifndef GBOUNDEDBUFFERT_HPP_
-#define GBOUNDEDBUFFERT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

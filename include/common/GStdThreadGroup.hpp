@@ -67,6 +67,9 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
+#ifndef GSTDTHREADGROUP_HPP_
+#define GSTDTHREADGROUP_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -78,9 +81,6 @@
 // Boost headers go here
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-
-#ifndef GSTDTHREADGROUP_HPP_
-#define GSTDTHREADGROUP_HPP_
 
 // Geneva header files go here
 

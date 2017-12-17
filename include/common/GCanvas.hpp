@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCANVAS_HPP_
+#define GCANVAS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -79,9 +82,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-
-#ifndef GCANVAS_HPP_
-#define GCANVAS_HPP_
 
 // Geneva header files go here
 #include "common/GLogger.hpp"

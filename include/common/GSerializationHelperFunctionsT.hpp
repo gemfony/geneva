@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GSERIALIZATIONHELPERFUNCTIONST_HPP_
+#define GSERIALIZATIONHELPERFUNCTIONST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -61,9 +64,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/cast.hpp>
 #include <boost/logic/tribool.hpp>
-
-#ifndef GSERIALIZATIONHELPERFUNCTIONST_HPP_
-#define GSERIALIZATIONHELPERFUNCTIONST_HPP_
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

@@ -32,6 +32,8 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef INCLUDE_COMMON_GTYPETRAITST_HPP_
+#define INCLUDE_COMMON_GTYPETRAITST_HPP_
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -51,11 +53,6 @@
 #include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
 #include <boost/lexical_cast.hpp>
-
-
-#ifndef INCLUDE_COMMON_GTYPETRAITST_HPP_
-#define INCLUDE_COMMON_GTYPETRAITST_HPP_
-
 
 // Geneva headers go here
 

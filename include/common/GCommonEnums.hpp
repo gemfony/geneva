@@ -58,6 +58,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCOMMONENUMS_HPP_
+#define GCOMMONENUMS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -74,11 +77,7 @@
 
 #include <boost/cast.hpp>
 
-#ifndef GCOMMONENUMS_HPP_
-#define GCOMMONENUMS_HPP_
-
 // Geneva headers go here
-
 
 /******************************************************************************/
 /**

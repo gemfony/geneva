@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GERRORSTREAMER_HPP_
+#define GERRORSTREAMER_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -40,9 +43,6 @@
 #include <sstream>
 
 // Boost header files go here
-
-#ifndef GERRORSTREAMER_HPP_
-#define GERRORSTREAMER_HPP_
 
 // Geneva header files go here
 #include "common/GLogger.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GTHREADPOOL_HPP_
+#define GTHREADPOOL_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -48,10 +51,6 @@
 #include <boost/asio/io_service.hpp>
 #include <boost/utility.hpp>
 #include <boost/exception/all.hpp>
-
-#ifndef GTHREADPOOL_HPP_
-#define GTHREADPOOL_HPP_
-
 
 // Geneva header files go here
 #include "common/GLogger.hpp"

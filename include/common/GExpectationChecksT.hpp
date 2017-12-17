@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GEXPECTATIONCHECKST_HPP_
+#define GEXPECTATIONCHECKST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -59,9 +62,6 @@
 #include <boost/noncopyable.hpp>
 #include <boost/optional.hpp>
 #include <boost/typeof/typeof.hpp>
-
-#ifndef GEXPECTATIONCHECKST_HPP_
-#define GEXPECTATIONCHECKST_HPP_
 
 // Gemfony headers go here
 #include "common/GCommonEnums.hpp"

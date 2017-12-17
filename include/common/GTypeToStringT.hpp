@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
+#define INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <string>
 
 // Boost headers go here
-
-#ifndef INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
-#define INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
 
 // Geneva headers go here
 

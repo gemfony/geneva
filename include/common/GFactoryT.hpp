@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GFACTORYT_HPP_
+#define GFACTORYT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -59,9 +62,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-
-#ifndef GFACTORYT_HPP_
-#define GFACTORYT_HPP_
 
 // Geneva header files go here
 #include "common/GParserBuilder.hpp"

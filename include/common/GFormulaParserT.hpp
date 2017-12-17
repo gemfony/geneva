@@ -62,6 +62,9 @@
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  */
 
+#ifndef GFORMULAPARSERT_HPP_
+#define GFORMULAPARSERT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -96,9 +99,6 @@
 #include <boost/variant/apply_visitor.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
-
-#ifndef GFORMULAPARSERT_HPP_
-#define GFORMULAPARSERT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

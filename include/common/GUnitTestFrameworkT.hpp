@@ -38,6 +38,9 @@
  * in order to facilitate unit tests.
  */
 
+#ifndef GUNITTESTFRAMEWORKT_HPP_
+#define GUNITTESTFRAMEWORKT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -45,9 +48,6 @@
 #include <memory>
 
 // Boost headers go here
-
-#ifndef GUNITTESTFRAMEWORKT_HPP_
-#define GUNITTESTFRAMEWORKT_HPP_
 
 // Geneva headers go here
 #include "common/GLogger.hpp"

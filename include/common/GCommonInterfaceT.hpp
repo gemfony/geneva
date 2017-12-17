@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCOMMONINTERFACET_HPP_
+#define GCOMMONINTERFACET_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -60,9 +63,6 @@
 #include <boost/serialization/export.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-
-#ifndef GCOMMONINTERFACET_HPP_
-#define GCOMMONINTERFACET_HPP_
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp" // For the serialization mode

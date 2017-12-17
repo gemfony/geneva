@@ -58,6 +58,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GEXCEPTIONSTREAMER_HPP_
+#define GEXCEPTIONSTREAMER_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -78,9 +81,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
-
-#ifndef GEXCEPTIONSTREAMER_HPP_
-#define GEXCEPTIONSTREAMER_HPP_
 
 // Geneva header files go here
 #include "common/GSingletonT.hpp"

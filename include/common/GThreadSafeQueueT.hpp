@@ -67,6 +67,9 @@
  * ***************************************************************************
  */
 
+#ifndef GTHREADSAFEQUEUET_HPP_
+#define GTHREADSAFEQUEUET_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -78,9 +81,6 @@
 #include <chrono>
 
 // Boost headers go here
-
-#ifndef GTHREADSAFEQUEUET_HPP_
-#define GTHREADSAFEQUEUET_HPP_
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

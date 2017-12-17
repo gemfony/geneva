@@ -81,6 +81,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GEXCEPTIONS_HPP_
+#define GEXCEPTIONS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -90,9 +93,6 @@
 #include <stdexcept>
 
 // Boost header files go here
-
-#ifndef GEXCEPTIONS_HPP_
-#define GEXCEPTIONS_HPP_
 
 // Geneva header files go here
 

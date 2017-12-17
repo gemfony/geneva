@@ -58,6 +58,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GSINGLETONT_HPP_
+#define GSINGLETONT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -70,8 +73,7 @@
 
 #include <boost/utility.hpp>
 
-#ifndef GSINGLETONT_HPP_
-#define GSINGLETONT_HPP_
+// Geneva headers go here
 
 namespace Gem {
 namespace Common {

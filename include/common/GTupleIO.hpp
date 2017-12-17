@@ -58,6 +58,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GTUPLEIO_HPP_
+#define GTUPLEIO_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -69,9 +72,6 @@
 
 // Boost heders go here
 #include <boost/tuple/tuple.hpp>
-
-#ifndef GTUPLEIO_HPP_
-#define GTUPLEIO_HPP_
 
 // Gemfony headers go here
 

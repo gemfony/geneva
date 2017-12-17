@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCOMMONHELPERFUNCTIONS_HPP_
+#define GCOMMONHELPERFUNCTIONS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -63,9 +66,6 @@
 #include <boost/fusion/include/boost_tuple.hpp>
 #include <boost/fusion/adapted/std_tuple.hpp> // Compare http://stackoverflow.com/questions/18158376/getting-boostspiritqi-to-use-stl-containers
 #include <boost/predef.h>
-
-#ifndef GCOMMONHELPERFUNCTIONS_HPP_
-#define GCOMMONHELPERFUNCTIONS_HPP_
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

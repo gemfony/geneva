@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GDEFAULTVALUE_HPP_
+#define GDEFAULTVALUE_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,10 +42,6 @@
 #include <string>
 
 // Boost headers go here
-
-
-#ifndef GDEFAULTVALUE_HPP_
-#define GDEFAULTVALUE_HPP_
 
 // Geneva headers go here
 

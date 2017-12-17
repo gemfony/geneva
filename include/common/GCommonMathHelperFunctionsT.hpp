@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCOMMONMATHHELPERFUNCTIONST_HPP_
+#define GCOMMONMATHHELPERFUNCTIONST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -51,9 +54,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/math/special_functions.hpp>
 #include <boost/numeric/conversion/bounds.hpp>
-
-#ifndef GCOMMONMATHHELPERFUNCTIONST_HPP_
-#define GCOMMONMATHHELPERFUNCTIONST_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

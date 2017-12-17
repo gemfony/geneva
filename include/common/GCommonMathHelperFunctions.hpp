@@ -60,6 +60,9 @@
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  */
 
+#ifndef GCOMMONMATHHELPERFUNCTIONS_HPP_
+#define GCOMMONMATHHELPERFUNCTIONS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -69,9 +72,6 @@
 
 // Boost headers go here
 #include <boost/math/special_functions.hpp>
-
-#ifndef GCOMMONMATHHELPERFUNCTIONS_HPP_
-#define GCOMMONMATHHELPERFUNCTIONS_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

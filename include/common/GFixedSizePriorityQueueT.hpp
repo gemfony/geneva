@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GFIXEDSIZEPRIORITYQUEUET_HPP_
+#define GFIXEDSIZEPRIORITYQUEUET_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -58,9 +61,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-
-#ifndef GFIXEDSIZEPRIORITYQUEUET_HPP_
-#define GFIXEDSIZEPRIORITYQUEUET_HPP_
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
