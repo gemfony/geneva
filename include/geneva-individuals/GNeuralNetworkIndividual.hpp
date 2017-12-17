@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GNEURALNETWORKINDIVIDUAL_HPP_
+#define GNEURALNETWORKINDIVIDUAL_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -63,9 +66,6 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
-
-#ifndef GNEURALNETWORKINDIVIDUAL_HPP_
-#define GNEURALNETWORKINDIVIDUAL_HPP_
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"

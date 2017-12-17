@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCONSTRAINEDVALUELIMITT_HPP_
+#define GCONSTRAINEDVALUELIMITT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -43,9 +46,6 @@
 
 // Boost headers go here
 #include <boost/limits.hpp>
-
-#ifndef GCONSTRAINEDVALUELIMITT_HPP_
-#define GCONSTRAINEDVALUELIMITT_HPP_
 
 // Geneva headers go here
 #include "GOptimizationEnums.hpp"

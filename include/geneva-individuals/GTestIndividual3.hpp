@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GTESTINDIVIDUAL3_HPP_
+#define GTESTINDIVIDUAL3_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -52,9 +55,6 @@
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/optional.hpp>
-
-#ifndef GTESTINDIVIDUAL3_HPP_
-#define GTESTINDIVIDUAL3_HPP_
 
 // Geneva header files go here
 #include "geneva/GParameterSet.hpp"

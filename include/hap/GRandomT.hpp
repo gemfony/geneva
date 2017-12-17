@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GRANDOMT_HPP_
+#define GRANDOMT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -47,9 +50,6 @@
 #include <thread>
 
 // Boost headers go here
-
-#ifndef GRANDOMT_HPP_
-#define GRANDOMT_HPP_
 
 // Geneva headers go here
 #include "hap/GRandomBase.hpp"

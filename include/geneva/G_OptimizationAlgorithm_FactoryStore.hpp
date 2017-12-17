@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GOAFACTORYSTORE_HPP_
+#define GOAFACTORYSTORE_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GOAFACTORYSTORE_HPP_
-#define GOAFACTORYSTORE_HPP_
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"

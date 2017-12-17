@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GENEVA_LIBRARY_COLLECTION_GRANDOMDISTRIBUTIONST_HPP_
+#define GENEVA_LIBRARY_COLLECTION_GRANDOMDISTRIBUTIONST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -40,9 +43,6 @@
 #include <limits>
 
 // Boost headers go here
-
-#ifndef GENEVA_LIBRARY_COLLECTION_GRANDOMDISTRIBUTIONST_HPP_
-#define GENEVA_LIBRARY_COLLECTION_GRANDOMDISTRIBUTIONST_HPP_
 
 // Geneva headers go here
 

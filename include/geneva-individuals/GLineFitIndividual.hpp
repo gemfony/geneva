@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GLINEFITINDIVIDUAL_HPP_
+#define GLINEFITINDIVIDUAL_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -49,9 +52,6 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
-
-#ifndef GLINEFITINDIVIDUAL_HPP_
-#define GLINEFITINDIVIDUAL_HPP_
 
 // Geneva header files go here
 #include "geneva/GParameterSet.hpp"

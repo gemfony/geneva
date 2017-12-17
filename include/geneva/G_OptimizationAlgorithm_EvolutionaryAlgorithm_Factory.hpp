@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef G_OA_EVOLUTIONARYALGORITHMFACTORY_HPP_
+#define G_OA_EVOLUTIONARYALGORITHMFACTORY_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -40,9 +43,6 @@
 
 // Boost header files go here
 #include <boost/filesystem.hpp>
-
-#ifndef G_OA_EVOLUTIONARYALGORITHMFACTORY_HPP_
-#define G_OA_EVOLUTIONARYALGORITHMFACTORY_HPP_
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"

@@ -2,6 +2,9 @@
  * @file GIntNumCollectionT.hpp
  */
 
+#ifndef GINTNUMCOLLECTIONT_HPP_
+#define GINTNUMCOLLECTIONT_HPP_
+
 /*
  * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
  *
@@ -38,10 +41,6 @@
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GINTNUMCOLLECTIONT_HPP_
-#define GINTNUMCOLLECTIONT_HPP_
-
 
 // Geneva header files go here
 

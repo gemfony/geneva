@@ -32,6 +32,10 @@
  * http://www.gemfony.eu .
  */
 
+
+#ifndef GENEVA_LIBRARY_COLLECTION_GWORKERT_HPP
+#define GENEVA_LIBRARY_COLLECTION_GWORKERT_HPP
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -41,9 +45,6 @@
 
 // Boost headers go here
 #include <boost/numeric/conversion/cast.hpp>
-
-#ifndef GENEVA_LIBRARY_COLLECTION_GWORKERT_HPP
-#define GENEVA_LIBRARY_COLLECTION_GWORKERT_HPP
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GRANDOM_TEST_HPP_
+#define GRANDOM_TEST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -46,9 +49,6 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/shared_ptr.hpp>
-
-#ifndef GRANDOM_TEST_HPP_
-#define GRANDOM_TEST_HPP_
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"

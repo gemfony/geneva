@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GNUMFLIPADAPTORT_HPP_
+#define GNUMFLIPADAPTORT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <type_traits>
 
 // Boost headers go here
-
-#ifndef GNUMFLIPADAPTORT_HPP_
-#define GNUMFLIPADAPTORT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GOPTIMIZATIONBENCHMARKCONFIG_HPP_
+#define GOPTIMIZATIONBENCHMARKCONFIG_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -41,9 +44,6 @@
 #include <chrono>
 
 // Boost header files go here
-
-#ifndef GOPTIMIZATIONBENCHMARKCONFIG_HPP_
-#define GOPTIMIZATIONBENCHMARKCONFIG_HPP_
 
 // Geneva header files go here
 

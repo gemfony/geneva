@@ -32,16 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPSPERSONALITYTRAITS_HPP_
+#define GPSPERSONALITYTRAITS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 
 // Boost headers go here
-
-
-#ifndef GPSPERSONALITYTRAITS_HPP_
-#define GPSPERSONALITYTRAITS_HPP_
 
 // Geneva headers go here
 #include "geneva/GPersonalityTraits.hpp"

@@ -32,15 +32,15 @@
  * http://www.gemfony.eu.
  */
 
+#ifndef GCONSUMERSTORE_HPP_
+#define GCONSUMERSTORE_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GCONSUMERSTORE_HPP_
-#define GCONSUMERSTORE_HPP_
 
 // Geneva headers go here
 #include "common/GGlobalOptionsT.hpp"

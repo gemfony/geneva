@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCONSTRAINEDFPNUMCOLLECTIONT_HPP_
+#define GCONSTRAINEDFPNUMCOLLECTIONT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -44,9 +47,6 @@
 
 // Boost header files go here
 #include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
-
-#ifndef GCONSTRAINEDFPNUMCOLLECTIONT_HPP_
-#define GCONSTRAINEDFPNUMCOLLECTIONT_HPP_
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"

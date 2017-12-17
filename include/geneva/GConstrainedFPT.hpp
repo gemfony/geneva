@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCONSTRAINEDFPT_HPP_
+#define GCONSTRAINEDFPT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -42,9 +45,6 @@
 
 // Boost headers go here
 #include <boost/math/special_functions/next.hpp> // Needed so we can calculate the next representable value smaller than a given upper boundary
-
-#ifndef GCONSTRAINEDFPT_HPP_
-#define GCONSTRAINEDFPT_HPP_
 
 // Geneva headers go here
 #include "geneva/GObject.hpp"

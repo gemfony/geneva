@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GMUTABLEPARAMETERI_HPP_
+#define GMUTABLEPARAMETERI_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -41,10 +44,6 @@
 
 // Boost header files go here
 #include <boost/exception/all.hpp>
-
-#ifndef GMUTABLEPARAMETERI_HPP_
-#define GMUTABLEPARAMETERI_HPP_
-
 
 // Geneva header files go here
 #include "hap/GRandomBase.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GRANDOMDEFINES_HPP_
+#define GRANDOMDEFINES_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -40,9 +43,6 @@
 #include <random>
 
 // Boost includes go here
-
-#ifndef GRANDOMDEFINES_HPP_
-#define GRANDOMDEFINES_HPP_
 
 namespace Gem {
 namespace Hap {

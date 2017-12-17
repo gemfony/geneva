@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GNUMCOLLECTIONT_HPP_
+#define GNUMCOLLECTIONT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <type_traits>
 
 // Boost header files go here
-
-#ifndef GNUMCOLLECTIONT_HPP_
-#define GNUMCOLLECTIONT_HPP_
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"

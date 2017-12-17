@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef INCLUDE_GENEVA_GENEVA_HPP_
+#define INCLUDE_GENEVA_GENEVA_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <exception>
 
 // Boost header files go here
-
-#ifndef INCLUDE_GENEVA_GENEVA_HPP_
-#define INCLUDE_GENEVA_GENEVA_HPP_
 
 // Geneva headers go here
 #include "hap/GRandomFactory.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GINDIVIDUALSTANDARDCONSUMERS_HPP_
+#define GINDIVIDUALSTANDARDCONSUMERS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <iostream>
 
 // Boost header files go here
-
-#ifndef GINDIVIDUALSTANDARDCONSUMERS_HPP_
-#define GINDIVIDUALSTANDARDCONSUMERS_HPP_
 
 // Geneva headers go here
 #include "common/GLogger.hpp"

@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPARAMETERSETMULTICONSTRAINT_HPP_
+#define GPARAMETERSETMULTICONSTRAINT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GPARAMETERSETMULTICONSTRAINT_HPP_
-#define GPARAMETERSETMULTICONSTRAINT_HPP_
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"

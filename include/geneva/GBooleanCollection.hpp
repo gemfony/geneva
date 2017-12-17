@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GBOOLEANCOLLECTION_HPP_
+#define GBOOLEANCOLLECTION_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,10 +42,6 @@
 #include <random>
 
 // Boost headers go here
-
-#ifndef GBOOLEANCOLLECTION_HPP_
-#define GBOOLEANCOLLECTION_HPP_
-
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

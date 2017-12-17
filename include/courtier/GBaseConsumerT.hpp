@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCONSUMER_HPP_
+#define GCONSUMER_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -55,9 +58,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/program_options.hpp>
 #include <boost/serialization/vector.hpp>
-
-#ifndef GCONSUMER_HPP_
-#define GCONSUMER_HPP_
 
 // Geneva headers go here
 #include "common/GParserBuilder.hpp"

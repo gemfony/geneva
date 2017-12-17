@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPARAMETERSET_HPP_
+#define GPARAMETERSET_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -43,9 +46,6 @@
 // Boost header files go here
 #include <boost/numeric/conversion/bounds.hpp>
 #include <boost/serialization/split_member.hpp>
-
-#ifndef GPARAMETERSET_HPP_
-#define GPARAMETERSET_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

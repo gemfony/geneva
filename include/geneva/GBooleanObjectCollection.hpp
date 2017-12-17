@@ -32,16 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GBOOLEANOBJECTCOLLECTION_HPP_
+#define GBOOLEANOBJECTCOLLECTION_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GBOOLEANOBJECTCOLLECTION_HPP_
-#define GBOOLEANOBJECTCOLLECTION_HPP_
-
 
 // Geneva header files go here
 #include "geneva/GBooleanObject.hpp"

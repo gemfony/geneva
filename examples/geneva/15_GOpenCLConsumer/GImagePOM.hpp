@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GIMAGEPOM_HPP_
+#define GIMAGEPOM_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <type_traits>
 #include <future>
 #include <atomic>
-
-#ifndef GIMAGEPOM_HPP_
-#define GIMAGEPOM_HPP_
 
 // Geneva headers go here
 #include "geneva/GPluggableOptimizationMonitors.hpp"

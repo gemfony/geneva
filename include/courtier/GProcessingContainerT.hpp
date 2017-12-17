@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GSUBMISSIONCONTAINERBASE_HPP_
+#define GSUBMISSIONCONTAINERBASE_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -63,9 +66,6 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
 #include <boost/exception/diagnostic_information.hpp>
-
-#ifndef GSUBMISSIONCONTAINERBASE_HPP_
-#define GSUBMISSIONCONTAINERBASE_HPP_
 
 // Geneva headers go here
 #include "common/GSerializeTupleT.hpp"

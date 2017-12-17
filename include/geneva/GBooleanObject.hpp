@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GBOOLEANOBJECT_HPP_
+#define GBOOLEANOBJECT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,10 +42,6 @@
 #include <random>
 
 // Boost headers go here
-
-#ifndef GBOOLEANOBJECT_HPP_
-#define GBOOLEANOBJECT_HPP_
-
 
 // Geneva headers go here
 #include "geneva/GParameterT.hpp"

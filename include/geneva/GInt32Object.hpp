@@ -32,16 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GINT32OBJECT_HPP_
+#define GINT32OBJECT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 
 // Boost headers go here
-
-#ifndef GINT32OBJECT_HPP_
-#define GINT32OBJECT_HPP_
-
 
 // Geneva headers go here
 

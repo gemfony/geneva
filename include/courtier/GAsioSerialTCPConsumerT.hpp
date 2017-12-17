@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GASIOSERIALTCPCONSUMERT_HPP
+#define GASIOSERIALTCPCONSUMERT_HPP
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -59,9 +62,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
-
-#ifndef GASIOSERIALTCPCONSUMERT_HPP
-#define GASIOSERIALTCPCONSUMERT_HPP
 
 // Geneva headers go here
 #include "common/GStdThreadGroup.hpp"

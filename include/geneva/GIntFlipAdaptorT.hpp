@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GINTFLIPADAPTORT_HPP_
+#define GINTFLIPADAPTORT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 
 // Boost headers go here
-
-#ifndef GINTFLIPADAPTORT_HPP_
-#define GINTFLIPADAPTORT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

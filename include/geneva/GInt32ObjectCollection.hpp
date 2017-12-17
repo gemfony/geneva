@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GINT32OBJECTCOLLECTION_HPP_
+#define GINT32OBJECTCOLLECTION_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GINT32OBJECTCOLLECTION_HPP_
-#define GINT32OBJECTCOLLECTION_HPP_
 
 // Geneva header files go here
 #include "geneva/GInt32Object.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GBASECLIENTT_HPP_
+#define GBASECLIENTT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -68,9 +71,6 @@
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
-
-#ifndef GBASECLIENTT_HPP_
-#define GBASECLIENTT_HPP_
 
 // Geneva headers go here
 #include "common/GErrorStreamer.hpp"

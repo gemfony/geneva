@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef G_OA_PARAMETERSCAN_HPP_
+#define G_OA_PARAMETERSCAN_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -40,9 +43,6 @@
 #include <memory>
 
 // Boost headers go here
-
-#ifndef G_OA_PARAMETERSCAN_HPP_
-#define G_OA_PARAMETERSCAN_HPP_
 
 // Geneva headers go here
 #include "hap/GRandomT.hpp"

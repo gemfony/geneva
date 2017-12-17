@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GO2_HPP_
+#define GO2_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -41,9 +44,6 @@
 
 // Boost header files go here
 #include <boost/algorithm/string.hpp>
-
-#ifndef GO2_HPP_
-#define GO2_HPP_
 
 // Geneva headers go here
 #include "common/GFactoryT.hpp"

@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GDOUBLEBIGAUSSADAPTOR_HPP_
+#define GDOUBLEBIGAUSSADAPTOR_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 
 // Boost headers go here
-
-#ifndef GDOUBLEBIGAUSSADAPTOR_HPP_
-#define GDOUBLEBIGAUSSADAPTOR_HPP_
 
 // Geneva headers go here
 #include "geneva/GFPBiGaussAdaptorT.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GSIMPLECONTAINER_HPP_
+#define GSIMPLECONTAINER_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -56,9 +59,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-
-#ifndef GSIMPLECONTAINER_HPP_
-#define GSIMPLECONTAINER_HPP_
 
 // Geneva headers go here
 #include "common/GSerializeTupleT.hpp"

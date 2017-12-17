@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GBUFFERPORTT_HPP_
+#define GBUFFERPORTT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -49,9 +52,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
-
-#ifndef GBUFFERPORTT_HPP_
-#define GBUFFERPORTT_HPP_
 
 // Geneva header files go here
 #include "courtier/GCourtierEnums.hpp"

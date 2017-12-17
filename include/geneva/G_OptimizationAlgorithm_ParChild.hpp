@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef G_OA_PARCHILDT_HPP_
+#define G_OA_PARCHILDT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -42,9 +45,6 @@
 // Boost headers go here
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
-
-#ifndef G_OA_PARCHILDT_HPP_
-#define G_OA_PARCHILDT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

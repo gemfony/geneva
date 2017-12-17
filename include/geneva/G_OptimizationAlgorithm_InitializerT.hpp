@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GOAINITIALIZERT_HPP_
+#define GOAINITIALIZERT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -40,9 +43,6 @@
 #include <type_traits>
 
 // Boost header files go here
-
-#ifndef GOAINITIALIZERT_HPP_
-#define GOAINITIALIZERT_HPP_
 
 // Geneva headers go here
 #include "courtier/GExecutorT.hpp"

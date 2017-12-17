@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
+#define GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -46,9 +49,6 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/convenience.hpp>
-
-#ifndef GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
-#define GPLUGGABLEOPTIMIZATIONMONITORST_HPP_
 
 // Geneva headers go here
 #include "courtier/GExecutorT.hpp"

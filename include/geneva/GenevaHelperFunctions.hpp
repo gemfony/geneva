@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GENEVA_LIBRARY_COLLECTION_GENEVAHELPERFUNCTIONS_HPP
+#define GENEVA_LIBRARY_COLLECTION_GENEVAHELPERFUNCTIONS_HPP
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -43,9 +46,6 @@
 #include <tuple>
 
 // Boost headers go here
-
-#ifndef GENEVA_LIBRARY_COLLECTION_GENEVAHELPERFUNCTIONS_HPP
-#define GENEVA_LIBRARY_COLLECTION_GENEVAHELPERFUNCTIONS_HPP
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GRANDOMBASE_HPP_
+#define GRANDOMBASE_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -52,9 +55,6 @@
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/cast.hpp>
-
-#ifndef GRANDOMBASE_HPP_
-#define GRANDOMBASE_HPP_
 
 // Hap headers go here
 #include "common/GCommonMathHelperFunctions.hpp"

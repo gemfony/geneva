@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCONSTRAINEDINT32COLLECTION_HPP_
+#define GCONSTRAINEDINT32COLLECTION_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GCONSTRAINEDINT32COLLECTION_HPP_
-#define GCONSTRAINEDINT32COLLECTION_HPP_
 
 // Geneva header files go here
 #include "geneva/GConstrainedInt32Object.hpp"

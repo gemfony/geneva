@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GOBJECT_HPP_
+#define GOBJECT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -58,7 +61,6 @@
 #include <tuple>
 #include <limits>
 
-
 // Boost header files go here
 #include <boost/any.hpp>
 #include <boost/archive/basic_archive.hpp>
@@ -82,9 +84,6 @@
 #ifdef GEM_TESTING
 #include <boost/test/unit_test.hpp>
 #endif /* GEM_TESTING */
-
-#ifndef GOBJECT_HPP_
-#define GOBJECT_HPP_
 
 // Geneva header files go here
 #include "common/GDefaultValueT.hpp"

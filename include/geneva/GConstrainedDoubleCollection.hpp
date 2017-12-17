@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCONSTRAINEDDOUBLECOLLECTION_HPP_
+#define GCONSTRAINEDDOUBLECOLLECTION_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -41,9 +44,6 @@
 #include <vector>
 
 // Boost header files go here
-
-#ifndef GCONSTRAINEDDOUBLECOLLECTION_HPP_
-#define GCONSTRAINEDDOUBLECOLLECTION_HPP_
 
 // Geneva header files go here
 #include "geneva/GConstrainedFPNumCollectionT.hpp"

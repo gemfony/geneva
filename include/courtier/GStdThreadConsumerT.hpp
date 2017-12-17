@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GSTDTHREADCONSUMERT_HPP_
+#define GSTDTHREADCONSUMERT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -47,9 +50,6 @@
 
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
-
-#ifndef GSTDTHREADCONSUMERT_HPP_
-#define GSTDTHREADCONSUMERT_HPP_
 
 // Geneva headers go here
 #include "common/GStdThreadGroup.hpp"

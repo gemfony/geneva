@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GRATEABLEI_HPP_
+#define GRATEABLEI_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -40,9 +43,6 @@
 #include <vector>
 
 // Boost header files go here
-
-#ifndef GRATEABLEI_HPP_
-#define GRATEABLEI_HPP_
 
 // Geneva header files go here
 

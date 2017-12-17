@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GRANDOMFACTORY_HPP_
+#define GRANDOMFACTORY_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -58,11 +61,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/cast.hpp>
-
-
-#ifndef GRANDOMFACTORY_HPP_
-#define GRANDOMFACTORY_HPP_
-
 
 // Geneva headers go here
 

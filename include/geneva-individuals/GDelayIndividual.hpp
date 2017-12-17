@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GDELAYINDIVIDUAL_HPP_
+#define GDELAYINDIVIDUAL_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -48,9 +51,6 @@
 #include <boost/serialization/nvp.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/lexical_cast.hpp>
-
-#ifndef GDELAYINDIVIDUAL_HPP_
-#define GDELAYINDIVIDUAL_HPP_
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"

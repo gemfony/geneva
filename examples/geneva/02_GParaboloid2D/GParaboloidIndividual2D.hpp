@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPARABOLOIDINDIVIDUAL2D_HPP_
+#define GPARABOLOIDINDIVIDUAL2D_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <iostream>
 
 // Boost header files go here
-
-#ifndef GPARABOLOIDINDIVIDUAL2D_HPP_
-#define GPARABOLOIDINDIVIDUAL2D_HPP_
 
 // Geneva header files go here
 #include <geneva/GParameterSet.hpp>

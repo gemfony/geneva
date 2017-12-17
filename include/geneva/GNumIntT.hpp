@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GNUMINTT_HPP_
+#define GNUMINTT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <type_traits>
 
 // Boost headers go here
-
-#ifndef GNUMINTT_HPP_
-#define GNUMINTT_HPP_
 
 // Geneva headers go here
 #include "geneva/GNumT.hpp"

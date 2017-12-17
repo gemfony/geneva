@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GENEVAHELPERFUNCTIONST_HPP_
+#define GENEVAHELPERFUNCTIONST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -41,9 +44,6 @@
 #include <type_traits>
 
 // Boost headers go here
-
-#ifndef GENEVAHELPERFUNCTIONST_HPP_
-#define GENEVAHELPERFUNCTIONST_HPP_
 
 // Our own headers go here
 #include "common/GExceptions.hpp"

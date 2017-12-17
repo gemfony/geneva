@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP
+#define GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -42,9 +45,6 @@
 // Boost headers go here
 #include <boost/serialization/serialization.hpp> // See last comment at https://svn.boost.org/trac/boost/ticket/12126 . Fixes "sole" inclusion of set.hpp
 #include <boost/serialization/set.hpp>
-
-#ifndef GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP
-#define GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP
 
 // Geneva headers go here
 #include "courtier/GExecutorT.hpp"

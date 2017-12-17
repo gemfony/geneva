@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GEXTERNALEVALUATORINDIVIDUAL_HPP_
+#define GEXTERNALEVALUATORINDIVIDUAL_HPP_
+
 // Standard header files go here
 #include <iostream>
 #include <cmath>
@@ -50,9 +53,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/exception/all.hpp>
-
-#ifndef GEXTERNALEVALUATORINDIVIDUAL_HPP_
-#define GEXTERNALEVALUATORINDIVIDUAL_HPP_
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"

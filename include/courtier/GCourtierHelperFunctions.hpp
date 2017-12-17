@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCOURTIERHELPERFUNCTIONS_HPP_
+#define GCOURTIERHELPERFUNCTIONS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -50,9 +53,6 @@
 // Boost headers go here
 #include <boost/lexical_cast.hpp>
 #include <boost/asio.hpp>
-
-#ifndef GCOURTIERHELPERFUNCTIONS_HPP_
-#define GCOURTIERHELPERFUNCTIONS_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

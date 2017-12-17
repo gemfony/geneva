@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPARAMETERPROPERTYPARSER_HPP_
+#define GPARAMETERPROPERTYPARSER_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -55,9 +58,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
 #include <boost/variant.hpp>
-
-#ifndef GPARAMETERPROPERTYPARSER_HPP_
-#define GPARAMETERPROPERTYPARSER_HPP_
 
 // Geneva headers go here
 #include "common/GLogger.hpp"

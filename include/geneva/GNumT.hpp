@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GNUMT_HPP_
+#define GNUMT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,10 +42,6 @@
 #include <type_traits>
 
 // Boost headers go here
-
-#ifndef GNUMT_HPP_
-#define GNUMT_HPP_
-
 
 // Geneva headers go here
 #include "common/GTypeToStringT.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GEXECUTOR_HPP_
+#define GEXECUTOR_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -70,10 +73,6 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
-
-#ifndef GEXECUTOR_HPP_
-#define GEXECUTOR_HPP_
-
 
 // Geneva headers go here
 #include "common/GCommonInterfaceT.hpp"

@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GSTARTERINDIVIDUAL_HPP_
+#define GSTARTERINDIVIDUAL_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -43,9 +46,6 @@
 #include <tuple>
 
 // Boost header files go here
-
-#ifndef GSTARTERINDIVIDUAL_HPP_
-#define GSTARTERINDIVIDUAL_HPP_
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"

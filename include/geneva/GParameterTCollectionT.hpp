@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPARAMETERTCOLLECTIONT_HPP_
+#define GPARAMETERTCOLLECTIONT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <type_traits>
 
 // Boost header files go here
-
-#ifndef GPARAMETERTCOLLECTIONT_HPP_
-#define GPARAMETERTCOLLECTIONT_HPP_
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"

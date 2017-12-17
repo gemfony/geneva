@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GINDIVIDUALMULTICONSTRAINT_HPP_
+#define GINDIVIDUALMULTICONSTRAINT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GINDIVIDUALMULTICONSTRAINT_HPP_
-#define GINDIVIDUALMULTICONSTRAINT_HPP_
 
 // Geneva header files go here
 #include "geneva/GMultiConstraintT.hpp"

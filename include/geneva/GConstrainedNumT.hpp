@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCONSTRAINEDNUMT_HPP_
+#define GCONSTRAINEDNUMT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -40,9 +43,6 @@
 
 // Boost headers go here
 #include <boost/math/special_functions/next.hpp>
-
-#ifndef GCONSTRAINEDNUMT_HPP_
-#define GCONSTRAINEDNUMT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

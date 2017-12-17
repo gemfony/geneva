@@ -32,14 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP
+#define GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
 
 // Boost headers go here
-#ifndef GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP
-#define GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP
 
 // Geneva headers go here
 #include "geneva/G_OptimizationAlgorithm_ParChildT_PersonalityTraits.hpp"

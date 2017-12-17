@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GDOUBLEOBJECTCOLLECTION_HPP_
+#define GDOUBLEOBJECTCOLLECTION_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GDOUBLEOBJECTCOLLECTION_HPP_
-#define GDOUBLEOBJECTCOLLECTION_HPP_
 
 // Geneva header files go here
 #include "geneva/GDoubleObject.hpp"

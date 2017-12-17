@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GOPTIMIZATIONENUMS_HPP_
+#define GOPTIMIZATIONENUMS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -45,9 +48,6 @@
 // Boost headers go here
 
 #include <boost/logic/tribool.hpp>
-
-#ifndef GOPTIMIZATIONENUMS_HPP_
-#define GOPTIMIZATIONENUMS_HPP_
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

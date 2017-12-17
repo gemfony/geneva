@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPARAMETERT_HPP_
+#define GPARAMETERT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GPARAMETERT_HPP_
-#define GPARAMETERT_HPP_
 
 // Geneva header files go here
 #include "common/GTypeToStringT.hpp"

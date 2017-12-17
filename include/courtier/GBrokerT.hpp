@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GBROKERT_HPP_
+#define GBROKERT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -60,10 +63,6 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
-
-
-#ifndef GBROKERT_HPP_
-#define GBROKERT_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

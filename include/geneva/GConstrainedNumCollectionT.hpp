@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GCONSTRAINEDNUMCOLLECTIONT_HPP_
+#define GCONSTRAINEDNUMCOLLECTIONT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -41,9 +44,6 @@
 #include <vector>
 
 // Boost header files go here
-
-#ifndef GCONSTRAINEDNUMCOLLECTIONT_HPP_
-#define GCONSTRAINEDNUMCOLLECTIONT_HPP_
 
 // Geneva header files go here
 #include "common/GExceptions.hpp"

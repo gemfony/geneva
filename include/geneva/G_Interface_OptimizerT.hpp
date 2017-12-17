@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GOPTIMIZATIONALGORITHMI_HPP_
+#define GOPTIMIZATIONALGORITHMI_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -43,9 +46,6 @@
 #include <mutex>
 
 // Boost header files go here
-
-#ifndef GOPTIMIZATIONALGORITHMI_HPP_
-#define GOPTIMIZATIONALGORITHMI_HPP_
 
 // Geneva headers go here
 #include "geneva/GParameterSet.hpp"

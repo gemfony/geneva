@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GNUMGAUSSADAPTORT_HPP_
+#define GNUMGAUSSADAPTORT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 #include <tuple>
 
 // Boost headers go here
-
-#ifndef GNUMGAUSSADAPTORT_HPP_
-#define GNUMGAUSSADAPTORT_HPP_
 
 // Geneva headers go here
 #include "geneva/GAdaptorT.hpp"

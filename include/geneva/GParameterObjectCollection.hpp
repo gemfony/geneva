@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPARAMETROBJECTCOLLECTION_HPP_
+#define GPARAMETROBJECTCOLLECTION_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -39,9 +42,6 @@
 
 // Boost header files go here
 #include <boost/cast.hpp>
-
-#ifndef GPARAMETROBJECTCOLLECTION_HPP_
-#define GPARAMETROBJECTCOLLECTION_HPP_
 
 // Geneva header files go here
 #include "geneva/GParameterBase.hpp"

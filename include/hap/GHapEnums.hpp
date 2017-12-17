@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GHAPENUMS_HPP_
+#define GHAPENUMS_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -42,9 +45,6 @@
 
 // Boost headers go here
 #include <boost/cast.hpp>
-
-#ifndef GHAPENUMS_HPP_
-#define GHAPENUMS_HPP_
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"

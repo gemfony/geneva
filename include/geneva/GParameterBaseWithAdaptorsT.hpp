@@ -32,15 +32,15 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GPARAMETERBASEWITHADAPTORST_HPP_
+#define GPARAMETERBASEWITHADAPTORST_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
 
 // Boost header files go here
-
-#ifndef GPARAMETERBASEWITHADAPTORST_HPP_
-#define GPARAMETERBASEWITHADAPTORST_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"

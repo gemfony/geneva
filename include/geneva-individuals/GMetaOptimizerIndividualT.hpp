@@ -32,6 +32,9 @@
  * http://www.gemfony.eu .
  */
 
+#ifndef GMETAOPTIMIZERINDIVIDUALT_HPP_
+#define GMETAOPTIMIZERINDIVIDUALT_HPP_
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -43,9 +46,6 @@
 #include <tuple>
 
 // Boost header files go here
-
-#ifndef GMETAOPTIMIZERINDIVIDUALT_HPP_
-#define GMETAOPTIMIZERINDIVIDUALT_HPP_
 
 // Geneva header files go here
 #include "common/GFactoryT.hpp"
