@@ -154,27 +154,22 @@ void GParameterSet::swap(GParameterSet& cp) {
 
 /******************************************************************************/
 /**
- * Allows to randomly initialize parameter members
+ * Allows to randomly initialize parameter members. This function is responsible
+ * for setting the dirty flag, so overloaded randomInit_ functions do not need
+ * to take care of this. Note though that overloads of randomInit_() need to take
+ * care to indicate whether modifications were made.
  *
  * @return A boolean indicating whether modifications where made
  */
 bool GParameterSet::randomInit(const activityMode &am) {
-	// Trigger random initialization of all our parameter objects
-	for(auto& parm_ptr: *this) {
-		parm_ptr->randomInit(am, m_gr);
+	bool modifications_made = this->randomInit_(am);
+
+	if(modifications_made) {
+		this->setDirtyFlag();
 	}
 
-	// As we have modified our internal data sets, make sure the dirty flag is set
-	GParameterSet::setDirtyFlag();
-
-	if(!this->empty()) return true;
-	else return false;
+	return modifications_made;
 }
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**
@@ -188,7 +183,7 @@ bool GParameterSet::randomInit(const activityMode &am) {
  * @param mode A boolean which indicates whether we want to work in maximization or minimization mode
  */
 void GParameterSet::setMaxMode(const bool &mode) {
-	this->setMaxMode_(mode);
+	m_maximize = mode;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1917,7 +1912,7 @@ void GParameterSet::postEvaluationUpdate() {
 #endif /* DEBUG */
 
 	if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == m_eval_policy && this->isInValid()) {
-		if (true == m_maximize) {
+		if (true == this->getMaxMode()) {
 			for (std::size_t i = 0; i < m_n_fitness_criteria; i++) {
 				if (boost::numeric::bounds<double>::highest() == m_validity_level ||
 					 boost::numeric::bounds<double>::lowest() == m_validity_level) {
@@ -2125,6 +2120,34 @@ void GParameterSet::load_(const GObject *cp) {
 	Gem::Common::copyCloneableSmartPointer(p_load->m_individual_constraint_ptr, m_individual_constraint_ptr);
 }
 
+/******************************************************************************/
+/**
+ * Allows to randomly initialize parameter members. This function may be overloaded
+ * by derived classes, but should be called by them. This function recursively initializes
+ * parameters randomly.
+ *
+ * @return A boolean indicating whether modifications where made
+ */
+bool GParameterSet::randomInit_(const activityMode &am) {
+	bool modifications_made = false;
+
+	// Trigger random initialization of all our parameter objects
+	for(auto& parm_ptr: *this) {
+		if(parm_ptr->randomInit(am, m_gr)) {
+			modifications_made=true;
+		}
+	}
+
+	// This also takes care of empty parameter sets, as modifications_made
+	// will remain false in this case.
+	return modifications_made;
+}
+
+/* ----------------------------------------------------------------------------------
+ * Tested in GParameterSet::specificTestsNoFailuresExpected_GUnitTests()
+ * ----------------------------------------------------------------------------------
+ */
+
 /**********************************************************************************/
 /**
  * The actual adaption operations. Easy, as we know that all objects
@@ -2144,26 +2167,6 @@ std::size_t GParameterSet::customAdaptions() {
 
 /* ----------------------------------------------------------------------------------
  * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Specify whether we want to work in maximization (true) or minimization
- * (false) mode. This function is protected. The idea is that GParameterSet provides a public
- * wrapper for this function, so that a user can specify whether he wants to maximize or
- * minimize a given evaluation function. Optimization algorithms, in turn, only check the
- * maximization-mode of the individuals stored in them and set their own maximization mode
- * internally accordingly, using the protected, overloaded function.
- *
- * @param mode A boolean which indicates whether we want to work in maximization or minimization mode
- */
-void GParameterSet::setMaxMode_(const bool &mode) {
-	m_maximize = mode;
-}
-
-/* ----------------------------------------------------------------------------------
- * Setting is tested in GOptimizableEntity::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
 
@@ -2462,9 +2465,9 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test setting and retrieval of the maximization mode flag
 		std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
 
-		BOOST_CHECK_NO_THROW(p_test->setMaxMode_(true));
+		BOOST_CHECK_NO_THROW(p_test->setMaxMode(true));
 		BOOST_CHECK(p_test->getMaxMode() == true);
-		BOOST_CHECK_NO_THROW(p_test->setMaxMode_(false));
+		BOOST_CHECK_NO_THROW(p_test->setMaxMode(false));
 		BOOST_CHECK(p_test->getMaxMode() == false);
 	}
 

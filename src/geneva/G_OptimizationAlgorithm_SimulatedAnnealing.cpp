@@ -695,6 +695,9 @@ void GSimulatedAnnealing::sortSAMode() {
 /**
   * Calculates the simulated annealing probability for a child to replace a parent
   *
+  * TODO: Is this correct ? Optimization should only see minimization, hence detecting the
+  * max mode should be unnecessary here ?
+  *
   * @param qParent The fitness of the parent
   * @param qChild The fitness of the child
   * @return A double value in the range [0,1[, representing the likelihood for the child to replace the parent

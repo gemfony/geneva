@@ -152,12 +152,11 @@ public:
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
 
-	 /***************************************************************************/
 	 /** Swap another object's vector with ours. */
 	 void swap(GParameterSet& cp);
 
 	 /** @brief Allows to randomly initialize parameter members */
-	 virtual G_API_GENEVA bool randomInit(const activityMode&) BASE;
+	 G_API_GENEVA bool randomInit(const activityMode&);
 
 	 /** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
 	 G_API_GENEVA void setMaxMode(const bool&);
@@ -878,10 +877,11 @@ protected:
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
 
+	 /** @brief Random initialization */
+	 virtual G_API_GENEVA bool randomInit_(const activityMode&) BASE;
+
 	 /* @brief The actual adaption operations. */
 	 virtual G_API_GENEVA std::size_t customAdaptions() BASE ;
-	 /** @brief Specify whether we want to work in maximization (true) or minimization (false) mode */
-	 virtual G_API_GENEVA void setMaxMode_(const bool&) BASE;
 
 	 /** @brief The fitness calculation for the main quality criterion takes place here */
 	 virtual G_API_GENEVA double fitnessCalculation() BASE;
