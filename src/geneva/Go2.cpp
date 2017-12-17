@@ -542,14 +542,12 @@ const Go2 * const Go2::optimize(const std::uint32_t &offset) {
  *
  * @return The best individual found
  */
-std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual() const {
-	Go2::iterator it;
-
+std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() const {
 	// Do some error checking
 	if (this->empty()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
+				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "No individuals found" << std::endl
 		);
 	}
@@ -559,7 +557,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual()
 		if (ind_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
+					<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
 					<< "Found individual in position " << pos << " whose dirty flag is set" <<
 					std::endl
 			);
@@ -571,7 +569,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual()
 	if (!m_sorted) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In Go2::customGetBestGlobalIndividual(): Error!" << std::endl
+				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "Tried to retrieve best individual" << std::endl
 				<< "from an unsorted population." << std::endl
 		);
@@ -588,14 +586,12 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestGlobalIndividual()
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGlobalIndividuals() const {
-	Go2::iterator it;
-
+std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndividuals_() const {
 	// Do some error checking
 	if (this->empty()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
+				<< "In Go2::getBestGlobalIndividuals_(): Error!" << std::endl
 				<< "No individuals found" << std::endl
 		);
 	}
@@ -606,7 +602,7 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGloba
 		if (ind_ptr->isDirty()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In Go2::customGetBestGlobalIndividuals(): Error!" << std::endl
+					<< "In Go2::getBestGlobalIndividuals_(): Error!" << std::endl
 					<< "Found individual in position " << pos << " whose dirty flag is set" <<
 					std::endl
 			);
@@ -628,10 +624,10 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestGloba
  *
  * @return The best individual found
  */
-std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIterationIndividual() {
+std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() {
 	throw gemfony_exception(
 		g_error_streamer(DO_LOG,  time_and_place)
-			<< "In Go2::customGetBestIterationIndividual(): Error!" << std::endl
+			<< "In Go2::getBestIterationIndividual_(): Error!" << std::endl
 			<< "This function should not be called" << std::endl
 	);
 
@@ -646,10 +642,10 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::customGetBestIterationIndividua
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::customGetBestIterationIndividuals() {
+std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestIterationIndividuals_() {
 	throw gemfony_exception(
 		g_error_streamer(DO_LOG,  time_and_place)
-			<< "In Go2::customGetBestIterationIndividuals(): Error!" << std::endl
+			<< "In Go2::getBestIterationIndividuals_(): Error!" << std::endl
 			<< "This function should not be called" << std::endl
 	);
 

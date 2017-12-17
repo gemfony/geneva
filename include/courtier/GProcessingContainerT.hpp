@@ -89,8 +89,6 @@ class g_processing_exception : public gemfony_exception { using gemfony_exceptio
  * re-implement the purely virtual functions in derived classes. Note that it is mandatory for
  * derived classes to be serializable and to trigger serialization of this class.
  *
- * TODO: Cross-check that all data is correctly loaded, copied, serialized, ...
- *
  * @tparam processable_type The type of the class derived from GProcessingContainerT
  * @tparam processing_result_type The result type of the process_ call
  */
@@ -581,14 +579,14 @@ public:
 		 m_bufferport_id = p_load->m_bufferport_id;
 		 m_preProcessingDisabled = p_load->m_preProcessingDisabled;
 		 m_postProcessingDisabled = p_load->m_postProcessingDisabled;
-		 m_stored_result = p_load->m_stored_result;
 		 m_pre_processing_time = p_load->m_pre_processing_time;
 		 m_processing_time = p_load->m_processing_time;
+		 m_post_processing_time = p_load->m_post_processing_time;
 		 m_bufferport_raw_submission_time = p_load->m_bufferport_raw_submission_time;
 		 m_bufferport_raw_retrieval_time = p_load->m_bufferport_raw_retrieval_time;
 		 m_bufferport_proc_submission_time = p_load->m_bufferport_proc_submission_time;
 		 m_bufferport_proc_retrieval_time = p_load->m_bufferport_proc_retrieval_time;
-		 m_post_processing_time = p_load->m_post_processing_time;
+		 m_stored_result = p_load->m_stored_result;
 		 m_stored_error_descriptions = p_load->m_stored_error_descriptions;
 		 m_processing_status = p_load->m_processing_status;
 

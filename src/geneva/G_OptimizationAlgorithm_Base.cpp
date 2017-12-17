@@ -1576,14 +1576,14 @@ std::string G_OptimizationAlgorithm_Base::extractOptAlgFromPath(const boost::fil
  * Retrieves the best individual found up to now (which is usually the best individual
  * in the priority queue).
  */
-std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::customGetBestGlobalIndividual() const {
+std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestGlobalIndividual_() const {
 #ifdef DEBUG
 	std::shared_ptr<GParameterSet> p = m_bestGlobalIndividuals_pq.best();
 	if(p) return p;
 	else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In G_OptimizationAlgorithm_Base<T>::customGetBestGlobalIndividual(): Error!" << std::endl
+				<< "In G_OptimizationAlgorithm_Base<T>::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "Best individual seems to be empty" << std::endl
 		);
 
@@ -1600,7 +1600,7 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::customGetBestGlobal
  * Retrieves a list of the best individuals found (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::customGetBestGlobalIndividuals() const {
+std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getBestGlobalIndividuals_() const {
 	std::vector<std::shared_ptr<GParameterSet>> bestIndividualsVec;
 
 	for(const auto& ind_ptr: m_bestGlobalIndividuals_pq.toVector()) {
@@ -1615,14 +1615,14 @@ std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::custom
  * Retrieves the best individual found in the iteration (which is the best individual
  * in the priority queue).
  */
-std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::customGetBestIterationIndividual() {
+std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationIndividual_() {
 #ifdef DEBUG
 	std::shared_ptr<GParameterSet> p = m_bestIterationIndividuals_pq.best();
 	if(p) return p;
 	else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In G_OptimizationAlgorithm_Base<T>::customGetBestIterationIndividual(): Error!" << std::endl
+				<< "In G_OptimizationAlgorithm_Base<T>::getBestIterationIndividual_(): Error!" << std::endl
 				<< "Best individual seems to be empty" << std::endl
 		);
 
@@ -1639,7 +1639,7 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::customGetBestIterat
  * Retrieves a list of the best individuals found in the iteration (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::customGetBestIterationIndividuals() {
+std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getBestIterationIndividuals_() {
 	return m_bestIterationIndividuals_pq.toVector();
 }
 

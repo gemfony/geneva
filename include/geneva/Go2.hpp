@@ -214,13 +214,13 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Retrieves the best individual found */
-	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() const final;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const final;
 	 /** @brief Retrieves a list of the best individuals found */
-	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() const final;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const final;
 	 /** @brief Retrieves the best individual found */
-	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() final;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() final;
 	 /** @brief Retrieves a list of the best individuals found */
-	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() final;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() final;
 
 	 /** @brief Satisfies a requirement of G_Interface_Optimizer */
 	 G_API_GENEVA void runFitnessCalculation() final;

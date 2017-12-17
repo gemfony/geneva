@@ -481,14 +481,14 @@ protected:
 	 G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path& p) const;
 
 	 /** @brief Retrieves the best individual found up to now */
-	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() const override;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const override;
 	 /** @brief Retrieves a list of the best individuals found */
-	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() const override;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const override;
 
 	 /** @brief Retrieves the best individual found in the iteration */
-	 G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() override;
 	 /** @brief Retrieves a list of the best individuals found in the */
-	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestIterationIndividuals() override;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() override;
 
 	 /** @brief Allows to set the personality type of the individuals */
 	 G_API_GENEVA void setIndividualPersonalities();

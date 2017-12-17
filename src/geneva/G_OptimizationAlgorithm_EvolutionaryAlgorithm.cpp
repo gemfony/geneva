@@ -1029,7 +1029,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 	// account minimization and maximization).
 	if (nIndividualsOnParetoFront > this->getNParents()) {
 		// randomly shuffle pareto-front individuals to avoid a bias
-		std::random_shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront);
+		std::shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront, this->m_gr);
 	} else if (nIndividualsOnParetoFront < this->getNParents()) {
 		// Sort the non-pareto-front individuals according to their master fitness
 		std::partial_sort(
@@ -1129,7 +1129,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 	// might be changed in subsequent versions of Geneva (TODO).
 	if (nIndividualsOnParetoFront > this->getNParents()) {
 		// randomly shuffle pareto-front individuals to avoid a bias
-		std::random_shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront);
+		std::shuffle(this->begin(), this->begin() + nIndividualsOnParetoFront, this->m_gr);
 	} else if (nIndividualsOnParetoFront < this->getNParents()) {
 		// Sort the non-pareto-front individuals according to their master fitness
 		std::partial_sort(
