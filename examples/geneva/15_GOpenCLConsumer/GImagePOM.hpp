@@ -243,7 +243,7 @@ public:
 					 // do not currently protect these resouces. This should be changed.
 					 std::async(
 						 [&]() {
-							 goa->G_Interface_Optimizer::getBestIterationIndividual<GImageIndividual>()->writeImage(
+							 goa->G_Interface_OptimizerT::getBestIterationIndividual<GImageIndividual>()->writeImage(
 								 "image"
 								 , resultImageDirectory_
 								 , std::tuple<std::size_t, std::size_t>(

@@ -59,7 +59,7 @@
 #include "courtier/GBrokerT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GenevaHelperFunctionsT.hpp"
-#include "geneva/G_Interface_Optimizer.hpp"
+#include "geneva/G_Interface_OptimizerT.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
 #include "geneva/GParameterObjectCollection.hpp"
@@ -105,7 +105,7 @@ using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
  * class also hides the details of client/server mode, consumer initialization, etc.
  */
 class Go2
-	: public G_Interface_Optimizer<Go2>
+	: public G_Interface_OptimizerT<Go2>
 	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
 {
 public:

@@ -725,7 +725,7 @@ public:
 				 double primaryFitness;
 
 				 if(m_monitorBestOnly) { // Monitor the best individuals only
-					 std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
+					 std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
 					 if(GBasePluggableOM::m_useRawEvaluation) {
 						 primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
 					 } else {
@@ -1742,7 +1742,7 @@ public:
 				 std::uint32_t iteration = goa->getIteration();
 
 				 // Record the current fitness
-				 std::shared_ptr<GParameterSet> p = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
+				 std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
 				 (*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), double(p->fitness()));
 
 				 // Update the largest known iteration and the number of recorded iterations
@@ -1754,7 +1754,7 @@ public:
 
 				 // Do the actual logging
 				 if(m_monitorBestOnly) {
-					 std::shared_ptr<GParameterSet> best = goa->G_Interface_Optimizer::template getBestGlobalIndividual<GParameterSet>();
+					 std::shared_ptr<GParameterSet> best = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
 
 					 // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
 					 best->queryAdaptor(m_adaptorName, m_property, data);

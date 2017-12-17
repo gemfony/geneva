@@ -41,7 +41,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GIntGaussAdaptorT.hpp
 	GIntNumCollectionT.hpp
     G_Interface_Mutable.hpp
-    G_Interface_Optimizer.hpp
+    G_Interface_OptimizerT.hpp
     G_Interface_Rateable.hpp
     GMultiConstraintT.hpp
     GMutableParameterI.hpp

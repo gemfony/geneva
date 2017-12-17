@@ -74,7 +74,7 @@ Go2::Go2(
 	, const std::string &configFilename
 	, const boost::program_options::options_description &userDescriptions
 )
-	: G_Interface_Optimizer<Go2>()
+	: G_Interface_OptimizerT<Go2>()
 	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
 	  , m_config_filename(configFilename)
 {

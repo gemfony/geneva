@@ -58,7 +58,7 @@
 #include "common/GPlotDesigner.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "geneva/GObject.hpp"
-#include "geneva/G_Interface_Optimizer.hpp"
+#include "geneva/G_Interface_OptimizerT.hpp"
 #include "geneva/GParameterSet.hpp"
 #include "geneva/GPersonalityTraits.hpp"
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
@@ -166,7 +166,7 @@ public:
 class G_OptimizationAlgorithm_Base
 	: public GObject
 	  , public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
-	  , public G_Interface_Optimizer<G_OptimizationAlgorithm_Base>
+	  , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base>
 {
 private:
 	 ///////////////////////////////////////////////////////////////////////
