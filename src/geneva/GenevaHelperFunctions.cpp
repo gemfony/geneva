@@ -63,6 +63,46 @@ void setProcessingFlag(
 }
 
 /******************************************************************************/
+/**
+ * Transforms the individual fitness so that the optimization algorithm always
+ * "sees" a minimization problem. Optimization algorithms should only use this
+ * function to retrieve the fitness of individuals.
+ *
+ * @param item_ptr The work item for which the fitness should be retrieved
+ * @param id The id of the fitness criterion (individuals may have more than one)
+ */
+double minOnly_cached_fitness(
+	const std::shared_ptr<GParameterSet>& item_ptr
+	, std::size_t id
+) {
+	double f = item_ptr->fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+	maxMode m = item_ptr->getMaxMode();
+
+#ifdef DEBUG
+	if(!item_ptr) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In minOnly_cached_fitness():" << std::endl
+				<< "Got empty work item" << std::endl
+		);
+	}
+#endif
+
+	if (maxMode::MINIMIZE == m) {
+		return f;
+	} else { // MAXIMIZE
+		// Negation will transform maximization problems into minimization problems
+		if (boost::numeric::bounds<double>::highest() == f) {
+			return boost::numeric::bounds<double>::lowest();
+		} else if (boost::numeric::bounds<double>::lowest() == f) {
+			return boost::numeric::bounds<double>::highest();
+		} else {
+			return -f;
+		}
+	}
+}
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

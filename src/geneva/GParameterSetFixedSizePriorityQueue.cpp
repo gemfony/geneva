@@ -41,13 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with the maximum size
  */
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const std::size_t &maxSize)
@@ -60,26 +53,10 @@ GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const s
  * lower evaluations are considered better
  */
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
-	const std::size_t &maxSize, const bool &higherIsBetter
+	const std::size_t &maxSize
+	, const bool &higherIsBetter
 )
 	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, higherIsBetter)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
-	const GParameterSetFixedSizePriorityQueue &cp
-)
-	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GParameterSetFixedSizePriorityQueue::~GParameterSetFixedSizePriorityQueue()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -180,9 +157,9 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
  * uses the primary evaluation criterion only.
  */
 double GParameterSetFixedSizePriorityQueue::evaluation(
-	const std::shared_ptr <GParameterSet> &item
+	const std::shared_ptr<GParameterSet> &item_ptr
 ) const {
-	return item->minOnly_fitness();
+	return minOnly_cached_fitness(item_ptr);
 }
 
 /******************************************************************************/

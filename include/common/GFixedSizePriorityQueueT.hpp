@@ -499,7 +499,7 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether value x is better than value y
+	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(std::shared_ptr <T> new_item, std::shared_ptr <T> old_item) const {
 		 if (m_higherIsBetter) {
@@ -513,9 +513,9 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether value x is better than value y
+	  * Checks whether value new_item is better than value old_item
 	  */
-	 bool isBetter(std::shared_ptr <T> new_item, const double &old_item) const {
+	 bool isBetter(std::shared_ptr<T> new_item, const double &old_item) const {
 		 if (m_higherIsBetter) {
 			 if (this->evaluation(new_item) > old_item) return true;
 			 else return false;
@@ -527,9 +527,9 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether value x is better than value y
+	  * Checks whether value new_item is better than value old_item
 	  */
-	 bool isBetter(const double &new_item, std::shared_ptr <T> old_item) const {
+	 bool isBetter(const double &new_item, std::shared_ptr<T> old_item) const {
 		 if (m_higherIsBetter) {
 			 if (new_item > this->evaluation(old_item)) return true;
 			 else return false;
@@ -541,7 +541,7 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks whether value x is better than value y
+	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(const double &new_item, const double &old_item) const {
 		 if (m_higherIsBetter) {
@@ -555,7 +555,7 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Evaluates a single work item, so that it can be sorted */
-	 virtual G_API_COMMON double evaluation(const std::shared_ptr <T> &) const BASE = 0;
+	 virtual G_API_COMMON double evaluation(const std::shared_ptr <T>&) const BASE = 0;
 
 	 /** @brief Returns a unique id for a work item */
 	 virtual G_API_COMMON std::string id(const std::shared_ptr <T> &) const BASE = 0;

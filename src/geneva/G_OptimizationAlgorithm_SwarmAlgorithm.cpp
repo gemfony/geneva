@@ -1310,8 +1310,8 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 		// Only partially sort the arrays
 		std::sort(
 			this->begin() + firstCounter, this->begin() + lastCounter,
-			[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
-				return x->minOnly_fitness() < y->minOnly_fitness();
+			[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
+				return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
 			}
 		);
 

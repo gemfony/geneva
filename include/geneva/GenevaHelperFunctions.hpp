@@ -55,12 +55,15 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
-
 /** @brief Sets the processing flag in a given range */
 G_API_GENEVA void setProcessingFlag(
 	std::vector<std::shared_ptr<GParameterSet>>&
 	, const std::tuple<std::size_t, std::size_t>&
 );
+
+/******************************************************************************/
+/** @brief Transforms the individual fitness so that the optimization algorithm always "sees" a minimization problem */
+G_API_GENEVA double minOnly_cached_fitness(const std::shared_ptr<GParameterSet>&, std::size_t = 0);
 
 /******************************************************************************/
 

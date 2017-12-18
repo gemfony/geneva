@@ -850,26 +850,6 @@ double GParameterSet::transformedFitness(std::size_t id) const {
 
 /******************************************************************************/
 /**
- * Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization
- */
-double GParameterSet::minOnly_fitness(std::size_t id) const {
-	double f = fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
-
-	if (maxMode::MAXIMIZE == this->getMaxMode()) { // Negation will transform maximization problems into minimization problems
-		if (boost::numeric::bounds<double>::highest() == f) {
-			return boost::numeric::bounds<double>::lowest();
-		} else if (boost::numeric::bounds<double>::lowest() == f) {
-			return boost::numeric::bounds<double>::highest();
-		} else {
-			return -f;
-		}
-	} else {
-		return f;
-	}
-}
-
-/******************************************************************************/
-/**
  * Returns all raw fitness results in a std::vector
  */
 std::vector<double> GParameterSet::fitnessVec() const {
@@ -1922,6 +1902,9 @@ std::string GParameterSet::getCurrentEvaluationID() const {
  * than another one. As "better" means something different for maximization and minimization,
  * this function helps to make the code easier to understand.
  *
+ * TODO: This code is dangerous, as it may be called with minOnlyFitness-values -- eliminate!
+ * TODO: Comparison of more than one work item may be a feature of the optimization algorithm
+ *
  * @param newValue The new value
  * @param oldValue The old value
  * @return true if newValue is better than oldValue, otherwise false.
@@ -1932,6 +1915,26 @@ bool GParameterSet::isBetter(double newValue, const double &oldValue) const {
 		else return false;
 	} else { // minimization
 		if (newValue < oldValue) return true;
+		else return false;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
+ * than another one. As "worse" means something different for maximization and minimization,
+ * this function helps to make the code easier to understand.
+ *
+ * @param newValue The new value
+ * @param oldValue The old value
+ * @return true of newValue is worse than oldValue, otherwise false.
+ */
+bool GParameterSet::isWorse(double newValue, const double &oldValue) const {
+	if (maxMode::MAXIMIZE == this->getMaxMode()) {
+		if (newValue < oldValue) return true;
+		else return false;
+	} else { // minimization
+		if (newValue > oldValue) return true;
 		else return false;
 	}
 }
@@ -1963,28 +1966,6 @@ bool GParameterSet::isWorseThan(std::shared_ptr<GParameterSet> p) const {
 		else return false;
 	}
 }
-
-/******************************************************************************/
-/**
- * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
- * than another one. As "worse" means something different for maximization and minimization,
- * this function helps to make the code easier to understand.
- *
- * @param newValue The new value
- * @param oldValue The old value
- * @return true of newValue is worse than oldValue, otherwise false.
- */
-bool GParameterSet::isWorse(double newValue, const double &oldValue) const {
-	if (maxMode::MAXIMIZE == this->getMaxMode()) {
-		if (newValue < oldValue) return true;
-		else return false;
-	} else { // minimization
-		if (newValue > oldValue) return true;
-		else return false;
-	}
-}
-
-
 
 /******************************************************************************/
 /**

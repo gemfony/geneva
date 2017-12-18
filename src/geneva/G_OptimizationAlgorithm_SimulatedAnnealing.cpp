@@ -660,16 +660,16 @@ void GSimulatedAnnealing::sortSAMode() {
 	// Position the nParents best children of the population right behind the parents
 	std::partial_sort(
 		this->begin() + this->m_n_parents, this->begin() + 2 * this->m_n_parents, this->end(),
-		[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
-			return x->minOnly_fitness() < y->minOnly_fitness();
+		[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
+			return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
 		}
 	);
 
 	// Check for each parent whether it should be replaced by the corresponding child
 	for (std::size_t np = 0; np < this->m_n_parents; np++) {
 		double pPass = saProb(
-			this->at(np)->minOnly_fitness()
-			, this->at(this->m_n_parents + np)->minOnly_fitness()
+			minOnly_cached_fitness(this->at(np))
+			, minOnly_cached_fitness(this->at(this->m_n_parents + np))
 		);
 		if (pPass >= 1.) {
 			this->at(np)->GObject::load(this->at(this->m_n_parents + np));
@@ -682,11 +682,11 @@ void GSimulatedAnnealing::sortSAMode() {
 		}
 	}
 
-	// Sort the parents -- it is possible that a child with a worse fitness has replaced a parent
+	// Sort the new parents -- it is possible that a child with a worse fitness has replaced a parent
 	std::sort(
 		this->begin(), this->begin() + this->m_n_parents,
-		[](std::shared_ptr <GParameterSet> x, std::shared_ptr <GParameterSet> y) -> bool {
-			return x->minOnly_fitness() < y->minOnly_fitness();
+		[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
+			return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
 		}
 	);
 

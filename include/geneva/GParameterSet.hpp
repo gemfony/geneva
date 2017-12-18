@@ -206,16 +206,13 @@ public:
 	 /** @brief Calculate or returns the result of a fitness function with a given id */
 	 G_API_GENEVA double fitness(std::size_t, bool, bool) const override;
 
-	 /** @brief Returns the transformed result of a fitness function with a given id */
-	 G_API_GENEVA double transformedFitness(std::size_t = 0) const override;
-
-	 /** @brief Returns a fitness targetted at optimization algorithms, taking into account maximization and minimization */
-	 G_API_GENEVA double minOnly_fitness(std::size_t = 0) const override;
-
 	 /** @brief Returns all raw fitness results in a std::vector */
 	 G_API_GENEVA std::vector<double> fitnessVec() const override;
 	 /** @brief Returns all raw or transformed results in a std::vector */
 	 G_API_GENEVA std::vector<double> fitnessVec(bool) const override;
+
+	 /** @brief Returns the transformed result of a fitness function with a given id */
+	 G_API_GENEVA double transformedFitness(std::size_t = 0) const override;
 	 /** @brief Returns all transformed fitness results in a std::vector */
 	 G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
 

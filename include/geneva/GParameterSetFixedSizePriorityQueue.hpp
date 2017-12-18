@@ -60,6 +60,7 @@
 
 // Geneva header files go here
 #include "common/GFixedSizePriorityQueueT.hpp"
+#include "geneva/GenevaHelperFunctions.hpp"
 #include "geneva/GParameterSet.hpp"
 
 namespace Gem {
@@ -88,15 +89,15 @@ class GParameterSetFixedSizePriorityQueue
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GParameterSetFixedSizePriorityQueue();
+	 G_API_GENEVA GParameterSetFixedSizePriorityQueue() = default;
 	 /** @brief Initialization with the maximum size */
 	 explicit G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t&);
 	 /** @brief Initialization with the maximum size and the information, whether higher or lower evaluations are considered better */
 	 G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t&, const bool&);
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue&);
+	 G_API_GENEVA GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue& cp) = default;
 	 /** @brief The destructor */
-	 G_API_GENEVA ~GParameterSetFixedSizePriorityQueue();
+	 G_API_GENEVA ~GParameterSetFixedSizePriorityQueue() = default;
 
 	 /** @brief Checks whether no item has the dirty flag set */
 	 G_API_GENEVA bool allClean(std::size_t&) const;
@@ -106,7 +107,7 @@ public:
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA std::string name() const override;
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
