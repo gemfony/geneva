@@ -287,17 +287,11 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 				dirtyFlag = false; // The next call should change this value
 				// Once oldFitness has been set (in iterations > 0), currentFitness() should return that value here
 				BOOST_CHECK_MESSAGE (
-					oldFitness == p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS), "\n"
-																															 << "oldFitness = " <<
-																															 oldFitness << "\n"
-																															 <<
-																															 "p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS) = " <<
-																															 p_test->getCachedFitness(
-																																 0,
-																																 Gem::Geneva::USETRANSFORMEDFITNESS) <<
-																															 "\n"
-																															 << "iteration = " << i <<
-																															 "\n"
+					oldFitness == p_test->getCachedFitness(
+						0
+						, Gem::Geneva::USETRANSFORMEDFITNESS)
+					   , "\n" << "oldFitness = " << oldFitness << "\n" << "p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS) = "
+								 << p_test->getCachedFitness(0, Gem::Geneva::USETRANSFORMEDFITNESS) << "\n" << "iteration = " << i << "\n"
 				);
 			}
 			// Trigger value calculation

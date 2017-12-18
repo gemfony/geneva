@@ -899,34 +899,6 @@ std::vector<double> GParameterSet::transformedFitnessVec() const {
 
 /******************************************************************************/
 /**
- * A wrapper for the non-const fitness function, so we can bind to it. It is
- * needed as bind cannot distinguish between the non-const and const
- * overload of the fitness() function.
- */
-double GParameterSet::nonConstFitness(
-	std::size_t id
-	, bool reevaluationAllowed
-	, bool useTransformedFitness
-) {
-	return this->fitness(id, reevaluationAllowed, useTransformedFitness);
-}
-
-/******************************************************************************/
-/**
- * A wrapper for the const fitness function, so we can bind to it. It is
- * needed as bind cannot distinguish between the non-const and const
- * overload of the fitness() function.
- */
-double GParameterSet::constFitness(
-	std::size_t id
-	, bool reevaluationAllowed
-	, bool useTransformedFitness
-) const {
-	return this->fitness(id, reevaluationAllowed, useTransformedFitness);
-}
-
-/******************************************************************************/
-/**
  * Retrieve the current (not necessarily up-to-date) fitness
  */
 double GParameterSet::getCachedFitness(

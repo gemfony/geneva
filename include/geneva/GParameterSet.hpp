@@ -216,11 +216,6 @@ public:
 	 /** @brief Returns all transformed fitness results in a std::vector */
 	 G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
 
-	 /** @brief A wrapper for the non-const fitness function, so we can bind to it */
-	 G_API_GENEVA double nonConstFitness(std::size_t, bool, bool);
-	 /** @brief A wrapper for the const fitness function, so we can bind to it */
-	 G_API_GENEVA double constFitness(std::size_t, bool, bool) const;
-
 	 /** @brief Retrieve the current (not necessarily up-to-date) fitness */
 	 G_API_GENEVA double getCachedFitness(std::size_t = 0, bool = USETRANSFORMEDFITNESS) const;
 
