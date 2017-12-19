@@ -596,9 +596,6 @@ std::tuple<double, double> GParameterScan::cycleLogic() {
 	// re-implemented in derived classes
 	runFitnessCalculation();
 
-	// Perform post-evaluation updates (mostly of individuals)
-	postEvaluationWork();
-
 	// Retrieve information about the best fitness found and disallow re-evaluation
 	GParameterScan::iterator it;
 	std::tuple<double, double> newEval = std::make_tuple(0., 0.);

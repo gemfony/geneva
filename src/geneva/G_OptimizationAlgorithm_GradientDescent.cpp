@@ -325,9 +325,6 @@ std::tuple<double, double> GGradientDescent::cycleLogic() {
 	// Trigger value calculation for all individuals (including parents)
 	runFitnessCalculation();
 
-	// Perform post-evaluation updates (mostly of individuals)
-	postEvaluationWork();
-
 	std::tuple<double, double> bestFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 	std::tuple<double, double> fitnessCandidate = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 

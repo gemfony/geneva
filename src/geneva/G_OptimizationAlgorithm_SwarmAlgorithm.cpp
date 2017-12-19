@@ -736,9 +736,6 @@ std::tuple<double, double> GSwarmAlgorithm::cycleLogic() {
 	// Now update each individual's fitness
 	runFitnessCalculation();
 
-	// Perform post-evaluation updates (mostly of individuals)
-	postEvaluationWork();
-
 	// Search for the personal, neighborhood and globally best individuals and
 	// update the lists of best solutions, if necessary.
 	bestIndividualFitness = findBests();

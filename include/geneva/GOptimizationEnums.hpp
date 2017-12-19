@@ -404,8 +404,7 @@ enum class evaluationPolicy : Gem::Common::ENUMBASETYPE {
 	USESIMPLEEVALUATION = 0            // Run evaluation function even for invalid parameter sets
 	, USEWORSTCASEFORINVALID = 1       // Assign the worst possible value to invalid individuals, evaluate valid solutions as usual
 	, USESIGMOID = 2                   // Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations
-	, USEWORSTKNOWNVALIDFORINVALID = 3 // Assign "invalidityLevel*worstKnownValid" to invalid individuals
-	, EVALUATIONPOLICY_LAST = static_cast<Gem::Common::ENUMBASETYPE>(evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID)
+	, EVALUATIONPOLICY_LAST = static_cast<Gem::Common::ENUMBASETYPE>(evaluationPolicy::USESIGMOID)
 };
 
 // * Note that this might be accompanied by assistance from the optimization algorithm

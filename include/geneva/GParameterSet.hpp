@@ -130,8 +130,7 @@ class GParameterSet
 		 & BOOST_SERIALIZATION_NVP(m_max_retries_until_valid)
 		 & BOOST_SERIALIZATION_NVP(m_n_adaptions)
 		 & BOOST_SERIALIZATION_NVP(m_evaluation_id)
-		 & BOOST_SERIALIZATION_NVP(m_current_fitness_vec)
-		 & BOOST_SERIALIZATION_NVP(m_worst_known_valids_vec);
+		 & BOOST_SERIALIZATION_NVP(m_current_fitness_vec);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -415,28 +414,6 @@ public:
 
 	 /** @brief Retrieve the id assigned to the current evaluation */
 	 G_API_GENEVA std::string getCurrentEvaluationID() const;
-
-	 /** @brief Checks whether a new solution is worse then an older solution, depending on the maxMode */
-	 virtual G_API_GENEVA bool isWorse(double, const double&) const BASE;
-	 /** @brief Checks whether this object is worse than the argument, depending on the maxMode */
-	 G_API_GENEVA bool isWorseThan(std::shared_ptr<GParameterSet>) const;
-
-	 /***************************************************************************/
-	 /**
-	  * Checks if a given position of a std::tuple is better then another,
-	  * depending on our maximization mode
-	  */
-	 template <std::size_t pos>
-	 bool isWorse(
-		 std::tuple<double, double> newValue
-		 , std::tuple<double, double> oldValue
-	 ) const {
-		 if(this->getMaxMode()) {
-			 return (std::get<pos>(newValue) < std::get<pos>(oldValue));
-		 } else { // minimization
-			 return (std::get<pos>(newValue) > std::get<pos>(oldValue));
-		 }
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -891,8 +868,6 @@ private:
 	 /** @brief Holds this object's internal, raw and transformed fitness */
 	 std::vector<std::tuple<double, double>> m_current_fitness_vec = std::vector<std::tuple<double, double>>(m_n_fitness_criteria);
 
-	 /** @brief The worst known evaluation up to the current iteration */
-	 std::vector<std::tuple<double, double>> m_worst_known_valids_vec = std::vector<std::tuple<double, double>>(m_n_fitness_criteria);
 	 /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
 	 Gem::Common::GLockVarT<bool> m_marked_as_invalid_by_user{OE_NOT_MARKED_AS_INVALID};
 

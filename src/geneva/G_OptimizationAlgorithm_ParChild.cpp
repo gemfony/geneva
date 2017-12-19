@@ -560,9 +560,6 @@ std::tuple<double, double> G_OptimizationAlgorithm_ParChild::cycleLogic() {
 	// calculate the children's (and possibly their parents' values)
 	runFitnessCalculation();
 
-	// Perform post-evaluation updates (mostly of individuals)
-	G_OptimizationAlgorithm_Base::postEvaluationWork();
-
 	// find out the best individuals of the population
 	selectBest();
 

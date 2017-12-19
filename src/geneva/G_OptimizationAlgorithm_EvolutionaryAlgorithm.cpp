@@ -1155,32 +1155,31 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 /**
   * Determines whether the first individual dominates the second.
   *
-  * TODO: Shouldn't this use the minOnly fitness ?
-  * TODO: Won't isWorse return wrong results for maximization ?
-  *
-  * @param a The individual that is assumed to dominate
-  * @param b The individual that is assumed to be dominated
+  * @param x_ptr The individual that is assumed to dominate
+  * @param y_ptr The individual that is assumed to be dominated
   * @return A boolean indicating whether the first individual dominates the second
   */
 bool GEvolutionaryAlgorithm::aDominatesB(
-	std::shared_ptr<GParameterSet> a
-	, std::shared_ptr<GParameterSet> b
+	std::shared_ptr<GParameterSet> x_ptr
+	, std::shared_ptr<GParameterSet> y_ptr
 ) const {
-	std::size_t nCriteriaA = a->getNumberOfFitnessCriteria();
+	std::size_t nCriteriaX = x_ptr->getNumberOfFitnessCriteria();
 
 #ifdef DEBUG
-	std::size_t nCriteriaB = b->getNumberOfFitnessCriteria();
-	if(nCriteriaA != nCriteriaB) {
+	std::size_t nCriteriaY = y_ptr->getNumberOfFitnessCriteria();
+	if(nCriteriaX != nCriteriaY) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OA_EvolutionaryAlgorithm::aDominatesB(): Error!" << std::endl
-				<< "Number of fitness criteria differ: " << nCriteriaA << " / " << nCriteriaB << std::endl
+				<< "Number of fitness criteria differ: " << nCriteriaX << " / " << nCriteriaY << std::endl
 		);
 	}
 #endif
 
-	for (std::size_t i = 0; i < nCriteriaA; i++) {
-		if (this->at(0)->isWorse(a->transformedFitness(i), b->transformedFitness(i))) return false;
+	// x dominates y, if none of its fitness criteria is worse than the
+	// corresponding criterion from y
+	for (std::size_t i = 0; i < nCriteriaX; i++) {
+		if(isWorse(x_ptr, y_ptr)) return false;
 	}
 
 	return true;

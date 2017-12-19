@@ -63,7 +63,6 @@ GParameterSet::GParameterSet(const GParameterSet &cp)
    , m_perItemCrossOverProbability(cp.m_perItemCrossOverProbability)
    , m_n_fitness_criteria(cp.m_n_fitness_criteria)
    , m_current_fitness_vec(cp.m_current_fitness_vec)
-   , m_worst_known_valids_vec(cp.m_worst_known_valids_vec)
    , m_marked_as_invalid_by_user(cp.m_marked_as_invalid_by_user)
    , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
    , m_n_stalls(cp.m_n_stalls)
@@ -114,7 +113,6 @@ void GParameterSet::compare(
 	compare_t(IDENTITY(m_perItemCrossOverProbability, p_load->m_perItemCrossOverProbability), token);
 	compare_t(IDENTITY(m_n_fitness_criteria, p_load->m_n_fitness_criteria), token);
 	compare_t(IDENTITY(m_current_fitness_vec, p_load->m_current_fitness_vec), token);
-	compare_t(IDENTITY(m_worst_known_valids_vec, p_load->m_worst_known_valids_vec), token);
 	compare_t(IDENTITY(m_marked_as_invalid_by_user, p_load->m_marked_as_invalid_by_user), token);
 	compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
 	compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
@@ -230,10 +228,6 @@ void GParameterSet::toPropertyTree(
 
 		case evaluationPolicy::USESIGMOID:
 			ptr.put(baseName + ".transformationPolicy", "USESIGMOID");
-			break;
-
-		case evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID:
-			ptr.put(baseName + ".transformationPolicy", "USEWORSTKNOWNVALIDFORINVALID");
 			break;
 
 		default: {
@@ -812,8 +806,7 @@ double GParameterSet::fitness(
  * Returns the last known fitness calculations of this object. This is the
  * const version of the general fitness() function, which consequently cannot
  * trigger re-evaluation, if the individual is dirty. Hence the function will
- * throw, when it is called on a dirty individual (unless we use the
- * USEWORSTKNOWNVALIDFORINVALID policy)
+ * throw, when it is called on a dirty individual.
  *
  * @param id The id of the fitness criterion
  * @param reevaluationAllowed Explicit permission to re-evaluate the individual
@@ -1025,21 +1018,6 @@ void GParameterSet::enforceFitnessUpdate(std::function<std::vector<double>()> f)
 			//--------------
 			setDirtyFlag(false);
 			//--------------
-		} else if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == m_eval_policy) {
-			// Some of this will be reset later, in  GParameterSet::postEvaluationUpdate().
-			// The caller needs to tell us about the worst solution known up to now. It is only
-			// known once all individuals of this iteration have been evaluated, i.e. not at this
-			// place.
-			for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-				std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-			}
-
-			// As only place-holders have been stored in the fitness criteria, the individual
-			// is not clean. However, we can tell the audience that evaluation was delayed
-			//--------------
-			setDirtyFlag(boost::logic::indeterminate);
-			//--------------
 		}
 	}
 }
@@ -1097,7 +1075,6 @@ std::size_t GParameterSet::getNumberOfFitnessCriteria() const {
 void GParameterSet::setNumberOfFitnessCriteria(std::size_t nFitnessCriteria) {
 	if (nFitnessCriteria < m_n_fitness_criteria) {
 		m_current_fitness_vec.resize(nFitnessCriteria);
-		m_worst_known_valids_vec.resize(nFitnessCriteria);
 	} else if (nFitnessCriteria > m_n_fitness_criteria) {
 		std::tuple<double, double> worstVal, bestVal;
 
@@ -1108,7 +1085,6 @@ void GParameterSet::setNumberOfFitnessCriteria(std::size_t nFitnessCriteria) {
 		std::get<G_TRANSFORMED_FITNESS>(bestVal) = this->getBestCase();
 
 		m_current_fitness_vec.resize(nFitnessCriteria, worstVal);
-		m_worst_known_valids_vec.resize(nFitnessCriteria, bestVal);
 	} // else do nothing
 
 	m_n_fitness_criteria = nFitnessCriteria;
@@ -1122,53 +1098,6 @@ void GParameterSet::setNumberOfFitnessCriteria(std::size_t nFitnessCriteria) {
  */
 bool GParameterSet::hasMultipleFitnessCriteria() const {
 	return (getNumberOfFitnessCriteria() > 1 ? true : false);
-}
-
-/******************************************************************************/
-/**
- * Checks the worst valid fitness and updates it when needed
- */
-void GParameterSet::challengeWorstValidFitness(
-	std::tuple<double, double> &worstCandidate, const std::size_t &id
-) {
-#ifdef DEBUG
-	if(id >= this->getNumberOfFitnessCriteria()) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::challengeWorstValidFitness(): Error!" << std::endl
-				<< "Requested fitness id " << id << " exceeds allowed range " << this->getNumberOfFitnessCriteria() << std::endl
-		);
-	}
-
-	if(!this->isClean()) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::challengeWorstValidFitness(): Error!" << std::endl
-				<< "Function called for dirty individual or with delayed evaluation" << std::endl
-		);
-	}
-
-	if(!this->isValid()) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::challengeWorstValidFitness(): Error!" << std::endl
-				<< "Function called for invalid individual" << std::endl
-		);
-	}
-#endif /* DEBUG */
-
-	double rawFitness = this->fitness(id, PREVENTREEVALUATION, USERAWFITNESS);
-	double transformedFitness = this->fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
-
-	// This rather verbose way of creating eval is done so we do not make mistakes later
-	// if raw and transformed fitness change their order
-	std::tuple<double, double> eval;
-	std::get<G_RAW_FITNESS>(eval) = rawFitness;
-	std::get<G_TRANSFORMED_FITNESS>(eval) = transformedFitness;
-
-	if (isWorse(std::get<G_TRANSFORMED_FITNESS>(worstCandidate), std::get<G_TRANSFORMED_FITNESS>(eval))) {
-		worstCandidate = eval;
-	}
 }
 
 /******************************************************************************/
@@ -1555,8 +1484,7 @@ void GParameterSet::addConfigurationOptions(
 		<< "Specifies which strategy should be used to calculate the evaluation:" << std::endl
 		<< "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions" << std::endl
 		<< "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions" << std::endl
-		<< "2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations" << std::endl
-		<< "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise";
+		<< "2 (a.k.a. USESIGMOID): Assign a multiple of m_validity_level and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations" << std::endl;
 
 	gpb.registerFileParameter<double>(
 		"steepness" // The name of the variable
@@ -1713,124 +1641,6 @@ bool GParameterSet::isInValid() const {
 
 /******************************************************************************/
 /**
- * Allows an optimization algorithm to set the worst known valid (primary and secondary
- * evaluation up to the current iteration. Note that these are not the best evaluations
- * for a single evaluation criterion, but the worst evaluations for all individuals that
- * were visited so far. Of the std::tuple, the first value signifies the untransformed
- * value, the second value the (possibly transformed) evaluation.
- */
-void GParameterSet::setWorstKnownValid(
-	const std::vector<std::tuple<double, double>> &worstKnownValid
-) {
-	m_worst_known_valids_vec = worstKnownValid;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the worst known valid evaluation up to the current iteration,
- * as set by an external optimization algorithm, at a given position.
- */
-std::tuple<double, double> GParameterSet::getWorstKnownValid(
-	const std::uint32_t &id
-) const {
-#ifdef DEBUG
-	throw gemfony_exception(
-		g_error_streamer(DO_LOG,  time_and_place)
-			<< "In GParameterSet::getWorstKnownValid(" << id << "): Error!" << std::endl
-			<< "Expected id of max " << m_worst_known_valids_vec.size() - 1 << std::endl
-	);
-#endif /* DEBUG */
-
-	return m_worst_known_valids_vec.at(id);
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve all worst known valid evaluations up to the
- * current iteration, as set by an external optimization algorithm
- */
-std::vector<std::tuple<double, double>> GParameterSet::getWorstKnownValids() const {
-	return m_worst_known_valids_vec;
-}
-
-/******************************************************************************/
-/**
- * Fills the worstKnownValid-vector with best values. This function assumes all
- * fitness criteria have been made known already.
- */
-void GParameterSet::populateWorstKnownValid() {
-#ifdef DEBUG
-	if(m_worst_known_valids_vec.size() != m_n_fitness_criteria) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::populateWorstKnownValid(): Error!" << std::endl
-				<< "Invalid size of m_worst_known_valids_vec: " << m_worst_known_valids_vec.size() << " (expected " << m_n_fitness_criteria << ")" << std::endl
-		);
-	}
-#endif /* DEBUG */
-
-	for (std::size_t i = 0; i < m_n_fitness_criteria; i++) {
-		m_worst_known_valids_vec.at(i) = std::tuple<double, double>(this->getBestCase(), this->getBestCase());
-	}
-}
-
-/******************************************************************************/
-/**
- * Triggers an update of the internal evaluation, if necessary.
- */
-void GParameterSet::postEvaluationUpdate() {
-#ifdef DEBUG
-	if((m_n_fitness_criteria) != m_current_fitness_vec.size()) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::postEvaluationUpdate(): Error!" << std::endl
-				<< "Number of expected fitness criteria " << m_n_fitness_criteria << " does not match actual number " << m_current_fitness_vec.size() << std::endl
-		);
-	}
-
-	if(m_worst_known_valids_vec.empty()) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::postEvaluationUpdate(): Error!" << std::endl
-				<< "m_worst_known_valids_vec does not seem to be initialized" << std::endl
-		);
-	}
-#endif /* DEBUG */
-
-	if (evaluationPolicy::USEWORSTKNOWNVALIDFORINVALID == m_eval_policy && this->isInValid()) {
-		if (maxMode::MAXIMIZE == this->getMaxMode()) {
-			for (std::size_t i = 0; i < m_n_fitness_criteria; i++) {
-				if (boost::numeric::bounds<double>::highest() == m_validity_level ||
-					 boost::numeric::bounds<double>::lowest() == m_validity_level) {
-					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-				} else {
-					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i))
-						= -(std::max)(std::get<G_TRANSFORMED_FITNESS>(m_worst_known_valids_vec.at(i)), (std::max)(m_sigmoid_extremes, 1.)) *
-						  m_validity_level;
-				}
-			}
-		} else {
-			for (std::size_t i = 1; i < m_n_fitness_criteria; i++) {
-				if (boost::numeric::bounds<double>::highest() == m_validity_level ||
-					 boost::numeric::bounds<double>::lowest() == m_validity_level) {
-					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-				} else {
-					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i))
-						= (std::max)(std::get<G_TRANSFORMED_FITNESS>(m_worst_known_valids_vec.at(i)), (std::max)(m_sigmoid_extremes, 1.)) *
-						  m_validity_level;
-				}
-			}
-		}
-
-		// Note: the "rawFitness" values have already been set in enforceFitnessUpdate() to the worst known evaluation
-
-		// Make sure the dirty flag is set to false, so our results do not get overwritten
-		this->setDirtyFlag(false);
-	}
-}
-
-/******************************************************************************/
-/**
  * Allows to set the globally best known primary fitness so far
  *
  * @param bnf The best known primary fitness so far
@@ -1867,40 +1677,6 @@ std::tuple<double, double> GParameterSet::getBestKnownPrimaryFitness() const {
  */
 std::string GParameterSet::getCurrentEvaluationID() const {
 	return m_evaluation_id;
-}
-
-/******************************************************************************/
-/**
- * Helps to determine whether a given value is strictly worse (i.e. worse than equal)
- * than another one. As "worse" means something different for maximization and minimization,
- * this function helps to make the code easier to understand.
- *
- * @param newValue The new value
- * @param oldValue The old value
- * @return true of newValue is worse than oldValue, otherwise false.
- */
-bool GParameterSet::isWorse(double newValue, const double &oldValue) const {
-	if (maxMode::MAXIMIZE == this->getMaxMode()) {
-		if (newValue < oldValue) return true;
-		else return false;
-	} else { // minimization
-		if (newValue > oldValue) return true;
-		else return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks whether this object is worse than the argument, depending on the maxMode
- */
-bool GParameterSet::isWorseThan(std::shared_ptr<GParameterSet> p) const {
-	if (maxMode::MAXIMIZE == this->getMaxMode()) {
-		if (this->transformedFitness() < p->transformedFitness()) return true;
-		else return false;
-	} else { // minimization
-		if (this->transformedFitness() > p->transformedFitness()) return true;
-		else return false;
-	}
 }
 
 /******************************************************************************/
@@ -1951,7 +1727,6 @@ void GParameterSet::load_(const GObject *cp) {
 	m_perItemCrossOverProbability = p_load->m_perItemCrossOverProbability;
 	m_n_fitness_criteria = p_load->m_n_fitness_criteria;
 	m_current_fitness_vec = p_load->m_current_fitness_vec;
-	m_worst_known_valids_vec = p_load->m_worst_known_valids_vec;
 	m_marked_as_invalid_by_user.setValue((p_load->m_marked_as_invalid_by_user).value());
 	m_best_past_primary_fitness = p_load->m_best_past_primary_fitness;
 	m_n_stalls = p_load->m_n_stalls;

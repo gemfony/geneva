@@ -526,17 +526,6 @@ protected:
 	 /** @brief Lets individuals know about the current iteration of the optimization cycle. */
 	 G_API_GENEVA void markIteration();
 
-	 /** @brief Updates the worst known valid evaluations up to the current iteration */
-	 G_API_GENEVA void updateWorstKnownValid();
-	 /** @brief Let the individuals know about the worst known valid solution so far */
-	 G_API_GENEVA void markWorstKnownValid();
-
-	 /** @brief Triggers an update of the individual's evaluation */
-	 G_API_GENEVA void triggerEvaluationUpdate();
-
-	 /** @brief Work to be performed right after the individuals were evaluated. */
-	 G_API_GENEVA void postEvaluationWork();
-
 	 /** @brief Let individuals know the number of stalls encountered so far */
 	 G_API_GENEVA void markNStalls();
 

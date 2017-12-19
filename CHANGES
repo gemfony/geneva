@@ -46,6 +46,8 @@ The main changes for this release include:
    in one go, through a call like "auto bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<myIndividualType>();"
    for the single best individuel or "auto bestIndividuals_vec = go.optimize()->getBestGlobalIndividuals<myIndividualType>();"
    (note the plural "s" in the second call. Calls to optimize<myIndividualType>() are no longer valid.
+ - We removed the USEWORSTKNOWNVALIDFORINVALID policy from constraint optimization, as it
+   was mathematically questionable and cluttered the code with unnecessary complications.
 
 ********************************************************************************
 
