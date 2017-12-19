@@ -241,8 +241,6 @@ public:
 	 G_API_GENEVA bool isDirty() const ;
 	 /** @brief Sets the dirtyFlag_ */
 	 G_API_GENEVA void setDirtyFlag();
-	 /** @brief Checks whether evaluation was delayed */
-	 G_API_GENEVA bool evaluationDelayed() const;
 
 	 /** @brief Allows to retrieve the m_maxmode parameter */
 	 G_API_GENEVA maxMode getMaxMode() const;
@@ -821,7 +819,7 @@ protected:
 	 G_API_GENEVA void setFitness_(const std::vector<double>&);
 
 	 /** @brief Sets the dirtyFlag_ to any desired value */
-	 G_API_GENEVA boost::logic::tribool setDirtyFlag(const boost::logic::tribool&) ;
+	 G_API_GENEVA bool setDirtyFlag(bool) ;
 
 	 /** @brief Combines secondary evaluation results by adding the individual results */
 	 G_API_GENEVA double sumCombiner() const;
@@ -876,7 +874,7 @@ private:
 	 /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
 	 std::uint32_t m_n_stalls = 0;
 	 /** @brief Internal representation of the adaption status of this object */
-	 boost::logic::tribool m_dirty_flag = true; // boost::logic::indeterminate refers to "delayed evaluation"
+	 bool m_dirty_flag = true;
 	 /** @brief Indicates whether we are using maximization or minimization mode */
 	 maxMode m_maxmode = maxMode::MINIMIZE;
 	 /** @brief The iteration of the parent algorithm's optimization cycle */

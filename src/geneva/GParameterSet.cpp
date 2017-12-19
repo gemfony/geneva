@@ -774,7 +774,7 @@ double GParameterSet::fitness(
 
 #ifdef DEBUG
 			// Check if the dirty flag is still set. This should only happen in special cases
-			if(true==m_dirty_flag) { // Note that m_dirty_flag may also assume the state boost::logic::indeterminate, if evaluation was delayed
+			if(true==m_dirty_flag) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParameterSet::fitness(...): Error!" << std::endl
@@ -1113,7 +1113,7 @@ std::tuple<double, double> GParameterSet::getFitnessTuple(const std::uint32_t &i
  * Checks whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation
  */
 bool GParameterSet::isClean() const {
-	if (true == m_dirty_flag || boost::logic::indeterminate(m_dirty_flag)) {
+	if (true == m_dirty_flag) {
 		return false;
 	} else {
 		return true;
@@ -1150,18 +1150,6 @@ void GParameterSet::setDirtyFlag() {
  * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
  */
-
-/******************************************************************************/
-/**
- * Checks whether evaluation was delayed
- */
-bool GParameterSet::evaluationDelayed() const {
-	if (boost::logic::indeterminate(m_dirty_flag)) {
-		return true;
-	} else {
-		return false;
-	}
-}
 
 /******************************************************************************/
 /**
@@ -1866,15 +1854,15 @@ void GParameterSet::setFitness_(const std::vector<double> &f_vec) {
  * @param dirtyFlag The new value for the dirtyFlag_ variable
  * @return The previous value of the dirtyFlag_ variable
  */
-boost::logic::tribool GParameterSet::setDirtyFlag(
-	const boost::logic::tribool &dirtyFlag
+bool GParameterSet::setDirtyFlag(
+	bool dirtyFlag
 ) {
 	bool previous = m_dirty_flag;
 	m_dirty_flag = dirtyFlag;
 
 	if(true==m_dirty_flag) {
 		this->reset_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
-	} // TODO: Is this correct for delayed execution ?
+	}
 
 	return previous;
 }
@@ -2127,10 +2115,6 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test->isDirty() == true); // Note the missing argument -- this is a different function
 		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(false));
 		BOOST_CHECK(p_test->isDirty() == false);
-		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(boost::logic::indeterminate));
-		BOOST_CHECK(p_test->evaluationDelayed() == true);
-		BOOST_CHECK(p_test->isDirty() == false);
-		BOOST_CHECK(p_test->isClean() == false);
 	}
 
 	// --------------------------------------------------------------------------
