@@ -602,6 +602,7 @@ std::tuple<double, double> GParameterScan::cycleLogic() {
 	// Retrieve information about the best fitness found and disallow re-evaluation
 	GParameterScan::iterator it;
 	std::tuple<double, double> newEval = std::make_tuple(0., 0.);
+	auto m = this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
 	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
 		if(!(*it)->isClean()) {
@@ -614,7 +615,7 @@ std::tuple<double, double> GParameterScan::cycleLogic() {
 #endif
 
 		newEval = (*it)->getFitnessTuple();
-		if (this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(newEval), std::get<G_TRANSFORMED_FITNESS>(bestFitness))) {
+		if(isBetter(std::get<G_TRANSFORMED_FITNESS>(newEval), std::get<G_TRANSFORMED_FITNESS>(bestFitness), m)) {
 			bestFitness = newEval;
 		}
 	}

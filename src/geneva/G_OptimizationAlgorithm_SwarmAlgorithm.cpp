@@ -498,12 +498,11 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(
 	}
 #endif /* DEBUG */
 
-	if (this->at(0)->isBetter
-		(
-			std::get<G_TRANSFORMED_FITNESS>(
-				p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBestQuality()), p->transformedFitness()
+	if (this->at(0)->isBetter(
+			std::get<G_TRANSFORMED_FITNESS>(p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBestQuality())
+			, p->transformedFitness()
 		)
-		) {
+	) {
 		p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(p);
 	}
 }

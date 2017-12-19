@@ -103,6 +103,83 @@ double minOnly_cached_fitness(
 }
 
 /******************************************************************************/
+/**
+ * Checks whether the first individual is better than the second. The comparison
+ * is done with the first (main) fitness criterion.
+ */
+bool isBetter(
+	const std::shared_ptr<GParameterSet> x_ptr
+	, const std::shared_ptr<GParameterSet> y_ptr
+) {
+#ifdef DEBUG
+	auto x_mode = x_ptr->getMaxMode();
+	auto y_mode = y_ptr->getMaxMode();
+	// Cross-check that both work items have the same maxMode
+	if(x_mode != y_mode) {
+		// Throw an exception
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In isBetterThan(x_ptr, y_ptr):" << std::endl
+				<< "Got different maxMode-settings: " << x_mode << " / " << y_mode << std::endl
+		);
+	}
+#endif
+
+	// We assume that both items have the same maxMode and simply compare the "minOnly-Fitness"
+	if(minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr)) return true;
+	else return false;
+}
+
+/******************************************************************************/
+/**
+ * Checks whether the first individual is worse than the second. The comparison
+ * is done with the first (main) fitness criterion.
+ */
+bool isWorse(
+	const std::shared_ptr<GParameterSet> x_ptr
+	, const std::shared_ptr<GParameterSet> y_ptr
+) {
+	return !isBetter(x_ptr, y_ptr);
+}
+
+/******************************************************************************/
+/**
+ * Checks whether the first value is better than the second
+ */
+bool isBetter(
+	double x
+	, double y
+	, maxMode m
+) {
+	if(maxMode::MAXIMIZE == m) {
+		if(x>y) {
+			return true;
+		} else {
+			return false;
+		}
+	} else { // maxMode::MINIMIZE
+		if(x<y) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+/******************************************************************************/
+/**
+ * Checks whether the first value is worse than the second
+ */
+bool isWorse(
+	double x
+	, double y
+	, maxMode m
+) {
+	return !isBetter(x,y,m);
+}
+
+/******************************************************************************/
+
 
 } /* namespace Geneva */
 } /* namespace Gem */
