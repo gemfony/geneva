@@ -333,16 +333,16 @@ std::tuple<double, double> GGradientDescent::cycleLogic() {
 
 	// Retrieve information about the best fitness found and disallow re-evaluation
 	GGradientDescent::iterator it;
+	auto m = this->at(0)->getMaxMode(); // We assume that all individuals have the same max mode
 	for (it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
 		std::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
-		std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION,
-			USETRANSFORMEDFITNESS);
+		std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
 
-		if (this->at(0)->isBetter(
+		if(isBetter(
 			std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate)
 			, std::get<G_TRANSFORMED_FITNESS>(bestFitness)
-		)
-			) {
+			, m
+		)) {
 			bestFitness = fitnessCandidate;
 		}
 	}

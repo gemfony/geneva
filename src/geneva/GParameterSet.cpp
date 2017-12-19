@@ -1868,28 +1868,6 @@ std::tuple<double, double> GParameterSet::getBestKnownPrimaryFitness() const {
 std::string GParameterSet::getCurrentEvaluationID() const {
 	return m_evaluation_id;
 }
-/******************************************************************************/
-/**
- * Helps to determine whether a given value is strictly better (i.e. better than equal)
- * than another one. As "better" means something different for maximization and minimization,
- * this function helps to make the code easier to understand.
- *
- * TODO: This code is dangerous, as it may be called with minOnlyFitness-values -- eliminate!
- * TODO: Comparison of more than one work item may be a feature of the optimization algorithm
- *
- * @param newValue The new value
- * @param oldValue The old value
- * @return true if newValue is better than oldValue, otherwise false.
- */
-bool GParameterSet::isBetter(double newValue, const double &oldValue) const {
-	if (maxMode::MAXIMIZE == this->getMaxMode()) {
-		if (newValue > oldValue) return true;
-		else return false;
-	} else { // minimization
-		if (newValue < oldValue) return true;
-		else return false;
-	}
-}
 
 /******************************************************************************/
 /**
@@ -1907,20 +1885,6 @@ bool GParameterSet::isWorse(double newValue, const double &oldValue) const {
 		else return false;
 	} else { // minimization
 		if (newValue > oldValue) return true;
-		else return false;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks whether this object is better than the argument, depending on the maxMode
- */
-bool GParameterSet::isBetterThan(std::shared_ptr<GParameterSet> p) const {
-	if (maxMode::MAXIMIZE == this->getMaxMode()) {
-		if (this->transformedFitness() > p->transformedFitness()) return true;
-		else return false;
-	} else { // minimization
-		if (this->transformedFitness() < p->transformedFitness()) return true;
 		else return false;
 	}
 }

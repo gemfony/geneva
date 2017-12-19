@@ -498,11 +498,12 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(
 	}
 #endif /* DEBUG */
 
-	if (this->at(0)->isBetter(
-			std::get<G_TRANSFORMED_FITNESS>(p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBestQuality())
-			, p->transformedFitness()
-		)
-	) {
+	auto m = this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
+	if(isBetter(
+		std::get<G_TRANSFORMED_FITNESS>(p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBestQuality())
+		, p->transformedFitness()
+		, m
+	)) {
 		p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(p);
 	}
 }
@@ -1267,7 +1268,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
  * @return The best evaluation found in this iteration
  */
 std::tuple<double, double> GSwarmAlgorithm::findBests() {
-	std::cout << "In findBests" << std::endl;
+	auto m = this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
 
 	std::size_t bestLocalId = 0;
 	std::tuple<double, double> bestLocalFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
@@ -1320,10 +1321,11 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 			m_neighborhood_bests_vec.at(n) = (*(this->begin() + firstCounter))->clone<GParameterSet>();
 		}
 		else {
-			if (this->at(0)->isBetter(
-				(*(this->begin() + firstCounter))->transformedFitness(), m_neighborhood_bests_vec.at(n)->transformedFitness()
-			)
-				) {
+			if(isBetter(
+				(*(this->begin() + firstCounter))->transformedFitness()
+				, m_neighborhood_bests_vec.at(n)->transformedFitness()
+				, m
+			)) {
 				(m_neighborhood_bests_vec.at(n))->GObject::load(*(this->begin() + firstCounter));
 			}
 		}
@@ -1331,7 +1333,11 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 
 	// Identify the best individuals among all neighborhood bests
 	for (std::size_t n = 0; n < m_n_neighborhoods; n++) {
-		if (this->at(0)->isBetter((m_neighborhood_bests_vec.at(n))->transformedFitness(), std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness))) {
+		if(isBetter(
+			(m_neighborhood_bests_vec.at(n))->transformedFitness()
+			, std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness)
+			, m
+		)) {
 			bestLocalId = n;
 			bestLocalFitness = (m_neighborhood_bests_vec.at(n))->getFitnessTuple();
 		}
@@ -1342,15 +1348,22 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 	if (inFirstIteration()) {
 		m_global_best_ptr = (m_neighborhood_bests_vec.at(bestLocalId))->clone<GParameterSet>();
 	} else {
-		if (this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness), m_global_best_ptr->transformedFitness())) {
+		if(isBetter(
+			std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness)
+			, m_global_best_ptr->transformedFitness()
+			, m
+		)) {
 			m_global_best_ptr->GObject::load(m_neighborhood_bests_vec.at(bestLocalId));
 		}
 	}
 
 	// Identify the best fitness in the current iteration
 	for (std::size_t i = 0; i < this->size(); i++) {
-		if (this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple()),
-			std::get<G_TRANSFORMED_FITNESS>(bestIterationFitness))) {
+		if(isBetter(
+			std::get<G_TRANSFORMED_FITNESS>(this->at(i)->getFitnessTuple())
+			, std::get<G_TRANSFORMED_FITNESS>(bestIterationFitness)
+			, m
+		)) {
 			bestIterationFitness = this->at(i)->getFitnessTuple();
 		}
 	}

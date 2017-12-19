@@ -1888,7 +1888,12 @@ void G_OptimizationAlgorithm_Base::actOnStalls()
  * in the case of a constraint violation).
  */
 void G_OptimizationAlgorithm_Base::updateStallCounter(const std::tuple<double, double>& bestEval) {
-	if(this->at(0)->isBetter(std::get<G_TRANSFORMED_FITNESS>(bestEval), std::get<G_TRANSFORMED_FITNESS>(m_bestKnownPrimaryFitness))) {
+	auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
+	if(isBetter(
+		std::get<G_TRANSFORMED_FITNESS>(bestEval)
+		, std::get<G_TRANSFORMED_FITNESS>(m_bestKnownPrimaryFitness)
+		, m
+	)) {
 		m_bestKnownPrimaryFitness = bestEval;
 		m_stallCounter = 0;
 	} else {
@@ -1940,7 +1945,12 @@ bool G_OptimizationAlgorithm_Base::minTimePassed(const std::chrono::system_clock
  * @return A boolean indicating whether the quality is above or below a given threshold
  */
 bool G_OptimizationAlgorithm_Base::qualityHalt() const {
-	if(this->at(0)->isBetter(std::get<G_RAW_FITNESS>(m_bestKnownPrimaryFitness), m_qualityThreshold)) {
+	auto m = this->at(0)->getMaxMode(); // We assume the same maxMode for all individuals
+	if(isBetter(
+		std::get<G_RAW_FITNESS>(m_bestKnownPrimaryFitness) // note: we use the raw fitness so users do not have to specify "transformed" thresholds
+		, m_qualityThreshold
+		, m
+	)) {
 		if(m_emitTerminationReason) {
 			glogger
 				<< "Terminating optimization run because" << std::endl

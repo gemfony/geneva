@@ -418,11 +418,6 @@ public:
 
 	 /** @brief Checks whether a new solution is worse then an older solution, depending on the maxMode */
 	 virtual G_API_GENEVA bool isWorse(double, const double&) const BASE;
-	 /** @brief Checks whether a new solution is better then an older solution, depending on the maxMode */
-	 virtual G_API_GENEVA bool isBetter(double, const double&) const BASE;
-
-	 /** @brief Checks whether this object is better than the argument, depending on the maxMode */
-	 G_API_GENEVA bool isBetterThan(std::shared_ptr<GParameterSet>) const;
 	 /** @brief Checks whether this object is worse than the argument, depending on the maxMode */
 	 G_API_GENEVA bool isWorseThan(std::shared_ptr<GParameterSet>) const;
 
@@ -440,23 +435,6 @@ public:
 			 return (std::get<pos>(newValue) < std::get<pos>(oldValue));
 		 } else { // minimization
 			 return (std::get<pos>(newValue) > std::get<pos>(oldValue));
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks if a given position of a std::tuple is better then another,
-	  * depending on our maximization mode
-	  */
-	 template <std::size_t pos>
-	 bool isBetter(
-		 std::tuple<double, double> newValue
-		 , std::tuple<double, double> oldValue
-	 ) const {
-		 if(this->getMaxMode()) {
-			 return (std::get<pos>(newValue) > std::get<pos>(oldValue));
-		 } else { // minimization
-			 return (std::get<pos>(newValue) < std::get<pos>(oldValue));
 		 }
 	 }
 
