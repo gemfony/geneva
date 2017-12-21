@@ -96,7 +96,6 @@ template<
 	typename processable_type
 	, typename processing_result_type
 	, class = typename std::enable_if<!std::is_void<processing_result_type>::value>::type
-	, class = typename std::enable_if< std::is_pod <processing_result_type>::value>::type
 >
 class GProcessingContainerT
 {
@@ -182,7 +181,7 @@ public:
 	  * processing functions throws an exception, the function will store the
 	  * necessary exception information locally and rethrow the exception.
 	  *
-	  * @return The result of the processing calls
+	  * @return The first result of the processing calls
 	  */
 	 result_type process() {
 		 // This function should never be called if the processing status is not set to "DO_PROCESS"

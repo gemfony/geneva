@@ -40,6 +40,145 @@ namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Initialization with a raw fitness
+ */
+parameterset_processing_result::parameterset_processing_result(double raw_fitness)
+	: m_raw_fitness(raw_fitness)
+	, m_transformed_fitness(m_raw_fitness)
+	, m_transformed_fitness_set(false)
+{ /* nothing */ }
+
+/******************************************************************************/
+/** @brief Initialization with a raw and transformed fitness */
+parameterset_processing_result::parameterset_processing_result(
+	double raw_fitness
+	, double transformed_fitness
+)
+	: m_raw_fitness(raw_fitness)
+	, m_transformed_fitness(transformed_fitness)
+	, m_transformed_fitness_set(true)
+{ /* nothing */ }
+
+/******************************************************************************/
+/** @brief Initialization with a raw fitness and recalculation of the transformed fitness */
+parameterset_processing_result::parameterset_processing_result(
+	double raw_fitness
+	, std::function<double(double)> f
+)
+	: m_raw_fitness(raw_fitness)
+{
+	if(f) {
+		m_transformed_fitness = f(m_raw_fitness);
+		m_transformed_fitness_set = true;
+	} else {
+		glogger
+			<< "In parameterset_processing_result(double, std::function<double(double)>)" << std::endl
+			<< "Got empty function object" << std::endl
+		   << GTERMINATION;
+	}
+}
+
+/******************************************************************************/
+/**
+ * Access to the raw fitness
+ */
+double parameterset_processing_result::rawFitness() const {
+	return m_raw_fitness;
+}
+
+/******************************************************************************/
+/**
+ * Access to the transformed fitness
+ */
+double parameterset_processing_result::transformedFitness() const {
+	return m_transformed_fitness;
+}
+
+/******************************************************************************/
+/**
+ * Updates the transformed fitness using an external function
+ */
+void parameterset_processing_result::setTransformedFitnessWith(
+	std::function<double(double)> f
+){
+	if(f) {
+		m_transformed_fitness = f(m_raw_fitness);
+		m_transformed_fitness_set = true;
+	} else {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In parameterset_processing_result::setTransformedFitnessWith():" << std::endl
+				<< "Function object f is empty." << std::endl
+		);
+	}
+}
+
+/******************************************************************************/
+/**
+ * Sets the transformed fitness to a user-defined value
+ */
+void parameterset_processing_result::setTransformedFitnessTo(double transformed_fitness){
+	m_transformed_fitness = transformed_fitness;
+	m_transformed_fitness_set = true;
+}
+
+/******************************************************************************/
+/**
+ * Checks whether the transformed fitness was set
+ */
+bool parameterset_processing_result::transformedFitnessSet() const {
+	return m_transformed_fitness_set;
+}
+
+/******************************************************************************/
+/**
+ * Resets the object and stores a new raw value in the class
+ */
+void parameterset_processing_result::reset(double raw_fitness) {
+	m_raw_fitness = raw_fitness;
+	m_transformed_fitness = m_raw_fitness;
+	m_transformed_fitness_set = false;
+}
+
+/******************************************************************************/
+/**
+ * Resets the object and stores a new raw and transformed value in the class
+ */
+void parameterset_processing_result::reset(
+	double raw_fitness
+	, double transformed_fitness
+) {
+	m_raw_fitness = raw_fitness;
+	m_transformed_fitness = transformed_fitness;
+	m_transformed_fitness_set = true;
+}
+
+/******************************************************************************/
+/**
+ * Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value
+ */
+void parameterset_processing_result::reset(
+	double raw_fitness
+	, std::function<double(double)> f
+) {
+	if(f) {
+		m_transformed_fitness = f(m_raw_fitness);
+		m_transformed_fitness_set = true;
+	} else {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In parameterset_processing_result::reset():" << std::endl
+				<< "Function object f is empty." << std::endl
+		);
+	}
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 /**
  * Initialization with the number of fitness criteria
  */
@@ -2823,6 +2962,8 @@ void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
 #endif /* GEM_TESTING */
 }
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Geneva */

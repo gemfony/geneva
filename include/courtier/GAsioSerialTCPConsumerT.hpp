@@ -1337,8 +1337,8 @@ public:
 
 		 // Set the number of threads in the pool
 		 if (m_listenerThreads) {
-			 m_gtp.setNThreads(boost::numeric_cast<unsigned int>(m_listenerThreads));
-			 std::cout << "GAsioSerialTCPConsumerT: Started acceptor with " << boost::numeric_cast<unsigned int>(m_listenerThreads) << " threads" << std::endl;
+			 m_gtp.setNThreads(2 * boost::numeric_cast<unsigned int>(m_listenerThreads));
+			 std::cout << "GAsioSerialTCPConsumerT: Started de-serialization pool with " << (2 * boost::numeric_cast<unsigned int>(m_listenerThreads)) << " threads" << std::endl;
 		 }
 
 		 try {
@@ -1352,9 +1352,10 @@ public:
 			 // This absolutely needs to happen after the first session has started,
 			 // so the io_service doesn't run out of work
 			 m_gtg.create_threads(
-				 [&]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
+				 [this]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
 				 , m_listenerThreads
 			 );
+			 std::cout << "GAsioSerialTCPConsumerT: Started acceptor pool with " << boost::numeric_cast<unsigned int>(m_listenerThreads) << " threads" << std::endl;
 		 } catch (const boost::system::system_error &e) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)

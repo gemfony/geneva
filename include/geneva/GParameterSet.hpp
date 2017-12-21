@@ -42,6 +42,7 @@
 #include <map>
 #include <typeinfo>
 #include <limits>
+#include <functional>
 
 // Boost header files go here
 #include <boost/numeric/conversion/bounds.hpp>
@@ -88,6 +89,83 @@ class GTestIndividual1; // forward declaration, needed for testing purposes
 
 namespace Geneva {
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Container for fitness and transformed fitness values, as produced by the
+ * GParameterSet class.
+ */
+class parameterset_processing_result {
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
+
+	 template<typename Archive>
+	 void serialize(Archive & ar, const unsigned int){
+		 using boost::serialization::make_nvp;
+		 ar
+		 & BOOST_SERIALIZATION_NVP(m_raw_fitness)
+		 & BOOST_SERIALIZATION_NVP(m_transformed_fitness)
+		 & BOOST_SERIALIZATION_NVP(m_transformed_fitness_set);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
+
+public:
+	 /** @brief Initialization with a raw fitness */
+	 explicit parameterset_processing_result(double);
+	 /** @brief Initialization with a raw and transformed fitness */
+	 parameterset_processing_result(double, double);
+	 /** @brief Initialization with a raw fitness and recalculation of the transformed fitness */
+	 parameterset_processing_result(double, std::function<double(double)>);
+
+	 /** @brief Copy construction */
+	 parameterset_processing_result(const parameterset_processing_result&) = default;
+	 /** @brief Move construction */
+	 parameterset_processing_result(parameterset_processing_result&&) = default;
+
+	 /** @brief Destructor */
+	 ~parameterset_processing_result() = default;
+
+	 /** @brief Assignment */
+	 parameterset_processing_result& operator=(const parameterset_processing_result&) = default;
+	 /** @brief Move assignment */
+	 parameterset_processing_result& operator=(parameterset_processing_result&&) = default;
+
+	 /** @brief Access to the raw fitness */
+	 double rawFitness() const;
+	 /** @brief Access to the transformed fitness */
+	 double transformedFitness() const;
+
+	 /** @brief Updates the transformed fitness using an external function */
+	 void setTransformedFitnessWith(std::function<double(double)>);
+	 /** @brief Sets the transformed fitness to a user-defined value */
+	 void setTransformedFitnessTo(double);
+
+	 /** @brief Checks whether the transformed fitness was set */
+	 bool transformedFitnessSet() const;
+
+	 /** @brief Resets the object and stores a new raw value in the class */
+	 void reset(double);
+	 /** @brief Resets the object and stores a new raw and transformed value in the class */
+	 void reset(double, double);
+	 /** @brief Resets the object and stores a new raw value in the class and triggers recalculation of the transformed value */
+	 void reset(double, std::function<double(double)>);
+
+private:
+	 /***************************************************************************/
+	 /** @brief The default constuctor -- needed for de-serialization purposes only, hence private */
+	 parameterset_processing_result() = default;
+
+	 /***************************************************************************/
+	 // Data
+
+	 double m_raw_fitness = 0.; ///< The fitness as it comes out of the fitnessCalculation() function
+	 double m_transformed_fitness = m_raw_fitness; ///< The fitness as calculated from m_raw_fitness through
+	 bool   m_transformed_fitness_set = false; ///< Indicates whether a suitable m_transformed_fitness value is available
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * This class implements a collection of GParameterBase objects. It
@@ -915,6 +993,8 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * @brief Needed for Boost.Serialization
