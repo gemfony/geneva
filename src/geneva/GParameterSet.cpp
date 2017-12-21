@@ -1177,7 +1177,8 @@ void GParameterSet::enforceFitnessUpdate(std::function<std::vector<double>()> f)
  * @param secondaryValue The secondary fitness value to be registered
  */
 void GParameterSet::registerSecondaryResult(
-	const std::size_t &id, const double &secondaryValue
+	const std::size_t &id
+	, const double &secondaryValue
 ) {
 #ifdef DEBUG
 	if(m_current_fitness_vec.size() <= id || 0==id) {
@@ -1810,27 +1811,8 @@ std::string GParameterSet::getCurrentEvaluationID() const {
 /**
  * Performs all necessary (remote-)processing steps for this object.
  */
-void GParameterSet::process_() {
-	this->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
-}
-
-/******************************************************************************/
-/**
- * Overloaded from GProcessingContainerT as a means to return a result from the
- * process()-function after pre-/postprocessing.
- */
-double GParameterSet::get_processing_result() const noexcept {
-	try {
-		return this->fitness();
-	} catch(...) {
-		glogger
-			<< "In GParameterSet::get_processing_result(: Caught exception from const fitness function." << std::endl
-			<< "Cannot continue" << std::endl
-			<< GTERMINATION;
-	}
-
-	// Make the compiker happy
-	return 0.;
+double GParameterSet::process_() {
+	return this->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
 }
 
 /******************************************************************************/

@@ -40,6 +40,7 @@
 
 // Standard headers go here
 #include <tuple>
+#include <vector>
 #include <chrono>
 #include <type_traits>
 #include <exception>
@@ -90,11 +91,12 @@ class g_processing_exception : public gemfony_exception { using gemfony_exceptio
  * derived classes to be serializable and to trigger serialization of this class.
  *
  * @tparam processable_type The type of the class derived from GProcessingContainerT
- * @tparam processing_result_type The result type of the process_ call
+ * @tparam processing_result_type The result type of the process_ call; should be copyable
  */
 template<
 	typename processable_type
 	, typename processing_result_type
+	, class = typename std::enable_if<std::is_pod<processing_result_type>::value>::type
 	, class = typename std::enable_if<!std::is_void<processing_result_type>::value>::type
 >
 class GProcessingContainerT
@@ -122,7 +124,8 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_raw_submission_time)
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_proc_retrieval_time)
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_proc_submission_time)
-		 & BOOST_SERIALIZATION_NVP(m_stored_result)
+		 & BOOST_SERIALIZATION_NVP(m_n_stored_results)
+		 & BOOST_SERIALIZATION_NVP(m_stored_results_vec)
 		 & BOOST_SERIALIZATION_NVP(m_stored_error_descriptions)
 		 & BOOST_SERIALIZATION_NVP(m_processing_status);
 	 }
@@ -138,6 +141,15 @@ public:
 	  * The default constructor
 	  */
 	 GProcessingContainerT() = default;
+
+	 /***************************************************************************/
+	 /**
+	  * Initialization with the number of stored results
+	  */
+	 GProcessingContainerT(std::size_t n_stored_results)
+	 	: m_n_stored_results(n_stored_results)
+	 	, m_stored_results_vec(n_stored_results)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -159,7 +171,8 @@ public:
 		 , m_bufferport_raw_submission_time(cp.m_bufferport_raw_submission_time)
 		 , m_bufferport_proc_retrieval_time(cp.m_bufferport_proc_retrieval_time)
 		 , m_bufferport_proc_submission_time(cp.m_bufferport_proc_submission_time)
-		 , m_stored_result(cp.m_stored_result)
+		 , m_n_stored_results(cp.m_n_stored_results)
+	 	 , m_stored_results_vec(cp.m_stored_results_vec) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
 		 , m_stored_error_descriptions(cp.m_stored_error_descriptions)
 		 , m_processing_status(cp.m_processing_status)
 	 {
@@ -183,7 +196,7 @@ public:
 	  *
 	  * @return The first result of the processing calls
 	  */
-	 result_type process() {
+	 processing_result_type process() {
 		 // This function should never be called if the processing status is not set to "DO_PROCESS"
 		 if(processingStatus::DO_PROCESS != m_processing_status) {
 			 throw gemfony_exception(
@@ -193,14 +206,18 @@ public:
 			 );
 		 }
 
+		 // "Nullify the result list.
+		 this->clear_stored_results_vec();
+
 		 std::ostringstream error_description_stream;
+		 processing_result_type main_result;
 
 		 try {
 			 // Perform the actual processing
 			 auto startTime = std::chrono::high_resolution_clock::now();
 			 this->preProcess_();
 			 auto afterPreProcessing = std::chrono::high_resolution_clock::now();
-			 this->process_();
+			 main_result = this->process_();
 			 auto afterProcessing = std::chrono::high_resolution_clock::now();
 			 this->postProcess_();
 			 auto afterPostProcessing = std::chrono::high_resolution_clock::now();
@@ -241,6 +258,9 @@ public:
 			 m_processing_time = 0.;
 			 m_post_processing_time = 0.;
 
+			 // "Nullify the result list.
+			 this->clear_stored_results_vec();
+
 			 // Store the exceptions for later reference
 			 if(processingStatus::EXCEPTION_CAUGHT == m_processing_status) {
 				 // Error information added by the user might already be stored in this variable. Hence we use +=
@@ -253,15 +273,16 @@ public:
 		 }
 
 		 // This part of the code should never be reached if an exception was thrown
-		 return (m_stored_result = this->get_processing_result());
+		 this->m_stored_results_vec.at(0) = main_result;
+		 return main_result;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Retrieval of the stored result
 	  */
-	 result_type getStoredResult() const noexcept {
-		 return m_stored_result;
+	 processing_result_type getStoredResult(std::size_t id = 0) const {
+		 return m_stored_results_vec.at(id);
 	 }
 
 	 /***************************************************************************/
@@ -341,7 +362,8 @@ public:
 		 };
 
 		 m_stored_error_descriptions.clear();
-		 m_stored_result = result_type(0);
+		 // "Nullify the result list.
+		 this->clear_stored_results_vec();
 	 }
 
 	 /***************************************************************************/
@@ -564,12 +586,20 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Loads the data of another GProcessingContainerT<processable_type, result_type> object
+	  * Allows to retrieve the number of stored results
 	  */
-	 void load_pc(const GProcessingContainerT<processable_type, result_type> *cp) {
-		 // Check that we are dealing with a GProcessingContainerT<processable_type, result_type> reference independent of this object and convert the pointer
-		 const GProcessingContainerT<processable_type, result_type> *p_load
-			 = Gem::Common::g_convert_and_compare<GProcessingContainerT<processable_type, result_type>, GProcessingContainerT<processable_type, result_type>>(cp, this);
+	 std::size_t getNStoredResults() const {
+		 return m_n_stored_results;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Loads the data of another GProcessingContainerT<processable_type, processing_result_type> object
+	  */
+	 void load_pc(const GProcessingContainerT<processable_type, processing_result_type> *cp) {
+		 // Check that we are dealing with a GProcessingContainerT<processable_type, processing_result_type> reference independent of this object and convert the pointer
+		 const GProcessingContainerT<processable_type, processing_result_type> *p_load
+			 = Gem::Common::g_convert_and_compare<GProcessingContainerT<processable_type, processing_result_type>, GProcessingContainerT<processable_type, processing_result_type>>(cp, this);
 
 		 // Load local data
 		 m_iteration_counter = p_load->m_iteration_counter;
@@ -585,7 +615,8 @@ public:
 		 m_bufferport_raw_retrieval_time = p_load->m_bufferport_raw_retrieval_time;
 		 m_bufferport_proc_submission_time = p_load->m_bufferport_proc_submission_time;
 		 m_bufferport_proc_retrieval_time = p_load->m_bufferport_proc_retrieval_time;
-		 m_stored_result = p_load->m_stored_result;
+		 m_n_stored_results = p_load->m_n_stored_results;
+		 m_stored_results_vec = p_load->m_stored_results_vec; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
 		 m_stored_error_descriptions = p_load->m_stored_error_descriptions;
 		 m_processing_status = p_load->m_processing_status;
 
@@ -594,6 +625,26 @@ public:
 	 }
 
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Allows derived classes to set the number of stored results. Note that this
+	  * should happen prior to any operation with this object. Also note that this
+	  * operation may invalidate other results already stored in this object.
+	  */
+	 void setNStoredResults(std::size_t n_stored_results) {
+		 m_stored_results_vec.resize(n_stored_results);
+		 m_n_stored_results = n_stored_results;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to register a result, using its id (i.e. position in the internal
+	  * result storage. This function should be called from inside of the process_ call.
+	  */
+	 void registerResult(std::size_t id, const processing_result_type& r) {
+		 m_stored_results_vec.at(id) = r;
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * This function allows derived classes to specify custom error conditions by
@@ -620,12 +671,15 @@ protected:
 
 private:
 	 /***************************************************************************/
-
-	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
-	 virtual G_API_COURTIER void process_() BASE = 0;
-
-	 /** @brief Allows derived classes to give an indication of the processing result (if any); may not throw. */
-	 virtual G_API_COURTIER result_type get_processing_result() const noexcept BASE = 0;
+	 /**
+	  * Little helper function to (re-)initialize the result storage vector
+	  */
+	 void clear_stored_results_vec() {
+		 // "Nullify the result list. Wenn cannot use range-based for here, as m_stored_results_vec might hold booleans
+		 for(auto it=m_stored_results_vec.begin(); it!=m_stored_results_vec.end(); ++it) {
+			 *it = processing_result_type();
+		 }
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -640,6 +694,11 @@ private:
 	  */
 	 virtual void loadConstantData_(std::shared_ptr<processable_type>) BASE
 	 { /* nothing */ }
+
+	 /***************************************************************************/
+
+	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
+	 virtual G_API_COURTIER processing_result_type process_() BASE = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -688,7 +747,8 @@ private:
 	 std::chrono::high_resolution_clock::time_point m_bufferport_proc_retrieval_time;  ///< Time when the item was retrieved from the processed queue
 	 std::chrono::high_resolution_clock::time_point m_bufferport_proc_submission_time; ///< Time when the item was submitted to the processed queue
 
-	 result_type m_stored_result = result_type(0); ///< Buffers results of the process() call
+	 std::size_t m_n_stored_results = 1; ///< The number of results to be stored in this item (should be at least 1)
+	 std::vector<processing_result_type> m_stored_results_vec = std::vector<processing_result_type>(m_n_stored_results, processing_result_type()); ///< The results stored by this object
 
 	 std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
 	 processingStatus m_processing_status = processingStatus::IGNORE; ///< By default no processing is initiated
@@ -702,10 +762,10 @@ private:
 /******************************************************************************/
 /** @brief Mark this class as abstract */
 namespace boost { namespace serialization {
-template<typename processable_type, typename result_type>
-struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, result_type>> : public boost::true_type {};
-template<typename processable_type, typename result_type>
-struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, result_type>> : public boost::true_type {};
+template<typename processable_type, typename processing_result_type>
+struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {};
+template<typename processable_type, typename processing_result_type>
+struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {};
 }}
 
 /******************************************************************************/

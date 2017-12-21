@@ -51,19 +51,12 @@ GSimpleContainer::GSimpleContainer(const std::size_t& snr) : m_stored_number(snr
 
 /********************************************************************************************/
 /**
- * Allows to specify the tasks to be performed for this object. We simply do nothing.
+ * Allows to specify the tasks to be performed for this object. We simply do nothing,
+ * as this class is for debugging and benchmarking purposes only.
  *
  * @return A boolean which indicates whether a useful result was obtained
  */
-void GSimpleContainer::process_() {
-	/* nothing */
-}
-
-/********************************************************************************************/
-/**
- * Allows to give an indication of the processing result; may not throw.
- */
-bool GSimpleContainer::get_processing_result() const noexcept {
+bool GSimpleContainer::process_() {
 	return true;
 }
 

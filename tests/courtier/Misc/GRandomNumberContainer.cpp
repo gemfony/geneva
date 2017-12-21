@@ -61,15 +61,8 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
  *
  * @return A boolean which indicates whether a useful result was obtained
  */
-void GRandomNumberContainer::process_() {
+bool GRandomNumberContainer::process_() {
 	std::sort(randomNumbers_.begin(), randomNumbers_.end());
-}
-
-/********************************************************************************************/
-/**
- * Allows to give an indication of the processing result; may not throw.
- */
-bool GRandomNumberContainer::get_processing_result() const noexcept {
 	return true;
 }
 

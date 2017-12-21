@@ -111,6 +111,8 @@ class parameterset_processing_result {
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
+	 /** @brief The default constuctor */
+	 parameterset_processing_result() = default;
 	 /** @brief Initialization with a raw fitness */
 	 explicit parameterset_processing_result(double);
 	 /** @brief Initialization with a raw and transformed fitness */
@@ -152,10 +154,6 @@ public:
 	 void reset(double, std::function<double(double)>);
 
 private:
-	 /***************************************************************************/
-	 /** @brief The default constuctor -- needed for de-serialization purposes only, hence private */
-	 parameterset_processing_result() = default;
-
 	 /***************************************************************************/
 	 // Data
 
@@ -877,10 +875,7 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Do the required processing for this object */
-	 G_API_GENEVA void process_() override;
-
-	 /** @brief Allows to give an indication of the processing result (if any); may not throw. */
-	 G_API_GENEVA double get_processing_result() const noexcept override;
+	 G_API_GENEVA double process_() override;
 
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;

@@ -105,10 +105,7 @@ private:
 	 GSimpleContainer() = default;
 
 	 /** @brief Allows to specify the tasks to be performed for this object */
-	 virtual void process_() override;
-
-	 /** @brief Allows to give an indication of the processing result; may not throw. */
-	 virtual bool get_processing_result() const noexcept override;
+	 virtual bool process_() override;
 
 	 std::size_t m_stored_number = 0; ///< Holds the pay-load of this object
 };
