@@ -190,7 +190,7 @@ public:
 	  * The standard destructor. Gets rid of the local random number generator, unless
 	  * an external generator has been assigned.
 	  */
-	 virtual ~GAdaptorT()
+     ~GAdaptorT() override
 	 { /* nothing */}
 
 	 /***************************************************************************/
@@ -929,7 +929,7 @@ protected:
 	 virtual void customAdaptions(T &, const T &, Gem::Hap::GRandomBase&) BASE = 0;
 
 	 /** @brief Creates a deep copy of this object */
-	 GObject *clone_(void) const override = 0;
+	 GObject *clone_() const override = 0;
 
 	 /***************************************************************************/
 	 // Protected data
