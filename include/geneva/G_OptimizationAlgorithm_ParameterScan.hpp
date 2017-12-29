@@ -130,7 +130,7 @@ std::vector<double> fillWithData<double>(
  */
 class scanParInterface {
 public:
-	 virtual G_API_GENEVA ~scanParInterface(){ /* nothing */ }
+	 virtual G_API_GENEVA ~scanParInterface() = default;
 
 	 virtual G_API_GENEVA NAMEANDIDTYPE getVarAddress() const = 0;
 	 virtual G_API_GENEVA bool goToNextItem() = 0;
@@ -179,7 +179,7 @@ public:
 	 baseScanParT(
 		 parPropSpec<T> pps
 		 , bool randomScan
-		 , std::string t // typeDescription_
+		 , const std::string& t // typeDescription_
 	 )
 		 : Gem::Common::GStdSimpleVectorInterfaceT<T>()
 			, var_(pps.var)
@@ -215,8 +215,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~baseScanParT()
-	 { /* nothing */ }
+	 ~baseScanParT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -426,9 +425,9 @@ public:
 		 , bool
 	 );
 	 /** @brief Copy constructor */
-	 G_API_GENEVA bScanPar(const bScanPar&);
+	 G_API_GENEVA bScanPar(const bScanPar&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~bScanPar();
+	 G_API_GENEVA ~bScanPar() override = default;
 
 	 /** @brief Cloning of this object */
 	 G_API_GENEVA std::shared_ptr<bScanPar> clone() const;
@@ -467,9 +466,9 @@ public:
 		 , bool
 	 );
 	 /** @brief Copy constructor */
-	 G_API_GENEVA int32ScanPar(const int32ScanPar&);
+	 G_API_GENEVA int32ScanPar(const int32ScanPar&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~int32ScanPar();
+	 G_API_GENEVA ~int32ScanPar() override = default;
 
 	 /** @brief Cloning of this object */
 	 G_API_GENEVA std::shared_ptr<int32ScanPar> clone() const;
@@ -508,9 +507,9 @@ public:
 		 , bool
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA dScanPar(const dScanPar&);
+	 G_API_GENEVA dScanPar(const dScanPar&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~dScanPar();
+	 G_API_GENEVA ~dScanPar() override = default;
 
 	 /** @brief Cloning of this object */
 	 G_API_GENEVA std::shared_ptr<dScanPar> clone() const;
@@ -550,9 +549,9 @@ public:
 		 , bool
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA fScanPar(const fScanPar&);
+	 G_API_GENEVA fScanPar(const fScanPar&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~fScanPar();
+	 G_API_GENEVA ~fScanPar() override = default;
 
 	 /** @brief Cloning of this object */
 	 G_API_GENEVA std::shared_ptr<fScanPar> clone() const;
@@ -642,14 +641,14 @@ class GParameterScan
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GParameterScan();
+	 G_API_GENEVA GParameterScan() = default;
 	 /** @brief A standard copy constructor */
 	 G_API_GENEVA GParameterScan(const GParameterScan&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GParameterScan();
+	 G_API_GENEVA ~GParameterScan() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -669,7 +668,7 @@ public:
 	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions (
+	 G_API_GENEVA void addConfigurationOptions (
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 

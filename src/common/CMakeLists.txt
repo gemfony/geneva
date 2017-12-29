@@ -8,7 +8,6 @@ SET ( COMMONSOURCES
     GExceptions
 	GExpectationChecksT
 	GFormulaParserT
-	GLockVarT
 	GLogger
 	GParserBuilder
 	GPlotDesigner

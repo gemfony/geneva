@@ -341,7 +341,7 @@ std::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet>
 		if (extDat.at(i) > max) max = extDat.at(i);
 	}
 
-	return std::tuple<x_type_undet, x_type_undet>(min, max);
+	return {min, max};
 }
 
 /******************************************************************************/
@@ -375,7 +375,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat) {
 		if (std::get<1>(extDat.at(i)) > maxY) maxY = std::get<1>(extDat.at(i));
 	}
 
-	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>(minX, maxX, minY, maxY);
+	return {minX, maxX, minY, maxY};
 }
 
 /******************************************************************************/
@@ -412,9 +412,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>
 		if (std::get<2>(extDat.at(i)) > maxZ) maxZ = std::get<2>(extDat.at(i));
 	}
 
-	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>(minX, maxX,
-																																			  minY, maxY,
-																																			  minZ, maxZ);
+	return {minX, maxX, minY, maxY, minZ, maxZ};
 }
 
 /******************************************************************************/
@@ -454,8 +452,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet,
 		if (std::get<3>(extDat.at(i)) > maxW) maxW = std::get<3>(extDat.at(i));
 	}
 
-	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>(
-		minX, maxX, minY, maxY, minZ, maxZ, minW, maxW);
+	return {minX, maxX, minY, maxY, minZ, maxZ, minW, maxW};
 }
 
 /******************************************************************************/
@@ -516,7 +513,7 @@ std::tuple<T, T> GStandardDeviation(
 
 	// It is easy if the size is 1
 	if (parVec.size() == 1) {
-		return std::tuple<T, T>(parVec.at(0), 0.);
+		return {parVec.at(0), 0.};
 	}
 
 	typename std::vector<T>::const_iterator cit;
@@ -527,7 +524,7 @@ std::tuple<T, T> GStandardDeviation(
 	sigma /= parVec.size() - 1;
 	sigma = sqrt(sigma);
 
-	return std::tuple<T, T>(mean, sigma);
+	return {mean, sigma};
 }
 
 /******************************************************************************/
@@ -838,7 +835,7 @@ std::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	if (dataPoints.empty()) {
-		return std::tuple<fp_type, fp_type, fp_type, fp_type>(fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.));
+		return {fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.)};
 	}
 
 	fp_type a = fp_type(0), b = fp_type(0);
@@ -862,7 +859,7 @@ std::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
 	fp_type sigma_a = gsqrt(dev / (n - 2.)) * gsqrt(sq_sum_x / (n * sq_sum_x - gpow(sum_x, 2.)));
 	fp_type sigma_b = gsqrt(dev / (n - 2.)) * gsqrt(n / (n * sq_sum_x - gpow(sum_x, 2.)));
 
-	return std::tuple<fp_type, fp_type, fp_type, fp_type>(a, sigma_a, b, sigma_b);
+	return {a, sigma_a, b, sigma_b};
 }
 
 /******************************************************************************/
@@ -905,10 +902,12 @@ std::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
 	fp_type p_val = std::get<2>(p);
 	fp_type p_err = std::get<3>(p);
 
-	return std::tuple<fp_type, fp_type, fp_type, fp_type>(
-		sleep_time, 0., s_val / p_val,
-		gsqrt(gpow(s_err / p_val, fp_type(2.)) + gpow(s_val * p_err / gpow(p_val, fp_type(2.)), fp_type(2.)))
-	);
+	return {
+		sleep_time
+		, 0.
+		, s_val / p_val
+		, gsqrt(gpow(s_err / p_val, fp_type(2.)) + gpow(s_val * p_err / gpow(p_val, fp_type(2.)), fp_type(2.)))
+	};
 }
 
 /******************************************************************************/

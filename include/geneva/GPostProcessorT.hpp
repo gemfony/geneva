@@ -92,25 +92,19 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 GPostProcessorBaseT()
-	 { /* nothing */ }
+	 GPostProcessorBaseT() = default;
 
 	 /**************************************************************************/
 	 /**
 	  * The copy constructor
 	  */
-	 GPostProcessorBaseT(const GPostProcessorBaseT<base_type>& cp)
-		 : m_allowed_mnemonics(cp.m_allowed_mnemonics)
-	 { /* nothing */ }
+	 GPostProcessorBaseT(const GPostProcessorBaseT<base_type>& cp) = default;
 
 	 /**************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GPostProcessorBaseT()
-	 {
-		 m_allowed_mnemonics.clear();
-	 }
+	 ~GPostProcessorBaseT() override = default;
 
 	 /**************************************************************************/
 	 /**
@@ -129,7 +123,7 @@ public:
 	  * @param e The expected outcome of the comparison
 	  * @param limit The maximum deviation for floating point values (important for similarity checks)
 	  */
-	 virtual void compare(
+	 void compare(
 		 const Gem::Common::GSerializableFunctionObjectT<base_type> &cp
 		 , const Gem::Common::expectation &e
 		 , const double &limit
@@ -263,15 +257,15 @@ public:
 		 , const std::string& executor_configFile
 	 );
 	 /** @brief The copy constructor */
-	 GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp);
+	 GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp) = default;
 	 /** @brief The destructor */
-	 virtual ~GEvolutionaryAlgorithmPostOptimizer();
+	 ~GEvolutionaryAlgorithmPostOptimizer() override = default;
 
 	 /** @brief Returns the name of this class */
 	 std::string name() const override;
 
 	 /** @brief Checks for compliance with expectations with respect to another object of the same type */
-	 virtual void compare(
+	 void compare(
 		 const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
 		 , const Gem::Common::expectation &e
 		 , const double &limit
@@ -283,12 +277,12 @@ public:
 	 execMode getExecMode() const;
 
 	 /** @brief Allows to specify the name of a configuration file for the optimization algorithm */
-	 void setOAConfigFile(std::string oaConfigFile);
+	 void setOAConfigFile(const std::string& oaConfigFile);
 	 /** @brief Allows to retrieve the configuration file for the optimization algorithm */
 	 std::string getOAConfigFile() const;
 
 	 /** @brief Allows to specify the name of a configuration file for the executor */
-	 void setExecutorConfigFile(std::string executorConfigFile);
+	 void setExecutorConfigFile(const std::string& executorConfigFile);
 	 /** @brief Allows to retrieve the configuration file for the executor */
 	 std::string getExecutorConfigFile() const;
 

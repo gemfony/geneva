@@ -565,10 +565,10 @@ std::tuple<double, double> G_OptimizationAlgorithm_ParChild::cycleLogic() {
 
 #ifdef DEBUG
 	// The dirty flag of this individual shouldn't be set
-	if(!this->at(0)->isClean()) {
+	if(!this->at(0)->is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GBaseParChiltT<>::cycleLogic(): Error!" << std::endl
+				<< "In G_OptimizationAlgorithm_ParChild::cycleLogic(): Error!" << std::endl
 				<< "Expected clean individual in best position" << std::endl
 		);
 	}

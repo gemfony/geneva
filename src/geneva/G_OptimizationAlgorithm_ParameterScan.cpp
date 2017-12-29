@@ -34,12 +34,12 @@
 
 #include "geneva/G_OptimizationAlgorithm_ParameterScan.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::bScanPar)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::int32ScanPar)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::dScanPar)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::fScanPar)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::bScanPar) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::int32ScanPar) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::dScanPar) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::fScanPar) // NOLINT
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterScan) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -52,7 +52,9 @@ namespace Geneva {
  */
 template<>
 std::vector<bool> fillWithData<bool>(
-	std::size_t nSteps, bool lower, bool upper
+	std::size_t nSteps
+	, bool lower
+	, bool upper
 ) {
 	std::vector<bool> result;
 	result.push_back(false);
@@ -67,7 +69,8 @@ std::vector<bool> fillWithData<bool>(
 template<>
 std::vector<std::int32_t> fillWithData<std::int32_t>(
 	std::size_t nSteps // will only be used for random entries
-	, std::int32_t lower, std::int32_t upper // inclusive
+	, std::int32_t lower
+	, std::int32_t upper // inclusive
 ) {
 	std::vector<std::int32_t> result;
 	for (std::int32_t i = lower; i <= upper; i++) {
@@ -82,7 +85,9 @@ std::vector<std::int32_t> fillWithData<std::int32_t>(
  */
 template<>
 std::vector<float> fillWithData<float>(
-	std::size_t nSteps, float lower, float upper
+	std::size_t nSteps
+	, float lower
+	, float upper
 ) {
 	std::vector<float> result;
 
@@ -108,7 +113,9 @@ std::vector<float> fillWithData<float>(
  */
 template<>
 std::vector<double> fillWithData<double>(
-	std::size_t nSteps, double lower, double upper
+	std::size_t nSteps
+	, double lower
+	, double upper
 ) {
 	std::vector<double> result;
 
@@ -134,30 +141,15 @@ std::vector<double> fillWithData<double>(
 /**
  * The default constructor. Only needed for de-serialization.
  */
-bScanPar::bScanPar()
-	: baseScanParT<bool>() { /* nothing */ }
+bScanPar::bScanPar() : baseScanParT<bool>() { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Construction from local variables
  */
-bScanPar::bScanPar(
-	parPropSpec<bool> pps, bool randomScan
-)
-	: baseScanParT<bool>(pps, randomScan, "b") { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-bScanPar::bScanPar(const bScanPar &cp)
-	: baseScanParT<bool>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-bScanPar::~bScanPar() { /* nothing */ }
+bScanPar::bScanPar(parPropSpec<bool> pps, bool randomScan)
+	: baseScanParT<bool>(pps, randomScan, "b")
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -173,8 +165,7 @@ std::shared_ptr <bScanPar> bScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-int32ScanPar::int32ScanPar()
-	: baseScanParT<std::int32_t>() { /* nothing */ }
+int32ScanPar::int32ScanPar() : baseScanParT<std::int32_t>() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -183,20 +174,8 @@ int32ScanPar::int32ScanPar()
 int32ScanPar::int32ScanPar(
 	parPropSpec<std::int32_t> pps, bool randomScan
 )
-	: baseScanParT<std::int32_t>(pps, randomScan, "i") { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-int32ScanPar::int32ScanPar(const int32ScanPar &cp)
-	: baseScanParT<std::int32_t>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-int32ScanPar::~int32ScanPar() { /* nothing */ }
+	: baseScanParT<std::int32_t>(pps, randomScan, "i")
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -212,8 +191,7 @@ std::shared_ptr <int32ScanPar> int32ScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-dScanPar::dScanPar()
-	: baseScanParT<double>() { /* nothing */ }
+dScanPar::dScanPar() : baseScanParT<double>() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -222,20 +200,8 @@ dScanPar::dScanPar()
 dScanPar::dScanPar(
 	parPropSpec<double> pps, bool randomScan
 )
-	: baseScanParT<double>(pps, randomScan, "d") { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-dScanPar::dScanPar(const dScanPar &cp)
-	: baseScanParT<double>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-dScanPar::~dScanPar() { /* nothing */ }
+	: baseScanParT<double>(pps, randomScan, "d")
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -251,8 +217,7 @@ std::shared_ptr <dScanPar> dScanPar::clone() const {
 /**
  * The default constructor. Only needed for de-serialization.
  */
-fScanPar::fScanPar()
-	: baseScanParT<float>() { /* nothing */ }
+fScanPar::fScanPar() : baseScanParT<float>() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -261,20 +226,8 @@ fScanPar::fScanPar()
 fScanPar::fScanPar(
 	parPropSpec<float> pps, bool randomScan
 )
-	: baseScanParT<float>(pps, randomScan, "f") { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-fScanPar::fScanPar(const fScanPar &cp)
-	: baseScanParT<float>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-fScanPar::~fScanPar() { /* nothing */ }
+	: baseScanParT<float>(pps, randomScan, "f")
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -354,14 +307,6 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GParameterScan::GParameterScan()
-	: G_OptimizationAlgorithm_Base()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * A standard copy constructor.
  *
  * @param cp A copy of another GradientDescent object
@@ -398,12 +343,6 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
 		m_f_vec.push_back((*f_it)->clone());
 	}
 }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GParameterScan::~GParameterScan() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -602,11 +541,11 @@ std::tuple<double, double> GParameterScan::cycleLogic() {
 	auto m = this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
 	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-		if(!(*it)->isClean()) {
+		if(!(*it)->is_processed()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterScan::cycleLogic(): Error!" << std::endl
-					<< "Individual in position " << (it-this->begin()) << " is not clean" << std::endl
+					<< "Individual in position " << (it-this->begin()) << " is not processed" << std::endl
 			);
 		}
 #endif
@@ -753,7 +692,7 @@ void GParameterScan::updateSelectedParameters() {
 		//------------------------------------------------------------------------
 		// Mark the individual as "dirty", so it gets re-evaluated the
 		// next time the fitness() function is called
-		this->at(indPos)->setDirtyFlag();
+		this->at(indPos)->mark_as_due_for_processing();
 
 		// We were successful
 		m_cycleLogicHalt = false;
@@ -792,7 +731,7 @@ void GParameterScan::randomShuffle() {
 		this->at(indPos)->randomInit(activityMode::ACTIVEONLY);
 		// Mark the individual as "dirty", so it gets re-evaluated the
 		// next time the fitness() function is called
-		this->at(indPos)->setDirtyFlag();
+		this->at(indPos)->mark_as_due_for_processing();
 
 		// We were successful
 		m_cycleLogicHalt = false;
@@ -960,8 +899,7 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
  * collection (false)
  */
 bool GParameterScan::switchToNextParameterSet() {
-	std::vector<std::shared_ptr < scanParInterface>> ::iterator
-		it = m_all_par_vec.begin();
+	auto it = m_all_par_vec.begin();
 
 	// Switch to the next parameter set
 	while (true) {
@@ -983,25 +921,13 @@ bool GParameterScan::switchToNextParameterSet() {
  */
 void GParameterScan::fillAllParVec() {
 	// 1) For boolean objects
-	std::vector<std::shared_ptr < bScanPar>> ::iterator b_it;
-	for (b_it = m_b_vec.begin(); b_it != m_b_vec.end(); ++b_it) {
-		m_all_par_vec.push_back(*b_it);
-	}
+	for(const auto& item_ptr: m_b_vec)     { m_all_par_vec.push_back(item_ptr); }
 	// 2) For std::int32_t objects
-	std::vector<std::shared_ptr < int32ScanPar>> ::iterator i_it;
-	for (i_it = m_int32_vec.begin(); i_it != m_int32_vec.end(); ++i_it) {
-		m_all_par_vec.push_back(*i_it);
-	}
+	for(const auto& item_ptr: m_int32_vec) { m_all_par_vec.push_back(item_ptr); }
 	// 3) For float objects
-	std::vector<std::shared_ptr < fScanPar>> ::iterator f_it;
-	for (f_it = m_f_vec.begin(); f_it != m_f_vec.end(); ++f_it) {
-		m_all_par_vec.push_back(*f_it);
-	}
+	for(const auto& item_ptr: m_f_vec)     { m_all_par_vec.push_back(item_ptr); }
 	// 4) For double objects
-	std::vector<std::shared_ptr < dScanPar>> ::iterator d_it;
-	for (d_it = m_d_vec.begin(); d_it != m_d_vec.end(); ++d_it) {
-		m_all_par_vec.push_back(*d_it);
-	}
+	for(const auto& item_ptr: m_d_vec)     { m_all_par_vec.push_back(item_ptr); }
 }
 
 /******************************************************************************/
@@ -1086,11 +1012,12 @@ void GParameterScan::runFitnessCalculation() {
 	GParameterScan::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// Make sure the evaluated individuals have the dirty flag set
-		if(!(*it)->isDirty()) {
+		if(!(*it)->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterScan::runFitnessCalculation():" << std::endl
-					<< "Found individual in position " << std::distance(this->begin(), it) << ", whose dirty flag isn't set" << std::endl
+					<< "Found individual in position " << std::distance(this->begin(), it)
+					<< ", which has not been marked as due for processing" << std::endl
 			);
 		}
 	}
@@ -1159,8 +1086,8 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 			std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator
 		> t_d = ppp.getIterators<double>();
 
-		std::vector<parPropSpec<double>>::const_iterator d_cit = std::get<0>(t_d);
-		std::vector<parPropSpec<double>>::const_iterator d_end = std::get<1>(t_d);
+		auto d_cit = std::get<0>(t_d);
+		auto d_end = std::get<1>(t_d);
 		for (; d_cit != d_end; ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
 			m_d_vec.push_back(std::shared_ptr<dScanPar>(new dScanPar(*d_cit, m_scanRandomly)));
 		}
@@ -1170,8 +1097,8 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 			std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator
 		> t_f = ppp.getIterators<float>();
 
-		std::vector<parPropSpec<float>>::const_iterator f_cit = std::get<0>(t_f);
-		std::vector<parPropSpec<float>>::const_iterator f_end = std::get<1>(t_f);
+		auto f_cit = std::get<0>(t_f);
+		auto f_end = std::get<1>(t_f);
 		for (; f_cit != f_end; ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
 			m_f_vec.push_back(std::shared_ptr<fScanPar>(new fScanPar(*f_cit, m_scanRandomly)));
 		}
@@ -1181,8 +1108,8 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 			std::vector<parPropSpec<std::int32_t>>::const_iterator, std::vector<parPropSpec<std::int32_t>>::const_iterator
 		> t_i = ppp.getIterators<std::int32_t>();
 
-		std::vector<parPropSpec<std::int32_t>>::const_iterator i_cit = std::get<0>(t_i);
-		std::vector<parPropSpec<std::int32_t>>::const_iterator i_end = std::get<1>(t_i);
+		auto i_cit = std::get<0>(t_i);
+		auto i_end = std::get<1>(t_i);
 		for (; i_cit != i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
 			m_int32_vec.push_back(std::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, m_scanRandomly)));
 		}
@@ -1192,8 +1119,8 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 			std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator
 		> t_b = ppp.getIterators<bool>();
 
-		std::vector<parPropSpec<bool>>::const_iterator b_cit = std::get<0>(t_b);
-		std::vector<parPropSpec<bool>>::const_iterator b_end = std::get<1>(t_b);
+		auto b_cit = std::get<0>(t_b);
+		auto b_end = std::get<1>(t_b);
 		for (; b_cit != b_end; ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
 			m_b_vec.push_back(std::shared_ptr<bScanPar>(new bScanPar(*b_cit, m_scanRandomly)));
 		}

@@ -568,9 +568,9 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Loads the data of another GFunctionIndividualFactory object */
-	 G_API_INDIVIDUALS void load(std::shared_ptr <GFactoryT<GParameterSet>>) override;
+	 G_API_INDIVIDUALS void load(std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>) override;
 	 /** @brief Creates a deep clone of this object */
-	 G_API_INDIVIDUALS std::shared_ptr <GFactoryT<GParameterSet>> clone() const override;
+	 G_API_INDIVIDUALS std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> clone() const override;
 
 protected:
 	 /** @brief Creates individuals of this type */

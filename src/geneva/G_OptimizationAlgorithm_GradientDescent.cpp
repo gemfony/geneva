@@ -34,7 +34,7 @@
 
 #include "geneva/G_OptimizationAlgorithm_GradientDescent.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GGradientDescent) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -65,33 +65,6 @@ GGradientDescent::GGradientDescent(
 	  , finiteStep_(finiteStep)
 	  , stepSize_(stepSize)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * A standard copy constructor.
- *
- * @param cp A copy of another GradientDescent object
- */
-GGradientDescent::GGradientDescent(const GGradientDescent &cp)
-	: G_OptimizationAlgorithm_Base(cp)
-	  , nStartingPoints_(cp.nStartingPoints_)
-	  , nFPParmsFirst_(cp.nFPParmsFirst_)
-	  , finiteStep_(cp.finiteStep_)
-	  , stepSize_(cp.stepSize_)
-	  , stepRatio_(cp.stepRatio_) // Will be recalculated in init()
-	  , dblLowerParameterBoundaries_(cp.dblLowerParameterBoundaries_) // Will be extracted in init()
-	  , dblUpperParameterBoundaries_(cp.dblUpperParameterBoundaries_) // Will be extracted in init()
-	  , adjustedFiniteStep_(cp.adjustedFiniteStep_) // Will be recalculated in init()
-{
-	// Copying / setting of the optimization algorithm id is done by the parent class. The same
-	// applies to the copying of the optimization monitor.
-}
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GGradientDescent::~GGradientDescent() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -332,8 +305,8 @@ std::tuple<double, double> GGradientDescent::cycleLogic() {
 	GGradientDescent::iterator it;
 	auto m = this->at(0)->getMaxMode(); // We assume that all individuals have the same max mode
 	for (it = this->begin(); it != this->begin() + this->getNStartingPoints(); ++it) {
-		std::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
-		std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+		std::get<G_RAW_FITNESS>(fitnessCandidate) = (*it)->raw_fitness(0);
+		std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate) = (*it)->transformed_fitness(0);
 
 		if(isBetter(
 			std::get<G_TRANSFORMED_FITNESS>(fitnessCandidate)
@@ -397,11 +370,11 @@ void GGradientDescent::updateParentIndividuals() {
 
 #ifdef DEBUG
 		// Make sure the parents are clean
-		if(this->at(i)->isDirty()) {
+		if(this->at(i)->is_due_for_processing() || (this->at(i)->has_errors())) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GGradientDescent::updateParentIndividuals():" << std::endl
-					<< "Found individual in position " << i << " with active dirty flag" << std::endl
+					<< "Found individual in position " << i << " which is unprocessed or has errors" << std::endl
 			);
 		}
 #endif /* DEBUG */
@@ -487,13 +460,13 @@ void GGradientDescent::runFitnessCalculation() {
 
 #ifdef DEBUG
 	std::size_t pos = 0;
-	for(auto item_ptr: *this) {
-		// Make sure the evaluated individuals have the dirty flag set
-		if(this->afterFirstIteration() && !item_ptr->isDirty()) {
+	for(const auto& item_ptr: *this) {
+		// Make sure the evaluated individuals are marked to be processed
+		if(this->afterFirstIteration() && !item_ptr->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GGradientDescent::runFitnessCalculation():" << std::endl
-					<< "Found individual om position " << pos << " whose dirty flag isn't set" << std::endl
+					<< "Found individual om position " << pos << " which is not due for processing" << std::endl
 			);
 		}
 

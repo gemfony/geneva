@@ -75,7 +75,7 @@ double minOnly_cached_fitness(
 	const std::shared_ptr<GParameterSet>& item_ptr
 	, std::size_t id
 ) {
-	double f = item_ptr->fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+	double f = item_ptr->transformed_fitness(id);
 	maxMode m = item_ptr->getMaxMode();
 
 #ifdef DEBUG

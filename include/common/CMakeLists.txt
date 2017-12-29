@@ -52,7 +52,6 @@ SET ( GENEVACOMMONINCLUDES
 	GFormulaParserT.hpp
 	GGlobalDefines.hpp
 	GGlobalOptionsT.hpp
-	GLockVarT.hpp
 	GLogger.hpp
 	GParserBuilder.hpp
 	GPlotDesigner.hpp

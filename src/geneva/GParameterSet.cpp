@@ -127,6 +127,15 @@ void parameterset_processing_result::setTransformedFitnessTo(double transformed_
 
 /******************************************************************************/
 /**
+ * Sets the transformed fitness to the same value as the raw fitness
+ */
+void parameterset_processing_result::setTransformedFitnessToRaw() {
+	m_transformed_fitness = m_raw_fitness;
+	m_transformed_fitness_set = true;
+}
+
+/******************************************************************************/
+/**
  * Checks whether the transformed fitness was set
  */
 bool parameterset_processing_result::transformedFitnessSet() const {
@@ -180,16 +189,24 @@ void parameterset_processing_result::reset(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * Initialization with the number of fitness criteria
+ * The default constructor. Using this constructor will result in a single
+ * fitness criterion.
  */
-GParameterSet::GParameterSet(const std::size_t &n_fitness_criteria)
-	: m_n_fitness_criteria(n_fitness_criteria)
+GParameterSet::GParameterSet()
+	: Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(1)
 { /* nothing */ }
 
 /******************************************************************************/
 /**
- * The copy ructor. Note that we cannot rely on the operator=() of the vector
- * here, as we do not know the actual type of T objects.
+ * Initialization with the number of fitness criteria
+ */
+GParameterSet::GParameterSet(std::size_t n_fitness_criteria)
+	: Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(n_fitness_criteria)
+{ /* nothing */ }
+
+/******************************************************************************/
+/**
+ * The copy constructor.
  *
  * @param cp A copy of another GParameterSet object
  */
@@ -198,11 +215,8 @@ GParameterSet::GParameterSet(const GParameterSet &cp)
    , G_Interface_Mutable(cp)
    , G_Interface_Rateable(cp)
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>(cp)
-   , Gem::Courtier::GProcessingContainerT<GParameterSet, double>(cp)
+   , Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(cp)
    , m_perItemCrossOverProbability(cp.m_perItemCrossOverProbability)
-   , m_n_fitness_criteria(cp.m_n_fitness_criteria)
-   , m_current_fitness_vec(cp.m_current_fitness_vec)
-   , m_marked_as_invalid_by_user(cp.m_marked_as_invalid_by_user)
    , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
    , m_n_stalls(cp.m_n_stalls)
    , m_dirty_flag(cp.m_dirty_flag)
@@ -215,7 +229,6 @@ GParameterSet::GParameterSet(const GParameterSet &cp)
    , m_max_unsuccessful_adaptions(cp.m_max_unsuccessful_adaptions)
    , m_max_retries_until_valid(cp.m_max_retries_until_valid)
    , m_n_adaptions(cp.m_n_adaptions)
-   , m_evaluation_id(cp.m_evaluation_id)
 {
 	// Copy the personality pointer over
 	Gem::Common::copyCloneableSmartPointer(cp.m_pt_ptr, m_pt_ptr);
@@ -250,9 +263,6 @@ void GParameterSet::compare(
 	// ... and then the local data
 	compare_t(IDENTITY(this->data,  p_load->data), token); // data is actually contained in a parent class
 	compare_t(IDENTITY(m_perItemCrossOverProbability, p_load->m_perItemCrossOverProbability), token);
-	compare_t(IDENTITY(m_n_fitness_criteria, p_load->m_n_fitness_criteria), token);
-	compare_t(IDENTITY(m_current_fitness_vec, p_load->m_current_fitness_vec), token);
-	compare_t(IDENTITY(m_marked_as_invalid_by_user, p_load->m_marked_as_invalid_by_user), token);
 	compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
 	compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
 	compare_t(IDENTITY(m_dirty_flag, p_load->m_dirty_flag), token);
@@ -267,7 +277,6 @@ void GParameterSet::compare(
 	compare_t(IDENTITY(m_max_unsuccessful_adaptions, p_load->m_max_unsuccessful_adaptions), token);
 	compare_t(IDENTITY(m_max_retries_until_valid, p_load->m_max_retries_until_valid), token);
 	compare_t(IDENTITY(m_n_adaptions, p_load->m_n_adaptions), token);
-	compare_t(IDENTITY(m_evaluation_id, p_load->m_evaluation_id), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -280,8 +289,8 @@ void GParameterSet::compare(
  */
 void GParameterSet::swap(GParameterSet& cp) {
 	Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::swap(cp.data);
-	GParameterSet::setDirtyFlag();
-	cp.setDirtyFlag();
+	this->mark_as_due_for_processing();
+	cp.mark_as_due_for_processing();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -302,7 +311,7 @@ bool GParameterSet::randomInit(const activityMode &am) {
 	bool modifications_made = this->randomInit_(am);
 
 	if(modifications_made) {
-		this->setDirtyFlag();
+		this->mark_as_due_for_processing();
 	}
 
 	return modifications_made;
@@ -323,7 +332,9 @@ void GParameterSet::setMaxMode(const maxMode& mode) {
 
 /******************************************************************************/
 /**
- * Transformation of the individual's parameter objects into a boost::property_tree object
+ * Transformation of the individual's parameter objects into a boost::property_tree object .
+ * This is e.g. used in GExternalEvaluatorIndividual for the communication with external
+ * evaluation programs.
  */
 void GParameterSet::toPropertyTree(
 	pt::ptree &ptr
@@ -340,13 +351,16 @@ void GParameterSet::toPropertyTree(
 	}
 #endif
 
-	bool dirtyFlag = this->isDirty();
+	bool dirtyFlag = (Gem::Courtier::processingStatus::DO_PROCESS == this->getProcessingStatus());
+	bool hasErrors = this->has_errors();
+
 	double rawFitness = 0., transformedFitness = 0.;
 
 	ptr.put(baseName + ".iteration", this->getAssignedIteration());
 	ptr.put(baseName + ".id", this->getCurrentEvaluationID());
 	ptr.put(baseName + ".isDirty", dirtyFlag);
-	ptr.put(baseName + ".isValid", dirtyFlag ? false : this->isValid());
+	ptr.put(baseName + ".hasErrors", hasErrors);
+	ptr.put(baseName + ".isValid", hasErrors || dirtyFlag ? false : this->isValid());
 	ptr.put(baseName + ".type", std::string("GParameterSet"));
 
 	// Loop over all parameter objects and ask them to add their data to our ptree object
@@ -369,27 +383,22 @@ void GParameterSet::toPropertyTree(
 			ptr.put(baseName + ".transformationPolicy", "USESIGMOID");
 			break;
 
-		default: {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GParameterSet::toPropertyTree(): Error!" << std::endl
-					<< "Got invalid evaluation policy: " << this->getEvaluationPolicy() << std::endl
-			);
-		}
+		case evaluationPolicy::USEWORSTCASEFORINVALID:
+			ptr.put(baseName + ".transformationPolicy", "USEWORSTCASEFORINVALID");
 			break;
 	}
 
 	// Output all fitness criteria. We do not enforce re-calculation of the fitness here,
 	// as the property is meant to capture the current state of the individual.
 	// Check the "isDirty" tag, if you need to know whether the results are current.
-	ptr.put(baseName + ".nResults", this->getNumberOfFitnessCriteria());
-	for (std::size_t f = 0; f < this->getNumberOfFitnessCriteria(); f++) {
-		rawFitness = dirtyFlag ? this->getWorstCase() : this->fitness(f, PREVENTREEVALUATION, USERAWFITNESS);
-		transformedFitness = dirtyFlag ? this->getWorstCase() : this->transformedFitness(f);
+	ptr.put(baseName + ".nResults", this->getNStoredResults());
+	for (std::size_t i = 0; i < this->getNStoredResults(); i++) {
+		rawFitness = (dirtyFlag || hasErrors) ? this->getWorstCase() : this->raw_fitness(i);
+		transformedFitness = (dirtyFlag || hasErrors) ? this->getWorstCase() : this->transformed_fitness(i);
 
-		base = baseName + ".results.result" + Gem::Common::to_string(f);
+		base = baseName + ".results.result" + Gem::Common::to_string(i);
 		ptr.put(base, transformedFitness);
-		base = baseName + ".results.rawResult" + Gem::Common::to_string(f);
+		base = baseName + ".results.rawResult" + Gem::Common::to_string(i);
 		ptr.put(base, rawFitness);
 	}
 }
@@ -424,7 +433,6 @@ std::string GParameterSet::toCSV(
 	std::vector<std::string> varNames;
 	std::vector<std::string> varTypes;
 	std::vector<std::string> varValues;
-
 
 
 	// Extract the data
@@ -469,25 +477,31 @@ std::string GParameterSet::toCSV(
 	}
 
 	// Note: The following will output the string "dirty" if the individual is in a "dirty" state
-	for (std::size_t f = 0; f < this->getNumberOfFitnessCriteria(); f++) {
+	for (std::size_t i = 0; i < this->getNStoredResults(); i++) {
 		if (withNameAndType) {
-			varNames.push_back(std::string("Fitness_") + Gem::Common::to_string(f));
+			varNames.push_back(std::string("Fitness_") + Gem::Common::to_string(i));
 			varTypes.emplace_back("double");
 		}
-		if(!this->isDirty()) { // The individual has already been evaluated
+		if(this->is_processed()) { // The individual has already been evaluated
 			if (useRawFitness) {
 				varValues.push_back(
 					Gem::Common::to_string(
-						this->fitness(
-							f
-							, PREVENTREEVALUATION
-							, USERAWFITNESS
-						)));
+						this->raw_fitness(i)
+					)
+				);
 			} else { // Output potentially transformed fitness
-				varValues.push_back(Gem::Common::to_string(this->transformedFitness(f)));
+				varValues.push_back(
+					Gem::Common::to_string(
+						this->transformed_fitness(i)
+					)
+				);
 			}
 		} else { // No evaluation was performed so far
-			varValues.emplace_back("dirty");
+			if(this->has_errors()) {
+				varValues.emplace_back("has_errors");
+			} else { // "only" dirty / unevaluated
+				varValues.emplace_back("dirty");
+			}
 		}
 	}
 
@@ -497,7 +511,7 @@ std::string GParameterSet::toCSV(
 			varTypes.emplace_back("bool");
 		}
 
-		if(!this->isDirty()) { // The individual has already been evaluated
+		if(this->is_processed()) { // The individual has already been evaluated
 			varValues.push_back(Gem::Common::to_string(this->isValid()));
 		} else {
 			varValues.push_back(Gem::Common::to_string(false));
@@ -561,7 +575,7 @@ Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference GParame
 bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 #ifdef DEBUG
 	// Does the number of fitness criteria match the number of boundaries ?
-	if(boundaries.size() != this->getNumberOfFitnessCriteria()) {
+	if(boundaries.size() != this->getNStoredResults()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::isGoodEnough(): Error!" << std::endl
@@ -569,12 +583,12 @@ bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 		);
 	}
 
-	// Is the dirty flag set ?
-	if(this->isDirty()) {
+	// Has the individual been processed
+	if(!this->is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::isGoodEnough(): Error!" << std::endl
-				<< "Trying to compare fitness values although dirty flag is set" << std::endl
+				<< "Trying to compare fitness values although the individual isn't processed" << std::endl
 		);
 	}
 #endif /* DEBUG */
@@ -584,13 +598,13 @@ bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 	// vector, then this individual fails the test
 	if (maxMode::MAXIMIZE == this->getMaxMode()) { // Maximization
 		for (std::size_t i = 0; i < boundaries.size(); i++) {
-			if (this->fitness(i, PREVENTREEVALUATION, USERAWFITNESS) < boundaries.at(i)) {
+			if(this->raw_fitness(i) < boundaries.at(i)) {
 				return false;
 			}
 		}
 	} else { // maxMode::MINIMIZE
 		for (std::size_t i = 0; i < boundaries.size(); i++) {
-			if (this->fitness(i, PREVENTREEVALUATION, USERAWFITNESS) > boundaries.at(i)) {
+			if (this->raw_fitness(i) > boundaries.at(i)) {
 				return false;
 			}
 		}
@@ -624,7 +638,7 @@ std::shared_ptr<GParameterSet> GParameterSet::amalgamate(const std::shared_ptr<G
  */
 void GParameterSet::perItemCrossOver(
 	const GParameterSet &cp
-	, const double &likelihood
+	, double likelihood
 ) {
 #ifdef DEBUG
 	// Do some error checking
@@ -733,7 +747,7 @@ void GParameterSet::perItemCrossOver(
 	this->assignValueVector(this_int_vec);
 
 	// Mark this individual as "dirty"
-	this->setDirtyFlag(true);
+	this->mark_as_due_for_processing();
 }
 
 /******************************************************************************/
@@ -795,12 +809,12 @@ void GParameterSet::queryAdaptor(
  * only be called for "clean" foreign parameter sets
  */
 void GParameterSet::cannibalize(GParameterSet& cp) {
-	// Check whether the "foreign" entity has the dirty flag set
-	if(cp.isDirty()) {
+	// Check whether the "foreign" entity is processed
+	if(cp.is_due_for_processing() || cp.has_errors()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::cannibalize(const GParameterSet& cp): Error!" << std::endl
-				<< "cp has the dirty flag set" << std::endl
+				<< "In GParameterSet::cannibalize(const GParameterSet& cp)" << std::endl
+				<< "cp isn't processed or has errors" << std::endl
 		);
 	}
 
@@ -812,12 +826,12 @@ void GParameterSet::cannibalize(GParameterSet& cp) {
 		this->push_back(t_ptr);
 	}
 
-	// Empty the foreign GParmaeterSet object
+	// Empty the foreign GParmeterSet object
 	cp.clear();
 
 	// Set our own fitness according to the foreign individual. This will also
 	// clear our local dirty flag (if set).
-	this->setFitness_(cp.fitnessVec());
+	this->setFitness_(cp.raw_fitness_vec());
 }
 
 /******************************************************************************/
@@ -866,7 +880,7 @@ std::size_t GParameterSet::adapt() {
 
 	// Make sure the individual is re-evaluated when fitness(...) is called next time
 	if(nAdaptions > 0) {
-		this->setDirtyFlag();
+		this->mark_as_due_for_processing();
 	}
 
 	// Store the number of adaptions for later use and let the audience know
@@ -880,12 +894,58 @@ std::size_t GParameterSet::adapt() {
 
 /******************************************************************************/
 /**
- * Calculate or returns the result of a fitness function with a given id.This
+ * Retrieves the stored raw fitness with a given id
+ */
+double GParameterSet::raw_fitness(std::size_t id) const {
+	return this->getConstStoredResult(id).rawFitness();
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the stored transformed fitness with a given id
+ */
+double GParameterSet::transformed_fitness(std::size_t id) const {
+	return this->getConstStoredResult(id).transformedFitness();
+}
+
+/******************************************************************************/
+/**
+ * Returns all raw fitness results in a std::vector
+ */
+std::vector<double> GParameterSet::raw_fitness_vec() const {
+	std::size_t nFitnessCriteria = this->getNStoredResults();
+	std::vector<double> resultVec;
+
+	for (std::size_t i = 0; i < nFitnessCriteria; i++) {
+		resultVec.push_back(this->raw_fitness(i));
+	}
+
+	return resultVec;
+}
+
+/******************************************************************************/
+/**
+ * Returns all transformed fitness results in a std::vector
+ */
+std::vector<double> GParameterSet::transformed_fitness_vec() const {
+	std::size_t nFitnessCriteria = this->getNStoredResults();
+	std::vector<double> resultVec;
+
+	for (std::size_t i = 0; i < nFitnessCriteria; i++) {
+		resultVec.push_back(this->transformed_fitness(i));
+	}
+
+	return resultVec;
+}
+
+/******************************************************************************/
+/**
+ * Returns the result of the fitness calculation for a fitness value with a given id.This
  * function will always return the raw fitness, as it is likely the one called by users
- * directly -- they will expect untransformed values. This is the const version
+ * directly -- they will expect untransformed values.
  */
 double GParameterSet::fitness(std::size_t id) const {
-	return fitness(id, PREVENTREEVALUATION, USERAWFITNESS);
+	return this->raw_fitness(id);
 }
 
 /******************************************************************************/
@@ -895,6 +955,8 @@ double GParameterSet::fitness(std::size_t id) const {
  * By means of supplying an id it is possible to distinguish between different target functions.
  * 0 denotes the main fitness criterion. The user can specify whether he/she is interested
  * in the transformed or the raw fitness value.
+ *
+ * TODO: cross check logic of this function
  *
  * @param id The id of the fitness criterion
  * @param reevaluationAllowed Explicit permission to re-evaluate the individual
@@ -907,17 +969,17 @@ double GParameterSet::fitness(
 	, bool useTransformedFitness
 ) {
 	// Check whether we need to recalculate the fitness
-	if (true==m_dirty_flag) {
+	if (this->is_due_for_processing()) {
 		if (reevaluationAllowed) {
-			this->enforceFitnessUpdate();
+			this->process();
 
 #ifdef DEBUG
-			// Check if the dirty flag is still set. This should only happen in special cases
-			if(true==m_dirty_flag) {
+			// Check if the item is processed now
+			if(this->is_due_for_processing()) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
-						<< "In GParameterSet::fitness(...): Error!" << std::endl
-						<< "Dirty flag is still set in a location where it shouldn't be" << std::endl
+						<< "In GParameterSet::fitness(...):" << std::endl
+						<< "Individual is unprocessed in a location where it shouldn't be" << std::endl
 				);
 			}
 #endif /* DEBUG */
@@ -930,8 +992,12 @@ double GParameterSet::fitness(
 		}
 	}
 
-	// Return the desired result -- there should be no situation where the dirtyFlag is still set
-	return getCachedFitness(id, useTransformedFitness);
+	// Return the desired result
+	if(useTransformedFitness) {
+		return this->transformed_fitness(id);
+	} else {
+		return this->raw_fitness(id);
+	}
 }
 
 /* ----------------------------------------------------------------------------------
@@ -959,17 +1025,21 @@ double GParameterSet::fitness(
 ) const {
 #ifdef DEBUG
 	// This function should only be called for clean (i.e. evaluated) individuals
-	if(!this->isClean()) {
+	if(this->is_due_for_processing()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::fitness(...) const: Error!" << std::endl
-				<< "Dirty flag is still set in a location where it shouldn't be" << std::endl
+				<< "In GParameterSet::fitness(...) const:" << std::endl
+				<< "Individual is still unprocessed in a location where it shouldn't be" << std::endl
 		);
 	}
 #endif /* DEBUG */
 
-	// Return the desired result -- there should be no situation where the dirtyFlag is still set
-	return getCachedFitness(id, useTransformedFitness);
+	// Return the desired result
+	if(useTransformedFitness) {
+		return this->transformed_fitness(id);
+	} else {
+		return this->raw_fitness(id);
+	}
 }
 
 /******************************************************************************/
@@ -977,7 +1047,7 @@ double GParameterSet::fitness(
  * Returns the transformed result of the fitness function with id 0
  */
 double GParameterSet::transformedFitness(std::size_t id) const {
-	return fitness(id, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+	return this->transformed_fitness(id);
 }
 
 /******************************************************************************/
@@ -985,14 +1055,7 @@ double GParameterSet::transformedFitness(std::size_t id) const {
  * Returns all raw fitness results in a std::vector
  */
 std::vector<double> GParameterSet::fitnessVec() const {
-	std::size_t nFitnessCriteria = this->getNumberOfFitnessCriteria();
-	std::vector<double> resultVec;
-
-	for (std::size_t i = 0; i < nFitnessCriteria; i++) {
-		resultVec.push_back(this->fitness(i));
-	}
-
-	return resultVec;
+	return this->raw_fitness_vec();
 }
 
 /******************************************************************************/
@@ -1000,18 +1063,11 @@ std::vector<double> GParameterSet::fitnessVec() const {
  * Returns all raw or transformed fitness results in a std::vector
  */
 std::vector<double> GParameterSet::fitnessVec(bool useRawFitness) const {
-	std::size_t nFitnessCriteria = this->getNumberOfFitnessCriteria();
-	std::vector<double> resultVec;
-
-	for (std::size_t i = 0; i < nFitnessCriteria; i++) {
-		if (useRawFitness) {
-			resultVec.push_back(this->fitness(i));
-		} else {
-			resultVec.push_back(this->transformedFitness(i));
-		}
+	if(useRawFitness) {
+		return raw_fitness_vec();
+	} else {
+		return transformed_fitness_vec();
 	}
-
-	return resultVec;
 }
 
 /******************************************************************************/
@@ -1019,14 +1075,7 @@ std::vector<double> GParameterSet::fitnessVec(bool useRawFitness) const {
  * Returns all transformed fitness results in a std::vector
  */
 std::vector<double> GParameterSet::transformedFitnessVec() const {
-	std::size_t nFitnessCriteria = this->getNumberOfFitnessCriteria();
-	std::vector<double> resultVec;
-
-	for (std::size_t i = 0; i < nFitnessCriteria; i++) {
-		resultVec.push_back(this->transformedFitness(i));
-	}
-
-	return resultVec;
+	return this->transformed_fitness_vec();
 }
 
 /******************************************************************************/
@@ -1037,160 +1086,57 @@ double GParameterSet::getCachedFitness(
 	std::size_t id
 	, bool useTransformedFitness
 ) const {
-	if (useTransformedFitness) {
-		return std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(id));
-	} else {
-		return std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(id));
+	if(useTransformedFitness) {
+		return this->transformed_fitness(id);
+	} else { // raw fitness
+		return this->raw_fitness(id);
 	}
 }
 
 /******************************************************************************/
 /**
- * Enforces re-calculation of the fitness values.
- */
-void GParameterSet::enforceFitnessUpdate(std::function<std::vector<double>()> f) {
-	// Assign a new evaluation id
-	m_evaluation_id = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
-
-	// We start a new evaluation. Make sure the object isn't marked as invalid,
-	// and that this state cannot be changed.
-	m_marked_as_invalid_by_user.reset();
-
-	// Find out, whether this is a valid solution
-	if (
-		this->parameterSetFulfillsConstraints(m_validity_level) // Needs to be called first, or else the m_validity_level will not be filled
-		|| evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy
-		) {
-		// Marking individuals as invalid happens inside of the user-supplied fitness
-		// calculation (if at all) so we want to reset the corresponding "invalid" flag
-		m_marked_as_invalid_by_user.unlockWithValue(OE_NOT_MARKED_AS_INVALID);
-
-		if (f) {
-			std::vector<double> fitnessVec = f();
-
-			// Use the external evaluation function (needed e.g. when using a GPGPU for the evaluation step)
-#ifdef DEBUG
-			if(fitnessVec.size() != getNumberOfFitnessCriteria()) {
-				throw gemfony_exception(
-					g_error_streamer(DO_LOG,  time_and_place)
-						<< "In GParameterSet::enforceFitnessUpdate(): Error!" << std::endl
-						<< "Invalid size of external evaluation criteria: " << fitnessVec.size() << " (expected " << getNumberOfFitnessCriteria() << ")" << std::endl
-				);
-			}
-#endif
-
-			// Assign the actual fitness values
-			for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(0)) = fitnessVec.at(i);
-			}
-
-
-		} else {
-			// Trigger actual fitness calculation using the user-supplied function. This will
-			// also register secondary "raw" fitness values used in multi-criterion optimization.
-			// Transformed values are taken care of below
-			std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(0)) = fitnessCalculation();
-		}
-
-		// Lock setting of the variable again, so the invalidity state can only be changed
-		// upon re-calculation of the object's values
-		m_marked_as_invalid_by_user.lock();
-
-		if (m_marked_as_invalid_by_user || this->allRawResultsAtWorst()) { // Is this an invalid result ?
-			// Fill the raw and transformed vectors with the worst case scenario. It is assumed
-			// here that marking entire solutions as invalid after the evaluation happens relatively
-			// rarely so that a flat "worst" quality surface for such solutions does not hinder
-			// progress of the optimization procedure too much
-			for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-				std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-			}
-		} else { // This is a valid solution nonetheless
-			for (std::size_t i = 0; i < this->getNumberOfFitnessCriteria(); i++) {
-				if (evaluationPolicy::USESIGMOID == m_eval_policy) { // Update the fitness value to use sigmoidal values
-					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) =
-						Gem::Common::gsigmoid(std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)), m_sigmoid_extremes, m_sigmoid_steepness);
-				} else { // All other transformation policies leave valid solutions intact
-					std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = std::get<G_RAW_FITNESS>(
-						m_current_fitness_vec.at(i));
-				}
-			}
-		}
-
-		// Clear the dirty flag -- all possible evaluation work was done
-		//--------------
-		setDirtyFlag(false);
-		//--------------
-	} else { // Some constraints were violated. Act on the chosen policy
-		if (evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy) {
-			for (std::size_t i = 0; i < this->getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-				std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-			}
-
-			// Clear the dirty flag -- all possible evaluation work was done
-			//--------------
-			setDirtyFlag(false);
-			//--------------
-		} else if (evaluationPolicy::USESIGMOID == m_eval_policy) {
-			double uniformFitnessValue = 0.;
-			if (maxMode::MAXIMIZE == this->getMaxMode()) { // maximize
-				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
-					uniformFitnessValue = this->getWorstCase();
-				} else {
-					uniformFitnessValue = -m_validity_level * m_sigmoid_extremes;
-				}
-			} else { // minimize
-				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
-					uniformFitnessValue = this->getWorstCase();
-				} else {
-					uniformFitnessValue = m_validity_level * m_sigmoid_extremes;
-				}
-			}
-
-			for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-				std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = this->getWorstCase();
-				std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) = uniformFitnessValue;
-			}
-
-			// Clear the dirty flag -- all possible evaluation work was done
-			//--------------
-			setDirtyFlag(false);
-			//--------------
-		}
-	}
-}
-
-/* ----------------------------------------------------------------------------------
- * untested
- * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Registers a new, "raw" secondary result value of the custom fitness calculation. This is used in
- * multi-criterion optimization. fitnessCalculation() returns the main fitness value, but may also add further,
- * secondary results. Note that, whether these are actually used, depends on the optimization algorithm being
- * used. Transformation for the second fitness value will be done in the enforceFitnessUpdate function.
+ * Register another result value of the fitness calculation. Multiple fitness
+ * criteria are used in multi-criterion optimization. fitnessCalculation() returns
+ * the main fitness value, but may also add further, secondary results. Note that,
+ * whether these are actually used, depends on the optimization algorithm being
+ * used. Transformation for the second fitness value will be done in the process_()
+ * function. You may store the primary fitness value with this function as well.
+ * As the primary (raw) value is however also returned by fitnessCalculation() and
+ * integrated into the list of results, this is redundant.
  *
- * @param id The position of the fitness criterion (must be > 0 !)
- * @param secondaryValue The secondary fitness value to be registered
+ * @param id The position of the fitness criterion (must be >= 0 !)
+ * @param value The fitness value to be registered
  */
-void GParameterSet::registerSecondaryResult(
-	const std::size_t &id
-	, const double &secondaryValue
+void GParameterSet::setResult(
+	std::size_t id
+	, double value
 ) {
 #ifdef DEBUG
-	if(m_current_fitness_vec.size() <= id || 0==id) {
+	if(id >= this->getNStoredResults()) {
 		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::registerSecondaryResult(...): Error!" << std::endl
-				<< "Invalid position in vector: " << id << " (expected min 1 and max " <<  m_current_fitness_vec.size()-1 << ")" << std::endl
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In GParameterSet::setResult(...): Error!" << std::endl
+				<< "Invalid position in vector: " << id << " (expected min 0 and max " <<  this->getNStoredResults()-1 << ")" << std::endl
 		);
 	}
 #endif /* DEBUG */
 
-	std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(id)) = secondaryValue;
+	this->getStoredResult(id).reset(value);
+}
+
+/******************************************************************************/
+/**
+ * Registers a new, "raw"  result value of the custom fitness calculation.
+ * NOTE THAT THIS FUNCTION IS DEPRECATED. USE setResult() instead!
+ *
+ * @param id The position of the fitness criterion (must be >= 0 !)
+ * @param value The value fitness value to be registered
+ */
+void GParameterSet::registerSecondaryResult(
+	std::size_t id
+	, double value
+) {
+	this->setResult(id, value);
 }
 
 /******************************************************************************/
@@ -1200,7 +1146,7 @@ void GParameterSet::registerSecondaryResult(
  * @return The number of fitness criteria registered with this individual
  */
 std::size_t GParameterSet::getNumberOfFitnessCriteria() const {
-	return m_n_fitness_criteria;
+	return this->getNStoredResults();
 }
 
 /******************************************************************************/
@@ -1213,21 +1159,10 @@ std::size_t GParameterSet::getNumberOfFitnessCriteria() const {
  * of existing values.
  */
 void GParameterSet::setNumberOfFitnessCriteria(std::size_t nFitnessCriteria) {
-	if (nFitnessCriteria < m_n_fitness_criteria) {
-		m_current_fitness_vec.resize(nFitnessCriteria);
-	} else if (nFitnessCriteria > m_n_fitness_criteria) {
-		std::tuple<double, double> worstVal, bestVal;
+	parameterset_processing_result worstVal(this->getWorstCase());
+	worstVal.setTransformedFitnessTo(this->getWorstCase());
 
-		std::get<G_RAW_FITNESS>(worstVal) = this->getWorstCase();
-		std::get<G_TRANSFORMED_FITNESS>(worstVal) = this->getWorstCase();
-
-		std::get<G_RAW_FITNESS>(bestVal) = this->getBestCase();
-		std::get<G_TRANSFORMED_FITNESS>(bestVal) = this->getBestCase();
-
-		m_current_fitness_vec.resize(nFitnessCriteria, worstVal);
-	} // else do nothing
-
-	m_n_fitness_criteria = nFitnessCriteria;
+	this->setNStoredResults(nFitnessCriteria, worstVal);
 }
 
 /******************************************************************************/
@@ -1237,38 +1172,29 @@ void GParameterSet::setNumberOfFitnessCriteria(std::size_t nFitnessCriteria) {
  * @return A boolean indicating whether more than one target function is present
  */
 bool GParameterSet::hasMultipleFitnessCriteria() const {
-	return (getNumberOfFitnessCriteria() > 1 ? true : false);
+	return (this->getNStoredResults() > 1 ? true : false);
 }
 
 /******************************************************************************/
 /**
  * Retrieve the fitness tuple at a given evaluation position.
  */
-std::tuple<double, double> GParameterSet::getFitnessTuple(const std::uint32_t &id) const {
-	return m_current_fitness_vec.at(id);
+std::tuple<double, double> GParameterSet::getFitnessTuple(std::uint32_t id) const {
+	return std::make_tuple<double, double>(
+		this->raw_fitness(id)
+		, this->transformed_fitness(id)
+	);
 }
 
 /******************************************************************************/
 /**
- * Checks whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation
- */
-bool GParameterSet::isClean() const {
-	if (true == m_dirty_flag) {
-		return false;
-	} else {
-		return true;
-	}
-}
-
-/******************************************************************************/
-/**
- * Checks whether the dirty flag is set
+ * Checks whether the work item has the DO_PROCESS flag set or has errors.
+ * NOTE THAT THIS FUNCTION IS DEPRECATED.
  *
- * @return The value of the dirtyFlag_ variable
+ * @return A boolean indicating whether the individual is due for processing
  */
 bool GParameterSet::isDirty() const {
-	if(true==m_dirty_flag) return true;
-	else return false;
+	return (this->is_due_for_processing() || this->has_errors());
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1278,11 +1204,19 @@ bool GParameterSet::isDirty() const {
 
 /******************************************************************************/
 /**
- * Sets the dirtyFlag_. This is a "one way" function, accessible to derived classes. Once the dirty flag
- * has been set, the only way to reset it is to calculate the fitness of this object.
+ * Checks whether this individual is "clean", i.e. has been processed.
+ * NOTE THAT THIS FUNCTION IS DEPRECATED.
+ */
+bool GParameterSet::isClean() const {
+	return this->is_processed();
+}
+
+/******************************************************************************/
+/**
+ * Marks this object as due for processing. NOTE THAT THIS FUNCTION IS DEPRECATED.
  */
 void GParameterSet::setDirtyFlag() {
-	this->setDirtyFlag(true);
+	this->mark_as_due_for_processing();
 }
 
 /* ----------------------------------------------------------------------------------
@@ -1735,20 +1669,21 @@ evaluationPolicy GParameterSet::getEvaluationPolicy() const {
 /******************************************************************************/
 /**
  * Checks whether this solution is valid. This function is meant to be called
- * for "clean" individuals only and will throw when called for individuals, whose
- * dirty flag is set. Note that it is well possible to call the function if
- * evaluation was delayed.
+ * for "clean" individuals only and will throw when called for unprocessed or
+ * erroneous individuals.
  */
 bool GParameterSet::isValid() const {
-	if (this->isDirty()) {
+#ifdef DEBUG
+	if (this->is_due_for_processing() || this->has_errors()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::isValid(): Error!" << std::endl
-				<< "Function was called while dirty flag was set" << std::endl
+				<< "In GParameterSet::isValid():" << std::endl
+				<< "Function was called for unprocessed or erroneous individual" << std::endl
 		);
 	}
+#endif
 
-	if (m_validity_level <= 1. && !m_marked_as_invalid_by_user && !this->allRawResultsAtWorst()) {
+	if (m_validity_level <= 1.) {
 		return true;
 	} else {
 		return false;
@@ -1760,11 +1695,7 @@ bool GParameterSet::isValid() const {
  * Checks whether this solution is invalid
  */
 bool GParameterSet::isInValid() const {
-	if (m_validity_level > 1. || m_marked_as_invalid_by_user || this->allRawResultsAtWorst()) {
-		return true;
-	} else {
-		return false;
-	}
+	return !this->isValid();
 }
 
 /******************************************************************************/
@@ -1801,18 +1732,79 @@ std::tuple<double, double> GParameterSet::getBestKnownPrimaryFitness() const {
 
 /******************************************************************************/
 /**
- * Retrieve the id assigned to the current evaluation
- */
-std::string GParameterSet::getCurrentEvaluationID() const {
-	return m_evaluation_id;
-}
-
-/******************************************************************************/
-/**
  * Performs all necessary (remote-)processing steps for this object.
  */
-double GParameterSet::process_() {
-	return this->fitness(0, Gem::Geneva::ALLOWREEVALUATION, Gem::Geneva::USETRANSFORMEDFITNESS);
+void GParameterSet::process_() {
+	// Find out, whether this is a valid solution
+	if (
+		this->parameterSetFulfillsConstraints(m_validity_level) // Needs to be called first, or else the m_validity_level will not be filled
+		|| evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy
+	) {
+		// Trigger actual fitness calculation using the user-supplied function. This will
+		// also register any secondary "raw" fitness values used in multi-criterion optimization.
+		// Transformation of values is taken care of below.
+		double main_raw_result = 0.;
+
+		try {
+			main_raw_result = this->fitnessCalculation();
+		} catch(...) {
+			// Make sure we invalidate all fitness values, if an exception was thrown
+			this->setAllFitnessTo(this->getWorstCase());
+
+			// Rethrow the exception
+			throw;
+		}
+
+		// Make sure the main result is stored
+		this->setResult(0, main_raw_result);
+		this->getStoredResult(0).setTransformedFitnessToRaw();
+
+		// Take care of erroneous calculations, flagged by the user. It is assumed here that marking
+		// entire solutions as invalid after the evaluation happens relatively rarely so that a flat
+		// "worst" quality surface for such solutions does not hinder progress of the optimization
+		// procedure too much
+		if (this->error_flagged_by_user()) { // has the user indicated a problem without throwing an error ?
+			// Fill the raw and transformed vectors with the worst case scenario.
+			this->setAllFitnessTo(this->getWorstCase());
+		} else { // So this is a valid solution!
+			for (std::size_t i = 0; i < this->getNStoredResults(); i++) {
+				if (evaluationPolicy::USESIGMOID == m_eval_policy) { // Update the fitness value to use sigmoidal values
+					this->getStoredResult(i).setTransformedFitnessWith(
+						[this](double rawValue) {
+							return Gem::Common::gsigmoid(
+								rawValue
+								, this->m_sigmoid_extremes
+								, this->m_sigmoid_steepness
+							);
+						}
+					);
+				} else { // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
+					this->getStoredResult(i).setTransformedFitnessToRaw();
+				}
+			}
+		}
+	} else { // Some constraints were violated. Act on the chosen policy
+		if (evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy) {
+			this->setAllFitnessTo(this->getWorstCase());
+		} else if (evaluationPolicy::USESIGMOID == m_eval_policy) {
+			double uniformFitnessValue = 0.;
+			if (maxMode::MAXIMIZE == this->getMaxMode()) { // maximize
+				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
+					uniformFitnessValue = this->getWorstCase();
+				} else {
+					uniformFitnessValue = -m_validity_level * m_sigmoid_extremes;
+				}
+			} else { // minimize
+				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
+					uniformFitnessValue = this->getWorstCase();
+				} else {
+					uniformFitnessValue = m_validity_level * m_sigmoid_extremes;
+				}
+			}
+
+			this->setAllFitnessTo(this->getWorstCase(), uniformFitnessValue);
+		}
+	}
 }
 
 /******************************************************************************/
@@ -1830,13 +1822,10 @@ void GParameterSet::load_(const GObject *cp) {
 	// Load the parent class'es data
 	GObject::load_(cp);
 	Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::operator=(*p_load);
-	Gem::Courtier::GProcessingContainerT<GParameterSet, double>::load_pc(p_load);
+	Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>::load_pc(p_load);
 
 	// and then our local data
 	m_perItemCrossOverProbability = p_load->m_perItemCrossOverProbability;
-	m_n_fitness_criteria = p_load->m_n_fitness_criteria;
-	m_current_fitness_vec = p_load->m_current_fitness_vec;
-	m_marked_as_invalid_by_user.setValue((p_load->m_marked_as_invalid_by_user).value());
 	m_best_past_primary_fitness = p_load->m_best_past_primary_fitness;
 	m_n_stalls = p_load->m_n_stalls;
 	m_dirty_flag = p_load->m_dirty_flag;
@@ -1849,7 +1838,6 @@ void GParameterSet::load_(const GObject *cp) {
 	m_max_unsuccessful_adaptions = p_load->m_max_unsuccessful_adaptions;
 	m_max_retries_until_valid = p_load->m_max_retries_until_valid;
 	m_n_adaptions = p_load->m_n_adaptions;
-	m_evaluation_id = p_load->m_evaluation_id;
 
 	Gem::Common::copyCloneableSmartPointer(p_load->m_pt_ptr, m_pt_ptr);
 	Gem::Common::copyCloneableSmartPointer(p_load->m_individual_constraint_ptr, m_individual_constraint_ptr);
@@ -1905,72 +1893,87 @@ std::size_t GParameterSet::customAdaptions() {
 
 /******************************************************************************/
 /**
- * The actual fitness calculation takes place here. Note: This function is a trap.
- * You need to overload this function in derived classes.
- *
- * @return The fitness of this object
- */
-//double GParameterSet::fitnessCalculation() {
-//	throw gemfony_exception(
-//		g_error_streamer(DO_LOG,  time_and_place)
-//			<< "In GParameterSet::fitnessCalculation()" << std::endl
-//			<< "Function called directly which should not happen" << std::endl
-//	);
-//
-//	// Make the compiler happy
-//	return 0.;
-//}
-
-/******************************************************************************/
-/**
  * Sets the fitness to a given set of values and clears the dirty flag. This is meant
  * to be used by external methods of performing the actual evaluation, such as the
- * OpenCL-Consumer. Note that this function assumes that the individual and solution
- * is valid, so it does not currently try to take into account situations where for
- * example constraints are violated. The fitness vector is interpreted as raw fitness
- * values. Hence only SIGMOIDAL transformations are taken into account.
+ * OpenCL-Consumer. The fitness vector is interpreted as raw fitness values, and
+ * transformed fitness values are calculated as needed.
  *
- * @param f_vec A vector of fitness values
+ * @param f_vec A vector of raw fitness values
  */
 void GParameterSet::setFitness_(const std::vector<double> &f_vec) {
 #ifdef DEBUG
-	if(
-		f_vec.size() != this->getNumberOfFitnessCriteria()
-		|| m_current_fitness_vec.size() != this->getNumberOfFitnessCriteria()
-		) {
+	if(f_vec.size() != this->getNStoredResults()) {
 		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
+			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterSet::setFitness_(...): Error!" << std::endl
 				<< "Invalid size of fitness vector: " << std::endl
-				<< f_vec.size() << " / " << m_current_fitness_vec.size() << " / expected: " << this->getNumberOfFitnessCriteria() << std::endl
+				<< f_vec.size() << ", expected: " << this->getNStoredResults() << std::endl
 		);
 	}
 #endif /* DEBUG */
 
-	for (std::size_t i = 0; i < this->getNumberOfFitnessCriteria(); i++) {
-		std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i)) = f_vec.at(i);
+	// Find out, whether this is a valid solution
+	if (
+		this->parameterSetFulfillsConstraints(m_validity_level) // Needs to be called first, or else the m_validity_level will not be filled
+		|| evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy
+	) {
+	   // Create a vector of parameterset_processing_result objects
+		std::vector<parameterset_processing_result> processing_results(f_vec.size(), parameterset_processing_result());
 
-		// We need to update the transformed fitness for the USESIGMOID
-		// case. All other transformations are handled elsewhere.
-		std::get<G_TRANSFORMED_FITNESS>(m_current_fitness_vec.at(i)) =
-			evaluationPolicy::USESIGMOID == m_eval_policy
-			? Gem::Common::gsigmoid(f_vec.at(i), m_sigmoid_extremes, m_sigmoid_steepness)
-			: f_vec.at(i);
+		// Take care of the transformed fitness
+		std::size_t pos = 0;
+		for(auto& p: processing_results) {
+			// Set the raw fitness
+			p.reset(f_vec.at(pos));
+
+			if (evaluationPolicy::USESIGMOID == m_eval_policy) { // Update the fitness value to use sigmoidal values
+				p.setTransformedFitnessWith(
+					[this](double rawValue) {
+						return Gem::Common::gsigmoid(
+							rawValue
+							, this->m_sigmoid_extremes
+							, this->m_sigmoid_steepness
+						);
+					}
+				);
+			} else { // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
+				p.setTransformedFitnessToRaw();
+			}
+
+			pos++;
+		}
+
+		// Transfer the data into the individual
+		this->markAsProcessedWith(processing_results);
+	} else { // Some constraints were violated. Act on the chosen policy
+		if (evaluationPolicy::USEWORSTCASEFORINVALID == m_eval_policy) {
+			this->setAllFitnessTo(this->getWorstCase());
+		} else if (evaluationPolicy::USESIGMOID == m_eval_policy) {
+			double uniformFitnessValue = 0.;
+			if (maxMode::MAXIMIZE == this->getMaxMode()) { // maximize
+				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
+					uniformFitnessValue = this->getWorstCase();
+				} else {
+					uniformFitnessValue = -m_validity_level * m_sigmoid_extremes;
+				}
+			} else { // minimize
+				if (boost::numeric::bounds<double>::highest() == m_validity_level) {
+					uniformFitnessValue = this->getWorstCase();
+				} else {
+					uniformFitnessValue = m_validity_level * m_sigmoid_extremes;
+				}
+			}
+
+			this->setAllFitnessTo(this->getWorstCase(), uniformFitnessValue);
+		}
 	}
-
-	// Clear the dirty flag
-	setDirtyFlag(false);
 }
-
-/* ----------------------------------------------------------------------------------
- * Tested in GExternalSetterIndividual::specificTestsNoFailureExpected_GUnitTests()
- * and GExternalSetterIndividual::specificTestsFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**
  * Sets the dirtyFlag_ to any desired value
+ *
+ * TODO: fix
  *
  * @param dirtyFlag The new value for the dirtyFlag_ variable
  * @return The previous value of the dirtyFlag_ variable
@@ -2001,10 +2004,11 @@ bool GParameterSet::setDirtyFlag(
  */
 double GParameterSet::sumCombiner() const {
 	double result = 0.;
-	std::vector<std::tuple<double, double>>::const_iterator cit;
-	for (cit = m_current_fitness_vec.begin(); cit != m_current_fitness_vec.end(); ++cit) {
-		result += std::get<G_TRANSFORMED_FITNESS>(*cit);
+
+	for(std::size_t id=0; id < this->getNStoredResults(); id++) {
+		result += this->transformed_fitness(id);
 	}
+
 	return result;
 }
 
@@ -2016,10 +2020,11 @@ double GParameterSet::sumCombiner() const {
  */
 double GParameterSet::fabsSumCombiner() const {
 	double result = 0.;
-	std::vector<std::tuple<double, double>>::const_iterator cit;
-	for (cit = m_current_fitness_vec.begin(); cit != m_current_fitness_vec.end(); ++cit) {
-		result += fabs(std::get<G_TRANSFORMED_FITNESS>(*cit));
+
+	for(std::size_t id=0; id < this->getNStoredResults(); id++) {
+		result += Gem::Common::gfabs(this->transformed_fitness(id));
 	}
+
 	return result;
 }
 
@@ -2033,10 +2038,11 @@ double GParameterSet::fabsSumCombiner() const {
  */
 double GParameterSet::squaredSumCombiner() const {
 	double result = 0.;
-	std::vector<std::tuple<double, double>>::const_iterator cit;
-	for (cit = m_current_fitness_vec.begin(); cit != m_current_fitness_vec.end(); ++cit) {
-		result += GSQUARED(std::get<G_TRANSFORMED_FITNESS>(*cit));
+
+	for(std::size_t id=0; id < this->getNStoredResults(); id++) {
+		result += GSQUARED(this->transformed_fitness(id));
 	}
+
 	return sqrt(result);
 }
 
@@ -2050,24 +2056,20 @@ double GParameterSet::squaredSumCombiner() const {
  * @return The result of the combination
  */
 double GParameterSet::weighedSquaredSumCombiner(const std::vector<double> &weights) const {
-	double result = 0.;
-	std::vector<std::tuple<double, double>>::const_iterator cit_eval;
-	std::vector<double>::const_iterator cit_weights;
-
-	if (m_current_fitness_vec.size() != weights.size()) {
+	if (this->getNStoredResults() != weights.size()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::weighedSquaredSumCombine(): Error!" << std::endl
-				<< "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: " << m_current_fitness_vec.size() <<
+				<< "Sizes of transformedCurrentFitnessVec_ and the weights vector don't match: " << this->getNStoredResults() <<
 				" / " << weights.size() << std::endl
 		);
 	}
 
-	for (cit_eval = m_current_fitness_vec.begin(), cit_weights = weights.begin();
-		  cit_eval != m_current_fitness_vec.end();
-		  ++cit_eval, ++cit_weights
-		) {
-		result += GSQUARED((*cit_weights) * (std::get<G_TRANSFORMED_FITNESS>(*cit_eval)));
+	double result = 0.;
+	auto cit_weights = weights.begin();
+
+	for(std::size_t id=0; id < this->getNStoredResults(); id++, ++cit_weights) {
+		result += GSQUARED((*cit_weights) * this->transformed_fitness(id));
 	}
 
 	return sqrt(result);
@@ -2076,28 +2078,20 @@ double GParameterSet::weighedSquaredSumCombiner(const std::vector<double> &weigh
 /******************************************************************************/
 /**
  * Allows users to mark this solution as invalid in derived classes (usually
- * from within the evaluation function)
+ * from within the evaluation function). NOTE THAT THIS FUNCTION IS DEPRECATED.
+ * USE force_set_error("some message") instead.
  */
 void GParameterSet::markAsInvalid() {
-	if (!m_marked_as_invalid_by_user.isLocked()) {
-		m_marked_as_invalid_by_user = true;
-	} else {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::markAsInvalid(): Error!" << std::endl
-				<< "Tried to mark individual as invalid while changes to this property" << std::endl
-				<< "were not allowed. This function may only be called from inside the" << std::endl
-				<< "fitness evaluation!" << std::endl
-		);
-	}
+	this->force_set_error("Error flagged via GParameterSet::markAsInvalid()");
 }
 
 /******************************************************************************/
 /**
- * Allows to check whether this solution was marked as invalid
+ * Allows to check whether this solution was marked as invalid. NOTE THAT THIS
+ * FUNCTION IS DEPRECATED. USE has_errors() instead.
  */
 bool GParameterSet::markedAsInvalidByUser() const {
-	return m_marked_as_invalid_by_user;
+	return this->has_errors();
 }
 
 
@@ -2147,19 +2141,27 @@ boost::any GParameterSet::getVarVal(
 	return result;
 }
 
-/******************************************************************************/
+/***************************************************************************/
 /**
- * Checks whether all results are at the worst possible value
+ * Allows to set all fitnesses to the same value (raw and transformed values seperately)
  */
-bool GParameterSet::allRawResultsAtWorst() const {
-	for (std::size_t i = 0; i < getNumberOfFitnessCriteria(); i++) {
-		if (this->getWorstCase() != std::get<G_RAW_FITNESS>(m_current_fitness_vec.at(i))) return false;
+void GParameterSet::setAllFitnessTo(
+	double rawValue
+	, double transformedValue
+) {
+	for (std::size_t i = 0; i < this->getNStoredResults(); i++) {
+		this->getStoredResult(i).reset(rawValue);
+		this->getStoredResult(i).setTransformedFitnessTo(transformedValue);
 	}
-
-	// O.k., so all results are at their worst value
-	return true;
 }
 
+/***************************************************************************/
+/**
+ * Allows to set all fitnesses to the same value (both raw and transformed values)
+ */
+void GParameterSet::setAllFitnessTo(double val) {
+	this->setAllFitnessTo(val,val);
+}
 
 /******************************************************************************/
 /**
@@ -2225,21 +2227,6 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
 	// --------------------------------------------------------------------------
 
-	{ // Check setting of the dirty flag
-		std::shared_ptr<GParameterSet> p_test = this->clone<GParameterSet>();
-
-		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(true));
-		BOOST_CHECK(p_test->isDirty() == true);
-		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(false));
-		BOOST_CHECK(p_test->isDirty() == false);
-		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag());
-		BOOST_CHECK(p_test->isDirty() == true); // Note the missing argument -- this is a different function
-		BOOST_CHECK_NO_THROW(p_test->setDirtyFlag(false));
-		BOOST_CHECK(p_test->isDirty() == false);
-	}
-
-	// --------------------------------------------------------------------------
-
 	{ // Test setting and retrieval of the surrounding optimization algorithm's current iteration
 		std::shared_ptr <GParameterSet> p_test = this->clone<GParameterSet>();
 
@@ -2259,15 +2246,16 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 	{ // Test setting and retrieval of the best known fitness so far
 		std::shared_ptr <GParameterSet> p_test = this->clone<GParameterSet>();
 
-		for (double d = 0.; d < 1.; d += 0.1) {
+		double d = 0.;
+		while(true) {
 			BOOST_CHECK_NO_THROW(p_test->setBestKnownPrimaryFitness(std::make_tuple(d, d)));
 			BOOST_CHECK_MESSAGE(
 				p_test->getBestKnownPrimaryFitness() == std::make_tuple(d, d), "\n"
-				<< "p_test->getBestKnownPrimaryFitness() = " <<
-				Gem::Common::g_to_string(p_test->getBestKnownPrimaryFitness()) <<
-				"\n"
+				<< "p_test->getBestKnownPrimaryFitness() = " << Gem::Common::g_to_string(p_test->getBestKnownPrimaryFitness()) << "\n"
 				<< "d = " << d << "\n"
 			);
+
+			if((d+=0.1) >= 1.) break;
 		}
 	}
 
@@ -2343,15 +2331,28 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 
 		{ // Test random initialization
 			// Create a GParameterSet object as a clone of p_test_0 for further usage
-			std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+			std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
 			BOOST_CHECK_NO_THROW(p_test->randomInit(activityMode::ALLPARAMETERS));
-			BOOST_CHECK(*p_test != *p_test_0);
+
+			bool objects_equal = false;
+			try {
+				p_test->compare(
+					*p_test_0
+					, Gem::Common::expectation::CE_INEQUALITY
+					, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+				);
+			} catch(const g_expectation_violation& e) {
+				objects_equal = true;
+			}
+
+			BOOST_CHECK(false==objects_equal);
 		}
 
 		//-----------------------------------------------------------------
 		{ // Test initialization of all fp parameters with a fixed value
-			for (double d = FPFIXEDVALINITMIN; d < FPFIXEDVALINITMAX; d += 1.) {
+			double d = FPFIXEDVALINITMIN;
+			while(true) {
 				// Create a GParameterSet object as a clone of p_test_0 for further usage
 				std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
@@ -2359,7 +2360,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				p_test->fixedValueInit<double>(d, activityMode::ALLPARAMETERS);
 
 				// Make sure the dirty flag is set
-				BOOST_CHECK(p_test->isDirty() == true);
+				BOOST_CHECK(p_test->is_due_for_processing() == true);
 
 				// Cross-check
 				std::size_t counter = 0;
@@ -2396,13 +2397,16 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				BOOST_CHECK_NO_THROW(p_boolean_cloned = p_test->at<GBooleanObject>(counter));
 				BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 				counter++;
+
+				if((d+=1.) >= FPFIXEDVALINITMAX) break;
 			}
 		}
 
 		//-----------------------------------------------------------------
 
 		{ // Test multiplication of all fp parameters with a fixed value
-			for (double d = -3; d < 3; d += 1.) {
+			double d = -3.;
+			while(true) {
 				// Create a GParameterSet object as a clone of p_test_0 for further usage
 				std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
@@ -2413,7 +2417,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				BOOST_CHECK_NO_THROW(p_test->multiplyBy<double>(d, activityMode::ALLPARAMETERS));
 
 				// Make sure the dirty flag is set
-				BOOST_CHECK(p_test->isDirty() == true);
+				BOOST_CHECK(p_test->is_due_for_processing() == true);
 
 				// Cross-check
 				std::size_t counter = 0;
@@ -2454,6 +2458,8 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				BOOST_CHECK_NO_THROW(p_boolean_cloned = p_test->at<GBooleanObject>(counter));
 				BOOST_CHECK(*p_boolean_orig == *p_boolean_cloned);
 				counter++;
+
+				if((d+=1.) >= 3.) break;
 			}
 		}
 
@@ -2468,7 +2474,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 				p_test->multiplyByRandom<double>(FPMULTIPLYBYRANDMIN, FPMULTIPLYBYRANDMAX, activityMode::ALLPARAMETERS));
 
 			// Make sure the dirty flag is set
-			BOOST_CHECK(p_test->isDirty() == true);
+			BOOST_CHECK(p_test->is_due_for_processing() == true);
 
 			// Cross-check
 			std::size_t counter = 0;
@@ -2521,7 +2527,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK_NO_THROW(p_test->multiplyByRandom<double>(activityMode::ALLPARAMETERS));
 
 			// Make sure the dirty flag is set
-			BOOST_CHECK(p_test->isDirty() == true);
+			BOOST_CHECK(p_test->is_due_for_processing() == true);
 
 			// Cross-check
 			std::size_t counter = 0;

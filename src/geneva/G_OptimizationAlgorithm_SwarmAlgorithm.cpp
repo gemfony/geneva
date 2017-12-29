@@ -33,7 +33,7 @@
  */
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmAlgorithm)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmAlgorithm) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -107,13 +107,6 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
 	// Copying / setting of the optimization algorithm id is done by the parent class. The same
 	// applies to the copying of the optimization monitor.
 }
-
-/******************************************************************************/
-/**
- * The standard destructor. Most work is done in the parent class.
- */
-GSwarmAlgorithm::~GSwarmAlgorithm()
-{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -448,27 +441,29 @@ std::size_t GSwarmAlgorithm::getLastNIPos(const std::size_t &neighborhood) const
  * @param p A pointer to the GParameterSet object to be updated
  */
 void GSwarmAlgorithm::updatePersonalBest(
-	std::shared_ptr < GParameterSet > p
+	std::shared_ptr<GParameterSet> ind_ptr
 ) {
 #ifdef DEBUG
-	if(!p) {
+	if(!ind_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
-				<< "Got empty p" << std::endl
+				<< "Got empty ind_ptr" << std::endl
 		);
 	}
 
-	if(p->isDirty()) {
+	if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
-				<< "p has its dirty flag set: " << p->isDirty() << std::endl
+				<< "ind_ptr is unprocessed or has errors: " << std::endl
+				<< "is_due_for_processing() == " << ind_ptr->is_due_for_processing() << ", has_errors() == " << ind_ptr->has_errors() << std::endl
 		);
 	}
 #endif /* DEBUG */
 
-	p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(p);
+	// TODO: Is this correct ? Updates the personal best of itself ?!??
+	ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(ind_ptr);
 }
 
 /******************************************************************************/
@@ -478,18 +473,18 @@ void GSwarmAlgorithm::updatePersonalBest(
  * @param p A pointer to the GParameterSet object to be updated
  */
 void GSwarmAlgorithm::updatePersonalBestIfBetter(
-	std::shared_ptr < GParameterSet > p
+	std::shared_ptr<GParameterSet> ind_ptr
 ) {
 #ifdef DEBUG
-	if(!p) {
+	if(!ind_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBestIfBetter():" << std::endl
-				<< "Got empty p" << std::endl
+				<< "Got empty ind_ptr" << std::endl
 		);
 	}
 
-	if(!p->isClean()) {
+	if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBestIfBetter(): Error!" << std::endl
@@ -500,11 +495,11 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(
 
 	auto m = this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
 	if(isBetter(
-		std::get<G_TRANSFORMED_FITNESS>(p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBestQuality())
-		, p->transformedFitness()
+		std::get<G_TRANSFORMED_FITNESS>(ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getPersonalBestQuality())
+		, ind_ptr->transformed_fitness(0)
 		, m
 	)) {
-		p->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(p);
+		ind_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->registerPersonalBest(ind_ptr);
 	}
 }
 
@@ -638,7 +633,7 @@ void GSwarmAlgorithm::init() {
 
 	// Create copies of our individuals in the m_velocities_vec vector.
 	std::size_t pos = 0;
-	for(auto ind_ptr: *this) {
+	for(const auto& ind_ptr: *this) {
 #ifdef DEBUG
 		if(!ind_ptr) {
 			throw gemfony_exception(
@@ -681,7 +676,7 @@ void GSwarmAlgorithm::init() {
 
 		// Load the array into the velocity object
 		p->assignValueVector<double>(velVec, activityMode::ACTIVEONLY);
-		p->setDirtyFlag(); // Catch cases where a value is calculated for the velocity individual
+		p->mark_as_due_for_processing(); // Catch cases where a value is calculated for the velocity individual
 
 		// Add the initialized velocity to the array.
 		m_velocities_vec.push_back(p);
@@ -876,7 +871,7 @@ bool GSwarmAlgorithm::neighborhoodsHaveNominalValues() const {
  */
 void GSwarmAlgorithm::updatePositions() {
 	std::size_t neighborhood_offset = 0;
-	GSwarmAlgorithm::iterator start = this->begin();
+	auto start = this->begin();
 
 #ifdef DEBUG
 	// Check that all neighborhoods have the default size
@@ -903,7 +898,7 @@ void GSwarmAlgorithm::updatePositions() {
 	m_last_iteration_individuals_vec.clear();
 	if (afterFirstIteration()) {
 		// Clone the individuals and copy them over
-		for(auto ind_ptr: *this) {
+		for(const auto& ind_ptr: *this) {
 			m_last_iteration_individuals_vec.push_back(ind_ptr->clone<GParameterSet>());
 		}
 	}
@@ -952,7 +947,7 @@ void GSwarmAlgorithm::updatePositions() {
 #endif /* DEBUG */
 
 		for (std::size_t member = 0; member < m_n_neighborhood_members_vec[n]; member++) {
-			GSwarmAlgorithm::iterator current = start + neighborhood_offset;
+			auto current = start + neighborhood_offset;
 
 			// Update the neighborhood ids
 			this->at(neighborhood_offset)->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->setNeighborhood(n);
@@ -1194,7 +1189,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 
 	// Update the iteration of older individuals (they will keep their old neighborhood id)
 	// and attach them to the data vector
-	for(auto item_ptr: old_work_items) {
+	for(const auto& item_ptr: old_work_items) {
 		item_ptr->setAssignedIteration(this->getIteration());
 		this->push_back(item_ptr);
 	}
@@ -1248,7 +1243,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	// Now update the number of items in each neighborhood: First reset the number of members of each neighborhood
 	Gem::Common::assignVecConst(m_n_neighborhood_members_vec, (std::size_t)0);
 	// Then update the number of individuals in each neighborhood
-	for(auto item_ptr: *this) {
+	for(const auto& item_ptr: *this) {
 		m_n_neighborhood_members_vec[item_ptr->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood()] += 1;
 	}
 
@@ -1273,13 +1268,14 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 
 #ifdef DEBUG
 	std::size_t pos = 0;
-	for(auto ind_ptr: *this) {
-		if(ind_ptr->isDirty()) {
+	for(const auto& ind_ptr: *this) {
+		if(ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::findBests(): Error!" << std::endl
 					<< "Found individual in position " << pos << " in iteration " << this->getIteration() << std::endl
-					<< "whose dirty flag is set." << std::endl
+					<< "which is unprocessed or has errors" << std::endl
+					<< "is_due_for_processing() == " << ind_ptr->is_due_for_processing() << ", has_errors() == " << ind_ptr->has_errors() << std::endl
 			);
 		}
 
@@ -1289,11 +1285,11 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 
 	// Update the personal bests of all individuals
 	if (inFirstIteration()) {
-		for (auto ind_ptr: *this) {
+		for (const auto& ind_ptr: *this) {
 			updatePersonalBest(ind_ptr);
 		}
 	} else {
-		for (auto ind_ptr: *this) {
+		for (const auto& ind_ptr: *this) {
 			updatePersonalBestIfBetter(ind_ptr);
 		}
 	}
@@ -1319,8 +1315,8 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 		}
 		else {
 			if(isBetter(
-				(*(this->begin() + firstCounter))->transformedFitness()
-				, m_neighborhood_bests_vec.at(n)->transformedFitness()
+				(*(this->begin() + firstCounter))->transformed_fitness(0)
+				, m_neighborhood_bests_vec.at(n)->transformed_fitness(0)
 				, m
 			)) {
 				(m_neighborhood_bests_vec.at(n))->GObject::load(*(this->begin() + firstCounter));
@@ -1331,7 +1327,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 	// Identify the best individuals among all neighborhood bests
 	for (std::size_t n = 0; n < m_n_neighborhoods; n++) {
 		if(isBetter(
-			(m_neighborhood_bests_vec.at(n))->transformedFitness()
+			(m_neighborhood_bests_vec.at(n))->transformed_fitness(0)
 			, std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness)
 			, m
 		)) {
@@ -1347,7 +1343,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
 	} else {
 		if(isBetter(
 			std::get<G_TRANSFORMED_FITNESS>(bestLocalFitness)
-			, m_global_best_ptr->transformedFitness()
+			, m_global_best_ptr->transformed_fitness(0)
 			, m
 		)) {
 			m_global_best_ptr->GObject::load(m_neighborhood_bests_vec.at(bestLocalId));

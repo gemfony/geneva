@@ -52,7 +52,6 @@
 #include "common/GExceptions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GCommonMathHelperFunctions.hpp"
-#include "common/GLockVarT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GStdPtrVectorInterfaceT.hpp"
@@ -142,6 +141,8 @@ public:
 	 void setTransformedFitnessWith(std::function<double(double)>);
 	 /** @brief Sets the transformed fitness to a user-defined value */
 	 void setTransformedFitnessTo(double);
+	 /** @brief Sets the transformed fitness to the same value as the raw fitness */
+	 void setTransformedFitnessToRaw();
 
 	 /** @brief Checks whether the transformed fitness was set */
 	 bool transformedFitnessSet() const;
@@ -174,7 +175,7 @@ class GParameterSet
    , public G_Interface_Mutable
    , public G_Interface_Rateable
    , public Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>
-   , public Gem::Courtier::GProcessingContainerT<GParameterSet, double>
+   , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>
 {
 	 friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 
@@ -187,9 +188,8 @@ class GParameterSet
 		 ar
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
 		 & make_nvp("GStdPtrVectorInterfaceT_GParameterBase", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>>(*this))
-		 & make_nvp("GProcessingContainerT_ParameterSet_double", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet, double>>(*this))
+		 & make_nvp("GProcessingContainerT_ParameterSet_double", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_perItemCrossOverProbability)
-		 & BOOST_SERIALIZATION_NVP(m_n_fitness_criteria)
 		 & BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness)
 		 & BOOST_SERIALIZATION_NVP(m_n_stalls)
 		 & BOOST_SERIALIZATION_NVP(m_dirty_flag)
@@ -201,20 +201,17 @@ class GParameterSet
 		 & BOOST_SERIALIZATION_NVP(m_individual_constraint_ptr)
 		 & BOOST_SERIALIZATION_NVP(m_sigmoid_steepness)
 		 & BOOST_SERIALIZATION_NVP(m_sigmoid_extremes)
-		 & BOOST_SERIALIZATION_NVP(m_marked_as_invalid_by_user)
 		 & BOOST_SERIALIZATION_NVP(m_max_unsuccessful_adaptions)
 		 & BOOST_SERIALIZATION_NVP(m_max_retries_until_valid)
-		 & BOOST_SERIALIZATION_NVP(m_n_adaptions)
-		 & BOOST_SERIALIZATION_NVP(m_evaluation_id)
-		 & BOOST_SERIALIZATION_NVP(m_current_fitness_vec);
+		 & BOOST_SERIALIZATION_NVP(m_n_adaptions);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GParameterSet() = default;
+	 G_API_GENEVA GParameterSet();
 	 /** @brief Initialization with the number of fitness criteria */
-	 explicit G_API_GENEVA GParameterSet(const std::size_t&);
+	 explicit G_API_GENEVA GParameterSet(std::size_t);
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GParameterSet(const GParameterSet&);
 	 /** @brief The destructor */
@@ -237,9 +234,18 @@ public:
 	 G_API_GENEVA void setMaxMode(const maxMode&);
 
 	 /** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
-	 G_API_GENEVA void toPropertyTree(pt::ptree&, const std::string& = "parameterset") const BASE;
+	 G_API_GENEVA void toPropertyTree(
+		 pt::ptree&
+		 , const std::string& = "parameterset"
+	 ) const;
+
 	 /** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
-	 G_API_GENEVA std::string toCSV(bool=false, bool=true, bool=true, bool=true) const;
+	 G_API_GENEVA std::string toCSV(
+		 bool=false // withNameAndType
+		 , bool=true // withCommas
+		 , bool=true // useRawFitness
+		 , bool=true // showValidity
+	 ) const;
 
 	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	 G_API_GENEVA Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference at(const std::size_t& pos);
@@ -251,7 +257,7 @@ public:
 	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(const std::shared_ptr<GParameterSet>&) const BASE;
 
 	 /** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
-	 G_API_GENEVA void perItemCrossOver(const GParameterSet&, const double&);
+	 G_API_GENEVA void perItemCrossOver(const GParameterSet&, double);
 
 	 /** @brief Allows to set the "per item" cross-over probability */
 	 G_API_GENEVA void setPerItemCrossOverProbability(double);
@@ -273,49 +279,70 @@ public:
 	 /** @brief The adaption interface */
 	 G_API_GENEVA std::size_t adapt() override;
 
+	 /** @brief Retrieves the stored raw fitness with a given id */
+	 G_API_GENEVA double raw_fitness(std::size_t = 0) const;
+	 /** @brief Retrieves the stored transformed fitness with a given id */
+	 G_API_GENEVA double transformed_fitness(std::size_t = 0) const;
+
+	 /** @brief Returns all raw fitness results in a std::vector */
+	 G_API_GENEVA std::vector<double> raw_fitness_vec() const override;
+	 /** @brief Returns all transformed fitness results in a std::vector */
+	 G_API_GENEVA std::vector<double> transformed_fitness_vec() const override;
+
 	 /** @brief Returns the raw result of a fitness function with a given id */
+	 G_DEPRECATED("Use raw_fitness() instead")
 	 G_API_GENEVA double fitness(std::size_t = 0) const override;
 
 	 /** @brief Calculate or returns the result of a fitness function with a given id */
+	 G_DEPRECATED("Use raw/transformed_fitness() and process() instead")
 	 G_API_GENEVA double fitness(std::size_t, bool, bool) override;
 	 /** @brief Calculate or returns the result of a fitness function with a given id */
+	 G_DEPRECATED("Use raw/transformed_fitness() and process() instead")
 	 G_API_GENEVA double fitness(std::size_t, bool, bool) const override;
 
 	 /** @brief Returns all raw fitness results in a std::vector */
+	 G_DEPRECATED("Use raw_fitness_vec() instead")
 	 G_API_GENEVA std::vector<double> fitnessVec() const override;
 	 /** @brief Returns all raw or transformed results in a std::vector */
+	 G_DEPRECATED("Use raw_fitness_vec() or transformed_fitness_vec() instead")
 	 G_API_GENEVA std::vector<double> fitnessVec(bool) const override;
 
 	 /** @brief Returns the transformed result of a fitness function with a given id */
+	 G_DEPRECATED("Use transformed_fitness() instead")
 	 G_API_GENEVA double transformedFitness(std::size_t = 0) const override;
 	 /** @brief Returns all transformed fitness results in a std::vector */
+	 G_DEPRECATED("Use transformed_fitness_vec() instead")
 	 G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
 
 	 /** @brief Retrieve the current (not necessarily up-to-date) fitness */
+	 G_DEPRECATED("Use raw/transformed_fitness() instead")
 	 G_API_GENEVA double getCachedFitness(std::size_t = 0, bool = USETRANSFORMEDFITNESS) const;
 
-	 /** @brief Enforce fitness (re-)calculation */
-	 G_API_GENEVA void enforceFitnessUpdate(std::function<std::vector<double>()> =  std::function<std::vector<double>()>());
-
+	 /** @brief Register another result value of the fitness calculation */
+	 G_API_GENEVA void setResult(std::size_t, double);
 	 /** @brief Registers a new, secondary result value of the custom fitness calculation */
-	 G_API_GENEVA void registerSecondaryResult(const std::size_t&, const double&);
+	 G_DEPRECATED("Use setResult() instead")
+	 G_API_GENEVA void registerSecondaryResult(std::size_t, double);
 	 /** @brief Determines the overall number of fitness criteria present for this individual */
+	 G_DEPRECATED("Use getNStoredResults() instead")
 	 G_API_GENEVA std::size_t getNumberOfFitnessCriteria() const;
 	 /** @brief Allows to reset the number of fitness criteria */
+	 G_DEPRECATED("Use setNStoredResults() instead")
 	 G_API_GENEVA void setNumberOfFitnessCriteria(std::size_t);
 	 /** @brief Determines whether more than one fitness criterion is present for this individual */
 	 G_API_GENEVA bool hasMultipleFitnessCriteria() const;
 
-	 /** @brief Checks the worst fitness and updates it when needed */
-	 G_API_GENEVA void challengeWorstValidFitness(std::tuple<double, double>&, const std::size_t&);
 	 /** @brief Retrieve the fitness tuple at a given evaluation position */
-	 G_API_GENEVA std::tuple<double,double> getFitnessTuple(const std::uint32_t& = 0) const;
+	 G_API_GENEVA std::tuple<double,double> getFitnessTuple(std::uint32_t = 0) const;
 
 	 /** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
+	 G_DEPRECATED("Use is_processed() instead")
 	 G_API_GENEVA bool isClean() const;
 	 /** @brief Check whether the dirty flag is set */
+	 G_DEPRECATED("Use is_due_for_processing() || has_errors() instead")
 	 G_API_GENEVA bool isDirty() const ;
 	 /** @brief Sets the dirtyFlag_ */
+	 G_DEPRECATED("Use mark_as_due_for_processing() instead")
 	 G_API_GENEVA void setDirtyFlag();
 
 	 /** @brief Allows to retrieve the m_maxmode parameter */
@@ -469,25 +496,10 @@ public:
 	 /** @brief Checks whether this solution is invalid */
 	 G_API_GENEVA bool isInValid() const;
 
-	 /** @brief Allows an optimization algorithm to set the worst known valid evaluation up to the current iteration */
-	 G_API_GENEVA void setWorstKnownValid(const std::vector<std::tuple<double, double>>&);
-	 /** @brief Allows to retrieve the worst known valid evaluation up to the current iteration, as set by an external optimization algorithm */
-	 G_API_GENEVA std::tuple<double, double> getWorstKnownValid(const std::uint32_t&) const;
-	 /** @brief Allows to retrieve all worst known valid evaluations up to the current iteration, as set by an external optimization algorithm */
-	 G_API_GENEVA std::vector<std::tuple<double, double>> getWorstKnownValids() const;
-	 /** @brief Fills the worstKnownValid-vector with best values */
-	 G_API_GENEVA void populateWorstKnownValid();
-
-	 /** @brief Triggers an update of the internal evaluation, if necessary */
-	 G_API_GENEVA void postEvaluationUpdate();
-
 	 /** @brief Allows to set the globally best known primary fitness */
 	 G_API_GENEVA void setBestKnownPrimaryFitness(const std::tuple<double, double>&);
 	 /** @brief Retrieves the value of the globally best known primary fitness */
 	 G_API_GENEVA std::tuple<double, double> getBestKnownPrimaryFitness() const;
-
-	 /** @brief Retrieve the id assigned to the current evaluation */
-	 G_API_GENEVA std::string getCurrentEvaluationID() const;
 
 	 /***************************************************************************/
 	 /**
@@ -693,8 +705,8 @@ public:
 			 parm_ptr->assignValueVector<par_type>(parVec, pos, am);
 		 }
 
-		 // As we have modified our internal data sets, make sure the dirty flag is set
-		 GParameterSet::setDirtyFlag();
+		 // As we have modified our internal data sets, make sure the item is reprocessed
+		 this->mark_as_due_for_processing();
 	 }
 
 	 /***************************************************************************/
@@ -714,8 +726,8 @@ public:
 			 parm_ptr->assignValueVectors<par_type>(parMap, am);
 		 }
 
-		 // As we have modified our internal data sets, make sure the dirty flag is set
-		 GParameterSet::setDirtyFlag();
+		 // As we have modified our internal data sets, make sure the item is reprocessed
+		 this->mark_as_due_for_processing();
 	 }
 
 	 /***************************************************************************/
@@ -875,7 +887,7 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Do the required processing for this object */
-	 G_API_GENEVA double process_() override;
+	 G_API_GENEVA void process_() override;
 
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
@@ -892,6 +904,7 @@ protected:
 	 G_API_GENEVA void setFitness_(const std::vector<double>&);
 
 	 /** @brief Sets the dirtyFlag_ to any desired value */
+	 G_DEPRECATED("Use mark_as_due_for_processing() instead")
 	 G_API_GENEVA bool setDirtyFlag(bool) ;
 
 	 /** @brief Combines secondary evaluation results by adding the individual results */
@@ -904,8 +917,10 @@ protected:
 	 G_API_GENEVA double weighedSquaredSumCombiner(const std::vector<double>&) const;
 
 	 /** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
+	 G_DEPRECATED("Use force_set_error() instead")
 	 G_API_GENEVA void markAsInvalid();
 	 /** @brief Allows to check whether this solution was marked as invalid */
+	 G_DEPRECATED("Use has_errors() instead")
 	 G_API_GENEVA bool markedAsInvalidByUser() const;
 
 	 /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
@@ -913,18 +928,19 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Creates a deep clone of this object */
+	 G_API_GENEVA  GObject* clone_() const override = 0;
+
 	 /** @brief Retrieves a parameter of a given type at the specified position */
 	 G_API_GENEVA boost::any getVarVal(
 		 const std::string&
 		 , const std::tuple<std::size_t, std::string, std::size_t>& target
 	 );
 
-	 /***************************************************************************/
-	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override = 0;
-
-	 /** @brief Checks whether all results are at the worst possible value */
-	 bool allRawResultsAtWorst() const;
+	 /** @brief  Allows to set all fitnesses to the same value (both raw and transformed values) */
+	 void setAllFitnessTo(double);
+	 /** @brief  Allows to set all fitnesses to the same value (raw and transformed values seperately) */
+	 void setAllFitnessTo(double, double);
 
 	 /***************************************************************************/
 	 // Data
@@ -933,14 +949,6 @@ private:
 	 std::uniform_int_distribution<std::size_t> m_uniform_int;
 
 	 double m_perItemCrossOverProbability = DEFAULTPERITEMEXCHANGELIKELIHOOD; ///< A likelihood for "per item" cross-over operations to be performed
-
-	 /** @brief The total number of fitness criteria */
-	 std::size_t m_n_fitness_criteria = 1;
-	 /** @brief Holds this object's internal, raw and transformed fitness */
-	 std::vector<std::tuple<double, double>> m_current_fitness_vec = std::vector<std::tuple<double, double>>(m_n_fitness_criteria);
-
-	 /** @brief Indicates whether the user has marked this solution as invalid inside of the evaluation function */
-	 Gem::Common::GLockVarT<bool> m_marked_as_invalid_by_user{OE_NOT_MARKED_AS_INVALID};
 
 	 /** @brief Holds the globally best known primary fitness of all individuals */
 	 std::tuple<double, double> m_best_past_primary_fitness{std::make_tuple(0., 0.)};
@@ -970,9 +978,6 @@ private:
 	 std::size_t m_max_unsuccessful_adaptions = Gem::Geneva::DEFMAXUNSUCCESSFULADAPTIONS; ///< The maximum number of calls to customAdaptions() in a row without actual modifications
 	 std::size_t m_max_retries_until_valid = Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
 	 std::size_t m_n_adaptions = 0; ///< Stores the actual number of adaptions after a call to "adapt()"
-
-	 /** @brief A unique id that is assigned to an evaluation */
-	 std::string m_evaluation_id = "empty";
 
 public:
 	 /***************************************************************************/

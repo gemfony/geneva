@@ -140,7 +140,7 @@ int main(int argc, char **argv) {
 			}
 
 			// Add the fitness to the result vector
-			bestResult.push_back(p->fitness());
+			bestResult.push_back(p->raw_fitness(0));
 
 			// Add timing information to the result vector
 			timeConsumed.push_back(std::chrono::duration<double>(endTime-startTime).count());

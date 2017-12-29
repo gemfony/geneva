@@ -101,12 +101,12 @@ public:
 	 /** @brief Initialization with the number of starting points and the size of the finite step */
 	 G_API_GENEVA GGradientDescent(const std::size_t&, const double&, const double&);
 	 /** @brief A standard copy constructor */
-	 G_API_GENEVA GGradientDescent(const GGradientDescent&);
+	 G_API_GENEVA GGradientDescent(const GGradientDescent&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GGradientDescent();
+	 G_API_GENEVA ~GGradientDescent() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -140,7 +140,7 @@ public:
 	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions (
+	 G_API_GENEVA void addConfigurationOptions (
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 

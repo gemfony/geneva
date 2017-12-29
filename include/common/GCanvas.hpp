@@ -369,7 +369,7 @@ public:
 	 * Get information about the canvas dimensions
 	 */
 	std::tuple<std::size_t, std::size_t> dimensions() const {
-		return std::tuple<std::size_t, std::size_t>(xDim_, yDim_);
+		return {xDim_, yDim_};
 	}
 
 	/***************************************************************************/
@@ -918,7 +918,7 @@ public:
 		averageGreen /= (float) (xDim_ * yDim_);
 		averageBlue /= (float) (xDim_ * yDim_);
 
-		return std::tuple<float, float, float>(averageRed, averageGreen, averageBlue);
+		return {averageRed, averageGreen, averageBlue};
 	}
 
 	/***************************************************************************/

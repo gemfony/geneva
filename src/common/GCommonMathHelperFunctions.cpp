@@ -609,15 +609,25 @@ double gmix(
  * @return The function value
  */
 float gsigmoid(
-	const float &var, const float &barrier, const float &steepness
+	const float &var
+	, const float &barrier
+	, const float &steepness
 ) {
-	return barrier * var / (steepness + gfabs(var));
+	long double local_var       = boost::numeric_cast<long double>(var);
+	long double local_barrier   = boost::numeric_cast<long double>(barrier);
+	long double local_steepness = boost::numeric_cast<long double>(steepness);
+
+	return boost::numeric_cast<float>(
+		local_barrier * local_var / (local_steepness + gfabs(local_var))
+	);
 }
 
 /******************************************************************************/
 /**
  * A sigmoid function with user-defined minimum / maximum values (double version)
- * Vgl. http://en.wikipedia.org/wiki/File:Gjl-t%28x%29.svg .
+ * Vgl. http://en.wikipedia.org/wiki/File:Gjl-t%28x%29.svg . Note that the lower
+ * limit of this function is negative. The function uses long double values internally
+ * in order to achieve a better transformation.
  *
  * @param var The value for which the sigmoid should be calculated
  * @param barrier The maximum or minimum value of the sigmoid function
@@ -625,9 +635,17 @@ float gsigmoid(
  * @return The function value
  */
 double gsigmoid(
-	const double &var, const double &barrier, const double &steepness
+	const double &var
+	, const double &barrier
+	, const double &steepness
 ) {
-	return barrier * var / (steepness + gfabs(var));
+	long double local_var       = boost::numeric_cast<long double>(var);
+	long double local_barrier   = boost::numeric_cast<long double>(barrier);
+	long double local_steepness = boost::numeric_cast<long double>(steepness);
+
+	return boost::numeric_cast<double>(
+		local_barrier * local_var / (local_steepness + gfabs(local_var))
+	);
 }
 
 /******************************************************************************/

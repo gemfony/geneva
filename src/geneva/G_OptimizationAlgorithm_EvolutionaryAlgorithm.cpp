@@ -499,7 +499,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 	// through this function. There MAY be situations, where in the first iteration
 	// parents are clean, e.g. when they were extracted from another optimization.
 	for(std::size_t i=this->getNParents(); i<this->size(); i++) {
-		if(!this->at(i)->isDirty()) {
+		if(!this->at(i)->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
@@ -640,13 +640,13 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 		}
 	}
 
-	// Check that the dirty flag of the last individual isn't set. This is a severe error.
-	if(this->back()->isDirty()) {
+	// Check that the last individual is not unprocessed. This is a severe error.
+	if(this->back()->is_due_for_processing()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Error!" << std::endl
-				<< "The last individual in the population has the dirty" << std::endl
-				<< "flag set, so we cannot use it for cloning" << std::endl
+				<< "The last individual in the population is is unprocessed" << std::endl
+				<< "so we cannot use it for cloning" << std::endl
 		);
 	}
 
@@ -821,12 +821,12 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 	// Check that we do not accidently trigger value calculation
 	std::size_t pos = 0;
 	for(const auto& ind_ptr: *this) { // std::shared_ptr may be copied
-		if(ind_ptr->isDirty()) {
+		if(ind_ptr->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GEvolutionaryAlgorithm::sortMuplusnuMode(): Error!" << std::endl
 					<< "In iteration " << G_OptimizationAlgorithm_Base::getIteration() << ": Found individual in position " << pos << std::endl
-					<< " whose dirty flag is set." << std::endl
+					<< " that is unprocessed." << std::endl
 			);
 		}
 		pos++;
@@ -853,10 +853,10 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 #ifdef DEBUG
 	if (G_OptimizationAlgorithm_Base::inFirstIteration()) {
-		// Check that we do not accidently trigger value calculation -- check the whole range
+		// Check that we do not accidentally trigger value calculation -- check the whole range
 		typename GEvolutionaryAlgorithm::iterator it;
 		for (it = this->begin(); it != this->end(); ++it) {
-			if ((*it)->isDirty()) {
+			if ((*it)->is_due_for_processing()) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << std::endl
@@ -869,10 +869,10 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 			}
 		}
 	} else {
-		// Check that we do not accidently trigger value calculation -- check children only
+		// Check that we do not accidentally trigger value calculation -- check children only
 		typename GEvolutionaryAlgorithm::iterator it;
 		for (it = this->begin() + m_n_parents; it != this->end(); ++it) {
-			if ((*it)->isDirty()) {
+			if ((*it)->is_due_for_processing()) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GEvolutionaryAlgorithm::sortMucommanuMode(): Error!" << std::endl
@@ -880,7 +880,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 						this->begin()
 						, it
 					) << std::endl
-						<< " whose dirty flag is set." << std::endl
+						<< " which is unprocessed." << std::endl
 				);
 			}
 		}
@@ -916,10 +916,10 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
  */
 void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 #ifdef DEBUG
-	// Check that we do not accidently trigger value calculation
+	// Check that we do not accidentally trigger value calculation
 	typename GEvolutionaryAlgorithm::iterator it;
 	for(it=this->begin()+m_n_parents; it!=this->end(); ++it) {
-		if((*it)->isDirty()) {
+		if((*it)->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GEvolutionaryAlgorithm::sortMunu1pretainMode(): Error!" << std::endl
@@ -1163,10 +1163,10 @@ bool GEvolutionaryAlgorithm::aDominatesB(
 	std::shared_ptr<GParameterSet> x_ptr
 	, std::shared_ptr<GParameterSet> y_ptr
 ) const {
-	std::size_t nCriteriaX = x_ptr->getNumberOfFitnessCriteria();
+	std::size_t nCriteriaX = x_ptr->getNStoredResults();
 
 #ifdef DEBUG
-	std::size_t nCriteriaY = y_ptr->getNumberOfFitnessCriteria();
+	std::size_t nCriteriaY = y_ptr->getNStoredResults();
 	if(nCriteriaX != nCriteriaY) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)

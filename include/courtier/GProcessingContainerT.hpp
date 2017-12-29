@@ -44,6 +44,7 @@
 #include <chrono>
 #include <type_traits>
 #include <exception>
+#include <functional>
 
 // Boost headers go here
 #include <boost/archive/xml_oarchive.hpp>
@@ -65,6 +66,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_serialize.hpp>
 #include <boost/exception/diagnostic_information.hpp>
 
@@ -96,7 +98,6 @@ class g_processing_exception : public gemfony_exception { using gemfony_exceptio
 template<
 	typename processable_type
 	, typename processing_result_type
-	, class = typename std::enable_if<std::is_pod<processing_result_type>::value>::type
 	, class = typename std::enable_if<!std::is_void<processing_result_type>::value>::type
 >
 class GProcessingContainerT
@@ -127,7 +128,8 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_n_stored_results)
 		 & BOOST_SERIALIZATION_NVP(m_stored_results_vec)
 		 & BOOST_SERIALIZATION_NVP(m_stored_error_descriptions)
-		 & BOOST_SERIALIZATION_NVP(m_processing_status);
+		 & BOOST_SERIALIZATION_NVP(m_processing_status)
+		 & BOOST_SERIALIZATION_NVP(m_evaluation_id);
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -138,15 +140,9 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The default constructor
-	  */
-	 GProcessingContainerT() = default;
-
-	 /***************************************************************************/
-	 /**
 	  * Initialization with the number of stored results
 	  */
-	 GProcessingContainerT(std::size_t n_stored_results)
+	 explicit GProcessingContainerT(std::size_t n_stored_results)
 	 	: m_n_stored_results(n_stored_results)
 	 	, m_stored_results_vec(n_stored_results)
 	 { /* nothing */ }
@@ -175,6 +171,7 @@ public:
 	 	 , m_stored_results_vec(cp.m_stored_results_vec) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
 		 , m_stored_error_descriptions(cp.m_stored_error_descriptions)
 		 , m_processing_status(cp.m_processing_status)
+		 , m_evaluation_id(cp.m_evaluation_id)
 	 {
 		 Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
@@ -188,15 +185,51 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Sets the vector of stored results to a given collection and marks
+	  * the object as processed
+	  */
+	 processing_result_type markAsProcessedWith(const std::vector<processing_result_type>& result_vec) {
+#ifdef DEBUG
+		 // Check that we have been given a suitable new results vector
+		 if(result_vec.size() != m_stored_results_vec.size()) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << std::endl
+				 	 << "do not fit: " << result_vec.size() << " / " << m_stored_results_vec.size() << std::endl
+			 );
+		 }
+#endif
+
+		 // Transfer the new values
+		 m_stored_results_vec = result_vec;
+
+		 // Mark as processed
+		 m_processing_status = processingStatus::PROCESSED;
+
+		 // This part of the code should never be reached if an exception was thrown
+		 return this->m_stored_results_vec.at(0);
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Perform the actual processing steps. E.g. in optimization algorithms,
 	  * post-processing allows to run a sub-optimization. The amount of time
 	  * needed for processing is measured for logging purposes. Where one of the
 	  * processing functions throws an exception, the function will store the
 	  * necessary exception information locally and rethrow the exception.
+	  * Note that user-defined processing- and post-processing functions need
+	  * to make sure to set the results (be it main- or secondary results) of the
+	  * process()-call. This function has no way to ensure that this is the case.
 	  *
+	  * TODO: process() should not need to return ANY VALUE AT ALL --> clean separation between processing and value retrieval
+	  *
+	  * @param ext_processor Injects an external function for the processing step
 	  * @return The first result of the processing calls
 	  */
-	 processing_result_type process() {
+	 processing_result_type process(
+		 std::function<void(processable_type&)> ext_processor
+	 		= std::function<void(processable_type&)>()
+	 ) {
 		 // This function should never be called if the processing status is not set to "DO_PROCESS"
 		 if(processingStatus::DO_PROCESS != m_processing_status) {
 			 throw gemfony_exception(
@@ -205,6 +238,9 @@ public:
 				 	 << "Expected " << processingStatus::DO_PROCESS << "(processingStatus::DO_PROCESS)" << std::endl
 			 );
 		 }
+
+		 // Assign a new evaluation id
+		 m_evaluation_id = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
 
 		 // "Nullify the result list.
 		 this->clear_stored_results_vec();
@@ -217,7 +253,14 @@ public:
 			 auto startTime = std::chrono::high_resolution_clock::now();
 			 this->preProcess_();
 			 auto afterPreProcessing = std::chrono::high_resolution_clock::now();
-			 main_result = this->process_();
+
+			 if(ext_processor) { // Have we been passed an external function for the processing step?
+				 auto& p_ref = dynamic_cast<processable_type&>(*this);
+				 ext_processor(p_ref);
+			 } else { // No external function
+				 this->process_();
+			 }
+
 			 auto afterProcessing = std::chrono::high_resolution_clock::now();
 			 this->postProcess_();
 			 auto afterPostProcessing = std::chrono::high_resolution_clock::now();
@@ -273,16 +316,40 @@ public:
 		 }
 
 		 // This part of the code should never be reached if an exception was thrown
-		 this->m_stored_results_vec.at(0) = main_result;
-		 return main_result;
+		 return this->m_stored_results_vec.at(0);
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieval of the stored result
+	  * Retrieval of the stored result. This function allows modifications of its
+	  * return value.
+	  *
+	  * @param id The id of the stored result to be returned
+	  * @return The stored result at position id in m_stored_results_vec
 	  */
-	 processing_result_type getStoredResult(std::size_t id = 0) const {
+	 processing_result_type& getStoredResult(std::size_t id = 0) {
 		 return m_stored_results_vec.at(id);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieval of the stored result. This function does not allow modifications
+	  * of its return value.
+	  *
+	  * @param id The id of the stored result to be returned
+	  * @return The stored result at position id in m_stored_results_vec
+	  */
+	 processing_result_type getConstStoredResult(std::size_t id = 0) const {
+		 return m_stored_results_vec.at(id);
+	 }
+
+
+	 /******************************************************************************/
+	 /**
+	  * Retrieve the id assigned to the current evaluation
+	  */
+	 std::string getCurrentEvaluationID() const {
+		 return m_evaluation_id;
 	 }
 
 	 /***************************************************************************/
@@ -329,6 +396,24 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Checks whether the IGNORED flag is set
+	  */
+	 bool is_ignored() const noexcept {
+		 return (processingStatus::IGNORE == this->getProcessingStatus());
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks whether the DO_PROCESS flag was  set for this item
+	  *
+	  * @return A boolean indicating whether the item is due for processing
+	  */
+	 bool is_due_for_processing() const noexcept {
+		 return (processingStatus::DO_PROCESS == this->getProcessingStatus());
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Checks if there were errors during processing
 	  *
 	  * @return A boolean indicating whether there were errors during processing
@@ -337,6 +422,14 @@ public:
 		 return
 			 (processingStatus::EXCEPTION_CAUGHT == m_processing_status)
 			 || (processingStatus::ERROR_FLAGGED == m_processing_status);
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether an error was flagged by the user
+	  */
+	 bool error_flagged_by_user() const noexcept {
+		 return (processingStatus::ERROR_FLAGGED == m_processing_status);
 	 }
 
 	 /***************************************************************************/
@@ -364,6 +457,22 @@ public:
 		 m_stored_error_descriptions.clear();
 		 // "Nullify the result list.
 		 this->clear_stored_results_vec();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Marks this item as being due for processing.
+	  */
+	 void mark_as_due_for_processing() {
+		 m_processing_status = processingStatus::DO_PROCESS;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Sets the IGNORE flag for this work item so that it will not be processed.
+	  */
+	 void mark_as_ignorable() {
+		 m_processing_status = processingStatus::IGNORE;
 	 }
 
 	 /***************************************************************************/
@@ -619,6 +728,7 @@ public:
 		 m_stored_results_vec = p_load->m_stored_results_vec; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
 		 m_stored_error_descriptions = p_load->m_stored_error_descriptions;
 		 m_processing_status = p_load->m_processing_status;
+		 m_evaluation_id = p_load->m_evaluation_id;
 
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_pre_processor_ptr, m_pre_processor_ptr);
 		 Gem::Common::copyCloneableSmartPointer(p_load->m_post_processor_ptr, m_post_processor_ptr);
@@ -627,13 +737,39 @@ public:
 protected:
 	 /***************************************************************************/
 	 /**
+	  * The default constructor. It is only needed for (de-)serialization purposes.
+	  * We want to enforce the specification of the number of evaluation criteria
+	  * in derived classes.
+	  */
+	 GProcessingContainerT() = default;
+
+	 /***************************************************************************/
+	 /**
+	  * Allows derived classes to set the number of stored results. Note that this
+	  * should happen prior to any operation with this object. Also note that this
+	  * operation may invalidate other results already stored in this object.
+	  *
+	  * @param The number of stored results in this class
+	  * @param new_val A value to be copied into new positions when the vector is increased
+	  */
+	 void setNStoredResults(
+		 std::size_t n_stored_results
+		 , processing_result_type new_val
+	 ) {
+		 m_stored_results_vec.resize(n_stored_results, new_val);
+		 m_n_stored_results = n_stored_results;
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Allows derived classes to set the number of stored results. Note that this
 	  * should happen prior to any operation with this object. Also note that this
 	  * operation may invalidate other results already stored in this object.
 	  */
-	 void setNStoredResults(std::size_t n_stored_results) {
-		 m_stored_results_vec.resize(n_stored_results);
-		 m_n_stored_results = n_stored_results;
+	 void setNStoredResults(
+		 std::size_t n_stored_results
+	 ) {
+		 this->setNStoredResults(n_stored_results, processing_result_type());
 	 }
 
 	 /***************************************************************************/
@@ -675,7 +811,7 @@ private:
 	  * Little helper function to (re-)initialize the result storage vector
 	  */
 	 void clear_stored_results_vec() {
-		 // "Nullify the result list. Wenn cannot use range-based for here, as m_stored_results_vec might hold booleans
+		 // "Nullify the result list. We cannot use range-based for here, as m_stored_results_vec might hold booleans
 		 for(auto it=m_stored_results_vec.begin(); it!=m_stored_results_vec.end(); ++it) {
 			 *it = processing_result_type();
 		 }
@@ -698,7 +834,7 @@ private:
 	 /***************************************************************************/
 
 	 /** @brief Allows derived classes to specify the tasks to be performed for this object */
-	 virtual G_API_COURTIER processing_result_type process_() BASE = 0;
+	 virtual G_API_COURTIER void process_() BASE = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -707,7 +843,7 @@ private:
   	  */
 	 void preProcess_() {
 		 if(this->mayBePreProcessed() && m_pre_processor_ptr) {
-			 processable_type& p = dynamic_cast<processable_type&>(*this);
+			 auto& p = dynamic_cast<processable_type&>(*this);
 			 (*m_pre_processor_ptr)(p);
 		 }
 	 }
@@ -719,7 +855,7 @@ private:
   	  */
 	 void postProcess_() {
 		 if(this->mayBePostProcessed() && m_post_processor_ptr) {
-			 processable_type& p = dynamic_cast<processable_type&>(*this);
+			 auto& p = dynamic_cast<processable_type&>(*this);
 			 (*m_post_processor_ptr)(p);
 		 }
 	 }
@@ -752,6 +888,8 @@ private:
 
 	 std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
 	 processingStatus m_processing_status = processingStatus::IGNORE; ///< By default no processing is initiated
+
+	 std::string m_evaluation_id = "empty"; ///< A unique id that is assigned to an evaluation
 };
 
 /******************************************************************************/

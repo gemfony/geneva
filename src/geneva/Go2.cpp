@@ -552,26 +552,21 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() cons
 		);
 	}
 
-	std::size_t pos = 0;
-	for (const auto& ind_ptr: *this) {
-		if (ind_ptr->isDirty()) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
-					<< "Found individual in position " << pos << " whose dirty flag is set" <<
-					std::endl
-			);
-		}
-
-		pos++;
-	}
-
 	if (!m_sorted) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "Tried to retrieve best individual" << std::endl
 				<< "from an unsorted population." << std::endl
+		);
+	}
+
+	// Check if the best individual is processed
+	if(!this->front()->is_processed() && !this->front()->is_ignored()) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG,  time_and_place)
+				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
+				<< "Best individual is unprocessed or has errors" << std::endl
 		);
 	}
 
@@ -599,11 +594,11 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
 	std::size_t pos = 0;
 	std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> bestIndividuals;
 	for (const auto& ind_ptr: *this) {
-		if (ind_ptr->isDirty()) {
+		if (ind_ptr->is_due_for_processing() || ind_ptr->has_errors()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::getBestGlobalIndividuals_(): Error!" << std::endl
-					<< "Found individual in position " << pos << " whose dirty flag is set" <<
+					<< "Found individual in position " << pos << " which is unprocessed or which has errors" <<
 					std::endl
 			);
 		}

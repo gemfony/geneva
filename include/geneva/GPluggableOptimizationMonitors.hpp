@@ -575,7 +575,7 @@ public:
 	 /**
 	  * Allows to set the filename
 	  */
-	 void setFileName(std::string fileName) {
+	 void setFileName(const std::string& fileName) {
 		 m_fileName = fileName;
 	 }
 
@@ -727,9 +727,9 @@ public:
 				 if(m_monitorBestOnly) { // Monitor the best individuals only
 					 std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
 					 if(GBasePluggableOM::m_useRawEvaluation) {
-						 primaryFitness = p->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
+						 primaryFitness = p->raw_fitness(0);
 					 } else {
-						 primaryFitness = p->transformedFitness();
+						 primaryFitness = p->transformed_fitness(0);
 					 }
 
 					 if(!m_monitorValidOnly || p->isValid()) {
@@ -793,20 +793,18 @@ public:
 						 }
 					 }
 				 } else { // Monitor all individuals
-					 G_OptimizationAlgorithm_Base::iterator it;
-					 for(it=goa->begin(); it!=goa->end(); ++it) {
-
+					 for(const auto& ind_ptr: *goa) {
 						 if(GBasePluggableOM::m_useRawEvaluation) {
-							 primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USERAWFITNESS);
+							 primaryFitness = ind_ptr->raw_fitness(0);
 						 } else {
-							 primaryFitness = (*it)->fitness(0, PREVENTREEVALUATION, USETRANSFORMEDFITNESS);
+							 primaryFitness = ind_ptr->transformed_fitness(0);
 						 }
 
-						 if(!m_monitorValidOnly || (*it)->isValid()) {
+						 if(!m_monitorValidOnly || ind_ptr->isValid()) {
 							 switch(this->nProfileVars()) {
 								 case 1:
 								 {
-									 fp_type val0    = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+									 fp_type val0    = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
 
 									 if(m_observeBoundaries) {
 										 if(
@@ -822,8 +820,8 @@ public:
 
 								 case 2:
 								 {
-									 fp_type val0 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
-									 fp_type val1 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
+									 fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+									 fp_type val1 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
 
 									 if(m_observeBoundaries) {
 										 if(
@@ -840,9 +838,9 @@ public:
 
 								 case 3:
 								 {
-									 fp_type val0 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
-									 fp_type val1 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
-									 fp_type val2 = (*it)->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[2].var);
+									 fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+									 fp_type val1 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
+									 fp_type val2 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[2].var);
 
 									 if(m_observeBoundaries) {
 										 if(
@@ -885,15 +883,6 @@ public:
 				 m_progressPlotter2D_oa.reset();
 				 m_progressPlotter3D_oa.reset();
 				 m_progressPlotter4D_oa.reset();
-			 }
-				 break;
-
-			 default:
-			 {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GProgressPlotterT<fp_type>::informationFunction(): Received invalid infoMode " << im << std::endl
-				 );
 			 }
 				 break;
 		 };
@@ -1137,12 +1126,12 @@ public:
 	 ) const override;
 
 	 /** @brief Sets the file name */
-	 G_API_GENEVA void setFileName(std::string fileName);
+	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
 	 G_API_GENEVA std::string getFileName() const;
 
 	 /** @brief Sets the boundaries */
-	 G_API_GENEVA void setBoundaries(std::vector<double> boundaries);
+	 G_API_GENEVA void setBoundaries(const std::vector<double>& boundaries);
 	 /** @brief Allows to retrieve the boundaries */
 	 G_API_GENEVA std::vector<double> getBoundaries() const;
 	 /** @brief Allows to check whether boundaries are active */
@@ -1278,7 +1267,7 @@ public:
 	 ) const override;
 
 	 /** @brief Sets the file name */
-	 G_API_GENEVA void setFileName(std::string fileName);
+	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
 	 G_API_GENEVA std::string getFileName() const;
 
@@ -1380,7 +1369,7 @@ public:
 	 ) const override;
 
 	 /** @brief Sets the file name */
-	 G_API_GENEVA void setFileName(std::string fileName);
+	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
 	 G_API_GENEVA std::string getFileName() const;
 
@@ -1598,7 +1587,7 @@ public:
 	 /**
 	  * Sets the file name
 	  */
-	 void setFileName(std::string fileName) {
+	 void setFileName(const std::string& fileName) {
 		 m_fileName = fileName;
 	 }
 
@@ -1743,7 +1732,7 @@ public:
 
 				 // Record the current fitness
 				 std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-				 (*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), double(p->fitness()));
+				 (*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), p->raw_fitness(0));
 
 				 // Update the largest known iteration and the number of recorded iterations
 				 m_maxIteration = iteration;
@@ -2037,16 +2026,16 @@ public:
 	 ) const override;
 
 	 /** @brief Sets the file name for the processing times histogram */
-	 G_API_GENEVA void setFileName_pth(std::string fileName);
+	 G_API_GENEVA void setFileName_pth(const std::string& fileName);
 	 /** @brief Retrieves the current file name for the processing times histogram */
 	 G_API_GENEVA std::string getFileName_pth() const;
 	 /** @brief Sets the file name for the processing times histograms (2D) */
-	 G_API_GENEVA void setFileName_pth2(std::string fileName);
+	 G_API_GENEVA void setFileName_pth2(const std::string& fileName);
 	 /** @brief Retrieves the current file name for the processing times histograms (2D) */
 	 G_API_GENEVA std::string getFileName_pth2() const;
 
 	 /** @brief Sets the file name for the text output */
-	 G_API_GENEVA void setFileName_txt(std::string fileName);
+	 G_API_GENEVA void setFileName_txt(const std::string& fileName);
 	 /** @brief Retrieves the current file name for the text output */
 	 G_API_GENEVA std::string getFileName_txt() const;
 

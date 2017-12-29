@@ -138,7 +138,7 @@ public:
 	  * Emits a name for this class / object
 	  */
 	 std::string name() const override {
-		 return std::string("parPropSpec<T>");
+		 return {"parPropSpec<T>"};
 	 }
 
 	 /***************************************************************************/
@@ -447,10 +447,10 @@ GParameterPropertyParser::getIterators<double>() const {
 	}
 
 
-	std::vector<parPropSpec<double>>::const_iterator runner_it = dSpecVec.begin();
-	std::vector<parPropSpec<double>>::const_iterator end_it    = dSpecVec.end();
+	auto runner_it = dSpecVec.begin();
+	auto end_it    = dSpecVec.end();
 
-	return std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator>(runner_it, end_it);
+	return {runner_it, end_it};
 }
 
 /******************************************************************************/
@@ -480,10 +480,10 @@ GParameterPropertyParser::getIterators<float>() const {
 	}
 
 
-	std::vector<parPropSpec<float>>::const_iterator runner_it = fSpecVec.begin();
-	std::vector<parPropSpec<float>>::const_iterator end_it    = fSpecVec.end();
+	auto runner_it = fSpecVec.begin();
+	auto end_it    = fSpecVec.end();
 
-	return std::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator>(runner_it, end_it);
+	return {runner_it, end_it};
 }
 
 /******************************************************************************/
@@ -512,10 +512,10 @@ GParameterPropertyParser::getIterators<std::int32_t>() const {
 		);
 	}
 
-	std::vector<parPropSpec<std::int32_t>>::const_iterator runner_it = iSpecVec.begin();
-	std::vector<parPropSpec<std::int32_t>>::const_iterator end_it    = iSpecVec.end();
+	auto runner_it = iSpecVec.begin();
+	auto end_it    = iSpecVec.end();
 
-	return std::tuple<std::vector<parPropSpec<std::int32_t>>::const_iterator, std::vector<parPropSpec<std::int32_t>>::const_iterator>(runner_it, end_it);
+	return {runner_it, end_it};
 }
 
 /******************************************************************************/
@@ -544,10 +544,10 @@ GParameterPropertyParser::getIterators<bool>() const {
 		);
 	}
 
-	std::vector<parPropSpec<bool>>::const_iterator runner_it = bSpecVec.begin();
-	std::vector<parPropSpec<bool>>::const_iterator end_it    = bSpecVec.end();
+	auto runner_it = bSpecVec.begin();
+	auto end_it    = bSpecVec.end();
 
-	return std::tuple<std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator>(runner_it, end_it);
+	return {runner_it, end_it};
 }
 
 /******************************************************************************/

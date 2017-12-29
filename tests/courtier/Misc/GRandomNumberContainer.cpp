@@ -46,7 +46,9 @@ namespace Tests {
  *
  * @param nrnr The desired amount of random numbers to be added to the randomNumbers_ vector
  */
-GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
+GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr)
+	: Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>(1)
+{
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
             std::uniform_real_distribution<double> uniform_real_distribution;
 	for(std::size_t i=0; i<nrnr; i++) {
@@ -58,12 +60,9 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr) {
 /**
  * Allows to specify the tasks to be performed for this object. We simply sort the array of
  * random numbers.
- *
- * @return A boolean which indicates whether a useful result was obtained
  */
-bool GRandomNumberContainer::process_() {
+void GRandomNumberContainer::process_() {
 	std::sort(randomNumbers_.begin(), randomNumbers_.end());
-	return true;
 }
 
 /********************************************************************************************/

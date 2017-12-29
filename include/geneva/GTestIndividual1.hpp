@@ -95,12 +95,12 @@ public:
 	/** @brief The default constructor */
 	G_API_GENEVA GTestIndividual1();
 	/** @brief The copy constructor */
-	G_API_GENEVA GTestIndividual1(const GTestIndividual1&);
+	G_API_GENEVA GTestIndividual1(const GTestIndividual1&) = default;
 	/** @brief The standard destructor */
-	virtual G_API_GENEVA ~GTestIndividual1();
+	G_API_GENEVA ~GTestIndividual1() override = default;
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA void compare(
+	G_API_GENEVA void compare(
 		const GObject& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
@@ -108,27 +108,27 @@ public:
 
 protected:
 	/** @brief Loads the data of another GTestIndividual1 */
-	virtual G_API_GENEVA void load_(const GObject*) final;
+	G_API_GENEVA void load_(const GObject*) final;
 
 	/** @brief The actual fitness calculation takes place here. */
-	virtual G_API_GENEVA double fitnessCalculation() final;
+	G_API_GENEVA double fitnessCalculation() final;
 
 private:
-	 /** @brief Creates a deep clone of this object */
-	 virtual G_API_GENEVA GObject* clone_() const final;
+	/** @brief Creates a deep clone of this object */
+	G_API_GENEVA GObject* clone_() const final;
 
 public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes
 
 	/** @brief Applies modifications to this object. */
-	virtual G_API_GENEVA bool modify_GUnitTests();
+	G_API_GENEVA bool modify_GUnitTests() override;
 	/** @brief Adds a number of GDoubleObject objects to the individual */
 	void G_API_GENEVA addGDoubleObjects(const std::size_t&);
 	/** @brief Performs self tests that are expected to succeed. */
-	virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests();
+	G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	/** @brief Performs self tests that are expected to fail. */
-	virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
+	G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

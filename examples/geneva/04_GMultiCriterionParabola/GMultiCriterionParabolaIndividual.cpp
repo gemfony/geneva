@@ -49,8 +49,8 @@ std::ostream& operator<<(std::ostream& s, const Gem::Geneva::GMultiCriterionPara
 	std::vector<double> parVec;
 	f.streamline(parVec);
 
-	for(std::size_t i=0; i<f.getNumberOfFitnessCriteria(); i++) {
-		std::cout << "Fitness " << i << ": " << f.fitness(i) << std::endl;
+	for(std::size_t i=0; i<f.getNStoredResults(); i++) {
+		std::cout << "Raw fitness " << i << ": " << f.raw_fitness(i) << std::endl;
 	}
 
 	std::vector<double>::iterator it;
@@ -118,11 +118,11 @@ GMultiCriterionParabolaIndividual::GMultiCriterionParabolaIndividual(const GMult
  */
 void GMultiCriterionParabolaIndividual::setMinima(const std::vector<double>& minima) {
 #ifdef DEBUG
-	if(minima.size() != this->getNumberOfFitnessCriteria()) {
+	if(minima.size() != this->getNStoredResults()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
-				<< "Invalid size of minima vector. Expected " << this->getNumberOfFitnessCriteria() << std::endl
+				<< "Invalid size of minima vector. Expected " << this->getNStoredResults() << std::endl
 				<< "but got " << minima.size() << std::endl
 		);
 	}
@@ -146,11 +146,11 @@ void GMultiCriterionParabolaIndividual::load_(const GObject* cp)
 	GParameterSet::load_(cp);
 
 #ifdef DEBUG
-	if((p_load->minima_).size() != minima_.size() || (p_load->minima_).size() != this->getNumberOfFitnessCriteria()) {
+	if((p_load->minima_).size() != minima_.size() || (p_load->minima_).size() != this->getNStoredResults()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GMultiCriterionParabolaIndividual::setMinima(...): Error!" << std::endl
-				<< "Invalid size of minima vector. Expected " << minima_.size() << "/" << this->getNumberOfFitnessCriteria() << std::endl
+				<< "Invalid size of minima vector. Expected " << minima_.size() << "/" << this->getNStoredResults() << std::endl
 				<< "but got " << (p_load->minima_).size() << std::endl
 		);
 	}
@@ -187,7 +187,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
 	// secondary evaluation criteria.
 	main_result = GSQUARED(parVec[0] - minima_[0]);
 	for(std::size_t i=1; i<parVec.size(); i++) {
-		registerSecondaryResult(i, GSQUARED(parVec[i] - minima_[i]));
+		setResult(i, GSQUARED(parVec[i] - minima_[i]));
 	}
 
 	return main_result;
@@ -294,7 +294,7 @@ void GMultiCriterionParabolaIndividualFactory::postProcess_(
 		firstParsed_ = false;
 	}
 
-	p->setNumberOfFitnessCriteria(nPar_);
+	p->setNStoredResults(nPar_);
 
 	for(std::size_t npar=0; npar<nPar_; npar++) {
 		// GConstrainedDoubleObject cannot assume value below or above par_min_/max_

@@ -150,7 +150,8 @@ const std::size_t DEFNRECORDBESTINDIVIDUALS = 10;
 
 /******************************************************************************/
 /**
- * The worst allowed valid fitness value (positive or negative)
+ * The worst allowed valid fitness value (positive or negative). This
+ * value forms the upper and lower (negative) limit of a sigmoid function.
  */
 const double WORSTALLOWEDVALIDFITNESS = 10000.;
 const double FITNESSSIGMOIDSTEEPNESS  = 1000.;

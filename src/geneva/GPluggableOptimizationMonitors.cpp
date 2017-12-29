@@ -37,17 +37,17 @@
 /******************************************************************************/
 // Exports of classes
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStandardMonitor)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFitnessMonitor)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCollectiveMonitor)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProgressPlotter)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAllSolutionFileLogger)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GIterationResultsFileLogger)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNAdpationsLogger)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<double>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<bool>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProcessingTimesLogger)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GStandardMonitor) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GFitnessMonitor) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GCollectiveMonitor) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProgressPlotter) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAllSolutionFileLogger) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GIterationResultsFileLogger) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GNAdpationsLogger) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<double>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<bool>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProcessingTimesLogger) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -274,7 +274,7 @@ void GFitnessMonitor::setDims(const std::uint32_t &xDim, const std::uint32_t &yD
  * @return The dimensions of the canvas as a tuple
  */
 std::tuple<std::uint32_t, std::uint32_t> GFitnessMonitor::getDims() const {
-	return std::tuple<std::uint32_t, std::uint32_t>(m_xDim, m_yDim);
+	return {m_xDim, m_yDim};
 }
 
 /******************************************************************************/
@@ -434,25 +434,18 @@ void GFitnessMonitor::informationFunction(
 				global_it=m_globalFitnessGraphVec.begin(), iter_it=m_iterationFitnessGraphVec.begin(), global_ind_it = global_bests.begin(), iter_ind_it = iter_bests.begin()
 				; global_it != m_globalFitnessGraphVec.end()
 				; ++global_it, ++iter_it, ++global_ind_it, ++iter_ind_it
-				) {
-				(*global_it)->add(boost::numeric_cast<double>(iteration), (*global_ind_it)->fitness());
-				(*iter_it  )->add(boost::numeric_cast<double>(iteration), (*iter_ind_it  )->fitness());
+			) {
+				(*global_it)->add(boost::numeric_cast<double>(iteration), (*global_ind_it)->raw_fitness(0));
+				(*iter_it  )->add(boost::numeric_cast<double>(iteration), (*iter_ind_it  )->raw_fitness(0));
 			}
 
 			//------------------------------------------------------------------------------
 
-		} break;
+		}
+			break;
 
-		case Gem::Geneva::infoMode::INFOEND: {
-			/* nothing */
-		} break;
-
-		default: {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GFitnessMonitor::informationFunction(): Received invalid infoMode " << im << std::endl
-			);
-		} break;
+		case Gem::Geneva::infoMode::INFOEND: { /* nothing */ }
+			break;
 	}
 }
 
@@ -613,7 +606,7 @@ void GCollectiveMonitor::informationFunction(
 	const infoMode& im
 	, G_OptimizationAlgorithm_Base *const goa
 )  {
-	for(auto pm_ptr : m_pluggable_monitors) { // std::shared_ptr may be copied
+	for(const auto& pm_ptr : m_pluggable_monitors) { // std::shared_ptr may be copied
 		pm_ptr->informationFunction(im,goa);
 	}
 }
@@ -869,7 +862,7 @@ void GAllSolutionFileLogger::compare(
 /**
  * Sets the file name
  */
-void GAllSolutionFileLogger::setFileName(std::string fileName) {
+void GAllSolutionFileLogger::setFileName(const std::string& fileName) {
 	m_fileName = fileName;
 }
 
@@ -885,7 +878,7 @@ std::string GAllSolutionFileLogger::getFileName() const {
 /**
  * Sets the boundaries
  */
-void GAllSolutionFileLogger::setBoundaries(std::vector<double> boundaries) {
+void GAllSolutionFileLogger::setBoundaries(const std::vector<double>& boundaries) {
 	m_boundaries = boundaries;
 	m_boundariesActive = true;
 }
@@ -1057,15 +1050,6 @@ void GAllSolutionFileLogger::informationFunction(
 		case Gem::Geneva::infoMode::INFOEND:
 			// nothing
 			break;
-
-		default:
-		{
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GAllSolutionFileLogger: Received invalid infoMode " << im << std::endl
-			);
-		}
-			break;
 	};
 }
 
@@ -1131,7 +1115,7 @@ void GAllSolutionFileLogger::printPopulation(
 			if(0 == pos && goa->inFirstIteration()) { // Only output name and type in the very first line (if at all)
 				data << ind->toCSV(m_withNameAndType, m_withCommas, m_useRawFitness, m_showValidity);
 			} else {
-				data << ind->toCSV(false, m_withCommas, m_useRawFitness, m_showValidity);
+				data << ind->toCSV(false /* withNameAndType */, m_withCommas, m_useRawFitness, m_showValidity);
 			}
 		}
 	}
@@ -1269,7 +1253,7 @@ void GIterationResultsFileLogger::compare(
 /**
  * Sets the file name
  */
-void GIterationResultsFileLogger::setFileName(std::string fileName) {
+void GIterationResultsFileLogger::setFileName(const std::string& fileName) {
 	m_fileName = fileName;
 }
 
@@ -1351,9 +1335,9 @@ void GIterationResultsFileLogger::informationFunction(
 			std::size_t nIndividuals = goa->size();
 			for(std::size_t pos=0; pos<nIndividuals; pos++) {
 				std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-				fitnessVec = goa->at(pos)->fitnessVec(m_useRawFitness);
+				fitnessVec = goa->at(pos)->raw_fitness_vec();
 
-				std::size_t nFitnessCriteria = goa->at(0)->getNumberOfFitnessCriteria();
+				std::size_t nFitnessCriteria = goa->at(0)->getNStoredResults();
 				for(std::size_t i=0; i<nFitnessCriteria; i++) {
 					data << fitnessVec.at(i) << ((m_withCommas && (nFitnessCriteria*nIndividuals > (i+1)*(pos+1)))?", ":" ");
 				}
@@ -1367,15 +1351,6 @@ void GIterationResultsFileLogger::informationFunction(
 
 		case Gem::Geneva::infoMode::INFOEND:
 			// nothing
-			break;
-
-		default:
-		{
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GIterationResultsFileLogger: Received invalid infoMode " << im << std::endl
-			);
-		}
 			break;
 	};
 }
@@ -1557,7 +1532,7 @@ void GNAdpationsLogger::compare(
 /**
  * Sets the file name
  */
-void GNAdpationsLogger::setFileName(std::string fileName) {
+void GNAdpationsLogger::setFileName(const std::string& fileName) {
 	m_fileName = fileName;
 }
 
@@ -1670,7 +1645,7 @@ void GNAdpationsLogger::informationFunction(
 
 			// Record the current fitness
 			std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-			(*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), double(p->fitness()));
+			(*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), p->raw_fitness(0));
 
 			// Update the largest known iteration and the number of recorded iterations
 			m_maxIteration = iteration;
@@ -1679,12 +1654,12 @@ void GNAdpationsLogger::informationFunction(
 			// Do the actual logging
 			if(m_monitorBestOnly) {
 				std::shared_ptr<GParameterSet> best = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-				m_nAdaptionsStore.push_back(std::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
+				m_nAdaptionsStore.emplace_back(std::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
 			} else { // Monitor all individuals
 				// Loop over all individuals of the algorithm.
 				for(std::size_t pos=0; pos<goa->size(); pos++) {
 					std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-					m_nAdaptionsStore.push_back(std::tuple<double,double>(double(iteration), double(ind->getNAdaptions())));
+					m_nAdaptionsStore.emplace_back(std::tuple<double,double>(double(iteration), double(ind->getNAdaptions())));
 				}
 			}
 		}
@@ -1754,15 +1729,6 @@ void GNAdpationsLogger::informationFunction(
 			m_gpd.resetPlotters();
 			m_nAdaptionsHist2D_oa.reset();
 			m_nAdaptionsGraph2D_oa.reset();
-		}
-			break;
-
-		default:
-		{
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GNAdpationsLogger: Received invalid infoMode " << im << std::endl
-			);
 		}
 			break;
 	};
@@ -1978,7 +1944,7 @@ void GProcessingTimesLogger::compare(
 /**
  * Sets the file name for the processing times histogram
  */
-void GProcessingTimesLogger::setFileName_pth(std::string fileName) {
+void GProcessingTimesLogger::setFileName_pth(const std::string& fileName) {
 	m_fileName_pth = fileName;
 }
 
@@ -1994,7 +1960,7 @@ std::string GProcessingTimesLogger::getFileName_pth() const {
 /**
  * Sets the file name for the processing times histograms (2D)
  */
-void GProcessingTimesLogger::setFileName_pth2(std::string fileName) {
+void GProcessingTimesLogger::setFileName_pth2(const std::string& fileName) {
 	m_fileName_pth2 = fileName;
 }
 
@@ -2010,7 +1976,7 @@ std::string GProcessingTimesLogger::getFileName_pth2() const {
 /**
  * Sets the file name for the text output
  */
-void GProcessingTimesLogger::setFileName_txt(std::string fileName) {
+void GProcessingTimesLogger::setFileName_txt(const std::string& fileName) {
 	m_fileName_txt = fileName;
 }
 
@@ -2260,7 +2226,7 @@ void GProcessingTimesLogger::informationFunction(
 			boost::filesystem::ofstream data_txt(m_fileName_txt, std::ofstream::app);
 
 			// Retrieve the current iteration in the population
-			double iteration = boost::numeric_cast<double>(goa->getIteration());
+			auto iteration = boost::numeric_cast<double>(goa->getIteration());
 
 			// Loop over all individuals of the algorithm.
 			for(std::size_t pos=0; pos<goa->size(); pos++) {

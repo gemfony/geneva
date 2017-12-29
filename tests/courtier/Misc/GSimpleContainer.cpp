@@ -46,19 +46,17 @@ namespace Tests {
  *
  * @param snr The number to be stored in the object
  */
-GSimpleContainer::GSimpleContainer(const std::size_t& snr) : m_stored_number(snr)
+GSimpleContainer::GSimpleContainer(const std::size_t& snr)
+	: Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>(1)
+	, m_stored_number(snr)
 { /* nothing */ }
 
 /********************************************************************************************/
 /**
  * Allows to specify the tasks to be performed for this object. We simply do nothing,
  * as this class is for debugging and benchmarking purposes only.
- *
- * @return A boolean which indicates whether a useful result was obtained
  */
-bool GSimpleContainer::process_() {
-	return true;
-}
+void GSimpleContainer::process_() { /* nothing */ }
 
 /********************************************************************************************/
 /**

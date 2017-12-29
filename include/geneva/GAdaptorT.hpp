@@ -573,10 +573,7 @@ public:
 	  */
 	 std::tuple<fp_type, fp_type> getAdProbRange() const
 	 {
-		 return std::tuple<fp_type, fp_type>(
-			 m_minAdProb
-			 , m_maxAdProb
-		 );
+		 return {m_minAdProb, m_maxAdProb};
 	 }
 
 	 /***************************************************************************/

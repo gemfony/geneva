@@ -34,7 +34,7 @@
 
 #include "geneva/GParameterSetFixedSizePriorityQueue.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSetFixedSizePriorityQueue)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSetFixedSizePriorityQueue) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -125,12 +125,11 @@ Gem::Common::GFixedSizePriorityQueueT<GParameterSet> * GParameterSetFixedSizePri
  */
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 	pos = 0;
-	std::deque<std::shared_ptr < GParameterSet>> ::const_iterator cit;
-	for (cit = m_data.begin(); cit != m_data.end(); ++cit) {
-		if (true == (*cit)->isDirty()) {
-			pos = std::distance(m_data.begin(), cit);
+	for(const auto& item_ptr: m_data) {
+		if (false == item_ptr->is_processed()) {
 			return false;
 		}
+		pos++;
 	}
 
 	return true;
@@ -141,10 +140,10 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
  * Emits information about the "dirty flag" of all items
  */
 std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
+	std::size_t pos = 0;
 	std::ostringstream oss;
-	std::deque<std::shared_ptr < GParameterSet>> ::const_iterator cit;
-	for (cit = m_data.begin(); cit != m_data.end(); ++cit) {
-		oss << "(" << std::distance(m_data.begin(), cit) << ", " << ((*cit)->isDirty() ? "d" : "c") << ") ";
+	for(const auto& item_ptr: m_data) {
+		oss << "(" << pos++ << ", " << (!item_ptr->is_processed() ? "d" : "c") << ") ";
 	}
 
 	return oss.str();

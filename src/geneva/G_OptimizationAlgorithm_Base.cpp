@@ -1395,7 +1395,7 @@ void G_OptimizationAlgorithm_Base::addCleanStoredBests(GParameterSetFixedSizePri
 	// (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
 	// resized as required by its maximum allowed size.
 	for(auto ind_ptr: *this) {
-		if(ind_ptr->isClean()) {
+		if(ind_ptr->is_processed()) {
 			bestIndividuals.add(ind_ptr, CLONE);
 		}
 	}

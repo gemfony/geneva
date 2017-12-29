@@ -263,7 +263,7 @@ std::string GStarterIndividual::print() {
 
 	result
 	<< "GStarterIndividual with target function " << (m_targetFunction==targetFunction::PARABOLA?" PARABOLA":" NOISY PARABOLA") << std::endl
-	<< "and fitness " << this->fitness() << " has the following parameter values:" << std::endl;
+	<< "and raw fitness " << this->raw_fitness(0) << " has the following parameter values:" << std::endl;
 
 	for(std::size_t i=0; i<parVec.size(); i++) {
 		result << i << ": " << parVec.at(i) << std::endl;

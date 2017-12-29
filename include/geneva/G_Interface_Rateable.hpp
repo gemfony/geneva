@@ -76,6 +76,11 @@ public:
 	 /** @brief Returns all transformed fitness results in a std::vector */
 	 virtual G_API_GENEVA std::vector<double> transformedFitnessVec() const BASE = 0;
 
+	 /** @brief Returns all raw fitness results in a std::vector */
+	 virtual G_API_GENEVA std::vector<double> raw_fitness_vec() const = 0;
+	 /** @brief Returns all transformed fitness results in a std::vector */
+	 virtual G_API_GENEVA std::vector<double> transformed_fitness_vec() const = 0;
+
 protected:
 	 /** @brief The destructor */
 	 G_API_GENEVA ~G_Interface_Rateable() = default;

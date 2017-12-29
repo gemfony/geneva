@@ -34,22 +34,14 @@
 
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmAlgorithm_PersonalityTraits)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmAlgorithm_PersonalityTraits) // NOLINT
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GSwarmAlgorithm_PersonalityTraits::nickname = "swarm";
-
-/******************************************************************************/
-/**
- * The default constructor
- */
-GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits()
-	: GPersonalityTraits(), neighborhood_(0), noPositionUpdate_(false), personal_best_() // empty
-	  , personal_best_quality_(std::make_tuple(0., 0.)) { /* nothing */ }
+G_API_GENEVA const std::string GSwarmAlgorithm_PersonalityTraits::nickname = "swarm"; // NOLINT
 
 /******************************************************************************/
 /**
@@ -71,12 +63,6 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(const GSwar
 		personal_best_->resetPersonality();
 	}
 }
-
-/******************************************************************************/
-/**
- * The standard destructor
- */
-GSwarmAlgorithm_PersonalityTraits::~GSwarmAlgorithm_PersonalityTraits() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -180,7 +166,7 @@ bool GSwarmAlgorithm_PersonalityTraits::checkNoPositionUpdateAndReset() {
  *
  * @param p A pointer to the personally best parameter set
  */
-void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr < GParameterSet > p) {
+void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<GParameterSet> p) {
 	// Some error checking
 #ifdef DEBUG
 	// Does it point anywhere ?
@@ -193,11 +179,11 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr < G
 	}
 
 	// Is the dirty flag set ?
-	if(p->isDirty()) {
+	if(!p->is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
-				<< "Got individual whose dirty flag is set." << std::endl
+				<< "Got individual which isn't processed." << std::endl
 		);
 	}
 #endif
@@ -323,7 +309,7 @@ void GSwarmAlgorithm_PersonalityTraits::setNeighborhood(const std::size_t &neigh
  *
  * @return The current position of this individual in the population
  */
-std::size_t GSwarmAlgorithm_PersonalityTraits::getNeighborhood(void) const {
+std::size_t GSwarmAlgorithm_PersonalityTraits::getNeighborhood() const {
 	return neighborhood_;
 }
 

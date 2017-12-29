@@ -396,7 +396,7 @@ public:
 
 		 // multi-criterion optimization. We need to set the number of fitness criteria
 		 if (metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == moTarget_) {
-			 this->setNumberOfFitnessCriteria(2);
+			 this->setNStoredResults(2);
 		 }
 	 }
 
@@ -726,14 +726,14 @@ public:
 
 		 // Stream the results
 
-		 bool dirtyFlag = this->isDirty();
-		 double transformedPrimaryFitness = dirtyFlag ? this->getWorstCase() : this->transformedFitness();
+		 bool unprocessed = (!this->is_processed() || this->has_errors());
+		 double transformedPrimaryFitness = unprocessed ? this->getWorstCase() : this->transformed_fitness(0);
 
 		 result
 			 << "============================================================================================" << std::endl;
 
 		 if (withFitness) {
-			 result << "Fitness = " << transformedPrimaryFitness << (dirtyFlag ? " // dirty flag set" : "") << std::endl;
+			 result << "Fitness = " << transformedPrimaryFitness << (unprocessed ? " // unprocessed or error" : "") << std::endl;
 		 }
 
 		 result
@@ -942,9 +942,8 @@ protected:
 			 solverCallsPerOptimization.push_back(double((iterationsConsumed + 1) * nChildren + nParents));
 			 iterationsPerOptimization.push_back(double(iterationsConsumed + 1));
 			 bestEvaluations.push_back(
-				 bestIndividual->transformedFitness()); // We use the transformed fitness to avoid MAX_DOUBLE
-
-			 std::cout << "Best individual has fitness " << bestIndividual->transformedFitness() << std::endl;
+				 bestIndividual->transformed_fitness(0)
+			 ); // We use the transformed fitness to avoid MAX_DOUBLE
 		 }
 
 		 // Calculate the average number of iterations and solver calls
@@ -959,7 +958,7 @@ protected:
 			 evaluation = std::get<0>(bestMean);
 		 } else if (metaOptimizationTarget::MC_MINSOLVER_BESTFITNESS == moTarget_) {
 			 evaluation = std::get<0>(bestMean);
-			 this->registerSecondaryResult(1, std::get<0>(sd)); // The secondary result
+			 this->setResult(1, std::get<0>(sd)); // The secondary result
 		 }
 
 		 // Emit some information
@@ -1740,7 +1739,7 @@ public:
 				 std::shared_ptr <GMetaOptimizerIndividualT<ind_type>> p = ea->clone_at<GMetaOptimizerIndividualT<ind_type>>(0);
 
 				 // Retrieve the best fitness and average sigma value and add it to our local storage
-				 (*m_progressPlotter) & std::tuple<double, double>((double) ea->getIteration(), p->fitness());
+				 (*m_progressPlotter) & std::tuple<double, double>((double) ea->getIteration(), p->raw_fitness(0));
 				 (*m_nParentPlotter) & std::tuple<double, double>((double) ea->getIteration(), (double) p->getNParents());
 				 (*m_nChildrenPlotter) & std::tuple<double, double>((double) ea->getIteration(), (double) p->getNChildren());
 				 (*m_adProbPlotter) & std::tuple<double, double>((double) ea->getIteration(), p->getAdProb());

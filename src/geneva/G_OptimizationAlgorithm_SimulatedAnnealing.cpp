@@ -36,7 +36,7 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSimulatedAnnealing)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSimulatedAnnealing) // NOLINT
 
 /******************************************************************************/
 
@@ -405,7 +405,7 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 	// through this function. There MAY be situations, where in the first iteration
 	// parents are clean, e.g. when they were extracted from another optimization.
 	for(std::size_t i=this->getNParents(); i<this->size(); i++) {
-		if(!this->at(i)->isDirty()) {
+		if(!this->at(i)->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << std::endl
@@ -512,7 +512,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 	);
 
 	// Attach all old work items to the end of the current population and clear the array of old items
-	for(auto item_ptr: old_work_items) {
+	for(const auto& item_ptr: old_work_items) {
 		this->push_back(item_ptr);
 	}
 	old_work_items.clear();
@@ -535,13 +535,13 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 		}
 	}
 
-	// Check that the dirty flag of the last individual isn't set. This is a severe error.
-	if(this->back()->isDirty()) {
+	// Check that the last individual is not unprocessed. This is a severe error.
+	if(this->back()->is_due_for_processing()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GSimulatedAnnealing::fixAfterJobSubmission(): Error!" << std::endl
-				<< "The last individual in the population has the dirty" << std::endl
-				<< "flag set, so we cannot use it for cloning" << std::endl
+				<< "In GSimulatedAnnealing::fixAfterJobSubmission():" << std::endl
+				<< "The last individual in the population is is unprocessed" << std::endl
+				<< "so we cannot use it for cloning" << std::endl
 		);
 	}
 
@@ -613,11 +613,9 @@ void GSimulatedAnnealing::selectBest() {
   * @return The range inside which evaluation should take place
   */
 std::tuple<std::size_t,std::size_t> GSimulatedAnnealing::getEvaluationRange() const {
-// We evaluate all individuals in the first iteration This happens so pluggable
-// optimization monitors do not need to distinguish between algorithms
-	return std::tuple<std::size_t, std::size_t>(
-		this->inFirstIteration() ? 0 : this->getNParents(), this->size()
-	);
+	// We evaluate all individuals in the first iteration This happens so pluggable
+	// optimization monitors do not need to distinguish between algorithms
+	return {this->inFirstIteration() ? 0 : this->getNParents(), this->size()};
 }
 
 /******************************************************************************/

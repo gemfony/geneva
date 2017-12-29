@@ -35,7 +35,7 @@
 #include "geneva/GPostProcessorT.hpp"
 
 // Export of GEvolutionaryAlgorithmPostOptimizer
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -63,7 +63,7 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
 			break;
 
 		case execMode::BROKER:
-		default: {
+		{
 			glogger
 				<< "In GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(execMode): Error!"
 				<< std::endl
@@ -71,26 +71,9 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
 				<< "The mode was reset to execMode::SERIAL" << std::endl
 				<< GWARNING;
 		}
+			break;
 	}
 }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp) :
-	GPostProcessorBaseT<GParameterSet>(cp)
-	, m_oa_configFile(cp.m_oa_configFile)
-	, m_executor_configFile(cp.m_executor_configFile)
-	, m_executionMode(cp.m_executionMode) // We assume that a valid execution mode is stored here
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GEvolutionaryAlgorithmPostOptimizer::~GEvolutionaryAlgorithmPostOptimizer()
-{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -148,13 +131,14 @@ void GEvolutionaryAlgorithmPostOptimizer::setExecMode(execMode executionMode)
 			break;
 
 		case execMode::BROKER:
-		default: {
+		{
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GEvolutionaryAlgorithmPostOptimizer::setExecMode(): Error!" << std::endl
 					<< "Got invalid execution mode " << executionMode << std::endl
 			);
 		}
+			break;
 	}
 }
 
@@ -170,7 +154,7 @@ execMode GEvolutionaryAlgorithmPostOptimizer::getExecMode() const {
 /**
  * Allows to specify the name of a configuration file
  */
-void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(std::string oa_configFile) {
+void GEvolutionaryAlgorithmPostOptimizer::setOAConfigFile(const std::string& oa_configFile) {
 	m_oa_configFile = oa_configFile;
 }
 
@@ -186,7 +170,7 @@ std::string GEvolutionaryAlgorithmPostOptimizer::getOAConfigFile() const {
 /**
  * Allows to specify the name of a configuration file for the executor
  */
-void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(std::string executorConfigFile) {
+void GEvolutionaryAlgorithmPostOptimizer::setExecutorConfigFile(const std::string& executorConfigFile) {
 	m_executor_configFile = executorConfigFile;
 }
 
@@ -230,8 +214,8 @@ Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithm
  * The actual post-processing takes place here (no further checks)
  */
 bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
-	// Make sure p is clean
-	if (p.isDirty()) {
+	// Make sure p is processed
+	if (!p.is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl
@@ -270,7 +254,7 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
 	std::shared_ptr<GParameterSet> p_opt_ptr = ea_ptr->getBestGlobalIndividual<GParameterSet>();
 
 	// Make sure subsequent optimization cycles may generally perform post-optimization again.
-	// THis needs to be done on the optimized individual, as it will be loaded into the
+	// This needs to be done on the optimized individual, as it will be loaded into the
 	// original individual.
 	p_opt_ptr->vetoPostProcessing(false);
 

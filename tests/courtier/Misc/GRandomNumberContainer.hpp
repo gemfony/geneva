@@ -74,7 +74,7 @@ namespace Tests {
  * This class implements a container of random objects, used for tests of the courtier lib.
  */
 class GRandomNumberContainer
-	:public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>
+	: public Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -102,9 +102,8 @@ public:
 private:
 	 /** @brief The default constructor -- only needed for de-serialization purposes */
 	 GRandomNumberContainer() = default;
-
 	 /** @brief Allows to specify the tasks to be performed for this object */
-	 virtual bool process_() override;
+	 virtual void process_() override;
 
 	 std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
 };

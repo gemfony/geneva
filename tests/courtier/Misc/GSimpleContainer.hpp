@@ -74,7 +74,7 @@ namespace Tests {
  * This class implements the simplest-possible container object, used for tests of the courtier lib.
  */
 class GSimpleContainer
-	:public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>
+	: public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -103,9 +103,8 @@ public:
 private:
 	 /** @brief The default constructor -- only needed for de-serialization purposes */
 	 GSimpleContainer() = default;
-
 	 /** @brief Allows to specify the tasks to be performed for this object */
-	 virtual bool process_() override;
+	 virtual void process_() override;
 
 	 std::size_t m_stored_number = 0; ///< Holds the pay-load of this object
 };

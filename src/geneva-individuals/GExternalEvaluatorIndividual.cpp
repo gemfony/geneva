@@ -279,14 +279,21 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 	);
 
 	if (errorCode) { // Something went wrong
-		glogger
+		std::ostringstream error_message;
+
+		error_message
 			<< "In GExternalEvaluatorIndividual::fitnessCalculation():" << std::endl
 			<< "Execution of external command failed." << std::endl
 			<< "Command: " << command << std::endl
 			<< "Error code: " << errorCode << std::endl
 			<< "Program output:" << std::endl
-			<< Gem::Common::loadTextDataFromFile(commandOutputFileName) << std::endl
+			<< Gem::Common::loadTextDataFromFile(commandOutputFileName) << std::endl;
+
+#ifdef DEBUG
+		glogger
+			<< error_message.str()
 			<< GWARNING;
+#endif
 
 		// O.k., so the external application crashed or returned an error.
 		// All we can do here is to return the worst case. As long as crashes
@@ -294,11 +301,11 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 		// the optimization.
 		main_result = this->getWorstCase();
 		for (std::size_t res = 1; res < m_n_results; res++) {
-			this->registerSecondaryResult(res, this->getWorstCase());
+			this->setResult(res, this->getWorstCase());
 		}
 
 		// Make sure the individual can be recognized as invalid by Geneva
-		this->markAsInvalid();
+		this->force_set_error(error_message.str());
 	} else { // Everything is o.k., lets retrieve the evaluation
 		// Check that the result file exists
 		if (!bf::exists(resultFileName)) {
@@ -363,13 +370,25 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 		// Check whether the results represent useful values
 		bool isValid = ptr_in.get<bool>("batch.individuals.individual0.isValid");
 		if (!isValid) { // Assign worst-case values to all result
+			std::ostringstream error_message;
+
+			error_message
+				<< "In GExternalEvaluatorIndividual::fitnessCalculation():" << std::endl
+				<< "batch.individuals.individual0.isValid is \"false\"" << std::endl;
+
+#ifdef DEBUG
+			glogger
+				<< error_message.str()
+				<< GWARNING;
+#endif
+
 			main_result = this->getWorstCase();
 			for (std::size_t res = 1; res < m_n_results; res++) {
-				this->registerSecondaryResult(res, this->getWorstCase());
+				this->setResult(res, this->getWorstCase());
 			}
 
 			// Make sure the individual can be recognized as invalid by Geneva
-			this->markAsInvalid();
+			this->force_set_error(error_message.str());
 		} else { // Extract and store all result values
 			// Get the results node
 			pt::ptree resultsNode = ptr_in.get_child("batch.individuals.individual0.results");
@@ -385,7 +404,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 					main_result = currentResult;
 				}
 				else {
-					this->registerSecondaryResult(res, currentResult);
+					this->setResult(res, currentResult);
 				}
 			}
 		}

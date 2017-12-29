@@ -78,14 +78,14 @@ public:
 	 static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
 	 /** @brief The default constructor */
-	 G_API_GENEVA GSwarmAlgorithm_PersonalityTraits();
+	 G_API_GENEVA GSwarmAlgorithm_PersonalityTraits() = default;
 	 /** @brief The copy contructor */
 	 G_API_GENEVA GSwarmAlgorithm_PersonalityTraits(const GSwarmAlgorithm_PersonalityTraits&);
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GSwarmAlgorithm_PersonalityTraits();
+	 G_API_GENEVA ~GSwarmAlgorithm_PersonalityTraits() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -94,7 +94,7 @@ public:
 	 /** @brief Specifies in which neighborhood the individual is at present */
 	 G_API_GENEVA void setNeighborhood(const std::size_t&) ;
 	 /** @brief Retrieves the id of the neighborhood the individual is in at present */
-	 G_API_GENEVA std::size_t getNeighborhood(void) const;
+	 G_API_GENEVA std::size_t getNeighborhood() const;
 
 	 /** @brief Sets the noPositionUpdate_ flag */
 	 G_API_GENEVA void setNoPositionUpdate();
@@ -125,15 +125,15 @@ protected:
 
 private:
 	 /** @brief Stores the current position in the population */
-	 std::size_t neighborhood_;
+	 std::size_t neighborhood_ = 0;
 
 	 /** @brief Determines whether the individual has been randomly initialized */
-	 bool noPositionUpdate_;
+	 bool noPositionUpdate_ = false;
 
 	 /** @brief Holds the personally best GParameterSet */
 	 std::shared_ptr<GParameterSet> personal_best_;
 	 /** @brief The quality of the personally best individual */
-	 std::tuple<double, double> personal_best_quality_;
+	 std::tuple<double, double> personal_best_quality_{0.,0.};
 
 public:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
