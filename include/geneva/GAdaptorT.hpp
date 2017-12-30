@@ -480,7 +480,7 @@ public:
 	  * Allows to specify whether adaptions should happen always, never, or with a given
 	  * probability. This uses the boost::logic::tribool class. The function is declared
 	  * virtual so adaptors requiring adaptions to happen always or never can prevent
-	  * resetting of the adaptionMode_ variable.
+	  * resetting of the m_adaptionMode variable.
 	  *
 	  * @param adaptionMode The desired mode (always/never/with a given probability)
 	  */

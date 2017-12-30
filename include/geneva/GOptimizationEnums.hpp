@@ -531,6 +531,13 @@ const double DEFAULTADAPTADAPTIONPROB = 0.1; // 10 percent probability for the a
 
 /******************************************************************************/
 // Adaption modes
+
+enum class adaptionMode : Gem::Common::ENUMBASETYPE {
+	 ALWAYS = 0
+	 , WITHPROBABILITY = 1
+	 , NEVER = 2
+};
+
 const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; // Adapt should happen with a given probability
 const boost::logic::tribool ADAPTALWAYS = true; // Always adapt, independent of probability settings
 const boost::logic::tribool ADAPTWITHPROB = boost::logic::indeterminate; // Adapt according to the set probability
@@ -627,6 +634,12 @@ G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRu
 
 /** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
 G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::updateRule&);
+
+/** @brief Puts a Gem::Geneva::adaptionMode into a stream. Needed also for boost::lexical_cast<> */
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::adaptionMode&);
+
+/** @brief Reads a Gem::Geneva::adaptionMode from a stream. Needed also for boost::lexical_cast<> */
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::adaptionMode&);
 
 /******************************************************************************/
 
