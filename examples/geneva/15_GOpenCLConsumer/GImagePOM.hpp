@@ -184,7 +184,7 @@ public:
 	  * Returns the dimensions used to store result images
 	  */
 	 std::tuple<std::size_t, std::size_t> getImageDimensions() const {
-		 return std::tuple<std::size_t, std::size_t>(dimX_, dimY_);
+		 return {dimX_, dimY_};
 	 }
 
 	 /***************************************************************************/

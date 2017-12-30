@@ -3507,7 +3507,7 @@ void GPlotDesigner::setCanvasDimensions(
  * @return A std::tuple holding the canvas dimensions
  */
 std::tuple<std::uint32_t, std::uint32_t> GPlotDesigner::getCanvasDimensions() const {
-	return std::tuple<std::uint32_t, std::uint32_t>(c_x_dim_, c_y_dim_);
+	return {c_x_dim_, c_y_dim_};
 }
 
 /******************************************************************************/

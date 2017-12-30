@@ -192,7 +192,6 @@ class GParameterSet
 		 & BOOST_SERIALIZATION_NVP(m_perItemCrossOverProbability)
 		 & BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness)
 		 & BOOST_SERIALIZATION_NVP(m_n_stalls)
-		 & BOOST_SERIALIZATION_NVP(m_dirty_flag)
 		 & BOOST_SERIALIZATION_NVP(m_maxmode)
 		 & BOOST_SERIALIZATION_NVP(m_assigned_iteration)
 		 & BOOST_SERIALIZATION_NVP(m_validity_level)
@@ -280,9 +279,9 @@ public:
 	 G_API_GENEVA std::size_t adapt() override;
 
 	 /** @brief Retrieves the stored raw fitness with a given id */
-	 G_API_GENEVA double raw_fitness(std::size_t = 0) const;
+	 G_API_GENEVA double raw_fitness(std::size_t = 0) const override;
 	 /** @brief Retrieves the stored transformed fitness with a given id */
-	 G_API_GENEVA double transformed_fitness(std::size_t = 0) const;
+	 G_API_GENEVA double transformed_fitness(std::size_t = 0) const override;
 
 	 /** @brief Returns all raw fitness results in a std::vector */
 	 G_API_GENEVA std::vector<double> raw_fitness_vec() const override;
@@ -903,10 +902,6 @@ protected:
 	 /** @brief Sets the fitness to a given set of values and clears the dirty flag */
 	 G_API_GENEVA void setFitness_(const std::vector<double>&);
 
-	 /** @brief Sets the dirtyFlag_ to any desired value */
-	 G_DEPRECATED("Use mark_as_due_for_processing() instead")
-	 G_API_GENEVA bool setDirtyFlag(bool) ;
-
 	 /** @brief Combines secondary evaluation results by adding the individual results */
 	 G_API_GENEVA double sumCombiner() const;
 	 /** @brief Combines secondary evaluation results by adding the absolute values of individual results */
@@ -954,8 +949,6 @@ private:
 	 std::tuple<double, double> m_best_past_primary_fitness{std::make_tuple(0., 0.)};
 	 /** @brief The number of stalls of the primary fitness criterion in the entire set of individuals */
 	 std::uint32_t m_n_stalls = 0;
-	 /** @brief Internal representation of the adaption status of this object */
-	 bool m_dirty_flag = true;
 	 /** @brief Indicates whether we are using maximization or minimization mode */
 	 maxMode m_maxmode = maxMode::MINIMIZE;
 	 /** @brief The iteration of the parent algorithm's optimization cycle */

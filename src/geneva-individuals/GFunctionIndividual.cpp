@@ -812,7 +812,7 @@ void GFunctionIndividualFactory::setParDim(std::size_t parDim) {
  * Extract the minimum and maximum boundaries of the variables
  */
 std::tuple<double, double> GFunctionIndividualFactory::getVarBoundaries() const {
-	return std::tuple<double, double>{minVar_, maxVar_};
+	return {minVar_, maxVar_};
 }
 
 /******************************************************************************/
@@ -986,7 +986,7 @@ void GFunctionIndividualFactory::setMinDelta(double minDelta) {
  * Allows to retrieve the allowed value range of delta
  */
 std::tuple<double, double> GFunctionIndividualFactory::getDeltaRange() const {
-	return std::tuple<double, double>{minDelta_, maxDelta_};
+	return {minDelta_, maxDelta_};
 }
 
 /******************************************************************************/
@@ -1038,7 +1038,7 @@ void GFunctionIndividualFactory::setMinSigma1(double minSigma1) {
  * Allows to retrieve the allowed value range of sigma1_
  */
 std::tuple<double, double> GFunctionIndividualFactory::getSigma1Range() const {
-	return std::tuple<double, double>{minSigma1_, maxSigma1_};
+	return {minSigma1_, maxSigma1_};
 }
 
 /******************************************************************************/
@@ -1090,7 +1090,7 @@ void GFunctionIndividualFactory::setMinSigma2(double minSigma2) {
  * Allows to retrieve the allowed value range of sigma2_
  */
 std::tuple<double, double> GFunctionIndividualFactory::getSigma2Range() const {
-	return std::tuple<double, double>{minSigma2_, maxSigma2_};
+	return {minSigma2_, maxSigma2_};
 }
 
 /******************************************************************************/
@@ -1288,7 +1288,7 @@ void GFunctionIndividualFactory::setAdaptAdProb(double adaptAdProb) {
  * Allows to retrieve the allowed range for adProb_ variation
  */
 std::tuple<double, double> GFunctionIndividualFactory::getAdProbRange() const {
-	return std::tuple<double, double>{minAdProb_.value(), maxAdProb_.value()};
+	return {minAdProb_.value(), maxAdProb_.value()};
 }
 
 /******************************************************************************/

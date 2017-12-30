@@ -167,7 +167,7 @@ GObject *GConjugateGradientDescent::clone_() const {
  */
 std::tuple<double, double> GConjugateGradientDescent::cycleLogic() {
 	// return bestFitness;
-	return std::tuple<double, double>(0., 0.);
+	return {0., 0.};
 }
 
 

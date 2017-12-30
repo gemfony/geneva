@@ -111,7 +111,7 @@ std::tuple<std::shared_ptr<cl_uchar>, std::size_t> GOpenCLCanvas::getOpenCLCanva
 		}
 	}
 
-	return std::tuple<std::shared_ptr<cl_uchar>, std::size_t>(oclCanvasData, 4*this->getNPixels());
+	return {oclCanvasData, 4*this->getNPixels()};
 }
 
 
@@ -166,7 +166,7 @@ std::tuple<std::shared_ptr<cl_float>, std::size_t> GOpenCLCanvas::getOpenCLCanva
 		}
 	}
 
-	return std::tuple<std::shared_ptr<cl_float>, std::size_t>(oclCanvasData, 4*this->getNPixels());
+	return {oclCanvasData, 4*this->getNPixels()};
 }
 
 
@@ -221,7 +221,7 @@ std::tuple<std::shared_ptr<cl_float4>, std::size_t> GOpenCLCanvas::getOpenCLCanv
 		}
 	}
 
-	return std::tuple<std::shared_ptr<cl_float4>, std::size_t>(oclCanvasData, this->getNPixels());
+	return {oclCanvasData, this->getNPixels()};
 }
 
 

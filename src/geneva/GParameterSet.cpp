@@ -219,7 +219,6 @@ GParameterSet::GParameterSet(const GParameterSet &cp)
    , m_perItemCrossOverProbability(cp.m_perItemCrossOverProbability)
    , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
    , m_n_stalls(cp.m_n_stalls)
-   , m_dirty_flag(cp.m_dirty_flag)
    , m_maxmode(cp.m_maxmode)
    , m_assigned_iteration(cp.m_assigned_iteration)
    , m_validity_level(cp.m_validity_level)
@@ -265,7 +264,6 @@ void GParameterSet::compare(
 	compare_t(IDENTITY(m_perItemCrossOverProbability, p_load->m_perItemCrossOverProbability), token);
 	compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
 	compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
-	compare_t(IDENTITY(m_dirty_flag, p_load->m_dirty_flag), token);
 	compare_t(IDENTITY(m_maxmode, p_load->m_maxmode), token);
 	compare_t(IDENTITY(m_assigned_iteration, p_load->m_assigned_iteration), token);
 	compare_t(IDENTITY(m_validity_level, p_load->m_validity_level), token);
@@ -1828,7 +1826,6 @@ void GParameterSet::load_(const GObject *cp) {
 	m_perItemCrossOverProbability = p_load->m_perItemCrossOverProbability;
 	m_best_past_primary_fitness = p_load->m_best_past_primary_fitness;
 	m_n_stalls = p_load->m_n_stalls;
-	m_dirty_flag = p_load->m_dirty_flag;
 	m_maxmode = p_load->m_maxmode;
 	m_assigned_iteration = p_load->m_assigned_iteration;
 	m_validity_level = p_load->m_validity_level;
@@ -1968,33 +1965,6 @@ void GParameterSet::setFitness_(const std::vector<double> &f_vec) {
 		}
 	}
 }
-
-/******************************************************************************/
-/**
- * Sets the dirtyFlag_ to any desired value
- *
- * TODO: fix
- *
- * @param dirtyFlag The new value for the dirtyFlag_ variable
- * @return The previous value of the dirtyFlag_ variable
- */
-bool GParameterSet::setDirtyFlag(
-	bool dirtyFlag
-) {
-	bool previous = m_dirty_flag;
-	m_dirty_flag = dirtyFlag;
-
-	if(true==m_dirty_flag) {
-		this->reset_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
-	}
-
-	return previous;
-}
-
-/* ----------------------------------------------------------------------------------
- * Tested in GParameterSet::specificTestsNoFailureExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**

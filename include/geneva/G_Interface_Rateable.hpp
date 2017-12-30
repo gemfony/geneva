@@ -76,6 +76,12 @@ public:
 	 /** @brief Returns all transformed fitness results in a std::vector */
 	 virtual G_API_GENEVA std::vector<double> transformedFitnessVec() const BASE = 0;
 
+	 /** @brief Retrieves the stored raw fitness with a given id */
+	 virtual G_API_GENEVA double raw_fitness(std::size_t = 0) const = 0;
+	 /** @brief Retrieves the stored transformed fitness with a given id */
+	 virtual G_API_GENEVA double transformed_fitness(std::size_t = 0) const = 0;
+
+
 	 /** @brief Returns all raw fitness results in a std::vector */
 	 virtual G_API_GENEVA std::vector<double> raw_fitness_vec() const = 0;
 	 /** @brief Returns all transformed fitness results in a std::vector */

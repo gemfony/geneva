@@ -125,7 +125,6 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_raw_submission_time)
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_proc_retrieval_time)
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_proc_submission_time)
-		 & BOOST_SERIALIZATION_NVP(m_n_stored_results)
 		 & BOOST_SERIALIZATION_NVP(m_stored_results_vec)
 		 & BOOST_SERIALIZATION_NVP(m_stored_error_descriptions)
 		 & BOOST_SERIALIZATION_NVP(m_processing_status)
@@ -143,8 +142,7 @@ public:
 	  * Initialization with the number of stored results
 	  */
 	 explicit GProcessingContainerT(std::size_t n_stored_results)
-	 	: m_n_stored_results(n_stored_results)
-	 	, m_stored_results_vec(n_stored_results)
+	 	: m_stored_results_vec(n_stored_results, processing_result_type())
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -167,7 +165,6 @@ public:
 		 , m_bufferport_raw_submission_time(cp.m_bufferport_raw_submission_time)
 		 , m_bufferport_proc_retrieval_time(cp.m_bufferport_proc_retrieval_time)
 		 , m_bufferport_proc_submission_time(cp.m_bufferport_proc_submission_time)
-		 , m_n_stored_results(cp.m_n_stored_results)
 	 	 , m_stored_results_vec(cp.m_stored_results_vec) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
 		 , m_stored_error_descriptions(cp.m_stored_error_descriptions)
 		 , m_processing_status(cp.m_processing_status)
@@ -698,7 +695,7 @@ public:
 	  * Allows to retrieve the number of stored results
 	  */
 	 std::size_t getNStoredResults() const {
-		 return m_n_stored_results;
+		 return m_stored_results_vec.size();
 	 }
 
 	 /***************************************************************************/
@@ -724,7 +721,6 @@ public:
 		 m_bufferport_raw_retrieval_time = p_load->m_bufferport_raw_retrieval_time;
 		 m_bufferport_proc_submission_time = p_load->m_bufferport_proc_submission_time;
 		 m_bufferport_proc_retrieval_time = p_load->m_bufferport_proc_retrieval_time;
-		 m_n_stored_results = p_load->m_n_stored_results;
 		 m_stored_results_vec = p_load->m_stored_results_vec; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
 		 m_stored_error_descriptions = p_load->m_stored_error_descriptions;
 		 m_processing_status = p_load->m_processing_status;
@@ -757,7 +753,6 @@ protected:
 		 , processing_result_type new_val
 	 ) {
 		 m_stored_results_vec.resize(n_stored_results, new_val);
-		 m_n_stored_results = n_stored_results;
 	 }
 
 	 /***************************************************************************/
@@ -883,8 +878,7 @@ private:
 	 std::chrono::high_resolution_clock::time_point m_bufferport_proc_retrieval_time;  ///< Time when the item was retrieved from the processed queue
 	 std::chrono::high_resolution_clock::time_point m_bufferport_proc_submission_time; ///< Time when the item was submitted to the processed queue
 
-	 std::size_t m_n_stored_results = 1; ///< The number of results to be stored in this item (should be at least 1)
-	 std::vector<processing_result_type> m_stored_results_vec = std::vector<processing_result_type>(m_n_stored_results, processing_result_type()); ///< The results stored by this object
+	 std::vector<processing_result_type> m_stored_results_vec = std::vector<processing_result_type>(1, processing_result_type()); ///< The results stored by this object
 
 	 std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
 	 processingStatus m_processing_status = processingStatus::IGNORE; ///< By default no processing is initiated
