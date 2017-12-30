@@ -484,8 +484,7 @@ public:
 	  *
 	  * @param adaptionMode The desired mode (always/never/with a given probability)
 	  */
-	 virtual void setAdaptionMode(boost::logic::tribool adaptionMode)
-	 {
+	 virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
 		 m_adaptionMode = adaptionMode;
 	 }
 
@@ -501,8 +500,7 @@ public:
 	  *
 	  * @return The current value of the adaptionMode_ variable
 	  */
-	 boost::logic::tribool getAdaptionMode() const
-	 {
+	 boost::logic::tribool getAdaptionMode() const {
 		 return m_adaptionMode;
 	 }
 

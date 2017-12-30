@@ -764,7 +764,8 @@ protected:
 	 void setNStoredResults(
 		 std::size_t n_stored_results
 	 ) {
-		 this->setNStoredResults(n_stored_results, processing_result_type());
+		 processing_result_type p;
+		 this->setNStoredResults(n_stored_results, p);
 	 }
 
 	 /***************************************************************************/
@@ -808,7 +809,8 @@ private:
 	 void clear_stored_results_vec() {
 		 // "Nullify the result list. We cannot use range-based for here, as m_stored_results_vec might hold booleans
 		 for(auto it=m_stored_results_vec.begin(); it!=m_stored_results_vec.end(); ++it) {
-			 *it = processing_result_type();
+			 processing_result_type p;
+			 *it = p;
 		 }
 	 }
 

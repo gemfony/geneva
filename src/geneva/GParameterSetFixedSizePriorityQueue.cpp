@@ -41,22 +41,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * Initialization with the maximum size
+ * Initialization with the maximum size. The GParameterSetFixedSizePriorityQueue is
+ * targetted at optimization algorithms, which only understand "minimization". Hence
+ * "lower is better" is the only allowed mode of operation of this priority queue.
  */
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const std::size_t &maxSize)
-	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Initialization with the maximum size and the information, whether higher or
- * lower evaluations are considered better
- */
-GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(
-	const std::size_t &maxSize
-	, const bool &higherIsBetter
-)
-	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, higherIsBetter)
+	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, Gem::Common::LOWERISBETTER)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -126,9 +116,7 @@ Gem::Common::GFixedSizePriorityQueueT<GParameterSet> * GParameterSetFixedSizePri
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 	pos = 0;
 	for(const auto& item_ptr: m_data) {
-		if (false == item_ptr->is_processed()) {
-			return false;
-		}
+		if (false == item_ptr->is_processed()) { return false; }
 		pos++;
 	}
 
@@ -170,6 +158,58 @@ std::string GParameterSetFixedSizePriorityQueue::id(
 	const std::shared_ptr <GParameterSet> &item
 ) const {
 	return item->getCurrentEvaluationID();
+}
+
+/******************************************************************************/
+/**
+ * Adds the items in the items_vec vector to the queue. This overload makes sure
+ * that only processed items (i.e. without errors and with the PROCESSED flag) are
+ * entered into the priority queue.
+ */
+void GParameterSetFixedSizePriorityQueue::add(
+	const std::vector<std::shared_ptr<GParameterSet>>& items_vec
+	, bool do_clone
+	, bool do_replace
+) {
+	// TODO: Check here whether the items to be added are all processed / have errors etc.
+	// We only want to add items that are clean, i.e. have been successfully processed.
+
+//	std::size_t pos = 0;
+//	for(const auto& item_ptr: items_vec) {
+//		std::cout << pos++ << " " << item_ptr->getProcessingStatusAsStr() << std::endl;
+//	}
+
+	// Create a std::vector containing only processed items
+	std::vector<std::shared_ptr<GParameterSet>> processed_vec(items_vec.size());
+	auto it = std::copy_if(
+		items_vec.begin()
+		, items_vec.end()
+		, processed_vec.begin()
+		, [](const std::shared_ptr<GParameterSet>& item_ptr){
+			return item_ptr->is_processed();
+		}
+	);
+	processed_vec.resize(std::distance(processed_vec.begin(), it));
+
+	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(processed_vec, do_clone, do_replace);
+}
+
+/******************************************************************************/
+/**
+ * Adds a single item to the queue. his overload makes sure
+ * that only processed items (i.e. without errors and with the PROCESSED flag) are
+ * entered into the priority queue.
+ */
+void GParameterSetFixedSizePriorityQueue::add(
+	std::shared_ptr<GParameterSet> item_ptr
+	, bool do_clone
+) {
+	if(item_ptr->is_processed()) {
+		Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(
+			item_ptr
+			, do_clone
+		);
+	}
 }
 
 /******************************************************************************/

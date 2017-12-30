@@ -229,7 +229,7 @@ public:
 	  */
 	 virtual void add(
 		 std::shared_ptr<T> item
-		 , bool do_clone = false
+		 , bool do_clone
 	 ) {
 		 // Add the work item to the queue
 		 // - If the queue is unlimited
@@ -294,8 +294,8 @@ public:
 	  */
 	 virtual void add(
 		 const std::vector<std::shared_ptr<T>>& items
-		 , bool do_clone = false
-		 , bool replace = false
+		 , bool do_clone
+		 , bool replace
 	 ) {
 		 double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_higherIsBetter);
 		 if (true == replace || m_data.empty()) {
@@ -308,7 +308,7 @@ public:
 		 // At this point, worstKnownEvaluation will be
 		 // - the worst case, if the queue is empty or all entries in the queue will be replaced
 		 // - the evaluation of the worst entry in the queue if we only add items (regardless of whether they will be cloned or not)
-		 typename std::vector<std::shared_ptr < T>> ::const_iterator cit;
+		 typename std::vector<std::shared_ptr<T>>::const_iterator cit;
 		 for (cit = items.begin(); cit != items.end(); ++cit) {
 			 // Add the work item to the queue
 			 // - If the queue is unlimited
@@ -325,12 +325,12 @@ public:
 
 		 // Sort the data according to their ids, so we may remove duplicates
 		 std::sort(
-			 m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+			 m_data.begin(), m_data.end(), [this](const std::shared_ptr<T> &x, const std::shared_ptr<T> &y) -> bool {
 				 return this->id(x) < this->id(y);
 			 }
 		 );
 
-		 // TODO: What happens here in the case multiple identical items were added ? Won't this remove all
+		 // TODO: What happens here in the case multiple identical items were added? Won't this remove all
 		 // items after the first duplicate ?
 		 // Remove duplicate items
 		 m_data.erase(

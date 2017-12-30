@@ -92,8 +92,6 @@ public:
 	 G_API_GENEVA GParameterSetFixedSizePriorityQueue() = default;
 	 /** @brief Initialization with the maximum size */
 	 explicit G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t&);
-	 /** @brief Initialization with the maximum size and the information, whether higher or lower evaluations are considered better */
-	 G_API_GENEVA GParameterSetFixedSizePriorityQueue(const std::size_t&, const bool&);
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue& cp) = default;
 	 /** @brief The destructor */
@@ -112,6 +110,19 @@ public:
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
+
+	 /** @brief Adds the items in the items_vec vector to the queue */
+	 void add(
+		 const std::vector<std::shared_ptr<GParameterSet>>& items_vec
+		 , bool do_clone
+		 , bool replace
+	 ) override;
+
+	 /** @brief Adds a single item to the queue */
+	 void add(
+		 std::shared_ptr<GParameterSet> item
+		 , bool do_clone
+	 );
 
 protected:
 	 /***************************************************************************/
