@@ -478,14 +478,13 @@ public:
 	 /***************************************************************************/
 	 /**
 	  * Allows to specify whether adaptions should happen always, never, or with a given
-	  * probability. This uses the boost::logic::tribool class. The function is declared
-	  * virtual so adaptors requiring adaptions to happen always or never can prevent
-	  * resetting of the m_adaptionMode variable.
+	  * probability. The function is declared virtual so adaptors requiring adaptions to
+	  * happen always or never can prevent resetting of the m_adaptionMode variable.
 	  *
 	  * @param adaptionMode The desired mode (always/never/with a given probability)
 	  */
-	 virtual void setAdaptionMode(boost::logic::tribool adaptionMode) {
-		 m_adaptionMode = adaptionMode;
+	 virtual void setAdaptionMode(adaptionMode am) {
+		 m_adaptionMode = am;
 	 }
 
 	 /* ----------------------------------------------------------------------------------
@@ -496,11 +495,11 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the current value of the adaptionMode_ variable
+	  * Returns the current value of the m_adaptionMode variable
 	  *
-	  * @return The current value of the adaptionMode_ variable
+	  * @return The current value of the m_adaptionMode variable
 	  */
-	 boost::logic::tribool getAdaptionMode() const {
+	 adaptionMode getAdaptionMode() const {
 		 return m_adaptionMode;
 	 }
 
@@ -612,7 +611,7 @@ public:
 			 );
 		 }
 
-		 if (boost::logic::indeterminate(m_adaptionMode)) { // The most likely case is indeterminate (means: "sometimes" here)
+		 if (adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case is indeterminate (means: "sometimes" here)
 			 if (m_weighted_bool(gr, std::bernoulli_distribution::param_type(gfabs(m_adProb)))) { // Likelihood of m_adProb for the adaption
 				 adaptAdaption(range, gr);
 				 customAdaptions(
@@ -622,7 +621,7 @@ public:
 				 );
 				 adapted = true;
 			 }
-		 } else if (true == m_adaptionMode) { // always adapt
+		 } else if (adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
 			 adaptAdaption(range, gr);
 			 customAdaptions(
 				 val
@@ -632,7 +631,7 @@ public:
 			 adapted = true;
 		 }
 
-		 // No need to test for "m_adaptionMode == false" as no action is needed in this case
+		 // No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
 
 		 if (adapted) {
 			 return std::size_t(1);
@@ -696,7 +695,7 @@ public:
 			 );
 		 }
 
-		 if (boost::logic::indeterminate(m_adaptionMode)) { // The most likely case is indeterminate (means: "depends")
+		 if (adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case
 			 for (auto &val: valVec) {
 				 // A likelihood of m_adProb for adaption
 				 if (m_weighted_bool(gr, std::bernoulli_distribution::param_type(gfabs(m_adProb)))) {
@@ -710,7 +709,7 @@ public:
 					 nAdapted += 1;
 				 }
 			 }
-		 } else if (true == m_adaptionMode) { // always adapt
+		 } else if (adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
 			 for (auto &val: valVec) {
 				 adaptAdaption(range, gr);
 				 customAdaptions(
@@ -723,7 +722,7 @@ public:
 			 }
 		 }
 
-		 // No need to test for "m_adaptionMode == false" as no action is needed in this case
+		 // No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
 
 		 return nAdapted;
 	 }
@@ -941,7 +940,7 @@ private:
 	 fp_type m_adaptAdProb = DEFAUPTADAPTADPROB;///< The rate, at which adProb_ should be adapted
 	 fp_type m_minAdProb = DEFMINADPROB;///< The lower allowed value for adProb_ during variation
 	 fp_type m_maxAdProb = DEFMAXADPROB;///< The upper allowed value for adProb_ during variation
-	 boost::logic::tribool m_adaptionMode = DEFAULTADAPTIONMODE; ///< false == never adapt; indeterminate == adapt with adProb_ probability; true == always adapt
+	 adaptionMode m_adaptionMode = adaptionMode::WITHPROBABILITY; ///< Whether to adapt always, never, or with a given probability
 	 fp_type m_adaptAdaptionProbability = DEFAULTADAPTADAPTIONPROB;///< Influences the likelihood for the adaption of the adaption parameters
 	 fp_type m_adProb_reset = m_adProb;///< The value to which adProb_ will be reset if "updateOnStall()" is called
 
@@ -1036,7 +1035,7 @@ public:
 			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			 // Make sure the adaption probability is taken into account
-			 p_test->setAdaptionMode(boost::logic::indeterminate);
+			 p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
 			 // Set an appropriate range for the adaption
 			 p_test->setAdProbRange(
 				 0.001
@@ -1066,7 +1065,7 @@ public:
 			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			 // Make sure the adaption probability is taken into account
-			 p_test->setAdaptionMode(boost::logic::indeterminate);
+			 p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
 			 // Prevent changes to m_adProb
 			 p_test->setAdaptAdProb(0.);
 
@@ -1123,27 +1122,27 @@ public:
 
 			 // Check setting of the different allowed values
 			 // false
-			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(false));
+			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::NEVER));
 			 BOOST_CHECK_MESSAGE (
-				 !(p_test->getAdaptionMode())
+				 p_test->getAdaptionMode() == adaptionMode::NEVER
 				 , "\n"
 				 << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-				 << "required value            = false\n"
+				 << "required value            = adaptionMode::NEVER\n"
 			 );
 
 			 // true
-			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(true));
+			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
 			 BOOST_CHECK_MESSAGE (
-				 p_test->getAdaptionMode()
+				 adaptionMode::ALWAYS == p_test->getAdaptionMode()
 				 , "\n"
 				 << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
-				 << "required value            = true\n"
+				 << "required value            = adaptionMode::ALWAYS\n"
 			 );
 
 			 // boost::logic::indeterminate
-			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(boost::logic::indeterminate));
+			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY));
 			 BOOST_CHECK_MESSAGE (
-				 boost::logic::indeterminate(p_test->getAdaptionMode())
+				 adaptionMode::WITHPROBABILITY == p_test->getAdaptionMode()
 				 , "\n"
 				 << "p_test->getAdaptionMode() = " << p_test->getAdaptionMode() << "\n"
 				 << "required value            = boost::logic::indeterminate\n"
@@ -1159,7 +1158,7 @@ public:
 			 const std::size_t nTests = 10000;
 
 			 // false: There should never be adaptions, independent of the adaption probability
-			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(false));
+			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::NEVER));
 			 T currentValue = T(0);
 			 T oldValue = currentValue;
 			 for (std::size_t i = 0; i < nTests; i++) {
@@ -1179,7 +1178,7 @@ public:
 			 }
 
 			 // true: Adaptions should happen always, independent of the adaption probability
-			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(true));
+			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
 			 currentValue = T(0);
 			 oldValue = currentValue;
 			 for (std::size_t i = 0; i < nTests; i++) {
@@ -1236,7 +1235,7 @@ public:
 			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
 
 			 // Make sure we have the right adaption mode
-			 p_test->setAdaptionMode(boost::logic::indeterminate);
+			 p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
 			 // Make sure we always adapt
 			 p_test->setAdaptionProbability(1.0);
 

@@ -175,7 +175,7 @@ void GInt32ObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
 			giga_ptr = std::shared_ptr<GInt32GaussAdaptor>(new GInt32GaussAdaptor(0.025, 0.1, 0, 1, 1.0)));
 		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionThreshold(
 			0)); // Make sure the adaptor's internal parameters don't change through the adaption
-		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(true)); // Always adapt
+		BOOST_CHECK_NO_THROW(giga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
 		// Create a suitable GInt32Object object
 		std::shared_ptr <GInt32Object> gio_ptr;

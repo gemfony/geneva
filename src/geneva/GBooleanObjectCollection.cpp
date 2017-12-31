@@ -192,7 +192,7 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t &nAddedObjects)
 		BOOST_CHECK_NO_THROW(gba_ptr = std::shared_ptr<GBooleanAdaptor>(new GBooleanAdaptor(1.0)));
 		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionThreshold(
 			0)); // Make sure the adaptor's internal parameters don't change through the adaption
-		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(true)); // Always adapt
+		BOOST_CHECK_NO_THROW(gba_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
 		// Create a suitable GBooleanObject object
 		std::shared_ptr <GBooleanObject> gbo_ptr;

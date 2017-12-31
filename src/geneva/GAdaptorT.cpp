@@ -73,7 +73,7 @@ std::size_t GAdaptorT<bool,double>::adapt(
 
 	bool dummy_val;
 
-	if(boost::logic::indeterminate(m_adaptionMode)) { // The most likely case is indeterminate (means: "depends")
+	if(adaptionMode::WITHPROBABILITY == m_adaptionMode) { // The most likely case is indeterminate (means: "depends")
 		for (auto && val: valVec) {
 			// A likelihood of m_adProb for adaption
 			if(m_weighted_bool(gr, std::bernoulli_distribution::param_type(gfabs(m_adProb)))) {
@@ -84,7 +84,7 @@ std::size_t GAdaptorT<bool,double>::adapt(
 				nAdapted += 1;
 			}
 		}
-	} else if(true == m_adaptionMode) { // always adapt
+	} else if(adaptionMode::ALWAYS == m_adaptionMode) { // always adapt
 		for (auto && val: valVec) {
 			dummy_val = val;
 			adaptAdaption(range, gr);
@@ -94,7 +94,7 @@ std::size_t GAdaptorT<bool,double>::adapt(
 		}
 	}
 
-	// No need to test for "m_adaptionMode == false" as no action is needed in this case
+	// No need to test for "m_adaptionMode == adaptionMode::NEVER" as no action is needed in this case
 
 	return nAdapted;
 }

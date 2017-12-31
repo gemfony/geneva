@@ -734,7 +734,7 @@ public:
 			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
 
 			 // true: Adaptions should happen always, independent of the adaption probability
-			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(true));
+			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
 
 			 const fp_type minSigma = fp_type(0.0001);
 			 const fp_type maxSigma = fp_type(1.);

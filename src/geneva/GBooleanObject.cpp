@@ -419,7 +419,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	std::shared_ptr <GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
 	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
-	gba_ptr->setAdaptionMode(true); // Always adapt
+	gba_ptr->setAdaptionMode(adaptionMode::ALWAYS); // Always adapt
 	this->addAdaptor(gba_ptr);
 
 	// Call the parent class'es function
@@ -727,7 +727,7 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 
 	std::shared_ptr<GBooleanAdaptor> gba_ptr(new GBooleanAdaptor(1.0));
 	gba_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
-	gba_ptr->setAdaptionMode(true); // Always adapt
+	gba_ptr->setAdaptionMode(adaptionMode::ALWAYS); // Always adapt
 	this->addAdaptor(gba_ptr);
 
 	// Call the parent class'es function

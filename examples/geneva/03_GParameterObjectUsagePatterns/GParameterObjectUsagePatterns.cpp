@@ -807,10 +807,10 @@ int main(int argc, char **argv) {
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 
-		a1.setAdaptionMode(ADAPTALWAYS); // Always adapt, irrespective of probability
-		a2.setAdaptionMode(ADAPTWITHPROB); // Adapt according to the adaption probability
-		a3.setAdaptionMode(ADAPTNEVER); // Temporarily disable the adaptor
-		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+		a1.setAdaptionMode(adaptionMode::ALWAYS); // Always adapt, irrespective of probability
+		a2.setAdaptionMode(adaptionMode::WITHPROBABILITY); // Adapt according to the adaption probability
+		a3.setAdaptionMode(adaptionMode::NEVER); // Temporarily disable the adaptor
+		adaptionMode am = a1.getAdaptionMode();
 	}
 
 	{ // GDoubleBiGaussAdaptor
@@ -903,12 +903,12 @@ int main(int argc, char **argv) {
 		adaptionThreshold = a1.getAdaptionThreshold();
 
 		// Always adapt, irrespective of probability
-		a1.setAdaptionMode(ADAPTALWAYS);
+		a1.setAdaptionMode(adaptionMode::ALWAYS);
 		// Adapt according to the adaption probability
-		a2.setAdaptionMode(ADAPTWITHPROB);
+		a2.setAdaptionMode(adaptionMode::WITHPROBABILITY);
 		// Temporarily disable the adaptor
-		a3.setAdaptionMode(ADAPTNEVER);
-		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+		a3.setAdaptionMode(adaptionMode::NEVER);
+		adaptionMode am = a1.getAdaptionMode();
 
 		//-----------------------------------------------------
 	}
@@ -957,10 +957,10 @@ int main(int argc, char **argv) {
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 
-		a1.setAdaptionMode(ADAPTALWAYS); // Always adapt, irrespective of probability
-		a2.setAdaptionMode(ADAPTWITHPROB); // Adapt according to the adaption probability
-		a3.setAdaptionMode(ADAPTNEVER); // Temporarily disable the adaptor
-		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+		a1.setAdaptionMode(adaptionMode::ALWAYS); // Always adapt, irrespective of probability
+		a2.setAdaptionMode(adaptionMode::WITHPROBABILITY); // Adapt according to the adaption probability
+		a3.setAdaptionMode(adaptionMode::NEVER); // Temporarily disable the adaptor
+		adaptionMode am = a1.getAdaptionMode();
 
 		//-----------------------------------------------------
 	}
@@ -990,10 +990,10 @@ int main(int argc, char **argv) {
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 
-		a1.setAdaptionMode(ADAPTALWAYS); // Always adapt, irrespective of probability
-		a2.setAdaptionMode(ADAPTWITHPROB); // Adapt according to the adaption probability
-		a3.setAdaptionMode(ADAPTNEVER); // Temporarily disable the adaptor
-		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+		a1.setAdaptionMode(adaptionMode::ALWAYS); // Always adapt, irrespective of probability
+		a2.setAdaptionMode(adaptionMode::WITHPROBABILITY); // Adapt according to the adaption probability
+		a3.setAdaptionMode(adaptionMode::NEVER); // Temporarily disable the adaptor
+		adaptionMode am = a1.getAdaptionMode();
 
 		//-----------------------------------------------------
 	}
@@ -1023,10 +1023,10 @@ int main(int argc, char **argv) {
 		a1.setAdaptionThreshold(adaptionThreshold);
 		adaptionThreshold = a1.getAdaptionThreshold();
 
-		a1.setAdaptionMode(ADAPTALWAYS); // Always adapt, irrespective of probability
-		a2.setAdaptionMode(ADAPTWITHPROB); // Adapt according to the adaption probability
-		a3.setAdaptionMode(ADAPTNEVER); // Temporarily disable the adaptor
-		boost::logic::tribool adaptionMode = a1.getAdaptionMode();
+		a1.setAdaptionMode(adaptionMode::ALWAYS); // Always adapt, irrespective of probability
+		a2.setAdaptionMode(adaptionMode::WITHPROBABILITY); // Adapt according to the adaption probability
+		a3.setAdaptionMode(adaptionMode::NEVER); // Temporarily disable the adaptor
+		adaptionMode am = a1.getAdaptionMode();
 
 		//-----------------------------------------------------
 	}

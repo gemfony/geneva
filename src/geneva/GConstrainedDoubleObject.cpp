@@ -399,7 +399,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
-	gdga_ptr->setAdaptionMode(true); // Always adapt
+	gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS); // Always adapt
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
@@ -495,7 +495,7 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 
 	std::shared_ptr <GDoubleGaussAdaptor> gdga_ptr(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0));
 	gdga_ptr->setAdaptionThreshold(0); // Make sure the adaptor's internal parameters don't change through the adaption
-	gdga_ptr->setAdaptionMode(true); // Always adapt
+	gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS); // Always adapt
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function

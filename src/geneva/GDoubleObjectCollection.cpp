@@ -171,7 +171,7 @@ void GDoubleObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) 
 			gdga_ptr = std::shared_ptr<GDoubleGaussAdaptor>(new GDoubleGaussAdaptor(0.025, 0.1, 0., 1., 1.0)));
 		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionThreshold(
 			0)); // Make sure the adaptor's internal parameters don't change through the adaption
-		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(true)); // Always adapt
+		BOOST_CHECK_NO_THROW(gdga_ptr->setAdaptionMode(adaptionMode::ALWAYS)); // Always adapt
 
 		// Create a suitable GDoubleObject object
 		std::shared_ptr <GDoubleObject> gdo_ptr;
