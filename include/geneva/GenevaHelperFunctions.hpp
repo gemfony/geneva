@@ -63,7 +63,7 @@ G_API_GENEVA void setProcessingFlag(
 
 /******************************************************************************/
 /** @brief Transforms the individual fitness so that the optimization algorithm always "sees" a minimization problem */
-G_API_GENEVA double minOnly_cached_fitness(const std::shared_ptr<GParameterSet>&, std::size_t = 0);
+G_API_GENEVA double minOnly_transformed_fitness(const std::shared_ptr<GParameterSet> &, std::size_t = 0);
 
 /******************************************************************************/
 /** @brief Checks whether the first individual is better than the second */

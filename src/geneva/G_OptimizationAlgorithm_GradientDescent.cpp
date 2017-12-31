@@ -380,7 +380,7 @@ void GGradientDescent::updateParentIndividuals() {
 #endif /* DEBUG */
 
 		// Retrieve the fitness of the individual again
-		double parentFitness = minOnly_cached_fitness(this->at(i));
+		double parentFitness = minOnly_transformed_fitness(this->at(i));
 
 		// Calculate the adaption of each parameter
 		// double gradient = 0.;
@@ -393,7 +393,8 @@ void GGradientDescent::updateParentIndividuals() {
 			try {
 				parmVec[j] -= boost::numeric_cast<double>(
 					stepRatio_ *
-					(boost::numeric_cast<long double>(minOnly_cached_fitness(this->at(childPos)) - boost::numeric_cast<long double>(parentFitness)))
+					(boost::numeric_cast<long double>(
+						minOnly_transformed_fitness(this->at(childPos)) - boost::numeric_cast<long double>(parentFitness)))
 				);
 			} catch (boost::bad_numeric_cast &e) {
 				throw gemfony_exception(

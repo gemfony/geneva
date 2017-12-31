@@ -146,7 +146,7 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 double GParameterSetFixedSizePriorityQueue::evaluation(
 	const std::shared_ptr<GParameterSet> &item_ptr
 ) const {
-	return minOnly_cached_fitness(item_ptr);
+	return minOnly_transformed_fitness(item_ptr);
 }
 
 /******************************************************************************/
@@ -155,7 +155,7 @@ double GParameterSetFixedSizePriorityQueue::evaluation(
  * in the priority queue.
  */
 std::string GParameterSetFixedSizePriorityQueue::id(
-	const std::shared_ptr <GParameterSet> &item
+	const std::shared_ptr<GParameterSet> &item
 ) const {
 	return item->getCurrentEvaluationID();
 }
@@ -171,15 +171,8 @@ void GParameterSetFixedSizePriorityQueue::add(
 	, bool do_clone
 	, bool do_replace
 ) {
-	// TODO: Check here whether the items to be added are all processed / have errors etc.
-	// We only want to add items that are clean, i.e. have been successfully processed.
-
-//	std::size_t pos = 0;
-//	for(const auto& item_ptr: items_vec) {
-//		std::cout << pos++ << " " << item_ptr->getProcessingStatusAsStr() << std::endl;
-//	}
-
-	// Create a std::vector containing only processed items
+	// Create a std::vector containing only processed items. We only want
+	// to add "clean" (i.e. processed) individuals to the queue.
 	std::vector<std::shared_ptr<GParameterSet>> processed_vec(items_vec.size());
 	auto it = std::copy_if(
 		items_vec.begin()

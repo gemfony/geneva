@@ -839,7 +839,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 		, G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
 		, G_OptimizationAlgorithm_Base::data.end()
 		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
-			return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
+			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
 }
@@ -893,7 +893,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 		, G_OptimizationAlgorithm_Base::data.begin() + 2 * m_n_parents
 		, G_OptimizationAlgorithm_Base::data.end()
 		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
-			return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
+			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
 
@@ -936,13 +936,14 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 		, G_OptimizationAlgorithm_Base::data.begin() + 2*m_n_parents
 		, G_OptimizationAlgorithm_Base::data.end()
 		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
-			return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
+			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
 
 	// Retrieve the best child's and the last generation's best parent's fitness
-	double bestTranformedChildFitness_MinOnly  = minOnly_cached_fitness(*(G_OptimizationAlgorithm_Base::data.begin() + m_n_parents));
-	double bestTranformedParentFitness_MinOnly = minOnly_cached_fitness(*(G_OptimizationAlgorithm_Base::data.begin()));
+	double bestTranformedChildFitness_MinOnly  = minOnly_transformed_fitness(
+		*(G_OptimizationAlgorithm_Base::data.begin() + m_n_parents));
+	double bestTranformedParentFitness_MinOnly = minOnly_transformed_fitness(*(G_OptimizationAlgorithm_Base::data.begin()));
 
 	// Leave the best parent in place, if no better child was found
 	if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) { // A better child was found. Overwrite all parents
@@ -1035,7 +1036,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 		std::partial_sort(
 			this->begin() + nIndividualsOnParetoFront, this->begin() + this->m_n_parents, this->end(),
 			[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
-				return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
+				return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 			}
 		);
 	}
@@ -1046,7 +1047,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 	std::sort(
 		this->begin(), this->begin() + this->m_n_parents,
 		[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
-			return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
+			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
 }
@@ -1135,7 +1136,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 		std::partial_sort(
 			this->begin() + nIndividualsOnParetoFront, this->begin() + this->m_n_parents, this->end(),
 			[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
-				return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
+				return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 			}
 		);
 	}
@@ -1146,7 +1147,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 	std::sort(
 		this->begin(), this->begin() + this->m_n_parents,
 		[](std::shared_ptr <GParameterSet> x_ptr, std::shared_ptr <GParameterSet> y_ptr) -> bool {
-			return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
+			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
 }

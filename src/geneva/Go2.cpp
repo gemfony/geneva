@@ -526,7 +526,7 @@ const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 		this->begin()
 		, this->end()
 		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
-			return minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr);
+			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
 

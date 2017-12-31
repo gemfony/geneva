@@ -555,10 +555,10 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Evaluates a single work item, so that it can be sorted */
-	 virtual G_API_COMMON double evaluation(const std::shared_ptr <T>&) const BASE = 0;
+	 virtual G_API_COMMON double evaluation(const std::shared_ptr<T>&) const BASE = 0;
 
 	 /** @brief Returns a unique id for a work item */
-	 virtual G_API_COMMON std::string id(const std::shared_ptr <T> &) const BASE = 0;
+	 virtual G_API_COMMON std::string id(const std::shared_ptr<T> &) const BASE = 0;
 
 	 std::deque<std::shared_ptr<T>> m_data; ///< Holds the actual data
 

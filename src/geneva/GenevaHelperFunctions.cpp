@@ -71,8 +71,8 @@ void setProcessingFlag(
  * @param item_ptr The work item for which the fitness should be retrieved
  * @param id The id of the fitness criterion (individuals may have more than one)
  */
-double minOnly_cached_fitness(
-	const std::shared_ptr<GParameterSet>& item_ptr
+double minOnly_transformed_fitness(
+	const std::shared_ptr<GParameterSet> &item_ptr
 	, std::size_t id
 ) {
 	double f = item_ptr->transformed_fitness(id);
@@ -82,7 +82,7 @@ double minOnly_cached_fitness(
 	if(!item_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In minOnly_cached_fitness():" << std::endl
+				<< "In minOnly_transformed_fitness():" << std::endl
 				<< "Got empty work item" << std::endl
 		);
 	}
@@ -126,7 +126,7 @@ bool isBetter(
 #endif
 
 	// We assume that both items have the same maxMode and simply compare the "minOnly-Fitness"
-	if(minOnly_cached_fitness(x_ptr) < minOnly_cached_fitness(y_ptr)) return true;
+	if(minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr)) return true;
 	else return false;
 }
 
