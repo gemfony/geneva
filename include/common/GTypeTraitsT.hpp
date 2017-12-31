@@ -50,7 +50,6 @@
 
 // Boost headers go here
 #include <boost/cast.hpp>
-#include <boost/logic/tribool.hpp>
 #include <boost/optional.hpp>
 #include <boost/lexical_cast.hpp>
 

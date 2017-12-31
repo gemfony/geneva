@@ -47,8 +47,6 @@
 
 // Boost headers go here
 
-#include <boost/logic/tribool.hpp>
-
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 
@@ -537,11 +535,6 @@ enum class adaptionMode : Gem::Common::ENUMBASETYPE {
 	 , WITHPROBABILITY = 1
 	 , NEVER = 2
 };
-
-const boost::logic::tribool DEFAULTADAPTIONMODE = boost::logic::indeterminate; // Adapt should happen with a given probability
-const boost::logic::tribool ADAPTALWAYS = true; // Always adapt, independent of probability settings
-const boost::logic::tribool ADAPTWITHPROB = boost::logic::indeterminate; // Adapt according to the set probability
-const boost::logic::tribool ADAPTNEVER = false; // Never adapt (effectively disables the adaptor)
 
 /******************************************************************************/
 
