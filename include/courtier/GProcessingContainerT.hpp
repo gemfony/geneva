@@ -151,7 +151,7 @@ public:
 	  *
 	  * @param cp A copy of another GSubmissionContainer object
 	  */
-	 GProcessingContainerT(const GProcessingContainerT<processable_type, processing_result_type> &cp)
+	 explicit GProcessingContainerT(const GProcessingContainerT<processable_type, processing_result_type> &cp)
 		 : m_iteration_counter(cp.m_iteration_counter)
 		 , m_resubmission_counter(cp.m_resubmission_counter)
 		 , m_collection_position(cp.m_collection_position)
@@ -200,6 +200,9 @@ public:
 		 // Transfer the new values
 		 m_stored_results_vec = result_vec;
 
+		 // Clear the error descriptions
+		 m_stored_error_descriptions.clear();
+
 		 // Mark as processed
 		 m_processing_status = processingStatus::PROCESSED;
 
@@ -217,8 +220,6 @@ public:
 	  * Note that user-defined processing- and post-processing functions need
 	  * to make sure to set the results (be it main- or secondary results) of the
 	  * process()-call. This function has no way to ensure that this is the case.
-	  *
-	  * TODO: process() should not need to return ANY VALUE AT ALL --> clean separation between processing and value retrieval
 	  *
 	  * @param ext_processor Injects an external function for the processing step
 	  * @return The first result of the processing calls
@@ -238,6 +239,9 @@ public:
 
 		 // Assign a new evaluation id
 		 m_evaluation_id = std::string("eval_") + Gem::Common::to_string(boost::uuids::random_generator()());
+
+		 // Clear the error descriptions
+		 m_stored_error_descriptions.clear();
 
 		 // "Nullify the result list.
 		 this->clear_stored_results_vec();
@@ -436,29 +440,125 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Resets the class to the status before processing. Either IGNORE (== do not
-	  * process) or DO_PROCESS may be passed.
+	  * Sets a given new processing state. Which new states are
+	  * accepted depends on the current state:
+	  * - IGNORE --> IGNORE, DO_PROCESS
+	  * - DO_PROCESS --> DO_PROCESS, IGNORE
+	  * - PROCESSED --> PROCESSED, IGNORE, DO_PROCESS
+	  * - EXCEPTION_CAUGHT --> EXCEPTION_CAUGHT, IGNORE, DO_PROCESS
+	  * - ERROR_FLAGGED --> ERROR_FLAGGED, IGNORE, DO_PROCESS
+	  * Note that some target states may result in the erasure of existing
+	  * information, such as past error messages. Setting a new processing state
+	  * of "PROCESSED" via this function is not allowed and will result in an
+	  * exception being thrown, unless this state is already set.
 	  *
-	  * @param The desired new processing status
+	  * @param target_ps The desired new processing status
 	  */
-	 void reset_processing_status(processingStatus ps = processingStatus::IGNORE) {
-		 switch(ps) {
+	 void set_processing_status(processingStatus target_ps = processingStatus::IGNORE) {
+		 // Do nothing if the new state is equal to the old one
+		 if(target_ps == m_processing_status) {
+			 return;
+		 }
+
+		 // We do not accept setting a target state of PROCESSED via this function
+		 if(target_ps == processingStatus::PROCESSED) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+					 << "An attempt was made to set the processing state to PROCESSED" << std::endl
+				 	 << "which is not allowed through this function." << std::endl
+			 );
+		 }
+
+		 // We want to enforce specific targets depending on the current state
+		 switch(m_processing_status) {
+			 //------------------------------------------------------------------------------------
+
 			 case processingStatus::IGNORE:
+				 if(target_ps == processingStatus::DO_PROCESS) {
+					 // Store the new state
+					 m_processing_status = target_ps;
+				    // Clear any remaining error messages
+					 m_stored_error_descriptions.clear();
+					 // "Nullify" the result list.
+					 this->clear_stored_results_vec();
+				 } else {
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+							 << "Got invalid target processing status " << psToStr(target_ps) << std::endl
+							 << "Expected a new state of DO_PROCESS for the" << std::endl
+							 << "current state of " << psToStr(m_processing_status) << std::endl
+					 );
+				 }
+				 break;
+
+			 //------------------------------------------------------------------------------------
+
 			 case processingStatus::DO_PROCESS:
-				 m_processing_status = ps;
+				 if(target_ps == processingStatus::IGNORE) {
+					 // Store the new state
+					 m_processing_status = target_ps;
+					 // Clear any remaining error messages
+					 m_stored_error_descriptions.clear();
+					 // "Nullify" the result list.
+					 this->clear_stored_results_vec();
+				 } else {
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+							 << "Got invalid target processing status " << psToStr(target_ps) << std::endl
+							 << "Expected a new state of IGNORE for the" << std::endl
+							 << "current state of " << psToStr(m_processing_status) << std::endl
+					 );
+				 }
 				 break;
 
-			 default:
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GProcessingContainerT<>::reset_processing_status(): Got invalid processing status " << ps << std::endl
-				 );
+			 //------------------------------------------------------------------------------------
+
+			 case processingStatus::PROCESSED:
+				 if(target_ps == processingStatus::IGNORE || target_ps == processingStatus::DO_PROCESS) {
+					 // Store the new state
+					 m_processing_status = target_ps;
+					 // Clear any remaining error messages
+					 m_stored_error_descriptions.clear();
+					 // "Nullify" the result list.
+					 this->clear_stored_results_vec();
+				 } else {
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+							 << "Got invalid target processing status " << psToStr(target_ps) << std::endl
+							 << "Expected a new state of IGNORE or DO_PROCESS for the" << std::endl
+							 << "current state of " << psToStr(m_processing_status) << std::endl
+					 );
+				 }
 				 break;
+
+			 //------------------------------------------------------------------------------------
+
+			 case processingStatus::EXCEPTION_CAUGHT:
+			 case processingStatus::ERROR_FLAGGED:
+				 if(target_ps == processingStatus::IGNORE || target_ps == processingStatus::DO_PROCESS) {
+					 // Store the new state
+					 m_processing_status = target_ps;
+					 // Clear any remaining error messages
+					 m_stored_error_descriptions.clear();
+					 // "Nullify" the result list.
+					 this->clear_stored_results_vec();
+				 } else {
+					 throw gemfony_exception(
+						 g_error_streamer(DO_LOG, time_and_place)
+							 << "In GProcessingContainerT<>::set_processing_status():" << std::endl
+					 	    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
+						 	 << "Expected a new state of IGNORE or DO_PROCESS for the" << std::endl
+						 	 << "current state of " << psToStr(m_processing_status) << std::endl
+					 );
+				 }
+				 break;
+
+			 //------------------------------------------------------------------------------------
 		 };
-
-		 m_stored_error_descriptions.clear();
-		 // "Nullify the result list.
-		 this->clear_stored_results_vec();
 	 }
 
 	 /***************************************************************************/
@@ -651,7 +751,7 @@ public:
 	  */
 	 std::string get_and_clear_exceptions(processingStatus ps = processingStatus::IGNORE) {
 		 std::string stored_exceptions = m_stored_error_descriptions;
-		 this->reset_processing_status(ps);
+		 this->set_processing_status(ps);
 		 return stored_exceptions;
 	 }
 

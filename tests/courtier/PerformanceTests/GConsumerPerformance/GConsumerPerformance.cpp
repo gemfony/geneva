@@ -308,7 +308,7 @@ void connectorProducer(
 
 		std::vector<bool> workItemPos(data.size(), Gem::Courtier::GBC_UNPROCESSED);
 		for(auto item_ptr: data) {
-			item_ptr->reset_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
+			item_ptr->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
 		}
 		auto status = brokerConnector.workOn(
 			data
