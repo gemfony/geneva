@@ -244,7 +244,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Tests customAdaptions, dirtyFlag and the effects of the fitness function. Also test setting of server-mode flag
-		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
+		std::shared_ptr<Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure this individual is not dirty
 		if (p_test->is_due_for_processing()) {
@@ -254,7 +254,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		std::size_t nTests = 1000;
 
-		double currentFitness = p_test->transformed_fitness(0);
+		double currentFitness = 0.;
 		double oldFitness = currentFitness;
 		bool dirtyFlag = false;
 
@@ -262,33 +262,33 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 			// Change the parameters without instantly triggering fitness calculation
 			BOOST_CHECK_NO_THROW(p_test->customAdaptions());
 			// The dirty flag should not have been set yet (done in adapt() )
-			BOOST_CHECK(p_test->is_processed());
+			BOOST_CHECK_MESSAGE(
+				p_test->is_processed() || p_test->is_ignored()
+				, "Processing status = " << p_test->getProcessingStatusAsStr() << ", i = " << i
+ 			);
 			// Set the flag manually
 			BOOST_CHECK_NO_THROW(p_test->mark_as_due_for_processing());
 			// Check that the dirty flag has indeed been set
 			BOOST_CHECK(p_test->is_due_for_processing());
-			if (i > 0) {
-				dirtyFlag = false; // The next call should change this value
-				// Once oldFitness has been set (in iterations > 0), currentFitness() should return that value here
-				BOOST_CHECK_MESSAGE (
-					oldFitness == p_test->transformed_fitness(0)
-					, "\n" << "oldFitness = " << oldFitness << "\n" << "transformed_fitness(0) = "
-							 << p_test->transformed_fitness(0) << "\n" << "iteration = " << i << "\n"
-				);
-			}
+			BOOST_CHECK(p_test->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
+
 			// Trigger value calculation
 			BOOST_CHECK_NO_THROW(p_test->process());
-			currentFitness = p_test->transformed_fitness(0);
-
-			// Check that the individual is now clean
 			BOOST_CHECK(p_test->is_processed());
-			BOOST_CHECK_MESSAGE(
-			// Check that the fitness has changed
-				currentFitness != oldFitness, "\n"
-				<< "currentFitness = " << currentFitness << "\n"
-				<< "oldFitness = " << oldFitness << "\n"
-				<< "iteration = " << i << "\n"
-			);
+			BOOST_CHECK(p_test->getProcessingStatus() == Gem::Courtier::processingStatus::PROCESSED);
+			BOOST_CHECK_NO_THROW(currentFitness = p_test->transformed_fitness(0));
+
+			// Check that the evaluation has changed
+			if(i>0) {
+				BOOST_CHECK_MESSAGE(
+				// Check that the fitness has changed
+					currentFitness != oldFitness
+					, "\n"
+					<< "currentFitness = " << currentFitness << "\n"
+					<< "oldFitness = " << oldFitness << "\n"
+					<< "iteration = " << i << "\n"
+				);
+			}
 			oldFitness = currentFitness;
 		}
 	}
@@ -329,7 +329,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
-		BOOST_CHECK_NO_THROW(currentFitness = p_test->transformed_fitness(0));
+		BOOST_CHECK_NO_THROW(p_test->is_processed() || p_test->is_ignored());
 
 		// Set the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->mark_as_due_for_processing());
@@ -353,12 +353,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Check the process() function
-		double currentFitness = 0.;
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
-		BOOST_CHECK_NO_THROW(p_test->process());
-		BOOST_CHECK_NO_THROW(currentFitness = p_test->transformed_fitness(0));
+		BOOST_CHECK_NO_THROW(p_test->is_ignored() || p_test->is_processed());
 
 		// Set the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->mark_as_due_for_processing());
@@ -379,12 +377,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 	{ // Check the effects of the process function in SWARM mode, using the "evaluate" call
-		double currentFitness = 0.;
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure the individual is clean
-		BOOST_CHECK_NO_THROW(p_test->process());
-		BOOST_CHECK_NO_THROW(currentFitness = p_test->transformed_fitness(0));
+		BOOST_CHECK_NO_THROW(p_test->is_ignored() || p_test->is_processed());
 
 		// Set the dirty flag
 		BOOST_CHECK_NO_THROW(p_test->mark_as_due_for_processing());
@@ -417,6 +413,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Make sure both individuals are clean and evaluated
 		double fitness1_old = 0., fitness2_old = 0;
+		BOOST_CHECK_NO_THROW(p_test1->mark_as_due_for_processing());
+		BOOST_CHECK_NO_THROW(p_test2->mark_as_due_for_processing());
+		BOOST_CHECK(p_test1->is_due_for_processing());
+		BOOST_CHECK(p_test2->is_due_for_processing());
 		BOOST_CHECK_NO_THROW(p_test1->process());
 		BOOST_CHECK_NO_THROW(p_test2->process());
 		BOOST_CHECK(p_test1->is_processed());
@@ -465,6 +465,10 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Make sure both individuals are clean and evaluated
 		double fitness1_old = 0., fitness2_old = 0;
+		BOOST_CHECK_NO_THROW(p_test1->mark_as_due_for_processing());
+		BOOST_CHECK_NO_THROW(p_test2->mark_as_due_for_processing());
+		BOOST_CHECK(p_test1->is_due_for_processing());
+		BOOST_CHECK(p_test2->is_due_for_processing());
 		BOOST_CHECK_NO_THROW(p_test1->process());
 		BOOST_CHECK_NO_THROW(p_test2->process());
 		BOOST_CHECK(p_test1->is_processed());

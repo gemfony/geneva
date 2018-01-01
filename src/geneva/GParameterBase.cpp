@@ -248,15 +248,6 @@ bool GParameterBase::amMatch(const activityMode &am) const {
 			}
 		}
 			break;
-
-		default: {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In GParameterBase::amMatch(const activityMode& am): Error!" << std::endl
-					<< "Got invalid activity mode " << am << std::endl
-			);
-		}
-			break;
 	}
 
 	throw gemfony_exception(

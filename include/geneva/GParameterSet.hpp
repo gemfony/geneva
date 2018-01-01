@@ -775,6 +775,9 @@ public:
 		 for(auto& parm_ptr: *this) {
 			 parm_ptr->multiplyByRandom<par_type>(min, max, am, m_gr);
 		 }
+
+		 // As we have modified our internal data sets, make sure the item is reprocessed
+		 this->mark_as_due_for_processing();
 	 }
 
 	 /***************************************************************************/
@@ -789,6 +792,9 @@ public:
 		 for(auto& parm_ptr: *this) {
 			 parm_ptr->multiplyByRandom<par_type>(am, m_gr);
 		 }
+
+		 // As we have modified our internal data sets, make sure the item is reprocessed
+		 this->mark_as_due_for_processing();
 	 }
 
 	 /***************************************************************************/
@@ -804,6 +810,9 @@ public:
 		 for(auto& parm_ptr: *this) {
 			 parm_ptr->multiplyBy<par_type>(val, am);
 		 }
+
+		 // As we have modified our internal data sets, make sure the item is reprocessed
+		 this->mark_as_due_for_processing();
 	 }
 
 	 /***************************************************************************/
@@ -820,6 +829,9 @@ public:
 		 for(it=this->begin(); it!=this->end(); ++it) {
 			 (*it)->fixedValueInit<par_type>(val, am);
 		 }
+
+		 // As we have modified our internal data sets, make sure the item is reprocessed
+		 this->mark_as_due_for_processing();
 	 }
 
 	 /***************************************************************************/
@@ -840,6 +852,9 @@ public:
 		 for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
 			 (*it)->add<par_type>(*cit, am);
 		 }
+
+		 // As we have modified our internal data sets, make sure the item is reprocessed
+		 this->mark_as_due_for_processing();
 	 }
 
 	 /***************************************************************************/
@@ -860,6 +875,9 @@ public:
 		 for(it=this->begin(), cit=p->begin(); it!=this->end(); ++it, ++cit) {
 			 (*it)->subtract<par_type>(*cit, am);
 		 }
+
+		 // As we have modified our internal data sets, make sure the item is reprocessed
+		 this->mark_as_due_for_processing();
 	 }
 
 	 /***************************************************************************/

@@ -122,7 +122,7 @@ public:
 	 void add(
 		 std::shared_ptr<GParameterSet> item
 		 , bool do_clone
-	 );
+	 ) override;
 
 protected:
 	 /***************************************************************************/

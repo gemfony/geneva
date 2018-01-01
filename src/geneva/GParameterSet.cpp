@@ -895,7 +895,7 @@ std::size_t GParameterSet::adapt() {
  * Retrieves the stored raw fitness with a given id
  */
 double GParameterSet::raw_fitness(std::size_t id) const {
-	return this->getConstStoredResult(id).rawFitness();
+	return this->getStoredResult(id).rawFitness();
 }
 
 /******************************************************************************/
@@ -903,7 +903,7 @@ double GParameterSet::raw_fitness(std::size_t id) const {
  * Retrieves the stored transformed fitness with a given id
  */
 double GParameterSet::transformed_fitness(std::size_t id) const {
-	return this->getConstStoredResult(id).transformedFitness();
+	return this->getStoredResult(id).transformedFitness();
 }
 
 /******************************************************************************/
@@ -1119,7 +1119,7 @@ void GParameterSet::setResult(
 	}
 #endif /* DEBUG */
 
-	this->getStoredResult(id).reset(value);
+	this->modifyStoredResult(id).reset(value);
 }
 
 /******************************************************************************/
@@ -1755,7 +1755,7 @@ void GParameterSet::process_() {
 
 		// Make sure the main result is stored
 		this->setResult(0, main_raw_result);
-		this->getStoredResult(0).setTransformedFitnessToRaw();
+		this->modifyStoredResult(0).setTransformedFitnessToRaw();
 
 		// Take care of erroneous calculations, flagged by the user. It is assumed here that marking
 		// entire solutions as invalid after the evaluation happens relatively rarely so that a flat
@@ -1767,7 +1767,7 @@ void GParameterSet::process_() {
 		} else { // So this is a valid solution!
 			for (std::size_t i = 0; i < this->getNStoredResults(); i++) {
 				if (evaluationPolicy::USESIGMOID == m_eval_policy) { // Update the fitness value to use sigmoidal values
-					this->getStoredResult(i).setTransformedFitnessWith(
+					this->modifyStoredResult(i).setTransformedFitnessWith(
 						[this](double rawValue) {
 							return Gem::Common::gsigmoid(
 								rawValue
@@ -1777,7 +1777,7 @@ void GParameterSet::process_() {
 						}
 					);
 				} else { // All other transformation policies use the same value for the transformed fitness as a (valid) raw fitness
-					this->getStoredResult(i).setTransformedFitnessToRaw();
+					this->modifyStoredResult(i).setTransformedFitnessToRaw();
 				}
 			}
 		}
@@ -2120,8 +2120,8 @@ void GParameterSet::setAllFitnessTo(
 	, double transformedValue
 ) {
 	for (std::size_t i = 0; i < this->getNStoredResults(); i++) {
-		this->getStoredResult(i).reset(rawValue);
-		this->getStoredResult(i).setTransformedFitnessTo(transformedValue);
+		this->modifyStoredResult(i).reset(rawValue);
+		this->modifyStoredResult(i).setTransformedFitnessTo(transformedValue);
 	}
 }
 
@@ -2324,7 +2324,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			double d = FPFIXEDVALINITMIN;
 			while(true) {
 				// Create a GParameterSet object as a clone of p_test_0 for further usage
-				std::shared_ptr <GParameterSet> p_test = p_test_0->clone<GParameterSet>();
+				std::shared_ptr<GParameterSet> p_test = p_test_0->clone<GParameterSet>();
 
 				// Initialize all fp-values with 0.
 				p_test->fixedValueInit<double>(d, activityMode::ALLPARAMETERS);

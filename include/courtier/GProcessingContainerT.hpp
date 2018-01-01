@@ -318,25 +318,22 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieval of the stored result. This function allows modifications of its
-	  * return value.
-	  *
-	  * @param id The id of the stored result to be returned
-	  * @return The stored result at position id in m_stored_results_vec
-	  */
-	 processing_result_type& getStoredResult(std::size_t id = 0) {
-		 return m_stored_results_vec.at(id);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Retrieval of the stored result. This function does not allow modifications
-	  * of its return value.
+	  * of its return value. It will throw, if value retrieval is initiated for a work
+	  * item which does not have the PROCESSED flag set.
 	  *
 	  * @param id The id of the stored result to be returned
 	  * @return The stored result at position id in m_stored_results_vec
 	  */
-	 processing_result_type getConstStoredResult(std::size_t id = 0) const {
+	 processing_result_type getStoredResult(std::size_t id = 0) const {
+		 if(!this->is_processed()) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GProcessingContainerT::getStoredResult(): Tried to" << std::endl
+					 << "retrieve stored result while the PROCESSED flag was not set" << std::endl
+			 );
+		 }
+
 		 return m_stored_results_vec.at(id);
 	 }
 
@@ -346,6 +343,14 @@ public:
 	  * Retrieve the id assigned to the current evaluation
 	  */
 	 std::string getCurrentEvaluationID() const {
+		 if(!this->is_processed()) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GProcessingContainerT::getCurrentEvaluationID(): Tried to" << std::endl
+					 << "retrieve the evaluation id while the PROCESSED flag was not set" << std::endl
+			 );
+		 }
+
 		 return m_evaluation_id;
 	 }
 
@@ -741,6 +746,18 @@ protected:
 
 	 /***************************************************************************/
 	 /**
+	  * Retrieval of the stored result. This function allows modifications of its
+	  * return value and is hence protected and only accessible by derived classes.
+	  *
+	  * @param id The id of the stored result to be returned
+	  * @return The stored result at position id in m_stored_results_vec
+	  */
+	 processing_result_type& modifyStoredResult(std::size_t id = 0) {
+		 return m_stored_results_vec.at(id);
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Allows derived classes to set the number of stored results. Note that this
 	  * should happen prior to any operation with this object. Also note that this
 	  * operation may invalidate other results already stored in this object.
@@ -809,8 +826,7 @@ private:
 	 void clear_stored_results_vec() {
 		 // "Nullify the result list. We cannot use range-based for here, as m_stored_results_vec might hold booleans
 		 for(auto it=m_stored_results_vec.begin(); it!=m_stored_results_vec.end(); ++it) {
-			 processing_result_type p;
-			 *it = p;
+			 *it = processing_result_type();
 		 }
 	 }
 
