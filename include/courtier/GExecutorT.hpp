@@ -297,7 +297,7 @@ public:
 				 status.is_complete  // nothing left to do
 				 || !resubmitUnprocessed || (resubmitUnprocessed && m_maxResubmissions == 0) // user is happy with unprocessed items
 				 || (++m_nResubmissions >= m_maxResubmissions) // we have tried to resubmit items but did not succeed
-				 ) {
+			 ) {
 				 // Leave the loop
 				 break;
 			 }
@@ -1910,20 +1910,16 @@ protected:
 		 GBaseExecutorT<processable_type>::init_();
 
 		 // Make sure we have a valid buffer port
-		 if (!m_CurrentBufferPort) {
-			 m_CurrentBufferPort
-				 = GBufferPortT_ptr(new Gem::Courtier::GBufferPortT<processable_type>());
+		 if (!m_current_buffer_port_ptr) {
+			 m_current_buffer_port_ptr.reset(
+				 new Gem::Courtier::GBufferPortT<processable_type>()
+			 );
 		 }
 
-		 // Retrieve a connection to the broker
-		 m_broker_ptr = GBROKER(processable_type);
-
-		 // Add the buffer port to the broker
-		 m_broker_ptr->enrol(m_CurrentBufferPort);
-
-		 // Check the capabilities of consumsers enrolled with the broker.
-		 // Note that this call may block until consumers have actually been enrolled.
-		 m_capable_of_full_return = m_broker_ptr->capableOfFullReturn();
+		 // Add the buffer port to the broker and check whether all consumers
+		 // enrolled with the broker are capable of full return
+		 m_capable_of_full_return
+			 = GBROKER(processable_type)->enrol(m_current_buffer_port_ptr);
 
 #ifdef DEBUG
 		 if(m_capable_of_full_return) {
@@ -1946,13 +1942,10 @@ protected:
 	  */
 	 void finalize_() override {
 		 // Get rid of the buffer port
-		 m_CurrentBufferPort.reset();
+		 m_current_buffer_port_ptr.reset();
 
 		 // Likely unnecessary cleanup
 		 m_capable_of_full_return = false;
-
-		 // Disconnect from the broker
-		 m_broker_ptr.reset();
 
 		 // To be called after all other finalization code
 		 GBaseExecutorT<processable_type>::finalize_();
@@ -2038,7 +2031,7 @@ protected:
 			 );
 		 }
 
-		 if(!m_CurrentBufferPort) {
+		 if(!m_current_buffer_port_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT::submit(): Error!" << std::endl
@@ -2047,10 +2040,10 @@ protected:
 		 }
 
 		 // Store the id of the buffer port in the item
-		 w_ptr->setBufferId(m_CurrentBufferPort->getUniqueTag());
+		 w_ptr->setBufferId(m_current_buffer_port_ptr->getUniqueTag());
 
 		 // Perform the actual submission
-		 m_CurrentBufferPort->push_raw(w_ptr);
+		 m_current_buffer_port_ptr->push_raw(w_ptr);
 	 }
 
 	 /***************************************************************************/
@@ -2091,7 +2084,7 @@ private:
 	 std::shared_ptr<processable_type> retrieve() {
 		 // Holds the retrieved item
 		 std::shared_ptr<processable_type> w;
-		 m_CurrentBufferPort->pop_processed(w);
+		 m_current_buffer_port_ptr->pop_processed(w);
 
 		 return w;
 	 }
@@ -2108,7 +2101,7 @@ private:
 	 ) {
 		 // Holds the retrieved item, if any
 		 std::shared_ptr<processable_type> w_ptr;
-		 m_CurrentBufferPort->pop_processed(w_ptr, timeout);
+		 m_current_buffer_port_ptr->pop_processed(w_ptr, timeout);
 		 return w_ptr;
 	 }
 
@@ -2576,7 +2569,7 @@ private:
 	 std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const override {
 #ifdef DEBUG
 		 // Check if we have a valid buffer port
-		 if(!m_CurrentBufferPort) {
+		 if(!m_current_buffer_port_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT<processable_type>::determineInitialCycleStartTime():" << std::endl
@@ -2585,7 +2578,7 @@ private:
 		 }
 #endif
 
-		 return m_CurrentBufferPort->getFirstRetrievalTime();
+		 return m_current_buffer_port_ptr->getFirstRetrievalTime();
 	 }
 
 	 /***************************************************************************/
@@ -2594,8 +2587,7 @@ private:
 
 	 std::uint16_t m_minPartialReturnPercentage = DEFAULTEXECUTORPARTIALRETURNPERCENTAGE; ///< Minimum percentage of returned items after which execution continues
 
-	 GBufferPortT_ptr m_CurrentBufferPort; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
-	 GBroker_ptr m_broker_ptr; ///< A (possibly empty) pointer to a global broker
+	 GBufferPortT_ptr m_current_buffer_port_ptr; ///< Holds a GBufferPortT object during the calculation. Note: It is neither serialized nor copied
 
 	 bool m_capable_of_full_return = false; ///< Indicates whether the broker may return results without losses
 

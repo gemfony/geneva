@@ -141,6 +141,15 @@ ADD_CUSTOM_TARGET(
 )
 
 ################################################################################
+# Custom target for all compilable items in the distribution
+ADD_CUSTOM_TARGET(
+    "install_gemfony-build-all"
+    "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install
+    DEPENDS gemfony-build-all
+    COMMENT "Installing gemfony-build-all"
+)
+
+################################################################################
 # Additional information files to be copied
 
 SET ( INFORMATIONFILES
@@ -185,7 +194,6 @@ MESSAGE("${MSG}\n")
 # RPM or DEB packages can be created using umask 022 && fakeroot make package.
 
 INCLUDE(InstallRequiredSystemLibraries)
-
 SET(CPACK_PACKAGE_NAME "geneva-opt")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "The Geneva optimization library")
 

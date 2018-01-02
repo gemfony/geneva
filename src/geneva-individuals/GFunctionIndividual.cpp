@@ -707,11 +707,13 @@ std::ostream &operator<<(std::ostream &s, const Gem::Geneva::GFunctionIndividual
 	std::vector<double> parVec;
 	f.streamline(parVec);
 
-	std::vector<double>::iterator it;
-	std::cout << "Fitness: " << f.raw_fitness(0) << std::endl;
-	for (it = parVec.begin(); it != parVec.end(); ++it) {
-		std::cout << (it - parVec.begin()) << ": " << *it << std::endl;
+	std::cout << std::endl << "Raw fitness: " << f.raw_fitness(0) << std::endl << std::endl;
+	std::size_t pos = 0;
+	std::cout << "Parameter values of best individual:" << std::endl;
+	for(const auto& val: parVec) {
+		std::cout << pos++ << ": " << val << std::endl;
 	}
+	std::cout << std::endl;
 
 	return s;
 }

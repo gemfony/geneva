@@ -92,9 +92,7 @@ public:
  * This class acts as the main mediator between producers and consumers.
  */
 template<typename processable_type>
-class GBrokerT
-	: private boost::noncopyable
-{
+class GBrokerT {
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
 		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
@@ -129,6 +127,13 @@ public:
 		 // finalize() multiple times is safe.
 		 finalize();
 	 }
+
+	 /***************************************************************************/
+	 // Deleted copy constructors and assignment operators. This class should be noncopyable.
+	 GBrokerT(const GBrokerT<processable_type>&) = delete;
+	 GBrokerT(GBrokerT<processable_type>&&) = delete;
+	 GBrokerT<processable_type>& operator=(const GBrokerT<processable_type>&) = delete;
+	 GBrokerT<processable_type>& operator=(GBrokerT<processable_type>&&) = delete;
 
 	 /***************************************************************************/
 	 /**
@@ -202,8 +207,9 @@ public:
 	  * once the first buffer has been registered.
 	  *
 	  * @param gbp_ptr A shared pointer to a new GBufferPortT object
+	  * @return A boolean which indicates, whether all consumers are capable of full return
 	  */
-	 void enrol(std::shared_ptr<GBufferPortT<processable_type>> gbp_ptr) {
+	 bool enrol(std::shared_ptr<GBufferPortT<processable_type>> gbp_ptr) {
 		 {
 			 //-----------------------------------------------------------------------
 			 // Lock the access to our internal data simultaneously for all mutexes
@@ -230,8 +236,10 @@ public:
 			 // otherwise the following statements could be simplified.
 			 std::size_t nErasedRaw = Gem::Common::erase_if(
 				 m_RawBuffers
-				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (p.second.use_count()==1); }
+				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { std::cout << "p.second.use_count() = " << p.second.use_count() << std::endl; return (p.second.use_count()==1); }
 			 ); // m_RawBuffers is a std::map, so items are of type std::pair
+
+			 std::cout << "nErasedRaw = " << nErasedRaw << std::endl;
 
 			 if(nErasedRaw > 0 ) {
 				 glogger
@@ -241,8 +249,10 @@ public:
 
 			 std::size_t nErasedProc = Gem::Common::erase_if(
 				 m_ProcessedBuffers
-				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (p.second.use_count()==1); }
+				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { std::cout << "p.second.use_count() = " << p.second.use_count() << std::endl; return (p.second.use_count()==1); }
 			 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
+
+			 std::cout << "nErasedProc = " << nErasedProc << std::endl;
 
 			 if(nErasedProc > 0 ) {
 				 glogger
@@ -262,6 +272,9 @@ public:
 
 		 // Let the audience know
 		 m_buffersPresent.store(true);
+
+		 // Let the audience know whether all consumers are capable of full return
+		 return m_capable_of_full_return;
 	 }
 
 	 /***************************************************************************/
@@ -608,11 +621,6 @@ private:
 
 		 return capable_of_full_return;
 	 }
-
-	 /***************************************************************************/
-
-	 GBrokerT(const GBrokerT<processable_type> &) = delete; ///< Intentionally left undefined
-	 GBrokerT &operator=(const GBrokerT<processable_type> &) = delete; ///< Intentionally left undefined
 
 	 /***************************************************************************/
 	 // Data
