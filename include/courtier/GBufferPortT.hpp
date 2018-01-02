@@ -339,6 +339,20 @@ public:
 	 }
 
 	 /***************************************************************************/
+	 /**
+	  * Allows a producer to indicate that it has lost interest
+	  */
+	 void producer_disconnect() {
+		 m_connected_to_producer = false;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether this object is still connected to a producer
+	  */
+	 bool is_connected_to_producer() const {
+		 return m_connected_to_producer;
+	 }
 
 private:
 	 /***************************************************************************/
@@ -359,6 +373,9 @@ private:
 	 std::shared_ptr<RAW_BUFFER_TYPE> m_raw_ptr; ///< The queue for raw objects
 	 std::shared_ptr<PROCESSED_BUFFER_TYPE> m_processed_ptr; ///< The queue for processed objects
 
+	 std::atomic<bool> m_connected_to_producer{true}; ///< Indicates whether this object is currently connected to a producer. We assume that this happens upon creation of this object
+
+	 // TODO: This could just be a consecutive number obtained from the broker
 	 const boost::uuids::uuid m_tag = GBufferPortT<processable_type>::getRandomUUID(); ///< A unique id assigned to objects of this class
 };
 

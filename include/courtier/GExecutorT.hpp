@@ -1724,11 +1724,11 @@ public:
 	  */
 	 GBrokerExecutorT(const GBrokerExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
-			, m_waitFactor(cp.m_waitFactor)
-			, m_minPartialReturnPercentage(cp.m_minPartialReturnPercentage)
-			, m_capable_of_full_return(cp.m_capable_of_full_return)
-			, m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
-			, m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
+		 , m_waitFactor(cp.m_waitFactor)
+		 , m_minPartialReturnPercentage(cp.m_minPartialReturnPercentage)
+		 , m_capable_of_full_return(cp.m_capable_of_full_return)
+		 , m_gpd("Maximum waiting times and returned items", 1, 2) // Intentionally not copied
+		 , m_waitFactorWarningEmitted(cp.m_waitFactorWarningEmitted)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -1941,7 +1941,10 @@ protected:
 	  * General finalization function to be called after the last submission
 	  */
 	 void finalize_() override {
-		 // Get rid of the buffer port
+		 // Make it known to the buffer port that we are disconnecting from it
+		 m_current_buffer_port_ptr->producer_disconnect();
+
+		 // Get rid of our copy of the buffer port
 		 m_current_buffer_port_ptr.reset();
 
 		 // Likely unnecessary cleanup

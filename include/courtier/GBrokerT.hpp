@@ -197,7 +197,7 @@ public:
 	  * to drop a GBufferPortT. This is simply done by letting the shared_ptr<GBufferPortT>
 	  * go out of scope. As the producer holds the only copy, the GBufferPortT will then be
 	  * deleted. A BufferPort contains two shared_ptr<GBoundedBufferT> objects. A shared_ptr
-	  * to these objects is saved upon enrollment with the broker, so that letting the
+	  * to these objects is saved upon enrolment with the broker, so that letting the
 	  * shared_ptr<GBufferPortT> go out of scope will not drop the shared_ptr<GBoundedBufferT>
 	  * objects immediately. This is important, as there may still be active connections
 	  * with items being collected from or dropped into them by the consumers. It is the
@@ -229,36 +229,36 @@ public:
 			 //-----------------------------------------------------------------------
 
 			 // Retrieve the uuid of the buffer port
-			 boost::uuids::uuid gbp_tag = gbp_ptr->getUniqueTag();
+			 auto gbp_tag = gbp_ptr->getUniqueTag();
 
 			 // Find orphaned items in the two collections and remove them.
 			 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
 			 // otherwise the following statements could be simplified.
 			 std::size_t nErasedRaw = Gem::Common::erase_if(
 				 m_RawBuffers
-				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { std::cout << "p.second.use_count() = " << p.second.use_count() << std::endl; return (p.second.use_count()==1); }
+				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
 			 ); // m_RawBuffers is a std::map, so items are of type std::pair
 
-			 std::cout << "nErasedRaw = " << nErasedRaw << std::endl;
-
+#ifdef DEBUG
 			 if(nErasedRaw > 0 ) {
 				 glogger
 					 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedRaw << " raw buffers" << std::endl
 					 << GLOGGING;
 			 }
+#endif
 
 			 std::size_t nErasedProc = Gem::Common::erase_if(
 				 m_ProcessedBuffers
-				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { std::cout << "p.second.use_count() = " << p.second.use_count() << std::endl; return (p.second.use_count()==1); }
+				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
 			 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
 
-			 std::cout << "nErasedProc = " << nErasedProc << std::endl;
-
+#ifdef DEBUG
 			 if(nErasedProc > 0 ) {
 				 glogger
 					 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedProc << " processed buffers" << std::endl
 					 << GLOGGING;
 			 }
+#endif
 
 			 // Attach the new items to the maps
 			 m_RawBuffers[gbp_tag] = gbp_ptr;
@@ -409,7 +409,7 @@ public:
 		 p.reset();
 
 		 // Retrieve the current buffer port ...
-		 GBUFFERPORT_PTR rawBuffer_ptr = getNextRawBufferPort();
+		 auto rawBuffer_ptr = getNextRawBufferPort();
 		 if(rawBuffer_ptr) {
 			 // ... and get an item from it. This function is thread-safe.
 			 rawBuffer_ptr->pop_raw(p);
@@ -436,7 +436,7 @@ public:
 		 p.reset();
 
 		 // Retrieve the current buffer port ...
-		 GBUFFERPORT_PTR rawBuffer_ptr = getNextRawBufferPort();
+		 auto rawBuffer_ptr = getNextRawBufferPort();
 		 if(rawBuffer_ptr) {
 			 // ... and get an item from it. This function is thread-safe.
 		 	 rawBuffer_ptr->pop_raw(p, timeout); // Note that p might be empty
@@ -464,8 +464,8 @@ public:
 		 std::shared_ptr<processable_type> p
 	 ) {
 		 // Retrieve the correct processed buffer for a given uuid
-		 boost::uuids::uuid portId = p->getBufferId();
-		 GBUFFERPORT_PTR processedBuffer_ptr = getProcessedBufferPort(portId);
+		 auto portId = p->getBufferId();
+		 auto processedBuffer_ptr = getProcessedBufferPort(portId);
 
 		 // Submit the item
 		 if(processedBuffer_ptr) {
@@ -499,8 +499,8 @@ public:
 		 , std::chrono::duration<double> timeout
 	 ) {
 		 // Retrieve the correct processed buffer for our uuid
-		 boost::uuids::uuid portId = p->getBufferId();
-		 GBUFFERPORT_PTR processedBuffer_ptr = getProcessedBufferPort(portId);
+		 auto portId = p->getBufferId();
+		 auto processedBuffer_ptr = getProcessedBufferPort(portId);
 
 		 // Submit the item
 		 if(processedBuffer_ptr) {
