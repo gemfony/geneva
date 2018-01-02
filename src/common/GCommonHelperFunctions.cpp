@@ -180,13 +180,13 @@ int runExternalCommand(
  */
 std::string serializationModeToString(const serializationMode &s) {
 	switch (s) {
-		case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT:
+		case Gem::Common::serializationMode::TEXT:
 			return std::string("text mode");
 			break;
-		case Gem::Common::serializationMode::SERIALIZATIONMODE_XML:
+		case Gem::Common::serializationMode::XML:
 			return std::string("XML mode");
 			break;
-		case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY:
+		case Gem::Common::serializationMode::BINARY:
 			return std::string("binary mode");
 			break;
 	}

@@ -1118,7 +1118,7 @@ private:
 
 	 std::size_t m_dataSize = 0; ///< Holds the size of the body of data
 
-	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY; ///< Specifies the serialization mode
+	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
 	 GAsioSerialTCPConsumerT<processable_type> *m_master;
 	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr;
 
@@ -1164,7 +1164,7 @@ public:
 	 GAsioSerialTCPConsumerT(
 		 const unsigned short &port
 		 , const std::size_t &listenerThreads = 0
-		 , const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY
+		 , const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::BINARY
 	 )
 		 : m_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
 			, m_serializationMode(sm)
@@ -1650,7 +1650,7 @@ private:
 	 std::shared_ptr<boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
 	 std::size_t m_listenerThreads = Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_service}; ///< takes care of external connection requests
-	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY; ///< Specifies the serialization mode
+	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
 	 std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
 	 std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
 	 unsigned short m_port = GASIOTCPCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen

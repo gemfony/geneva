@@ -81,7 +81,7 @@ const std::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
 const unsigned short GASIOTCPCONSUMERDEFAULTPORT = 10000;
 const std::string GASIOTCPCONSUMERDEFAULTSERVER = "localhost";
 const std::uint16_t GASIOTCPCONSUMERTHREADS = 4;
-const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
+const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::serializationMode::BINARY;
 const std::int32_t GASIOMAXOPENPINGS = 100; // The maximum number of pings without matching pong from the server
 const std::chrono::milliseconds GASIOPINGINTERVAL = std::chrono::milliseconds(1000);
 

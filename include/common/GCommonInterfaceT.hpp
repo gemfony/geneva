@@ -147,21 +147,21 @@ public:
 #endif /* DEBUG */
 
 		 switch (serMod) {
-			 case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT: {
+			 case Gem::Common::serializationMode::TEXT: {
 				 boost::archive::text_oarchive oa(oarchive_stream);
 				 oa << boost::serialization::make_nvp("classhierarchyFromT", local);
 			 } // note: explicit scope here is essential so the oa-destructor gets called
 
 				 break;
 
-			 case Gem::Common::serializationMode::SERIALIZATIONMODE_XML: {
+			 case Gem::Common::serializationMode::XML: {
 				 boost::archive::xml_oarchive oa(oarchive_stream);
 				 oa << boost::serialization::make_nvp("classhierarchyFromT", local);
 			 } // note: explicit scope here is essential so the oa-destructor gets called
 
 				 break;
 
-			 case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY: {
+			 case Gem::Common::serializationMode::BINARY: {
 				 boost::archive::binary_oarchive oa(oarchive_stream);
 				 oa << boost::serialization::make_nvp("classhierarchyFromT", local);
 			 } // note: explicit scope here is essential so the oa-destructor gets called
@@ -191,21 +191,21 @@ public:
 		 g_class_type *local = nullptr;
 
 		 switch (serMod) {
-			 case Gem::Common::serializationMode::SERIALIZATIONMODE_TEXT: {
+			 case Gem::Common::serializationMode::TEXT: {
 				 boost::archive::text_iarchive ia(istr);
 				 ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
 			 } // note: explicit scope here is essential so the ia-destructor gets called
 
 				 break;
 
-			 case Gem::Common::serializationMode::SERIALIZATIONMODE_XML: {
+			 case Gem::Common::serializationMode::XML: {
 				 boost::archive::xml_iarchive ia(istr);
 				 ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
 			 } // note: explicit scope here is essential so the ia-destructor gets called
 
 				 break;
 
-			 case Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY: {
+			 case Gem::Common::serializationMode::BINARY: {
 				 boost::archive::binary_iarchive ia(istr);
 				 ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
 			 } // note: explicit scope here is essential so the ia-destructor gets called
@@ -359,7 +359,7 @@ public:
 	  * @return An XML description of the GObject-derivative the function is called for
 	  */
 	 std::string report() const {
-		 return toString(Gem::Common::serializationMode::SERIALIZATIONMODE_XML);
+		 return toString(Gem::Common::serializationMode::XML);
 	 }
 
 	 /* ----------------------------------------------------------------------------------

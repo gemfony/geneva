@@ -202,9 +202,9 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::triboolStates
  * The serialization modes that are currently allowed
  */
 enum class serializationMode : Gem::Common::ENUMBASETYPE {
-	SERIALIZATIONMODE_TEXT = 0
-	, SERIALIZATIONMODE_XML = 1
-	, SERIALIZATIONMODE_BINARY = 2
+	TEXT = 0
+	, XML = 1
+	, BINARY = 2
 };
 
 /** @brief Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<> */

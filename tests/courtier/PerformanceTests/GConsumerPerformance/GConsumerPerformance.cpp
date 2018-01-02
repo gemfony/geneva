@@ -140,7 +140,7 @@ const GCPModes DEFAULTEXECUTIONMODEAP = GCPModes::MULTITHREADING;
 const unsigned short DEFAULTPORTAP=10000;
 const std::string DEFAULTIPAP="localhost";
 const std::uint16_t DEFAULTPARALLELIZATIONMODEAP=0;
-const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
+const Gem::Common::serializationMode DEFAULTSERMODEAP=Gem::Common::serializationMode::BINARY;
 const bool DEFAULTUSEDIRECTBROKERCONNECTIONAP = false;
 
 /********************************************************************************/

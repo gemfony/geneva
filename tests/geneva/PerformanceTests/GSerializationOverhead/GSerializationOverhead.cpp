@@ -56,8 +56,8 @@ const std::size_t MAXOBJECTSIZE = 100;
 const std::size_t STEPSIZE = 10;
 
 // The default serialization mode
-const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_BINARY;
-// const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serializationMode::SERIALIZATIONMODE_XML;
+const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serializationMode::BINARY;
+// const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serializationMode::XML;
 
 using namespace Gem::Common;
 using namespace Gem::Geneva;

@@ -75,8 +75,8 @@ Go2::Go2(
 	, const boost::program_options::options_description &userDescriptions
 )
 	: G_Interface_OptimizerT<Go2>()
-	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
-	  , m_config_filename(configFilename)
+   , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>()
+   , m_config_filename(configFilename)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
@@ -935,6 +935,7 @@ void Go2::parseCommandLine(
 		if (vm.count("optimizationAlgorithms")) {
 			std::vector<std::string> algs = Gem::Common::splitString(optimization_algorithms, ",");
 
+			std::size_t pos = 0;
 			for (const auto& alg_str: algs) {
 				// Retrieve the algorithm factory from the global store
 				std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
