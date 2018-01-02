@@ -194,14 +194,8 @@ public:
 	  * This function is used by producers to register a new GBufferPortT object
 	  * with the broker. A GBufferPortT object contains bounded buffers for raw (i.e.
 	  * unprocessed) items and for processed items. A producer may at any time decide
-	  * to drop a GBufferPortT. This is simply done by letting the shared_ptr<GBufferPortT>
-	  * go out of scope. As the producer holds the only copy, the GBufferPortT will then be
-	  * deleted. A BufferPort contains two shared_ptr<GBoundedBufferT> objects. A shared_ptr
-	  * to these objects is saved upon enrolment with the broker, so that letting the
-	  * shared_ptr<GBufferPortT> go out of scope will not drop the shared_ptr<GBoundedBufferT>
-	  * objects immediately. This is important, as there may still be active connections
-	  * with items being collected from or dropped into them by the consumers. It is the
-	  * task of this function to remove the orphaned shared_ptr<GBoundedBufferT> objects.
+	  * to drop a GBufferPortT, but needs to indicate this fact to the buffer port. It is the
+	  * task of this function to remove the orphaned shared_ptr<GBufferPortT> pointers.
 	  * It thus needs to block access to the entire object during its operation. Note that one of
 	  * the effects of this function is that the buffer collections will never run empty,
 	  * once the first buffer has been registered.
@@ -210,65 +204,63 @@ public:
 	  * @return A boolean which indicates, whether all consumers are capable of full return
 	  */
 	 bool enrol(std::shared_ptr<GBufferPortT<processable_type>> gbp_ptr) {
-		 {
-			 //-----------------------------------------------------------------------
-			 // Lock the access to our internal data simultaneously for all mutexes
+		 //-----------------------------------------------------------------------
+		 // Lock the access to our internal data simultaneously for all mutexes
 
-			 std::unique_lock <std::mutex> switchGetPositionLock(
-				 m_switchGetPositionMutex
-				 , std::defer_lock
-			 );
-			 std::unique_lock <std::mutex> findProcessedBufferLock(
-				 m_findProcesedBufferMutex
-				 , std::defer_lock
-			 );
-			 std::lock( // Lock both locks simultaneously
-				 switchGetPositionLock
-				 , findProcessedBufferLock
-			 );
-			 //-----------------------------------------------------------------------
+		 std::unique_lock <std::mutex> switchGetPositionLock(
+			 m_switchGetPositionMutex
+			 , std::defer_lock
+		 );
+		 std::unique_lock <std::mutex> findProcessedBufferLock(
+			 m_findProcesedBufferMutex
+			 , std::defer_lock
+		 );
+		 std::lock( // Lock both locks simultaneously
+			 switchGetPositionLock
+			 , findProcessedBufferLock
+		 );
+		 //-----------------------------------------------------------------------
 
-			 // Retrieve the uuid of the buffer port
-			 auto gbp_tag = gbp_ptr->getUniqueTag();
+		 // Retrieve the uuid of the buffer port
+		 auto gbp_tag = gbp_ptr->getUniqueTag();
 
-			 // Find orphaned items in the two collections and remove them.
-			 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
-			 // otherwise the following statements could be simplified.
-			 std::size_t nErasedRaw = Gem::Common::erase_if(
-				 m_RawBuffers
-				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
-			 ); // m_RawBuffers is a std::map, so items are of type std::pair
-
-#ifdef DEBUG
-			 if(nErasedRaw > 0 ) {
-				 glogger
-					 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedRaw << " raw buffers" << std::endl
-					 << GLOGGING;
-			 }
-#endif
-
-			 std::size_t nErasedProc = Gem::Common::erase_if(
-				 m_ProcessedBuffers
-				 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
-			 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
+		 // Find orphaned items in the two collections and remove them.
+		 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
+		 // otherwise the following statements could be simplified.
+		 std::size_t nErasedRaw = Gem::Common::erase_if(
+			 m_RawBuffers
+			 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
+		 ); // m_RawBuffers is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
-			 if(nErasedProc > 0 ) {
-				 glogger
-					 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedProc << " processed buffers" << std::endl
-					 << GLOGGING;
-			 }
-#endif
-
-			 // Attach the new items to the maps
-			 m_RawBuffers[gbp_tag] = gbp_ptr;
-			 m_ProcessedBuffers[gbp_tag] = gbp_ptr;
-
-			 // Fix the current get-pointer. We simply attach it to the start of the list
-			 m_currentGetPosition = m_RawBuffers.begin();
-
-			 std::cout << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl;
+		 if(nErasedRaw > 0 ) {
+			 glogger
+				 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedRaw << " raw buffers" << std::endl
+				 << GLOGGING;
 		 }
+#endif
+
+		 std::size_t nErasedProc = Gem::Common::erase_if(
+			 m_ProcessedBuffers
+			 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
+		 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
+
+#ifdef DEBUG
+		 if(nErasedProc > 0 ) {
+			 glogger
+				 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedProc << " processed buffers" << std::endl
+				 << GLOGGING;
+		 }
+#endif
+
+		 // Attach the new items to the maps
+		 m_RawBuffers[gbp_tag] = gbp_ptr;
+		 m_ProcessedBuffers[gbp_tag] = gbp_ptr;
+
+		 // Fix the current get-pointer. We simply attach it to the start of the list
+		 m_currentGetPosition = m_RawBuffers.begin();
+
+		 std::cout << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl;
 
 		 // Let the audience know
 		 m_buffersPresent.store(true);
