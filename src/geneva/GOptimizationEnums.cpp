@@ -442,7 +442,7 @@ std::istream& operator>>(std::istream& i, Gem::Geneva::adaptionMode& am) {
 #ifdef DEBUG
 	am = boost::numeric_cast<Gem::Geneva::adaptionMode>(tmp);
 #else
-	am = static_cast<Gem::Geneva::updateRule>(tmp);
+	am = static_cast<Gem::Geneva::adaptionMode>(tmp);
 #endif /* DEBUG */
 
 	return i;
