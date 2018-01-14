@@ -4,9 +4,3 @@ Known Bugs and issues
 Add new bugs here ...
 
 --
-
-Boost version 1.58 seems to have a serialization-related bug, which was
-"worked-around" in Geneva but some consequences might remain.
-Please use the recommended Boost version 1.57 at the moment.
-
---
