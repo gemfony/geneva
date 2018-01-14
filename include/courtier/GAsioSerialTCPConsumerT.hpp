@@ -147,7 +147,7 @@ public:
 	 /**
 	  * The standard destructor.
 	  */
-	 virtual ~GAsioSerialTCPClientT() {
+	 ~GAsioSerialTCPClientT() override {
 		 Gem::Common::g_array_delete(m_tmpBuffer);
 
 		 glogger
@@ -1166,7 +1166,7 @@ public:
 		 , const std::size_t &listenerThreads = 0
 		 , const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::BINARY
 	 )
-		 : m_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+		 : m_n_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
 			, m_serializationMode(sm)
 			, m_port(port)
 	 { /* nothing */ }
@@ -1175,7 +1175,7 @@ public:
 	 /**
 	  * A standard destructor
 	  */
-	 virtual ~GAsioSerialTCPConsumerT()
+	 ~GAsioSerialTCPConsumerT() override
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1215,7 +1215,7 @@ public:
 	  * Allows to set the number of listener threads
 	  */
 	 void setNListenerThreads(std::size_t listenerThreads) {
-		 m_listenerThreads = listenerThreads;
+		 m_n_listenerThreads = listenerThreads;
 	 }
 
 	 /***************************************************************************/
@@ -1223,7 +1223,7 @@ public:
 	  * Allows to retrieve the number of listener threads
 	  */
 	 std::size_t getNListenerThreads() const {
-		 return m_listenerThreads;
+		 return m_n_listenerThreads;
 	 }
 
 	 /***************************************************************************/
@@ -1336,9 +1336,9 @@ public:
 		 }
 
 		 // Set the number of threads in the pool
-		 if (m_listenerThreads) {
-			 m_gtp.setNThreads(2 * boost::numeric_cast<unsigned int>(m_listenerThreads));
-			 std::cout << "GAsioSerialTCPConsumerT: Started de-serialization pool with " << (2 * boost::numeric_cast<unsigned int>(m_listenerThreads)) << " threads" << std::endl;
+		 if (m_n_listenerThreads) {
+			 m_gtp.setNThreads(2 * boost::numeric_cast<unsigned int>(m_n_listenerThreads));
+			 std::cout << "GAsioSerialTCPConsumerT: Started de-serialization pool with " << (2 * boost::numeric_cast<unsigned int>(m_n_listenerThreads)) << " threads" << std::endl;
 		 }
 
 		 try {
@@ -1353,9 +1353,9 @@ public:
 			 // so the io_service doesn't run out of work
 			 m_gtg.create_threads(
 				 [this]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
-				 , m_listenerThreads
+				 , m_n_listenerThreads
 			 );
-			 std::cout << "GAsioSerialTCPConsumerT: Started acceptor pool with " << boost::numeric_cast<unsigned int>(m_listenerThreads) << " threads" << std::endl;
+			 std::cout << "GAsioSerialTCPConsumerT: Started acceptor pool with " << boost::numeric_cast<unsigned int>(m_n_listenerThreads) << " threads" << std::endl;
 		 } catch (const boost::system::system_error &e) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
@@ -1438,7 +1438,7 @@ public:
 	  * @param visible Command line options that should always be visible
 	  * @param hidden Command line options that should only be visible upon request
 	  */
-	 virtual void addCLOptions(
+	 void addCLOptions(
 		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
 	 ) override {
 		 namespace po = boost::program_options;
@@ -1458,7 +1458,7 @@ public:
 			 ("stcpc_maxConnectionAttempts",
 				 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
 				 "\t[stcpc] The maximum allowed number of failed connection attempts of a client")
-			 ("stcpc_nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
+			 ("stcpc_nListenerThreads", po::value<std::size_t>(&m_n_listenerThreads)->default_value(m_n_listenerThreads),
 				 "\t[stcpc] The number of threads used to listen for incoming connections");
 	 }
 
@@ -1648,7 +1648,7 @@ private:
 
 	 boost::asio::io_service m_io_service;   ///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
 	 std::shared_ptr<boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
-	 std::size_t m_listenerThreads = Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
+	 std::size_t m_n_listenerThreads = Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_service}; ///< takes care of external connection requests
 	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
 	 std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
