@@ -43,7 +43,7 @@ plus additional space for compilation work.
   then go to the "Prebuilt windows binaries" link, and download the latest
   Boost Windows package corresponding to the right compiler version, e.g.
   MSVC14 in our case (see above), which would imply the installer file
-  "boost_1_61_0-msvc-14.0-64.exe" at the moment.
+  "boost_1_66_0-msvc-14.0-64.exe" at the moment.
 
 
 Building and installing Geneva
@@ -64,8 +64,8 @@ Building and installing Geneva
     cd "D:\SOFT\GENEVA-BUILD"
     cmake -G "Visual Studio 14 2015 Win64"
 	-DCMAKE_VERBOSE_MAKEFILE=ON
-	-DBOOST_ROOT="C:\local\boost_1_61_0"
-	-DBOOST_LIBRARYDIR="C:\local\boost_1_61_0\lib64-msvc-14.0"
+	-DBOOST_ROOT="C:\local\boost_1_66_0"
+	-DBOOST_LIBRARYDIR="C:\local\boost_1_66_0\lib64-msvc-14.0"
 	-DCMAKE_INSTALL_PREFIX="D:\SOFT\GENEVA-BIN"
 	"D:\SOFT\GENEVA-V1.8"
 
@@ -119,10 +119,10 @@ Building:
         the Geneva library collection
         statically linked
         including testing code
-        with Boost include location:     C:/local/Boost_1_61_0
-        with Boost library location:     C:/local/Boost_1_61_0/lib64-msvc-14.0
+        with Boost include location:     C:/local/Boost_1_66_0
+        with Boost library location:     C:/local/Boost_1_66_0/lib64-msvc-14.0
         using compiler:                  MSVC v19.0.23026.0
-        enforcing standard:              cxx11
+        enforcing standard:              cxx14
         producing verbose CMake output
         for operating system:            Windows
         to install into prefix:          D:/SOFT/GENEVA-BUILD

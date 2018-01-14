@@ -82,9 +82,9 @@ INCLUDE(CommonGenevaBuild)
 # Set the library/package version. Uneven minor numbers denote development
 # versions while even minor numbers stand for production releases.
 
-SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "8")
-SET(VERSION_PATCH "1")
+SET(VERSION_MAJOR "2")
+SET(VERSION_MINOR "0")
+SET(VERSION_PATCH "0BETA")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 

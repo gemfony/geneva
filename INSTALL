@@ -3,15 +3,14 @@ Target systems
 
 The main development work of the Geneva library collection is currently done
 on Ubuntu and Debian. It is likely that Geneva compiles on most other Linux
-and Unix systems using the GNU Compiler Collection. The main branch of Geneva
-development in Launchpad is built and tested nightly under
+and Unix systems using the GNU Compiler Collection or CLang. The main branch
+of Geneva development in Launchpad is built and tested nightly under
+	Ubuntu 16.04,
 	Ubuntu 14.04,
-	Ubuntu 12.04,
-	CentOS 7,
-	CentOS 6, and
-	FreeBSD 9
-using different Boost versions ranging from 1.48 to 1.55, using GCC versions
-4.4 to 4.8 or CLang versions 3.0 to 3.4, and different compiler settings. See
+	CentOS 7, and
+	Debian 9
+using different Boost versions starting from 1.66, using GCC versions
+4.8 to 6.3 or CLang versions 3.5 to 5, and different compiler settings. See
 Gemfony's autobuild system for more details:
 	http://build.gemfony.eu/index.php?project=Geneva
 
@@ -20,8 +19,8 @@ compiler, which comes with the development suite. Note that support for MacOS
 is experimental at best.
 
 Geneva has also been tested to compile and work under Windows both using the
-MS Visual C++ 12.0 ("Visual Studio Express 2013 for Desktop") compiler and the
-Cygwin environment.
+MS Visual C++ 14.0 ("Visual Studio Community 2015") compiler and the Cygwin
+environment.
 
 The authors would very much appreciate your feedback through the Geneva
 Development Forum http://www.gemfony.eu/index.php?forums .
@@ -36,17 +35,17 @@ from the Downloads section of our web page.
 Prerequisites
 =============
 
-The build system uses CMake in version 2.8 or later. CMake 3.0 is recommended.
+The build system uses CMake in version 3.1 or later.
 
 You will also need the Boost libraries (see http://www.boost.org) in version
-1.48 or newer. Relying on the libraries provided by your system is the recommended
-way to install Boost. Alternatively, you may want to compile and install a custom
-Boost from source, see the Appendix "Compiling Boost" below for more details.
-We currently recommend Boost version 1.55 .
+1.66 or newer. Relying on the libraries provided by your system (if available)
+is the recommended way to install Boost. Alternatively, you may want to
+compile and install a custom Boost from source, see the Appendix "Compiling
+Boost" below for more details. We currently recommend Boost version 1.66.
 
 Please do make sure that Boost has been compiled with the same C++ standard
-mode that you wish to use for Geneva (in particular, do not mix libraries
-compiled in C++11 and C++98 mode).
+mode that you wish to use for Geneva. Geneva currently requeries support
+for C++14.
 
 If you wish to build from the source code available from our version control
 tree you will also need the Git version control tool. This is not needed if
@@ -57,9 +56,15 @@ Installation prerequisites on Debian/Ubuntu
 -------------------------------------------
 
 The following commands should be enough to install the required prerequisites
-in any reasonably modern Debian/Ubuntu release (Debian 6, Ubuntu 10.10 or later):
+in any reasonably modern Debian/Ubuntu release (Debian 8, Ubuntu 14.04 or later):
 
 sudo apt-get install --no-install-recommends cmake git g++
+
+The required Boost version (1.66 or later) is currently not available as
+official OS packages in any of the above distributions. When it happens to
+be available in the future, or if you happen to find alternative repositories
+for these libraries, the following command should be enough to get the
+Boost dependencies set up:
 
 sudo apt-get install --no-install-recommends libboost-dev \
         libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev \
@@ -68,6 +73,8 @@ sudo apt-get install --no-install-recommends libboost-dev \
 
 Installation prerequisites on MacOS X (tested only on 10.10)
 ------------------------------------------------------------
+
+** NOTE: this section is outdated. **
 
 You should first install the Xcode environment from the App store. This
 will give you a working, Clang-based C++ compiler. You should also install Mac
@@ -121,7 +128,7 @@ under CygWin:
         make
         cmake
         libboost-devel
-        libboost_*1.59  (at least you need: atomic,filesystem,
+        libboost_*1.66  (at least you need: atomic,beast,filesystem,
                          program_options,random,regex,serialization,system,
                          test_exec_monitor,unit_test_framework)
 
@@ -157,7 +164,7 @@ sh ../Geneva/scripts/prepareBuild.sh ./myGenevaConfig.gcfg
 
 Finally build and install in the usual way:
 
-make		# Use the -j2 switch if you have a dual core CPU
+make               # Use the -j2 switch if you have a dual core CPU
 sudo make install  # Assuming you want to install to a system directory
 
 You can clean up the build folder by running "make clean" inside of $HOME/build .
@@ -181,21 +188,21 @@ In order to choose a custom installation directory (instead of the default
 cmake /path/to/geneva-top-dir -DCMAKE_INSTALL_PREFIX="/where/the/library/goes"
 
 Somewhat older distributions won't provide a new enough version of Boost
-(i.e., at least 1.48). You might thus have compiled your own version of
+(i.e., at least 1.66). You might thus have compiled your own version of
 Boost, and have installed it in a non-standard location. In order for
 CMake to find this directory, you can either edit the top-level
 CMakeLists.txt file and hard-code the paths (uncomment the appropriate
 entries there), or provide the necessary variables at the command line
 when calling cmake. This can be done in the following way (assuming that
-Boost is installed in /opt/boost155):
+Boost is installed in /opt/boost166):
 
-cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost155"
+cmake /path/to/geneva-top-dir -DBOOST_ROOT="/opt/boost166"
 
 Alternatively, if you installed Boost in some non-standard directories,
 you may try defining both the include and library locations:
 
-cmake /path/to/geneva-top-dir -DBOOST_INCLUDEDIR="/opt/boost155/include" \
-                              -DBOOST_LIBRARYDIR="/opt/boost155/lib"
+cmake /path/to/geneva-top-dir -DBOOST_INCLUDEDIR="/opt/boost166/include" \
+                              -DBOOST_LIBRARYDIR="/opt/boost166/lib"
 
 Adding another define -DGENEVA_BUILD_TYPE="Release" or -DGENEVA_BUILD_TYPE="Debug"
 switches between Release and Debug (default) builds.
@@ -264,18 +271,18 @@ Appendix: Compiling Boost on Linux
 ==================================
 
 Download Boost from http://www.boost.org and extract the compressed file.
-This will create a folder "boost_1_55_0", for instance. Change to that
-folder and, assuming Boost should be installed in /opt/boost155 (which
+This will create a folder "boost_1_66_0", for instance. Change to that
+folder and, assuming Boost should be installed in /opt/boost166 (which
 should be writable), execute
 
-./bootstrap.sh --prefix=/opt/boost155
+./bootstrap.sh --prefix=/opt/boost166
 sudo ./b2 install
 
 You can add a "-j 2" to the second command if your system has two cores.
 This will speed up the otherwise quite long compilation time.
 
 Once done you can use the Boost include path as explained above, with
-BOOST_ROOT="/opt/boost155".
+BOOST_ROOT="/opt/boost166".
 
 If FindBoost.cmake has trouble finding the Boost libraries in the specified
 location, it might help to compile the library with the flag
