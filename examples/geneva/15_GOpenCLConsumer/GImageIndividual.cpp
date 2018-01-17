@@ -423,13 +423,13 @@ std::vector<Gem::Common::t_circle> GImageIndividual::getTriangleData() const {
  *
  * @return The background color used for the candidate image
  */
-std::tuple<float,float,float> GImageIndividual::getBackGroundColor() const {
+auto GImageIndividual::getBackGroundColor() const {
 	float local_bg_red, local_bg_green, local_bg_blue;
 	std::size_t offset = 10*nTriangles_;
 	local_bg_red   = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+0)->value());
 	local_bg_green = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+1)->value());
 	local_bg_blue  = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+2)->value());
-	return {local_bg_red, local_bg_green, local_bg_blue};
+	return std::tuple<float,float,float>{local_bg_red, local_bg_green, local_bg_blue};
 }
 
 /*******************************************************************************************/
@@ -1137,16 +1137,16 @@ void GImageIndividualFactory::setLocAdaptAdProb(double loc_adaptAdProb) {
 /**
  * Allows to retrieve the allowed range for adProb_ variation
  */
-std::tuple<double,double> GImageIndividualFactory::getAdProbRange() const {
-	return {minAdProb_.value(), maxAdProb_.value()};
+auto GImageIndividualFactory::getAdProbRange() const {
+	return std::tuple<double,double>{minAdProb_.value(), maxAdProb_.value()};
 }
 
 /******************************************************************************/
 /**
  * Allows to retrieve the allowed range for loc_adProb_ variation
  */
-std::tuple<double,double> GImageIndividualFactory::getLocAdProbRange() const {
-	return {loc_minAdProb_.value(), loc_maxAdProb_.value()};
+auto GImageIndividualFactory::getLocAdProbRange() const {
+	return std::tuple<double,double>{loc_minAdProb_.value(), loc_maxAdProb_.value()};
 }
 
 /******************************************************************************/

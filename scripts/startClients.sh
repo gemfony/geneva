@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-#!/bin/bash
-
 ####################################################################
 #
 # Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)

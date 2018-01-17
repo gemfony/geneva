@@ -568,9 +568,9 @@ public:
 	 /**
 	  * Allows to retrieve the allowed range for adProb_ variation
 	  */
-	 std::tuple<fp_type, fp_type> getAdProbRange() const
+	 auto getAdProbRange() const
 	 {
-		 return {m_minAdProb, m_maxAdProb};
+		 return std::tuple<fp_type, fp_type>{m_minAdProb, m_maxAdProb};
 	 }
 
 	 /***************************************************************************/

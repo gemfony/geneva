@@ -244,7 +244,8 @@ public:
 	G_API_COMMON GColumn();
 	/** @brief Initialization with dimensions and colors */
 	G_API_COMMON GColumn(
-		const std::size_t &, std::tuple<float, float, float>
+		const std::size_t &
+		, std::tuple<float, float, float>
 	);
 	/** @brief Copy construction */
 	G_API_COMMON GColumn(const GColumn &);
@@ -269,7 +270,8 @@ public:
 
 	/** @brief Initializes the object to a specific size */
 	void init(
-		const std::size_t &, std::tuple<float, float, float>
+		const std::size_t &
+		, std::tuple<float, float, float>
 	);
 
 private:
@@ -313,7 +315,8 @@ public:
 	 * background color is black.
 	 */
 	GCanvas(
-		std::tuple<std::size_t, std::size_t> dim, std::tuple<float, float, float> color
+		std::tuple<std::size_t, std::size_t> dim
+		, std::tuple<float, float, float> color
 	)
 		: xDim_(std::get<0>(dim)), yDim_(std::get<1>(dim)), canvasData_(),
 		  NCOLORS(Gem::Common::PowSmallPosInt<2, COLORDEPTH>::result), MAXCOLOR(NCOLORS - 1) {
@@ -368,8 +371,8 @@ public:
 	/**
 	 * Get information about the canvas dimensions
 	 */
-	std::tuple<std::size_t, std::size_t> dimensions() const {
-		return {xDim_, yDim_};
+	auto dimensions() const {
+		return std::tuple<std::size_t, std::size_t>{xDim_, yDim_};
 	}
 
 	/***************************************************************************/
@@ -749,7 +752,10 @@ public:
 	 * @param
 	 */
 	void reset(
-		std::tuple<std::size_t, std::size_t> dimension, const float &red, const float &green, const float &blue
+		std::tuple<std::size_t, std::size_t> dimension
+		, const float &red
+		, const float &green
+		, const float &blue
 	) {
 		this->clear();
 
@@ -766,7 +772,8 @@ public:
 	 * Resets the canvas to a given color and dimension
 	 */
 	void reset(
-		std::tuple<std::size_t, std::size_t> dimension, std::tuple<float, float, float> color
+		std::tuple<std::size_t, std::size_t> dimension
+		, std::tuple<float, float, float> color
 	) {
 		this->reset(
 			dimension, std::get<0>(color), std::get<1>(color), std::get<2>(color)
@@ -901,7 +908,7 @@ public:
 	/**
 	 * Calculates the average colors over all pixels
 	 */
-	std::tuple<float, float, float> getAverageColors() const {
+	auto getAverageColors() const {
 		float averageRed = 0.f;
 		float averageGreen = 0.f;
 		float averageBlue = 0.f;
@@ -918,7 +925,7 @@ public:
 		averageGreen /= (float) (xDim_ * yDim_);
 		averageBlue /= (float) (xDim_ * yDim_);
 
-		return {averageRed, averageGreen, averageBlue};
+		return std::tuple<float, float, float>{averageRed, averageGreen, averageBlue};
 	}
 
 	/***************************************************************************/
@@ -967,7 +974,8 @@ public:
 	G_API_COMMON GCanvas8();
 	/** @brief Initialization with dimensions and colors */
 	G_API_COMMON GCanvas8(
-		std::tuple<std::size_t, std::size_t>, std::tuple<float, float, float>
+		std::tuple<std::size_t, std::size_t>
+		, std::tuple<float, float, float>
 	);
 	/** @brief Initialization from data held in a string -- uses the PPM-P3 format */
 	G_API_COMMON GCanvas8(const std::string &);
@@ -1008,7 +1016,8 @@ public:
 	G_API_COMMON GCanvas16();
 	/** @brief Initialization with dimensions and colors */
 	G_API_COMMON GCanvas16(
-		std::tuple<std::size_t, std::size_t>, std::tuple<float, float, float>
+		std::tuple<std::size_t, std::size_t>
+		, std::tuple<float, float, float>
 	);
 	/** @brief Initialization from data held in a string -- uses the PPM-P3 format */
 	G_API_COMMON GCanvas16(const std::string &);
@@ -1048,7 +1057,8 @@ public:
 	G_API_COMMON GCanvas24();
 	/** @brief Initialization with dimensions and colors */
 	G_API_COMMON GCanvas24(
-		std::tuple<std::size_t, std::size_t>, std::tuple<float, float, float>
+		std::tuple<std::size_t, std::size_t>
+		, std::tuple<float, float, float>
 	);
 	/** @brief Initialization from data held in a string -- uses the PPM-P3 format */
 	G_API_COMMON GCanvas24(const std::string &);

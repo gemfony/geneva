@@ -324,7 +324,7 @@ int_type checkValueRange(
  * @return A std::tuple holding the extreme values
  */
 template<typename x_type_undet>
-std::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet> &extDat) {
+auto getMinMax(const std::vector<x_type_undet> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		throw gemfony_exception(
@@ -341,7 +341,7 @@ std::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet>
 		if (extDat.at(i) > max) max = extDat.at(i);
 	}
 
-	return {min, max};
+	return std::tuple<x_type_undet, x_type_undet>{min, max};
 }
 
 /******************************************************************************/
@@ -354,8 +354,7 @@ std::tuple<x_type_undet, x_type_undet> getMinMax(const std::vector<x_type_undet>
  * @return A std::tuple holding the extreme values
  */
 template<typename x_type_undet, typename y_type_undet>
-std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>
-getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat) {
+auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		throw gemfony_exception(
@@ -375,7 +374,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat) {
 		if (std::get<1>(extDat.at(i)) > maxY) maxY = std::get<1>(extDat.at(i));
 	}
 
-	return {minX, maxX, minY, maxY};
+	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>{minX, maxX, minY, maxY};
 }
 
 /******************************************************************************/
@@ -388,8 +387,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet>> &extDat) {
  * @return A std::tuple holding the extreme values
  */
 template<typename x_type_undet, typename y_type_undet, typename z_type_undet>
-std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>
-getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &extDat) {
+auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		throw gemfony_exception(
@@ -412,7 +410,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>
 		if (std::get<2>(extDat.at(i)) > maxZ) maxZ = std::get<2>(extDat.at(i));
 	}
 
-	return {minX, maxX, minY, maxY, minZ, maxZ};
+	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet>{minX, maxX, minY, maxY, minZ, maxZ};
 }
 
 /******************************************************************************/
@@ -425,8 +423,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>
  * @return A std::tuple holding the extreme values
  */
 template<typename x_type_undet, typename y_type_undet, typename z_type_undet, typename w_type_undet>
-std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>
-getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &extDat) {
+auto getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &extDat) {
 	// Do some error checking
 	if (extDat.size() < (std::size_t) 2) {
 		throw gemfony_exception(
@@ -452,7 +449,7 @@ getMinMax(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet,
 		if (std::get<3>(extDat.at(i)) > maxW) maxW = std::get<3>(extDat.at(i));
 	}
 
-	return {minX, maxX, minY, maxY, minZ, maxZ, minW, maxW};
+	return std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet, z_type_undet, z_type_undet, w_type_undet, w_type_undet>{minX, maxX, minY, maxY, minZ, maxZ, minW, maxW};
 }
 
 /******************************************************************************/
@@ -496,7 +493,7 @@ T GMean(
  * @return A std::tuple holding the mean value and the standard deviation of the values stored in parVec
  */
 template<typename T>
-std::tuple<T, T> GStandardDeviation(
+auto GStandardDeviation(
 	const std::vector<T> &parVec, typename std::enable_if<std::is_floating_point<T>::value>::type *dummy = nullptr
 ) {
 	T mean = GMean(parVec), sigma = 0.;
@@ -513,7 +510,7 @@ std::tuple<T, T> GStandardDeviation(
 
 	// It is easy if the size is 1
 	if (parVec.size() == 1) {
-		return {parVec.at(0), 0.};
+		return std::tuple<T, T>{parVec.at(0), 0.};
 	}
 
 	typename std::vector<T>::const_iterator cit;
@@ -524,7 +521,7 @@ std::tuple<T, T> GStandardDeviation(
 	sigma /= parVec.size() - 1;
 	sigma = sqrt(sigma);
 
-	return {mean, sigma};
+	return std::tuple<T, T>{mean, sigma};
 }
 
 /******************************************************************************/
@@ -830,12 +827,12 @@ fp_type squareDeviation(
  * @return Regression parameters for a line defined by the input data points
  */
 template<typename fp_type>
-std::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
+auto getRegressionParameters(
 	const std::vector<std::tuple<fp_type, fp_type>> &dataPoints,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
 	if (dataPoints.empty()) {
-		return {fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.)};
+		return std::tuple<fp_type, fp_type, fp_type, fp_type>{fp_type(0.), fp_type(0.), fp_type(0.), fp_type(0.)};
 	}
 
 	fp_type a = fp_type(0), b = fp_type(0);
@@ -859,7 +856,7 @@ std::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
 	fp_type sigma_a = gsqrt(dev / (n - 2.)) * gsqrt(sq_sum_x / (n * sq_sum_x - gpow(sum_x, 2.)));
 	fp_type sigma_b = gsqrt(dev / (n - 2.)) * gsqrt(n / (n * sq_sum_x - gpow(sum_x, 2.)));
 
-	return {a, sigma_a, b, sigma_b};
+	return std::tuple<fp_type, fp_type, fp_type, fp_type>{a, sigma_a, b, sigma_b};
 }
 
 /******************************************************************************/
@@ -873,7 +870,7 @@ std::tuple<fp_type, fp_type, fp_type, fp_type> getRegressionParameters(
  * s and p have the same structure
  */
 template<typename fp_type>
-std::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
+auto getRatioError(
 	const std::tuple<fp_type, fp_type, fp_type, fp_type> &s, const std::tuple<fp_type, fp_type, fp_type, fp_type> &p,
 	typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
@@ -902,7 +899,7 @@ std::tuple<fp_type, fp_type, fp_type, fp_type> getRatioError(
 	fp_type p_val = std::get<2>(p);
 	fp_type p_err = std::get<3>(p);
 
-	return {
+	return std::tuple<fp_type, fp_type, fp_type, fp_type>{
 		sleep_time
 		, 0.
 		, s_val / p_val

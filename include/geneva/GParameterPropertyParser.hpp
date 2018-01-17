@@ -138,7 +138,7 @@ public:
 	  * Emits a name for this class / object
 	  */
 	 std::string name() const override {
-		 return {"parPropSpec<T>"};
+		 return std::string{"parPropSpec<T>"};
 	 }
 
 	 /***************************************************************************/
@@ -435,8 +435,7 @@ private:
  * This is the overload for double parameters.
  */
 template <>
-inline std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator>
-GParameterPropertyParser::getIterators<double>() const {
+inline std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator> GParameterPropertyParser::getIterators<double>() const {
 	// Make sure parsing has happened.
 	if(!parsed_) {
 		throw gemfony_exception(
@@ -450,7 +449,7 @@ GParameterPropertyParser::getIterators<double>() const {
 	auto runner_it = dSpecVec.begin();
 	auto end_it    = dSpecVec.end();
 
-	return {runner_it, end_it};
+	return std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator>{runner_it, end_it};
 }
 
 /******************************************************************************/
@@ -468,8 +467,7 @@ GParameterPropertyParser::getIterators<double>() const {
  * This is the overload for float parameters.
  */
 template <>
-inline std::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator>
-GParameterPropertyParser::getIterators<float>() const {
+inline std::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator> GParameterPropertyParser::getIterators<float>() const {
 	// Make sure parsing has happened.
 	if(!parsed_) {
 		throw gemfony_exception(
@@ -483,7 +481,7 @@ GParameterPropertyParser::getIterators<float>() const {
 	auto runner_it = fSpecVec.begin();
 	auto end_it    = fSpecVec.end();
 
-	return {runner_it, end_it};
+	return std::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator>{runner_it, end_it};
 }
 
 /******************************************************************************/
@@ -515,7 +513,7 @@ GParameterPropertyParser::getIterators<std::int32_t>() const {
 	auto runner_it = iSpecVec.begin();
 	auto end_it    = iSpecVec.end();
 
-	return {runner_it, end_it};
+	return std::tuple<std::vector<parPropSpec<std::int32_t>>::const_iterator, std::vector<parPropSpec<std::int32_t>>::const_iterator>{runner_it, end_it};
 }
 
 /******************************************************************************/
@@ -547,7 +545,7 @@ GParameterPropertyParser::getIterators<bool>() const {
 	auto runner_it = bSpecVec.begin();
 	auto end_it    = bSpecVec.end();
 
-	return {runner_it, end_it};
+	return std::tuple<std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator>{runner_it, end_it};
 }
 
 /******************************************************************************/

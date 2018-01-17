@@ -500,7 +500,7 @@ void G_OptimizationAlgorithm_ParChild::recombine() {
  * @return The range inside which adaption should take place
  */
 std::tuple<std::size_t,std::size_t> G_OptimizationAlgorithm_ParChild::getAdaptionRange() const {
-	return {m_n_parents, this->size()};
+	return std::tuple<std::size_t,std::size_t>{m_n_parents, this->size()};
 }
 
 /******************************************************************************/

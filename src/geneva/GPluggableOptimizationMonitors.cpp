@@ -274,7 +274,7 @@ void GFitnessMonitor::setDims(const std::uint32_t &xDim, const std::uint32_t &yD
  * @return The dimensions of the canvas as a tuple
  */
 std::tuple<std::uint32_t, std::uint32_t> GFitnessMonitor::getDims() const {
-	return {m_xDim, m_yDim};
+	return std::tuple<std::uint32_t, std::uint32_t>{m_xDim, m_yDim};
 }
 
 /******************************************************************************/

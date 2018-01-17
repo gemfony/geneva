@@ -615,7 +615,7 @@ void GSimulatedAnnealing::selectBest() {
 std::tuple<std::size_t,std::size_t> GSimulatedAnnealing::getEvaluationRange() const {
 	// We evaluate all individuals in the first iteration This happens so pluggable
 	// optimization monitors do not need to distinguish between algorithms
-	return {this->inFirstIteration() ? 0 : this->getNParents(), this->size()};
+	return std::tuple<std::size_t,std::size_t>{this->inFirstIteration() ? 0 : this->getNParents(), this->size()};
 }
 
 /******************************************************************************/

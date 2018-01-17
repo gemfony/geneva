@@ -94,7 +94,7 @@ float GOpenCLCanvas::diff(const GOpenCLCanvas& cp) const {
 /**
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
-std::tuple<std::shared_ptr<cl_uchar>, std::size_t> GOpenCLCanvas::getOpenCLCanvasI() const {
+auto GOpenCLCanvas::getOpenCLCanvasI() const {
 	std::shared_ptr<cl_uchar> oclCanvasData(
 		new cl_uchar[4*this->getNPixels()]
 		, [](cl_uchar *a) { delete [] a; }
@@ -111,7 +111,7 @@ std::tuple<std::shared_ptr<cl_uchar>, std::size_t> GOpenCLCanvas::getOpenCLCanva
 		}
 	}
 
-	return {oclCanvasData, 4*this->getNPixels()};
+	return std::tuple<std::shared_ptr<cl_uchar>, std::size_t>{oclCanvasData, 4*this->getNPixels()};
 }
 
 
@@ -149,7 +149,7 @@ void GOpenCLCanvas::loadFromOpenCLArrayI(const std::tuple<std::shared_ptr<cl_uch
 /**
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
-std::tuple<std::shared_ptr<cl_float>, std::size_t> GOpenCLCanvas::getOpenCLCanvasF() const {
+auto GOpenCLCanvas::getOpenCLCanvasF() const {
 	std::shared_ptr<cl_float> oclCanvasData(
 		new cl_float[4*this->getNPixels()]
 		, [](cl_float *a){ delete [] a; }
@@ -166,7 +166,7 @@ std::tuple<std::shared_ptr<cl_float>, std::size_t> GOpenCLCanvas::getOpenCLCanva
 		}
 	}
 
-	return {oclCanvasData, 4*this->getNPixels()};
+	return std::tuple<std::shared_ptr<cl_float>, std::size_t>{oclCanvasData, 4*this->getNPixels()};
 }
 
 
@@ -204,7 +204,7 @@ void GOpenCLCanvas::loadFromOpenCLArrayF(const std::tuple<std::shared_ptr<cl_flo
 /**
  * Emits the canvas data suitable for transfer to an OpenCL context
  */
-std::tuple<std::shared_ptr<cl_float4>, std::size_t> GOpenCLCanvas::getOpenCLCanvasF4() const {
+auto GOpenCLCanvas::getOpenCLCanvasF4() const {
 	std::shared_ptr<cl_float4> oclCanvasData(
 		new cl_float4[this->getNPixels()]
 		, [](cl_float4 *a){ delete [] a; }
@@ -221,7 +221,7 @@ std::tuple<std::shared_ptr<cl_float4>, std::size_t> GOpenCLCanvas::getOpenCLCanv
 		}
 	}
 
-	return {oclCanvasData, this->getNPixels()};
+	return std::tuple<std::shared_ptr<cl_float4>, std::size_t>{oclCanvasData, this->getNPixels()};
 }
 
 

@@ -188,14 +188,16 @@ GRgb::GRgb() : r(0.f), g(0.f), b(0.f) { /* nothing */ }
 /**
  * Initialization with colors
  */
-GRgb::GRgb(float red, float green, float blue) : r(red), g(green), b(blue) { /* nothing */ }
+GRgb::GRgb(float red, float green, float blue) : r(red), g(green), b(blue)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with colors held in a std::tuple
  */
 GRgb::GRgb(std::tuple<float, float, float> color)
-	: r(std::get<0>(color)), g(std::get<1>(color)), b(std::get<2>(color)) { /* nothing */ }
+	: r(std::get<0>(color)), g(std::get<1>(color)), b(std::get<2>(color))
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

@@ -678,7 +678,7 @@ void GExternalEvaluatorIndividualFactory::setAdaptAdProb(double adaptAdProb) {
  * Allows to retrieve the allowed range for adProb_ variation
  */
 std::tuple<double, double> GExternalEvaluatorIndividualFactory::getAdProbRange() const {
-	return {m_minAdProb.value(), m_maxAdProb.value()};
+	return std::tuple<double, double> {m_minAdProb.value(), m_maxAdProb.value()};
 }
 
 /******************************************************************************/
@@ -802,7 +802,7 @@ void GExternalEvaluatorIndividualFactory::setMinDelta(double minDelta) {
  * Allows to retrieve the allowed value range of delta
  */
 std::tuple<double, double> GExternalEvaluatorIndividualFactory::getDeltaRange() const {
-	return {m_minDelta, m_maxDelta};
+	return std::tuple<double, double>{m_minDelta, m_maxDelta};
 }
 
 /******************************************************************************/
@@ -854,7 +854,7 @@ void GExternalEvaluatorIndividualFactory::setMinSigma1(double minSigma1) {
  * Allows to retrieve the allowed value range of sigma1_
  */
 std::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma1Range() const {
-	return {m_minSigma1, m_maxSigma1};
+	return std::tuple<double, double>{m_minSigma1, m_maxSigma1};
 }
 
 /******************************************************************************/
@@ -906,7 +906,7 @@ void GExternalEvaluatorIndividualFactory::setMinSigma2(double minSigma2) {
  * Allows to retrieve the allowed value range of sigma2_
  */
 std::tuple<double, double> GExternalEvaluatorIndividualFactory::getSigma2Range() const {
-	return {m_minSigma2, m_maxSigma2};
+	return std::tuple<double, double>{m_minSigma2, m_maxSigma2};
 }
 
 /******************************************************************************/

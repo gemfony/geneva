@@ -453,8 +453,8 @@ void GImageOpenCLWorker::process(std::shared_ptr<GParameterSet> p) {
 /**
  * Retrieve the image dimensions
  */
-std::tuple<std::size_t,std::size_t> GImageOpenCLWorker::getImageDimensions() const {
-	return {(std::size_t)dimX_, (std::size_t)dimY_};
+auto GImageOpenCLWorker::getImageDimensions() const {
+	return std::tuple<std::size_t,std::size_t>{(std::size_t)dimX_, (std::size_t)dimY_};
 }
 
 /******************************************************************************/
