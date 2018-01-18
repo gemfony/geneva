@@ -117,8 +117,8 @@ public:
 		 , const std::string &port
 	 )
 		 : GBaseClientT<processable_type>()
-			, m_query(server, port)
-			, m_endpoint_iterator0(m_resolver.resolve(m_query))
+		 , m_query(server, port)
+		 , m_endpoint_iterator0(m_resolver.resolve(m_query))
 	 {
 		 m_tmpBuffer = new char[Gem::Courtier::COMMANDLENGTH];
 	 }
@@ -137,8 +137,8 @@ public:
 		 , std::shared_ptr<processable_type> additionalDataTemplate
 	 )
 		 : GBaseClientT<processable_type>(additionalDataTemplate)
-			, m_query(server, port)
-			, m_endpoint_iterator0(m_resolver.resolve(m_query))
+		 , m_query(server, port)
+		 , m_endpoint_iterator0(m_resolver.resolve(m_query))
 	 {
 		 m_tmpBuffer = new char[Gem::Courtier::COMMANDLENGTH];
 	 }
