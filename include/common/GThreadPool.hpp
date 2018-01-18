@@ -76,7 +76,7 @@ public:
 	 /** @brief Initialization with the "native" number of threads for this architecture */
 	 G_API_COMMON GThreadPool();
 	 /** @brief Initialization with a number of threads */
-	 G_API_COMMON GThreadPool(const unsigned int &);
+	 explicit G_API_COMMON GThreadPool(const unsigned int &);
 	 /** @brief The destructor */
 	 G_API_COMMON ~GThreadPool();
 
@@ -87,6 +87,13 @@ public:
 
 	 /** @brief Blocks until all submitted jobs have been cleared from the pool */
 	 G_API_COMMON void wait();
+
+	 /***************************************************************************/
+	 // Some deleted functions
+	 G_API_COMMON GThreadPool(const GThreadPool&) = delete; // deleted copy constructor
+	 G_API_COMMON GThreadPool& operator=(GThreadPool&) = delete; // deleted assignment operator
+	 G_API_COMMON GThreadPool(const GThreadPool&&) = delete; // deleted move constructor
+	 G_API_COMMON GThreadPool& operator=(GThreadPool&&) = delete; // deleted move-assignment operator
 
 	 /***************************************************************************/
 	 /**
@@ -159,7 +166,7 @@ public:
 			 m_tasksInFlight++;
 		 }
 
-		 using result_type = typename std::result_of_t<F(Args&&...)>;
+		 using result_type = typename std::result_of<F(Args&&...)>::type;
 		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
 		 std::future<result_type> result = promise_ptr->get_future();
 
@@ -285,7 +292,7 @@ public:
 			 m_tasksInFlight++;
 		 }
 
-		 using result_type = typename std::result_of_t<F(Args&&...)>;
+		 using result_type = typename std::result_of<F(Args&&...)>::type;
 		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
 		 std::future<result_type> result = promise_ptr->get_future();
 
@@ -339,13 +346,6 @@ public:
 	 };
 
 private:
-	 /***************************************************************************/
-	 // Some deleted functions
-	 GThreadPool(const GThreadPool&) = delete; // deleted copy constructor
-	  GThreadPool& operator=(GThreadPool&) = delete; // deleted assignment operator
-	 GThreadPool(const GThreadPool&&) = delete; // deleted move constructor
-	  GThreadPool& operator=(GThreadPool&&) = delete; // deleted move-assignment operator
-
 	 /***************************************************************************/
 
 	 boost::asio::io_service m_io_service; ///< Manages the concurrent thread execution

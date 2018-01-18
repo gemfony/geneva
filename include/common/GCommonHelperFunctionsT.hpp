@@ -1139,10 +1139,8 @@ std::string vector_as_string(const std::vector<vec_cont_type>& vec) {
  * Adds an operator== to every object with a Gemfony-common interface
  */
 template<
-	typename gemfony_common_type
-	, typename = std::enable_if_t<
-		Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value
-	>
+	class gemfony_common_type
+	, class = typename std::enable_if<Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>::type
 >
 bool operator==(
 	const gemfony_common_type& x
@@ -1165,10 +1163,8 @@ bool operator==(
  * Adds an operator!= to every object with a Gemfony-common interface
  */
 template<
-	typename gemfony_common_type
-	, typename = std::enable_if_t<
-		Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value
-	>
+	class gemfony_common_type
+	, class = typename std::enable_if<Gem::Common::has_gemfony_common_interface<gemfony_common_type>::value>::type
 >
 bool operator!=(
 	const gemfony_common_type& x
