@@ -667,31 +667,31 @@ void copySmartPointerArrays(
 template<typename source_type, typename target_type>
 std::shared_ptr <target_type> convertSmartPointer(std::shared_ptr <source_type> p_raw) {
 #ifdef DEBUG
-      // Check that we have indeed been given an item and that the pointer isn't empty
-      if(!p_raw) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
-					<< "Error: Pointer is empty." << std::endl
-			);
+	// Check that we have indeed been given an item and that the pointer isn't empty
+	if(!p_raw) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
+				<< "Error: Pointer is empty." << std::endl
+		);
 
-         // Make the compiler happy
-         return std::shared_ptr<target_type>();
-      }
+		// Make the compiler happy
+		return std::shared_ptr<target_type>();
+	}
 
-      // Do the actual conversion
-      std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(p_raw);
-      if(p) return p;
-      else {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
-					<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-			);
+	// Do the actual conversion
+	std::shared_ptr<target_type> p = std::dynamic_pointer_cast<target_type>(p_raw);
+	if(p) return p;
+	else {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
+				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
+		);
 
-         // Make the compiler happy
-         return std::shared_ptr<target_type>();
-      }
+		// Make the compiler happy
+		return std::shared_ptr<target_type>();
+	}
 #else
 	return std::static_pointer_cast<target_type>(p_raw);
 #endif /* DEBUG */
@@ -705,31 +705,31 @@ std::shared_ptr <target_type> convertSmartPointer(std::shared_ptr <source_type> 
 template<typename source_type, typename target_type>
 target_type *convertSimplePointer(source_type *p_raw) {
 #ifdef DEBUG
-      // Check that we have indeed been given an item and that the pointer isn't empty
-      if(!p_raw) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In target_type * convertSimplePointer(source_type *p_raw) :" << std::endl
-					<< "Error: Pointer is empty." << std::endl
-			);
+	// Check that we have indeed been given an item and that the pointer isn't empty
+	if(!p_raw) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In target_type * convertSimplePointer(source_type *p_raw) :" << std::endl
+				<< "Error: Pointer is empty." << std::endl
+		);
 
-         // Make the compiler happy
-         return nullptr;
-      }
+		// Make the compiler happy
+		return nullptr;
+	}
 
-      // Do the actual conversion
-      target_type  *p = dynamic_cast<target_type>(p_raw);
-      if(p) return p;
-      else {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
-					<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-			);
+	// Do the actual conversion
+	target_type  *p = dynamic_cast<target_type>(p_raw);
+	if(p) return p;
+	else {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
+				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
+		);
 
-         // Make the compiler happy
-         return nullptr;
-      }
+		// Make the compiler happy
+		return nullptr;
+	}
 #else
 	return static_cast<target_type>(p_raw);
 #endif /* DEBUG */
@@ -743,31 +743,31 @@ target_type *convertSimplePointer(source_type *p_raw) {
 template<typename source_type, typename target_type>
 const target_type *convertSimplePointer(const source_type *p_raw) {
 #ifdef DEBUG
-      // Check that we have indeed been given an item and that the pointer isn't empty
-      if(!p_raw) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In const target_type * convertSimplePointer(const source_type *p_raw) :" << std::endl
-					<< "Error: Pointer is empty." << std::endl
-			);
+	// Check that we have indeed been given an item and that the pointer isn't empty
+	if(!p_raw) {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In const target_type * convertSimplePointer(const source_type *p_raw) :" << std::endl
+				<< "Error: Pointer is empty." << std::endl
+		);
 
-         // Make the compiler happy
-         return nullptr;
-      }
+		// Make the compiler happy
+		return nullptr;
+	}
 
-      // Do the actual conversion
-      auto *p = dynamic_cast<const target_type *>(p_raw);
-      if(p) return p;
-      else {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
-					<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
-			);
+	// Do the actual conversion
+	auto *p = dynamic_cast<const target_type *>(p_raw);
+	if(p) return p;
+	else {
+		throw gemfony_exception(
+			g_error_streamer(DO_LOG, time_and_place)
+				<< "In target_type * convertSimplePointer(source_type * p_raw) :" << std::endl
+				<< "Error: Invalid conversion to type " << typeid(target_type).name() << std::endl
+		);
 
-         // Make the compiler happy
-         return nullptr;
-      }
+		// Make the compiler happy
+		return nullptr;
+	}
 #else
 	return static_cast<const target_type *>(p_raw);
 #endif /* DEBUG */
@@ -817,13 +817,13 @@ std::vector<std::tuple<split_type1, split_type2>> splitStringT(
 		std::vector<std::string> sub_fragments = Gem::Common::splitString(*it, sep2);
 
 #ifdef DEBUG
-      if(2 != sub_fragments.size()) {
+		if(2 != sub_fragments.size()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In splitStringT(std::string, const char*, const char*): Error!" << std::endl
 					<< "Incorrect number of sub-fragments: " << sub_fragments.size()
 			);
-      }
+		}
 #endif /* DEBUG */
 
 		result.push_back(
@@ -1001,7 +1001,7 @@ void erase_according_to_flags(
 	for (
 		item_it = container.begin() + start, pos_it = flags.begin() + start;
 		item_it != container.begin() + end; ++item_it, ++pos_it
-	) {
+		) {
 		// Attach processed items to the tmp vector
 		if (flag != *pos_it) {
 			container_tmp.push_back(*item_it);

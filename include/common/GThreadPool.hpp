@@ -192,10 +192,10 @@ public:
 						 promise_ptr->set_exception(std::current_exception());
 					 } catch(...) { // Unfortunately set_exception() may throw too
 						 glogger
-						 << "In GThreadPool::async_schedule(/void/):" << std::endl
-						 << "promise.set_exception() has thrown." << std::endl
-						 << "We cannot continue" << std::endl
-						 << GTERMINATION;
+							 << "In GThreadPool::async_schedule(/void/):" << std::endl
+							 << "promise.set_exception() has thrown." << std::endl
+							 << "We cannot continue" << std::endl
+							 << GTERMINATION;
 					 }
 				 }
 
