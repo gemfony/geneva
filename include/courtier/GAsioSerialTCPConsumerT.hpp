@@ -1338,8 +1338,8 @@ public:
 
 		 // Set the number of threads in the pool
 		 if (m_listenerThreads) {
-			 m_gtp.setNThreads(boost::numeric_cast<unsigned int>(m_listenerThreads));
-			 std::cout << "GAsioSerialTCPConsumerT: Started acceptor with " << boost::numeric_cast<unsigned int>(m_listenerThreads) << " threads" << std::endl;
+			 m_gtp.setNThreads(3 * boost::numeric_cast<unsigned int>(m_listenerThreads));
+			 std::cout << "GAsioSerialTCPConsumerT: Started acceptor with " << 3 * boost::numeric_cast<unsigned int>(m_listenerThreads) << " threads" << std::endl;
 		 }
 
 		 try {
