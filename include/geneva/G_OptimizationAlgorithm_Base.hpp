@@ -402,6 +402,11 @@ public:
 	 /** @brief Retrieves the best value found in the current iteration */
 	 G_API_GENEVA std::tuple<double, double> getBestCurrentPrimaryFitness() const;
 
+	 /** @brief Retrieves the best individual found up to now */
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
+	 /** @brief Retrieves a list of the best individuals found */
+	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
+
 	 /** @brief Specifies whether information about termination reasons should be emitted */
 	 G_API_GENEVA void setEmitTerminationReason(bool emitTerminatioReason = true);
 	 /** @brief Retrieves information on whether information about termination reasons should be emitted */
@@ -495,11 +500,6 @@ protected:
 
 	 /** @brief Extracts the short name of the optimization algorithm */
 	 G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path& p) const;
-
-	 /** @brief Retrieves the best individual found up to now */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestGlobalIndividual() override;
-	 /** @brief Retrieves a list of the best individuals found */
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> customGetBestGlobalIndividuals() override;
 
 	 /** @brief Retrieves the best individual found in the iteration */
 	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> customGetBestIterationIndividual() override;
