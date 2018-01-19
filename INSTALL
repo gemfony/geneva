@@ -1,3 +1,11 @@
+This is a release made for GSI Darmstadt to support their research, which
+is based on this version. What follows are the generic installation
+instructions for all platforms. However, no tests of release 1.9.0-GSI
+have been made on other platforms than Linux, so your mileage may vary.
+Please see also the minium version requirements for compiler (must
+understand C++14) and Boost in the CHANGES file.
+
+
 Target systems
 ==============
 
