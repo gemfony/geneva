@@ -327,7 +327,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 						);
 					}
 #endif
-					std::this_thread::sleep_for(std::chrono::milliseconds(10));
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
 					continue;
 				} else { // We have submitted the item -- stop the inner loop
 					break;
