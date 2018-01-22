@@ -153,7 +153,7 @@ public:
 	 /**
 	  * The standard destructor.
 	  */
-	 virtual ~GAsioAsyncTCPClientT() {
+	 ~GAsioAsyncTCPClientT() override {
 		 // Make sure we don't leave any open sockets lying around.
 		 disconnect(m_socket);
 
@@ -213,7 +213,7 @@ public:
 		 return m_total_connection_attempts;
 	 }
 
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Performs initialization work
@@ -361,7 +361,6 @@ protected:
 		 return true;
 	 }
 
-private:
 	 /***************************************************************************/
 	 /**
 	  * Tries to make a connection to the remote site. The function will wait for a
@@ -1049,7 +1048,7 @@ public:
 	 /**
 	  * A standard destructor
 	  */
-	 virtual ~GAsioAsyncTCPConsumerT()
+	 ~GAsioAsyncTCPConsumerT() override
 	 { /* nothing */ }
 
 	 /***************************************************************************/

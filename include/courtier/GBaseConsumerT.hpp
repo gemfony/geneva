@@ -83,7 +83,8 @@ namespace Courtier {
  * or a worker (in the case of multi-threaded work).
  */
 template<typename processable_type>
-class GBaseConsumerT {
+class GBaseConsumerT : public std::enable_shared_from_this<GBaseConsumerT<processable_type>>
+{
 public:
 	 /***************************************************************************/
 	 /**
@@ -201,8 +202,9 @@ public:
 	  * By default we do nothing so that derived classes do not need to re-implement this
 	  * function.
 	  */
-	 virtual void actOnCLOptions(const boost::program_options::variables_map &vm) BASE
-	 { /* nothing */ }
+	 virtual void actOnCLOptions(
+		 const boost::program_options::variables_map &vm
+	 ) BASE { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -214,7 +216,8 @@ public:
 	  * @param hidden Command line options that should only be visible upon request
 	  */
 	 virtual void addCLOptions(
-		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
+		 boost::program_options::options_description &visible
+		 , boost::program_options::options_description &hidden
 	 ) BASE { /* nothing */ }
 
 

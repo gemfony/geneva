@@ -57,6 +57,25 @@ namespace Gem {
 namespace Courtier {
 
 /******************************************************************************/
+/** @brief Indicates whether the client executes the init-, run- or finally()-function */
+enum class run_state {
+	 INIT=0
+	 , RUN=1
+	 , FINALLY=2
+};
+
+/******************************************************************************/
+/** @brief Ids of the allowed commands for the communication of the Beast consumer */
+enum class beast_payload_command : Gem::Common::ENUMBASETYPE {
+	 NONE = 0
+	 , GETDATA = 1
+	 , NODATA = 2
+	 , COMPUTE = 3
+	 , RESULT = 4
+	 , ERROR = 5
+};
+
+/******************************************************************************/
 /**
  * Specification of different consumer types of the broker
  */
@@ -210,21 +229,23 @@ using BUFFERPORT_ID_TYPE = boost::uuids::uuid;
 
 /******************************************************************************/
 
+/** @brief Puts a Gem::Courtier::beast_payload_command into a stream. Needed also for boost::lexical_cast<> */
+G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::beast_payload_command &);
+/** @brief Reads a Gem::Courtier::beast_payload_command item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::beast_payload_command &);
+
 /** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::submissionReturnMode &);
-
 /** @brief Reads a Gem::Courtier::submissionReturnMode item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::submissionReturnMode &);
 
 /** @brief Puts a Gem::Courtier::processingStatus into a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::processingStatus &);
-
 /** @brief Reads a Gem::Courtier::processingStatus item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::processingStatus &);
 
 /** @brief Puts a Gem::Courtier::brokerMode into a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::ostream& operator<<(std::ostream&, const Gem::Courtier::consumerType&);
-
 /** @brief Reads a Gem::Courtier::brokerMode item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::istream& operator>>(std::istream&, Gem::Courtier::consumerType&);
 

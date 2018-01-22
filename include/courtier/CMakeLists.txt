@@ -7,6 +7,7 @@ SET ( COMMUNICATIONINCLUDES
     GAsioSerialTCPConsumerT.hpp
     GAsioAsyncTCPConsumerT.hpp
 	GBaseConsumerT.hpp
+    GBeastConsumerT.hpp
     GExecutorT.hpp
 	GBrokerT.hpp
 	GBufferPortT.hpp

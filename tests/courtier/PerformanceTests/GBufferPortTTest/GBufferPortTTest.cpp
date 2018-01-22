@@ -183,6 +183,8 @@ void producer(
 	while(cycleCounter < nProductionCycles) {
 		// Submit the WORKLOAD object
 		std::shared_ptr<WORKLOAD> p_submit(new WORKLOAD(nContainerEntries));
+		p_submit->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
+
 		if(putTimeout.count() > 0.) {
 			while(!bufferport.push_raw(
 				p_submit

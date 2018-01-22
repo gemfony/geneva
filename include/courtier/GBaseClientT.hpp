@@ -48,6 +48,8 @@
 #include <chrono>
 #include <type_traits>
 #include <functional>
+#include <memory>
+#include <atomic>
 
 // Boost headers go here
 #include <boost/utility.hpp>
@@ -94,24 +96,24 @@ namespace Courtier {
  * TODO: Identify this client with a UUID
  */
 template<typename processable_type>
-class GBaseClientT :
-	private boost::noncopyable
+class GBaseClientT
+	: public std::enable_shared_from_this<GBaseClientT<processable_type>>
 {
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
-		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
+		 std::is_base_of<
+			 Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>
+			 , processable_type
+		 >::value
 		 , "GBaseClientT: processable_type does not adhere to the GProcessingContainerT interface"
 	 );
 
 public:
-	 /***************************************************************************/
-	 /**
-	  * The default constructor.
-	  */
-	 GBaseClientT()
-	 { /* nothing*/ }
+	 //---------------------------------------------------------------------------
+	 /** @brief The default constructor. */
+	 GBaseClientT() = default;
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * A constructor that accepts a model of the item to be processed. This can be
 	  * used to avoid having to transfer or reload data that doesn't change. Note that
@@ -119,72 +121,73 @@ public:
 	  *
 	  * @param additionalDataTemplate The model of the item to be processed
 	  */
-	 GBaseClientT(std::shared_ptr <processable_type> additionalDataTemplate)
+	 GBaseClientT(std::shared_ptr<processable_type> additionalDataTemplate)
 		 : m_additionalDataTemplate(additionalDataTemplate)
 	 { /* nothing*/ }
 
-	 /***************************************************************************/
-	 /**
-	  * A standard destructor. We have no local, dynamically allocated data, hence it is empty.
-	  */
-	 virtual ~GBaseClientT()
-	 { /* nothing */ }
+	 //---------------------------------------------------------------------------
+	 /** @brief The destructor */
+	 virtual ~GBaseClientT() = default;
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
+	 // Deleted copy- and move-constructors a well as assignment operators
+
+	 GBaseClientT(const GBaseClientT<processable_type>&) = delete;
+	 GBaseClientT(GBaseClientT<processable_type>&&) = delete;
+
+	 GBaseClientT<processable_type>& operator=(const GBaseClientT<processable_type>&) = delete;
+	 GBaseClientT<processable_type>& operator=(GBaseClientT<processable_type>&&) = delete;
+
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Allows to set a maximum number of processing steps. If set to 0 or left unset,
 	  * processing will be done until process() returns false.
 	  *
 	  * @param processMax Desired value for the m_processMax variable
 	  */
-	 void setProcessMax(const std::uint32_t &processMax)
-	 {
+	 void setProcessMax(std::uint32_t processMax) {
 		 m_processMax = processMax;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Retrieves the value of the m_processMax variable.
 	  *
 	  * @return The value of the m_processMax variable
 	  */
-	 std::uint32_t getProcessMax() const
-	 {
+	 std::uint32_t getProcessMax() const {
 		 return m_processMax;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Retrieves the number of items processed so far
 	  */
-	 std::uint32_t getNProcessed() const
-	 {
+	 std::uint32_t getNProcessed() const {
 		 return m_processed;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Sets the maximum allowed processing time
 	  *
 	  * @param maxDuration The maximum allowed processing time
 	  */
-	 void setMaxTime(const std::chrono::duration<double> &maxDuration)
-	 {
+	 void setMaxTime(const std::chrono::duration<double> &maxDuration) {
 		 m_maxDuration = maxDuration;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Retrieves the value of the m_maxDuration parameter.
 	  *
 	  * @return The maximum allowed processing time
 	  */
-	 std::chrono::duration<double> getMaxTime()
-	 {
+	 std::chrono::duration<double> getMaxTime() {
 		 return m_maxDuration;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Checks whether a terminal error was flagged
 	  */
@@ -192,7 +195,7 @@ public:
 		 return m_terminalError.load();
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Checks whether the close-flag was set
 	  */
@@ -200,131 +203,66 @@ public:
 		 return m_closeRequested.load();
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * The main initialization code
 	  */
 	 void run() {
+		 run_state r = run_state::INIT;
+
 		 //------------------------------------------------------------------------
-	    // init section
+		 // init section
 		 try {
+			 r = run_state::INIT;
+
 			 if (!this->init()) { // Initialize the client
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
 				 );
 			 }
-		 }
-		 catch (gemfony_exception &e) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GBaseClientT<T>::run() / init:" << std::endl
-					 << "Caught gemfony_exception" << std::endl
-					 << "with message" << std::endl
-					 << e.what()
-			 );
-		 }
-		 catch (boost::exception& e) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / init: Caught boost::exception with message" << std::endl
-				 	 << boost::diagnostic_information(e) << std::endl
-			 );
-		 }
-		 catch (std::exception &e) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / init: Caught std::exception with message" << std::endl
-					 << e.what() << std::endl
-			 );
-		 }
-		 catch (...) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / init: Caught unknown exception" << std::endl
-			 );
-		 }
 
-		 //------------------------------------------------------------------------
-	    // run-section
-		 try {
+			 r = run_state::RUN;
 			 run_(); // The main loop
-		 }
-		 catch (gemfony_exception &e) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / run_:" << std::endl
-					 << "Caught gemfony_exception" << std::endl
-					 << "with message" << std::endl
-					 << e.what()
-			 );
-		 }
-		 catch (boost::exception &e) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / run_: Caught boost::exception with message" << std::endl
-					 << boost::diagnostic_information(e) << std::endl
-			 );
-		 }
-		 catch (std::exception &e) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / run_: Caught std::exception with message" << std::endl
-					 << e.what() << std::endl
-			 );
-		 }
-		 catch (...) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / run_: Caught unknown exception" << std::endl
-			 );
-		 }
 
-		 //------------------------------------------------------------------------
-	    // finalize section
-		 try {
+			 r = run_state::FINALLY;
 			 if (!this->finally()) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Finalization failed." << std::endl
 				 );
 			 }
-		 }
-		 catch (gemfony_exception &e) {
+		 } catch (gemfony_exception &e) {
 			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / finally:" << std::endl
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ":" << std::endl
 					 << "Caught gemfony_exception" << std::endl
 					 << "with message" << std::endl
 					 << e.what()
 			 );
-		 }
-		 catch (boost::exception & e) {
+		 } catch (boost::exception& e) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / finally: Caught boost::exception with message" << std::endl
+					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught boost::exception with message" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
 			 );
-		 }
-		 catch (std::exception &e) {
+		 } catch (std::exception &e) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / finally: Caught std::exception with message" << std::endl
+					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught std::exception with message" << std::endl
 					 << e.what() << std::endl
 			 );
-		 }
-		 catch (...) {
+		 } catch (...) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBaseClientT<T>::run() / finally: Caught unknown exception" << std::endl
+					 << "In GBaseClientT<T>::run() / " << rs_to_str(r) << ": Caught unknown exception." << std::endl
 			 );
 		 }
 
 		 //------------------------------------------------------------------------
-
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Allows to set a flag indicating that the application should terminate
 	  */
@@ -333,23 +271,7 @@ public:
 	 }
 
 protected:
-	 /***************************************************************************/
-	 /** @brief This is the main loop of the client, after initialization */
-	 virtual void run_() BASE = 0;
-
-	 /***************************************************************************/
-	 /** @brief Performs initialization work */
-	 virtual bool init() BASE { return true; }
-
-	 /***************************************************************************/
-	 /** @brief Perform necessary finalization activities */
-	 virtual bool finally() BASE { return true; }
-
-	 /***************************************************************************/
-	 /** @brief Custom halt condition for processing */
-	 virtual bool customHalt() BASE { return false; }
-
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Increment of the processing counter. We do not use atomics, as only
 	  * one processing step is supposed to run at the same time
@@ -358,7 +280,7 @@ protected:
 		 m_processed++;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Allows to flag an error that qualifies as a halt condition
 	  */
@@ -366,7 +288,7 @@ protected:
 		 m_terminalError.store(true);
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Loads the additional data template into the processable_type target.
 	  * This function needs to be called for each new item by derived classes.
@@ -378,19 +300,18 @@ protected:
 		 }
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Checks whether a halt condition was reached.
 	  *
 	  * @return A boolean indicating whether a halt condition was reached
 	  */
-	 bool halt()
-	 {
+	 bool halt() {
 		 // Has a terminal error been flagged?
 		 if(terminalErrorFlagged()) {
 			 glogger
-			 	<< "Client is terminating because an unrecoverable error was flagged" << std::endl
-		    	<< GLOGGING;
+				 << "Client is terminating because an unrecoverable error was flagged" << std::endl
+				 << GLOGGING;
 
 			 return true;
 		 }
@@ -434,7 +355,7 @@ protected:
 		 return false;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Parses an in-bound "idle" command string, so we know how long the client
 	  * should wait before reconnecting to the server. The idle command will be
@@ -469,15 +390,46 @@ protected:
 			 , space
 		 );
 
-		 if (!success || from != to) {
-			 return false;
-		 } else {
-			 return true;
-		 }
+		 return (success && (from==to));
 	 }
 
 private:
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
+	 /** @brief Performs initialization work */
+	 virtual bool init() BASE { return true; }
+
+	 //---------------------------------------------------------------------------
+	 /** @brief This is the main loop of the client, after initialization */
+	 virtual void run_() BASE = 0;
+
+	 //---------------------------------------------------------------------------
+	 /** @brief Perform necessary finalization activities */
+	 virtual bool finally() BASE { return true; }
+
+	 //---------------------------------------------------------------------------
+	 /** @brief Custom halt condition for processing */
+	 virtual bool customHalt() BASE { return false; }
+
+	 //---------------------------------------------------------------------------
+	 /** brief Transformation of run_state to a string */
+	 std::string rs_to_str(run_state r) {
+		 switch(r) {
+			 case run_state::INIT:
+				 return "run_state::INIT";
+				 break;
+
+			 case run_state::RUN:
+				 return "run_state::RUN";
+				 break;
+
+			 case run_state::FINALLY:
+				 return "run_state::FINALLY";
+				 break;
+		 }
+	 }
+
+	 //---------------------------------------------------------------------------
+	 // Data
 
 	 std::chrono::high_resolution_clock::time_point m_startTime = std::chrono::high_resolution_clock::now(); ///< Used to store the start time of the optimization
 	 std::chrono::duration<double> m_maxDuration = std::chrono::microseconds(0); ///< Maximum time frame for the optimization
@@ -488,7 +440,9 @@ private:
 	 std::atomic<bool> m_terminalError{false}; ///< Indicates whether a terminal error was received
 	 std::atomic<bool> m_closeRequested{false}; ///< Indicates whether a the termination was requested by the server
 
-	 std::shared_ptr <processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
+	 std::shared_ptr<processable_type> m_additionalDataTemplate; ///< Optionally holds a template of the object to be processed
+
+	 //---------------------------------------------------------------------------
 };
 
 /******************************************************************************/

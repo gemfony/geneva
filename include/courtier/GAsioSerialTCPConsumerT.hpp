@@ -206,7 +206,7 @@ public:
 		 return m_totalConnectionAttempts;
 	 }
 
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * This is the main loop of the client. It will continue to call the process()
@@ -541,7 +541,6 @@ protected:
 		 return CLIENT_TERMINATE; // Make the compiler happy
 	 }
 
-private:
 	 /***************************************************************************/
 	 /**
 	  * Tries to make a connection to the remote site. If a maximum number of
