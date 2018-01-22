@@ -188,7 +188,7 @@ ELSE () # Dynamic libraries
 ENDIF ()
 
 # The minimum Boost version required for building Geneva and Geneva applications
-SET (GENEVA_MIN_BOOST_VERSION 1.59)
+SET (GENEVA_MIN_BOOST_VERSION 1.66)
 
 # These are the libraries required for any Geneva build
 SET (
