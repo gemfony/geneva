@@ -99,6 +99,10 @@ int main(int argc, char **argv) {
 
 		gfi_test->push_back(gpoc_ptr);
 
+		// Make sure the individual is "clean", i.e. the processed flag is set
+		gfi_test->set_processing_status(Gem::Courtier::processingStatus::DO_PROCESS);
+		gfi_test->process();
+
 		boost::property_tree::ptree ptr;
 		gfi_test->toPropertyTree(ptr);
 
