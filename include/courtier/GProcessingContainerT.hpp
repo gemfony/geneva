@@ -344,17 +344,11 @@ public:
 
 	 /******************************************************************************/
 	 /**
-	  * Retrieve the id assigned to the current evaluation
+	  * Retrieve the id assigned to the current evaluation. Note that there is no
+	  * guaranty that the item has indeed been processed. This is id simply represents
+	  * the processing id assigned at the beginning of the last process()-call.
 	  */
 	 std::string getCurrentEvaluationID() const {
-		 if(!this->is_processed()) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GProcessingContainerT::getCurrentEvaluationID(): Tried to" << std::endl
-					 << "retrieve the evaluation id while the PROCESSED flag was not set" << std::endl
-			 );
-		 }
-
 		 return m_evaluation_id;
 	 }
 

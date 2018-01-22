@@ -300,7 +300,7 @@ private:
 			 this->process_(p);
 		 } catch(const g_processing_exception& e) {
 			 glogger
-				 << "In GWorkerT<processable_type>::process()"
+				 << "In GWorkerT<processable_type>::process():" << std::endl
 				 << "The work item has flagged a processing exception with the message" << std::endl
 				 << e << std::endl
 				 << "The item will be returned. It is up to the recipient of the work item" << std::endl

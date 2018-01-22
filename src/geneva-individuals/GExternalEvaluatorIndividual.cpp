@@ -248,8 +248,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 	this->toPropertyTree(ptr_out, basename);
 
 	// Create a suitable extension and exchange file names for this object
-	std::string extension = std::string("-") + Gem::Common::to_string(this->getAssignedIteration()) + "-" +
-									Gem::Common::to_string(this);
+	std::string extension = std::string("-") + Gem::Common::to_string(this->getAssignedIteration()) + "-" + Gem::Common::to_string(this);
 	std::string parameterfileName = m_parameter_file_base_name + extension + ".xml";
 	std::string resultFileName = std::string("result") + extension + ".xml";
 	std::string commandOutputFileName = std::string("commandOutput") + extension + ".txt";
@@ -362,8 +361,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
-					<< "Local evaluation id " << this->getCurrentEvaluationID() << " does not match external id " <<
-					externalEvaluationID << std::endl
+					<< "Local evaluation id " << this->getCurrentEvaluationID() << " does not match external id " << externalEvaluationID << std::endl
 			);
 		}
 
@@ -403,9 +401,8 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 				if (res == 0) {
 					main_result = currentResult;
 				}
-				else {
-					this->setResult(res, currentResult);
-				}
+
+				this->setResult(res, currentResult);
 			}
 		}
 	}
@@ -1191,12 +1188,7 @@ void GExternalEvaluatorIndividualFactory::archive(
 		(*cit)->
 			toPropertyTree(ptr_out, basename
 		);
-		std::cout << "Current evaluation id = " << (*cit)->
-
-			getCurrentEvaluationID()
-
-					 <<
-					 std::endl;
+		std::cout << "Current evaluation id = " << (*cit)->getCurrentEvaluationID() << std::endl;
 	}
 
 	// Create a suitable extension and exchange file names for this object
