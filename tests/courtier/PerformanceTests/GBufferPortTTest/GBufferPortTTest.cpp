@@ -71,7 +71,7 @@ using namespace Gem::Courtier::Tests;
 
 /********************************************************************************/
 // Default settings
-const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
+const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 500;
 const std::size_t DEFAULTNCONTAINERENTRIESAP = 100;
 const long DEFAULTPUTTIMEOUTMSAP = 1000;
 const long DEFAULTGETTIMEOUTMSAP = 1000;

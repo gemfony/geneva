@@ -130,7 +130,7 @@ std::istream& operator>>(std::istream& i, GCPModes& gbscmode) {
 /********************************************************************************/
 // Default settings
 const std::uint32_t DEFAULTNPRODUCERSAP = 5;
-const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 10000;
+const std::uint32_t DEFAULTNPRODUCTIONCYLCESAP = 250;
 const submissionReturnMode DEFAULTSRMAP = submissionReturnMode::INCOMPLETERETURN;
 const std::size_t DEFAULTMAXRESUBMISSIONSAP = 5;
 const std::uint32_t DEFAULTNCONTAINEROBJECTSAP = 100;
