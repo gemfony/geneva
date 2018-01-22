@@ -71,23 +71,27 @@ int main(int argc, char **argv) {
 	// Create a factory for GFunctionIndividual objects and perform
 	// any necessary initial work.
 	std::shared_ptr<GFunctionIndividualFactory>
-		gfi_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
+		gfif_ptr(new GFunctionIndividualFactory("./config/GFunctionIndividual.json"));
 
-	// Check that algorithms were indeed registered
-	if(go.getNAlgorithms() < 1) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GResetToOptimizationStart-test: Error!" << std::endl
-				<< "No algorithms were registered." << std::endl
-		);
+	// Check that algorithms were indeed registered and fix, if this was not the case.
+	if(go.getNAlgorithms() == 0) {
+		glogger
+			<< "In GResetToOptimizationStart:" << std::endl
+			<< "No algorithms were registered." << std::endl
+			<< "We will add an Evolutionary Algorithm" << std::endl
+		   << GLOGGING;
+
+		go & "ea";
 	}
 
 	// Retrieve the registered algorithms
 	auto algorithms_vec = go.getRegisteredAlgorithms();
 
+	std::cout << "Got algorithms_vec of size " << algorithms_vec.size() << std::endl;
+
 	for(auto alg: algorithms_vec) {
 		for(std::size_t resetCounter=0; resetCounter<NRESETS; resetCounter++) {
-			alg->push_back(gfi_ptr->get());
+			alg->push_back(gfif_ptr->get());
 			alg->optimize();
 
 			if(resetCounter < NRESETS) {

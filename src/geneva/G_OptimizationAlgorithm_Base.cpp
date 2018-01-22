@@ -194,7 +194,8 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The copy constructor
+ * The copy constructor. Note that the executor is neither copied nor cloned.
+ * You need to register your own executor or let the algorithm use the default executor.
  *
  * @param cp A constant reference to another G_OptimizationAlgorithm_Base object
  */
@@ -540,7 +541,9 @@ void G_OptimizationAlgorithm_Base::compare(
  * function is allow repeated optimization with the same settings, but different
  * starting points. Actual implementations of optimization algorithms derived
  * from this class may have to perform additional work by overloading (and
- * calling) this function.
+ * calling) this function. Since this function will also reset the executor,
+ * unless you register a new executor, calling this function will result in
+ * the default executor being used.
  */
 void G_OptimizationAlgorithm_Base::resetToOptimizationStart() {
 	this->clear(); // Remove all individuals found in this population
@@ -557,6 +560,8 @@ void G_OptimizationAlgorithm_Base::resetToOptimizationStart() {
 	m_halted = true; // Also means: No optimization is currently running
 
 	m_worstKnownValids_vec.clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
+
+	m_executor_ptr.reset(); // Removes the local executor
 }
 
 /******************************************************************************/
