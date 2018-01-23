@@ -660,12 +660,12 @@ public:
 		 , GAsioSerialTCPConsumerT<processable_type> *master
 	 )
 		 : m_strand(io_service)
-			, m_socket(io_service)
-			, m_bytesTransferredDataBody(0)
-			, m_dataBody_ptr(new std::string()) // An empty string
-			, m_serializationMode(serMod)
-			, m_master(master)
-			, m_broker_ptr(master->m_broker_ptr)
+		 , m_socket(io_service)
+		 , m_bytesTransferredDataBody(0)
+		 , m_dataBody_ptr(new std::string()) // An empty string
+		 , m_serializationMode(serMod)
+		 , m_master(master)
+		 , m_broker_ptr(master->m_broker_ptr)
 	 { /* nothing */ }
 
 	 /***************************************************************************/

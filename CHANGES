@@ -1,5 +1,5 @@
 //------------------------------------------------------------------------------------------------------
-* Version 2.0, yet unnamed, release date unknown
+* Version 1.9.1, yet unnamed, release date unknown
 
 Recommended versions:
 - Boost 1.66 or later is required.
@@ -8,6 +8,33 @@ Recommended versions:
   might work if C++14 is sufficiently supported.
 
 The main changes for this release include:
+
+New Features:
+ - Geneva has a new Websocket consumer, based on the new Boost library Beast
+
+Changes in the architecture:
+ - Rework of the executor and broker hierarchy
+
+Bugs fixed:
+
+********************** INCOMPATIBILITIES / PLEASE NOTE *************************
+
+********************************************************************************
+
+
+//------------------------------------------------------------------------------------------------------
+* Version 1.9.0-GSI, "Novara" - January 19, 2018
+
+* This is a release made for GSI Darmstadt and was used in production for their research.
+* GSIs main platform is Linux. No tests have been made on other platforms than Linux.
+
+Recommended versions
+- Boost: 1.62; Minimum Boost version: 1.59.
+- CMake Version 3.1 or higher is required.
+- g++ is recommended to be at least 5.1, earlier version might
+  work if C++14 is sufficiently supported
+
+The main changes for this release, compared to version 1.8.0 include:
 
 ******************************* PLEASE NOTE ************************************
 
@@ -20,10 +47,10 @@ The main changes for this release include:
    See the GFunctionIndividualFactory inside of GFunctionIndividual.hpp/.cpp for
    an example
  - Removed GOptimizationMonitorT and derivatives, as these were redundant and the same functionality
-	is available through pluggable optimization monitors. This may require re-implementation
-	of custom, user-defined GOptimizationMonitorT-derivatives as a pluggable optimization
-	monitor. Note that the logic of both is the same so that most of the work should be
-	possible via "cut & paste".
+   is available through pluggable optimization monitors. This may require re-implementation
+   of custom, user-defined GOptimizationMonitorT-derivatives as a pluggable optimization
+   monitor. Note that the logic of both is the same so that most of the work should be
+   possible via "cut & paste".
  - Optimization algorithms have been consolidated into a single class each. Formerly, e.g.
    the case of evolutionary algorithms, there was a GBaseEA, GMultiThreadedEA, GSerialEA
    and GBrokerEA-class. By default, all evaluation now happens through the broker, which
@@ -31,26 +58,14 @@ The main changes for this release include:
    have a multi-threaded mode implemented inside of the class, so that meta-optimization
    is better supported. Users should however use the optimization algorithms that
    communicate through the broker.
+ - Boost 1.58 is NOT recommended, due to severe bugs affecting Geneva (Serialization, UUID)
  - As Geneva must now be compiled in C++14 mode and Boost is a mixture of header-only-
    and binary-libraries, it is highly recommended to also compile Boost in C++14-mode
  - Many classes were given better names. E.g., the main optimization base class has
    been renamed to G_OptimizationAlgorithm_Base .
- - Classes deriving from the Gem::Common::GCommonInterfaceT class (which applies to most
-   serializable classes) no longer need to have operator==, operator!= and operator= in
-   their interfaces
- - Optimization-algorithms and the Go2-class have a simplified calling syntax for the
-   optimize() call. Instead of saying something like "auto bestIndividual_ptr = go.optimize<myIndividualType>();"
-   you can now call const functions inside of the Go2 (and optimization algorithm) classes.
-   This allows you in particular to extract not only the best individual, but all best individuals
-   in one go, through a call like "auto bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<myIndividualType>();"
-   for the single best individuel or "auto bestIndividuals_vec = go.optimize()->getBestGlobalIndividuals<myIndividualType>();"
-   (note the plural "s" in the second call. Calls to optimize<myIndividualType>() are no longer valid.
- - We removed the USEWORSTKNOWNVALIDFORINVALID policy from constraint optimization, as it
-   was mathematically questionable and cluttered the code with unnecessary complications.
 
 ********************************************************************************
 
- - There is no need anymore to give Geneva classes an operator==/!=
  - Made GBasePluggableOM<> independent of G_OptimizationAlgorithm_Base<>. The monitor base class
    is no longer an embedded class of G_OptimizationAlgorithm_Base<>. If you develop your own
    optimization monitors, you need to derive them from a new class -- see the collection
@@ -70,14 +85,14 @@ The main changes for this release include:
    pre- and postprocessing in conjunction with the evaluation
  - Added a post-processor for running a sub-optimization on an individual
  - Gave GDataCollector1T and GDataCollector2T (and with them GHistogram1D and GHistogram2D) the
-   ability to automatically detect ranges
+   ability to automatically detect ranges.
  - Added the option to set the initial wait factor of GBrokerExecutorT in the config file
-	of optimization algorithms
+   of optimization algorithms.
  - The maximum size of GBoundedBufferT is now defined via a value template parameter, and
    unbounded buffers are possible (set the capacity to 0)
- - Renamed class GBrokerConnector2T to GBrokerExecutorT
- - Reworked the entire broker architecture in order to make it more scalable
- - Removed all thread_local usages from Geneva
+ - Renamed class GBrokerConnector2T to GBrokerExecutorT.
+ - Reworked the entire broker architecture in order to make it more scalable.
+ - Removed all thread_local usages from Geneva.
    o The ramdomInit()-function of GParameterBase derivatives must now be called with a GRandomBase-argument,
      i.e. it must be supplied with a random number generator. This happens to get rid of thread_local
      variables which have turned out to be a problem under Windows If custom parameter types are introduced,
@@ -88,20 +103,15 @@ The main changes for this release include:
  - Gave Go2 a new command line option --maxClientDuration which allows to limit the maximum runtime
    of a client. Note that the actual runtime may be longer, as a running workload will not be interrupted.
  - Renamed the GBrokerSelfCommunication-test to GConsumerPerformance and added the new ws-consumer for
-   debugging purposes
+   debugging purposes.
  - Consumers must now be registered in one go. Once this registration has taken place, no new
    consumers may be registered. This happens so that the broker may reliably retrieve information
    about registered consumers just once before an optimization run rather than having to check repeatedly.
  - Eliminated the need for new optimization algorithms to specify the submission return mode. GExecutorT
    now retrieves this information from the broker, which in turn retrieves it from registered consumers.
- - Added a new example showing how to integrate OpenCL with Geneva
- - Exceptions are now thrown at the error-site rather than being raised by the global logger
- - Users may now indicate custom error conditions via a call to force_set_error("error description")
-   while their evaluation code runs. This may be useful to transport reasons for failed evaluations
-   back to the server in networked or multi-threaded execution
- - By default, all execution (serial, multithreaded and networked) is now done through the broker.
-   There still exist multi-threaded versions of the optimization algorithms for special purposes. Users
-   should however never have to use this directly.
+ - Added a new example showing how to integrate OpenCL with Geneva.
+ - Exceptions are now thrown at the error-site rather than being raised by the global logger.
+
 
 //------------------------------------------------------------------------------------------------------
 * Version 1.8, "Torino" - August 13, 2016
