@@ -46,12 +46,12 @@ namespace Geneva {
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D()
 	: GParameterSet()
-	, PAR_MIN_(-10.)
-	, PAR_MAX_(10.)
+	, M_PAR_MIN(-10.)
+	, M_PAR_MAX(10.)
 {
 	for(std::size_t npar=0; npar<2; npar++) {
-		// GConstrainedDoubleObject is constrained to [PAR_MIN_:PAR_MAX_[
-		std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(PAR_MIN_, PAR_MAX_));
+		// GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
+		std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX));
 		// Add the parameters to this individual
 		this->push_back(gcdo_ptr);
 	}
@@ -65,8 +65,8 @@ GParaboloidIndividual2D::GParaboloidIndividual2D()
  */
 GParaboloidIndividual2D::GParaboloidIndividual2D(const GParaboloidIndividual2D& cp)
 	: GParameterSet(cp)
-	, PAR_MIN_(-10.)
-	, PAR_MAX_(10)
+	, M_PAR_MIN(-10.)
+	, M_PAR_MAX(10)
 { /* nothing */ }
 
 /********************************************************************************************/

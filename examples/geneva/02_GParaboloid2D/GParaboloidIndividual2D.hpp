@@ -93,8 +93,8 @@ private:
 	 /** @brief Creates a deep clone of this object */
 	 virtual GObject* clone_() const final;
 
-	 const double PAR_MIN_;
-	 const double PAR_MAX_;
+	 const double M_PAR_MIN;
+	 const double M_PAR_MAX;
 };
 
 /******************************************************************/
