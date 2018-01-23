@@ -942,9 +942,12 @@ std::vector<double> GParameterSet::transformed_fitness_vec() const {
  * function will always return the raw fitness, as it is likely the one called by users
  * directly -- they will expect untransformed values.
  */
+#pragma GCC diagnostic push // prevent GCC from complaining about the existance of this function
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 double GParameterSet::fitness(std::size_t id) const {
 	return this->raw_fitness(id);
 }
+#pragma GCC diagnostic pop
 
 /******************************************************************************/
 /**
@@ -961,6 +964,8 @@ double GParameterSet::fitness(std::size_t id) const {
  * @param useTransformedFitness Whether the transformed or the raw fitness should be returned
  * @return The fitness of this individual
  */
+#pragma GCC diagnostic push // prevent GCC from complaining about the existance of this function
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 double GParameterSet::fitness(
 	std::size_t id
 	, bool reevaluationAllowed
@@ -997,6 +1002,7 @@ double GParameterSet::fitness(
 		return this->raw_fitness(id);
 	}
 }
+#pragma GCC diagnostic pop
 
 /* ----------------------------------------------------------------------------------
  * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
@@ -1016,6 +1022,8 @@ double GParameterSet::fitness(
  * @param useTransformedFitness Whether the transformed or the raw fitness should be returned
  * @return The fitness of this individual
  */
+#pragma GCC diagnostic push // prevent GCC from complaining about the existance of this function
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 double GParameterSet::fitness(
 	std::size_t id
 	, bool reevaluationAllowed
@@ -1039,27 +1047,36 @@ double GParameterSet::fitness(
 		return this->raw_fitness(id);
 	}
 }
+#pragma GCC diagnostic pop
 
 /******************************************************************************/
 /**
  * Returns the transformed result of the fitness function with id 0
  */
+#pragma GCC diagnostic push // prevent GCC from complaining about the existance of this function
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 double GParameterSet::transformedFitness(std::size_t id) const {
 	return this->transformed_fitness(id);
 }
+#pragma GCC diagnostic pop
 
 /******************************************************************************/
 /**
  * Returns all raw fitness results in a std::vector
  */
+#pragma GCC diagnostic push // prevent GCC from complaining about the existance of this function
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 std::vector<double> GParameterSet::fitnessVec() const {
 	return this->raw_fitness_vec();
 }
+#pragma GCC diagnostic pop
 
 /******************************************************************************/
 /**
  * Returns all raw or transformed fitness results in a std::vector
  */
+#pragma GCC diagnostic push // prevent GCC from complaining about the existance of this function
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 std::vector<double> GParameterSet::fitnessVec(bool useRawFitness) const {
 	if(useRawFitness) {
 		return raw_fitness_vec();
@@ -1067,14 +1084,18 @@ std::vector<double> GParameterSet::fitnessVec(bool useRawFitness) const {
 		return transformed_fitness_vec();
 	}
 }
+#pragma GCC diagnostic pop
 
 /******************************************************************************/
 /**
  * Returns all transformed fitness results in a std::vector
  */
+#pragma GCC diagnostic push // prevent GCC from complaining about the existance of this function
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 std::vector<double> GParameterSet::transformedFitnessVec() const {
 	return this->transformed_fitness_vec();
 }
+#pragma GCC diagnostic pop
 
 /******************************************************************************/
 /**
