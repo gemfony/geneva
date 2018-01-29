@@ -96,11 +96,18 @@ public:
 	 { /* nothing */ }
 
 	 /***************************************************************************/
+
+	 GStdThreadConsumerT(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
+	 GStdThreadConsumerT(GStdThreadConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
+	 GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
+	 GStdThreadConsumerT<processable_type> &operator=(GStdThreadConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
+
+	 /***************************************************************************/
 	 /**
 	 * Standard destructor. Nothing - our threads receive the stop
 	 * signal from the broker and shouldn't exist at this point anymore.
 	 */
-	 virtual ~GStdThreadConsumerT() { /* nothing */ }
+	 ~GStdThreadConsumerT() override { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -133,57 +140,11 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	 * Finalization code. Sends all threads an interrupt signal.
-	 * process() then waits for them to join.
-	 */
-	 void shutdown() override {
-		 // Initiate the shutdown procedure
-		 GBaseConsumerT<processable_type>::shutdown();
-
-		 // Wait for local workers to terminate
-		 m_gtg.join_all();
-		 m_workers.clear();
-	 }
-
-	 /***************************************************************************/
-	 /**
-	 * A unique identifier for a given consumer
-	 *
-	 * @return A unique identifier for a given consumer
-	 */
-	 std::string getConsumerName() const override {
-		 return std::string("GStdThreadConsumerT");
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns a short identifier for this consumer
-	  */
-	 std::string getMnemonic() const override {
-		 return std::string("stc");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to check whether a worker template was registered
 	  */
 	 bool hasWorkerTemplate() const {
 		 if(this->m_workerTemplate) { return true; }
 		 return false;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns an indication whether full return can be expected from this
-	  * consumer. Since evaluation is performed in threads, we assume that this
-	  * is possible and return true. If you believe that this is not the case,
-	  * make sure to set m_capableOfFullReturn to false using the setCapableOfFullReturn()
-	  * function. Note that, while processing-errors will likely be caught,
-	  * "full return" does not mean "fully processed return", as errors (be it in
-	  * user- or Geneva-code) are always possible.
-	  */
-	 bool capableOfFullReturn() const override {
-		 return m_capableOfFullReturn;
 	 }
 
 	 /***************************************************************************/
@@ -200,16 +161,127 @@ public:
 
 	 /***************************************************************************/
 	 /**
-  	 * Returns the (possibly estimated) number of concurrent processing units.
-    * A return value of 0 means "unknown". Note that this function does not
-    * make any assumptions whether processing units are dedicated solely to a
-    * given task.
-    */
-	 std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
-		 // Mark the answer as exact
-		 exact=true;
-		 // Return the result
-		 return boost::numeric_cast<std::size_t>(this->getNThreadsPerWorker());
+	  * Allows to register a single worker template with this class.
+	  */
+	 void registerWorkerTemplate(
+		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> workerTemplate
+	 ) {
+#ifdef DEBUG
+		 if(!workerTemplate) { // Does the template point somewhere ?
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
+					 << "Found empty worker template pointer" << std::endl
+			 );
+		 }
+#endif /* DEBUG */
+
+		 m_workerTemplate = workerTemplate;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Sets up a consumer and registers it with the broker. This function accepts
+	  * a worker as argument.
+	  */
+	 static void setup(
+		 const std::string &configFile,
+		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
+	 ) {
+		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
+			 new GStdThreadConsumerT<processable_type>()
+		 );
+
+		 consumer_ptr->registerWorkerTemplate(worker_ptr);
+		 consumer_ptr->parseConfigFile(configFile);
+
+		 GBROKER(processable_type)->enrol(consumer_ptr);
+	 }
+
+protected:
+	 /***************************************************************************/
+	 /**
+	 * Finalization code. Sends all threads an interrupt signal.
+	 * process() then waits for them to join.
+	 */
+	 void shutdown_() override {
+		 // Initiate the shutdown procedure
+		 GBaseConsumerT<processable_type>::shutdown_();
+
+		 // Wait for local workers to terminate
+		 m_gtg.join_all();
+		 m_workers.clear();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Adds local configuration options to a GParserBuilder object. We have only
+	  * a single local option -- the number of threads
+	  *
+	  * @param gpb The GParserBuilder object, to which configuration options will be added
+	  */
+	 virtual void addConfigurationOptions(
+		 Gem::Common::GParserBuilder &gpb
+	 ) override {
+		 // Call our parent class'es function
+		 GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
+
+		 // Add local data
+		 gpb.registerFileParameter<std::size_t>(
+			 "threadsPerWorker" // The name of the variable
+			 , 0 // The default value
+			 , [this](std::size_t nt) { this->setNThreadsPerWorker(nt); }
+		 )
+			 << "Indicates the number of threads used to process each worker." << std::endl
+			 << "Setting threadsPerWorker to 0 will result in an attempt to" << std::endl
+			 << "automatically determine the number of hardware threads.";
+	 }
+
+private:
+	 /***************************************************************************/
+	 /**
+	  * Adds local command line options to a boost::program_options::options_description object.
+	  *
+	  * @param visible Command line options that should always be visible
+	  * @param hidden Command line options that should only be visible upon request
+	  */
+	 virtual void addCLOptions_(
+		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
+	 ) override {
+		 namespace po = boost::program_options;
+
+		 hidden.add_options()
+			 ("nWorkerThreads", po::value<std::size_t>(&m_nWorkerThreads)->default_value(m_nWorkerThreads),
+				 "\t[stc] The number of threads used to process the worker");
+
+		 hidden.add_options()
+			 ("stcCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
+				 "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the executor");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Takes a boost::program_options::variables_map object and checks for supplied options.
+	  */
+	 void actOnCLOptions_(const boost::program_options::variables_map &vm) override
+	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	  * A unique identifier for a given consumer
+	  *
+	  * @return A unique identifier for a given consumer
+	  */
+	 std::string getConsumerName_() const override {
+		 return std::string("GStdThreadConsumerT");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns a short identifier for this consumer
+	  */
+	 std::string getMnemonic_() const override {
+		 return std::string("stc");
 	 }
 
 	 /***************************************************************************/
@@ -217,7 +289,7 @@ public:
 	 * Starts the worker threads. This function will not block.
 	 * Termination of the threads is triggered by a call to GBaseConsumerT<processable_type>::shutdown().
 	 */
-	 void async_startProcessing() override {
+	 void async_startProcessing_() override {
 		 // Add a default worker if no worker was registered
 		 if(!m_workerTemplate) {
 			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
@@ -272,101 +344,33 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to register a single worker template with this class.
-	  */
-	 void registerWorkerTemplate(
-		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> workerTemplate
-	 ) {
-#ifdef DEBUG
-		 if(!workerTemplate) { // Does the template point somewhere ?
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GStdThreadConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
-					 << "Found empty worker template pointer" << std::endl
-			 );
-		 }
-#endif /* DEBUG */
-
-		 m_workerTemplate = workerTemplate;
+  	 * Returns the (possibly estimated) number of concurrent processing units.
+    * A return value of 0 means "unknown". Note that this function does not
+    * make any assumptions whether processing units are dedicated solely to a
+    * given task.
+    */
+	 std::size_t getNProcessingUnitsEstimate_(bool& exact) const override {
+		 // Mark the answer as exact
+		 exact=true;
+		 // Return the result
+		 return boost::numeric_cast<std::size_t>(this->getNThreadsPerWorker());
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Sets up a consumer and registers it with the broker. This function accepts
-	  * a worker as argument.
+	  * Returns an indication whether full return can be expected from this
+	  * consumer. Since evaluation is performed in threads, we assume that this
+	  * is possible and return true. If you believe that this is not the case,
+	  * make sure to set m_capableOfFullReturn to false using the setCapableOfFullReturn()
+	  * function. Note that, while processing-errors will likely be caught,
+	  * "full return" does not mean "fully processed return", as errors (be it in
+	  * user- or Geneva-code) are always possible.
 	  */
-	 static void setup(
-		 const std::string &configFile,
-		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
-	 ) {
-		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
-			 new GStdThreadConsumerT<processable_type>()
-		 );
-
-		 consumer_ptr->registerWorkerTemplate(worker_ptr);
-		 consumer_ptr->parseConfigFile(configFile);
-
-		 GBROKER(processable_type)->enrol(consumer_ptr);
-	 }
-
-protected:
-	 /***************************************************************************/
-	 /**
-	  * Adds local configuration options to a GParserBuilder object. We have only
-	  * a single local option -- the number of threads
-	  *
-	  * @param gpb The GParserBuilder object, to which configuration options will be added
-	  */
-	 virtual void addConfigurationOptions(
-		 Gem::Common::GParserBuilder &gpb
-	 ) override {
-		 // Call our parent class'es function
-		 GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
-
-		 // Add local data
-		 gpb.registerFileParameter<std::size_t>(
-			 "threadsPerWorker" // The name of the variable
-			 , 0 // The default value
-			 , [this](std::size_t nt) { this->setNThreadsPerWorker(nt); }
-		 )
-			 << "Indicates the number of threads used to process each worker." << std::endl
-			 << "Setting threadsPerWorker to 0 will result in an attempt to" << std::endl
-			 << "automatically determine the number of hardware threads.";
+	 bool capableOfFullReturn_() const override {
+		 return m_capableOfFullReturn;
 	 }
 
 	 /***************************************************************************/
-	 /**
-	  * Adds local command line options to a boost::program_options::options_description object.
-	  *
-	  * @param visible Command line options that should always be visible
-	  * @param hidden Command line options that should only be visible upon request
-	  */
-	 virtual void addCLOptions(
-		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
-	 ) override {
-		 namespace po = boost::program_options;
-
-		 hidden.add_options()
-			 ("nWorkerThreads", po::value<std::size_t>(&m_nWorkerThreads)->default_value(m_nWorkerThreads),
-				 "\t[stc] The number of threads used to process the worker");
-
-		 hidden.add_options()
-			 ("stcCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
-				 "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the executor");
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Takes a boost::program_options::variables_map object and checks for supplied options.
-	  */
-	 void actOnCLOptions(const boost::program_options::variables_map &vm) override
-	 { /* nothing */ }
-
-private:
-	 /***************************************************************************/
-
-	 GStdThreadConsumerT(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
-	 GStdThreadConsumerT<processable_type> &operator=(const GStdThreadConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
 
 	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
 

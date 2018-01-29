@@ -1053,25 +1053,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns an indication whether full return can be expected from this
-	  * consumer.
-	  */
-	 bool capableOfFullReturn() const override {
-		 return false;
-	 }
-	 /***************************************************************************/
-	 /**
-	  * Returns the (possibly estimated) number of concurrent processing units.
-	  * Note that this function does not make any assumptions whether processing
-	  * units are dedicated solely to a given task.
-	  */
-	 std::size_t getNProcessingUnitsEstimate(bool& exact) const override {
-		 exact=false; // mark the answer as approximate
-		 return boost::numeric_cast<std::size_t>(m_connections.load());
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to set the server name or ip
 	  */
 	 void setServer(std::string server) {
@@ -1176,120 +1157,14 @@ public:
 		 return m_max_connection_attempts;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Allows to check whether this consumer needs a client to operate.
-	  *
-	  * @return A boolean indicating whether this consumer needs a client to operate
-	  */
-	 bool needsClient() const override {
-		 return true;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Emits a client suitable for processing the data emitted by this consumer
-	  */
-	 std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
-		 std::shared_ptr<GAsioAsyncTCPClientT<processable_type>> p(
-			 new GAsioAsyncTCPClientT<processable_type>(m_server, Gem::Common::to_string(m_port))
-		 );
-
-		 p->setMaxStalls(m_max_stalls); // Set to 0 to allow an infinite number of stalls
-		 p->setMaxConnectionAttempts(m_max_connection_attempts); // Set to 0 to allow an infinite number of failed connection attempts
-
-		 return p;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Starts the actual processing loops
-	  */
-	 void async_startProcessing() override {
-		 // Open the acceptor
-		 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), m_port);
-		 m_acceptor.open(endpoint.protocol());
-		 m_acceptor.bind(endpoint);
-		 // Set the SOL_SOCKET/SO_REUSEADDR options
-		 // compare http://www.boost.org/doc/libs/1_57_0/doc/html/boost_asio/reference/basic_socket_acceptor/reuse_address.html
-		 boost::asio::socket_base::reuse_address option(true);
-		 m_acceptor.set_option(option);
-		 m_acceptor.listen();
-
-		 // Retrieve a pointer to the global broker for later usage
-		 m_broker_ptr = GBROKER(processable_type);
-
-		 if (!m_broker_ptr) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioAsyncTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
-					 << "Got empty broker pointer" << std::endl
-			 );
-		 }
-
-		 // Set the number of threads in the pool
-		 m_gtp.setNThreads(boost::numeric_cast<unsigned int>(m_listenerThreads));
-
-		 try {
-			 // Inform the io_service that there is work to do
-			 m_work.reset(new boost::asio::io_service::work(m_io_service));
-
-			 // Create a number of threads responsible for the m_io_service objects
-			 m_gtg.create_threads(
-				 [&]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
-				 , m_listenerThreads
-			 );
-
-			 // Start the first session
-			 this->async_newAccept();
-		 } catch (boost::system::system_error &e) {
-			 if(e.code() == boost::asio::error::eof) {
-#ifdef DEBUG
-				 glogger
-					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-					 << "Caught boost::asio::error::eof, which likely indicates" << std::endl
-					 << "that a connection was closed by the remote side." << std::endl
-					 << "This particular server session will terminate now."
-					 << GLOGGING;
-#endif
-			 } else {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG,  time_and_place)
-						 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-						 << "Caught boost::system::system_error exception with messages:" << std::endl
-						 << boost::diagnostic_information(e) << std::endl
-				 );
-			 }
-		 } catch (const boost::exception &e) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-					 << "Caught boost::exception with messages:" << std::endl
-					 << boost::diagnostic_information(e) << std::endl
-			 );
-		 } catch (const std::exception &e) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-					 << "Caught std::exception with messages:" << std::endl
-					 << e.what() << std::endl
-			 );
-		 } catch (...) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioAsyncTCPConsumerT::async_startProcessing():" << std::endl
-					 << "Caught unknown exception" << std::endl
-			 );
-		 }
-	 }
-
+protected:
 	 /***************************************************************************/
 	 /**
 	  * Make sure the consumer and the server sessions shut down gracefully
 	  */
-	 void shutdown() override {
+	 void shutdown_() override {
 		 // Set the stop criterion
-		 GBaseConsumerT<processable_type>::shutdown();
+		 GBaseConsumerT<processable_type>::shutdown_();
 
 		 // Terminate the worker and clear the thread group
 		 m_work.reset(); // This will initiate termination of all threads
@@ -1299,24 +1174,7 @@ public:
 		 m_gtg.join_all();
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * A unique identifier for a given consumer
-	  *
-	  * @return A unique identifier for a given consumer
-	  */
-	 std::string getConsumerName() const override {
-		 return std::string("GAsioAsyncTCPConsumerT");
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns a short identifier for this consumer
-	  */
-	 std::string getMnemonic() const override {
-		 return std::string("ws");
-	 }
-
+private:
 	 /***************************************************************************/
 	 /**
 	  * Adds local command line options to a boost::program_options::options_description object.
@@ -1324,7 +1182,7 @@ public:
 	  * @param visible Command line options that should always be visible
 	  * @param hidden Command line options that should only be visible upon request
 	  */
-	 virtual void addCLOptions(
+	 void addCLOptions_(
 		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
 	 ) override {
 		 namespace po = boost::program_options;
@@ -1352,10 +1210,154 @@ public:
 	 /**
 	  * Takes a boost::program_options::variables_map object and checks for supplied options.
 	  */
-	 void actOnCLOptions(const boost::program_options::variables_map &vm) override
+	 void actOnCLOptions_(const boost::program_options::variables_map &vm) override
 	 { /* nothing */ }
 
-private:
+	 /***************************************************************************/
+	 /**
+	  * A unique identifier for a given consumer
+	  *
+	  * @return A unique identifier for a given consumer
+	  */
+	 std::string getConsumerName_() const override {
+		 return std::string("GAsioAsyncTCPConsumerT");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns a short identifier for this consumer
+	  */
+	 std::string getMnemonic_() const override {
+		 return std::string("ws");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Starts the actual processing loops
+	  */
+	 void async_startProcessing_() override {
+		 // Open the acceptor
+		 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), m_port);
+		 m_acceptor.open(endpoint.protocol());
+		 m_acceptor.bind(endpoint);
+		 // Set the SOL_SOCKET/SO_REUSEADDR options
+		 // compare http://www.boost.org/doc/libs/1_57_0/doc/html/boost_asio/reference/basic_socket_acceptor/reuse_address.html
+		 boost::asio::socket_base::reuse_address option(true);
+		 m_acceptor.set_option(option);
+		 m_acceptor.listen();
+
+		 // Retrieve a pointer to the global broker for later usage
+		 m_broker_ptr = GBROKER(processable_type);
+
+		 if (!m_broker_ptr) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT<processable_type>::async_startProcessing_():" << std::endl
+					 << "Got empty broker pointer" << std::endl
+			 );
+		 }
+
+		 // Set the number of threads in the pool
+		 m_gtp.setNThreads(boost::numeric_cast<unsigned int>(m_listenerThreads));
+
+		 try {
+			 // Inform the io_service that there is work to do
+			 m_work.reset(new boost::asio::io_service::work(m_io_service));
+
+			 // Create a number of threads responsible for the m_io_service objects
+			 m_gtg.create_threads(
+				 [&]() { this->m_io_service.run(); } // this-> deals with a problem of g++ 4.7.2
+				 , m_listenerThreads
+			 );
+
+			 // Start the first session
+			 this->async_newAccept();
+		 } catch (boost::system::system_error &e) {
+			 if(e.code() == boost::asio::error::eof) {
+#ifdef DEBUG
+				 glogger
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing_():" << std::endl
+					 << "Caught boost::asio::error::eof, which likely indicates" << std::endl
+					 << "that a connection was closed by the remote side." << std::endl
+					 << "This particular server session will terminate now."
+					 << GLOGGING;
+#endif
+			 } else {
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG,  time_and_place)
+						 << "In GAsioAsyncTCPConsumerT::async_startProcessing_():" << std::endl
+						 << "Caught boost::system::system_error exception with messages:" << std::endl
+						 << boost::diagnostic_information(e) << std::endl
+				 );
+			 }
+		 } catch (const boost::exception &e) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing_():" << std::endl
+					 << "Caught boost::exception with messages:" << std::endl
+					 << boost::diagnostic_information(e) << std::endl
+			 );
+		 } catch (const std::exception &e) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing_():" << std::endl
+					 << "Caught std::exception with messages:" << std::endl
+					 << e.what() << std::endl
+			 );
+		 } catch (...) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "In GAsioAsyncTCPConsumerT::async_startProcessing_():" << std::endl
+					 << "Caught unknown exception" << std::endl
+			 );
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Emits a client suitable for processing the data emitted by this consumer
+	  */
+	 std::shared_ptr<GBaseClientT<processable_type>> getClient_() const override {
+		 std::shared_ptr<GAsioAsyncTCPClientT<processable_type>> p(
+			 new GAsioAsyncTCPClientT<processable_type>(m_server, Gem::Common::to_string(m_port))
+		 );
+
+		 p->setMaxStalls(m_max_stalls); // Set to 0 to allow an infinite number of stalls
+		 p->setMaxConnectionAttempts(m_max_connection_attempts); // Set to 0 to allow an infinite number of failed connection attempts
+
+		 return p;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether this consumer needs a client to operate.
+	  *
+	  * @return A boolean indicating whether this consumer needs a client to operate
+	  */
+	 bool needsClient_() const noexcept override {
+		 return true;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns the (possibly estimated) number of concurrent processing units.
+	  * Note that this function does not make any assumptions whether processing
+	  * units are dedicated solely to a given task.
+	  */
+	 std::size_t getNProcessingUnitsEstimate_(bool& exact) const override {
+		 exact=false; // mark the answer as approximate
+		 return boost::numeric_cast<std::size_t>(m_connections.load());
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns an indication whether full return can be expected from this
+	  * consumer.
+	  */
+	 bool capableOfFullReturn_() const override {
+		 return false;
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Schedules the de-serialization of a completed work item, so the server

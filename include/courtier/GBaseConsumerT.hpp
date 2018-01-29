@@ -108,10 +108,10 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Stop execution
-	  */
-	 virtual void shutdown() BASE {
-		 m_stop.store(true);
+ 	  * Stop execution
+     */
+	 void shutdown() {
+		 this->shutdown_();
 	 }
 
 	 /***************************************************************************/
@@ -127,8 +127,8 @@ public:
 	  * Returns an indication whether full return can be expected from the consumer.
 	  * By default we assume that a full return is not possible.
 	  */
-	 virtual bool capableOfFullReturn() const BASE {
-		 return false;
+	 bool capableOfFullReturn() const {
+		 return this->capableOfFullReturn_();
 	 }
 
 	 /***************************************************************************/
@@ -138,9 +138,8 @@ public:
 	  * make any assumptions whether processing units are dedicated solely to a
 	  * given task.
 	  */
-	 virtual std::size_t getNProcessingUnitsEstimate(bool& exact) const BASE {
-		 exact=false;
-		 return boost::numeric_cast<std::size_t>(0);
+	 std::size_t getNProcessingUnitsEstimate(bool& exact) const {
+		 return this->getNProcessingUnitsEstimate_(exact);
 	 }
 
 	 /***************************************************************************/
@@ -170,8 +169,8 @@ public:
 	  *
 	  * @return A boolean indicating whether this consumer needs a client to operate
 	  */
-	 virtual bool needsClient() const BASE {
-		 return false;
+	 bool needsClient() const {
+		 return this->needsClient_();
 	 }
 
 	 /***************************************************************************/
@@ -180,21 +179,9 @@ public:
 	  * it returns an empty smart pointer, so that consumers without the need for
 	  * clients do not need to re-implement this function.
 	  */
-	 virtual std::shared_ptr<GBaseClientT<processable_type>> getClient() const BASE {
-		 return std::shared_ptr<GBaseClientT<processable_type>>();
+	 std::shared_ptr<GBaseClientT<processable_type>> getClient() const {
+		 return this->getClient_();
 	 }
-
-	 /***************************************************************************/
-	 // Some abstract functions
-
-	 /** @brief A unique identifier for a given consumer */
-	 virtual std::string getConsumerName() const BASE = 0;
-
-	 /** @brief Returns a short identifier for this consumer */
-	 virtual std::string getMnemonic() const BASE = 0;
-
-	 /** @brief The actual business logic */
-	 virtual void async_startProcessing() BASE = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -202,9 +189,9 @@ public:
 	  * By default we do nothing so that derived classes do not need to re-implement this
 	  * function.
 	  */
-	 virtual void actOnCLOptions(
-		 const boost::program_options::variables_map &vm
-	 ) BASE { /* nothing */ }
+	 void actOnCLOptions(const boost::program_options::variables_map &vm) {
+		 this->actOnCLOptions_(vm);
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -215,13 +202,46 @@ public:
 	  * @param visible Command line options that should always be visible
 	  * @param hidden Command line options that should only be visible upon request
 	  */
-	 virtual void addCLOptions(
+	 void addCLOptions(
 		 boost::program_options::options_description &visible
 		 , boost::program_options::options_description &hidden
-	 ) BASE { /* nothing */ }
+	 ) {
+		this->addCLOptions_(visible, hidden);
+	 }
 
+	 /***************************************************************************/
+	 /**
+	  * A unique identifier for a given consumer
+	  */
+	 std::string getConsumerName() const {
+		 return this->getConsumerName_();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns a short identifier for this consumer
+	  */
+	 std::string getMnemonic() const {
+		 return this->getMnemonic_();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * The actual business logic
+	  */
+	 void async_startProcessing() {
+		 this->async_startProcessing_();
+	 }
 
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Stop execution
+	  */
+	 virtual void shutdown_() BASE {
+		 m_stop.store(true);
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Adds local configuration options to a GParserBuilder object. We have no local
@@ -236,6 +256,65 @@ protected:
 	 ) BASE { /* nothing -- no local data */ }
 
 private:
+	 /***************************************************************************/
+	 // Some abstract functions
+
+	 /** @brief Takes a boost::program_options::variables_map object and checks for supplied options */
+	 virtual void actOnCLOptions_(const boost::program_options::variables_map&) = 0;
+
+	 /** @brief Adds local command line options to a boost::program_options::options_description object */
+	 virtual void addCLOptions_(
+		 boost::program_options::options_description&
+		 , boost::program_options::options_description&
+	 ) = 0;
+
+	 /** @brief A unique identifier for a given consumer */
+	 virtual std::string getConsumerName_() const BASE = 0;
+
+	 /** @brief Returns a short identifier for this consumer */
+	 virtual std::string getMnemonic_() const BASE = 0;
+
+	 /** @brief The actual business logic */
+	 virtual void async_startProcessing_() BASE = 0;
+
+	 /***************************************************************************/
+	 /**
+	  * This function returns a client associated with this consumer. By default
+	  * it returns an empty smart pointer, so that consumers without the need for
+	  * clients do not need to re-implement this function.
+	  */
+	 virtual std::shared_ptr<GBaseClientT<processable_type>> getClient_() const BASE {
+		 return std::shared_ptr<GBaseClientT<processable_type>>();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether this consumer needs a client to operate. By default
+	  * we return false, so that consumers without the need for clients do not need
+	  * to re-implement this function.
+	  *
+	  * @return A boolean indicating whether this consumer needs a client to operate
+	  */
+	 virtual bool needsClient_() const noexcept BASE {
+		 return false;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns the (possibly estimated) number of concurrent processing units.
+	  * A return value of 0 means "unknown". Note that this function does not
+	  * make any assumptions whether processing units are dedicated solely to a
+	  * given task.
+	  */
+	 virtual std::size_t getNProcessingUnitsEstimate_(bool& exact) const BASE = 0;
+
+	 /***************************************************************************/
+	 /**
+	  * Returns an indication whether full return can be expected from the consumer.
+	  * By default we assume that a full return is not possible.
+	  */
+	 virtual bool capableOfFullReturn_() const BASE = 0;
+
 	 /***************************************************************************/
 
 	 mutable std::atomic<bool> m_stop{false}; ///< Set to true if we are expected to stop

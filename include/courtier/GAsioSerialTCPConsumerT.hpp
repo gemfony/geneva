@@ -1166,8 +1166,8 @@ public:
 		 , const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::BINARY
 	 )
 		 : m_n_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
-			, m_serializationMode(sm)
-			, m_port(port)
+		 , m_serializationMode(sm)
+		 , m_port(port)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1283,36 +1283,86 @@ public:
 		 return m_maxConnectionAttempts;
 	 }
 
+protected:
 	 /***************************************************************************/
 	 /**
-	  * Allows to check whether this consumer needs a client to operate.
-	  *
-	  * @return A boolean indicating whether this consumer needs a client to operate
+	  * Make sure the consumer and the server sessions shut down gracefully
 	  */
-	 bool needsClient() const override {
-		 return true;
+	 void shutdown_() override {
+		 // Set the stop criterion
+		 GBaseConsumerT<processable_type>::shutdown_();
+
+		 // Terminate the worker and clear the thread group
+		 m_work.reset(); // This will initiate termination of all threads
+
+		 // Terminate the io service
+		 m_io_service.stop();
+		 // Wait for the threads in the group to exit
+		 m_gtg.join_all();
+	 }
+
+private:
+	 /***************************************************************************/
+	 /**
+	  * Adds local command line options to a boost::program_options::options_description object.
+	  *
+	  * @param visible Command line options that should always be visible
+	  * @param hidden Command line options that should only be visible upon request
+	  */
+	 void addCLOptions_(
+		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
+	 ) override {
+		 namespace po = boost::program_options;
+
+		 visible.add_options()
+			 ("stcpc_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
+				 "\t[stcpc] The name or ip of the server")
+			 ("stcpc_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
+				 "\t[stcpc] The port of the server");
+
+		 hidden.add_options()
+			 ("stcpc_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
+				 GASIOTCPCONSUMERSERIALIZATIONMODE),
+				 "\t[stcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+			 ("stcpc_maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
+				 "\t[stcpc] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
+			 ("stcpc_maxConnectionAttempts",
+				 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
+				 "\t[stcpc] The maximum allowed number of failed connection attempts of a client")
+			 ("stcpc_nListenerThreads", po::value<std::size_t>(&m_n_listenerThreads)->default_value(m_n_listenerThreads),
+				 "\t[stcpc] The number of threads used to listen for incoming connections");
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a client suitable for processing the data emitted by this consumer
+	  * Takes a boost::program_options::variables_map object and checks for supplied options.
 	  */
-	 std::shared_ptr<GBaseClientT<processable_type>> getClient() const override {
-		 std::shared_ptr <GAsioSerialTCPClientT<processable_type>> p(
-			 new GAsioSerialTCPClientT<processable_type>(m_server, Gem::Common::to_string(m_port))
-		 );
+	 void actOnCLOptions_(const boost::program_options::variables_map &vm) override
+	 { /* nothing */ }
 
-		 p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls
-		 p->setMaxConnectionAttempts(m_maxConnectionAttempts); // Set to 0 to allow an infinite number of failed connection attempts
+	 /***************************************************************************/
+	 /**
+	  * A unique identifier for a given consumer
+	  *
+	  * @return A unique identifier for a given consumer
+	  */
+	 std::string getConsumerName_() const override {
+		 return std::string("GAsioSerialTCPConsumerT");
+	 }
 
-		 return p;
+	 /***************************************************************************/
+	 /**
+	  * Returns a short identifier for this consumer
+	  */
+	 std::string getMnemonic_() const override {
+		 return std::string("stcpc");
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Starts the actual processing loops
 	  */
-	 void async_startProcessing() override {
+	 void async_startProcessing_() override {
 		 // Open the acceptor
 		 boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), m_port);
 		 m_acceptor.open(endpoint.protocol());
@@ -1329,7 +1379,7 @@ public:
 		 if (!m_broker_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioSerialTCPConsumerT<processable_type>::async_startProcessing(): Error!" << std::endl
+					 << "In GAsioSerialTCPConsumerT<processable_type>::async_startProcessing_():" << std::endl
 					 << "Got empty broker pointer" << std::endl
 			 );
 		 }
@@ -1358,28 +1408,28 @@ public:
 		 } catch (const boost::system::system_error &e) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
+					 << "In GAsioSerialTCPConsumerT::async_startProcessing_():" << std::endl
 					 << "Caught boost::system::system_error exception with messages:" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (const boost::exception &e) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
+					 << "In GAsioSerialTCPConsumerT::async_startProcessing_():" << std::endl
 					 << "Caught boost::exception with messages:" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (const std::exception &e) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
+					 << "In GAsioSerialTCPConsumerT::async_startProcessing_():" << std::endl
 					 << "Caught std::exception with messages:" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
 			 );
 		 } catch (...) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "In GAsioSerialTCPConsumerT::async_startProcessing():" << std::endl
+					 << "In GAsioSerialTCPConsumerT::async_startProcessing_():" << std::endl
 					 << "Caught unknown exception" << std::endl
 			 );
 		 }
@@ -1387,37 +1437,38 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Make sure the consumer and the server sessions shut down gracefully
+	  * Emits a client suitable for processing the data emitted by this consumer
 	  */
-	 void shutdown() override {
-		 // Set the stop criterion
-		 GBaseConsumerT<processable_type>::shutdown();
+	 std::shared_ptr<GBaseClientT<processable_type>> getClient_() const override {
+		 std::shared_ptr <GAsioSerialTCPClientT<processable_type>> p(
+			 new GAsioSerialTCPClientT<processable_type>(m_server, Gem::Common::to_string(m_port))
+		 );
 
-		 // Terminate the worker and clear the thread group
-		 m_work.reset(); // This will initiate termination of all threads
+		 p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls
+		 p->setMaxConnectionAttempts(m_maxConnectionAttempts); // Set to 0 to allow an infinite number of failed connection attempts
 
-		 // Terminate the io service
-		 m_io_service.stop();
-		 // Wait for the threads in the group to exit
-		 m_gtg.join_all();
+		 return p;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * A unique identifier for a given consumer
+	  * Allows to check whether this consumer needs a client to operate.
 	  *
-	  * @return A unique identifier for a given consumer
+	  * @return A boolean indicating whether this consumer needs a client to operate
 	  */
-	 std::string getConsumerName() const override {
-		 return std::string("GAsioSerialTCPConsumerT");
+	 bool needsClient_() const noexcept override {
+		 return true;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Returns a short identifier for this consumer
+	  * Returns the (possibly estimated) number of concurrent processing units.
+	  * Note that this function does not make any assumptions whether processing
+	  * units are dedicated solely to a given task.
 	  */
-	 std::string getMnemonic() const override {
-		 return std::string("stcpc");
+	 std::size_t getNProcessingUnitsEstimate_(bool& exact) const override {
+		 exact=false; // mark the answer as approximate
+		 return boost::numeric_cast<std::size_t>(0);
 	 }
 
 	 /***************************************************************************/
@@ -1426,49 +1477,10 @@ public:
 	  * consumer. Since evaluation is performed remotely, we assume that this
 	  * is not the case.
 	  */
-	 bool capableOfFullReturn() const override {
+	 bool capableOfFullReturn_() const override {
 		 return false;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Adds local command line options to a boost::program_options::options_description object.
-	  *
-	  * @param visible Command line options that should always be visible
-	  * @param hidden Command line options that should only be visible upon request
-	  */
-	 void addCLOptions(
-		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
-	 ) override {
-		 namespace po = boost::program_options;
-
-		 visible.add_options()
-			 ("stcpc_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
-				 "\t[stcpc] The name or ip of the server")
-			 ("stcpc_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
-				 "\t[stcpc] The port of the server");
-
-		 hidden.add_options()
-			 ("stcpc_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
-				 GASIOTCPCONSUMERSERIALIZATIONMODE),
-				 "\t[stcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			 ("stcpc_maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
-				 "\t[stcpc] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
-			 ("stcpc_maxConnectionAttempts",
-				 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
-				 "\t[stcpc] The maximum allowed number of failed connection attempts of a client")
-			 ("stcpc_nListenerThreads", po::value<std::size_t>(&m_n_listenerThreads)->default_value(m_n_listenerThreads),
-				 "\t[stcpc] The number of threads used to listen for incoming connections");
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Takes a boost::program_options::variables_map object and checks for supplied options.
-	  */
-	 void actOnCLOptions(const boost::program_options::variables_map &vm) override
-	 { /* nothing */ }
-
-private:
 	 /***************************************************************************/
 	 /**
 	  * Schedules the de-serialization of a completed work item, so the server
