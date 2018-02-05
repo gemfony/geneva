@@ -41,14 +41,6 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GIndividualSerialTCPConsumer::GIndividualSerialTCPConsumer()
-	: Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * A constructor that takes a number of vital arguments
  */
 GIndividualSerialTCPConsumer::GIndividualSerialTCPConsumer(
@@ -60,23 +52,7 @@ GIndividualSerialTCPConsumer::GIndividualSerialTCPConsumer(
 { /* nothing */ }
 
 /******************************************************************************/
-/**
- * The destructor
- */
-GIndividualSerialTCPConsumer::~GIndividualSerialTCPConsumer()
-{ /* nothing */ }
-
-
-/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-GIndividualAsyncTCPConsumer::GIndividualAsyncTCPConsumer()
-	: Gem::Courtier::GAsioAsyncTCPConsumerT<Gem::Geneva::GParameterSet>()
-{ /* nothing */ }
-
 /******************************************************************************/
 /**
  * A constructor that takes a number of vital arguments
@@ -87,47 +63,6 @@ GIndividualAsyncTCPConsumer::GIndividualAsyncTCPConsumer(
 	, const Gem::Common::serializationMode &sm
 )
 	: Gem::Courtier::GAsioAsyncTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GIndividualAsyncTCPConsumer::~GIndividualAsyncTCPConsumer()
-{ /* nothing */ }
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/*
- * The default constructor
- */
-GIndividualThreadConsumer::GIndividualThreadConsumer()
-	: Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GIndividualThreadConsumer::~GIndividualThreadConsumer()
-{ /* nothing */ }
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/*
- * The default constructor
- */
-GIndividualSerialConsumer::GIndividualSerialConsumer()
-	: Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GIndividualSerialConsumer::~GIndividualSerialConsumer()
 { /* nothing */ }
 
 /******************************************************************************/

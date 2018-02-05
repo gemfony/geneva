@@ -640,7 +640,7 @@ private:
 		 async_start_write(
 			 m_command_container.reset(
 				 beast_payload_command::GETDATA
-			 ).to_string()
+			 ).to_string(m_serialization_mode)
 		 );
 
 		 // Start the read cycle -- it will keep itself alife
@@ -773,7 +773,7 @@ private:
 		 }
 
 		 // Serialize the object again and return the result
-		 async_start_write(m_command_container.to_string());
+		 async_start_write(m_command_container.to_string(m_serialization_mode));
 	 }
 
 	 //-------------------------------------------------------------------------
@@ -894,32 +894,10 @@ public:
 		 , m_ping_interval(std::chrono::seconds(ping_interval))
 		 , m_verbose_control_frames(verbose_control_frames)
 	 {
-		 // Set the auto_fragment option, so control frames are delivered timely
-		 m_ws.auto_fragment(true);
-		 m_ws.write_buffer_size(16384);
+		 // ---------------------------------------------------
+		 // Make it known to the server that a new session has started
+		 this->m_server_sign_on(true);
 
-		 // Set the transfer mode according to the defines in CMakeLists.txt
-		 // Set the transfer mode
-		 switch(m_serialization_mode) {
-			 case Gem::Common::serializationMode::BINARY:
-				 m_ws.binary(true);
-				 break;
-			 case Gem::Common::serializationMode::XML:
-			 case Gem::Common::serializationMode::TEXT:
-				 m_ws.binary(false);
-				 break;
-		 }
-	 }
-
-	 //-------------------------------------------------------------------------
-	 /** @brief The destructor */
-	 ~GWebsocketServerSessionT() = default;
-
-	 //-------------------------------------------------------------------------
-	 /**
-	  * Initiates all communication and processing
-	  */
-	 void async_start_run() {
 		 // ---------------------------------------------------
 		 // Prepare ping cycle. It must start after the handshake, upon whose
 		 // completion the when_connection_accepted() function is called.
@@ -943,8 +921,8 @@ public:
 			 if(this->m_verbose_control_frames) {
 				 if (boost::beast::websocket::frame_type::close == frame_t) {
 					 glogger
-					   << "GWebsocketServerSessionT<> session has received a close frame" << std::endl
-						<< GLOGGING;
+						 << "GWebsocketServerSessionT<> session has received a close frame" << std::endl
+						 << GLOGGING;
 				 } else if (boost::beast::websocket::frame_type::ping == frame_t) {
 					 glogger
 						 << "GWebsocketServerSessionT<> session has received a ping frame" << std::endl
@@ -960,6 +938,39 @@ public:
 		 // Set the callback to be executed on every incoming control frame.
 		 m_ws.control_callback(f_when_control_frame_arrived);
 
+		 // ---------------------------------------------------
+		 // Set the auto_fragment option, so control frames are delivered timely
+		 m_ws.auto_fragment(true);
+		 m_ws.write_buffer_size(16384);
+
+		 // ---------------------------------------------------
+		 // Set the transfer mode according to the defines in CMakeLists.txt
+		 // Set the transfer mode
+		 switch(m_serialization_mode) {
+			 case Gem::Common::serializationMode::BINARY:
+				 m_ws.binary(true);
+				 break;
+			 case Gem::Common::serializationMode::XML:
+			 case Gem::Common::serializationMode::TEXT:
+				 m_ws.binary(false);
+				 break;
+		 }
+
+		 // ---------------------------------------------------
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /** @brief The destructor */
+	 ~GWebsocketServerSessionT() {
+		 // Make it known to the server that this session has terminated
+		 this->m_server_sign_on(false);
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Initiates all communication and processing
+	  */
+	 void async_start_run() {
 		 // ---------------------------------------------------
 		 // Connections and communication
 
@@ -1158,9 +1169,6 @@ private:
 			 return;
 		 }
 
-		 // Make it known to the server that a new session is alive
-		 m_server_sign_on(true);
-
 		 // Start reading an incoming message. This
 		 // call will return immediately.
 		 async_start_read();
@@ -1219,10 +1227,6 @@ private:
 		 m_outgoing_message.clear();
 
 		 if(this->m_check_server_stopped()) {
-			 glogger
-				 << "GWebsocketServerSessionT<processable_type>::when_written(): Server seems to be stopped" << std::endl
-				 << GLOGGING;
-
 			 // Do not continue if a stop criterion was reached
 			 do_close(boost::beast::websocket::close_code::normal);
 		 } else {
@@ -1242,10 +1246,6 @@ private:
 	  * @param cc A close-code to be transmitted to the peer
 	  */
 	 void do_close(boost::beast::websocket::close_code cc) {
-		 glogger
-			 << "GWebsocketServerSessionT<processable_type>::do_close(): Closing down connection" << std::endl
-			 << GLOGGING;
-
 		 // Store the close code for later reference
 		 m_close_code = cc;
 
@@ -1278,9 +1278,6 @@ private:
 				 );
 			 }
 		 }
-
-		 // Make it known to the server that a session is leaving
-		 m_server_sign_on(false);
 	 }
 
 	 //-------------------------------------------------------------------------
@@ -1406,7 +1403,7 @@ private:
  * for each client connection, and to interact with the Broker
  */
 template<typename processable_type>
-class GWebsocketConsumerT final
+class GWebsocketConsumerT
 	: public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
 	, public std::enable_shared_from_this<GWebsocketConsumerT<processable_type>>
 {
@@ -1510,7 +1507,7 @@ private:
 		 boost::system::error_code ec;
 
 		 // Set up the endpoint according to the endpoint information we have received from the command line
-		 m_endpoint = std::move(boost::asio::ip::tcp::endpoint{boost::asio::ip::make_address(m_server), m_port});
+		 m_endpoint = std::move(boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), m_port});
 
 		 // Open the acceptor
 		 m_acceptor.open(m_endpoint.protocol(), ec);
@@ -1539,6 +1536,10 @@ private:
 			    << GWARNING;
 			 return;
 		 }
+
+		 // Some acceptor options
+		 boost::asio::socket_base::reuse_address option(true);
+		 m_acceptor.set_option(option);
 
 		 // Start listening for connections
 		 m_acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
@@ -1590,8 +1591,6 @@ private:
 	  * @param ec The code of a possible error
 	  */
 	 void when_accepted(error_code ec) {
-		 if(this->stopped()) return;
-
 		 if(ec) {
 			 glogger
 			 	<< "In GWebsocketConsumerT<>::when_accepted(): Got error code \"" << ec.message() << "\"" << std::endl
@@ -1608,15 +1607,15 @@ private:
 					 if(true==sign_on) {
 						 this->m_n_active_sessions++;
 					 } else {
-						 if(0 == this->m_n_active_sessions) {
+						 if(this->m_n_active_sessions > 0) {
+							 // This won't help, though, if m_n_active_sessions becomes 0 after the if-check
+							 this->m_n_active_sessions--;
+						 } else {
 							 throw gemfony_exception(
 								 g_error_streamer(DO_LOG,  time_and_place)
 									 << "In GWebsocketConsumerT<>::when_accepted():" << std::endl
-							       << "Tried to decrement #sessions which is already 0" << std::endl
+									 << "Tried to decrement #sessions which is already 0" << std::endl
 							 );
-						 } else {
-							 // This won't help, though, if m_n_active_sessions becomes 0 after the if-check
-							 this->m_n_active_sessions--;
 						 }
 					 }
 
@@ -1624,6 +1623,7 @@ private:
 						 << "GWebsocketConsumerT<>: " << this->m_n_active_sessions << " active sessions" << std::endl
 						 << GLOGGING;
 				 }
+				 , m_serializationMode
 				 , m_ping_interval
 				 , m_verbose_control_frames
 			 )->async_start_run();
@@ -1725,7 +1725,7 @@ private:
 
 	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
-	 boost::asio::ip::tcp::endpoint m_endpoint{boost::asio::ip::make_address(m_server), m_port};
+	 boost::asio::ip::tcp::endpoint m_endpoint{boost::asio::ip::tcp::v4(), m_port};
 	 std::size_t m_n_listener_threads = Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS);  ///< The number of threads used to listen for incoming connections through io_context::run()
 	 boost::asio::io_context m_io_context{boost::numeric_cast<int>(m_n_listener_threads)};
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_context};

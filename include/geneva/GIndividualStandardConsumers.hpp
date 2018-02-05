@@ -46,6 +46,7 @@
 // Geneva headers go here
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
+#include "courtier/GWebsocketConsumerT.hpp"
 #include "courtier/GAsioSerialTCPConsumerT.hpp"
 #include "courtier/GAsioAsyncTCPConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
@@ -63,12 +64,29 @@ namespace Geneva {
  * A consumer used for network communication, using GParameterSet-derivatives
  * and serial communication on the client side.
  */
-class GIndividualSerialTCPConsumer
+class GIndividualWebsocketConsumer final
+	: public Gem::Courtier::GWebsocketConsumerT<Gem::Geneva::GParameterSet>
+{
+public:
+	 /** @brief The default constructor */
+	 G_API_GENEVA GIndividualWebsocketConsumer() = default;
+	 /** @brief The destructor */
+	 G_API_GENEVA ~GIndividualWebsocketConsumer() override = default;
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A consumer used for network communication, using GParameterSet-derivatives
+ * and serial communication on the client side.
+ */
+class GIndividualSerialTCPConsumer final
 	: public Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
 	/** @brief The default constructor */
-	G_API_GENEVA GIndividualSerialTCPConsumer();
+	G_API_GENEVA GIndividualSerialTCPConsumer() = default;
 	/** @brief A constructor that takes a number of vital arguments */
 	G_API_GENEVA GIndividualSerialTCPConsumer(
 		const unsigned short&
@@ -76,7 +94,7 @@ public:
 		, const Gem::Common::serializationMode& = Gem::Common::serializationMode::BINARY
 	);
 	/** @brief The destructor */
-	virtual G_API_GENEVA ~GIndividualSerialTCPConsumer();
+ 	G_API_GENEVA ~GIndividualSerialTCPConsumer() override = default;
 };
 
 /******************************************************************************/
@@ -87,12 +105,12 @@ public:
  * and async communication on the client side, so that a keep-alive of the
  * connection is possible
  */
-class GIndividualAsyncTCPConsumer
+class GIndividualAsyncTCPConsumer final
 	: public Gem::Courtier::GAsioAsyncTCPConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GIndividualAsyncTCPConsumer();
+	 G_API_GENEVA GIndividualAsyncTCPConsumer() = default;
 	 /** @brief A constructor that takes a number of vital arguments */
 	 G_API_GENEVA GIndividualAsyncTCPConsumer(
 		 const unsigned short&
@@ -100,7 +118,7 @@ public:
 		 , const Gem::Common::serializationMode& = Gem::Common::serializationMode::BINARY
 	 );
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GIndividualAsyncTCPConsumer();
+  	 G_API_GENEVA ~GIndividualAsyncTCPConsumer() override = default;
 };
 
 /******************************************************************************/
@@ -109,14 +127,14 @@ public:
 /**
  * A consumer used for multi-threaded processing, using GParameterSet-derivatives
  */
-class GIndividualThreadConsumer
+class GIndividualThreadConsumer final
 	: public Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
 	/** @brief The default constructor */
-	G_API_GENEVA GIndividualThreadConsumer();
+	G_API_GENEVA GIndividualThreadConsumer() = default;
 	/** @brief The desstructor */
-	virtual G_API_GENEVA ~GIndividualThreadConsumer();
+ 	G_API_GENEVA ~GIndividualThreadConsumer() = default;
 };
 
 /******************************************************************************/
@@ -131,9 +149,9 @@ class GIndividualSerialConsumer
 {
 public:
 	/** @brief The default constructor */
-	G_API_GENEVA GIndividualSerialConsumer();
+	G_API_GENEVA GIndividualSerialConsumer() = default;
 	/** @brief The desstructor */
-	virtual G_API_GENEVA ~GIndividualSerialConsumer();
+ 	G_API_GENEVA ~GIndividualSerialConsumer() override = default;
 };
 
 /******************************************************************************/

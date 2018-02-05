@@ -151,7 +151,7 @@ public:
 		 if (true == m_finalized.load()) return;
 
 		 // Shut down all consumers
-		 for(auto c_ptr: m_consumer_collection_vec) {
+		 for(auto &c_ptr: m_consumer_collection_vec) {
 			 c_ptr->shutdown();
 		 }
 

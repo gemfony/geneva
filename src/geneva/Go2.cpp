@@ -87,8 +87,8 @@ Go2::Go2(
 	m_gi.registerOAF<GSimulatedAnnealingFactory>();
 	m_gi.registerOAF<GParameterScanFactory>();
 
+	m_gi.registerConsumer<GIndividualWebsocketConsumer>();
 	m_gi.registerConsumer<GIndividualSerialTCPConsumer>();
-	m_gi.registerConsumer<GIndividualAsyncTCPConsumer>();
 	m_gi.registerConsumer<GIndividualThreadConsumer>();
 	m_gi.registerConsumer<GIndividualSerialConsumer>();
 
