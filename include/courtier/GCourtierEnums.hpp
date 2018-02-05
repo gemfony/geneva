@@ -76,6 +76,15 @@ enum class beast_payload_command : Gem::Common::ENUMBASETYPE {
 };
 
 /******************************************************************************/
+/** @brief Indicates in what state of the ping submission we are */
+enum class beast_ping_state : Gem::Common::ENUMBASETYPE {
+	 CONNECTION_IS_ALIVE = 0
+	 , SENDING_PING = 1
+	 , CONNECTION_IS_STALE = 2
+};
+
+
+/******************************************************************************/
 /**
  * Specification of different consumer types of the broker
  */
@@ -97,12 +106,14 @@ const consumerType DEFAULT_BROKER_MODE = consumerType::MULTITHREADED;
  */
 const std::uint32_t GASIOTCPCONSUMERMAXSTALLS = 0; // infinite number of stalls
 const std::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
-const unsigned short GASIOTCPCONSUMERDEFAULTPORT = 10000;
-const std::string GASIOTCPCONSUMERDEFAULTSERVER = "localhost";
-const std::uint16_t GASIOTCPCONSUMERTHREADS = 4;
+const unsigned short GCONSUMERDEFAULTPORT = 10000;
+const std::string GCONSUMERDEFAULTSERVER = "localhost";
+const std::uint16_t GCONSUMERLISTENERTHREADS = 4;
 const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::serializationMode::BINARY;
 const std::int32_t GASIOMAXOPENPINGS = 100; // The maximum number of pings without matching pong from the server
 const std::chrono::milliseconds GASIOPINGINTERVAL = std::chrono::milliseconds(1000);
+const std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
+const std::size_t GBEASTMSTIMEOUT = 50;
 
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with threads */
@@ -233,6 +244,11 @@ using BUFFERPORT_ID_TYPE = boost::uuids::uuid;
 G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::beast_payload_command &);
 /** @brief Reads a Gem::Courtier::beast_payload_command item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::beast_payload_command &);
+
+/** @brief Puts a Gem::Courtier::beast_ping_state into a stream. Needed also for boost::lexical_cast<> */
+G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::beast_ping_state &);
+/** @brief Reads a Gem::Courtier::beast_ping_state item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::beast_ping_state &);
 
 /** @brief Puts a Gem::Courtier::submissionReturnMode into a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::submissionReturnMode &);

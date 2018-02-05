@@ -72,6 +72,41 @@ std::istream &operator>>(std::istream &i, Gem::Courtier::beast_payload_command &
 	return i;
 }
 
+/******************************************************************************************/
+/**
+ * Puts a Gem::Courtier::beast_ping_state item into a stream
+ *
+ * @param o The ostream the item should be added to
+ * @param srm the item to be added to the stream
+ * @return The std::ostream object used to add the item to
+ */
+std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_ping_state &ps) {
+	auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
+	o << tmp;
+	return o;
+}
+
+/******************************************************************************************/
+/**
+ * Reads a Gem::Courtier::beast_ping_state item from a stream
+ *
+ * @param i The stream the item should be read from
+ * @param srm The item read from the stream
+ * @return The std::istream object used to read the item from
+ */
+std::istream &operator>>(std::istream &i, Gem::Courtier::beast_ping_state &ps) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	ps = boost::numeric_cast<Gem::Courtier::beast_ping_state>(tmp);
+#else
+	ps = static_cast<Gem::Courtier::beast_ping_state>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
 /******************************************************************************/
 /**
  * Puts a Gem::Courtier::submissionReturnMode item into a stream

@@ -75,7 +75,6 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GBaseClientT.hpp"
 
-
 namespace Gem {
 namespace Courtier {
 
@@ -953,7 +952,7 @@ protected:
 	  */
 	 void async_submitToRemote() {
 		 // Retrieve an item from the broker and submit it to the client.
-		 std::shared_ptr <processable_type> p;
+		 std::shared_ptr<processable_type> p;
 
 		 // Do not do anything if the server was stopped
 		 if (m_master->stopped()) {
@@ -1149,8 +1148,7 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 GAsioSerialTCPConsumerT()
-	 { /* noting */ }
+	 GAsioSerialTCPConsumerT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1165,7 +1163,7 @@ public:
 		 , const std::size_t &listenerThreads = 0
 		 , const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::BINARY
 	 )
-		 : m_n_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+		 : m_n_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS))
 		 , m_serializationMode(sm)
 		 , m_port(port)
 	 { /* nothing */ }
@@ -1315,9 +1313,9 @@ private:
 		 namespace po = boost::program_options;
 
 		 visible.add_options()
-			 ("stcpc_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
+			 ("stcpc_ip", po::value<std::string>(&m_server)->default_value(GCONSUMERDEFAULTSERVER),
 				 "\t[stcpc] The name or ip of the server")
-			 ("stcpc_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
+			 ("stcpc_port", po::value<unsigned short>(&m_port)->default_value(GCONSUMERDEFAULTPORT),
 				 "\t[stcpc] The port of the server");
 
 		 hidden.add_options()
@@ -1441,7 +1439,10 @@ private:
 	  */
 	 std::shared_ptr<GBaseClientT<processable_type>> getClient_() const override {
 		 std::shared_ptr <GAsioSerialTCPClientT<processable_type>> p(
-			 new GAsioSerialTCPClientT<processable_type>(m_server, Gem::Common::to_string(m_port))
+			 new GAsioSerialTCPClientT<processable_type>(
+				 m_server
+				 , Gem::Common::to_string(m_port)
+			 )
 		 );
 
 		 p->setMaxStalls(m_maxStalls); // Set to 0 to allow an infinite number of stalls
@@ -1531,7 +1532,7 @@ private:
 			 while (!m_broker_ptr->put(p, timeout)) {
 				 if (this->stopped()) { // This may lead to a loss of items
 					 glogger
-						 << "GAsioSerialTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
+						 << "GAsioSerialTCPConsumerT<>::handle_workItemComplete(): Warning!" << std::endl
 						 << "Discarding item as the consumer object stopped operation" << std::endl
 						 << GWARNING;
 
@@ -1542,7 +1543,7 @@ private:
 			 }
 		 } catch (const Gem::Courtier::buffer_not_present &) { // discard the item
 			 glogger
-				 << "GAsioSerialTCPConsumerT<>::In handle_workItemComplete(): Warning!" << std::endl
+				 << "GAsioSerialTCPConsumerT<>::handle_workItemComplete(): Warning!" << std::endl
 				 << "Discarding item as buffer port is not present" << std::endl
 				 << GWARNING;
 
@@ -1550,7 +1551,7 @@ private:
 		 } catch (...) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
-					 << "GAsioSerialTCPConsumerT<>::In handle_workItemComplete():" << std::endl
+					 << "GAsioSerialTCPConsumerT<>::handle_workItemComplete():" << std::endl
 					 << "Caught unknown exception" << std::endl
 			 );
 		 }
@@ -1659,13 +1660,13 @@ private:
 
 	 boost::asio::io_service m_io_service;   ///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
 	 std::shared_ptr<boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
-	 std::size_t m_n_listenerThreads = Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
+	 std::size_t m_n_listenerThreads = Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_service}; ///< takes care of external connection requests
 	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
 	 std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
 	 std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
-	 unsigned short m_port = GASIOTCPCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
-	 std::string m_server = GASIOTCPCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
+	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
+	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(10); ///< A timeout for put- and get-operations
 	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds listener threads
 	 Gem::Common::GThreadPool m_gtp; ///< Holds workers sorting processed items back into the broker

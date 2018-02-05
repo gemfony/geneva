@@ -110,7 +110,7 @@ namespace Common {
 
 /******************************************************************************/
 // A basetype used for all enums in Geneva
-using ENUMBASETYPE = int;
+using ENUMBASETYPE = std::uint16_t;
 
 /******************************************************************************/
 /**

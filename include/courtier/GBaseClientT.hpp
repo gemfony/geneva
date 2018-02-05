@@ -68,8 +68,16 @@
 #include <boost/fusion/adapted/boost_tuple.hpp>
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/io.hpp>
-#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/qi_operator.hpp>
+#include <boost/spirit/include/qi_char.hpp>
+#include <boost/spirit/include/qi_string.hpp>
+#include <boost/spirit/include/qi_numeric.hpp>
+#include <boost/spirit/include/qi_auxiliary.hpp>
+#include <boost/spirit/include/qi_nonterminal.hpp>
+#include <boost/spirit/include/qi_action.hpp>
 #include <boost/spirit/include/qi_lit.hpp>
+#include <boost/spirit/include/qi_raw.hpp>
+#include <boost/spirit/include/qi_hold.hpp>
 #include <boost/spirit/include/phoenix_core.hpp>
 #include <boost/spirit/include/phoenix_operator.hpp>
 #include <boost/spirit/include/phoenix_stl.hpp>
@@ -97,7 +105,6 @@ namespace Courtier {
  */
 template<typename processable_type>
 class GBaseClientT
-	: public std::enable_shared_from_this<GBaseClientT<processable_type>>
 {
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(

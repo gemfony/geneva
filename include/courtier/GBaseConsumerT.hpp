@@ -83,22 +83,21 @@ namespace Courtier {
  * or a worker (in the case of multi-threaded work).
  */
 template<typename processable_type>
-class GBaseConsumerT : public std::enable_shared_from_this<GBaseConsumerT<processable_type>>
-{
+class GBaseConsumerT {
 public:
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * The default constructor
 	  */
 	 GBaseConsumerT() = default;
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * The standard destructor
 	  */
 	 virtual ~GBaseConsumerT() = default;
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 // Some deleted functions
 
 	 GBaseConsumerT(const GBaseConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
@@ -106,7 +105,7 @@ public:
 	 GBaseConsumerT<processable_type> &operator=(const GBaseConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
 	 GBaseConsumerT<processable_type> &operator=(GBaseConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
  	  * Stop execution
      */
@@ -114,15 +113,15 @@ public:
 		 this->shutdown_();
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Check whether the stop flag has been set
 	  */
 	 bool stopped() const {
-		 return m_stop.load();
+		 return m_server_stopped.load();
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Returns an indication whether full return can be expected from the consumer.
 	  * By default we assume that a full return is not possible.
@@ -131,7 +130,7 @@ public:
 		 return this->capableOfFullReturn_();
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Returns the (possibly estimated) number of concurrent processing units.
 	  * A return value of 0 means "unknown". Note that this function does not
@@ -142,7 +141,7 @@ public:
 		 return this->getNProcessingUnitsEstimate_(exact);
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Parses a given configuration file
 	  *
@@ -161,7 +160,7 @@ public:
 		 gpb.parseConfigFile(configFile);
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Allows to check whether this consumer needs a client to operate. By default
 	  * we return false, so that consumers without the need for clients do not need
@@ -173,7 +172,7 @@ public:
 		 return this->needsClient_();
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * This function returns a client associated with this consumer. By default
 	  * it returns an empty smart pointer, so that consumers without the need for
@@ -183,7 +182,7 @@ public:
 		 return this->getClient_();
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Takes a boost::program_options::variables_map object and checks for supplied options.
 	  * By default we do nothing so that derived classes do not need to re-implement this
@@ -193,7 +192,7 @@ public:
 		 this->actOnCLOptions_(vm);
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Adds local command line options to a boost::program_options::options_description object.
 	  * By default we do nothing so that derived classes do not need to re-implement this
@@ -209,7 +208,7 @@ public:
 		this->addCLOptions_(visible, hidden);
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * A unique identifier for a given consumer
 	  */
@@ -217,7 +216,7 @@ public:
 		 return this->getConsumerName_();
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
@@ -225,7 +224,7 @@ public:
 		 return this->getMnemonic_();
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * The actual business logic
 	  */
@@ -234,15 +233,15 @@ public:
 	 }
 
 protected:
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Stop execution
 	  */
 	 virtual void shutdown_() BASE {
-		 m_stop.store(true);
+		 m_server_stopped.store(true);
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Adds local configuration options to a GParserBuilder object. We have no local
 	  * data, hence this function is empty. It could have been declared purely virtual,
@@ -256,17 +255,17 @@ protected:
 	 ) BASE { /* nothing -- no local data */ }
 
 private:
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 // Some abstract functions
-
-	 /** @brief Takes a boost::program_options::variables_map object and checks for supplied options */
-	 virtual void actOnCLOptions_(const boost::program_options::variables_map&) = 0;
 
 	 /** @brief Adds local command line options to a boost::program_options::options_description object */
 	 virtual void addCLOptions_(
 		 boost::program_options::options_description&
 		 , boost::program_options::options_description&
 	 ) = 0;
+
+	 /** @brief Takes a boost::program_options::variables_map object and checks for supplied options */
+	 virtual void actOnCLOptions_(const boost::program_options::variables_map&) = 0;
 
 	 /** @brief A unique identifier for a given consumer */
 	 virtual std::string getConsumerName_() const BASE = 0;
@@ -277,7 +276,7 @@ private:
 	 /** @brief The actual business logic */
 	 virtual void async_startProcessing_() BASE = 0;
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * This function returns a client associated with this consumer. By default
 	  * it returns an empty smart pointer, so that consumers without the need for
@@ -287,7 +286,7 @@ private:
 		 return std::shared_ptr<GBaseClientT<processable_type>>();
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Allows to check whether this consumer needs a client to operate. By default
 	  * we return false, so that consumers without the need for clients do not need
@@ -299,7 +298,7 @@ private:
 		 return false;
 	 }
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Returns the (possibly estimated) number of concurrent processing units.
 	  * A return value of 0 means "unknown". Note that this function does not
@@ -308,16 +307,18 @@ private:
 	  */
 	 virtual std::size_t getNProcessingUnitsEstimate_(bool& exact) const BASE = 0;
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 	 /**
 	  * Returns an indication whether full return can be expected from the consumer.
 	  * By default we assume that a full return is not possible.
 	  */
 	 virtual bool capableOfFullReturn_() const BASE = 0;
 
-	 /***************************************************************************/
+	 //-------------------------------------------------------------------------
 
-	 mutable std::atomic<bool> m_stop{false}; ///< Set to true if we are expected to stop
+	 mutable std::atomic<bool> m_server_stopped{false}; ///< Set to true if we are expected to stop
+
+	 //-------------------------------------------------------------------------
 };
 
 /******************************************************************************/

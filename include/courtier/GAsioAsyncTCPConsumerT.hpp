@@ -1039,7 +1039,7 @@ public:
 		 , const std::size_t &listenerThreads = 0
 		 , const Gem::Common::serializationMode &sm = Gem::Common::serializationMode::BINARY
 	 )
-		 : m_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS))
+		 : m_listenerThreads(listenerThreads > 0 ? listenerThreads : Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS))
 			, m_serialization_mode(sm)
 			, m_port(port)
 	 { /* nothing */ }
@@ -1188,9 +1188,9 @@ private:
 		 namespace po = boost::program_options;
 
 		 visible.add_options()
-			 ("ws_ip", po::value<std::string>(&m_server)->default_value(GASIOTCPCONSUMERDEFAULTSERVER),
+			 ("ws_ip", po::value<std::string>(&m_server)->default_value(GCONSUMERDEFAULTSERVER),
 				 "\t[ws] The name or ip of the server")
-			 ("ws_port", po::value<unsigned short>(&m_port)->default_value(GASIOTCPCONSUMERDEFAULTPORT),
+			 ("ws_port", po::value<unsigned short>(&m_port)->default_value(GCONSUMERDEFAULTPORT),
 				 "\t[ws] The port of the server");
 
 		 hidden.add_options()
@@ -1550,13 +1550,13 @@ private:
 
 	 boost::asio::io_service m_io_service;   ///< ASIO's io service, responsible for event processing, absolutely needs to be _before_ acceptor so it gets initialized first.
 	 std::shared_ptr<boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
-	 std::size_t m_listenerThreads = Gem::Common::getNHardwareThreads(GASIOTCPCONSUMERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
+	 std::size_t m_listenerThreads = Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_service}; ///< takes care of external connection requests
 	 Gem::Common::serializationMode m_serialization_mode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
 	 std::uint32_t m_max_stalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
 	 std::uint32_t m_max_connection_attempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
-	 unsigned short m_port = GASIOTCPCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
-	 std::string m_server = GASIOTCPCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
+	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
+	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(200); ///< A timeout for put- and get-operations
 	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds listener threads
 	 Gem::Common::GThreadPool m_gtp; ///< Holds workers sorting processed items back into the broker
