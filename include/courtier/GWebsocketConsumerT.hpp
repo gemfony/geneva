@@ -1513,28 +1513,28 @@ private:
 		 m_acceptor.open(m_endpoint.protocol(), ec);
 		 if(ec || !m_acceptor.is_open()) {
 			 if(ec) {
-				 glogger
-					 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.open: Got error message \"" << ec.message() << "\"" << std::endl
-					 << "No connections will be accepted. The server is not running" << std::endl
-					 << GWARNING;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG,  time_and_place)
+						 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.open: Got error message \"" << ec.message() << "\"" << std::endl
+						 << "No connections will be accepted. The server is not running" << std::endl
+				 );
 			 } else {
-				 glogger
-					 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.open did not succeed." << std::endl
-					 << "No connections will be accepted. The server is not running" << std::endl
-					 << GWARNING;
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG,  time_and_place)
+						 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.open did not succeed." << std::endl
+						 << "No connections will be accepted. The server is not running" << std::endl
+				 );
 			 }
-
-			 return;
 		 }
 
 		 // Bind to the server address
 		 m_acceptor.bind(m_endpoint, ec);
 		 if(ec) {
-			 glogger
-			    << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.bind: Got error message \"" << ec.message() << "\"" << std::endl
-				 << "No connections will be accepted. The server is not running" << std::endl
-			    << GWARNING;
-			 return;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.bind: Got error message \"" << ec.message() << "\"" << std::endl
+					 << "No connections will be accepted. The server is not running" << std::endl
+			 );
 		 }
 
 		 // Some acceptor options
@@ -1544,11 +1544,11 @@ private:
 		 // Start listening for connections
 		 m_acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
 		 if(ec) {
-			 glogger
-				 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.listen: Got error message \"" << ec.message() << "\"" << std::endl
-				 << "No connections will be accepted. The server is not running" << std::endl
-				 << GWARNING;
-			 return;
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "GWebsocketConsumerT<>::async_startProcessing_() / m_acceptor.listen: Got error message \"" << ec.message() << "\"" << std::endl
+					 << "No connections will be accepted. The server is not running" << std::endl
+			 );
 		 }
 
 		 // Start accepting connections
