@@ -273,6 +273,7 @@ public:
 					 << "In GCommandContainerT<processable_type, command_type>::to_string():" << std::endl
 					 << "Caught boost::system::system_error exception with messages:" << std::endl
 					 << e.what() << std::endl
+				 	 << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 			 );
 		 } catch (const boost::exception &e) {
 			 throw gemfony_exception(
@@ -280,12 +281,25 @@ public:
 					 << "In GCommandContainerT<processable_type, command_type>::to_string():" << std::endl
 					 << "Caught boost::exception exception with messages:" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
+					 << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
+			 );
+		 } catch (const std::exception& e) {
+			 throw gemfony_exception(
+				 g_error_streamer(
+					 DO_LOG
+					 , time_and_place
+				 )
+					 << "In GCommandContainerT<processable_type, command_type>::to_string():" << std::endl
+					 << "Caught std::exception exception with messages:" << std::endl
+					 << e.what() << std::endl
+					 << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 			 );
 		 } catch (...) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GCommandContainerT<processable_type, command_type>::to_string():" << std::endl
 					 << "Caught unknown exception" << std::endl
+					 << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 			 );
 		 }
 
@@ -330,19 +344,36 @@ public:
 					 << "In GCommandContainerT<processable_type, command_type>::from_string():" << std::endl
 					 << "Caught boost::system::system_error exception with messages:" << std::endl
 					 << e.what() << std::endl
+					 << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 			 );
 		 } catch (const boost::exception &e) {
 			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG,  time_and_place)
+				 g_error_streamer(
+					 DO_LOG
+					 , time_and_place
+				 )
 					 << "In GCommandContainerT<processable_type, command_type>::from_string():" << std::endl
 					 << "Caught boost::exception exception with messages:" << std::endl
 					 << boost::diagnostic_information(e) << std::endl
+					 << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
+			 );
+		 } catch (const std::exception& e) {
+			 throw gemfony_exception(
+				 g_error_streamer(
+					 DO_LOG
+					 , time_and_place
+				 )
+					 << "In GCommandContainerT<processable_type, command_type>::from_string():" << std::endl
+					 << "Caught std::exception exception with messages:" << std::endl
+					 << e.what() << std::endl
+					 << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 			 );
 		 } catch (...) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GCommandContainerT<processable_type, command_type>::from_string():" << std::endl
 					 << "Caught unknown exception" << std::endl
+					 << "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 			 );
 		 }
 	 }
@@ -735,6 +766,14 @@ private:
 		 // De-serialize the object
 		 m_command_container.from_string(message, m_serialization_mode); // may throw
 
+		 std::cout
+			 << "====================================================" << std::endl
+			 << std::endl
+			 << m_command_container.to_string(Gem::Common::serializationMode::XML) << std::endl
+			 << std::endl
+			 << "====================================================" << std::endl
+			 << std::endl;
+
 		 // Clear the buffer, so we may later fill it with data to be sent
 		 m_incoming_buffer.consume(m_incoming_buffer.size());
 
@@ -745,7 +784,9 @@ private:
 		 switch(inboundCommand) {
 			 case beast_payload_command::COMPUTE: {
 				 // Process the work item
+				 std::cout << "Before process" << std::endl;
 				 m_command_container.process();
+				 std::cout << "After process" << std::endl;
 
 				 // Set the command for the way back to the server
 				 m_command_container.set_command(beast_payload_command::RESULT);
@@ -1462,8 +1503,7 @@ private:
 				 "\t[beast] The port of the server");
 
 		 hidden.add_options()
-			 ("beast_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
-				 GASIOTCPCONSUMERSERIALIZATIONMODE),
+			 ("beast_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(GASIOTCPCONSUMERSERIALIZATIONMODE),
 				 "\t[beast] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
 			 ("beast_nListenerThreads", po::value<std::size_t>(&m_n_listener_threads)->default_value(m_n_listener_threads),
 				 "\t[beast] The number of threads used to listen for incoming connections")

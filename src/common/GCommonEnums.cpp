@@ -147,6 +147,24 @@ std::istream &operator>>(std::istream &i, Gem::Common::serializationMode &x) {
 
 /******************************************************************************/
 /**
+ * Converts a serializationMode to a string representation for debugging purposes
+ */
+std::string serModeToString(Gem::Common::serializationMode serMod) {
+	switch(serMod) {
+		case Gem::Common::serializationMode::TEXT:
+			return "TEXT";
+			break;
+		case Gem::Common::serializationMode::XML:
+			return "XML";
+			break;
+		case Gem::Common::serializationMode::BINARY:
+			return "BINARY";
+			break;
+	}
+}
+
+/******************************************************************************/
+/**
  * Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> *
  */
 std::ostream &operator<<(std::ostream &o, const Gem::Common::expectation &x) {

@@ -213,6 +213,9 @@ G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::seriali
 /** @brief Reads a Gem::Common::serializationMode item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
 
+/** @brief Converts a serializationMode to a string representation for debugging purposes */
+std::string serModeToString(Gem::Common::serializationMode);
+
 /******************************************************************************/
 /**
  * Specification of whether checkExpectation should emit messages

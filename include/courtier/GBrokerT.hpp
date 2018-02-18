@@ -187,6 +187,10 @@ public:
 			 // Make sure this function does not execute code a second time
 			 m_finalized.store(true);
 		 }
+
+		 glogger
+		 	<< "GBrokerT<> finalized" << std::endl
+			<< GLOGGING;
 	 }
 
 	 /***************************************************************************/
