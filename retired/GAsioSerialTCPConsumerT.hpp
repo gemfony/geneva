@@ -36,44 +36,44 @@
 #define GASIOSERIALTCPCONSUMERT_HPP
 
 // Global checks, defines and includes needed for all of Geneva
-#include "common/GGlobalDefines.hpp"
+#include "../include/common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-#include <functional>
-#include <memory>
-#include <mutex>
-#include <thread>
-#include <array>
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/iostream"
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/sstream"
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/string"
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/vector"
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/functional"
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/memory"
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/mutex"
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/thread"
+#include "../../../../../../Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include/c++/v1/array"
 
 // Boost headers go here
-#include <boost/asio.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/enable_shared_from_this.hpp>
-#include <boost/utility.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_serialize.hpp>
+#include "../../../../../../opt/boost/include/boost/asio.hpp"
+#include "../../../../../../opt/boost/include/boost/archive/xml_iarchive.hpp"
+#include "../../../../../../opt/boost/include/boost/archive/xml_oarchive.hpp"
+#include "../../../../../../opt/boost/include/boost/algorithm/string.hpp"
+#include "../../../../../../opt/boost/include/boost/serialization/vector.hpp"
+#include "../../../../../../opt/boost/include/boost/enable_shared_from_this.hpp"
+#include "../../../../../../opt/boost/include/boost/utility.hpp"
+#include "../../../../../../opt/boost/include/boost/lexical_cast.hpp"
+#include "../../../../../../opt/boost/include/boost/uuid/uuid.hpp"
+#include "../../../../../../opt/boost/include/boost/uuid/uuid_io.hpp"
+#include "../../../../../../opt/boost/include/boost/uuid/uuid_generators.hpp"
+#include "../../../../../../opt/boost/include/boost/uuid/uuid_serialize.hpp"
 
 // Geneva headers go here
-#include "common/GStdThreadGroup.hpp"
-#include "common/GThreadPool.hpp"
-#include "common/GSerializationHelperFunctionsT.hpp"
-#include "common/GCommonHelperFunctions.hpp"
-#include "common/GCommonHelperFunctionsT.hpp"
-#include "courtier/GCourtierHelperFunctions.hpp"
-#include "courtier/GBrokerT.hpp"
-#include "courtier/GCourtierEnums.hpp"
-#include "courtier/GBaseConsumerT.hpp"
-#include "courtier/GBaseClientT.hpp"
+#include "../include/common/GStdThreadGroup.hpp"
+#include "../include/common/GThreadPool.hpp"
+#include "../include/common/GSerializationHelperFunctionsT.hpp"
+#include "../include/common/GCommonHelperFunctions.hpp"
+#include "../include/common/GCommonHelperFunctionsT.hpp"
+#include "../include/courtier/GCourtierHelperFunctions.hpp"
+#include "../include/courtier/GBrokerT.hpp"
+#include "../include/courtier/GCourtierEnums.hpp"
+#include "../include/courtier/GBaseConsumerT.hpp"
+#include "../include/courtier/GBaseClientT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -597,8 +597,8 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts
-	 std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
+	 std::uint32_t m_maxStalls = GASIOCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts
+	 std::uint32_t m_maxConnectionAttempts = GASIOCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
 	 std::uint32_t m_totalConnectionAttempts = 0; ///< The total number of failed connection attempts during program execution
 
 	 std::uint32_t m_stalls = 0; ///< counter for stalled connection attempts
@@ -1320,12 +1320,12 @@ private:
 
 		 hidden.add_options()
 			 ("stcpc_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
-				 GASIOTCPCONSUMERSERIALIZATIONMODE),
+				 GCONSUMERSERIALIZATIONMODE),
 				 "\t[stcpc] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			 ("stcpc_maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
+			 ("stcpc_maxStalls", po::value<std::uint32_t>(&m_maxStalls)->default_value(GASIOCONSUMERMAXSTALLS),
 				 "\t[stcpc] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
 			 ("stcpc_maxConnectionAttempts",
-				 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
+				 po::value<std::uint32_t>(&m_maxConnectionAttempts)->default_value(GASIOCONSUMERMAXCONNECTIONATTEMPTS),
 				 "\t[stcpc] The maximum allowed number of failed connection attempts of a client")
 			 ("stcpc_nListenerThreads", po::value<std::size_t>(&m_n_listenerThreads)->default_value(m_n_listenerThreads),
 				 "\t[stcpc] The number of threads used to listen for incoming connections");
@@ -1663,8 +1663,8 @@ private:
 	 std::size_t m_n_listenerThreads = Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_service}; ///< takes care of external connection requests
 	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
-	 std::uint32_t m_maxStalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
-	 std::uint32_t m_maxConnectionAttempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
+	 std::uint32_t m_maxStalls = GASIOCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
+	 std::uint32_t m_maxConnectionAttempts = GASIOCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
 	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(10); ///< A timeout for put- and get-operations

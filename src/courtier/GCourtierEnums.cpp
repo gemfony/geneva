@@ -45,7 +45,7 @@ namespace Courtier {
  * @param srm the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_payload_command &ps) {
+std::ostream &operator<<(std::ostream &o, const Gem::Courtier::networked_consumer_payload_command &ps) {
 	auto tmp = static_cast<Gem::Common::ENUMBASETYPE>(ps);
 	o << tmp;
 	return o;
@@ -59,14 +59,14 @@ std::ostream &operator<<(std::ostream &o, const Gem::Courtier::beast_payload_com
  * @param srm The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Courtier::beast_payload_command &ps) {
+std::istream &operator>>(std::istream &i, Gem::Courtier::networked_consumer_payload_command &ps) {
 	Gem::Common::ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	ps = boost::numeric_cast<Gem::Courtier::beast_payload_command>(tmp);
+	ps = boost::numeric_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
 #else
-	ps = static_cast<Gem::Courtier::beast_payload_command>(tmp);
+	ps = static_cast<Gem::Courtier::networked_consumer_payload_command>(tmp);
 #endif /* DEBUG */
 
 	return i;

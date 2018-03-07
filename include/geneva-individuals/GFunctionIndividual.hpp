@@ -164,8 +164,7 @@ class GFunctionIndividualFactory;
  * This individual searches for a minimum of a number of predefined functions, each capable
  * of processing their input in multiple dimensions.
  */
-class GFunctionIndividual
-	: public GParameterSet
+class GFunctionIndividual : public GParameterSet
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -210,7 +209,7 @@ public:
 	 /** @brief Allows to cross check the parameter size */
 	 G_API_INDIVIDUALS std::size_t getParameterSize() const;
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * This function converts the function id to a string representation. This is a convenience
 	  * function that is mostly used in GArgumentParser.cpp of various Geneva examples.
@@ -252,7 +251,7 @@ public:
 		 return result;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Retrieves a string in ROOT format (see http://root.cern.ch) of the 2D version of a
 	  * given function.
@@ -294,7 +293,7 @@ public:
 		 return result;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Retrieves the minimum x-value(s) of a given (2D) demo function
 	  *
@@ -337,7 +336,7 @@ public:
 		 return result;
 	 }
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /**
 	  * Retrieves the minimum y-value(s) of a given (2D) demo function
 	  *
@@ -378,20 +377,25 @@ public:
 		 return result;
 	 }
 
+	 //---------------------------------------------------------------------------
+
 protected:
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /** @brief Loads the data of another GFunctionIndividual */
 	 G_API_INDIVIDUALS void load_(const GObject *) final;
 
 	 /** @brief The actual value calculation takes place here */
 	 G_API_INDIVIDUALS double fitnessCalculation() final;
 
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 
 private:
-	 /***************************************************************************/
+	 //---------------------------------------------------------------------------
 	 /** @brief Creates a deep clone of this object */
 	 G_API_INDIVIDUALS GObject *clone_() const final;
+
+	 //---------------------------------------------------------------------------
+	 // Data
 
 	 solverFunction demoFunction_ = solverFunction::PARABOLA; ///< Specifies which demo function should be used
 };
@@ -456,7 +460,7 @@ public:
 	 /** @brief The destructor */
 	 G_API_INDIVIDUALS ~GFunctionIndividualFactory() override = default;
 
-	 /**************************************************************************/
+	 //---------------------------------------------------------------------------
 	 // Getters and setters
 
 	 /** @brief Allows to retrieve the adaptionThreshold_ variable */
@@ -565,7 +569,7 @@ public:
 	 G_API_INDIVIDUALS void setAdProbRange(double minAdProb, double maxAdProb);
 
 	 // End of public getters and setters
-	 /***************************************************************************/
+	 //--------------------------------------------------------------------------
 
 	 /** @brief Loads the data of another GFunctionIndividualFactory object */
 	 G_API_INDIVIDUALS void load(std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>) override;

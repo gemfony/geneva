@@ -185,7 +185,7 @@ private:
 
 		 hidden.add_options()
 			 ("scCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
-				 "\t[sc] A debugging option making the multi-threaded consumer use timeouts in the executor");
+				 "\t[sc] A debugging option making the serial consumer use timeouts in the executor");
 	 }
 
 	 /***************************************************************************/

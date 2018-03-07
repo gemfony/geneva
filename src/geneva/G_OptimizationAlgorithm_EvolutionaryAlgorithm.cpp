@@ -635,6 +635,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 			glogger
 				<< "In GEvolutionaryAlgorithm::fixAfterJobSubmission(): Warning!" << std::endl
 				<< "No child individuals have returned" << std::endl
+				<< "We have a size of " << this->size() << " with " << this->getNParents() << " parents" << std::endl
 				<< "We need to fill up the population with clones from parent individuals" << std::endl
 				<< GWARNING;
 		}

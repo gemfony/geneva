@@ -335,7 +335,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			error
 			<< std::endl
 			<< "================================================" << std::endl
-			<< "ERROR (recorded at " << __TIME__ << " on " << __DATE__ << ")" << std::endl
+			<< "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
 			<< m_oss.str()
@@ -368,7 +368,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			error
 			<< std::endl
 			<< "================================================" << std::endl
-			<< "ERROR (recorded at " << __TIME__ << " on " << __DATE__ << ")" << std::endl
+			<< "ERROR ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
 			<< m_oss.str()
@@ -400,7 +400,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
 			warning
 			<< std::endl
 			<< "================================================" << std::endl
-			<< "WARNING (recorded at " << __TIME__ << " on " << __DATE__ << ")" << std::endl
+			<< "WARNING ( recorded on " << GLogStreamer::currentTimeAsString() << " )" << std::endl
 			<< gm.getAccompInfo() << std::endl
 			<< std::endl
 			<< m_oss.str()

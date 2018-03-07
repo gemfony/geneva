@@ -202,7 +202,9 @@ class GParameterSet
 		 & BOOST_SERIALIZATION_NVP(m_sigmoid_extremes)
 		 & BOOST_SERIALIZATION_NVP(m_max_unsuccessful_adaptions)
 		 & BOOST_SERIALIZATION_NVP(m_max_retries_until_valid)
-		 & BOOST_SERIALIZATION_NVP(m_n_adaptions);
+		 & BOOST_SERIALIZATION_NVP(m_n_adaptions)
+		 & BOOST_SERIALIZATION_NVP(m_useRandomCrash)
+		 & BOOST_SERIALIZATION_NVP(m_randomCrashProb);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -387,6 +389,11 @@ public:
 
 	 /** @brief Retrieves an identifier for the current personality of this object */
 	 G_API_GENEVA std::string getPersonality() const;
+
+	 /** @brief Allows to activate random crashes for debugging purposes */
+	 G_API_GENEVA void setRandomCrash(bool, double);
+	 /** @brief Allows to check whether random crashes are activated, and with which probability the occur */
+	 G_API_GENEVA std::tuple<bool, double> getRandomCrash() const;
 
 	 /***************************************************************************/
 	 /**
@@ -894,7 +901,7 @@ protected:
 	  */
 	 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> m_gr;
 
-/***************************************************************************/
+	 /***************************************************************************/
 	 /**
 	  * Re-implementation of a corresponding function in GStdPtrVectorInterface.
 	  * Make the vector wrapper purely virtual allows the compiler to perform
@@ -990,6 +997,9 @@ private:
 	 std::size_t m_max_retries_until_valid = Gem::Geneva::DEFMAXRETRIESUNTILVALID; ///< The maximum number an adaption of an individual should be performed until a valid parameter set was found
 	 std::size_t m_n_adaptions = 0; ///< Stores the actual number of adaptions after a call to "adapt()"
 
+	 bool m_useRandomCrash = false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
+	 double m_randomCrashProb = 0.; ///< The probability for a random crash
+
 public:
 	 /***************************************************************************/
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -1011,6 +1021,7 @@ public:
  * @brief Needed for Boost.Serialization
  */
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSet)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::parameterset_processing_result)
 
 /******************************************************************************/
 

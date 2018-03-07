@@ -7,4 +7,4 @@ ADD_CUSTOM_TARGET( "tests-courtier-performance"
 )
 
 ADD_SUBDIRECTORY (GBufferPortTTest )
-ADD_SUBDIRECTORY (GConsumerPerformance)
+# ADD_SUBDIRECTORY (GConsumerPerformance)

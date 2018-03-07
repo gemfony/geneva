@@ -64,6 +64,10 @@ enum class maxMode : Gem::Common::ENUMBASETYPE {
 	, MAXIMIZE=1
 };
 
+/******************************************************************************/
+/** @brief Probability settings for random crashes */
+const bool GPS_DEF_USE_RANDOMCRASH = false;
+const double GPS_DEF_RANDOMCRASHPROB = 0.001;
 
 /******************************************************************************/
 /**

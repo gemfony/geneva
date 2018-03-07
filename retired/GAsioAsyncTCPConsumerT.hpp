@@ -645,8 +645,8 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 std::uint32_t m_max_stalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts
-	 std::uint32_t m_max_connection_attempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
+	 std::uint32_t m_max_stalls = GASIOCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts
+	 std::uint32_t m_max_connection_attempts = GASIOCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts
 	 std::uint32_t m_total_connection_attempts = 0;
 
 	 std::uint32_t m_stalls = 0; ///< counter for stalled connection attempts
@@ -1195,12 +1195,12 @@ private:
 
 		 hidden.add_options()
 			 ("ws_serializationMode", po::value<Gem::Common::serializationMode>(&m_serialization_mode)->default_value(
-				 GASIOTCPCONSUMERSERIALIZATIONMODE),
+				 GCONSUMERSERIALIZATIONMODE),
 				 "\t[ws] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			 ("ws_maxStalls", po::value<std::uint32_t>(&m_max_stalls)->default_value(GASIOTCPCONSUMERMAXSTALLS),
+			 ("ws_maxStalls", po::value<std::uint32_t>(&m_max_stalls)->default_value(GASIOCONSUMERMAXSTALLS),
 				 "\t[ws] The maximum allowed number of stalled connection attempts of a client. 0 means \"forever\".")
 			 ("ws_maxConnectionAttempts",
-				 po::value<std::uint32_t>(&m_max_connection_attempts)->default_value(GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS),
+				 po::value<std::uint32_t>(&m_max_connection_attempts)->default_value(GASIOCONSUMERMAXCONNECTIONATTEMPTS),
 				 "\t[ws] The maximum allowed number of failed connection attempts of a client")
 			 ("ws_nListenerThreads", po::value<std::size_t>(&m_listenerThreads)->default_value(m_listenerThreads),
 				 "\t[ws] The number of threads used to listen for incoming connections");
@@ -1553,8 +1553,8 @@ private:
 	 std::size_t m_listenerThreads = Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS);  ///< The number of threads used to listen for incoming connections through io_servce::run()
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_service}; ///< takes care of external connection requests
 	 Gem::Common::serializationMode m_serialization_mode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
-	 std::uint32_t m_max_stalls = GASIOTCPCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
-	 std::uint32_t m_max_connection_attempts = GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
+	 std::uint32_t m_max_stalls = GASIOCONSUMERMAXSTALLS; ///< The maximum allowed number of stalled connection attempts of a client
+	 std::uint32_t m_max_connection_attempts = GASIOCONSUMERMAXCONNECTIONATTEMPTS; ///< The maximum allowed number of failed connection attempts of a client
 	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(200); ///< A timeout for put- and get-operations

@@ -50,8 +50,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GExecutorT.hpp"
-#include "courtier/GAsioSerialTCPConsumerT.hpp"
-#include "courtier/GAsioAsyncTCPConsumerT.hpp"
+#include "courtier/GAsioConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GExceptions.hpp"
@@ -474,10 +473,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// If we are in serial networked client mode, start corresponding the client code
 	if((executionMode==GCPModes::EXTERNALSERIALNETWORKING || executionMode==GCPModes::THREAEDANDSERIALNETWORKING) && !serverMode) {
-		std::shared_ptr<GAsioSerialTCPClientT<WORKLOAD>> p(new GAsioSerialTCPClientT<WORKLOAD>(ip, Gem::Common::to_string(port)));
-
-		p->setMaxStalls(0); // An infinite number of stalled data retrievals
-		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
+		std::shared_ptr<GAsioConsumerClientT<WORKLOAD>> p(new GAsioConsumerClientT<WORKLOAD>(ip, Gem::Common::to_string(port)));
 
 		// Start the actual processing loop
 		p->run();
@@ -488,10 +484,7 @@ int main(int argc, char **argv) {
 	//--------------------------------------------------------------------------------
 	// If we are in async networked client mode, start corresponding the client code
 	if((executionMode==GCPModes::EXTERNALASYNCNETWORKING || executionMode==GCPModes::THREAEDANDASYNCNETWORKING) && !serverMode) {
-		std::shared_ptr<GAsioAsyncTCPClientT<WORKLOAD>> p(new GAsioAsyncTCPClientT<WORKLOAD>(ip, Gem::Common::to_string(port)));
-
-		p->setMaxStalls(0); // An infinite number of stalled data retrievals
-		p->setMaxConnectionAttempts(100); // Up to 100 failed connection attempts
+		std::shared_ptr<GAsioConsumerClientT<WORKLOAD>> p(new GAsioConsumerClientT<WORKLOAD>(ip, Gem::Common::to_string(port)));
 
 		// Start the actual processing loop
 		p->run();

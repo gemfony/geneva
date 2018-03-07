@@ -42,13 +42,13 @@
 #include <iostream>
 
 // Boost header files go here
+#include <boost/utility/identity_type.hpp>
 
 // Geneva headers go here
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GWebsocketConsumerT.hpp"
-#include "courtier/GAsioSerialTCPConsumerT.hpp"
-#include "courtier/GAsioAsyncTCPConsumerT.hpp"
+#include "courtier/GAsioConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "geneva/GParameterSet.hpp"
@@ -79,46 +79,17 @@ public:
 /******************************************************************************/
 /**
  * A consumer used for network communication, using GParameterSet-derivatives
- * and serial communication on the client side.
- */
-class GIndividualSerialTCPConsumer final
-	: public Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>
-{
-public:
-	/** @brief The default constructor */
-	G_API_GENEVA GIndividualSerialTCPConsumer() = default;
-	/** @brief A constructor that takes a number of vital arguments */
-	G_API_GENEVA GIndividualSerialTCPConsumer(
-		const unsigned short&
-		, const std::size_t& = 0
-		, const Gem::Common::serializationMode& = Gem::Common::serializationMode::BINARY
-	);
-	/** @brief The destructor */
- 	G_API_GENEVA ~GIndividualSerialTCPConsumer() override = default;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A consumer used for network communication, using GParameterSet-derivatives
  * and async communication on the client side, so that a keep-alive of the
  * connection is possible
  */
-class GIndividualAsyncTCPConsumer final
-	: public Gem::Courtier::GAsioAsyncTCPConsumerT<Gem::Geneva::GParameterSet>
+class GIndividualAsioConsumer final
+	: public Gem::Courtier::GAsioConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GIndividualAsyncTCPConsumer() = default;
-	 /** @brief A constructor that takes a number of vital arguments */
-	 G_API_GENEVA GIndividualAsyncTCPConsumer(
-		 const unsigned short&
-		 , const std::size_t& = 0
-		 , const Gem::Common::serializationMode& = Gem::Common::serializationMode::BINARY
-	 );
+	 G_API_GENEVA GIndividualAsioConsumer() = default;
 	 /** @brief The destructor */
-  	 G_API_GENEVA ~GIndividualAsyncTCPConsumer() override = default;
+  	 G_API_GENEVA ~GIndividualAsioConsumer() override = default;
 };
 
 /******************************************************************************/
@@ -144,7 +115,7 @@ public:
  * A consumer used for serial execution (mostly needed for debugging purposes).
  * Its payload are GParameterSet-derivatives.
  */
-class GIndividualSerialConsumer
+class GIndividualSerialConsumer final
 	: public Gem::Courtier::GSerialConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
@@ -160,5 +131,12 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+// Export of GCommandContainerT for Geneva individuals
+BOOST_CLASS_EXPORT_KEY(BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<Gem::Geneva::GParameterSet, Gem::Courtier::networked_consumer_payload_command>)))
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 #endif /* GINDIVIDUALSTANDARDCONSUMERS_HPP_ */

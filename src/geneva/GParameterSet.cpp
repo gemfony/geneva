@@ -35,6 +35,7 @@
 #include "geneva/GParameterSet.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GParameterSet) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::parameterset_processing_result) // NOLINT
 
 namespace Gem {
 namespace Geneva {
@@ -1457,6 +1458,27 @@ std::string GParameterSet::getPersonality() const {
 
 /******************************************************************************/
 /**
+ * Allows to check whether random crashs of individuals are enabled
+ */
+std::tuple<bool, double> GParameterSet::getRandomCrash() const {
+	return std::tuple<bool, double>(m_useRandomCrash, m_randomCrashProb);
+};
+
+/******************************************************************************/
+/**
+ * Allows to enable random crashs of individuals for testing purposes
+ */
+void GParameterSet::setRandomCrash(bool useRandomCrash, double crashProb) {
+	// Check that the crash probability is in the allowed value range
+	Gem::Common::checkRangeCompliance(crashProb, 0., 1., "GParameterSet::setRandomCrash()");
+
+	// Set the value as demanded
+	m_useRandomCrash = useRandomCrash;
+	m_randomCrashProb = crashProb;
+}
+
+/******************************************************************************/
+/**
  * This function returns the current personality traits base pointer. Note that there
  * is another version of the same command that does on-the-fly conversion of the
  * personality traits to the derived class.
@@ -1617,6 +1639,17 @@ void GParameterSet::addConfigurationOptions(
 		, [this](double piel) { this->setPerItemCrossOverProbability(piel); }
 	)
 		<< "The likelihood for two data items to be exchanged";
+
+	gpb.registerFileParameter<bool, double>(
+		"useRandomCrash" // The name of the variable
+		, "randomCrashProb"
+		, GPS_DEF_USE_RANDOMCRASH // The default value
+		, GPS_DEF_RANDOMCRASHPROB
+		, [this](bool use_rc, double rc_prob){ this->setRandomCrash(use_rc, rc_prob); }
+		, "randomCrashParameters"
+	)
+		<< "Indicates whether random crashes should occur for debugging purposes" << std::endl << Gem::Common::nextComment()
+		<< "The probability of a random crash to occur";
 }
 
 /******************************************************************************/
@@ -1754,6 +1787,22 @@ std::tuple<double, double> GParameterSet::getBestKnownPrimaryFitness() const {
  * Performs all necessary (remote-)processing steps for this object.
  */
 void GParameterSet::process_() {
+#ifdef DEBUG
+	//---------------------------------------------
+	// Crash if we have been asked to (only active in DEBUG mode)
+	if(m_useRandomCrash) {
+		std::uniform_real_distribution<double> dist01{0., 1.};
+		if(dist01(this->m_gr) <= m_randomCrashProb) {
+			glogger
+				<< "GParameterSet is performing random crash for debugging purposes" << std::endl
+				<< std::endl
+				<< GLOGGING;
+
+			throw;
+		}
+	}
+#endif
+
 	// Find out, whether this is a valid solution
 	if (
 		this->parameterSetFulfillsConstraints(m_validity_level) // Needs to be called first, or else the m_validity_level will not be filled

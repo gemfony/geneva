@@ -52,7 +52,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
-#include "courtier/GAsioSerialTCPConsumerT.hpp"
+#include "courtier/GAsioConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -75,8 +75,6 @@ namespace po = boost::program_options;
 const consumerType DEFAULTCONSUMERTYPE=consumerType::MULTITHREADED;
 const unsigned short DEFAULTPORT=10000;
 const std::string DEFAULTIP="localhost";
-const std::uint32_t DEFAULTMAXSTALLS06=0;
-const std::uint32_t DEFAULTMAXCONNECTIONATTEMPTS06=100;
 const std::uint16_t DEFAULTNPRODUCERTHREADS=10;
 const Gem::Common::serializationMode DEFAULTSERMODE=Gem::Common::serializationMode::TEXT;
 const bool DEFAULTADDLOCALCONSUMER=false;
@@ -91,6 +89,7 @@ const double DEFAULTCNEIGHBORHOODAP=2.;
 const double DEFAULTCGLOBALAP=1.;
 const double DEFAULTCVELOCITYAP=0.4;
 const bool DEFAULTALLRANDOMINIT=true;
+const std::size_t DEFAULTMAXRECONNECTS = 10;
 
 /******************************************************************************/
 /**
@@ -102,8 +101,6 @@ bool parseCommandLine(
 	, bool& clientMode
 	, std::string& ip
 	, unsigned short& port
-	, std::uint32_t& maxStalls
-	, std::uint32_t& maxConnectionAttempts
 	, Gem::Common::serializationMode& serMode
 	, std::size_t& nNeighborhoods
 	, std::size_t& nNeighborhoodMembers
@@ -118,6 +115,7 @@ bool parseCommandLine(
 	, std::uint32_t& maxIterations
 	, long& maxMinutes
 	, std::uint32_t& reportIteration
+	, std::size_t& maxReconnects
 ){
 	// Create the parser builder
 	Gem::Common::GParserBuilder gpb;
@@ -150,20 +148,6 @@ bool parseCommandLine(
 			, port
 			, DEFAULTPORT
 			, "The port on the server"
-	);
-
-	gpb.registerCLParameter<std::uint32_t>(
-		"maxStalls"
-		, maxStalls
-		, DEFAULTMAXSTALLS06
-		, "The number of stalled data transfers (i.e. transfers without a useful work item returned) before the client terminates in networked mode"
-	);
-
-	gpb.registerCLParameter<std::uint32_t>(
-		"maxConnectionAttempts"
-		, maxConnectionAttempts
-		, DEFAULTMAXCONNECTIONATTEMPTS06
-		, "The number of connection attempts from client to server, before the client terminates in networked mode"
 	);
 
 	gpb.registerCLParameter<Gem::Common::serializationMode>(
@@ -266,6 +250,13 @@ bool parseCommandLine(
 		, "The maximum number of minutes the optimization of the population should run"
 	);
 
+	gpb.registerCLParameter<std::size_t>(
+		"maxReconnects"
+		, maxReconnects
+		, DEFAULTMAXRECONNECTS
+		, "The number of times a client will try to reconnect when it couldn't reach the server"
+	);
+
 	// Parse the command line and leave if the help flag was given. The parser
 	// will emit an appropriate help message by itself
 	if(Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
@@ -284,8 +275,6 @@ int main(int argc, char **argv){
 	bool clientMode;
 	std::string ip;
 	unsigned short port;
-	std::uint32_t maxStalls;
-	std::uint32_t maxConnectionAttempts;
 	std::uint16_t nProducerThreads;
 	std::uint16_t nEvaluationThreads;
 	std::uint32_t maxIterations;
@@ -300,6 +289,7 @@ int main(int argc, char **argv){
 	double cVelocity;
 	updateRule ur;
 	bool allRandomInit;
+	std::size_t maxReconnects;
 
 	/****************************************************************************/
 	// Initialization of Geneva
@@ -314,8 +304,6 @@ int main(int argc, char **argv){
 		, clientMode
 		, ip
 		, port
-		, maxStalls
-		, maxConnectionAttempts
 		, serMode
 		, nNeighborhoods
 		, nNeighborhoodMembers
@@ -330,6 +318,7 @@ int main(int argc, char **argv){
 		, maxIterations
 		, maxMinutes
 		, reportIteration
+		, maxReconnects
 	)) { exit(1); }
 
 	/****************************************************************************/
@@ -340,11 +329,14 @@ int main(int argc, char **argv){
 	// If this is a client in networked mode, we can just start the listener and
 	// return when it has finished
 	if(clientMode && cType == consumerType::NETWORKED) {
-		std::shared_ptr<GAsioSerialTCPClientT<GParameterSet>>
-			p(new GAsioSerialTCPClientT<GParameterSet>(ip, Gem::Common::to_string(port)));
-
-		p->setMaxStalls(maxStalls); // 0 would mean an infinite number of stalled data retrievals
-		p->setMaxConnectionAttempts(maxConnectionAttempts);
+		std::shared_ptr<GAsioConsumerClientT<GParameterSet>> p(
+			new GAsioConsumerClientT<GParameterSet>(
+				ip
+				, port
+				, serMode
+				, maxReconnects
+			)
+		);
 
 		// Start the actual processing loop
 		p->run();
@@ -381,20 +373,21 @@ int main(int argc, char **argv){
 		case consumerType::NETWORKED: // Networked execution (server-side)
 		{
 			// Create a network consumer and enrol it with the broker
-			std::shared_ptr<GAsioSerialTCPConsumerT<GParameterSet>> gatc(new GAsioSerialTCPConsumerT<GParameterSet>(port, 0, serMode));
-			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc);
+			std::shared_ptr<GAsioConsumerT<GParameterSet>> gatc_ptr(new GAsioConsumerT<GParameterSet>());
+
+			// Set the required options
+			gatc_ptr->setServerName(ip);
+			gatc_ptr->setPort(port);
+			gatc_ptr->setSerializationMode(serMode);
+			gatc_ptr->setNProcessingThreads(nEvaluationThreads);
+			gatc_ptr->setMaxReconnects(maxReconnects);
+
+			// Add the consumer to the broker
+			GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc_ptr);
 		}
 			break;
 
 			//----------------------------------------------------------------------------
-		default:
-		{
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In main(): Received invalid consumer type " << cType << std::endl
-			);
-		}
-			break;
 	}
 
 	/****************************************************************************/

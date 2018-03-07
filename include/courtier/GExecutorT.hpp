@@ -230,7 +230,7 @@ public:
 		 , const std::string &caller = std::string()
 	 ) {
 		 //------------------------------------------------------------------------------------------
-		 // Make sure only one instance of this function may be called at the same time. If locking
+		 // Make sure only one instance of this function can be called at the same time. If locking
 		 // the mutex fails, some other call to this function is still alive, which is a severe error
 		 std::unique_lock<std::mutex> workon_lock(m_concurrent_workon_mutex, std::defer_lock);
 		 if(!workon_lock.try_lock()) {
@@ -301,6 +301,7 @@ public:
 				 // Leave the loop
 				 break;
 			 }
+
 			 //-----------------------
 		 } while(true);
 
@@ -675,6 +676,8 @@ protected:
 	  * Submission of all work items in the list
 	  */
 	 std::size_t submitAllWorkItems(std::vector<std::shared_ptr<processable_type>>& workItems) {
+	 	 std::cout << "Starting submission # " << m_nResubmissions << std::endl;
+
 		 // Submit work items
 		 COLLECTION_POSITION_TYPE pos_cnt = 0;
 		 std::size_t nSubmittedItems = 0;

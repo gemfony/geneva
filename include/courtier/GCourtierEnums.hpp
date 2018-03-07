@@ -65,8 +65,8 @@ enum class run_state {
 };
 
 /******************************************************************************/
-/** @brief Ids of the allowed commands for the communication of the Beast consumer */
-enum class beast_payload_command : Gem::Common::ENUMBASETYPE {
+/** @brief Ids of the allowed commands for the communication of networked consumers */
+enum class networked_consumer_payload_command : Gem::Common::ENUMBASETYPE {
 	 NONE = 0
 	 , GETDATA = 1
 	 , NODATA = 2
@@ -104,14 +104,14 @@ const consumerType DEFAULT_BROKER_MODE = consumerType::MULTITHREADED;
 /**
  * Global variables for failed transfers and connection attempts.
  */
-const std::uint32_t GASIOTCPCONSUMERMAXSTALLS = 0; // infinite number of stalls
-const std::uint32_t GASIOTCPCONSUMERMAXCONNECTIONATTEMPTS = 10;
+const std::uint32_t GASIOCONSUMERMAXSTALLS = 0; // infinite number of stalls
+const std::uint32_t GASIOCONSUMERMAXCONNECTIONATTEMPTS = 10;
 const unsigned short GCONSUMERDEFAULTPORT = 10000;
-const std::string GCONSUMERDEFAULTSERVER = "localhost";
+const std::string GCONSUMERDEFAULTSERVER = "localhost"; // NOLINT
 const std::uint16_t GCONSUMERLISTENERTHREADS = 4;
-const Gem::Common::serializationMode GASIOTCPCONSUMERSERIALIZATIONMODE = Gem::Common::serializationMode::BINARY;
+const Gem::Common::serializationMode GCONSUMERSERIALIZATIONMODE = Gem::Common::serializationMode::BINARY;
 const std::int32_t GASIOMAXOPENPINGS = 100; // The maximum number of pings without matching pong from the server
-const std::chrono::milliseconds GASIOPINGINTERVAL = std::chrono::milliseconds(1000);
+const std::chrono::milliseconds GASIOPINGINTERVAL = std::chrono::milliseconds(1000); // NOLINT
 const std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
 const std::size_t GBEASTMSTIMEOUT = 50;
 
@@ -198,7 +198,7 @@ const std::uint16_t DEFAULTEXECUTORPARTIALRETURNPERCENTAGE = 0; ///< The minimum
 /**
  * A 0 time period . timedHalt will not trigger if this duration is set
  */
-const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
+const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration  NOLINT
 
 /******************************************************************************/
 /**
@@ -207,13 +207,13 @@ const std::string EMPTYDURATION = "00:00:00.000"; // 0 - no duration
  * Used in conjunction with optimization algorithms that
  * communicate via the "courtier" broker infrastructure.
  */
-const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION;
+const std::string DEFAULTBROKERFIRSTTIMEOUT = EMPTYDURATION; // NOLINT
 
 /******************************************************************************/
 /**
  * The default maximum duration of the calculation.
  */
-const std::string DEFAULTDURATION = EMPTYDURATION;
+const std::string DEFAULTDURATION = EMPTYDURATION; // NOLINT
 
 /******************************************************************************/
 /**
@@ -241,9 +241,9 @@ using BUFFERPORT_ID_TYPE = boost::uuids::uuid;
 /******************************************************************************/
 
 /** @brief Puts a Gem::Courtier::beast_payload_command into a stream. Needed also for boost::lexical_cast<> */
-G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::beast_payload_command &);
+G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::networked_consumer_payload_command &);
 /** @brief Reads a Gem::Courtier::beast_payload_command item from a stream. Needed also for boost::lexical_cast<> */
-G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::beast_payload_command &);
+G_API_COURTIER std::istream &operator>>(std::istream &, Gem::Courtier::networked_consumer_payload_command &);
 
 /** @brief Puts a Gem::Courtier::beast_ping_state into a stream. Needed also for boost::lexical_cast<> */
 G_API_COURTIER std::ostream &operator<<(std::ostream &, const Gem::Courtier::beast_ping_state &);

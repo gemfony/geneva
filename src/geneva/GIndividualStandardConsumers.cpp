@@ -34,41 +34,13 @@
 
 #include "geneva/GIndividualStandardConsumers.hpp"
 
-namespace Gem {
-namespace Geneva {
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+// Export of GCommandContainerT for Geneva individuals
+BOOST_CLASS_EXPORT_IMPLEMENT(BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<Gem::Geneva::GParameterSet, Gem::Courtier::networked_consumer_payload_command>))) // NOLINT
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-/**
- * A constructor that takes a number of vital arguments
- */
-GIndividualSerialTCPConsumer::GIndividualSerialTCPConsumer(
-	const unsigned short &port
-	, const std::size_t &listenerThreads
-	, const Gem::Common::serializationMode &sm
-)
-	: Gem::Courtier::GAsioSerialTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
-{ /* nothing */ }
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A constructor that takes a number of vital arguments
- */
-GIndividualAsyncTCPConsumer::GIndividualAsyncTCPConsumer(
-	const unsigned short &port
-	, const std::size_t &listenerThreads
-	, const Gem::Common::serializationMode &sm
-)
-	: Gem::Courtier::GAsioAsyncTCPConsumerT<Gem::Geneva::GParameterSet>(port, listenerThreads, sm)
-{ /* nothing */ }
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-} /* namespace Geneva */
-} /* namespace Gem */
 

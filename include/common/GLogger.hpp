@@ -75,6 +75,10 @@
 #include <memory>
 #include <tuple>
 #include <mutex>
+#include <cstdlib>
+#include <cmath>
+#include <chrono>
+#include <iomanip>
 
 // Boost header files go here
 #include <boost/noncopyable.hpp>
@@ -507,6 +511,24 @@ public:
 	 /****************************************************************************/
 
 private:
+	 /**
+	  * Retrieve a string representing the current time and date. Note that
+	  * this function is duplicated from a function in GCommonHelperFunctions.hpp
+	  * in order to break circular header inclusion.
+	  *
+	  * @return A string representing the current time and date
+	  */
+	 static std::string currentTimeAsString() {
+#if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5,0,0))
+		 return std::string("Dummy (g++ < 5.0 does not support put_time)");
+#else
+		 std::ostringstream oss;
+		 std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+		 oss << std::put_time(std::localtime(&now), "%c");
+		 return oss.str();
+#endif
+	 }
+
 	 std::ostringstream m_oss; ///< Holds the actual streamed data
 	 std::string m_extension; ///< Additional information about the logging source
 	 boost::filesystem::path m_log_file; ///< The name of a manually specified log file
