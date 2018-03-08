@@ -164,7 +164,10 @@ public:
 	  */
 	 ~GWebsocketClientT() {
 		 glogger
+			 << std::endl
 			 << "GWebsocketClientT<> is shutting down. Processed " << this->getNProcessed() << " items in total" << std::endl
+			 << "\"no data\" was received " << m_n_nodata << " times" << std::endl
+			 << std::endl
 			 << GLOGGING;
 	 }
 
@@ -359,7 +362,7 @@ private:
 
 		 // Send the first command to the server
 		 async_start_write(
-			 to_string(
+			 Gem::Courtier::container_to_string(
 				 m_command_container.reset(networked_consumer_payload_command::GETDATA)
 				 , m_serialization_mode
 			 )
@@ -456,7 +459,7 @@ private:
 		 auto message = boost::beast::buffers_to_string(m_incoming_buffer.data());
 
 		 // De-serialize the object
-		 from_string(
+		 Gem::Courtier::container_from_string(
 			 message
 			 , m_command_container
 			 , m_serialization_mode
@@ -481,29 +484,22 @@ private:
 				 m_command_container.set_command(networked_consumer_payload_command::RESULT);
 			 } break;
 
-			 case networked_consumer_payload_command::NODATA: // This must be a command payload
-			 case networked_consumer_payload_command::ERROR: { // We simply ask for new work
-				 // sleep for a short while (between 10 and 50 milliseconds, randomly),
+			 case networked_consumer_payload_command::NODATA: { // This must be a command payload
+				 // Update the nodata counter for bookkeeping
+				 m_n_nodata++;
+
+				 // sleep for a short while (between 50 and 200 milliseconds, randomly),
 				 // before we ask for new work.
-				 // TODO: Make this configurable via the server
-				 std::uniform_int_distribution<> dist(10, 50);
+				 std::uniform_int_distribution<> dist(50, 200);
 				 std::this_thread::sleep_for(std::chrono::milliseconds(dist(m_rng_engine)));
 
 				 // Tell the server again we need work
 				 m_command_container.reset(networked_consumer_payload_command::GETDATA);
 			 } break;
-
-			 default: {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG,  time_and_place)
-						 << "GWebsocketClientT<processable_type>::process_request():" << std::endl
-						 << "Got unknown or invalid command " << boost::lexical_cast<std::string>(inboundCommand) << std::endl
-				 );
-			 } break;
 		 }
 
 		 // Serialize the object again and return the result
-		 async_start_write(to_string(m_command_container, m_serialization_mode));
+		 this->async_start_write(Gem::Courtier::container_to_string(m_command_container, m_serialization_mode));
 	 }
 
 	 //-------------------------------------------------------------------------
@@ -567,7 +563,12 @@ private:
 	 Gem::Common::serializationMode m_serialization_mode = Gem::Common::serializationMode::BINARY; ///< Determines which seriliztion mode should be used
 	 bool m_verbose_control_frames = false; ///< Whether a diagnostic message should be emitted when a control frame arrives
 
-	 GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{networked_consumer_payload_command::NONE, nullptr}; ///< Holds the current command and payload (if any)
+	 std::uint64_t m_n_nodata = 0;
+
+	 GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{
+	 	 networked_consumer_payload_command::NONE
+		 , nullptr
+	 }; ///< Holds the current command and payload (if any)
 
 	 //-------------------------------------------------------------------------
 };
@@ -1022,7 +1023,7 @@ private:
 			 auto message = boost::beast::buffers_to_string(m_incoming_buffer.data());
 
 			 // De-serialize the object
-			 from_string(
+			 Gem::Courtier::container_from_string(
 				 message
 				 , m_command_container
 				 , m_serialization_mode
@@ -1036,8 +1037,7 @@ private:
 
 			 // Act on the command received
 			 switch(inboundCommand) {
-				 case networked_consumer_payload_command::GETDATA:
-				 case networked_consumer_payload_command::ERROR: {
+				 case networked_consumer_payload_command::GETDATA: {
 					 return getAndSerializeWorkItem();
 				 } break;
 
@@ -1095,7 +1095,7 @@ private:
 			 m_command_container.reset(networked_consumer_payload_command::NODATA);
 		 }
 
-		 return to_string(m_command_container, m_serialization_mode);
+		 return Gem::Courtier::container_to_string(m_command_container, m_serialization_mode);
 	 }
 
 	 //-------------------------------------------------------------------------

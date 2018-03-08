@@ -451,7 +451,7 @@ void GEvolutionaryAlgorithm::adaptChildren() {
 		futures_vec.push_back(
 			m_tp_ptr->async_schedule(
 				// Note: may not pass it as a reference, as it is a local variable in the loop and might
-				// vanish of have been altered once the thread has started and adaption is requested.
+				// vanish or have been altered once the thread has started and adaption is requested.
 				[it]() { return (*it)->adapt(); } // Returns the number of adaptions
 			)
 		);

@@ -126,7 +126,10 @@ public:
 	  */
 	 ~GAsioConsumerClientT() {
 		 glogger
+			 << std::endl
 			 << "GAsioConsumerClientT<> is shutting down. Processed " << this->getNProcessed() << " items in total" << std::endl
+			 << "\"no data\" was received " << m_n_nodata << " times" << std::endl
+			 << std::endl
 			 << GLOGGING;
 	 }
 
@@ -148,7 +151,7 @@ private:
 	  */
 	 void run_() override {
 		 // Prepare the outgoing string for the first request
-		 m_outgoing_message_str = to_string(
+		 m_outgoing_message_str = Gem::Courtier::container_to_string(
 			 m_command_container.reset(networked_consumer_payload_command::GETDATA)
 			 , m_serialization_mode
 		 );
@@ -379,7 +382,7 @@ private:
 	  */
 	 void async_process_request(){
 		 // Extract the string from the buffer and de-serialize the object
-		 from_string(
+		 Gem::Courtier::container_from_string(
 			 m_incoming_message_str
 			 , m_command_container
 			 , m_serialization_mode
@@ -405,6 +408,9 @@ private:
 			 } break;
 
 			 case networked_consumer_payload_command::NODATA: { // This must be a command payload
+			 	 // Update the nodata counter for bookkeeping
+				 m_n_nodata++;
+
 				 // sleep for a short while (between 50 and 200 milliseconds, randomly),
 				 // before we ask for new work.
 				 std::uniform_int_distribution<> dist(50, 200);
@@ -428,7 +434,7 @@ private:
 		 }
 
 		 // Transfer the command contaner into the outgoing message string
-		 m_outgoing_message_str = to_string(
+		 m_outgoing_message_str = Gem::Courtier::container_to_string(
 			 m_command_container
 			 , m_serialization_mode
 		 );
@@ -462,6 +468,8 @@ private:
 
 	 std::size_t m_n_reconnects = 0;
 	 std::size_t m_max_reconnects = 0;
+
+	 std::uint64_t m_n_nodata = 0;
 
 	 std::string m_incoming_message_str; ///< Receives incoming messages
 	 std::string m_outgoing_message_str; ///< Helps to persist outgoing messages
@@ -646,7 +654,7 @@ private:
 	 std::string process_request(){
 		 try {
 			 // De-serialize the object
-			 from_string(
+			 Gem::Courtier::container_from_string(
 				 m_incoming_message_str
 				 , m_command_container
 				 , m_serialization_mode
@@ -716,7 +724,7 @@ private:
 			 m_command_container.reset(networked_consumer_payload_command::NODATA);
 		 }
 
-		 return to_string(
+		 return Gem::Courtier::container_to_string(
 			 m_command_container
 			 , m_serialization_mode
 		 );

@@ -156,7 +156,7 @@ public:
 	  */
 	 GBaseExecutorT(const GBaseExecutorT<processable_type> &cp)
 		 : Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(cp)
-			, m_maxResubmissions(cp.m_maxResubmissions)
+		 , m_maxResubmissions(cp.m_maxResubmissions)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -676,8 +676,6 @@ protected:
 	  * Submission of all work items in the list
 	  */
 	 std::size_t submitAllWorkItems(std::vector<std::shared_ptr<processable_type>>& workItems) {
-	 	 std::cout << "Starting submission # " << m_nResubmissions << std::endl;
-
 		 // Submit work items
 		 COLLECTION_POSITION_TYPE pos_cnt = 0;
 		 std::size_t nSubmittedItems = 0;

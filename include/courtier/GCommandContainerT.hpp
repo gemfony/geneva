@@ -247,7 +247,7 @@ template<
 	typename processable_type
 	, typename command_type
 >
-std::string to_string(
+std::string container_to_string(
 	const GCommandContainerT<processable_type, command_type>& container
 	, Gem::Common::serializationMode serMode
 ) {
@@ -282,7 +282,7 @@ std::string to_string(
 	} catch (const boost::system::system_error &e) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In to_string(GCommandContainerT<>):" << std::endl
+				<< "In container_to_string(GCommandContainerT<>):" << std::endl
 				<< "Caught boost::system::system_error exception with messages:" << std::endl
 				<< e.what() << std::endl
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
@@ -290,7 +290,7 @@ std::string to_string(
 	} catch (const boost::exception &e) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In to_string(GCommandContainerT<>):" << std::endl
+				<< "In container_to_string(GCommandContainerT<>):" << std::endl
 				<< "Caught boost::exception exception with messages:" << std::endl
 				<< boost::diagnostic_information(e) << std::endl
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
@@ -301,7 +301,7 @@ std::string to_string(
 				DO_LOG
 				, time_and_place
 			)
-				<< "In to_string(GCommandContainerT<>):" << std::endl
+				<< "In container_to_string(GCommandContainerT<>):" << std::endl
 				<< "Caught std::exception exception with messages:" << std::endl
 				<< e.what() << std::endl
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
@@ -309,7 +309,7 @@ std::string to_string(
 	} catch (...) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In to_string(GCommandContainerT<>):" << std::endl
+				<< "In container_to_string(GCommandContainerT<>):" << std::endl
 				<< "Caught unknown exception" << std::endl
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
@@ -326,7 +326,7 @@ template<
 	typename processable_type
 	, typename command_type
 >
-void from_string(
+void container_from_string(
 	const std::string& descr
 	, GCommandContainerT<processable_type, command_type>& container
 	, Gem::Common::serializationMode serMode
@@ -357,7 +357,7 @@ void from_string(
 				DO_LOG
 				,  time_and_place
 			)
-				<< "In from_string(GCommandContainerT<>):" << std::endl
+				<< "In container_from_string(GCommandContainerT<>):" << std::endl
 				<< "Caught boost::system::system_error exception with messages:" << std::endl
 				<< e.what() << std::endl
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
@@ -368,7 +368,7 @@ void from_string(
 				DO_LOG
 				, time_and_place
 			)
-				<< "In from_string(GCommandContainerT<>):" << std::endl
+				<< "In container_from_string(GCommandContainerT<>):" << std::endl
 				<< "Caught boost::exception exception with messages:" << std::endl
 				<< boost::diagnostic_information(e) << std::endl
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
@@ -379,7 +379,7 @@ void from_string(
 				DO_LOG
 				, time_and_place
 			)
-				<< "In from_string(GCommandContainerT<>):" << std::endl
+				<< "In container_from_string(GCommandContainerT<>):" << std::endl
 				<< "Caught std::exception exception with messages:" << std::endl
 				<< e.what() << std::endl
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
@@ -387,7 +387,7 @@ void from_string(
 	} catch (...) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In from_string(GCommandContainerT<>):" << std::endl
+				<< "In container_from_string(GCommandContainerT<>):" << std::endl
 				<< "Caught unknown exception" << std::endl
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);

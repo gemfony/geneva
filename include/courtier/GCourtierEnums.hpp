@@ -72,7 +72,6 @@ enum class networked_consumer_payload_command : Gem::Common::ENUMBASETYPE {
 	 , NODATA = 2
 	 , COMPUTE = 3
 	 , RESULT = 4
-	 , ERROR = 5
 };
 
 /******************************************************************************/
