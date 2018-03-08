@@ -112,7 +112,9 @@ public:
 	 	, Gem::Common::serializationMode serialization_mode
 		, bool verbose_control_frames
 	 )
-	   : m_address(std::move(address))
+	   : m_resolver(m_io_context)
+	   , m_ws(m_io_context)
+	   , m_address(std::move(address))
 	   , m_port(port)
 	 	, m_serialization_mode(serialization_mode)
 	 	, m_verbose_control_frames(verbose_control_frames)
@@ -496,6 +498,14 @@ private:
 				 // Tell the server again we need work
 				 m_command_container.reset(networked_consumer_payload_command::GETDATA);
 			 } break;
+
+			 default: {
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG,  time_and_place)
+						 << "GWebsocketClientT<processable_type><>::process_request():" << std::endl
+						 << "Received invalid command " << pcToStr(inboundCommand) << std::endl
+				 );
+			 } /* break; */  // break is unreachable
 		 }
 
 		 // Serialize the object again and return the result
@@ -1039,7 +1049,7 @@ private:
 			 switch(inboundCommand) {
 				 case networked_consumer_payload_command::GETDATA: {
 					 return getAndSerializeWorkItem();
-				 } break;
+				 } /* break; */  // break is unreachable
 
 				 case networked_consumer_payload_command::RESULT: {
 					 // Retrieve the payload from the command container
@@ -1057,7 +1067,7 @@ private:
 
 					 // Retrieve the next work item and send it to the client for processing
 					 return getAndSerializeWorkItem();
-				 } break;
+				 } /* break; */  // break is unreachable
 
 				 default: {
 					 glogger

@@ -1117,8 +1117,8 @@ private:
 	  * it returns an empty smart pointer, so that consumers without the need for
 	  * clients do not need to re-implement this function.
 	  */
-	 std::shared_ptr<GBaseClientT<processable_type>> getClient_() const override {
-		 return std::shared_ptr<GBaseClientT<processable_type>>(
+	 std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>> getClient_() const override {
+		 return std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>>(
 			 new GAsioConsumerClientT<processable_type>(
 				 m_server
 				 , m_port
@@ -1174,7 +1174,7 @@ private:
 	 std::atomic<std::size_t> m_n_active_sessions{0};
 	 std::size_t m_n_max_reconnects = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
 
-	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< Simplified access to the broker
+	 std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< Simplified access to the broker
 	 const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(GBEASTMSTIMEOUT); ///< A timeout for put- and get-operations via the broker
 
 	 //-------------------------------------------------------------------------

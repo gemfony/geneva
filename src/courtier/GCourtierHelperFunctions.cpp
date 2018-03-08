@@ -129,6 +129,29 @@ G_API_COURTIER std::string psToStr(const processingStatus& ps) {
 }
 
 /******************************************************************************/
+/**
+ * Translates anetworked_consumer_payload_command into a clear-text string
+ */
+std::string pcToStr(const networked_consumer_payload_command& pc) {
+	switch(pc) {
+		case networked_consumer_payload_command::NONE:
+			return "NONE";
+
+		case networked_consumer_payload_command::GETDATA:
+			return "GETDATA";
+
+		case networked_consumer_payload_command::NODATA:
+			return "NODATA";
+
+		case networked_consumer_payload_command::COMPUTE:
+			return "COMPUTE";
+
+		case networked_consumer_payload_command::RESULT:
+			return "RESULT";
+	}
+}
+
+/******************************************************************************/
 
 } /* namespace Courtier */
 } /* namespace Gem */

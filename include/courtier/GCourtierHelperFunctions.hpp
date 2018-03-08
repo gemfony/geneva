@@ -83,6 +83,9 @@ G_API_COURTIER std::vector<bool> getBooleanMask(
 /** @brief Translate the processingStatus into a clear-text string */
 G_API_COURTIER std::string psToStr(const processingStatus&);
 
+/** @brief Translate the networked_consumer_payload_command into a clear-text string */
+G_API_COURTIER std::string pcToStr(const networked_consumer_payload_command&);
+
 /******************************************************************************/
 
 } /* namespace Courtier */
