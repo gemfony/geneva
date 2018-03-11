@@ -73,6 +73,7 @@ int main(int argc, char **argv){
 	// Declare some local parameters
 	std::uint32_t nTests = DEFEXAMPLENTESTS;
 	Gem::Common::serializationMode serMod = DEFEXAMPLESERMOD;
+	bool printLastWorkItem = false;
 
 	//-----------------------------------------------------------------------------
 	// Read in command line parameters
@@ -94,6 +95,14 @@ int main(int argc, char **argv){
 		, serMod
 		, DEFEXAMPLESERMOD
 		, "The serialization mode: (0) TEXT, (1) XML, (2) BINARY"
+	);
+
+	// Add an option to print the last (raw and de-de-serialized) work item as XML
+	gpb.registerCLParameter<bool>(
+		"printLastWorkItem,p"
+		, printLastWorkItem
+		, false
+		, "Whether the last work item should be printed (as XML, before and after submission / return)"
 	);
 
 	// Parse the command line and leave if the help flag was given. The parser
@@ -187,7 +196,7 @@ int main(int argc, char **argv){
 			return 1; // Indicate an error to the calling process
 		}
 
-		if(i==(nTests - 1)) {
+		if(printLastWorkItem && i==(nTests - 1)) {
 			std::cout
 				<< "==========================================================" << std::endl
 			   << Gem::Courtier::container_to_string(gcc1, PRINTOUTSERMOD) << std::endl
