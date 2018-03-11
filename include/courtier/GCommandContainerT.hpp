@@ -63,6 +63,7 @@
 
 // Geneva headers go here
 #include "courtier/GCourtierEnums.hpp"
+#include "courtier/GProcessingContainerT.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -100,6 +101,10 @@ class GCommandContainerT {
 	 );
 
 public:
+	 //-------------------------------------------------------------------------
+	 /** Default constructor */
+	 GCommandContainerT() = default;
+
 	 //-------------------------------------------------------------------------
 	 /**
 	  * Initialization with a command only, in cases where no payload
@@ -223,10 +228,6 @@ public:
 		 }
 	 }
 
-	 //-------------------------------------------------------------------------
-	 /** Default constructor -- only needed for de-serialization, hence private */
-	 GCommandContainerT() = default;
-
 private:
 	 //-------------------------------------------------------------------------
 	 // Data
@@ -251,12 +252,12 @@ std::string container_to_string(
 	const GCommandContainerT<processable_type, command_type>& container
 	, Gem::Common::serializationMode serMode
 ) {
-	std::stringstream ss(std::ios::out);
+	std::ostringstream oss;
 
 	try {
 		switch (serMode) {
 			case Gem::Common::serializationMode::TEXT: {
-				boost::archive::text_oarchive oa(ss);
+				boost::archive::text_oarchive oa(oss);
 				oa << boost::serialization::make_nvp(
 					"command_container"
 					, container
@@ -264,7 +265,7 @@ std::string container_to_string(
 			} break; // archive and stream closed at end of scope
 
 			case Gem::Common::serializationMode::XML: {
-				boost::archive::xml_oarchive oa(ss);
+				boost::archive::xml_oarchive oa(oss);
 				oa << boost::serialization::make_nvp(
 					"command_container"
 					, container
@@ -272,7 +273,7 @@ std::string container_to_string(
 			} break;
 
 			case Gem::Common::serializationMode::BINARY: {
-				boost::archive::binary_oarchive oa(ss);
+				boost::archive::binary_oarchive oa(oss);
 				oa << boost::serialization::make_nvp(
 					"command_container"
 					, container
@@ -315,7 +316,7 @@ std::string container_to_string(
 		);
 	}
 
-	return ss.str();
+	return oss.str();
 }
 
 /******************************************************************************/
@@ -332,22 +333,22 @@ void container_from_string(
 	, Gem::Common::serializationMode serMode
 ) {
 	container.reset();
-	std::stringstream ss(descr, std::ios::in);
+	std::istringstream iss(descr);
 
 	try {
 		switch(serMode) {
 			case Gem::Common::serializationMode::TEXT: {
-				boost::archive::text_iarchive ia(ss);
+				boost::archive::text_iarchive ia(iss);
 				ia >> boost::serialization::make_nvp("command_container", container);
 			} break; // archive and stream closed at end of scope
 
 			case Gem::Common::serializationMode::XML: {
-				boost::archive::xml_iarchive ia(ss);
+				boost::archive::xml_iarchive ia(iss);
 				ia >> boost::serialization::make_nvp("command_container", container);
 			} break;
 
 			case Gem::Common::serializationMode::BINARY: {
-				boost::archive::binary_iarchive ia(ss);
+				boost::archive::binary_iarchive ia(iss);
 				ia >> boost::serialization::make_nvp("command_container", container);
 			} break;
 		}

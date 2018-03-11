@@ -1,0 +1,4 @@
+This test (de-)serializes the GCommandContainerT many times with all available commands,
+using the GFunctionIndividual as payload. The GFunctionIndividual-object is randomly
+initialized and evaluated when de-serialized. It is then serialized and de-serialized
+again in order to mimic what happens during remot processing of Geneva payloads.

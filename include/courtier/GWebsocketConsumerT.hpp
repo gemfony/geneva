@@ -577,7 +577,6 @@ private:
 
 	 GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{
 	 	 networked_consumer_payload_command::NONE
-		 , nullptr
 	 }; ///< Holds the current command and payload (if any)
 
 	 //-------------------------------------------------------------------------
@@ -1137,7 +1136,6 @@ private:
 
 	 GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{
 		 networked_consumer_payload_command::NONE
-		 , nullptr
 	 }; ///< Holds the current command and payload (if any)
 
 	 //-------------------------------------------------------------------------

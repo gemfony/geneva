@@ -477,7 +477,7 @@ private:
 	 std::random_device m_nondet_rng; ///< Source of non-deterministic random numbers
 	 std::mt19937 m_rng_engine{m_nondet_rng()}; ///< The actual random number engine, seeded my m_nondet_rng
 
-	 GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{networked_consumer_payload_command::NONE, nullptr}; ///< Holds the current command and payload (if any)
+	 GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
 };
 
 /******************************************************************************/
@@ -747,7 +747,6 @@ private:
 
 	 GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{
 		 networked_consumer_payload_command::NONE
-		 , nullptr
 	 }; ///< Holds the current command and payload (if any)
 
 	 //-------------------------------------------------------------------------

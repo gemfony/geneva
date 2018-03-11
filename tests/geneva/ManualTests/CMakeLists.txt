@@ -16,6 +16,7 @@ ADD_CUSTOM_TARGET( "tests-geneva-manual"
 )
 
 ADD_SUBDIRECTORY ( GBooleanProbabilityTest )
+ADD_SUBDIRECTORY ( GCommandContainerSerialization )
 ADD_SUBDIRECTORY ( GConstrainedFPTTest )
 ADD_SUBDIRECTORY ( GConstrainedIntegerTTest )
 ADD_SUBDIRECTORY ( GDoubleBiGaussAdaptorTest )
