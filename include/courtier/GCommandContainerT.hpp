@@ -252,32 +252,36 @@ std::string container_to_string(
 	const GCommandContainerT<processable_type, command_type>& container
 	, Gem::Common::serializationMode serMode
 ) {
-	std::ostringstream oss;
-
 	try {
 		switch (serMode) {
 			case Gem::Common::serializationMode::TEXT: {
+				std::ostringstream oss;
 				boost::archive::text_oarchive oa(oss);
 				oa << boost::serialization::make_nvp(
 					"command_container"
 					, container
 				);
+				return oss.str();
 			} break; // archive and stream closed at end of scope
 
 			case Gem::Common::serializationMode::XML: {
+				std::ostringstream oss;
 				boost::archive::xml_oarchive oa(oss);
 				oa << boost::serialization::make_nvp(
 					"command_container"
 					, container
 				);
+				return oss.str();
 			} break;
 
 			case Gem::Common::serializationMode::BINARY: {
+				std::ostringstream oss(std::ios_base::binary);
 				boost::archive::binary_oarchive oa(oss);
 				oa << boost::serialization::make_nvp(
 					"command_container"
 					, container
 				);
+				return oss.str();
 			} break;
 		}
 	} catch (const boost::system::system_error &e) {
@@ -315,8 +319,6 @@ std::string container_to_string(
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
 	}
-
-	return oss.str();
 }
 
 /******************************************************************************/
@@ -333,21 +335,23 @@ void container_from_string(
 	, Gem::Common::serializationMode serMode
 ) {
 	container.reset();
-	std::istringstream iss(descr);
 
 	try {
 		switch(serMode) {
 			case Gem::Common::serializationMode::TEXT: {
+				std::istringstream iss(descr);
 				boost::archive::text_iarchive ia(iss);
 				ia >> boost::serialization::make_nvp("command_container", container);
 			} break; // archive and stream closed at end of scope
 
 			case Gem::Common::serializationMode::XML: {
+				std::istringstream iss(descr);
 				boost::archive::xml_iarchive ia(iss);
 				ia >> boost::serialization::make_nvp("command_container", container);
 			} break;
 
 			case Gem::Common::serializationMode::BINARY: {
+				std::istringstream iss(descr, std::ios_base::binary);
 				boost::archive::binary_iarchive ia(iss);
 				ia >> boost::serialization::make_nvp("command_container", container);
 			} break;

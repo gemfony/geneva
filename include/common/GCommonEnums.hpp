@@ -185,7 +185,7 @@ const bool VAR_IS_SECONDARY = false;
 /**
  * Needed for the serialization of boost::logic::tribool
  */
-enum class triboolStates : std::uint16_t{
+enum class triboolStates : Gem::Common::ENUMBASETYPE {
 	TBS_FALSE
 	, TBS_INDETERMINATE
 	, TBS_TRUE

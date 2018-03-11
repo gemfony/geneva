@@ -58,7 +58,7 @@ namespace Courtier {
 
 /******************************************************************************/
 /** @brief Indicates whether the client executes the init-, run- or finally()-function */
-enum class run_state {
+enum class run_state : Gem::Common::ENUMBASETYPE {
 	 INIT=0
 	 , RUN=1
 	 , FINALLY=2
