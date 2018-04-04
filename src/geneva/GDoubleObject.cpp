@@ -166,7 +166,8 @@ std::string GDoubleObject::name() const {
  * @param parVec The vector to which the local value should be attached
  */
 void GDoubleObject::doubleStreamline(
-	std::vector<double> &parVec, const activityMode &am
+	std::vector<double> &parVec
+	, const activityMode &am
 ) const {
 	parVec.push_back(this->value());
 }
@@ -178,7 +179,9 @@ void GDoubleObject::doubleStreamline(
  * @param parVec The map to which the local value should be attached
  */
 void GDoubleObject::doubleStreamline(
-	std::map<std::string, std::vector<double>> &parVec, const activityMode &am
+	std::map<std::string
+	, std::vector<double>> &parVec
+	, const activityMode &am
 ) const {
 #ifdef DEBUG
 	if((this->getParameterName()).empty()) {

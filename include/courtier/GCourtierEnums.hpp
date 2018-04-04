@@ -45,10 +45,6 @@
 #include <chrono>
 
 // Boost headers go here
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_serialize.hpp>
 
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
@@ -172,7 +168,7 @@ const bool CLIENT_TERMINATE = false;
  * 16 digits describing the number of bytes to expect. This should however suffice for
  * every practical purpose.
  */
-const std::size_t COMMANDLENGTH = 36; // must accomodate a boost::uuids::uuid of size 36
+const std::size_t COMMANDLENGTH = 36;
 
 /******************************************************************************/
 /**
@@ -231,11 +227,14 @@ const std::size_t DEFAULTMAXRESUBMISSIONS = 5;
 /**
  * These typedefs allow to steer the types of ids assigned to objects submitted to the broker
  */
-
 using ITERATION_COUNTER_TYPE = std::uint64_t;
 using RESUBMISSION_COUNTER_TYPE = std::size_t;
 using COLLECTION_POSITION_TYPE = std::size_t;
-using BUFFERPORT_ID_TYPE = boost::uuids::uuid;
+using BUFFERPORT_ID_TYPE = std::uint32_t;
+
+/******************************************************************************/
+
+const BUFFERPORT_ID_TYPE MAXREGISTEREDBUFFERPORTS = 1000; ///< The maximum number of registered buffer ports in the broker
 
 /******************************************************************************/
 

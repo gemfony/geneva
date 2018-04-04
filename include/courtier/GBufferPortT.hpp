@@ -48,10 +48,6 @@
 
 // Boost header files go here
 #include <boost/utility.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_serialize.hpp>
 
 // Geneva header files go here
 #include "courtier/GCourtierEnums.hpp"
@@ -61,6 +57,9 @@
 
 namespace Gem {
 namespace Courtier {
+
+// Forward declaration of GBrokerT
+template <typename processable_type> class GBrokerT;
 
 /******************************************************************************/
 /**
@@ -83,6 +82,9 @@ class GBufferPortT : private boost::noncopyable
 		 std::is_base_of<Gem::Courtier::GProcessingContainerT<processable_type, typename processable_type::result_type>, processable_type>::value
 		 , "GBufferPortT: processable_type does not adhere to the GProcessingContainerT<> interface"
 	 );
+
+	 // We want GBrokerT to be the only class to be able to set our ID, so we declare it as friend
+	 friend class GBrokerT<processable_type>;
 
 	 using RAW_BUFFER_TYPE = typename Gem::Common::GBoundedBufferT<std::shared_ptr<processable_type>, Gem::Common::DEFAULTBUFFERSIZE>;
 	 using PROCESSED_BUFFER_TYPE = typename Gem::Common::GBoundedBufferT<std::shared_ptr<processable_type>, 0>;
@@ -316,9 +318,9 @@ public:
 	 /*
 	  * Retrieves the unique tag that was assigned to this object
 	  *
-	  * @return The value of the m_id variable
+	  * @return The unique tag assigned to this object
 	  */
-	 boost::uuids::uuid getUniqueTag() const {
+	 BUFFERPORT_ID_TYPE getUniqueTag() const {
 		 return m_tag;
 	 }
 
@@ -356,11 +358,12 @@ public:
 
 private:
 	 /***************************************************************************/
-	 // Retrieval of a random uuid
-	 static boost::uuids::uuid getRandomUUID() {
-		 boost::uuids::random_generator generator;
-		 return generator();
-	 }
+	 /**
+	  * Setting of a unique id for this buffer port
+	  */
+  	 void set_port_tag(BUFFERPORT_ID_TYPE tag) {
+		 m_tag = tag;
+  	 }
 
 	 /***************************************************************************/
 	 // Data
@@ -375,8 +378,7 @@ private:
 
 	 std::atomic<bool> m_connected_to_producer{true}; ///< Indicates whether this object is currently connected to a producer. We assume that this happens upon creation of this object
 
-	 // TODO: This could just be a consecutive number obtained from the broker
-	 const boost::uuids::uuid m_tag = GBufferPortT<processable_type>::getRandomUUID(); ///< A unique id assigned to objects of this class
+	 BUFFERPORT_ID_TYPE m_tag = 0; ///< A unique id assigned to objects of this class
 };
 
 /******************************************************************************/

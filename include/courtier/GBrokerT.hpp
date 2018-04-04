@@ -55,14 +55,11 @@
 #include <thread>
 #include <memory>
 #include <condition_variable>
+#include <stdexcept>
 
 // Boost headers go here
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_serialize.hpp>
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -102,8 +99,8 @@ class GBrokerT {
 	 // Syntactic sugar
 	 using GBUFFERPORT = GBufferPortT<processable_type>;
 	 using GBUFFERPORT_PTR = typename std::shared_ptr<GBUFFERPORT>;
-	 using RawBufferPtrMap = typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR>;
-	 using ProcessedBufferPtrMap = typename std::map<boost::uuids::uuid, GBUFFERPORT_PTR>;
+	 using RawBufferPtrMap = typename std::map<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR>;
+	 using ProcessedBufferPtrMap = typename std::map<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR>;
 
 public:
 	 /***************************************************************************/
@@ -148,7 +145,7 @@ public:
 	  */
 	 void finalize() {
 		 // Only allow one finalization action to be carried out
-		 if (true == m_finalized.load()) return;
+		 if (m_finalized) return;
 
 		 // Shut down all consumers
 		 for(auto &c_ptr: m_consumer_collection_vec) {
@@ -223,17 +220,14 @@ public:
 			 switchGetPositionLock
 			 , findProcessedBufferLock
 		 );
+
 		 //-----------------------------------------------------------------------
-
-		 // Retrieve the uuid of the buffer port
-		 auto gbp_tag = gbp_ptr->getUniqueTag();
-
 		 // Find orphaned items in the two collections and remove them.
 		 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
 		 // otherwise the following statements could be simplified.
 		 std::size_t nErasedRaw = Gem::Common::erase_if(
 			 m_RawBuffers
-			 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
+			 , [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
 		 ); // m_RawBuffers is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
@@ -246,10 +240,18 @@ public:
 
 		 std::size_t nErasedProc = Gem::Common::erase_if(
 			 m_ProcessedBuffers
-			 , [](const std::pair<boost::uuids::uuid, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
+			 , [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
 		 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
+	    if(nErasedProc != nErasedRaw) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerT<>::enrol(buffer-port-ptr):" << std::endl
+				    << "nErasedProc (" << nErasedProc << ") != nErasedRaw (" << nErasedRaw << ")" << std::endl
+			 );
+	    }
+
 		 if(nErasedProc > 0 ) {
 			 glogger
 				 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedProc << " processed buffers" << std::endl
@@ -257,9 +259,36 @@ public:
 		 }
 #endif
 
+		 // Update the number of registered buffer ports
+#ifdef DEBUG
+		 if(BUFFERPORT_ID_TYPE(nErasedRaw) > m_n_registered_buffer_ports) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerT<>::enrol(buffer-port-ptr):" << std::endl
+					 << "nErasedRaw (" << nErasedRaw << ") > m_n_registered_buffer_ports (" << m_n_registered_buffer_ports << ")" << std::endl
+			 );
+		 }
+#endif
+		 m_n_registered_buffer_ports -= BUFFERPORT_ID_TYPE(nErasedRaw);
+
+		 // Retrieve a new id for the buffer port.
+		 auto gbp_tag = getNextBufferPortId();
+
+		 // Register the id with the buffer port
+		 gbp_ptr->set_port_tag(gbp_tag);
+
 		 // Attach the new items to the maps
 		 m_RawBuffers[gbp_tag] = gbp_ptr;
 		 m_ProcessedBuffers[gbp_tag] = gbp_ptr;
+
+	    // Increment the number of registered buffer ports and check if we have exceeded the allowed amound
+		 if(++m_n_registered_buffer_ports > MAXREGISTEREDBUFFERPORTS) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GBrokerT<>::enrol(buffer-port-ptr):" << std::endl
+					 << "Maximum number " << MAXREGISTEREDBUFFERPORTS << " of registered buffer ports exceeded" << std::endl
+			 );
+		 }
 
 		 // Fix the current get-pointer. We simply attach it to the start of the list
 		 m_currentGetPosition = m_RawBuffers.begin();
@@ -285,7 +314,7 @@ public:
 		 // only once, we emit a warning and return
 		 if(m_consumersPresent) {
 			 glogger
-				 << "In GBrokerT<>::enrol(consumer_ptr): A consumer has already been enrolled." << std::endl
+				 << "In GBrokerT<>::enrol(consumer_ptr): One or more consumers have already been enrolled." << std::endl
 				 << "We will ignore the new enrolment request." << std::endl
 				 << GWARNING;
 
@@ -304,6 +333,7 @@ public:
 			 glogger
 			 << "In GBrokerT<>::enrol(consumer):" << std::endl
 			 << "Consumer with name " << gc_ptr->getConsumerName() << " aleady exists." << std::endl
+			 << "We will ignore the new enrolment request." << std::endl
 		    << GWARNING;
 
 			 return;
@@ -344,7 +374,7 @@ public:
 		 // only once, we emit a warning and return
 		 if(m_consumersPresent) {
 			 glogger
-				 << "In GBrokerT<>::enrol(consumer_ptr_vec): Consumers have already been enrolled." << std::endl
+				 << "In GBrokerT<>::enrol(consumer_ptr_vec): One or more consumers have already been enrolled." << std::endl
 				 << "We will ignore the new enrolment request." << std::endl
 				 << GWARNING;
 
@@ -459,7 +489,7 @@ public:
 	 void put(
 		 std::shared_ptr<processable_type> p
 	 ) {
-		 // Retrieve the correct processed buffer for a given uuid
+		 // Retrieve the correct processed buffer for a given id
 		 auto portId = p->getBufferId();
 		 auto processedBuffer_ptr = getProcessedBufferPort(portId);
 
@@ -494,7 +524,7 @@ public:
 		 std::shared_ptr<processable_type> p
 		 , std::chrono::duration<double> timeout
 	 ) {
-		 // Retrieve the correct processed buffer for our uuid
+		 // Retrieve the correct processed buffer for our id
 		 auto portId = p->getBufferId();
 		 auto processedBuffer_ptr = getProcessedBufferPort(portId);
 
@@ -574,21 +604,20 @@ private:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves the processed buffer pointer for a given uuid. As we are dealing
-	  * with a (not thread-safe) std::map, we need to coordinate the access.
+	  * Retrieves the processed buffer pointer for a given id. As we are dealing
+	  * with a (possibly thread-unsafe) std::map, we need to synchronize the access.
 	  */
-	 GBUFFERPORT_PTR getProcessedBufferPort(boost::uuids::uuid uuid) {
+	 GBUFFERPORT_PTR getProcessedBufferPort(BUFFERPORT_ID_TYPE id) {
 		 // Protect access to the map
 		 std::unique_lock<std::mutex> findProcessedBufferLock(m_findProcesedBufferMutex);
 
 		 // Find the buffer port (if any)
-		 auto it = m_ProcessedBuffers.find(uuid);
-		 if (it != m_ProcessedBuffers.end()) {
-			 return it->second;
+		 try {
+			 return m_ProcessedBuffers.at(id);
+		 } catch(const std::out_of_range& e) {
+			 // Return an empty pointer
+			 return GBUFFERPORT_PTR();
 		 }
-
-		 // Return an empty pointer
-		 return GBUFFERPORT_PTR();
 	 }
 
 	 /***************************************************************************/
@@ -618,6 +647,41 @@ private:
 		 return capable_of_full_return;
 	 }
 
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieval of an id to be assigned to the next registered buffer port.
+	  * This function is only used within a locked environment, so we can safely
+	  * increment and compare the id. As the id may roll over and
+	  * buffer ports may have different lifetimes, we need to make sure the chosen
+	  * buffer port id hasn't been used yet. We do this by searching through the
+	  * list of registered buffer ports
+	  */
+	 BUFFERPORT_ID_TYPE getNextBufferPortId() {
+		 bool id_in_use = false;
+		 BUFFERPORT_ID_TYPE next_id = m_current_bufferport_id;
+
+		 do {
+			 id_in_use = false;
+			 next_id = m_current_bufferport_id;
+
+			 // Reset the id, if we have reached the maximum size
+			 if(++m_current_bufferport_id == std::numeric_limits<BUFFERPORT_ID_TYPE>::max()) {
+				 m_current_bufferport_id = 0;
+			 }
+
+			 // Check if the id is already being used
+			 for (const auto &port: m_RawBuffers) {
+				 if (port.first == next_id) {
+					 id_in_use = true;
+					 break;
+				 }
+			 }
+		 } while(id_in_use);
+
+		 return next_id;
+	 }
+
 	 /***************************************************************************/
 	 // Data
 
@@ -640,6 +704,9 @@ private:
 
 	 std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> m_consumer_collection_vec; ///< Holds the actual consumers
 	 std::vector<std::string> m_consumerTypesPresent; ///< Holds identifying strings for each consumer
+
+	 std::atomic<BUFFERPORT_ID_TYPE> m_current_bufferport_id{BUFFERPORT_ID_TYPE(0)}; ///< The id assigned to the last registered buffer port
+	 std::atomic<BUFFERPORT_ID_TYPE> m_n_registered_buffer_ports{BUFFERPORT_ID_TYPE(0)}; ///< The current number of registered buffer ports
 };
 
 /******************************************************************************/

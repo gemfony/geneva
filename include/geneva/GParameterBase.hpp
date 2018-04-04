@@ -42,6 +42,11 @@
 #include <random>
 
 // Boost header files go here
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_serialize.hpp>
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
@@ -73,9 +78,9 @@ class GParameterBase
 
 		 ar
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
-		 & BOOST_SERIALIZATION_NVP(adaptionsActive_)
-		 & BOOST_SERIALIZATION_NVP(randomInitializationBlocked_)
-		 & BOOST_SERIALIZATION_NVP(parameterName_);
+		 & BOOST_SERIALIZATION_NVP(m_adaptionsActive)
+		 & BOOST_SERIALIZATION_NVP(m_randomInitializationBlocked)
+		 & BOOST_SERIALIZATION_NVP(m_parameterName);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 public:
@@ -542,9 +547,9 @@ private:
 	 G_API_GENEVA GObject* clone_() const override = 0;
 
 	 /***************************************************************************/
-	 bool adaptionsActive_; ///< Specifies whether adaptions of this object should be carried out
-	 bool randomInitializationBlocked_; ///< Specifies that this object should not be initialized again
-	 std::string parameterName_; ///< A name assigned to this parameter object
+	 bool m_adaptionsActive; ///< Specifies whether adaptions of this object should be carried out
+	 bool m_randomInitializationBlocked; ///< Specifies that this object should not be initialized again
+	 std::string m_parameterName; ///< A name assigned to this parameter object
 
 public:
 	 /***************************************************************************/
