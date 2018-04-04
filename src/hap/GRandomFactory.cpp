@@ -112,10 +112,6 @@ void GRandomFactory::finalize() {
 
 	// Let the audience know
 	m_finalized.store(true);
-
-	glogger
-		<< "GRandomFactory finalized" << std::endl
-		<< GLOGGING;
 }
 
 /******************************************************************************/
