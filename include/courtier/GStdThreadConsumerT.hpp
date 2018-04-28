@@ -195,7 +195,7 @@ public:
 		 consumer_ptr->registerWorkerTemplate(worker_ptr);
 		 consumer_ptr->parseConfigFile(configFile);
 
-		 GBROKER(processable_type)->enrol(consumer_ptr);
+		 GBROKER(processable_type)->enrol_buffer_port(consumer_ptr);
 	 }
 
 protected:

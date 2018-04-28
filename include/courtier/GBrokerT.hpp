@@ -184,10 +184,6 @@ public:
 			 // Make sure this function does not execute code a second time
 			 m_finalized.store(true);
 		 }
-
-		 glogger
-		 	<< "GBrokerT<> finalized" << std::endl
-			<< GLOGGING;
 	 }
 
 	 /***************************************************************************/
@@ -204,7 +200,7 @@ public:
 	  * @param gbp_ptr A shared pointer to a new GBufferPortT object
 	  * @return A boolean which indicates, whether all consumers are capable of full return
 	  */
-	 bool enrol(std::shared_ptr<GBufferPortT<processable_type>> gbp_ptr) {
+	 bool enrol_buffer_port(std::shared_ptr<GBufferPortT<processable_type>> gbp_ptr) {
 		 //-----------------------------------------------------------------------
 		 // Lock the access to our internal data simultaneously for all mutexes
 
@@ -233,7 +229,7 @@ public:
 #ifdef DEBUG
 		 if(nErasedRaw > 0 ) {
 			 glogger
-				 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedRaw << " raw buffers" << std::endl
+				 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr): Removed " << nErasedRaw << " raw buffers" << std::endl
 				 << GLOGGING;
 		 }
 #endif
@@ -247,14 +243,14 @@ public:
 	    if(nErasedProc != nErasedRaw) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerT<>::enrol(buffer-port-ptr):" << std::endl
+					 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
 				    << "nErasedProc (" << nErasedProc << ") != nErasedRaw (" << nErasedRaw << ")" << std::endl
 			 );
 	    }
 
 		 if(nErasedProc > 0 ) {
 			 glogger
-				 << "In GBrokerT<>::enrol(buffer-port-ptr): Removed " << nErasedProc << " processed buffers" << std::endl
+				 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr): Removed " << nErasedProc << " processed buffers" << std::endl
 				 << GLOGGING;
 		 }
 #endif
@@ -264,7 +260,7 @@ public:
 		 if(BUFFERPORT_ID_TYPE(nErasedRaw) > m_n_registered_buffer_ports) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerT<>::enrol(buffer-port-ptr):" << std::endl
+					 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
 					 << "nErasedRaw (" << nErasedRaw << ") > m_n_registered_buffer_ports (" << m_n_registered_buffer_ports << ")" << std::endl
 			 );
 		 }
@@ -285,7 +281,7 @@ public:
 		 if(++m_n_registered_buffer_ports > MAXREGISTEREDBUFFERPORTS) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerT<>::enrol(buffer-port-ptr):" << std::endl
+					 << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr):" << std::endl
 					 << "Maximum number " << MAXREGISTEREDBUFFERPORTS << " of registered buffer ports exceeded" << std::endl
 			 );
 		 }
@@ -308,13 +304,13 @@ public:
 	  *
 	  * @param gc_ptr A pointer to a GBaseConsumerT<processable_type> object
 	  */
-	 void enrol(std::shared_ptr<GBaseConsumerT<processable_type>> gc_ptr) {
+	 void enrol_buffer_port(std::shared_ptr<GBaseConsumerT<processable_type>> gc_ptr) {
 		 //-----------------------------------------------------------------------
 		 // Check whether consumers have already been enrolled. As this may happen
 		 // only once, we emit a warning and return
 		 if(m_consumersPresent) {
 			 glogger
-				 << "In GBrokerT<>::enrol(consumer_ptr): One or more consumers have already been enrolled." << std::endl
+				 << "In GBrokerT<>::enrol_buffer_port(consumer_ptr): One or more consumers have already been enrolled." << std::endl
 				 << "We will ignore the new enrolment request." << std::endl
 				 << GWARNING;
 
@@ -331,7 +327,7 @@ public:
 			 , gc_ptr->getConsumerName()) != m_consumerTypesPresent.end()
 		 ) {
 			 glogger
-			 << "In GBrokerT<>::enrol(consumer):" << std::endl
+			 << "In GBrokerT<>::enrol_buffer_port(consumer):" << std::endl
 			 << "Consumer with name " << gc_ptr->getConsumerName() << " aleady exists." << std::endl
 			 << "We will ignore the new enrolment request." << std::endl
 		    << GWARNING;
@@ -368,13 +364,13 @@ public:
 	  *
 	  * @param gc_ptr_vec A vector of pointers to GBaseConsumerT<processable_type> objects
 	  */
-	 void enrol(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_vec) {
+	 void enrol_consumer(std::vector <std::shared_ptr<GBaseConsumerT < processable_type>>> gc_ptr_vec) {
 		 //-----------------------------------------------------------------------
 		 // Check whether consumers have already been enrolled. As this may happen
 		 // only once, we emit a warning and return
 		 if(m_consumersPresent) {
 			 glogger
-				 << "In GBrokerT<>::enrol(consumer_ptr_vec): One or more consumers have already been enrolled." << std::endl
+				 << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): One or more consumers have already been enrolled." << std::endl
 				 << "We will ignore the new enrolment request." << std::endl
 				 << GWARNING;
 
@@ -392,7 +388,7 @@ public:
 				 , consumer_ptr->getConsumerName()) != m_consumerTypesPresent.end()
 			 ) {
 				 glogger
-					 << "In GBrokerT<>::enrol(consumer_ptr_vec): A consumer with name " << consumer_ptr->getConsumerName() << std::endl
+					 << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): A consumer with name " << consumer_ptr->getConsumerName() << std::endl
 				    << "has already been enrolled. We will ignore the new enrolment request." << std::endl
 					 << GWARNING;
 

@@ -921,7 +921,7 @@ void Go2::parseCommandLine(
 		// Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
 		if (!m_client_mode) {
 			if (!GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
-				GBROKER(Gem::Geneva::GParameterSet)->enrol(GConsumerStore->get(m_consumer_name));
+				GBROKER(Gem::Geneva::GParameterSet)->enrol_buffer_port(GConsumerStore->get(m_consumer_name));
 			} else {
 				glogger
 					<< "In Go2::parseCommandLine(): Note!" << std::endl

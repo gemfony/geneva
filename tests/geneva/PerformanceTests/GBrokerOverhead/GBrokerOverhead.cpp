@@ -405,7 +405,7 @@ int main(int argc, char **argv){
 			// Create a consumer and make it known to the global broker
 			std::shared_ptr<Gem::Courtier::GStdThreadConsumerT<GParameterSet>> stc(new Gem::Courtier::GStdThreadConsumerT<GParameterSet>());
 			stc->setNThreadsPerWorker(nEvaluationThreads);
-			GBROKER(Gem::Geneva::GParameterSet)->enrol(stc);
+			GBROKER(Gem::Geneva::GParameterSet)->enrol_buffer_port(stc);
 
 			std::cout << "Using the GStdThreadConsumerT consumer." << std::endl;
 			pop_ptr->registerExecutor(

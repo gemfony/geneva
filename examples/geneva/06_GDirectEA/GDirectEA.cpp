@@ -365,9 +365,9 @@ int main(int argc, char **argv){
 				// is mainly for testing and benchmarking
 				std::shared_ptr<GStdThreadConsumerT<GParameterSet>> gbtc(new GStdThreadConsumerT<GParameterSet>());
 				gbtc->setNThreadsPerWorker(nEvaluationThreads);
-				GBROKER(Gem::Geneva::GParameterSet)->enrol(gbtc);
+				GBROKER(Gem::Geneva::GParameterSet)->enrol_buffer_port(gbtc);
 			} else {
-				// Create a network consumer and enrol it with the broker
+				// Create a network consumer and enrol_buffer_port it with the broker
 				std::shared_ptr<GAsioConsumerT<GParameterSet>> gatc_ptr(new GAsioConsumerT<GParameterSet>());
 
 				// Set the required options
@@ -378,7 +378,7 @@ int main(int argc, char **argv){
 				gatc_ptr->setMaxReconnects(maxReconnects);
 
 				// Add the consumer to the broker
-				GBROKER(Gem::Geneva::GParameterSet)->enrol(gatc_ptr);
+				GBROKER(Gem::Geneva::GParameterSet)->enrol_buffer_port(gatc_ptr);
 			}
 
 			pop_ptr->registerExecutor(execMode::BROKER, "./config/GBrokerExecutor.json");

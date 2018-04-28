@@ -1574,7 +1574,7 @@ protected:
 	  * @return A struct of booleans indicating whether all items were processed successfully and whether there were errors
 	  */
 	 executor_status_t waitForReturn(
-		 std::vector<std::shared_ptr < processable_type>>& workItems
+		 std::vector<std::shared_ptr<processable_type>>& workItems
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) override {
 		 using result_type = typename processable_type::result_type;
@@ -1702,7 +1702,7 @@ public:
 	  */
 	 GBrokerExecutorT()
 		 : GBaseExecutorT<processable_type>()
-			, m_gpd("Maximum waiting times and returned items", 1, 2)
+		 , m_gpd("Maximum waiting times and returned items", 1, 2)
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
@@ -1920,7 +1920,7 @@ protected:
 		 // Add the buffer port to the broker and check whether all consumers
 		 // enrolled with the broker are capable of full return
 		 m_capable_of_full_return
-			 = GBROKER(processable_type)->enrol(m_current_buffer_port_ptr);
+			 = GBROKER(processable_type)->enrol_buffer_port(m_current_buffer_port_ptr);
 
 #ifdef DEBUG
 		 if(m_capable_of_full_return) {
@@ -1957,7 +1957,7 @@ protected:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to perform necessary setup work for an iteration
+	  * Allows to perform necessary setup work for a cycle
 	  */
 	 void cycleInit_(
 		 std::vector<std::shared_ptr<processable_type>>& workItems
@@ -2144,14 +2144,14 @@ private:
 				 , oldWorkItems
 			 );
 
+			 // No need to continue if all currently submitted work items have returned
+			 if(status.is_complete) break;
+
 			 // For succesfully processed items, update the internal timeout variables,
 			 // so we know how much longer this cycle should run
 			 if(w_ptr->is_processed()) {
 				 this->updateTimeout(w_ptr);
 			 }
-
-			 // No need to continue if all currently submitted work items have returned
-			 if(status.is_complete) break;
 		 } while(!halt());
 
 		 // Check for the processing flags and derive the is_complete and has_errors states
@@ -2206,25 +2206,9 @@ private:
 		 std::shared_ptr<processable_type> w_ptr
 	 ) {
 		 //-----------------------------------------------
-		 // Some error checks
-#ifdef DEBUG
-		 // There should be no situation where we get an empty pointer here. Cross-check in debug-mode
-		 if(!w_ptr) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerExeuctorT<processable_type>::updateTimeout(): Work item is empty" << std::endl
-			 );
-		 }
-
-		 // We expect that w_ptr has the PROCESSED flag set here. Cross-check in debug mode.
-		 if(!w_ptr->is_processed()) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerExeuctorT<processable_type>::updateTimeout(): Work item does not" << std::endl
-					 << "have the PROCESSED flag set when it should have." << std::endl
-			 );
-		 }
-#endif
+		 // We do not check for error conditions (particularly
+		 // w_ptr is empty or not processed), as this function
+		 // is only called for processed work items.
 
 		 //-----------------------------------------------
 		 // Extract some date for this work item

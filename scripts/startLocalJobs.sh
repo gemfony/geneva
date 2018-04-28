@@ -85,11 +85,11 @@ if [ ! -d ./output ]; then
 fi
 
 # Start the server
-(./$1 -e 2 -c tcpc --port=${PORT} >& ./output/output_server) &
+(./$1 -c asio --asio_port=${PORT} >& ./output/output_server) &
 
 # Start the workers
 for i in `seq 1 $2`; do
-    (./${PROGNAME} -e 2 -c tcpc --client --ip=localhost --port=${PORT} >& ./output/output_client_$i) &
+    (./${PROGNAME} -c asio_tcpc --client --asio_ip=localhost --asio_port=${PORT} >& ./output/output_client_$i) &
 done
 
 tail -f ./output/output_server
