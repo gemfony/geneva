@@ -19,6 +19,9 @@ Bugs fixed:
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
+ - Changed Gem::Common::serializationMode::SERIALIZATIONMODE_XML to
+   Gem::Common::serializationMode::XML, similar for TEXT and BINARY
+
 ********************************************************************************
 
 
