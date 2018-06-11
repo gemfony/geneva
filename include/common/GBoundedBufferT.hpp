@@ -126,33 +126,27 @@ namespace Common {
  * if there may never be an "inflation".
  *
  * Modify the behaviour of this class using the following defines:
- * - DEFAULTBUFFERSIZE:
- * The maximum size of the buffer. "0" means "unlimited"
- * - GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL :
- * Use notify_all instead of notify_one for condition-variables
+ * - DEFAULTBUFFERSIZE: The maximum size of the buffer. "0" means "unlimited"
+ * You can also pass the size as a template parameter.
+ *
  */
 template<typename T, std::size_t t_capacity = DEFAULTBUFFERSIZE>
 class GBoundedBufferT {
 public:
-
 	 using container_type = std::deque<T>;
 	 using value_type     = typename container_type::value_type;
 
 	 /***************************************************************************/
-	 /**
-	  * The default constructor. Sets up a buffer of size DEFAULTBUFFERSIZE.
-	  */
-	 GBoundedBufferT()
-	 { /* nothing */ }
-
+	 /** The default constructor */
+	 GBoundedBufferT() = default;
 
 	 /***************************************************************************/
 	 // Prevent assignment and copying
 
-	 GBoundedBufferT(const GBoundedBufferT<T> &) = delete; ///< Disabled copy constructor
-	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &) = delete; ///< Disabled assign operator
-	 GBoundedBufferT(const GBoundedBufferT<T> &&) = delete; ///< Disabled move constructor
-	 GBoundedBufferT &operator=(const GBoundedBufferT<T> &&) = delete; ///< Disabled move-assignment operator
+	 GBoundedBufferT(const GBoundedBufferT<T, t_capacity> &) = delete; ///< Disabled copy constructor
+	 GBoundedBufferT &operator=(const GBoundedBufferT<T, t_capacity> &) = delete; ///< Disabled assign operator
+	 GBoundedBufferT(const GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move constructor
+	 GBoundedBufferT &operator=(const GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move-assignment operator
 
 	 /***************************************************************************/
 	 /**
@@ -197,23 +191,14 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 bool try_push (
 		 value_type &item
-		 , typename std::enable_if<(u_capacity == 0)>::type * = nullptr
+		 , typename std::enable_if<(u_capacity == 0 && t_capacity==u_capacity)>::type * = nullptr
 	 ) {
-		 static_assert(
-			 t_capacity==u_capacity
-			 , "t_capacity != u_capacity"
-		 );
-
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
 			 m_container.push_front(std::move(item));
 		 } // Release the lock
 
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_empty.notify_all();
-#else
 		 m_not_empty.notify_one();
-#endif
 
 		 return true;
 	 }
@@ -232,13 +217,8 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 bool try_push (
 		 value_type &item
-		 , typename std::enable_if<(u_capacity > 0)>::type * = nullptr
+		 , typename std::enable_if<(u_capacity > 0 && t_capacity==u_capacity)>::type * = nullptr
 	 ) {
-		 static_assert(
-			 t_capacity==u_capacity
-			 , "t_capacity != u_capacity"
-		 );
-
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
 
@@ -251,11 +231,7 @@ public:
 			 m_container.push_front(std::move(item));
 		 } // Release the lock
 
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_empty.notify_all();
-#else
 		 m_not_empty.notify_one();
-#endif
 
 		 return true;
 	 }
@@ -270,23 +246,14 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 void push_and_block(
 		 value_type &item
-		 , typename std::enable_if<(u_capacity == 0)>::type * = nullptr
+		 , typename std::enable_if<(u_capacity == 0 && t_capacity==u_capacity)>::type * = nullptr
 	 ) {
-		 static_assert(
-			 t_capacity==u_capacity
-			 , "t_capacity != u_capacity"
-		 );
-
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
 			 m_container.push_front(std::move(item));
 		 } // Release the lock
 
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_empty.notify_all();
-#else
 		 m_not_empty.notify_one();
-#endif
 	 }
 
 
@@ -301,13 +268,8 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 void push_and_block(
 		 value_type &item
-		 , typename std::enable_if<(u_capacity > 0)>::type * = nullptr
+		 , typename std::enable_if<(u_capacity > 0 && t_capacity==u_capacity)>::type * = nullptr
 	 ) {
-		 static_assert(
-			 t_capacity==u_capacity
-			 , "t_capacity != u_capacity"
-		 );
-
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
 			 // Note that this overload of wait() internally runs a loop on its predicate to
@@ -319,11 +281,7 @@ public:
 			 m_container.push_front(std::move(item));
 		 } // Release the lock
 
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_empty.notify_all();
-#else
 		 m_not_empty.notify_one();
-#endif
 	 }
 
 	 /***************************************************************************/
@@ -340,23 +298,14 @@ public:
 	 bool push_and_wait(
 		 value_type &item
 		 , const std::chrono::duration<double> &timeout
-		 , typename std::enable_if<(u_capacity == 0)>::type * = nullptr
+		 , typename std::enable_if<(u_capacity == 0 && t_capacity==u_capacity)>::type * = nullptr
 	 ) {
-		 static_assert(
-			 t_capacity==u_capacity
-			 , "t_capacity != u_capacity"
-		 );
-
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
 			 m_container.push_front(std::move(item));
 		 } // Release the lock
 
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_empty.notify_all();
-#else
 		 m_not_empty.notify_one();
-#endif
 
 		 return true;
 	 }
@@ -376,13 +325,8 @@ public:
 	 bool push_and_wait(
 		 value_type &item
 		 , const std::chrono::duration<double> &timeout
-		 , typename std::enable_if<(u_capacity > 0)>::type * = nullptr
+		 , typename std::enable_if<(u_capacity > 0 && t_capacity==u_capacity)>::type * = nullptr
 	 ) {
-		 static_assert(
-			 t_capacity==u_capacity
-			 , "t_capacity != u_capacity"
-		 );
-
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
 			 if (!m_not_full.wait_for(
@@ -395,11 +339,7 @@ public:
 			 m_container.push_front(std::move(item));
 		 } // Release the lock
 
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_empty.notify_all();
-#else
 		 m_not_empty.notify_one();
-#endif
 
 		 return true;
 	 }
@@ -442,11 +382,7 @@ public:
 			 m_container.pop_back();
 		 } // Release the lock
 
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_full.notify_all();
-#else
 		 m_not_full.notify_one();
-#endif
 	 }
 
 	 /***************************************************************************/
@@ -478,11 +414,8 @@ public:
 			 m_container.pop_back(); // Remove it from the container
 		 } // Release the lock
 
-#ifdef GENEVA_COMMON_BOUNDED_BUFFER_USE_NOTIFY_ALL
-		 m_not_full.notify_all();
-#else
 		 m_not_full.notify_one();
-#endif
+
 		 return true;
 	 }
 
