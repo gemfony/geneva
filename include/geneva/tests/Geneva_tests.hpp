@@ -32,6 +32,8 @@
  * http://www.gemfony.eu .
  */
 
+#pragma once
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -56,9 +58,6 @@ using namespace Gem::Geneva;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
-
-#ifndef GSTANDARDTEST_HPP_
-#define GSTANDARDTEST_HPP_
 
 // Geneva headers go here
 #include "common/GExceptions.hpp"
@@ -416,5 +415,3 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION( StandardTests_failures_expected, T){
 }
 
 /*************************************************************************************************/
-
-#endif /* GSTANDARDTEST_HPP_ */

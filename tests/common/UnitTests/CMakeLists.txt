@@ -33,7 +33,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(CommonStandardTests)
+	PROJECT(GCommonStandardTests)
 
 	# For building the tests independently, we still assume that the
 	# current source folder is still part of the Geneva tree structure,
@@ -49,7 +49,7 @@ ENDIF ()
 SET ( EXECUTABLENAME CommonStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	CommonStandardTests
+        GCommonStandardTests
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -72,6 +72,6 @@ INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/gen
 
 ADD_CUSTOM_TARGET( "tests-common-unit"
 	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS CommonStandardTests
+	DEPENDS GCommonStandardTests
 	COMMENT "Building the unit tests for the \"common\" library."
 )

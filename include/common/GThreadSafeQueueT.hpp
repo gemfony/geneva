@@ -67,8 +67,7 @@
  * ***************************************************************************
  */
 
-#ifndef GTHREADSAFEQUEUET_HPP_
-#define GTHREADSAFEQUEUET_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -825,5 +824,3 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GTHREADSAFEQUEUET_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef INCLUDE_COMMON_GTYPETRAITST_HPP_
-#define INCLUDE_COMMON_GTYPETRAITST_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -152,5 +151,3 @@ public:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* INCLUDE_COMMON_GTYPETRAITST_HPP_ */

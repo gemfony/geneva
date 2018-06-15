@@ -42,7 +42,7 @@ using namespace boost::unit_test;
 #include "../../GStarterIndividual.hpp"
 
 // Contains the necessary tests
-#include "geneva/tests/GStandard_test.hpp"
+#include "geneva/tests/Geneva_tests.hpp"
 
 using namespace Gem;
 using namespace Gem::Hap;

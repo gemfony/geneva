@@ -58,10 +58,8 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCOMMONENUMS_HPP_
-#define GCOMMONENUMS_HPP_
+#pragma once
 
-// Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
@@ -254,5 +252,3 @@ const unsigned int DEFAULTMAXNHARDWARETHREADS = 4;
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GCOMMONENUMS_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GFIXEDSIZEPRIORITYQUEUET_HPP_
-#define GFIXEDSIZEPRIORITYQUEUET_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -575,5 +574,3 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GFIXEDSIZEPRIORITYQUEUET_HPP_ */

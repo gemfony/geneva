@@ -58,8 +58,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GSINGLETONT_HPP_
-#define GSINGLETONT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -150,5 +149,3 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GSINGLETONT_HPP_ */

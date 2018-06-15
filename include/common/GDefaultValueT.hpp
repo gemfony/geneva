@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GDEFAULTVALUE_HPP_
-#define GDEFAULTVALUE_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -85,5 +84,3 @@ struct GDefaultValueT<std::string> {
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GDEFAULTVALUE_HPP_ */

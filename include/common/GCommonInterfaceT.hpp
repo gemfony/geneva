@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCOMMONINTERFACET_HPP_
-#define GCOMMONINTERFACET_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -528,5 +527,3 @@ struct is_abstract< const Gem::Common::GCommonInterfaceT<g_class_type>> : public
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-#endif /* GCOMMONINTERFACET_HPP_ */

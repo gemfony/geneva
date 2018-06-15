@@ -58,8 +58,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GEXCEPTIONSTREAMER_HPP_
-#define GEXCEPTIONSTREAMER_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -565,5 +564,3 @@ using log_singleton = Gem::Common::GSingletonT<Gem::Common::GLogger<Gem::Common:
 #define GSTDERR      Gem::Common::GManipulator( LOCATIONSTRING, Gem::Common::logType::STDERR)
 
 /******************************************************************************/
-
-#endif /* GEXCEPTIONSTREAMER_HPP_ */

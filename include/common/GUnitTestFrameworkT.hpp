@@ -38,8 +38,7 @@
  * in order to facilitate unit tests.
  */
 
-#ifndef GUNITTESTFRAMEWORKT_HPP_
-#define GUNITTESTFRAMEWORKT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -82,5 +81,3 @@ std::shared_ptr <T> TFactory_GUnitTests() {
 }
 
 /******************************************************************************/
-
-#endif /* GUNITTESTFRAMEWORKT_HPP_ */

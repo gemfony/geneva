@@ -60,8 +60,7 @@
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  */
 
-#ifndef GCOMMONMATHHELPERFUNCTIONS_HPP_
-#define GCOMMONMATHHELPERFUNCTIONS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -209,5 +208,3 @@ G_API_COMMON double gsigmoid(const double &, const double &, const double &);
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GCOMMONMATHHELPERFUNCTIONS_HPP_ */

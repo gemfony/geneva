@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GSERIALIZETUPLET_HPP_
-#define GSERIALIZETUPLET_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -180,5 +179,3 @@ void serialize(archive &ar, std::tuple<T0, T1, T2, T3, T4, T5> &tpl, unsigned in
 
 } /* namespace serialization */
 } /* namespace boost */
-
-#endif /* GSERIALIZETUPLET_HPP_ */

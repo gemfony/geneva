@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCANVAS_HPP_
-#define GCANVAS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1087,5 +1086,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GColumn)
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas8)
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas16)
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GCanvas24)
-
-#endif /* GCANVAS_HPP_ */

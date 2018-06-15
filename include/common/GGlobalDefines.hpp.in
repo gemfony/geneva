@@ -49,8 +49,7 @@
  * the Boost version being used are done here.
  */
 
-#ifndef GGLOBALDEFINES_HPP_
-#define GGLOBALDEFINES_HPP_
+#pragma once
 
 //-----------------------------------------------------------
 // For Microsoft-compatible compilers
@@ -142,5 +141,3 @@
 #endif
 
 //-----------------------------------------------------------
-
-#endif /* GGLOBALDEFINES_HPP_ */

@@ -2,7 +2,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( OPTTESTINCLUDES
 	GEqualityPrinter.hpp
-	GStandard_test.hpp
+    Geneva_tests.hpp
 )
 
 INSTALL ( FILES ${OPTTESTINCLUDES} DESTINATION ${INSTALL_PREFIX_INCLUDES}/geneva/tests )

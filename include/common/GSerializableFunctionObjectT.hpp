@@ -32,9 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GSERIALIZABLEFUNCTIONOBJECT_HPP
-#define GENEVA_LIBRARY_COLLECTION_GSERIALIZABLEFUNCTIONOBJECT_HPP
-
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -200,5 +198,3 @@ struct is_abstract< const Gem::Common::GSerializableFunctionObjectT<processable_
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-#endif /* GENEVA_LIBRARY_COLLECTION_GSERIALIZABLEFUNCTIONOBJECT_HPP */

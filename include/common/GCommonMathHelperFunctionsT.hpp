@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCOMMONMATHHELPERFUNCTIONST_HPP_
-#define GCOMMONMATHHELPERFUNCTIONST_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -957,5 +956,3 @@ bool isClose(
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GCOMMONMATHHELPERFUNCTIONST_HPP_ */

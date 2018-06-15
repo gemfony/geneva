@@ -33,7 +33,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(GRandomTest)
+	PROJECT(GRandomStandardTests)
 
 	# For building the tests independently, we still assume that the
 	# current source folder is still part of the Geneva tree structure,
@@ -46,10 +46,10 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-SET ( EXECUTABLENAME GRandomTest )
+SET ( EXECUTABLENAME GHapStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GRandomTest
+    GHapStandardTests
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -60,8 +60,6 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${GENEVA_LIBRARIES}
 	${Boost_LIBRARIES}
 )
-
-#ADD_SUBDIRECTORY (config)
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
@@ -74,6 +72,6 @@ INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/hap
 
 ADD_CUSTOM_TARGET( "tests-hap-unit"
 	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GRandomTest
+	DEPENDS GHapStandardTests
 	COMMENT "Building the unit tests for the Hap library."
 )

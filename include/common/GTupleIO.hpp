@@ -58,8 +58,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GTUPLEIO_HPP_
-#define GTUPLEIO_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -209,5 +208,3 @@ std::ostream& operator<<(
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GTUPLEIO_HPP_ */

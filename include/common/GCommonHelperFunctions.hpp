@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCOMMONHELPERFUNCTIONS_HPP_
-#define GCOMMONHELPERFUNCTIONS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -164,5 +163,3 @@ void condnotset(const std::string&, const std::string&);
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GCOMMONHELPERFUNCTIONS_HPP_ */

@@ -32,9 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GGLOBALOPTIONST_HPP_
-#define GGLOBALOPTIONST_HPP_
-
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -285,5 +283,3 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GGLOBALOPTIONST_HPP_ */

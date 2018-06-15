@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
-#define INCLUDE_COMMON_GTYPETOSTRINGT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -119,5 +118,3 @@ struct GTypeToStringT<std::string> {
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* INCLUDE_COMMON_GTYPETOSTRINGT_HPP_ */

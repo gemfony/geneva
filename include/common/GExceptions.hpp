@@ -81,8 +81,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GEXCEPTIONS_HPP_
-#define GEXCEPTIONS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -162,5 +161,3 @@ public:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-#endif /* GEXCEPTIONS_HPP_ */

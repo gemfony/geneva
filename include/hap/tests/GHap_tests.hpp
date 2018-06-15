@@ -1,5 +1,7 @@
 /**
- * @file GRandom_test.cpp
+ * @file GHap_tests.hpp
+ *
+ * Tests for the hap library
  */
 
 /*
@@ -32,8 +34,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GRANDOM_TEST_HPP_
-#define GRANDOM_TEST_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -46,7 +47,6 @@
 #include <algorithm>
 
 // Boost header files go here
-
 #include <boost/test/unit_test.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -62,18 +62,22 @@ using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
 
 /********************************************************************************************/
-// The actual unit tests for this class
-class GRandom_test {
+/**
+ * The unit tests for this library
+ */
+class GHap_tests {
 public:
 	/***********************************************************************************/
 	// The default constructor
-	GRandom_test():
+	GHap_tests():
 		nTests_(100000)
 		, nSeeds_(100000)
 	{ /* empty */ }
 
 	/***********************************************************************************/
-	// Test features that are expected to work
+	/**
+	 * Test of features that are expected to work
+	 */
 	void no_failure_expected() {
 		using namespace Gem::Hap;
 
@@ -196,7 +200,9 @@ public:
 	}
 
 	/***********************************************************************************/
-	// Test features that are expected to fail
+	/**
+	 * Test features that are expected to fail
+	 */
 	void failures_expected() {
 		{ /* nothing */ }
 	}
@@ -208,18 +214,20 @@ private:
 };
 
 /********************************************************************************************/
-// This test suite checks as much as possible of the functionality provided
-// by the GRandom class. Please also have a look at the histograms created
-// in the "manual" test section.
+/**
+ * This test suite checks as much as possible of the functionality provided
+ + by the Hap library. Please also have a look at the histograms created
+ * in the "manual" test section.
+ */
 class GHapSuite: public test_suite
 {
 public:
 	GHapSuite() :test_suite("GHapSuite") {
 		// create an instance of the test cases class
-		boost::shared_ptr<GRandom_test> instance(new GRandom_test());
+		boost::shared_ptr<GHap_tests> instance(new GHap_tests());
 
-		test_case* GRandom_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GRandom_test::no_failure_expected, instance);
-		test_case* GRandom_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GRandom_test::failures_expected, instance);
+		test_case* GRandom_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GHap_tests::no_failure_expected, instance);
+		test_case* GRandom_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GHap_tests::failures_expected, instance);
 
 		add(GRandom_no_failure_expected_test_case);
 		add(GRandom_failures_expected_test_case);
@@ -227,5 +235,3 @@ public:
 };
 
 /********************************************************************************************/
-
-#endif /* GRANDOM_TEST_HPP_ */

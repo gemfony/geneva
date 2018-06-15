@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GEXPECTATIONCHECKST_HPP_
-#define GEXPECTATIONCHECKST_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1283,5 +1282,3 @@ void compare_base(
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GEXPECTATIONCHECKST_HPP_ */

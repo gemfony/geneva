@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GERRORSTREAMER_HPP_
-#define GERRORSTREAMER_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -186,6 +185,4 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-#endif /* GERRORSTREAMER_HPP_ */
 

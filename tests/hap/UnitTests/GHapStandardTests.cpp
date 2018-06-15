@@ -1,5 +1,5 @@
 /**
- * @file GRandomTest.hpp
+ * @file GHapTest.hpp
  */
 
 /*
@@ -40,7 +40,7 @@ using namespace boost::unit_test;
 // Boost headers go here
 
 // This file holds the actual random tests
-#include "GRandomTestHeaders/GRandom_test.hpp"
+#include "hap/tests/GHap_tests.hpp"
 
 // Test program entry point
 test_suite* init_unit_test_suite(int argc, char** const argv) {

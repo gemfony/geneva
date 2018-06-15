@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GSTDPTRVECTORINTERFACET_HPP_
-#define GSTDPTRVECTORINTERFACET_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1015,5 +1014,3 @@ struct is_abstract<const Gem::Common::GStdPtrVectorInterfaceT<T, B>> : public bo
 }
 
 /******************************************************************************/
-
-#endif /* GSTDPTRVECTORINTERFACET_HPP_ */

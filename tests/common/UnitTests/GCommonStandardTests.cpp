@@ -40,10 +40,10 @@ using namespace boost::unit_test;
 // Boost headers go here
 
 // This file holds the actual random tests
-#include "CommonTestHeaders/common_tests.hpp"
+#include "common/tests/common_tests.hpp"
 
 // Test program entry point
 test_suite* init_unit_test_suite(int argc, char** const argv) {
-	framework::master_test_suite().add(new GHapSuite());
+	framework::master_test_suite().add(new GCommonSuite());
 	return 0;
 }

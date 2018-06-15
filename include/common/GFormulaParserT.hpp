@@ -62,8 +62,7 @@
  * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE.
  */
 
-#ifndef GFORMULAPARSERT_HPP_
-#define GFORMULAPARSERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -996,5 +995,3 @@ G_API_COMMON void swap(Gem::Common::ast_expression &, Gem::Common::ast_expressio
 
 } /* namespace spirit */
 } /* namespace boost */
-
-#endif /* GFORMULAPARSERT_HPP_ */

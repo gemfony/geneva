@@ -71,7 +71,7 @@ using namespace boost::unit_test;
 #include "geneva-individuals/GDelayIndividual.hpp"
 #include "geneva-individuals/GExternalEvaluatorIndividual.hpp"
 
-#include "geneva/tests/GStandard_test.hpp"
+#include "geneva/tests/Geneva_tests.hpp"
 
 using namespace Gem::Geneva;
 

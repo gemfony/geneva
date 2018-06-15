@@ -73,8 +73,7 @@
  * ***************************************************************************
  */
 
-#ifndef GBOUNDEDBUFFERT_HPP_
-#define GBOUNDEDBUFFERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -485,5 +484,3 @@ protected:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GBOUNDEDBUFFERT_HPP_ */

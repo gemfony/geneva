@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPLOTDESIGNER_HPP_
-#define GPLOTDESIGNER_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -3813,5 +3812,3 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GPLOTDESIGNER_HPP_ */

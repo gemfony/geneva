@@ -52,5 +52,5 @@ ADD_CUSTOM_TARGET( "tests-common"
 	COMMENT "Building all the tests for the Common library."
 )
 
-#ADD_SUBDIRECTORY ( UnitTests )
+ADD_SUBDIRECTORY ( UnitTests )
 ADD_SUBDIRECTORY ( ManualTests )

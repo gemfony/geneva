@@ -32,9 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARSERBUILDER_HPP_
-#define GPARSERBUILDER_HPP_
-
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -2479,5 +2477,3 @@ void configureFromFile(
 
 } /* namespace Common */
 } /* namespace Gem */
-
-#endif /* GPARSERBUILDER_HPP_ */
