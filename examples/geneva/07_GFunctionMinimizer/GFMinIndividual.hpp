@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GFMININDIVIDUAL_HPP_
-#define GFMININDIVIDUAL_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -204,5 +203,3 @@ private:
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GFMinIndividual)
-
-#endif /* GFMININDIVIDUAL_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GWEBSOCKETCONSUMERT_HPP_
-#define GENEVA_LIBRARY_COLLECTION_GWEBSOCKETCONSUMERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1503,4 +1502,3 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GENEVA_LIBRARY_COLLECTION_GWEBSOCKETCONSUMERT_HPP_ */

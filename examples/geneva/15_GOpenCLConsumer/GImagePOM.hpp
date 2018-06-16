@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GIMAGEPOM_HPP_
-#define GIMAGEPOM_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -389,4 +388,3 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GIMAGEPOM_HPP_ */

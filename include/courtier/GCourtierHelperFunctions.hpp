@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCOURTIERHELPERFUNCTIONS_HPP_
-#define GCOURTIERHELPERFUNCTIONS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -90,5 +89,3 @@ G_API_COURTIER std::string pcToStr(const networked_consumer_payload_command&);
 
 } /* namespace Courtier */
 } /* namespace Gem */
-
-#endif /* GCOURTIERHELPERFUNCTIONS_HPP_ */

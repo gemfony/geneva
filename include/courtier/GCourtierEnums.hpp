@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCOURTIERENUMS_HPP_
-#define GCOURTIERENUMS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -268,4 +267,3 @@ G_API_COURTIER std::istream& operator>>(std::istream&, Gem::Courtier::consumerTy
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GCOURTIERENUMS_HPP_ */

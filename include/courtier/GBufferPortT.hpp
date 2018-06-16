@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GBUFFERPORTT_HPP_
-#define GBUFFERPORTT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -386,4 +385,3 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GBUFFERPORTT_HPP_ */

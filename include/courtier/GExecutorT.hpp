@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GEXECUTOR_HPP_
-#define GEXECUTOR_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -2624,4 +2623,3 @@ struct is_abstract<const Gem::Courtier::GBaseExecutorT<processable_type>> : publ
 
 /******************************************************************************/
 
-#endif /* GEXECUTOR_HPP_ */

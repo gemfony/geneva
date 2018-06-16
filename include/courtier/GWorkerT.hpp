@@ -33,8 +33,7 @@
  */
 
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GWORKERT_HPP
-#define GENEVA_LIBRARY_COLLECTION_GWORKERT_HPP
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -610,4 +609,3 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GENEVA_LIBRARY_COLLECTION_GWORKERT_HPP */

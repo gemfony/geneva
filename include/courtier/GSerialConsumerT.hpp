@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GSERIALCONSUMERT_HPP_
-#define GSERIALCONSUMERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -311,4 +310,3 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GSERIALCONSUMERT_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GASIOCONSUMERT_HPP_
-#define GASIOCONSUMERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1182,4 +1181,3 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GASIOCONSUMERT_HPP_ */

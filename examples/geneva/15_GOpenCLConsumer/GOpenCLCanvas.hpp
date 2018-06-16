@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOPENCLCANVAS_HPP_
-#define GOPENCLCANVAS_HPP_
+#pragma once
 
 // Standard header files go here
 #include <tuple>
@@ -131,4 +130,3 @@ float operator-(const GOpenCLCanvas&, const GOpenCLCanvas&);
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOpenCLCanvas);
 
-#endif /* GOPENCLCANVAS_HPP_ */

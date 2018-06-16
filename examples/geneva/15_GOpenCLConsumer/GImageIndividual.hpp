@@ -33,8 +33,7 @@
  */
 
 
-#ifndef GIMAGEINDIVIDUAL_HPP_
-#define GIMAGEINDIVIDUAL_HPP_
+#pragma once
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -338,4 +337,3 @@ template <> std::shared_ptr<Gem::Geneva::GImageIndividual> TFactory_GUnitTests<G
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GImageIndividual)
 
-#endif /* GIMAGEINDIVIDUAL_HPP_ */

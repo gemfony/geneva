@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GSTARTERINDIVIDUAL_HPP_
-#define GSTARTERINDIVIDUAL_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -312,4 +311,3 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStarterIndividual)
 
-#endif /* GSTARTERINDIVIDUAL_HPP_ */

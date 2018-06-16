@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARABOLOIDINDIVIDUAL_HPP_
-#define GPARABOLOIDINDIVIDUAL_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -155,4 +154,3 @@ std::ostream& operator<<(std::ostream&, std::shared_ptr<Gem::Geneva::GMultiCrite
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMultiCriterionParabolaIndividual)
 
-#endif /* GPARABOLOIDINDIVIDUAL_HPP_ */

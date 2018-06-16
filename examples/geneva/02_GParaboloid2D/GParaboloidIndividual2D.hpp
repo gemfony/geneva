@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARABOLOIDINDIVIDUAL2D_HPP_
-#define GPARABOLOIDINDIVIDUAL2D_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -104,4 +103,3 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParaboloidIndividual2D)
 
-#endif /* GPARABOLOIDINDIVIDUAL2D_HPP_ */

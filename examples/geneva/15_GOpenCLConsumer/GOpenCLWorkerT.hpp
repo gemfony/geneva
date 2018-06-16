@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOPENCLWORKER_HPP_
-#define GOPENCLWORKER_HPP_
+#pragma once
 
 // Standard headers go here
 #include <string>
@@ -327,4 +326,3 @@ public:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GOPENCLWORKER_HPP_ */

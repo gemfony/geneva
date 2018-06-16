@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GIMAGEOPENCLWORKER_HPP_
-#define GIMAGEOPENCLWORKER_HPP_
+#pragma once
 
 // Includes check for correct Boost version(s)
 #include "common/GGlobalDefines.hpp"
@@ -213,4 +212,3 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GIMAGEOPENCLWORKER_HPP_ */

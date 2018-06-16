@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GBASECLIENTT_HPP_
-#define GBASECLIENTT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -458,4 +457,3 @@ private:
 } /* namespace Courtier */
 } /* namespace Gem */
 
-#endif /* GBASECLIENTT_HPP_ */
