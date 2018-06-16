@@ -112,7 +112,7 @@ public:
 			 // This timing may be wrong if the submission has blocked.
 			 item_ptr->markRawSubmissionTime();
 			 // The actual submission
-			 m_raw_ptr->push_and_block(item_ptr);
+			 m_raw_ptr->push_and_block_copy(item_ptr);
 		 }
 	 }
 
@@ -134,7 +134,7 @@ public:
 			 // Make it known to the work item when it has left its origin
 			 item_ptr->markRawSubmissionTime();
 			 // The actual submission
-			 success = m_raw_ptr->push_and_wait(item_ptr, timeout);
+			 success = m_raw_ptr->push_and_wait_copy(item_ptr, timeout);
 
 #ifdef DEBUG
 			 // Items may be lost here. This should be a very rare occasion. Emit
@@ -228,7 +228,7 @@ public:
 			 // This timing may be wrong if the submission has blocked.
 			 item_ptr->markProcSubmissionTime();
 			 // The actual submission
-			 m_processed_ptr->push_and_block(item_ptr);
+			 m_processed_ptr->push_and_block_copy(item_ptr);
 		 }
 	 }
 
@@ -250,7 +250,7 @@ public:
 			 // Make it known to the work item when it has entered the processed queue
 			 item_ptr->markProcSubmissionTime();
 			 // The actual submission
-			 success = m_processed_ptr->push_and_wait(item_ptr, timeout);
+			 success = m_processed_ptr->push_and_wait_copy(item_ptr, timeout);
 
 #ifdef DEBUG
 			 // Items may be lost here. This should be a very rare occasion. Emit

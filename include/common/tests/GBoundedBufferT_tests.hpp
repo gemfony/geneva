@@ -23,19 +23,19 @@ namespace Tests {
 struct copy_only_struct {
 public:
 	 copy_only_struct() = delete;
-	 copy_only_struct(std::uint16_t secret) : m_secret(secret) { /* nothing */ }
+	 copy_only_struct(std::size_t secret) : m_secret(secret) { /* nothing */ }
 	 copy_only_struct(const copy_only_struct& cp) = default;
 	 copy_only_struct(copy_only_struct&&) = delete;
 
 	 copy_only_struct& operator=(copy_only_struct& cp) = default;
 	 copy_only_struct& operator=(copy_only_struct&& cp) = delete;
 
-	 std::uint16_t getSecret() const {
+	 std::size_t getSecret() const {
 		 return m_secret;
 	 }
 
 private:
-	 std::uint16_t m_secret = 0;
+	 std::size_t m_secret = 0;
 };
 
 /******************************************************************************/
@@ -45,7 +45,7 @@ private:
 struct move_only_struct {
 public:
 	 move_only_struct() = delete;
-	 move_only_struct(std::uint16_t secret) : m_secret(secret) { /* nothing */ }
+	 move_only_struct(std::size_t secret) : m_secret(secret) { /* nothing */ }
 	 move_only_struct(const move_only_struct& cp) = delete;
 	 move_only_struct(move_only_struct&& cp) {
 		 m_secret = cp.m_secret;
@@ -58,12 +58,12 @@ public:
 		 cp.m_secret = 0;
 	 }
 
-	 std::uint16_t getSecret() const {
+	 std::size_t getSecret() const {
 		 return m_secret;
 	 }
 
 private:
-	 std::uint16_t m_secret = 0;
+	 std::size_t m_secret = 0;
 };
 
 /******************************************************************************/
@@ -171,7 +171,37 @@ public:
 		 //----------------------------------------------------------------------
 
 		 { // Test adding work items to the queue
+		 	 //------------------------------------------
+			 // First to an unbounded queue with copy_only_struct
 
+			 GBoundedBufferT<copy_only_struct, 0> gbt_co_unbounded;
+
+			 bool push_succeeded = false;
+			 for(std::size_t i=0; i<2*DEFAULTBUFFERSIZE; i++) {
+				 	copy_only_struct c(i);
+					BOOST_CHECK_NO_THROW(push_succeeded = gbt_co_unbounded.try_push_copy(c));
+					BOOST_CHECK(push_succeeded);
+					BOOST_CHECK(gbt_co_unbounded.size() == i+1);
+
+					push_succeeded = false;
+			 }
+
+			 //------------------------------------------
+			 // Next with an unbounded queue with move_only_struct
+
+			 GBoundedBufferT<move_only_struct, 0> gbt_mo_unbounded;
+
+			 push_succeeded = false;
+			 for(std::size_t i=0; i<2*DEFAULTBUFFERSIZE; i++) {
+				 move_only_struct m(i);
+				 BOOST_CHECK_NO_THROW(push_succeeded = gbt_mo_unbounded.try_push_move(std::move(m)));
+				 BOOST_CHECK(push_succeeded);
+				 BOOST_CHECK(gbt_mo_unbounded.size() == i+1);
+
+				 push_succeeded = false;
+			 }
+
+			 //------------------------------------------
 		 }
 
 		 //----------------------------------------------------------------------

@@ -115,7 +115,7 @@ public:
 	 */
 	virtual ~GRandomT() {
 		if (m_p) {
-			m_grf->returnUsedPackage(m_p);
+			m_grf->returnUsedPackage(std::move(m_p));
 		}
 		m_grf.reset();
 	}
@@ -142,7 +142,7 @@ protected:
 	virtual GRandomBase::result_type int_random() {
 		if (m_p->empty()) {
 			// Get rid of the old container ...
-			m_grf->returnUsedPackage(m_p);
+			m_grf->returnUsedPackage(std::move(m_p));
 			// ... then get a new one
 			getNewRandomContainer();
 		}

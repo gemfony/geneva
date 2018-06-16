@@ -166,9 +166,9 @@ seed_type GRandomFactory::getSeed() {
  * @param r A pointer to a partially used work package
  * @param current_pos The first position in the array that holds unused random numbers
  */
-void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container>& p) {
+void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container>&& p) {
 	// We try to add the item to the m_p_ret_bfr queue.
-	if(!m_p_ret_bfr.try_push(p)) {
+	if(!m_p_ret_bfr.try_push_move(std::move(p))) {
 		p.reset();
 	}
 }
@@ -316,7 +316,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 
 			// Try to submit the item and check for termination conditions along the way
 			while(!m_threads_stop_requested) {
-				if(!m_p_fresh_bfr.try_push(p)){
+				if(!m_p_fresh_bfr.try_push_move(std::move(p))){
 #ifdef DEBUG
 					// p should never be empty here
 					if(!p) {

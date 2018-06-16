@@ -63,7 +63,6 @@ SET ( GENEVACOMMONINCLUDES
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GThreadPool.hpp
-    GThreadSafeQueueT.hpp
     GTupleIO.hpp
     GTypeToStringT.hpp
 	GTypeTraitsT.hpp
