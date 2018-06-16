@@ -459,6 +459,15 @@ public:
 
 	 /***************************************************************************/
 	 /**
+	  * Checks whether the queue is empty
+	  */
+	 bool empty() const {
+		 std::unique_lock<std::mutex> lock(m_mutex);
+	 	 return m_container.empty();
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Returns whether the buffer is empty or not. Note that the buffer
 	  * contents may change immediately after this function has
 	  * completed, this value should therefore only be taken as an
@@ -469,6 +478,14 @@ public:
 	 bool isNotEmpty() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 return !m_container.empty();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks whether this is a bounded queue
+	  */
+	 bool isBounded() const noexcept {
+	 	return (t_capacity > 0);
 	 }
 
 protected:

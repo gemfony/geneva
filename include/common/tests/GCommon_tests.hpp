@@ -45,40 +45,18 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <memory>
 
 // Boost header files go here
 
 // Geneva header files go here
-#include "common/GBoundedBufferT.hpp"
+#include "common/tests/GBoundedBufferT_tests.hpp"
 
 using namespace Gem::Common;
+using namespace Gem::Common::Tests;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
-
-/********************************************************************************************/
-/**
- * The unit tests for this library
- */
-class GCommon_tests
-{
-public:
-	 /***********************************************************************************/
-	 /**
-	  * Test of features that are expected to work
-	  */
-	 void no_failure_expected() {
-		 { /* nothing */ }
-	 }
-
-	 /***********************************************************************************/
-	 /**
-	  * Test features that are expected to fail
-	  */
-	 void failures_expected() {
-		 { /* nothing */ }
-	 }
-};
 
 /********************************************************************************************/
 /**
@@ -90,13 +68,15 @@ class GCommonSuite: public test_suite
 public:
 	 GCommonSuite() :test_suite("GCommonSuite") {
 		 // create an instance of the test cases class
-		 boost::shared_ptr<GCommon_tests> instance(new GCommon_tests());
+		 boost::shared_ptr<GBoundedBufferT_tests> instance(new GBoundedBufferT_tests());
 
-		 test_case* GCommon_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GCommon_tests::no_failure_expected, instance);
-		 test_case* GCommon_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GCommon_tests::failures_expected, instance);
+		 test_case* GBoundedBufferT_no_failure_expected_test_case
+			 = BOOST_CLASS_TEST_CASE(&GBoundedBufferT_tests::no_failure_expected, instance);
+		 test_case* GBoundedBufferT_failures_expected_test_case
+			 = BOOST_CLASS_TEST_CASE(&GBoundedBufferT_tests::failures_expected, instance);
 
-		 add(GCommon_no_failure_expected_test_case);
-		 add(GCommon_failures_expected_test_case);
+		 add(GBoundedBufferT_no_failure_expected_test_case);
+		 add(GBoundedBufferT_failures_expected_test_case);
 	 }
 };
 
