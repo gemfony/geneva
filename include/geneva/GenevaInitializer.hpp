@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef INCLUDE_GENEVA_GENEVA_HPP_
-#define INCLUDE_GENEVA_GENEVA_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -103,4 +102,3 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* INCLUDE_GENEVA_GENEVA_HPP_ */

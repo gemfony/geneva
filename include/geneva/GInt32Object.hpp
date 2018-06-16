@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GINT32OBJECT_HPP_
-#define GINT32OBJECT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -167,4 +166,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32Object)
 
-#endif /* GINT32OBJECT_HPP_ */

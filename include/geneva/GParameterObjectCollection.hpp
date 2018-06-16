@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETROBJECTCOLLECTION_HPP_
-#define GPARAMETROBJECTCOLLECTION_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -157,5 +156,3 @@ public:
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterObjectCollection)
-
-#endif /* GPARAMETROBJECTCOLLECTION_HPP_ */

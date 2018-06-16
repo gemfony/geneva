@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCONSTRAINEDINTEGERT_HPP_
-#define GCONSTRAINEDINTEGERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -586,5 +585,3 @@ template<typename int_type>
 struct is_abstract< const Gem::Geneva::GConstrainedIntT<int_type>> : public boost::true_type {};
 }
 }
-
-#endif /* GCONSTRAINEDINTEGERT_HPP_ */

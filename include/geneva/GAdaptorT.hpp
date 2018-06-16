@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GADAPTORT_HPP_
-#define GADAPTORT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1439,4 +1438,3 @@ struct is_abstract<const Gem::Geneva::GAdaptorT<T>> : public boost::true_type
 
 /******************************************************************************/
 
-#endif /* GADAPTORT_HPP_ */

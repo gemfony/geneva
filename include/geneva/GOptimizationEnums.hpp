@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOPTIMIZATIONENUMS_HPP_
-#define GOPTIMIZATIONENUMS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -643,4 +642,3 @@ G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::adaptionMode&)
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GOPTIMIZATIONENUMS_HPP_ */

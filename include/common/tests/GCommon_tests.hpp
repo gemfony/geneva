@@ -49,8 +49,9 @@
 // Boost header files go here
 
 // Geneva header files go here
+#include "common/GBoundedBufferT.hpp"
 
-using namespace Gem::Hap;
+using namespace Gem::Common;
 
 using boost::unit_test_framework::test_suite;
 using boost::unit_test_framework::test_case;
@@ -91,11 +92,11 @@ public:
 		 // create an instance of the test cases class
 		 boost::shared_ptr<GCommon_tests> instance(new GCommon_tests());
 
-		 test_case* GRandom_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GCommon_tests::no_failure_expected, instance);
-		 test_case* GRandom_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GCommon_tests::failures_expected, instance);
+		 test_case* GCommon_no_failure_expected_test_case = BOOST_CLASS_TEST_CASE(&GCommon_tests::no_failure_expected, instance);
+		 test_case* GCommon_failures_expected_test_case = BOOST_CLASS_TEST_CASE(&GCommon_tests::failures_expected, instance);
 
-		 add(GRandom_no_failure_expected_test_case);
-		 add(GRandom_failures_expected_test_case);
+		 add(GCommon_no_failure_expected_test_case);
+		 add(GCommon_failures_expected_test_case);
 	 }
 };
 

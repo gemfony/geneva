@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GENEVAHELPERFUNCTIONS_HPP
-#define GENEVA_LIBRARY_COLLECTION_GENEVAHELPERFUNCTIONS_HPP
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -101,5 +100,3 @@ G_API_GENEVA bool isWorse(
 } /* namespace Geneva */
 } /* namespace Gem */
 
-
-#endif /* GENEVA_LIBRARY_COLLECTION_GENEVAHELPERFUNCTIONS_HPP */

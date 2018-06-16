@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GFPBIGAUSSADAPTORT_HPP_
-#define GFPBIGAUSSADAPTORT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -315,4 +314,3 @@ struct is_abstract< const Gem::Geneva::GFPBiGaussAdaptorT<fp_type>> : public boo
 
 /******************************************************************************/
 
-#endif /* GFPBIGAUSSADAPTORT_HPP_ */

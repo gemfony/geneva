@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GNUMINTT_HPP_
-#define GNUMINTT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -409,4 +408,3 @@ struct is_abstract< const Gem::Geneva::GNumIntT<int_type>> : public boost::true_
 
 /******************************************************************************/
 
-#endif /* GNUMINTT_HPP_ */

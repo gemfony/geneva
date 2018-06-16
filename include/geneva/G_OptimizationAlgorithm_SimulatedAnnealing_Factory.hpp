@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef G_OA_SIMULATEDANNEALINGFACTORY_HPP
-#define G_OA_SIMULATEDANNEALINGFACTORY_HPP
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -102,4 +101,3 @@ protected:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* G_OA_SIMULATEDANNEALINGFACTORY_HPP */

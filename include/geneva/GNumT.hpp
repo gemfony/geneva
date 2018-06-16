@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GNUMT_HPP_
-#define GNUMT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -435,4 +434,3 @@ struct is_abstract< const Gem::Geneva::GNumT<T>> : public boost::true_type {};
 
 /******************************************************************************/
 
-#endif /* GNUMT_HPP_ */

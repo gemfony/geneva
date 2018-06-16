@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP
-#define GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -326,4 +325,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithmPostOptimizer)
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-#endif /* GENEVA_LIBRARY_COLLECTION_GPOSTOPTIMIZERS_HPP */

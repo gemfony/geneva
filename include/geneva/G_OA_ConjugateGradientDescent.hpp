@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef G_OA_CONJUGATEGRADIENTDESCENT_HPP_
-#define G_OA_CONJUGATEGRADIENTDESCENT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -159,4 +158,3 @@ public
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConjugateGradientDescent)
 
-#endif /* G_OA_CONJUGATEGRADIENTDESCENT_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCONSTRAINEDNUMT_HPP_
-#define GCONSTRAINEDNUMT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -872,4 +871,3 @@ struct is_abstract< const Gem::Geneva::GConstrainedNumT<T>> : public boost::true
 
 /******************************************************************************/
 
-#endif /* GCONSTRAINEDNUMT_HPP_ */

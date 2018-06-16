@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GSWARMPERSONALITYTRAITS_HPP_
-#define GSWARMPERSONALITYTRAITS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -151,5 +150,4 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSwarmAlgorithm_PersonalityTraits)
 
-#endif /* GSWARMPERSONALITYTRAITS_HPP_ */
 

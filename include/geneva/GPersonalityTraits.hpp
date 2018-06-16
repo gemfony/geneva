@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPERSONALITYTRAITS_HPP_
-#define GPERSONALITYTRAITS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -126,4 +125,3 @@ public:
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GPersonalityTraits)
 /******************************************************************************/
 
-#endif /* GPERSONALITYTRAITS_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GNUMBIGAUSSADAPTORT_HPP_
-#define GNUMBIGAUSSADAPTORT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -852,4 +851,3 @@ struct is_abstract< const Gem::Geneva::GNumBiGaussAdaptorT<num_type, fp_type>> :
 
 /******************************************************************************/
 
-#endif /* GNUMBIGAUSSADAPTORT_HPP_ */

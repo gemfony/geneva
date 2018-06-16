@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCONSTRAINEDDOUBLEOBJECTCOLLECTION_HPP_
-#define GCONSTRAINEDDOUBLEOBJECTCOLLECTION_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -117,4 +116,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleObjectCollection)
 
-#endif /* GCONSTRAINEDDOUBLEOBJECTCOLLECTION_HPP_ */

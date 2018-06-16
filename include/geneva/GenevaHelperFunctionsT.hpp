@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GENEVAHELPERFUNCTIONST_HPP_
-#define GENEVAHELPERFUNCTIONST_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -84,4 +83,3 @@ template <> G_API_GENEVA std::shared_ptr<GAdaptorT<bool>> getDefaultAdaptor<bool
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GENEVAHELPERFUNCTIONST_HPP_ */

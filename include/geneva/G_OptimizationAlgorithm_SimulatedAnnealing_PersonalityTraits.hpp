@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP
-#define GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -119,4 +118,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSimulatedAnnealing_PersonalityTraits)
 
-#endif //GENEVA_LIBRARY_COLLECTION_G_OA_SIMULATEDANNEALING_PT_HPP

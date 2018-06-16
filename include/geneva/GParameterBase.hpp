@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETERBASE_HPP_
-#define GPARAMETERBASE_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1345,4 +1344,3 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterBase)
 
 /******************************************************************************/
 
-#endif /* GPARAMETERBASE_HPP_ */

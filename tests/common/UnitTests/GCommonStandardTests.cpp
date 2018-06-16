@@ -1,5 +1,5 @@
 /**
- * @file CommonStandardTests.hpp
+ * @file CommonStandardTests.cpp
  */
 
 /*
@@ -40,7 +40,7 @@ using namespace boost::unit_test;
 // Boost headers go here
 
 // This file holds the actual random tests
-#include "common/tests/common_tests.hpp"
+#include "common/tests/GCommon_tests.hpp"
 
 // Test program entry point
 test_suite* init_unit_test_suite(int argc, char** const argv) {

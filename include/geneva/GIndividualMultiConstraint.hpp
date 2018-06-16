@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GINDIVIDUALMULTICONSTRAINT_HPP_
-#define GINDIVIDUALMULTICONSTRAINT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -49,5 +48,3 @@
 // Make sure the instantiation with GParameterSet as template argument can be serialized
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GCheckCombinerT<Gem::Geneva::GParameterSet>)
 
-
-#endif /* GINDIVIDUALMULTICONSTRAINT_HPP_ */

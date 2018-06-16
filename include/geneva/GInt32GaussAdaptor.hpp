@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GINT32GAUSSADAPTOR_HPP_
-#define GINT32GAUSSADAPTOR_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -137,4 +136,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32GaussAdaptor)
 
-#endif /* GINT32GAUSSADAPTOR_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETERT_HPP_
-#define GPARAMETERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -391,4 +390,3 @@ struct is_abstract< const Gem::Geneva::GParameterT<T>> : public boost::true_type
 
 /******************************************************************************/
 
-#endif /* GPARAMETERT_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GINT32OBJECTCOLLECTION_HPP_
-#define GINT32OBJECTCOLLECTION_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -117,4 +116,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GInt32ObjectCollection)
 
-#endif /* GINT32OBJECTCOLLECTION_HPP_ */

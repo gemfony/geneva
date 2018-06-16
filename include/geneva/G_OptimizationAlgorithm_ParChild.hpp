@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef G_OA_PARCHILDT_HPP_
-#define G_OA_PARCHILDT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -306,4 +305,3 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_ParChil
 
 /******************************************************************************/
 
-#endif /* G_OA_PARCHILDT_HPP_ */

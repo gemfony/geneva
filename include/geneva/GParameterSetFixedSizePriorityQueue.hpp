@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETERFIXEDSIZESETPRIORITYQUEUE_HPP_
-#define GPARAMETERFIXEDSIZESETPRIORITYQUEUE_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -146,4 +145,3 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFixedSizePriorityQueue)
 
-#endif /* GPARAMETERFIXEDSIZESETPRIORITYQUEUE_HPP_ */

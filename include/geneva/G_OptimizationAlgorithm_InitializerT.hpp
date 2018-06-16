@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOAINITIALIZERT_HPP_
-#define GOAINITIALIZERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -93,4 +92,3 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GOAINITIALIZERT_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef G_OA_PARAMETERSCAN_HPP_
-#define G_OA_PARAMETERSCAN_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -822,4 +821,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::fScanPar)
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan)
 
-#endif /* G_OA_PARAMETERSCAN_HPP_ */

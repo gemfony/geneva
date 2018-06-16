@@ -2,9 +2,6 @@
  * @file GIntNumCollectionT.hpp
  */
 
-#ifndef GINTNUMCOLLECTIONT_HPP_
-#define GINTNUMCOLLECTIONT_HPP_
-
 /*
  * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
  *
@@ -34,6 +31,8 @@
  * For further information on Gemfony scientific and Geneva, visit
  * http://www.gemfony.eu .
  */
+
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -398,4 +397,3 @@ struct is_abstract< const Gem::Geneva::GIntNumCollectionT<int_type>> : public bo
 
 /******************************************************************************/
 
-#endif /* GINTNUMCOLLECTIONT_HPP_ */

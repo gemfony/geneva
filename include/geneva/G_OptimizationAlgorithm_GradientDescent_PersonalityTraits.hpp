@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GGDPERSONALITYTRAITS_HPP_
-#define GGDPERSONALITYTRAITS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -122,5 +121,4 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GGradientDescent_PersonalityTraits)
 
-#endif /* GGDPERSONALITYTRAITS_HPP_ */
 

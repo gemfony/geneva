@@ -32,6 +32,8 @@
  * http://www.gemfony.eu .
  */
 
+#pragma once
+
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
@@ -50,9 +52,6 @@
 #include <boost/mpl/list.hpp>
 #include <boost/optional.hpp>
 #include <boost/utility.hpp>
-
-#ifndef GEQUALITYPRINTER_HPP_
-#define GEQUALITYPRINTER_HPP_
 
 // Geneva headers go here
 #include "common/GStdSimpleVectorInterfaceT.hpp"
@@ -280,4 +279,3 @@ private:
 
 /*************************************************************************************************/
 
-#endif /* GEQUALITYPRINTER_HPP_ */

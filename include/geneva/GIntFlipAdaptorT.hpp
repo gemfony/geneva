@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GINTFLIPADAPTORT_HPP_
-#define GINTFLIPADAPTORT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -276,4 +275,3 @@ struct is_abstract< const Gem::Geneva::GIntFlipAdaptorT<int_type>> : public boos
 
 /******************************************************************************/
 
-#endif /* GINTFLIPADAPTORT_HPP_ */

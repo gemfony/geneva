@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETERSETMULTICONSTRAINT_HPP_
-#define GPARAMETERSETMULTICONSTRAINT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -171,4 +170,3 @@ private:
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GParameterSetConstraint)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterSetFormulaConstraint)
 
-#endif /* GPARAMETERSETMULTICONSTRAINT_HPP_ */

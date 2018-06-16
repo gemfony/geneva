@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GRATEABLEI_HPP_
-#define GRATEABLEI_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -97,4 +96,3 @@ protected:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GRATEABLEI_HPP_ */

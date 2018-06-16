@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GNUMCOLLECTIONT_HPP_
-#define GNUMCOLLECTIONT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -465,4 +464,3 @@ struct is_abstract< const Gem::Geneva::GNumCollectionT<num_type>> : public boost
 }
 /******************************************************************************/
 
-#endif /* GNUMCOLLECTIONT_HPP_ */

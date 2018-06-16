@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GBOOLEANADAPTOR_HPP_
-#define GBOOLEANADAPTOR_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -133,4 +132,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GBooleanAdaptor)
 
-#endif /* GBOOLEANADAPTOR_HPP_ */

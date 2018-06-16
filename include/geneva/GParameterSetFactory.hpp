@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GPARAMETERSETFACTORY_HPP
-#define GENEVA_LIBRARY_COLLECTION_GPARAMETERSETFACTORY_HPP
+#pragma once
 
 // Standard heders go here
 
@@ -165,4 +164,3 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GENEVA_LIBRARY_COLLECTION_GPARAMETERSETFACTORY_HPP */

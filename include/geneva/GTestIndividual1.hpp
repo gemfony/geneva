@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GTESTINDIVIDUAL1_HPP_
-#define GTESTINDIVIDUAL1_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -138,4 +137,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Tests::GTestIndividual1)
 
-#endif /* GTESTINDIVIDUAL1_HPP_ */

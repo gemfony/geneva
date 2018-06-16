@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef G_OA_EVOLUTIONARYALGORITHMFACTORY_HPP_
-#define G_OA_EVOLUTIONARYALGORITHMFACTORY_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -103,4 +102,3 @@ protected:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* G_OA_EVOLUTIONARYALGORITHMFACTORY_HPP_ */

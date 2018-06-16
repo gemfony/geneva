@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOPTIMIZATIONALGORITHMFACTORYT2_HPP_
-#define GOPTIMIZATIONALGORITHMFACTORYT2_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -423,4 +422,3 @@ private:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GOPTIMIZATIONALGORITHMFACTORYT2_HPP_ */

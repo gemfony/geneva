@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
-#define GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -83,4 +82,3 @@ public:
 } /* namespace Geneva */
 } /* namespace Gem */
 
-#endif /* GINDIVIDUALSTANDARDCONSUMERINITIALIZERT_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GINTGAUSSADAPTORT_HPP_
-#define GINTGAUSSADAPTORT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -329,5 +328,3 @@ struct is_abstract< const Gem::Geneva::GIntGaussAdaptorT<int_type>> : public boo
 }
 }
 /******************************************************************************/
-
-#endif /* GINTGAUSSADAPTORT_HPP_ */

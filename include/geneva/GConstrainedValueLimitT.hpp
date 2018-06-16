@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCONSTRAINEDVALUELIMITT_HPP_
-#define GCONSTRAINEDVALUELIMITT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -140,4 +139,3 @@ struct GConstrainedValueLimitT<bool>
 } /* Geneva */
 } /* Gem */
 
-#endif /* GCONSTRAINEDVALUELIMITT_HPP_ */

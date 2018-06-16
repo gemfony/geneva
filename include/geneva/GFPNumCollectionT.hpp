@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GNUMCOLLECTIONFPT_HPP_
-#define GNUMCOLLECTIONFPT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -577,4 +576,3 @@ struct is_abstract< const Gem::Geneva::GFPNumCollectionT<fp_type>> : public boos
 }
 /******************************************************************************/
 
-#endif /* GNUMCOLLECTIONFPT_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef G_OA_LINESEARCHT_HPP_
-#define G_OA_LINESEARCHT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -160,5 +159,3 @@ public
 
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GLineSearchT)
-
-#endif /* G_OA_LINESEARCHT_HPP_ */

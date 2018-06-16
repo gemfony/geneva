@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETERBASEWITHADAPTORST_HPP_
-#define GPARAMETERBASEWITHADAPTORST_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -601,5 +600,3 @@ struct is_abstract< const Gem::Geneva::GParameterBaseWithAdaptorsT<T>> : public 
 }
 
 /******************************************************************************/
-
-#endif /* GPARAMETERBASEWITHADAPTORST_HPP_ */

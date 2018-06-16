@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef G_OA_EVOLUTIONARYALGORITHM_HPP_
-#define G_OA_EVOLUTIONARYALGORITHM_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -230,4 +229,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GEvolutionaryAlgorithm)
 
-#endif /* G_OA_EVOLUTIONARYALGORITHM_HPP_ */

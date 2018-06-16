@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOAFACTORYSTORE_HPP_
-#define GOAFACTORYSTORE_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -53,4 +52,3 @@ using goa_factory = Gem::Geneva::G_OptimizationAlgorithm_FactoryT<Gem::Geneva::G
 using GOAStore = Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<goa_factory>> >;
 #define GOAFactoryStore GOAStore::Instance(0)
 
-#endif /* GOAFACTORYSTORE_HPP_ */

@@ -33,8 +33,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOPTIMIZATIONALGORITHMT_HPP_
-#define GOPTIMIZATIONALGORITHMT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -666,4 +665,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)
 
 /******************************************************************************/
 
-#endif /* GOPTIMIZATIONALGORITHMT_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GMUTABLEPARAMETERI_HPP_
-#define GMUTABLEPARAMETERI_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -69,4 +68,3 @@ public:
 
 /******************************************************************************/
 
-#endif /* GMUTABLEPARAMETERI_HPP_ */

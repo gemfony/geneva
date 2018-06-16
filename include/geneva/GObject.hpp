@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOBJECT_HPP_
-#define GOBJECT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -216,4 +215,3 @@ public:
  */
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GObject)
 
-#endif /* GOBJECT_HPP_ */

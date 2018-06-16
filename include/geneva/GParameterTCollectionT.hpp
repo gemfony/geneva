@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETERTCOLLECTIONT_HPP_
-#define GPARAMETERTCOLLECTIONT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1272,4 +1271,3 @@ struct is_abstract< const Gem::Geneva::GParameterTCollectionT<T>> : public boost
 
 /******************************************************************************/
 
-#endif /* GPARAMETERTCOLLECTIONT_HPP_ */

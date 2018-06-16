@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GDOUBLEOBJECT_HPP_
-#define GDOUBLEOBJECT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -150,4 +149,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleObject)
 
-#endif /* GDOUBLEOBJECT_HPP_ */

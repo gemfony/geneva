@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef G_OA_ALGORITHTEMPLATET_HPP_
-#define G_OA_ALGORITHTEMPLATET_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -500,4 +499,3 @@ public
 // TODO: Add specializations for different executors
 // BOOST_CLASS_EXPORT_KEY(Gem::Geneva::G_OA_AlgorithmTemplateT)
 
-#endif /* G_OA_ALGORITHTEMPLATET_HPP_ */

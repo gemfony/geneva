@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GINDIVIDUALSTANDARDCONSUMERS_HPP_
-#define GINDIVIDUALSTANDARDCONSUMERS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -139,4 +138,3 @@ BOOST_CLASS_EXPORT_KEY(BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<Ge
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-#endif /* GINDIVIDUALSTANDARDCONSUMERS_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCONSTRAINEDFPNUMCOLLECTIONT_HPP_
-#define GCONSTRAINEDFPNUMCOLLECTIONT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -360,4 +359,3 @@ struct is_abstract< const Gem::Geneva::GConstrainedFPNumCollectionT<fp_type>> : 
 }
 /******************************************************************************/
 
-#endif /* GCONSTRAINEDFPNUMCOLLECTIONT_HPP_ */

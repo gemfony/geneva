@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GNUMFPT_HPP_
-#define GNUMFPT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -525,4 +524,3 @@ struct is_abstract< const Gem::Geneva::GNumFPT<fp_type>> : public boost::true_ty
 }
 /******************************************************************************/
 
-#endif /* GNUMFPT_HPP_ */

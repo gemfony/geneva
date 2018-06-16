@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETERSET_HPP_
-#define GPARAMETERSET_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1025,4 +1024,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::parameterset_processing_result)
 
 /******************************************************************************/
 
-#endif /* GPARAMETERSET_HPP_ */

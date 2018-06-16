@@ -32,8 +32,7 @@
  * http://www.gemfony.eu.
  */
 
-#ifndef GCONSUMERSTORE_HPP_
-#define GCONSUMERSTORE_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -51,4 +50,3 @@
 using GConStore = Gem::Common::GSingletonT<Gem::Common::GGlobalOptionsT<std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>>>> ;
 #define GConsumerStore GConStore::Instance(0)
 
-#endif /* GCONSUMERSTORE_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPARAMETERPROPERTYPARSER_HPP_
-#define GPARAMETERPROPERTYPARSER_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -574,5 +573,3 @@ G_API_GENEVA void swap(Gem::Geneva::parPropSpec<bool>&, Gem::Geneva::parPropSpec
 } /* namespace spirit */
 } /* namespace boost */
 
-
-#endif /* GPARAMETERPROPERTYPARSER_HPP_ */

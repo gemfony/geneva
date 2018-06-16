@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCONSTRAINEDDOUBLECOLLECTION_HPP_
-#define GCONSTRAINEDDOUBLECOLLECTION_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -191,4 +190,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedDoubleCollection)
 
 /******************************************************************************/
 
-#endif /* GCONSTRAINEDDOUBLECOLLECTION_HPP_ */

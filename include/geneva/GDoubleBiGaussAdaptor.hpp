@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GDOUBLEBIGAUSSADAPTOR_HPP_
-#define GDOUBLEBIGAUSSADAPTOR_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -119,4 +118,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleBiGaussAdaptor)
 
-#endif /* GDOUBLEBIGAUSSADAPTOR_HPP_ */

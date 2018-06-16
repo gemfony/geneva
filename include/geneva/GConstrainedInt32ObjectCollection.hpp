@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GCONSTRAINEDINT32COLLECTION_HPP_
-#define GCONSTRAINEDINT32COLLECTION_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -115,4 +114,3 @@ public:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GConstrainedInt32ObjectCollection)
 
-#endif /* GCONSTRAINEDINT32COLLECTION_HPP_ */

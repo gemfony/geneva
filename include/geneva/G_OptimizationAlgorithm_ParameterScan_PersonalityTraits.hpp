@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GPSPERSONALITYTRAITS_HPP_
-#define GPSPERSONALITYTRAITS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -121,6 +120,4 @@ public:
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GParameterScan_PersonalityTraits)
-
-#endif /* GPSPERSONALITYTRAITS_HPP_ */
 
