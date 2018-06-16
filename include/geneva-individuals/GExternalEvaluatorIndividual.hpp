@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GEXTERNALEVALUATORINDIVIDUAL_HPP_
-#define GEXTERNALEVALUATORINDIVIDUAL_HPP_
+#pragma once
 
 // Standard header files go here
 #include <iostream>
@@ -491,4 +490,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GExternalEvaluatorIndividualFactory)
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 /*************************************************************************************************/
 
-#endif /* GEXTERNALEVALUATORINDIVIDUAL_HPP_ */

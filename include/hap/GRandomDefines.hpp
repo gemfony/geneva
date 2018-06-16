@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GRANDOMDEFINES_HPP_
-#define GRANDOMDEFINES_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -132,4 +131,3 @@ const std::size_t MINDOUBLEBUFFERSIZE = 10000;
 } /* namespace Hap */
 } /* namespace Gem */
 
-#endif /* GRANDOMDEFINES_HPP_ */

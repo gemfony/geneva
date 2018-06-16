@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GOPTIMIZATIONBENCHMARKCONFIG_HPP_
-#define GOPTIMIZATIONBENCHMARKCONFIG_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -165,4 +164,3 @@ private:
 } /* namespace Tests */
 } /* namespace Gem */
 
-#endif /* GOPTIMIZATIONBENCHMARKCONFIG_HPP_ */

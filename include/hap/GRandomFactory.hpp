@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GRANDOMFACTORY_HPP_
-#define GRANDOMFACTORY_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -311,5 +310,3 @@ private:
 #define GRANDOMFACTORY      Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(0)
 #define RESETGRANDOMFACTORY Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(1)
 
-
-#endif /* GRANDOMFACTORY_HPP_ */

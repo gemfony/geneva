@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GHAPENUMS_HPP_
-#define GHAPENUMS_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -81,4 +80,3 @@ G_API_HAP std::istream &operator>>(std::istream &, Gem::Hap::RANDFLAVOURS &);
 } /* namespace Hap */
 } /* namespace Gem */
 
-#endif /* GHAPENUMS_HPP_ */

@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GENEVA_LIBRARY_COLLECTION_GRANDOMDISTRIBUTIONST_HPP_
-#define GENEVA_LIBRARY_COLLECTION_GRANDOMDISTRIBUTIONST_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -318,4 +317,3 @@ bool operator!=(
 } /* namespace Hap */
 } /* namespace Gem */
 
-#endif /* GENEVA_LIBRARY_COLLECTION_GRANDOMDISTRIBUTIONST_HPP_ */

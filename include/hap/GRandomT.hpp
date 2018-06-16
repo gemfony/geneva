@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GRANDOMT_HPP_
-#define GRANDOMT_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -259,4 +258,3 @@ private:
 } /* namespace Hap */
 } /* namespace Gem */
 
-#endif /* GRANDOMT_HPP_ */

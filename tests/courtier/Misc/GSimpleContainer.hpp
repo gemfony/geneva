@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GSIMPLECONTAINER_HPP_
-#define GSIMPLECONTAINER_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -117,4 +116,3 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::Tests::GSimpleContainer)
 
-#endif /* GSIMPLECONTAINER_HPP_ */

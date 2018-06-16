@@ -37,8 +37,7 @@
 #include <cmath>
 #include <limits>
 
-#ifndef OAINKUBATOR_HPP_
-#define OAINKUBATOR_HPP_
+#pragma once
 
 /******************************************************************************/
 /**
@@ -172,4 +171,3 @@ void print(const std::vector<double>&, const std::string&);
 
 /******************************************************************************/
 
-#endif /* OAINKUBATOR_HPP_ */

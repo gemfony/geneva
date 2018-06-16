@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GNEURALNETWORKINDIVIDUAL_HPP_
-#define GNEURALNETWORKINDIVIDUAL_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -1096,4 +1095,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GNeuralNetworkIndividual)
 
 /******************************************************************************/
 
-#endif /* GNEURALNETWORKINDIVIDUAL_HPP_ */

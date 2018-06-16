@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GLINEFITINDIVIDUAL_HPP_
-#define GLINEFITINDIVIDUAL_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -181,4 +180,3 @@ private:
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GLineFitIndividual)
 
-#endif /* GLINEFITINDIVIDUAL_HPP_ */

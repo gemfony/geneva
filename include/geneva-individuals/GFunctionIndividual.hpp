@@ -32,8 +32,7 @@
  * http://www.gemfony.eu .
  */
 
-#ifndef GFUNCTIONINDIVIDUAL_HPP_
-#define GFUNCTIONINDIVIDUAL_HPP_
+#pragma once
 
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
@@ -814,4 +813,3 @@ BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumConstraint)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GDoubleSumGapConstraint)
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GSphereConstraint)
 
-#endif /* GFUNCTIONINDIVIDUAL_HPP_ */
