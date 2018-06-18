@@ -387,7 +387,7 @@ public:
 	 void
 	 push_and_block_move(
 		 T &&item
-		 , std::enable_if_t<(u_capacity==0 && t_capacity > u_capacity)> * = nullptr
+		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
@@ -506,7 +506,7 @@ public:
 	  * @param timeout duration until a timeout occurs
 	  * @return A boolean indicating whether an item has been successfully submitted
 	  */
-	 template <typename U=T, typename std::size_t u_capacity = t_capacity>
+	 template <typename std::size_t u_capacity = t_capacity>
 	 bool
 	 push_and_wait_move(
 		 T &&item
