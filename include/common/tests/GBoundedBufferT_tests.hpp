@@ -170,38 +170,109 @@ public:
 
 		 //----------------------------------------------------------------------
 
-		 { // Test adding work items to the queue
-		 	 //------------------------------------------
-			 // First to an unbounded queue with copy_only_struct
+		 { // Test adding work items to the queue with try_pop_* and removing them subsequently
+			 {
+				 //------------------------------------------
+				 // First to an unbounded queue with copy_only_struct
 
-			 GBoundedBufferT<copy_only_struct, 0> gbt_co_unbounded;
+				 GBoundedBufferT<copy_only_struct, 0> gbt_co_unbounded;
 
-			 bool push_succeeded = false;
-			 for(std::size_t i=0; i<2*DEFAULTBUFFERSIZE; i++) {
-				 	copy_only_struct c(i);
-					BOOST_CHECK_NO_THROW(push_succeeded = gbt_co_unbounded.try_push_copy(c));
-					BOOST_CHECK(push_succeeded);
-					BOOST_CHECK(gbt_co_unbounded.size() == i+1);
+				 bool push_succeeded = false;
+				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) { // Add items
+					 copy_only_struct c(i);
+					 BOOST_CHECK(c.getSecret() == i); // Copy should not alter this value
+					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_co_unbounded.try_push_copy(c));
+					 BOOST_CHECK(!gbt_co_unbounded.empty());
+					 BOOST_CHECK(push_succeeded);
+					 BOOST_CHECK(gbt_co_unbounded.size() == i + 1);
+					 BOOST_CHECK(c.getSecret() == i);
 
-					push_succeeded = false;
-			 }
+					 push_succeeded = false;
+				 }
 
-			 //------------------------------------------
-			 // Next with an unbounded queue with move_only_struct
+				 bool pop_succeeded = false;
+				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Copy should not alter this value; i++) { // Remove items
+					 copy_only_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
+					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_co_unbounded.try_pop_copy(c));
+				 	 BOOST_CHECK(pop_succeeded);
+				 	 BOOST_CHECK(gbt_co_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+				 	 BOOST_CHECK(c.getSecret() == i);
 
-			 GBoundedBufferT<move_only_struct, 0> gbt_mo_unbounded;
+				 	 pop_succeeded = false;
+				 }
 
-			 push_succeeded = false;
-			 for(std::size_t i=0; i<2*DEFAULTBUFFERSIZE; i++) {
-				 move_only_struct m(i);
-				 BOOST_CHECK_NO_THROW(push_succeeded = gbt_mo_unbounded.try_push_move(std::move(m)));
-				 BOOST_CHECK(push_succeeded);
-				 BOOST_CHECK(gbt_mo_unbounded.size() == i+1);
+				 //------------------------------------------
+				 // Next with an unbounded queue with move_only_struct
+
+				 GBoundedBufferT<move_only_struct, 0> gbt_mo_unbounded;
 
 				 push_succeeded = false;
+				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) {
+					 move_only_struct m(i);
+					 BOOST_CHECK(m.getSecret() == i);
+					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_mo_unbounded.try_push_move(std::move(m)));
+					 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
+					 BOOST_CHECK(!gbt_mo_unbounded.empty());
+					 BOOST_CHECK(push_succeeded);
+					 BOOST_CHECK(gbt_mo_unbounded.size() == i + 1);
+
+					 push_succeeded = false;
+				 }
+
+				 //------------------------------------------
 			 }
 
-			 //------------------------------------------
+			 {
+				 //------------------------------------------
+				 // First to a bounded queue with copy_only_struct
+
+				 GBoundedBufferT<copy_only_struct> gbt_co_unbounded; // DEFAULTBUFFERSIZE
+				 BOOST_CHECK(gbt_co_unbounded.getCapacity() == DEFAULTBUFFERSIZE);
+
+				 bool push_succeeded = false;
+				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // This should not block (<= max. numbe of items)
+					 copy_only_struct c(i);
+					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_co_unbounded.try_push_copy(c));
+					 BOOST_CHECK(!gbt_co_unbounded.empty());
+					 if(i<DEFAULTBUFFERSIZE) {
+						 BOOST_CHECK(push_succeeded);
+						 BOOST_CHECK(gbt_co_unbounded.size() == i + 1);
+					 } else {
+						 BOOST_CHECK(!push_succeeded);
+						 BOOST_CHECK(gbt_co_unbounded.size() == DEFAULTBUFFERSIZE);
+					 }
+					 BOOST_CHECK(c.getSecret() == i); // No changes by copying, or if the item was ignored
+
+					 push_succeeded = false;
+				 }
+
+				 //------------------------------------------
+				 // Next with a bounded queue with move_only_struct
+
+				 GBoundedBufferT<move_only_struct> gbt_mo_unbounded; // DEFAULTBUFFERSIZE
+				 BOOST_CHECK(gbt_mo_unbounded.getCapacity() == DEFAULTBUFFERSIZE);
+
+				 push_succeeded = false;
+				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // This should not block (<= max. numbe of items)
+					 move_only_struct m(i);
+					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_mo_unbounded.try_push_move(std::move(m)));
+					 BOOST_CHECK(!gbt_mo_unbounded.empty());
+					 if(i<DEFAULTBUFFERSIZE) {
+						 BOOST_CHECK(push_succeeded);
+						 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
+						 BOOST_CHECK(gbt_mo_unbounded.size() == i + 1);
+					 } else {
+						 BOOST_CHECK(!push_succeeded);
+						 BOOST_CHECK(m.getSecret() == i); // Should not have been altered by move if item was ignored
+						 BOOST_CHECK(gbt_mo_unbounded.size() == DEFAULTBUFFERSIZE);
+					 }
+
+					 push_succeeded = false;
+				 }
+
+				 //------------------------------------------
+			 }
 		 }
 
 		 //----------------------------------------------------------------------

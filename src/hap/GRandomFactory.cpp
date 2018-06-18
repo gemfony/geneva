@@ -265,7 +265,7 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 	}
 
 	std::unique_ptr<random_container> p; // empty
-	if(!m_p_fresh_bfr.pop_and_wait(
+	if(!m_p_fresh_bfr.pop_and_wait_move(
 		p
 		, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
 		// nothing - our way of signaling a time out
@@ -293,7 +293,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 		while(!m_threads_stop_requested) {
 			// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
 			// fails (likely because the buffer is empty), we create a new item instead
-			if(m_p_ret_bfr.try_pop(p)) {
+			if(m_p_ret_bfr.try_pop_move(p)) {
 
 				// If we reach this line, we have successfully retrieved a recycled container.
 				// First do some error-checking

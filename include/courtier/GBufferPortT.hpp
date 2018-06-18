@@ -161,7 +161,7 @@ public:
 	  */
 	 void pop_raw(std::shared_ptr<processable_type> &item_ptr) {
 		 // Do the actual retrieval
-		 m_raw_ptr->pop_and_block(item_ptr);
+		 m_raw_ptr->pop_and_block_copy(item_ptr);
 
 		 if(item_ptr) {
 			 // Make it known to the work item when it was taken from the raw queue for processing
@@ -193,7 +193,7 @@ public:
 		 , const std::chrono::duration<double> &timeout
 	 ) {
 		 // Do the actual retrieval
-		 bool success = m_raw_ptr->pop_and_wait(
+		 bool success = m_raw_ptr->pop_and_wait_copy(
 			 item_ptr
 			 , timeout
 		 );
@@ -279,7 +279,7 @@ public:
 	  */
 	 void pop_processed(std::shared_ptr<processable_type> &item_ptr) {
 		 // The actual retrieval
-		 m_processed_ptr->pop_and_block(item_ptr);
+		 m_processed_ptr->pop_and_block_copy(item_ptr);
 
 		 if(item_ptr) {
 			 // Make it known to the work item when it has returned to its origin
@@ -301,7 +301,7 @@ public:
 		 , const std::chrono::duration<double> &timeout
 	 ) {
 		 // The actual retrieval
-		 bool success = m_processed_ptr->pop_and_wait(
+		 bool success = m_processed_ptr->pop_and_wait_copy(
 			 item_ptr
 			 , timeout
 		 );
