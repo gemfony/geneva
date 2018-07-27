@@ -5,6 +5,8 @@
  */
 
 // Standard headers go here
+#include <vector>
+#include <algorithm>
 
 // Boost headers go here
 #include <boost/test/unit_test.hpp>
@@ -53,6 +55,7 @@ private:
 struct move_only_struct {
 public:
 	 move_only_struct() = delete;
+
 	 move_only_struct(std::size_t secret) : m_secret(secret) { /* nothing */ }
 	 move_only_struct(const move_only_struct& cp) = delete;
 	 move_only_struct(move_only_struct&& cp) {
@@ -72,6 +75,63 @@ public:
 
 private:
 	 std::size_t m_secret = 0;
+};
+
+/******************************************************************************/
+/**
+ * A simple struct meant to make sure the correct functions were called
+ */
+struct copy_move_struct {
+public:
+	 copy_move_struct() = delete;
+
+	 copy_move_struct(std::size_t secret) : m_secret(secret) { /* nothing */ }
+	 copy_move_struct(const copy_move_struct& cp)
+		 : m_secret(cp.m_secret)
+		 , m_copy_move_history(cp.m_copy_move_history)
+	 {
+		 m_copy_move_history.push_back(0); // 0 means "copied"
+	 }
+	 copy_move_struct(copy_move_struct&& cp) {
+		 m_secret = cp.m_secret;
+		 cp.m_secret = 0;
+		 m_copy_move_history = std::move(m_copy_move_history);
+		 m_copy_move_history.push_back(1); // 1 means "moved"
+	 }
+
+	 copy_move_struct& operator=(copy_move_struct& cp) {
+	 	 m_secret = cp.m_secret;
+	 	 m_copy_move_history = cp.m_copy_move_history;
+		 m_copy_move_history.push_back(0); // 0 means "copied"
+	 }
+	 copy_move_struct& operator=(copy_move_struct&& cp) {
+		 m_secret = cp.m_secret;
+		 cp.m_secret = 0;
+		 m_copy_move_history = std::move(m_copy_move_history);
+		 m_copy_move_history.push_back(1); // 1 means "moved"
+	 }
+
+	 bool struct_was_copied() {
+		 if(std::find(m_copy_move_history.begin(), m_copy_move_history.end(), "0") != m_copy_move_history.end()) {
+		 	return true;
+		 }
+		 return false;
+	 }
+
+	 bool struct_was_moved() {
+		 if(std::find(m_copy_move_history.begin(), m_copy_move_history.end(), "1") != m_copy_move_history.end()) {
+			 return true;
+		 }
+		 return false;
+	 }
+
+	 std::size_t getSecret() const {
+		 return m_secret;
+	 }
+
+private:
+	 std::size_t m_secret = 0;
+	 std::vector<std::uint32_t> m_copy_move_history;
 };
 
 /******************************************************************************/
@@ -100,6 +160,12 @@ public:
 			 BOOST_CHECK_NO_THROW((GBoundedBufferT<move_only_struct, 10>()));
 			 BOOST_CHECK_NO_THROW((GBoundedBufferT<move_only_struct, 20>()));
 			 BOOST_CHECK_NO_THROW((GBoundedBufferT<move_only_struct, 30>()));
+
+			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct>())); // DEFAULTBUFFERSIZE
+			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct, 0>())); // unbounded
+			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct, 10>()));
+			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct, 20>()));
+			 BOOST_CHECK_NO_THROW((GBoundedBufferT<copy_move_struct, 30>()));
 		 }
 
 		 //----------------------------------------------------------------------
