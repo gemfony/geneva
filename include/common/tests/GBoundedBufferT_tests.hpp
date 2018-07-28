@@ -67,6 +67,8 @@ public:
 	 move_only_struct& operator=(move_only_struct&& cp) {
 		 m_secret = cp.m_secret;
 		 cp.m_secret = 0;
+
+		 return *this;
 	 }
 
 	 std::size_t getSecret() const {
@@ -103,12 +105,16 @@ public:
 	 	 m_secret = cp.m_secret;
 	 	 m_copy_move_history = cp.m_copy_move_history;
 		 m_copy_move_history.push_back(M_COPIED);
+
+		 return *this;
 	 }
 	 copy_move_struct& operator=(copy_move_struct&& cp) {
 		 m_secret = cp.m_secret;
 		 cp.m_secret = 0;
 		 m_copy_move_history = std::move(cp.m_copy_move_history);
 		 m_copy_move_history.push_back(M_MOVED);
+
+		 return *this;
 	 }
 
 	 bool struct_was_copied() {
