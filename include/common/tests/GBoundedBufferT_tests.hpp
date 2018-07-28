@@ -90,39 +90,47 @@ public:
 		 : m_secret(cp.m_secret)
 		 , m_copy_move_history(cp.m_copy_move_history)
 	 {
-		 m_copy_move_history.push_back(0); // 0 means "copied"
+		 m_copy_move_history.push_back(M_COPIED);
 	 }
 	 copy_move_struct(copy_move_struct&& cp) {
 		 m_secret = cp.m_secret;
 		 cp.m_secret = 0;
-		 m_copy_move_history = std::move(m_copy_move_history);
-		 m_copy_move_history.push_back(1); // 1 means "moved"
+		 m_copy_move_history = std::move(cp.m_copy_move_history);
+		 m_copy_move_history.push_back(M_MOVED);
 	 }
 
 	 copy_move_struct& operator=(copy_move_struct& cp) {
 	 	 m_secret = cp.m_secret;
 	 	 m_copy_move_history = cp.m_copy_move_history;
-		 m_copy_move_history.push_back(0); // 0 means "copied"
+		 m_copy_move_history.push_back(M_COPIED);
 	 }
 	 copy_move_struct& operator=(copy_move_struct&& cp) {
 		 m_secret = cp.m_secret;
 		 cp.m_secret = 0;
-		 m_copy_move_history = std::move(m_copy_move_history);
-		 m_copy_move_history.push_back(1); // 1 means "moved"
+		 m_copy_move_history = std::move(cp.m_copy_move_history);
+		 m_copy_move_history.push_back(M_MOVED);
 	 }
 
 	 bool struct_was_copied() {
-		 if(std::find(m_copy_move_history.begin(), m_copy_move_history.end(), "0") != m_copy_move_history.end()) {
+		 if(std::find(m_copy_move_history.begin(), m_copy_move_history.end(), M_COPIED) != m_copy_move_history.end()) {
 		 	return true;
 		 }
 		 return false;
 	 }
 
 	 bool struct_was_moved() {
-		 if(std::find(m_copy_move_history.begin(), m_copy_move_history.end(), "1") != m_copy_move_history.end()) {
+		 if(std::find(m_copy_move_history.begin(), m_copy_move_history.end(), M_MOVED) != m_copy_move_history.end()) {
 			 return true;
 		 }
 		 return false;
+	 }
+
+	 bool struct_was_copied_and_moved() { // This should not happen in the tests
+	 	return (struct_was_copied() && struct_was_moved());
+	 }
+
+	 bool struct_was_copied_or_moved() {
+	 	return !m_copy_move_history.empty();
 	 }
 
 	 std::size_t getSecret() const {
@@ -130,6 +138,8 @@ public:
 	 }
 
 private:
+	 const std::uint32_t M_COPIED=0, M_MOVED=1;
+
 	 std::size_t m_secret = 0;
 	 std::vector<std::uint32_t> m_copy_move_history;
 };
@@ -171,6 +181,9 @@ public:
 		 //----------------------------------------------------------------------
 
 		 { // Check boundaries after construction
+		 	 //-------------------------------------------------------------------
+		 	 // copy_only_struct
+
 			 GBoundedBufferT<copy_only_struct> gbt1; // DEFAULTBUFFERSIZE
 			 BOOST_CHECK(gbt1.getCapacity() == DEFAULTBUFFERSIZE);
 			 BOOST_CHECK(gbt1.isBounded());
@@ -206,6 +219,9 @@ public:
 			 BOOST_CHECK(gbt5.size() == 0);
 			 BOOST_CHECK(!gbt5.isNotEmpty());
 
+			 //-------------------------------------------------------------------
+		 	 // move_only_struct
+
 			 GBoundedBufferT<move_only_struct> gbt6; // DEFAULTBUFFERSIZE
 			 BOOST_CHECK(gbt6.getCapacity() == DEFAULTBUFFERSIZE);
 			 BOOST_CHECK(gbt6.isBounded());
@@ -240,6 +256,46 @@ public:
 			 BOOST_CHECK(gbt10.empty());
 			 BOOST_CHECK(gbt10.size() == 0);
 			 BOOST_CHECK(!gbt10.isNotEmpty());
+
+			 //-------------------------------------------------------------------
+			 // copy_move_struct
+
+			 GBoundedBufferT<copy_move_struct> gpbt11; // DEFAULTBUFFERSIZE
+			 BOOST_CHECK(gpbt11.getCapacity() == DEFAULTBUFFERSIZE);
+			 BOOST_CHECK(gpbt11.isBounded());
+			 BOOST_CHECK(gpbt11.empty());
+			 BOOST_CHECK(gpbt11.size() == 0);
+			 BOOST_CHECK(!gpbt11.isNotEmpty());
+
+			 GBoundedBufferT<copy_move_struct, 0> gpbt12; // unbounded
+			 BOOST_CHECK(gpbt12.getCapacity() == 0);
+			 BOOST_CHECK(!gpbt12.isBounded());
+			 BOOST_CHECK(gpbt12.empty());
+			 BOOST_CHECK(gpbt12.size() == 0);
+			 BOOST_CHECK(!gpbt12.isNotEmpty());
+
+			 GBoundedBufferT<copy_move_struct, 10> gpbt13;
+			 BOOST_CHECK(gpbt13.getCapacity() == 10);
+			 BOOST_CHECK(gpbt13.isBounded());
+			 BOOST_CHECK(gpbt13.empty());
+			 BOOST_CHECK(gpbt13.size() == 0);
+			 BOOST_CHECK(!gpbt13.isNotEmpty());
+
+			 GBoundedBufferT<copy_move_struct, 20> gpbt14;
+			 BOOST_CHECK(gpbt14.getCapacity() == 20);
+			 BOOST_CHECK(gpbt14.isBounded());
+			 BOOST_CHECK(gpbt14.empty());
+			 BOOST_CHECK(gpbt14.size() == 0);
+			 BOOST_CHECK(!gpbt14.isNotEmpty());
+
+			 GBoundedBufferT<copy_move_struct, 30> gpbt15;
+			 BOOST_CHECK(gpbt15.getCapacity() == 30);
+			 BOOST_CHECK(gpbt15.isBounded());
+			 BOOST_CHECK(gpbt15.empty());
+			 BOOST_CHECK(gpbt15.size() == 0);
+			 BOOST_CHECK(!gpbt15.isNotEmpty());
+
+			 //-------------------------------------------------------------------
 		 }
 
 		 //----------------------------------------------------------------------
@@ -312,6 +368,84 @@ public:
 
 				 BOOST_CHECK(gbt_mo_unbounded.size() == 0);
 				 BOOST_CHECK(gbt_mo_unbounded.empty());
+
+				 //------------------------------------------
+				 // Now with copy_move_struct, while only copying
+
+				 GBoundedBufferT<copy_move_struct, 0> gbt_copy_only_cms_unbounded;
+
+				 push_succeeded = false;
+				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) { // Add items
+					 copy_move_struct c(i);
+					 BOOST_CHECK(c.getSecret() == i); // Copy should not alter this value
+					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_copy_only_cms_unbounded.try_push_copy(c));
+					 BOOST_CHECK(!gbt_copy_only_cms_unbounded.empty());
+					 BOOST_CHECK(push_succeeded);
+					 BOOST_CHECK(gbt_copy_only_cms_unbounded.size() == i + 1);
+					 BOOST_CHECK(c.getSecret() == i);
+
+					 push_succeeded = false;
+				 }
+
+				 pop_succeeded = false;
+				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Copy should not alter this value; i++) { // Remove items
+					 copy_move_struct c(3*DEFAULTBUFFERSIZE); // This value should never be reached
+					 BOOST_CHECK(c.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_copy_only_cms_unbounded.try_pop_copy(c));
+					 BOOST_CHECK(pop_succeeded);
+					 BOOST_CHECK(gbt_copy_only_cms_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 BOOST_CHECK(c.getSecret() == i);
+
+					 // Check that the item ws only copied, never moved, but that one of the two has happened
+					 BOOST_CHECK(c.struct_was_copied());
+					 BOOST_CHECK(!c.struct_was_moved());
+					 BOOST_CHECK(c.struct_was_copied_or_moved());
+
+					 pop_succeeded = false;
+				 }
+
+				 BOOST_CHECK(gbt_copy_only_cms_unbounded.size() == 0);
+				 BOOST_CHECK(gbt_copy_only_cms_unbounded.empty());
+
+				 //------------------------------------------
+				 // Now with copy_move_struct, while only moving
+
+				 GBoundedBufferT<copy_move_struct, 0> gbt_move_only_cms_unbounded;
+
+				 push_succeeded = false;
+				 for (std::size_t i = 0; i < 2 * DEFAULTBUFFERSIZE; i++) {
+					 copy_move_struct m(i);
+					 BOOST_CHECK(m.getSecret() == i);
+					 BOOST_CHECK_NO_THROW(push_succeeded = gbt_move_only_cms_unbounded.try_push_move(std::move(m)));
+					 BOOST_CHECK(m.getSecret() == 0); // Should have been cleared after move
+					 BOOST_CHECK(!gbt_move_only_cms_unbounded.empty());
+					 BOOST_CHECK(push_succeeded);
+					 BOOST_CHECK(gbt_move_only_cms_unbounded.size() == i + 1);
+
+					 push_succeeded = false;
+				 }
+
+
+				 pop_succeeded = false;
+				 for (std::size_t i = 0; i < 2*DEFAULTBUFFERSIZE; i++) { // Remove items
+					 copy_move_struct m(3*DEFAULTBUFFERSIZE); // This value should never be reached
+					 BOOST_CHECK(m.getSecret() == 3*DEFAULTBUFFERSIZE);
+					 BOOST_CHECK_NO_THROW(pop_succeeded = gbt_move_only_cms_unbounded.try_pop_move(m));
+					 BOOST_CHECK(pop_succeeded);
+					 BOOST_CHECK(gbt_move_only_cms_unbounded.size() == 2*DEFAULTBUFFERSIZE - i - 1);
+					 BOOST_CHECK(m.getSecret() == i);
+
+					 // Check that the item ws only moved, never copied, but that one of the two has happened
+					 BOOST_CHECK(!m.struct_was_copied());
+					 BOOST_CHECK(m.struct_was_moved());
+					 BOOST_CHECK(m.struct_was_copied_or_moved());
+
+					 pop_succeeded = false;
+				 }
+
+				 BOOST_CHECK(gbt_move_only_cms_unbounded.size() == 0);
+				 BOOST_CHECK(gbt_move_only_cms_unbounded.empty());
+
 
 				 //------------------------------------------
 			 }
