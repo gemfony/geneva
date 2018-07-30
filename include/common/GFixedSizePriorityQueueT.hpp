@@ -95,7 +95,8 @@ class GFixedSizePriorityQueueT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GCommonInterfaceT_GFixedSizePriorityQueueT_T", boost::serialization::base_object<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(*this))
+		 & make_nvp("GCommonInterfaceT_GFixedSizePriorityQueueT_T"
+		 	, boost::serialization::base_object<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_data)
 		 & BOOST_SERIALIZATION_NVP(m_maxSize)
 		 & BOOST_SERIALIZATION_NVP(m_sortOrder);
@@ -145,8 +146,8 @@ public:
 		 : m_maxSize(cp.m_maxSize)
 		 , m_sortOrder(cp.m_sortOrder)
 	 {
-		 for(auto cit_ptr: m_data) { // std::shared_ptr may be copied
-			 m_data.push_back(cit_ptr->template clone<T>());
+		 for(const auto& data_ptr: m_data) { // std::shared_ptr may be copied
+			 m_data.push_back(data_ptr->template clone<T>());
 		 }
 	 }
 
@@ -162,7 +163,7 @@ public:
 	 /**
 	  * Gives access to the best item without copying it
 	  */
-	 std::shared_ptr <T> best() const {
+	 std::shared_ptr<T> best() const {
 		 if (m_data.empty()) {
 			 // Throw an exception
 			 throw gemfony_exception(
@@ -172,7 +173,7 @@ public:
 			 );
 
 			 // Make the compiler happy
-			 return std::shared_ptr<T>();
+			 return {};
 		 } else {
 			 return m_data.front();
 		 }
@@ -192,7 +193,7 @@ public:
 			 );
 
 			 // Make the compiler happy
-			 return std::shared_ptr<T>();
+			 return {};
 		 } else {
 			 return m_data.back();
 		 }
@@ -247,8 +248,8 @@ public:
 		 std::sort(
 			 m_data.begin()
 			 , m_data.end()
-			 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
-				 return this->id(x) < this->id(y);
+			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
+				 return (this->id(x_ptr) < this->id(y_ptr));
 			 }
 		 );
 
@@ -257,8 +258,8 @@ public:
 			 std::unique(
 				 m_data.begin()
 				 , m_data.end()
-				 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
-					 return this->id(x) == this->id(y);
+				 , [this](const std::shared_ptr <T> &x_ptr, const std::shared_ptr <T> &y_ptr) -> bool {
+					 return (this->id(x_ptr) == this->id(y_ptr));
 				 }
 			 ), m_data.end()
 		 );
@@ -267,12 +268,12 @@ public:
 		 std::sort(
 			 m_data.begin()
 			 , m_data.end()
-			 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
 				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) { // higher is better
-					 if (this->evaluation(x) < this->evaluation(y)) return true;
+					 if (this->evaluation(x_ptr) < this->evaluation(y_ptr)) return true;
 					 else return false;
 				 } else { // HIGHERISBETTER
-					 if (this->evaluation(x) > this->evaluation(y)) return true;
+					 if (this->evaluation(x_ptr) > this->evaluation(y_ptr)) return true;
 					 else return false;
 				 }
 			 }
@@ -313,17 +314,16 @@ public:
 		 // At this point, worstKnownEvaluation will be
 		 // - the worst case, if the queue is empty or all entries in the queue will be replaced
 		 // - the evaluation of the worst entry in the queue if we only add items (regardless of whether they will be cloned or not)
-		 typename std::vector<std::shared_ptr<T>>::const_iterator cit;
-		 for (cit = items.begin(); cit != items.end(); ++cit) {
+		 for(const auto& item_ptr: items) {
 			 // Add the work item to the queue
 			 // - If the queue is unlimited
 			 // - If the queue isn't full yet
 			 // - If the item is better than the worst one already contained in the queue
-			 if (0 == m_maxSize || m_data.size() < m_maxSize || isBetter(this->evaluation(*cit), worstKnownEvaluation)) {
+			 if (0 == m_maxSize || m_data.size() < m_maxSize || isBetter(this->evaluation(item_ptr), worstKnownEvaluation)) {
 				 if (do_clone) {
-					 m_data.push_back((*cit)->template clone<T>());
+					 m_data.push_back(item_ptr->template clone<T>());
 				 } else {
-					 m_data.push_back(*cit);
+					 m_data.push_back(item_ptr);
 				 }
 			 }
 		 }
@@ -332,8 +332,8 @@ public:
 		 std::sort(
 			 m_data.begin()
 			 , m_data.end()
-			 , [this](const std::shared_ptr<T> &x, const std::shared_ptr<T> &y) -> bool {
-				 return this->id(x) < this->id(y);
+			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
+				 return (this->id(x_ptr) < this->id(y_ptr));
 			 }
 		 );
 
@@ -344,8 +344,8 @@ public:
 			 std::unique(
 				 m_data.begin()
 				 , m_data.end()
-				 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
-					 return this->id(x) == this->id(y);
+				 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &_ptr) -> bool {
+					 return (this->id(x_ptr) == this->id(_ptr));
 				 }
 			 ), m_data.end()
 		 );
@@ -353,12 +353,12 @@ public:
 		 std::sort(
 			 m_data.begin()
 			 , m_data.end()
-			 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
-				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) { // lower is better
-					 if (this->evaluation(x) < this->evaluation(y)) return true;
+			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
+				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) {
+					 if (this->evaluation(x_ptr) < this->evaluation(y_ptr)) return true;
 					 else return false;
 				 } else {
-					 if (this->evaluation(x) > this->evaluation(y)) return true;
+					 if (this->evaluation(x_ptr) > this->evaluation(y_ptr)) return true;
 					 else return false;
 				 }
 			 }
@@ -385,7 +385,7 @@ public:
 			 );
 
 			 // Make the compiler happy
-			 return std::shared_ptr<T>();
+			 return {};
 		 } else {
 			 auto item_ptr = m_data.front();
 			 m_data.pop_front();
@@ -514,43 +514,15 @@ protected:
 	 /**
 	  * Checks whether value new_item is better than value old_item
 	  */
-	 bool isBetter(std::shared_ptr <T> new_item, std::shared_ptr <T> old_item) const {
-		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 if (this->evaluation(new_item) < this->evaluation(old_item)) return true;
-			 else return false;
-		 } else { // higher is better
-			 if (this->evaluation(new_item) > this->evaluation(old_item)) return true;
-			 else return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks whether value new_item is better than value old_item
-	  */
-	 bool isBetter(std::shared_ptr<T> new_item, const double &old_item) const {
-		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 if (this->evaluation(new_item) < old_item) return true;
-			 else return false;
-		 } else { // higher is better
-			 if (this->evaluation(new_item) > old_item) return true;
-			 else return false;
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Checks whether value new_item is better than value old_item
-	  */
 	 bool isBetter(
-	 	const double &new_item
-	 	, std::shared_ptr<T> old_item
+	 	std::shared_ptr<T> new_item_ptr
+	 	, std::shared_ptr<T> old_item_ptr
 	 ) const {
 		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 if (new_item < this->evaluation(old_item)) return true;
+			 if (this->evaluation(new_item_ptr) < this->evaluation(old_item_ptr)) return true;
 			 else return false;
 		 } else { // higher is better
-			 if (new_item > this->evaluation(old_item)) return true;
+			 if (this->evaluation(new_item_ptr) > this->evaluation(old_item_ptr)) return true;
 			 else return false;
 		 }
 	 }
@@ -560,14 +532,48 @@ protected:
 	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(
-	 	const double &new_item
-	 	, const double &old_item
-	) const {
+	 	std::shared_ptr<T> new_item_ptr
+	 	, const double &old_item_val
+	 ) const {
 		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 if (new_item < old_item) return true;
+			 if (this->evaluation(new_item_ptr) < old_item_val) return true;
 			 else return false;
 		 } else { // higher is better
-			 if (new_item > old_item) return true;
+			 if (this->evaluation(new_item_ptr) > old_item_val) return true;
+			 else return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks whether value new_item is better than value old_item
+	  */
+	 bool isBetter(
+	 	const double &new_item_val
+	 	, std::shared_ptr<T> old_item_ptr
+	 ) const {
+		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
+			 if (new_item_val < this->evaluation(old_item_ptr)) return true;
+			 else return false;
+		 } else { // higher is better
+			 if (new_item_val > this->evaluation(old_item_ptr)) return true;
+			 else return false;
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Checks whether value new_item is better than value old_item
+	  */
+	 bool isBetter(
+	 	const double &new_item_val
+	 	, const double &old_item_val
+	) const {
+		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
+			 if (new_item_val < old_item_val) return true;
+			 else return false;
+		 } else { // higher is better
+			 if (new_item_val > old_item_val) return true;
 			 else return false;
 		 }
 	 }
