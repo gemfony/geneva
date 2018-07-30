@@ -46,7 +46,7 @@ namespace Geneva {
  * "lower is better" is the only allowed mode of operation of this priority queue.
  */
 GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const std::size_t &maxSize)
-	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, Gem::Common::LOWERISBETTER)
+	: Gem::Common::GFixedSizePriorityQueueT<GParameterSet>(maxSize, Gem::Common::sortOrder::LOWERISBETTER)
 { /* nothing */ }
 
 /******************************************************************************/

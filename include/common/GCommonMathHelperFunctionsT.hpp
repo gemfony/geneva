@@ -55,6 +55,7 @@
 #include <boost/numeric/conversion/bounds.hpp>
 
 // Geneva headers go here
+#include "common/GCommonEnums.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -176,9 +177,14 @@ bool checkRangeCompliance(
  */
 template<typename fp_type>
 fp_type getWorstCase(
-	bool maxMode, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+	bool maxMode
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-	return (maxMode ? boost::numeric::bounds<fp_type>::lowest() : boost::numeric::bounds<fp_type>::highest());
+	return (
+		maxMode
+		? boost::numeric::bounds<fp_type>::lowest()
+		: boost::numeric::bounds<fp_type>::highest()
+	);
 }
 
 /******************************************************************************/
@@ -188,9 +194,49 @@ fp_type getWorstCase(
  */
 template<typename fp_type>
 fp_type getBestCase(
-	bool maxMode, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+	bool maxMode
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
 ) {
-	return (maxMode ? boost::numeric::bounds<fp_type>::highest() : boost::numeric::bounds<fp_type>::lowest());
+	return (
+		maxMode
+		? boost::numeric::bounds<fp_type>::highest()
+		: boost::numeric::bounds<fp_type>::lowest()
+	);
+}
+
+
+/******************************************************************************/
+/**
+ * Retrieves the worst known value for a given floating point type, depending
+ * on whether maximal or minimal values are considered to be better
+ */
+template<typename fp_type>
+fp_type getWorstCase(
+	Gem::Common::sortOrder sortOrder
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+) {
+	return (
+		sortOrder==Gem::Common::sortOrder::HIGHERISBETTER
+		? boost::numeric::bounds<fp_type>::lowest()
+		: boost::numeric::bounds<fp_type>::highest()
+	);
+}
+
+/******************************************************************************/
+/**
+ * Retrieves the best known value for a given floating point type, depending
+ * on whether maximal or minimal values are considered to be better
+ */
+template<typename fp_type>
+fp_type getBestCase(
+	Gem::Common::sortOrder sortOrder
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+) {
+	return (
+		sortOrder==Gem::Common::sortOrder::HIGHERISBETTER
+		? boost::numeric::bounds<fp_type>::highest()
+		: boost::numeric::bounds<fp_type>::lowest()
+	);
 }
 
 /******************************************************************************/

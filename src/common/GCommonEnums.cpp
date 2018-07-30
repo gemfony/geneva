@@ -39,12 +39,29 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<>
+ * Puts a Gem::Common::sortOder into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::dimensions &x) {
+std::ostream &operator<<(std::ostream &o, const Gem::Common::sortOrder &x) {
 	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
 	o << tmp;
 	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::sortOder item from a stream. Needed also for boost::lexical_cast<>
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::sortOrder &x) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	x = boost::numeric_cast<Gem::Common::sortOrder>(tmp);
+#else
+	x = static_cast<Gem::Common::sortOder>(tmp);
+#endif /* DEBUG */
+
+	return i;
 }
 
 /******************************************************************************/

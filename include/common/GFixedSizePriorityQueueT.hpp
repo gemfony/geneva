@@ -98,7 +98,7 @@ class GFixedSizePriorityQueueT
 		 & make_nvp("GCommonInterfaceT_GFixedSizePriorityQueueT_T", boost::serialization::base_object<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_data)
 		 & BOOST_SERIALIZATION_NVP(m_maxSize)
-		 & BOOST_SERIALIZATION_NVP(m_higherIsBetter);
+		 & BOOST_SERIALIZATION_NVP(m_sortOrder);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -108,7 +108,7 @@ public:
 	  * The default constructor. Note that some variables may be initialized in the class body.
 	  */
 	 GFixedSizePriorityQueueT()
-		 : GFixedSizePriorityQueueT(10, false /* m_higherIsBetter */ )
+		 : GFixedSizePriorityQueueT(10, Gem::Common::sortOrder::LOWERISBETTER)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -118,7 +118,7 @@ public:
 	  * @param maxSize The maximum size of the queue
 	  */
 	 explicit GFixedSizePriorityQueueT(const std::size_t &maxSize)
-		 : GFixedSizePriorityQueueT(maxSize, false /* m_higherIsBetter */ )
+		 : GFixedSizePriorityQueueT(maxSize, Gem::Common::sortOrder::LOWERISBETTER)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -130,11 +130,11 @@ public:
 	  */
 	 GFixedSizePriorityQueueT(
 		 const std::size_t &maxSize
-		 , const bool &higherIsBetter
+		 , const Gem::Common::sortOrder &sortOrder
 	 )
 		 : m_data()
-			, m_maxSize(maxSize)
-			, m_higherIsBetter(higherIsBetter)
+		 , m_maxSize(maxSize)
+		 , m_sortOrder(sortOrder)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -143,7 +143,7 @@ public:
 	  */
 	 GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T> &cp)
 		 : m_maxSize(cp.m_maxSize)
-			, m_higherIsBetter(cp.m_higherIsBetter)
+		 , m_sortOrder(cp.m_sortOrder)
 	 {
 		 for(auto cit_ptr: m_data) { // std::shared_ptr may be copied
 			 m_data.push_back(cit_ptr->template clone<T>());
@@ -154,7 +154,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFixedSizePriorityQueueT() {
+	 ~GFixedSizePriorityQueueT() override {
 		 m_data.clear();
 	 }
 
@@ -182,7 +182,7 @@ public:
 	 /**
 	  * Gives access to the worst item without copying it
 	  */
-	 std::shared_ptr <T> worst() const {
+	 std::shared_ptr<T> worst() const {
 		 if (m_data.empty()) {
 			 // Throw an exception
 			 throw gemfony_exception(
@@ -200,20 +200,20 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to set the priority mode. A value of "true" means that higher
+	  * Allows to set the priority mode. A value of "HIGHERISBETTER" means that higher
 	  * values are considered better, "false" means that lower values are
 	  * considered to be better.
 	  */
-	 void setMaxMode(bool maxMode) {
-		 m_higherIsBetter = maxMode;
+	 void setSortOrder(Gem::Common::sortOrder sortOrder) {
+		 m_sortOrder = sortOrder;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the current value of higherIsBetter_
+	  * Allows to retrieve the current value of m_sortOrder
 	  */
-	 bool getMaxMode() const {
-		 return m_higherIsBetter;
+	 Gem::Common::sortOrder getSortOrder() const {
+		 return m_sortOrder;
 	 }
 
 	 /***************************************************************************/
@@ -245,7 +245,9 @@ public:
 
 		 // Sort the data according to their ids, so we may remove duplicates
 		 std::sort(
-			 m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+			 m_data.begin()
+			 , m_data.end()
+			 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 				 return this->id(x) < this->id(y);
 			 }
 		 );
@@ -253,7 +255,9 @@ public:
 		 // Remove duplicate items
 		 m_data.erase(
 			 std::unique(
-				 m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+				 m_data.begin()
+				 , m_data.end()
+				 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 					 return this->id(x) == this->id(y);
 				 }
 			 ), m_data.end()
@@ -261,12 +265,14 @@ public:
 
 		 // Sort the data according to the evaluation
 		 std::sort(
-			 m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
-				 if (this->getMaxMode()) { // higher is better
-					 if (this->evaluation(x) > this->evaluation(y)) return true;
-					 else return false;
-				 } else {
+			 m_data.begin()
+			 , m_data.end()
+			 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) { // higher is better
 					 if (this->evaluation(x) < this->evaluation(y)) return true;
+					 else return false;
+				 } else { // HIGHERISBETTER
+					 if (this->evaluation(x) > this->evaluation(y)) return true;
 					 else return false;
 				 }
 			 }
@@ -296,7 +302,7 @@ public:
 		 , bool do_clone
 		 , bool replace
 	 ) {
-		 double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_higherIsBetter);
+		 double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_sortOrder);
 		 if (true == replace || m_data.empty()) {
 			 m_data.clear();
 		 } else {
@@ -324,7 +330,9 @@ public:
 
 		 // Sort the data according to their ids, so we may remove duplicates
 		 std::sort(
-			 m_data.begin(), m_data.end(), [this](const std::shared_ptr<T> &x, const std::shared_ptr<T> &y) -> bool {
+			 m_data.begin()
+			 , m_data.end()
+			 , [this](const std::shared_ptr<T> &x, const std::shared_ptr<T> &y) -> bool {
 				 return this->id(x) < this->id(y);
 			 }
 		 );
@@ -334,19 +342,23 @@ public:
 		 // Remove duplicate items
 		 m_data.erase(
 			 std::unique(
-				 m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+				 m_data.begin()
+				 , m_data.end()
+				 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
 					 return this->id(x) == this->id(y);
 				 }
 			 ), m_data.end()
 		 );
 
 		 std::sort(
-			 m_data.begin(), m_data.end(), [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
-				 if (this->getMaxMode()) { // higher is better
-					 if (this->evaluation(x) > this->evaluation(y)) return true;
+			 m_data.begin()
+			 , m_data.end()
+			 , [this](const std::shared_ptr <T> &x, const std::shared_ptr <T> &y) -> bool {
+				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) { // lower is better
+					 if (this->evaluation(x) < this->evaluation(y)) return true;
 					 else return false;
 				 } else {
-					 if (this->evaluation(x) < this->evaluation(y)) return true;
+					 if (this->evaluation(x) > this->evaluation(y)) return true;
 					 else return false;
 				 }
 			 }
@@ -457,7 +469,7 @@ public:
 	  * @param e The expected outcome of the comparison
 	  * @param limit The maximum deviation for floating point values (important for similarity checks)
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GFixedSizePriorityQueueT<T> &cp
 		 , const Gem::Common::expectation &e
 		 , const double &limit
@@ -465,7 +477,8 @@ public:
 		 using namespace Gem::Common;
 
 		 // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
-		 const GFixedSizePriorityQueueT<T> *p_load = Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
+		 const GFixedSizePriorityQueueT<T> *p_load
+		 	= Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
 
 		 GToken token("GFixedSizePriorityQueueT<T>", e);
 
@@ -475,7 +488,7 @@ public:
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_data, p_load->m_data), token);
 		 compare_t(IDENTITY(m_maxSize, p_load->m_maxSize), token);
-		 compare_t(IDENTITY(m_higherIsBetter, p_load->m_higherIsBetter), token);
+		 compare_t(IDENTITY(m_sortOrder, p_load->m_sortOrder), token);
 
 		 // React on deviations from the expectation
 		 token.evaluate();
@@ -488,12 +501,13 @@ protected:
 	  */
 	 void load_(const GFixedSizePriorityQueueT<T> *cp) override {
 		 // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
-		 const GFixedSizePriorityQueueT<T> *p_load = Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
+		 const GFixedSizePriorityQueueT<T> *p_load
+		 	= Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
 
 		 // Load local data
 		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_data, m_data);
 		 m_maxSize = p_load->m_maxSize;
-		 m_higherIsBetter = p_load->m_higherIsBetter;
+		 m_sortOrder = p_load->m_sortOrder;
 	 }
 
 	 /***************************************************************************/
@@ -501,11 +515,11 @@ protected:
 	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(std::shared_ptr <T> new_item, std::shared_ptr <T> old_item) const {
-		 if (m_higherIsBetter) {
-			 if (this->evaluation(new_item) > this->evaluation(old_item)) return true;
-			 else return false;
-		 } else { // lower is better
+		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
 			 if (this->evaluation(new_item) < this->evaluation(old_item)) return true;
+			 else return false;
+		 } else { // higher is better
+			 if (this->evaluation(new_item) > this->evaluation(old_item)) return true;
 			 else return false;
 		 }
 	 }
@@ -515,12 +529,12 @@ protected:
 	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(std::shared_ptr<T> new_item, const double &old_item) const {
-		 if (m_higherIsBetter) {
-			 if (this->evaluation(new_item) > old_item) return true;
-			 else return false;
-		 } else { // lower is better
+		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
 			 if (this->evaluation(new_item) < old_item) return true;
 			 else return false;
+		 } else { // higher is better
+			 if (this->evaluation(new_item) > old_item) return true;
+			 else return false;
 		 }
 	 }
 
@@ -528,13 +542,16 @@ protected:
 	 /**
 	  * Checks whether value new_item is better than value old_item
 	  */
-	 bool isBetter(const double &new_item, std::shared_ptr<T> old_item) const {
-		 if (m_higherIsBetter) {
-			 if (new_item > this->evaluation(old_item)) return true;
-			 else return false;
-		 } else { // lower is better
+	 bool isBetter(
+	 	const double &new_item
+	 	, std::shared_ptr<T> old_item
+	 ) const {
+		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
 			 if (new_item < this->evaluation(old_item)) return true;
 			 else return false;
+		 } else { // higher is better
+			 if (new_item > this->evaluation(old_item)) return true;
+			 else return false;
 		 }
 	 }
 
@@ -542,12 +559,15 @@ protected:
 	 /**
 	  * Checks whether value new_item is better than value old_item
 	  */
-	 bool isBetter(const double &new_item, const double &old_item) const {
-		 if (m_higherIsBetter) {
-			 if (new_item > old_item) return true;
-			 else return false;
-		 } else { // lower is better
+	 bool isBetter(
+	 	const double &new_item
+	 	, const double &old_item
+	) const {
+		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
 			 if (new_item < old_item) return true;
+			 else return false;
+		 } else { // higher is better
+			 if (new_item > old_item) return true;
 			 else return false;
 		 }
 	 }
@@ -562,7 +582,7 @@ protected:
 	 std::deque<std::shared_ptr<T>> m_data; ///< Holds the actual data
 
 	 std::size_t m_maxSize = 10; ///< The maximum number of work-items
-	 bool m_higherIsBetter = false; ///< Indicates whether higher evaluations of items indicate a higher priority
+	 Gem::Common::sortOrder m_sortOrder = Gem::Common::sortOrder::LOWERISBETTER; ///< Indicates whether higher evaluations of items indicate a higher priority
 
 private:
 	 /***************************************************************************/

@@ -139,11 +139,17 @@ const double CE_DEF_SIMILARITY_DIFFERENCE = pow(10., -5);
 /**
  * Indicates whether higher or lower values are considered better. Needed e.g.
  * in conjunction with the sorting in priority queues.
- *
- * TODO: Replace by enum class
  */
-const bool HIGHERISBETTER = true;
-const bool LOWERISBETTER = false;
+enum class sortOrder : Gem::Common::ENUMBASETYPE {
+	 LOWERISBETTER = 0
+	 , HIGHERISBETTER = 1
+};
+
+/** @brief Puts a Gem::Common::sortOrder into a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::sortOrder &);
+
+/** @brief Reads a Gem::Common::sortOrder item from a stream. Needed also for boost::lexical_cast<> */
+G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::sortOrder &);
 
 /******************************************************************************/
 /**
