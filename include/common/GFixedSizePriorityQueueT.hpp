@@ -337,8 +337,6 @@ public:
 			 }
 		 );
 
-		 // TODO: What happens here in the case multiple identical items were added? Won't this remove all
-		 // items after the first duplicate ?
 		 // Remove duplicate items
 		 m_data.erase(
 			 std::unique(
