@@ -1077,7 +1077,7 @@ public:
 	 G_API_COMMON GBasePlotter(const GBasePlotter &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GBasePlotter();
+	 virtual G_API_COMMON ~GBasePlotter() = default;
 
 	 /** @brief Allows to set the drawing arguments for this plot */
 	 G_API_COMMON void setDrawingArguments(std::string);
@@ -1463,7 +1463,7 @@ public:
 	 G_API_COMMON GHistogram1D(const GHistogram1D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GHistogram1D();
+	 virtual G_API_COMMON ~GHistogram1D() = default;
 
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
@@ -1547,7 +1547,7 @@ public:
 	 G_API_COMMON GHistogram1I(const GHistogram1I &);
 
 	 /** @brief The destructor */
-	 G_API_COMMON ~GHistogram1I();
+	 G_API_COMMON ~GHistogram1I() = default;
 
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
@@ -2281,7 +2281,7 @@ public:
 	 G_API_COMMON GHistogram2D(const GHistogram2D&);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GHistogram2D();
+	 virtual G_API_COMMON ~GHistogram2D() = default;
 
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
@@ -2375,7 +2375,7 @@ public:
 	 /** @brief A copy constructor */
 	 G_API_COMMON GGraph2D(const GGraph2D &);
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GGraph2D();
+	 virtual G_API_COMMON ~GGraph2D() = default;
 
 	 /** @brief Adds arrows to the plots between consecutive points */
 	 G_API_COMMON void setDrawArrows(bool= true);
@@ -2451,7 +2451,7 @@ public:
 	 G_API_COMMON GGraph2ED(const GGraph2ED &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GGraph2ED();
+	 virtual G_API_COMMON ~GGraph2ED() = default;
 
 	 /** @brief Determines whether a scatter plot or a curve is created */
 	 G_API_COMMON void setPlotMode(graphPlotMode);
@@ -2919,7 +2919,7 @@ public:
 	 G_API_COMMON GGraph3D(const GGraph3D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GGraph3D();
+	 virtual G_API_COMMON ~GGraph3D() = default;
 
 	 /** @brief Adds lines to the plots between consecutive points */
 	 G_API_COMMON void setDrawLines(bool= true);
@@ -3475,7 +3475,7 @@ public:
 	 G_API_COMMON GGraph4D(const GGraph4D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GGraph4D();
+	 virtual G_API_COMMON ~GGraph4D() = default;
 
 	 /** @brief Allows to set the minimum marker size */
 	 G_API_COMMON void setMinMarkerSize(const double &);
@@ -3571,7 +3571,7 @@ public:
 	 G_API_COMMON GFunctionPlotter1D(const GFunctionPlotter1D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GFunctionPlotter1D();
+	 virtual G_API_COMMON ~GFunctionPlotter1D() = default;
 
 	 /** @brief Allows to set the number of sampling points in x-direction */
 	 G_API_COMMON void setNSamplesX(std::size_t);
@@ -3649,7 +3649,7 @@ public:
 	 G_API_COMMON GFunctionPlotter2D(const GFunctionPlotter2D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GFunctionPlotter2D();
+	 virtual G_API_COMMON ~GFunctionPlotter2D() = default;
 
 	 /** @brief Allows to set the number of sampling points in x-direction */
 	 G_API_COMMON void setNSamplesX(std::size_t);
@@ -3734,7 +3734,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_COMMON GPlotDesigner(const GPlotDesigner&);
 	 /** @brief The destructor */
-	 G_API_COMMON virtual ~GPlotDesigner();
+	 G_API_COMMON virtual ~GPlotDesigner() = default;
 
 	 /* @brief Emits the overall plot */
 	 G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;

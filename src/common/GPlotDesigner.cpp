@@ -213,13 +213,6 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
 
 /******************************************************************************/
 /**
- * The destructor
- */
-GBasePlotter::~GBasePlotter()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Allows to set the drawing arguments for this plot
  *
  * @param drawingArguments The drawing arguments for this plot
@@ -556,13 +549,6 @@ GGraph2D::GGraph2D(const GGraph2D &cp)
 
 /******************************************************************************/
 /**
- * The destructor
- */
-GGraph2D::~GGraph2D()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Adds arrows to the plots between consecutive points. Note that setting this
  * value to true will force "SCATTER" mode
  *
@@ -862,13 +848,6 @@ GGraph2ED::GGraph2ED(const GGraph2ED &cp)
 
 /******************************************************************************/
 /**
- * The destructor
- */
-GGraph2ED::~GGraph2ED()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Determines whether a scatter plot or a curve is created
  *
  * @param pM The desired plot mode
@@ -1125,13 +1104,6 @@ GGraph3D::GGraph3D()
 GGraph3D::GGraph3D(const GGraph3D &cp)
 	: GDataCollector3T<double, double, double>(cp)
 	  , drawLines_(cp.drawLines_)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GGraph3D::~GGraph3D()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1416,13 +1388,6 @@ GGraph4D::GGraph4D(const GGraph4D &cp)
 	  , maxMarkerSize_(cp.maxMarkerSize_)
 	  , smallWLargeMarker_(cp.smallWLargeMarker_)
 	  , nBest_(cp.nBest_)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GGraph4D::~GGraph4D()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1793,13 +1758,6 @@ GHistogram1D::GHistogram1D(const GHistogram1D &cp)
 
 /******************************************************************************/
 /**
- * The destructor
- */
-GHistogram1D::~GHistogram1D()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Retrieve specific header settings for this plot
  */
 std::string GHistogram1D::headerData_(
@@ -2075,12 +2033,6 @@ GHistogram1I::GHistogram1I(const GHistogram1I &cp)
 	  , minX_(cp.minX_)
 	  , maxX_(cp.maxX_)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GHistogram1I::~GHistogram1I() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2383,12 +2335,6 @@ GHistogram2D::GHistogram2D(const GHistogram2D &cp)
 	  , maxY_(cp.maxY_)
 	  , dropt_(cp.dropt_)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GHistogram2D::~GHistogram2D() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -2803,13 +2749,6 @@ GFunctionPlotter1D::GFunctionPlotter1D(const GFunctionPlotter1D &cp)
 
 /******************************************************************************/
 /**
- * The destructor
- */
-GFunctionPlotter1D::~GFunctionPlotter1D()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Allows to set the number of sampling points of the function on the x-axis
  *
  * @param nSamplesX The number of sampling points of the function on the x-axis
@@ -3039,13 +2978,6 @@ GFunctionPlotter2D::GFunctionPlotter2D(const GFunctionPlotter2D &cp)
 	  , yExtremes_(cp.yExtremes_)
 	  , nSamplesX_(cp.nSamplesX_)
 	  , nSamplesY_(cp.nSamplesY_)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GFunctionPlotter2D::~GFunctionPlotter2D()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -3322,13 +3254,6 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
 	// Copy any secondary plotters over
 	Gem::Common::copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
 }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GPlotDesigner::~GPlotDesigner()
-{ /* nothing */ }
 
 /******************************************************************************/
 /**
