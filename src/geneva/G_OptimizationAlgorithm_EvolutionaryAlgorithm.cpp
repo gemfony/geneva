@@ -520,7 +520,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 #endif
 
 	//--------------------------------------------------------------------------------
-	// Set the "DO_PROCESS" flag in all required work items, the "IGNORE" flag in all others.
+	// Set the "DO_PROCESS" flag in all required work items, the "DO_IGNORE" flag in all others.
 
 	setProcessingFlag(this->data, range);
 

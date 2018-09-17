@@ -398,7 +398,7 @@ public:
 	  * Checks whether the IGNORED flag is set
 	  */
 	 bool is_ignored() const noexcept {
-		 return (processingStatus::IGNORE == this->getProcessingStatus());
+		 return (processingStatus::DO_IGNORE == this->getProcessingStatus());
 	 }
 
 	 /***************************************************************************/
@@ -447,7 +447,7 @@ public:
 	  *
 	  * @param target_ps The desired new processing status
 	  */
-	 void set_processing_status(processingStatus target_ps = processingStatus::IGNORE) {
+	 void set_processing_status(processingStatus target_ps = processingStatus::DO_IGNORE) {
 		 // Do nothing if the new state is equal to the old one
 		 if(target_ps == m_processing_status) {
 			 return;
@@ -467,7 +467,7 @@ public:
 		 switch(m_processing_status) {
 			 //------------------------------------------------------------------------------------
 
-			 case processingStatus::IGNORE:
+			 case processingStatus::DO_IGNORE:
 				 if(target_ps == processingStatus::DO_PROCESS) {
 					 // Store the new state
 					 m_processing_status = target_ps;
@@ -489,7 +489,7 @@ public:
 			 //------------------------------------------------------------------------------------
 
 			 case processingStatus::DO_PROCESS:
-				 if(target_ps == processingStatus::IGNORE) {
+				 if(target_ps == processingStatus::DO_IGNORE) {
 					 // Store the new state
 					 m_processing_status = target_ps;
 					 // Clear any remaining error messages
@@ -501,7 +501,7 @@ public:
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "In GProcessingContainerT<>::set_processing_status():" << std::endl
 							 << "Got invalid target processing status " << psToStr(target_ps) << std::endl
-							 << "Expected a new state of IGNORE for the" << std::endl
+							 << "Expected a new state of DO_IGNORE for the" << std::endl
 							 << "current state of " << psToStr(m_processing_status) << std::endl
 					 );
 				 }
@@ -510,7 +510,7 @@ public:
 			 //------------------------------------------------------------------------------------
 
 			 case processingStatus::PROCESSED:
-				 if(target_ps == processingStatus::IGNORE || target_ps == processingStatus::DO_PROCESS) {
+				 if(target_ps == processingStatus::DO_IGNORE || target_ps == processingStatus::DO_PROCESS) {
 					 // Store the new state
 					 m_processing_status = target_ps;
 					 // Clear any remaining error messages
@@ -522,7 +522,7 @@ public:
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "In GProcessingContainerT<>::set_processing_status():" << std::endl
 							 << "Got invalid target processing status " << psToStr(target_ps) << std::endl
-							 << "Expected a new state of IGNORE or DO_PROCESS for the" << std::endl
+							 << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
 							 << "current state of " << psToStr(m_processing_status) << std::endl
 					 );
 				 }
@@ -532,7 +532,7 @@ public:
 
 			 case processingStatus::EXCEPTION_CAUGHT:
 			 case processingStatus::ERROR_FLAGGED:
-				 if(target_ps == processingStatus::IGNORE || target_ps == processingStatus::DO_PROCESS) {
+				 if(target_ps == processingStatus::DO_IGNORE || target_ps == processingStatus::DO_PROCESS) {
 					 // Store the new state
 					 m_processing_status = target_ps;
 					 // Clear any remaining error messages
@@ -544,7 +544,7 @@ public:
 						 g_error_streamer(DO_LOG, time_and_place)
 							 << "In GProcessingContainerT<>::set_processing_status():" << std::endl
 					 	    << "Got invalid target processing status " << psToStr(target_ps) << std::endl
-						 	 << "Expected a new state of IGNORE or DO_PROCESS for the" << std::endl
+						 	 << "Expected a new state of DO_IGNORE or DO_PROCESS for the" << std::endl
 						 	 << "current state of " << psToStr(m_processing_status) << std::endl
 					 );
 				 }
@@ -567,7 +567,7 @@ public:
 	  * Sets the IGNORE flag for this work item so that it will not be processed.
 	  */
 	 void mark_as_ignorable() {
-		 m_processing_status = processingStatus::IGNORE;
+		 m_processing_status = processingStatus::DO_IGNORE;
 	 }
 
 	 /***************************************************************************/
@@ -742,7 +742,7 @@ public:
 	  *
 	  * @param The desired new processing status
 	  */
-	 std::string get_and_clear_exceptions(processingStatus ps = processingStatus::IGNORE) {
+	 std::string get_and_clear_exceptions(processingStatus ps = processingStatus::DO_IGNORE) {
 		 std::string stored_exceptions = m_stored_error_descriptions;
 		 this->set_processing_status(ps);
 		 return stored_exceptions;
@@ -992,7 +992,7 @@ private:
 	 std::vector<processing_result_type> m_stored_results_vec = std::vector<processing_result_type>(1, processing_result_type()); ///< The results stored by this object
 
 	 std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
-	 processingStatus m_processing_status = processingStatus::IGNORE; ///< By default no processing is initiated
+	 processingStatus m_processing_status = processingStatus::DO_IGNORE; ///< By default no processing is initiated
 
 	 std::string m_evaluation_id = "empty"; ///< A unique id that is assigned to an evaluation
 };

@@ -731,11 +731,11 @@ protected:
 
 				 // Update the submission counter
 				 nSubmittedItems++;
-			 } else if(processingStatus::IGNORE != ps && processingStatus::PROCESSED != ps) {
+			 } else if(processingStatus::DO_IGNORE != ps && processingStatus::PROCESSED != ps) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems(): Error" << std::endl
-						 << "processing status is neither DO_PROCESS nor IGNORE. We got " << ps << std::endl
+						 << "processing status is neither DO_PROCESS nor DO_IGNORE. We got " << ps << std::endl
 				 );
 			 }
 

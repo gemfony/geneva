@@ -111,8 +111,8 @@ std::vector<bool> getBooleanMask(
  */
 G_API_COURTIER std::string psToStr(const processingStatus& ps) {
 	switch(ps) {
-		case processingStatus::IGNORE:
-			return "IGNORE";
+		case processingStatus::DO_IGNORE:
+			return "DO_IGNORE";
 
 		case processingStatus::DO_PROCESS:
 			return "DO_PROCESS";

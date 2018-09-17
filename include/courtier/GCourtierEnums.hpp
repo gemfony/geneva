@@ -129,7 +129,7 @@ const std::size_t DEFAULTPROCESSEDBUFFERSIZE=Gem::Common::DEFAULTBUFFERSIZE;
  * and items for which an exception was thrown during processing.
  */
 enum class processingStatus : Gem::Common::ENUMBASETYPE {
-	 IGNORE = 0 // Set by the submitter when an item does not need to be processed. No defined object value.
+	 DO_IGNORE = 0 // Set by the submitter when an item does not need to be processed. No defined object value.
 	 , DO_PROCESS = 1 // Marks a GProcessingContainerT as "needs to be processed". No defined object value.
 	 , PROCESSED = 2 // Set when processing has taken place. Object value is well defined.
 	 , EXCEPTION_CAUGHT = 3 // Set by GProcessingContainerT when an exception was caught. No defined object value.

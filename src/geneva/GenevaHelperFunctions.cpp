@@ -53,7 +53,7 @@ void setProcessingFlag(
 
 	for(auto p_it = workItems.begin(); p_it != workItems.begin() + start; ++p_it) {
 		if(Gem::Courtier::processingStatus::PROCESSED != (*p_it)->getProcessingStatus()) {
-			(*p_it)->set_processing_status(Gem::Courtier::processingStatus::IGNORE);
+			(*p_it)->set_processing_status(Gem::Courtier::processingStatus::DO_IGNORE);
 		}
 	}
 	for(auto p_it = workItems.begin() + start; p_it != workItems.begin() + end; ++p_it) {
@@ -61,7 +61,7 @@ void setProcessingFlag(
 	}
 	for(auto p_it = workItems.begin() + end; p_it != workItems.end(); ++p_it) {
 		if(Gem::Courtier::processingStatus::PROCESSED != (*p_it)->getProcessingStatus()) {
-			(*p_it)->set_processing_status(Gem::Courtier::processingStatus::IGNORE);
+			(*p_it)->set_processing_status(Gem::Courtier::processingStatus::DO_IGNORE);
 		}
 	}
 }
