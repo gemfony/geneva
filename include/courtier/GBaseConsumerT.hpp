@@ -117,7 +117,7 @@ public:
 	  * Check whether the stop flag has been set
 	  */
 	 bool stopped() const {
-		 return m_server_stopped.load();
+		 return m_server_stopping;
 	 }
 
 	 //-------------------------------------------------------------------------
@@ -237,7 +237,7 @@ protected:
 	  * Stop execution
 	  */
 	 virtual void shutdown_() BASE {
-		 m_server_stopped.store(true);
+		 m_server_stopping.store(true);
 	 }
 
 	 //-------------------------------------------------------------------------
@@ -315,7 +315,7 @@ private:
 
 	 //-------------------------------------------------------------------------
 
-	 mutable std::atomic<bool> m_server_stopped{false}; ///< Set to true if we are expected to stop
+	 mutable std::atomic<bool> m_server_stopping{false}; ///< Set to true if we are expected to stop
 
 	 //-------------------------------------------------------------------------
 };
