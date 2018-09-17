@@ -78,6 +78,8 @@
 #include <cmath>
 #include <chrono>
 #include <iomanip>
+#include <time.h>
+#include <ctime>
 
 // Boost header files go here
 #include <boost/noncopyable.hpp>
@@ -523,7 +525,13 @@ private:
 #else
 		 std::ostringstream oss;
 		 std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-		 oss << std::put_time(std::localtime(&now), "%c");
+
+#ifdef __STDC_LIB_EXT1__
+		 struct tm buf;
+		 oss << std::put_time(::localtime_s(&now, &buf), "%c");
+#else
+		 oss << std::put_time(::localtime(&now), "%c");
+#endif
 		 return oss.str();
 #endif
 	 }
