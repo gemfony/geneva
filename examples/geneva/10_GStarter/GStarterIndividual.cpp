@@ -390,7 +390,7 @@ bool GStarterIndividual::modify_GUnitTests() {
 	return result;
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GStarterIndividual::modify_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GStarterIndividual::modify_GUnitTests", "GEM_TESTING");
 	return false;
 #endif /* GEM_TESTING */
 }
@@ -458,7 +458,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GStarterIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GStarterIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 
@@ -490,7 +490,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
 	//------------------------------------------------------------------------------
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
-	condnotset("GStarterIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+	Gem::Common::condnotset("GStarterIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
 }
 

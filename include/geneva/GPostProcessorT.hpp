@@ -175,7 +175,7 @@ public:
 protected:
 	 /**************************************************************************/
 	 /** @brief Raw post-processing (no checks for eligibility); purely virtual */
-	 virtual bool raw_processing_(base_type& p_raw) BASE = 0;
+	 virtual G_API_GENEVA bool raw_processing_(base_type& p_raw) BASE = 0;
 
 	 /**************************************************************************/
 	 /**
@@ -210,7 +210,7 @@ protected:
 private:
 	 /**************************************************************************/
 	 /** @brief Creates a deep clone of this object; purely virtual */
-	 Gem::Common::GSerializableFunctionObjectT<base_type> * clone_() const override = 0;
+	 G_API_GENEVA Gem::Common::GSerializableFunctionObjectT<base_type> * clone_() const override = 0;
 
 	 /**************************************************************************/
 	 // Data
@@ -250,53 +250,53 @@ class GEvolutionaryAlgorithmPostOptimizer
 public:
 	 /**************************************************************************/
 	 /** @brief Initialization with the execution mode and configuration file */
-	 GEvolutionaryAlgorithmPostOptimizer(
+	 G_API_GENEVA GEvolutionaryAlgorithmPostOptimizer(
 		 execMode executionMode
 		 , const std::string& oa_configFile
 		 , const std::string& executor_configFile
 	 );
 	 /** @brief The copy constructor */
-	 GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp) = default;
+	 G_API_GENEVA GEvolutionaryAlgorithmPostOptimizer(const GEvolutionaryAlgorithmPostOptimizer& cp) = default;
 	 /** @brief The destructor */
-	 ~GEvolutionaryAlgorithmPostOptimizer() override = default;
+	 G_API_GENEVA ~GEvolutionaryAlgorithmPostOptimizer() override = default;
 
 	 /** @brief Returns the name of this class */
-	 std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 	 /** @brief Checks for compliance with expectations with respect to another object of the same type */
-	 void compare(
+	 G_API_GENEVA void compare(
 		 const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
 		 , const Gem::Common::expectation &e
 		 , const double &limit
 	 ) const override;
 
 	 /** @brief Allows to set the execution mode for this post-processor (serial vs. multi-threaded) */
-	 void setExecMode(execMode executionMode);
+	 G_API_GENEVA void setExecMode(execMode executionMode);
 	 /** @brief Allows to retrieve the current execution mode */
-	 execMode getExecMode() const;
+	 G_API_GENEVA execMode getExecMode() const;
 
 	 /** @brief Allows to specify the name of a configuration file for the optimization algorithm */
-	 void setOAConfigFile(const std::string& oaConfigFile);
+	 G_API_GENEVA void setOAConfigFile(const std::string& oaConfigFile);
 	 /** @brief Allows to retrieve the configuration file for the optimization algorithm */
-	 std::string getOAConfigFile() const;
+	 G_API_GENEVA std::string getOAConfigFile() const;
 
 	 /** @brief Allows to specify the name of a configuration file for the executor */
-	 void setExecutorConfigFile(const std::string& executorConfigFile);
+	 G_API_GENEVA void setExecutorConfigFile(const std::string& executorConfigFile);
 	 /** @brief Allows to retrieve the configuration file for the executor */
-	 std::string getExecutorConfigFile() const;
+	 G_API_GENEVA std::string getExecutorConfigFile() const;
 
 protected:
 	 /**************************************************************************/
 	 /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
-	 void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override;
+	 G_API_GENEVA void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override;
 	 /** @brief Creates a deep clone of this object */
-	 Gem::Common::GSerializableFunctionObjectT<GParameterSet> * clone_() const override;
+	 G_API_GENEVA Gem::Common::GSerializableFunctionObjectT<GParameterSet> * clone_() const override;
 	 /** @brief The actual post-processing takes place here (no further checks) */
-	 bool raw_processing_(GParameterSet& p) override;
+	 G_API_GENEVA bool raw_processing_(GParameterSet& p) override;
 
 private:
 	 /** @brief The standard constructor */
-	 GEvolutionaryAlgorithmPostOptimizer();
+	 G_API_GENEVA GEvolutionaryAlgorithmPostOptimizer();
 
 	 /**************************************************************************/
 	 // Data

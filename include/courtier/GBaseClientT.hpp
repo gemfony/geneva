@@ -432,6 +432,9 @@ private:
 				 return "run_state::FINALLY";
 				 break;
 		 }
+
+		 // Make the compiler happy
+		 return std::string();
 	 }
 
 	 //---------------------------------------------------------------------------
