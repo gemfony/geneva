@@ -318,6 +318,9 @@ std::string container_to_string(
 				<< "with serializationMode == " << Gem::Common::serModeToString(serMode) << std::endl
 		);
 	}
+
+	// Make the compiler happy
+	return std::string();
 }
 
 /******************************************************************************/

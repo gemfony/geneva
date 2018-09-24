@@ -609,7 +609,7 @@ private:
 		 // Find the buffer port (if any)
 		 try {
 			 return m_ProcessedBuffers.at(id);
-		 } catch(const std::out_of_range& e) {
+		 } catch(const std::out_of_range&) {
 			 // Return an empty pointer
 			 return GBUFFERPORT_PTR();
 		 }
@@ -661,7 +661,7 @@ private:
 			 next_id = m_current_bufferport_id;
 
 			 // Reset the id, if we have reached the maximum size
-			 if(++m_current_bufferport_id == std::numeric_limits<BUFFERPORT_ID_TYPE>::max()) {
+			 if(++m_current_bufferport_id == (std::numeric_limits<BUFFERPORT_ID_TYPE>::max)()) {
 				 m_current_bufferport_id = 0;
 			 }
 
