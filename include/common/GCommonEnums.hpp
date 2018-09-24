@@ -218,7 +218,7 @@ G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::seriali
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::serializationMode &);
 
 /** @brief Converts a serializationMode to a string representation for debugging purposes */
-std::string serModeToString(Gem::Common::serializationMode);
+G_API_COMMON std::string serModeToString(Gem::Common::serializationMode);
 
 /******************************************************************************/
 /**

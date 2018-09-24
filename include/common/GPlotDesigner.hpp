@@ -1503,7 +1503,7 @@ private:
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
-	 GHistogram1D(); ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
+	 G_API_COMMON GHistogram1D(); ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
 	 std::size_t nBinsX_; ///< The number of bins in the histogram
 
@@ -2332,7 +2332,7 @@ private:
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
-	 GHistogram2D(); ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
+	 G_API_COMMON GHistogram2D(); ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
 	 std::size_t nBinsX_; ///< The number of bins in the x-direction of the histogram
 	 std::size_t nBinsY_; ///< The number of bins in the y-direction of the histogram

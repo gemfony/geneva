@@ -44,6 +44,7 @@
 #include <boost/utility/identity_type.hpp>
 
 // Geneva headers go here
+#include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GWebsocketConsumerT.hpp"

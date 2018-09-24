@@ -45,6 +45,7 @@
 #include <boost/algorithm/string.hpp>
 
 // Geneva headers go here
+#include "common/GCommonEnums.hpp"
 #include "common/GFactoryT.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GParserBuilder.hpp"
