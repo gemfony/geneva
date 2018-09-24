@@ -126,6 +126,9 @@ G_API_COURTIER std::string psToStr(const processingStatus& ps) {
 		case processingStatus::ERROR_FLAGGED:
 			return "ERROR_FLAGGED";
 	}
+
+	// Make the compiler happy
+	return std::string();
 }
 
 /******************************************************************************/
@@ -149,6 +152,9 @@ std::string pcToStr(const networked_consumer_payload_command& pc) {
 		case networked_consumer_payload_command::RESULT:
 			return "RESULT";
 	}
+
+	// Make the compiler happy
+	return std::string();
 }
 
 /******************************************************************************/
