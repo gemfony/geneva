@@ -82,86 +82,86 @@ class GSimulatedAnnealing : public G_OptimizationAlgorithm_ParChild
 public:
 	 /***************************************************************************/
 	 /** @brief The default constructor */
-	 GSimulatedAnnealing();
+	 G_API_GENEVA GSimulatedAnnealing();
 	 /** @brief A standard copy constructor */
-	 GSimulatedAnnealing(const GSimulatedAnnealing& cp);
+	 G_API_GENEVA GSimulatedAnnealing(const GSimulatedAnnealing& cp);
 	 /** @brief The standard destructor */
-	 virtual ~GSimulatedAnnealing() = default;
+	 G_API_GENEVA ~GSimulatedAnnealing() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit// the limit for allowed deviations of floating point types
 	 ) const override;
 
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-	 void resetToOptimizationStart() override;
+	 G_API_GENEVA void resetToOptimizationStart() override;
 
 	 /** @brief Returns information about the type of optimization algorithm */
-	 std::string getAlgorithmPersonalityType() const override;
+	 G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
 
 	 /** @brief Returns the name of this optimization algorithm */
-	 std::string getAlgorithmName() const override;
+	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual void addConfigurationOptions (
+	 G_API_GENEVA void addConfigurationOptions (
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 
 	 /** @brief Sets the number of threads this population uses for adaption */
-	 void setNThreads(std::uint16_t nThreads);
+	 G_API_GENEVA void setNThreads(std::uint16_t nThreads);
 	 /** @brief Retrieves the number of threads this population uses for adaption */
-	 std::uint16_t getNThreads() const;
+	 G_API_GENEVA std::uint16_t getNThreads() const;
 
 	 /** @brief Determines the strength of the temperature degradation */
-	 void setTDegradationStrength(double alpha);
+	 G_API_GENEVA void setTDegradationStrength(double alpha);
 	 /** @brief Retrieves the temperature degradation strength. This function is used for simulated annealing */
-	 double getTDegradationStrength() const;
+	 G_API_GENEVA double getTDegradationStrength() const;
 
 	 /** @brief Sets the start temperature. This function is used for simulated annealing */
-	 void setT0(double t0);
+	 G_API_GENEVA void setT0(double t0);
 	 /** @brief Retrieves the start temperature. This function is used for simulated annealing */
-	 double getT0() const;
+	 G_API_GENEVA double getT0() const;
 	 /** @brief Retrieves the current temperature. This function is used for simulated annealing */
-	 double getT() const;
+	 G_API_GENEVA double getT() const;
 
 	 /** @brief Emits a name for this class / object */
-	 std::string name() const override;
+	 G_API_GENEVA std::string name() const override;
 
 protected:
 	 /***************************************************************************/
 
 	 /** @brief Loads the data of another GSimulatedAnnealingT object, camouflaged as a GObject */
-	 void load_(const GObject *cp) override;
+	 G_API_GENEVA void load_(const GObject *cp) override;
 	 /** @brief Creates a deep copy of this object */
-	 GObject *clone_() const override;
+	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Some error checks related to population sizes */
-	 void populationSanityChecks() const override;
+	 G_API_GENEVA void populationSanityChecks() const override;
 
 	 /** @brief Adapt all children in parallel */
-	 void adaptChildren() override;
+	 G_API_GENEVA void adaptChildren() override;
 
 	 /** @brief  We submit individuals to the broker connector and wait for processed items. */
-	 void runFitnessCalculation() override;
+	 G_API_GENEVA void runFitnessCalculation() override;
 
 	 /** @brief Fixes the population after a job submission */
-	 void fixAfterJobSubmission();
+	 G_API_GENEVA void fixAfterJobSubmission();
 
 	 /** @brief Choose new parents, based on the SA selection scheme. */
-	 void selectBest() override;
+	 G_API_GENEVA void selectBest() override;
 
 	 /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-	 std::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
+	 G_API_GENEVA std::tuple<std::size_t,std::size_t> getEvaluationRange() const override;
 
 	 /** @brief Does any necessary initialization work before the optimization loop starts */
-	 void init() override;
+	 G_API_GENEVA void init() override;
 	 /** @brief Does any necessary finalization work after the optimization loop has ended */
-	 void finalize() override;
+	 G_API_GENEVA void finalize() override;
 
 	 /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-	 std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+	 G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 private:
 	 /***************************************************************************/
@@ -193,11 +193,11 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief Applies modifications to this object */
-	 bool modify_GUnitTests() override;
+	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to succeed */
-	 void specificTestsNoFailureExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 	 /** @brief Performs self tests that are expected to fail */
-	 void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 
 	 /***************************************************************************/
 };
