@@ -5,13 +5,8 @@
 /*
  * This file is part of the Geneva library collection.
  *
- * Note: this class was adapted from examples provided by Anthony
- * Williams together with his book "C++ Concurrency in Action". At the
- * time of writing, his code was available from
- * https://www.manning.com/books/c-plus-plus-concurrency-in-action
- * under the terms of the Boost software license version 1.0 .
- * Gemfony recommends Anthony's book as a comprehensive pool of
- * knowledge around C++11 threads.
+ * Note: this class was adapted from boost/barrier.hpp and "translated" to C++11.
+ * It is consequently covered by the Boost license v.1.0, as quoted further below.
  *
  * As allowed by the license, modifications were applied to the code.
  * These modifications are also covered by the Boost Software License,
@@ -78,11 +73,17 @@
 
 // Standard headers go here
 #include <thread>
+#include <mutex>
+#include <condition_variable>
 #include <atomic>
 
 // Boost headers go here
 
 // Geneva headers go here
+#include "common/GExceptions.hpp"
+#include "common/GErrorStreamer.hpp"
+#include "common/GCommonEnums.hpp"
+#include "common/GLogger.hpp"
 
 namespace Gem {
 namespace Common {
@@ -96,54 +97,53 @@ namespace Common {
  */
 class GBarrier {
 public:
-	 /**
-	  * Initialization with the expected number of threads to call wait()
-	  */
-	 GBarrier(unsigned int count)
-		 : m_count(count)
-		 , m_spaces(count)
-		 , m_generation(0)
-	 { /* nothing */ }
-
-	 /**
-	  * Will block a calling thread until a sufficient number of threads has
-	  * called the function.
-	  */
-	 void wait()
-	 {
-		 unsigned int const gen=m_generation.load();
-		 if(!--m_spaces)
-		 {
-			 m_spaces=m_count.load();
-			 ++m_generation;
-		 }
-		 else
-		 {
-			 while(m_generation.load()==gen)
-			 {
-				 std::this_thread::yield();
-			 }
-		 }
+	 explicit GBarrier(std::uint32_t count) noexcept(false) : m_count(count) {
+	 	if(0==count) {
+			throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In GBarrier::GBarrier(): Error!" << std::endl
+					<< "count cannot be 0" << std::endl
+			);
+	 	}
 	 }
 
-	 /**
-	  * Indicates that a given thread will no longer call wait()
-	  */
-	 void done_waiting()
-	 {
-		 --m_count;
-		 if(!--m_spaces)
-		 {
-			 m_spaces=m_count.load();
-			 ++m_generation;
+	 ~GBarrier() = default;
+
+	 GBarrier() = delete;
+	 GBarrier(const GBarrier&) = delete;
+	 GBarrier(GBarrier&&) = delete;
+	 GBarrier& operator=(const GBarrier&) = delete;
+	 GBarrier& operator=(GBarrier&&) = delete;
+
+	 bool wait() {
+		 std::unique_lock<std::mutex> lock(m_mutex);
+		 std::uint32_t gen = m_generation;
+
+		 if (--m_count == 0) {
+			 m_generation++;
+			 m_count = m_count_start;
+			 lock.unlock();
+			 m_cond.notify_all();
+			 return true;
 		 }
+
+		 m_cond.wait(
+		 	lock
+		 	, [&]() {
+		 		return gen == m_generation;
+		 	}
+	 	 );
+		 return false;
 	 }
 
 private:
-	 std::atomic<unsigned int> m_count;
-	 std::atomic<unsigned int> m_spaces;
-	 std::atomic<unsigned int> m_generation;
+	 std::mutex m_mutex;
+	 std::condition_variable m_cond;
+	 std::uint32_t m_count;
+	 std::uint32_t m_count_start = m_count;
+	 std::uint32_t m_generation = 0;
 };
+
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -151,5 +151,3 @@ private:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-
