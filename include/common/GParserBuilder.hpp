@@ -117,9 +117,9 @@ class GOneTimeRefParameterT {
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & BOOST_SERIALIZATION_NVP(parm_)
-		 & BOOST_SERIALIZATION_NVP(parmDummy_)
-		 & BOOST_SERIALIZATION_NVP(parmSet_);
+		 & BOOST_SERIALIZATION_NVP(m_parm)
+		 & BOOST_SERIALIZATION_NVP(m_parm_dummy)
+		 & BOOST_SERIALIZATION_NVP(m_parm_set);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -129,9 +129,9 @@ public:
 	  * The standard constructor
 	  */
 	 explicit GOneTimeRefParameterT(const T &def = T(0))
-		 : parm_(def)
-		 , parmDummy_(def)
-		 , parmSet_(false)
+		 : m_parm(def)
+			, m_parm_dummy(def)
+			, m_parm_set(false)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -139,9 +139,9 @@ public:
 	  * The copy constructor
 	  */
 	 GOneTimeRefParameterT(const GOneTimeRefParameterT<T> &cp)
-		 : parm_(cp.parm_)
-		 , parmDummy_(cp.parmDummy_)
-		 , parmSet_(cp.parmSet_)
+		 : m_parm(cp.m_parm)
+			, m_parm_dummy(cp.m_parm_dummy)
+			, m_parm_set(cp.m_parm_set)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -149,9 +149,9 @@ public:
 	  * Assignment of another object of this type
 	  */
 	 GOneTimeRefParameterT<T> &operator=(const GOneTimeRefParameterT<T> &cp) {
-		 parm_ = cp.parm_;
-		 parmDummy_ = cp.parmDummy_;
-		 parmSet_ = cp.parmSet_;
+		 m_parm = cp.m_parm;
+		 m_parm_dummy = cp.m_parm_dummy;
+		 m_parm_set = cp.m_parm_set;
 
 		 return *this;
 	 }
@@ -162,11 +162,11 @@ public:
 	  * it will return a reference to the dummy parameter.
 	  */
 	 T &reference() {
-		 if (parmSet_) {
-			 return parmDummy_;
+		 if (m_parm_set) {
+			 return m_parm_dummy;
 		 } else {
-			 parmSet_ = true;
-			 return parm_;
+			 m_parm_set = true;
+			 return m_parm;
 		 }
 	 }
 
@@ -175,7 +175,7 @@ public:
 	  * Allows to check whether a parameter has already been set
 	  */
 	 bool parmSet() const {
-		 return parmSet_;
+		 return m_parm_set;
 	 }
 
 	 /***************************************************************************/
@@ -183,7 +183,7 @@ public:
 	  * Explicit reset of the "dirty" flag
 	  */
 	 void reset() {
-		 parmSet_ = false;
+		 m_parm_set = false;
 	 }
 
 	 /***************************************************************************/
@@ -191,7 +191,7 @@ public:
 	  * Returns the parameter value
 	  */
 	 T value() const {
-		 return parm_;
+		 return m_parm;
 	 }
 
 	 /***************************************************************************/
@@ -199,8 +199,8 @@ public:
 	  * Allows to explicitly set the value of the parameter
 	  */
 	 void setValue(const T &parm) {
-		 parm_ = parm;
-		 parmSet_ = true;
+		 m_parm = parm;
+		 m_parm_set = true;
 	 }
 
 	 /***************************************************************************/
@@ -216,7 +216,7 @@ public:
 	  * Automatic conversion
 	  */
 	 operator T() {
-		 return parm_;
+		 return m_parm;
 	 }
 
 	 /***************************************************************************/
@@ -224,15 +224,15 @@ public:
 	  * Automatic conversion for constant callers
 	  */
 	 operator T() const {
-		 return parm_;
+		 return m_parm;
 	 }
 
 private:
 	 /***************************************************************************/
 
-	 T parm_; ///< Stores the actual setting
-	 T parmDummy_; ///< Returned instead of parm_ if the latter has already been set
-	 bool parmSet_; ///< Set to true if the parameter has been set already
+	 T m_parm; ///< Stores the actual setting
+	 T m_parm_dummy; ///< Returned instead of parm_ if the latter has already been set
+	 bool m_parm_set; ///< Set to true if the parameter has been set already
 };
 
 /******************************************************************************/
@@ -245,14 +245,15 @@ private:
 class commentLevel {
 public:
 	 /** @brief The standard constructor */
-	 explicit G_API_COMMON commentLevel(const std::size_t);
+	 explicit G_API_COMMON commentLevel(std::size_t);
+
+	 commentLevel() = delete; ///< The default constructor -- intentionally undefined
 
 	 /** @brief Retrieves the current commentLevel */
 	 G_API_COMMON std::size_t getCommentLevel() const;
 
 private:
-	 commentLevel() = delete; ///< The default constructor -- intentionally private and undefined
-	 std::size_t commentLevel_; ///< The id of the comment inside of GParsableI
+	 std::size_t m_comment_level; ///< The id of the comment inside of GParsableI
 };
 
 /******************************************************************************/
@@ -290,7 +291,7 @@ public:
 	 );
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GParsableI();
+	 virtual G_API_COMMON ~GParsableI() = default;
 
 	 /** @brief Retrieves the option name at a given position */
 	 G_API_COMMON std::string optionName(std::size_t = 0) const;
@@ -360,8 +361,8 @@ private:
 	 GParsableI() = delete;
 	 GParsableI(const GParsableI&) = delete;
 	 GParsableI(const GParsableI&&) = delete;
-	  GParsableI& operator=(const GParsableI&) = delete;
-	  GParsableI& operator=(const GParsableI&&) = delete;
+	 GParsableI& operator=(const GParsableI&) = delete;
+	 GParsableI& operator=(const GParsableI&&) = delete;
 
 	 std::vector<std::string> m_option_name; ///< The name of this parameter
 	 std::vector<std::string> m_comment; ///< A comment assigned to this parameter
@@ -419,8 +420,8 @@ private:
 	 GFileParsableI() = delete;
 	 GFileParsableI(const GFileParsableI&) = delete;
 	 GFileParsableI(const GFileParsableI&&) = delete;
-	  GFileParsableI& operator=(const GFileParsableI&) = delete;
-	  GFileParsableI& operator=(const GFileParsableI&&) = delete;
+	 GFileParsableI& operator=(const GFileParsableI&) = delete;
+	 GFileParsableI& operator=(const GFileParsableI&&) = delete;
 
 	 bool m_is_essential; ///< Indicates whether this is an essential variable
 };
@@ -466,8 +467,8 @@ private:
 	 GCLParsableI() = delete;
 	 GCLParsableI(const GCLParsableI&) = delete;
 	 GCLParsableI(const GCLParsableI&&) = delete;
-	  GCLParsableI& operator=(const GCLParsableI&) = delete;
-	  GCLParsableI& operator=(const GCLParsableI&&) = delete;
+	 GCLParsableI& operator=(const GCLParsableI&) = delete;
+	 GCLParsableI& operator=(const GCLParsableI&&) = delete;
 };
 
 /******************************************************************************/
@@ -526,8 +527,8 @@ private:
 	 GSingleParmT() = delete;
 	 GSingleParmT(const GSingleParmT<parameter_type>&) = delete;
 	 GSingleParmT(const GSingleParmT<parameter_type>&&) = delete;
-	  GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&) = delete;
-	  GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&&) = delete;
+	 GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&) = delete;
+	 GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&&) = delete;
 };
 
 /******************************************************************************/
@@ -642,10 +643,9 @@ protected:
 
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-			 std::vector<std::string>::iterator c;
 			 if (not comments.empty()) {
-				 for (c = comments.begin(); c != comments.end(); ++c) {
-					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
+				 for(auto const& comment: comments) {
+					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
 				 }
 			 }
 		 }
@@ -660,8 +660,8 @@ private:
 	 GFileSingleParsableParameterT() = delete;
 	 GFileSingleParsableParameterT(const GFileSingleParsableParameterT<parameter_type>&) = delete;
 	 GFileSingleParsableParameterT(const GFileSingleParsableParameterT<parameter_type>&&) = delete;
-	  GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&) = delete;
-	  GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&&) = delete;
+	 GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&) = delete;
+	 GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&&) = delete;
 
 	 std::function<void(parameter_type)> m_call_back_func; ///< Holds the call-back function
 };
@@ -750,10 +750,9 @@ protected:
 
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-			 std::vector<std::string>::iterator c;
 			 if (not comments.empty()) {
-				 for (c = comments.begin(); c != comments.end(); ++c) {
-					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
+				 for(auto const& comment: comments) {
+					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
 				 }
 			 }
 		 }
@@ -768,8 +767,8 @@ private:
 	 GFileReferenceParsableParameterT() = delete;
 	 GFileReferenceParsableParameterT(const GFileReferenceParsableParameterT<parameter_type>&) = delete;
 	 GFileReferenceParsableParameterT(const GFileReferenceParsableParameterT<parameter_type>&&) = delete;
-	  GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&) = delete;
-	  GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&&) = delete;
+	 GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&) = delete;
+	 GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&&) = delete;
 
 	 parameter_type &m_stored_reference; ///< Holds the reference to which the parsed value will be assigned
 };
@@ -839,8 +838,8 @@ private:
 	 GCombinedParT() = delete;
 	 GCombinedParT(const GCombinedParT<par_type0, par_type1>&) = delete;
 	 GCombinedParT(const GCombinedParT<par_type0, par_type1>&&) = delete;
-	  GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&) = delete;
-	  GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&&) = delete;
+	 GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&) = delete;
+	 GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&&) = delete;
 };
 
 /******************************************************************************/
@@ -959,11 +958,12 @@ protected:
 
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments0 = GParsableI::splitComment(this->comment(0));
-			 std::vector<std::string>::iterator c;
 			 if (not comments0.empty()) {
-				 for (c = comments0.begin(); c != comments0.end(); ++c) {
-					 pt.add((GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(0) +
-								".comment").c_str(), (*c).c_str());
+				 for(auto const& comment: comments0) {
+					 pt.add(
+						 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(0) + ".comment").c_str()
+						 , comment.c_str()
+					 );
 				 }
 			 }
 		 }
@@ -976,11 +976,10 @@ protected:
 
 		 if (this->hasComments()) {
 			 std::vector<std::string> comments1 = GParsableI::splitComment(this->comment(1));
-			 std::vector<std::string>::iterator c;
 			 if (not comments1.empty()) {
-				 for (c = comments1.begin(); c != comments1.end(); ++c) {
+				 for(auto const& comment: comments1) {
 					 pt.add((GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(1) +
-								".comment").c_str(), (*c).c_str());
+								".comment").c_str(), comment.c_str());
 				 }
 			 }
 		 }
@@ -998,8 +997,8 @@ private:
 	 GFileCombinedParsableParameterT() = delete;
 	 GFileCombinedParsableParameterT(const GFileCombinedParsableParameterT<par_type0, par_type1>&) = delete;
 	 GFileCombinedParsableParameterT(const GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
-	  GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&) = delete;
-	  GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
+	 GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&) = delete;
+	 GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
 
 	 std::function<void(par_type0, par_type1)> m_call_back_func; ///< Holds the call-back function
 };
@@ -1029,7 +1028,7 @@ public:
 	 )
 		 : GFileParsableI(
 		 optionNameVar, commentVar, isEssentialVar
-	 ), m_def_val(def_val), m_par() { /* nothing */ }
+	 ), m_def_val_vec(def_val), m_par() { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -1043,11 +1042,11 @@ protected:
 	  * Allows derived classes to reset the default value.
 	  */
 	 void resetDefault(const std::vector<parameter_type> &def_val) {
-		 m_def_val = def_val;
+		 m_def_val_vec = def_val;
 	 }
 
 	 /***************************************************************************/
-	 std::vector<parameter_type> m_def_val; ///< Holds default values
+	 std::vector<parameter_type> m_def_val_vec; ///< Holds default values
 	 std::vector<parameter_type> m_par; ///< Holds the parsed parameters
 
 private:
@@ -1056,8 +1055,8 @@ private:
 	 GVectorParT() = delete;
 	 GVectorParT(const GVectorParT<parameter_type>&) = delete;
 	 GVectorParT(const GVectorParT<parameter_type>&&) = delete;
-	  GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&) = delete;
-	  GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&&) = delete;
+	 GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&) = delete;
+	 GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&&) = delete;
 };
 
 /******************************************************************************/
@@ -1071,7 +1070,8 @@ private:
  */
 template<typename parameter_type>
 class GFileVectorParsableParameterT
-	: public GVectorParT<parameter_type> {
+	: public GVectorParT<parameter_type>
+{
 	 // We want GParserBuilder to be able to call our load- and save functions
 	 friend class GParserBuilder;
 
@@ -1095,15 +1095,21 @@ public:
 	 GFileVectorParsableParameterT(
 		 const std::string &optionNameVar, const std::vector<parameter_type> &def_val
 	 )
-		 : GVectorParT<parameter_type>(
-		 optionNameVar, std::string(""), def_val, Gem::Common::VAR_IS_ESSENTIAL
-	 ) { /* nothing */ }
+		 : GVectorParT<parameter_type>(optionNameVar, std::string(""), def_val, Gem::Common::VAR_IS_ESSENTIAL)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFileVectorParsableParameterT() { /* nothing */ }
+	 virtual ~GFileVectorParsableParameterT() = default;
+
+	 // Prevent copying, moving and default construction
+	 GFileVectorParsableParameterT() = delete;
+	 GFileVectorParsableParameterT(const GFileVectorParsableParameterT<parameter_type>&) = delete;
+	 GFileVectorParsableParameterT(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
+	 GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&) = delete;
+	 GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
 
 	 /***************************************************************************/
 	 /**
@@ -1154,7 +1160,7 @@ protected:
 		 GVectorParT<parameter_type>::m_par.clear();
 
 		 std::string ppath = GParsableI::optionName(0) + ".value";
-		 for(const auto& v: pt.get_child(ppath.c_str())) {
+		 for(auto const& v: pt.get_child(ppath.c_str())) {
 			 GVectorParT<parameter_type>::m_par.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
 		 }
 	 }
@@ -1180,16 +1186,15 @@ protected:
 
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-			 std::vector<std::string>::iterator c;
 			 if (not comments.empty()) {
-				 for (c = comments.begin(); c != comments.end(); ++c) {
-					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
-				 }
+			 	 for(auto const& comment: comments) {
+					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
+			 	 }
 			 }
 		 }
 
 		 // Do some error checking
-		 if (GVectorParT<parameter_type>::m_def_val.empty()) {
+		 if (GVectorParT<parameter_type>::m_def_val_vec.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GVectorParsableParameter::save(): Error!" << std::endl
@@ -1198,22 +1203,14 @@ protected:
 		 }
 
 		 // Add the value and default items
-		 typename std::vector<parameter_type>::const_iterator it;
-		 for (it = GVectorParT<parameter_type>::m_def_val.begin();
-				it != GVectorParT<parameter_type>::m_def_val.end(); ++it) {
-			 pt.add((GParsableI::optionName(0) + ".default.item").c_str(), *it);
-			 pt.add((GParsableI::optionName(0) + ".value.item").c_str(), *it);
+		 for(auto const& def_val: GVectorParT<parameter_type>::m_def_val_vec) {
+			 pt.add((GParsableI::optionName(0) + ".default.item").c_str(), def_val);
+			 pt.add((GParsableI::optionName(0) + ".value.item").c_str(), def_val);
 		 }
 	 }
 
 private:
 	 /***************************************************************************/
-	 // Prevent copying, moving and default construction
-	 GFileVectorParsableParameterT() = delete;
-	 GFileVectorParsableParameterT(const GFileVectorParsableParameterT<parameter_type>&) = delete;
-	 GFileVectorParsableParameterT(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
-	  GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&) = delete;
-	  GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
 
 	 std::function<void(std::vector<parameter_type>)> m_call_back_func; ///< Holds the call-back function
 };
@@ -1287,7 +1284,7 @@ protected:
 		 GVectorParT<parameter_type>::m_par.clear();
 
 		 std::string ppath = GParsableI::optionName(0) + ".value";
-		 for(const auto& v: pt.get_child(ppath.c_str())) {
+		 for(auto const& v: pt.get_child(ppath.c_str())) {
 			 GVectorParT<parameter_type>::m_par.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
 		 }
 	 }
@@ -1313,16 +1310,15 @@ protected:
 
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
-			 std::vector<std::string>::iterator c;
 			 if (not comments.empty()) {
-				 for (c = comments.begin(); c != comments.end(); ++c) {
-					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
-				 }
+			 	 for(auto const comment: comments) {
+					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
+			 	 }
 			 }
 		 }
 
 		 // Do some error checking
-		 if (GVectorParT<parameter_type>::m_def_val.empty()) {
+		 if (GVectorParT<parameter_type>::m_def_val_vec.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileVectorReferenceParsableParameterT::save(): Error!" << std::endl
@@ -1331,11 +1327,9 @@ protected:
 		 }
 
 		 // Add the value and default items
-		 typename std::vector<parameter_type>::const_iterator it;
-		 for (it = GVectorParT<parameter_type>::m_def_val.begin();
-				it != GVectorParT<parameter_type>::m_def_val.end(); ++it) {
-			 pt.add((GParsableI::optionName(0) + ".default.item").c_str(), *it);
-			 pt.add((GParsableI::optionName(0) + ".value.item").c_str(), *it);
+		 for(auto const& def_val: GVectorParT<parameter_type>::m_def_val_vec) {
+			 pt.add((GParsableI::optionName(0) + ".default.item").c_str(), def_val);
+			 pt.add((GParsableI::optionName(0) + ".value.item").c_str(), def_val);
 		 }
 	 }
 
@@ -1345,8 +1339,8 @@ private:
 	 GFileVectorReferenceParsableParameterT() = delete;
 	 GFileVectorReferenceParsableParameterT(const GFileVectorReferenceParsableParameterT<parameter_type>&) = delete;
 	 GFileVectorReferenceParsableParameterT(const GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
-	  GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&) = delete;
-	  GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
+	 GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&) = delete;
+	 GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
 
 	 std::vector<parameter_type> &m_stored_reference; ///< Holds a reference to the target vector
 };
@@ -1360,8 +1354,8 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template<typename parameter_type, std::size_t N>
-struct GArrayParT
-	: public GFileParsableI {
+struct GArrayParT : public GFileParsableI
+{
 	 // We want GParserBuilder to be able to call the reset function
 	 friend class GParserBuilder;
 
@@ -1374,15 +1368,24 @@ public:
 		 const std::string &optionNameVar, const std::string &commentVar, const std::array<parameter_type, N> &def_val,
 		 const bool &isEssentialVar
 	 )
-		 : GFileParsableI(
-		 optionNameVar, commentVar, isEssentialVar
-	 ), m_def_val(def_val), m_par(def_val) { /* nothing */ }
+		 : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
+		 , m_def_val(def_val)
+		 , m_par(def_val)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GArrayParT() { /* nothing */ }
+	 virtual ~GArrayParT() = default;
+
+	 /***************************************************************************/
+	 // Prevent copying, moving and default construction
+	 GArrayParT() = delete;
+	 GArrayParT(const GArrayParT<parameter_type, N>&) = delete;
+	 GArrayParT(const GArrayParT<parameter_type, N>&&) = delete;
+	 GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&) = delete;
+	 GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&&) = delete;
 
 protected:
 	 /***************************************************************************/
@@ -1400,15 +1403,6 @@ protected:
 	 /***************************************************************************/
 	 std::array<parameter_type, N> m_def_val; ///< Holds default values
 	 std::array<parameter_type, N> m_par; ///< Holds the parsed parameters
-
-private:
-	 /***************************************************************************/
-	 // Prevent copying, moving and default construction
-	 GArrayParT() = delete;
-	 GArrayParT(const GArrayParT<parameter_type, N>&) = delete;
-	 GArrayParT(const GArrayParT<parameter_type, N>&&) = delete;
-	  GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&) = delete;
-	  GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&&) = delete;
 };
 
 /******************************************************************************/
@@ -1558,8 +1552,8 @@ private:
 	 GFileArrayParsableParameterT() = delete;
 	 GFileArrayParsableParameterT(const GFileArrayParsableParameterT<parameter_type, N>&) = delete;
 	 GFileArrayParsableParameterT(const GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
-	  GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&) = delete;
-	  GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
+	 GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&) = delete;
+	 GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
 
 	 std::function<void(std::array<parameter_type, N>)> m_call_back_func; ///< Holds the call-back function
 };
@@ -1685,8 +1679,8 @@ private:
 	 GFileArrayReferenceParsableParameterT() = delete;
 	 GFileArrayReferenceParsableParameterT(const GFileArrayReferenceParsableParameterT<parameter_type, N>&) = delete;
 	 GFileArrayReferenceParsableParameterT(const GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
-	  GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&) = delete;
-	  GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
+	 GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&) = delete;
+	 GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
 
 	 std::array<parameter_type, N> &m_stored_reference; ///< Holds a reference to the target vector
 };
@@ -1774,8 +1768,8 @@ private:
 	 GCLReferenceParsableParameterT() = delete;
 	 GCLReferenceParsableParameterT(const GCLReferenceParsableParameterT<parameter_type>&) = delete;
 	 GCLReferenceParsableParameterT(const GCLReferenceParsableParameterT<parameter_type>&&) = delete;
-	  GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&) = delete;
-	  GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&&) = delete;
+	 GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&) = delete;
+	 GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&&) = delete;
 
 	 parameter_type &m_stored_reference; ///< Holds the reference to which the parsed value will be assigned
 	 parameter_type m_def_val; ///< Holds the default value
@@ -1822,16 +1816,17 @@ public:
 	  * objects.
 	  */
 	 template<typename fileParsableDerivative>
-	 std::shared_ptr <fileParsableDerivative> file_at(const std::string &optionName) {
-		 // Check whether the option already exists. If not, complain
-		 std::vector<std::shared_ptr < GFileParsableI>> ::iterator
-			 it;
-		 if ((it = std::find_if(m_file_parameter_proxies.begin(), m_file_parameter_proxies.end(),
-			 findFileProxyByName(optionName))) == m_file_parameter_proxies.end()) {
-			 return std::shared_ptr<fileParsableDerivative>();
+	 std::shared_ptr<fileParsableDerivative> file_at(const std::string &optionName) {
+		 auto it = std::find_if(
+			 m_file_parameter_proxies.begin()
+			 , m_file_parameter_proxies.end()
+			 , findFileProxyByName(optionName)
+		 );
+		 if (it != m_file_parameter_proxies.end()) {
+			 return std::dynamic_pointer_cast<fileParsableDerivative>(*it);
 		 }
 
-		 return std::dynamic_pointer_cast<fileParsableDerivative>(*it);
+		 return {};
 	 }
 
 	 /***************************************************************************/
@@ -1842,15 +1837,16 @@ public:
 	  */
 	 template<typename clParsableDerivative>
 	 std::shared_ptr <clParsableDerivative> cl_at(const std::string &optionName) {
-		 // Check whether the option already exists. If not, complain
-		 std::vector<std::shared_ptr < GCLParsableI>> ::iterator
-			 it;
-		 if ((it = std::find_if(m_cl_parameter_proxies.begin(), m_cl_parameter_proxies.end(),
-			 findCLProxyByName(optionName))) == m_cl_parameter_proxies.end()) {
-			 return std::shared_ptr<clParsableDerivative>();
+		 auto it = std::find_if(
+			 m_cl_parameter_proxies.begin()
+			 , m_cl_parameter_proxies.end()
+			 , findCLProxyByName(optionName)
+		 );
+		 if (it != m_cl_parameter_proxies.end()) {
+			 return std::dynamic_pointer_cast<clParsableDerivative>(*it);
 		 }
 
-		 return std::dynamic_pointer_cast<clParsableDerivative>(*it);
+		 return {};
 	 }
 
 	 /////////////////////////////////////////////////////////////////////////////
@@ -1869,9 +1865,12 @@ public:
 		 , const std::string &comment = std::string()
 	 ) {
 #ifdef DEBUG
-		 // Check whether the option already exists
-		 std::vector<std::shared_ptr<GFileParsableI>>::iterator it;
-		 if((it=std::find_if(m_file_parameter_proxies.begin(), m_file_parameter_proxies.end(), findFileProxyByName(optionName))) != m_file_parameter_proxies.end()) {
+		 auto it = std::find_if(
+			 m_file_parameter_proxies.begin()
+			 , m_file_parameter_proxies.end()
+			 , findFileProxyByName(optionName)
+		 );
+		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(singleParm_ptr): Error!" << std::endl
@@ -1922,9 +1921,12 @@ public:
 		 , const std::string &comment = std::string()
 	 ) {
 #ifdef DEBUG
-		 // Check whether the option already exists
-		 std::vector<std::shared_ptr<GFileParsableI>>::iterator it;
-		 if((it=std::find_if(m_file_parameter_proxies.begin(), m_file_parameter_proxies.end(), findFileProxyByName(optionName))) != m_file_parameter_proxies.end()) {
+		 auto it = std::find_if(
+			 m_file_parameter_proxies.begin()
+			 , m_file_parameter_proxies.end()
+			 , findFileProxyByName(optionName)
+		 );
+		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(refParm_ptr): Error!" << std::endl
@@ -2407,8 +2409,8 @@ private:
 	 // Prevent copying and moving
 	 GParserBuilder(const GParserBuilder&) = delete;
 	 GParserBuilder(const GParserBuilder&&) = delete;
-	  GParserBuilder& operator=(const GParserBuilder&) = delete;
-	  GParserBuilder& operator=(const GParserBuilder&&) = delete;
+	 GParserBuilder& operator=(const GParserBuilder&) = delete;
+	 GParserBuilder& operator=(const GParserBuilder&&) = delete;
 
 
 	 std::vector<std::shared_ptr<GFileParsableI>> m_file_parameter_proxies; ///< Holds file parameter proxies

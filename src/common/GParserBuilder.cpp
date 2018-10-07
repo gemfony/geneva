@@ -49,15 +49,16 @@ std::mutex Gem::Common::GParserBuilder::m_configfile_parser_mutex;
 /**
  * The standard constructor of the comment level
  */
-commentLevel::commentLevel(const std::size_t cl)
-	: commentLevel_(cl) { /* nothing */ }
+commentLevel::commentLevel(std::size_t cl)
+	: m_comment_level(cl)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Retrieves the current comment level
  */
 std::size_t commentLevel::getCommentLevel() const {
-	return commentLevel_;
+	return m_comment_level;
 }
 
 /******************************************************************************/
@@ -67,10 +68,13 @@ std::size_t commentLevel::getCommentLevel() const {
  * A constructor for individual items
  */
 GParsableI::GParsableI(
-	const std::string &optionNameVar, const std::string &commentVar
+	const std::string &optionNameVar
+	, const std::string &commentVar
 )
-	: m_option_name(GParsableI::makeVector(optionNameVar)), m_comment(GParsableI::makeVector(commentVar)),
-	m_cl(0) { /* nothing */ }
+	: m_option_name(GParsableI::makeVector(optionNameVar))
+	, m_comment(GParsableI::makeVector(commentVar))
+	, m_cl(0)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -79,13 +83,10 @@ GParsableI::GParsableI(
 GParsableI::GParsableI(
 	const std::vector<std::string> &optionNameVec, const std::vector<std::string> &commentVec
 )
-	: m_option_name(optionNameVec), m_comment(commentVec), m_cl(0) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GParsableI::~GParsableI() { /* nothing */ }
+	: m_option_name(optionNameVec)
+	, m_comment(commentVec)
+	, m_cl(0)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
