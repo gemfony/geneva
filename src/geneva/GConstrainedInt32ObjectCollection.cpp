@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedInt32ObjectCollection.cpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GParameterBase.cpp
+ * @file
  */
 
 /*
@@ -160,7 +160,7 @@ bool GParameterBase::adaptionsActive() const {
  * @return A boolean indicating whether adaptions are inactive for this object
  */
 bool GParameterBase::adaptionsInactive() const {
-	return !m_adaptionsActive;
+	return not m_adaptionsActive;
 }
 
 /******************************************************************************/
@@ -265,7 +265,7 @@ bool GParameterBase::amMatch(const activityMode &am) const {
  * Returns true on the case of an activity mode mismatch
  */
 bool GParameterBase::amMismatch(const activityMode &am) const {
-	return !amMatch(am);
+	return not amMatch(am);
 }
 
 /******************************************************************************/
@@ -273,7 +273,7 @@ bool GParameterBase::amMismatch(const activityMode &am) const {
  * Checks whether this object matches a given activity mode and is modifiable
  */
 bool GParameterBase::modifiableAmMatchOrHandover(const activityMode &am) const {
-	return ((this->isLeaf() && this->amMatch(am)) || !this->isLeaf());
+	return ((this->isLeaf() && this->amMatch(am)) || not this->isLeaf());
 }
 
 /***********************************************************************************/
@@ -308,7 +308,7 @@ bool GParameterBase::randomInit(
 	const activityMode &am
 	, Gem::Hap::GRandomBase& gr
 ) {
-	if (!m_randomInitializationBlocked && this->modifiableAmMatchOrHandover(am)) {
+	if (not m_randomInitializationBlocked && this->modifiableAmMatchOrHandover(am)) {
 		return randomInit_(am, gr);
 	} else {
 		return false;
@@ -341,7 +341,7 @@ bool GParameterBase::isIndividualParameter() const {
  * @return A boolean indicating whether the GParameterBase-derivative is a collection
  */
 bool GParameterBase::isParameterCollection() const {
-	return !isIndividualParameter();
+	return not isIndividualParameter();
 }
 
 /******************************************************************************/

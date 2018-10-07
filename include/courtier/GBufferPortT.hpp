@@ -1,5 +1,5 @@
 /**
- * @file GBufferPortT.hpp
+ * @file
  */
 
 /*
@@ -139,7 +139,7 @@ public:
 #ifdef DEBUG
 			 // Items may be lost here. This should be a very rare occasion. Emit
 			 // a warning in DEBUG mode, as this might hint at some general problem
-			 if(!success) {
+			 if(not success) {
 				 glogger
 					 << "In GBufferPortT<processable_type>::push_raw(item_ptr, timeout):" << std::endl
 					 << "Submission was not successful. The work item might be discarded." << std::endl
@@ -255,7 +255,7 @@ public:
 #ifdef DEBUG
 			 // Items may be lost here. This should be a very rare occasion. Emit
 			 // a warning in DEBUG mode, as this might hint at some general problem
-			 if(!success) {
+			 if(not success) {
 				 glogger
 					 << "In GBufferPortT<processable_type>::push_processed(item_ptr, timeout):" << std::endl
 					 << "Submission was not successful. The work item might be discarded." << std::endl
@@ -333,7 +333,7 @@ public:
 		 std::unique_lock<std::mutex> lock(m_first_retrieval_mutex);
 
 		 // Wait until a first work item was retrieved
-		 m_retrievalTimeCondition.wait(lock, [this]() -> bool {return !this->m_no_retrieval;});
+		 m_retrievalTimeCondition.wait(lock, [this]() -> bool {return not this->m_no_retrieval;});
 
 		 // Let the audience know when the first retrieval has occurred
 		 return m_retrieval_start_time;

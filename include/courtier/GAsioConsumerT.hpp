@@ -1,5 +1,5 @@
 /**
- * @file GAsioConsumerT.hpp
+ * @file
  */
 
 /*
@@ -961,7 +961,7 @@ private:
 
 		 // Open the acceptor
 		 m_acceptor.open(m_endpoint.protocol(), ec);
-		 if(ec || !m_acceptor.is_open()) {
+		 if(ec || not m_acceptor.is_open()) {
 			 if(ec) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
@@ -1063,7 +1063,7 @@ private:
 		 }
 
 		 // Accept another connection
-		 if(!this->stopped()) async_start_accept();
+		 if(not this->stopped()) async_start_accept();
 	 }
 
 	 //-------------------------------------------------------------------------
@@ -1087,7 +1087,7 @@ private:
 	  * Submits a work item to the server, observing a timeout
 	  */
 	 void putPayloadItem(std::shared_ptr<processable_type> p) {
-		 if(!p) {
+		 if(not p) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "GAsioConsumerT<>::putPayloadItem():" << std::endl
@@ -1095,7 +1095,7 @@ private:
 			 );
 		 }
 
-		 if(!m_broker_ptr->put(p, m_timeout)) {
+		 if(not m_broker_ptr->put(p, m_timeout)) {
 			 glogger
 				 << "In GAsioConsumerT<>::putPayloadItem():" << std::endl
 				 << "Work item could not be submitted to the broker" << std::endl

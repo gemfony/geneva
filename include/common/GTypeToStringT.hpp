@@ -1,5 +1,5 @@
 /**
- * @file GTypeToStringT.hpp
+ * @file
  */
 
 /*

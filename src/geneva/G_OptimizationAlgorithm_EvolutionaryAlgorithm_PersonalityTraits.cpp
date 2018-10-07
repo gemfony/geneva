@@ -1,5 +1,5 @@
 /**
- * @file G_OA_EvolutionaryAlgorithm_PersonalityTraits.cpp
+ * @file
  */
 
 /*

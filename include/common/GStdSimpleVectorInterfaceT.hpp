@@ -1,5 +1,5 @@
 /**
- * @file GStdSimpleVectorInterfaceT.hpp
+ * @file
  */
 
 /*

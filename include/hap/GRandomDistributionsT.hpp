@@ -1,5 +1,5 @@
 /**
- * @file GRandomDistributionsT.hpp
+ * @file
  */
 
 /*
@@ -148,7 +148,7 @@ public:
  			* Compare for inequality with another param_type object
  			*/
 		  bool operator!=(const param_type& p) const {
-			  return !operator==(p);
+			  return not operator==(p);
 		  }
 
 	 private:

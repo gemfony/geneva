@@ -1,5 +1,5 @@
 /**
- * @file GBooleanObjectCollection.hpp
+ * @file
  */
 
 /*

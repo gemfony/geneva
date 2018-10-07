@@ -1,5 +1,5 @@
 /**
- * @file GCommonMathHelperFunctionsT.hpp
+ * @file
  */
 
 /*
@@ -140,7 +140,7 @@ bool checkRangeCompliance(
 		);
    }
 
-	return !(val < lower || val > upper);
+	return not (val < lower || val > upper);
 }
 
 /******************************************************************************/
@@ -167,7 +167,7 @@ bool checkRangeCompliance(
 		);
 	}
 
-	return !(val < lower || val > upper);
+	return not (val < lower || val > upper);
 }
 
 /******************************************************************************/
@@ -283,7 +283,7 @@ fp_type checkValueRange(
 		if (val > max) inValueRange = false;
 	}
 
-	if (!inValueRange) {
+	if (not inValueRange) {
 		if (warnOnly) {
 			glogger
 			<< "In checkValueRange<fp_type>(): Error!" << std::endl
@@ -339,7 +339,7 @@ int_type checkValueRange(
 		if (val > max) inValueRange = false;
 	}
 
-	if (!inValueRange) {
+	if (not inValueRange) {
 		if (warnOnly) {
 			glogger
 			<< "Warning:" << std::endl

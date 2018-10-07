@@ -1,5 +1,5 @@
 /**
- * @file GParameterTCollectionT.hpp
+ * @file
  */
 
 /*

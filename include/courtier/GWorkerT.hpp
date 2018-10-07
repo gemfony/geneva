@@ -1,5 +1,5 @@
 /**
- * @file GWorkerT.hpp
+ * @file
  */
 
 /*
@@ -177,7 +177,7 @@ public:
 			 do {
 				 // Retieve an item and check for its validity. Try again if
 				 // we didn't receive a valid item
-				 if(!(p=this->retrieve(m_retrieval_timeout))) { continue; }
+				 if(not (p=this->retrieve(m_retrieval_timeout))) { continue; }
 
 				 // Initiate the actual processing
 				 this->process(p);
@@ -186,7 +186,7 @@ public:
 				 // to discard items if a submission is not possible.
 				 this->submit(p, m_submission_timeout);
 
-			 } while(!this->stop_requested());
+			 } while(not this->stop_requested());
 
 			 // Perform any final work
 			 this->processFinalize();
@@ -399,7 +399,7 @@ public:
 			, m_submitter(submitter)
 			, m_stop_requested(stop_requested)
 	 {
-		 if(!m_retriever) {
+		 if(not m_retriever) {
 			 glogger
 				 << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): Error!" << std::endl
 				 << "Empty retriever function found!" << std::endl
@@ -407,7 +407,7 @@ public:
 				 << GTERMINATION;
 		 }
 
-		 if(!m_submitter) {
+		 if(not m_submitter) {
 			 glogger
 				 << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): Error!" << std::endl
 				 << "Empty submitter function found!" << std::endl
@@ -415,7 +415,7 @@ public:
 				 << GTERMINATION;
 		 }
 
-		 if(!m_stop_requested) {
+		 if(not m_stop_requested) {
 			 glogger
 				 << "In GLocalConsumerWorkerT<processable_type>::GBrokerFerryT(): Error!" << std::endl
 				 << "Empty termination function found!" << std::endl
@@ -519,7 +519,7 @@ public:
 	 void registerBrokerFerry(
 		 std::shared_ptr<GBrokerFerryT<processable_type>> broker_ferry_ptr
 	 ){
-		 if(!broker_ferry_ptr) {
+		 if(not broker_ferry_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GLocalConsumerWorkerT<processable_type>::registerBrokerFerry(): Error!" << std::endl
@@ -549,7 +549,7 @@ private:
 	  * Initialization code for processing.
 	  */
 	 void processInit_() override {
-		 if(!m_broker_ferry_ptr) {
+		 if(not m_broker_ferry_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GLocalConsumerWorkerT<processable_type>::processInit_(): Error!" << std::endl

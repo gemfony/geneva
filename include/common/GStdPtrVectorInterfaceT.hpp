@@ -1,5 +1,5 @@
 /**
- * @file GStdPtrVectorInterfaceT.hpp
+ * @file
  */
 
 /*
@@ -259,7 +259,7 @@ public:
 		const std::shared_ptr <item_type> &item,
 		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
 	) const {
-		if (!item) { // Check that item actually contains something useful
+		if (not item) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::count(item):"
@@ -305,7 +305,7 @@ public:
 		const std::shared_ptr <item_type> &item,
 		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
 	) const {
-		if (!item) { // Check that item actually contains something useful
+		if (not item) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::find(item):"
@@ -412,7 +412,7 @@ public:
 	 * @param item_ptr The item to be inserted into the collection
 	 */
 	iterator insert_noclone(iterator pos, std::shared_ptr <T> item_ptr) {
-		if (!item_ptr) { // Check that item actually contains something useful
+		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::insert_noclone(pos, item_ptr):"
@@ -439,7 +439,7 @@ public:
 	 * @param item_ptr The item to be inserted into the collection
 	 */
 	iterator insert_clone(iterator pos, std::shared_ptr <T> item_ptr) {
-		if (!item_ptr) { // Check that item actually contains something useful
+		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::insert_clone(pos, item_ptr):"
@@ -483,7 +483,7 @@ public:
 	 * @param item_ptr The item to be inserted into the collection
 	 */
 	void insert_clone(iterator pos, size_type amount, std::shared_ptr <T> item_ptr) {
-		if (!item_ptr) { // Check that item actually contains something useful
+		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::insert_clone(pos, amount, item):" << std::endl
@@ -515,7 +515,7 @@ public:
 	 * @param item_ptr The item to be inserted into the collection
 	 */
 	void insert_noclone(iterator pos, size_type amount, std::shared_ptr <T> item_ptr) {
-		if (!item_ptr) { // Check that item actually contains something useful
+		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::insert_noclone(pos, amount, item):" << std::endl
@@ -564,7 +564,7 @@ public:
 	 * @param item_ptr The item to be appended to the collection
 	 */
 	void push_back_noclone(std::shared_ptr <T> item_ptr) {
-		if (!item_ptr) { // Check that item actually contains something useful
+		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GParameterTCollectionT<T>::push_back(item):" << std::endl
@@ -590,7 +590,7 @@ public:
 	 * @param item_ptr The item to be appended to the collection
 	 */
 	void push_back_clone(std::shared_ptr <T> item_ptr) {
-		if (!item_ptr) { // Check that item actually contains something useful
+		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GStdPtrVectorInterface<T>::push_back_clone(item):" << std::endl
@@ -674,7 +674,7 @@ public:
 			data.resize(amount);
 		else if (amount > dataSize) {
 			// Check that item is not empty
-			if (!item_ptr) { // Check that item actually contains something useful
+			if (not item_ptr) { // Check that item actually contains something useful
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
@@ -714,7 +714,7 @@ public:
 			data.resize(amount);
 		else if (amount > dataSize) {
 			// Check that item is not empty
-			if (!item_ptr) { // Check that item actually contains something useful
+			if (not item_ptr) { // Check that item actually contains something useful
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In GParameterTCollectionT<T>::resize(amount, item):" << std::endl
@@ -865,7 +865,7 @@ public:
 		void operator=(typename std::vector<std::shared_ptr < T>>::iterator const &current) {
 			current_ = current;
 			// Skip to first "good" entry
-			while (current_ != end_ && !(p = std::dynamic_pointer_cast<derivedType>(*current_))) {
+			while (current_ != end_ && not (p = std::dynamic_pointer_cast<derivedType>(*current_))) {
 				++current_;
 			}
 		}

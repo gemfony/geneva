@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedNumT.hpp
+ * @file
  */
 
 /*

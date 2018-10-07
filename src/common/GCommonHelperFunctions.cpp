@@ -1,5 +1,5 @@
 /**
- * @file GCommonHelperFunctions.cpp
+ * @file
  */
 
 /*
@@ -57,9 +57,9 @@ unsigned int getNHardwareThreads(
 	const unsigned int &defaultNThreads
 	, const unsigned int& maxNThreads
 ) {
-	if (!g_hwt_read) {
+	if (not g_hwt_read) {
 		std::unique_lock<std::mutex>(g_hwt_read_mutex);
-		if (!g_hwt_read) {
+		if (not g_hwt_read) {
 			g_hwt_read = true;
 
 			if(maxNThreads > 0) {
@@ -103,7 +103,7 @@ unsigned int getNHardwareThreads(
  */
 std::string loadTextDataFromFile(const boost::filesystem::path &p) {
 	// Check that the file exists
-	if (!boost::filesystem::exists(p)) {
+	if (not boost::filesystem::exists(p)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In loadTextDataFromFile(): Error!" << std::endl
@@ -253,7 +253,7 @@ std::vector<unsigned int> stringToUIntVec(
 		from, to, (uint_ % sep), qi::space, result
 	);
 
-	if (from != to || !success) {
+	if (from != to || not success) {
 		std::string rest(from, to);
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -286,7 +286,7 @@ std::vector<double> stringToDoubleVec(const std::string &raw) {
 		from, to, (double_ % ','), qi::space, result
 	);
 
-	if (from != to || !success) {
+	if (from != to || not success) {
 		std::string rest(from, to);
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -326,7 +326,7 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const s
 		, result
 	);
 
-	if (from != to || !success) {
+	if (from != to || not success) {
 		std::string rest(from, to);
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)

@@ -1,5 +1,5 @@
 /**
- * @file GenevaHelperFunctions.hpp
+ * @file
  */
 
 /*

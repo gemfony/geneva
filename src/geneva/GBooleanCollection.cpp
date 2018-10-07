@@ -1,5 +1,5 @@
 /**
- * @file GBooleanCollection.cpp
+ * @file
  */
 
 /*
@@ -207,7 +207,7 @@ bool GBooleanCollection::randomInit_(
 	bool randomized = false;
 
 	// Do some error checks
-	if(!Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanCollection::randomInit_(probability)")) {
+	if(not Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanCollection::randomInit_(probability)")) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanCollection::randomInit_(probability): Error!" << std::endl
@@ -251,7 +251,7 @@ bool GBooleanCollection::randomInit(
 	, const activityMode &am
 	, Gem::Hap::GRandomBase& gr
 ) {
-	if (!GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
+	if (not GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
 		return randomInit_(probability, am, gr);
 	} else {
 		return false;

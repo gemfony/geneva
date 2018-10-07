@@ -1,5 +1,5 @@
 /**
- * @file GExternalEvaluatorIndividual.cpp
+ * @file
  */
 
 /*
@@ -263,7 +263,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 
 	// Collect all command-line arguments
 	std::vector<std::string> arguments;
-	if (m_custom_options != "empty" && !m_custom_options.empty()) {
+	if (m_custom_options != "empty" && not m_custom_options.empty()) {
 		arguments.push_back(m_custom_options);
 	}
 	arguments.push_back(std::string("--evaluate"));
@@ -307,7 +307,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 		this->force_set_error(error_message.str());
 	} else { // Everything is o.k., lets retrieve the evaluation
 		// Check that the result file exists
-		if (!bf::exists(resultFileName)) {
+		if (not bf::exists(resultFileName)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
@@ -367,7 +367,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 
 		// Check whether the results represent useful values
 		bool isValid = ptr_in.get<bool>("batch.individuals.individual0.isValid");
-		if (!isValid) { // Assign worst-case values to all result
+		if (not isValid) { // Assign worst-case values to all result
 			std::ostringstream error_message;
 
 			error_message
@@ -531,7 +531,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
 	}
 
 	// Check that the file exists
-	if (!bf::exists(m_programName.value())) {
+	if (not bf::exists(m_programName.value())) {
 		glogger
 			<< "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): Error!" << std::endl
 			<< "External program " << m_programName.value() << " does not seem to exist" << std::endl
@@ -540,7 +540,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
 
 	// Collect all command-line arguments
 	std::vector<std::string> arguments;
-	if (m_customOptions.value() != "empty" && !m_customOptions.value().empty()) {
+	if (m_customOptions.value() != "empty" && not m_customOptions.value().empty()) {
 		arguments.push_back(m_customOptions.value());
 	}
 	arguments.push_back(std::string("--finalize"));
@@ -1048,7 +1048,7 @@ void GExternalEvaluatorIndividualFactory::setProgramName(std::string programName
 	}
 
 	// Check that the file exists
-	if (!bf::exists(programName)) {
+	if (not bf::exists(programName)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << std::endl
@@ -1213,7 +1213,7 @@ void GExternalEvaluatorIndividualFactory::archive(
 
 	// Collect all command-line arguments
 	std::vector<std::string> arguments;
-	if(m_customOptions.value() != "empty" && !m_customOptions.value().empty()) {
+	if(m_customOptions.value() != "empty" && not m_customOptions.value().empty()) {
 		arguments.push_back(m_customOptions.value());
 	}
 	arguments.push_back(std::string("--archive"));
@@ -1416,7 +1416,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 	}
 
 	// Check that the file exists
-	if (!bf::exists(m_programName.value())) {
+	if (not bf::exists(m_programName.value())) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << std::endl
@@ -1430,7 +1430,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 	{ // First we give the external program the opportunity to perform an initial work
 		// Collect all command-line arguments
 		std::vector<std::string> arguments;
-		if (m_customOptions.value() != "empty" && !m_customOptions.value().empty()) {
+		if (m_customOptions.value() != "empty" && not m_customOptions.value().empty()) {
 			arguments.push_back(m_customOptions.value());
 		}
 		arguments.push_back(std::string("--init"));
@@ -1455,7 +1455,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 	{ // Now we ask the external program for setup-iformation
 		// Collect all command-line arguments
 		std::vector<std::string> arguments;
-		if (m_customOptions.value() != "empty" && !m_customOptions.value().empty()) {
+		if (m_customOptions.value() != "empty" && not m_customOptions.value().empty()) {
 			arguments.push_back(m_customOptions.value());
 		}
 

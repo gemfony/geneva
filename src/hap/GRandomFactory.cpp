@@ -1,5 +1,5 @@
 /**
- * @file GRandomFactory.cpp
+ * @file
  */
 
 /*
@@ -145,7 +145,7 @@ seed_type GRandomFactory::getSeed() {
 	std::unique_lock<std::mutex> sm_lck(m_seeding_mutex);
 
 	// Refill at the start of seeding or when all seeds have been used
-	if(!m_seeding_has_started || m_seed_cit==m_seed_collection.end()) {
+	if(not m_seeding_has_started || m_seed_cit==m_seed_collection.end()) {
 		m_seed_seq.generate(m_seed_collection.begin(), m_seed_collection.end());
 		m_seed_cit=m_seed_collection.begin();
 		m_seeding_has_started.store(true);
@@ -168,7 +168,7 @@ seed_type GRandomFactory::getSeed() {
  */
 void GRandomFactory::returnUsedPackage(std::unique_ptr<random_container>&& p) {
 	// We try to add the item to the m_p_ret_bfr queue.
-	if(!m_p_ret_bfr.try_push_move(std::move(p))) {
+	if(not m_p_ret_bfr.try_push_move(std::move(p))) {
 		p.reset();
 	}
 }
@@ -249,9 +249,9 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
  */
 std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 	// Start the producer threads upon first access to this function
-	if (!m_threads_started) {
+	if (not m_threads_started) {
 		std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
-		if (!m_threads_started) { // double checked locking pattern
+		if (not m_threads_started) { // double checked locking pattern
 			//---------------------------------------------------------
 			for (std::uint16_t i = 0; i < m_n_producer_threads.load(); i++) {
 				m_producer_threads.create_thread(
@@ -265,7 +265,7 @@ std::unique_ptr<random_container> GRandomFactory::getNewRandomContainer() {
 	}
 
 	std::unique_ptr<random_container> p; // empty
-	if(!m_p_fresh_bfr.pop_and_wait_move(
+	if(not m_p_fresh_bfr.pop_and_wait_move(
 		p
 		, std::chrono::milliseconds(DEFAULTFACTORYGETWAIT))) {
 		// nothing - our way of signaling a time out
@@ -290,7 +290,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 		G_BASE_GENERATOR mt(seed);
 		std::unique_ptr<random_container> p;
 
-		while(!m_threads_stop_requested) {
+		while(not m_threads_stop_requested) {
 			// First we try to retrieve a "recycled" item from the m_p_ret_bfr buffer. If this
 			// fails (likely because the buffer is empty), we create a new item instead
 			if(m_p_ret_bfr.try_pop_move(p)) {
@@ -298,7 +298,7 @@ void GRandomFactory::producer(std::uint32_t seed) {
 				// If we reach this line, we have successfully retrieved a recycled container.
 				// First do some error-checking
 #ifdef DEBUG
-				if(!p) {
+				if(not p) {
 					throw gemfony_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In RandomFactory::producer(): Error!" << std::endl
@@ -315,11 +315,11 @@ void GRandomFactory::producer(std::uint32_t seed) {
 			}
 
 			// Try to submit the item and check for termination conditions along the way
-			while(!m_threads_stop_requested) {
-				if(!m_p_fresh_bfr.try_push_move(std::move(p))){
+			while(not m_threads_stop_requested) {
+				if(not m_p_fresh_bfr.try_push_move(std::move(p))){
 #ifdef DEBUG
 					// p should never be empty here
-					if(!p) {
+					if(not p) {
 						throw gemfony_exception(
 							g_error_streamer(DO_LOG,  time_and_place)
 								<< "In RandomFactory::producer(): Error!" << std::endl

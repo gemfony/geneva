@@ -1,5 +1,5 @@
 /**
- * @file GIndividualMultiConstraint.hpp
+ * @file
  */
 
 /*

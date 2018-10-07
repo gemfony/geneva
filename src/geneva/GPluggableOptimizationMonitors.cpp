@@ -1,5 +1,5 @@
 /**
- * @file GPluggableOptimizationMonitors.cpp
+ * @file
  */
 
 /*
@@ -363,7 +363,7 @@ void GFitnessMonitor::informationFunction(
 			//------------------------------------------------------------------------------
 			// Setup of local vectors
 
-			if(!m_infoInitRun) {
+			if(not m_infoInitRun) {
 				// Reset the number of monitored individuals to a suitable value, if necessary.
 				if(m_nMonitorInds > global_bests.size()) {
 					glogger
@@ -634,7 +634,7 @@ void GCollectiveMonitor::registerPluggableOM(
  * Checks if adaptors have been registered in the collective monitor
  */
 bool GCollectiveMonitor::hasOptimizationMonitors() const {
-	return !m_pluggable_monitors.empty();
+	return not m_pluggable_monitors.empty();
 }
 
 /******************************************************************************/
@@ -1110,7 +1110,7 @@ void GAllSolutionFileLogger::printPopulation(
 		std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
 
 		// Note that isGoodEnough may throw if loop acts on a "dirty" individual
-		if(!m_boundariesActive || ind->isGoodEnough(m_boundaries)) {
+		if(not m_boundariesActive || ind->isGoodEnough(m_boundaries)) {
 			// Append the data to the external file
 			if(0 == pos && goa->inFirstIteration()) { // Only output name and type in the very first line (if at all)
 				data << ind->toCSV(m_withNameAndType, m_withCommas, m_useRawFitness, m_showValidity);

@@ -1,5 +1,5 @@
 /**
- * @file GSerialConsumerT.hpp
+ * @file
  */
 
 /*
@@ -109,7 +109,7 @@ public:
 		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> workerTemplate
 	 ) {
 #ifdef DEBUG
-		 if(!workerTemplate) { // Does the template point somewhere ?
+		 if(not workerTemplate) { // Does the template point somewhere ?
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
 					 << "In GSerialConsumerT<processable_type>::registerWorkerTemplate(): Error!" << std::endl
@@ -219,7 +219,7 @@ private:
 	  */
 	 void async_startProcessing_() override {
 		 // Add a default worker if no worker was registered
-		 if(!m_workerTemplate) {
+		 if(not m_workerTemplate) {
 			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> default_worker(new GLocalConsumerWorkerT<processable_type>());
 			 this->registerWorkerTemplate(default_worker);
 		 }

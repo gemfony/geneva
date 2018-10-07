@@ -1,5 +1,5 @@
 /**
- * @file G_OA_SwarmAlgorithm_PersonalityTraits.cpp
+ * @file
  */
 
 /*
@@ -170,7 +170,7 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<GPa
 	// Some error checking
 #ifdef DEBUG
 	// Does it point anywhere ?
-	if(!p) {
+	if(not p) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
@@ -179,7 +179,7 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<GPa
 	}
 
 	// Is the dirty flag set ?
-	if(!p->is_processed()) {
+	if(not p->is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm_PersonalityTraits::registerPersonalBest():" << std::endl
@@ -210,7 +210,7 @@ void GSwarmAlgorithm_PersonalityTraits::registerPersonalBest(std::shared_ptr<GPa
  */
 std::shared_ptr <GParameterSet> GSwarmAlgorithm_PersonalityTraits::getPersonalBest() const {
 #ifdef DEBUG
-	if(!personal_best_) {
+	if(not personal_best_) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm_PersonalityTraits::getPersonalBest(): Error!" << std::endl

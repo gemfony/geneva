@@ -1,5 +1,5 @@
 /**
- * @file GStdThreadGroup.hpp
+ * @file
  */
 
 /*

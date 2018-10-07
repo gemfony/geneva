@@ -1,5 +1,5 @@
 /**
- * @file GIndividualStandardConsumerInitializerT.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GFactoryT.hpp
+ * @file
  */
 
 /*
@@ -160,7 +160,7 @@ public:
 		 std::shared_ptr<prod_type> p = this->getObject_(gpb, m_id);
 
 		 // Read the configuration parameters from file
-		 if (!gpb.parseConfigFile(m_configFile)) {
+		 if (not gpb.parseConfigFile(m_configFile)) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFactoryT<prod_type>::operator(): Error!" << std::endl
@@ -311,7 +311,7 @@ private:
 	  * in the "init_()" function, which may be overloaded by the user.
 	  */
 	 void globalInit() {
-		 if (!m_initialized) {
+		 if (not m_initialized) {
 			 // Perform the user-defined initialization work
 			 this->init_();
 			 m_initialized = true;

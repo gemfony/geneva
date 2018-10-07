@@ -1,5 +1,5 @@
 /**
- * @file GCommonHelperFunctionsT.hpp
+ * @file
  */
 
 /*
@@ -341,10 +341,10 @@ void copySmartPointer(
 	const std::shared_ptr <T> &from, std::shared_ptr <T> &to
 ) {
 	// Make sure to is empty when from is empty
-	if (!from) {
+	if (not from) {
 		to.reset();
 	} else {
-		if (!to) {
+		if (not to) {
 			to.reset(new T(*from));
 		} else {
 			*to = *from;
@@ -417,10 +417,10 @@ void copyCloneableSmartPointer (
 	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<T>::value>::type *dummy = nullptr
 ) {
 	// Make sure to is empty when from is empty
-	if(!from) {
+	if(not from) {
 		to.reset();
 	} else {
-		if(!to) {
+		if(not to) {
 			to = from->T::template clone<T>();
 		} else {
 			to->T::load(from);
@@ -667,7 +667,7 @@ template<typename source_type, typename target_type>
 std::shared_ptr <target_type> convertSmartPointer(std::shared_ptr <source_type> p_raw) {
 #ifdef DEBUG
 	// Check that we have indeed been given an item and that the pointer isn't empty
-	if(!p_raw) {
+	if(not p_raw) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In std::shared_ptr<target_type> convertSmartPointer(std::shared_ptr<source_type> p_raw) :" << std::endl
@@ -705,7 +705,7 @@ template<typename source_type, typename target_type>
 target_type *convertSimplePointer(source_type *p_raw) {
 #ifdef DEBUG
 	// Check that we have indeed been given an item and that the pointer isn't empty
-	if(!p_raw) {
+	if(not p_raw) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In target_type * convertSimplePointer(source_type *p_raw) :" << std::endl
@@ -743,7 +743,7 @@ template<typename source_type, typename target_type>
 const target_type *convertSimplePointer(const source_type *p_raw) {
 #ifdef DEBUG
 	// Check that we have indeed been given an item and that the pointer isn't empty
-	if(!p_raw) {
+	if(not p_raw) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In const target_type * convertSimplePointer(const source_type *p_raw) :" << std::endl
@@ -1027,7 +1027,7 @@ bool forcedSubmissionToBoostLockfree(
 	, item_type item
 	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
 ) {
-	while(!queue.push(item)){
+	while(not queue.push(item)){
 		std::this_thread::sleep_for(sleepTime);
 	}
 
@@ -1049,7 +1049,7 @@ bool timedSubmissionToBoostLockfree(
 ) {
 	bool submitted = true;
 	auto startTime = std::chrono::high_resolution_clock::now();
-	while(!queue.push(item)) {
+	while(not queue.push(item)) {
 		if(std::chrono::high_resolution_clock::now()-startTime > timeout) {
 			submitted = false;
 			break; // Terminate the loop
@@ -1071,7 +1071,7 @@ bool forcedRetrievalFromBoostLockfree(
 	, item_type& item
 	, const std::chrono::duration<double> &sleepTime = std::chrono::duration<double>(std::chrono::milliseconds(1))
 ) {
-	while(!queue.pop(item)){
+	while(not queue.pop(item)){
 		std::this_thread::sleep_for(sleepTime);
 	}
 
@@ -1093,7 +1093,7 @@ bool timedRetrievalFromBoostLockfree(
 ) {
 	bool retrieved = true;
 	auto startTime = std::chrono::high_resolution_clock::now();
-	while(!queue.pop(item)) {
+	while(not queue.pop(item)) {
 		if(std::chrono::high_resolution_clock::now()-startTime > timeout) {
 			retrieved = false;
 			break; // Terminate the loop
@@ -1217,7 +1217,7 @@ std::string to_string(
 template <typename enum_type>
 std::string to_string(
 	enum_type val
-	, typename std::enable_if<std::is_enum<enum_type>::value && !std::is_convertible<enum_type, int>::value>::type* = 0
+	, typename std::enable_if<std::is_enum<enum_type>::value && not std::is_convertible<enum_type, int>::value>::type* = 0
 ) {
 	return std::to_string(static_cast<std::uint32_t>(val));
 }
@@ -1229,7 +1229,7 @@ std::string to_string(
 template <typename default_type>
 std::string to_string(
 	default_type val
-	, typename std::enable_if<!std::is_enum<default_type>::value && !std::is_arithmetic<default_type>::value>::type* = 0
+	, typename std::enable_if<not std::is_enum<default_type>::value && not std::is_arithmetic<default_type>::value>::type* = 0
 ) {
 	return boost::lexical_cast<std::string>(val);
 }

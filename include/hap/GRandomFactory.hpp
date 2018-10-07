@@ -1,5 +1,5 @@
 /**
- * @file GRandomFactory.hpp
+ * @file
  */
 
 /*

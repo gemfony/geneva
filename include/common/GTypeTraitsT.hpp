@@ -1,5 +1,5 @@
 /**
- * @file GTypeTraitsT.hpp
+ * @file
  */
 
 /*

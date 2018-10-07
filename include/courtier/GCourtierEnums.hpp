@@ -1,5 +1,5 @@
 /**
- * @file GCourtierEnums.hpp
+ * @file
  */
 
 /*

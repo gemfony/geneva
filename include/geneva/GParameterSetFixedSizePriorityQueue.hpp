@@ -1,5 +1,5 @@
 /**
- * @file GParameterSetFixedSizeSetPriorityQueue.hpp
+ * @file
  */
 
 /*

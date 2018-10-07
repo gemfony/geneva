@@ -1,5 +1,5 @@
 /**
- * @file GDoubleObjectCollection.cpp
+ * @file
  */
 
 /*

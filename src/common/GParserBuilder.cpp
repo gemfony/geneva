@@ -1,5 +1,5 @@
 /**
- * @file GParserBuilder.hpp
+ * @file
  */
 
 /*
@@ -126,7 +126,7 @@ std::string GParsableI::comment(std::size_t pos) const {
  * Checks whether comments have indeed been registered
  */
 bool GParsableI::hasComments() const {
-	return !m_comment.empty();
+	return not m_comment.empty();
 }
 
 /******************************************************************************/
@@ -385,14 +385,14 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 	boost::trim(configFile_withBase);
 
 	// Check that configFile_withBase doesn't start with a / (--> absolute path)
-	if (!m_configfile_Base_name.empty() && "empty" != m_configfile_Base_name && configFile.at(0) != '/') {
+	if (not m_configfile_Base_name.empty() && "empty" != m_configfile_Base_name && configFile.at(0) != '/') {
 		configFile_withBase = m_configfile_Base_name + configFile_withBase;
 	}
 
 	try {
 		// Do some error checking. Also check that the configuration file exists.
 		// If not, create a default version
-		if (!bf::exists(configFile_withBase)) {
+		if (not bf::exists(configFile_withBase)) {
 			glogger
 				<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
 				<< "Configuration file " << configFile_withBase << " does not exist." << std::endl
@@ -407,7 +407,7 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 			);
 		} else { // configFile exists
 			// Is it a regular file ?
-			if (!bf::is_regular_file(configFile_withBase)) {
+			if (not bf::is_regular_file(configFile_withBase)) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
@@ -416,7 +416,7 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 			}
 
 			// We require the file to have the json extension
-			if (!bf::path(configFile_withBase).has_extension() || bf::path(configFile_withBase).extension() != ".json") {
+			if (not bf::path(configFile_withBase).has_extension() || bf::path(configFile_withBase).extension() != ".json") {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
@@ -476,7 +476,7 @@ void GParserBuilder::writeConfigFile(
 	boost::trim(configFile_withBase);
 
 	// Check that configFile_withBase doesn't start with a / (--> absolute path)
-	if (!m_configfile_Base_name.empty() && "empty" != m_configfile_Base_name && configFile.at(0) != '/') {
+	if (not m_configfile_Base_name.empty() && "empty" != m_configfile_Base_name && configFile.at(0) != '/') {
 		configFile_withBase = m_configfile_Base_name + configFile_withBase;
 	}
 
@@ -505,8 +505,8 @@ void GParserBuilder::writeConfigFile(
 		}
 
 		// Check that the target path exists and is a directory
-		if (!exists(path(configFile_withBase).remove_filename()) ||
-			 !is_directory(path(configFile_withBase).remove_filename())) {
+		if (not exists(path(configFile_withBase).remove_filename()) ||
+			 not is_directory(path(configFile_withBase).remove_filename())) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
@@ -516,7 +516,7 @@ void GParserBuilder::writeConfigFile(
 		}
 
 		// Check that the configuration file has the required extension
-		if (!path(configFile_withBase).has_extension() || path(configFile_withBase).extension() != ".json") {
+		if (not path(configFile_withBase).has_extension() || path(configFile_withBase).extension() != ".json") {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
@@ -527,7 +527,7 @@ void GParserBuilder::writeConfigFile(
 
 	// Open the required configuration file
 	boost::filesystem::ofstream ofs(configFile_withBase);
-	if (!ofs) {
+	if (not ofs) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParserBuilder::writeConfigFile(): Error writing the configuration file " << configFile_withBase <<
@@ -561,7 +561,7 @@ void GParserBuilder::writeConfigFile(
 	for (cit = m_file_parameter_proxies.begin(); cit != m_file_parameter_proxies.end(); ++cit) {
 		// Only write out the parameter(s) if they are either essential or it
 		// has been requested to write out all parameters regardless
-		if (!writeAll && !(*cit)->isEssential()) continue;
+		if (not writeAll && not (*cit)->isEssential()) continue;
 
 		// Output the actual data of this parameter object to the property tree
 		(*cit)->save(ptr);

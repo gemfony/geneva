@@ -1,5 +1,5 @@
 /**
- * @file GConsumerStore.hpp
+ * @file
  */
 
 /*

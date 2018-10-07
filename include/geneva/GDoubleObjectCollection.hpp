@@ -1,5 +1,5 @@
 /**
- * @file GDoubleObjectCollection.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GFPGaussAdaptorT.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file G_OptimizationAlgorithm_EvolutionaryAlgorithm.cpp
+ * @file
  */
 
 /*
@@ -499,7 +499,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 	// through this function. There MAY be situations, where in the first iteration
 	// parents are clean, e.g. when they were extracted from another optimization.
 	for(std::size_t i=this->getNParents(); i<this->size(); i++) {
-		if(!this->at(i)->is_due_for_processing()) {
+		if(not this->at(i)->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GEvolutionaryAlgorithm::runFitnessCalculation(): Error!" << std::endl
@@ -534,7 +534,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Take care of unprocessed items, if these exist
-	if(!status.is_complete) {
+	if(not status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
@@ -974,7 +974,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 
 	// We fall back to the single-eval MUPLUSNU mode if there is just one evaluation criterion
 	it = this->begin();
-	if (!(*it)->hasMultipleFitnessCriteria()) {
+	if (not (*it)->hasMultipleFitnessCriteria()) {
 		this->sortMuPlusNuMode();
 		return;
 	}
@@ -989,7 +989,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuParetoMode() {
 		for (it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
 			// If we already know that this individual is *not*
 			// on the front we do not have to do any tests
-			if (!(*it_cmp)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) continue;
+			if (not (*it_cmp)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) continue;
 
 			// Check if it dominates it_cmp. If so, mark it accordingly
 			if (aDominatesB(*it, *it_cmp)) {
@@ -1064,7 +1064,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 
 	// We fall back to the single-eval MUCOMMANU mode if there is just one evaluation criterion
 	it = this->begin();
-	if (!(*it)->hasMultipleFitnessCriteria()) {
+	if (not (*it)->hasMultipleFitnessCriteria()) {
 		this->sortMuCommaNuMode();
 		return;
 	}
@@ -1084,7 +1084,7 @@ void GEvolutionaryAlgorithm::sortMuCommaNuParetoMode() {
 		for (it_cmp = it + 1; it_cmp != this->end(); ++it_cmp) {
 			// If we already know that this individual is *not*
 			// on the front we do not have to do any tests
-			if (!(*it_cmp)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) continue;
+			if (not (*it_cmp)->template getPersonalityTraits<GEvolutionaryAlgorithm_PersonalityTraits>()->isOnParetoFront()) continue;
 
 			// Check if it dominates it_cmp. If so, mark it accordingly
 			if (aDominatesB(*it, *it_cmp)) {

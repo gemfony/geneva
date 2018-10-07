@@ -1,5 +1,5 @@
 /**
- * @file GParameterPropertyParser.cpp
+ * @file
  */
 
 /*
@@ -187,7 +187,7 @@ void GParameterPropertyParser::parse() {
 		from, to, (varString % ','), space, variableDescriptions
 	);
 
-	if (!success || from != to) {
+	if (not success || from != to) {
 		std::string rest(from, to);
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -232,7 +232,7 @@ void GParameterPropertyParser::parse() {
 			);
 		}
 
-		if (!success || from != to) {
+		if (not success || from != to) {
 			std::string rest(from, to);
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
@@ -250,7 +250,7 @@ void GParameterPropertyParser::parse() {
 					<< "maximum of 1 is allowed" << std::endl
 			);
 		} else if (sSpecVec.size() == 1) { // If we did find a "simple scan" entry, we will discard the other entries.
-			if (!dSpecVec.empty()) {
+			if (not dSpecVec.empty()) {
 				glogger
 					<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
 					<< "You have specified both a simple-scan component and " << std::endl
@@ -261,7 +261,7 @@ void GParameterPropertyParser::parse() {
 				dSpecVec.clear();
 			}
 
-			if (!fSpecVec.empty()) {
+			if (not fSpecVec.empty()) {
 				glogger
 					<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
 					<< "You have specified both a simple-scan component and " << std::endl
@@ -272,7 +272,7 @@ void GParameterPropertyParser::parse() {
 				fSpecVec.clear();
 			}
 
-			if (!iSpecVec.empty()) {
+			if (not iSpecVec.empty()) {
 				glogger
 					<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
 					<< "You have specified both a simple-scan component and " << std::endl
@@ -283,7 +283,7 @@ void GParameterPropertyParser::parse() {
 				iSpecVec.clear();
 			}
 
-			if (!bSpecVec.empty()) {
+			if (not bSpecVec.empty()) {
 				glogger
 					<< "In GParameterPropertyParser::parse(): Warning!" << std::endl
 					<< "You have specified both a simple-scan component and " << std::endl

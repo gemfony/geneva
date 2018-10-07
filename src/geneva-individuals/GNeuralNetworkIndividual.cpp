@@ -1,5 +1,5 @@
 /**
- * @file GNeuralNetworkIndividual.cpp
+ * @file
  */
 
 /*
@@ -242,7 +242,7 @@ void networkData::compare(
 void networkData::saveToDisk(const std::string &networkDataFile) const {
 	bf::ofstream trDat(networkDataFile);
 
-	if (!trDat) {
+	if (not trDat) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In networkData::saveToDisk(const std::string&) : Error!" << std::endl
@@ -271,12 +271,12 @@ void networkData::loadFromDisk(const std::string &networkDataFile) {
 
 	boost::filesystem::ifstream trDat(networkDataFile.c_str());
 
-	if (!trDat) {
+	if (not trDat) {
 		std::ostringstream error;
 		error << "In networkData::loadFromDisk(const std::string&):" << std::endl
 				<< "Data file " << networkDataFile << " could not be opened for reading." << std::endl;
 
-		if (!boost::filesystem::exists(networkDataFile.c_str())) {
+		if (not boost::filesystem::exists(networkDataFile.c_str())) {
 			error << "File does not exist." << std::endl;
 		}
 
@@ -466,7 +466,7 @@ void networkData::toROOT(
  * Allows to check whether an initialization range has been set
  */
 bool networkData::initRangeSet() const {
-	return !initRange_.empty();
+	return not initRange_.empty();
 }
 
 /******************************************************************************/
@@ -686,7 +686,7 @@ void GNeuralNetworkIndividual::init(
 	this->clear();
 
 #ifdef DEBUG
-	if(!nD_) {
+	if(not nD_) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::init([...]): Error!" << std::endl
@@ -793,7 +793,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 	}
 
 	bf::ofstream visProgram(visFile);
-	if (!visProgram) {
+	if (not visProgram) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::writeVisualizationFile(const std::string&) :" << std::endl
@@ -1155,7 +1155,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile
 	}
 
 	bf::ofstream header(headerFile);
-	if (!header) {
+	if (not header) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GNeuralNetworkIndividual::writeTrainedNetwork(const std::string&) :" << std::endl

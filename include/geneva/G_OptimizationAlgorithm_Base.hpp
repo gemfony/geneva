@@ -1,5 +1,5 @@
 /**
- * @file G_OptimizationAlgorithm_Base.hpp
+ * @file
  */
 
 /*

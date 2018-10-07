@@ -1,5 +1,5 @@
 /**
- * @file GParameterBase.hpp
+ * @file
  */
 
 /*

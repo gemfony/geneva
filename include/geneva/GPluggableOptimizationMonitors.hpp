@@ -1,5 +1,5 @@
 /**
- * @file GPluggableOptimizationMonitors.hpp
+ * @file
  */
 
 /*
@@ -519,7 +519,7 @@ public:
 	  * Allows to check whether parameters should be profiled
 	  */
 	 bool parameterProfileCreationRequested() const {
-		 return !m_fp_profVarVec.empty();
+		 return not m_fp_profVarVec.empty();
 	 }
 
 	 /***************************************************************************/
@@ -731,7 +731,7 @@ public:
 						 primaryFitness = p->transformed_fitness(0);
 					 }
 
-					 if(!m_monitorValidOnly || p->isValid()) {
+					 if(not m_monitorValidOnly || p->isValid()) {
 						 switch(this->nProfileVars()) {
 							 case 1:
 							 {
@@ -799,7 +799,7 @@ public:
 							 primaryFitness = ind_ptr->transformed_fitness(0);
 						 }
 
-						 if(!m_monitorValidOnly || ind_ptr->isValid()) {
+						 if(not m_monitorValidOnly || ind_ptr->isValid()) {
 							 switch(this->nProfileVars()) {
 								 case 1:
 								 {

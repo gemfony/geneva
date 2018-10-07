@@ -1,5 +1,5 @@
 /**
- * @file G_OA_GradientDescent.cpp
+ * @file
  */
 
 /*
@@ -490,7 +490,7 @@ void GGradientDescent::runFitnessCalculation() {
 
 	// Check if all work items have returned or whether there were errors. Both
 	// cannot be tolerated, as a gradient method needs a complete set of evaluated solutions.
-	if (!status.is_complete || status.has_errors) {
+	if (not status.is_complete || status.has_errors) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GGradientDescent::runFitnessCalculation(): Error!" << std::endl

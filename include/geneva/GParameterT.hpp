@@ -1,5 +1,5 @@
 /**
- * @file GParameterT.hpp
+ * @file
  */
 
 /*

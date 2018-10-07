@@ -1,5 +1,5 @@
 /**
- * @file GParameterSet.cpp
+ * @file
  */
 
 /*
@@ -583,7 +583,7 @@ bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 	}
 
 	// Has the individual been processed
-	if(!this->is_processed()) {
+	if(not this->is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::isGoodEnough(): Error!" << std::endl
@@ -699,7 +699,7 @@ void GParameterSet::perItemCrossOver(
 #endif /* DEBUG */
 
 	// Do the actual cross-over
-	if (!this_double_vec.empty()) {
+	if (not this_double_vec.empty()) {
 		// Calculate a suitable position for the cross-over
 		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_double_vec.size() - std::size_t(1)));
 
@@ -709,7 +709,7 @@ void GParameterSet::perItemCrossOver(
 		}
 	}
 
-	if (!this_float_vec.empty()) {
+	if (not this_float_vec.empty()) {
 		// Calculate a suitable position for the cross-over
 		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_float_vec.size() - std::size_t(1)));
 
@@ -719,7 +719,7 @@ void GParameterSet::perItemCrossOver(
 		}
 	}
 
-	if (!this_bool_vec.empty()) {
+	if (not this_bool_vec.empty()) {
 		// Calculate a suitable position for the cross-over
 		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_bool_vec.size() - std::size_t(1)));
 
@@ -729,7 +729,7 @@ void GParameterSet::perItemCrossOver(
 		}
 	}
 
-	if (!this_int_vec.empty()) {
+	if (not this_int_vec.empty()) {
 		// Calculate a suitable position for the cross-over
 		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_int_vec.size() - std::size_t(1)));
 
@@ -1488,7 +1488,7 @@ void GParameterSet::setRandomCrash(bool useRandomCrash, double crashProb) {
 std::shared_ptr <GPersonalityTraits> GParameterSet::getPersonalityTraits() {
 #ifdef DEBUG
 	// Do some error checking
-	if(!m_pt_ptr) {
+	if(not m_pt_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::getPersonalityTraits():" << std::endl
@@ -1516,7 +1516,7 @@ void GParameterSet::setPersonality(
 	std::shared_ptr < GPersonalityTraits > gpt
 ) {
 	// Make sure we haven't been given an empty pointer
-	if (!gpt) {
+	if (not gpt) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::setPersonality(): Error!" << std::endl
@@ -1689,7 +1689,7 @@ bool GParameterSet::constraintsFulfilled() const {
 void GParameterSet::registerConstraint(
 	std::shared_ptr<GPreEvaluationValidityCheckT<GParameterSet>> c_ptr
 ) {
-	if (!c_ptr) {
+	if (not c_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::registerConstraint(): Error!" << std::endl
@@ -1747,7 +1747,7 @@ bool GParameterSet::isValid() const {
  * Checks whether this solution is invalid
  */
 bool GParameterSet::isInValid() const {
-	return !this->isValid();
+	return not this->isValid();
 }
 
 /******************************************************************************/

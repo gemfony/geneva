@@ -1,5 +1,5 @@
 /**
- * @file GParameterSetFactory.hpp
+ * @file
  */
 
 /*

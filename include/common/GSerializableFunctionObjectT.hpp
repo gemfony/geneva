@@ -1,5 +1,5 @@
 /**
- * @file GSerializableFunctionObjectT.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GNumBiGaussAdaptorT.hpp
+ * @file
  */
 
 /*

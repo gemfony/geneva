@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedFPNumCollectionT.hpp
+ * @file
  */
 
 /*

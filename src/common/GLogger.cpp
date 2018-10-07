@@ -1,5 +1,5 @@
 /**
- * @file GLogger.cpp
+ * @file
  */
 
 /*
@@ -242,7 +242,7 @@ std::string GManipulator::getAccompInfo() const {
  * Checks whether any accompanying information is available
  */
 bool GManipulator::hasAccompInfo() const {
-	return !m_accomp_info.empty();
+	return not m_accomp_info.empty();
 }
 
 /******************************************************************************/
@@ -484,7 +484,7 @@ void GLogStreamer::reset() {
  * Checks whether an extension string has been registered
  */
 bool GLogStreamer::hasExtension() const {
-	return !m_extension.empty();
+	return not m_extension.empty();
 }
 
 /******************************************************************************/
@@ -500,7 +500,7 @@ std::string GLogStreamer::getExtension() const {
  * Checks whether a log file name has been registered
  */
 bool GLogStreamer::hasOneTimeLogFile() const {
-	return !m_log_file.empty();
+	return not m_log_file.empty();
 }
 
 /******************************************************************************/

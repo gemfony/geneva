@@ -1,5 +1,5 @@
 /**
- * @file GParameterPropertyParser.hpp
+ * @file
  */
 
 /*
@@ -444,7 +444,7 @@ private:
 template <>
 inline std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<parPropSpec<double>>::const_iterator> GParameterPropertyParser::getIterators<double>() const {
 	// Make sure parsing has happened.
-	if(!parsed_) {
+	if(not parsed_) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterPropertyParser::getIterators<double>(): Error!" << std::endl
@@ -476,7 +476,7 @@ inline std::tuple<std::vector<parPropSpec<double>>::const_iterator, std::vector<
 template <>
 inline std::tuple<std::vector<parPropSpec<float>>::const_iterator, std::vector<parPropSpec<float>>::const_iterator> GParameterPropertyParser::getIterators<float>() const {
 	// Make sure parsing has happened.
-	if(!parsed_) {
+	if(not parsed_) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterPropertyParser::getIterators<float>(): Error!" << std::endl
@@ -509,7 +509,7 @@ template <>
 inline std::tuple<std::vector<parPropSpec<std::int32_t>>::const_iterator, std::vector<parPropSpec<std::int32_t>>::const_iterator>
 GParameterPropertyParser::getIterators<std::int32_t>() const {
 	// Make sure parsing has happened.
-	if(!parsed_) {
+	if(not parsed_) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterPropertyParser::getIterators<std::int32_t>(): Error!" << std::endl
@@ -541,7 +541,7 @@ template <>
 inline std::tuple<std::vector<parPropSpec<bool>>::const_iterator, std::vector<parPropSpec<bool>>::const_iterator>
 GParameterPropertyParser::getIterators<bool>() const {
 	// Make sure parsing has happened.
-	if(!parsed_) {
+	if(not parsed_) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterPropertyParser::getIterators<bool>(): Error!" << std::endl

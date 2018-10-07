@@ -1,5 +1,5 @@
 /**
- * @file GParameterBaseWithAdaptorsT.hpp
+ * @file
  */
 
 /*
@@ -147,7 +147,7 @@ public:
 	  */
 	 void addAdaptor(std::shared_ptr<GAdaptorT<T>> gat_ptr) {
 		 // Check that we have indeed been given an adaptor
-		 if(!gat_ptr){
+		 if(not gat_ptr){
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
@@ -166,7 +166,7 @@ public:
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT<T>::addAdaptor()" << std::endl
-					 << "Found no local adaptor. This should not happen!" << std::endl
+					 << "Found no local adaptor. This should not happennot " << std::endl
 			 );
 		 }
 	 }
@@ -187,7 +187,7 @@ public:
 	  */
 	 std::shared_ptr<GAdaptorT<T>> getAdaptor() const {
 #ifdef DEBUG
-		 if(!adaptor_) {
+		 if(not adaptor_) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT::getAdaptor() :" << std::endl
@@ -221,7 +221,7 @@ public:
 		 typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type *dummy = nullptr
 	 ) const {
 #ifdef DEBUG
-		 if(!adaptor_) {
+		 if(not adaptor_) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT::getAdaptor<adaptor_type>()" << std::endl
@@ -291,7 +291,7 @@ public:
 	  */
 	 bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
 #ifdef DEBUG
-		 if (!adaptor_) {
+		 if (not adaptor_) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall(...):" << std::endl
@@ -318,7 +318,7 @@ public:
 		 , std::vector<boost::any>& data
 	 ) const override {
 #ifdef DEBUG
-		 if (!adaptor_) {
+		 if (not adaptor_) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT<T>::queryAdaptor(...):" << std::endl
@@ -351,7 +351,7 @@ protected:
 		 // and then our local data
 #ifdef DEBUG
 		 // Check that both we and the "foreign" object have an adaptor
-		 if(!adaptor_ || !p_load->adaptor_) {
+		 if(not adaptor_ || not p_load->adaptor_) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT<T>::load_():" << std::endl
@@ -387,7 +387,7 @@ protected:
 		 , Gem::Hap::GRandomBase& gr
 	 ) {
 #ifdef DEBUG
-		 if (!adaptor_) {
+		 if (not adaptor_) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(value,range):" << std::endl
@@ -422,7 +422,7 @@ protected:
 		 , Gem::Hap::GRandomBase& gr
 	 ) {
 #ifdef DEBUG
-		 if(!adaptor_) {
+		 if(not adaptor_) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(collection, range, gr):" << std::endl
@@ -559,7 +559,7 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 	, Gem::Hap::GRandomBase& gr
 ) {
 #ifdef DEBUG
-	if(!adaptor_) {
+	if(not adaptor_) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterBaseWithAdaptorsT<T>::applyAdaptor(std::vector<bool>& collection):" << std::endl

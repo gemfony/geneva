@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedDoubleCollection.hpp
+ * @file
  */
 
 /*

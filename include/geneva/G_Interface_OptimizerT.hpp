@@ -1,5 +1,5 @@
 /**
- * @file G_Interface_Optimizer.hpp
+ * @file
  */
 
 /*

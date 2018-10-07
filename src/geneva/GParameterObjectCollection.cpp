@@ -1,5 +1,5 @@
 /**
- * @file GParameterObjectCollection.cpp
+ * @file
  */
 
 /*
@@ -507,11 +507,11 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Fill p_test1 with parameters
 		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
-		BOOST_REQUIRE(!p_test1->empty());
+		BOOST_REQUIRE(not p_test1->empty());
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-		BOOST_REQUIRE(!p_test2->empty());
+		BOOST_REQUIRE(not p_test2->empty());
 
 		// Check that both individuals are identical
 		BOOST_CHECK(*p_test1 == *p_test2);

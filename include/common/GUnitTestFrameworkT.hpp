@@ -1,5 +1,5 @@
 /**
- * @file GUnitTestFrameworkT.hpp
+ * @file
  */
 
 /*

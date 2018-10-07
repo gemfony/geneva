@@ -1,5 +1,5 @@
 /**
- * @file G_OA_FactoryT.hpp
+ * @file
  */
 
 /*
@@ -170,7 +170,7 @@ public:
 		 if (m_contentCreatorPtr) { // Has a content creation object been registered ? If so, add individuals to the population
 			 for (std::size_t ind = 0; ind < p_alg->getDefaultPopulationSize(); ind++) {
 				 std::shared_ptr<GParameterSet> p_ind = (*m_contentCreatorPtr)();
-				 if (!p_ind) { // No valid item received, the factory has run empty
+				 if (not p_ind) { // No valid item received, the factory has run empty
 					 break;
 				 } else {
 					 p_alg->push_back(p_ind);
@@ -207,7 +207,7 @@ public:
 	 void registerContentCreator(
 		 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr
 	 ) {
-		 if (!cc_ptr) {
+		 if (not cc_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GOptiomizationAlgorithmFactoryT<T>::registerContentCreator(): Error!" << std::endl

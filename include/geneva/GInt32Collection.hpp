@@ -1,5 +1,5 @@
 /**
- * @file GInt32Collection.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GCanvas.cpp
+ * @file
  */
 
 /*

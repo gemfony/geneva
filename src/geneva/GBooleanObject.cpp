@@ -1,5 +1,5 @@
 /**
- * @file GBooleanObject.cpp
+ * @file
  */
 
 /*
@@ -153,7 +153,7 @@ bool GBooleanObject::randomInit(
 	, const activityMode &am
 	, Gem::Hap::GRandomBase& gr
 ) {
-	if (!GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
+	if (not GParameterBase::randomInitializationBlocked() && this->modifiableAmMatchOrHandover(am)) {
 		return randomInit_(probability, am, gr);
 	} else {
 		return false;
@@ -196,7 +196,7 @@ bool GBooleanObject::randomInit_(
 	, Gem::Hap::GRandomBase& gr
 ) {
 	// Do some error checks
-	if(!Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanObject::randomInit_(probability)")) {
+	if(not Gem::Common::checkRangeCompliance(probability, 0., 1., "GBooleanObject::randomInit_(probability)")) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBooleanObject::randomInit_(probability): Error!" << std::endl

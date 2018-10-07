@@ -1,5 +1,5 @@
 /**
- * @file GFPBiGaussAdaptorT.hpp
+ * @file
  */
 
 /*

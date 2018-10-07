@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedDoubleObject.hpp
+ * @file
  */
 
 /*

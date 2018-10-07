@@ -1,5 +1,5 @@
 /**
- * @file GBaseConsumerT.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file G_OA_SimulatedAnnealing_Factory.hpp
+ * @file
  */
 
 /*

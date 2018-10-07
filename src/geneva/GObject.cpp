@@ -1,5 +1,5 @@
 /**
- * @file GObject.cpp
+ * @file
  */
 
 /*
@@ -328,7 +328,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GObject> p_test = this->clone();
 
 		// Check that the pointer actually points somewhere
-		BOOST_CHECK(!(p_test->report()).empty());
+		BOOST_CHECK(not (p_test->report()).empty());
 	}
 
 

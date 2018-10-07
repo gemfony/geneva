@@ -1,5 +1,5 @@
 /**
- * @file GMetaOptimizerIndividualT.hpp
+ * @file
  */
 
 /*
@@ -725,7 +725,7 @@ public:
 
 		 // Stream the results
 
-		 bool unprocessed = (!this->is_processed() || this->has_errors());
+		 bool unprocessed = (not this->is_processed() || this->has_errors());
 		 double transformedPrimaryFitness = unprocessed ? this->getWorstCase() : this->transformed_fitness(0);
 
 		 result
@@ -769,7 +769,7 @@ public:
 	  * so the individual can be sure to have a unique factory.
 	  */
 	 void registerIndividualFactory(std::shared_ptr <typename ind_type::FACTORYTYPE> factory) {
-		 if (!factory) {
+		 if (not factory) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GMetaOptimizerIndividualT<T>::registerIndividualFactory(): Error!" << std::endl
@@ -829,7 +829,7 @@ protected:
 
 #ifdef DEBUG
 		 // Check that we have been given a factory
-		 if(!ind_factory_) {
+		 if(not ind_factory_) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GMetaOptimizerIndividualT<T>::fitnessCalculation(): Error!" << std::endl
@@ -1038,7 +1038,7 @@ public:
 		 if (Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
 
 		 // Change the parameter settings
-		 if (!this->empty()) {
+		 if (not this->empty()) {
 			 this->adapt();
 			 result = true;
 		 }
@@ -1175,7 +1175,7 @@ public:
 	  * so the individual can be sure to have a unique factory.
 	  */
 	 void registerIndividualFactory(std::shared_ptr <typename ind_type::FACTORYTYPE> factory) {
-		 if (!factory) {
+		 if (not factory) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GMetaOptimizerIndividualFactoryT<T>::registerIndividualFactory(): Error!" << std::endl

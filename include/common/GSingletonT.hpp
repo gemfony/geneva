@@ -1,5 +1,5 @@
 /**
- * @file GSingletonT.hpp
+ * @file
  */
 
 /*
@@ -121,10 +121,10 @@ public:
 			 case 0:
 				 // Several callers can reach the next line simultaneously. Hence, if
 				 // p is empty, we need to ask again if it is empty after we have acquired the lock
-				 if (!p) {
+				 if (not p) {
 					 // Prevent concurrent "first" access
 					 std::unique_lock<std::mutex> lk(creation_mutex);
-					 if (!p) p = Gem::Common::TFactory_GSingletonT<T>();
+					 if (not p) p = Gem::Common::TFactory_GSingletonT<T>();
 				 }
 
 				 return p;

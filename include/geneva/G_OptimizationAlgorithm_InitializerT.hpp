@@ -1,5 +1,5 @@
 /**
- * @file G_OA_InitializerT.hpp
+ * @file
  */
 
 /*

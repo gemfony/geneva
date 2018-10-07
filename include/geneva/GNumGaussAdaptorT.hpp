@@ -1,5 +1,5 @@
 /**
- * @file GNumGaussAdaptorT.hpp
+ * @file
  */
 
 /*
@@ -245,7 +245,7 @@ public:
 	 void setSigma(const fp_type& sigma)
 	 {
 		 // Sigma must be in the allowed value range.
-		 if(!Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setSigma(" + Gem::Common::to_string(sigma) + ")"))
+		 if(not Gem::Common::checkRangeCompliance<fp_type>(sigma, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setSigma(" + Gem::Common::to_string(sigma) + ")"))
 		 {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -280,7 +280,7 @@ public:
 	 void setResetSigma(const fp_type& sigma_reset)
 	 {
 		 // Sigma must be in the allowed value range.
-		 if(!Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setResetSigma(" + Gem::Common::to_string(sigma_reset) + ")"))
+		 if(not Gem::Common::checkRangeCompliance<fp_type>(sigma_reset, minSigma_, maxSigma_, "GNumGaussAdaptorT<>::setResetSigma(" + Gem::Common::to_string(sigma_reset) + ")"))
 		 {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)

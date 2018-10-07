@@ -1,5 +1,5 @@
 /**
- * @file GInt32FlipAdaptor.hpp
+ * @file
  */
 
 /*

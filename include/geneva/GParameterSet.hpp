@@ -1,5 +1,5 @@
 /**
- * @file GParameterSet.hpp
+ * @file
  */
 
 /*
@@ -441,7 +441,7 @@ public:
 	 ) {
 #ifdef DEBUG
 		 // Check that m_pt_ptr actually points somewhere
-		 if(!m_pt_ptr) {
+		 if(not m_pt_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterSet::getPersonalityTraits<personality_type>() : Empty personality pointer found" << std::endl

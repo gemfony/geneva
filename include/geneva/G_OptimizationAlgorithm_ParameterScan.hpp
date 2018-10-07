@@ -1,5 +1,5 @@
 /**
- * @file G_OA_ParameterScan.hpp
+ * @file
  */
 
 /*
@@ -189,7 +189,7 @@ public:
 			, randomScan_(randomScan)
 			, typeDescription_(t)
 	 {
-		 if(!randomScan_) {
+		 if(not randomScan_) {
 			 // Fill the object with data
 			 this->data = fillWithData<T>(nSteps_, lower_, upper_);
 		 }

@@ -1,5 +1,5 @@
 /**
- * @file GObject.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GMultiConstraintT.hpp
+ * @file
  */
 
 /*
@@ -230,7 +230,7 @@ public:
 	  * @return A boolean indicating whether a constraint is invalid
 	  */
 	 bool isInvalid(const ind_type *cp, double &validityLevel) const {
-		 return !this->isValid(cp, validityLevel);
+		 return not this->isValid(cp, validityLevel);
 	 }
 
 	 /***************************************************************************/
@@ -384,7 +384,7 @@ public:
 	  * that it can be used multiple times.
 	  */
 	 void addCheck(std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> vc_ptr) {
-		 if(!vc_ptr) {
+		 if(not vc_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GValidityCheckContainerT<>::addCheck(): Error!" << std::endl
@@ -555,7 +555,7 @@ protected:
 		 double validityLevel;
 		 typename std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>> >::const_iterator cit;
 		 for(cit=GValidityCheckContainerT<ind_type>::validityChecks_.begin(); cit!=GValidityCheckContainerT<ind_type>::validityChecks_.end(); ++cit) {
-			 if(!(*cit)->isValid(cp, validityLevel)) {
+			 if(not (*cit)->isValid(cp, validityLevel)) {
 				 invalidChecks.push_back(validityLevel);
 			 }
 		 }

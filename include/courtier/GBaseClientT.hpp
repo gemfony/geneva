@@ -1,5 +1,5 @@
 /**
- * @file GBaseClientT.hpp
+ * @file
  */
 
 /*
@@ -221,7 +221,7 @@ public:
 		 try {
 			 r = run_state::INIT;
 
-			 if (!this->init()) { // Initialize the client
+			 if (not this->init()) { // Initialize the client
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Initialization failed. Leaving ..." << std::endl
@@ -232,7 +232,7 @@ public:
 			 run_(); // The main loop
 
 			 r = run_state::FINALLY;
-			 if (!this->finally()) {
+			 if (not this->finally()) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseClientT<T>::run(): Finalization failed." << std::endl

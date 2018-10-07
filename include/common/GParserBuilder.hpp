@@ -1,5 +1,5 @@
 /**
- * @file GParserBuilder.hpp
+ * @file
  */
 
 /*
@@ -581,7 +581,7 @@ public:
 	  * Executes a stored call-back function
 	  */
 	 virtual void executeCallBackFunction() {
-		 if (!m_call_back_func) {
+		 if (not m_call_back_func) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSingleParsableParameter::executeCallBackFunction(): Error" << std::endl
@@ -600,7 +600,7 @@ public:
 	  * @param callBack The function to be executed
 	  */
 	 void registerCallBackFunction(std::function<void(parameter_type)> callBack) {
-		 if (!callBack) {
+		 if (not callBack) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSingleParsableParameter::registerCallBackFunction(): Error" << std::endl
@@ -643,7 +643,7 @@ protected:
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
 			 std::vector<std::string>::iterator c;
-			 if (!comments.empty()) {
+			 if (not comments.empty()) {
 				 for (c = comments.begin(); c != comments.end(); ++c) {
 					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
 				 }
@@ -751,7 +751,7 @@ protected:
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
 			 std::vector<std::string>::iterator c;
-			 if (!comments.empty()) {
+			 if (not comments.empty()) {
 				 for (c = comments.begin(); c != comments.end(); ++c) {
 					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
 				 }
@@ -894,7 +894,7 @@ public:
 	  * Executes a stored call-back function
 	  */
 	 virtual void executeCallBackFunction() {
-		 if (!m_call_back_func) {
+		 if (not m_call_back_func) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileCombinedParsableParameterT::executeCallBackFunction(): Error" << std::endl
@@ -913,7 +913,7 @@ public:
 	  * @param callBack The function to be executed
 	  */
 	 void registerCallBackFunction(std::function<void(par_type0, par_type1)> callBack) {
-		 if (!callBack) {
+		 if (not callBack) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileCombinedParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -960,7 +960,7 @@ protected:
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments0 = GParsableI::splitComment(this->comment(0));
 			 std::vector<std::string>::iterator c;
-			 if (!comments0.empty()) {
+			 if (not comments0.empty()) {
 				 for (c = comments0.begin(); c != comments0.end(); ++c) {
 					 pt.add((GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(0) +
 								".comment").c_str(), (*c).c_str());
@@ -977,7 +977,7 @@ protected:
 		 if (this->hasComments()) {
 			 std::vector<std::string> comments1 = GParsableI::splitComment(this->comment(1));
 			 std::vector<std::string>::iterator c;
-			 if (!comments1.empty()) {
+			 if (not comments1.empty()) {
 				 for (c = comments1.begin(); c != comments1.end(); ++c) {
 					 pt.add((GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(1) +
 								".comment").c_str(), (*c).c_str());
@@ -1110,7 +1110,7 @@ public:
 	  * Executes a stored call-back function
 	  */
 	 virtual void executeCallBackFunction() {
-		 if (!m_call_back_func) {
+		 if (not m_call_back_func) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileVectorParsableParameterT::executeCallBackFunction(): Error" << std::endl
@@ -1129,7 +1129,7 @@ public:
 	  * @param callBack The function to be executed
 	  */
 	 void registerCallBackFunction(std::function<void(std::vector<parameter_type>)> callBack) {
-		 if (!callBack) {
+		 if (not callBack) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileVectorParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -1181,7 +1181,7 @@ protected:
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
 			 std::vector<std::string>::iterator c;
-			 if (!comments.empty()) {
+			 if (not comments.empty()) {
 				 for (c = comments.begin(); c != comments.end(); ++c) {
 					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
 				 }
@@ -1314,7 +1314,7 @@ protected:
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
 			 std::vector<std::string>::iterator c;
-			 if (!comments.empty()) {
+			 if (not comments.empty()) {
 				 for (c = comments.begin(); c != comments.end(); ++c) {
 					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
 				 }
@@ -1459,7 +1459,7 @@ public:
 	  * Executes a stored call-back function
 	  */
 	 virtual void executeCallBackFunction() {
-		 if (!m_call_back_func) {
+		 if (not m_call_back_func) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileArrayParsableParameterT::executeCallBackFunction(): Error" << std::endl
@@ -1478,7 +1478,7 @@ public:
 	  * @param callBack The function to be executed
 	  */
 	 void registerCallBackFunction(std::function<void(std::array<parameter_type, N>)> callBack) {
-		 if (!callBack) {
+		 if (not callBack) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileArrayParsableParameterT::registerCallBackFunction(): Error" << std::endl
@@ -1527,7 +1527,7 @@ protected:
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
 			 std::vector<std::string>::iterator c;
-			 if (!comments.empty()) {
+			 if (not comments.empty()) {
 				 for (c = comments.begin(); c != comments.end(); ++c) {
 					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
 				 }
@@ -1654,7 +1654,7 @@ protected:
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
 			 std::vector<std::string>::iterator c;
-			 if (!comments.empty()) {
+			 if (not comments.empty()) {
 				 for (c = comments.begin(); c != comments.end(); ++c) {
 					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), (*c).c_str());
 				 }
@@ -1970,7 +1970,7 @@ public:
 			 = file_at<GSingleParmT<parameter_type>>(optionName);
 
 		 // Check that we have indeed received an item
-		 if (!parmObject) {
+		 if (not parmObject) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterObject::resetFileParameterDefaults(GSingleParmT): Error!" << std::endl
@@ -2049,7 +2049,7 @@ public:
 			 = file_at<GCombinedParT<par_type1, par_type2>>(optionName1);
 
 		 // Check that we have indeed received an item
-		 if (!parmObject) {
+		 if (not parmObject) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterObject::resetFileParameterDefaults(GCombinedParT): Error!" << std::endl
@@ -2169,7 +2169,7 @@ public:
 			 = file_at<GVectorParT<parameter_type>>(optionName);
 
 		 // Check that we have indeed received an item
-		 if (!parmObject) {
+		 if (not parmObject) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterObject::resetFileParameterDefaults(GVectorParT): Error!" << std::endl
@@ -2291,7 +2291,7 @@ public:
 			 = file_at<GArrayParT<parameter_type, N>>(optionName);
 
 		 // Check that we have indeed received an item
-		 if (!parmObject) {
+		 if (not parmObject) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParameterObject::resetFileParameterDefaults(GArrayParT): Error!" << std::endl
@@ -2458,7 +2458,7 @@ void configureFromFile(
 
 	// Check whether the target directory exists. It is a
 	// severe error if this is not the case.
-	if(!boost::filesystem::exists(conf_file_path.parent_path())) {
+	if(not boost::filesystem::exists(conf_file_path.parent_path())) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In configureFromFile(" << conf_file << "): Error!" << std::endl

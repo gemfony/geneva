@@ -1,5 +1,5 @@
 /**
- * @file G_OA_SwarmAlgorithm_Factory.hpp
+ * @file
  */
 
 /*

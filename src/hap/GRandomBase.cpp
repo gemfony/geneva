@@ -1,5 +1,5 @@
 /**
- * @file GRandomBase.cpp
+ * @file
  */
 
 /*

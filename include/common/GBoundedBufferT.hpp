@@ -1,5 +1,5 @@
 /**
- * @file GBoundedBufferT.hpp
+ * @file
  */
 
 /*
@@ -452,7 +452,7 @@ public:
 	 ) {
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (!m_not_full.wait_for(
+			 if (not m_not_full.wait_for(
 				 lock
 				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
 				 , [&]() -> bool { return m_container.size() < u_capacity; }
@@ -515,7 +515,7 @@ public:
 	 ) {
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (!m_not_full.wait_for(
+			 if (not m_not_full.wait_for(
 				 lock
 				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
 				 , [&]() -> bool { return m_container.size() < u_capacity; }
@@ -545,7 +545,7 @@ public:
 
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (!m_container.empty()) {
+			 if (not m_container.empty()) {
 				 item = m_container.back();
 				 m_container.pop_back();
 				 success = true;
@@ -572,7 +572,7 @@ public:
 
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (!m_container.empty()) {
+			 if (not m_container.empty()) {
 				 item = std::move(m_container.back());
 				 m_container.pop_back();
 				 success = true;
@@ -598,7 +598,7 @@ public:
 			 std::unique_lock<std::mutex> lock(m_mutex);
 			 m_not_empty.wait(
 				 lock
-				 , [&]() -> bool { return !m_container.empty(); }
+				 , [&]() -> bool { return not m_container.empty(); }
 			 );
 
 			 item = m_container.back();
@@ -622,7 +622,7 @@ public:
 			 std::unique_lock<std::mutex> lock(m_mutex);
 			 m_not_empty.wait(
 				 lock
-				 , [&]() -> bool { return !m_container.empty(); }
+				 , [&]() -> bool { return not m_container.empty(); }
 			 );
 
 			 item = std::move(m_container.back());
@@ -650,10 +650,10 @@ public:
 	 ) {
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (!m_not_empty.wait_for(
+			 if (not m_not_empty.wait_for(
 				 lock
 				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-				 , [&]() -> bool { return !m_container.empty(); }
+				 , [&]() -> bool { return not m_container.empty(); }
 			 )) {
 				 return false;
 			 }
@@ -685,10 +685,10 @@ public:
 	 ) {
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
-			 if (!m_not_empty.wait_for(
+			 if (not m_not_empty.wait_for(
 				 lock
 				 , std::chrono::duration_cast<std::chrono::milliseconds>(timeout)
-				 , [&]() -> bool { return !m_container.empty(); }
+				 , [&]() -> bool { return not m_container.empty(); }
 			 )) {
 				 return false;
 			 }
@@ -761,7 +761,7 @@ public:
 	  */
 	 bool isNotEmpty() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
-		 return !m_container.empty();
+		 return not m_container.empty();
 	 }
 
 	 /***************************************************************************/
@@ -776,9 +776,9 @@ protected:
 	 /***************************************************************************/
 
 	 container_type m_container; ///< The actual data store
-	 mutable std::mutex m_mutex; ///< Used for synchronization of access to the container
-	 std::condition_variable m_not_empty; ///< Used for synchronization of access to the container
-	 std::condition_variable m_not_full; ///< Used for synchronization of access to the container
+	 mutable std::mutex m_mutex{}; ///< Used for synchronization of access to the container
+	 std::condition_variable m_not_empty{}; ///< Used for synchronization of access to the container
+	 std::condition_variable m_not_full{}; ///< Used for synchronization of access to the container
 };
 
 /******************************************************************************/

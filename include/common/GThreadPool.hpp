@@ -1,5 +1,5 @@
 /**
- * @file GThreadPool.hpp
+ * @file
  */
 
 /*
@@ -116,9 +116,9 @@ public:
 
 		 // Determine whether threads have already been started
 		 // If not, start them. Access to the threads is blocked by job_lck
-		 if (!m_threads_started) {
+		 if (not m_threads_started) {
 			 std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
-			 if (!m_threads_started) { // double checked locking pattern
+			 if (not m_threads_started) { // double checked locking pattern
 				 // Some error checks
 				 if(0==m_nThreads.load()) {
 					 throw gemfony_exception(
@@ -234,7 +234,7 @@ public:
 	 auto async_schedule(
 		 F &&f
 		 , Args &&... args
-		 , typename std::enable_if<!std::is_void<typename std::result_of<F(Args...)>::type>::value>::type *dummy = nullptr
+		 , typename std::enable_if<not std::is_void<typename std::result_of<F(Args...)>::type>::value>::type *dummy = nullptr
 	 ) -> std::future<typename std::result_of<F(Args...)>::type> {
 		 // We may only submit new jobs if job_lck can be acquired. This is important
 		 // so we have a means of letting the submission queue run empty.
@@ -242,9 +242,9 @@ public:
 
 		 // Determine whether threads have already been started
 		 // If not, start them. Access to the threads is blocked by job_lck
-		 if (!m_threads_started) {
+		 if (not m_threads_started) {
 			 std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
-			 if (!m_threads_started) { // double checked locking pattern
+			 if (not m_threads_started) { // double checked locking pattern
 				 // Some error checks
 				 if(0==m_nThreads.load()) {
 					 throw gemfony_exception(

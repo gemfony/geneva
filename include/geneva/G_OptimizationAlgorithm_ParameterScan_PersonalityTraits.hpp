@@ -1,5 +1,5 @@
 /**
- * @file G_OA_ParameterScan_PersonalityTraits.hpp
+ * @file
  */
 
 /*

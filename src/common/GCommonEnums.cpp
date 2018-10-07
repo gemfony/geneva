@@ -1,5 +1,5 @@
 /**
- * @file GCommonEnums.hpp
+ * @file
  */
 
 /*

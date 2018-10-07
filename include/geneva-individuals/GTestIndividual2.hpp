@@ -1,5 +1,5 @@
 /**
- * @file GTestIndividual2.hpp
+ * @file
  */
 
 /*

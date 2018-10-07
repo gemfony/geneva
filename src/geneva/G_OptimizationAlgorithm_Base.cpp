@@ -1,5 +1,5 @@
 /**
- * @file G_OptimizationAlgorithm_Base.cpp
+ * @file
  */
 
 /*
@@ -374,20 +374,20 @@ void G_OptimizationAlgorithm_Base::setCheckpointBaseName(std::string cpDirectory
 	m_cp_base_name = cpBaseName;
 
 	// Check that the provided directory exists
-	if(!boost::filesystem::exists(cpDirectory)) {
+	if(not boost::filesystem::exists(cpDirectory)) {
 		glogger
 			<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Warning!" << std::endl
 			<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl
 			<< GWARNING;
 
-		if(!boost::filesystem::create_directory(cpDirectory)) {
+		if(not boost::filesystem::create_directory(cpDirectory)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
 					<< "Could not create directory " << cpDirectory << std::endl
 			);
 		}
-	} else if(!boost::filesystem::is_directory(cpDirectory)) {
+	} else if(not boost::filesystem::is_directory(cpDirectory)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
@@ -576,7 +576,7 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
 	std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
 	, const std::string& executorConfigFile
 ) {
-	if(!executor_ptr) {
+	if(not executor_ptr) {
 		glogger
 			<< "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << std::endl
 			<< "Tried to register empty executor-pointer. We will leave the existing" << std::endl
@@ -586,7 +586,7 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
 		return;
 	}
 
-	if(!m_halted) {
+	if(not m_halted) {
 		glogger
 			<< "In G_OptimizationAlgorithm_Base::registerExecutor(): Warning!" << std::endl
 			<< "Tried to register an executor while the optimization is already running" << std::endl
@@ -603,7 +603,7 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
 	// user-defined configuration options
 	Gem::Common::GParserBuilder gpb;
 	m_executor_ptr->addConfigurationOptions(gpb);
-	if (!gpb.parseConfigFile(executorConfigFile)) {
+	if (not gpb.parseConfigFile(executorConfigFile)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::registerExecutor(): Error!" << std::endl
@@ -720,7 +720,7 @@ const G_OptimizationAlgorithm_Base * const G_OptimizationAlgorithm_Base::optimiz
 		// update the m_iteration counter
 		m_iteration++;
 	}
-	while(!(m_halted = halt()));
+	while(not (m_halted = halt()));
 
 	// Give derived classes the opportunity to perform any remaining clean-up work
 	finalize();
@@ -813,7 +813,7 @@ void G_OptimizationAlgorithm_Base::resetPluggableOM() {
  * Allows to check whether pluggable optimization monitors were registered
   */
 bool G_OptimizationAlgorithm_Base::hasPluggableOptimizationMonitors() const {
-	return !m_pluggable_monitors_vec.empty();
+	return not m_pluggable_monitors_vec.empty();
 }
 
 /******************************************************************************/
@@ -927,7 +927,7 @@ std::uint32_t G_OptimizationAlgorithm_Base::getMaxStallIteration() const {
  * @param maxDuration The maximum allowed processing time
  */
 void G_OptimizationAlgorithm_Base::setMaxTime(std::chrono::duration<double> maxDuration) {
-	if(!Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < m_minDuration) {
+	if(not Gem::Common::isClose<double>(maxDuration.count(), 0.) && maxDuration < m_minDuration) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::setMaxTime(): Error!" << std::endl
@@ -956,7 +956,7 @@ std::chrono::duration<double> G_OptimizationAlgorithm_Base::getMaxTime() const {
 * @param minDuration The minimum allowed processing time
 */
 void G_OptimizationAlgorithm_Base::setMinTime(std::chrono::duration<double> minDuration) {
-	if(!Gem::Common::isClose<double>(m_maxDuration.count(),0.) && m_maxDuration < minDuration) {
+	if(not Gem::Common::isClose<double>(m_maxDuration.count(),0.) && m_maxDuration < minDuration) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base<>::setMinTime(): Error!" << std::endl
@@ -1734,11 +1734,11 @@ void G_OptimizationAlgorithm_Base::resetStallCounter() {
  */
 void G_OptimizationAlgorithm_Base::init() {
 	// Add an executor, if none has been registered
-	if(!m_executor_ptr) {
+	if(not m_executor_ptr) {
 		auto executor_ptr = this->createExecutor(m_default_execMode);
 
 #ifdef DEBUG
-		if(!executor_ptr) {
+		if(not executor_ptr) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In G_OptimizationAlgorithm_Base<>::init(): Error!" << std::endl
@@ -1976,7 +1976,7 @@ bool G_OptimizationAlgorithm_Base::touchHalt() const {
 	bf::path p(m_terminationFile);
 
 	// Return if the file doesn't exist
-	if(!bf::exists(p)) {
+	if(not bf::exists(p)) {
 		return false;
 	}
 
@@ -2050,10 +2050,10 @@ bool G_OptimizationAlgorithm_Base::halt() const {
 	// has stalled for a given number of times).
 
 	// Has the minimum number of iterations, as defined by the user, been passed?
-	if(!minIterationPassed()) return false;
+	if(not minIterationPassed()) return false;
 
 	// Has the minimum required optimization time been passed?
-	if(!minTimePassed(currentTime)) return false;
+	if(not minTimePassed(currentTime)) return false;
 
 	//------------------------------------------------------------------------
 	// The following halt criteria are evaluated by Geneva at run-time,

@@ -1,5 +1,5 @@
 /**
- * @file GFixedSizePriorityQueue.hpp
+ * @file
  */
 
 /*

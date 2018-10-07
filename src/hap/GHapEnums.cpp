@@ -1,5 +1,5 @@
 /**
- * @file GHapEnums.cpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file Go2.hpp
+ * @file
  */
 
 /*

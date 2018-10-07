@@ -1,5 +1,5 @@
 /**
- * @file GCommandContainerT.hpp
+ * @file
  */
 
 /*

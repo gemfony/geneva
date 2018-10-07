@@ -1,5 +1,5 @@
 /**
- * @file G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp
+ * @file
  */
 
 /*

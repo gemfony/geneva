@@ -1,5 +1,5 @@
 /**
- * @file GProcessingContainerT.hpp
+ * @file
  */
 
 /*
@@ -97,7 +97,7 @@ class g_processing_exception : public gemfony_exception { using gemfony_exceptio
 template<
 	typename processable_type
 	, typename processing_result_type
-	, class = typename std::enable_if<!std::is_void<processing_result_type>::value>::type
+	, class = typename std::enable_if<not std::is_void<processing_result_type>::value>::type
 >
 class GProcessingContainerT
 {
@@ -329,7 +329,7 @@ public:
 	  * @return The stored result at position id in m_stored_results_vec
 	  */
 	 processing_result_type getStoredResult(std::size_t id = 0) const {
-		 if(!this->is_processed()) {
+		 if(not this->is_processed()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GProcessingContainerT::getStoredResult(): Tried to" << std::endl
@@ -672,7 +672,7 @@ public:
 	  * step may occur. This may alter the individual's data.
 	  */
 	 bool mayBePreProcessed() const noexcept {
-		 return !m_preProcessingDisabled;
+		 return not m_preProcessingDisabled;
 	 }
 
 	 /***************************************************************************/
@@ -705,7 +705,7 @@ public:
 	  * run on the individual. This may alter the individual's data.
 	  */
 	 bool mayBePostProcessed() const {
-		 return !m_postProcessingDisabled;
+		 return not m_postProcessingDisabled;
 	 }
 
 	 /***************************************************************************/

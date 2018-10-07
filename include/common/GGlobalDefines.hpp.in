@@ -1,6 +1,8 @@
 /**
- * @file GGlobalDefines.hpp
- *
+ * @file
+ */
+
+/*
  * See the AUTHORS file in the top-level directory for a list of authors.
  *
  * Contact: contact [at] gemfony (dot) eu
@@ -50,6 +52,10 @@
  */
 
 #pragma once
+
+//-----------------------------------------------------------
+// Some standard headers needed everywhere
+#include <ciso646>
 
 //-----------------------------------------------------------
 // For Microsoft-compatible compilers

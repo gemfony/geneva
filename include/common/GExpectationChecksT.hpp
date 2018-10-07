@@ -1,5 +1,5 @@
 /**
- * @file GExpectationChecksT.hpp
+ * @file
  */
 
 /*
@@ -58,7 +58,6 @@
 #include <boost/logic/tribool_io.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/mpl/has_xxx.hpp>
-#include <boost/noncopyable.hpp>
 #include <boost/optional.hpp>
 #include <boost/typeof/typeof.hpp>
 
@@ -81,62 +80,64 @@ namespace Common {
  * A token to be handed to different comparators, so they can signal the violation
  * of expectations
  */
-class GToken
-	: private boost::noncopyable
-{
+class GToken {
 public:
-	/** @brief The standard constructor -- initialization with class name and expectation */
-	G_API_COMMON GToken(const std::string &, const Gem::Common::expectation &);
+	 /** @brief The standard constructor -- initialization with class name and expectation */
+	 G_API_COMMON GToken(std::string, Gem::Common::expectation);
 
-	/** @brief Increments the test counter */
-	G_API_COMMON void incrTestCounter();
-	/** @brief Increments the counter of tests that met the expectation */
-	G_API_COMMON void incrSuccessCounter();
+	 // Deleted functions
+	 G_API_COMMON GToken() = delete;
+	 G_API_COMMON GToken(GToken const&) = delete;
+	 G_API_COMMON GToken(GToken &&) = delete;
+	 G_API_COMMON GToken& operator=(GToken const&) = delete;
+	 G_API_COMMON GToken& operator=(GToken &&) = delete;
 
-	/** @brief Allows to retrieve the current state of the success counter */
-	G_API_COMMON std::size_t getSuccessCounter() const;
-	/** @brief Allows to retrieve the current state of the test counter */
-	G_API_COMMON std::size_t getTestCounter() const;
+	 /** @brief Increments the test counter */
+	 G_API_COMMON void incrTestCounter();
+	 /** @brief Increments the counter of tests that met the expectation */
+	 G_API_COMMON void incrSuccessCounter();
 
-	/** @brief Allows to check whether the xpectation was met */
-	G_API_COMMON bool expectationMet() const;
-	/** @brief Conversion to a boolean indicating whether the expectation was met */
-	G_API_COMMON operator bool() const;
+	 /** @brief Allows to retrieve the current state of the success counter */
+	 G_API_COMMON std::size_t getSuccessCounter() const;
+	 /** @brief Allows to retrieve the current state of the test counter */
+	 G_API_COMMON std::size_t getTestCounter() const;
 
-	/** @brief Allows to retrieve the expectation token */
-	G_API_COMMON Gem::Common::expectation getExpectation() const;
-	/** @brief Allows to retrieve the expectation token as a string */
-	G_API_COMMON std::string getExpectationStr() const;
-	/** @brief Allows to retrieve the name of the caller */
-	G_API_COMMON std::string getCallerName() const;
+	 /** @brief Allows to check whether the expectation was met */
+	 G_API_COMMON bool expectationMet() const;
+	 /** @brief Conversion to a boolean indicating whether the expectation was met */
+	 G_API_COMMON operator bool() const;  // NOLINT
 
-	/** @brief Allows to register an error message e.g. obtained from a failed check */
-	G_API_COMMON void registerErrorMessage(const std::string &);
-	/** @brief Allows to register an exception obtained from a failed check */
-	G_API_COMMON void registerErrorMessage(const g_expectation_violation &);
+	 /** @brief Allows to retrieve the expectation token */
+	 G_API_COMMON Gem::Common::expectation getExpectation() const;
+	 /** @brief Allows to retrieve the expectation token as a string */
+	 G_API_COMMON std::string getExpectationStr() const;
+	 /** @brief Allows to retrieve the name of the caller */
+	 G_API_COMMON std::string getCallerName() const;
 
-	/** @brief Allows to retrieve the currently registered error messages */
-	G_API_COMMON std::string getErrorMessages() const;
+	 /** @brief Allows to register an error message e.g. obtained from a failed check */
+	 G_API_COMMON void registerErrorMessage(std::string const&);
+	 /** @brief Allows to register an exception obtained from a failed check */
+	 G_API_COMMON void registerErrorMessage(g_expectation_violation const&);
 
-	/** @brief Conversion to a string indicating success or failure */
-	G_API_COMMON std::string toString() const;
+	 /** @brief Allows to retrieve the currently registered error messages */
+	 G_API_COMMON std::string getErrorMessages() const;
 
-	/** @brief Evaluates the information in this object */
-	G_API_COMMON void evaluate() const;
+	 /** @brief Conversion to a string indicating success or failure */
+	 G_API_COMMON std::string toString() const;
+
+	 /** @brief Evaluates the information in this object */
+	 G_API_COMMON void evaluate() const;
 
 private:
-	/** @brief The default constructor -- intentionally private and undefined */
-	GToken() = delete;
+	 /** @brief Counts all tests vs. tests that have met the expectation */
+	 std::tuple<std::size_t, std::size_t> m_test_counter;
+	 /** @brief Error messages obtained from failed checks */
+	 std::vector<std::string> m_error_messages;
 
-	/** @brief Counts all tests vs. tests that have met the expectation */
-	std::tuple<std::size_t, std::size_t> testCounter_;
-	/** @brief Error messages obtained from failed checks */
-	std::vector<std::string> errorMessages_;
-
-	/** @brief The name of the calling class */
-	const std::string caller_;
-	/** @brief The expectation to be met */
-	const Gem::Common::expectation e_;
+	 /** @brief The name of the calling class */
+	 const std::string m_caller{};
+	 /** @brief The expectation to be met */
+	 const Gem::Common::expectation m_e = Gem::Common::expectation::CE_INEQUALITY;
 };
 
 /******************************************************************************/
@@ -157,65 +158,70 @@ G_API_COMMON std::ostream &operator<<(std::ostream &s, const GToken &g);
 template<typename T>
 struct identity {
 public:
-	/***************************************************************************/
-	/**
-	 * The standard constructor
-	 */
-	identity(
-		const T &x_var
-		, const T &y_var
-		, const std::string &x_name_var
-		, const std::string &y_name_var
-		, const double &l_var
-	)
-		: x(x_var)
-		, y(y_var)
-		, x_name(x_name_var)
-		, y_name(y_name_var)
-		, limit(l_var)
-	{ /* nothing */ }
+	 /***************************************************************************/
+	 /**
+	  * The standard constructor
+	  */
+	 identity(
+	 	 T const & x_var
+		 , T const & y_var
+		 , std::string x_name_var
+		 , std::string y_name_var
+		 , double l_var
+	 )
+		 : x(x_var)
+		 , y(y_var)
+		 , x_name(std::move(x_name_var))
+		 , y_name(std::move(y_name_var))
+		 , limit(l_var)
+	 { /* nothing */ }
 
-	/***************************************************************************/
-	/**
-	 * Conversion operator. Needed for compare_base, so we do not need
-	 * to use macros for the implicit conversion
-	 */
-	template<typename B>
-	operator identity<B>() const {
-		// We use an internal function for the actual conversion
-		// so we may check whether B is an actual base of T
-		return to<B>();
-	}
+	 /***************************************************************************/
+	 // Deleted and defaulted functions
 
-	/***************************************************************************/
-	// The actual data
-	const T &x;
-	const T &y;
-	const std::string x_name;
-	const std::string y_name;
-	const double limit;
+	 identity() = delete;
+	 identity(identity const&) = default;
+	 identity(identity &&) = default;
+	 identity& operator=(identity const&) = default;
+	 identity& operator=(identity &&) = default;
+
+	 /***************************************************************************/
+	 /**
+	  * Conversion operator. Needed for compare_base, so we do not need
+	  * to use macros for the implicit conversion
+	  */
+	 template<typename B>
+	 operator identity<B>() const { // NOLINT
+		 // We use an internal function for the actual conversion
+		 // so we may check whether B is an actual base of T
+		 return to<B>();
+	 }
+
+	 /***************************************************************************/
+	 // The actual data
+	 const T &x;
+	 const T &y;
+	 const std::string x_name;
+	 const std::string y_name;
+	 const double limit;
 
 private:
-	/***************************************************************************/
-	/** @brief The default constructor -- intentionally private and undefined */
-	identity() = delete;
+	 /***************************************************************************/
+	 /**
+	  * Does the actual conversion, including a check that B is indeed a base of T
+	  */
+	 template<typename B>
+	 identity<B> to(
+		 typename std::enable_if<std::is_base_of<B, T>::value>::type *dummy = nullptr
+	 ) const {
+		 const B &x_conv = dynamic_cast<const B &>(x);
+		 const B &y_conv = dynamic_cast<const B &>(y);
 
-	/***************************************************************************/
-	/**
-	 * Does the actual conversion, including a check that B is indeed a base of T
-	 */
-	template<typename B>
-	identity<B> to(
-		typename std::enable_if<std::is_base_of<B, T>::value>::type *dummy = nullptr
-	) const {
-		const B &x_conv = dynamic_cast<const B &>(x);
-		const B &y_conv = dynamic_cast<const B &>(y);
+		 const std::string x_name_conv = "(" + BASENAME(B) + ")" + x_name;
+		 const std::string y_name_conv = "(" + BASENAME(B) + ")" + y_name;
 
-		const std::string x_name_conv = "(" + BASENAME(B) + ")" + x_name;
-		const std::string y_name_conv = "(" + BASENAME(B) + ")" + y_name;
-
-		return identity<B>(x_conv, y_conv, x_name_conv, y_name_conv, limit);
-	}
+		 return identity<B>(x_conv, y_conv, x_name_conv, y_name_conv, limit);
+	 }
 };
 
 /******************************************************************************/
@@ -227,9 +233,9 @@ private:
 template<typename T>
 std::ostream &operator<<(std::ostream &s, const identity<T> &i) {
 	s
-	<< "Identity:" << std::endl
-	<< "x_name = " << i.x_name << std::endl
-	<< "y_name = " << i.y_name << std::endl;
+		<< "Identity:" << std::endl
+		<< "x_name = " << i.x_name << std::endl
+		<< "y_name = " << i.y_name << std::endl;
 	return s;
 }
 
@@ -262,7 +268,10 @@ identity<T> getIdentity(
  */
 template<typename T, typename B>
 identity<B> getBaseIdentity(
-	const T &x_var, const T &y_var, const std::string &x_name_var, const std::string &y_name_var
+	T const &x_var
+	, T const &y_var
+	, std::string const &x_name_var
+	, std::string const &y_name_var
 ) {
 	std::cout << "Creating base identity" << std::endl;
 
@@ -301,14 +310,14 @@ identity<B> getBaseIdentity(
  */
 template<typename basic_type>
 void compare(
-	const basic_type &x
-	, const basic_type &y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit = 0.
-	, typename std::enable_if<!std::is_floating_point<basic_type>::value>::type *dummy1 = nullptr // Note the negation!
-	, typename std::enable_if<!Gem::Common::has_gemfony_common_interface<basic_type>::value>::type *dummy2 = nullptr // Note the negation
+	basic_type const &x
+	, basic_type const &y
+	, std::string const &x_name
+	, std::string const &y_name
+	, Gem::Common::expectation const &e
+	, double const &limit = 0.
+	, typename std::enable_if<not std::is_floating_point<basic_type>::value>::type *dummy1 = nullptr // Note the negation!
+	, typename std::enable_if<not Gem::Common::has_gemfony_common_interface<basic_type>::value>::type *dummy2 = nullptr // Note the negation
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -330,14 +339,14 @@ void compare(
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		std::ostringstream error;
 		error
-		<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
-		<< "[" << std::endl
-		<< x_name << " = " << x << std::endl
-		<< y_name << " = " << y << std::endl
-		<< "]" << std::endl;
+			<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
+			<< "[" << std::endl
+			<< x_name << " = " << x << std::endl
+			<< y_name << " = " << y << std::endl
+			<< "]" << std::endl;
 		throw g_expectation_violation(error.str());
 	}
 }
@@ -388,7 +397,7 @@ void compare(
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		std::ostringstream error;
 		error
 			<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
@@ -446,7 +455,7 @@ void compare(
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		std::ostringstream error;
 		error
 			<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
@@ -506,15 +515,15 @@ void compare(
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		std::ostringstream error;
 
 		error
-		<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
-		<< "[" << std::endl
-		<< x_name << " = " << x << std::endl
-		<< y_name << " = " << y << std::endl
-		<< "]" << std::endl;
+			<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl
+			<< "[" << std::endl
+			<< x_name << " = " << x << std::endl
+			<< y_name << " = " << y << std::endl
+			<< "]" << std::endl;
 		throw g_expectation_violation(error.str());
 	}
 }
@@ -543,7 +552,7 @@ void compare(
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
 	, const double &limit = 0.
-	, typename std::enable_if<!std::is_floating_point<base_type>::value>::type *dummy = nullptr
+	, typename std::enable_if<not std::is_floating_point<base_type>::value>::type *dummy = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -565,17 +574,17 @@ void compare(
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		std::ostringstream error;
 		error
-		<< "Expectation of " << expectation_str << " was violated for parameters "
-		<< x_name << " and " << y_name << "!" << std::endl;
+			<< "Expectation of " << expectation_str << " was violated for parameters "
+			<< x_name << " and " << y_name << "!" << std::endl;
 
 		if (Gem::Common::expectation::CE_FP_SIMILARITY == e || Gem::Common::expectation::CE_EQUALITY == e) {
 			if (x.size() != y.size()) {
 				error
-				<< "Sizes of containers differ:" << std::endl
-				<< x_name << ".size() == " << x.size() << " / " << y_name << ".size() == " << y.size() << std::endl;
+					<< "Sizes of containers differ:" << std::endl
+					<< x_name << ".size() == " << x.size() << " / " << y_name << ".size() == " << y.size() << std::endl;
 			} else { // Some data member differs
 				// Find out about the first entry that differs
 				typename c_type<base_type, std::allocator<base_type>>::const_iterator x_it, y_it;
@@ -583,18 +592,18 @@ void compare(
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it, ++failedIndex) {
 					if (*x_it != *y_it) {
 						error
-						<< "Found inequality at index " << failedIndex << ": "
-						<< x_name << "[" << failedIndex << "] = " << *x_it << "; "
-						<< y_name << "[" << failedIndex << "] = " << *y_it;
+							<< "Found inequality at index " << failedIndex << ": "
+							<< x_name << "[" << failedIndex << "] = " << *x_it << "; "
+							<< y_name << "[" << failedIndex << "] = " << *y_it;
 						break; // break the loop
 					}
 				}
 			}
 		} else { // Gem::Common::expectation::CE_INEQUALITY == e
 			error
-			<< "The two containers " << x_name << " and " << y_name << " are equal "
-			<< "even though differences were expected"
-			<< std::endl;
+				<< "The two containers " << x_name << " and " << y_name << " are equal "
+				<< "even though differences were expected"
+				<< std::endl;
 		}
 
 		throw g_expectation_violation(error.str());
@@ -625,7 +634,7 @@ void compare(
 	, const std::string &y_name
 	, const Gem::Common::expectation &e
 	, const double &limit = 0.
-	, typename std::enable_if<!std::is_floating_point<base_type>::value>::type *dummy = nullptr
+	, typename std::enable_if<not std::is_floating_point<base_type>::value>::type *dummy = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -647,7 +656,7 @@ void compare(
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		std::ostringstream error;
 		error
 			<< "Expectation of " << expectation_str << " was violated for parameters "
@@ -721,9 +730,9 @@ void compare(
 
 			if (x.size() != y.size()) {
 				error
-				<< "Different vector-sizes found : "
-				<< x_name << ".size() = " << x.size() << std::endl
-				<< y_name << ".size() = " << y.size() << std::endl;
+					<< "Different vector-sizes found : "
+					<< x_name << ".size() = " << x.size() << std::endl
+					<< y_name << ".size() = " << y.size() << std::endl;
 				break; // expectationMet is false here
 			}
 
@@ -734,13 +743,13 @@ void compare(
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (gfabs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
 						foundDeviation = true;
-						deviation_pos = std::distance(x.begin(), x_it);
+						deviation_pos = boost::numeric_cast<std::size_t>(std::distance(x.begin(), x_it));
 						error
-						<< "Found deviation between containers:" << std::endl
-						<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
-						<< y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl
-						<< "limit = " << boost::numeric_cast<fp_type>(limit) << "; " << std::endl
-						<< "deviation = " << gfabs(*x_it - *y_it) << std::endl;
+							<< "Found deviation between containers:" << std::endl
+							<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
+							<< y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl
+							<< "limit = " << boost::numeric_cast<fp_type>(limit) << "; " << std::endl
+							<< "deviation = " << gfabs(*x_it - *y_it) << std::endl;
 						break; // break the loop
 					}
 				}
@@ -748,17 +757,17 @@ void compare(
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (*x_it != *y_it) {
 						foundDeviation = true;
-						deviation_pos = std::distance(x.begin(), x_it);
+						deviation_pos = boost::numeric_cast<std::size_t>(std::distance(x.begin(), x_it));
 						error
-						<< "Found deviation between containers:" << std::endl
-						<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
-						<< y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl;
+							<< "Found deviation between containers:" << std::endl
+							<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
+							<< y_name << "[" << deviation_pos << "] = " << *y_it << "; " << std::endl;
 						break; // break the loop
 					}
 				}
 			}
 
-			if (!foundDeviation) {
+			if (not foundDeviation) {
 				expectationMet = true;
 			}
 		}
@@ -770,13 +779,13 @@ void compare(
 				expectationMet = true;
 			} else {
 				error
-				<< "The containers " << x_name << " and " << y_name << std::endl
-				<< "do not differ even though they should" << std::endl;
+					<< "The containers " << x_name << " and " << y_name << std::endl
+					<< "do not differ even though they should" << std::endl;
 			}
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		throw g_expectation_violation(error.str());
 	}
 }
@@ -833,7 +842,7 @@ void compare(
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (gfabs(*x_it - *y_it) >= boost::numeric_cast<fp_type>(limit)) {
 						foundDeviation = true;
-						deviation_pos = std::distance(x.begin(), x_it);
+						deviation_pos = boost::numeric_cast<std::size_t>(std::distance(x.begin(), x_it));
 						error
 							<< "Found deviation between containers:" << std::endl
 							<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
@@ -847,7 +856,7 @@ void compare(
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (*x_it != *y_it) {
 						foundDeviation = true;
-						deviation_pos = std::distance(x.begin(), x_it);
+						deviation_pos = boost::numeric_cast<std::size_t>(std::distance(x.begin(), x_it));
 						error
 							<< "Found deviation between containers:" << std::endl
 							<< x_name << "[" << deviation_pos << "] = " << *x_it << "; " << std::endl
@@ -857,7 +866,7 @@ void compare(
 				}
 			}
 
-			if (!foundDeviation) {
+			if (not foundDeviation) {
 				expectationMet = true;
 			}
 		}
@@ -875,7 +884,7 @@ void compare(
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		throw g_expectation_violation(error.str());
 	}
 }
@@ -921,9 +930,9 @@ void compare (
 					x.compare(y,e,limit);
 				} catch(g_expectation_violation& g) {
 					error
-					<< "Content of " << x_name << " and " << y_name << " differ." << std::endl
-					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-					<< g.what() << std::endl;
+						<< "Content of " << x_name << " and " << y_name << " differ." << std::endl
+						<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+						<< g.what() << std::endl;
 					break; // Terminate the switch statement
 				}
 
@@ -944,9 +953,9 @@ void compare (
 				// If we catch an expectation violation for expectation "inequality",
 				// we simply break the switch statement so that expectationMet remains to be false
 				error
-				<< "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
-				<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-				<< g.what() << std::endl;
+					<< "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+					<< g.what() << std::endl;
 				break;
 			}
 			expectationMet = true;
@@ -954,7 +963,7 @@ void compare (
 			break;
 	};
 
-	if(!expectationMet) {
+	if(not expectationMet) {
 		throw g_expectation_violation(error.str());
 	}
 }
@@ -994,17 +1003,17 @@ void compare (
 			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
 			// Check whether the pointers hold content
-			if(x && !y) {
+			if(x && not y) {
 				error
-				<< "Smart pointer " << x_name << " holds content while " << y_name << " does not." << std::endl
-				<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+					<< "Smart pointer " << x_name << " holds content while " << y_name << " does not." << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
 				break; //
-			} else if(!x && y) {
+			} else if(not x && y) {
 				error
-				<< "Smart pointer " << x_name << " doesn't hold content while " << y_name << " does." << std::endl
-				<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+					<< "Smart pointer " << x_name << " doesn't hold content while " << y_name << " does." << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
 				break;  // The expectation was clearly not met
-			} else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
+			} else if(not x && not y) { // No content to check. Both smart pointers can be considered equal
 				expectationMet = true;
 				break;
 			}
@@ -1016,9 +1025,9 @@ void compare (
 					x->compare(*y,e,limit);
 				} catch(g_expectation_violation& g) {
 					error
-					<< "Content of " << x_name << " and " << y_name << " differ." << std::endl
-					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-					<< g.what() << std::endl;
+						<< "Content of " << x_name << " and " << y_name << " differ." << std::endl
+						<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+						<< g.what() << std::endl;
 					break; // Terminate the switch statement
 				}
 
@@ -1033,13 +1042,13 @@ void compare (
 			expectation_str = "CE_INEQUALITY";
 
 			// Check whether the pointers hold content
-			if((x && !y) || (!x && y)) {
+			if((x && not y) || (not x && y)) {
 				expectationMet = true;
 				break;
-			} else if(!x && !y) { // No content to check. Both smart pointers can be considered equal
+			} else if(not x && not y) { // No content to check. Both smart pointers can be considered equal
 				error
-				<< "Both smart pointers are empty and are thus considered equal." << std::endl
-				<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
+					<< "Both smart pointers are empty and are thus considered equal." << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
 				break; // The expectation was not met
 			}
 
@@ -1050,9 +1059,9 @@ void compare (
 				// If we catch an expectation violation for expectation "inequality",
 				// we simply break the switch statement so that expectationMet remains to be false
 				error
-				<< "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
-				<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-				<< g.what() << std::endl;
+					<< "Content of " << x_name << " and " << y_name << " are equal/similar." << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+					<< g.what() << std::endl;
 				break;
 			}
 			expectationMet = true;
@@ -1060,7 +1069,7 @@ void compare (
 			break;
 	};
 
-	if(!expectationMet) {
+	if(not expectationMet) {
 		throw g_expectation_violation(error.str());
 	}
 }
@@ -1095,106 +1104,106 @@ void compare (
 	std::ostringstream error;
 
 	switch(e) {
-	case Gem::Common::expectation::CE_FP_SIMILARITY:
-	case Gem::Common::expectation::CE_EQUALITY: {
-		expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+		case Gem::Common::expectation::CE_FP_SIMILARITY:
+		case Gem::Common::expectation::CE_EQUALITY: {
+			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
 
-		// First check sizes
-		if(x.size() != y.size()) {
-			error
-			<< "containers " << x_name << " and " << y_name << " have different sizes " << x.size() << " / " << y.size() << std::endl
-			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
-			// Terminate the switch statement. expectationMet will be false then
-			break;
-		}
-
-		// Now loop over all members of the containers
-		bool foundDeviation = false;
-		typename c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it, y_it;
-		std::size_t index = 0;
-		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
-			// First check that both pointers have content
-			// Check whether the pointers hold content
-			if(*x_it && !*y_it) {
+			// First check sizes
+			if(x.size() != y.size()) {
 				error
-				<< "Smart pointer " << x_name << "[" << index << "] holds content while " << y_name << "[" << index << "]  does not." << std::endl
-				<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
-				foundDeviation = true;
-				break; // terminate the loop
-			} else if(!*x_it && *y_it) {
+					<< "containers " << x_name << " and " << y_name << " have different sizes " << x.size() << " / " << y.size() << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
+				// Terminate the switch statement. expectationMet will be false then
+				break;
+			}
+
+			// Now loop over all members of the containers
+			bool foundDeviation = false;
+			typename c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it, y_it;
+			std::size_t index = 0;
+			for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it, ++index) {
+				// First check that both pointers have content
+				// Check whether the pointers hold content
+				if(*x_it && not *y_it) {
+					error
+						<< "Smart pointer " << x_name << "[" << index << "] holds content while " << y_name << "[" << index << "]  does not." << std::endl
+						<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+					foundDeviation = true;
+					break; // terminate the loop
+				} else if(not *x_it && *y_it) {
+					error
+						<< "Smart pointer " << x_name << "[" << index << "] doesn't hold content while " << y_name << "[" << index << "]  does." << std::endl
+						<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
+					foundDeviation = true;
+					break;  // terminate the loop
+				} else if(not *x_it && not *y_it) { // No content to check. Both smart pointers can be considered equal
+					continue; // Go on with next iteration in the loop
+				}
+
+				// At this point we know that both pointers have content. We can now check the content
+				// which is assumed to have the compare() function
+				try {
+					(*x_it)->compare(**y_it,e,limit);
+				} catch(g_expectation_violation& g) {
+					error
+						<< "Content of " << x_name << "[" << index << "] and " << y_name << "[" << index << "] differs." << std::endl
+						<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
+						<< g.what() << std::endl;
+					foundDeviation = true;
+					break; // Terminate the loop
+				}
+			}
+
+			if(not foundDeviation) {
+				expectationMet = true;
+			}
+		} break;
+
+		case Gem::Common::expectation::CE_INEQUALITY: {
+			expectation_str = "CE_INEQUALITY";
+
+			// First check sizes. The expectation of inequality will be met if they differ
+			if(x.size() != y.size()) {
+				expectationMet = true;
+				break; // Terminate the switch statement
+			}
+
+			// Now loop over all members of the containers
+			bool foundInequality = false;
+			typename c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it, y_it;
+			for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
+				// First check that both pointers have content
+				// Check whether the pointers hold content
+				if((*x_it && not *y_it) || (not *x_it && *y_it)) {
+					foundInequality = true;
+					break; // terminate the loop
+				} else if(not *x_it && not *y_it) { // No content to check. Both smart pointers can be considered equal
+					continue; // Go on with next iteration in the loop - there is nothing to check here
+				}
+
+				// At this point we know that both pointers have content. We can now check this content
+				// which is assumed to have the compare() function
+				try {
+					(*x_it)->compare(**y_it,e,limit);
+					foundInequality = true;
+					break; // terminate the loop
+				} catch(g_expectation_violation&) {
+					// Go on with the next item in the vector -- the content is equal or similar
+					continue;
+				}
+			}
+
+			if(foundInequality) {
+				expectationMet = true;
+			} else {
 				error
-				<< "Smart pointer " << x_name << "[" << index << "] doesn't hold content while " << y_name << "[" << index << "]  does." << std::endl
-				<< "Thus the expectation of " << expectation_str << " was violated" << std::endl;
-				foundDeviation = true;
-				break;  // terminate the loop
-			} else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
-				continue; // Go on with next iteration in the loop
+					<< "The two containers " << x_name << " and " << y_name << " are equal." << std::endl
+					<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
 			}
-
-			// At this point we know that both pointers have content. We can now check the content
-			// which is assumed to have the compare() function
-			try {
-				(*x_it)->compare(**y_it,e,limit);
-			} catch(g_expectation_violation& g) {
-				error
-				<< "Content of " << x_name << "[" << index << "] and " << y_name << "[" << index << "] differs." << std::endl
-				<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl
-				<< g.what() << std::endl;
-				foundDeviation = true;
-				break; // Terminate the loop
-			}
-		}
-
-		if(!foundDeviation) {
-			expectationMet = true;
-		}
-	} break;
-
-	case Gem::Common::expectation::CE_INEQUALITY: {
-		expectation_str = "CE_INEQUALITY";
-
-		// First check sizes. The expectation of inequality will be met if they differ
-		if(x.size() != y.size()) {
-			expectationMet = true;
-			break; // Terminate the switch statement
-		}
-
-		// Now loop over all members of the containers
-		bool foundInequality = false;
-		typename c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>::const_iterator x_it, y_it;
-		for(x_it=x.begin(), y_it=y.begin(); x_it!=x.end(); ++x_it, ++y_it) {
-			// First check that both pointers have content
-			// Check whether the pointers hold content
-			if((*x_it && !*y_it) || (!*x_it && *y_it)) {
-				foundInequality = true;
-				break; // terminate the loop
-			} else if(!*x_it && !*y_it) { // No content to check. Both smart pointers can be considered equal
-				continue; // Go on with next iteration in the loop - there is nothing to check here
-			}
-
-			// At this point we know that both pointers have content. We can now check this content
-			// which is assumed to have the compare() function
-			try {
-				(*x_it)->compare(**y_it,e,limit);
-				foundInequality = true;
-				break; // terminate the loop
-			} catch(g_expectation_violation&) {
-				// Go on with the next item in the vector -- the content is equal or similar
-				continue;
-			}
-		}
-
-		if(foundInequality) {
-			expectationMet = true;
-		} else {
-			error
-			<< "The two containers " << x_name << " and " << y_name << " are equal." << std::endl
-			<< "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
-		}
-	} break;
+		} break;
 	};
 
-	if(!expectationMet) {
+	if(not expectationMet) {
 		throw g_expectation_violation(error.str());
 	}
 }

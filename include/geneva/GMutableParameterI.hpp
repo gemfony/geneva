@@ -1,5 +1,5 @@
 /**
- * @file GMutableParameterI.hpp
+ * @file
  */
 
 /*

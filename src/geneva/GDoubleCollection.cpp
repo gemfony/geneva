@@ -1,5 +1,5 @@
 /**
- * @file GDoubleCollection.cpp
+ * @file
  */
 
 /*
@@ -436,7 +436,7 @@ void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 
 	// Cross-check the size
 	BOOST_CHECK(this->size() == nItems);
-	BOOST_CHECK(!this->empty());
+	BOOST_CHECK(not this->empty());
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GDoubleCollection::fillWithData", "GEM_TESTING");
@@ -585,7 +585,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Check the size again
 		BOOST_CHECK(p_test1->size() == nItems);
-		BOOST_CHECK(!p_test1->empty());
+		BOOST_CHECK(not p_test1->empty());
 	}
 
 	//------------------------------------------------------------------------------

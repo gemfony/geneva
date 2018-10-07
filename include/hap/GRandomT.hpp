@@ -1,5 +1,5 @@
 /**
- * @file GRandomT.hpp
+ * @file
  */
 
 /*
@@ -160,7 +160,7 @@ private:
 		// m_p.reset(); No longer needed with std::unique_ptr
 
 #ifdef DEBUG
-		if(!m_grf) {
+		if(not m_grf) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
 					<< "In GRandomT<RANDOMPROXY>::getNewRandomContainer(): Error!" << std::endl
@@ -175,7 +175,7 @@ private:
 
 		// Try until a valid container has been received. new01Container has
 		// a timeout of DEFAULTFACTORYGETWAIT internally.
-		while (!(m_p = m_grf->getNewRandomContainer())) {
+		while (not (m_p = m_grf->getNewRandomContainer())) {
 #ifdef DEBUG
 		   nRetries++;
 #endif /* DEBUG */

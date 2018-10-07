@@ -1,5 +1,5 @@
 /**
- * @file GExecutorT.hpp
+ * @file
  */
 
 /*
@@ -232,7 +232,7 @@ public:
 		 // Make sure only one instance of this function can be called at the same time. If locking
 		 // the mutex fails, some other call to this function is still alive, which is a severe error
 		 std::unique_lock<std::mutex> workon_lock(m_concurrent_workon_mutex, std::defer_lock);
-		 if(!workon_lock.try_lock()) {
+		 if(not workon_lock.try_lock()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseExeuctorT<processable_type>::workOn(): Another call to this function still seems" << std::endl
@@ -294,7 +294,7 @@ public:
 			 // m_maxResubmissions was explicitly set to 0.
 			 if (
 				 status.is_complete  // nothing left to do
-				 || !resubmitUnprocessed || (resubmitUnprocessed && m_maxResubmissions == 0) // user is happy with unprocessed items
+				 || not resubmitUnprocessed || (resubmitUnprocessed && m_maxResubmissions == 0) // user is happy with unprocessed items
 				 || (++m_nResubmissions >= m_maxResubmissions) // we have tried to resubmit items but did not succeed
 			 ) {
 				 // Leave the loop
@@ -681,7 +681,7 @@ protected:
 		 bool got_first_processable_item_id = false;
 		 for(auto w_ptr: workItems) { // std::shared_ptr may be copied
 #ifdef DEBUG
-			 if(!w_ptr) {
+			 if(not w_ptr) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In GBaseExecutorT<processable_type>::submitAllWorkItems():" << std::endl
@@ -704,7 +704,7 @@ protected:
 
 				 // Assign the id of the first processable item in this iteration. This is
 				 // so we can identify the first individual in the first iteration.
-				 if(!got_first_processable_item_id) {
+				 if(not got_first_processable_item_id) {
 					 got_first_processable_item_id = true;
 					 m_iteration_first_individual_position = pos_cnt;
 				 }
@@ -905,7 +905,7 @@ protected:
 	  * Checks if any work items have already been submitted in the object
 	  */
 	 bool checkItemsSubmittedInObject() const noexcept {
-		 return !m_no_items_submitted_in_object;
+		 return not m_no_items_submitted_in_object;
 	 }
 
 	 /***************************************************************************/
@@ -913,7 +913,7 @@ protected:
 	  * Checks if any work items have already been submitted in the current iteration
 	  */
 	 bool checkItemsSubmittedInCycle() const noexcept {
-		 return !m_no_items_submitted_in_cycle;
+		 return not m_no_items_submitted_in_cycle;
 	 }
 
 	 /***************************************************************************/
@@ -1108,7 +1108,7 @@ protected:
 	 void load_(const GBaseExecutorT<processable_type> *cp) override {
 		 const auto p_load_ptr = dynamic_cast<GSerialExecutorT<processable_type> const *const>(cp);
 
-		 if (!cp) { // nullptr
+		 if (not cp) { // nullptr
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GSerialExecutorT<processable_type>::load_(): Conversion error!" << std::endl
@@ -1439,7 +1439,7 @@ protected:
 	 void load_(const GBaseExecutorT<processable_type> *cp) override {
 		 const auto p_load_ptr = dynamic_cast<const GMTExecutorT<processable_type> *>(cp);
 
-		 if (!cp) { // nullptr
+		 if (not cp) { // nullptr
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GMTExecutorT<processable_type>::load_(): Conversion error!" << std::endl
@@ -1547,13 +1547,13 @@ protected:
 				 m_gtp_ptr->async_schedule( [w_ptr](){ return w_ptr->process(); })
 			 );
 		 } else {
-			 if (!m_gtp_ptr) {
+			 if (not m_gtp_ptr) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
 						 << "Threadpool pointer is empty" << std::endl
 				 );
-			 } else if(!w_ptr) {
+			 } else if(not w_ptr) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
 						 << "In In GMTExecutorT<processable_type>::submit(): Error!" << std::endl
@@ -1884,7 +1884,7 @@ protected:
 	 void load_(const GBaseExecutorT<processable_type> * cp) override {
 		 const auto p_load_ptr = dynamic_cast<const GBrokerExecutorT<processable_type> *>(cp);
 
-		 if (!p_load_ptr) { // nullptr
+		 if (not p_load_ptr) { // nullptr
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT<processable_type>::load(): Conversion error!" << std::endl
@@ -1910,7 +1910,7 @@ protected:
 		 GBaseExecutorT<processable_type>::init_();
 
 		 // Make sure we have a valid buffer port
-		 if (!m_current_buffer_port_ptr) {
+		 if (not m_current_buffer_port_ptr) {
 			 m_current_buffer_port_ptr.reset(
 				 new Gem::Courtier::GBufferPortT<processable_type>()
 			 );
@@ -1970,7 +1970,7 @@ protected:
 
 #ifdef DEBUG
 		 // Check that the waitFactor has a suitable size
-		 if(!m_waitFactorWarningEmitted) {
+		 if(not m_waitFactorWarningEmitted) {
 			 if(m_waitFactor > 0. && m_waitFactor < 1.) {
 				 glogger
 					 << "In GBrokerExecutorT::cycleInit_(): Warning" << std::endl
@@ -2026,15 +2026,15 @@ protected:
 	 void submit(
 		 std::shared_ptr<processable_type> w_ptr
 	 ) override {
-		 if(!w_ptr) {
+		 if(not w_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GBrokerExecutorT::submit(): Error!" << std::endl
+					 << "In GBrokerExecutorT::submit(): Errornot " << std::endl
 					 << "Work item is empty" << std::endl
 			 );
 		 }
 
-		 if(!m_current_buffer_port_ptr) {
+		 if(not m_current_buffer_port_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT::submit(): Error!" << std::endl
@@ -2134,7 +2134,7 @@ private:
 		 do {
 			 // Get the next individual. If we didn't receive a valid
 			 // item, go to the timeout check
-			 if(!(w_ptr = this->getNextItem())) continue;
+			 if(not (w_ptr = this->getNextItem())) continue;
 
 			 // Try to add the work item to the list and check for completeness
 			 status = this->addWorkItemAndCheckCompleteness(
@@ -2151,7 +2151,7 @@ private:
 			 if(w_ptr->is_processed()) {
 				 this->updateTimeout(w_ptr);
 			 }
-		 } while(!halt());
+		 } while(not halt());
 
 		 // Check for the processing flags and derive the is_complete and has_errors states
 		 return this->checkExecutionState(workItems);
@@ -2342,7 +2342,7 @@ private:
 				 w_ptr = this->retrieve();
 
 				 // It is a severe error if we get an empty pointer here
-				 if (!w_ptr) {
+				 if (not w_ptr) {
 					 throw gemfony_exception(
 						 g_error_streamer(
 							 DO_LOG
@@ -2410,7 +2410,7 @@ private:
 	 bool firstRetrieval() const {
 		 if(m_first_retrieval) {
 #ifdef DEBUG
-			 if((!this->inFirstIteration() || !this->inFirstCycle() || 0<m_nReturnedCurrent)) {
+			 if((not this->inFirstIteration() || not this->inFirstCycle() || 0<m_nReturnedCurrent)) {
 				 throw gemfony_exception(
 					 g_error_streamer(
 						 DO_LOG
@@ -2441,7 +2441,7 @@ private:
 	 bool firstItem() const {
 		 if(m_first_item) {
 #ifdef DEBUG
-			 if((!this->inFirstIteration() || 1 != m_nReturnedCurrent)) {
+			 if((not this->inFirstIteration() || 1 != m_nReturnedCurrent)) {
 				 throw gemfony_exception(
 					 g_error_streamer(
 						 DO_LOG
@@ -2478,7 +2478,7 @@ private:
 		 , std::vector<std::shared_ptr<processable_type>>& oldWorkItems
 	 ) {
 		 // If we have been passed an empty item, simply continue the outer loop
-		 if(!w_ptr) {
+		 if(not w_ptr) {
 			 return executor_status_t{false /* is_complete */, false /* has_errors */ };
 		 }
 
@@ -2556,7 +2556,7 @@ private:
 	 std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const override {
 #ifdef DEBUG
 		 // Check if we have a valid buffer port
-		 if(!m_current_buffer_port_ptr) {
+		 if(not m_current_buffer_port_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerExecutorT<processable_type>::determineInitialCycleStartTime():" << std::endl

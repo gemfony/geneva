@@ -1,5 +1,5 @@
 /**
- * @file G_OptimizationAlgorithm_ParChild.cpp
+ * @file
  */
 
 /*
@@ -565,7 +565,7 @@ std::tuple<double, double> G_OptimizationAlgorithm_ParChild::cycleLogic() {
 
 #ifdef DEBUG
 	// The dirty flag of this individual shouldn't be set
-	if(!this->at(0)->is_processed()) {
+	if(not this->at(0)->is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_ParChild::cycleLogic(): Error!" << std::endl
@@ -645,7 +645,7 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation() {
 	// Do the smart pointers actually point to any objects ?
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 	for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
-		if(!(*it)) { // shared_ptr can be implicitly converted to bool
+		if(not (*it)) { // shared_ptr can be implicitly converted to bool
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In G_OptimizationAlgorithm_ParChild::adjustPopulation() :" << std::endl
@@ -746,7 +746,7 @@ void G_OptimizationAlgorithm_ParChild::valueRecombine(
 		}
 	}
 
-	if(!done) {
+	if(not done) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_ParChild::valueRecombine():" << std::endl

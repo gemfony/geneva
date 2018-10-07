@@ -1,5 +1,5 @@
 /**
- * @file GDelayIndividual.hpp
+ * @file
  */
 
 /*

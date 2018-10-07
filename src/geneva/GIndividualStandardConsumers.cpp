@@ -1,5 +1,5 @@
 /**
- * @file GIndividualStandardConsumers.hpp
+ * @file
  */
 
 /*

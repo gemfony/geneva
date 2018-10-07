@@ -1,5 +1,5 @@
 /**
- * @file G_OA_SimulatedAnnealing.cpp
+ * @file
  */
 
 /*
@@ -405,7 +405,7 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 	// through this function. There MAY be situations, where in the first iteration
 	// parents are clean, e.g. when they were extracted from another optimization.
 	for(std::size_t i=this->getNParents(); i<this->size(); i++) {
-		if(!this->at(i)->is_due_for_processing()) {
+		if(not this->at(i)->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSimulatedAnnealing::runFitnessCalculation(): Error!" << std::endl
@@ -431,7 +431,7 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Take care of unprocessed items, if these exist. We simply remove them and continue.
-	if(!status.is_complete) {
+	if(not status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {

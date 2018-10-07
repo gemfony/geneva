@@ -1,5 +1,5 @@
 /**
- * @file GenevaInitializer.cpp
+ * @file
  */
 
 /*

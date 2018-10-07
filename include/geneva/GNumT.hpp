@@ -1,5 +1,5 @@
 /**
- * @file GNumT.hpp
+ * @file
  */
 
 /*

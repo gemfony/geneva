@@ -1,5 +1,5 @@
 /**
- * @file Go2.cpp
+ * @file
  */
 
 /*
@@ -121,7 +121,7 @@ Go2::Go2(
 void Go2::registerDefaultAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
 	std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
-	if (!GOAFactoryStore->get(mn, p)) {
+	if (not GOAFactoryStore->get(mn, p)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::registerDefaultAlgorithm(std::string): Error!" << std::endl
@@ -141,7 +141,7 @@ void Go2::registerDefaultAlgorithm(const std::string &mn) {
  */
 void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
 	// Check that the pointer isn't empty
-	if (!default_algorithm) {
+	if (not default_algorithm) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::registerDefaultAlgorithm(): Error!" << std::endl
@@ -151,7 +151,7 @@ void Go2::registerDefaultAlgorithm(std::shared_ptr<GOABase> default_algorithm) {
 
 	// If any individuals have been storedn in the default algorithm, we assume
 	// that the user wants us to use them and copy them over. Note that these are not cloned.
-	if (!default_algorithm->empty()) { // Have individuals been registered ?
+	if (not default_algorithm->empty()) { // Have individuals been registered ?
 		for (const auto& ind_ptr: *default_algorithm) this->push_back(ind_ptr);
 		// Remove the individuals from the old algorithm
 		default_algorithm->clear();
@@ -191,7 +191,7 @@ void Go2::resetPluggableOM() {
  * Allows to check whether pluggable optimization monitors were registered
  */
 bool Go2::hasOptimizationMonitors() const {
-	return !m_pluggable_monitors_vec.empty();
+	return not m_pluggable_monitors_vec.empty();
 }
 
 /******************************************************************************/
@@ -220,7 +220,7 @@ int Go2::clientRun() {
 	// Check that we have indeed been given a valid name
 	if (
 		GO2_DEF_NOCONSUMER == m_consumer_name
-		|| !GConsumerStore->exists(m_consumer_name)
+		|| not GConsumerStore->exists(m_consumer_name)
 		) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -244,7 +244,7 @@ int Go2::clientRun() {
 	}
 
 	// Check for errors
-	if (!p) {
+	if (not p) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::clientRun(): Error!" << std::endl
@@ -305,7 +305,7 @@ std::size_t Go2::getNAlgorithms() const {
  */
 void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 	// Check that the pointer is not empty
-	if (!alg) {
+	if (not alg) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::addAlgorithm(): Error!" << std::endl
@@ -316,7 +316,7 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 	// If any individuals have been registered with alg, we assume
 	// that the user wants us to add them to the optimization and copy them over.
 	// Note that these are not cloned.
-	if (!alg->empty()) { // Have individuals been registered ?
+	if (not alg->empty()) { // Have individuals been registered ?
 		for (const auto& ind_ptr: *alg) this->push_back(ind_ptr);
 		// Remove the individuals from the old algorithm
 		alg->clear();
@@ -361,7 +361,7 @@ Go2 &Go2::operator&(std::shared_ptr<GOABase> alg) {
 void Go2::addAlgorithm(const std::string &mn) {
 	// Retrieve the algorithm from the global store
 	std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
-	if (!GOAFactoryStore->get(mn, p)) {
+	if (not GOAFactoryStore->get(mn, p)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::addAlgorithm(std::string): Error!" << std::endl
@@ -388,7 +388,7 @@ Go2 &Go2::operator&(const std::string &mn) {
 void Go2::registerContentCreator(
 	std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> cc_ptr
 ) {
-	if (!cc_ptr) {
+	if (not cc_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::registerContentCreator(): Error!" << std::endl
@@ -414,7 +414,7 @@ void Go2::registerContentCreator(
 const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 	// Check that algorithms have indeed been registered. If not, try to add a default algorithm
 	if (m_algorithms_vec.empty()) {
-		if (!m_default_algorithm) {
+		if (not m_default_algorithm) {
 			// No algorithms given, no default algorithm specified by the user:
 			// Simply add the Geneva-side default algorithm
 			this->registerDefaultAlgorithm(m_default_algorithm_str);
@@ -430,7 +430,7 @@ const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 	}
 
 	// Check whether a possible checkpoint file fits the first algorithm in the chain
-	if(m_cp_file != "empty" && !m_algorithms_vec[0]->cp_personality_fits(boost::filesystem::path(m_cp_file))) {
+	if(m_cp_file != "empty" && not m_algorithms_vec[0]->cp_personality_fits(boost::filesystem::path(m_cp_file))) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::optimize(): Error!" << std::endl
@@ -552,7 +552,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() cons
 		);
 	}
 
-	if (!m_sorted) {
+	if (not m_sorted) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
@@ -562,7 +562,7 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestGlobalIndividual_() cons
 	}
 
 	// Check if the best individual is processed
-	if(!this->front()->is_processed() && !this->front()->is_ignored()) {
+	if(not this->front()->is_processed() && not this->front()->is_ignored()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::getBestGlobalIndividual_(): Error!" << std::endl
@@ -830,7 +830,7 @@ void Go2::parseCommandLine(
 		boost::program_options::options_description hidden("Hidden algorithm- and consumer-options");
 
 		// Retrieve available command-line options from registered consumers, if any
-		if (!GConsumerStore->empty()) {
+		if (not GConsumerStore->empty()) {
 			GConsumerStore->rewind();
 			do {
 				GConsumerStore->getCurrentItem()->addCLOptions(visible, hidden);
@@ -838,7 +838,7 @@ void Go2::parseCommandLine(
 		}
 
 		// Retrieve available command-line options from registered optimization algorithm factories, if any
-		if (!GOAFactoryStore->empty()) {
+		if (not GOAFactoryStore->empty()) {
 			GOAFactoryStore->rewind();
 			do {
 				GOAFactoryStore->getCurrentItem()->addCLOptions(visible, hidden);
@@ -892,7 +892,7 @@ void Go2::parseCommandLine(
 		}
 
 		// Check that the requested consumer actually exists
-		if (vm.count("consumer") && !GConsumerStore->exists(m_consumer_name)) {
+		if (vm.count("consumer") && not GConsumerStore->exists(m_consumer_name)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::parseCommandLine(): Error!" << std::endl
@@ -901,7 +901,7 @@ void Go2::parseCommandLine(
 			);
 		}
 
-		if (m_client_mode && !GConsumerStore->get(m_consumer_name)->needsClient()) {
+		if (m_client_mode && not GConsumerStore->get(m_consumer_name)->needsClient()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::parseCommandLine(): Error!" << std::endl
@@ -919,8 +919,8 @@ void Go2::parseCommandLine(
 		// At this point the consumer should be fully configured
 
 		// Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
-		if (!m_client_mode) {
-			if (!GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
+		if (not m_client_mode) {
+			if (not GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
 				GBROKER(Gem::Geneva::GParameterSet)->enrol_buffer_port(GConsumerStore->get(m_consumer_name));
 			} else {
 				glogger
@@ -939,7 +939,7 @@ void Go2::parseCommandLine(
 			for (const auto& alg_str: algs) {
 				// Retrieve the algorithm factory from the global store
 				std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
-				if (!GOAFactoryStore->get(alg_str, p)) {
+				if (not GOAFactoryStore->get(alg_str, p)) {
 					throw gemfony_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In Go2::parseCommandLine(int, char**): Error!" << std::endl
@@ -984,7 +984,7 @@ void Go2::parseConfigFile(const std::string &configFilename) {
 	this->addConfigurationOptions(gpb);
 
 	// Do the actual parsing
-	if (!gpb.parseConfigFile(configFilename)) {
+	if (not gpb.parseConfigFile(configFilename)) {
 		glogger
 			<< "In Go2::parseConfigFile: Error!" << std::endl
 			<< "Could not parse configuration file " << configFilename << std::endl

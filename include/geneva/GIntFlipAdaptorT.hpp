@@ -1,5 +1,5 @@
 /**
- * @file GIntFlipAdaptorT.hpp
+ * @file
  */
 
 /*

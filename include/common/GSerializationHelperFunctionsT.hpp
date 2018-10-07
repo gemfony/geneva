@@ -1,5 +1,5 @@
 /**
- * @file GSerializationHelperFunctionsT.hpp
+ * @file
  */
 
 /*

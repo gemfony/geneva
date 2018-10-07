@@ -1,5 +1,5 @@
 /**
- * @file GParameterSetFixedSizeSetPriorityQueue.cpp
+ * @file
  */
 
 /*
@@ -131,7 +131,7 @@ std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 	std::size_t pos = 0;
 	std::ostringstream oss;
 	for(const auto& item_ptr: m_data) {
-		oss << "(" << pos++ << ", " << (!item_ptr->is_processed() ? "d" : "c") << ") ";
+		oss << "(" << pos++ << ", " << (not item_ptr->is_processed() ? "d" : "c") << ") ";
 	}
 
 	return oss.str();

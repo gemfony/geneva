@@ -1,5 +1,5 @@
 /**
- * @file GenevaHelperFunctions.hpp
+ * @file
  */
 
 /*
@@ -83,7 +83,7 @@ double minOnly_transformed_fitness(
 	maxMode m = item_ptr->getMaxMode();
 
 #ifdef DEBUG
-	if(!item_ptr) {
+	if(not item_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In minOnly_transformed_fitness():" << std::endl
@@ -143,7 +143,7 @@ bool isWorse(
 	const std::shared_ptr<GParameterSet> x_ptr
 	, const std::shared_ptr<GParameterSet> y_ptr
 ) {
-	return !isBetter(x_ptr, y_ptr);
+	return not isBetter(x_ptr, y_ptr);
 }
 
 /******************************************************************************/
@@ -179,7 +179,7 @@ bool isWorse(
 	, double y
 	, maxMode m
 ) {
-	return !isBetter(x,y,m);
+	return not isBetter(x,y,m);
 }
 
 /******************************************************************************/

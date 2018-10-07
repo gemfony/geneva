@@ -1,5 +1,5 @@
 /**
- * @file GExceptions.hpp
+ * @file
  */
 
 /*

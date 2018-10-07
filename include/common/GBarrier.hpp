@@ -1,5 +1,5 @@
 /**
- * @file GBarrier.hpp
+ * @file
  */
 
 /*

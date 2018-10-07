@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedInt32Object.hpp
+ * @file
  */
 /*
  * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)

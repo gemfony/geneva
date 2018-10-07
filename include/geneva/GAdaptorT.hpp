@@ -1,5 +1,5 @@
 /**
- * @file GAdaptorT.hpp
+ * @file
  */
 
 /*
@@ -139,7 +139,7 @@ public:
 	 {
 		 // Do some error checking
 		 // Check that m_adProb is in the allowed range. Adapt, if necessary
-		 if (!Gem::Common::checkRangeCompliance<fp_type>(
+		 if (not Gem::Common::checkRangeCompliance<fp_type>(
 			 m_adProb
 			 , m_minAdProb
 			 , m_maxAdProb
@@ -267,7 +267,7 @@ public:
 		 }
 
 		 // Check that the new value fits in the allowed value range
-		 if (!Gem::Common::checkRangeCompliance<fp_type>(
+		 if (not Gem::Common::checkRangeCompliance<fp_type>(
 			 adProb
 			 , m_minAdProb
 			 , m_maxAdProb
@@ -319,7 +319,7 @@ public:
 	 void setResetAdaptionProbability(const fp_type &adProb_reset)
 	 {
 		 // Check the supplied probability value
-		 if (!Gem::Common::checkRangeCompliance<fp_type>(
+		 if (not Gem::Common::checkRangeCompliance<fp_type>(
 			 adProb_reset
 			 , m_minAdProb
 			 , m_maxAdProb
@@ -357,7 +357,7 @@ public:
 	 void setAdaptAdaptionProbability(const fp_type &probability)
 	 {
 		 // Check the supplied probability value
-		 if (!Gem::Common::checkRangeCompliance<fp_type>(
+		 if (not Gem::Common::checkRangeCompliance<fp_type>(
 			 probability
 			 , 0.
 			 , 1.
@@ -809,7 +809,7 @@ public:
 			 if (property == "adProb") { // The only property that can be queried for this class
 				 data.push_back(boost::any(m_adProb));
 			 } else { // Ask derived classes
-				 if (!this->customQueryProperty(
+				 if (not this->customQueryProperty(
 					 property
 					 , data
 				 )) {

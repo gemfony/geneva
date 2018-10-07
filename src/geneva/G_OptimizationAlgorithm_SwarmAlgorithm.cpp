@@ -1,5 +1,5 @@
 /**
- * @file G_OA_SwarmAlgorithm.cpp
+ * @file
  */
 
 /*
@@ -150,7 +150,7 @@ void GSwarmAlgorithm::load_(const GObject *cp) {
 
 	// We start from scratch if the number of neighborhoods or the alleged number of members in them differ
 	if (m_n_neighborhoods != p_load->m_n_neighborhoods ||
-		 !nNeighborhoodMembersEqual(m_n_neighborhood_members_vec, p_load->m_n_neighborhood_members_vec)) {
+		 not nNeighborhoodMembersEqual(m_n_neighborhood_members_vec, p_load->m_n_neighborhood_members_vec)) {
 		m_n_neighborhoods = p_load->m_n_neighborhoods;
 
 		m_n_neighborhood_members_vec.clear();
@@ -444,7 +444,7 @@ void GSwarmAlgorithm::updatePersonalBest(
 	std::shared_ptr<GParameterSet> ind_ptr
 ) {
 #ifdef DEBUG
-	if(!ind_ptr) {
+	if(not ind_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBest():" << std::endl
@@ -476,7 +476,7 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(
 	std::shared_ptr<GParameterSet> ind_ptr
 ) {
 #ifdef DEBUG
-	if(!ind_ptr) {
+	if(not ind_ptr) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updatePersonalBestIfBetter():" << std::endl
@@ -635,7 +635,7 @@ void GSwarmAlgorithm::init() {
 	std::size_t pos = 0;
 	for(const auto& ind_ptr: *this) {
 #ifdef DEBUG
-		if(!ind_ptr) {
+		if(not ind_ptr) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GSwarmAlgorithm::init(): Error!" << std::endl
@@ -919,7 +919,7 @@ void GSwarmAlgorithm::updatePositions() {
 	for (std::size_t n = 0; n < m_n_neighborhoods; n++) {
 #ifdef DEBUG
 		if(afterFirstIteration()) {
-			if(!m_neighborhood_bests_vec[n]) {
+			if(not m_neighborhood_bests_vec[n]) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GSwarmAlgorithm::updatePositions():" << std::endl
@@ -927,7 +927,7 @@ void GSwarmAlgorithm::updatePositions() {
 				);
 			}
 
-			if(n==0 && !m_global_best_ptr) { // Only check for the first n
+			if(n==0 && not m_global_best_ptr) { // Only check for the first n
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GSwarmAlgorithm::updatePositions():" << std::endl
@@ -954,7 +954,7 @@ void GSwarmAlgorithm::updatePositions() {
 
 			// Note: global/n bests and velocities haven't been determined yet in the first iteration and are not needed there
 			if (afterFirstIteration() &&
-				 !(*current)->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->checkNoPositionUpdateAndReset()) {
+				 not (*current)->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
 				updateIndividualPositions(
 					n, (*current), m_neighborhood_bests_vec[n], m_global_best_ptr, m_velocities_vec[neighborhood_offset], std::make_tuple(
@@ -996,7 +996,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 
 #ifdef DEBUG
 	// Do some error checking
-	if(!ind) {
+	if(not ind) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
@@ -1010,7 +1010,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 
 	// Further error checks
 #ifdef DEBUG
-	if(!personal_best) {
+	if(not personal_best) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
@@ -1018,7 +1018,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 		);
 	}
 
-	if(!neighborhood_best) {
+	if(not neighborhood_best) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
@@ -1026,7 +1026,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 		);
 	}
 
-	if(!global_best) {
+	if(not global_best) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
@@ -1034,7 +1034,7 @@ void GSwarmAlgorithm::updateIndividualPositions(
 		);
 	}
 
-	if(!velocity) {
+	if(not velocity) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::updateIndividualPositions():" << std::endl
@@ -1197,7 +1197,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Take care of unprocessed items, if these exist
-	if(!status.is_complete) {
+	if(not status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
 			this->data
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
@@ -1492,7 +1492,7 @@ void GSwarmAlgorithm::fillUpNeighborhood1() {
 			// Make sure it has a unique value, if requested
 			if (m_random_fill_up) {
 #ifdef DEBUG
-				if(!(*(this->begin()+n+1))) {
+				if(not (*(this->begin()+n+1))) {
 					throw gemfony_exception(
 						g_error_streamer(DO_LOG,  time_and_place)
 							<< "In GSwarmAlgorithm::fillUpNeighborhood1():" << std::endl

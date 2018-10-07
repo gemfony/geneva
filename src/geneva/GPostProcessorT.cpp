@@ -1,5 +1,5 @@
 /**
- * @file GPostProcessorT.cpp
+ * @file
  */
 
 /*
@@ -215,7 +215,7 @@ Gem::Common::GSerializableFunctionObjectT<GParameterSet> *GEvolutionaryAlgorithm
  */
 bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
 	// Make sure p is processed
-	if (!p.is_processed()) {
+	if (not p.is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GEvolutionaryAlgorithmPostOptimizer::raw_processing_: Error!" << std::endl

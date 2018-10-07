@@ -1,5 +1,5 @@
 /**
- * @file GConstrainedFPT.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GOptimizationEnums.hpp
+ * @file
  */
 
 /*

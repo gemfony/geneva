@@ -1,5 +1,5 @@
 /**
- * @file GFunctionIndividual.cpp
+ * @file
  */
 
 /*

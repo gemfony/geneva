@@ -1,5 +1,5 @@
 /**
- * @file GInt32ObjectCollection.cpp
+ * @file
  */
 
 /*

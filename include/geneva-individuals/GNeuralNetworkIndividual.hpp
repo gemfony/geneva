@@ -1,5 +1,5 @@
 /**
- * @file GNeuralNetworkIndividual.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GParameterObjectCollection.hpp
+ * @file
  */
 
 /*

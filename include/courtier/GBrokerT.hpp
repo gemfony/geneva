@@ -1,5 +1,5 @@
 /**
- * @file GBrokerT.hpp
+ * @file
  */
 
 /*
@@ -222,7 +222,7 @@ public:
 		 // otherwise the following statements could be simplified.
 		 std::size_t nErasedRaw = Gem::Common::erase_if(
 			 m_RawBuffers
-			 , [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
+			 , [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR>& p) -> bool { return (not p.second->is_connected_to_producer()); }
 		 ); // m_RawBuffers is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
@@ -235,7 +235,7 @@ public:
 
 		 std::size_t nErasedProc = Gem::Common::erase_if(
 			 m_ProcessedBuffers
-			 , [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR>& p) -> bool { return (!p.second->is_connected_to_producer()); }
+			 , [](const std::pair<BUFFERPORT_ID_TYPE, GBUFFERPORT_PTR>& p) -> bool { return (not p.second->is_connected_to_producer()); }
 		 ); // m_ProcessedBuffers is a std::map, so items are of type std::pair
 
 #ifdef DEBUG
@@ -466,7 +466,7 @@ public:
 		 // If no raw buffer pointer was registered at the time
 		 // of the getNextRawBufferPort()-call, p will be empty.
 
-		 if(!p) {
+		 if(not p) {
 			 return false;
 		 }
 
@@ -561,7 +561,7 @@ public:
 	  */
 	 bool capableOfFullReturn() const {
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
-		 if(!m_consumersPresent) {
+		 if(not m_consumersPresent) {
 			 m_consumersEnrolledCondition.wait(
 				 consumerEnrolmentLock
 				 , [this]() -> bool { return this->hasConsumers(); }
@@ -581,7 +581,7 @@ private:
 		 // Protect access to the iterator
 		 std::unique_lock<std::mutex> switchGetPositionLock(m_switchGetPositionMutex);
 
-		 if (!m_RawBuffers.empty()) {
+		 if (not m_RawBuffers.empty()) {
 			 // Save the current get position
 			 auto currentGetPosition = m_currentGetPosition;
 
@@ -633,7 +633,7 @@ private:
 
 		 bool capable_of_full_return = true;
 		 for(auto item_ptr: m_consumer_collection_vec) {
-			 if (!item_ptr->capableOfFullReturn()) {
+			 if (not item_ptr->capableOfFullReturn()) {
 				 capable_of_full_return = false;
 				 break; // stop the loop
 			 }

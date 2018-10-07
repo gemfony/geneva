@@ -1,5 +1,5 @@
 /**
- * @file G_OA_ParameterScan.cpp
+ * @file
  */
 
 /*
@@ -249,7 +249,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 		<< "# New parSet object:" << std::endl;
 
 	// Boolean data
-	if (!pS.bParVec.empty()) {
+	if (not pS.bParVec.empty()) {
 		os << "# Boolean data" << std::endl;
 		std::vector<singleBPar>::const_iterator cit;
 		for (cit = pS.bParVec.begin(); cit != pS.bParVec.end(); ++cit) {
@@ -262,7 +262,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 	}
 
 	// std::int32_t data
-	if (!pS.iParVec.empty()) {
+	if (not pS.iParVec.empty()) {
 		os << "# std::int32_t data" << std::endl;
 		std::vector<singleInt32Par>::const_iterator cit;
 		for (cit = pS.iParVec.begin(); cit != pS.iParVec.end(); ++cit) {
@@ -275,7 +275,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 	}
 
 	// float data
-	if (!pS.fParVec.empty()) {
+	if (not pS.fParVec.empty()) {
 		os << "# float data" << std::endl;
 		std::vector<singleFPar>::const_iterator cit;
 		for (cit = pS.fParVec.begin(); cit != pS.fParVec.end(); ++cit) {
@@ -288,7 +288,7 @@ std::ostream &operator<<(std::ostream &os, const parSet &pS) {
 	}
 
 	// double data
-	if (!pS.dParVec.empty()) {
+	if (not pS.dParVec.empty()) {
 		os << "# double data" << std::endl;
 		std::vector<singleDPar>::const_iterator cit;
 		for (cit = pS.dParVec.begin(); cit != pS.dParVec.end(); ++cit) {
@@ -541,7 +541,7 @@ std::tuple<double, double> GParameterScan::cycleLogic() {
 	auto m = this->at(0)->getMaxMode(); // We assume that the maxMode is the same for all individuals
 	for (it = this->begin(); it != this->end(); ++it) {
 #ifdef DEBUG
-		if(!(*it)->is_processed()) {
+		if(not (*it)->is_processed()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterScan::cycleLogic(): Error!" << std::endl
@@ -699,7 +699,7 @@ void GParameterScan::updateSelectedParameters() {
 
 		//------------------------------------------------------------------------
 		// Make sure we continue with the next parameter set in the next iteration
-		if (!this->switchToNextParameterSet()) {
+		if (not this->switchToNextParameterSet()) {
 			// Let the audience know that the optimization may be stopped
 			this->m_cycleLogicHalt = true;
 
@@ -1012,7 +1012,7 @@ void GParameterScan::runFitnessCalculation() {
 	GParameterScan::iterator it;
 	for(it=this->begin(); it!=this->end(); ++it) {
 		// Make sure the evaluated individuals have the dirty flag set
-		if(!(*it)->is_due_for_processing()) {
+		if(not (*it)->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParameterScan::runFitnessCalculation():" << std::endl
@@ -1038,7 +1038,7 @@ void GParameterScan::runFitnessCalculation() {
 
 	// Check if all work items have returned or whether there were errors. Both cannot
 	// be accepted in a parameter scan.
-	if (!status.is_complete || status.has_errors) {
+	if (not status.is_complete || status.has_errors) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterScan::runFitnessCalculation(): Error!" << std::endl

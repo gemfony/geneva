@@ -1,5 +1,5 @@
 /**
- * @file GTestIndividual1.cpp
+ * @file
  */
 
 /*
@@ -317,7 +317,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		// Check that it is dirty
 		BOOST_CHECK(p_test2->is_due_for_processing());
 		// Check that p_test1 is not dirty
-		BOOST_CHECK(!p_test1->is_due_for_processing());
+		BOOST_CHECK(not p_test1->is_due_for_processing());
 		// Check that the two individuals differ
 		BOOST_CHECK(*p_test1 != *p_test2);
 	}
@@ -666,7 +666,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK_NO_THROW(p_test->getDataCopy(dataCopy));
 
 		// Check the size and content
-		BOOST_CHECK(dataCopy.size() == p_test->size() && !p_test->empty());
+		BOOST_CHECK(dataCopy.size() == p_test->size() && not p_test->empty());
 		for (std::size_t i = 0; i < p_test->size(); i++) {
 			BOOST_CHECK((p_test->at(i)).get() != dataCopy.at(i).get());
 		}

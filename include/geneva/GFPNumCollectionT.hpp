@@ -1,5 +1,5 @@
 /**
- * @file GFPNumCollectionT.hpp
+ * @file
  */
 
 /*

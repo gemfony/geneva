@@ -1,5 +1,5 @@
 /**
- * @file GFormulaParserT.cpp
+ * @file
  */
 
 /*

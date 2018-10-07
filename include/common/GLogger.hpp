@@ -1,5 +1,5 @@
 /**
- * @file GLogger.hpp
+ * @file
  */
 
 /*
@@ -294,7 +294,7 @@ public:
 		 * Checks whether any log targets are present
 		 */
 	 bool hasLogTargets() const {
-		 return !m_log_vector.empty();
+		 return not m_log_vector.empty();
 	 }
 
 	 /***************************************************************************/
@@ -315,7 +315,7 @@ public:
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
-		 if (!m_log_vector.empty()) {
+		 if (not m_log_vector.empty()) {
 			 // Do the actual logging
 			 for(auto cit: m_log_vector) { // std::shared_ptr may be copied
 				 cit->log(message);
@@ -342,7 +342,7 @@ public:
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
-		 if (!m_log_vector.empty()) {
+		 if (not m_log_vector.empty()) {
 			 // Do the actual logging
 			 for(auto cit: m_log_vector) { // std::shared_ptr max be copied
 				 cit->logWithSource(message, extension);

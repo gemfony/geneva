@@ -1,5 +1,5 @@
 /**
- * @file GExpectationChecksT.cpp
+ * @file
  */
 
 /*
@@ -51,17 +51,20 @@ const std::size_t SUCCESSCOUNTER = 1;
  * The standard constructor -- initialization with class name and expectation
  */
 GToken::GToken(
-	const std::string &caller, const Gem::Common::expectation &e
+	std::string caller
+	, Gem::Common::expectation e
 )
-	: testCounter_(std::tuple<std::size_t, std::size_t>(std::size_t(0), std::size_t(0))), caller_(caller),
-	e_(e) { /* nothing */ }
+	: m_test_counter(std::make_tuple(std::size_t(0), std::size_t(0)))
+	, m_caller(std::move(caller))
+	, m_e(e)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Increments the test counter
  */
 void GToken::incrTestCounter() {
-	std::get<TESTCOUNTER>(testCounter_) += 1;
+	std::get<TESTCOUNTER>(m_test_counter) += 1;
 }
 
 /******************************************************************************/
@@ -69,7 +72,7 @@ void GToken::incrTestCounter() {
  * Increments the counter of tests that met the expectation
  */
 void GToken::incrSuccessCounter() {
-	std::get<SUCCESSCOUNTER>(testCounter_) += 1;
+	std::get<SUCCESSCOUNTER>(m_test_counter) += 1;
 }
 
 /******************************************************************************/
@@ -77,13 +80,13 @@ void GToken::incrSuccessCounter() {
  * Allows to retrieve the current state of the success counter
  */
 std::size_t GToken::getSuccessCounter() const {
-	return std::get<SUCCESSCOUNTER>(testCounter_);
+	return std::get<SUCCESSCOUNTER>(m_test_counter);
 }
 
 /******************************************************************************/
 /** @brief Allows to retrieve the current state of the test counter */
 std::size_t GToken::getTestCounter() const {
-	return std::get<TESTCOUNTER>(testCounter_);
+	return std::get<TESTCOUNTER>(m_test_counter);
 }
 
 /******************************************************************************/
@@ -91,16 +94,16 @@ std::size_t GToken::getTestCounter() const {
  * Allows to check whether the expectation was met
  */
 bool GToken::expectationMet() const {
-	switch (e_) {
+	switch (m_e) {
 		case Gem::Common::expectation::CE_FP_SIMILARITY:
 		case Gem::Common::expectation::CE_EQUALITY:
-			if (std::get<TESTCOUNTER>(testCounter_) == std::get<SUCCESSCOUNTER>(testCounter_)) {
+			if (std::get<TESTCOUNTER>(m_test_counter) == std::get<SUCCESSCOUNTER>(m_test_counter)) {
 				return true;
 			}
 			break;
 
 		case Gem::Common::expectation::CE_INEQUALITY:
-			if (std::get<SUCCESSCOUNTER>(testCounter_) > 0) {
+			if (std::get<SUCCESSCOUNTER>(m_test_counter) > 0) {
 				return true;
 			}
 			break;
@@ -122,7 +125,7 @@ GToken::operator bool() const {
  * Allows to retrieve the expectation token
  */
 Gem::Common::expectation GToken::getExpectation() const {
-	return e_;
+	return m_e;
 }
 
 /******************************************************************************/
@@ -130,7 +133,7 @@ Gem::Common::expectation GToken::getExpectation() const {
  * Allows to retrieve the expectation token as a string
  */
 std::string GToken::getExpectationStr() const {
-	switch (e_) {
+	switch (m_e) {
 		case Gem::Common::expectation::CE_FP_SIMILARITY:
 			return std::string("CE_FP_SIMILARITY");
 			break;
@@ -150,16 +153,16 @@ std::string GToken::getExpectationStr() const {
  * Allows to retrieve the name of the caller
  */
 std::string GToken::getCallerName() const {
-	return caller_;
+	return m_caller;
 }
 
 /******************************************************************************/
 /**
  * Allows to register an error message e.g. obtained from a failed check
  */
-void GToken::registerErrorMessage(const std::string &m) {
-	if (!m.empty()) {
-		errorMessages_.push_back(m);
+void GToken::registerErrorMessage(std::string const &m) {
+	if (not m.empty()) {
+		m_error_messages.emplace_back(m);
 	} else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -173,8 +176,8 @@ void GToken::registerErrorMessage(const std::string &m) {
 /**
  * Allows to register an exception obtained from a failed check
  */
-void GToken::registerErrorMessage(const g_expectation_violation &g) {
-	errorMessages_.push_back(std::string(g.what()));
+void GToken::registerErrorMessage(g_expectation_violation const & g) {
+	m_error_messages.emplace_back(std::string(g.what()));
 }
 
 /******************************************************************************/
@@ -184,9 +187,8 @@ void GToken::registerErrorMessage(const g_expectation_violation &g) {
 std::string GToken::getErrorMessages() const {
 	std::string result;
 	result = "Registered errors:\n";
-	std::vector<std::string>::const_iterator cit;
-	for (cit = errorMessages_.begin(); cit != errorMessages_.end(); ++cit) {
-		result += *cit;
+	for(auto const& error: m_error_messages) {
+		result += error;
 	}
 	return result;
 }
@@ -198,7 +200,7 @@ std::string GToken::getErrorMessages() const {
 std::string GToken::toString() const {
 	std::string result = "Expectation of ";
 
-	switch (e_) {
+	switch (m_e) {
 		case Gem::Common::expectation::CE_FP_SIMILARITY: {
 			result += std::string("CE_FP_SIMILARITY was ");
 		}
@@ -216,9 +218,9 @@ std::string GToken::toString() const {
 	}
 
 	if (this->expectationMet()) {
-		result += std::string("met in ") + caller_ + std::string("\n");
+		result += std::string("met in ") + m_caller + std::string("\n");
 	} else {
-		result += std::string("not met in ") + caller_ + std::string("\n");
+		result += std::string("not met in ") + m_caller + std::string("\n");
 		// We only add specific information about failed checks for the expectation
 		// "inequality", so we do not swamp the user with useless information.
 		// For the inequality information, just one out of many checks for data-
@@ -226,10 +228,9 @@ std::string GToken::toString() const {
 		// Only the information "everything is equal while inequality was expected"
 		// is important. If equality or similarity were expected, every single
 		// deviation from equality is of interest.
-		if (Gem::Common::expectation::CE_INEQUALITY != e_) {
-			std::vector<std::string>::const_iterator cit;
-			for (cit = errorMessages_.begin(); cit != errorMessages_.end(); ++cit) {
-				result += *cit;
+		if (Gem::Common::expectation::CE_INEQUALITY != m_e) {
+			for(auto const& error: m_error_messages) {
+				result += error;
 			}
 		}
 	}
@@ -241,8 +242,8 @@ std::string GToken::toString() const {
 /**
  * Evaluates the information in this object
  */
-G_API_COMMON void GToken::evaluate() const {
-	if (!this->expectationMet()) {
+void GToken::evaluate() const {
+	if (not this->expectationMet()) {
 		throw(g_expectation_violation(this->toString()));
 	}
 }
@@ -297,15 +298,15 @@ void compare(
 
 		case Gem::Common::expectation::CE_INEQUALITY:
 			expectation_str = "CE_INEQUALITY";
-			if (!(x == true && y == true) &&
-				 !(x == false && y == false) &&
-				 !(boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
+			if (not (x == true && y == true) &&
+				 not (x == false && y == false) &&
+				 not (boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
 				expectationMet = true;
 			}
 			break;
 	};
 
-	if (!expectationMet) {
+	if (not expectationMet) {
 		std::ostringstream error;
 		error
 			<< "Expectation of " << expectation_str << " was violated for parameters " << std::endl

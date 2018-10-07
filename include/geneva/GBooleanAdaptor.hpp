@@ -1,5 +1,5 @@
 /**
- * @file GBooleanAdaptor.hpp
+ * @file
  */
 
 /*

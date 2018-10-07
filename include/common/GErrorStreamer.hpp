@@ -1,5 +1,5 @@
 /**
- * @file GErrorStreamer.hpp
+ * @file
  */
 
 /*
@@ -76,12 +76,12 @@ public:
 	  *
 	  * @param do_log Instructs the object to also send data to the logger
 	  */
-	 g_error_streamer(
+	 explicit g_error_streamer(
 		 bool do_log = NO_LOG
-		 , const std::string& where_and_when = std::string()
+		 , std::string where_and_when = std::string()
 	 )
 		 : m_do_log(do_log)
-	 	 , m_where_and_when(where_and_when)
+	 	 , m_where_and_when(std::move(where_and_when))
 	 { /* nothing */ }
 
 	 /**************************************************************************/
@@ -89,6 +89,13 @@ public:
 	  * The standard destructor
 	  */
 	 ~g_error_streamer() = default;
+
+	 /**************************************************************************/
+	 // Prevent copying and assignment
+	 g_error_streamer(const g_error_streamer&) = delete;
+	 g_error_streamer& operator=(g_error_streamer&) = delete;
+	 g_error_streamer(const g_error_streamer&&) = delete;
+	 g_error_streamer& operator=(g_error_streamer &&) = delete;
 
 	 /**************************************************************************/
 	 /**
@@ -139,7 +146,7 @@ public:
 	  *
 	  * @return A string with the content of the wrapped string_error_streamer object.
 	  */
-	 operator std::string() const {
+	 operator std::string() const { // NOLINT
 		 using namespace Gem::Common;
 		 if(m_do_log) {
 			 glogger(boost::filesystem::path(exception_file))
@@ -171,13 +178,6 @@ private:
 	 bool m_do_log = false;
 	 const std::string exception_file = "./GENEVA-EXCEPTION.log";
 	 std::string m_where_and_when;
-
-	 /**************************************************************************/
-	 // Prevent copying and assignment
-	 g_error_streamer(const g_error_streamer&) = delete;
-	 g_error_streamer& operator=(g_error_streamer&) = delete;
-	 g_error_streamer(const g_error_streamer&&) = delete;
-	 g_error_streamer& operator=(g_error_streamer &&) = delete;
 
 	 /**************************************************************************/
 };

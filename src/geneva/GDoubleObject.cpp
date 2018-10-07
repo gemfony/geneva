@@ -1,5 +1,5 @@
 /**
- * @file GDoubleObject.cpp
+ * @file
  */
 
 /*
@@ -467,7 +467,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Retrieve a pointer to the adaptor
 		std::shared_ptr <GAdaptorT<double>> p_adaptor_base;
-		BOOST_CHECK(!p_adaptor_base);
+		BOOST_CHECK(not p_adaptor_base);
 		BOOST_CHECK_NO_THROW(p_adaptor_base = p_test->getAdaptor());
 
 		// Check that we have indeed received an adaptor
@@ -475,7 +475,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Retrieve another, converted pointer to the adaptor
 		std::shared_ptr <GDoubleGaussAdaptor> gdga_clone_ptr;
-		BOOST_CHECK(!gdga_clone_ptr);
+		BOOST_CHECK(not gdga_clone_ptr);
 		BOOST_CHECK_NO_THROW(gdga_clone_ptr = p_test->getAdaptor<GDoubleGaussAdaptor>());
 
 		// Check that we have indeed received an adaptor

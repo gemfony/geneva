@@ -1,5 +1,5 @@
 /**
- * @file GDoubleGaussAdaptor.cpp
+ * @file
  */
 
 /*

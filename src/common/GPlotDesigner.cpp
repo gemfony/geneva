@@ -1,5 +1,5 @@
 /**
- * @file GPlotDesigner.cpp
+ * @file
  */
 
 /*
@@ -315,7 +315,7 @@ std::string GBasePlotter::dsMarker() const {
  */
 void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
 	// Check that the secondary plot isn't empty
-	if (!sp) {
+	if (not sp) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
@@ -324,7 +324,7 @@ void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
 	}
 
 	// Check that the secondary plotter is compatible with us
-	if (!this->isCompatible(sp)) {
+	if (not this->isCompatible(sp)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GBasePlotter::registerSecondaryPlot(): Error!" << std::endl
@@ -354,7 +354,7 @@ bool GBasePlotter::isCompatible(std::shared_ptr < GBasePlotter > other) const {
 std::string GBasePlotter::suffix(bool isSecondary, std::size_t pId) const {
 	std::string result;
 
-	if (!isSecondary) {
+	if (not isSecondary) {
 		result = std::string("_") + Gem::Common::to_string(this->id());
 	} else {
 		result = std::string("_") + Gem::Common::to_string(pId) + std::string("_") +
@@ -3338,7 +3338,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 		<< indent() << "cc->cd();" << std::endl;
 
 	// Check if we are supposed to output a png file
-	if (addPrintCommand_ && plotName.string() != "empty" && !(plotName.string()).empty()) {
+	if (addPrintCommand_ && plotName.string() != "empty" && not (plotName.string()).empty()) {
 		std::string plotName_local = plotName.string(); // Make sure there are no white spaces
 		boost::trim(plotName_local);
 		result

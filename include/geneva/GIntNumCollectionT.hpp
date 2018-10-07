@@ -1,5 +1,5 @@
 /**
- * @file GIntNumCollectionT.hpp
+ * @file
  */
 
 /*

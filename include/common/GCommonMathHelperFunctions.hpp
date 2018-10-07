@@ -1,5 +1,5 @@
 /**
- * @file GCommonMathHelperFunctions.hpp
+ * @file
  */
 
 /*

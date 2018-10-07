@@ -1,5 +1,5 @@
 /**
- * @file GCommonInterfaceT.hpp
+ * @file
  */
 
 /*
@@ -134,7 +134,7 @@ public:
 		 // Note: (De-)serialization must happen through a pointer to the same type.
 #ifdef DEBUG
 		 local = dynamic_cast<const g_class_type *>(this);
-		 if(!local) {
+		 if(not local) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << std::endl
@@ -281,7 +281,7 @@ public:
 	 ) const {
 		 bf::ofstream ofstr(p, std::ofstream::trunc); // Note: will overwrite existing files
 
-		 if (!ofstr) {
+		 if (not ofstr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GCommonInterfaceT::toFile():" << std::endl
@@ -293,7 +293,7 @@ public:
 		 ofstr.close();
 
 #ifdef DEBUG
-		 if(!bf::exists(bf::path(p))) {
+		 if(not bf::exists(bf::path(p))) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GCommonInterfaceT::toFile():" << std::endl
@@ -322,7 +322,7 @@ public:
 		 , const Gem::Common::serializationMode &serMod
 	 ) {
 		 // Check that the file exists
-		 if (!bf::exists(bf::path(p))) {
+		 if (not bf::exists(bf::path(p))) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GCommonInterfaceT::fromFile(): Error!" << std::endl
@@ -333,7 +333,7 @@ public:
 
 		 bf::ifstream ifstr(p);
 
-		 if (!ifstr) {
+		 if (not ifstr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GCommonInterfaceT::fromFile():" << std::endl

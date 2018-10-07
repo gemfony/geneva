@@ -1,5 +1,5 @@
 /**
- * @file GDoubleObject.hpp
+ * @file
  */
 
 /*

@@ -1,5 +1,5 @@
 /**
- * @file GPostProcessorT.hpp
+ * @file
  */
 
 /*
@@ -182,7 +182,7 @@ protected:
 	  * Post-processing is triggered here
 	  */
 	 bool process_(base_type& p) override {
-		 if(!this->postProcessingAllowedFor(p)) {
+		 if(not this->postProcessingAllowedFor(p)) {
 			 return true;
 		 }
 

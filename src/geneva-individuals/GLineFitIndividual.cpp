@@ -1,5 +1,5 @@
 /**
- * @file GLineFitIndividual.cpp
+ * @file
  */
 
 /*

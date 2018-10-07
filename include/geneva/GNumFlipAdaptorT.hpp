@@ -1,5 +1,5 @@
 /**
- * @file GNumFlipAdaptorT.hpp
+ * @file
  */
 
 /*

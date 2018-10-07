@@ -1,5 +1,5 @@
 /**
- * @file GIntGaussAdaptorT.hpp
+ * @file
  */
 
 /*

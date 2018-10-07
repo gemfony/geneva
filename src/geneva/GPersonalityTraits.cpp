@@ -1,5 +1,5 @@
 /**
- * @file GPersonalityTraits.cpp
+ * @file
  */
 
 /*

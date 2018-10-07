@@ -1,5 +1,5 @@
 /**
- * @file GCourtierHelperFunctions.hpp
+ * @file
  */
 
 /*
