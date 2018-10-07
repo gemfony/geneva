@@ -395,8 +395,8 @@ public:
 			 }
 
 			 // Archive the consumer and its name, then start its thread
-			 m_consumer_collection_vec.emplace_back(consumer_ptr);
-			 m_consumerTypesPresent.emplace_back(consumer_ptr->getConsumerName());
+			 m_consumer_collection_vec.push_back(consumer_ptr);
+			 m_consumerTypesPresent.push_back(consumer_ptr->getConsumerName());
 
 			 // Initiate processing in the consumer. This call will not block.
 			 consumer_ptr->async_startProcessing();

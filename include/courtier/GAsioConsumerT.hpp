@@ -1013,11 +1013,9 @@ private:
 		 m_context_thread_vec.reserve(m_n_processing_threads);
 		 for(std::size_t t_cnt=0; t_cnt<m_n_processing_threads; t_cnt++) {
 			 m_context_thread_vec.emplace_back(
-				 std::thread(
-					 [this](){
-						 this->m_io_context.run();
-					 }
-				 )
+				 [this](){
+					 this->m_io_context.run();
+				 }
 			 );
 		 }
 

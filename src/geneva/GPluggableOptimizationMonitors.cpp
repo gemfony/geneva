@@ -1654,12 +1654,12 @@ void GNAdpationsLogger::informationFunction(
 			// Do the actual logging
 			if(m_monitorBestOnly) {
 				std::shared_ptr<GParameterSet> best = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-				m_nAdaptionsStore.emplace_back(std::tuple<double,double>(double(iteration), double(best->getNAdaptions())));
+				m_nAdaptionsStore.emplace_back(double(iteration), double(best->getNAdaptions()));
 			} else { // Monitor all individuals
 				// Loop over all individuals of the algorithm.
 				for(std::size_t pos=0; pos<goa->size(); pos++) {
 					std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-					m_nAdaptionsStore.emplace_back(std::tuple<double,double>(double(iteration), double(ind->getNAdaptions())));
+					m_nAdaptionsStore.emplace_back(double(iteration), double(ind->getNAdaptions()));
 				}
 			}
 		}

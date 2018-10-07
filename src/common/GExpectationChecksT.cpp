@@ -162,7 +162,7 @@ std::string GToken::getCallerName() const {
  */
 void GToken::registerErrorMessage(std::string const &m) {
 	if (not m.empty()) {
-		m_error_messages.emplace_back(m);
+		m_error_messages.push_back(m);
 	} else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -177,7 +177,7 @@ void GToken::registerErrorMessage(std::string const &m) {
  * Allows to register an exception obtained from a failed check
  */
 void GToken::registerErrorMessage(g_expectation_violation const & g) {
-	m_error_messages.emplace_back(std::string(g.what()));
+	m_error_messages.emplace_back(g.what());
 }
 
 /******************************************************************************/

@@ -115,14 +115,14 @@ class GStdPtrVectorInterfaceT {
 	///////////////////////////////////////////////////////////////////////
 
 	// Make sure B is a base class of T
-	static_assert(std::is_base_of<B, T>::value, "B should be a base of T");
+	static_assert(std::is_base_of<B,T>::value, "B should be a base of T");
 
 public:
 	/***************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GStdPtrVectorInterfaceT() { /* nothing */ }
+	// Defaulted constructors and destructors;
+
+	GStdPtrVectorInterfaceT() = default;
+	virtual ~GStdPtrVectorInterfaceT() = default;
 
 	/***************************************************************************/
 	/**
@@ -131,22 +131,19 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T, B> &cp) {
-		typename std::vector<std::shared_ptr < T>> ::const_iterator
-		cp_it;
-		for (cp_it = cp.data.begin(); cp_it != cp.data.end(); ++cp_it) {
-			data.push_back((*cp_it)->T::template clone<T>());
+	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T,B> &cp) {
+		for(auto const& item_ptr: cp)  {
+			data.push_back(item_ptr->T::template clone<T>());
 		}
 	}
 
-	/***************************************************************************/
-	/**
-	 * The destructor. Destruction of the objects will be taken care of
-	 * by std::shared_ptr<T>.
-	 */
-	virtual ~GStdPtrVectorInterfaceT() {
-		data.clear();
-	}
+	 /***************************************************************************/
+	 // Deleted comparison operators
+
+	 bool operator==(const GStdPtrVectorInterfaceT<T,B> &) const = delete;
+	 bool operator!=(const GStdPtrVectorInterfaceT<T,B> &) const = delete;
+	 bool operator==(const std::vector<std::shared_ptr<T>>&) const = delete;
+	 bool operator!=(const std::vector<std::shared_ptr<T>>&) const = delete;
 
 	/***************************************************************************/
 	/**
@@ -155,20 +152,20 @@ public:
 	 * @param cp A copy of another GStdPtrVectorInterfaceT<T, B> object
 	 * @return The argument of this function
 	 */
-	const GStdPtrVectorInterfaceT<T, B> &operator=(const GStdPtrVectorInterfaceT<T, B> &cp) {
+	GStdPtrVectorInterfaceT<T,B> &operator=(GStdPtrVectorInterfaceT<T,B> const& cp) {
 		this->operator=(cp.data);
-		return cp;
+		return *this;
 	}
 
 	/***************************************************************************/
 	/**
-	 * Assignment of a std::vector<std::shared_ptr<T>> . As the vector contains smart
+	 * "Deep" Assignment of a std::vector<std::shared_ptr<T>> . As the vector contains smart
 	 * pointers, we cannot just copy the pointers themselves but need to copy their content.
 	 *
 	 * @param cp A constant reference to another std::vector<std::shared_ptr<T>>
-	 * @return The argument of this function
+	 * @return A reference to this object
 	 */
-	const std::vector<std::shared_ptr < T>>& operator=(const std::vector<std::shared_ptr <T>>& cp) {
+	 GStdPtrVectorInterfaceT<T,B> & operator=(std::vector<std::shared_ptr <T>> const& cp) {
 		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
 		typename std::vector<std::shared_ptr <T>>::iterator it;
 
@@ -179,8 +176,7 @@ public:
 			for (it = data.begin(), cp_it = cp.begin(); it != data.end(); ++it, ++cp_it) {
 				(*it)->B::load(*cp_it);
 			}
-		}
-		else if (cpSize > localSize) {
+		} else if (cpSize > localSize) {
 			// First copy the initial elements
 			for (it = data.begin(), cp_it = cp.begin(); it != data.end(); ++it, ++cp_it) {
 				(*it)->B::load(*cp_it);
@@ -190,8 +186,7 @@ public:
 			for (cp_it = cp.begin() + localSize; cp_it != cp.end(); ++cp_it) {
 				data.push_back((*cp_it)->T::template clone<T>());
 			}
-		}
-		else if (cpSize < localSize) {
+		} else if (cpSize < localSize) {
 			// First get rid of surplus items
 			data.resize(cpSize);
 
@@ -201,7 +196,7 @@ public:
 			}
 		}
 
-		return cp;
+		return *this;
 	}
 
 	/***************************************************************************/
@@ -214,7 +209,7 @@ public:
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 	virtual void compare_base(
-		const GStdPtrVectorInterfaceT<T, B> &cp
+		const GStdPtrVectorInterfaceT<T,B> &cp
 		, const Gem::Common::expectation &e
 		, const double &limit
 	) const BASE {
@@ -268,11 +263,12 @@ public:
 		}
 
 		return boost::numeric_cast<size_type>(std::count_if(
-			data.begin(), data.end(), [&item](const std::shared_ptr <T> &cont_item) -> bool {
-				bool result = false;
+			data.begin()
+			, data.end()
+			, [&item](const std::shared_ptr <T> &cont_item) -> bool {
 #ifdef DEBUG
             try {
-               result = (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
+               return (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
             }
             catch(...) {
 					throw gemfony_exception(
@@ -281,9 +277,8 @@ public:
 					);
             }
 #else
-				result = (*item == *(std::static_pointer_cast<item_type>(cont_item)));
+			   return (*item == *(std::static_pointer_cast<item_type>(cont_item)));
 #endif
-				return result;
 			}
 		));
 	}
@@ -315,10 +310,9 @@ public:
 
 		return std::find_if(
 			data.begin(), data.end(), [&item](const std::shared_ptr <T> &cont_item) -> bool {
-				bool result = false;
 #ifdef DEBUG
             try {
-               result = (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
+               return (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
             } catch(...) {
 					throw gemfony_exception(
 						g_error_streamer(DO_LOG, time_and_place)
@@ -326,9 +320,8 @@ public:
 					);
             }
 #else
-				result = (*item == *(std::static_pointer_cast<item_type>(cont_item)));
+				return (*item == *(std::static_pointer_cast<item_type>(cont_item)));
 #endif
-				return result;
 			}
 		);
 	}
@@ -465,7 +458,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert(iterator pos, size_type amount, std::shared_ptr <T> item_ptr) {
+	void insert(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
 		this->insert_clone(pos, amount, item_ptr);
 	}
 
@@ -482,7 +475,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_clone(iterator pos, size_type amount, std::shared_ptr <T> item_ptr) {
+	void insert_clone(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -514,7 +507,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_noclone(iterator pos, size_type amount, std::shared_ptr <T> item_ptr) {
+	void insert_noclone(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -828,11 +821,10 @@ public:
 	 * @param target A vector to which pointers with the derived type are attached
 	 */
 	template<typename derivedType>
-	void attachViewTo(std::vector<std::shared_ptr < derivedType>>& target) {
-		typename std::vector<std::shared_ptr < T>> ::iterator it;
-		for (it = data.begin(); it != data.end(); ++it) {
-			std::shared_ptr <derivedType> p = std::dynamic_pointer_cast<derivedType>(*it);
-			if (p) { target.push_back(p); }
+	void attachViewTo(std::vector<std::shared_ptr<derivedType>>& target) {
+		for(auto& item_ptr: data) {
+			std::shared_ptr<derivedType> derived_item_ptr = std::dynamic_pointer_cast<derivedType>(item_ptr);
+			if (derived_item_ptr) { target.push_back(derived_item_ptr); }
 		}
 	}
 
@@ -852,22 +844,31 @@ public:
 		 *
 		 * @param end The end of the iteration sequence
 		 */
-		conversion_iterator(typename std::vector<std::shared_ptr<T>>::iterator const &end)
-			:end_(end)
+		explicit conversion_iterator(typename std::vector<std::shared_ptr<T>>::iterator const &end)
+			:m_end(end)
 		{ /* nothing */ }
+
+		/************************************************************************/
+	   /**
+		  * Deleted default constructor
+		  */
+	   conversion_iterator() = delete;
 
 		/************************************************************************/
 		/**
 		 * We need to be able to assign values to the iterator, e.g. in a for loop.
 		 *
 		 * @param current The value to assign to this iterator
+		 * @return A reference to this object
 		 */
-		void operator=(typename std::vector<std::shared_ptr < T>>::iterator const &current) {
-			current_ = current;
+		 conversion_iterator<derivedType> &operator=(typename std::vector<std::shared_ptr<T>>::iterator const &current) {
+			m_current_pos = current;
 			// Skip to first "good" entry
-			while (current_ != end_ && not (p = std::dynamic_pointer_cast<derivedType>(*current_))) {
-				++current_;
+			while (m_current_pos != m_end && not (m_valid_ptr = std::dynamic_pointer_cast<derivedType>(*m_current_pos))) {
+				++m_current_pos;
 			}
+
+			return *this;
 		}
 
 		/************************************************************************/
@@ -878,7 +879,7 @@ public:
 		 * @return A boolean indicating whether this iterator's value is inequal with the other iterator
 		 */
 		bool operator!=(typename std::vector<std::shared_ptr < T>>::iterator const &other) const {
-			return current_ != other;
+			return m_current_pos != other;
 		}
 
 		/************************************************************************/
@@ -891,18 +892,12 @@ public:
 		 * @param end The new end of the sequence
 		 */
 		void resetEndPosition(typename std::vector<std::shared_ptr < T>>::iterator const &end) {
-			end_ = end;
+			m_end = end;
 		}
 
 	private:
 		/************************************************************************/
-		friend class boost::iterator_core_access; ///< Boost's iterator classes need access to the internals of this class
-
-		/************************************************************************/
-		/**
-		 * Deleted default constructor
-		 */
-		conversion_iterator() = delete;
+		friend class boost::iterator_core_access; // NOLINT ///< Boost's iterator classes need access to the internals of this class
 
 		/************************************************************************/
 		/**
@@ -910,9 +905,9 @@ public:
 		 *
 		 * @return A std::shared_ptr holding the derived object
 		 */
-		std::shared_ptr <derivedType> dereference() const {
+		std::shared_ptr<derivedType> dereference() const {
 #ifdef DEBUG
-			if(current_ == end_) {
+			if(m_current_pos == m_end) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In conversion_iterator::dereference(): Error:" << std::endl
@@ -920,7 +915,7 @@ public:
 				);
 			}
 
-			if(p) return p;
+			if(m_valid_ptr) return m_valid_ptr;
 			else {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG, time_and_place)
@@ -930,7 +925,7 @@ public:
 			   return std::shared_ptr<derivedType>(); // Make the compiler happy / empty pointer
 			}
 #else
-			return p;
+			return m_valid_ptr;
 #endif /* DEBUG */
 		}
 
@@ -942,7 +937,7 @@ public:
 		 * @return A boolean indicating whether equality was found
 		 */
 		bool equal(typename std::vector<std::shared_ptr < T>>::iterator const &other) const {
-			return current_ == other;
+			return m_current_pos == other;
 		}
 
 		/************************************************************************/
@@ -951,17 +946,17 @@ public:
 		 * not meet the derivation pattern.
 		 */
 		void increment() {
-			while (current_ != end_) {
-				++current_;
-				if (current_ != end_ && (p = std::dynamic_pointer_cast<derivedType>(*current_))) break;
+			while (m_current_pos != m_end) {
+				++m_current_pos;
+				if (m_current_pos != m_end && (m_valid_ptr = std::dynamic_pointer_cast<derivedType>(*m_current_pos))) break;
 			}
 		}
 
 		/************************************************************************/
-		typename std::vector<std::shared_ptr <T>>::iterator current_; ///< Marks the current position in the iteration sequence
-		typename std::vector<std::shared_ptr <T>>::iterator end_; ///< Marks the end of the iteration sequence
+		typename std::vector<std::shared_ptr <T>>::iterator m_current_pos; ///< Marks the current position in the iteration sequence
+		typename std::vector<std::shared_ptr <T>>::iterator m_end; ///< Marks the end of the iteration sequence
 
-		std::shared_ptr <derivedType> p; ///< Temporary which holds the current valid pointer
+		std::shared_ptr <derivedType> m_valid_ptr; ///< Temporary which holds the current valid pointer
 	};
 
 protected:
@@ -969,17 +964,6 @@ protected:
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
 	virtual void dummyFunction() = 0;
-
-private:
-	/***************************************************************************/
-	/** @brief Intentionally left undefined */
-	bool operator==(const GStdPtrVectorInterfaceT<T, B> &) const = delete;
-	/** @brief Intentionally left undefined */
-	bool operator!=(const GStdPtrVectorInterfaceT<T, B> &) const = delete;
-	/** @brief Intentionally left undefined */
-	bool operator==(const std::vector<std::shared_ptr <T>>&) const = delete;
-	/** @brief Intentionally left undefined */
-	bool operator!=(const std::vector<std::shared_ptr <T>>&) const = delete;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
