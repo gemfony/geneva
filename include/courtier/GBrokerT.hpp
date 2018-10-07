@@ -147,7 +147,7 @@ public:
 		 if (m_finalized) return;
 
 		 // Shut down all consumers
-		 for(auto &c_ptr: m_consumer_collection_vec) {
+		 for(auto const& c_ptr: m_consumer_collection_vec) {
 			 c_ptr->shutdown();
 		 }
 
@@ -379,7 +379,7 @@ public:
 		 //-----------------------------------------------------------------------
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
 
-		 for(auto consumer_ptr: gc_ptr_vec) {
+		 for(auto const& consumer_ptr: gc_ptr_vec) {
 			 // Do nothing if a consumer of this type has already been registered
 			 if (std::find(
 				 m_consumerTypesPresent.begin()
@@ -395,8 +395,8 @@ public:
 			 }
 
 			 // Archive the consumer and its name, then start its thread
-			 m_consumer_collection_vec.push_back(consumer_ptr);
-			 m_consumerTypesPresent.push_back(consumer_ptr->getConsumerName());
+			 m_consumer_collection_vec.emplace_back(consumer_ptr);
+			 m_consumerTypesPresent.emplace_back(consumer_ptr->getConsumerName());
 
 			 // Initiate processing in the consumer. This call will not block.
 			 consumer_ptr->async_startProcessing();
@@ -632,7 +632,7 @@ private:
 		 }
 
 		 bool capable_of_full_return = true;
-		 for(auto item_ptr: m_consumer_collection_vec) {
+		 for(auto const& item_ptr: m_consumer_collection_vec) {
 			 if (not item_ptr->capableOfFullReturn()) {
 				 capable_of_full_return = false;
 				 break; // stop the loop
