@@ -68,8 +68,8 @@ std::size_t commentLevel::getCommentLevel() const {
  * A constructor for individual items
  */
 GParsableI::GParsableI(
-	const std::string &optionNameVar
-	, const std::string &commentVar
+	std::string const & optionNameVar
+	, std::string const & commentVar
 )
 	: m_option_name(GParsableI::makeVector(optionNameVar))
 	, m_comment(GParsableI::makeVector(commentVar))
@@ -81,7 +81,8 @@ GParsableI::GParsableI(
  * A constructor for vectors
  */
 GParsableI::GParsableI(
-	const std::vector<std::string> &optionNameVec, const std::vector<std::string> &commentVec
+	std::vector<std::string> const &optionNameVec
+	, std::vector<std::string> const & commentVec
 )
 	: m_option_name(optionNameVec)
 	, m_comment(commentVec)
@@ -238,7 +239,7 @@ std::vector<std::string> GParsableI::splitComment(std::string const & comment) c
 	using tokenizer = boost::tokenizer<boost::char_separator<char>>;
 	boost::char_separator<char> semicolon_sep(";");
 
-	if (comment != "" && comment != "empty") {
+	if (not comment.empty() && comment != "empty") {
 		// First split the comment according to newlines
 		std::vector<std::string> nlComments;
 		std::istringstream buffer(comment);
@@ -373,7 +374,6 @@ bool GParserBuilder::parseConfigFile(std::string const & configFile) {
 	namespace pt = boost::property_tree;
 	namespace bf = boost::filesystem;
 
-	bool result = false;
 	pt::ptree ptr; // A property tree object;
 
 	// Add a base name, if possible and required
@@ -425,32 +425,30 @@ bool GParserBuilder::parseConfigFile(std::string const & configFile) {
 		pt::read_json(configFile_withBase, ptr);
 
 		// Load the data into our objects and execute the relevant call-back functions
-		for(auto proxy_ptr: m_file_parameter_proxies) { // std::shared_ptr may be copied
+		for(auto const& proxy_ptr: m_file_parameter_proxies) { // std::shared_ptr may be copied
 			proxy_ptr->load_from(ptr);
 			proxy_ptr->executeCallBackFunction();
 		}
 
-		result = true;
+		return true; // Success!
 	} catch (gemfony_exception const & e) {
 		glogger
 			<< "Caught gemfony_exception when parsing configuration file " << configFile_withBase << ":" << std::endl
 			<< e.what() << std::endl
 			<< GLOGGING;
-		result = false;
+		return false;
 	} catch (std::exception const & e) {
 		glogger
 			<< "Caught std::exception when parsing configuration file " << configFile_withBase << ":" << std::endl
 			<< e.what() << std::endl
 			<< GLOGGING;
-		result = false;
+		return false;
 	} catch (...) {
 		glogger
 			<< "Unknown error while parsing the configuration file " << configFile_withBase << std::endl
 			<< GLOGGING;
-		result = false;
+		return false;
 	}
-
-	return result;
 }
 
 /******************************************************************************/
@@ -463,7 +461,9 @@ bool GParserBuilder::parseConfigFile(std::string const & configFile) {
  * @param writeAll A boolean parameter that indicates whether all or only essential parameters should be written
  */
 void GParserBuilder::writeConfigFile(
-	const std::string &configFile, const std::string &header, bool writeAll
+	std::string const & configFile
+	, std::string const &header
+	, bool writeAll
 ) const {
 	using namespace boost::filesystem;
 
@@ -532,7 +532,7 @@ void GParserBuilder::writeConfigFile(
 	}
 
 	// Do some error checking
-	if (m_file_parameter_proxies.size() == 0) {
+	if (m_file_parameter_proxies.empty()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParserBuilder::writeConfigFile(): No variables found!" << std::endl
@@ -543,7 +543,7 @@ void GParserBuilder::writeConfigFile(
 	boost::property_tree::ptree ptr;
 
 	// Output a header
-	if (header != "") {
+	if (not header.empty()) {
 		// Break the header into individual tokens
 		tokenizer headerTokenizer(header, semicolon_sep);
 		for(auto const& h: headerTokenizer) {
@@ -588,14 +588,14 @@ std::size_t GParserBuilder::numberOfFileOptions() const {
  * @param verbose If set to true, the function will emit information about the parsed parameters
  * @return A boolean indicating whether help was requested (true) or not (false)
  */
-bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose) {
+bool GParserBuilder::parseCommandLine(int argc, char **argv, bool verbose) {
 	namespace po = boost::program_options;
 
 	bool result = GCL_NO_HELP_REQUESTED;
 
 	try {
 		std::string usageString = std::string("Usage: ") + argv[0] + " [options]";
-		po::options_description desc(usageString.c_str());
+		po::options_description desc(usageString);
 
 		// We always want --help and -h to be available
 		desc.add_options()("help,h", "Emit help message");

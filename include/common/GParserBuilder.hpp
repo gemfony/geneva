@@ -207,15 +207,16 @@ public:
 	 /**
 	  * Explicit assignment of a T value
 	  */
-	 void operator=(T const & parm) {
+	 GOneTimeRefParameterT<T> &operator=(T const & parm) {
 		 this->setValue(parm);
+		 return *this;
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Automatic conversion
 	  */
-	 operator T() {
+	 operator T() { // NOLINT
 		 return m_parm;
 	 }
 
@@ -223,7 +224,7 @@ public:
 	 /**
 	  * Automatic conversion for constant callers
 	  */
-	 operator T() const {
+	 operator T() const { // NOLINT
 		 return m_parm;
 	 }
 
@@ -265,7 +266,7 @@ private:
 class nextComment {
 public:
 	 /** @brief The default constructor */
-	 G_API_COMMON nextComment() { /* nothing */ }
+	 G_API_COMMON nextComment() = default;
 };
 
 /******************************************************************************/
@@ -494,12 +495,15 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
 	 GSingleParmT(
-		 const std::string &optionNameVar, const std::string &commentVar, const bool &isEssentialVar,
-		 const parameter_type &def_val
+		 const std::string &optionNameVar
+		 , const std::string &commentVar
+		 , const bool &isEssentialVar
+		 , const parameter_type &def_val
 	 )
-		 : GFileParsableI(
-		 optionNameVar, commentVar, isEssentialVar
-	 ), m_def_val(def_val), m_par(def_val) { /* nothing */ }
+		 : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
+		 , m_def_val(def_val)
+		 , m_par(def_val)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -535,10 +539,10 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Loads data from a property_tree object */
-	 virtual void load_from(boost::property_tree::ptree const &) = 0;
+	 void load_from(boost::property_tree::ptree const &) override = 0;
 
 	 /** @brief Saves data to a property tree object */
-	 virtual void save_to(boost::property_tree::ptree &) const = 0;
+	 void save_to(boost::property_tree::ptree &) const override = 0;
 };
 
 /******************************************************************************/
@@ -578,7 +582,12 @@ public:
 		 const std::string &optionNameVar
 		 , const parameter_type &def_val
 	 )
-		 : GSingleParmT<parameter_type>(optionNameVar, std::string(""), Gem::Common::VAR_IS_ESSENTIAL, def_val)
+		 : GSingleParmT<parameter_type>(
+		 		optionNameVar
+		 		, std::string()
+		 		, Gem::Common::VAR_IS_ESSENTIAL
+		 		, def_val
+			)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -631,7 +640,7 @@ private:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-	 virtual void save_to(boost::property_tree::ptree &pt) const override {
+	 void save_to(boost::property_tree::ptree &pt) const override {
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
@@ -698,12 +707,20 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
 	 GFileReferenceParsableParameterT(
-		 parameter_type &storedReference, const std::string &optionNameVar, const std::string &commentVar,
-		 const bool &isEssentialVar, const parameter_type &def_val
+		 parameter_type &storedReference
+		 , std::string const & optionNameVar
+		 , std::string const & commentVar
+		 , bool isEssentialVar
+		 , parameter_type const & def_val
 	 )
 		 : GSingleParmT<parameter_type>(
-		 optionNameVar, commentVar, isEssentialVar, def_val
-	 ), m_stored_reference(storedReference) { /* nothing */ }
+		 		optionNameVar
+		 		, commentVar
+		 		, isEssentialVar
+		 		, def_val
+	 		)
+	 		, m_stored_reference(storedReference)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -711,11 +728,18 @@ public:
 	  * for comments.
 	  */
 	 GFileReferenceParsableParameterT(
-		 parameter_type &storedReference, const std::string &optionNameVar, const parameter_type &def_val
+		 parameter_type &storedReference
+		 , std::string const & optionNameVar
+		 , parameter_type const & def_val
 	 )
 		 : GSingleParmT<parameter_type>(
-		 optionNameVar, std::string(""), Gem::Common::VAR_IS_ESSENTIAL, def_val
-	 ), m_stored_reference(storedReference) { /* nothing */ }
+		 		optionNameVar
+		 		, std::string()
+		 		, Gem::Common::VAR_IS_ESSENTIAL
+		 		, def_val
+	 		)
+	 		, m_stored_reference(storedReference)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -807,15 +831,26 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
 	 GCombinedParT(
-		 const std::string &optionNameVar0, const std::string &commentVar0, const par_type0 &def_val0,
-		 const std::string &optionNameVar1, const std::string &commentVar1, const par_type1 &def_val1,
-		 const bool &isEssentialVar, const std::string &combined_label
+	 	 std::string const & optionNameVar0
+		 , std::string const & commentVar0
+		 , par_type0 const & def_val0
+		 , std::string const & optionNameVar1
+		 , std::string const & commentVar1
+		 , par_type1 const & def_val1
+		 , bool const & isEssentialVar
+		 , std::string combined_label
 	 )
 		 : GFileParsableI(
-		 GFileParsableI::makeVector(optionNameVar0, optionNameVar1), GFileParsableI::makeVector(commentVar0, commentVar1),
-		 isEssentialVar
-	 ), m_par0(def_val0), m_def_val0(def_val0), m_par1(def_val1), m_def_val1(def_val1),
-		 combined_label_(combined_label) { /* nothing */ }
+		 		GFileParsableI::makeVector(optionNameVar0, optionNameVar1)
+		 		, GFileParsableI::makeVector(commentVar0, commentVar1)
+		 		, isEssentialVar
+			)
+		 , m_par0(def_val0)
+		 , m_def_val0(def_val0)
+		 , m_par1(def_val1)
+		 , m_def_val1(def_val1)
+		 , m_combined_label(std::move(combined_label))
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -853,15 +888,15 @@ protected:
 	 par_type0 m_par0, m_def_val0; ///< Holds the individual parameters and default values 0
 	 par_type1 m_par1, m_def_val1; ///< Holds the individual parameters and default values 1
 
-	 std::string combined_label_; ///< Holds a path label for the combined JSON path
+	 std::string m_combined_label; ///< Holds a path label for the combined JSON path
 
 private:
 	 /***************************************************************************/
 	 /** @brief Loads data from a property_tree object */
-	 virtual void load_from(boost::property_tree::ptree const &) = 0;
+	 void load_from(boost::property_tree::ptree const &) override = 0;
 
 	 /** @brief Saves data to a property tree object */
-	 virtual void save_to(boost::property_tree::ptree &) const = 0;
+	 void save_to(boost::property_tree::ptree &) const override = 0;
 };
 
 /******************************************************************************/
@@ -872,8 +907,8 @@ private:
  * function has been assigned.
  */
 template<typename par_type0, typename par_type1>
-struct GFileCombinedParsableParameterT
-	: public GCombinedParT<par_type0, par_type1> {
+struct GFileCombinedParsableParameterT : public GCombinedParT<par_type0, par_type1>
+{
 	 // We want GParserBuilder to be able to call our load- and save functions
 	 friend class GParserBuilder;
 
@@ -883,26 +918,49 @@ public:
 	  * Initializes the parameters
 	  */
 	 GFileCombinedParsableParameterT(
-		 const std::string &optionNameVar0, const std::string &commentVar0, const par_type0 &defVal0,
-		 const std::string &optionNameVar1, const std::string &commentVar1, const par_type1 &defVal1,
-		 const bool &isEssentialVar, const std::string &combined_label
+	 	 std::string const & optionNameVar0
+		 , std::string const & commentVar0
+		 , par_type0 const & defVal0
+		 , std::string const & optionNameVar1
+		 , std::string const & commentVar1
+		 , par_type1 const & defVal1
+		 , bool isEssentialVar
+		 , std::string const & combined_label
 	 )
 		 : GCombinedParT<par_type0, par_type1>(
-		 optionNameVar0, commentVar0, defVal0, optionNameVar1, commentVar1, defVal1, isEssentialVar, combined_label
-	 ) { /* nothing */ }
+		 		optionNameVar0
+		 		, commentVar0
+		 		, defVal0
+		 		, optionNameVar1
+		 		, commentVar1
+		 		, defVal1
+		 		, isEssentialVar
+		 		, combined_label
+			)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * Initializes the parameters
 	  */
 	 GFileCombinedParsableParameterT(
-		 const std::string &optionNameVar0, const par_type0 &defVal0, const std::string &optionNameVar1,
-		 const par_type1 &defVal1, const std::string &combined_label
+	 	 std::string const & optionNameVar0
+		 , par_type0 const & defVal0
+		 , std::string const & optionNameVar1
+		 , par_type1 const & defVal1
+		 , std::string const & combined_label
 	 )
 		 : GCombinedParT<par_type0, par_type1>(
-		 optionNameVar0, std::string(""), defVal0, optionNameVar1, std::string(""), defVal1, Gem::Common::VAR_IS_ESSENTIAL,
-		 combined_label
-	 ) { /* nothing */ }
+		 	  optionNameVar0
+		 	  , std::string()
+		 	  , defVal0
+		 	  , optionNameVar1
+		 	  , std::string()
+		 	  , defVal1
+		 	  , Gem::Common::VAR_IS_ESSENTIAL
+		 	  , combined_label
+		  )
+    { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -945,10 +1003,10 @@ private:
 	  */
 	 void load_from(boost::property_tree::ptree const &pt) override {
 		 GCombinedParT<par_type0, par_type1>::m_par0 = pt.get(
-			 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(0) + ".value").c_str(),
+			 (GCombinedParT<par_type0, par_type1>::m_combined_label + "." + GParsableI::optionName(0) + ".value").c_str(),
 			 GCombinedParT<par_type0, par_type1>::m_def_val0);
 		 GCombinedParT<par_type0, par_type1>::m_par1 = pt.get(
-			 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(1) + ".value").c_str(),
+			 (GCombinedParT<par_type0, par_type1>::m_combined_label + "." + GParsableI::optionName(1) + ".value").c_str(),
 			 GCombinedParT<par_type0, par_type1>::m_def_val1);
 	 }
 
@@ -974,33 +1032,33 @@ private:
 			 if (not comments0.empty()) {
 				 for(auto const& comment: comments0) {
 					 pt.add(
-						 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(0) + ".comment").c_str()
+						 (GCombinedParT<par_type0, par_type1>::m_combined_label + "." + GParsableI::optionName(0) + ".comment").c_str()
 						 , comment.c_str()
 					 );
 				 }
 			 }
 		 }
 		 pt.put(
-			 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(0) + ".default").c_str(),
+			 (GCombinedParT<par_type0, par_type1>::m_combined_label + "." + GParsableI::optionName(0) + ".default").c_str(),
 			 GCombinedParT<par_type0, par_type1>::m_def_val0);
 		 pt.put(
-			 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(0) + ".value").c_str(),
+			 (GCombinedParT<par_type0, par_type1>::m_combined_label + "." + GParsableI::optionName(0) + ".value").c_str(),
 			 GCombinedParT<par_type0, par_type1>::m_par0);
 
 		 if (this->hasComments()) {
 			 std::vector<std::string> comments1 = GParsableI::splitComment(this->comment(1));
 			 if (not comments1.empty()) {
 				 for(auto const& comment: comments1) {
-					 pt.add((GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(1) +
+					 pt.add((GCombinedParT<par_type0, par_type1>::m_combined_label + "." + GParsableI::optionName(1) +
 								".comment").c_str(), comment.c_str());
 				 }
 			 }
 		 }
 		 pt.put(
-			 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(1) + ".default").c_str(),
+			 (GCombinedParT<par_type0, par_type1>::m_combined_label + "." + GParsableI::optionName(1) + ".default").c_str(),
 			 GCombinedParT<par_type0, par_type1>::m_def_val1);
 		 pt.put(
-			 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(1) + ".value").c_str(),
+			 (GCombinedParT<par_type0, par_type1>::m_combined_label + "." + GParsableI::optionName(1) + ".value").c_str(),
 			 GCombinedParT<par_type0, par_type1>::m_par1);
 	 }
 
@@ -1047,8 +1105,10 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
 	 GVectorParT(
-		 const std::string &optionNameVar, const std::string &commentVar, const std::vector<parameter_type> &def_val,
-		 const bool &isEssentialVar
+	 	 std::string const & optionNameVar
+		 , std::string const & commentVar
+		 , std::vector<parameter_type> const &def_val
+		 , bool isEssentialVar
 	 )
 		 : GFileParsableI(
 		 optionNameVar, commentVar, isEssentialVar
@@ -1084,10 +1144,10 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Loads data from a property_tree object */
-	 virtual void load_from(boost::property_tree::ptree const &) = 0;
+	 void load_from(boost::property_tree::ptree const &) override = 0;
 
 	 /** @brief Saves data to a property tree object */
-	 virtual void save_to(boost::property_tree::ptree &) const = 0;
+	 void save_to(boost::property_tree::ptree &) const override = 0;
 };
 
 /******************************************************************************/
@@ -1112,21 +1172,33 @@ public:
 	  * Initializes the parameters
 	  */
 	 GFileVectorParsableParameterT(
-		 const std::string &optionNameVar, const std::string &commentVar, const std::vector<parameter_type> &def_val,
-		 const bool &isEssentialVar
+	 	 std::string const & optionNameVar
+		 , std::string const & commentVar
+		 , std::vector<parameter_type> const & def_val
+		 , bool isEssentialVar
 	 )
 		 : GVectorParT<parameter_type>(
-		 optionNameVar, commentVar, def_val, isEssentialVar
-	 ) { /* nothing */ }
+		 		optionNameVar
+		 		, commentVar
+		 		, def_val
+		 		, isEssentialVar
+		 )
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * Initializes the parameters, except for comments
 	  */
 	 GFileVectorParsableParameterT(
-		 const std::string &optionNameVar, const std::vector<parameter_type> &def_val
+	 	 std::string const & optionNameVar
+		 , std::vector<parameter_type> const & def_val
 	 )
-		 : GVectorParT<parameter_type>(optionNameVar, std::string(""), def_val, Gem::Common::VAR_IS_ESSENTIAL)
+		 : GVectorParT<parameter_type>(
+		 		optionNameVar
+		 		, std::string()
+		 		, def_val
+		 		, Gem::Common::VAR_IS_ESSENTIAL
+			)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1259,8 +1331,8 @@ private:
  * you plan to write out a parameter file.
  */
 template<typename parameter_type>
-class GFileVectorReferenceParsableParameterT
-	: public GVectorParT<parameter_type> {
+class GFileVectorReferenceParsableParameterT : public GVectorParT<parameter_type>
+{
 	 // We want GParserBuilder to be able to call our load- and save functions
 	 friend class GParserBuilder;
 
@@ -1270,24 +1342,38 @@ public:
 	  * Initializes the parameters
 	  */
 	 GFileVectorReferenceParsableParameterT(
-		 std::vector<parameter_type> &stored_reference, const std::string &optionNameVar, const std::string &commentVar,
-		 const std::vector<parameter_type> &def_val, const bool &isEssentialVar
+		 std::vector<parameter_type> &stored_reference
+		 , std::string const & optionNameVar
+		 , std::string const & commentVar
+		 , std::vector<parameter_type> const &def_val
+		 , bool isEssentialVar
 	 )
 		 : GVectorParT<parameter_type>(
-		 optionNameVar, commentVar, def_val, isEssentialVar
-	 ), m_stored_reference(stored_reference) { /* nothing */ }
+		 		optionNameVar
+		 		, commentVar
+		 		, def_val
+		 		, isEssentialVar
+		  )
+		  , m_stored_reference(stored_reference)
+    { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * Initializes the parameters, except for comments
 	  */
 	 GFileVectorReferenceParsableParameterT(
-		 std::vector<parameter_type> &stored_reference, const std::string &optionNameVar,
-		 const std::vector<parameter_type> &def_val
+		 std::vector<parameter_type> &stored_reference
+		 , std::string const & optionNameVar
+		 , std::vector<parameter_type> const & def_val
 	 )
 		 : GVectorParT<parameter_type>(
-		 optionNameVar, std::string(""), def_val, Gem::Common::VAR_IS_ESSENTIAL
-	 ), m_stored_reference(stored_reference) { /* nothing */ }
+		 		optionNameVar
+		 		, std::string()
+		 		, def_val
+		 		, Gem::Common::VAR_IS_ESSENTIAL
+	 		)
+	 		, m_stored_reference(stored_reference)
+	 { /* nothing */ }
 
 
 	 /***************************************************************************/
@@ -1345,7 +1431,7 @@ private:
 			 // Retrieve a list of sub-comments
 			 std::vector<std::string> comments = GParsableI::splitComment(this->comment(0));
 			 if (not comments.empty()) {
-			 	 for(auto const comment: comments) {
+			 	 for(auto const &comment: comments) {
 					 pt.add((GParsableI::optionName(0) + ".comment").c_str(), comment.c_str());
 			 	 }
 			 }
@@ -1404,8 +1490,10 @@ public:
 	  * Initializes the parameter and sets values in the parent class
 	  */
 	 GArrayParT(
-		 const std::string &optionNameVar, const std::string &commentVar, const std::array<parameter_type, N> &def_val,
-		 const bool &isEssentialVar
+	    std::string const & optionNameVar
+		 , std::string const & commentVar
+		 , std::array<parameter_type, N> const & def_val
+		 , bool isEssentialVar
 	 )
 		 : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
 		 , m_def_val_arr(def_val)
@@ -1446,10 +1534,10 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Loads data from a property_tree object */
-	 virtual void load_from(boost::property_tree::ptree const &) = 0;
+	 void load_from(boost::property_tree::ptree const &) override = 0;
 
 	 /** @brief Saves data to a property tree object */
-	 virtual void save_to(boost::property_tree::ptree &) const = 0;
+	 void save_to(boost::property_tree::ptree &) const override = 0;
 };
 
 /******************************************************************************/
@@ -1460,8 +1548,8 @@ private:
  * This class enforces a fixed number of items in the array.
  */
 template<typename parameter_type, std::size_t N>
-class GFileArrayParsableParameterT
-	: public GArrayParT<parameter_type, N> {
+class GFileArrayParsableParameterT : public GArrayParT<parameter_type, N>
+{
 	 // We want GParserBuilder to be able to call our load- and save functions
 	 friend class GParserBuilder;
 
@@ -1471,23 +1559,34 @@ public:
 	  * Initializes the parameters
 	  */
 	 GFileArrayParsableParameterT(
-		 const std::string &optionNameVar, const std::string &commentVar, const std::array<parameter_type, N> &def_val,
-		 const bool &isEssentialVar
+	 	 std::string const & optionNameVar
+		 , std::string const & commentVar
+		 , std::array<parameter_type, N> const & def_val
+		 , bool isEssentialVar
 	 )
 		 : GArrayParT<parameter_type, N>(
-		 optionNameVar, commentVar, def_val, isEssentialVar
-	 ) { /* nothing */ }
+		 		optionNameVar
+		 		, commentVar
+		 		, def_val
+		 		, isEssentialVar
+			)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * Initializes the parameters, except for comments
 	  */
 	 GFileArrayParsableParameterT(
-		 const std::string &optionNameVar, const std::array<parameter_type, N> &def_val
+	 	 std::string const & optionNameVar
+		 , std::array<parameter_type, N> const & def_val
 	 )
 		 : GArrayParT<parameter_type, N>(
-		 optionNameVar, std::string(""), def_val, Gem::Common::VAR_IS_ESSENTIAL
-	 ) { /* nothing */ }
+		 		optionNameVar
+		 		, std::string()
+		 		, def_val
+		 		, Gem::Common::VAR_IS_ESSENTIAL
+	 		)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -1628,24 +1727,38 @@ public:
 	  * Initializes the parameters
 	  */
 	 GFileArrayReferenceParsableParameterT(
-		 std::array<parameter_type, N> &stored_reference, const std::string &optionNameVar,
-		 const std::string &commentVar, const std::array<parameter_type, N> &def_val, const bool &isEssentialVar
+		 std::array<parameter_type, N> &stored_reference
+		 , std::string const & optionNameVar
+		 , std::string const & commentVar
+		 , std::array<parameter_type, N> const & def_val
+		 , bool isEssentialVar
 	 )
 		 : GArrayParT<parameter_type, N>(
-		 optionNameVar, commentVar, def_val, isEssentialVar
-	 ), m_stored_reference(stored_reference) { /* nothing */ }
+		 		optionNameVar
+		 		, commentVar
+		 		, def_val
+		 		, isEssentialVar
+		   )
+		 , m_stored_reference(stored_reference)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * Initializes the parameters, except for comments
 	  */
 	 GFileArrayReferenceParsableParameterT(
-		 std::array<parameter_type, N> &stored_reference, const std::string &optionNameVar,
-		 const std::array<parameter_type, N> &def_val
+		 std::array<parameter_type, N> &stored_reference
+		 , std::string const & optionNameVar
+		 , std::array<parameter_type, N> const & def_val
 	 )
 		 : GArrayParT<parameter_type, N>(
-		 optionNameVar, std::string(""), def_val, Gem::Common::VAR_IS_ESSENTIAL
-	 ), m_stored_reference(stored_reference) { /* nothing */ }
+		 		optionNameVar
+		 		, std::string()
+		 		, def_val
+		 		, Gem::Common::VAR_IS_ESSENTIAL
+		  )
+		  , m_stored_reference(stored_reference)
+    { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -1760,13 +1873,22 @@ public:
 	  * @param defVal The default value of this variable
 	  */
 	 GCLReferenceParsableParameterT(
-		 parameter_type &storedReference, const std::string &optionNameVar, const std::string &commentVar,
-		 parameter_type defVal, bool implicitAllowed, parameter_type implVal
+		 parameter_type &storedReference
+		 , std::string const & optionNameVar
+		 , std::string const & commentVar
+		 , parameter_type defVal
+		 , bool implicitAllowed
+		 , parameter_type implVal
 	 )
 		 : GCLParsableI(
-		 GCLParsableI::makeVector(optionNameVar), GCLParsableI::makeVector(commentVar)
-	 ), m_stored_reference(storedReference), m_def_val(defVal), m_implicit_allowed(implicitAllowed),
-		 m_impl_val(implVal) { /* nothing */ }
+		 		GCLParsableI::makeVector(optionNameVar)
+		 		, GCLParsableI::makeVector(commentVar)
+	 		)
+	    , m_stored_reference(storedReference)
+	    , m_def_val(defVal)
+	    , m_implicit_allowed(implicitAllowed)
+	    , m_impl_val(implVal)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -1776,13 +1898,21 @@ public:
 	  * @param defVal The default value of this variable
 	  */
 	 GCLReferenceParsableParameterT(
-		 parameter_type &storedReference, const std::string &optionNameVar, parameter_type defVal, bool implicitAllowed,
-		 parameter_type implVal
+		 parameter_type &storedReference
+		 , std::string const & optionNameVar
+		 , parameter_type defVal
+		 , bool implicitAllowed
+		 , parameter_type implVal
 	 )
 		 : GCLParsableI(
-		 GCLParsableI::makeVector(optionNameVar), GCLParsableI::makeVector(std::string(""))
-	 ), m_stored_reference(storedReference), m_def_val(defVal), m_implicit_allowed(implicitAllowed),
-		 m_impl_val(implVal) { /* nothing */ }
+		 		GCLParsableI::makeVector(optionNameVar)
+		 		, GCLParsableI::makeVector(std::string())
+	 		)
+	    , m_stored_reference(storedReference)
+	    , m_def_val(defVal)
+	    , m_implicit_allowed(implicitAllowed)
+	    , m_impl_val(implVal)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
@@ -1797,7 +1927,7 @@ private:
 	 /**
 	  * Saves data to a property tree object
 	  */
-	 virtual void save_to(boost::program_options::options_description &desc) const {
+	 void save_to(boost::program_options::options_description &desc) const override {
 		 namespace po = boost::program_options;
 		 if (GCL_IMPLICIT_ALLOWED == m_implicit_allowed) {
 			 desc.add_options()(
@@ -1817,10 +1947,10 @@ private:
 	 /**
 	  * Returns the content of this object as a std::string
 	  */
-	 virtual std::string content() const {
+	 std::string content() const override {
 		 std::ostringstream result;
 		 result << this->optionName() << " :\t" << m_stored_reference << "\t" <<
-				  ((m_stored_reference != m_def_val) ? "default: " + Gem::Common::to_string(m_def_val) : std::string(""));
+				  ((m_stored_reference != m_def_val) ? "default: " + Gem::Common::to_string(m_def_val) : std::string());
 		 return result.str();
 	 }
 
@@ -1866,7 +1996,7 @@ public:
 	 G_API_COMMON std::size_t numberOfFileOptions() const;
 
 	 /** @brief Parses the commandline for options */
-	 G_API_COMMON bool parseCommandLine(int, char **, const bool & = false);
+	 G_API_COMMON bool parseCommandLine(int, char **, bool = false);
 	 /** @brief Provides information on the number of command line configuration options stored in this class */
 	 G_API_COMMON std::size_t numberOfCLOptions() const;
 
@@ -1923,11 +2053,11 @@ public:
 	  */
 	 template<typename parameter_type>
 	 GParsableI &registerFileParameter(
-		 const std::string &optionName
+	 	 std::string const &optionName
 		 , parameter_type def_val
 		 , std::function<void(parameter_type)> callBack
-		 , const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL
-		 , const std::string &comment = std::string()
+		 , bool isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		 , std::string const &comment = std::string()
 	 ) {
 #ifdef DEBUG
 		 auto it = std::find_if(
@@ -1948,7 +2078,7 @@ public:
 
 		 std::shared_ptr<GFileSingleParsableParameterT<parameter_type>> singleParm_ptr;
 
-		 if (comment.empty() || comment == "") {
+		 if (comment.empty()) {
 			 singleParm_ptr = std::shared_ptr<GFileSingleParsableParameterT<parameter_type>>(
 				 new GFileSingleParsableParameterT<parameter_type>(
 					 optionName, def_val
@@ -1981,11 +2111,11 @@ public:
 	  */
 	 template<typename parameter_type>
 	 GParsableI &registerFileParameter(
-		 const std::string &optionName
+	 	 std::string const &optionName
 		 , parameter_type &parameter
 		 , parameter_type def_val
-		 , const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL
-		 , const std::string &comment = std::string()
+		 , bool isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		 , std::string const &comment = std::string()
 	 ) {
 #ifdef DEBUG
 		 auto it = std::find_if(
@@ -2006,7 +2136,7 @@ public:
 
 		 std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>> refParm_ptr;
 
-		 if (comment.empty() || comment == "") {
+		 if (comment.empty()) {
 			 refParm_ptr = std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>>(
 				 new GFileReferenceParsableParameterT<parameter_type>(
 					 parameter, optionName, def_val
@@ -2034,7 +2164,8 @@ public:
 	  */
 	 template<typename parameter_type>
 	 void resetFileParameterDefaults(
-		 const std::string &optionName, parameter_type def_val
+	 	 std::string const & optionName
+		 , parameter_type def_val
 	 ) {
 		 // Retrieve the parameter object with this name
 		 std::shared_ptr<GSingleParmT<parameter_type>> parmObject
@@ -2062,10 +2193,15 @@ public:
 	  */
 	 template<typename par_type1, typename par_type2>
 	 GParsableI &registerFileParameter(
-		 const std::string &optionName1, const std::string &optionName2, par_type1 def_val1, par_type2 def_val2,
-		 std::function<void(par_type1, par_type2)> callBack, const std::string &combined_label,
-		 bool isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment1 = std::string(),
-		 const std::string &comment2 = std::string()
+	 	 std::string const & optionName1
+		 , std::string const & optionName2
+		 , par_type1 def_val1
+		 , par_type2 def_val2
+		 , std::function<void(par_type1, par_type2)> callBack
+		 , std::string const & combined_label
+		 , bool isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		 , std::string const & comment1 = std::string()
+		 , std::string const & comment2 = std::string()
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
@@ -2087,7 +2223,7 @@ public:
 
 		 std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>> combParm_ptr;
 
-		 if ((comment1.empty() || comment1 == "") && (comment2.empty() || comment2 == "")) {
+		 if (comment1.empty() && comment2.empty()) {
 			 combParm_ptr = std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>>(
 				 new GFileCombinedParsableParameterT<par_type1, par_type2>(
 					 optionName1, def_val1, optionName2, def_val2, combined_label
@@ -2119,7 +2255,9 @@ public:
 
 	 template<typename par_type1, typename par_type2>
 	 void resetFileParameterDefaults(
-		 const std::string &optionName1, par_type1 def_val1, par_type2 def_val2
+	 	 std::string const & optionName1
+		 , par_type1 def_val1
+		 , par_type2 def_val2
 	 ) {
 		 // Retrieve the parameter object with this name
 		 std::shared_ptr <GCombinedParT<par_type1, par_type2>> parmObject
@@ -2146,9 +2284,11 @@ public:
 	  */
 	 template<typename parameter_type>
 	 GParsableI &registerFileParameter(
-		 const std::string &optionName, const std::vector<parameter_type> &def_val,
-		 std::function<void(std::vector<parameter_type>)> callBack,
-		 const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment = std::string()
+	 	 std::string const &optionName
+		 , std::vector<parameter_type> const & def_val
+		 , std::function<void(std::vector<parameter_type>)> callBack
+		 , bool isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		 , std::string const & comment = std::string()
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
@@ -2170,7 +2310,7 @@ public:
 
 		 std::shared_ptr<GFileVectorParsableParameterT<parameter_type>> vecParm_ptr;
 
-		 if (comment.empty() || comment == "") {
+		 if (comment.empty()) {
 			 vecParm_ptr = std::shared_ptr<GFileVectorParsableParameterT<parameter_type>>(
 				 new GFileVectorParsableParameterT<parameter_type>(
 					 optionName, def_val
@@ -2197,9 +2337,11 @@ public:
 	  */
 	 template<typename parameter_type>
 	 GParsableI &registerFileParameter(
-		 const std::string &optionName, std::vector<parameter_type> &stored_reference,
-		 const std::vector<parameter_type> &def_val, const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL,
-		 const std::string &comment = std::string()
+	 	 std::string const & optionName
+		 , std::vector<parameter_type> &stored_reference
+		 , std::vector<parameter_type> const &def_val
+		 , bool isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		 , std::string const &comment = std::string()
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
@@ -2222,7 +2364,7 @@ public:
 
 		 std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>> vecRefParm_ptr;
 
-		 if (comment.empty() || comment == "") {
+		 if (comment.empty()) {
 			 vecRefParm_ptr = std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>>(
 				 new GFileVectorReferenceParsableParameterT<parameter_type>(
 					 stored_reference, optionName, def_val
@@ -2251,7 +2393,8 @@ public:
 	  */
 	 template<typename parameter_type>
 	 void resetFileParameterDefaults(
-		 const std::string &optionName, const std::vector<parameter_type> &def_val
+	 	 std::string const & optionName
+		 , std::vector<parameter_type> const & def_val
 	 ) {
 		 // Retrieve the parameter object with this name
 		 std::shared_ptr<GVectorParT<parameter_type>> parmObject
@@ -2279,9 +2422,11 @@ public:
 	  */
 	 template<typename parameter_type, std::size_t N>
 	 GParsableI &registerFileParameter(
-		 const std::string &optionName, const std::array<parameter_type, N> &def_val,
-		 std::function<void(std::array<parameter_type, N>)> callBack,
-		 const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL, const std::string &comment = std::string()
+	 	 std::string const & optionName
+		 , std::array<parameter_type, N> const &def_val
+		 , std::function<void(std::array<parameter_type, N>)> callBack
+		 , bool isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		 , std::string const & comment = std::string()
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
@@ -2303,7 +2448,7 @@ public:
 
 		 std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>> arrayParm_ptr;
 
-		 if (comment.empty() || comment == "") {
+		 if (comment.empty()) {
 			 arrayParm_ptr = std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>>(
 				 new GFileArrayParsableParameterT<parameter_type, N>(
 					 optionName, def_val
@@ -2332,9 +2477,11 @@ public:
 	  */
 	 template<typename parameter_type, std::size_t N>
 	 GParsableI &registerFileParameter(
-		 const std::string &optionName, std::array<parameter_type, N> &stored_reference,
-		 const std::array<parameter_type, N> &def_val, const bool &isEssential = Gem::Common::VAR_IS_ESSENTIAL,
-		 const std::string &comment = std::string()
+	 	 std::string const & optionName
+		 , std::array<parameter_type, N> &stored_reference
+		 , std::array<parameter_type, N> const & def_val
+		 , bool isEssential = Gem::Common::VAR_IS_ESSENTIAL
+		 , std::string const & comment = std::string()
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
@@ -2355,7 +2502,7 @@ public:
 #endif /* DEBUG */
 
 		 std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>> arrayRefParm_ptr;
-		 if (comment.empty() || comment == "") {
+		 if (comment.empty()) {
 			 arrayRefParm_ptr = std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
 				 new GFileArrayReferenceParsableParameterT<parameter_type, N>(
 					 stored_reference, optionName, def_val
@@ -2385,7 +2532,8 @@ public:
 
 	 template<typename parameter_type, std::size_t N>
 	 void resetFileParameterDefaults(
-		 const std::string &optionName, const std::array<parameter_type, N> &def_val
+	 	 std::string const & optionName
+		 , std::array<parameter_type, N> const & def_val
 	 ) {
 		 // Retrieve the parameter object with this name
 		 std::shared_ptr<GArrayParT<parameter_type, N>> parmObject
@@ -2416,9 +2564,12 @@ public:
 	  */
 	 template<typename parameter_type>
 	 GParsableI &registerCLParameter(
-		 const std::string &optionName, parameter_type &parameter, const parameter_type &def_val,
-		 const std::string &comment = std::string(), bool implicitAllowed = GCL_IMPLICIT_NOT_ALLOWED,
-		 parameter_type impl_val = GDefaultValueT<parameter_type>::value()
+	 	 std::string const & optionName
+		 , parameter_type &parameter
+		 , parameter_type const & def_val
+		 , std::string const & comment = std::string()
+		 , bool implicitAllowed = GCL_IMPLICIT_NOT_ALLOWED
+		 , parameter_type impl_val = GDefaultValueT<parameter_type>::value()
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
@@ -2441,7 +2592,7 @@ public:
 
 		 std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>> refParm_ptr;
 
-		 if (comment.empty() || comment == "") {
+		 if (comment.empty()) {
 			 refParm_ptr = std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>>(
 				 new GCLReferenceParsableParameterT<parameter_type>(
 					 parameter, optionName, def_val, implicitAllowed, impl_val
@@ -2483,7 +2634,7 @@ private:
 template <typename conf_object_type>
 void configureFromFile(
 	conf_object_type& target_object
-	, const std::string& conf_file
+	, std::string const & conf_file
 ) {
 	// Create a parser builder object. It will be destroyed at
 	// the end of this scope and thus cannot cause trouble
