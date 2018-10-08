@@ -110,12 +110,13 @@ public:
 	 ~GBarrier() = default;
 
 	 GBarrier() = delete;
-	 GBarrier(const GBarrier&) = delete;
+	 GBarrier(GBarrier const&) = delete;
 	 GBarrier(GBarrier&&) = delete;
-	 GBarrier& operator=(const GBarrier&) = delete;
+	 GBarrier& operator=(GBarrier const&) = delete;
 	 GBarrier& operator=(GBarrier&&) = delete;
 
-	 bool wait() {
+	 bool
+	 wait() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 std::uint32_t gen = m_generation;
 

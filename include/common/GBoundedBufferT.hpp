@@ -142,10 +142,10 @@ public:
 	 /***************************************************************************/
 	 // Prevent assignment and copying
 
-	 GBoundedBufferT(const GBoundedBufferT<T, t_capacity> &) = delete; ///< Disabled copy constructor
-	 GBoundedBufferT &operator=(const GBoundedBufferT<T, t_capacity> &) = delete; ///< Disabled assign operator
-	 GBoundedBufferT(const GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move constructor
-	 GBoundedBufferT &operator=(const GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move-assignment operator
+	 GBoundedBufferT(GBoundedBufferT<T, t_capacity> const &) = delete; ///< Disabled copy constructor
+	 GBoundedBufferT &operator=(GBoundedBufferT<T, t_capacity> const &) = delete; ///< Disabled assign operator
+	 GBoundedBufferT(GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move constructor
+	 GBoundedBufferT &operator=(GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move-assignment operator
 
 	 /***************************************************************************/
 	 /**
@@ -194,7 +194,7 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 bool
 	 try_push_copy (
-		 const T &item
+	 	 T const &item
 		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
@@ -222,7 +222,7 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 bool
 	 try_push_copy (
-		 const T &item
+	 	 T const & item
 		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
@@ -313,7 +313,7 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 void
 	 push_and_block_copy(
-		 const T &item
+	 	 T const &item
 		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
@@ -336,7 +336,7 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 void
 	 push_and_block_copy(
-		 const T &item
+	 	 T const & item
 		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
@@ -417,8 +417,8 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 bool
 	 push_and_wait_copy(
-		 const T &item
-		 , const std::chrono::duration<double> &timeout
+	 	 T const &item
+		 , std::chrono::duration<double> const & timeout
 		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
@@ -446,8 +446,8 @@ public:
 	 template <typename std::size_t u_capacity = t_capacity>
 	 bool
 	 push_and_wait_copy(
-		 const T &item
-		 , const std::chrono::duration<double> &timeout
+	 	 T const & item
+		 , std::chrono::duration<double> const & timeout
 		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
@@ -481,7 +481,7 @@ public:
 	 bool
 	 push_and_wait_move(
 		 T &&item
-		 , const std::chrono::duration<double> &timeout
+		 , std::chrono::duration<double> const & timeout
 		 , std::enable_if_t<(u_capacity==0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
@@ -510,7 +510,7 @@ public:
 	 bool
 	 push_and_wait_move(
 		 T &&item
-		 , const std::chrono::duration<double> &timeout
+		 , std::chrono::duration<double> const & timeout
 		 , std::enable_if_t<(u_capacity > 0 && t_capacity==u_capacity)> * = nullptr
 	 ) {
 		 {
@@ -646,7 +646,7 @@ public:
 	 bool
 	 pop_and_wait_copy(
 		 T &item
-		 , const std::chrono::duration<double> &timeout
+		 , std::chrono::duration<double> const & timeout
 	 ) {
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
@@ -681,7 +681,7 @@ public:
 	 bool
 	 pop_and_wait_move(
 		 T &item
-		 , const std::chrono::duration<double> &timeout
+		 , std::chrono::duration<double> const & timeout
 	 ) {
 		 {
 			 std::unique_lock<std::mutex> lock(m_mutex);
@@ -710,7 +710,8 @@ public:
 	  *
 	  * @return The maximum allowed capacity
 	  */
-	 constexpr std::size_t getCapacity() noexcept {
+	 constexpr std::size_t
+	 getCapacity() noexcept {
 		 return t_capacity;
 	 }
 
@@ -722,7 +723,8 @@ public:
 	  *
 	  * @return The currently remaining space in the buffer
 	  */
-	 std::size_t getRemainingSpace() {
+	 std::size_t
+	 getRemainingSpace() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 return t_capacity - m_container.size();
 	 }
@@ -736,7 +738,8 @@ public:
 	  *
 	  * @return The current size of the buffer
 	  */
-	 std::size_t size() {
+	 std::size_t
+	 size() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 return m_container.size();
 	 }
@@ -745,7 +748,8 @@ public:
 	 /**
 	  * Checks whether the queue is empty
 	  */
-	 bool empty() const {
+	 bool
+	 empty() const {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 	 	 return m_container.empty();
 	 }
@@ -759,7 +763,8 @@ public:
 	  *
 	  * @return True if the buffer is not empty
 	  */
-	 bool isNotEmpty() {
+	 bool
+	 isNotEmpty() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 return not m_container.empty();
 	 }
@@ -768,7 +773,8 @@ public:
 	 /**
 	  * Checks whether this is a bounded queue
 	  */
-	 constexpr bool isBounded() noexcept {
+	 constexpr bool
+	 isBounded() noexcept {
 	 	 return (t_capacity > 0);
 	 }
 
