@@ -58,7 +58,8 @@ coord2D::coord2D(float x_pos, float y_pos)
 /**
  * Convenience function for calculating the difference between two coordinate vectors
  */
-coord2D operator-(coord2D const & a, coord2D const & b) {
+coord2D
+operator-(coord2D const & a, coord2D const & b) {
 	return {a.x - b.x, a.y - b.y};
 }
 
@@ -66,7 +67,8 @@ coord2D operator-(coord2D const & a, coord2D const & b) {
 /**
  * Convenience function for calculating the dot product of two coordinate vectors
  */
-float operator*(coord2D const & a, coord2D const& b) {
+float
+operator*(coord2D const & a, coord2D const& b) {
 	return a.x * b.x + a.y * b.y;
 }
 
@@ -76,7 +78,8 @@ float operator*(coord2D const & a, coord2D const& b) {
 /**
  * Needed for sorting the structs
  */
-float triangle_circle_struct::getAlphaValue() const {
+float
+triangle_circle_struct::getAlphaValue() const {
 	return this->a;
 }
 
@@ -84,7 +87,8 @@ float triangle_circle_struct::getAlphaValue() const {
 /**
  * Translate to a string
  */
-std::string triangle_circle_struct::toString() const {
+std::string
+triangle_circle_struct::toString() const {
 	return Gem::Common::to_string(*this);
 }
 
@@ -92,7 +96,8 @@ std::string triangle_circle_struct::toString() const {
 /**
  * Simplify debugging output
  */
-std::ostream &operator<<(std::ostream &out, t_circle const &tc) {
+std::ostream &
+operator<<(std::ostream &out, t_circle const &tc) {
 	out << std::setprecision(5)
 	<< "middle.x = " << tc.middle.x << std::endl
 	<< "middle.y = " << tc.middle.y << std::endl
@@ -112,7 +117,8 @@ std::ostream &operator<<(std::ostream &out, t_circle const &tc) {
 /**
  * Simplify comparison of two t_circle structs
  */
-bool operator==(t_circle const &a, t_circle const &b) {
+bool
+operator==(t_circle const &a, t_circle const &b) {
 	if (a.middle.x != b.middle.x) return false;
 	if (a.middle.y != b.middle.y) return false;
 	if (a.radius != b.radius) return false;
@@ -129,7 +135,8 @@ bool operator==(t_circle const &a, t_circle const &b) {
 /**
  * Simplify comparison of two t_circle structs
  */
-bool operator!=(t_circle const &a, t_circle const &b) {
+bool
+operator!=(t_circle const &a, t_circle const &b) {
 	return !operator==(a, b);
 }
 
@@ -159,7 +166,8 @@ GRgb::GRgb(std::tuple<float, float, float> const& color)
 /**
  * Explicit reset of colors
  */
-void GRgb::setColor(
+void
+GRgb::setColor(
 	float red
 	, float green
 	, float blue
@@ -173,7 +181,8 @@ void GRgb::setColor(
 /**
  * Explicit reset of colors, using a std::tuple
  */
-void GRgb::setColor(std::tuple<float, float, float> color) {
+void
+GRgb::setColor(std::tuple<float, float, float> color) {
 	r = std::get<0>(color);
 	g = std::get<1>(color);
 	b = std::get<2>(color);
@@ -200,7 +209,8 @@ GColumn::GColumn(
 /**
  * Information about the size of this object
  */
-std::size_t GColumn::size() const {
+std::size_t
+GColumn::size() const {
 	return m_column_data_vec.size();
 }
 
@@ -208,7 +218,8 @@ std::size_t GColumn::size() const {
 /**
  * Unchecked access
  */
-GRgb &GColumn::operator[](std::size_t pos) {
+GRgb &
+GColumn::operator[](std::size_t pos) {
 	return m_column_data_vec[pos];
 }
 
@@ -216,7 +227,8 @@ GRgb &GColumn::operator[](std::size_t pos) {
 /**
  * Checked access
  */
-GRgb &GColumn::at(std::size_t pos) {
+GRgb &
+GColumn::at(std::size_t pos) {
 	return m_column_data_vec.at(pos);
 }
 
@@ -224,7 +236,8 @@ GRgb &GColumn::at(std::size_t pos) {
 /**
  * Unchecked access
  */
-const GRgb &GColumn::operator[](std::size_t pos) const {
+const GRgb &
+GColumn::operator[](std::size_t pos) const {
 	return m_column_data_vec[pos];
 }
 
@@ -232,7 +245,8 @@ const GRgb &GColumn::operator[](std::size_t pos) const {
 /**
  * Checked access
  */
-const GRgb &GColumn::at(std::size_t pos) const {
+const GRgb &
+GColumn::at(std::size_t pos) const {
 	return m_column_data_vec.at(pos);
 }
 
@@ -240,7 +254,8 @@ const GRgb &GColumn::at(std::size_t pos) const {
 /**
  * Initializes the object to a specific size
  */
-void GColumn::init(
+void
+GColumn::init(
 	std::size_t sz
 	, std::tuple<float, float, float> const& color
 ) {
@@ -277,7 +292,8 @@ GCanvas8::GCanvas8(std::string const &ppmData)
 /**
   * Convenience function for the calculation of the difference between two canvasses
   */
-float operator-(GCanvas8 const &x, GCanvas8 const &y) {
+float
+operator-(GCanvas8 const &x, GCanvas8 const &y) {
 	return x.diff(y);
 }
 
@@ -306,7 +322,8 @@ GCanvas16::GCanvas16(std::string const & ppmData)
 /**
   * Convenience function for the calculation of the difference between two canvasses
   */
-float operator-(GCanvas16 const &x, GCanvas16 const &y) {
+float
+operator-(GCanvas16 const &x, GCanvas16 const &y) {
 	return x.diff(y);
 }
 
@@ -335,7 +352,8 @@ GCanvas24::GCanvas24(std::string const & ppmData)
 /**
   * Convenience function for the calculation of the difference between two canvasses
   */
-float operator-(GCanvas24 const & x, GCanvas24 const & y) {
+float
+operator-(GCanvas24 const & x, GCanvas24 const & y) {
 	return x.diff(y);
 }
 

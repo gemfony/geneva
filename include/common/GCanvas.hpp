@@ -363,7 +363,8 @@ public:
 	  *
 	  * @param cp A copy of another GCanvas object
 	  */
-	 GCanvas<COLORDEPTH> &operator=(GCanvas<COLORDEPTH> const &cp) {
+	 GCanvas<COLORDEPTH> &
+	 operator=(GCanvas<COLORDEPTH> const &cp) {
 		 m_canvasData = cp.m_canvasData;
 		 m_xDim = cp.m_xDim;
 		 m_yDim = cp.m_yDim;
@@ -375,8 +376,9 @@ public:
 	 /**
 	  * Get information about the canvas dimensions
 	  */
-	 auto dimensions() const {
-		 return std::make_tuple(m_xDim, m_yDim);
+	 std::tuple<std::size_t, std::size_t>
+	 dimensions() const {
+		 return {m_xDim, m_yDim};
 	 }
 
 	 /***************************************************************************/
@@ -385,7 +387,8 @@ public:
 	  *
 	  * @return The value of the xDim_ parameter
 	  */
-	 std::size_t getXDim() const {
+	 std::size_t
+	 getXDim() const {
 		 return m_xDim;
 	 }
 
@@ -395,7 +398,8 @@ public:
 	  *
 	  * @return The value of the yDim_ parameter
 	  */
-	 std::size_t getYDim() const {
+	 std::size_t
+	 getYDim() const {
 		 return m_yDim;
 	 }
 
@@ -405,7 +409,8 @@ public:
 	  *
 	  * @return The total number of pixels in the canvas
 	  */
-	 std::size_t getNPixels() const {
+	 std::size_t
+	 getNPixels() const {
 		 return m_xDim * m_yDim;
 	 }
 
@@ -415,7 +420,8 @@ public:
 	  *
 	  * @return The chosen color depth
 	  */
-	 std::size_t getColorDepth() const {
+	 std::size_t
+	 getColorDepth() const {
 		 return COLORDEPTH;
 	 }
 
@@ -425,7 +431,8 @@ public:
 	  *
 	  * @return The number of representable colors
 	  */
-	 std::size_t getNColors() const {
+	 std::size_t
+	 getNColors() const {
 		 return NCOLORS;
 	 }
 
@@ -435,7 +442,8 @@ public:
 	  *
 	  * @return The maximum allowed color value
 	  */
-	 std::size_t getMaxColor() const {
+	 std::size_t
+	 getMaxColor() const {
 		 return MAXCOLOR;
 	 }
 
@@ -451,7 +459,8 @@ public:
 	 /**
 	  * Checked access
 	  */
-	 GColumn &at(std::size_t pos) {
+	 GColumn &
+	 at(std::size_t pos) {
 		 return m_canvasData.at(pos);
 	 }
 
@@ -459,7 +468,8 @@ public:
 	 /**
 	  * Unchecked access
 	  */
-	 const GColumn &operator[](std::size_t pos) const {
+	 const GColumn &
+	 operator[](std::size_t pos) const {
 		 return m_canvasData[pos];
 	 }
 
@@ -467,7 +477,8 @@ public:
 	 /**
 	  * Checked access
 	  */
-	 const GColumn &at(std::size_t pos) const {
+	 const GColumn &
+	 at(std::size_t pos) const {
 		 return m_canvasData.at(pos);
 	 }
 
@@ -475,7 +486,8 @@ public:
 	 /**
 	  * Find out the deviation between this and another canvas
 	  */
-	 virtual float diff(GCanvas<COLORDEPTH> const &cp) const {
+	 float
+	 diff(GCanvas<COLORDEPTH> const &cp) const {
 		 using namespace Gem::Common;
 
 		 if (cp.dimensions() != this->dimensions()) {
@@ -505,7 +517,8 @@ public:
 	 /**
 	  * Converts the canvas to an image in PPM-P3 format
 	  */
-	 std::string toPPM() const {
+	 std::string
+	 toPPM() const {
 		 std::ostringstream result;
 
 		 result
@@ -532,7 +545,8 @@ public:
 	  *
 	  * @param ppmString A string holding an image in PPM-P3 format
 	  */
-	 void loadFromPPM(std::string const &ppmString) {
+	 void
+	 loadFromPPM(std::string const &ppmString) {
 		 using namespace std;
 
 		 // Some status flags
@@ -701,7 +715,8 @@ public:
 	  *
 	  * @param p The name of a file holding an image in PPM-P3 format
 	  */
-	 void loadFromFile(bf::path const &p) {
+	 void
+	 loadFromFile(bf::path const &p) {
 		 // Read in the entire file
 		 std::string imageData = Gem::Common::loadTextDataFromFile(p);
 
@@ -723,7 +738,8 @@ public:
 	 /**
 	  * Saves the canvas to a file
 	  */
-	 void toFile(bf::path const & p) {
+	 void
+	 toFile(bf::path const & p) {
 		 bf::ofstream result(p);
 
 		 if (not result) {
@@ -742,7 +758,8 @@ public:
 	 /**
 	  * Removes all data from the canvas
 	  */
-	 void clear() {
+	 void
+	 clear() {
 		 m_canvasData.clear();
 
 		 m_xDim = std::size_t(0);
@@ -755,7 +772,8 @@ public:
 	  *
 	  * @param
 	  */
-	 void reset(
+	 void
+	 reset(
 		 std::tuple<std::size_t, std::size_t> const& dimension
 		 , float red
 		 , float green
@@ -775,7 +793,8 @@ public:
 	 /**
 	  * Resets the canvas to a given color and dimension
 	  */
-	 void reset(
+	 void
+	 reset(
 		 std::tuple<std::size_t, std::size_t> const& dimension
 		 , std::tuple<float, float, float> const& color
 	 ) {
@@ -791,7 +810,8 @@ public:
 	 /**
 	  * Adds a triangle to the canvas, using Gemfony's "circular" definition
 	  */
-	 void addTriangle(t_circle const & t) {
+	 void
+	 addTriangle(t_circle const & t) {
 		 t_cart t_c;
 
 #ifdef DEBUG
@@ -829,7 +849,8 @@ public:
 	  * Adds a complete set of triangles to the canvas, using Gemfony's
 	  * "circular" definition
 	  */
-	 void addTriangles(std::vector<t_circle> const & ts) {
+	 void
+	 addTriangles(std::vector<t_circle> const & ts) {
 	 	 for(auto const & t: ts) {
 			 this->addTriangle(t);
 	 	 }
@@ -839,7 +860,8 @@ public:
 	 /**
 	  * Adds a triangle to the canvas, using a struct holding cartesic coordinates
 	  */
-	 void addTriangle(t_cart const & t) {
+	 void
+	 addTriangle(t_cart const & t) {
 		 using namespace Gem::Common;
 
 		 float xDim_inv = 1.f / float(m_xDim);
@@ -915,7 +937,8 @@ public:
 	 /**
 	  * Calculates the average colors over all pixels
 	  */
-	 auto getAverageColors() const {
+	 std::tuple<float, float, float>
+	 getAverageColors() const {
 		 float averageRed = 0.f;
 		 float averageGreen = 0.f;
 		 float averageBlue = 0.f;
@@ -932,7 +955,7 @@ public:
 		 averageGreen /= (float) (m_xDim * m_yDim);
 		 averageBlue /= (float) (m_xDim * m_yDim);
 
-		 return std::make_tuple(averageRed, averageGreen, averageBlue);
+		 return {averageRed, averageGreen, averageBlue};
 	 }
 
 	 /***************************************************************************/
@@ -954,7 +977,8 @@ protected:
   */
 template<std::size_t COLORDEPTH>
 G_API_COMMON
-float operator-(
+float
+operator-(
 	GCanvas<COLORDEPTH> const & x
 	, GCanvas<COLORDEPTH> const & y
 ) {
@@ -1082,7 +1106,7 @@ public:
 	 G_API_COMMON ~GCanvas24() override = default;
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON  GCanvas24 &operator=(GCanvas24 const &) = default;
+	 G_API_COMMON GCanvas24 &operator=(GCanvas24 const &) = default;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
