@@ -53,9 +53,10 @@ std::mutex g_hwt_read_mutex;
 std::atomic<bool> g_hwt_read(false); // global in this file
 std::atomic<unsigned int> g_nHardwareThreads(Gem::Common::DEFAULTNHARDWARETHREADS); // global in this file
 
-unsigned int getNHardwareThreads(
-	const unsigned int &defaultNThreads
-	, const unsigned int& maxNThreads
+unsigned int
+getNHardwareThreads(
+	unsigned int defaultNThreads
+	, unsigned int maxNThreads
 ) {
 	if (not g_hwt_read) {
 		std::unique_lock<std::mutex>(g_hwt_read_mutex);
@@ -101,7 +102,8 @@ unsigned int getNHardwareThreads(
  * @param p The name of the file to be loaded
  * @return The data contained in the file
  */
-std::string loadTextDataFromFile(const boost::filesystem::path &p) {
+std::string
+loadTextDataFromFile(boost::filesystem::path const &p) {
 	// Check that the file exists
 	if (not boost::filesystem::exists(p)) {
 		throw gemfony_exception(
@@ -129,18 +131,20 @@ std::string loadTextDataFromFile(const boost::filesystem::path &p) {
  * @param fullCommand Allows the caller to find out about the full command
  * @return The error code
  */
-int runExternalCommand(
-	const boost::filesystem::path &program, const std::vector<std::string> &arguments,
-	const boost::filesystem::path &commandOutputFileName, std::string &fullCommand
+int
+runExternalCommand(
+	boost::filesystem::path const & program
+	, std::vector<std::string> const & arguments
+	, boost::filesystem::path const & commandOutputFileName
+	, std::string &fullCommand
 ) {
 	// Convert slashes to backslashes on Windows
 	boost::filesystem::path p_program = program;
 	std::string localCommand = (p_program.make_preferred()).string();
 
 	// Add command line arguments
-	std::vector<std::string>::const_iterator cit;
-	for (cit = arguments.begin(); cit != arguments.end(); ++cit) {
-		localCommand += (std::string(" ") + *cit);
+	for (auto const& argument: arguments) {
+		localCommand += (std::string(" ") + argument);
 	}
 
 	// If requested by the user, we want to send the command to an external file
@@ -178,7 +182,8 @@ int runExternalCommand(
  * @param s The serialization mode which should be translated to a string
  * @return A string for a given serialization mode
  */
-std::string serializationModeToString(const serializationMode &s) {
+std::string
+serializationModeToString(serializationMode s) {
 	switch (s) {
 		case Gem::Common::serializationMode::TEXT:
 			return std::string("text mode");
@@ -204,7 +209,8 @@ std::string serializationModeToString(const serializationMode &s) {
  * @param sep The separator character
  * @return A std::vector holding the fragments
  */
-std::vector<std::string> splitString(const std::string &str, const char *sep) {
+std::vector<std::string>
+splitString(std::string const &str, const char *sep) {
 	std::vector<std::string> result;
 
 #ifdef DEBUG
@@ -220,8 +226,8 @@ std::vector<std::string> splitString(const std::string &str, const char *sep) {
 	using tokenizer = boost::tokenizer<boost::char_separator<char>>;
 	boost::char_separator<char> sep_char(sep);
 	tokenizer oaTokenizer(str, sep_char);
-	for (tokenizer::iterator oa = oaTokenizer.begin(); oa != oaTokenizer.end(); ++oa) {
-		std::string frag = *oa;
+	for (auto const& token: oaTokenizer) {
+		std::string frag = token;
 		boost::trim(frag); // Remove any leading or trailing white spaces
 		if (frag.empty()) continue; // Ignore empty strings
 		result.push_back(frag);
@@ -236,8 +242,9 @@ std::vector<std::string> splitString(const std::string &str, const char *sep) {
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
  */
-std::vector<unsigned int> stringToUIntVec(
-	const std::string &raw
+std::vector<unsigned int>
+stringToUIntVec(
+	std::string const &raw
 	, char sep
 ) {
 	using namespace boost::spirit;
@@ -272,7 +279,8 @@ std::vector<unsigned int> stringToUIntVec(
  * an exception. The list must at least contain one entry and must be
  * comma-separated.
  */
-std::vector<double> stringToDoubleVec(const std::string &raw) {
+std::vector<double>
+stringToDoubleVec(std::string const & raw) {
 	using namespace boost::spirit;
 
 	std::vector<double> result;
@@ -305,7 +313,8 @@ std::vector<double> stringToDoubleVec(const std::string &raw) {
  * Splits a string into a vector of unsigned int-tuples, if possible, or
  * throws an exception. The string should have the form "(1,2), (3,4)" etc.
  */
-std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const std::string &raw) {
+std::vector<std::tuple<unsigned int, unsigned int>>
+stringToUIntTupleVec(std::string const & raw) {
 	using namespace boost::spirit;
 
 	using cit_type = std::string::const_iterator;
@@ -344,7 +353,8 @@ std::vector<std::tuple<unsigned int, unsigned int>> stringToUIntTupleVec(const s
  * Translates a string of the type "00:10:30" into a std::chrono::duration<double>
  * object denoting hours:minutes:seconds
  */
-std::chrono::duration<double> duration_from_string(const std::string& duration_string) {
+std::chrono::duration<double>
+duration_from_string(std::string const& duration_string) {
 	std::vector<unsigned int> timings = stringToUIntVec(duration_string, ':');
 	std::chrono::duration<double> result;
 
@@ -382,7 +392,8 @@ std::chrono::duration<double> duration_from_string(const std::string& duration_s
 /**
  * Converts the current time to a string
  */
-std::string currentTimeAsString() {
+std::string
+currentTimeAsString() {
 #if BOOST_COMP_GNUC && (BOOST_COMP_GNUC < BOOST_VERSION_NUMBER(5,0,0))
 	return std::string("Dummy (g++ < 5.0 does not support put_time)");
 #else
@@ -397,7 +408,8 @@ std::string currentTimeAsString() {
 /**
  * Returns the number of milliseconds since 1.1.1970
  */
-std::string getMSSince1970() {
+std::string
+getMSSince1970() {
 	std::chrono::time_point<std::chrono::system_clock> p1; // 1970
 	std::chrono::time_point<std::chrono::system_clock> p2 = std::chrono::system_clock::now();
 	std::chrono::milliseconds ms_since_1970 = std::chrono::duration_cast<std::chrono::milliseconds>(p2 - p1);
@@ -408,7 +420,8 @@ std::string getMSSince1970() {
 /**
  * Converts a std::chrono::high_resolution_clock::time_point into an arithmetic number
  */
-std::chrono::milliseconds::rep time_point_to_milliseconds(const std::chrono::high_resolution_clock::time_point& val) {
+std::chrono::milliseconds::rep
+time_point_to_milliseconds(std::chrono::high_resolution_clock::time_point const& val) {
 	return std::chrono::duration_cast<std::chrono::milliseconds>(val.time_since_epoch()).count();
 }
 
@@ -416,7 +429,8 @@ std::chrono::milliseconds::rep time_point_to_milliseconds(const std::chrono::hig
 /**
  * Converts an arithmetic number into a std::chrono::high_resolution_clock::time_point
  */
-std::chrono::high_resolution_clock::time_point milliseconds_to_time_point(const std::chrono::milliseconds::rep& val) {
+std::chrono::high_resolution_clock::time_point
+milliseconds_to_time_point(std::chrono::milliseconds::rep const& val) {
 	return std::chrono::high_resolution_clock::time_point(std::chrono::milliseconds(val));
 }
 
@@ -425,7 +439,8 @@ std::chrono::high_resolution_clock::time_point milliseconds_to_time_point(const 
  * Raise an exception if a given define wasn't set. "F" stands for "function",
  * "D" for "define".
  */
-void condnotset(const std::string &F, const std::string &D) {
+void
+condnotset(std::string const &F, std::string const &D) {
 	std::ostringstream error;
 	error
 		<< std::endl
