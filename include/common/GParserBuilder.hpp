@@ -128,27 +128,27 @@ public:
 	 /**
 	  * The standard constructor
 	  */
-	 explicit GOneTimeRefParameterT(const T &def = T(0))
+	 explicit GOneTimeRefParameterT(T const& def = T(0))
 		 : m_parm(def)
-			, m_parm_dummy(def)
-			, m_parm_set(false)
+		 , m_parm_dummy(def)
+		 , m_parm_set(false)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * The copy constructor
 	  */
-	 GOneTimeRefParameterT(const GOneTimeRefParameterT<T> &cp)
+	 GOneTimeRefParameterT(GOneTimeRefParameterT<T> const& cp)
 		 : m_parm(cp.m_parm)
-			, m_parm_dummy(cp.m_parm_dummy)
-			, m_parm_set(cp.m_parm_set)
+		 , m_parm_dummy(cp.m_parm_dummy)
+		 , m_parm_set(cp.m_parm_set)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * Assignment of another object of this type
 	  */
-	 GOneTimeRefParameterT<T> &operator=(const GOneTimeRefParameterT<T> &cp) {
+	 GOneTimeRefParameterT<T> &operator=(GOneTimeRefParameterT<T> const& cp) {
 		 m_parm = cp.m_parm;
 		 m_parm_dummy = cp.m_parm_dummy;
 		 m_parm_set = cp.m_parm_set;
@@ -198,7 +198,7 @@ public:
 	 /**
 	  * Allows to explicitly set the value of the parameter
 	  */
-	 void setValue(const T &parm) {
+	 void setValue(T const & parm) {
 		 m_parm = parm;
 		 m_parm_set = true;
 	 }
@@ -207,7 +207,7 @@ public:
 	 /**
 	  * Explicit assignment of a T value
 	  */
-	 void operator=(const T &parm) {
+	 void operator=(T const & parm) {
 		 this->setValue(parm);
 	 }
 
@@ -280,18 +280,25 @@ class GParsableI {
 public:
 	 /** @brief A constructor for individual items */
 	 G_API_COMMON GParsableI(
-		 const std::string &
-		 , const std::string &
+	 	 std::string const &
+		 , std::string const &
 	 );
 
 	 /** @brief A constructor for vectors */
 	 G_API_COMMON GParsableI(
-		 const std::vector<std::string> &
-		 , const std::vector<std::string> &
+	 	 std::vector<std::string> const &
+		 , std::vector<std::string> const &
 	 );
 
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GParsableI() = default;
+
+	 // Prevent copying, moving and default construction
+	 GParsableI() = delete;
+	 GParsableI(GParsableI const &) = delete;
+	 GParsableI(GParsableI&&) = delete;
+	 GParsableI& operator=(GParsableI const&) = delete;
+	 GParsableI& operator=(GParsableI&&) = delete;
 
 	 /** @brief Retrieves the option name at a given position */
 	 G_API_COMMON std::string optionName(std::size_t = 0) const;
@@ -307,7 +314,7 @@ public:
 	  * Create a std::vector<T> from a single element
 	  */
 	 template<typename T>
-	 static std::vector<T> makeVector(const T &item) {
+	 static std::vector<T> makeVector(T const &item) {
 		 std::vector<T> result;
 		 result.push_back(item);
 		 return result;
@@ -318,7 +325,7 @@ public:
 	  * Create a std::vector<T> from two elements
 	  */
 	 template<typename T>
-	 static std::vector<T> makeVector(const T &item1, const T &item2) {
+	 static std::vector<T> makeVector(T const &item1, T const & item2) {
 		 std::vector<T> result;
 		 result.push_back(item1);
 		 result.push_back(item2);
@@ -331,7 +338,7 @@ public:
 	  * and will then be added to the current comment_ entry.
 	  */
 	 template<typename T>
-	 GParsableI &operator<<(const T &t) {
+	 GParsableI &operator<<(T const &t) {
 		 std::ostringstream oss;
 		 oss << t;
 		 m_comment.at(m_cl) += oss.str();
@@ -346,24 +353,17 @@ public:
 	 /** @brief Needed for std::ostringstream */
 	 G_API_COMMON GParsableI &operator<<(std::ios_base &( *val )(std::ios_base &));
 	 /** @brief Allows to indicate the current comment level */
-	 G_API_COMMON GParsableI &operator<<(const commentLevel &);
+	 G_API_COMMON GParsableI &operator<<(commentLevel const &);
 	 /** @brief Allows to switch to the next comment level */
-	 G_API_COMMON GParsableI &operator<<(const nextComment &);
+	 G_API_COMMON GParsableI &operator<<(nextComment const &);
 
 protected:
 	 /***************************************************************************/
 	 /** @brief Splits a comment into sub-tokens */
-	 G_API_COMMON std::vector<std::string> splitComment(const std::string &) const;
+	 G_API_COMMON std::vector<std::string> splitComment(std::string const &) const;
 
 private:
 	 /***************************************************************************/
-	 // Prevent copying, moving and default construction
-	 GParsableI() = delete;
-	 GParsableI(const GParsableI&) = delete;
-	 GParsableI(const GParsableI&&) = delete;
-	 GParsableI& operator=(const GParsableI&) = delete;
-	 GParsableI& operator=(const GParsableI&&) = delete;
-
 	 std::vector<std::string> m_option_name; ///< The name of this parameter
 	 std::vector<std::string> m_comment; ///< A comment assigned to this parameter
 
@@ -386,42 +386,45 @@ class GFileParsableI : public GParsableI
 public:
 	 /** @brief A constructor for individual items */
 	 G_API_COMMON GFileParsableI(
-		 const std::string &
-		 , const std::string &
-		 , const bool &
+	 	 std::string const &
+		 , std::string const &
+		 , bool
 	 );
 	 /** @brief A constructor for vectors */
 	 G_API_COMMON GFileParsableI(
-		 const std::vector<std::string> &
-		 , const std::vector<std::string> &
-		 , const bool &
+	 	 std::vector<std::string> const &
+		 , std::vector<std::string> const &
+		 , bool
 	 );
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GFileParsableI();
+	 G_API_COMMON ~GFileParsableI() override = default;
 
-	 /** @brief Executes a stored call-back function */
-	 virtual G_API_COMMON void executeCallBackFunction() = 0;
+	 // Prevent copying, moving and default construction
+	 GFileParsableI() = delete;
+	 GFileParsableI(GFileParsableI const &) = delete;
+	 GFileParsableI(GFileParsableI &&) = delete;
+	 GFileParsableI& operator=(GFileParsableI const &) = delete;
+	 GFileParsableI& operator=(GFileParsableI&&) = delete;
 
 	 /** @brief Checks whether this is an essential variable at a given position */
 	 G_API_COMMON bool isEssential() const;
 
-protected:
-	 /***************************************************************************/
-	 /** @brief Loads data from a property_tree object */
-	 virtual void load(const boost::property_tree::ptree &) = 0;
-
-	 /** @brief Saves data to a property tree object */
-	 virtual void save(boost::property_tree::ptree &) const = 0;
+	 /** @brief Executes a stored callbacl function */
+	 G_API_COMMON void executeCallBackFunction();
 
 private:
 	 /***************************************************************************/
-	 // Prevent copying, moving and default construction
-	 GFileParsableI() = delete;
-	 GFileParsableI(const GFileParsableI&) = delete;
-	 GFileParsableI(const GFileParsableI&&) = delete;
-	 GFileParsableI& operator=(const GFileParsableI&) = delete;
-	 GFileParsableI& operator=(const GFileParsableI&&) = delete;
+	 /** @brief Loads data from a property_tree object */
+	 virtual G_API_COMMON void load_from(boost::property_tree::ptree const &) = 0;
+
+	 /** @brief Saves data to a property tree object */
+	 virtual G_API_COMMON void save_to(boost::property_tree::ptree &) const = 0;
+
+	 /** @brief Executes a stored call-back function */
+	 virtual G_API_COMMON void executeCallBackFunction_() = 0;
+
+	 /***************************************************************************/
 
 	 bool m_is_essential; ///< Indicates whether this is an essential variable
 };
@@ -442,33 +445,32 @@ class GCLParsableI
 public:
 	 /** @brief A constructor for individual items */
 	 G_API_COMMON GCLParsableI(
-		 const std::string &
-		 , const std::string &
+	 	 std::string const &
+		 , std::string const &
 	 );
 	 /** @brief A constructor for vectors */
 	 G_API_COMMON GCLParsableI(
-		 const std::vector<std::string> &
-		 , const std::vector<std::string> &
+	 	 std::vector<std::string> const &
+		 , std::vector<std::string> const &
 	 );
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GCLParsableI();
+	 G_API_COMMON ~GCLParsableI() override = default;
 
-protected:
-	 /** @brief Saves data to a property tree object */
-	 virtual void save(boost::program_options::options_description &) const = 0;
-
-	 /** @brief Returns the content of this object as a std::string */
-	 virtual std::string content() const = 0;
-
-private:
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GCLParsableI() = delete;
-	 GCLParsableI(const GCLParsableI&) = delete;
-	 GCLParsableI(const GCLParsableI&&) = delete;
-	 GCLParsableI& operator=(const GCLParsableI&) = delete;
-	 GCLParsableI& operator=(const GCLParsableI&&) = delete;
+	 GCLParsableI(GCLParsableI const&) = delete;
+	 GCLParsableI(GCLParsableI&&) = delete;
+	 GCLParsableI& operator=(GCLParsableI const&) = delete;
+	 GCLParsableI& operator=(GCLParsableI&&) = delete;
+
+protected:
+	 /** @brief Saves data to a property tree object */
+	 virtual void save_to(boost::program_options::options_description &) const = 0;
+
+	 /** @brief Returns the content of this object as a std::string */
+	 virtual std::string content() const = 0;
 };
 
 /******************************************************************************/
@@ -481,7 +483,8 @@ private:
  */
 template<typename parameter_type>
 struct GSingleParmT
-	: public GFileParsableI {
+	: public GFileParsableI
+{
 	 // We want GParserBuilder to be able to call the reset function
 	 friend class GParserBuilder;
 
@@ -502,7 +505,15 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GSingleParmT() { /* nothing */ }
+	 ~GSingleParmT() override = default;
+
+	 /***************************************************************************/
+	 // Prevent copying, moving and default construction
+	 GSingleParmT() = delete;
+	 GSingleParmT(GSingleParmT<parameter_type> const&) = delete;
+	 GSingleParmT(GSingleParmT<parameter_type>&&) = delete;
+	 GSingleParmT<parameter_type>& operator=(GSingleParmT<parameter_type> const&) = delete;
+	 GSingleParmT<parameter_type>& operator=(GSingleParmT<parameter_type>&&) = delete;
 
 protected:
 	 /***************************************************************************/
@@ -512,7 +523,7 @@ protected:
 	  * as well. The reason is that configuration files will otherwise contain
 	  * the "old" par_-value.
 	  */
-	 void resetDefault(const parameter_type &def_val) {
+	 void resetDefault(parameter_type const & def_val) {
 		 m_def_val = def_val;
 		 m_par = def_val;
 	 }
@@ -523,12 +534,11 @@ protected:
 
 private:
 	 /***************************************************************************/
-	 // Prevent copying, moving and default construction
-	 GSingleParmT() = delete;
-	 GSingleParmT(const GSingleParmT<parameter_type>&) = delete;
-	 GSingleParmT(const GSingleParmT<parameter_type>&&) = delete;
-	 GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&) = delete;
-	 GSingleParmT<parameter_type>& operator=(const GSingleParmT<parameter_type>&&) = delete;
+	 /** @brief Loads data from a property_tree object */
+	 virtual void load_from(boost::property_tree::ptree const &) = 0;
+
+	 /** @brief Saves data to a property tree object */
+	 virtual void save_to(boost::property_tree::ptree &) const = 0;
 };
 
 /******************************************************************************/
@@ -540,7 +550,8 @@ private:
  */
 template<typename parameter_type>
 struct GFileSingleParsableParameterT
-	: public GSingleParmT<parameter_type> {
+	: public GSingleParmT<parameter_type>
+{
 	 // We want GParserBuilder to be able to call our load- and save functions
 	 friend class GParserBuilder;
 
@@ -555,9 +566,8 @@ public:
 		 , const bool &isEssentialVar
 		 , const parameter_type &def_val
 	 )
-		 : GSingleParmT<parameter_type>(
-		 optionNameVar, commentVar, isEssentialVar, def_val
-	 ) { /* nothing */ }
+		 : GSingleParmT<parameter_type>(optionNameVar, commentVar, isEssentialVar, def_val)
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -575,24 +585,15 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFileSingleParsableParameterT() { /* nothing */ }
+	 ~GFileSingleParsableParameterT() override = default;
 
 	 /***************************************************************************/
-	 /**
-	  * Executes a stored call-back function
-	  */
-	 virtual void executeCallBackFunction() {
-		 if (not m_call_back_func) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GSingleParsableParameter::executeCallBackFunction(): Error" << std::endl
-					 << "Tried to execute call-back function without a stored function" << std::endl
-			 );
-		 }
-
-		 // Execute the function
-		 m_call_back_func(GSingleParmT<parameter_type>::m_par);
-	 }
+	 // Prevent copying, moving and default construction
+	 GFileSingleParsableParameterT() = delete;
+	 GFileSingleParsableParameterT(GFileSingleParsableParameterT<parameter_type> const&) = delete;
+	 GFileSingleParsableParameterT(GFileSingleParsableParameterT<parameter_type>&&) = delete;
+	 GFileSingleParsableParameterT<parameter_type>& operator=(GFileSingleParsableParameterT<parameter_type> const&) = delete;
+	 GFileSingleParsableParameterT<parameter_type>& operator=(GFileSingleParsableParameterT<parameter_type>&&) = delete;
 
 	 /***************************************************************************/
 	 /**
@@ -612,14 +613,14 @@ public:
 		 m_call_back_func = callBack;
 	 }
 
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Loads data from a property_tree object
 	  *
 	  * @param pt The object from which data should be loaded
 	  */
-	 virtual void load(const boost::property_tree::ptree &pt) {
+	 void load_from(boost::property_tree::ptree const & pt) override {
 		 GSingleParmT<parameter_type>::m_par = pt.get((GParsableI::optionName(0) + ".value").c_str(),
 			 GSingleParmT<parameter_type>::m_def_val);
 	 }
@@ -630,13 +631,13 @@ protected:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-	 virtual void save(boost::property_tree::ptree &pt) const {
+	 virtual void save_to(boost::property_tree::ptree &pt) const override {
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFileSingleParsableParameterT<>::save(): Error!" << std::endl
+						 << "In GFileSingleParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
 				 );
 			 }
@@ -654,14 +655,25 @@ protected:
 		 pt.put((GParsableI::optionName(0) + ".value").c_str(), GSingleParmT<parameter_type>::m_par);
 	 }
 
-private:
+
 	 /***************************************************************************/
-	 // Prevent copying, moving and default construction
-	 GFileSingleParsableParameterT() = delete;
-	 GFileSingleParsableParameterT(const GFileSingleParsableParameterT<parameter_type>&) = delete;
-	 GFileSingleParsableParameterT(const GFileSingleParsableParameterT<parameter_type>&&) = delete;
-	 GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&) = delete;
-	 GFileSingleParsableParameterT<parameter_type>& operator=(const GFileSingleParsableParameterT<parameter_type>&&) = delete;
+	 /**
+	  * Executes a stored call-back function
+	  */
+	 void executeCallBackFunction_() override {
+		 if (not m_call_back_func) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GSingleParsableParameter::executeCallBackFunction_(): Error" << std::endl
+					 << "Tried to execute call-back function without a stored function" << std::endl
+			 );
+		 }
+
+		 // Execute the function
+		 m_call_back_func(GSingleParmT<parameter_type>::m_par);
+	 }
+
+	 /***************************************************************************/
 
 	 std::function<void(parameter_type)> m_call_back_func; ///< Holds the call-back function
 };
@@ -709,24 +721,24 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFileReferenceParsableParameterT() { /* nothing */ }
+	 ~GFileReferenceParsableParameterT() override = default;
 
 	 /***************************************************************************/
-	 /**
-	  * Assigns the stored parameter to the reference
-	  */
-	 virtual void executeCallBackFunction() {
-		 m_stored_reference = GSingleParmT<parameter_type>::m_par;
-	 }
+	 // Prevent copying, moving and default construction
+	 GFileReferenceParsableParameterT() = delete;
+	 GFileReferenceParsableParameterT(GFileReferenceParsableParameterT<parameter_type> const&) = delete;
+	 GFileReferenceParsableParameterT(GFileReferenceParsableParameterT<parameter_type>&&) = delete;
+	 GFileReferenceParsableParameterT<parameter_type>& operator=(GFileReferenceParsableParameterT<parameter_type> const&) = delete;
+	 GFileReferenceParsableParameterT<parameter_type>& operator=(GFileReferenceParsableParameterT<parameter_type>&&) = delete;
 
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Loads data from a property_tree object
 	  *
 	  * @param pt The object from which data should be loaded
 	  */
-	 virtual void load(const boost::property_tree::ptree &pt) {
+	 void load_from(boost::property_tree::ptree const & pt) override {
 		 GSingleParmT<parameter_type>::m_par = pt.get((GParsableI::optionName(0) + ".value").c_str(),
 			 GSingleParmT<parameter_type>::m_def_val);
 	 }
@@ -737,13 +749,13 @@ protected:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-	 virtual void save(boost::property_tree::ptree &pt) const {
+	 void save_to(boost::property_tree::ptree &pt) const override {
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFileReferenceParsableParameterT<>::save(): Error!" << std::endl
+						 << "In GFileReferenceParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
 				 );
 			 }
@@ -761,14 +773,15 @@ protected:
 		 pt.put((GParsableI::optionName(0) + ".value").c_str(), GSingleParmT<parameter_type>::m_par);
 	 }
 
-private:
 	 /***************************************************************************/
-	 // Prevent copying, moving and default construction
-	 GFileReferenceParsableParameterT() = delete;
-	 GFileReferenceParsableParameterT(const GFileReferenceParsableParameterT<parameter_type>&) = delete;
-	 GFileReferenceParsableParameterT(const GFileReferenceParsableParameterT<parameter_type>&&) = delete;
-	 GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&) = delete;
-	 GFileReferenceParsableParameterT<parameter_type>& operator=(const GFileReferenceParsableParameterT<parameter_type>&&) = delete;
+	 /**
+	  * Assigns the stored parameter to the reference
+	  */
+	 void executeCallBackFunction_() override {
+		 m_stored_reference = GSingleParmT<parameter_type>::m_par;
+	 }
+
+	 /***************************************************************************/
 
 	 parameter_type &m_stored_reference; ///< Holds the reference to which the parsed value will be assigned
 };
@@ -783,7 +796,8 @@ private:
  */
 template<typename par_type0, typename par_type1>
 struct GCombinedParT
-	: public GFileParsableI {
+	: public GFileParsableI
+{
 	 // We want GParserBuilder to be able to call the reset function
 	 friend class GParserBuilder;
 
@@ -807,15 +821,15 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GCombinedParT() = default;
+	 ~GCombinedParT() override = default;
 
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GCombinedParT() = delete;
-	 GCombinedParT(const GCombinedParT<par_type0, par_type1>&) = delete;
-	 GCombinedParT(const GCombinedParT<par_type0, par_type1>&&) = delete;
-	 GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&) = delete;
-	 GCombinedParT<par_type0, par_type1>& operator=(const GCombinedParT<par_type0, par_type1>&&) = delete;
+	 GCombinedParT(GCombinedParT<par_type0, par_type1> const&) = delete;
+	 GCombinedParT(GCombinedParT<par_type0, par_type1>&&) = delete;
+	 GCombinedParT<par_type0, par_type1>& operator=(GCombinedParT<par_type0, par_type1> const&) = delete;
+	 GCombinedParT<par_type0, par_type1>& operator=(GCombinedParT<par_type0, par_type1>&&) = delete;
 
 protected:
 	 /***************************************************************************/
@@ -825,7 +839,10 @@ protected:
 	  * be overwritten as well. The reason is that configuration files will otherwise
 	  * contain the "old" par_-value.
 	  */
-	 void resetDefault(const par_type0 &def_val0, const par_type1 &def_val1) {
+	 void resetDefault(
+	 	par_type0 const & def_val0
+	 	, par_type1 const & def_val1
+	 ) {
 		 m_def_val0 = def_val0;
 		 m_def_val1 = def_val1;
 		 m_par0 = def_val0;
@@ -837,6 +854,14 @@ protected:
 	 par_type1 m_par1, m_def_val1; ///< Holds the individual parameters and default values 1
 
 	 std::string combined_label_; ///< Holds a path label for the combined JSON path
+
+private:
+	 /***************************************************************************/
+	 /** @brief Loads data from a property_tree object */
+	 virtual void load_from(boost::property_tree::ptree const &) = 0;
+
+	 /** @brief Saves data to a property tree object */
+	 virtual void save_to(boost::property_tree::ptree &) const = 0;
 };
 
 /******************************************************************************/
@@ -883,32 +908,15 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFileCombinedParsableParameterT() = default;
+	 ~GFileCombinedParsableParameterT() override = default;
 
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GFileCombinedParsableParameterT() = delete;
-	 GFileCombinedParsableParameterT(const GFileCombinedParsableParameterT<par_type0, par_type1>&) = delete;
-	 GFileCombinedParsableParameterT(const GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
-	 GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&) = delete;
-	 GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(const GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
-
-	 /***************************************************************************/
-	 /**
-	  * Executes a stored call-back function
-	  */
-	 virtual void executeCallBackFunction() {
-		 if (not m_call_back_func) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GFileCombinedParsableParameterT::executeCallBackFunction(): Error" << std::endl
-					 << "Tried to execute call-back function without a stored function" << std::endl
-			 );
-		 }
-
-		 // Execute the function
-		 m_call_back_func(GCombinedParT<par_type0, par_type1>::m_par0, GCombinedParT<par_type0, par_type1>::m_par1);
-	 }
+	 GFileCombinedParsableParameterT(GFileCombinedParsableParameterT<par_type0, par_type1> const&) = delete;
+	 GFileCombinedParsableParameterT(GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
+	 GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(GFileCombinedParsableParameterT<par_type0, par_type1> const&) = delete;
+	 GFileCombinedParsableParameterT<par_type0, par_type1>& operator=(GFileCombinedParsableParameterT<par_type0, par_type1>&&) = delete;
 
 	 /***************************************************************************/
 	 /**
@@ -928,14 +936,14 @@ public:
 		 m_call_back_func = callBack;
 	 }
 
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Loads data from a property_tree object
 	  *
 	  * @param pt The object from which data should be loaded
 	  */
-	 virtual void load(const boost::property_tree::ptree &pt) {
+	 void load_from(boost::property_tree::ptree const &pt) override {
 		 GCombinedParT<par_type0, par_type1>::m_par0 = pt.get(
 			 (GCombinedParT<par_type0, par_type1>::combined_label_ + "." + GParsableI::optionName(0) + ".value").c_str(),
 			 GCombinedParT<par_type0, par_type1>::m_def_val0);
@@ -950,13 +958,13 @@ protected:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-	 virtual void save(boost::property_tree::ptree &pt) const {
+	 void save_to(boost::property_tree::ptree &pt) const override {
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 2) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFileCombinedParsableParameterT<>::save(): Error!" << std::endl
+						 << "In GFileCombinedParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 2 comments but got " << this->numberOfComments() << std::endl
 				 );
 			 }
@@ -996,7 +1004,25 @@ protected:
 			 GCombinedParT<par_type0, par_type1>::m_par1);
 	 }
 
-private:
+	 /***************************************************************************/
+	 /**
+	  * Executes a stored call-back function
+	  */
+	 void executeCallBackFunction_() override {
+		 if (not m_call_back_func) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GFileCombinedParsableParameterT::executeCallBackFunction_(): Error" << std::endl
+					 << "Tried to execute call-back function without a stored function" << std::endl
+			 );
+		 }
+
+		 // Execute the function
+		 m_call_back_func(GCombinedParT<par_type0, par_type1>::m_par0, GCombinedParT<par_type0, par_type1>::m_par1);
+	 }
+
+	 /***************************************************************************/
+
 	 std::function<void(par_type0, par_type1)> m_call_back_func; ///< Holds the call-back function
 };
 
@@ -1010,7 +1036,8 @@ private:
  */
 template<typename parameter_type>
 struct GVectorParT
-	: public GFileParsableI {
+	: public GFileParsableI
+{
 	 // We want GParserBuilder to be able to call the reset function
 	 friend class GParserBuilder;
 
@@ -1031,28 +1058,36 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GVectorParT() = default;
+	 ~GVectorParT() override = default;
 
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GVectorParT() = delete;
-	 GVectorParT(const GVectorParT<parameter_type>&) = delete;
-	 GVectorParT(const GVectorParT<parameter_type>&&) = delete;
-	 GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&) = delete;
-	 GVectorParT<parameter_type>& operator=(const GVectorParT<parameter_type>&&) = delete;
+	 GVectorParT(GVectorParT<parameter_type> const&) = delete;
+	 GVectorParT(GVectorParT<parameter_type>&&) = delete;
+	 GVectorParT<parameter_type>& operator=(GVectorParT<parameter_type> const&) = delete;
+	 GVectorParT<parameter_type>& operator=(GVectorParT<parameter_type>&&) = delete;
 
 protected:
 	 /***************************************************************************/
 	 /**
 	  * Allows derived classes to reset the default value.
 	  */
-	 void resetDefault(const std::vector<parameter_type> &def_val) {
+	 void resetDefault(std::vector<parameter_type> const & def_val) {
 		 m_def_val_vec = def_val;
 	 }
 
 	 /***************************************************************************/
 	 std::vector<parameter_type> m_def_val_vec; ///< Holds default values
 	 std::vector<parameter_type> m_par_vec; ///< Holds the parsed parameters
+
+private:
+	 /***************************************************************************/
+	 /** @brief Loads data from a property_tree object */
+	 virtual void load_from(boost::property_tree::ptree const &) = 0;
+
+	 /** @brief Saves data to a property tree object */
+	 virtual void save_to(boost::property_tree::ptree &) const = 0;
 };
 
 /******************************************************************************/
@@ -1098,31 +1133,14 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFileVectorParsableParameterT() = default;
+	 ~GFileVectorParsableParameterT() override = default;
 
 	 // Prevent copying, moving and default construction
 	 GFileVectorParsableParameterT() = delete;
-	 GFileVectorParsableParameterT(const GFileVectorParsableParameterT<parameter_type>&) = delete;
-	 GFileVectorParsableParameterT(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
-	 GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&) = delete;
-	 GFileVectorParsableParameterT<parameter_type>& operator=(const GFileVectorParsableParameterT<parameter_type>&&) = delete;
-
-	 /***************************************************************************/
-	 /**
-	  * Executes a stored call-back function
-	  */
-	 virtual void executeCallBackFunction() {
-		 if (not m_call_back_func) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GFileVectorParsableParameterT::executeCallBackFunction(): Error" << std::endl
-					 << "Tried to execute call-back function without a stored function" << std::endl
-			 );
-		 }
-
-		 // Execute the function
-		 m_call_back_func(GVectorParT<parameter_type>::m_par_vec);
-	 }
+	 GFileVectorParsableParameterT(GFileVectorParsableParameterT<parameter_type> const&) = delete;
+	 GFileVectorParsableParameterT(GFileVectorParsableParameterT<parameter_type>&&) = delete;
+	 GFileVectorParsableParameterT<parameter_type>& operator=(GFileVectorParsableParameterT<parameter_type> const&) = delete;
+	 GFileVectorParsableParameterT<parameter_type>& operator=(GFileVectorParsableParameterT<parameter_type>&&) = delete;
 
 	 /***************************************************************************/
 	 /**
@@ -1142,14 +1160,14 @@ public:
 		 m_call_back_func = callBack;
 	 }
 
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Loads data from a property_tree object
 	  *
 	  * @param pt The object from which data should be loaded
 	  */
-	 virtual void load(const boost::property_tree::ptree &pt) {
+	 void load_from(boost::property_tree::ptree const &pt) override {
 		 using namespace boost::property_tree;
 
 		 // Make sure the recipient vector is empty
@@ -1169,13 +1187,13 @@ protected:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-	 virtual void save(boost::property_tree::ptree &pt) const {
+	 void save_to(boost::property_tree::ptree &pt) const override {
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFileVectorParsableParameterT<>::save(): Error!" << std::endl
+						 << "In GFileVectorParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
 				 );
 			 }
@@ -1193,7 +1211,7 @@ protected:
 		 if (GVectorParT<parameter_type>::m_def_val_vec.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GVectorParsableParameter::save(): Error!" << std::endl
+					 << "In GVectorParsableParameter::save_to(): Error!" << std::endl
 					 << "You need to provide at least one default value" << std::endl
 			 );
 		 }
@@ -1208,7 +1226,26 @@ protected:
 		 }
 	 }
 
-private:
+
+	 /***************************************************************************/
+	 /**
+	  * Executes a stored call-back function
+	  */
+	 void executeCallBackFunction_() override {
+		 if (not m_call_back_func) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GFileVectorParsableParameterT::executeCallBackFunction_(): Error" << std::endl
+					 << "Tried to execute call-back function without a stored function" << std::endl
+			 );
+		 }
+
+		 // Execute the function
+		 m_call_back_func(GVectorParT<parameter_type>::m_par_vec);
+	 }
+
+	 /***************************************************************************/
+
 	 std::function<void(std::vector<parameter_type>)> m_call_back_func; ///< Holds the call-back function
 };
 
@@ -1256,33 +1293,25 @@ public:
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GFileVectorReferenceParsableParameterT() = delete;
-	 GFileVectorReferenceParsableParameterT(const GFileVectorReferenceParsableParameterT<parameter_type>&) = delete;
-	 GFileVectorReferenceParsableParameterT(const GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
-	 GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&) = delete;
-	 GFileVectorReferenceParsableParameterT<parameter_type>& operator=(const GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
+	 GFileVectorReferenceParsableParameterT(GFileVectorReferenceParsableParameterT<parameter_type> const&) = delete;
+	 GFileVectorReferenceParsableParameterT(GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
+	 GFileVectorReferenceParsableParameterT<parameter_type>& operator=(GFileVectorReferenceParsableParameterT<parameter_type> const&) = delete;
+	 GFileVectorReferenceParsableParameterT<parameter_type>& operator=(GFileVectorReferenceParsableParameterT<parameter_type>&&) = delete;
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFileVectorReferenceParsableParameterT() = default;
+	 ~GFileVectorReferenceParsableParameterT() override = default;
 
-	 /***************************************************************************/
-	 /**
-	  * Assigns the parsed parameters to the reference vector
-	  */
-	 virtual void executeCallBackFunction() {
-		 m_stored_reference = GVectorParT<parameter_type>::m_par_vec;
-	 }
-
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Loads data from a property_tree object
 	  *
 	  * @param pt The object from which data should be loaded
 	  */
-	 virtual void load(const boost::property_tree::ptree &pt) {
+	 void load_from(boost::property_tree::ptree const & pt) override {
 		 using namespace boost::property_tree;
 
 		 // Make sure the recipient vector is empty
@@ -1302,13 +1331,13 @@ protected:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-	 virtual void save(boost::property_tree::ptree &pt) const {
+	 void save_to(boost::property_tree::ptree &pt) const override {
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFileVectorReferenceParsableParameterT<>::save(): Error!" << std::endl
+						 << "In GFileVectorReferenceParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
 				 );
 			 }
@@ -1326,7 +1355,7 @@ protected:
 		 if (GVectorParT<parameter_type>::m_def_val_vec.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GFileVectorReferenceParsableParameterT::save(): Error!" << std::endl
+					 << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << std::endl
 					 << "You need to provide at least one default value" << std::endl
 			 );
 		 }
@@ -1342,7 +1371,16 @@ protected:
 		 }
 	 }
 
-private:
+	 /***************************************************************************/
+	 /**
+	  * Assigns the parsed parameters to the reference vector
+	  */
+	 void executeCallBackFunction_() override {
+		 m_stored_reference = GVectorParT<parameter_type>::m_par_vec;
+	 }
+
+	 /***************************************************************************/
+
 	 std::vector<parameter_type> &m_stored_reference; ///< Holds a reference to the target vector
 };
 
@@ -1378,15 +1416,15 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GArrayParT() = default;
+	 ~GArrayParT() override = default;
 
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GArrayParT() = delete;
-	 GArrayParT(const GArrayParT<parameter_type, N>&) = delete;
-	 GArrayParT(const GArrayParT<parameter_type, N>&&) = delete;
-	 GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&) = delete;
-	 GArrayParT<parameter_type, N>& operator=(const GArrayParT<parameter_type, N>&&) = delete;
+	 GArrayParT(GArrayParT<parameter_type, N> const&) = delete;
+	 GArrayParT(GArrayParT<parameter_type, N>&&) = delete;
+	 GArrayParT<parameter_type, N>& operator=(GArrayParT<parameter_type, N> const&) = delete;
+	 GArrayParT<parameter_type, N>& operator=(GArrayParT<parameter_type, N>&&) = delete;
 
 protected:
 	 /***************************************************************************/
@@ -1396,7 +1434,7 @@ protected:
 	  * as well. The reason is that configuration files will otherwise contain
 	  * the "old" par_-value.
 	  */
-	 void resetDefault(const std::array<parameter_type, N> &def_val_arr) {
+	 void resetDefault(std::array<parameter_type, N> const & def_val_arr) {
 		 m_def_val_arr = def_val_arr;
 		 m_par_arr = def_val_arr;
 	 }
@@ -1404,6 +1442,14 @@ protected:
 	 /***************************************************************************/
 	 std::array<parameter_type, N> m_def_val_arr; ///< Holds default values
 	 std::array<parameter_type, N> m_par_arr; ///< Holds the parsed parameters
+
+private:
+	 /***************************************************************************/
+	 /** @brief Loads data from a property_tree object */
+	 virtual void load_from(boost::property_tree::ptree const &) = 0;
+
+	 /** @brief Saves data to a property tree object */
+	 virtual void save_to(boost::property_tree::ptree &) const = 0;
 };
 
 /******************************************************************************/
@@ -1447,32 +1493,15 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFileArrayParsableParameterT() = default;
+	 ~GFileArrayParsableParameterT() override = default;
 
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GFileArrayParsableParameterT() = delete;
-	 GFileArrayParsableParameterT(const GFileArrayParsableParameterT<parameter_type, N>&) = delete;
-	 GFileArrayParsableParameterT(const GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
-	 GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&) = delete;
-	 GFileArrayParsableParameterT<parameter_type, N>& operator=(const GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
-
-	 /***************************************************************************/
-	 /**
-	  * Executes a stored call-back function
-	  */
-	 virtual void executeCallBackFunction() {
-		 if (not m_call_back_func) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GFileArrayParsableParameterT::executeCallBackFunction(): Error" << std::endl
-					 << "Tried to execute call-back function without a stored function" << std::endl
-			 );
-		 }
-
-		 // Execute the function
-		 m_call_back_func(GArrayParT<parameter_type, N>::m_par_arr);
-	 }
+	 GFileArrayParsableParameterT(GFileArrayParsableParameterT<parameter_type, N> const&) = delete;
+	 GFileArrayParsableParameterT(GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
+	 GFileArrayParsableParameterT<parameter_type, N>& operator=(GFileArrayParsableParameterT<parameter_type, N> const&) = delete;
+	 GFileArrayParsableParameterT<parameter_type, N>& operator=(GFileArrayParsableParameterT<parameter_type, N>&&) = delete;
 
 	 /***************************************************************************/
 	 /**
@@ -1492,14 +1521,14 @@ public:
 		 m_call_back_func = callBack;
 	 }
 
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Loads data from a property_tree object
 	  *
 	  * @param pt The object from which data should be loaded
 	  */
-	 virtual void load(const boost::property_tree::ptree &pt) {
+	 void load_from(boost::property_tree::ptree const &pt) override {
 		 using namespace boost::property_tree;
 
 		 // We are looping over two arrays here, so a range-based for is unfortunately no option
@@ -1519,13 +1548,13 @@ protected:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-	 virtual void save(boost::property_tree::ptree &pt) const {
+	 void save_to(boost::property_tree::ptree &pt) const override {
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFileArrayParsableParameterT<>::save(): Error!" << std::endl
+						 << "In GFileArrayParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
 				 );
 			 }
@@ -1543,7 +1572,7 @@ protected:
 		 if (GArrayParT<parameter_type, N>::m_def_val_arr.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GFileArrayParsableParameterT::save(): Error!" << std::endl
+					 << "In GFileArrayParsableParameterT::save_to(): Error!" << std::endl
 					 << "You need to provide at least one default value" << std::endl
 			 );
 		 }
@@ -1557,7 +1586,25 @@ protected:
 		 }
 	 }
 
-private:
+	 /***************************************************************************/
+	 /**
+	  * Executes a stored call-back function
+	  */
+	 void executeCallBackFunction_() override {
+		 if (not m_call_back_func) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG, time_and_place)
+					 << "In GFileArrayParsableParameterT::executeCallBackFunction_(): Error" << std::endl
+					 << "Tried to execute call-back function without a stored function" << std::endl
+			 );
+		 }
+
+		 // Execute the function
+		 m_call_back_func(GArrayParT<parameter_type, N>::m_par_arr);
+	 }
+
+	 /***************************************************************************/
+
 	 std::function<void(std::array<parameter_type, N>)> m_call_back_func; ///< Holds the call-back function
 };
 
@@ -1570,7 +1617,8 @@ private:
  */
 template<typename parameter_type, std::size_t N>
 class GFileArrayReferenceParsableParameterT
-	: public GArrayParT<parameter_type, N> {
+	: public GArrayParT<parameter_type, N>
+{
 	 // We want GParserBuilder to be able to call our load- and save functions
 	 friend class GParserBuilder;
 
@@ -1603,32 +1651,24 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFileArrayReferenceParsableParameterT() = default;
+	 ~GFileArrayReferenceParsableParameterT() override = default;
 
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GFileArrayReferenceParsableParameterT() = delete;
-	 GFileArrayReferenceParsableParameterT(const GFileArrayReferenceParsableParameterT<parameter_type, N>&) = delete;
-	 GFileArrayReferenceParsableParameterT(const GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
-	 GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&) = delete;
-	 GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(const GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
+	 GFileArrayReferenceParsableParameterT(GFileArrayReferenceParsableParameterT<parameter_type, N> const&) = delete;
+	 GFileArrayReferenceParsableParameterT(GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
+	 GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(GFileArrayReferenceParsableParameterT<parameter_type, N> const&) = delete;
+	 GFileArrayReferenceParsableParameterT<parameter_type, N>& operator=(GFileArrayReferenceParsableParameterT<parameter_type, N>&&) = delete;
 
-	 /***************************************************************************/
-	 /**
-	  * Assigns the parsed parameters to the reference vector
-	  */
-	 virtual void executeCallBackFunction() {
-		 m_stored_reference = GArrayParT<parameter_type, N>::m_par_arr;
-	 }
-
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Loads data from a property_tree object
 	  *
 	  * @param pt The object from which data should be loaded
 	  */
-	 virtual void load(const boost::property_tree::ptree &pt) {
+	 void load_from(boost::property_tree::ptree const & pt) override {
 		 using namespace boost::property_tree;
 
 		 for (std::size_t i = 0; i < GArrayParT<parameter_type, N>::m_par_arr.size(); i++) {
@@ -1645,13 +1685,13 @@ protected:
 	  *
 	  * @param pt The object to which data should be saved
 	  */
-	 virtual void save(boost::property_tree::ptree &pt) const {
+	 void save_to(boost::property_tree::ptree &pt) const override {
 		 // Check that we have the right number of comments
 		 if (this->hasComments()) {
 			 if (this->numberOfComments() != 1) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GFileArrayReferenceParsableParameterT<>::save(): Error!" << std::endl
+						 << "In GFileArrayReferenceParsableParameterT<>::save_to(): Error!" << std::endl
 						 << "Expected 0 or 1 comment but got " << this->numberOfComments() << std::endl
 				 );
 			 }
@@ -1670,7 +1710,7 @@ protected:
 		 if (GArrayParT<parameter_type, N>::m_def_val_arr.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GFileArrayReferenceParsableParameterT::save(): Error!" << std::endl
+					 << "In GFileArrayReferenceParsableParameterT::save_to(): Error!" << std::endl
 					 << "You need to provide at least one default value" << std::endl
 			 );
 		 }
@@ -1684,7 +1724,17 @@ protected:
 		 }
 	 }
 
-private:
+
+	 /***************************************************************************/
+	 /**
+	  * Assigns the parsed parameters to the reference vector
+	  */
+	 void executeCallBackFunction_() override {
+		 m_stored_reference = GArrayParT<parameter_type, N>::m_par_arr;
+	 }
+
+	 /***************************************************************************/
+
 	 std::array<parameter_type, N> &m_stored_reference; ///< Holds a reference to the target vector
 };
 
@@ -1696,7 +1746,8 @@ private:
  */
 template<typename parameter_type>
 class GCLReferenceParsableParameterT
-	: public GCLParsableI {
+	: public GCLParsableI
+{
 	 // We want GParserBuilder to be able to call our private functions
 	 friend class GParserBuilder;
 
@@ -1736,17 +1787,17 @@ public:
 	 /***************************************************************************/
 	 // Prevent copying, moving and default construction
 	 GCLReferenceParsableParameterT() = delete;
-	 GCLReferenceParsableParameterT(const GCLReferenceParsableParameterT<parameter_type>&) = delete;
-	 GCLReferenceParsableParameterT(const GCLReferenceParsableParameterT<parameter_type>&&) = delete;
-	 GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&) = delete;
-	 GCLReferenceParsableParameterT<parameter_type>& operator=(const GCLReferenceParsableParameterT<parameter_type>&&) = delete;
+	 GCLReferenceParsableParameterT(GCLReferenceParsableParameterT<parameter_type> const&) = delete;
+	 GCLReferenceParsableParameterT(GCLReferenceParsableParameterT<parameter_type>&&) = delete;
+	 GCLReferenceParsableParameterT<parameter_type>& operator=(GCLReferenceParsableParameterT<parameter_type> const&) = delete;
+	 GCLReferenceParsableParameterT<parameter_type>& operator=(GCLReferenceParsableParameterT<parameter_type>&&) = delete;
 
-protected:
+private:
 	 /***************************************************************************/
 	 /**
 	  * Saves data to a property tree object
 	  */
-	 virtual void save(boost::program_options::options_description &desc) const {
+	 virtual void save_to(boost::program_options::options_description &desc) const {
 		 namespace po = boost::program_options;
 		 if (GCL_IMPLICIT_ALLOWED == m_implicit_allowed) {
 			 desc.add_options()(
@@ -1773,7 +1824,8 @@ protected:
 		 return result.str();
 	 }
 
-private:
+	 /***************************************************************************/
+
 	 parameter_type &m_stored_reference; ///< Holds the reference to which the parsed value will be assigned
 	 parameter_type m_def_val; ///< Holds the default value
 	 bool m_implicit_allowed; ///< Indicates, whether implicit values (e.g. --server=true vs. --server) are allowed
@@ -1798,12 +1850,18 @@ public:
 	 G_API_COMMON GParserBuilder();
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GParserBuilder();
+	 virtual G_API_COMMON ~GParserBuilder() = default;
+
+	 // Prevent copying and moving
+	 GParserBuilder(GParserBuilder const&) = delete;
+	 GParserBuilder(GParserBuilder&&) = delete;
+	 GParserBuilder& operator=(GParserBuilder const&) = delete;
+	 GParserBuilder& operator=(GParserBuilder&&) = delete;
 
 	 /** @brief Tries to parse a given configuration file for a set of options */
-	 G_API_COMMON bool parseConfigFile(const std::string &);
+	 G_API_COMMON bool parseConfigFile(std::string const &);
 	 /** @brief Writes out a configuration file */
-	 G_API_COMMON void writeConfigFile(const std::string & = std::string(), const std::string & = "", bool = true) const;
+	 G_API_COMMON void writeConfigFile(std::string const & = std::string(), std::string const & = "", bool = true) const;
 	 /** @brief Provides information on the number of file configuration options stored in this class */
 	 G_API_COMMON std::size_t numberOfFileOptions() const;
 
@@ -1819,11 +1877,13 @@ public:
 	  * objects.
 	  */
 	 template<typename fileParsableDerivative>
-	 std::shared_ptr<fileParsableDerivative> file_at(const std::string &optionName) {
+	 std::shared_ptr<fileParsableDerivative> file_at(std::string const& optionName) {
 		 auto it = std::find_if(
 			 m_file_parameter_proxies.begin()
 			 , m_file_parameter_proxies.end()
-			 , findFileProxyByName(optionName)
+			 , [&](std::shared_ptr<GFileParsableI> const& candidate_ptr) {
+			 		return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 	}
 		 );
 		 if (it != m_file_parameter_proxies.end()) {
 			 return std::dynamic_pointer_cast<fileParsableDerivative>(*it);
@@ -1839,11 +1899,13 @@ public:
 	  * objects.
 	  */
 	 template<typename clParsableDerivative>
-	 std::shared_ptr <clParsableDerivative> cl_at(const std::string &optionName) {
+	 std::shared_ptr<clParsableDerivative> cl_at(std::string const& optionName) {
 		 auto it = std::find_if(
 			 m_cl_parameter_proxies.begin()
 			 , m_cl_parameter_proxies.end()
-			 , findCLProxyByName(optionName)
+			 , [&](std::shared_ptr<GCLParsableI> const& candidate_ptr) {
+			 		return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 	}
 		 );
 		 if (it != m_cl_parameter_proxies.end()) {
 			 return std::dynamic_pointer_cast<clParsableDerivative>(*it);
@@ -1871,7 +1933,9 @@ public:
 		 auto it = std::find_if(
 			 m_file_parameter_proxies.begin()
 			 , m_file_parameter_proxies.end()
-			 , findFileProxyByName(optionName)
+			 , [&](std::shared_ptr<GFileParsableI> const& candidate_ptr) {
+				 return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 }
 		 );
 		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
@@ -1882,7 +1946,7 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 std::shared_ptr <GFileSingleParsableParameterT<parameter_type>> singleParm_ptr;
+		 std::shared_ptr<GFileSingleParsableParameterT<parameter_type>> singleParm_ptr;
 
 		 if (comment.empty() || comment == "") {
 			 singleParm_ptr = std::shared_ptr<GFileSingleParsableParameterT<parameter_type>>(
@@ -1927,7 +1991,9 @@ public:
 		 auto it = std::find_if(
 			 m_file_parameter_proxies.begin()
 			 , m_file_parameter_proxies.end()
-			 , findFileProxyByName(optionName)
+			 , [&](std::shared_ptr<GFileParsableI> const& candidate_ptr) {
+				 return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 }
 		 );
 		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
@@ -1938,7 +2004,7 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 std::shared_ptr <GFileReferenceParsableParameterT<parameter_type>> refParm_ptr;
+		 std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>> refParm_ptr;
 
 		 if (comment.empty() || comment == "") {
 			 refParm_ptr = std::shared_ptr<GFileReferenceParsableParameterT<parameter_type>>(
@@ -1971,7 +2037,7 @@ public:
 		 const std::string &optionName, parameter_type def_val
 	 ) {
 		 // Retrieve the parameter object with this name
-		 std::shared_ptr <GSingleParmT<parameter_type>> parmObject
+		 std::shared_ptr<GSingleParmT<parameter_type>> parmObject
 			 = file_at<GSingleParmT<parameter_type>>(optionName);
 
 		 // Check that we have indeed received an item
@@ -2003,8 +2069,14 @@ public:
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
-		 std::vector<std::shared_ptr<GFileParsableI>>::iterator it;
-		 if((it=std::find_if(m_file_parameter_proxies.begin(), m_file_parameter_proxies.end(), findFileProxyByName(optionName1))) != m_file_parameter_proxies.end()) {
+		 auto it = std::find_if(
+		 	m_file_parameter_proxies.begin()
+		 	, m_file_parameter_proxies.end()
+			, [&](std::shared_ptr<GFileParsableI> const& candidate_ptr) {
+				 return (candidate_ptr->GParsableI::optionName(0) == optionName1);
+			 }
+		 );
+		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(combParm_ptr): Error!" << std::endl
@@ -2013,7 +2085,7 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 std::shared_ptr <GFileCombinedParsableParameterT<par_type1, par_type2>> combParm_ptr;
+		 std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>> combParm_ptr;
 
 		 if ((comment1.empty() || comment1 == "") && (comment2.empty() || comment2 == "")) {
 			 combParm_ptr = std::shared_ptr<GFileCombinedParsableParameterT<par_type1, par_type2>>(
@@ -2080,8 +2152,14 @@ public:
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
-		 std::vector<std::shared_ptr<GFileParsableI>>::iterator it;
-		 if((it=std::find_if(m_file_parameter_proxies.begin(), m_file_parameter_proxies.end(), findFileProxyByName(optionName))) != m_file_parameter_proxies.end()) {
+		 auto it = std::find_if(
+		 	m_file_parameter_proxies.begin()
+		 	, m_file_parameter_proxies.end()
+			, [&](std::shared_ptr<GFileParsableI> const& candidate_ptr) {
+				 return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 }
+		 );
+		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(vecParm_ptr): Error!" << std::endl
@@ -2090,7 +2168,7 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 std::shared_ptr <GFileVectorParsableParameterT<parameter_type>> vecParm_ptr;
+		 std::shared_ptr<GFileVectorParsableParameterT<parameter_type>> vecParm_ptr;
 
 		 if (comment.empty() || comment == "") {
 			 vecParm_ptr = std::shared_ptr<GFileVectorParsableParameterT<parameter_type>>(
@@ -2125,8 +2203,14 @@ public:
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
-		 std::vector<std::shared_ptr<GFileParsableI>>::iterator it;
-		 if((it=std::find_if(m_file_parameter_proxies.begin(), m_file_parameter_proxies.end(), findFileProxyByName(optionName))) != m_file_parameter_proxies.end()) {
+		 auto it = std::find_if(
+		 	m_file_parameter_proxies.begin()
+		 	, m_file_parameter_proxies.end()
+			, [&](std::shared_ptr<GFileParsableI> const& candidate_ptr) {
+				 return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 }
+	 	 );
+		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(vecRefParm_ptr): Error!" << std::endl
@@ -2136,7 +2220,7 @@ public:
 #endif /* DEBUG */
 
 
-		 std::shared_ptr <GFileVectorReferenceParsableParameterT<parameter_type>> vecRefParm_ptr;
+		 std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>> vecRefParm_ptr;
 
 		 if (comment.empty() || comment == "") {
 			 vecRefParm_ptr = std::shared_ptr<GFileVectorReferenceParsableParameterT<parameter_type>>(
@@ -2170,7 +2254,7 @@ public:
 		 const std::string &optionName, const std::vector<parameter_type> &def_val
 	 ) {
 		 // Retrieve the parameter object with this name
-		 std::shared_ptr <GVectorParT<parameter_type>> parmObject
+		 std::shared_ptr<GVectorParT<parameter_type>> parmObject
 			 = file_at<GVectorParT<parameter_type>>(optionName);
 
 		 // Check that we have indeed received an item
@@ -2201,8 +2285,14 @@ public:
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
-		 std::vector<std::shared_ptr<GFileParsableI>>::iterator it;
-		 if((it=std::find_if(m_file_parameter_proxies.begin(), m_file_parameter_proxies.end(), findFileProxyByName(optionName))) != m_file_parameter_proxies.end()) {
+		 auto it = std::find_if(
+		 	m_file_parameter_proxies.begin()
+		 	, m_file_parameter_proxies.end()
+			, [&](std::shared_ptr<GFileParsableI> const& candidate_ptr) {
+				 return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 }
+		 );
+		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(arrayParm_ptr): Error!" << std::endl
@@ -2211,7 +2301,7 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 std::shared_ptr <GFileArrayParsableParameterT<parameter_type, N>> arrayParm_ptr;
+		 std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>> arrayParm_ptr;
 
 		 if (comment.empty() || comment == "") {
 			 arrayParm_ptr = std::shared_ptr<GFileArrayParsableParameterT<parameter_type, N>>(
@@ -2248,8 +2338,14 @@ public:
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
-		 std::vector<std::shared_ptr<GFileParsableI>>::iterator it;
-		 if((it=std::find_if(m_file_parameter_proxies.begin(), m_file_parameter_proxies.end(), findFileProxyByName(optionName))) != m_file_parameter_proxies.end()) {
+		 auto it = std::find_if(
+		 	m_file_parameter_proxies.begin()
+		 	, m_file_parameter_proxies.end()
+			, [&](std::shared_ptr<GFileParsableI> const& candidate_ptr) {
+				 return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 }
+		 );
+		 if(it != m_file_parameter_proxies.end()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerFileParameter(arrayRefParm_ptr): Error!" << std::endl
@@ -2258,7 +2354,7 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 std::shared_ptr <GFileArrayReferenceParsableParameterT<parameter_type, N>> arrayRefParm_ptr;
+		 std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>> arrayRefParm_ptr;
 		 if (comment.empty() || comment == "") {
 			 arrayRefParm_ptr = std::shared_ptr<GFileArrayReferenceParsableParameterT<parameter_type, N>>(
 				 new GFileArrayReferenceParsableParameterT<parameter_type, N>(
@@ -2292,7 +2388,7 @@ public:
 		 const std::string &optionName, const std::array<parameter_type, N> &def_val
 	 ) {
 		 // Retrieve the parameter object with this name
-		 std::shared_ptr <GArrayParT<parameter_type, N>> parmObject
+		 std::shared_ptr<GArrayParT<parameter_type, N>> parmObject
 			 = file_at<GArrayParT<parameter_type, N>>(optionName);
 
 		 // Check that we have indeed received an item
@@ -2326,8 +2422,15 @@ public:
 	 ) {
 #ifdef DEBUG
 		 // Check whether the option already exists
-		 std::vector<std::shared_ptr<GCLParsableI>>::iterator it;
-		 if((it=std::find_if(m_cl_parameter_proxies.begin(), m_cl_parameter_proxies.end(), findCLProxyByName(optionName))) != m_cl_parameter_proxies.end()) {
+	 	 auto it = std::find_if(
+	 	 	m_cl_parameter_proxies.begin()
+	 	 	, m_cl_parameter_proxies.end()
+			, [&](std::shared_ptr<GCLParsableI> const& candidate_ptr) {
+				 return (candidate_ptr->GParsableI::optionName(0) == optionName);
+			 }
+		 );
+
+		 if(it != m_cl_parameter_proxies.end()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GParserBuilder::registerCLParameter(refParm_ptr): Error!" << std::endl
@@ -2336,7 +2439,7 @@ public:
 		 }
 #endif /* DEBUG */
 
-		 std::shared_ptr <GCLReferenceParsableParameterT<parameter_type>> refParm_ptr;
+		 std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>> refParm_ptr;
 
 		 if (comment.empty() || comment == "") {
 			 refParm_ptr = std::shared_ptr<GCLReferenceParsableParameterT<parameter_type>>(
@@ -2359,67 +2462,11 @@ public:
 
 private:
 	 /***************************************************************************/
-	 /**
-	  * Allows to search for file parameter proxies with a given name
-	  */
-	 struct findFileProxyByName {
-		  explicit findFileProxyByName(const std::string &proxyName)
-			  : m_proxy_name(proxyName) { /* nothing */ }
-
-
-		  bool operator()(std::shared_ptr <GFileParsableI> candidate_ptr) const {
-			  if (candidate_ptr->GParsableI::optionName(0) == m_proxy_name) {
-				  return true;
-			  } else {
-				  return false;
-			  }
-		  }
-
-	 private:
-		  // Intentionally private and undefined
-		  findFileProxyByName() = delete;
-
-		  // The name of the proxy
-		  std::string m_proxy_name;
-	 };
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to search for command line parameter proxies with a given name
-	  */
-	 struct findCLProxyByName {
-		  explicit findCLProxyByName(const std::string &proxyName)
-			  : m_proxy_name(proxyName) { /* nothing */ }
-
-
-		  bool operator()(std::shared_ptr <GCLParsableI> candidate_ptr) const {
-			  if (candidate_ptr->GParsableI::optionName(0) == m_proxy_name) {
-				  return true;
-			  } else {
-				  return false;
-			  }
-		  }
-
-	 private:
-		  // Intentionally private and undefined
-		  findCLProxyByName() = delete;
-
-		  // The name of the proxy
-		  std::string m_proxy_name;
-	 };
-
-	 /***************************************************************************/
-	 // Prevent copying and moving
-	 GParserBuilder(const GParserBuilder&) = delete;
-	 GParserBuilder(const GParserBuilder&&) = delete;
-	 GParserBuilder& operator=(const GParserBuilder&) = delete;
-	 GParserBuilder& operator=(const GParserBuilder&&) = delete;
-
 
 	 std::vector<std::shared_ptr<GFileParsableI>> m_file_parameter_proxies; ///< Holds file parameter proxies
 	 std::vector<std::shared_ptr<GCLParsableI>> m_cl_parameter_proxies;   ///< Holds command line parameter proxies
 
-	 std::string m_configfile_Base_name;
+	 std::string m_configfile_Base_name = "empty";
 
 	 static std::mutex m_configfile_parser_mutex; ///< Synchronization of access to configuration files (may only happen serially)
 };

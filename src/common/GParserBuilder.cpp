@@ -175,12 +175,12 @@ GParsableI &GParsableI::operator<<(std::ios_base &( *val )(std::ios_base &)) {
 /**
  * Allows to indicate the current comment level
  */
-GParsableI &GParsableI::operator<<(const commentLevel &cl) {
+GParsableI &GParsableI::operator<<(commentLevel const& cl) {
 #ifdef DEBUG
 	if(m_comment.empty()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
+				<< "In GParsableI::operator<< (commentLevel const& cl): Error!" << std::endl
 				<< "No comments in vector" << std::endl
 		);
 	}
@@ -188,7 +188,7 @@ GParsableI &GParsableI::operator<<(const commentLevel &cl) {
 	if(m_comment.size() <= cl.getCommentLevel()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParsableI::operator<< (const commentLevel& cl): Error!" << std::endl
+				<< "In GParsableI::operator<< (commentLevel const& cl): Error!" << std::endl
 				<< "Invalid comment level " << cl.getCommentLevel() << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
 		);
 	}
@@ -202,12 +202,12 @@ GParsableI &GParsableI::operator<<(const commentLevel &cl) {
 /**
  * Allows to switch to the next comment level
  */
-GParsableI &GParsableI::operator<<(const nextComment &nC) {
+GParsableI &GParsableI::operator<<(nextComment const & nC) {
 #ifdef DEBUG
 	if(m_comment.empty()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
+				<< "In GParsableI::operator<< (nextComment const& nC): Error!" << std::endl
 				<< "No comments in vector" << std::endl
 		);
 	}
@@ -215,7 +215,7 @@ GParsableI &GParsableI::operator<<(const nextComment &nC) {
 	if(m_comment.size() <= (m_cl+1)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParsableI::operator<< (const nextComment& nC): Error!" << std::endl
+				<< "In GParsableI::operator<< (nextComment const& nC): Error!" << std::endl
 				<< "Invalid comment level " << m_cl+1 << " requested, where the maximum is " << m_comment.size() - 1 << std::endl
 		);
 	}
@@ -231,7 +231,7 @@ GParsableI &GParsableI::operator<<(const nextComment &nC) {
  * Splits a comment into sub-tokens. The comment will be split in case of newlines
  * and semicolons.
  */
-std::vector<std::string> GParsableI::splitComment(const std::string &comment) const {
+std::vector<std::string> GParsableI::splitComment(std::string const & comment) const {
 	std::vector<std::string> results;
 
 	// Needed for the separation of comment strings
@@ -244,17 +244,14 @@ std::vector<std::string> GParsableI::splitComment(const std::string &comment) co
 		std::istringstream buffer(comment);
 		std::string line;
 
-		while (std::getline(buffer, line)) {
-			nlComments.push_back(line);
-		}
-
 		// Break the sub-comments into individual lines after each semicolon
-		std::vector<std::string>::iterator it;
-		for (it = nlComments.begin(); it != nlComments.end(); ++it) {
-			tokenizer commentTokenizer(*it, semicolon_sep);
-			for (tokenizer::iterator c = commentTokenizer.begin(); c != commentTokenizer.end(); ++c) {
-				results.push_back(*c);
+		while (std::getline(buffer, line)) {
+			tokenizer commentTokenizer(line, semicolon_sep);
+			for(auto const& t: commentTokenizer) {
+				results.push_back(t);
 			}
+
+			nlComments.push_back(line);
 		}
 	}
 
@@ -268,24 +265,24 @@ std::vector<std::string> GParsableI::splitComment(const std::string &comment) co
  * A constructor for individual items
  */
 GFileParsableI::GFileParsableI(
-	const std::string &optionNameVar, const std::string &commentVar, const bool &isEssentialVar
+	std::string const &optionNameVar
+	, std::string const &commentVar
+	, bool isEssentialVar
 )
-	: GParsableI(optionNameVar, commentVar), m_is_essential(isEssentialVar) { /* nothing */ }
+	: GParsableI(optionNameVar, commentVar), m_is_essential(isEssentialVar)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A constructor for vectors
  */
 GFileParsableI::GFileParsableI(
-	const std::vector<std::string> &optionNameVec, const std::vector<std::string> &commentVec, const bool &isEssentialVar
+	std::vector<std::string> const &optionNameVec
+	, std::vector<std::string> const &commentVec
+	, bool isEssentialVar
 )
-	: GParsableI(optionNameVec, commentVec), m_is_essential(isEssentialVar) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GFileParsableI::~GFileParsableI() { /* nothing */ }
+	: GParsableI(optionNameVec, commentVec), m_is_essential(isEssentialVar)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -296,30 +293,34 @@ bool GFileParsableI::isEssential() const {
 }
 
 /******************************************************************************/
+/** @brief Executes a stored callbacl function */
+void GFileParsableI::executeCallBackFunction() {
+	executeCallBackFunction_();
+}
+
+/******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
  * A constructor for individual items
  */
 GCLParsableI::GCLParsableI(
-	const std::string &optionNameVar, const std::string &commentVar
+	std::string const &optionNameVar
+	, std::string const &commentVar
 )
-	: GParsableI(optionNameVar, commentVar) { /* nothing */ }
+	: GParsableI(optionNameVar, commentVar)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * A constructor for vectors
  */
 GCLParsableI::GCLParsableI(
-	const std::vector<std::string> &optionNameVec, const std::vector<std::string> &commentVec
+	std::vector<std::string> const &optionNameVec
+	, std::vector<std::string> const &commentVec
 )
-	: GParsableI(optionNameVec, commentVec) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GCLParsableI::~GCLParsableI() { /* nothing */ }
+	: GParsableI(optionNameVec, commentVec)
+{ /* nothing */ }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -330,7 +331,7 @@ GCLParsableI::~GCLParsableI() { /* nothing */ }
  * @param configurationFile The name of the configuration file
  */
 GParserBuilder::GParserBuilder()
-	: m_configfile_Base_name("empty") {
+{
 #if defined(_MSC_VER)  && (_MSC_VER >= 1020)
 	char* jsonBaseName_ch = 0;
    size_t sz = 0;
@@ -357,19 +358,13 @@ GParserBuilder::GParserBuilder()
 
 /******************************************************************************/
 /**
- * The destructor
- */
-GParserBuilder::~GParserBuilder() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Tries to parse a given configuration file for a set of options. Note that parsing
  * is a one-time effort.
  *
  * @param configFile The name of the configuration file to be parsed
  * @return A boolean indicating whether parsing was successful
  */
-bool GParserBuilder::parseConfigFile(const std::string &configFile) {
+bool GParserBuilder::parseConfigFile(std::string const & configFile) {
 	// Make sure only one entity is parsed at once. This allows us to
 	// concurrently create e.g. optimization algorithms, letting them
 	// parse the same config file.
@@ -431,18 +426,18 @@ bool GParserBuilder::parseConfigFile(const std::string &configFile) {
 
 		// Load the data into our objects and execute the relevant call-back functions
 		for(auto proxy_ptr: m_file_parameter_proxies) { // std::shared_ptr may be copied
-			proxy_ptr->load(ptr);
+			proxy_ptr->load_from(ptr);
 			proxy_ptr->executeCallBackFunction();
 		}
 
 		result = true;
-	} catch (const gemfony_exception &e) {
+	} catch (gemfony_exception const & e) {
 		glogger
 			<< "Caught gemfony_exception when parsing configuration file " << configFile_withBase << ":" << std::endl
 			<< e.what() << std::endl
 			<< GLOGGING;
 		result = false;
-	} catch (const std::exception &e) {
+	} catch (std::exception const & e) {
 		glogger
 			<< "Caught std::exception when parsing configuration file " << configFile_withBase << ":" << std::endl
 			<< e.what() << std::endl
@@ -551,21 +546,20 @@ void GParserBuilder::writeConfigFile(
 	if (header != "") {
 		// Break the header into individual tokens
 		tokenizer headerTokenizer(header, semicolon_sep);
-		for (tokenizer::iterator h = headerTokenizer.begin(); h != headerTokenizer.end(); ++h) {
-			ptr.add("header.comment", std::string(*h).c_str());
+		for(auto const& h: headerTokenizer) {
+			ptr.add("header.comment", std::string(h).c_str());
 		}
 	}
 	ptr.add("header.comment", Gem::Common::currentTimeAsString());
 
 	// Output variables and values
-	std::vector<std::shared_ptr <GFileParsableI>> ::const_iterator cit;
-	for (cit = m_file_parameter_proxies.begin(); cit != m_file_parameter_proxies.end(); ++cit) {
+	for(auto const& v_ptr: m_file_parameter_proxies) {
 		// Only write out the parameter(s) if they are either essential or it
 		// has been requested to write out all parameters regardless
-		if (not writeAll && not (*cit)->isEssential()) continue;
+		if (not writeAll && not v_ptr->isEssential()) continue;
 
 		// Output the actual data of this parameter object to the property tree
-		(*cit)->save(ptr);
+		v_ptr->save_to(ptr);
 	}
 
 	// Write the configuration data to disk
@@ -607,10 +601,8 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
 		desc.add_options()("help,h", "Emit help message");
 
 		// Add further options from the parameter objects
-		std::vector<std::shared_ptr < GCLParsableI>> ::iterator
-			it;
-		for (it = m_cl_parameter_proxies.begin(); it != m_cl_parameter_proxies.end(); ++it) {
-			(*it)->save(desc);
+		for(auto const& p_ptr: m_cl_parameter_proxies) {
+			p_ptr->save_to(desc);
 		}
 
 		// Do the actual parsing
@@ -627,13 +619,13 @@ bool GParserBuilder::parseCommandLine(int argc, char **argv, const bool &verbose
 				std::cout
 					<< "GParserBuilder::parseCommandLine():" << std::endl
 					<< "Working with the following options:" << std::endl;
-				for (it = m_cl_parameter_proxies.begin(); it != m_cl_parameter_proxies.end(); ++it) {
-					std::cout << (*it)->content() << std::endl;
+				for(auto const& p_ptr: m_cl_parameter_proxies) {
+					std::cout << p_ptr->content() << std::endl;
 				}
 				std::cout << std::endl;
 			}
 		}
-	} catch (const po::error &e) {
+	} catch (po::error const & e) {
 		glogger
 			<< "In GParserBuilder::parseCommandLine(int argc, char **argv):" << std::endl
 			<< "Error parsing the command line:" << std::endl
