@@ -103,27 +103,25 @@ namespace Common {
  * A simple two-dimensional coordinate
  */
 struct coord2D {
-	 /** @brief The default constructor */
-	 coord2D();
-
 	 /** @brief Construction with positions */
-	 coord2D(const float &, const float &);
+	 coord2D(float, float);
 
-	 /** @brief Copy construction */
-	 coord2D(const coord2D &);
+	 // Defaulted constructors, "rule of five"
+	 coord2D() = default;
+	 coord2D(coord2D const&) = default;
+	 coord2D(coord2D &&) = default;
+	 coord2D& operator=(coord2D const&) = default;
+	 coord2D& operator=(coord2D &&) = default;
 
-	 /** @brief An assignment operator */
-	 coord2D &operator=(const coord2D &);
-
-	 float x;
-	 float y;
+	 float x = 0.f;
+	 float y = 0.f;
 };
 
 /** @brief Convenience function for calculating the difference between two coordinate vectors */
-coord2D operator-(const coord2D &, const coord2D &);
+coord2D operator-(coord2D const&, coord2D const&);
 
 /** @brief Convenience function for calculating the dot product of two coordinate vectors */
-float operator*(const coord2D &, const coord2D &);
+float operator*(coord2D const&, coord2D const&);
 
 /******************************************************************************/
 /**
@@ -132,32 +130,46 @@ float operator*(const coord2D &, const coord2D &);
  */
 using t_circle =
 struct triangle_circle_struct {
-	 coord2D middle;
-	 float radius;
-	 float angle1;
-	 float angle2;
-	 float angle3;
-	 float r;
-	 float g;
-	 float b;
-	 float a;
-
-	 /** @brief Assignment operator */
-	 triangle_circle_struct &operator=(const triangle_circle_struct &);
+	 //--------------------------------------------
+	 // Deleted or defaulted constructors and assignment
+	 // operators. Rule of five ...
+	 triangle_circle_struct() = default;
+	 triangle_circle_struct(triangle_circle_struct const&) = default;
+	 triangle_circle_struct(triangle_circle_struct &&) = default;
+	 triangle_circle_struct&
+	 operator=(triangle_circle_struct const&) = default;
+	 triangle_circle_struct&
+	 operator=(triangle_circle_struct &&) = default;
 
 	 /** @brief Needed for sorting */
 	 float getAlphaValue() const;
 
 	 /** @brief Translate to a string */
 	 std::string toString() const;
+
+	 //--------------------------------------------
+	 // Data
+
+	 coord2D middle{};
+	 float radius = 0.f;
+	 float angle1 = 0.f;
+	 float angle2 = 0.f;
+	 float angle3 = 0.f;
+	 float r = 0.f;
+	 float g = 0.f;
+	 float b = 0.f;
+	 float a = 0.f;
 };
 
 /** @brief Simplify debugging output */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const t_circle &);
+G_API_COMMON std::ostream &
+operator<<(std::ostream &, t_circle const&);
 /** @brief Simplify comparison of two t_circle structs */
-G_API_COMMON bool operator==(const t_circle &, const t_circle &);
+G_API_COMMON bool
+operator==(t_circle const&, t_circle const&);
 /** @brief Simplify comparison of two t_circle structs */
-G_API_COMMON bool operator!=(const t_circle &, const t_circle &);
+G_API_COMMON bool
+operator!=(t_circle const&, t_circle const&);
 
 /******************************************************************************/
 /**
@@ -165,13 +177,13 @@ G_API_COMMON bool operator!=(const t_circle &, const t_circle &);
  */
 using t_cart =
 struct t_spec_c {
-	 coord2D tr_one;
-	 coord2D tr_two;
-	 coord2D tr_three;
-	 float r;
-	 float g;
-	 float b;
-	 float a;
+	 coord2D tr_one{};
+	 coord2D tr_two{};
+	 coord2D tr_three{};
+	 float r = 0.f;
+	 float g = 0.f;
+	 float b = 0.f;
+	 float a = 0.f;
 };
 
 /******************************************************************************/
@@ -195,29 +207,34 @@ private:
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_COMMON GRgb();
 	 /** @brief Initialization with colors */
 	 G_API_COMMON GRgb(float, float, float);
 	 /** @brief Initialization with colors held in a std::tuple */
-	 G_API_COMMON GRgb(std::tuple<float, float, float>);
-	 /** @brief Copy Construction */
-	 G_API_COMMON GRgb(const GRgb &);
+	 explicit G_API_COMMON GRgb(
+	 	std::tuple<float, float, float> const&
+	 );
 
-	 /** @brief Destructor */
-	 virtual G_API_COMMON ~GRgb();
+	 //----------------------------------------------------
+	 // Defaulted constructors and destructors
+	 // Rule of five ...
 
-	 /** @brief Assignment operator */
-	 G_API_COMMON  GRgb &operator=(const GRgb &);
+	 G_API_COMMON GRgb() = default;
+	 G_API_COMMON GRgb(GRgb const&) = default;
+	 G_API_COMMON GRgb(GRgb &&) = default;
+	 G_API_COMMON GRgb& operator=(GRgb const&) = default;
+	 G_API_COMMON GRgb& operator=(GRgb &&) = default;
+	 virtual G_API_COMMON ~GRgb() = default;
 
 	 /** @brief Explicit reset of colors */
 	 G_API_COMMON void setColor(float, float, float);
 	 /** @brief Explicit reset of colors, using a std::tuple */
-	 G_API_COMMON void setColor(std::tuple<float, float, float>);
+	 G_API_COMMON void setColor(
+	 	std::tuple<float, float, float>
+	 );
 
-	 float r; ///< red
-	 float g; ///< green
-	 float b; ///< blue
+	 float r = 0.f; ///< red
+	 float g = 0.f; ///< green
+	 float b = 0.f; ///< blue
 };
 
 /******************************************************************************/
@@ -234,47 +251,47 @@ class GColumn {
 	 void serialize(Archive &ar, const unsigned int) {
 		 using boost::serialization::make_nvp;
 
-		 ar &BOOST_SERIALIZATION_NVP(columnData_);
+		 ar &BOOST_SERIALIZATION_NVP(m_column_data_vec);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
 	 /** @brief The default constructor */
-	 G_API_COMMON GColumn();
+	 G_API_COMMON GColumn() = default;
 	 /** @brief Initialization with dimensions and colors */
 	 G_API_COMMON GColumn(
-		 const std::size_t &
-		 , std::tuple<float, float, float>
+	 	 std::size_t
+		 , std::tuple<float, float, float> const&
 	 );
 	 /** @brief Copy construction */
-	 G_API_COMMON GColumn(const GColumn &);
+	 G_API_COMMON GColumn(GColumn const &) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GColumn();
+	 virtual G_API_COMMON ~GColumn() = default;
 
 	 /** @brief Assignment operator */
-	 G_API_COMMON  GColumn &operator=(const GColumn &);
+	 G_API_COMMON  GColumn &operator=(GColumn const &) = default;
 
 	 /** @brief Information about the size of this object */
 	 G_API_COMMON std::size_t size() const;
 
 	 /** @brief Unchecked access */
-	 G_API_COMMON GRgb &operator[](const std::size_t &);
+	 G_API_COMMON GRgb &operator[](std::size_t);
 	 /** @brief Checked access */
-	 G_API_COMMON GRgb &at(const std::size_t &);
+	 G_API_COMMON GRgb &at(std::size_t);
 	 /** @brief Unchecked access */
-	 G_API_COMMON const GRgb &operator[](const std::size_t &) const;
+	 G_API_COMMON const GRgb &operator[](std::size_t) const;
 	 /** @brief Checked access */
-	 G_API_COMMON const GRgb &at(const std::size_t &) const;
+	 G_API_COMMON const GRgb &at(std::size_t) const;
 
 	 /** @brief Initializes the object to a specific size */
-	 void init(
-		 const std::size_t &
-		 , std::tuple<float, float, float>
+	 G_API_COMMON void init(
+		 std::size_t
+		 , std::tuple<float, float, float> const&
 	 );
 
 private:
-	 std::vector<GRgb> columnData_;  ///< Holds this column's pixels
+	 std::vector<GRgb> m_column_data_vec;  ///< Holds this column's pixels
 };
 
 /******************************************************************************/
@@ -293,9 +310,9 @@ class GCanvas {
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & BOOST_SERIALIZATION_NVP(canvasData_)
-		 & BOOST_SERIALIZATION_NVP(xDim_)
-		 & BOOST_SERIALIZATION_NVP(yDim_);
+		 & BOOST_SERIALIZATION_NVP(m_canvasData)
+		 & BOOST_SERIALIZATION_NVP(m_xDim)
+		 & BOOST_SERIALIZATION_NVP(m_yDim);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -304,9 +321,7 @@ public:
 	 /**
 	  * The default constructor -- will result in an empty canvas
 	  */
-	 GCanvas()
-		 : xDim_(0), yDim_(0), canvasData_(), NCOLORS(Gem::Common::PowSmallPosInt<2, COLORDEPTH>::result),
-		 MAXCOLOR(NCOLORS - 1) { /* nothing */ }
+	 GCanvas() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -314,11 +329,9 @@ public:
 	  * background color is black.
 	  */
 	 GCanvas(
-		 std::tuple<std::size_t, std::size_t> dim
-		 , std::tuple<float, float, float> color
-	 )
-		 : xDim_(std::get<0>(dim)), yDim_(std::get<1>(dim)), canvasData_(),
-		 NCOLORS(Gem::Common::PowSmallPosInt<2, COLORDEPTH>::result), MAXCOLOR(NCOLORS - 1) {
+		 std::tuple<std::size_t, std::size_t> const& dim
+		 , std::tuple<float, float, float> const& color
+	 ) {
 		 this->reset(dim, color);
 	 }
 
@@ -328,9 +341,7 @@ public:
 	  *
 	  * @param ppmString A string holding a picture description in PPM-P3 format
 	  */
-	 GCanvas(const std::string &ppmString)
-		 : xDim_(0), yDim_(0), canvasData_(), NCOLORS(Gem::Common::PowSmallPosInt<2, COLORDEPTH>::result),
-		 MAXCOLOR(NCOLORS - 1) {
+	 explicit GCanvas(std::string const &ppmString) {
 		 this->loadFromPPM(ppmString);
 	 }
 
@@ -338,19 +349,13 @@ public:
 	 /**
 	  * Copy construction
 	  */
-	 GCanvas(const GCanvas<COLORDEPTH> &cp)
-		 : xDim_(cp.xDim_), yDim_(cp.yDim_), canvasData_(cp.canvasData_),
-		 NCOLORS(Gem::Common::PowSmallPosInt<2, COLORDEPTH>::result), MAXCOLOR(NCOLORS - 1) { /* nothing */ }
+	 GCanvas(GCanvas<COLORDEPTH> const & cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GCanvas() {
-		 xDim_ = 0;
-		 yDim_ = 0;
-		 canvasData_.clear();
-	 }
+	 virtual ~GCanvas() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -358,10 +363,10 @@ public:
 	  *
 	  * @param cp A copy of another GCanvas object
 	  */
-	 GCanvas<COLORDEPTH> &operator=(const GCanvas<COLORDEPTH> &cp) {
-		 canvasData_ = cp.canvasData_;
-		 xDim_ = cp.xDim_;
-		 yDim_ = cp.yDim_;
+	 GCanvas<COLORDEPTH> &operator=(GCanvas<COLORDEPTH> const &cp) {
+		 m_canvasData = cp.m_canvasData;
+		 m_xDim = cp.m_xDim;
+		 m_yDim = cp.m_yDim;
 
 		 return *this;
 	 }
@@ -371,7 +376,7 @@ public:
 	  * Get information about the canvas dimensions
 	  */
 	 auto dimensions() const {
-		 return std::tuple<std::size_t, std::size_t>{xDim_, yDim_};
+		 return std::make_tuple(m_xDim, m_yDim);
 	 }
 
 	 /***************************************************************************/
@@ -381,7 +386,7 @@ public:
 	  * @return The value of the xDim_ parameter
 	  */
 	 std::size_t getXDim() const {
-		 return xDim_;
+		 return m_xDim;
 	 }
 
 	 /***************************************************************************/
@@ -391,7 +396,7 @@ public:
 	  * @return The value of the yDim_ parameter
 	  */
 	 std::size_t getYDim() const {
-		 return yDim_;
+		 return m_yDim;
 	 }
 
 	 /***************************************************************************/
@@ -401,7 +406,7 @@ public:
 	  * @return The total number of pixels in the canvas
 	  */
 	 std::size_t getNPixels() const {
-		 return xDim_ * yDim_;
+		 return m_xDim * m_yDim;
 	 }
 
 	 /***************************************************************************/
@@ -438,39 +443,39 @@ public:
 	 /**
 	  * Unchecked access
 	  */
-	 GColumn &operator[](const std::size_t &pos) {
-		 return canvasData_[pos];
+	 GColumn &operator[](std::size_t pos) {
+		 return m_canvasData[pos];
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Checked access
 	  */
-	 GColumn &at(const std::size_t &pos) {
-		 return canvasData_.at(pos);
+	 GColumn &at(std::size_t pos) {
+		 return m_canvasData.at(pos);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Unchecked access
 	  */
-	 const GColumn &operator[](const std::size_t &pos) const {
-		 return canvasData_[pos];
+	 const GColumn &operator[](std::size_t pos) const {
+		 return m_canvasData[pos];
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Checked access
 	  */
-	 const GColumn &at(const std::size_t &pos) const {
-		 return canvasData_.at(pos);
+	 const GColumn &at(std::size_t pos) const {
+		 return m_canvasData.at(pos);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Find out the deviation between this and another canvas
 	  */
-	 virtual float diff(const GCanvas<COLORDEPTH> &cp) const {
+	 virtual float diff(GCanvas<COLORDEPTH> const &cp) const {
 		 using namespace Gem::Common;
 
 		 if (cp.dimensions() != this->dimensions()) {
@@ -483,12 +488,12 @@ public:
 		 }
 
 		 float result = 0.f;
-		 for (std::size_t i_x = 0; i_x < xDim_; i_x++) {
-			 for (std::size_t i_y = 0; i_y < yDim_; i_y++) {
+		 for (std::size_t i_x = 0; i_x < m_xDim; i_x++) {
+			 for (std::size_t i_y = 0; i_y < m_yDim; i_y++) {
 				 result += gsqrt(
-					 gpow((canvasData_[i_x][i_y]).r - (cp[i_x][i_y]).r, 2.f)
-					 + gpow((canvasData_[i_x][i_y]).g - (cp[i_x][i_y]).g, 2.f)
-					 + gpow((canvasData_[i_x][i_y]).b - (cp[i_x][i_y]).b, 2.f)
+					 gpow((m_canvasData[i_x][i_y]).r - (cp[i_x][i_y]).r, 2.f)
+					 + gpow((m_canvasData[i_x][i_y]).g - (cp[i_x][i_y]).g, 2.f)
+					 + gpow((m_canvasData[i_x][i_y]).b - (cp[i_x][i_y]).b, 2.f)
 				 );
 			 }
 		 }
@@ -505,15 +510,15 @@ public:
 
 		 result
 			 << "P3" << std::endl
-			 << xDim_ << " " << yDim_ << std::endl
+			 << m_xDim << " " << m_yDim << std::endl
 			 << MAXCOLOR << std::endl;
 
-		 for (std::size_t i_y = 0; i_y < yDim_; i_y++) {
-			 for (std::size_t i_x = 0; i_x < xDim_; i_x++) {
+		 for (std::size_t i_y = 0; i_y < m_yDim; i_y++) {
+			 for (std::size_t i_x = 0; i_x < m_xDim; i_x++) {
 				 result
-					 << (std::size_t) (canvasData_[i_x][i_y].r * float(MAXCOLOR)) << " "
-					 << (std::size_t) (canvasData_[i_x][i_y].g * float(MAXCOLOR)) << " "
-					 << (std::size_t) (canvasData_[i_x][i_y].b * float(MAXCOLOR)) << " ";
+					 << (std::size_t) (m_canvasData[i_x][i_y].r * float(MAXCOLOR)) << " "
+					 << (std::size_t) (m_canvasData[i_x][i_y].g * float(MAXCOLOR)) << " "
+					 << (std::size_t) (m_canvasData[i_x][i_y].b * float(MAXCOLOR)) << " ";
 			 }
 			 result << std::endl;
 		 }
@@ -527,7 +532,7 @@ public:
 	  *
 	  * @param ppmString A string holding an image in PPM-P3 format
 	  */
-	 void loadFromPPM(const std::string &ppmString) {
+	 void loadFromPPM(std::string const &ppmString) {
 		 using namespace std;
 
 		 // Some status flags
@@ -547,7 +552,7 @@ public:
 
 			 // Remove parts beginning with a # (i.e. comments)
 			 std::size_t pos = 0;
-			 if ((pos = s.find("#")) != string::npos) {
+			 if ((pos = s.find('#')) != string::npos) {
 				 s.erase(pos); // Erase till the end of the string
 			 }
 
@@ -594,12 +599,12 @@ public:
 					 );
 				 }
 
-				 xDim_ = v[0];
-				 yDim_ = v[1];
+				 m_xDim = v[0];
+				 m_yDim = v[1];
 
 				 // Re-initialize the canvas with black
 				 this->reset(
-					 std::tuple<std::size_t, std::size_t>(xDim_, yDim_), 0.f, 0.f, 0.f
+					 std::tuple<std::size_t, std::size_t>(m_xDim, m_yDim), 0.f, 0.f, 0.f
 				 );
 
 				 dimensions_found = true;
@@ -630,7 +635,7 @@ public:
 					 );
 				 }
 
-				 color_depth_found = true;
+				 color_depth_found = true; // NOLINT
 				 s.clear();
 			 }
 
@@ -644,7 +649,7 @@ public:
 		 while (std::getline(input, s)) {
 			 // Remove parts beginning with a # (i.e. comments)
 			 std::size_t pos = 0;
-			 if ((pos = s.find("#")) != string::npos) {
+			 if ((pos = s.find('#')) != string::npos) {
 				 s.erase(pos); // Erase till the end of the string
 			 }
 
@@ -668,24 +673,24 @@ public:
 
 		 // v should now contain all per-pixel information. Check the size - as
 		 // we are reading triplets, the size of the vector is known.
-		 if (v.size() != 3 * xDim_ * yDim_) {
+		 if (v.size() != 3 * m_xDim * m_yDim) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "Error: got invalid number of entries in line." << std::endl
-					 << "Expected " << 3 * xDim_ * yDim_ << ", but got " << v.size() << std::endl
-					 << "Note: xDim_ = " << xDim_ << ", yDim_ = " << yDim_ << std::endl
+					 << "Expected " << 3 * m_xDim * m_yDim << ", but got " << v.size() << std::endl
+					 << "Note: xDim_ = " << m_xDim << ", yDim_ = " << m_yDim << std::endl
 			 );
 		 }
 
 		 // Add all pixel data to the canvas
 		 std::size_t offset = 0;
-		 for (std::size_t line_counter = 0; line_counter < yDim_; line_counter++) {
-			 for (std::size_t pixel_counter = 0; pixel_counter < xDim_; pixel_counter++) {
-				 offset = 3 * (line_counter * xDim_ + pixel_counter);
+		 for (std::size_t line_counter = 0; line_counter < m_yDim; line_counter++) {
+			 for (std::size_t pixel_counter = 0; pixel_counter < m_xDim; pixel_counter++) {
+				 offset = 3 * (line_counter * m_xDim + pixel_counter);
 
-				 (canvasData_[pixel_counter][line_counter]).r = float(v[offset + std::size_t(0)]) / float(MAXCOLOR);
-				 (canvasData_[pixel_counter][line_counter]).g = float(v[offset + std::size_t(1)]) / float(MAXCOLOR);
-				 (canvasData_[pixel_counter][line_counter]).b = float(v[offset + std::size_t(2)]) / float(MAXCOLOR);
+				 (m_canvasData[pixel_counter][line_counter]).r = float(v[offset + std::size_t(0)]) / float(MAXCOLOR);
+				 (m_canvasData[pixel_counter][line_counter]).g = float(v[offset + std::size_t(1)]) / float(MAXCOLOR);
+				 (m_canvasData[pixel_counter][line_counter]).b = float(v[offset + std::size_t(2)]) / float(MAXCOLOR);
 			 }
 		 }
 	 }
@@ -696,7 +701,7 @@ public:
 	  *
 	  * @param p The name of a file holding an image in PPM-P3 format
 	  */
-	 void loadFromFile(const bf::path &p) {
+	 void loadFromFile(bf::path const &p) {
 		 // Read in the entire file
 		 std::string imageData = Gem::Common::loadTextDataFromFile(p);
 
@@ -718,7 +723,7 @@ public:
 	 /**
 	  * Saves the canvas to a file
 	  */
-	 void toFile(const bf::path &p) {
+	 void toFile(bf::path const & p) {
 		 bf::ofstream result(p);
 
 		 if (not result) {
@@ -738,10 +743,10 @@ public:
 	  * Removes all data from the canvas
 	  */
 	 void clear() {
-		 canvasData_.clear();
+		 m_canvasData.clear();
 
-		 xDim_ = std::size_t(0);
-		 yDim_ = std::size_t(0);
+		 m_xDim = std::size_t(0);
+		 m_yDim = std::size_t(0);
 	 }
 
 	 /***************************************************************************/
@@ -751,18 +756,18 @@ public:
 	  * @param
 	  */
 	 void reset(
-		 std::tuple<std::size_t, std::size_t> dimension
-		 , const float &red
-		 , const float &green
-		 , const float &blue
+		 std::tuple<std::size_t, std::size_t> const& dimension
+		 , float red
+		 , float green
+		 , float blue
 	 ) {
 		 this->clear();
 
-		 xDim_ = std::get<0>(dimension);
-		 yDim_ = std::get<1>(dimension);
+		 m_xDim = std::get<0>(dimension);
+		 m_yDim = std::get<1>(dimension);
 
-		 for (std::size_t i = 0; i < xDim_; i++) {
-			 canvasData_.push_back(GColumn(yDim_, std::tuple<float, float, float>(red, green, blue)));
+		 for (std::size_t i = 0; i < m_xDim; i++) {
+			 m_canvasData.push_back(GColumn(m_yDim, std::tuple<float, float, float>(red, green, blue)));
 		 }
 	 }
 
@@ -771,11 +776,14 @@ public:
 	  * Resets the canvas to a given color and dimension
 	  */
 	 void reset(
-		 std::tuple<std::size_t, std::size_t> dimension
-		 , std::tuple<float, float, float> color
+		 std::tuple<std::size_t, std::size_t> const& dimension
+		 , std::tuple<float, float, float> const& color
 	 ) {
 		 this->reset(
-			 dimension, std::get<0>(color), std::get<1>(color), std::get<2>(color)
+			 dimension
+			 , std::get<0>(color)
+			 , std::get<1>(color)
+			 , std::get<2>(color)
 		 );
 	 }
 
@@ -783,7 +791,7 @@ public:
 	 /**
 	  * Adds a triangle to the canvas, using Gemfony's "circular" definition
 	  */
-	 void addTriangle(const t_circle &t) {
+	 void addTriangle(t_circle const & t) {
 		 t_cart t_c;
 
 #ifdef DEBUG
@@ -821,25 +829,25 @@ public:
 	  * Adds a complete set of triangles to the canvas, using Gemfony's
 	  * "circular" definition
 	  */
-	 void addTriangles(std::vector<t_circle> ts) {
-		 for (std::size_t i = 0; i < ts.size(); i++) {
-			 this->addTriangle(ts[i]);
-		 }
+	 void addTriangles(std::vector<t_circle> const & ts) {
+	 	 for(auto const & t: ts) {
+			 this->addTriangle(t);
+	 	 }
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Adds a triangle to the canvas, using a struct holding cartesic coordinates
 	  */
-	 void addTriangle(const t_cart &t) {
+	 void addTriangle(t_cart const & t) {
 		 using namespace Gem::Common;
 
-		 float xDim_inv = 1.f / float(xDim_);
-		 float yDim_inv = 1.f / float(yDim_);
+		 float xDim_inv = 1.f / float(m_xDim);
+		 float yDim_inv = 1.f / float(m_yDim);
 		 float dot11, dot12, dot22, dot1p, dot2p, denom_inv, u, v;
 		 coord2D diff31, diff21, diffp1, pos_f;
 
-		 for (std::size_t i_x = 0; i_x < xDim_; i_x++) {
+		 for (std::size_t i_x = 0; i_x < m_xDim; i_x++) {
 			 // Calculate the pixel x-position
 			 pos_f.x = float(i_x + 1) * xDim_inv;
 
@@ -859,7 +867,7 @@ public:
 				 continue;
 			 }
 
-			 for (std::size_t i_y = 0; i_y < yDim_; i_y++) {
+			 for (std::size_t i_y = 0; i_y < m_yDim; i_y++) {
 				 // Calculate the pixel y-position
 				 pos_f.y = float(i_y + 1) * yDim_inv;
 
@@ -895,9 +903,9 @@ public:
 				 v = (dot11 * dot2p - dot12 * dot1p) * denom_inv;
 
 				 if ((u >= 0.f) && (v >= 0.f) && (u + v < 1.f)) {
-					 canvasData_[i_x][i_y].r = gmix(canvasData_[i_x][i_y].r, t.r, t.a);
-					 canvasData_[i_x][i_y].g = gmix(canvasData_[i_x][i_y].g, t.g, t.a);
-					 canvasData_[i_x][i_y].b = gmix(canvasData_[i_x][i_y].b, t.b, t.a);
+					 m_canvasData[i_x][i_y].r = gmix(m_canvasData[i_x][i_y].r, t.r, t.a);
+					 m_canvasData[i_x][i_y].g = gmix(m_canvasData[i_x][i_y].g, t.g, t.a);
+					 m_canvasData[i_x][i_y].b = gmix(m_canvasData[i_x][i_y].b, t.b, t.a);
 				 }
 			 }
 		 }
@@ -912,19 +920,19 @@ public:
 		 float averageGreen = 0.f;
 		 float averageBlue = 0.f;
 
-		 for (std::size_t i_x = 0; i_x < xDim_; i_x++) {
-			 for (std::size_t i_y = 0; i_y < yDim_; i_y++) {
-				 averageRed += canvasData_[i_x][i_y].r;
-				 averageGreen += canvasData_[i_x][i_y].g;
-				 averageBlue += canvasData_[i_x][i_y].b;
+		 for (std::size_t i_x = 0; i_x < m_xDim; i_x++) {
+			 for (std::size_t i_y = 0; i_y < m_yDim; i_y++) {
+				 averageRed += m_canvasData[i_x][i_y].r;
+				 averageGreen += m_canvasData[i_x][i_y].g;
+				 averageBlue += m_canvasData[i_x][i_y].b;
 			 }
 		 }
 
-		 averageRed /= (float) (xDim_ * yDim_);
-		 averageGreen /= (float) (xDim_ * yDim_);
-		 averageBlue /= (float) (xDim_ * yDim_);
+		 averageRed /= (float) (m_xDim * m_yDim);
+		 averageGreen /= (float) (m_xDim * m_yDim);
+		 averageBlue /= (float) (m_xDim * m_yDim);
 
-		 return std::tuple<float, float, float>{averageRed, averageGreen, averageBlue};
+		 return std::make_tuple(averageRed, averageGreen, averageBlue);
 	 }
 
 	 /***************************************************************************/
@@ -933,11 +941,11 @@ public:
 	 /***************************************************************************/
 
 protected:
-	 std::size_t xDim_, yDim_; ///< The dimensions of this canvas
-	 std::vector<GColumn> canvasData_; ///< Holds this canvas' columns
+	 std::size_t m_xDim = 0, m_yDim = 0; ///< The dimensions of this canvas
+	 std::vector<GColumn> m_canvasData; ///< Holds this canvas' columns
 
-	 const std::size_t NCOLORS;
-	 const std::size_t MAXCOLOR;
+	 const std::size_t NCOLORS = Gem::Common::PowSmallPosInt<2, COLORDEPTH>::result;
+	 const std::size_t MAXCOLOR = NCOLORS - 1;
 };
 
 /******************************************************************************/
@@ -946,7 +954,10 @@ protected:
   */
 template<std::size_t COLORDEPTH>
 G_API_COMMON
-float operator-(const GCanvas<COLORDEPTH> &x, const GCanvas<COLORDEPTH> &y) {
+float operator-(
+	GCanvas<COLORDEPTH> const & x
+	, GCanvas<COLORDEPTH> const & y
+) {
 	return x.diff(y);
 }
 
@@ -970,26 +981,26 @@ class GCanvas8 : public GCanvas<8> {
 
 public:
 	 /** @brief The default constructor */
-	 G_API_COMMON GCanvas8();
+	 G_API_COMMON GCanvas8() = default;
 	 /** @brief Initialization with dimensions and colors */
 	 G_API_COMMON GCanvas8(
-		 std::tuple<std::size_t, std::size_t>
-		 , std::tuple<float, float, float>
+		 std::tuple<std::size_t, std::size_t> const&
+		 , std::tuple<float, float, float> const&
 	 );
 	 /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-	 G_API_COMMON GCanvas8(const std::string &);
+	 explicit G_API_COMMON GCanvas8(std::string const &);
 	 /** @brief Copy construction */
-	 G_API_COMMON GCanvas8(const GCanvas8 &);
+	 G_API_COMMON GCanvas8(GCanvas8 const &) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GCanvas8();
+	 G_API_COMMON ~GCanvas8() override = default;
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON  GCanvas8 &operator=(const GCanvas8 &);
+	 G_API_COMMON  GCanvas8 &operator=(GCanvas8 const &) = default;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
-G_API_COMMON float operator-(const GCanvas8 &, const GCanvas8 &);
+G_API_COMMON float operator-(GCanvas8 const &, GCanvas8 const &);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1012,26 +1023,29 @@ class GCanvas16 : public GCanvas<16> {
 
 public:
 	 /** @brief The default constructor */
-	 G_API_COMMON GCanvas16();
+	 G_API_COMMON GCanvas16() = default;
 	 /** @brief Initialization with dimensions and colors */
 	 G_API_COMMON GCanvas16(
-		 std::tuple<std::size_t, std::size_t>
-		 , std::tuple<float, float, float>
+		 std::tuple<std::size_t, std::size_t> const&
+		 , std::tuple<float, float, float> const&
 	 );
 	 /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-	 G_API_COMMON GCanvas16(const std::string &);
+	 explicit G_API_COMMON GCanvas16(std::string const &);
 	 /** @brief Copy construction */
-	 G_API_COMMON GCanvas16(const GCanvas16 &);
+	 G_API_COMMON GCanvas16(GCanvas16 const &) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GCanvas16();
+	 G_API_COMMON ~GCanvas16() override = default;
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON  GCanvas16 &operator=(const GCanvas16 &);
+	 G_API_COMMON GCanvas16 &operator=(GCanvas16 const&) = default;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
-G_API_COMMON float operator-(const GCanvas16 &, const GCanvas16 &);
+G_API_COMMON float operator-(
+	GCanvas16 const &
+	, GCanvas16 const &
+);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1053,26 +1067,29 @@ class GCanvas24 : public GCanvas<24> {
 
 public:
 	 /** @brief The default constructor */
-	 G_API_COMMON GCanvas24();
+	 G_API_COMMON GCanvas24() = default;
 	 /** @brief Initialization with dimensions and colors */
 	 G_API_COMMON GCanvas24(
-		 std::tuple<std::size_t, std::size_t>
-		 , std::tuple<float, float, float>
+		 std::tuple<std::size_t, std::size_t> const&
+		 , std::tuple<float, float, float> const&
 	 );
 	 /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-	 G_API_COMMON GCanvas24(const std::string &);
+	 explicit G_API_COMMON GCanvas24(std::string const &);
 	 /** @brief Copy construction */
-	 G_API_COMMON GCanvas24(const GCanvas24 &);
+	 G_API_COMMON GCanvas24(GCanvas24 const &) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GCanvas24();
+	 G_API_COMMON ~GCanvas24() override = default;
 
 	 /** @brief The assignment operator */
-	 G_API_COMMON  GCanvas24 &operator=(const GCanvas24 &);
+	 G_API_COMMON  GCanvas24 &operator=(GCanvas24 const &) = default;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
-G_API_COMMON float operator-(const GCanvas24 &, const GCanvas24 &);
+G_API_COMMON float operator-(
+	GCanvas24 const &
+	, GCanvas24 const &
+);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

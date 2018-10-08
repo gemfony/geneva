@@ -34,11 +34,11 @@
 
 #include "common/GCanvas.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GRgb)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GColumn)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas8)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas16)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas24)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GRgb) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GColumn) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas8) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas16) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GCanvas24) // NOLINT
 
 namespace Gem {
 namespace Common {
@@ -47,74 +47,31 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-coord2D::coord2D()
-	: x(0.f), y(0.f) { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Construction with positions
  */
-coord2D::coord2D(const float &x_pos, const float &y_pos)
-	: x(x_pos), y(y_pos) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Copy construction
- */
-coord2D::coord2D(const coord2D &cp)
-	: x(cp.x), y(cp.y) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * An assignment operator
- */
- coord2D &coord2D::operator=(const coord2D &cp) {
-	x = cp.x;
-	y = cp.y;
-
-	return *this;
-}
+coord2D::coord2D(float x_pos, float y_pos)
+	: x(x_pos)
+	, y(y_pos)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Convenience function for calculating the difference between two coordinate vectors
  */
-coord2D operator-(const coord2D &a, const coord2D &b) {
-	return coord2D(a.x - b.x, a.y - b.y);
+coord2D operator-(coord2D const & a, coord2D const & b) {
+	return {a.x - b.x, a.y - b.y};
 }
 
 /******************************************************************************/
 /**
  * Convenience function for calculating the dot product of two coordinate vectors
  */
-float operator*(const coord2D &a, const coord2D &b) {
+float operator*(coord2D const & a, coord2D const& b) {
 	return a.x * b.x + a.y * b.y;
 }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * A simple assignment operator
- */
- triangle_circle_struct &triangle_circle_struct::operator=(
-	const triangle_circle_struct &cp
-) {
-	this->middle = cp.middle;
-	this->radius = cp.radius;
-	this->angle1 = cp.angle1;
-	this->angle2 = cp.angle2;
-	this->angle3 = cp.angle3;
-	this->r = cp.r;
-	this->g = cp.g;
-	this->b = cp.b;
-	this->a = cp.a;
-
-	return *this;
-}
-
 /******************************************************************************/
 /**
  * Needed for sorting the structs
@@ -135,7 +92,7 @@ std::string triangle_circle_struct::toString() const {
 /**
  * Simplify debugging output
  */
-std::ostream &operator<<(std::ostream &out, const t_circle &tc) {
+std::ostream &operator<<(std::ostream &out, t_circle const &tc) {
 	out << std::setprecision(5)
 	<< "middle.x = " << tc.middle.x << std::endl
 	<< "middle.y = " << tc.middle.y << std::endl
@@ -155,7 +112,7 @@ std::ostream &operator<<(std::ostream &out, const t_circle &tc) {
 /**
  * Simplify comparison of two t_circle structs
  */
-bool operator==(const t_circle &a, const t_circle &b) {
+bool operator==(t_circle const &a, t_circle const &b) {
 	if (a.middle.x != b.middle.x) return false;
 	if (a.middle.y != b.middle.y) return false;
 	if (a.radius != b.radius) return false;
@@ -172,7 +129,7 @@ bool operator==(const t_circle &a, const t_circle &b) {
 /**
  * Simplify comparison of two t_circle structs
  */
-bool operator!=(const t_circle &a, const t_circle &b) {
+bool operator!=(t_circle const &a, t_circle const &b) {
 	return !operator==(a, b);
 }
 
@@ -180,54 +137,33 @@ bool operator!=(const t_circle &a, const t_circle &b) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Our colors are initialized with black
- */
-GRgb::GRgb() : r(0.f), g(0.f), b(0.f) { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with colors
  */
-GRgb::GRgb(float red, float green, float blue) : r(red), g(green), b(blue)
+GRgb::GRgb(float red, float green, float blue)
+	: r(red)
+	, g(green)
+	, b(blue)
 { /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization with colors held in a std::tuple
  */
-GRgb::GRgb(std::tuple<float, float, float> color)
-	: r(std::get<0>(color)), g(std::get<1>(color)), b(std::get<2>(color))
+GRgb::GRgb(std::tuple<float, float, float> const& color)
+	: r(std::get<0>(color))
+	, g(std::get<1>(color))
+	, b(std::get<2>(color))
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Copy Construction
- */
-GRgb::GRgb(const GRgb &cp) : r(cp.r), g(cp.g), b(cp.b) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GRgb::~GRgb() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Assignment operator
- */
- GRgb &GRgb::operator=(const GRgb &cp) {
-	r = cp.r;
-	g = cp.g;
-	b = cp.b;
-
-	return *this;
-}
 
 /******************************************************************************/
 /**
  * Explicit reset of colors
  */
-void GRgb::setColor(float red, float green, float blue) {
+void GRgb::setColor(
+	float red
+	, float green
+	, float blue
+) {
 	r = red;
 	g = green;
 	b = blue;
@@ -247,46 +183,17 @@ void GRgb::setColor(std::tuple<float, float, float> color) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GColumn::GColumn() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with dimensions and colors
  */
 GColumn::GColumn(
-	const std::size_t &sz, std::tuple<float, float, float> color
+	std::size_t sz
+	, std::tuple<float, float, float> const& color
 )
-	: columnData_(sz) {
-	for (std::size_t i = 0; i < sz; i++) {
-		columnData_[i].setColor(color);
+	: m_column_data_vec(sz)
+{
+	for(auto & column_data: m_column_data_vec) {
+		column_data.setColor(color);
 	}
-}
-
-/******************************************************************************/
-/**
- * Copy construction
- */
-GColumn::GColumn(const GColumn &cp) : columnData_(cp.columnData_) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GColumn::~GColumn() {
-	columnData_.clear();
-}
-
-/******************************************************************************/
-/**
- * Assignment operator
- *
- * @param cp A copy of another GColumn object
- */
- GColumn &GColumn::operator=(const GColumn &cp) {
-	columnData_ = cp.columnData_;
-	return *this;
 }
 
 /******************************************************************************/
@@ -294,39 +201,39 @@ GColumn::~GColumn() {
  * Information about the size of this object
  */
 std::size_t GColumn::size() const {
-	return columnData_.size();
+	return m_column_data_vec.size();
 }
 
 /******************************************************************************/
 /**
  * Unchecked access
  */
-GRgb &GColumn::operator[](const std::size_t &pos) {
-	return columnData_[pos];
+GRgb &GColumn::operator[](std::size_t pos) {
+	return m_column_data_vec[pos];
 }
 
 /******************************************************************************/
 /**
  * Checked access
  */
-GRgb &GColumn::at(const std::size_t &pos) {
-	return columnData_.at(pos);
+GRgb &GColumn::at(std::size_t pos) {
+	return m_column_data_vec.at(pos);
 }
 
 /******************************************************************************/
 /**
  * Unchecked access
  */
-const GRgb &GColumn::operator[](const std::size_t &pos) const {
-	return columnData_[pos];
+const GRgb &GColumn::operator[](std::size_t pos) const {
+	return m_column_data_vec[pos];
 }
 
 /******************************************************************************/
 /**
  * Checked access
  */
-const GRgb &GColumn::at(const std::size_t &pos) const {
-	return columnData_.at(pos);
+const GRgb &GColumn::at(std::size_t pos) const {
+	return m_column_data_vec.at(pos);
 }
 
 /******************************************************************************/
@@ -334,12 +241,14 @@ const GRgb &GColumn::at(const std::size_t &pos) const {
  * Initializes the object to a specific size
  */
 void GColumn::init(
-	const std::size_t &sz, std::tuple<float, float, float> color
+	std::size_t sz
+	, std::tuple<float, float, float> const& color
 ) {
-	columnData_.clear();
-	columnData_.resize(sz);
-	for (std::size_t i = 0; i < sz; i++) {
-		columnData_[i].setColor(color);
+	m_column_data_vec.clear();
+	m_column_data_vec.resize(sz);
+
+	for(auto &column_data: m_column_data_vec) {
+		column_data.setColor(color);
 	}
 }
 
@@ -347,107 +256,57 @@ void GColumn::init(
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GCanvas8::GCanvas8()
-	: GCanvas<8>() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with dimensions and colors
  */
 GCanvas8::GCanvas8(
-	std::tuple<std::size_t, std::size_t> dim, std::tuple<float, float, float> color
-) : GCanvas<8>(dim, color) { /* nothing */ }
+	std::tuple<std::size_t, std::size_t> const& dim
+	, std::tuple<float, float, float> const& color
+)
+	: GCanvas<8>(dim, color)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization from data held in a string -- uses the PPM-P3 format
  */
-GCanvas8::GCanvas8(const std::string &ppmData)
-	: GCanvas<8>(ppmData) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Copy construction
- */
-GCanvas8::GCanvas8(const GCanvas8 &cp)
-	: GCanvas<8>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GCanvas8::~GCanvas8() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GCanvas8 &GCanvas8::operator=(const GCanvas8 &cp) {
-	GCanvas<8>::operator=(cp);
-	return *this;
-}
+GCanvas8::GCanvas8(std::string const &ppmData)
+	: GCanvas<8>(ppmData)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
   * Convenience function for the calculation of the difference between two canvasses
   */
-float operator-(const GCanvas8 &x, const GCanvas8 &y) {
+float operator-(GCanvas8 const &x, GCanvas8 const &y) {
 	return x.diff(y);
 }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-GCanvas16::GCanvas16()
-	: GCanvas<16>() { /* nothing */ }
-
 /******************************************************************************/
 /**
  * Initialization with dimensions and colors
  */
 GCanvas16::GCanvas16(
-	std::tuple<std::size_t, std::size_t> dim, std::tuple<float, float, float> color
-) : GCanvas<16>(dim, color) { /* nothing */ }
+	std::tuple<std::size_t, std::size_t> const& dim
+	, std::tuple<float, float, float> const& color
+)
+	: GCanvas<16>(dim, color)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization from data held in a string -- uses the PPM-P3 format
  */
-GCanvas16::GCanvas16(const std::string &ppmData)
-	: GCanvas<16>(ppmData) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Copy construction
- */
-GCanvas16::GCanvas16(const GCanvas16 &cp)
-	: GCanvas<16>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GCanvas16::~GCanvas16() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GCanvas16 &GCanvas16::operator=(const GCanvas16 &cp) {
-	GCanvas<16>::operator=(cp);
-	return *this;
-}
+GCanvas16::GCanvas16(std::string const & ppmData)
+	: GCanvas<16>(ppmData)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
   * Convenience function for the calculation of the difference between two canvasses
   */
-float operator-(const GCanvas16 &x, const GCanvas16 &y) {
+float operator-(GCanvas16 const &x, GCanvas16 const &y) {
 	return x.diff(y);
 }
 
@@ -455,53 +314,28 @@ float operator-(const GCanvas16 &x, const GCanvas16 &y) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GCanvas24::GCanvas24()
-	: GCanvas<24>() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with dimensions and colors
  */
 GCanvas24::GCanvas24(
-	std::tuple<std::size_t, std::size_t> dim, std::tuple<float, float, float> color
-) : GCanvas<24>(dim, color) { /* nothing */ }
+	std::tuple<std::size_t, std::size_t> const& dim
+	, std::tuple<float, float, float> const& color
+)
+	: GCanvas<24>(dim, color)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
  * Initialization from data held in a string -- uses the PPM-P3 format
  */
-GCanvas24::GCanvas24(const std::string &ppmData)
-	: GCanvas<24>(ppmData) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * Copy construction
- */
-GCanvas24::GCanvas24(const GCanvas24 &cp)
-	: GCanvas<24>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GCanvas24::~GCanvas24() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The assignment operator
- */
- GCanvas24 &GCanvas24::operator=(const GCanvas24 &cp) {
-	GCanvas<24>::operator=(cp);
-	return *this;
-}
+GCanvas24::GCanvas24(std::string const & ppmData)
+	: GCanvas<24>(ppmData)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
   * Convenience function for the calculation of the difference between two canvasses
   */
-float operator-(const GCanvas24 &x, const GCanvas24 &y) {
+float operator-(GCanvas24 const & x, GCanvas24 const & y) {
 	return x.diff(y);
 }
 
