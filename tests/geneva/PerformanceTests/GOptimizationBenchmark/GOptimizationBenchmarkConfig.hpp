@@ -114,7 +114,7 @@ public:
 		);
 
 		// Read in the configuration file
-		gpb_.parseConfigFile(configFile);
+		gpb_.parseConfigFile(boost::filesystem::path(configFile));
 	}
 
 	/*****************************************************************************/

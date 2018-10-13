@@ -1989,9 +1989,9 @@ public:
 	 GParserBuilder& operator=(GParserBuilder&&) = delete;
 
 	 /** @brief Tries to parse a given configuration file for a set of options */
-	 G_API_COMMON bool parseConfigFile(std::string const &);
+	 G_API_COMMON bool parseConfigFile(boost::filesystem::path const &);
 	 /** @brief Writes out a configuration file */
-	 G_API_COMMON void writeConfigFile(std::string const & = std::string(), std::string const & = "", bool = true) const;
+	 G_API_COMMON void writeConfigFile(boost::filesystem::path const &, std::string const & = "", bool = true) const;
 	 /** @brief Provides information on the number of file configuration options stored in this class */
 	 G_API_COMMON std::size_t numberOfFileOptions() const;
 
@@ -2617,7 +2617,7 @@ private:
 	 std::vector<std::shared_ptr<GFileParsableI>> m_file_parameter_proxies; ///< Holds file parameter proxies
 	 std::vector<std::shared_ptr<GCLParsableI>> m_cl_parameter_proxies;   ///< Holds command line parameter proxies
 
-	 std::string m_configfile_Base_name = "empty";
+	 boost::filesystem::path m_config_base_dir{};
 
 	 static std::mutex m_configfile_parser_mutex; ///< Synchronization of access to configuration files (may only happen serially)
 };
@@ -2671,7 +2671,7 @@ void configureFromFile(
 
 	//----------------------------------------------------------------------------
 	// Do the actual parsing
-	gpb.parseConfigFile(conf_file);
+	gpb.parseConfigFile(boost::filesystem::path(conf_file));
 
 	//----------------------------------------------------------------------------
 }

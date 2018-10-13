@@ -313,13 +313,13 @@ int main(int argc, char **argv) {
 		{
 			std::string header = "This is a not so complicated header;with a second line;and a third line as well";
 			bool writeAll = true; // If set to false, only essential (but no secondary variables) are written
-			gpb.writeConfigFile(fileName, header, writeAll);
+			gpb.writeConfigFile(boost::filesystem::path(fileName), header, writeAll);
 		}
 			break;
 
 		case 1: // file parsing
 		{
-			gpb.parseConfigFile(fileName);
+			gpb.parseConfigFile(boost::filesystem::path(fileName));
 		}
 			break;
 

@@ -60,6 +60,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
 #include <boost/spirit/include/qi_operator.hpp>
 #include <boost/spirit/include/qi_char.hpp>
 #include <boost/spirit/include/qi_string.hpp>
@@ -82,7 +84,15 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
-/** @brief This function tries to determine a suitable number of threads for the current architecture */
+/** @brief Reads a json-document from a boost::fileystem::path. This is a helper-function */
+G_API_COMMON
+void read_json(
+	boost::filesystem::path const& path
+	, boost::property_tree::ptree & pt
+);
+
+/******************************************************************************/
+/** @brief Determines a suitable number of threads for the current architecture */
 G_API_COMMON
 unsigned int getNHardwareThreads(
 	unsigned int defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS

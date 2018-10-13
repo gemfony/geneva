@@ -195,7 +195,7 @@ void GObject::readConfigFile(const std::string &configFile) {
 	addConfigurationOptions(gpb);
 
 	// Read in the configuration file
-	gpb.parseConfigFile(configFile);
+	gpb.parseConfigFile(boost::filesystem::path(configFile));
 }
 
 

@@ -156,7 +156,7 @@ public:
 		 // Do the actual parsing. Note that this
 		 // will try to write out a default configuration file,
 		 // if no existing config file can be found
-		 gpb.parseConfigFile(configFile);
+		 gpb.parseConfigFile(boost::filesystem::path(configFile));
 	 }
 
 	 //-------------------------------------------------------------------------

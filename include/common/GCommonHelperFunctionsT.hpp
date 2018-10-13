@@ -49,6 +49,7 @@
 #include <tuple>
 #include <limits>
 #include <thread>
+#include <mutex>
 #include <chrono>
 #include <type_traits>
 #include <memory>
@@ -58,6 +59,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>
+#include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <boost/checked_delete.hpp>
 #include <boost/lockfree/spsc_queue.hpp>
@@ -72,6 +74,55 @@
 
 namespace Gem {
 namespace Common {
+
+/******************************************************************************/
+/**
+ * Reads a given environment variable and converts it to a target type. The
+ * function assumes that a suitable boost::lexical_cast exists for this type.
+ *
+ * @param var The name of the environment variable to be read
+ * @return The converted environment variable or 0
+ */
+template <typename target_type>
+boost::optional<target_type> environmentVariableAs(std::string const& var) {
+	std::string result_str;
+
+	{
+		// We want to avoid clashes when reading environment variables.
+		// In particular std::getenv is not thread-safe
+		static std::mutex read_env_mutex;
+		std::unique_lock<std::mutex> lk(read_env_mutex);
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1020)
+		char* env_ptr = 0;
+		size_t sz = 0;
+		if (0 == _dupenv_s(&env_ptr, &sz, var.c_str()) && nullptr != env_ptr) {
+			// Only convert to a string if the environment variable exists
+			result_str = std::string(env_ptr);
+			// Clean up the environment
+			free(env_ptr);
+		} else {
+			return {}; // Empty optional: no success
+		}
+#else /* no _MSC_VER */
+		// TODO: Switch to std::getenv_s
+		const char *env_ptr = std::getenv(var.c_str());
+
+		if (env_ptr) {
+			// Only convert to a string if the environment variable exists
+			result_str = std::string(env_ptr);
+		} else {
+			return {}; // Empty optional: no success
+		}
+#endif /* _MSC_VER */
+	} // Releases the lock
+
+	// Remove any white space characters
+	boost::trim(result_str);
+
+	// Let the audience know
+	return { boost::lexical_cast<target_type>(result_str) };
+}
 
 /******************************************************************************/
 /**

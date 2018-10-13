@@ -984,7 +984,7 @@ void Go2::parseConfigFile(const std::string &configFilename) {
 	this->addConfigurationOptions(gpb);
 
 	// Do the actual parsing
-	if (not gpb.parseConfigFile(configFilename)) {
+	if (not gpb.parseConfigFile(boost::filesystem::path(configFilename))) {
 		glogger
 			<< "In Go2::parseConfigFile: Error!" << std::endl
 			<< "Could not parse configuration file " << configFilename << std::endl

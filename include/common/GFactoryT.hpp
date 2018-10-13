@@ -160,7 +160,7 @@ public:
 		 std::shared_ptr<prod_type> p = this->getObject_(gpb, m_id);
 
 		 // Read the configuration parameters from file
-		 if (not gpb.parseConfigFile(m_configFile)) {
+		 if (not gpb.parseConfigFile(boost::filesystem::path(m_configFile))) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFactoryT<prod_type>::operator(): Error!" << std::endl
@@ -244,7 +244,7 @@ public:
 
 		 // Write out the configuration file, if options have been registered
 		 if (gpb.numberOfFileOptions() > 0) {
-			 gpb.writeConfigFile(m_configFile, header, true);
+			 gpb.writeConfigFile(boost::filesystem::path(m_configFile), header, true);
 		 } else {
 			 std::cout
 				 << "Warning: An attempt was made to write out configuration file " << m_configFile << std::endl

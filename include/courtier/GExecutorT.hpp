@@ -1317,7 +1317,7 @@ public:
 	  */
 	 GMTExecutorT()
 		 : GBaseExecutorT<processable_type>()
-			, m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
+		 , m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
 	 { /* nothing */ }
 
 	 /***************************************************************************/

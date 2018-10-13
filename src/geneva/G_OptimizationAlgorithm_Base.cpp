@@ -603,7 +603,7 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
 	// user-defined configuration options
 	Gem::Common::GParserBuilder gpb;
 	m_executor_ptr->addConfigurationOptions(gpb);
-	if (not gpb.parseConfigFile(executorConfigFile)) {
+	if (not gpb.parseConfigFile(boost::filesystem::path(executorConfigFile))) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::registerExecutor(): Error!" << std::endl

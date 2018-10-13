@@ -34,6 +34,12 @@
 
 #include "common/GCommonHelperFunctions.hpp"
 
+namespace {
+	std::mutex g_hwt_read_mutex;
+	std::atomic<bool> g_hwt_read{false};
+	std::atomic<unsigned int> g_nHardwareThreads{Gem::Common::DEFAULTNHARDWARETHREADS};
+}
+
 namespace Gem {
 namespace Common {
 
@@ -46,50 +52,55 @@ namespace Common {
  * is set to 0 (the default), the maximum number is unlimited.
  *
  * @param defaultNThreads The default number of threads to be returned if hardware concurrency cannot be determined
+ * @param maxNThreads The maximum number of threads
  * @return A guess at a suitable number of threads for this architecture, used as a fallback
  */
-
-std::mutex g_hwt_read_mutex;
-std::atomic<bool> g_hwt_read(false); // global in this file
-std::atomic<unsigned int> g_nHardwareThreads(Gem::Common::DEFAULTNHARDWARETHREADS); // global in this file
-
 unsigned int
 getNHardwareThreads(
 	unsigned int defaultNThreads
 	, unsigned int maxNThreads
 ) {
 	if (not g_hwt_read) {
-		std::unique_lock<std::mutex>(g_hwt_read_mutex);
+		std::unique_lock<std::mutex> lock(g_hwt_read_mutex);
 		if (not g_hwt_read) {
-			g_hwt_read = true;
-
 			if(maxNThreads > 0) {
 				g_nHardwareThreads.store(
-					(std::min)(Gem::Common::DEFAULTMAXNHARDWARETHREADS, std::thread::hardware_concurrency())
+					(std::min)(maxNThreads, std::thread::hardware_concurrency())
 				);
 			} else {
 				g_nHardwareThreads.store(std::thread::hardware_concurrency());
 			}
 
-			if(g_nHardwareThreads.load() == 0) {
-				unsigned int nFallBackThreads = 0;
+			if(g_nHardwareThreads.load() == 0) { // We could not load the number of hardware threads
 				if(maxNThreads > 0) {
-					nFallBackThreads = (std::min)(Gem::Common::DEFAULTMAXNHARDWARETHREADS, Gem::Common::DEFAULTNHARDWARETHREADS);
+					g_nHardwareThreads.store((std::min)(defaultNThreads, maxNThreads));
 				} else {
-					nFallBackThreads = Gem::Common::DEFAULTNHARDWARETHREADS;
+					g_nHardwareThreads.store(defaultNThreads);
 				}
 
 				glogger
 					<< "Could not get information regarding suitable number of threads." << std::endl
-					<< "Using the default value  = " << nFallBackThreads << " instead." << std::endl
+					<< "Using the default value  = " << defaultNThreads << " instead." << std::endl
 					<< GWARNING;
-
-				g_nHardwareThreads.store(nFallBackThreads);
 			}
+
+			g_hwt_read = true;
 		}
 	} // exclusive access ends
 
 	return g_nHardwareThreads.load();
+}
+
+/******************************************************************************/
+/**
+ * Reads a json-document from a boost::fileystem::path. This is a helper-function,
+ * as boost::property_tree::read_json does not accept a boost::filesystem argument.
+ */
+void read_json(
+	boost::filesystem::path const& path
+	, boost::property_tree::ptree & pt
+){
+	boost::property_tree::read_json(path.string(), pt);
 }
 
 /******************************************************************************/
@@ -148,7 +159,7 @@ runExternalCommand(
 	}
 
 	// If requested by the user, we want to send the command to an external file
-	if (boost::filesystem::path() != commandOutputFileName) {
+	if (not commandOutputFileName.empty()) {
 		boost::filesystem::path p_commandOutputFileName = commandOutputFileName;
 		std::string localcommandOutputFileName = (p_commandOutputFileName.make_preferred()).string();
 
@@ -250,13 +261,12 @@ stringToUIntVec(
 	using namespace boost::spirit;
 
 	std::vector<unsigned int> result;
-	bool success = false;
 
 	std::string::const_iterator from = raw.begin();
 	std::string::const_iterator to = raw.end();
 
 	// Do the actual parsing
-	success = qi::phrase_parse(
+	bool success = qi::phrase_parse(
 		from, to, (uint_ % sep), qi::space, result
 	);
 
@@ -284,13 +294,12 @@ stringToDoubleVec(std::string const & raw) {
 	using namespace boost::spirit;
 
 	std::vector<double> result;
-	bool success = false;
 
 	std::string::const_iterator from = raw.begin();
 	std::string::const_iterator to = raw.end();
 
 	// Do the actual parsing
-	success = qi::phrase_parse(
+	bool success = qi::phrase_parse(
 		from, to, (double_ % ','), qi::space, result
 	);
 
@@ -321,13 +330,12 @@ stringToUIntTupleVec(std::string const & raw) {
 	using res_type = std::vector<std::tuple<unsigned int, unsigned int>>;
 
 	std::vector<std::tuple<unsigned int, unsigned int>> result;
-	bool success = false;
 
 	std::string::const_iterator from = raw.begin();
 	std::string::const_iterator to = raw.end();
 
 	// Do the actual parsing
-	success = qi::phrase_parse(
+	bool success = qi::phrase_parse(
 		from
 		, to
 		, (('(' >> uint_ >> ',' >> uint_ >> ')') % ',')
@@ -356,24 +364,23 @@ stringToUIntTupleVec(std::string const & raw) {
 std::chrono::duration<double>
 duration_from_string(std::string const& duration_string) {
 	std::vector<unsigned int> timings = stringToUIntVec(duration_string, ':');
-	std::chrono::duration<double> result;
 
 	switch(timings.size()) {
 		case 1:
-			result=std::chrono::seconds(timings.at(0));
+			return std::chrono::seconds(timings.at(0));
 			break;
 
 		case 2:
-			result =
-				std::chrono::minutes(timings.at(0))
-				+ std::chrono::seconds(timings.at(1));
+			return
+				(std::chrono::minutes(timings.at(0))
+				+ std::chrono::seconds(timings.at(1)));
 			break;
 
 		case 3:
-			result =
-				std::chrono::hours(timings.at(0))
+			return
+				(std::chrono::hours(timings.at(0))
 				+ std::chrono::minutes(timings.at(1))
-				+ std::chrono::seconds(timings.at(2));
+				+ std::chrono::seconds(timings.at(2)));
 			break;
 
 		default:
@@ -384,8 +391,6 @@ duration_from_string(std::string const& duration_string) {
 			);
 			break;
 	}
-
-	return result;
 }
 
 /******************************************************************************/
