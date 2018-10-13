@@ -277,9 +277,9 @@ class GStarterIndividualFactory
 {
 public:
 	 /** @brief The standard constructor */
-	 GStarterIndividualFactory(const std::string&);
+	 explicit GStarterIndividualFactory(boost::filesystem::path const&);
 	 /** @brief The destructor */
-	 virtual ~GStarterIndividualFactory();
+	 ~GStarterIndividualFactory() override = default;
 
 protected:
 	 /** @brief Creates individuals of this type */
@@ -290,18 +290,18 @@ protected:
 	 virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
-	 /** @brief The default constructor. Intentionally private and undefined */
-	 GStarterIndividualFactory() = delete;
+	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
+	 GStarterIndividualFactory() = default;
 
-	 double adProb_; ///< Probability for a parameter to be mutated
-	 double sigma_; ///< Step-width
-	 double sigmaSigma_; ///< Speed of sigma_-adaption
-	 double minSigma_; ///< Minimum allowed sigma value
-	 double maxSigma_; ///< Maximum allowed sigma value
+	 double m_adProb = GSI_DEF_ADPROB; ///< Probability for a parameter to be mutated
+	 double m_sigma = GSI_DEF_SIGMA; ///< Step-width
+	 double m_sigmaSigma = GSI_DEF_SIGMASIGMA; ///< Speed of sigma_-adaption
+	 double m_minSigma = GSI_DEF_MINSIGMA; ///< Minimum allowed sigma value
+	 double m_maxSigma = GSI_DEF_MAXSIGMA; ///< Maximum allowed sigma value
 
-	 std::vector<double> startValues_; ///< Start values for all parameters
-	 std::vector<double> lowerBoundaries_; ///< Lower boundaries for all parameters
-	 std::vector<double> upperBoundaries_; ///< Upper boundaroes for all parameters
+	 std::vector<double> m_startValues; ///< Start values for all parameters
+	 std::vector<double> m_lowerBoundaries; ///< Lower boundaries for all parameters
+	 std::vector<double> m_upperBoundaries; ///< Upper boundaroes for all parameters
 };
 
 /******************************************************************************/

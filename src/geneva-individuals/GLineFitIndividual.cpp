@@ -255,7 +255,8 @@ void GLineFitIndividual::specificTestsFailuresExpected_GUnitTests() {
  * @param configFile The name of the configuration file
  */
 GLineFitIndividualFactory::GLineFitIndividualFactory(
-	const std::vector<std::tuple<double, double>> &dataPoints, const std::string &configFile
+	const std::vector<std::tuple<double, double>> &dataPoints
+	, boost::filesystem::path const &configFile
 )
 	: Gem::Common::GFactoryT<GParameterSet>(configFile), dataPoints_(dataPoints) { /* nothing */ }
 

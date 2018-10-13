@@ -122,16 +122,12 @@ class GFactoryT {
 
 public:
 	 /***************************************************************************/
-
-	 GFactoryT() = delete; ///< The default constructor. Intentionally undefined
-
-	 /***************************************************************************/
 	 /**
 	  * The standard constructor
 	  *
 	  * @param configFile The name of a configuration file holding information about objects of type T
 	  */
-	 GFactoryT(const std::string &configFile)
+	 explicit GFactoryT(boost::filesystem::path const &configFile)
 		 : m_config_path(configFile)
 	 { /* nothing */ }
 
@@ -202,12 +198,22 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to retrieve the name of the config file
+	  * Allows to retrieve the name of the config file, including its path
 	  *
 	  * @return The name of the config-file
 	  */
-	 std::string getConfigFile() const {
+	 std::string getConfigFileName() const {
 		 return m_config_path.string();
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to retrieve the boost::filesystem::path object referring to the config file
+	  *
+	  * @return The boost::filesystem::path object referring to the config file
+	  */
+	 boost::filesystem::path getConfigFilePath() const {
+	 	return m_config_path;
 	 }
 
 	 /***************************************************************************/
@@ -257,7 +263,7 @@ public:
 
 		 // Retrieve an object (will be discarded at the end of this function)
 		 // Here, further options may be added to the parser builder.
-		 std::shared_ptr <prod_type> p = this->getObject_(gpb, GFACTORYWRITEID);
+		 std::shared_ptr<prod_type> p = this->getObject_(gpb, GFACTORYWRITEID);
 
 		 // Allow the factory to act on configuration options received
 		 // in the parsing process.
@@ -324,6 +330,10 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /** @brief The default constructor. Only needed for (de-)serialization purposes, hence private */
+	 GFactoryT() = default;
+
 	 /***************************************************************************/
 	 /**
 	  * Performs necessary global initialization work. This function is meant for

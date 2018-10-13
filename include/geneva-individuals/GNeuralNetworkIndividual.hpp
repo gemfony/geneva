@@ -997,7 +997,7 @@ class GNeuralNetworkIndividualFactory
 	: public Gem::Common::GFactoryT<GParameterSet> {
 public:
 	 /** @brief The standard constructor */
-	 G_API_INDIVIDUALS GNeuralNetworkIndividualFactory(const std::string &);
+	 explicit G_API_INDIVIDUALS GNeuralNetworkIndividualFactory(boost::filesystem::path const &);
 
 	 /** @brief The destructor */
 	 virtual G_API_INDIVIDUALS ~GNeuralNetworkIndividualFactory();
@@ -1017,8 +1017,8 @@ protected:
 	 G_API_INDIVIDUALS virtual void postProcess_(std::shared_ptr <GParameterSet> &);
 
 private:
-	 /** @brief The default constructor. Intentionally private and undefined */
-	 GNeuralNetworkIndividualFactory() = delete;
+	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
+	 GNeuralNetworkIndividualFactory() = default;
 
 	 double adProb_;
 	 double adaptAdProb_;

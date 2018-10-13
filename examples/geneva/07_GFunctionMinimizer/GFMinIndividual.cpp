@@ -288,7 +288,7 @@ std::ostream& operator<<(std::ostream& s, std::shared_ptr<Gem::Geneva::GFMinIndi
  *
  * @param configFile The name of the configuration file
  */
-GFMinIndividualFactory::GFMinIndividualFactory(const std::string& configFile)
+GFMinIndividualFactory::GFMinIndividualFactory(boost::filesystem::path const& configFile)
 	: Gem::Common::GFactoryT<GParameterSet>(configFile)
 	, adProb_(GFI_DEF_ADPROB)
 	, sigma_(GFI_DEF_SIGMA)

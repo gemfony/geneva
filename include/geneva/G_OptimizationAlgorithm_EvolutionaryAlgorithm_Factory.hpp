@@ -69,7 +69,7 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GEvolutionaryAlgorithmFactory();
 	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GEvolutionaryAlgorithmFactory(const std::string&);
+	 explicit G_API_GENEVA GEvolutionaryAlgorithmFactory(boost::filesystem::path const&);
 	 /** @brief Initialization with the name of the config file and a content creator */
 	 G_API_GENEVA GEvolutionaryAlgorithmFactory(
 		 const std::string&

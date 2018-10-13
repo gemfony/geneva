@@ -735,7 +735,7 @@ std::ostream &operator<<(std::ostream &s, std::shared_ptr <Gem::Geneva::GFunctio
  *
  * @param configFile The name of the configuration file
  */
-GFunctionIndividualFactory::GFunctionIndividualFactory(const std::string &configFile)
+GFunctionIndividualFactory::GFunctionIndividualFactory(boost::filesystem::path const& configFile)
 	: GParameterSetFactory(configFile)
 { /* nothing */ }
 

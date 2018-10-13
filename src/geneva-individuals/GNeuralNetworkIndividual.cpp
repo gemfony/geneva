@@ -1498,7 +1498,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
  *
  * @param configFile The name of the configuration file
  */
-GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(const std::string &configFile)
+GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(boost::filesystem::path const &configFile)
 	: Gem::Common::GFactoryT<GParameterSet>(configFile), adProb_(GNN_DEF_ADPROB), adaptAdProb_(GNN_DEF_ADAPTADPROB),
 	minAdProb_(GNN_DEF_MINADPROB), maxAdProb_(GNN_DEF_MAXADPROB), sigma_(GNN_DEF_SIGMA),
 	sigmaSigma_(GNN_DEF_SIGMASIGMA), minSigma_(GNN_DEF_MINSIGMA), maxSigma_(GNN_DEF_MAXSIGMA), minVar_(GNN_DEF_MINVAR),

@@ -452,7 +452,7 @@ class GFunctionIndividualFactory
 
 public:
 	 /** @brief The standard constructor */
-	 explicit G_API_INDIVIDUALS GFunctionIndividualFactory(const std::string &);
+	 explicit G_API_INDIVIDUALS GFunctionIndividualFactory(boost::filesystem::path const&);
 	 /** @brief The copy constructor */
 	 G_API_INDIVIDUALS GFunctionIndividualFactory(const GFunctionIndividualFactory &cp) = default;
 

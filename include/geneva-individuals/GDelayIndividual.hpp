@@ -170,7 +170,7 @@ class GDelayIndividualFactory
 {
 public:
 	 /** @brief The standard constructor */
-	 G_API_INDIVIDUALS GDelayIndividualFactory(const std::string&);
+	 G_API_INDIVIDUALS GDelayIndividualFactory(boost::filesystem::path const&);
 	 /** @brief The destructor */
 	 virtual G_API_INDIVIDUALS ~GDelayIndividualFactory();
 
@@ -199,8 +199,8 @@ protected:
 	 virtual G_API_INDIVIDUALS void postProcess_(std::shared_ptr<GParameterSet>&) final;
 
 private:
-	 /** @brief The default constructor. Intentionally private and undefined */
-	 GDelayIndividualFactory() = delete;
+	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
+	 GDelayIndividualFactory() = default;
 
 	 /** @brief Converts a tuple to a time format */
 	 std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int>&);

@@ -515,20 +515,10 @@ std::ostream& operator<<(std::ostream& stream, std::shared_ptr<GStarterIndividua
  *
  * @param configFile The name of the configuration file
  */
-GStarterIndividualFactory::GStarterIndividualFactory(const std::string& configFile)
+GStarterIndividualFactory::GStarterIndividualFactory(
+	boost::filesystem::path const& configFile
+)
 	: Gem::Common::GFactoryT<GParameterSet>(configFile)
-	, adProb_(GSI_DEF_ADPROB)
-	, sigma_(GSI_DEF_SIGMA)
-	, sigmaSigma_(GSI_DEF_SIGMASIGMA)
-	, minSigma_(GSI_DEF_MINSIGMA)
-	, maxSigma_(GSI_DEF_MAXSIGMA)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GStarterIndividualFactory::~GStarterIndividualFactory()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -539,7 +529,7 @@ GStarterIndividualFactory::~GStarterIndividualFactory()
  */
 std::shared_ptr<GParameterSet> GStarterIndividualFactory::getObject_(
 	Gem::Common::GParserBuilder& gpb
-	, const std::size_t& id
+	, std::size_t const& id
 ) {
 	// Will hold the result
 	std::shared_ptr<GStarterIndividual> target(new GStarterIndividual());
@@ -564,35 +554,35 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	// Local data
 	gpb.registerFileParameter<double>(
 		"adProb"
-		, adProb_
+		, m_adProb
 		, GSI_DEF_ADPROB
 	)
 	<< "The probability for random adaptions of values in evolutionary algorithms";
 
 	gpb.registerFileParameter<double>(
 		"sigma"
-		, sigma_
+		, m_sigma
 		, GSI_DEF_SIGMA
 	)
 	<< "The sigma for gauss-adaption in ES";
 
 	gpb.registerFileParameter<double>(
 		"sigmaSigma"
-		, sigmaSigma_
+		, m_sigmaSigma
 		, GSI_DEF_SIGMASIGMA
 	)
 	<< "Influences the self-adaption of gauss-mutation in ES";
 
 	gpb.registerFileParameter<double>(
 		"minSigma"
-		, minSigma_
+		, m_minSigma
 		, GSI_DEF_MINSIGMA
 	)
 	<< "The minimum amount value of sigma";
 
 	gpb.registerFileParameter<double>(
 		"maxSigma"
-		, maxSigma_
+		, m_maxSigma
 		, GSI_DEF_MAXSIGMA
 	)
 	<< "The maximum amount value of sigma";
@@ -603,7 +593,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	defStartValues.push_back(1.);
 	gpb.registerFileParameter<double>(
 		"startValues"
-		, startValues_
+		, m_startValues
 		, defStartValues
 	)
 	<< "The start values for all parameters" << std::endl
@@ -618,7 +608,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	defLowerBoundaries.push_back(0.);
 	gpb.registerFileParameter<double>(
 		"lowerBoundaries"
-		, lowerBoundaries_
+		, m_lowerBoundaries
 		, defLowerBoundaries
 	)
 	<< "The lower boundaries for all parameters" << std::endl
@@ -631,7 +621,7 @@ void GStarterIndividualFactory::describeLocalOptions_(Gem::Common::GParserBuilde
 	defUpperBoundaries.push_back(2.);
 	gpb.registerFileParameter<double>(
 		"upperBoundaries"
-		, upperBoundaries_
+		, m_upperBoundaries
 		, defUpperBoundaries
 	)
 	<< "The upper boundaries for all parameters" << std::endl
@@ -659,14 +649,14 @@ void GStarterIndividualFactory::postProcess_(std::shared_ptr<GParameterSet>& p_b
 	GStarterIndividual::addContent(
 		*p
 		, this->getId()
-		, startValues_
-		, lowerBoundaries_
-		, upperBoundaries_
-		, sigma_
-		, sigmaSigma_
-		, minSigma_
-		, maxSigma_
-		, adProb_
+		, m_startValues
+		, m_lowerBoundaries
+		, m_upperBoundaries
+		, m_sigma
+		, m_sigmaSigma
+		, m_minSigma
+		, m_maxSigma
+		, m_adProb
 	);
 }
 

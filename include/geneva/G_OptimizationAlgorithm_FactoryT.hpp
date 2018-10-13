@@ -72,7 +72,7 @@ public:
 	  * The standard constructor
 	  */
 	 explicit G_OptimizationAlgorithm_FactoryT(
-		 const std::string &configFile
+	 	boost::filesystem::path const &configFile
 	 )
 		 : Gem::Common::GFactoryT<oa_type>(configFile)
 	 { /* nothing */ }
@@ -82,7 +82,7 @@ public:
 	  * A constructor which adds a content creation function
 	  */
 	 G_OptimizationAlgorithm_FactoryT(
-		 const std::string &configFile
+		 boost::filesystem::path const & configFile
 		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 	 )
 		 : Gem::Common::GFactoryT<oa_type>(configFile)
@@ -407,8 +407,8 @@ protected:
 
 private:
 	 /***************************************************************************/
-	 /** @brief The default constructor. Intentionally private and undefined */
-	 G_OptimizationAlgorithm_FactoryT() = delete;
+	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
+	 G_OptimizationAlgorithm_FactoryT() = default;
 
 	 std::int32_t m_maxIterationCL = -1; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 	 std::int32_t m_maxStallIterationCL = -1; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET

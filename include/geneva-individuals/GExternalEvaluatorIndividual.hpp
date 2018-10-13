@@ -282,7 +282,7 @@ class GExternalEvaluatorIndividualFactory
 
 public:
 	 /** @brief The standard constructor */
-	 G_API_INDIVIDUALS GExternalEvaluatorIndividualFactory(const std::string &);
+	 explicit G_API_INDIVIDUALS GExternalEvaluatorIndividualFactory(boost::filesystem::path const&);
 	 /** @brief The copy constructor */
 	 G_API_INDIVIDUALS GExternalEvaluatorIndividualFactory(const GExternalEvaluatorIndividualFactory &);
 

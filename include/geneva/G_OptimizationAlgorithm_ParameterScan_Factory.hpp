@@ -68,11 +68,11 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GParameterScanFactory();
 	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GParameterScanFactory(const std::string&);
+	 explicit G_API_GENEVA GParameterScanFactory(boost::filesystem::path const&);
 	 /** @brief Initialization with the name of the config file and a content creator */
 	 G_API_GENEVA GParameterScanFactory(
-		 const std::string&
-		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
+		 boost::filesystem::path const&
+		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GParameterScanFactory(const GParameterScanFactory&);

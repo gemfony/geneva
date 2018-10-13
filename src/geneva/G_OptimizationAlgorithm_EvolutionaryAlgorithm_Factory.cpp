@@ -53,7 +53,7 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory()
  * Initialization with the name of the config file
  */
 GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
-	const std::string &configFile
+	boost::filesystem::path const &configFile
 )
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }

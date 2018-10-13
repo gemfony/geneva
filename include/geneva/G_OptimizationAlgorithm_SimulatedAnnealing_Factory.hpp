@@ -68,10 +68,10 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GSimulatedAnnealingFactory();
 	 /** @brief Initialization with the name of the config file */
-	 explicit G_API_GENEVA GSimulatedAnnealingFactory(const std::string&);
+	 explicit G_API_GENEVA GSimulatedAnnealingFactory(boost::filesystem::path const&);
 	 /** @brief Initialization with the name of the config file and a content creator */
 	 G_API_GENEVA GSimulatedAnnealingFactory(
-		 const std::string&
+		 boost::filesystem::path const&
 		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */

@@ -118,7 +118,7 @@ class GMultiCriterionParabolaIndividualFactory
 {
 public:
 	 /** @brief The standard constructor for this class */
-	 GMultiCriterionParabolaIndividualFactory(const std::string&);
+	 GMultiCriterionParabolaIndividualFactory(boost::filesystem::path const&);
 	 /** @brief The destructor */
 	 virtual ~GMultiCriterionParabolaIndividualFactory();
 
@@ -131,6 +131,9 @@ protected:
 	 virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
+	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
+	 GMultiCriterionParabolaIndividualFactory() = default;
+
 	 Gem::Common::GOneTimeRefParameterT<double> par_min_; ///< The lower boundary of the initialization range
 	 Gem::Common::GOneTimeRefParameterT<double> par_max_; ///< The upper boundary of the initialization range
 	 Gem::Common::GOneTimeRefParameterT<std::string> minima_string_; ///< The minima encoded as a string

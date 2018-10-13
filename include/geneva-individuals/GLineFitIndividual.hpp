@@ -147,7 +147,8 @@ class GLineFitIndividualFactory
 public:
 	 /** @brief The standard constructor */
 	 G_API_INDIVIDUALS GLineFitIndividualFactory(
-		 const std::vector<std::tuple<double, double>> &, const std::string &
+		 const std::vector<std::tuple<double, double>> &
+		 , boost::filesystem::path const &
 	 );
 
 	 /** @brief The destructor */
@@ -165,8 +166,8 @@ protected:
 	 virtual G_API_INDIVIDUALS void postProcess_(std::shared_ptr <GParameterSet> &);
 
 private:
-	 /** @brief The default constructor. Intentionally private and undefined */
-	 GLineFitIndividualFactory() = delete;
+	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
+	 GLineFitIndividualFactory() = default;
 
 	 std::vector<std::tuple<double, double>> dataPoints_; ///< Holds data points for the fit
 };

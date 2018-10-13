@@ -171,7 +171,7 @@ class GFMinIndividualFactory
 {
 public:
 	 /** @brief The standard constructor */
-	 GFMinIndividualFactory(const std::string&);
+	 explicit GFMinIndividualFactory(boost::filesystem::path const&);
 	 /** @brief The destructor */
 	 virtual ~GFMinIndividualFactory();
 
@@ -184,8 +184,8 @@ protected:
 	 virtual void postProcess_(std::shared_ptr<GParameterSet>&);
 
 private:
-	 /** @brief The default constructor. Intentionally private and undefined */
-	 GFMinIndividualFactory() = delete;
+	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
+	 GFMinIndividualFactory() = default;
 
 	 double adProb_;
 	 double sigma_;

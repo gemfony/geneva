@@ -471,7 +471,7 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
  * @param configFile The name of the configuration file
  */
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
-	const std::string &configFile
+	boost::filesystem::path const &configFile
 )
 	: Gem::Common::GFactoryT<GParameterSet>(configFile), m_adProb(GEEI_DEF_ADPROB), m_adaptAdProb(GEEI_DEF_ADAPTADPROB),
 	m_minAdProb(GEEI_DEF_MINADPROB), m_maxAdProb(GEEI_DEF_MAXADPROB), m_adaptionThreshold(GEEI_DEF_ADAPTIONTHRESHOLD),

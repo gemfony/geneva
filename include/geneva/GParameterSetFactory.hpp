@@ -75,9 +75,9 @@ public:
 	 /**
 	  * The standard constructor
 	  *
-	  * @param configFile The name of a configuration file holding information about objects of type T
+	  * @param configFile path object of a configuration file holding information about objects of type T
 	  */
-	 GParameterSetFactory(const std::string &configFile)
+	 explicit GParameterSetFactory(boost::filesystem::path const &configFile)
 		 : Gem::Common::GFactoryT<GParameterSet>(configFile)
 	 { /* nothing */ }
 
@@ -93,11 +93,8 @@ public:
 	 }
 
 	 /***************************************************************************/
-	 /**
-	  * The destructor.
-	  */
-	 virtual ~GParameterSetFactory()
-	 { /* nothing */ }
+	 // Defaulted and deleted functions
+	 ~GParameterSetFactory() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -157,6 +154,8 @@ protected:
 	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_postProcessor;
 
 private:
+	 // Only needed for (de-)serialization purposes, hence private
+	 GParameterSetFactory() = default;
 };
 
 /******************************************************************************/

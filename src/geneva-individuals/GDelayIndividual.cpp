@@ -278,7 +278,7 @@ std::tuple<double,double> GDelayIndividual::getSleepWindow() const {
 /**
  * The standard constructor for this class
  */
-GDelayIndividualFactory::GDelayIndividualFactory(const std::string& cF)
+GDelayIndividualFactory::GDelayIndividualFactory(boost::filesystem::path const& cF)
 	: Gem::Common::GFactoryT<Gem::Geneva::GParameterSet>(cF)
 { /* nothing */ }
 

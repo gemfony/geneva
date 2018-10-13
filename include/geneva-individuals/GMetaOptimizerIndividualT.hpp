@@ -1142,32 +1142,15 @@ public:
 	  *
 	  * @param configFile The name of the configuration file
 	  */
-	 GMetaOptimizerIndividualFactoryT(const std::string &configFile)
-		 : Gem::Common::GFactoryT<GParameterSet>(configFile), initNParents_(GMETAOPT_DEF_INITNPARENTS),
-		 nParents_LB_(GMETAOPT_DEF_NPARENTS_LB), nParents_UB_(GMETAOPT_DEF_NPARENTS_UB),
-		 initNChildren_(GMETAOPT_DEF_INITNCHILDREN), nChildren_LB_(GMETAOPT_DEF_NCHILDREN_LB),
-		 nChildren_UB_(GMETAOPT_DEF_NCHILDREN_UB), initAmalgamationLklh_(GMETAOPT_DEF_INITAMALGLKLHOOD),
-		 amalgamationLklh_LB_(GMETAOPT_DEF_AMALGLKLHOOD_LB), amalgamationLklh_UB_(GMETAOPT_DEF_AMALGLKLHOOD_UB),
-		 initMinAdProb_(GMETAOPT_DEF_INITMINADPROB), minAdProb_LB_(GMETAOPT_DEF_MINADPROB_LB),
-		 minAdProb_UB_(GMETAOPT_DEF_MINADPROB_UB), initAdProbRange_(GMETAOPT_DEF_INITADPROBRANGE),
-		 adProbRange_LB_(GMETAOPT_DEF_ADPROBRANGE_LB), adProbRange_UB_(GMETAOPT_DEF_ADPROBRANGE_UB),
-		 initAdProbStartPercentage_(GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE),
-		 initAdaptAdProb_(GMETAOPT_DEF_INITADAPTADPROB), adaptAdProb_LB_(GMETAOPT_DEF_ADAPTADPROB_LB),
-		 adaptAdProb_UB_(GMETAOPT_DEF_ADAPTADPROB_UB), initMinSigma_(GMETAOPT_DEF_INITMINSIGMA),
-		 minSigma_LB_(GMETAOPT_DEF_MINSIGMA_LB), minSigma_UB_(GMETAOPT_DEF_MINSIGMA_UB),
-		 initSigmaRange_(GMETAOPT_DEF_INITSIGMARANGE), sigmaRange_LB_(GMETAOPT_DEF_SIGMARANGE_LB),
-		 sigmaRange_UB_(GMETAOPT_DEF_SIGMARANGE_UB), initSigmaRangePercentage_(GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE),
-		 initSigmaSigma_(GMETAOPT_DEF_INITSIGMASIGMA), sigmaSigma_LB_(GMETAOPT_DEF_SIGMASIGMA_LB),
-		 sigmaSigma_UB_(GMETAOPT_DEF_SIGMASIGMA_UB), initCrossOverProb_(GMETAOPT_DEF_INITCROSSOVERPROB),
-		 crossOverProb_LB_(GMETAOPT_DEF_CROSSOVERPROB_LB), crossOverProb_UB_(GMETAOPT_DEF_CROSSOVERPROB_UB),
-		 ind_factory_()
+	 GMetaOptimizerIndividualFactoryT(boost::filesystem::path const &configFile)
+		 : Gem::Common::GFactoryT<GParameterSet>(configFile)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GMetaOptimizerIndividualFactoryT() { /* nothing */ }
+	 virtual ~GMetaOptimizerIndividualFactoryT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1183,7 +1166,7 @@ public:
 			 );
 		 }
 
-		 ind_factory_
+		 m_ind_factory
 			 = Gem::Common::convertSmartPointer<Gem::Common::GFactoryT<GParameterSet>, typename ind_type::FACTORYTYPE>(
 			 factory->clone());
 	 }
@@ -1447,60 +1430,60 @@ protected:
 		 );
 
 		 // Finally add the individual factory to p
-		 p->registerIndividualFactory(ind_factory_);
+		 p->registerIndividualFactory(m_ind_factory);
 	 }
 
 private:
 	 /***************************************************************************/
-	 /** @brief The default constructor. Intentionally private and undefined */
-	 GMetaOptimizerIndividualFactoryT() = delete;
+	 /** @brief The default constructor. Only needed for (de-)serialization */
+	 GMetaOptimizerIndividualFactoryT() = default;
 
 	 // Parameters pertaining to the ea population
-	 std::size_t initNParents_;  ///< The initial number of parents
-	 std::size_t nParents_LB_;    ///< The lower boundary for variations of the number of parents
-	 std::size_t nParents_UB_;    ///< The upper boundary for variations of the number of parents
+	 std::size_t initNParents_ = GMETAOPT_DEF_INITNPARENTS;  ///< The initial number of parents
+	 std::size_t nParents_LB_ = GMETAOPT_DEF_NPARENTS_LB;    ///< The lower boundary for variations of the number of parents
+	 std::size_t nParents_UB_ = GMETAOPT_DEF_NPARENTS_UB;    ///< The upper boundary for variations of the number of parents
 
-	 std::size_t initNChildren_; ///< The initial number of children
-	 std::size_t nChildren_LB_;   ///< The lower boundary for the variation of the number of children
-	 std::size_t nChildren_UB_;   ///< The upper boundary for the variation of the number of children
+	 std::size_t initNChildren_ = GMETAOPT_DEF_INITNCHILDREN; ///< The initial number of children
+	 std::size_t nChildren_LB_ = GMETAOPT_DEF_NCHILDREN_LB;   ///< The lower boundary for the variation of the number of children
+	 std::size_t nChildren_UB_ = GMETAOPT_DEF_NCHILDREN_UB;   ///< The upper boundary for the variation of the number of children
 
-	 double initAmalgamationLklh_;  ///< The initial likelihood for an individual being created from cross-over rather than "just" duplication
-	 double amalgamationLklh_LB_;    ///< The upper boundary for the variation of the amalgamation likelihood
-	 double amalgamationLklh_UB_;    ///< The upper boundary for the variation of the amalgamation likelihood
+	 double initAmalgamationLklh_ = GMETAOPT_DEF_INITAMALGLKLHOOD;  ///< The initial likelihood for an individual being created from cross-over rather than "just" duplication
+	 double amalgamationLklh_LB_ = GMETAOPT_DEF_AMALGLKLHOOD_LB;    ///< The upper boundary for the variation of the amalgamation likelihood
+	 double amalgamationLklh_UB_ = GMETAOPT_DEF_AMALGLKLHOOD_UB;    ///< The upper boundary for the variation of the amalgamation likelihood
 
-	 double initMinAdProb_;      ///< The initial lower boundary for the variation of adProb
-	 double minAdProb_LB_;       ///< The lower boundary for minAdProb
-	 double minAdProb_UB_;       ///< The upper boundary for minAdProb
+	 double initMinAdProb_ = GMETAOPT_DEF_INITMINADPROB;      ///< The initial lower boundary for the variation of adProb
+	 double minAdProb_LB_ = GMETAOPT_DEF_MINADPROB_LB;       ///< The lower boundary for minAdProb
+	 double minAdProb_UB_ = GMETAOPT_DEF_MINADPROB_UB;       ///< The upper boundary for minAdProb
 
-	 double initAdProbRange_;    ///< The initial range for the variation of adProb
-	 double adProbRange_LB_;     ///< The lower boundary for adProbRange
-	 double adProbRange_UB_;     ///< The upper boundary for adProbRange
+	 double initAdProbRange_ = GMETAOPT_DEF_INITADPROBRANGE;    ///< The initial range for the variation of adProb
+	 double adProbRange_LB_ = GMETAOPT_DEF_ADPROBRANGE_LB;     ///< The lower boundary for adProbRange
+	 double adProbRange_UB_ = GMETAOPT_DEF_ADPROBRANGE_UB;     ///< The upper boundary for adProbRange
 
-	 double initAdProbStartPercentage_; ///< The start value for adProb relative to the allowed value range
+	 double initAdProbStartPercentage_ = GMETAOPT_DEF_INITADPROBSTARTPERCENTAGE; ///< The start value for adProb relative to the allowed value range
 
-	 double initAdaptAdProb_;    ///< The initial value of the strength of adProb_ adaption
-	 double adaptAdProb_LB_;      ///< The lower boundary for the variation of the strength of adProb_ adaption
-	 double adaptAdProb_UB_;      ///< The upper boundary for the variation of the strength of adProb_ adaption
+	 double initAdaptAdProb_ = GMETAOPT_DEF_INITADAPTADPROB;    ///< The initial value of the strength of adProb_ adaption
+	 double adaptAdProb_LB_ = GMETAOPT_DEF_ADAPTADPROB_LB;      ///< The lower boundary for the variation of the strength of adProb_ adaption
+	 double adaptAdProb_UB_ = GMETAOPT_DEF_ADAPTADPROB_UB;      ///< The upper boundary for the variation of the strength of adProb_ adaption
 
-	 double initMinSigma_;       ///< The initial minimal value of sigma
-	 double minSigma_LB_;         ///< The lower boundary for the variation of the lower boundary of sigma
-	 double minSigma_UB_;         ///< The upper boundary for the variation of the lower boundary of sigma
+	 double initMinSigma_ = GMETAOPT_DEF_INITMINSIGMA;       ///< The initial minimal value of sigma
+	 double minSigma_LB_ = GMETAOPT_DEF_MINSIGMA_LB;         ///< The lower boundary for the variation of the lower boundary of sigma
+	 double minSigma_UB_ = GMETAOPT_DEF_MINSIGMA_UB;         ///< The upper boundary for the variation of the lower boundary of sigma
 
-	 double initSigmaRange_;     ///< The initial range of sigma (beyond minSigma
-	 double sigmaRange_LB_;       ///< The lower boundary for the variation of the maximum range of sigma
-	 double sigmaRange_UB_;       ///< The upper boundary for the variation of the maximum range of sigma
+	 double initSigmaRange_ = GMETAOPT_DEF_INITSIGMARANGE;     ///< The initial range of sigma (beyond minSigma
+	 double sigmaRange_LB_ = GMETAOPT_DEF_SIGMARANGE_LB;       ///< The lower boundary for the variation of the maximum range of sigma
+	 double sigmaRange_UB_ = GMETAOPT_DEF_SIGMARANGE_UB;       ///< The upper boundary for the variation of the maximum range of sigma
 
-	 double initSigmaRangePercentage_; ///< The initial percentage of the sigma range as a start value
+	 double initSigmaRangePercentage_ = GMETAOPT_DEF_INITSIGMARANGEPERCENTAGE; ///< The initial percentage of the sigma range as a start value
 
-	 double initSigmaSigma_;     ///< The initial strength of sigma adaption
-	 double sigmaSigma_LB_;       ///< The lower boundary for the variation of the strength of sigma adaption
-	 double sigmaSigma_UB_;       ///< The upper boundary for the variation of the strength of sigma adaption
+	 double initSigmaSigma_ = GMETAOPT_DEF_INITSIGMASIGMA;     ///< The initial strength of sigma adaption
+	 double sigmaSigma_LB_ = GMETAOPT_DEF_SIGMASIGMA_LB;       ///< The lower boundary for the variation of the strength of sigma adaption
+	 double sigmaSigma_UB_ = GMETAOPT_DEF_SIGMASIGMA_UB;       ///< The upper boundary for the variation of the strength of sigma adaption
 
-	 double initCrossOverProb_;     ///< The likelihood for two data items to be exchanged in a cross-over operation
-	 double crossOverProb_LB_;       ///< The lower boundary for the variation of the cross-over probability
-	 double crossOverProb_UB_;       ///< The upper boundary for the variation of the cross-over probability
+	 double initCrossOverProb_ = GMETAOPT_DEF_INITCROSSOVERPROB;     ///< The likelihood for two data items to be exchanged in a cross-over operation
+	 double crossOverProb_LB_ = GMETAOPT_DEF_CROSSOVERPROB_LB;       ///< The lower boundary for the variation of the cross-over probability
+	 double crossOverProb_UB_ = GMETAOPT_DEF_CROSSOVERPROB_UB;       ///< The upper boundary for the variation of the cross-over probability
 
-	 std::shared_ptr <typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals. It will be added to the individuals when needed
+	 std::shared_ptr<typename ind_type::FACTORYTYPE> m_ind_factory; ///< Holds a factory for our individuals. It will be added to the individuals when needed
 };
 
 /******************************************************************************/
@@ -1819,14 +1802,14 @@ private:
 
 	 Gem::Common::GPlotDesigner m_gpd; ///< Ease recording of essential information
 
-	 std::shared_ptr <Gem::Common::GGraph2D> m_progressPlotter; ///< Records progress information
-	 std::shared_ptr <Gem::Common::GGraph2D> m_nParentPlotter; ///< Records the number of parents in the individual
-	 std::shared_ptr <Gem::Common::GGraph2D> m_nChildrenPlotter; ///< Records the number of children in the individual
-	 std::shared_ptr <Gem::Common::GGraph2D> m_adProbPlotter; ///< Records the adaption probability for the individual
-	 std::shared_ptr <Gem::Common::GGraph2D> m_minSigmaPlotter; ///< Records the development of the lower sigma boundary
-	 std::shared_ptr <Gem::Common::GGraph2D> m_maxSigmaPlotter; ///< Records the development of the upper sigma boundary
-	 std::shared_ptr <Gem::Common::GGraph2D> m_sigmaRangePlotter; ///< Records the development of the sigma range
-	 std::shared_ptr <Gem::Common::GGraph2D> m_sigmaSigmaPlotter; ///< Records the development of the adaption strength
+	 std::shared_ptr<Gem::Common::GGraph2D> m_progressPlotter; ///< Records progress information
+	 std::shared_ptr<Gem::Common::GGraph2D> m_nParentPlotter; ///< Records the number of parents in the individual
+	 std::shared_ptr<Gem::Common::GGraph2D> m_nChildrenPlotter; ///< Records the number of children in the individual
+	 std::shared_ptr<Gem::Common::GGraph2D> m_adProbPlotter; ///< Records the adaption probability for the individual
+	 std::shared_ptr<Gem::Common::GGraph2D> m_minSigmaPlotter; ///< Records the development of the lower sigma boundary
+	 std::shared_ptr<Gem::Common::GGraph2D> m_maxSigmaPlotter; ///< Records the development of the upper sigma boundary
+	 std::shared_ptr<Gem::Common::GGraph2D> m_sigmaRangePlotter; ///< Records the development of the sigma range
+	 std::shared_ptr<Gem::Common::GGraph2D> m_sigmaSigmaPlotter; ///< Records the development of the adaption strength
 
 public:
 	 /***************************************************************************/
