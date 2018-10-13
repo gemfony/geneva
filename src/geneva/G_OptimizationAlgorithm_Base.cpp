@@ -574,7 +574,7 @@ void G_OptimizationAlgorithm_Base::resetToOptimizationStart() {
  */
 void G_OptimizationAlgorithm_Base::registerExecutor(
 	std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
-	, const std::string& executorConfigFile
+	, boost::filesystem::path const& executorConfigFile
 ) {
 	if(not executor_ptr) {
 		glogger
@@ -603,11 +603,11 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
 	// user-defined configuration options
 	Gem::Common::GParserBuilder gpb;
 	m_executor_ptr->addConfigurationOptions(gpb);
-	if (not gpb.parseConfigFile(boost::filesystem::path(executorConfigFile))) {
+	if (not gpb.parseConfigFile(executorConfigFile)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::registerExecutor(): Error!" << std::endl
-				<< "Could not parse configuration file " << executorConfigFile << std::endl
+				<< "Could not parse configuration file " << executorConfigFile.string() << std::endl
 		);
 	}
 
@@ -623,7 +623,7 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
  */
 void G_OptimizationAlgorithm_Base::registerExecutor(
 	execMode e
-	, const std::string& executorConfigFile
+	, boost::filesystem::path const& executorConfigFile
 ) {
 	auto executor_ptr = this->createExecutor(e);
 	this->registerExecutor(executor_ptr, executorConfigFile);

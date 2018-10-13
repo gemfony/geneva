@@ -273,12 +273,12 @@ public:
 	 /** @brief Adds a new executor to the class, replacing the default executor */
 	 G_API_GENEVA void registerExecutor(
 		 std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
-		 , const std::string& executorConfigFile
+		 , boost::filesystem::path const& executorConfigFile
 	 );
 	 /** @brief Adds a new executor to the class, using the chosen execution mode */
 	 G_API_GENEVA void registerExecutor(
 		 execMode e
-		 , const std::string& executorConfigFile
+		 , boost::filesystem::path const& executorConfigFile
 	 );
 
 	 /******************************************************************************/

@@ -146,7 +146,7 @@ public:
 	  *
 	  * @param configFile The name of a configuration file
 	  */
-	 void parseConfigFile(const std::string &configFile) {
+	 void parseConfigFile(boost::filesystem::path const &configFile) {
 		 // Create a parser builder object -- local options will be added to it
 		 Gem::Common::GParserBuilder gpb;
 
@@ -156,7 +156,7 @@ public:
 		 // Do the actual parsing. Note that this
 		 // will try to write out a default configuration file,
 		 // if no existing config file can be found
-		 gpb.parseConfigFile(boost::filesystem::path(configFile));
+		 gpb.parseConfigFile(configFile);
 	 }
 
 	 //-------------------------------------------------------------------------

@@ -134,9 +134,9 @@ public:
 	 G_API_GENEVA ~GObject() override;
 
 	 /** @brief Writes a configuration file to disk */
-	 G_API_GENEVA void writeConfigFile(const std::string&, const std::string&);
+	 G_API_GENEVA void writeConfigFile(boost::filesystem::path const &, const std::string&);
 	 /** @brief Reads a configuration file from disk */
-	 G_API_GENEVA void readConfigFile(const std::string&);
+	 G_API_GENEVA void readConfigFile(boost::filesystem::path const&);
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) BASE;

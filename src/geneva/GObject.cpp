@@ -162,7 +162,7 @@ std::string GObject::name() const {
  * @param header A header to be prepended to the configuration file
  */
 void GObject::writeConfigFile(
-	const std::string &configFile
+	boost::filesystem::path const &configFile
 	, const std::string &header
 ) {
 	// This class will handle the interaction with configuration files
@@ -186,7 +186,7 @@ void GObject::writeConfigFile(
  *
  * @param configFile The name of the configuration file to be parsed
  */
-void GObject::readConfigFile(const std::string &configFile) {
+void GObject::readConfigFile(boost::filesystem::path const &configFile) {
 	// This class will handle the interaction with configuration files
 	Gem::Common::GParserBuilder gpb;
 
@@ -195,7 +195,7 @@ void GObject::readConfigFile(const std::string &configFile) {
 	addConfigurationOptions(gpb);
 
 	// Read in the configuration file
-	gpb.parseConfigFile(boost::filesystem::path(configFile));
+	gpb.parseConfigFile(configFile);
 }
 
 

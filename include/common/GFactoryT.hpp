@@ -89,14 +89,35 @@ class GFactoryT {
 	 friend class boost::serialization::access;
 
 	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int) {
+	 void load(Archive &ar, const unsigned int) {
 		 using boost::serialization::make_nvp;
 
+		 std::string configFile{};
+
 		 ar
-		 & BOOST_SERIALIZATION_NVP(m_configFile)
+		 & BOOST_SERIALIZATION_NVP(configFile)
+		 & BOOST_SERIALIZATION_NVP(m_id)
+		 & BOOST_SERIALIZATION_NVP(m_initialized);
+
+		 // Transfer the string to the path
+		 m_config_path = boost::filesystem::path(configFile);
+	 }
+
+	 template<typename Archive>
+	 void save(Archive &ar, const unsigned int) const {
+		 using boost::serialization::make_nvp;
+
+		 // Transfer the path to the string
+		 std::string configFile = m_config_path.string();
+
+		 ar
+		 & BOOST_SERIALIZATION_NVP(configFile)
 		 & BOOST_SERIALIZATION_NVP(m_id)
 		 & BOOST_SERIALIZATION_NVP(m_initialized);
 	 }
+
+	 BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
@@ -111,7 +132,7 @@ public:
 	  * @param configFile The name of a configuration file holding information about objects of type T
 	  */
 	 GFactoryT(const std::string &configFile)
-		 : m_configFile(configFile)
+		 : m_config_path(configFile)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -160,11 +181,11 @@ public:
 		 std::shared_ptr<prod_type> p = this->getObject_(gpb, m_id);
 
 		 // Read the configuration parameters from file
-		 if (not gpb.parseConfigFile(boost::filesystem::path(m_configFile))) {
+		 if (not gpb.parseConfigFile(m_config_path)) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFactoryT<prod_type>::operator(): Error!" << std::endl
-					 << "Could not parse configuration file " << m_configFile << std::endl
+					 << "Could not parse configuration file " << m_config_path.string() << std::endl
 			 );
 		 }
 
@@ -186,7 +207,7 @@ public:
 	  * @return The name of the config-file
 	  */
 	 std::string getConfigFile() const {
-		 return m_configFile;
+		 return m_config_path.string();
 	 }
 
 	 /***************************************************************************/
@@ -195,7 +216,7 @@ public:
 	  * the next individual
 	  */
 	 void setConfigFile(std::string configFile) {
-		 m_configFile = configFile;
+		 m_config_path = boost::filesystem::path(configFile);
 	 }
 
 	 /***************************************************************************/
@@ -221,7 +242,7 @@ public:
 	  * @param configFile The name of the configuration file to be written
 	  * @param header A header to be prepended to the configuration file
 	  */
-	 void writeConfigFile(const std::string &header) {
+	 void writeConfigFile(std::string const &header) {
 		 // Make sure the initialization code has been executed.
 		 // This function will do nothing when called more than once
 		 this->globalInit();
@@ -244,10 +265,10 @@ public:
 
 		 // Write out the configuration file, if options have been registered
 		 if (gpb.numberOfFileOptions() > 0) {
-			 gpb.writeConfigFile(boost::filesystem::path(m_configFile), header, true);
+			 gpb.writeConfigFile(m_config_path, header, true);
 		 } else {
 			 std::cout
-				 << "Warning: An attempt was made to write out configuration file " << m_configFile << std::endl
+				 << "Warning: An attempt was made to write out configuration file " << m_config_path.string() << std::endl
 				 << "even though no configuration options were registered. Doing nothing." << std::endl;
 		 }
 	 }
@@ -257,7 +278,7 @@ public:
 	  * Loads the data of another GFactoryT<> object
 	  */
 	 virtual void load(std::shared_ptr<GFactoryT<prod_type>> cp) BASE {
-		 m_configFile = cp->m_configFile;
+		 m_config_path = cp->m_config_path;
 		 m_id = cp->m_id;
 		 m_initialized = cp->m_initialized;
 	 }
@@ -320,7 +341,7 @@ private:
 
 	 /***************************************************************************/
 
-	 std::string m_configFile; ///< The name of the configuration file
+	 boost::filesystem::path m_config_path; ///< The name and path of the configuration file
 	 std::size_t m_id = GFACTTORYFIRSTID; ///< The id/number of the individual currently being created
 	 bool m_initialized = false; ///< Indicates whether the initialization work has already been done
  };

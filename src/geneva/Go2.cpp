@@ -974,7 +974,7 @@ void Go2::parseCommandLine(
  *
  * @param configFilename The name of a configuration file to be parsed
  */
-void Go2::parseConfigFile(const std::string &configFilename) {
+void Go2::parseConfigFile(boost::filesystem::path const &configFilename) {
 	// Create a parser builder object. It will be destroyed at
 	// the end of this scope and thus cannot cause trouble
 	// due to registered call-backs and references
@@ -984,10 +984,10 @@ void Go2::parseConfigFile(const std::string &configFilename) {
 	this->addConfigurationOptions(gpb);
 
 	// Do the actual parsing
-	if (not gpb.parseConfigFile(boost::filesystem::path(configFilename))) {
+	if (not gpb.parseConfigFile(configFilename)) {
 		glogger
 			<< "In Go2::parseConfigFile: Error!" << std::endl
-			<< "Could not parse configuration file " << configFilename << std::endl
+			<< "Could not parse configuration file " << configFilename.string() << std::endl
 			<< GTERMINATION;
 	}
 }

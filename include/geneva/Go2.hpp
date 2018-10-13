@@ -173,7 +173,7 @@ public:
 		 , const boost::program_options::options_description& = boost::program_options::options_description()
 	 );
 	 /** @brief Loads some configuration data from a configuration file */
-	 G_API_GENEVA void parseConfigFile(const std::string&);
+	 G_API_GENEVA void parseConfigFile(boost::filesystem::path const&);
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);

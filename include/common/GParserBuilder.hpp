@@ -2634,7 +2634,7 @@ private:
 template <typename conf_object_type>
 void configureFromFile(
 	conf_object_type& target_object
-	, std::string const & conf_file
+	, boost::filesystem::path const & conf_file
 ) {
 	// Create a parser builder object. It will be destroyed at
 	// the end of this scope and thus cannot cause trouble
@@ -2647,21 +2647,19 @@ void configureFromFile(
 	//----------------------------------------------------------------------------
 	// Some error checking
 
-	boost::filesystem::path conf_file_path(conf_file);
-
 	// Check whether path is a directory name rather than
 	// a file. It is a severe error if this is the case.
-	if(boost::filesystem::is_directory(conf_file_path)) {
+	if(boost::filesystem::is_directory(conf_file)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
-				<< "In configureFromFile(" << conf_file << "): Error!" << std::endl
+				<< "In configureFromFile(" << conf_file.string() << "): Error!" << std::endl
 				<< "Target is a directory rather than a file." << std::endl
 		);
 	}
 
 	// Check whether the target directory exists. It is a
 	// severe error if this is not the case.
-	if(not boost::filesystem::exists(conf_file_path.parent_path())) {
+	if(not boost::filesystem::exists(conf_file.parent_path())) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In configureFromFile(" << conf_file << "): Error!" << std::endl
@@ -2671,7 +2669,7 @@ void configureFromFile(
 
 	//----------------------------------------------------------------------------
 	// Do the actual parsing
-	gpb.parseConfigFile(boost::filesystem::path(conf_file));
+	gpb.parseConfigFile(conf_file);
 
 	//----------------------------------------------------------------------------
 }

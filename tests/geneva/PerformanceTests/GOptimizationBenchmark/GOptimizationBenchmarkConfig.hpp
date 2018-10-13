@@ -66,7 +66,7 @@ public:
 	 * @param configFile The name of a configuration file
 	 * @param resultFile The name of a file to which results should be written
 	 */
-	explicit GOptimizationBenchmarkConfig(const std::string& configFile)
+	explicit GOptimizationBenchmarkConfig(boost::filesystem::path const & configFile)
 		: nTests_(DEFNOPTBENCHTESTS)
 		, parDim_(0)
 		, resultFile_("result.C")
@@ -114,7 +114,7 @@ public:
 		);
 
 		// Read in the configuration file
-		gpb_.parseConfigFile(boost::filesystem::path(configFile));
+		gpb_.parseConfigFile(configFile);
 	}
 
 	/*****************************************************************************/

@@ -307,19 +307,22 @@ int main(int argc, char **argv) {
 	// Check the number of registered options
 	std::cout << "Got " << gpb.numberOfFileOptions() << " options." << std::endl;
 
+	// Create a suitable path for the config file
+	boost::filesystem::path file_path(fileName);
+
 	// Depending on the command line argument, write or read a configuration file
 	switch(creationSwitcher) {
 		case 0: // file creation
 		{
 			std::string header = "This is a not so complicated header;with a second line;and a third line as well";
 			bool writeAll = true; // If set to false, only essential (but no secondary variables) are written
-			gpb.writeConfigFile(boost::filesystem::path(fileName), header, writeAll);
+			gpb.writeConfigFile(file_path, header, writeAll);
 		}
 			break;
 
 		case 1: // file parsing
 		{
-			gpb.parseConfigFile(boost::filesystem::path(fileName));
+			gpb.parseConfigFile(file_path);
 		}
 			break;
 
