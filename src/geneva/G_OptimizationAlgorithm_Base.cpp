@@ -218,7 +218,7 @@ G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationA
 	  , m_stallCounterThreshold(cp.m_stallCounterThreshold)
 	  , m_cp_interval(cp.m_cp_interval)
 	  , m_cp_base_name(cp.m_cp_base_name)
-	  , m_cp_directory(cp.m_cp_directory)
+	  , m_cp_directory_path(cp.m_cp_directory_path)
 	  , m_cp_last(cp.m_cp_last)
 	  , m_cp_remove(cp.m_cp_remove)
 	  , m_cp_serialization_mode(cp.m_cp_serialization_mode)
@@ -256,7 +256,7 @@ void G_OptimizationAlgorithm_Base::checkpoint(const bool& is_better) const {
 
 	// Determine a suitable name for the checkpoint file
 	bf::path output_file;
-	output_file = getCheckpointPath() / bf::path(
+	output_file = getCheckpointDirectoryPath() / bf::path(
 		"checkpoint-" + this->getAlgorithmPersonalityType() + "-" +
 		(this->halted() ? "final" : Gem::Common::to_string(getIteration())) + "-" +
 		Gem::Common::to_string(std::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) + "-" +
@@ -353,7 +353,10 @@ std::int32_t G_OptimizationAlgorithm_Base::getCheckpointInterval() const {
  * @param cpDirectory The directory where checkpoint files should be stored
  * @param cpBaseName The base name used for the checkpoint files
  */
-void G_OptimizationAlgorithm_Base::setCheckpointBaseName(std::string cpDirectory, std::string cpBaseName) {
+void G_OptimizationAlgorithm_Base::setCheckpointBaseName(
+	std::string cpDirectory
+	, std::string cpBaseName
+) {
 	// Do some basic checks
 	if(cpBaseName == "empty" || cpBaseName.empty()) {
 		throw gemfony_exception(
@@ -373,32 +376,30 @@ void G_OptimizationAlgorithm_Base::setCheckpointBaseName(std::string cpDirectory
 
 	m_cp_base_name = cpBaseName;
 
+	// Transform the directory into a path
+	m_cp_directory_path = boost::filesystem::path(cpDirectory);
+
 	// Check that the provided directory exists
-	if(not boost::filesystem::exists(cpDirectory)) {
+	if(not boost::filesystem::exists(m_cp_directory_path)) {
 		glogger
 			<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Warning!" << std::endl
-			<< "Directory " << cpDirectory << " does not exist and will be created automatically." << std::endl
+			<< "Directory " << m_cp_directory_path.string() << " does not exist and will be created automatically." << std::endl
 			<< GWARNING;
 
-		if(not boost::filesystem::create_directory(cpDirectory)) {
+		if(not boost::filesystem::create_directory(m_cp_directory_path)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
-					<< "Could not create directory " << cpDirectory << std::endl
+					<< "Could not create directory " << m_cp_directory_path.string() << std::endl
 			);
 		}
-	} else if(not boost::filesystem::is_directory(cpDirectory)) {
+	} else if(not boost::filesystem::is_directory(m_cp_directory_path)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
-				<< cpDirectory << " exists but is no directory." << std::endl
+				<< m_cp_directory_path.string() << " exists but is no directory." << std::endl
 		);
 	}
-
-	// Add a trailing slash to the directory name, if necessary
-	// TODO: THIS IS NOT PORTABLE TO WINDOWS!
-	if(cpDirectory[cpDirectory.size() - 1] != '/') m_cp_directory = cpDirectory + '/';
-	else m_cp_directory = cpDirectory;
 }
 
 /******************************************************************************/
@@ -418,7 +419,7 @@ std::string G_OptimizationAlgorithm_Base::getCheckpointBaseName() const {
  * @return The base name used for checkpoint files
  */
 std::string G_OptimizationAlgorithm_Base::getCheckpointDirectory() const {
-	return m_cp_directory;
+	return m_cp_directory_path.string();
 }
 
 /******************************************************************************/
@@ -427,8 +428,8 @@ std::string G_OptimizationAlgorithm_Base::getCheckpointDirectory() const {
  *
  * @return The base name used for checkpoint files
  */
-bf::path G_OptimizationAlgorithm_Base::getCheckpointPath() const {
-	return bf::path(m_cp_directory);
+bf::path G_OptimizationAlgorithm_Base::getCheckpointDirectoryPath() const {
+	return m_cp_directory_path;
 }
 
 /******************************************************************************/
@@ -510,7 +511,7 @@ void G_OptimizationAlgorithm_Base::compare(
 	compare_t(IDENTITY(m_stallCounterThreshold, p_load->m_stallCounterThreshold), token);
 	compare_t(IDENTITY(m_cp_interval, p_load->m_cp_interval), token);
 	compare_t(IDENTITY(m_cp_base_name, p_load->m_cp_base_name), token);
-	compare_t(IDENTITY(m_cp_directory, p_load->m_cp_directory), token);
+	compare_t(IDENTITY(m_cp_directory_path.string(), p_load->m_cp_directory_path.string()), token);
 	compare_t(IDENTITY(m_cp_last, p_load->m_cp_last), token);
 	compare_t(IDENTITY(m_cp_remove, p_load->m_cp_remove), token);
 	compare_t(IDENTITY(m_cp_serialization_mode, p_load->m_cp_serialization_mode), token);
@@ -1475,7 +1476,7 @@ void G_OptimizationAlgorithm_Base::load_(const GObject* cp) {
 	m_stallCounterThreshold = p_load->m_stallCounterThreshold;
 	m_cp_interval = p_load->m_cp_interval;
 	m_cp_base_name = p_load->m_cp_base_name;
-	m_cp_directory = p_load->m_cp_directory;
+	m_cp_directory_path = p_load->m_cp_directory_path;
 	m_cp_last = p_load->m_cp_last;
 	m_cp_remove = p_load->m_cp_remove;
 	m_cp_serialization_mode = p_load->m_cp_serialization_mode;

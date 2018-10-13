@@ -172,8 +172,10 @@ private:
 	 friend class boost::serialization::access;
 
 	 template<typename Archive>
-	 void serialize(Archive & ar, const unsigned int){
+	 void load(Archive &ar, const unsigned int) {
 		 using boost::serialization::make_nvp;
+
+		 std::string cpDir{};
 
 		 ar
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
@@ -193,7 +195,54 @@ private:
 		 & BOOST_SERIALIZATION_NVP(m_stallCounterThreshold)
 		 & BOOST_SERIALIZATION_NVP(m_cp_interval)
 		 & BOOST_SERIALIZATION_NVP(m_cp_base_name)
-		 & BOOST_SERIALIZATION_NVP(m_cp_directory)
+		 & BOOST_SERIALIZATION_NVP(cpDir)
+		 & BOOST_SERIALIZATION_NVP(m_cp_last)
+		 & BOOST_SERIALIZATION_NVP(m_cp_remove)
+		 & BOOST_SERIALIZATION_NVP(m_cp_serialization_mode)
+		 & BOOST_SERIALIZATION_NVP(m_qualityThreshold)
+		 & BOOST_SERIALIZATION_NVP(m_hasQualityThreshold)
+		 & BOOST_SERIALIZATION_NVP(m_maxDuration)
+		 & BOOST_SERIALIZATION_NVP(m_minDuration)
+		 & BOOST_SERIALIZATION_NVP(m_terminationFile)
+		 & BOOST_SERIALIZATION_NVP(m_terminateOnFileModification)
+		 & BOOST_SERIALIZATION_NVP(m_emitTerminationReason)
+		 & BOOST_SERIALIZATION_NVP(m_halted)
+		 & BOOST_SERIALIZATION_NVP(m_worstKnownValids_vec)
+		 & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_vec)
+		 & BOOST_SERIALIZATION_NVP(m_executor_ptr)
+		 & BOOST_SERIALIZATION_NVP(m_default_execMode)
+		 & BOOST_SERIALIZATION_NVP(m_default_executor_config);
+
+		 // Transfer the string to the path
+		 m_cp_directory_path = boost::filesystem::path(cpDir);
+	 }
+
+	 template<typename Archive>
+	 void save(Archive &ar, const unsigned int) const {
+		 using boost::serialization::make_nvp;
+
+		 // Transfer the path to the string
+		 std::string cpDir = m_cp_directory_path.string();
+
+		 ar
+		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
+		 & make_nvp("GStdPtrVectorInterfaceT_T", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>>(*this))
+		 & BOOST_SERIALIZATION_NVP(m_iteration)
+		 & BOOST_SERIALIZATION_NVP(m_offset)
+		 & BOOST_SERIALIZATION_NVP(m_maxIteration)
+		 & BOOST_SERIALIZATION_NVP(m_minIteration)
+		 & BOOST_SERIALIZATION_NVP(m_maxStallIteration)
+		 & BOOST_SERIALIZATION_NVP(m_reportIteration)
+		 & BOOST_SERIALIZATION_NVP(m_nRecordbestGlobalIndividuals)
+		 & BOOST_SERIALIZATION_NVP(m_bestGlobalIndividuals_pq)
+		 & BOOST_SERIALIZATION_NVP(m_defaultPopulationSize)
+		 & BOOST_SERIALIZATION_NVP(m_bestKnownPrimaryFitness)
+		 & BOOST_SERIALIZATION_NVP(m_bestCurrentPrimaryFitness)
+		 & BOOST_SERIALIZATION_NVP(m_stallCounter)
+		 & BOOST_SERIALIZATION_NVP(m_stallCounterThreshold)
+		 & BOOST_SERIALIZATION_NVP(m_cp_interval)
+		 & BOOST_SERIALIZATION_NVP(m_cp_base_name)
+		 & BOOST_SERIALIZATION_NVP(cpDir)
 		 & BOOST_SERIALIZATION_NVP(m_cp_last)
 		 & BOOST_SERIALIZATION_NVP(m_cp_remove)
 		 & BOOST_SERIALIZATION_NVP(m_cp_serialization_mode)
@@ -211,6 +260,9 @@ private:
 		 & BOOST_SERIALIZATION_NVP(m_default_execMode)
 		 & BOOST_SERIALIZATION_NVP(m_default_executor_config);
 	 }
+
+	 BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
@@ -242,7 +294,7 @@ public:
 	 /** @brief Allows to retrieve the directory where checkpoint files should be stored */
 	 G_API_GENEVA std::string getCheckpointDirectory() const;
 	 /** @brief Allows to retrieve the directory where checkpoint files should be stored */
-	 G_API_GENEVA bf::path getCheckpointPath() const;
+	 G_API_GENEVA bf::path getCheckpointDirectoryPath() const;
 	 /** @brief Determines whether checkpointing should be done in Text-, XML- or Binary-mode */
 	 G_API_GENEVA void setCheckpointSerializationMode(Gem::Common::serializationMode cpSerMode);
 	 /** @brief Retrieves the current checkpointing serialization mode */
@@ -613,7 +665,7 @@ private:
 
 	 std::int32_t m_cp_interval = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
 	 std::string m_cp_base_name = DEFAULTCPBASENAME; ///< The base name of the checkpoint file
-	 std::string m_cp_directory = DEFAULTCPDIR; ///< The directory where checkpoint files should be stored
+	 boost::filesystem::path m_cp_directory_path = boost::filesystem::path(DEFAULTCPDIR); ///< Path object to store the directory
 	 mutable std::string m_cp_last = "empty"; ///< The name of the last saved checkpoint
 	 bool m_cp_remove = true; ///< Whether checkpoint files should be overwritten or kept
 	 Gem::Common::serializationMode m_cp_serialization_mode = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
