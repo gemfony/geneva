@@ -260,7 +260,7 @@ private:
 	 std::atomic<bool> m_finalized = ATOMIC_VAR_INIT(false);
 	 std::atomic<bool> m_threads_started = ATOMIC_VAR_INIT(false); ///< Indicates whether threads were already started
 	 std::atomic<bool> m_threads_stop_requested = ATOMIC_VAR_INIT(false); ///< Indicates whether all threads were requested to stop
-	 std::atomic<std::uint16_t> m_n_producer_threads = ATOMIC_VAR_INIT(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS))); ///< The number of threads used to produce random numbers
+	 std::atomic<std::uint16_t> m_n_producer_threads = ATOMIC_VAR_INIT(DEFAULT01PRODUCERTHREADS); ///< The number of threads used to produce random numbers
 
 	 Gem::Common::GStdThreadGroup m_producer_threads; ///< A thread group that holds [0,1[ producer threads
 

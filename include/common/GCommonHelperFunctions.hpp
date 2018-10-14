@@ -94,10 +94,7 @@ void read_json(
 /******************************************************************************/
 /** @brief Determines a suitable number of threads for the current architecture */
 G_API_COMMON
-unsigned int getNHardwareThreads(
-	unsigned int defaultNThreads = Gem::Common::DEFAULTNHARDWARETHREADS
-	, unsigned int maxNThreads = 0
-);
+unsigned int getNHardwareThreads();
 
 /******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file */

@@ -199,10 +199,7 @@ private:
 	 // Local data
 
 	 sortingMode m_sorting_mode = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
-	 std::uint16_t m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(
-		 Gem::Common::DEFAULTNHARDWARETHREADS
-		 , Gem::Common::DEFAULTMAXNHARDWARETHREADS
-	 )); ///< The number of threads
+	 std::uint16_t m_n_threads = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
 	 std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
 
 public:

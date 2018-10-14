@@ -98,7 +98,7 @@ public:
 		 if(0 == nThreads) {
 			 glogger
 				 << "In GStdThreadConsumerT::GStdThreadConsumerT(nThreads):" << std::endl
-				 << "nThreads == 0 was requested. nThreads was reset to the default "
+				 << "nThreads == 0 was requested. m_n_threads was set to the default "
 				 << DEFAULTTHREADSPERWORKER << std::endl
 				 << GWARNING;
 		 }

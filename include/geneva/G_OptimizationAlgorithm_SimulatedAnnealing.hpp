@@ -182,10 +182,7 @@ private:
 	 double m_t = m_t0; ///< The current temperature, used in simulated annealing
 	 double m_alpha = SA_ALPHA; ///< A constant used in the cooling schedule in simulated annealing
 
-	 std::uint16_t m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(
-		 Gem::Common::DEFAULTNHARDWARETHREADS
-		 , Gem::Common::DEFAULTMAXNHARDWARETHREADS
-	 )); ///< The number of threads
+	 std::uint16_t m_n_threads = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
 
 	 std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
 

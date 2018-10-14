@@ -192,7 +192,13 @@ void GSimulatedAnnealing::addConfigurationOptions (
   */
 void GSimulatedAnnealing::setNThreads(std::uint16_t nThreads) {
 	if (nThreads == 0) {
-		m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULTNSTDTHREADS));
+		glogger
+			<< "In GSimulatedAnnealing::setNThreads(nThreads):" << std::endl
+			<< "nThreads == 0 was requested. m_n_threads was reset to the default "
+			<< DEFAULTNSTDTHREADS << std::endl
+			<< GWARNING;
+
+		m_n_threads = DEFAULTNSTDTHREADS;
 	}
 	else {
 		m_n_threads = nThreads;

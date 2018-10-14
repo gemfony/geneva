@@ -46,42 +46,26 @@ namespace Common {
 /******************************************************************************/
 /**
  * This function retrieves the number of CPU cores on the system (possibly including "virtual cores" such
- * as in the case of hyperthreading), which is regarded as a suitable default number for the amount of threads
- * of a specific kind. The function is thread-safe. When called multiple times, it will read the number of
- * hardware threads from a local cache. A maximum number of threads may be set. When the maxNThreads parameter
- * is set to 0 (the default), the maximum number is unlimited.
+ * as in the case of hyperthreading). The function is thread-safe. When called multiple times, it will read the number of
+ * hardware threads from a local cache.
  *
- * @param defaultNThreads The default number of threads to be returned if hardware concurrency cannot be determined
- * @param maxNThreads The maximum number of threads
- * @return A guess at a suitable number of threads for this architecture, used as a fallback
+ * @return A guess at a suitable number of threads for this architecture
  */
 unsigned int
-getNHardwareThreads(
-	unsigned int defaultNThreads
-	, unsigned int maxNThreads
-) {
+getNHardwareThreads() {
 	if (not g_hwt_read) {
 		std::unique_lock<std::mutex> lock(g_hwt_read_mutex);
 		if (not g_hwt_read) {
-			if(maxNThreads > 0) {
-				g_nHardwareThreads.store(
-					(std::min)(maxNThreads, std::thread::hardware_concurrency())
-				);
-			} else {
-				g_nHardwareThreads.store(std::thread::hardware_concurrency());
-			}
+			g_nHardwareThreads.store(std::thread::hardware_concurrency());
 
 			if(g_nHardwareThreads.load() == 0) { // We could not load the number of hardware threads
-				if(maxNThreads > 0) {
-					g_nHardwareThreads.store((std::min)(defaultNThreads, maxNThreads));
-				} else {
-					g_nHardwareThreads.store(defaultNThreads);
-				}
-
 				glogger
+				   << "In getNHardwareThreads():"
 					<< "Could not get information regarding suitable number of threads." << std::endl
-					<< "Using the default value  = " << defaultNThreads << " instead." << std::endl
+					<< "from hardware. Using the default value  = " << DEFAULTNHARDWARETHREADS << " instead." << std::endl
 					<< GWARNING;
+
+				g_nHardwareThreads.store(DEFAULTNHARDWARETHREADS);
 			}
 
 			g_hwt_read = true;

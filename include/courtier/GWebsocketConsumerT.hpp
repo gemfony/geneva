@@ -88,7 +88,7 @@ namespace Courtier {
 template<typename processable_type>
 class GWebsocketClientT final
 	: public Gem::Courtier::GBaseClientT<processable_type>
-	  , public std::enable_shared_from_this<GWebsocketClientT<processable_type>>
+   , public std::enable_shared_from_this<GWebsocketClientT<processable_type>>
 {
 	 //-------------------------------------------------------------------------
 	 // Make the code easier to read
@@ -1480,7 +1480,7 @@ private:
 	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	 boost::asio::ip::tcp::endpoint m_endpoint{boost::asio::ip::tcp::v4(), m_port};
-	 std::size_t m_n_listener_threads = Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS);  ///< The number of threads used to listen for incoming connections through io_context::run()
+	 std::size_t m_n_listener_threads = GCONSUMERLISTENERTHREADS;  ///< The number of threads used to listen for incoming connections through io_context::run()
 	 boost::asio::io_context m_io_context{boost::numeric_cast<int>(m_n_listener_threads)};
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_context};
 	 boost::asio::ip::tcp::socket m_socket{m_io_context};

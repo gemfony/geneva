@@ -190,8 +190,16 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 		// to check again using DCLP .
 		std::unique_lock<std::mutex> lk(m_thread_creation_mutex);
 		// Make a suggestion for the number of threads, if requested
-		std::uint16_t nProducerThreads_local =
-			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
+		std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
+		if(0 == nProducerThreads) {
+			glogger
+				<< "In GRandomFactory::setNProducerThreads(nProducerThreads) / 1:" << std::endl
+				<< "nProducerThreads == 0 was requested. nProducerThreads_local was set to the default "
+				<< DEFAULT01PRODUCERTHREADS << std::endl
+				<< GWARNING;
+		} else {
+			nProducerThreads_local = nProducerThreads;
+		}
 
 		if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads
 			for (std::uint16_t i = m_n_producer_threads.load(); i < nProducerThreads_local; i++) {
@@ -212,8 +220,16 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 		// Here it appears that no threads were running. We do need to check again, though (DLCP)
 		std::unique_lock<std::mutex> tc_lk(m_thread_creation_mutex);
 		// Make a suggestion for the number of threads, if requested
-		std::uint16_t nProducerThreads_local =
-			(nProducerThreads > 0) ? nProducerThreads : (boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(DEFAULT01PRODUCERTHREADS)));
+		std::uint16_t nProducerThreads_local = DEFAULT01PRODUCERTHREADS;
+		if(nProducerThreads == 0) {
+			glogger
+				<< "In GRandomFactory::setNProducerThreads(nProducerThreads) / 2:" << std::endl
+				<< "nProducerThreads == 0 was requested. nProducerThreads_local was set to the default "
+				<< DEFAULT01PRODUCERTHREADS << std::endl
+			   << GWARNING;
+		} else {
+			nProducerThreads_local = nProducerThreads;
+		}
 
 		if (m_threads_started) { // Someone has started the threads in the meantime. Adjust the number of threads
 			if (nProducerThreads_local > m_n_producer_threads.load()) { // start new 01 threads

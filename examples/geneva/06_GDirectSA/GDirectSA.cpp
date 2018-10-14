@@ -363,7 +363,7 @@ int main(int argc, char **argv){
 				gatc_ptr->setServerName(ip);
 				gatc_ptr->setPort(port);
 				gatc_ptr->setSerializationMode(serMode);
-				gatc_ptr->setNProcessingThreads(nEvaluationThreads);
+				gatc_ptr->setNThreads(nEvaluationThreads);
 				gatc_ptr->setMaxReconnects(maxReconnects);
 
 				// Add the consumer to the broker
