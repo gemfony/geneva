@@ -64,7 +64,7 @@ namespace Gem {
 namespace Courtier {
 
 /** @brief The default number of threads per worker if the number of hardware threads cannot be determined */
-const std::uint16_t DEFAULTTHREADSPERWORKER = 1;
+const std::uint16_t DEFAULTTHREADSPERWORKER = 4;
 
 /******************************************************************************/
 /**
@@ -87,12 +87,22 @@ class GStdThreadConsumerT
 public:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor.
+	  * Initialization with the number of threads. We want to enforce setting of
+	  * this quantity upon creation.
 	  */
-	 GStdThreadConsumerT()
-		 : Gem::Courtier::GBaseConsumerT<processable_type>()
-			, m_nWorkerThreads(boost::numeric_cast<std::size_t>(Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER)))
-	 { /* nothing */ }
+	 explicit GStdThreadConsumerT(
+	 	std::size_t nThreads = DEFAULTTHREADSPERWORKER
+	 )
+	 	: m_nThreads(nThreads>0 ? nThreads : DEFAULTTHREADSPERWORKER)
+	 {
+		 if(0 == nThreads) {
+			 glogger
+				 << "In GStdThreadConsumerT::GStdThreadConsumerT(nThreads):" << std::endl
+				 << "nThreads == 0 was requested. nThreads was reset to the default "
+				 << DEFAULTTHREADSPERWORKER << std::endl
+				 << GWARNING;
+		 }
+	 }
 
 	 /***************************************************************************/
 
@@ -103,29 +113,10 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	 * Standard destructor. Nothing - our threads receive the stop
-	 * signal from the broker and shouldn't exist at this point anymore.
-	 */
-	 ~GStdThreadConsumerT() override { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	 * Sets the number of threads per worker. Note that this function
-	 * will only have an effect before the threads have been started.
-	 * If threadsPerWorker is set to 0, an attempt will be made to automatically
-	 * determine a suitable number of threads.
-	 *
-	 * @param tpw The maximum number of allowed threads
-	 */
-	 void setNThreadsPerWorker(const std::size_t &tpw) {
-		 if (tpw == 0) {
-			 m_nWorkerThreads = boost::numeric_cast<std::size_t>(
-				 Gem::Common::getNHardwareThreads(DEFAULTTHREADSPERWORKER));
-		 }
-		 else {
-			 m_nWorkerThreads = tpw;
-		 }
-	 }
+	  * Standard destructor. Nothing - our threads receive the stop
+	  * signal from the broker and shouldn't exist anymore at this point.
+	  */
+	 ~GStdThreadConsumerT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -134,7 +125,7 @@ public:
 	 * @return The maximum number of allowed threads
 	 */
 	 std::size_t getNThreadsPerWorker(void) const {
-		 return m_nWorkerThreads;
+		 return m_nThreads;
 	 }
 
 	 /***************************************************************************/
@@ -182,20 +173,22 @@ public:
 	 /**
 	  * Sets up a consumer and registers it with the broker. This function accepts
 	  * a worker as argument.
+	  *
+	  * @TODO Check if this is needed
 	  */
-	 static void setup(
-		 const std::string &configFile,
-		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
-	 ) {
-		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
-			 new GStdThreadConsumerT<processable_type>()
-		 );
-
-		 consumer_ptr->registerWorkerTemplate(worker_ptr);
-		 consumer_ptr->parseConfigFile(configFile);
-
-		 GBROKER(processable_type)->enrol_buffer_port(consumer_ptr);
-	 }
+//	 static void setup(
+//		 const std::string &configFile,
+//		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
+//	 ) {
+//		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
+//			 new GStdThreadConsumerT<processable_type>()
+//		 );
+//
+//		 consumer_ptr->registerWorkerTemplate(worker_ptr);
+//		 consumer_ptr->parseConfigFile(configFile);
+//
+//		 GBROKER(processable_type)->enrol_consumer(consumer_ptr);
+//	 }
 
 protected:
 	 /***************************************************************************/
@@ -219,7 +212,7 @@ protected:
 	  *
 	  * @param gpb The GParserBuilder object, to which configuration options will be added
 	  */
-	 virtual void addConfigurationOptions(
+	 void addConfigurationOptions(
 		 Gem::Common::GParserBuilder &gpb
 	 ) override {
 		 // Call our parent class'es function
@@ -229,7 +222,7 @@ protected:
 		 gpb.registerFileParameter<std::size_t>(
 			 "threadsPerWorker" // The name of the variable
 			 , 0 // The default value
-			 , [this](std::size_t nt) { this->setNThreadsPerWorker(nt); }
+			 , [this](std::size_t nt) { this->setNThreads(nt); }
 		 )
 			 << "Indicates the number of threads used to process each worker." << std::endl
 			 << "Setting threadsPerWorker to 0 will result in an attempt to" << std::endl
@@ -244,13 +237,14 @@ private:
 	  * @param visible Command line options that should always be visible
 	  * @param hidden Command line options that should only be visible upon request
 	  */
-	 virtual void addCLOptions_(
-		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
+	 void addCLOptions_(
+		 boost::program_options::options_description &visible
+		 , boost::program_options::options_description &hidden
 	 ) override {
 		 namespace po = boost::program_options;
 
 		 hidden.add_options()
-			 ("nWorkerThreads", po::value<std::size_t>(&m_nWorkerThreads)->default_value(m_nWorkerThreads),
+			 ("nWorkerThreads", po::value<std::size_t>(&m_nThreads)->default_value(m_nThreads),
 				 "\t[stc] The number of threads used to process the worker");
 
 		 hidden.add_options()
@@ -264,6 +258,30 @@ private:
 	  */
 	 void actOnCLOptions_(const boost::program_options::variables_map &vm) override
 	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 /**
+	  * Sets the number of threads. Note that this function
+	  * will only have an effect before the threads have been started.
+	  * If nThreads is set to 0, a warning will be printed and the
+	  * number of threads will be set to the default value.
+	  *
+	  * @param nThreads The maximum number of allowed threads
+	  */
+	 void setNThreads(std::size_t nThreads) {
+		 if (nThreads == 0) {
+			 glogger
+				 << "In GStdThreadConsumerT::setNThreads(nThreads):" << std::endl
+				 << "nThreads == 0 was requested. nThreads was reset to the default "
+				 << DEFAULTTHREADSPERWORKER << std::endl
+				 << GWARNING;
+
+			 m_nThreads = DEFAULTTHREADSPERWORKER;
+		 }
+		 else {
+			 m_nThreads = nThreads;
+		 }
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -297,9 +315,9 @@ private:
 
 		 // Start m_nWorkerThreads threads for each registered worker template
 		 glogger
-			 << "Starting " << m_nWorkerThreads << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
+			 << "Starting " << m_nThreads << " processing threads in GStdThreadConsumerT<processable_type>" << std::endl
 			 << GLOGGING;
-		 for (std::size_t worker_id = 0; worker_id < m_nWorkerThreads; worker_id++) {
+		 for (std::size_t worker_id = 0; worker_id < m_nThreads; worker_id++) {
 			 // The actual worker
 			 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> p_worker
 				 = std::dynamic_pointer_cast<GLocalConsumerWorkerT<processable_type>>(m_workerTemplate->clone());
@@ -373,7 +391,7 @@ private:
 
 	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
 
-	 std::size_t m_nWorkerThreads; ///< The maximum number of allowed threads in the pool
+	 std::size_t m_nThreads = DEFAULTTHREADSPERWORKER; ///< The maximum number of allowed threads in the pool
 	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds the processing threads
 
 	 std::vector<std::shared_ptr<GLocalConsumerWorkerT<processable_type>>> m_workers; ///< Holds the current worker objects

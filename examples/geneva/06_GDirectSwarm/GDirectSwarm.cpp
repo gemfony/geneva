@@ -356,16 +356,17 @@ int main(int argc, char **argv){
 		case consumerType::SERIAL: // Serial execution
 		{
 			std::shared_ptr<GSerialConsumerT<GParameterSet>> sc(new GSerialConsumerT<GParameterSet>());
-			GBROKER(Gem::Geneva::GParameterSet)->enrol_buffer_port(sc);
+			GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(sc);
 		}
 			break;
 
 			//---------------------------------------------------------------------------
 		case consumerType::MULTITHREADED: // Multi-threaded execution
 		{
-			std::shared_ptr<GStdThreadConsumerT<GParameterSet>> gbtc(new GStdThreadConsumerT<GParameterSet>());
-			gbtc->setNThreadsPerWorker(nEvaluationThreads);
-			GBROKER(Gem::Geneva::GParameterSet)->enrol_buffer_port(gbtc);
+			std::shared_ptr<GStdThreadConsumerT<GParameterSet>> gbtc(
+				new GStdThreadConsumerT<GParameterSet>(nEvaluationThreads)
+			);
+			GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(gbtc);
 		}
 			break;
 
@@ -383,7 +384,7 @@ int main(int argc, char **argv){
 			gatc_ptr->setMaxReconnects(maxReconnects);
 
 			// Add the consumer to the broker
-			GBROKER(Gem::Geneva::GParameterSet)->enrol_buffer_port(gatc_ptr);
+			GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(gatc_ptr);
 		}
 			break;
 

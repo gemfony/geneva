@@ -1313,21 +1313,21 @@ class GMTExecutorT
 public:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor
-	  */
-	 GMTExecutorT()
-		 : GBaseExecutorT<processable_type>()
-		 , m_n_threads(boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads()))
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Initialization with the number of threads
+	  * Initialization with the number of threads. Setting the number of threads
+	  * to 0 will result in a warning, and the number of threads will be reset.
 	  */
 	 explicit GMTExecutorT(std::uint16_t nThreads)
 		 : GBaseExecutorT<processable_type>()
-			, m_n_threads(nThreads)
-	 { /* nothing */ }
+		 , m_n_threads(nThreads > 0 ? nThreads : Gem::Courtier::DEFAULTNSTDTHREADS)
+	 {
+	 	 if(0 == nThreads) {
+			 glogger
+				 << "In GMTExecutorT::GMTExecutorT(std::uint16_t nThreads):" << std::endl
+				 << "User requested nThreads == 0. nThreads was reset to the default "
+				 << Gem::Courtier::DEFAULTNSTDTHREADS << std::endl
+				 << GWARNING;
+		 }
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -1337,7 +1337,7 @@ public:
 	  */
 	 GMTExecutorT(const GMTExecutorT<processable_type> &cp)
 		 : GBaseExecutorT<processable_type>(cp)
-			, m_n_threads(cp.m_n_threads)
+		 , m_n_threads(cp.m_n_threads)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1377,15 +1377,20 @@ public:
 	 /***************************************************************************/
 	 /**
 	  * Sets the number of threads for the thread pool. If nThreads is set
-	  * to 0, an attempt will be made to set the number of threads to the
-	  * number of hardware threading units (e.g. number of cores or hyperthreading
-	  * units).
+	  * to 0, a warning will be printed and the number of threads will be set to
+	  * a default value.
 	  *
 	  * @param nThreads The number of threads the threadpool should use
 	  */
 	 void setNThreads(std::uint16_t nThreads) {
 		 if (nThreads == 0) {
-			 m_n_threads = boost::numeric_cast<std::uint16_t>(Gem::Common::getNHardwareThreads(Gem::Courtier::DEFAULTNSTDTHREADS));
+			 m_n_threads = Gem::Courtier::DEFAULTNSTDTHREADS;
+
+			 glogger
+				 << "In GMTExecutorT::setNThreads(std::uint16_t nThreads):" << std::endl
+				 << "User requested nThreads == 0. nThreads was reset to the default "
+				 << Gem::Courtier::DEFAULTNSTDTHREADS << std::endl
+				 << GWARNING;
 		 }
 		 else {
 			 m_n_threads = nThreads;
@@ -1460,6 +1465,9 @@ protected:
 	 void init_() override {
 		 // GBaseExecutorT<processable_type> sees exactly the environment it would when called from its own class
 		 GBaseExecutorT<processable_type>::init_();
+
+		 // Cross-check
+		 assert(m_n_threads > 0);
 
 		 // Initialize our thread pool
 		 m_gtp_ptr.reset(new Gem::Common::GThreadPool(m_n_threads));
@@ -1632,6 +1640,12 @@ protected:
 private:
 	 /***************************************************************************/
 	 /**
+	  * The default constructor -- only needed for (de-)serialization purposes
+	  */
+	 GMTExecutorT() = default;
+
+	 /***************************************************************************/
+	 /**
 	  * Creates a deep clone of this object.
 	  */
 	 GBaseExecutorT<processable_type>* clone_() const override {
@@ -1653,7 +1667,7 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 std::uint16_t m_n_threads; ///< The number of threads
+	 std::uint16_t m_n_threads = Gem::Courtier::DEFAULTNSTDTHREADS; ///< The number of threads
 	 std::shared_ptr<Gem::Common::GThreadPool> m_gtp_ptr; ///< Temporarily holds a thread pool
 
 	 std::vector<std::future<typename processable_type::result_type>> m_future_vec; ///< Temporarily hold futures stored during the submit call

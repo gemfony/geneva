@@ -68,10 +68,8 @@ class GIndividualWebsocketConsumer final
 	: public Gem::Courtier::GWebsocketConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA GIndividualWebsocketConsumer() = default;
-	 /** @brief The destructor */
-	 G_API_GENEVA ~GIndividualWebsocketConsumer() override = default;
+	 // Forward to base-class constructor
+	 using Gem::Courtier::GWebsocketConsumerT<Gem::Geneva::GParameterSet>::GWebsocketConsumerT;
 };
 
 /******************************************************************************/
@@ -86,10 +84,8 @@ class GIndividualAsioConsumer final
 	: public Gem::Courtier::GAsioConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA GIndividualAsioConsumer() = default;
-	 /** @brief The destructor */
-  	 G_API_GENEVA ~GIndividualAsioConsumer() override = default;
+	 // Forward to base-class constructor
+	 using Gem::Courtier::GAsioConsumerT<Gem::Geneva::GParameterSet>::GAsioConsumerT;
 };
 
 /******************************************************************************/
@@ -102,10 +98,8 @@ class GIndividualThreadConsumer final
 	: public Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>
 {
 public:
-	/** @brief The default constructor */
-	G_API_GENEVA GIndividualThreadConsumer() = default;
-	/** @brief The desstructor */
- 	G_API_GENEVA ~GIndividualThreadConsumer() = default;
+	 // Forward to base-class constructor
+	 using Gem::Courtier::GStdThreadConsumerT<Gem::Geneva::GParameterSet>::GStdThreadConsumerT;
 };
 
 /******************************************************************************/

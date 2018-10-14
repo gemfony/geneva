@@ -2150,16 +2150,24 @@ std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> G_OptimizationAlgo
 
 	switch(e) {
 		case execMode::SERIAL:
-			executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(new Gem::Courtier::GSerialExecutorT<GParameterSet>());
+			glogger << "Creating GSerialExecutorT" << std::endl << GLOGGING;
+			executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(
+				new Gem::Courtier::GSerialExecutorT<GParameterSet>()
+			);
 			break;
 
 		case execMode::MULTITHREADED:
-			executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(new Gem::Courtier::GMTExecutorT<GParameterSet>());
+			glogger << "Creating GMTExecutorT" << std::endl << GLOGGING;
+			executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(
+				new Gem::Courtier::GMTExecutorT<GParameterSet>(Gem::Courtier::DEFAULTNSTDTHREADS)
+			);
 			break;
 
 		case execMode::BROKER:
-			std::cout << "Creating broker executor" << std::endl;
-			executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(new Gem::Courtier::GBrokerExecutorT<GParameterSet>());
+			glogger << "Creating GBrokerExecutorT" << std::endl << GLOGGING;
+			executor_ptr = std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>(
+				new Gem::Courtier::GBrokerExecutorT<GParameterSet>()
+			);
 			break;
 	}
 

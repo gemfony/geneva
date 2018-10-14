@@ -303,7 +303,7 @@ public:
 	  *
 	  * @param gc_ptr A pointer to a GBaseConsumerT<processable_type> object
 	  */
-	 void enrol_buffer_port(std::shared_ptr<GBaseConsumerT<processable_type>> gc_ptr) {
+	 void enrol_consumer(std::shared_ptr<GBaseConsumerT<processable_type>> gc_ptr) {
 		 //-----------------------------------------------------------------------
 		 // Check whether consumers have already been enrolled. As this may happen
 		 // only once, we emit a warning and return
@@ -363,7 +363,7 @@ public:
 	  *
 	  * @param gc_ptr_vec A vector of pointers to GBaseConsumerT<processable_type> objects
 	  */
-	 void enrol_consumer(std::vector <std::shared_ptr<GBaseConsumerT < processable_type>>> gc_ptr_vec) {
+	 void enrol_consumer_vec(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_vec) {
 		 //-----------------------------------------------------------------------
 		 // Check whether consumers have already been enrolled. As this may happen
 		 // only once, we emit a warning and return

@@ -846,7 +846,19 @@ public:
 	  * @param The number of processing threads to be used by this class
 	  */
 	 void setNProcessingThreads(std::size_t n_processing_threads) {
-	 	m_n_processing_threads = n_processing_threads;
+		 // Adapt the number of processing threads, if automatic detection was requested
+		 if(0 == n_processing_threads) {
+			 glogger
+				 << "In GAsioConsumerT<>::async_startProcessing_(): " << std::endl
+				 << "m_n_processing_threads was set to 0. The variable was reset to default " << GCONSUMERLISTENERTHREADS << std::endl
+				 << "This replaces the old behaviour where a value of 0 would have" << std::endl
+				 << "resulted in the number of hardware threads" << std::endl
+				 << GWARNING;
+
+			 m_n_processing_threads = GCONSUMERLISTENERTHREADS;
+		 } else {
+			 m_n_processing_threads = n_processing_threads;
+		 }
 	 }
 
 	 //-------------------------------------------------------------------------
@@ -886,6 +898,9 @@ protected:
 		 // Set the class-wide shutdown-flag
 		 GBaseConsumerT<processable_type>::shutdown_();
 
+		 // Make sure context threads may terminate
+		 m_io_context.stop();
+
 		 //------------------------------------------------------
 		 // Wait for context threads to finish
 		 for (auto &t: m_context_thread_vec) { t.join(); }
@@ -917,8 +932,8 @@ private:
 		 hidden.add_options()
 			 ("asio_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(GCONSUMERSERIALIZATIONMODE),
 				 "\t[asio] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
-			 ("asio_nProcessingThreads", po::value<std::size_t>(&m_n_processing_threads)->default_value(m_n_processing_threads),
-				 "\t[asio] The number of threads used to process incoming connections (0 means \"automatic\")")
+			 ("asio_nProcessingThreads", po::value<std::size_t>(&m_n_processing_threads)->default_value(GCONSUMERLISTENERTHREADS),
+				 "\t[asio] The number of threads used to process incoming connections")
 			 ("asio_maxReconnects", po::value<std::size_t>(&m_n_max_reconnects)->default_value(GASIOCONSUMERMAXCONNECTIONATTEMPTS),
 			 	 "\t[asio] The maximum number of times a client will try to reconnect to the server when no connection could be established");
 	 }
@@ -1004,10 +1019,8 @@ private:
 		 // Start accepting connections
 		 async_start_accept();
 
-		 // Adapt the number of processing threads, if automatic detection was requested
-		 if(0 == m_n_processing_threads) {
-			 m_n_processing_threads = Gem::Common::getNHardwareThreads(GCONSUMERLISTENERTHREADS);
-		 }
+		 // Cross-check ...
+		 assert(m_n_processing_threads > 0);
 
 		 // Allow to serve requests from multiple threads
 		 m_context_thread_vec.reserve(m_n_processing_threads);
@@ -1157,7 +1170,7 @@ private:
 	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	 boost::asio::ip::tcp::endpoint m_endpoint{boost::asio::ip::tcp::v4(), m_port};
-	 std::size_t m_n_processing_threads = 0;  ///< The number of threads used to process incoming connections through io_context::run()
+	 std::size_t m_n_processing_threads = GCONSUMERLISTENERTHREADS;  ///< The number of threads used to process incoming connections through io_context::run()
 	 boost::asio::io_context m_io_context{boost::numeric_cast<int>(m_n_processing_threads)};
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_context};
 	 boost::asio::ip::tcp::socket m_socket{m_io_context};

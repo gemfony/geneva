@@ -75,7 +75,7 @@ public:
 	 /** @brief Deleted default constructor enforces setting of the number of threads */
 	 G_API_COMMON GThreadPool() = delete;
 	 /** @brief Initialization with a number of threads */
-	 explicit G_API_COMMON GThreadPool(const unsigned int &);
+	 explicit G_API_COMMON GThreadPool(unsigned int);
 	 /** @brief The destructor */
 	 G_API_COMMON ~GThreadPool();
 

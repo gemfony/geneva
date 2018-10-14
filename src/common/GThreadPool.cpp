@@ -43,7 +43,7 @@ namespace Common {
  *
  * @param nThreads The desired number of threads executing work concurrently in the pool
  */
-GThreadPool::GThreadPool(unsigned int const &nThreads)
+GThreadPool::GThreadPool(unsigned int nThreads)
    : m_nThreads(nThreads > 0 ? nThreads : DEFAULTNHARDWARETHREADS)
 {
 	if(0 == nThreads) {
