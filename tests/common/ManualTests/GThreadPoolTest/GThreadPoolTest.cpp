@@ -50,13 +50,14 @@
 
 using namespace Gem::Common;
 
-Gem::Common::GThreadPool gtp; ///< The global threadpool
-
 const std::size_t NRESIZEEVENTS = 0;
 const std::size_t NJOBS = 100;
 const std::size_t NITERATIONS = 5;
 const unsigned int MINTHREADS = 1;
 const unsigned int MAXTHREADS = 20;
+const unsigned int NINITIALTHREADS = 4;
+
+Gem::Common::GThreadPool gtp{NINITIALTHREADS}; ///< The global threadpool
 
 /************************************************************************/
 /**

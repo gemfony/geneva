@@ -39,21 +39,20 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * Initialization with the "native" number of threads for this architecture
- */
-GThreadPool::GThreadPool() : m_nThreads(getNHardwareThreads())
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * Initialization with a number of threads. If set to 0, the function will
- * attempt to determine the number of hardware threads.
+ * Initialization with a number of threads.
  *
  * @param nThreads The desired number of threads executing work concurrently in the pool
  */
-GThreadPool::GThreadPool(const unsigned int &nThreads)
-   : m_nThreads(nThreads ? nThreads : getNHardwareThreads())
-{ /* nothing */ }
+GThreadPool::GThreadPool(unsigned int const &nThreads)
+   : m_nThreads(nThreads > 0 ? nThreads : DEFAULTNHARDWARETHREADS)
+{
+	if(0 == nThreads) {
+		glogger
+			<< "In GThreadPool::GThreadPool(unsigned int const &nThreads):" << std::endl
+			<< "User requested nThreads == 0. nThreads was reset to the default " << DEFAULTNHARDWARETHREADS << std::endl
+			<< GWARNING;
+	}
+}
 
 /******************************************************************************/
 /**
@@ -73,7 +72,7 @@ GThreadPool::~GThreadPool() {
 	}
 
 	// Clear the thread group
-	m_work.reset(); // This will initiate termination of all threads
+	m_work_guard_ptr.reset(); // This will initiate termination of all threads
 	m_gtg.join_all(); // wait for the threads to terminate
 	m_gtg.clearThreads(); // Clear the thread group
 }
@@ -100,8 +99,7 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 	std::lock(job_lck, tc_lk);
 
 	// Check if any work needs to be done
-	unsigned int nThreadsLocal = nThreads>0 ? nThreads : getNHardwareThreads();
-	if (m_gtg.size() == nThreadsLocal) { // We do nothing if we already have the desired size
+	if (m_gtg.size() == nThreads) { // We do nothing if we already have the desired size
 		return;
 	}
 
@@ -118,34 +116,34 @@ void GThreadPool::setNThreads(unsigned int nThreads) {
 
 	// If threads were already running, either add new threads or recreate the pool
 	if (m_threads_started) {
-		if (nThreadsLocal > m_nThreads.load()) { // We simply add the required number of threads
+		if (nThreads > m_nThreads.load()) { // We simply add the required number of threads
 			m_gtg.create_threads(
-				[this]() { this->m_io_service.run(); }
-				, nThreadsLocal - m_nThreads.load()
+				[this]() { this->m_io_context.run(); }
+				, nThreads - m_nThreads.load()
 			);
 		} else { // We need to remove threads and thus reset the entire pool
-			m_work.reset(); // This will initiate termination of all threads
+			m_work_guard_ptr.reset(); // This will initiate termination of all threads
 			m_gtg.join_all(); // wait for the threads to terminate
 			m_gtg.clearThreads(); // Clear the thread group
 
 			// Reset the io_service object, so run may be called again
-			m_io_service.reset();
+			m_io_context.restart();
 
 			// Store a new worker (a place holder, really) in the m_io_service object
-			m_work.reset(
-				new boost::asio::io_service::work(m_io_service)
+			m_work_guard_ptr.reset(
+				new boost::asio::io_context::work(m_io_context)
 			);
 
 			// Start the threads
 			m_gtg.create_threads(
-				[&]() { m_io_service.run(); }
-				, nThreadsLocal
+				[&]() { m_io_context.run(); }
+				, nThreads
 			);
 		}
 	}
 
 	// Finally set the new number of threads
-	m_nThreads = nThreadsLocal;
+	m_nThreads = nThreads;
 }
 
 /******************************************************************************/

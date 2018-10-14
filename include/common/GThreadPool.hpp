@@ -47,7 +47,7 @@
 #include <type_traits>
 
 // Boost header files go here
-#include <boost/asio/io_service.hpp>
+#include <boost/asio.hpp>
 #include <boost/utility.hpp>
 #include <boost/exception/all.hpp>
 
@@ -56,8 +56,8 @@
 #include "common/GExceptions.hpp"
 #include "common/GErrorStreamer.hpp"
 #include "common/GStdThreadGroup.hpp"
+#include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
-// #include "GThreadWrapper.hpp"
 
 namespace Gem {
 namespace Common {
@@ -72,8 +72,8 @@ namespace Common {
  */
 class GThreadPool {
 public:
-	 /** @brief Initialization with the "native" number of threads for this architecture */
-	 G_API_COMMON GThreadPool();
+	 /** @brief Deleted default constructor enforces setting of the number of threads */
+	 G_API_COMMON GThreadPool() = delete;
 	 /** @brief Initialization with a number of threads */
 	 explicit G_API_COMMON GThreadPool(const unsigned int &);
 	 /** @brief The destructor */
@@ -137,14 +137,14 @@ public:
 				 }
 
 				 // Store a worker (a place holder, really) in the m_io_service object
-				 m_work.reset(
-					 new boost::asio::io_service::work(m_io_service)
+				 m_work_guard_ptr.reset(
+					 new boost::asio::io_context::work(m_io_context)
 				 );
 
 				 // No need to let the threads join, as none were running so far
 
 				 m_gtg.create_threads(
-					 [this]() { this->m_io_service.run(); }
+					 [this]() { this->m_io_context.run(); }
 					 , m_nThreads.load()
 				 );
 
@@ -169,8 +169,9 @@ public:
 		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
 		 std::future<result_type> result = promise_ptr->get_future();
 
-		 m_io_service.post(
-			 [this, promise_ptr, f = std::bind<result_type>(std::forward<F>(f), std::forward<Args>(args)...)]() {
+		 boost::asio::post(
+		 	m_io_context
+			, [this, promise_ptr, f = std::bind<result_type>(std::forward<F>(f), std::forward<Args>(args)...)]() {
 				 try {
 					 f();
 				 } catch(boost::exception& e) {
@@ -263,14 +264,14 @@ public:
 				 }
 
 				 // Store a worker (a place holder, really) in the m_io_service object
-				 m_work.reset(
-					 new boost::asio::io_service::work(m_io_service)
+				 m_work_guard_ptr.reset(
+					 new boost::asio::io_context::work(m_io_context)
 				 );
 
 				 // No need to let the threads join, as none were running so far
 
 				 m_gtg.create_threads(
-					 [this]() { this->m_io_service.run(); }
+					 [this]() { this->m_io_context.run(); }
 					 , m_nThreads.load()
 				 );
 
@@ -295,8 +296,9 @@ public:
 		 auto promise_ptr = std::make_shared<std::promise<result_type>>();
 		 std::future<result_type> result = promise_ptr->get_future();
 
-		 m_io_service.post(
-			 [this, promise_ptr, f = std::bind<result_type>(std::forward<F>(f), std::forward<Args>(args)...)]() {
+		 boost::asio::post(
+		 	m_io_context
+		 	, [this, promise_ptr, f = std::bind<result_type>(std::forward<F>(f), std::forward<Args>(args)...)]() {
 				 try {
 					 promise_ptr->set_value(f());
 				 } catch(boost::exception& e) {
@@ -347,8 +349,8 @@ public:
 private:
 	 /***************************************************************************/
 
-	 boost::asio::io_service m_io_service; ///< Manages the concurrent thread execution
-	 std::shared_ptr<boost::asio::io_service::work> m_work; ///< A place holder ensuring that the io_service doesn't stop prematurely
+	 boost::asio::io_context m_io_context; ///< Manages the concurrent thread execution
+	 std::shared_ptr<boost::asio::io_context::work> m_work_guard_ptr; ///< A place holder ensuring that the io_service doesn't stop prematurely
 
 	 GStdThreadGroup m_gtg; ///< Holds the actual threads
 

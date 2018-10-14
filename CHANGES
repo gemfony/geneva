@@ -15,6 +15,10 @@ New Features:
 
 Changes in the architecture:
  - Rework of the executor and broker hierarchy
+ - Geneva now uses "#pragma once" instead of include guards. Chances are, that this
+   will not affect anyone as compilers that support C++14 will most likely also
+   understand this (non-standard) directive. This is the case for all recent gcc-
+   and clang-compilers as well as MSVC++.
 
 Bugs fixed:
 
@@ -22,10 +26,11 @@ Bugs fixed:
 
  - Changed Gem::Common::serializationMode::SERIALIZATIONMODE_XML to
    Gem::Common::serializationMode::XML, similar for TEXT and BINARY
- - Geneva now uses "#pragma once" instead of include guards. Chances are, that this
-   will not affect anyone as compilers that support C++14 will most likely also
-   understand this (non-standard) directive. This is the case for all recent gcc-
-   and clang-compilers as well as MSVC++.
+ - GThreadPool will no longer initialize itself with the number of hardware threads when
+	called with a number of threads == 0. This had let to many threadpools each claiming
+	as many threads as there were (logical) cores in the CPU. Note that the threadpool
+	will throw when called with nThreads == 0, so you might want to adapt your configuration
+	files.
 
 ********************************************************************************
 
