@@ -199,6 +199,9 @@ std::string serModeToString(Gem::Common::serializationMode serMod) {
 		case Gem::Common::serializationMode::BINARY:
 			return "BINARY";
 			break;
+	    default:
+            return "unkown";
+            break;
 	}
 }
 

@@ -135,15 +135,18 @@ Gem::Common::expectation GToken::getExpectation() const {
 std::string GToken::getExpectationStr() const {
 	switch (m_e) {
 		case Gem::Common::expectation::CE_FP_SIMILARITY:
-			return std::string("CE_FP_SIMILARITY");
+			return "CE_FP_SIMILARITY";
 			break;
 
 		case Gem::Common::expectation::CE_EQUALITY:
-			return std::string("CE_EQUALITY");
+			return "CE_EQUALITY";
 			break;
 
 		case Gem::Common::expectation::CE_INEQUALITY:
-			return std::string("CE_INEQUALITY");
+			return "CE_INEQUALITY";
+			break;
+		default:
+			return "unknown";
 			break;
 	}
 }

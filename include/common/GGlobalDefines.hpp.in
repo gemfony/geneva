@@ -147,7 +147,3 @@
 #endif
 
 //-----------------------------------------------------------
-// Make sure bounds-checked versions of some std-C functions are available
-#define __STDC_WANT_LIB_EXT1__ 1
-
-//-----------------------------------------------------------
