@@ -1593,8 +1593,8 @@ protected:
 			 // Retrieve the future and check for errors
 			 try {
 				 result_type r = f.get();
-			 } catch(const g_processing_exception& e) {
 #ifdef DEBUG
+			 } catch(const g_processing_exception& e) {
 				 // This is an expected exception if processing has failed. We do nothing,
 				 // it is up to the caller to decide what to do with processing errors, and
 				 // these are also stored in the processing item. We do try to create a sort
@@ -1614,7 +1614,7 @@ protected:
 			 } catch(const std::exception& e) {
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GMTExecutorT<processable_type>::waitForReturn(): Caught an" << std::endl
+						 << "In GMTExecutorT<processable_type>::waitForReturn():" << std::endl
 						 << "caught std::exception in a place where we didn't expect any exceptions" << std::endl
 						 << "Got error message:" << std::endl
 						 << e.what() << std::endl
