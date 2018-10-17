@@ -531,7 +531,7 @@ private:
 #if defined(_MSC_VER)  && (_MSC_VER >= 1020)
 		 localtime_s(&timeinfo, &now);
 #else // We assume a POSIX-compliand platform
-		 localtime_r(&now, &timeinfo)
+		 localtime_r(&now, &timeinfo);
 #endif
 
 		 oss << std::put_time(&timeinfo, "%c");
