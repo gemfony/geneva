@@ -294,7 +294,7 @@ public:
 			 // m_maxResubmissions was explicitly set to 0.
 			 if (
 				 status.is_complete  // nothing left to do
-				 || not resubmitUnprocessed || (resubmitUnprocessed && m_maxResubmissions == 0) // user is happy with unprocessed items
+				 || not resubmitUnprocessed || m_maxResubmissions == 0 // user is happy with unprocessed items
 				 || (++m_nResubmissions >= m_maxResubmissions) // we have tried to resubmit items but did not succeed
 			 ) {
 				 // Leave the loop
@@ -2315,11 +2315,7 @@ private:
 
 		 // Check if we have reached the minimum percentage
 		 double realPercentage = boost::numeric_cast<double>(m_nReturnedCurrent) / boost::numeric_cast<double>(expectedNumber);
-		 if(realPercentage >= boost::numeric_cast<double>(this->getMinPartialReturnPercentage())) {
-			 return true;
-		 } else {
-			 return false;
-		 }
+		 return (realPercentage >= boost::numeric_cast<double>(this->getMinPartialReturnPercentage()));
 	 }
 
 	 /***************************************************************************/
