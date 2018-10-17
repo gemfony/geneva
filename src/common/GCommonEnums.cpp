@@ -39,9 +39,35 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * Puts a Gem::Common::parameter_source into a stream. Needed also for boost::lexical_cast<>
+ */
+std::ostream &operator<<(std::ostream &o, Gem::Common::parameter_source const &x) {
+	o << static_cast<Gem::Common::ENUMBASETYPE>(x);
+	return o;
+}
+
+/******************************************************************************/
+/**
+ * Reads a Gem::Common::parameter_source item from a stream. Needed also for boost::lexical_cast<>
+ */
+std::istream &operator>>(std::istream &i, Gem::Common::parameter_source &x) {
+	Gem::Common::ENUMBASETYPE tmp;
+	i >> tmp;
+
+#ifdef DEBUG
+	x = boost::numeric_cast<Gem::Common::parameter_source>(tmp);
+#else
+	x = static_cast<Gem::Common::parameter_source>(tmp);
+#endif /* DEBUG */
+
+	return i;
+}
+
+/******************************************************************************/
+/**
  * Puts a Gem::Common::sortOder into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::sortOrder &x) {
+std::ostream &operator<<(std::ostream &o, Gem::Common::sortOrder const &x) {
 	o << static_cast<Gem::Common::ENUMBASETYPE>(x);
 	return o;
 }
@@ -84,7 +110,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::dimensions &x) {
 /**
  * Puts a Gem::Common::logType into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::logType &x) {
+std::ostream &operator<<(std::ostream &o, Gem::Common::logType const &x) {
 	o << static_cast<Gem::Common::ENUMBASETYPE>(x);
 	return o;
 }
@@ -110,7 +136,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::logType &x) {
 /**
  * Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::triboolStates &x) {
+std::ostream &operator<<(std::ostream &o, Gem::Common::triboolStates const &x) {
 	o << static_cast<Gem::Common::ENUMBASETYPE>(x);
 	return o;
 }
@@ -136,7 +162,7 @@ std::istream &operator>>(std::istream &i, Gem::Common::triboolStates &x) {
 /**
  * Puts a Gem::Common::serializationMode into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::serializationMode &x) {
+std::ostream &operator<<(std::ostream &o, Gem::Common::serializationMode const &x) {
 	o << static_cast<Gem::Common::ENUMBASETYPE>(x);
 	return o;
 }
@@ -180,7 +206,7 @@ std::string serModeToString(Gem::Common::serializationMode serMod) {
 /**
  * Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> *
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::expectation &x) {
+std::ostream &operator<<(std::ostream &o, Gem::Common::expectation const &x) {
 	o << static_cast<Gem::Common::ENUMBASETYPE>(x);
 	return o;
 }

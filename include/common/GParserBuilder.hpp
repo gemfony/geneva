@@ -47,6 +47,7 @@
 #include <functional>
 #include <mutex>
 #include <array>
+#include <map>
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
@@ -58,6 +59,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/optional.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -103,11 +105,133 @@ const bool GCL_IMPLICIT_NOT_ALLOWED = false;
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * Allows to store values for a single entity from different sources, such
+ * as command line, configuration files or environment variables. The enum class
+ * parameter_source holds the available parameter sources. These sources are
+ * grouped in the order "command line", "environment variable", "configuration
+ * file" and "network".
+ */
+template<typename parameter_type>
+class GMultiSourceParameterT {
+	 ///////////////////////////////////////////////////////////////////////
+	 friend class boost::serialization::access;
+
+	 template<typename Archive>
+	 void serialize(Archive &ar, const unsigned int) {
+		 using boost::serialization::make_nvp;
+
+		 ar
+		 & BOOST_SERIALIZATION_NVP(m_default_value)
+		 & BOOST_SERIALIZATION_NVP(m_parameter_values);
+	 }
+	 ///////////////////////////////////////////////////////////////////////
+
+public:
+    /***************************************************************************/
+	 /**
+	  * Construction with a default value
+	  */
+	 explicit GMultiSourceParameterT(parameter_type default_value)
+	 	: m_default_value(default_value)
+	 { /* nothing */ }
+
+	 /***************************************************************************/
+	 // Defaulted constructors. destructors and assignment operators
+
+	 GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> const& cp) = default;
+	 GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> && cp) = default;
+	 GMultiSourceParameterT<parameter_type> &operator=(GMultiSourceParameterT<parameter_type> const& cp) = default;
+	 GMultiSourceParameterT<parameter_type> &operator=(GMultiSourceParameterT<parameter_type> && cp) = default;
+	 ~GMultiSourceParameterT() = default;
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to set the value associated with a given data source
+	  */
+    void set(
+    	Gem::Common::parameter_source data_source
+    	, parameter_type parameter_value
+	 ) {
+		 m_parameter_values.at(data_source) = parameter_value;
+    }
+
+	 /***************************************************************************/
+	 /**
+	  * Allows to check whether the value for a given data source was set
+	  */
+    bool isSet(Gem::Common::parameter_source data_source) {
+    	return *(m_parameter_values.at(data_source).second);
+    }
+
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the first stored value that has been set, in the order of
+	  * appearance in m_parameter_values, or alternatively the default value,
+	  * if the value was not set from any source.
+	  */
+    parameter_type value() const {
+    	for(auto const& v_pair: m_parameter_values) {
+    		if(v_pair.second) { // Value was set
+    			return *v_pair.second;
+    		}
+
+    		// Not set -- continue loop
+    	}
+
+    	// Nothing found
+    	return m_default_value;
+    }
+
+	 /***************************************************************************/
+	 /**
+	  * Returns the value stored for a given data source. The function will throw
+	  * when called for a parameter source not listed in m_parameter_values.
+	  */
+  	 parameter_type value(Gem::Common::parameter_source data_source) {
+  	 	 return m_parameter_values.at(data_source);
+  	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Automatic conversion for constant callers
+	  */
+	 operator parameter_type() const { // NOLINT
+		 return value();
+	 }
+
+private:
+   /***************************************************************************/
+   /**
+    * Default constructor -- Only needed for (de-)serialization purposes
+    */
+   GMultiSourceParameterT() : m_default_value(parameter_type(nullptr))
+   { /* nothing */ }
+
+   /***************************************************************************/
+   // Data
+
+   parameter_type m_default_value; // The default value to be returned when all else fails
+
+   // Value retrieval will look at each entry of the map until it finds one that was set.
+   // If none was set, the default value will be returned
+	std::map<Gem::Common::parameter_source, boost::optional<parameter_type>> m_parameter_values {
+		{ Gem::Common::parameter_source::NETWORK, boost::optional<parameter_type>() }
+		, { Gem::Common::parameter_source::COMMAND_LINE, boost::optional<parameter_type>() }
+		, { Gem::Common::parameter_source::ENVIRONMENT_VARIABLE, boost::optional<parameter_type>() }
+		, { Gem::Common::parameter_source::CONFIGURATION_FILE, boost::optional<parameter_type>() }
+		, { Gem::Common::parameter_source::ASSIGNMENT, boost::optional<parameter_type>() }
+	};
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
  * Gives write access to a reference to parm_ a single time. When this has happened,
  * only an explicit reset allows to gain access to a parameter-reference again.
  * It is however possible to explicitly set the parameter.
  */
-template<typename T>
+template<typename parameter_type>
 class GOneTimeRefParameterT {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -128,7 +252,7 @@ public:
 	 /**
 	  * The standard constructor
 	  */
-	 explicit GOneTimeRefParameterT(T const& def = T(0))
+	 explicit GOneTimeRefParameterT(parameter_type const& def = parameter_type(0))
 		 : m_parm(def)
 		 , m_parm_dummy(def)
 		 , m_parm_set(false)
@@ -138,7 +262,7 @@ public:
 	 /**
 	  * The copy constructor
 	  */
-	 GOneTimeRefParameterT(GOneTimeRefParameterT<T> const& cp)
+	 GOneTimeRefParameterT(GOneTimeRefParameterT<parameter_type> const& cp)
 		 : m_parm(cp.m_parm)
 		 , m_parm_dummy(cp.m_parm_dummy)
 		 , m_parm_set(cp.m_parm_set)
@@ -148,7 +272,7 @@ public:
 	 /**
 	  * Assignment of another object of this type
 	  */
-	 GOneTimeRefParameterT<T> &operator=(GOneTimeRefParameterT<T> const& cp) {
+	 GOneTimeRefParameterT<parameter_type> &operator=(GOneTimeRefParameterT<parameter_type> const& cp) {
 		 m_parm = cp.m_parm;
 		 m_parm_dummy = cp.m_parm_dummy;
 		 m_parm_set = cp.m_parm_set;
@@ -161,7 +285,7 @@ public:
 	  * Returns a reference to the parameter, if it hasn't been set. Otherwise
 	  * it will return a reference to the dummy parameter.
 	  */
-	 T &reference() {
+	 parameter_type &reference() {
 		 if (m_parm_set) {
 			 return m_parm_dummy;
 		 } else {
@@ -190,7 +314,7 @@ public:
 	 /**
 	  * Returns the parameter value
 	  */
-	 T value() const {
+	 parameter_type value() const {
 		 return m_parm;
 	 }
 
@@ -198,16 +322,16 @@ public:
 	 /**
 	  * Allows to explicitly set the value of the parameter
 	  */
-	 void setValue(T const & parm) {
+	 void setValue(parameter_type const & parm) {
 		 m_parm = parm;
 		 m_parm_set = true;
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * Explicit assignment of a T value
+	  * Explicit assignment of a parameter_type value
 	  */
-	 GOneTimeRefParameterT<T> &operator=(T const & parm) {
+	 GOneTimeRefParameterT<parameter_type> &operator=(parameter_type const & parm) {
 		 this->setValue(parm);
 		 return *this;
 	 }
@@ -216,7 +340,7 @@ public:
 	 /**
 	  * Automatic conversion
 	  */
-	 operator T() { // NOLINT
+	 operator parameter_type() { // NOLINT
 		 return m_parm;
 	 }
 
@@ -224,15 +348,15 @@ public:
 	 /**
 	  * Automatic conversion for constant callers
 	  */
-	 operator T() const { // NOLINT
+	 operator parameter_type() const { // NOLINT
 		 return m_parm;
 	 }
 
 private:
 	 /***************************************************************************/
 
-	 T m_parm; ///< Stores the actual setting
-	 T m_parm_dummy; ///< Returned instead of parm_ if the latter has already been set
+	 parameter_type m_parm; ///< Stores the actual setting
+	 parameter_type m_parm_dummy; ///< Returned instead of parm_ if the latter has already been set
 	 bool m_parm_set; ///< Set to true if the parameter has been set already
 };
 
@@ -434,56 +558,12 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class specifies the interface of parsable command line parameters. Note
- * that this class cannot be copied, as the parent class is derived from
- * boost::noncopyable.
- */
-class GCLParsableI
-	: public GParsableI {
-	 // We want GParserBuilder to be able to call our private load- and save functions
-	 friend class GParserBuilder;
-
-public:
-	 /** @brief A constructor for individual items */
-	 G_API_COMMON GCLParsableI(
-	 	 std::string const &
-		 , std::string const &
-	 );
-	 /** @brief A constructor for vectors */
-	 G_API_COMMON GCLParsableI(
-	 	 std::vector<std::string> const &
-		 , std::vector<std::string> const &
-	 );
-
-	 /** @brief The destructor */
-	 G_API_COMMON ~GCLParsableI() override = default;
-
-	 /***************************************************************************/
-	 // Prevent copying, moving and default construction
-	 GCLParsableI() = delete;
-	 GCLParsableI(GCLParsableI const&) = delete;
-	 GCLParsableI(GCLParsableI&&) = delete;
-	 GCLParsableI& operator=(GCLParsableI const&) = delete;
-	 GCLParsableI& operator=(GCLParsableI&&) = delete;
-
-protected:
-	 /** @brief Saves data to a property tree object */
-	 virtual void save_to(boost::program_options::options_description &) const = 0;
-
-	 /** @brief Returns the content of this object as a std::string */
-	 virtual std::string content() const = 0;
-};
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
  * A base class for single parameters. This class was introduced so we can
  * reset the default values in a central location rather than having to
  * convert to different target class. This makes user-code easier.
  */
 template<typename parameter_type>
-struct GSingleParmT
+class GSingleParmT
 	: public GFileParsableI
 {
 	 // We want GParserBuilder to be able to call the reset function
@@ -553,7 +633,7 @@ private:
  * function has been assigned.
  */
 template<typename parameter_type>
-struct GFileSingleParsableParameterT
+class GFileSingleParsableParameterT
 	: public GSingleParmT<parameter_type>
 {
 	 // We want GParserBuilder to be able to call our load- and save functions
@@ -819,7 +899,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template<typename par_type0, typename par_type1>
-struct GCombinedParT
+class GCombinedParT
 	: public GFileParsableI
 {
 	 // We want GParserBuilder to be able to call the reset function
@@ -907,7 +987,7 @@ private:
  * function has been assigned.
  */
 template<typename par_type0, typename par_type1>
-struct GFileCombinedParsableParameterT : public GCombinedParT<par_type0, par_type1>
+class GFileCombinedParsableParameterT : public GCombinedParT<par_type0, par_type1>
 {
 	 // We want GParserBuilder to be able to call our load- and save functions
 	 friend class GParserBuilder;
@@ -1093,7 +1173,7 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template<typename parameter_type>
-struct GVectorParT
+class GVectorParT
 	: public GFileParsableI
 {
 	 // We want GParserBuilder to be able to call the reset function
@@ -1331,7 +1411,8 @@ private:
  * you plan to write out a parameter file.
  */
 template<typename parameter_type>
-class GFileVectorReferenceParsableParameterT : public GVectorParT<parameter_type>
+class GFileVectorReferenceParsableParameterT
+	: public GVectorParT<parameter_type>
 {
 	 // We want GParserBuilder to be able to call our load- and save functions
 	 friend class GParserBuilder;
@@ -1479,7 +1560,8 @@ private:
  * convert to different target class. This makes user-code easier.
  */
 template<typename parameter_type, std::size_t N>
-struct GArrayParT : public GFileParsableI
+class GArrayParT
+	: public GFileParsableI
 {
 	 // We want GParserBuilder to be able to call the reset function
 	 friend class GParserBuilder;
@@ -1849,6 +1931,51 @@ private:
 	 /***************************************************************************/
 
 	 std::array<parameter_type, N> &m_stored_reference; ///< Holds a reference to the target vector
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class specifies the interface of parsable command line parameters. Note
+ * that this class cannot be copied, as the parent class is derived from
+ * boost::noncopyable.
+ */
+class GCLParsableI
+	: public GParsableI
+{
+	 // We want GParserBuilder to be able to call our private load- and save functions
+	 friend class GParserBuilder;
+
+public:
+	 /** @brief A constructor for individual items */
+	 G_API_COMMON GCLParsableI(
+		 std::string const &
+		 , std::string const &
+	 );
+	 /** @brief A constructor for vectors */
+	 G_API_COMMON GCLParsableI(
+		 std::vector<std::string> const &
+		 , std::vector<std::string> const &
+	 );
+
+	 /** @brief The destructor */
+	 G_API_COMMON ~GCLParsableI() override = default;
+
+	 /***************************************************************************/
+	 // Prevent copying, moving and default construction
+	 GCLParsableI() = delete;
+	 GCLParsableI(GCLParsableI const&) = delete;
+	 GCLParsableI(GCLParsableI&&) = delete;
+	 GCLParsableI& operator=(GCLParsableI const&) = delete;
+	 GCLParsableI& operator=(GCLParsableI&&) = delete;
+
+protected:
+	 /** @brief Saves data to a property tree object */
+	 virtual void save_to(boost::program_options::options_description &) const = 0;
+
+	 /** @brief Returns the content of this object as a std::string */
+	 virtual std::string content() const = 0;
 };
 
 /******************************************************************************/
