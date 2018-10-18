@@ -175,6 +175,7 @@ void parameterset_processing_result::reset(
 	, std::function<double(double)> f
 ) {
 	if(f) {
+		m_raw_fitness = raw_fitness;
 		m_transformed_fitness = f(m_raw_fitness);
 		m_transformed_fitness_set = true;
 	} else {
@@ -975,7 +976,7 @@ void GParameterSet::setResult(
  * @return A boolean indicating whether more than one target function is present
  */
 bool GParameterSet::hasMultipleFitnessCriteria() const {
-	return (this->getNStoredResults() > 1 ? true : false);
+	return this->getNStoredResults() > 1;
 }
 
 /******************************************************************************/
