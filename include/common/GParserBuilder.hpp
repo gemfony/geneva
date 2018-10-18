@@ -2753,7 +2753,7 @@ private:
  * A helper function that lets users configure a given object from a file.
  * The function assumes that the target object has a suitable addConfigurationOptions
  * function. The function will automatically generate the configuration file using
- * the mechanisms implenented in GParserBuilder, should the file not exist.
+ * the mechanisms implemented in GParserBuilder, should the file not exist.
  *
  * @param path Name and path to a configuration file
  */

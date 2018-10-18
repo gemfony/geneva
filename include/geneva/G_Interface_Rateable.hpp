@@ -57,24 +57,6 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA G_Interface_Rateable() = default;
 
-	 /** @brief Retrieve a value for this class, using a fitness function with a given id */
-	 virtual G_API_GENEVA double fitness(std::size_t) const BASE = 0;
-
-	 /** @brief Calculate or returns the result of a fitness function with a given id */
-	 virtual G_API_GENEVA double fitness(std::size_t, bool, bool) BASE = 0;
-	 /** @brief Calculate or returns the result of a fitness function with a given id */
-	 virtual G_API_GENEVA double fitness(std::size_t, bool, bool) const BASE = 0;
-
-	 /** @brief Returns all raw fitness results in a std::vector */
-	 virtual G_API_GENEVA std::vector<double> fitnessVec() const BASE = 0;
-	 /** @brief Returns all raw or transformed results in a std::vector */
-	 virtual G_API_GENEVA std::vector<double> fitnessVec(bool) const BASE = 0;
-
-	 /** @brief Returns the transformed result of the fitness function with id 0 */
-	 virtual G_API_GENEVA double transformedFitness(std::size_t) const BASE = 0;
-	 /** @brief Returns all transformed fitness results in a std::vector */
-	 virtual G_API_GENEVA std::vector<double> transformedFitnessVec() const BASE = 0;
-
 	 /** @brief Retrieves the stored raw fitness with a given id */
 	 virtual G_API_GENEVA double raw_fitness(std::size_t = 0) const = 0;
 	 /** @brief Retrieves the stored transformed fitness with a given id */

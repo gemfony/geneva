@@ -31,6 +31,21 @@ Bugs fixed:
 	as many threads as there were (logical) cores in the CPU. Note that the threadpool
 	will throw when called with nThreads == 0, so you might want to adapt your configuration
 	files.
+ - Removal of a number of deprecated functions from GParameterSet:
+   setDirtyFlag() --> Use mark_as_due_for_processing()
+   isDirty()      --> Use (this->is_due_for_processing() || this->has_errors())
+   isClean()      --> Use is_processed()
+   registerSecondaryResult() --> Use setResult()
+   getNumberOfFitnessCriteria() --> Use getNStoredResults()
+   setNumberOfFitnessCriteria() --> Use setNStoredResults()
+   getCachedFitness() --> Use raw/transformed_fitness()
+   transformedFitness() --> transformed_fitness()
+   fitness() --> Use raw/transformed_fitness() and process()
+   fitnessVec() --> Use Use raw_fitness_vec() and/or transformed_fitness_vec()
+   transformedFitnessVec() --> Use transformed_fitness_vec()
+	markAsInvalid() --> Use force_set_error()
+	markedAsInvalidByUser() --> Use has_errors()
+   These functions have been marked as deprecated for a long time
 
 ********************************************************************************
 

@@ -289,61 +289,13 @@ public:
 	 /** @brief Returns all transformed fitness results in a std::vector */
 	 G_API_GENEVA std::vector<double> transformed_fitness_vec() const override;
 
-	 /** @brief Returns the raw result of a fitness function with a given id */
-	 G_DEPRECATED("Use raw_fitness() instead")
-	 G_API_GENEVA double fitness(std::size_t = 0) const override;
-
-	 /** @brief Calculate or returns the result of a fitness function with a given id */
-	 G_DEPRECATED("Use raw/transformed_fitness() and process() instead")
-	 G_API_GENEVA double fitness(std::size_t, bool, bool) override;
-	 /** @brief Calculate or returns the result of a fitness function with a given id */
-	 G_DEPRECATED("Use raw/transformed_fitness() and process() instead")
-	 G_API_GENEVA double fitness(std::size_t, bool, bool) const override;
-
-	 /** @brief Returns all raw fitness results in a std::vector */
-	 G_DEPRECATED("Use raw_fitness_vec() instead")
-	 G_API_GENEVA std::vector<double> fitnessVec() const override;
-	 /** @brief Returns all raw or transformed results in a std::vector */
-	 G_DEPRECATED("Use raw_fitness_vec() or transformed_fitness_vec() instead")
-	 G_API_GENEVA std::vector<double> fitnessVec(bool) const override;
-
-	 /** @brief Returns the transformed result of a fitness function with a given id */
-	 G_DEPRECATED("Use transformed_fitness() instead")
-	 G_API_GENEVA double transformedFitness(std::size_t = 0) const override;
-	 /** @brief Returns all transformed fitness results in a std::vector */
-	 G_DEPRECATED("Use transformed_fitness_vec() instead")
-	 G_API_GENEVA std::vector<double> transformedFitnessVec() const override;
-
-	 /** @brief Retrieve the current (not necessarily up-to-date) fitness */
-	 G_DEPRECATED("Use raw/transformed_fitness() instead")
-	 G_API_GENEVA double getCachedFitness(std::size_t = 0, bool = USETRANSFORMEDFITNESS) const;
-
 	 /** @brief Register another result value of the fitness calculation */
 	 G_API_GENEVA void setResult(std::size_t, double);
-	 /** @brief Registers a new, secondary result value of the custom fitness calculation */
-	 G_DEPRECATED("Use setResult() instead")
-	 G_API_GENEVA void registerSecondaryResult(std::size_t, double);
-	 /** @brief Determines the overall number of fitness criteria present for this individual */
-	 G_DEPRECATED("Use getNStoredResults() instead")
-	 G_API_GENEVA std::size_t getNumberOfFitnessCriteria() const;
-	 /** @brief Allows to reset the number of fitness criteria */
-	 G_DEPRECATED("Use setNStoredResults() instead")
-	 G_API_GENEVA void setNumberOfFitnessCriteria(std::size_t);
 	 /** @brief Determines whether more than one fitness criterion is present for this individual */
 	 G_API_GENEVA bool hasMultipleFitnessCriteria() const;
 
 	 /** @brief Retrieve the fitness tuple at a given evaluation position */
 	 G_API_GENEVA std::tuple<double,double> getFitnessTuple(std::uint32_t = 0) const;
-
-	 /** @brief Check whether this individual is "clean", i.e neither "dirty" nor has a delayed evaluation */
-	 G_DEPRECATED("Use is_processed() instead")
-	 G_API_GENEVA bool isClean() const;
-	 /** @brief Check whether the dirty flag is set */
-	 G_DEPRECATED("Use is_due_for_processing() || has_errors() instead")
-	 G_API_GENEVA bool isDirty() const ;
-	 /** @brief Sets the dirtyFlag_ */
-	 G_DEPRECATED("Use mark_as_due_for_processing() instead")
-	 G_API_GENEVA void setDirtyFlag();
 
 	 /** @brief Allows to retrieve the m_maxmode parameter */
 	 G_API_GENEVA maxMode getMaxMode() const;
@@ -934,13 +886,6 @@ protected:
 	 G_API_GENEVA double squaredSumCombiner() const;
 	 /** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
 	 G_API_GENEVA double weighedSquaredSumCombiner(const std::vector<double>&) const;
-
-	 /** @brief Allows users to mark this solution as invalid in derived classes (usually from within the evaluation function) */
-	 G_DEPRECATED("Use force_set_error() instead")
-	 G_API_GENEVA void markAsInvalid();
-	 /** @brief Allows to check whether this solution was marked as invalid */
-	 G_DEPRECATED("Use has_errors() instead")
-	 G_API_GENEVA bool markedAsInvalidByUser() const;
 
 	 /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
 	 G_API_GENEVA bool parameterSetFulfillsConstraints(double&) const;
