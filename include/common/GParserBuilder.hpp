@@ -2379,7 +2379,6 @@ public:
 	  * to be called before any parsing takes place, as the par_-value will be
 	  * overwritten as well.
 	  */
-
 	 template<typename par_type1, typename par_type2>
 	 void resetFileParameterDefaults(
 	 	 std::string const & optionName1
