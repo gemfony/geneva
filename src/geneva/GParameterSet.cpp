@@ -211,13 +211,12 @@ GParameterSet::GParameterSet(std::size_t n_fitness_criteria)
  *
  * @param cp A copy of another GParameterSet object
  */
-GParameterSet::GParameterSet(const GParameterSet &cp)
+GParameterSet::GParameterSet(GParameterSet const &cp)
 	: GObject(cp)
    , G_Interface_Mutable(cp)
    , G_Interface_Rateable(cp)
    , Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>(cp)
    , Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>(cp)
-   , m_perItemCrossOverProbability(cp.m_perItemCrossOverProbability)
    , m_best_past_primary_fitness(cp.m_best_past_primary_fitness)
    , m_n_stalls(cp.m_n_stalls)
    , m_maxmode(cp.m_maxmode)
@@ -248,7 +247,9 @@ GParameterSet::GParameterSet(const GParameterSet &cp)
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
 void GParameterSet::compare(
-	const GObject &cp, const Gem::Common::expectation &e, const double &limit
+	GObject const &cp
+	, Gem::Common::expectation const &e
+	, double const & limit
 ) const {
 	using namespace Gem::Common;
 
@@ -262,7 +263,6 @@ void GParameterSet::compare(
 
 	// ... and then the local data
 	compare_t(IDENTITY(this->data,  p_load->data), token); // data is actually contained in a parent class
-	compare_t(IDENTITY(m_perItemCrossOverProbability, p_load->m_perItemCrossOverProbability), token);
 	compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
 	compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
 	compare_t(IDENTITY(m_maxmode, p_load->m_maxmode), token);
@@ -306,7 +306,7 @@ void GParameterSet::swap(GParameterSet& cp) {
  *
  * @return A boolean indicating whether modifications where made
  */
-bool GParameterSet::randomInit(const activityMode &am) {
+bool GParameterSet::randomInit(activityMode const & am) {
 	bool modifications_made = this->randomInit_(am);
 
 	if(modifications_made) {
@@ -325,7 +325,7 @@ bool GParameterSet::randomInit(const activityMode &am) {
  *
  * @param mode An enum class which indicates whether we want to work in maximization or minimization mode
  */
-void GParameterSet::setMaxMode(const maxMode& mode) {
+void GParameterSet::setMaxMode(maxMode const & mode) {
 	m_maxmode = mode;
 }
 
@@ -337,7 +337,7 @@ void GParameterSet::setMaxMode(const maxMode& mode) {
  */
 void GParameterSet::toPropertyTree(
 	pt::ptree &ptr
-	, const std::string &baseName
+	, std::string const & baseName
 ) const {
 #ifdef DEBUG
 	// Check if the object is empty. If so, complain
@@ -435,7 +435,7 @@ std::string GParameterSet::toCSV(
 
 
 	// Extract the data
-	for(const auto& item: dData) {
+	for(auto const & item: dData) {
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
 				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
@@ -445,7 +445,7 @@ std::string GParameterSet::toCSV(
 		}
 	}
 
-	for(const auto& item: fData) {
+	for(auto const & item: fData) {
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
 				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
@@ -455,7 +455,7 @@ std::string GParameterSet::toCSV(
 		}
 	}
 
-	for(const auto& item: iData) {
+	for(auto const & item: iData) {
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
 				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
@@ -465,7 +465,7 @@ std::string GParameterSet::toCSV(
 		}
 	}
 
-	for(const auto& item: bData) {
+	for(auto const & item: bData) {
 		for (std::size_t pos = 0; pos < (item.second).size(); pos++) {
 			if (withNameAndType) {
 				varNames.push_back(item.first + "_" + Gem::Common::to_string(pos));
@@ -556,7 +556,7 @@ std::string GParameterSet::toCSV(
  * @param pos The position of the item we aim to retrieve from the std::vector<GParameterBase>
  * @return The item we aim to retrieve from the std::vector<GParameterBase>
  */
-Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference GParameterSet::at(const std::size_t &pos) {
+Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference GParameterSet::at(std::size_t const & pos) {
 	return Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::at(pos);
 }
 
@@ -571,7 +571,7 @@ Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference GParame
  * function compares "real" boundaries with evaluations, hence we use "raw"
  * measurements here instead of transformed measurements.
  */
-bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
+bool GParameterSet::isGoodEnough(std::vector<double> const & boundaries) {
 #ifdef DEBUG
 	// Does the number of fitness criteria match the number of boundaries ?
 	if(boundaries.size() != this->getNStoredResults()) {
@@ -615,40 +615,33 @@ bool GParameterSet::isGoodEnough(const std::vector<double> &boundaries) {
 
 /******************************************************************************/
 /**
- * Perform a fusion operation between this object and another.
+ * Retrieval of a suitable position for cross over inside of a vector
+ *
+ * @param lower The lower (inclusive) boundary for retrieval of a cross-over position
+ * @param upper The upper (exclusive) boundary for retrieval of a cross-over position
+ * @return A suitable cross-over position in the range [lower, upper[
  */
-std::shared_ptr<GParameterSet> GParameterSet::amalgamate(const std::shared_ptr<GParameterSet>& cp) const {
-	// Create a copy of this object
-	std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
+std::size_t GParameterSet::getCrossOverPos(
+	std::size_t lower
+	, std::size_t upper
+) {
+	// Make sure the boundaries are suitable.
+	assert(lower > 0); // Should be at least 1, or a cross-over doesn't make sense
+	assert(upper > lower);
 
-	this_cp->perItemCrossOver(*cp, m_perItemCrossOverProbability);
-
-	return this_cp;
+	return m_uniform_int(
+		m_gr
+		, std::uniform_int_distribution<std::size_t>::param_type(lower, upper-1)
+	);
 }
 
 /******************************************************************************/
 /**
- * This function performs a cross-over with another GParameterSet object with a given likelihood.
- * Items subject to cross-over may either be located in the GParameterSet-root or in one of the
- * GParmeterBase-derivatives stored in this object. Hence the cross-over operation is propagated to
- * these. The whole procedure happens on an "per item" basis, i.e., each item is swapped with the
- * corresponding "foreign" item with a given likelihood. The procedure requires both objects to have
- * the same "architecture" and will throw, if this is not the case.
+ * Perform a fusion operation between this object and another.
  */
-void GParameterSet::perItemCrossOver(
-	const GParameterSet &cp
-	, double likelihood
-) {
-#ifdef DEBUG
-	// Do some error checking
-	if(likelihood < 0. || likelihood > 1.) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::crossOver(): Error!" << std::endl
-				<< "Received invalid likelihood: " << likelihood << std::endl
-		);
-	}
-#endif /* DEBUG */
+std::shared_ptr<GParameterSet> GParameterSet::crossOverWith(std::shared_ptr<GParameterSet> const & cp) const {
+	// Create a copy of this object
+	std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
 
 	// Extract all data items
 	std::vector<double> this_double_vec, cp_double_vec;
@@ -656,15 +649,15 @@ void GParameterSet::perItemCrossOver(
 	std::vector<bool> this_bool_vec, cp_bool_vec;
 	std::vector<std::int32_t> this_int_vec, cp_int_vec;
 
-	this->streamline(this_double_vec);
-	this->streamline(this_float_vec);
-	this->streamline(this_bool_vec);
-	this->streamline(this_int_vec);
+	this_cp->streamline(this_double_vec);
+	this_cp->streamline(this_float_vec);
+	this_cp->streamline(this_bool_vec);
+	this_cp->streamline(this_int_vec);
 
-	cp.streamline(cp_double_vec);
-	cp.streamline(cp_float_vec);
-	cp.streamline(cp_bool_vec);
-	cp.streamline(cp_int_vec);
+	cp->streamline(cp_double_vec);
+	cp->streamline(cp_float_vec);
+	cp->streamline(cp_bool_vec);
+	cp->streamline(cp_int_vec);
 
 #ifdef DEBUG
 	// Do some error checking
@@ -701,83 +694,59 @@ void GParameterSet::perItemCrossOver(
 	// Do the actual cross-over
 	if (not this_double_vec.empty()) {
 		// Calculate a suitable position for the cross-over
-		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_double_vec.size() - std::size_t(1)));
+		// We use this->cp as the source for getCrossOverPos in order to avoid
+		// having to mark getCrossOverPos const and this m_gr mutable.
+		auto pos = this_cp->getCrossOverPos(1, this_double_vec.size());
 
-		// Perform the actual cross-over operation
-		for (std::size_t i = pos; i < this_double_vec.size(); i++) {
-			this_double_vec[i] = cp_double_vec[i];
-		}
+		// Perform the actual cross-over operation. This is in fact
+		// a "half" cross-over, as we only need one output vector
+		std::copy(cp_double_vec.begin()+pos, cp_double_vec.end(), this_double_vec.begin()+pos);
 	}
 
 	if (not this_float_vec.empty()) {
 		// Calculate a suitable position for the cross-over
-		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_float_vec.size() - std::size_t(1)));
+		auto pos = this_cp->getCrossOverPos(1, this_float_vec.size());
 
-		// Perform the actual cross-over operation
-		for (std::size_t i = pos; i < this_float_vec.size(); i++) {
-			this_float_vec[i] = cp_float_vec[i];
-		}
+		// Perform the actual cross-over operation. This is in fact
+		// a "half" cross-over, as we only need one output vector
+		std::copy(cp_float_vec.begin()+pos, cp_float_vec.end(), this_float_vec.begin()+pos);
 	}
 
 	if (not this_bool_vec.empty()) {
 		// Calculate a suitable position for the cross-over
-		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_bool_vec.size() - std::size_t(1)));
+		auto pos = this_cp->getCrossOverPos(1, this_bool_vec.size());
 
-		// Perform the actual cross-over operation
-		for (std::size_t i = pos; i < this_bool_vec.size(); i++) {
-			this_bool_vec[i] = cp_bool_vec[i];
-		}
+		// Perform the actual cross-over operation. This is in fact
+		// a "half" cross-over, as we only need one output vector
+		std::copy(cp_bool_vec.begin()+pos, cp_bool_vec.end(), this_bool_vec.begin()+pos);
 	}
 
 	if (not this_int_vec.empty()) {
 		// Calculate a suitable position for the cross-over
-		std::size_t pos = this->m_uniform_int(m_gr, std::uniform_int_distribution<std::size_t>::param_type(std::size_t(0), this_int_vec.size() - std::size_t(1)));
+		auto pos = this_cp->getCrossOverPos(1, this_int_vec.size());
 
-		// Perform the actual cross-over operation
-		for (std::size_t i = pos; i < this_int_vec.size(); i++) {
-			this_int_vec[i] = cp_int_vec[i];
-		}
+		// Perform the actual cross-over operation. This is in fact
+		// a "half" cross-over, as we only need one output vector
+		std::copy(cp_int_vec.begin()+pos, cp_int_vec.end(), this_int_vec.begin()+pos);
 	}
 
 	// Load the data vectors back into this object
-	this->assignValueVector(this_double_vec);
-	this->assignValueVector(this_float_vec);
-	this->assignValueVector(this_bool_vec);
-	this->assignValueVector(this_int_vec);
+	this_cp->assignValueVector(this_double_vec);
+	this_cp->assignValueVector(this_float_vec);
+	this_cp->assignValueVector(this_bool_vec);
+	this_cp->assignValueVector(this_int_vec);
 
 	// Mark this individual as "dirty"
-	this->mark_as_due_for_processing();
-}
+	this_cp->mark_as_due_for_processing();
 
-/******************************************************************************/
-/**
- * Allows to set the "per item" cross-over probability
- */
-void GParameterSet::setPerItemCrossOverProbability(double perItemCrossOverProbability) {
-	if (perItemCrossOverProbability < 0. || perItemCrossOverProbability > 1.) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GParameterSet::setPerItemCrossOverProbability(" << perItemCrossOverProbability << "): Error!" << std::endl
-				<< "Variable outside of allowed ranged [0:1]" << std::endl
-		);
-	}
-
-	m_perItemCrossOverProbability = perItemCrossOverProbability;
-}
-
-/******************************************************************************/
-/**
- * Allows to retrieve the "per item" cross-over probability
- */
-double GParameterSet::getPerItemCrossOverProbability() const {
-	return m_perItemCrossOverProbability;
+	return this_cp;
 }
 
 /******************************************************************************/
 /**
  * Triggers updates of adaptors contained in this object.
  */
-void GParameterSet::updateAdaptorsOnStall(const std::uint32_t &nStalls) {
+void GParameterSet::updateAdaptorsOnStall(std::uint32_t const &nStalls) {
 	for(auto& item_ptr: *this) {
 		item_ptr->updateAdaptorsOnStall(nStalls);
 	}
@@ -792,8 +761,8 @@ void GParameterSet::updateAdaptorsOnStall(const std::uint32_t &nStalls) {
  * @param data A vector, to which the properties should be added
  */
 void GParameterSet::queryAdaptor(
-	const std::string &adaptorName
-	, const std::string &property
+	std::string const & adaptorName
+	, std::string const & property
 	, std::vector<boost::any> &data
 ) const {
 	for(const auto& item_ptr: *this) {
@@ -1127,7 +1096,7 @@ std::size_t GParameterSet::getNAdaptions() const {
  *
  * @param parentAlgIteration The current iteration of the optimization algorithm
  */
-void GParameterSet::setAssignedIteration(const std::uint32_t &parentAlgIteration) {
+void GParameterSet::setAssignedIteration(std::uint32_t const &parentAlgIteration) {
 	m_assigned_iteration = parentAlgIteration;
 }
 
@@ -1157,7 +1126,7 @@ std::uint32_t GParameterSet::getAssignedIteration() const {
  *
  * @param nStalls The number of optimization cycles without improvement in the parent algorithm
  */
-void GParameterSet::setNStalls(const std::uint32_t &nStalls) {
+void GParameterSet::setNStalls(std::uint32_t const & nStalls) {
 	m_n_stalls = nStalls;
 }
 
@@ -1205,14 +1174,17 @@ std::string GParameterSet::getPersonality() const {
  * Allows to check whether random crashs of individuals are enabled
  */
 std::tuple<bool, double> GParameterSet::getRandomCrash() const {
-	return std::tuple<bool, double>(m_useRandomCrash, m_randomCrashProb);
+	return {m_useRandomCrash, m_randomCrashProb};
 };
 
 /******************************************************************************/
 /**
  * Allows to enable random crashs of individuals for testing purposes
  */
-void GParameterSet::setRandomCrash(bool useRandomCrash, double crashProb) {
+void GParameterSet::setRandomCrash(
+	bool useRandomCrash
+	, double crashProb
+) {
 	// Check that the crash probability is in the allowed value range
 	Gem::Common::checkRangeCompliance(crashProb, 0., 1., "GParameterSet::setRandomCrash()");
 
@@ -1229,7 +1201,7 @@ void GParameterSet::setRandomCrash(bool useRandomCrash, double crashProb) {
  *
  * @return A shared pointer to the personality traits base class
  */
-std::shared_ptr <GPersonalityTraits> GParameterSet::getPersonalityTraits() {
+std::shared_ptr<GPersonalityTraits> GParameterSet::getPersonalityTraits() {
 #ifdef DEBUG
 	// Do some error checking
 	if(not m_pt_ptr) {
@@ -1257,7 +1229,7 @@ std::shared_ptr <GPersonalityTraits> GParameterSet::getPersonalityTraits() {
  * @param gpt A pointer to an object representing the new personality of this object
  */
 void GParameterSet::setPersonality(
-	std::shared_ptr < GPersonalityTraits > gpt
+	std::shared_ptr<GPersonalityTraits> gpt
 ) {
 	// Make sure we haven't been given an empty pointer
 	if (not gpt) {
@@ -1376,13 +1348,6 @@ void GParameterSet::addConfigurationOptions(
 	)
 		<< "Specifies whether the individual should be maximized (1) or minimized (0)" << std::endl
 		<< "Note that minimization is the by far most common option.";
-
-	gpb.registerFileParameter<double>(
-		"perItemCrossOverProbability" // The name of the variable
-		, DEFAULTPERITEMEXCHANGELIKELIHOOD // The default value
-		, [this](double piel) { this->setPerItemCrossOverProbability(piel); }
-	)
-		<< "The likelihood for two data items to be exchanged";
 
 	gpb.registerFileParameter<bool, double>(
 		"useRandomCrash" // The name of the variable
@@ -1637,7 +1602,6 @@ void GParameterSet::load_(const GObject *cp) {
 	Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>::load_pc(p_load);
 
 	// and then our local data
-	m_perItemCrossOverProbability = p_load->m_perItemCrossOverProbability;
 	m_best_past_primary_fitness = p_load->m_best_past_primary_fitness;
 	m_n_stalls = p_load->m_n_stalls;
 	m_maxmode = p_load->m_maxmode;
@@ -1662,7 +1626,7 @@ void GParameterSet::load_(const GObject *cp) {
  *
  * @return A boolean indicating whether modifications where made
  */
-bool GParameterSet::randomInit_(const activityMode &am) {
+bool GParameterSet::randomInit_(activityMode const &am) {
 	bool modifications_made = false;
 
 	// Trigger random initialization of all our parameter objects
@@ -1711,7 +1675,7 @@ std::size_t GParameterSet::customAdaptions() {
  *
  * @param f_vec A vector of raw fitness values
  */
-void GParameterSet::setFitness_(const std::vector<double> &f_vec) {
+void GParameterSet::setFitness_(std::vector<double> const & f_vec) {
 #ifdef DEBUG
 	if(f_vec.size() != this->getNStoredResults()) {
 		throw gemfony_exception(
@@ -1839,7 +1803,7 @@ double GParameterSet::squaredSumCombiner() const {
  * @param weights The weights to be multiplied with the cached results
  * @return The result of the combination
  */
-double GParameterSet::weighedSquaredSumCombiner(const std::vector<double> &weights) const {
+double GParameterSet::weighedSquaredSumCombiner(std::vector<double> const & weights) const {
 	if (this->getNStoredResults() != weights.size()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -1881,8 +1845,8 @@ bool GParameterSet::parameterSetFulfillsConstraints(double &validityLevel) const
  * Retrieves a parameter of a given type at the specified position
  */
 boost::any GParameterSet::getVarVal(
-	const std::string &descr
-	, const std::tuple<std::size_t, std::string, std::size_t> &target
+	std::string const &descr
+	, std::tuple<std::size_t, std::string, std::size_t> const &target
 ) {
 	boost::any result;
 

@@ -46,6 +46,9 @@ Bugs fixed:
 	markAsInvalid() --> Use force_set_error()
 	markedAsInvalidByUser() --> Use has_errors()
    These functions have been marked as deprecated for a long time
+ - Removed set/getPerItemCrossOverProbability() from GParameterSet . This is a
+   characteristic of Evolutionary Algorithms (and related optimization algorithms)
+   and is handled there, through the amalgamationLikelihood property
 
 ********************************************************************************
 

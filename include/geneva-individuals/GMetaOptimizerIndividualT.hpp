@@ -129,10 +129,6 @@ const double GMETAOPT_DEF_INITSIGMASIGMA = 0.1;    ///< The initial strength of 
 const double GMETAOPT_DEF_SIGMASIGMA_LB = 0.;      ///< The lower boundary for the variation of the strength of sigma adaption
 const double GMETAOPT_DEF_SIGMASIGMA_UB = 1.;      ///< The upper boundary for the variation of the strength of sigma adaption
 
-const double GMETAOPT_DEF_INITCROSSOVERPROB = 0.;    ///< The likelihood for two data items to be exchanged in a cross-over operation
-const double GMETAOPT_DEF_CROSSOVERPROB_LB = 0.;   ///< The lower boundary for the variation of the cross-over probability
-const double GMETAOPT_DEF_CROSSOVERPROB_UB = 1.;     ///< The upper boundary for the variation of the cross-over probability
-
 // General meta-optimization parameters
 const std::size_t GMETAOPT_DEF_NRUNSPEROPT = 10;              ///< The number of successive optimization runs
 const double GMETAOPT_DEF_FITNESSTARGET = 0.001;       ///< The fitness target
@@ -158,8 +154,7 @@ const std::size_t MOT_MINSIGMA = 7;
 const std::size_t MOT_SIGMARANGE = 8;
 const std::size_t MOT_SIGMARANGEPERCENTAGE = 9;
 const std::size_t MOT_SIGMASIGMA = 10;
-const std::size_t MOT_CROSSOVERPROB = 11;
-const std::size_t MOT_NVAR = 12;
+const std::size_t MOT_NVAR = 11;
 
 /******************************************************************************/
 /**
@@ -482,8 +477,7 @@ public:
 		 const double &initAdaptAdProb, const double &adaptAdProb_LB, const double &adaptAdProb_UB,
 		 const double &initMinSigma, const double &minSigma_LB, const double &minSigma_UB, const double &initSigmaRange,
 		 const double &sigmaRange_LB, const double &sigmaRange_UB, const double &initSigmaRangePercentage,
-		 const double &initSigmaSigma, const double &sigmaSigma_LB, const double &sigmaSigma_UB,
-		 const double &initCrossOverProb, const double &crossOverProb_LB, const double &crossOverProb_UB
+		 const double &initSigmaSigma, const double &sigmaSigma_LB, const double &sigmaSigma_UB
 	 ) {
 		 // We will add parameter types in the same order as the arguments
 
@@ -686,20 +680,6 @@ public:
 		 p->at(MOT_SIGMASIGMA) = sigmasigma_ptr;
 
 		 //------------------------------------------------------------
-		 // crossOverProb
-
-		 std::shared_ptr <GConstrainedDoubleObject> crossOverProb_ptr(new GConstrainedDoubleObject(
-			 initCrossOverProb  // initial value
-			 , crossOverProb_LB  // lower boundary
-			 , crossOverProb_UB  // upper boundary
-		 ));
-		 crossOverProb_ptr->addAdaptor(gdga_ptr);
-		 crossOverProb_ptr->setParameterName("crossOverProb");
-
-		 // Add to the individual
-		 p->at(MOT_CROSSOVERPROB) = crossOverProb_ptr;
-
-		 //------------------------------------------------------------
 	 }
 
 	 /***************************************************************************/
@@ -710,18 +690,17 @@ public:
 		 std::ostringstream result;
 
 		 // Retrieve the parameters
-		 std::shared_ptr <GConstrainedInt32Object> npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
-		 std::shared_ptr <GConstrainedInt32Object> nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
-		 std::shared_ptr <GConstrainedDoubleObject> amalgamation_ptr = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
-		 std::shared_ptr <GConstrainedDoubleObject> minAdProb_ptr = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
-		 std::shared_ptr <GConstrainedDoubleObject> adProbRange_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
-		 std::shared_ptr <GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
-		 std::shared_ptr <GConstrainedDoubleObject> adaptAdprob_ptr = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
-		 std::shared_ptr <GConstrainedDoubleObject> minsigma_ptr = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
-		 std::shared_ptr <GConstrainedDoubleObject> sigmarange_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
-		 std::shared_ptr <GConstrainedDoubleObject> sigmaRangePercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
-		 std::shared_ptr <GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
-		 std::shared_ptr <GConstrainedDoubleObject> crossOverProb_ptr = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
+		 std::shared_ptr<GConstrainedInt32Object> npar_ptr = this->at<GConstrainedInt32Object>(MOT_NPARENTS);
+		 std::shared_ptr<GConstrainedInt32Object> nch_ptr = this->at<GConstrainedInt32Object>(MOT_NCHILDREN);
+		 std::shared_ptr<GConstrainedDoubleObject> amalgamation_ptr = this->at<GConstrainedDoubleObject>(MOT_AMALGAMATION);
+		 std::shared_ptr<GConstrainedDoubleObject> minAdProb_ptr = this->at<GConstrainedDoubleObject>(MOT_MINADPROB);
+		 std::shared_ptr<GConstrainedDoubleObject> adProbRange_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBRANGE);
+		 std::shared_ptr<GConstrainedDoubleObject> adProbStartPercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_ADPROBSTARTPERCENTAGE);
+		 std::shared_ptr<GConstrainedDoubleObject> adaptAdprob_ptr = this->at<GConstrainedDoubleObject>(MOT_ADAPTADPROB);
+		 std::shared_ptr<GConstrainedDoubleObject> minsigma_ptr = this->at<GConstrainedDoubleObject>(MOT_MINSIGMA);
+		 std::shared_ptr<GConstrainedDoubleObject> sigmarange_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
+		 std::shared_ptr<GConstrainedDoubleObject> sigmaRangePercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
+		 std::shared_ptr<GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
 
 		 // Stream the results
 
@@ -756,7 +735,6 @@ public:
 			 << "individual::minSigma1 = " << minsigma_ptr->value() << std::endl
 			 << "individual::maxSigma1 = " << minsigma_ptr->value() + sigmarange_ptr->value() << std::endl
 			 << "individual::sigmaSigma1 = " << sigmasigma_ptr->value() << std::endl
-			 << "individual::perItemCrossOverProbability = " << crossOverProb_ptr->value() << std::endl
 			 << "============================================================================================" << std::endl
 			 << std::endl;
 
@@ -825,7 +803,6 @@ protected:
 		 std::shared_ptr <GConstrainedDoubleObject> sigmarange_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGE);
 		 std::shared_ptr <GConstrainedDoubleObject> sigmaRangePercentage_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMARANGEPERCENTAGE);
 		 std::shared_ptr <GConstrainedDoubleObject> sigmasigma_ptr = this->at<GConstrainedDoubleObject>(MOT_SIGMASIGMA);
-		 std::shared_ptr <GConstrainedDoubleObject> crossOverProb_ptr = this->at<GConstrainedDoubleObject>(MOT_CROSSOVERPROB);
 
 #ifdef DEBUG
 		 // Check that we have been given a factory
@@ -894,9 +871,6 @@ protected:
 			 for (std::size_t ind = 0; ind < popSize; ind++) {
 				 // Retrieve an individual
 				 std::shared_ptr <GParameterSet> gi_ptr = ind_factory_->get();
-
-				 // Set the "per item cross-over probability"
-				 gi_ptr->setPerItemCrossOverProbability(crossOverProb_ptr->value());
 
 				 ea_ptr->push_back(gi_ptr);
 			 }
@@ -1380,24 +1354,6 @@ protected:
 			 "sigmaSigma_UB", sigmaSigma_UB_, GMETAOPT_DEF_SIGMASIGMA_UB, Gem::Common::VAR_IS_ESSENTIAL, comment
 		 );
 
-		 comment = "";
-		 comment += "The likelihood for two data items to be exchanged in a cross-over operation;";
-		 gpb.registerFileParameter<double>(
-			 "initCrossOverProb", initCrossOverProb_, GMETAOPT_DEF_INITCROSSOVERPROB, Gem::Common::VAR_IS_ESSENTIAL, comment
-		 );
-
-		 comment = "";
-		 comment += "The lower boundary for the variation of the cross-over probability ;";
-		 gpb.registerFileParameter<double>(
-			 "crossOverProb_LB", crossOverProb_LB_, GMETAOPT_DEF_CROSSOVERPROB_LB, Gem::Common::VAR_IS_ESSENTIAL, comment
-		 );
-
-		 comment = "";
-		 comment += "The upper boundary for the variation of the cross-over probability ;";
-		 gpb.registerFileParameter<double>(
-			 "crossOverProb_UB", crossOverProb_UB_, GMETAOPT_DEF_CROSSOVERPROB_UB, Gem::Common::VAR_IS_ESSENTIAL, comment
-		 );
-
 		 // Allow our parent class to describe its options
 		 Gem::Common::GFactoryT<GParameterSet>::describeLocalOptions_(gpb);
 	 }
@@ -1425,8 +1381,7 @@ protected:
 			 initAmalgamationLklh_, amalgamationLklh_LB_, amalgamationLklh_UB_, initMinAdProb_, minAdProb_LB_,
 			 minAdProb_UB_, initAdProbRange_, adProbRange_LB_, adProbRange_UB_, initAdProbStartPercentage_,
 			 initAdaptAdProb_, adaptAdProb_LB_, adaptAdProb_UB_, initMinSigma_, minSigma_LB_, minSigma_UB_, initSigmaRange_,
-			 sigmaRange_LB_, sigmaRange_UB_, initSigmaRangePercentage_, initSigmaSigma_, sigmaSigma_LB_, sigmaSigma_UB_,
-			 initCrossOverProb_, crossOverProb_LB_, crossOverProb_UB_
+			 sigmaRange_LB_, sigmaRange_UB_, initSigmaRangePercentage_, initSigmaSigma_, sigmaSigma_LB_, sigmaSigma_UB_
 		 );
 
 		 // Finally add the individual factory to p
@@ -1478,10 +1433,6 @@ private:
 	 double initSigmaSigma_ = GMETAOPT_DEF_INITSIGMASIGMA;     ///< The initial strength of sigma adaption
 	 double sigmaSigma_LB_ = GMETAOPT_DEF_SIGMASIGMA_LB;       ///< The lower boundary for the variation of the strength of sigma adaption
 	 double sigmaSigma_UB_ = GMETAOPT_DEF_SIGMASIGMA_UB;       ///< The upper boundary for the variation of the strength of sigma adaption
-
-	 double initCrossOverProb_ = GMETAOPT_DEF_INITCROSSOVERPROB;     ///< The likelihood for two data items to be exchanged in a cross-over operation
-	 double crossOverProb_LB_ = GMETAOPT_DEF_CROSSOVERPROB_LB;       ///< The lower boundary for the variation of the cross-over probability
-	 double crossOverProb_UB_ = GMETAOPT_DEF_CROSSOVERPROB_UB;       ///< The upper boundary for the variation of the cross-over probability
 
 	 std::shared_ptr<typename ind_type::FACTORYTYPE> m_ind_factory; ///< Holds a factory for our individuals. It will be added to the individuals when needed
 };

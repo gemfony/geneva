@@ -352,8 +352,9 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
 	std::size_t i;
 	std::vector<double> threshold(m_n_parents);
 	double thresholdSum = 0.;
+	// Calculate a weight vector
 	// TODO: Check whether it is sufficient to do this only once
-	if (duplicationScheme::VALUEDUPLICATIONSCHEME == m_recombination_method && m_n_parents > 1) {          // Calculate a weight vector
+	if (duplicationScheme::VALUEDUPLICATIONSCHEME == m_recombination_method && m_n_parents > 1) {
 		for (i = 0; i < m_n_parents; i++) {
 			thresholdSum += 1. / (static_cast<double>(i) + 2.);
 		}
@@ -377,7 +378,7 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
 			std::shared_ptr <GParameterSet> bestParent = this->front();
 			std::shared_ptr <GParameterSet> combiner = (m_n_parents > 2) ? (*(this->begin() + this->m_uniform_int_distribution(this->m_gr, std::uniform_int_distribution<std::size_t>::param_type(1, m_n_parents - 1)))) : (*(this->begin() + 1));
 
-			(*it)->GObject::load(bestParent->amalgamate(combiner));
+			(*it)->GObject::load(bestParent->crossOverWith(combiner));
 		} else { // Just perform duplication
 			switch (m_recombination_method) {
 				case duplicationScheme::DEFAULTDUPLICATIONSCHEME: // we want the RANDOMDUPLICATIONSCHEME behavior

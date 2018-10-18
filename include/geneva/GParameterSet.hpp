@@ -119,7 +119,7 @@ public:
 	 parameterset_processing_result(double, std::function<double(double)>);
 
 	 /** @brief Copy construction */
-	 parameterset_processing_result(const parameterset_processing_result&) = default;
+	 parameterset_processing_result(parameterset_processing_result const &) = default;
 	 /** @brief Move construction */
 	 parameterset_processing_result(parameterset_processing_result&&) = default;
 
@@ -127,7 +127,7 @@ public:
 	 ~parameterset_processing_result() = default;
 
 	 /** @brief Assignment */
-	 parameterset_processing_result& operator=(const parameterset_processing_result&) = default;
+	 parameterset_processing_result& operator=(parameterset_processing_result const&) = default;
 	 /** @brief Move assignment */
 	 parameterset_processing_result& operator=(parameterset_processing_result&&) = default;
 
@@ -188,7 +188,6 @@ class GParameterSet
 		 & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
 		 & make_nvp("GStdPtrVectorInterfaceT_GParameterBase", boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>>(*this))
 		 & make_nvp("GProcessingContainerT_ParameterSet_double", boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>>(*this))
-		 & BOOST_SERIALIZATION_NVP(m_perItemCrossOverProbability)
 		 & BOOST_SERIALIZATION_NVP(m_best_past_primary_fitness)
 		 & BOOST_SERIALIZATION_NVP(m_n_stalls)
 		 & BOOST_SERIALIZATION_NVP(m_maxmode)
@@ -213,30 +212,30 @@ public:
 	 /** @brief Initialization with the number of fitness criteria */
 	 explicit G_API_GENEVA GParameterSet(std::size_t);
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GParameterSet(const GParameterSet&);
+	 G_API_GENEVA GParameterSet(GParameterSet const &);
 	 /** @brief The destructor */
 	 G_API_GENEVA ~GParameterSet() override = default;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
+	 	 GObject const& // the other object
+		 , Gem::Common::expectation const& // the expectation for this object, e.g. equality
+		 , double const& // the limit for allowed deviations of floating point types
 	 ) const override;
 
 	 /** Swap another object's vector with ours. */
 	 void swap(GParameterSet& cp);
 
 	 /** @brief Allows to randomly initialize parameter members */
-	 G_API_GENEVA bool randomInit(const activityMode&);
+	 G_API_GENEVA bool randomInit(activityMode const&);
 
 	 /** @brief Specify whether we want to work in maximization (maxMode::MAXIMIZE) or minimization (maxMode::MINIMIZE) mode */
-	 G_API_GENEVA void setMaxMode(const maxMode&);
+	 G_API_GENEVA void setMaxMode(maxMode const&);
 
 	 /** @brief Transformation of the individual's parameter objects into a boost::property_tree object */
 	 G_API_GENEVA void toPropertyTree(
 		 pt::ptree&
-		 , const std::string& = "parameterset"
+		 , std::string const& = "parameterset"
 	 ) const;
 
 	 /** @brief Transformation of the individual's parameter objects into a list of comma-separated values */
@@ -248,28 +247,20 @@ public:
 	 ) const;
 
 	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-	 G_API_GENEVA Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference at(const std::size_t& pos);
+	 G_API_GENEVA Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference at(std::size_t const& pos);
 
 	 /** @brief Checks whether this object is better than a given set of evaluations */
-	 G_API_GENEVA bool isGoodEnough(const std::vector<double>&);
+	 G_API_GENEVA bool isGoodEnough(std::vector<double> const&);
 
-	 /** @brief Perform a fusion operation between this object and another */
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> amalgamate(const std::shared_ptr<GParameterSet>&) const BASE;
-
-	 /** @brief Performs a cross-over with another GParameterSet object on a "per item" basis */
-	 G_API_GENEVA void perItemCrossOver(const GParameterSet&, double);
-
-	 /** @brief Allows to set the "per item" cross-over probability */
-	 G_API_GENEVA void setPerItemCrossOverProbability(double);
-	 /** @brief Allows to retrieve the "per item" cross-over probability */
-	 G_API_GENEVA double getPerItemCrossOverProbability() const;
+	 /** @brief Perform a cross-over operation between this object and another */
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> crossOverWith(std::shared_ptr<GParameterSet> const&) const BASE;
 
 	 /** @brief Triggers updates of adaptors contained in this object */
-	 virtual G_API_GENEVA void updateAdaptorsOnStall(const std::uint32_t&);
+	 virtual G_API_GENEVA void updateAdaptorsOnStall(std::uint32_t const&);
 	 /** @brief Retrieves information from adaptors with a given property */
 	 virtual G_API_GENEVA void queryAdaptor(
-		 const std::string& adaptorName
-		 , const std::string& property
+	 	 std::string const& adaptorName
+		 , std::string const& property
 		 , std::vector<boost::any>& data
 	 ) const BASE;
 
@@ -280,9 +271,9 @@ public:
 	 G_API_GENEVA std::size_t adapt() override;
 
 	 /** @brief Retrieves the stored raw fitness with a given id */
-	 G_API_GENEVA double raw_fitness(std::size_t = 0) const override;
+	 G_API_GENEVA double raw_fitness(std::size_t) const override;
 	 /** @brief Retrieves the stored transformed fitness with a given id */
-	 G_API_GENEVA double transformed_fitness(std::size_t = 0) const override;
+	 G_API_GENEVA double transformed_fitness(std::size_t) const override;
 
 	 /** @brief Returns all raw fitness results in a std::vector */
 	 G_API_GENEVA std::vector<double> raw_fitness_vec() const override;
@@ -329,12 +320,12 @@ public:
 	 G_API_GENEVA std::size_t getNAdaptions() const;
 
 	 /** @brief Allows to set the current iteration of the parent optimization algorithm. */
-	 G_API_GENEVA void setAssignedIteration(const std::uint32_t&);
+	 G_API_GENEVA void setAssignedIteration(std::uint32_t const&);
 	 /** @brief Gives access to the parent optimization algorithm's iteration */
 	 G_API_GENEVA std::uint32_t getAssignedIteration() const;
 
 	 /** @brief Allows to specify the number of optimization cycles without improvement of the primary fitness criterion */
-	 G_API_GENEVA void setNStalls(const std::uint32_t&);
+	 G_API_GENEVA void setNStalls(std::uint32_t const&);
 	 /** @brief Allows to retrieve the number of optimization cycles without improvement of the primary fitness criterion */
 	 G_API_GENEVA std::uint32_t getNStalls() const;
 
@@ -352,7 +343,7 @@ public:
 	  */
 	 template <typename val_type>
 	 val_type getVarVal(
-		 const std::tuple<std::size_t, std::string, std::size_t>& target
+	 	std::tuple<std::size_t, std::string, std::size_t> const& target
 	 ) {
 		 val_type result = val_type(0);
 
@@ -429,7 +420,7 @@ public:
 	 G_API_GENEVA std::string getMnemonic() const;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions(
+	 G_API_GENEVA void addConfigurationOptions(
 		 Gem::Common::GParserBuilder&
 	 ) override;
 
@@ -454,7 +445,7 @@ public:
 	 G_API_GENEVA bool isInValid() const;
 
 	 /** @brief Allows to set the globally best known primary fitness */
-	 G_API_GENEVA void setBestKnownPrimaryFitness(const std::tuple<double, double>&);
+	 G_API_GENEVA void setBestKnownPrimaryFitness(std::tuple<double, double> const&);
 	 /** @brief Retrieves the value of the globally best known primary fitness */
 	 G_API_GENEVA std::tuple<double, double> getBestKnownPrimaryFitness() const;
 
@@ -470,7 +461,7 @@ public:
 	  */
 	 template <typename par_type>
 	 const std::shared_ptr<par_type> at(
-		 const std::size_t& pos
+	 	 std::size_t const& pos
 		 , typename std::enable_if<std::is_base_of<GParameterBase, par_type>::value>::type *dummy = nullptr
 	 )  const {
 		 // Does error checks on the conversion internally
@@ -505,7 +496,7 @@ public:
 	  */
 	 template <typename par_type>
 	 boost::any getVarItem(
-		 const std::tuple<std::size_t, std::string, std::size_t> &target
+	 	 std::tuple<std::size_t, std::string, std::size_t> const & target
 	 ) {
 		 boost::any result;
 
@@ -556,7 +547,7 @@ public:
 	  */
 	 template <typename par_type>
 	 std::size_t countParameters(
-		 const activityMode& am = activityMode::DEFAULTACTIVITYMODE
+	 	 activityMode const & am = activityMode::DEFAULTACTIVITYMODE
 	 ) const {
 		 std::size_t result = 0;
 
@@ -587,7 +578,7 @@ public:
 	 template <typename par_type>
 	 void streamline(
 		 std::vector<par_type>& parVec
-		 , const activityMode& am = activityMode::DEFAULTACTIVITYMODE
+		 , activityMode const& am = activityMode::DEFAULTACTIVITYMODE
 	 ) const {
 		 // Make sure the vector is clean
 		 parVec.clear();
@@ -615,7 +606,7 @@ public:
 	 template <typename par_type>
 	 void streamline(
 		 std::map<std::string, std::vector<par_type>>& parVec
-		 , const activityMode& am = activityMode::DEFAULTACTIVITYMODE
+		 , activityMode const& am = activityMode::DEFAULTACTIVITYMODE
 	 ) const {
 		 // Make sure the vector is clean
 		 parVec.clear();
@@ -640,8 +631,8 @@ public:
 	  */
 	 template <typename par_type>
 	 void assignValueVector(
-		 const std::vector<par_type>& parVec
-		 , const activityMode& am = activityMode::DEFAULTACTIVITYMODE
+	 	 std::vector<par_type> const& parVec
+		 , activityMode const& am = activityMode::DEFAULTACTIVITYMODE
 	 ) {
 #ifdef DEBUG
 		 if(countParameters<par_type>() != parVec.size()) {
@@ -675,8 +666,8 @@ public:
 	  */
 	 template <typename par_type>
 	 void assignValueVectors(
-		 const std::map<std::string, std::vector<par_type>>& parMap
-		 , const activityMode& am = activityMode::DEFAULTACTIVITYMODE
+	 	 std::map<std::string, std::vector<par_type>> const& parMap
+		 , activityMode const& am = activityMode::DEFAULTACTIVITYMODE
 	 ) {
 		 // Loop over all GParameterBase objects. Each object will extract the relevant parameters
 		 for(const auto& parm_ptr: *this) {
@@ -702,7 +693,7 @@ public:
 	 void boundaries(
 		 std::vector<par_type>& lBndVec
 		 , std::vector<par_type>& uBndVec
-		 , const activityMode& am = activityMode::DEFAULTACTIVITYMODE
+		 , activityMode const& am = activityMode::DEFAULTACTIVITYMODE
 	 ) const {
 		 // Make sure the vectors are clean
 		 lBndVec.clear();
@@ -725,9 +716,9 @@ public:
 	  */
 	 template <typename par_type>
 	 void multiplyByRandom(
-		 const par_type& min
-		 , const par_type& max
-		 , const activityMode& am
+	 	 par_type const& min
+		 , par_type const& max
+		 , activityMode const& am
 	 ) {
 		 // Loop over all GParameterBase objects.
 		 for(auto& parm_ptr: *this) {
@@ -744,7 +735,7 @@ public:
 	  */
 	 template <typename par_type>
 	 void multiplyByRandom(
-		 const activityMode& am
+	 	 activityMode const& am
 	 ) {
 		 // Loop over all GParameterBase objects.
 		 for(auto& parm_ptr: *this) {
@@ -761,8 +752,8 @@ public:
 	  */
 	 template <typename par_type>
 	 void multiplyBy(
-		 const par_type& val
-		 , const activityMode& am
+	 	 par_type const& val
+		 , activityMode const& am
 	 ) {
 		 // Loop over all GParameterBase objects.
 		 for(auto& parm_ptr: *this) {
@@ -779,13 +770,12 @@ public:
 	  */
 	 template <typename par_type>
 	 void fixedValueInit(
-		 const par_type& val
-		 , const activityMode& am
+	 	 par_type const& val
+		 , activityMode const& am
 	 ) {
 		 // Loop over all GParameterBase objects.
-		 GParameterSet::iterator it;
-		 for(it=this->begin(); it!=this->end(); ++it) {
-			 (*it)->fixedValueInit<par_type>(val, am);
+		 for(auto const& item_ptr: *this) {
+		 	item_ptr->fixedValueInit<par_type>(val, am);
 		 }
 
 		 // As we have modified our internal data sets, make sure the item is reprocessed
@@ -798,8 +788,8 @@ public:
 	  */
 	 template <typename par_type>
 	 void add(
-		 const std::shared_ptr<GParameterSet>& p
-		 , const activityMode& am
+	 	 std::shared_ptr<GParameterSet> const& p
+		 , activityMode const& am
 	 ) {
 		 GParameterSet::iterator it;
 		 GParameterSet::const_iterator cit;
@@ -821,8 +811,8 @@ public:
 	  */
 	 template <typename par_type>
 	 void subtract(
-		 const std::shared_ptr<GParameterSet>& p
-		 , const activityMode& am
+	 	 std::shared_ptr<GParameterSet> const& p
+		 , activityMode const& am
 	 ) {
 		 GParameterSet::iterator it;
 		 GParameterSet::const_iterator cit;
@@ -841,8 +831,8 @@ public:
 	 /***************************************************************************/
 	 // Deleted functions
 
-	 explicit G_API_GENEVA GParameterSet(const float&) = delete; ///< Intentionally undefined
-	 explicit G_API_GENEVA GParameterSet(const double&) = delete; ///< Intentionally undefined
+	 explicit G_API_GENEVA GParameterSet(float const&) = delete; ///< Intentionally undefined
+	 explicit G_API_GENEVA GParameterSet(double const&) = delete; ///< Intentionally undefined
 
 protected:
 	 /***************************************************************************/
@@ -868,7 +858,7 @@ protected:
 	 G_API_GENEVA void load_(const GObject*) override;
 
 	 /** @brief Random initialization */
-	 virtual G_API_GENEVA bool randomInit_(const activityMode&) BASE;
+	 virtual G_API_GENEVA bool randomInit_(activityMode const&) BASE;
 
 	 /* @brief The actual adaption operations. */
 	 virtual G_API_GENEVA std::size_t customAdaptions() BASE ;
@@ -876,7 +866,7 @@ protected:
 	 /** @brief The fitness calculation for the main quality criterion takes place here */
 	 virtual G_API_GENEVA double fitnessCalculation() BASE = 0;
 	 /** @brief Sets the fitness to a given set of values and clears the dirty flag */
-	 G_API_GENEVA void setFitness_(const std::vector<double>&);
+	 G_API_GENEVA void setFitness_(std::vector<double> const&);
 
 	 /** @brief Combines secondary evaluation results by adding the individual results */
 	 G_API_GENEVA double sumCombiner() const;
@@ -885,7 +875,7 @@ protected:
 	 /** @brief Combines secondary evaluation results by calculating the square root of the squared sum */
 	 G_API_GENEVA double squaredSumCombiner() const;
 	 /** @brief Combines secondary evaluation results by calculation the square root of the weighed squared sum */
-	 G_API_GENEVA double weighedSquaredSumCombiner(const std::vector<double>&) const;
+	 G_API_GENEVA double weighedSquaredSumCombiner(std::vector<double> const&) const;
 
 	 /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
 	 G_API_GENEVA bool parameterSetFulfillsConstraints(double&) const;
@@ -906,13 +896,14 @@ private:
 	 /** @brief  Allows to set all fitnesses to the same value (raw and transformed values seperately) */
 	 void setAllFitnessTo(double, double);
 
+	 /** @brief Retrieval of a suitable position for cross over inside of a vector */
+	 std::size_t getCrossOverPos(std::size_t, std::size_t);
+
 	 /***************************************************************************/
 	 // Data
 
 	 /** @brief Uniformly distributed integer random numbers */
 	 std::uniform_int_distribution<std::size_t> m_uniform_int;
-
-	 double m_perItemCrossOverProbability = DEFAULTPERITEMEXCHANGELIKELIHOOD; ///< A likelihood for "per item" cross-over operations to be performed
 
 	 /** @brief Holds the globally best known primary fitness of all individuals */
 	 std::tuple<double, double> m_best_past_primary_fitness{std::make_tuple(0., 0.)};
