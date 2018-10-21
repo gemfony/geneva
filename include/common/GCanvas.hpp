@@ -376,9 +376,9 @@ public:
 	 /**
 	  * Get information about the canvas dimensions
 	  */
-	 std::tuple<std::size_t, std::size_t>
+	 auto
 	 dimensions() const {
-		 return {m_xDim, m_yDim};
+		 return std::tuple<std::size_t, std::size_t>{m_xDim, m_yDim};
 	 }
 
 	 /***************************************************************************/
@@ -937,7 +937,7 @@ public:
 	 /**
 	  * Calculates the average colors over all pixels
 	  */
-	 std::tuple<float, float, float>
+	 auto
 	 getAverageColors() const {
 		 float averageRed = 0.f;
 		 float averageGreen = 0.f;
@@ -955,7 +955,7 @@ public:
 		 averageGreen /= (float) (m_xDim * m_yDim);
 		 averageBlue /= (float) (m_xDim * m_yDim);
 
-		 return {averageRed, averageGreen, averageBlue};
+		 return std::tuple<float, float, float>{averageRed, averageGreen, averageBlue};
 	 }
 
 	 /***************************************************************************/

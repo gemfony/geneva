@@ -1174,8 +1174,8 @@ std::string GParameterSet::getPersonality() const {
 /**
  * Allows to check whether random crashs of individuals are enabled
  */
-std::tuple<bool, double> GParameterSet::getRandomCrash() const {
-	return {m_useRandomCrash, m_randomCrashProb};
+auto GParameterSet::getRandomCrash() const {
+	return std::tuple<bool, double>{m_useRandomCrash, m_randomCrashProb};
 };
 
 /******************************************************************************/

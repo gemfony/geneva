@@ -139,9 +139,9 @@ public:
 	 // Defaulted constructors. destructors and assignment operators
 
 	 GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> const& cp) = default;
-	 GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> && cp) = default;
+	 GMultiSourceParameterT(GMultiSourceParameterT<parameter_type> && cp) noexcept = default;
 	 GMultiSourceParameterT<parameter_type> &operator=(GMultiSourceParameterT<parameter_type> const& cp) = default;
-	 GMultiSourceParameterT<parameter_type> &operator=(GMultiSourceParameterT<parameter_type> && cp) = default;
+	 GMultiSourceParameterT<parameter_type> &operator=(GMultiSourceParameterT<parameter_type> && cp) noexcept = default;
 	 ~GMultiSourceParameterT() = default;
 
 	 /***************************************************************************/
@@ -160,7 +160,7 @@ public:
 	  * Allows to check whether the value for a given data source was set
 	  */
     bool isSet(Gem::Common::parameter_source data_source) {
-    	return *(m_parameter_values.at(data_source).second);
+    	return m_parameter_values.at(data_source).second;
     }
 
 	 /***************************************************************************/
@@ -204,13 +204,12 @@ private:
    /**
     * Default constructor -- Only needed for (de-)serialization purposes
     */
-   GMultiSourceParameterT() : m_default_value(parameter_type(nullptr))
-   { /* nothing */ }
+   GMultiSourceParameterT() = default;
 
    /***************************************************************************/
    // Data
 
-   parameter_type m_default_value; // The default value to be returned when all else fails
+   parameter_type m_default_value = parameter_type(nullptr); // The default value to be returned when all else fails
 
    // Value retrieval will look at each entry of the map until it finds one that was set.
    // If none was set, the default value will be returned
