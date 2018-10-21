@@ -109,14 +109,9 @@ public:
 		 , Gem::Hap::GRandomBase&
 	 );
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 protected:
 	 /** @brief Loads the data of another GBooleanCollection class */
 	 G_API_GENEVA void load_(const GObject *) override;
-	 /** @brief Creates a deep copy of this object */
-	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Triggers random initialization of the parameter collection */
 	 virtual G_API_GENEVA bool randomInit_(
@@ -145,6 +140,12 @@ protected:
 	 G_API_GENEVA void assignBooleanValueVector(const std::vector<bool>&, std::size_t&, const activityMode& am) override;
 	 /** @brief Assigns part of a value map to the parameter */
 	 G_API_GENEVA void assignBooleanValueVectors(const std::map<std::string, std::vector<bool>>&, const activityMode& am) override;
+
+private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
+	 /** @brief Creates a deep copy of this object */
+	 G_API_GENEVA GObject *clone_() const override;
 
 public:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */

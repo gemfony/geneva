@@ -160,9 +160,6 @@ public:
 		 }
 	 }
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const GObject& // the other object
@@ -187,6 +184,8 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject* clone_() const override = 0;
 

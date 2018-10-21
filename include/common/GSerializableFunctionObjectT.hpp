@@ -113,14 +113,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GSerializableFunctionObjectT<processable_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Checks for compliance with expectations with respect to another object
 	  * of the same type
 	  *
@@ -168,6 +160,14 @@ protected:
 	 virtual G_API_COMMON bool process_(processable_type& p) BASE = 0;
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GSerializableFunctionObjectT<processable_type>");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GSerializableFunctionObjectT<processable_type> * clone_() const override = 0;

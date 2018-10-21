@@ -285,7 +285,7 @@ double GSimulatedAnnealing::getT() const {
 /**
   * Emits a name for this class / object
   */
-std::string GSimulatedAnnealing::name() const {
+std::string GSimulatedAnnealing::name_() const {
 	return std::string("GSimulatedAnnealing");
 }
 

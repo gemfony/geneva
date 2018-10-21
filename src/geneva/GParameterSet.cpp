@@ -1368,7 +1368,7 @@ void GParameterSet::addConfigurationOptions(
  *
  * @return The name of this class / object
  */
-std::string GParameterSet::name() const {
+std::string GParameterSet::name_() const {
 	return std::string("GParameterSet");
 }
 

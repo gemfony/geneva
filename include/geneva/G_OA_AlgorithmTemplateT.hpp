@@ -245,16 +245,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  *
-	  * Add some clear-text description of this optimization algorithm
-	  */
-	 std::string name() const override {
-		 return std::string("algorithm template");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Adds the individuals of this iteration to a priority queue. The
  	  * queue will be sorted by the first evaluation criterion of the individuals
  	  * and may either have a limited or unlimited size, depending on user-
@@ -447,6 +437,16 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  *
+	  * Add some clear-text description of this optimization algorithm
+	  */
+	 std::string name_() const override {
+		 return std::string("algorithm template");
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Creates a deep clone of this object

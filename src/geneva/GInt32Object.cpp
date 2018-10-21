@@ -156,7 +156,7 @@ void GInt32Object::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GInt32Object::name() const {
+std::string GInt32Object::name_() const {
 	return std::string("GInt32Object");
 }
 

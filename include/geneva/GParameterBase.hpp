@@ -124,9 +124,6 @@ public:
 	 /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
 	 virtual G_API_GENEVA bool isParameterCollection() const BASE;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 	 /** @brief Allows to assign a name to this parameter */
 	 G_API_GENEVA void setParameterName(const std::string&);
 	 /** @brief Allows to retrieve the name of this parameter */
@@ -542,6 +539,8 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject* clone_() const override = 0;
 

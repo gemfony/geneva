@@ -89,8 +89,6 @@ public:
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const override;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
 	 /** @brief Retrieves the mnemonic of the optimization algorithm */
 	 virtual G_API_GENEVA std::string getMnemonic() const BASE = 0;
 
@@ -99,6 +97,8 @@ protected:
 	 G_API_GENEVA void load_(const GObject *) override;
 
 private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject *clone_() const override = 0;
 

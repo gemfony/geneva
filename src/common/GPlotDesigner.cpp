@@ -386,7 +386,7 @@ void GBasePlotter::setId(const std::size_t &id) {
 /**
  * Returns the name of this class
  */
-std::string GBasePlotter::name() const {
+std::string GBasePlotter::name_() const {
 	return std::string("GBasePlotter");
 }
 
@@ -601,7 +601,7 @@ std::string GGraph2D::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GGraph2D::name() const {
+std::string GGraph2D::name_() const {
 	return std::string("GGraph2D");
 }
 
@@ -878,7 +878,7 @@ std::string GGraph2ED::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GGraph2ED::name() const {
+std::string GGraph2ED::name_() const {
 	return std::string("GGraph2ED");
 }
 
@@ -1138,7 +1138,7 @@ std::string GGraph3D::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GGraph3D::name() const {
+std::string GGraph3D::name_() const {
 	return std::string("GGraph3D");
 }
 
@@ -1484,7 +1484,7 @@ std::string GGraph4D::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GGraph4D::name() const {
+std::string GGraph4D::name_() const {
 	return std::string("GGraph4D");
 }
 
@@ -1925,7 +1925,7 @@ std::string GHistogram1D::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GHistogram1D::name() const {
+std::string GHistogram1D::name_() const {
 	return std::string("GHistogram1D");
 }
 
@@ -2195,7 +2195,7 @@ std::string GHistogram1I::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GHistogram1I::name() const {
+std::string GHistogram1I::name_() const {
 	return std::string("GHistogram1I");
 }
 
@@ -2645,7 +2645,7 @@ std::string GHistogram2D::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GHistogram2D::name() const {
+std::string GHistogram2D::name_() const {
 	return std::string("GHistogram2D");
 }
 
@@ -2769,7 +2769,7 @@ std::string GFunctionPlotter1D::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GFunctionPlotter1D::name() const {
+std::string GFunctionPlotter1D::name_() const {
 	return std::string("GFunctionPlotter1D");
 }
 
@@ -3012,7 +3012,7 @@ std::string GFunctionPlotter2D::getPlotterName() const {
 /**
  * Returns the name of this class
  */
-std::string GFunctionPlotter2D::name() const {
+std::string GFunctionPlotter2D::name_() const {
 	return std::string("GFunctionPlotter2D");
 }
 
@@ -3505,7 +3505,7 @@ void GPlotDesigner::resetPlotters() {
 /**
  * Returns the name of this class
  */
-std::string GPlotDesigner::name() const {
+std::string GPlotDesigner::name_() const {
 	return std::string("GPlotDesigner");
 }
 

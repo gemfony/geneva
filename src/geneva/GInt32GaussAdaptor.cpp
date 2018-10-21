@@ -148,7 +148,7 @@ void GInt32GaussAdaptor::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GInt32GaussAdaptor::name() const {
+std::string GInt32GaussAdaptor::name_() const {
 	return std::string("GInt32GaussAdaptor");
 }
 

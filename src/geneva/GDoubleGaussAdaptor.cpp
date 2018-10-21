@@ -142,7 +142,7 @@ void GDoubleGaussAdaptor::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GDoubleGaussAdaptor::name() const {
+std::string GDoubleGaussAdaptor::name_() const {
 	return std::string("GDoubleGaussAdaptor");
 }
 

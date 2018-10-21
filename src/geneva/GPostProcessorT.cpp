@@ -79,7 +79,7 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
 /**
  * Returns the name of this class
  */
-std::string GEvolutionaryAlgorithmPostOptimizer::name() const {
+std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
 	return std::string("GEvolutionaryAlgorithmPostOptimizer");
 }
 

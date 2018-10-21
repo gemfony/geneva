@@ -131,7 +131,7 @@ void GBooleanObjectCollection::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GBooleanObjectCollection::name() const {
+std::string GBooleanObjectCollection::name_() const {
 	return std::string("GBooleanObjectCollection");
 }
 

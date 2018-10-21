@@ -129,7 +129,7 @@ void GConjugateGradientDescent::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GConjugateGradientDescent::name() const {
+std::string GConjugateGradientDescent::name_() const {
 	return std::string("GConjugateGradientDescent");
 }
 

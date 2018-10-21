@@ -107,14 +107,6 @@ public:
 
 	 /**************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GPostProcessorBaseT");
-	 }
-
-	 /**************************************************************************/
-	 /**
 	  * Checks for compliance with expectations with respect to another object
 	  * of the same type
 	  *
@@ -209,6 +201,14 @@ protected:
 
 private:
 	 /**************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GPostProcessorBaseT");
+	 }
+
+	 /**************************************************************************/
 	 /** @brief Creates a deep clone of this object; purely virtual */
 	 G_API_GENEVA Gem::Common::GSerializableFunctionObjectT<base_type> * clone_() const override = 0;
 
@@ -260,9 +260,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_GENEVA ~GEvolutionaryAlgorithmPostOptimizer() override = default;
 
-	 /** @brief Returns the name of this class */
-	 G_API_GENEVA std::string name() const override;
-
 	 /** @brief Checks for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
@@ -289,12 +286,16 @@ protected:
 	 /**************************************************************************/
 	 /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
 	 G_API_GENEVA void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override;
-	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA Gem::Common::GSerializableFunctionObjectT<GParameterSet> * clone_() const override;
+
 	 /** @brief The actual post-processing takes place here (no further checks) */
 	 G_API_GENEVA bool raw_processing_(GParameterSet& p) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_GENEVA std::string name_() const override;
+	 /** @brief Creates a deep clone of this object */
+	 G_API_GENEVA Gem::Common::GSerializableFunctionObjectT<GParameterSet> * clone_() const override;
+
 	 /** @brief The standard constructor */
 	 G_API_GENEVA GEvolutionaryAlgorithmPostOptimizer();
 

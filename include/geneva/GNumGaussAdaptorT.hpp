@@ -463,14 +463,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const  override {
-		 return std::string("GNumGaussAdaptorT");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Triggers updates when the optimization process has stalled. This function
 	  * resets the sigma value to its original value and calls the parent class'es function
 	  *
@@ -590,6 +582,13 @@ protected:
 	 fp_type maxSigma_; ///< maximum allowed value for sigma_
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const  override {
+		 return std::string("GNumGaussAdaptorT");
+	 }
 	 /***************************************************************************/
 	 /**
 	  * This function creates a deep copy of this object. Purely virtual so this class cannot

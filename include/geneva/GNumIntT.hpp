@@ -193,14 +193,6 @@ public:
 		 token.evaluate();
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GNumIntT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -246,6 +238,14 @@ protected:
 	  */
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GNumIntT");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. Needs to be redefined in derived classes */
 	 GObject* clone_() const override = 0;

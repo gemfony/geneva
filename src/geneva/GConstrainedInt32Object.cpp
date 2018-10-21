@@ -156,7 +156,7 @@ void GConstrainedInt32Object::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GConstrainedInt32Object::name() const {
+std::string GConstrainedInt32Object::name_() const {
 	return std::string("GConstrainedInt32Object");
 }
 

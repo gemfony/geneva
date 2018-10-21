@@ -1532,14 +1532,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GOptOptMonitorT<>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *
@@ -1735,6 +1727,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GOptOptMonitorT<>");
+	 }
+
 	 /***************************************************************************/
 	 /**
 		* Creates a deep clone of this object

@@ -97,7 +97,7 @@ void GSimulatedAnnealing_PersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GSimulatedAnnealing_PersonalityTraits::name() const {
+std::string GSimulatedAnnealing_PersonalityTraits::name_() const {
 	return std::string("GSimulatedAnnealing_PersonalityTraits");
 }
 

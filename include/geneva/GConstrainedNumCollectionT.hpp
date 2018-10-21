@@ -394,14 +394,6 @@ public:
 		 ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GConstrainedNumCollectionT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -434,15 +426,6 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /**
-	  * Creates a deep copy of this object. Purely virtual as this class
-	  * should not be instantiable.
-	  *
-	  * @return A pointer to a deep clone of this object
-	  */
-	 GObject *clone_() const override = 0;
-
-	 /***************************************************************************/
 	 /** @brief Triggers random initialization of the parameter collection */
 	 virtual bool randomInit_(
 		 const activityMode&
@@ -462,6 +445,23 @@ protected:
 	 { /* nothing */ }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GConstrainedNumCollectionT");
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Creates a deep copy of this object. Purely virtual as this class
+	  * should not be instantiable.
+	  *
+	  * @return A pointer to a deep clone of this object
+	  */
+	 GObject *clone_() const override = 0;
+
 	 /***************************************************************************/
 	 num_type lowerBoundary_; ///< The lower allowed boundary for our value
 	 num_type upperBoundary_; ///< The upper allowed boundary for our value

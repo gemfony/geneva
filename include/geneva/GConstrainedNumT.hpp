@@ -536,14 +536,6 @@ public:
 		 ptr.put(baseName + ".adaptionsActive", this->adaptionsActive());
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GConstrainedNumT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -576,6 +568,15 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GConstrainedNumT");
+	 }
+
+	 /***************************************************************************/
+
 	 /** @brief Creates a deep clone of this object. */
 	 G_API_GENEVA GObject* clone_() const override = 0;
 

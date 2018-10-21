@@ -242,7 +242,7 @@ void GGradientDescent::resetToOptimizationStart() {
 /**
  * Emits a name for this class / object
  */
-std::string GGradientDescent::name() const {
+std::string GGradientDescent::name_() const {
 	return std::string("GGradientDescent");
 }
 

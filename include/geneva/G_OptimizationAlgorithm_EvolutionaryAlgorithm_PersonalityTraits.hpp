@@ -94,18 +94,19 @@ public:
 	 /** @brief Allows to specify that this individual does not lie on the pareto front of the current iteration */
 	 G_API_GENEVA void setIsNotOnParetoFront();
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
 	 /** @brief Retrieves the mnemonic of the optimization algorithm */
 	 G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
 	 /** @brief Loads the data of another GEAPersonalityTraits object */
 	 G_API_GENEVA void load_(const GObject*) override;
+
+private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject* clone_() const override;
 
-private:
 	 /** @brief Determines whether the individual lies on the pareto front */
 	 bool isOnParetoFront_ = true;
 

@@ -198,7 +198,7 @@ void GParameterBase::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GParameterBase::name() const {
+std::string GParameterBase::name_() const {
 	return std::string("GParameterBase");
 }
 

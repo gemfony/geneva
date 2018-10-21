@@ -205,10 +205,6 @@ public:
 	 /** @brief Returns information about the type of optimization algorithm */
 	 G_API_GENEVA std::string getAlgorithmPersonalityType() const override = 0;
 
-	 /***************************************************************************/
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 protected:
 	 /***************************************************************************/
 	 /** @brief Adapts all children of this population */
@@ -273,6 +269,10 @@ protected:
 	 double m_amalgamationLikelihood = DEFAULTAMALGAMATIONLIKELIHOOD; ///< Likelihood for children to be created by cross-over rather than "just" duplication (note that they may nevertheless be mutated)
 
 private:
+	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject *clone_() const override = 0;

@@ -212,14 +212,9 @@ public:
 		 return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(m_neighborhood_bests_vec[neighborhood]);
 	 }
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 protected:
 	 /** @brief Loads the data of another population */
 	 G_API_GENEVA void load_(const GObject *) override;
-	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Does some preparatory work before the optimization starts */
 	 G_API_GENEVA void init() override;
@@ -304,6 +299,11 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
+	 /** @brief Creates a deep clone of this object */
+	 G_API_GENEVA GObject *clone_() const override;
+
 	 /** @brief Helper function that checks the content of two nNeighborhoodMembers_ arrays */
 	 bool nNeighborhoodMembersEqual(const std::vector<std::size_t>&, const std::vector<std::size_t>&) const;
 

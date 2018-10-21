@@ -53,7 +53,7 @@ GParameterSetFixedSizePriorityQueue::GParameterSetFixedSizePriorityQueue(const s
 /**
  * Emits a name for this class / object
  */
-std::string GParameterSetFixedSizePriorityQueue::name() const {
+std::string GParameterSetFixedSizePriorityQueue::name_() const {
 	return std::string("GParameterSetFixedSizePriorityQueue");
 }
 

@@ -433,7 +433,7 @@ void G_OptimizationAlgorithm_ParChild::actOnStalls() {
 /**
  * Emits a name for this class / object
  */
-std::string G_OptimizationAlgorithm_ParChild::name() const {
+std::string G_OptimizationAlgorithm_ParChild::name_() const {
 	return std::string("G_OptimizationAlgorithm_ParChild");
 }
 

@@ -111,18 +111,19 @@ public:
 	 /** @brief Retrieve quality of personally best individual */
 	 G_API_GENEVA std::tuple<double, double> getPersonalBestQuality() const;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
 	 /** @brief Retrieves the mnemonic of the optimization algorithm */
 	 G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
 	 /** @brief Loads the data of another GSwarmPersonalityTraits object */
 	 G_API_GENEVA void load_(const GObject*) override;
+
+private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject* clone_() const override;
 
-private:
 	 /** @brief Stores the current position in the population */
 	 std::size_t neighborhood_ = 0;
 

@@ -154,7 +154,7 @@ void GDoubleObject::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GDoubleObject::name() const {
+std::string GDoubleObject::name_() const {
 	return std::string("GDoubleObject");
 }
 

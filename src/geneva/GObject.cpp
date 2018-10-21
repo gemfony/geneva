@@ -145,7 +145,7 @@ boost::optional<std::string> GObject::checkRelationshipWith(
 /**
  * Emits a name for this class / object
  */
-std::string GObject::name() const {
+std::string GObject::name_() const {
 	return std::string("GObject");
 }
 
@@ -300,17 +300,6 @@ void GObject::specificTestsNoFailureExpected_GUnitTests() {
 
 		// Check that the pointer actually points somewhere
 		BOOST_CHECK(p_test);
-	}
-
-	// --------------------------------------------------------------------------
-
-	{ // Check the name of the object
-		std::shared_ptr <GObject> p_test = this->clone<GObject>();
-
-		// Check that the pointer actually points somewhere
-		BOOST_CHECK_MESSAGE(
-			p_test->GObject::name() == "GObject", "Name is " << p_test->GObject::name()
-		);
 	}
 
 	// --------------------------------------------------------------------------

@@ -231,14 +231,6 @@ public:
 		 return fp_type(0.);
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GConstrainedFPNumCollectionT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -289,6 +281,13 @@ protected:
 	 { /* nothing */ }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GConstrainedFPNumCollectionT");
+	 }
 	 /***************************************************************************/
 	 /** @brief Creates a deep copy of this object */
 	 GObject *clone_() const override = 0;

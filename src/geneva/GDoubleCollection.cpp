@@ -138,7 +138,7 @@ void GDoubleCollection::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GDoubleCollection::name() const {
+std::string GDoubleCollection::name_() const {
 	return std::string("GDoubleCollection");
 }
 

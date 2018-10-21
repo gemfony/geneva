@@ -370,11 +370,9 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
+	  * Emits a name for this class / object. Wrapper to avoid public virtual.
 	  */
-	 virtual std::string name() const BASE {
-		 return std::string("GCommonInterfaceT<g_class_type>");
-	 }
+	 std::string name() const { return this->name_(); }
 
 	 /***************************************************************************/
 	 /**
@@ -500,6 +498,14 @@ protected:
 	 virtual G_API_COMMON void load_(const g_class_type*) BASE = 0;
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 virtual std::string name_() const BASE {
+		 return std::string("GCommonInterfaceT<g_class_type>");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_COMMON g_class_type* clone_() const BASE = 0;

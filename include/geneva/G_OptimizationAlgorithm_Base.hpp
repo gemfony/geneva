@@ -490,9 +490,6 @@ public:
 	 /** @brief If individuals have been stored in this population, they are added to the priority queue. */
 	 G_API_GENEVA void addCleanStoredBests(GParameterSetFixedSizePriorityQueue& bestIndividuals);
 
-	 /** @brief Emits a name for this class / object; this can be a long name with spaces */
-	 G_API_GENEVA std::string name() const override = 0;
-
 	 /** @brief Helper function that determines whether we are currently inside of the first iteration */
 	 G_API_GENEVA bool inFirstIteration() const;
 	 /** @brief Helper function that determines whether we are after the first iteration */
@@ -589,6 +586,8 @@ protected:
 private:
 	 /***************************************************************************/
 
+	 /** @brief Emits a name for this class / object; this can be a long name with spaces */
+	 G_API_GENEVA std::string name_() const override = 0;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject* clone_() const override = 0;
 

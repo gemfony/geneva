@@ -104,9 +104,6 @@ public:
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name() const override;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
 		 const GObject& cp
@@ -120,6 +117,8 @@ protected:
 	 G_API_GENEVA  void load_(const GObject* cp) override;
 
 private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
 
@@ -201,9 +200,6 @@ public:
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name() const override;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
 		 const GObject& cp
@@ -218,6 +214,8 @@ protected:
 
 private:
 	 /************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
 
@@ -297,9 +295,6 @@ public:
 	 /** @brief Allows to clear all registered monitors */
 	 G_API_GENEVA void resetPluggbleOM();
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name() const override;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
 		 const GObject& cp
@@ -314,6 +309,8 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
 
@@ -889,14 +886,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GProgressPlotterT<fp_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  *
@@ -965,6 +954,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GProgressPlotterT<fp_type>");
+	 }
+
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
@@ -1114,9 +1111,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GAllSolutionFileLogger() = default;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name() const override;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
 		 const GObject& cp
@@ -1183,6 +1177,8 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
 
@@ -1255,9 +1251,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GIterationResultsFileLogger() = default;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name() const override;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
 		 const GObject& cp
@@ -1294,6 +1287,8 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
 
@@ -1529,16 +1524,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GAdaptorPropertyLoggerT()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GAdaptorPropertyLoggerT");
-	 }
+	 virtual ~GAdaptorPropertyLoggerT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1860,6 +1846,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GAdaptorPropertyLoggerT");
+	 }
+
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
@@ -2014,9 +2008,6 @@ public:
 	 /** @brief  The destructor */
 	 virtual G_API_GENEVA  ~GProcessingTimesLogger() = default;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name() const override;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA  void compare(
 		 const GObject& cp
@@ -2077,6 +2068,8 @@ protected:
 
 private:
 	 /************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
 

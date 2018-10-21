@@ -135,9 +135,6 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 	 /** @brief Sets the number of threads this population uses for adaption */
 	 G_API_GENEVA void setNThreads(std::uint16_t nThreads);
 	 /** @brief Retrieves the number of threads this population uses for adaption */
@@ -175,6 +172,8 @@ protected:
 	 G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
 
 private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep copy of this object */
 	 G_API_GENEVA GObject *clone_() const override;
 

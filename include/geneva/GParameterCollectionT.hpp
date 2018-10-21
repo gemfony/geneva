@@ -276,14 +276,6 @@ public:
 		 return true;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GParameterCollectionT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -309,6 +301,14 @@ protected:
 	 void dummyFunction() override { /* nothing */ }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GParameterCollectionT");
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.

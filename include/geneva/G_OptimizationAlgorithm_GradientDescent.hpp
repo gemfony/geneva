@@ -143,15 +143,10 @@ public:
 		 Gem::Common::GParserBuilder& gpb
 	 ) override;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another population */
 	 G_API_GENEVA void load_(const GObject *) override;
-	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
 	 G_API_GENEVA std::tuple<double, double> cycleLogic() override;
@@ -175,6 +170,12 @@ protected:
 
 private:
 	 /***************************************************************************/
+
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
+	 /** @brief Creates a deep clone of this object */
+	 G_API_GENEVA GObject *clone_() const override;
+
 	 std::size_t nStartingPoints_ = DEFAULTGDSTARTINGPOINTS; ///< The number of starting positions in the parameter space
 	 std::size_t nFPParmsFirst_ = 0; ///< The amount of floating point values in the first individual
 

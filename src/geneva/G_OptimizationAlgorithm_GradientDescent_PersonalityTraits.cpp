@@ -97,7 +97,7 @@ void GGradientDescent_PersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GGradientDescent_PersonalityTraits::name() const {
+std::string GGradientDescent_PersonalityTraits::name_() const {
 	return std::string("GGradientDescent_PersonalityTraits");
 }
 

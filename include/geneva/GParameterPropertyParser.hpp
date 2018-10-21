@@ -142,14 +142,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string{"parPropSpec<T>"};
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Checks for compliance with expectations with respect to another object
 	  * of type T. This purely virtual function ensures the well-formedness of the
 	  * compare hierarchy in derived classes.
@@ -226,6 +218,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string{"parPropSpec<T>"};
+	 }
+
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object

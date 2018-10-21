@@ -160,14 +160,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  */
-	 virtual std::string name() const override {
-		 return std::string("GImagePOM");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to set the image dimensions of the image written to disk
 	  */
 	 void setImageDimensions(
@@ -284,6 +276,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 virtual std::string name_() const override {
+		 return std::string("GImagePOM");
+	 }
+
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object

@@ -95,9 +95,6 @@ public:
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 protected:
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
@@ -129,6 +126,8 @@ protected:
 	 G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
 private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object. */
 	 G_API_GENEVA GObject* clone_() const override;
 

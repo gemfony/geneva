@@ -303,14 +303,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDecorator<Dim2, coordinate_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  */
@@ -371,6 +363,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDecorator<Dim2, coordinate_type>");
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Creates a deep clone of this object (this function is purely virtual)
@@ -440,16 +440,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GMarker()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GMarker<coordinate_type>");
-	 }
+	 virtual ~GMarker() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -552,18 +543,26 @@ protected:
 private:
 	 /***************************************************************************/
 	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GMarker<coordinate_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Creates a deep clone of this object.
 	  */
 	 GMarker<coordinate_type>* clone_() const override {
 		 return new GMarker<coordinate_type>(*this);
 	 }
 
+	 /***************************************************************************/
 	 /**
 	  * The default constructor -- intentionally private, as it is only needed
 	  * for de-serialization.
 	  */
-	 GMarker()
-	 { /* nothing */ }
+	 GMarker() = default;
 
 	 /***************************************************************************/
 	 // Local data ...
@@ -602,31 +601,19 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 GDecorator()
-	 { /* nothing */ }
+	 GDecorator() = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The copy constructor
 	  */
-	 GDecorator(const GDecorator<dimensions::Dim3, coordinate_type>& cp)
-		 : GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>>(cp)
-	 { /* nothing */ }
+	 GDecorator(const GDecorator<dimensions::Dim3, coordinate_type>& cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GDecorator()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDecorator<imensions::Dim3, coordinate_type>");
-	 }
+	 virtual ~GDecorator() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -693,6 +680,14 @@ protected:
 private:
 	 /***************************************************************************/
 	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDecorator<imensions::Dim3, coordinate_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Creates a deep clone of this object (this function is purely virtual)
 	  */
 	 GDecorator<dimensions::Dim3, coordinate_type>* clone_() const override = 0;
@@ -744,8 +739,7 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 GDecoratorContainer()
-	 { /* nothing */ }
+	 GDecoratorContainer() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -760,16 +754,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GDecoratorContainer()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDecoratorContainer<dimensions::Dim2, coordinate_type>");
-	 }
+	 virtual ~GDecoratorContainer() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -868,6 +853,14 @@ protected:
 private:
 	 /***************************************************************************/
 	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDecoratorContainer<dimensions::Dim2, coordinate_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Creates a deep clone of this object.
 	  */
 	 GDecoratorContainer<dimensions::Dim2, coordinate_type>* clone_() const override {
@@ -906,8 +899,7 @@ public:
 	 /**
 	  * The default constructor
 	  */
-	 GDecoratorContainer()
-	 { /* nothing */ }
+	 GDecoratorContainer() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -922,16 +914,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GDecoratorContainer()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDecoratorContainer<dimensions::Dim3, coordinate_type>");
-	 }
+	 virtual ~GDecoratorContainer() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1032,6 +1015,14 @@ protected:
 private:
 	 /***************************************************************************/
 	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDecoratorContainer<dimensions::Dim3, coordinate_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Creates a deep clone of this object.
 	  */
 	 GDecoratorContainer<dimensions::Dim3, coordinate_type>* clone_() const override {
@@ -1115,8 +1106,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 virtual G_API_COMMON std::string getPlotterName() const BASE = 0;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -1174,6 +1163,8 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override = 0;
 
@@ -1349,14 +1340,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDataCollector1T<x_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
@@ -1412,6 +1395,14 @@ protected:
 	 std::vector<x_type> m_data; ///< Holds the actual data
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDataCollector1T<x_type>");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override = 0;
@@ -1475,8 +1466,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -1500,6 +1489,8 @@ protected:
 	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -1559,8 +1550,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -1584,6 +1573,8 @@ protected:
 	 std::string drawingArguments(bool) const override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -1846,14 +1837,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDataCollector2T<x_type, y_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
@@ -1901,7 +1884,14 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDataCollector2T<x_type, y_type>");
+	 }
 
+	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override = 0;
 };
@@ -2168,14 +2158,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDataCollector2ET<x_type, y_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
@@ -2222,6 +2204,14 @@ protected:
 	 std::vector<std::tuple<x_type, x_type, y_type, y_type>> m_data; ///< Holds the actual data
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDataCollector2ET<x_type, y_type>");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override = 0;
@@ -2299,8 +2289,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON  std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -2329,6 +2317,8 @@ protected:
 	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -2389,8 +2379,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -2414,6 +2402,8 @@ protected:
 	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -2460,8 +2450,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON  std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -2485,6 +2473,8 @@ protected:
 	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -2708,14 +2698,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDataCollector3T<x_type, y_type, z_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
@@ -2763,6 +2745,14 @@ protected:
 	 std::vector<std::tuple<x_type, y_type, z_type>> m_data; ///< Holds the actual data
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDataCollector3T<x_type, y_type, z_type>");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override = 0;
@@ -2928,8 +2918,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -2953,6 +2941,8 @@ protected:
 	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -3209,14 +3199,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GDataCollector4T<x_type, y_type, z_type, w_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
@@ -3263,6 +3245,14 @@ protected:
 	 std::vector<std::tuple<x_type, y_type, z_type, w_type>> m_data; ///< Holds the actual data
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GDataCollector4T<x_type, y_type, z_type, w_type>");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override = 0;
@@ -3499,8 +3489,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON  std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -3524,6 +3512,8 @@ protected:
 	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -3578,8 +3568,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -3603,6 +3591,8 @@ protected:
 	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -3658,8 +3648,6 @@ public:
 
 	 /** @brief Retrieves a unique name for this plotter */
 	 G_API_COMMON  std::string getPlotterName() const override;
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
@@ -3683,6 +3671,8 @@ protected:
 	 G_API_COMMON void load_(const GBasePlotter*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
@@ -3772,9 +3762,6 @@ public:
 	 /** @brief Returns the current number of indention spaces as a string */
 	 std::string indent() const;
 
-	 /** @brief Returns the name of this class */
-	 G_API_COMMON std::string name() const override;
-
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_COMMON void compare(
 		 const GPlotDesigner& // the other object
@@ -3793,6 +3780,8 @@ protected:
 	 G_API_COMMON void load_(const GPlotDesigner*) override;
 
 private:
+	 /** @brief Returns the name of this class */
+	 G_API_COMMON std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GPlotDesigner* clone_() const override;
 

@@ -76,7 +76,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GEvolutionaryAlgorithm_PersonalityTraits::name() const {
+std::string GEvolutionaryAlgorithm_PersonalityTraits::name_() const {
 	return std::string("GEvolutionaryAlgorithm_PersonalityTraits");
 }
 

@@ -105,7 +105,7 @@ void GBaseParChildPersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GBaseParChildPersonalityTraits::name() const {
+std::string GBaseParChildPersonalityTraits::name_() const {
 	return std::string("GBaseParChildPersonalityTraits");
 }
 

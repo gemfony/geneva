@@ -251,14 +251,6 @@ public:
 		 return true;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GParameterT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -314,6 +306,15 @@ protected:
 	 mutable T val_;
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GParameterT");
+	 }
+
+	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 GObject* clone_() const override = 0;
 

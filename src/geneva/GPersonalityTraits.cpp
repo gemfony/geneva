@@ -94,7 +94,7 @@ void GPersonalityTraits::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GPersonalityTraits::name() const {
+std::string GPersonalityTraits::name_() const {
 	return std::string("GPersonalityTraits");
 }
 

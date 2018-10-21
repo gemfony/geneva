@@ -156,7 +156,7 @@ void GConstrainedDoubleObject::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GConstrainedDoubleObject::name() const {
+std::string GConstrainedDoubleObject::name_() const {
 	return std::string("GConstrainedDoubleObject");
 }
 

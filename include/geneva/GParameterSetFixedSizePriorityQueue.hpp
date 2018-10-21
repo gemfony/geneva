@@ -101,8 +101,6 @@ public:
 	 /** @brief Emits information about the "dirty flag" of all items */
 	 G_API_GENEVA std::string getCleanStatus() const;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 G_API_GENEVA void compare(
 		 const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>& // the other object
@@ -134,6 +132,8 @@ protected:
 	 G_API_GENEVA std::string id(const std::shared_ptr<GParameterSet>&) const override;
 
 private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *clone_() const override;
 };

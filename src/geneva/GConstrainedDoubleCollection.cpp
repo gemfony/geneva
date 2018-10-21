@@ -124,7 +124,7 @@ void GConstrainedDoubleCollection::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GConstrainedDoubleCollection::name() const {
+std::string GConstrainedDoubleCollection::name_() const {
 	return std::string("GConstrainedDoubleCollection");
 }
 

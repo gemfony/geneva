@@ -776,15 +776,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override
-	 {
-		 return std::string("GAdaptorT");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to query specific properties of a given adaptor. Note that the
 	  * adaptor must have implemented a "response" for the query, as the function
 	  * will otherwise throw. This function is meant for debugging and profiling.
@@ -931,6 +922,14 @@ protected:
 	 std::bernoulli_distribution m_weighted_bool; ///< Access to boolean random numbers with a given probability structure
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GAdaptorT");
+	 }
+
 	 /***************************************************************************/
 
 	 std::uint32_t m_adaptionCounter = 0;///< A local counter

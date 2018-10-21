@@ -110,18 +110,19 @@ public:
 	 /** @brief Marks the parent id as unset */
 	 G_API_GENEVA void unsetParentId();
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
 	 /** @brief Retrieves the mnemonic of the optimization algorithm */
 	 G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
 	 /** @brief Loads the data of another GBaseParChildPersonalityTraits object */
 	 G_API_GENEVA void load_(const GObject*) override;
+
+private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject* clone_() const override;
 
-private:
 	 /** @brief Allows populations to record how often an individual has been reelected as parent (0 if it is a child) */
 	 std::uint32_t parentCounter_ = 0;
 	 /** @brief Stores the current position in the population */

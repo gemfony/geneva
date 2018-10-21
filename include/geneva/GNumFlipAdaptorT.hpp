@@ -163,14 +163,6 @@ public:
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GNumFlipAdaptorT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -225,6 +217,14 @@ protected:
 	  */
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GNumFlipAdaptorT");
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * This function creates a deep copy of this object. The function is purely virtual, as we

@@ -435,7 +435,7 @@ void GParameterScan::resetToOptimizationStart() {
 /**
  * Emits a name for this class / object
  */
-std::string GParameterScan::name() const {
+std::string GParameterScan::name_() const {
 	return std::string("GParameterScan");
 }
 

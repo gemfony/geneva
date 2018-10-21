@@ -299,7 +299,7 @@ void GBooleanCollection::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GBooleanCollection::name() const {
+std::string GBooleanCollection::name_() const {
 	return std::string("GBooleanCollection");
 }
 

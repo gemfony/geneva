@@ -274,14 +274,6 @@ public:
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GParameterBaseWithAdaptorsT");
-	 }
-
 	 /******************************************************************************/
 	 /**
 	  * Triggers updates when the optimization process has stalled
@@ -443,6 +435,14 @@ protected:
 	  */
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GParameterBaseWithAdaptorsT");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
 	 GObject* clone_() const override = 0;

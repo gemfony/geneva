@@ -204,14 +204,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GParameterTCollectionT");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Triggers updates when the optimization process has stalled
 	  */
 	 bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
@@ -1179,6 +1171,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GParameterTCollectionT");
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Creates a deep clone of this object. Declared purely virtual, as this class is not

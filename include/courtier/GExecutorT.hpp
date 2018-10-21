@@ -164,14 +164,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GBaseExecutorT<processable_type>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * General initialization function to be called prior to the first submission
 	  */
 	 void init() {
@@ -934,6 +926,14 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GBaseExecutorT<processable_type>");
+	 }
+
+	 /***************************************************************************/
 	 /** @brief Determination of the time when execution of the initial cycle has started */
 	 virtual std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const BASE = 0;
 
@@ -1048,14 +1048,6 @@ public:
 	 /***************************************************************************/
 	 /** @brief The destructor */
 	 virtual ~GSerialExecutorT() = default;
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GSerialExecutorT<processable_type>");
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -1263,6 +1255,14 @@ protected:
 private:
 	 /***************************************************************************/
 	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GSerialExecutorT<processable_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Creates a deep clone of this object.
 	  */
 	 GBaseExecutorT<processable_type>* clone_() const override {
@@ -1343,14 +1343,6 @@ public:
 	 /***************************************************************************/
 	 /** @brief The destructor */
 	 virtual ~GMTExecutorT() = default;
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GMTExecutorT<processable_type>");
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -1646,6 +1638,14 @@ private:
 
 	 /***************************************************************************/
 	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GMTExecutorT<processable_type>");
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Creates a deep clone of this object.
 	  */
 	 GBaseExecutorT<processable_type>* clone_() const override {
@@ -1771,14 +1771,6 @@ public:
 		 if(m_waiting_times_graph->currentSize() > 0.) {
 			 m_gpd.writeToFile("maximumWaitingTimes.C");
 		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GBrokerExecutorT<processable_type>");
 	 }
 
 	 /***************************************************************************/
@@ -2084,6 +2076,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GBrokerExecutorT<processable_type>");
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Creates a deep clone of this object.

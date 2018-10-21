@@ -452,14 +452,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Returns the name of this class
-	  */
-	 std::string name() const override {
-		 return std::string("GFixedSizePriorityQueueT<T>");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Checks for compliance with expectations with respect to another object
 	  * of the same type
 	  *
@@ -589,6 +581,14 @@ protected:
 	 Gem::Common::sortOrder m_sortOrder = Gem::Common::sortOrder::LOWERISBETTER; ///< Indicates whether higher evaluations of items indicate a higher priority
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Returns the name of this class
+	  */
+	 std::string name_() const override {
+		 return std::string("GFixedSizePriorityQueueT<T>");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GFixedSizePriorityQueueT<T> * clone_() const override = 0;

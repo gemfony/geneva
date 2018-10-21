@@ -113,7 +113,7 @@ void GInt32ObjectCollection::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GInt32ObjectCollection::name() const {
+std::string GInt32ObjectCollection::name_() const {
 	return std::string("GInt32ObjectCollection");
 }
 

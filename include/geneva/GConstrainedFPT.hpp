@@ -396,14 +396,6 @@ public:
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GConstrainedFPT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -445,6 +437,14 @@ protected:
 	  */
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GConstrainedFPT");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief Create a deep copy of this object */
 	 GObject *clone_() const override = 0;

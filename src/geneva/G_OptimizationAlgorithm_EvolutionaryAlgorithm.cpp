@@ -318,7 +318,7 @@ void GEvolutionaryAlgorithm::addConfigurationOptions (
 /**
   * Emits a name for this class / object
   */
-std::string GEvolutionaryAlgorithm::name() const {
+std::string GEvolutionaryAlgorithm::name_() const {
 	return std::string("GEvolutionaryAlgorithm");
 }
 

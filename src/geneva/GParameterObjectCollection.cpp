@@ -115,7 +115,7 @@ void GParameterObjectCollection::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GParameterObjectCollection::name() const {
+std::string GParameterObjectCollection::name_() const {
 	return std::string("GParameterObjectCollection");
 }
 

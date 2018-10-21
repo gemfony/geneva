@@ -95,7 +95,7 @@ void GStandardMonitor::informationFunction(
 /**
  * Emits a name for this class / object
  */
-std::string GStandardMonitor::name() const {
+std::string GStandardMonitor::name_() const {
 	return std::string("GStandardMonitor");
 }
 
@@ -453,7 +453,7 @@ void GFitnessMonitor::informationFunction(
 /**
  * Emits a name for this class / object
  */
-std::string GFitnessMonitor::name() const {
+std::string GFitnessMonitor::name_() const {
 	return std::string("GFitnessMonitor");
 }
 
@@ -649,7 +649,7 @@ void GCollectiveMonitor::resetPluggbleOM() {
 /**
  * Emits a name for this class / object
  */
-std::string GCollectiveMonitor::name() const  {
+std::string GCollectiveMonitor::name_() const  {
 	return std::string("GCollectiveMonitor");
 }
 
@@ -815,7 +815,7 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(const GAllSolutionFileLogger& cp)
 /**
  * Emits a name for this class / object
  */
-std::string GAllSolutionFileLogger::name() const {
+std::string GAllSolutionFileLogger::name_() const {
 	return std::string("GAllSolutionFileLogger");
 }
 
@@ -1211,7 +1211,7 @@ GIterationResultsFileLogger::GIterationResultsFileLogger(const GIterationResults
 /**
  * Emits a name for this class / object
  */
-std::string GIterationResultsFileLogger::name() const {
+std::string GIterationResultsFileLogger::name_() const {
 	return std::string("GIterationResultsFileLogger");
 }
 
@@ -1889,7 +1889,7 @@ GProcessingTimesLogger::GProcessingTimesLogger(const GProcessingTimesLogger& cp)
 /**
  * Emits a name for this class / object
  */
-std::string GProcessingTimesLogger::name() const {
+std::string GProcessingTimesLogger::name_() const {
 	return std::string("GProcessingTimesLogger");
 }
 

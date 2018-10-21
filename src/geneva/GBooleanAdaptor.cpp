@@ -135,7 +135,7 @@ void GBooleanAdaptor::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GBooleanAdaptor::name() const {
+std::string GBooleanAdaptor::name_() const {
 	return std::string("GBooleanAdaptor");
 }
 

@@ -266,14 +266,6 @@ public:
 	  * ----------------------------------------------------------------------------------
 	  */
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GConstrainedIntT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -290,10 +282,6 @@ protected:
 
 		 // no local data
 	 }
-
-	 /***************************************************************************/
-	 /** @brief Create a deep copy of this object */
-	 GObject *clone_() const override = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -318,6 +306,16 @@ protected:
 	  */
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GConstrainedIntT");
+	 }
+	 /** @brief Create a deep copy of this object */
+	 GObject *clone_() const override = 0;
+
 	 /***************************************************************************/
 	 /**
 	  * Reverts the value to descending order. Note: No check is made whether the value

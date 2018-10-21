@@ -95,9 +95,6 @@ public:
 	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	 G_API_GENEVA std::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 	 /***************************************************************************/
 	 /**
 	  * This function returns a parameter item at a given position of the data set.
@@ -136,6 +133,8 @@ protected:
 	 G_API_GENEVA void load_(const GObject*) override;
 
 private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object. */
 	 G_API_GENEVA GObject* clone_() const override;
 

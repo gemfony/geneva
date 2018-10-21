@@ -153,14 +153,6 @@ public:
 	 /** @brief Retrieves the id of the adaptor */
 	 Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GFPBiGaussAdaptorT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -228,6 +220,14 @@ protected:
 	 }
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GFPBiGaussAdaptorT");
+	 }
+
 	 /***************************************************************************/
 	 /** @brief This function creates a deep copy of this object */
 	 GObject *clone_() const override = 0;

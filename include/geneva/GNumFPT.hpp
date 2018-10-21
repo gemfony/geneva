@@ -194,14 +194,6 @@ public:
 		 token.evaluate();
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GNumFPT");
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -245,6 +237,14 @@ protected:
 	  */
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GNumFPT");
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Creates a deep copy of this object. Purely virtual as this class

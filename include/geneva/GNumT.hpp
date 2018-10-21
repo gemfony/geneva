@@ -247,14 +247,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Emits a name for this class / object
-	  */
-	 std::string name() const override {
-		 return std::string("GNumT");
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Converts the local data to a boost::property_tree node
 	  *
 	  * @param ptr The boost::property_tree object the data should be saved to
@@ -315,6 +307,14 @@ protected:
 	 ) override = 0;
 
 private:
+	 /***************************************************************************/
+	 /**
+	  * Emits a name for this class / object
+	  */
+	 std::string name_() const override {
+		 return std::string("GNumT<>");
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Creates a deep copy of this object. Purely virtual as this class

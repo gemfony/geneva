@@ -424,9 +424,6 @@ public:
 		 Gem::Common::GParserBuilder&
 	 ) override;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 	 /** @brief Check how valid a given solution is */
 	 G_API_GENEVA double getValidityLevel() const;
 	 /** @brief Checks whether all constraints were fulfilled */
@@ -882,6 +879,8 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override = 0;
 

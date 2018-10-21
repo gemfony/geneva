@@ -99,14 +99,9 @@ public:
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 protected:
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
-	 /** @brief Creates a deep clone of this object. */
-	 G_API_GENEVA GObject* clone_() const override;
 
 	 /** @brief Triggers random initialization of the parameter object */
 	 virtual G_API_GENEVA bool randomInit_(
@@ -144,6 +139,12 @@ protected:
 	 G_API_GENEVA void int32Add(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
 	 G_API_GENEVA void int32Subtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
+
+private:
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
+	 /** @brief Creates a deep clone of this object. */
+	 G_API_GENEVA GObject* clone_() const override;
 
 public:
 	 /** @brief Applies modifications to this object. This is needed for testing purposes */

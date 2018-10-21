@@ -126,16 +126,11 @@ public:
 	 /** @brief Retrieves the current temperature. This function is used for simulated annealing */
 	 G_API_GENEVA double getT() const;
 
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name() const override;
-
 protected:
 	 /***************************************************************************/
 
 	 /** @brief Loads the data of another GSimulatedAnnealingT object, camouflaged as a GObject */
 	 G_API_GENEVA void load_(const GObject *cp) override;
-	 /** @brief Creates a deep copy of this object */
-	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Some error checks related to population sizes */
 	 G_API_GENEVA void populationSanityChecks() const override;
@@ -165,6 +160,10 @@ protected:
 
 private:
 	 /***************************************************************************/
+	 /** @brief Emits a name for this class / object */
+	 G_API_GENEVA std::string name_() const override;
+	 /** @brief Creates a deep copy of this object */
+	 G_API_GENEVA GObject *clone_() const override;
 
 	 /** @brief Performs a simulated annealing style sorting and selection */
 	 void sortSAMode();

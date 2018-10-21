@@ -255,7 +255,7 @@ void GBooleanObject::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GBooleanObject::name() const {
+std::string GBooleanObject::name_() const {
 	return std::string("GBooleanObject");
 }
 

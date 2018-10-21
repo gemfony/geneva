@@ -295,7 +295,7 @@ void GSwarmAlgorithm::resetToOptimizationStart() {
 /**
  * Emits a name for this class / object
  */
-std::string GSwarmAlgorithm::name() const {
+std::string GSwarmAlgorithm::name_() const {
 	return std::string("GSwarmAlgorithm");
 }
 

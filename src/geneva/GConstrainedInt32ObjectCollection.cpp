@@ -110,7 +110,7 @@ void GConstrainedInt32ObjectCollection::compare(
 /**
  * Emits a name for this class / object
  */
-std::string GConstrainedInt32ObjectCollection::name() const {
+std::string GConstrainedInt32ObjectCollection::name_() const {
 	return std::string("GConstrainedInt32ObjectCollection");
 }
 
