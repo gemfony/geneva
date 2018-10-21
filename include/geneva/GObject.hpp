@@ -131,7 +131,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GObject(const GObject& cp) = default;
 	 /** @brief The destructor */
-	 G_API_GENEVA ~GObject() override = default;
+	 G_API_GENEVA virtual ~GObject() = default;
 
 	 /** @brief Writes a configuration file to disk */
 	 G_API_GENEVA void writeConfigFile(boost::filesystem::path const &, const std::string&);

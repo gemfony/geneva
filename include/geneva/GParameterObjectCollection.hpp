@@ -83,7 +83,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GParameterObjectCollection(const GParameterObjectCollection&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GParameterObjectCollection();
+	 G_API_GENEVA ~GParameterObjectCollection() override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
 	 virtual G_API_GENEVA void compare(

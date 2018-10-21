@@ -155,9 +155,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 ~GFixedSizePriorityQueueT() override {
-		 m_data.clear();
-	 }
+	 virtual ~GFixedSizePriorityQueueT() = default;
 
 	 /***************************************************************************/
 	 /**
