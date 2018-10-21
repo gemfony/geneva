@@ -43,29 +43,6 @@ volatile G_API_GENEVA std::sig_atomic_t GObject::GenevaSigHupSent = 0;
 
 /******************************************************************************/
 /**
- * The default constructor initializes the internal values of this class.
- * In particular, it sets the name of the Geneva object to "GObject"
- */
-GObject::GObject() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GObject object
- */
-GObject::GObject(const GObject &cp) : Gem::Common::GCommonInterfaceT<GObject>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * As no memory is dynamically allocated in GObject, no work has to
- * be done by this destructor.
- */
-GObject::~GObject() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Checks for compliance with expectations with respect to another object
  * of the same type
  *
@@ -93,53 +70,6 @@ void GObject::compare(
 	// React on deviations from the expectation
 	token.evaluate();
 }
-
-/******************************************************************************/
-/**
- * Checks whether a given expectation for the relationship between this object and another object
- * is fulfilled. This function was added to GObject to ensure backward compatibility. All
- * new code should use the compare-Infrastructure.
- *
- * @param cp A constant reference to another GObject object
- * @param e The expected outcome of the comparison
- * @param limit The maximum deviation for floating point values (important for similarity checks)
- * @param caller An identifier for the calling entity
- * @param y_name An identifier for the object that should be compared to this one
- * @param withMessages Whether or not information should be emitted in case of deviations from the expected outcome
- * @return A boost::optional<std::string> object that holds a descriptive string if expectations were not met
- */
-boost::optional<std::string> GObject::checkRelationshipWith(
-	const GObject &cp
-	, const Gem::Common::expectation &e
-	, const double &limit
-	, const std::string &caller
-	, const std::string &y_name
-	, const bool &withMessages
-) const {
-	using namespace Gem::Common;
-
-	// Check that cp isn't the same object as this one
-	Gem::Common::ptrDifferenceCheck(&cp, this);
-
-	GToken token("GObject", e);
-
-	// Do the actual comparison
-	Gem::Common::compare_t(IDENTITY(*this, cp), token);
-
-	// Perform a standard compare check
-	try {
-		token.evaluate();
-	} catch (g_expectation_violation &g) {
-		return boost::optional<std::string>(std::string(g.what()));
-	}
-
-	return boost::optional<std::string>();
-}
-
-/* ----------------------------------------------------------------------------------
- * UNCHECKED
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**

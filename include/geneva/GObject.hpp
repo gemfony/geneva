@@ -127,11 +127,11 @@ class GObject
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GObject();
+	 G_API_GENEVA GObject() = default;
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GObject(const GObject& cp);
+	 G_API_GENEVA GObject(const GObject& cp) = default;
 	 /** @brief The destructor */
-	 G_API_GENEVA ~GObject() override;
+	 G_API_GENEVA ~GObject() override = default;
 
 	 /** @brief Writes a configuration file to disk */
 	 G_API_GENEVA void writeConfigFile(boost::filesystem::path const &, const std::string&);
@@ -166,16 +166,6 @@ public:
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
-
-	 /** @brief Checks whether this object fulfills a given expectation in relation to another object */
-	 virtual G_API_GENEVA boost::optional<std::string> checkRelationshipWith(
-		 const GObject&
-		 , const Gem::Common::expectation&
-		 , const double&
-		 , const std::string&
-		 , const std::string&
-		 , const bool&
-	 ) const BASE;
 
 protected:
 	 /***************************************************************************/

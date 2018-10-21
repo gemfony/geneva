@@ -49,6 +49,9 @@ Bugs fixed:
  - Removed set/getPerItemCrossOverProbability() from GParameterSet . This is a
    characteristic of Evolutionary Algorithms (and related optimization algorithms)
    and is handled there, through the amalgamationLikelihood property
+ - Removed the old checkReleationShipWith()-hierarchy completely, in favour of the compare()-hierarchy.
+   If your individuals or custom optimization algorithms still implement this, you need to remove
+   and replace it with the compare()-function.
  - Some public virtual functions were replaced by private or protected alternatives.
    The base-class then holds a wrapper function calling the virtual function. This
    has happened to follow common C++ coding practice:
