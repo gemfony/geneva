@@ -197,9 +197,6 @@ public:
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const final;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &) override;
-
 	 /** @brief Allows to set the demo function */
 	 G_API_INDIVIDUALS void setDemoFunction(solverFunction);
 	 /** @brief Allows to retrieve the current demo function */
@@ -376,10 +373,10 @@ public:
 		 return result;
 	 }
 
-	 //---------------------------------------------------------------------------
-
 protected:
 	 //---------------------------------------------------------------------------
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_INDIVIDUALS void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 	 /** @brief Loads the data of another GFunctionIndividual */
 	 G_API_INDIVIDUALS void load_(const GObject *) final;
 
@@ -675,12 +672,11 @@ public:
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const final;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
-
 protected:
 	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_INDIVIDUALS void addConfigurationOptions_(Gem::Common::GParserBuilder&) override;
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 G_API_INDIVIDUALS void load_(const GObject *) override;
 
@@ -730,12 +726,11 @@ public:
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const final;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &) override;
-
 protected:
 	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_INDIVIDUALS void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 G_API_INDIVIDUALS void load_(const GObject *) override;
 
@@ -784,12 +779,11 @@ public:
 		 , const double & // the limit for allowed deviations of floating point types
 	 ) const final;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_INDIVIDUALS void addConfigurationOptions(Gem::Common::GParserBuilder &) override;
-
 protected:
 	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_INDIVIDUALS void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 G_API_INDIVIDUALS void load_(const GObject *) override;
 

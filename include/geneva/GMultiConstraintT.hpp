@@ -140,19 +140,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Adds local configuration options to a GParserBuilder object
-	  *
-	  * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allowNegative_ here
-	  */
-	 virtual void addConfigurationOptions(
-		 Gem::Common::GParserBuilder& gpb
-	 ) override {
-		 // Call our parent class'es function
-		 GObject::addConfigurationOptions(gpb);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Checks whether a given parameter set is valid. The function returns a
 	  * double value which is expected to be >= 0. Values in the range [0,1]
 	  * indicate valid parameters (according to this constraint). Values above 1
@@ -258,6 +245,19 @@ protected:
 	  * derived classes.
 	  */
 	 virtual double check_(const ind_type *) const = 0;
+
+	 /***************************************************************************/
+	 /**
+	  * Adds local configuration options to a GParserBuilder object
+	  *
+	  * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allowNegative_ here
+	  */
+	 virtual void addConfigurationOptions_(
+		 Gem::Common::GParserBuilder& gpb
+	 ) override {
+		 // Call our parent class'es function
+		 GObject::addConfigurationOptions_(gpb);
+	 }
 
 	 /***************************************************************************/
 	 /**

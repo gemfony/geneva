@@ -478,11 +478,6 @@ public:
 	 /** @brief Retrieve the number of processable items in the current iteration. */
 	 virtual G_API_GENEVA std::size_t getNProcessableItems() const BASE;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions (
-		 Gem::Common::GParserBuilder& gpb
-	 ) override;
-
 	 /** @brief Adds the individuals of this iteration to a priority queue. */
 	 virtual G_API_GENEVA void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) BASE;
 	 /** @brief Adds the individuals of this iteration to a priority queue. */
@@ -506,7 +501,10 @@ protected:
 	 std::uniform_real_distribution<double> m_uniform_real_distribution; ///< Access to uniformly distributed double random values
 
 	 /***************************************************************************/
-
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder& gpb
+	 ) override;
 	 /** @brief Loads the data of another GOptimizationAlgorithm object */
 	 G_API_GENEVA void load_(const GObject* cp) override;
 

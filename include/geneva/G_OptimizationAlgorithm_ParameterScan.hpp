@@ -666,11 +666,6 @@ public:
 	 /** @brief Returns the name of this optimization algorithm */
 	 G_API_GENEVA std::string getAlgorithmName() const override;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions (
-		 Gem::Common::GParserBuilder& gpb
-	 ) override;
-
 	 /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
 	 G_API_GENEVA void setNMonitorInds(std::size_t);
 	 /** @brief Allows to retrieve  the number of "best" individuals to be monitored over the course of the algorithm run */
@@ -693,6 +688,10 @@ public:
 
 protected:
 	 /***************************************************************************/
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder& gpb
+	 ) override;
 	 /** @brief Loads the data of another population */
 	 G_API_GENEVA void load_(const GObject *) override;
 

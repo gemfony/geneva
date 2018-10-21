@@ -267,11 +267,11 @@ std::size_t G_OptimizationAlgorithm_ParChild::getMaxPopulationSize() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void G_OptimizationAlgorithm_ParChild::addConfigurationOptions (
+void G_OptimizationAlgorithm_ParChild::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 )  {
 	// Call our parent class'es function
-	G_OptimizationAlgorithm_Base::addConfigurationOptions(gpb);
+	G_OptimizationAlgorithm_Base::addConfigurationOptions_(gpb);
 
 	// Add local data
 

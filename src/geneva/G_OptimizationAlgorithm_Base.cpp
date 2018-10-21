@@ -1179,11 +1179,11 @@ std::size_t G_OptimizationAlgorithm_Base::getNProcessableItems() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void G_OptimizationAlgorithm_Base::addConfigurationOptions (
+void G_OptimizationAlgorithm_Base::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 ) {
 	// Call our parent class'es function
-	GObject::addConfigurationOptions(gpb);
+	GObject::addConfigurationOptions_(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::uint32_t>(

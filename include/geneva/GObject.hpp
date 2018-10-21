@@ -139,7 +139,7 @@ public:
 	 G_API_GENEVA void readConfigFile(boost::filesystem::path const&);
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) BASE;
+	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 	 /***************************************************************************/
 	 /**
@@ -171,6 +171,8 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 virtual G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder&) BASE;
 
 private:
 	 /***************************************************************************/

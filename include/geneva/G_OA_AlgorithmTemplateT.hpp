@@ -230,21 +230,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Adds local configuration options to a GParserBuilder object
-	  *
-	  * Add local configuration options as needd (compare one of
-	  * the other optimization algorithms for the syntax), but make sure
-	  * to keep the call to our parent function in place.
-	  */
-	 virtual void addConfigurationOptions (
-		 Gem::Common::GParserBuilder& gpb
-	 ) override {
-		 // Call our parent class'es function first
-		 G_OptimizationAlgorithm_Base<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions(gpb);
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Adds the individuals of this iteration to a priority queue. The
  	  * queue will be sorted by the first evaluation criterion of the individuals
  	  * and may either have a limited or unlimited size, depending on user-
@@ -274,6 +259,21 @@ public:
 	 }
 
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Adds local configuration options to a GParserBuilder object
+	  *
+	  * Add local configuration options as needd (compare one of
+	  * the other optimization algorithms for the syntax), but make sure
+	  * to keep the call to our parent function in place.
+	  */
+	 void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder& gpb
+	 ) override {
+		 // Call our parent class'es function first
+		 G_OptimizationAlgorithm_Base<Gem::Courtier::GBrokerExecutorT<GParameterSet>>::addConfigurationOptions_(gpb);
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Loads the data of another population

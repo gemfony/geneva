@@ -92,11 +92,11 @@ void GParameterSetConstraint::compare(
 /**
  * Adds local configuration options to a GParserBuilder object
  */
-void GParameterSetConstraint::addConfigurationOptions(
+void GParameterSetConstraint::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GPreEvaluationValidityCheckT<GParameterSet>::addConfigurationOptions(gpb);
+	GPreEvaluationValidityCheckT<GParameterSet>::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -174,11 +174,11 @@ void GParameterSetFormulaConstraint::compare(
 /**
  * Adds local configuration options to a GParserBuilder object
  */
-void GParameterSetFormulaConstraint::addConfigurationOptions(
+void GParameterSetFormulaConstraint::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GParameterSetConstraint::addConfigurationOptions(gpb);
+	GParameterSetConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/

@@ -161,13 +161,21 @@ void GObject::load_(const GObject *cp) {
 void GObject::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
-	// No local data, no relevant parent classes, hence nothing to do
+	addConfigurationOptions_(gpb);
 }
 
-/* ----------------------------------------------------------------------------------
- * UNTESTED
- * ----------------------------------------------------------------------------------
+/******************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
+ * of this function that is overloaded in derived classes.
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
  */
+void GObject::addConfigurationOptions_(
+	Gem::Common::GParserBuilder &gpb
+) {
+	// No local data, no relevant parent classes, hence nothing to do
+}
 
 /******************************************************************************/
 /**

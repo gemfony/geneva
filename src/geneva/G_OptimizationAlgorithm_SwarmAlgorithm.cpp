@@ -509,11 +509,11 @@ void GSwarmAlgorithm::updatePersonalBestIfBetter(
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GSwarmAlgorithm::addConfigurationOptions(
+void GSwarmAlgorithm::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	G_OptimizationAlgorithm_Base::addConfigurationOptions(gpb);
+	G_OptimizationAlgorithm_Base::addConfigurationOptions_(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::size_t, std::size_t>(

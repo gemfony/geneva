@@ -55,7 +55,8 @@ Bugs fixed:
  - Some public virtual functions were replaced by private or protected alternatives.
    The base-class then holds a wrapper function calling the virtual function. This
    has happened to follow common C++ coding practice:
-   name() --> name_()
+   name() --> name_() / private
+   addConfigurationOptions() --> addConfigurationOptions_() / protected
 
 ********************************************************************************
 

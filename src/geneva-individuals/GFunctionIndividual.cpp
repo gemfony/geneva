@@ -86,11 +86,11 @@ void GDoubleSumConstraint::compare(
 /**
  * Adds local configuration options to a GParserBuilder object
  */
-void GDoubleSumConstraint::addConfigurationOptions(
+void GDoubleSumConstraint::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GParameterSetConstraint::addConfigurationOptions(gpb);
+	GParameterSetConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -181,11 +181,11 @@ void GDoubleSumGapConstraint::compare(
 /**
  * Adds local configuration options to a GParserBuilder object
  */
-void GDoubleSumGapConstraint::addConfigurationOptions(
+void GDoubleSumGapConstraint::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GParameterSetConstraint::addConfigurationOptions(gpb);
+	GParameterSetConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -277,11 +277,11 @@ void GSphereConstraint::compare(
 /**
  * Adds local configuration options to a GParserBuilder object
  */
-void GSphereConstraint::addConfigurationOptions(
+void GSphereConstraint::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GParameterSetConstraint::addConfigurationOptions(gpb);
+	GParameterSetConstraint::addConfigurationOptions_(gpb);
 }
 
 /******************************************************************************/
@@ -483,11 +483,11 @@ void GFunctionIndividual::compare(
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GFunctionIndividual::addConfigurationOptions(
+void GFunctionIndividual::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	GParameterSet::addConfigurationOptions(gpb);
+	GParameterSet::addConfigurationOptions_(gpb);
 
 	// Local data
 	gpb.registerFileParameter<solverFunction>(

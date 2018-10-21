@@ -1289,11 +1289,11 @@ std::string GParameterSet::getMnemonic() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GParameterSet::addConfigurationOptions(
+void GParameterSet::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 // Call our parent class'es function
-	GObject::addConfigurationOptions(gpb);
+	GObject::addConfigurationOptions_(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<evaluationPolicy>(

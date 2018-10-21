@@ -256,57 +256,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Adds local configuration options to a GParserBuilder object
-	  *
-	  * @param gpb The GParserBuilder object to which configuration options should be added
-	  */
-	 virtual void addConfigurationOptions (
-		 Gem::Common::GParserBuilder &gpb
-	 ) override {
-		 // Call our parent class'es function
-		 GParameterSet::addConfigurationOptions(gpb);
-
-		 // Add local data
-		 gpb.registerFileParameter<std::size_t>(
-			 "nRunsPerOptimization" // The name of the variable
-			 , GMETAOPT_DEF_NRUNSPEROPT // The default value
-			 , [this](std::size_t nrpo) { this->setNRunsPerOptimization(nrpo); }
-		 )
-			 << "Specifies the number of optimizations performed";
-
-		 gpb.registerFileParameter<double>(
-			 "fitnessTarget" // The name of the variable
-			 , GMETAOPT_DEF_FITNESSTARGET // The default value
-			 , [this](double ft) { this->setFitnessTarget(ft); }
-		 )
-			 << "The fitness below which optimization should stop";
-
-		 gpb.registerFileParameter<std::uint32_t>(
-			 "iterationThreshold" // The name of the variable
-			 , GMETAOPT_DEF_ITERATIONTHRESHOLD // The default value
-			 , [this](std::uint32_t dit) { this->setIterationThreshold(dit); }
-		 )
-			 << "The maximum number of iterations per sub-optimization";
-
-		 gpb.registerFileParameter<metaOptimizationTarget>(
-			 "metaOptimizationTarget" // The name of the variable
-			 , GMETAOPT_DEF_MOTARGET // The default value
-			 , [this](metaOptimizationTarget mot) { this->setMetaOptimizationTarget(mot); }
-		 )
-			 << "The target for the meta-optimization: best fitness (0)," << std::endl
-			 << "minimum number of solver calls (1), multi-criterion with best fitness" << std::endl
-			 << "and smallest number of solver calls as target (2);";
-
-		 gpb.registerFileParameter<std::string>(
-			 "subEAConfig" // The name of the variable
-			 , GMETAOPT_DEF_SUBEACONFIG // The default value
-			 , [this](std::string seac) { this->setSubEAConfig(seac); }
-		 )
-			 << "Path and name of the configuration file used for the (sub-)evolutionary algorithm";
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to specify the path and name of a configuration file passed to
 	  * the (sub-)evolutionary algorithm
 	  */
@@ -760,6 +709,57 @@ public:
 	 }
 
 protected:
+	 /***************************************************************************/
+	 /**
+	  * Adds local configuration options to a GParserBuilder object
+	  *
+	  * @param gpb The GParserBuilder object to which configuration options should be added
+	  */
+	 void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder &gpb
+	 ) override {
+		 // Call our parent class'es function
+		 GParameterSet::addConfigurationOptions_(gpb);
+
+		 // Add local data
+		 gpb.registerFileParameter<std::size_t>(
+			 "nRunsPerOptimization" // The name of the variable
+			 , GMETAOPT_DEF_NRUNSPEROPT // The default value
+			 , [this](std::size_t nrpo) { this->setNRunsPerOptimization(nrpo); }
+		 )
+			 << "Specifies the number of optimizations performed";
+
+		 gpb.registerFileParameter<double>(
+			 "fitnessTarget" // The name of the variable
+			 , GMETAOPT_DEF_FITNESSTARGET // The default value
+			 , [this](double ft) { this->setFitnessTarget(ft); }
+		 )
+			 << "The fitness below which optimization should stop";
+
+		 gpb.registerFileParameter<std::uint32_t>(
+			 "iterationThreshold" // The name of the variable
+			 , GMETAOPT_DEF_ITERATIONTHRESHOLD // The default value
+			 , [this](std::uint32_t dit) { this->setIterationThreshold(dit); }
+		 )
+			 << "The maximum number of iterations per sub-optimization";
+
+		 gpb.registerFileParameter<metaOptimizationTarget>(
+			 "metaOptimizationTarget" // The name of the variable
+			 , GMETAOPT_DEF_MOTARGET // The default value
+			 , [this](metaOptimizationTarget mot) { this->setMetaOptimizationTarget(mot); }
+		 )
+			 << "The target for the meta-optimization: best fitness (0)," << std::endl
+			 << "minimum number of solver calls (1), multi-criterion with best fitness" << std::endl
+			 << "and smallest number of solver calls as target (2);";
+
+		 gpb.registerFileParameter<std::string>(
+			 "subEAConfig" // The name of the variable
+			 , GMETAOPT_DEF_SUBEACONFIG // The default value
+			 , [this](std::string seac) { this->setSubEAConfig(seac); }
+		 )
+			 << "Path and name of the configuration file used for the (sub-)evolutionary algorithm";
+	 }
+
 	 /***************************************************************************/
 	 /**
 	  * Loads the data of another GMetaOptimizerIndividualT<ind_type>, camouflaged as a GObject

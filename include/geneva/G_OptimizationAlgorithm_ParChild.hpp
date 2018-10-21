@@ -147,15 +147,6 @@ public:
 	 /** @brief Allows to retrieve the maximum population size when growth is enabled */
 	 G_API_GENEVA std::size_t getMaxPopulationSize() const;
 
-	 /**
-	  * Adds local configuration options to a GParserBuilder object
-	  *
-	  * @param gpb The GParserBuilder object to which configuration options should be added
-	  */
-	 virtual G_API_GENEVA void addConfigurationOptions (
-		 Gem::Common::GParserBuilder& gpb
-	 )  override;
-
 	 /** @brief Allows to set the likelihood for amalgamation of two units to be performed instead of "just" duplication. */
 	 G_API_GENEVA void setAmalgamationLikelihood(double amalgamationLikelihood);
 	 /** @brief Allows to retrieve the likelihood for amalgamation of two units to be performed instead of "just" duplication. */
@@ -219,6 +210,14 @@ protected:
 	 virtual G_API_GENEVA void populationSanityChecks() const = 0; // TODO: Take code from old init() function
 
 	 /***************************************************************************/
+	 /**
+	  * Adds local configuration options to a GParserBuilder object
+	  *
+	  * @param gpb The GParserBuilder object to which configuration options should be added
+	  */
+	 G_API_GENEVA void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder& gpb
+	 )  override;
 
 	 /** @brief Loads the data of another GParChildT object, camouflaged as a GObject. */
 	 G_API_GENEVA void load_(const GObject * cp) override;

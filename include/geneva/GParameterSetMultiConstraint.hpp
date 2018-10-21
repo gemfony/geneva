@@ -88,13 +88,12 @@ public:
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
-
 protected:
 	 /** @brief Checks whether a given individual is valid */
 	 G_API_GENEVA double check_(const GParameterSet *) const override = 0;
 
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder&) override;
 	 /** @brief Loads the data of another GParameterSetConstraint */
 	 G_API_GENEVA void load_(const GObject*) override;
 
@@ -140,13 +139,12 @@ public:
 		 , const double& // the limit for allowed deviations of floating point types
 	 ) const override;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&) override;
-
 protected:
 	 /** @brief Checks whether a given GParameterSet object is valid */
 	 G_API_GENEVA double check_(const GParameterSet *) const override;
 
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder&) override;
 	 /** @brief Loads the data of another GParameterSetConstraint */
 	 G_API_GENEVA void load_(const GObject*) override;
 

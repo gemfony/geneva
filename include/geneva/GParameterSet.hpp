@@ -419,11 +419,6 @@ public:
 	 /** @brief Retrieves the mnemonic used for the optimization of this object */
 	 G_API_GENEVA std::string getMnemonic() const;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions(
-		 Gem::Common::GParserBuilder&
-	 ) override;
-
 	 /** @brief Check how valid a given solution is */
 	 G_API_GENEVA double getValidityLevel() const;
 	 /** @brief Checks whether all constraints were fulfilled */
@@ -851,6 +846,10 @@ protected:
 	 /** @brief Do the required processing for this object */
 	 G_API_GENEVA void process_() override;
 
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_(
+		 Gem::Common::GParserBuilder&
+	 ) override;
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
 

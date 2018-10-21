@@ -961,11 +961,11 @@ bool GParameterScan::customHalt() const {
  *
  * @param gpb The GParserBuilder object to which configuration options should be added
  */
-void GParameterScan::addConfigurationOptions(
+void GParameterScan::addConfigurationOptions_(
 	Gem::Common::GParserBuilder &gpb
 ) {
 	// Call our parent class'es function
-	G_OptimizationAlgorithm_Base::addConfigurationOptions(gpb);
+	G_OptimizationAlgorithm_Base::addConfigurationOptions_(gpb);
 
 	gpb.registerFileParameter<std::size_t>(
 		"size" // The name of the first variable

@@ -175,11 +175,6 @@ public:
 	 /** @brief Retrieves the number of processable items for the current iteration */
 	 G_API_GENEVA std::size_t getNProcessableItems() const override;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions (
-		 Gem::Common::GParserBuilder& gpb
-	 ) override;
-
 	 /***************************************************************************/
 	 /**
 	  * Retrieves the best individual of a neighborhood and casts it to the desired type. Note that this
@@ -213,6 +208,10 @@ public:
 	 }
 
 protected:
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder& gpb
+	 ) override;
 	 /** @brief Loads the data of another population */
 	 G_API_GENEVA void load_(const GObject *) override;
 

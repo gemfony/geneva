@@ -130,11 +130,6 @@ public:
 		 GParameterSetFixedSizePriorityQueue& bestIndividuals
 	 ) override;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions (
-		 Gem::Common::GParserBuilder& gpb
-	 ) override;
-
 	 /** @brief Sets the number of threads this population uses for adaption */
 	 G_API_GENEVA void setNThreads(std::uint16_t nThreads);
 	 /** @brief Retrieves the number of threads this population uses for adaption */
@@ -142,6 +137,10 @@ public:
 
 protected:
 	 /***************************************************************************/
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder& gpb
+	 ) override;
 	 /** @brief Loads the data of another GEvolutionaryAlgorithm object, camouflaged as a GObject */
 	 G_API_GENEVA void load_(const GObject *cp) override;
 

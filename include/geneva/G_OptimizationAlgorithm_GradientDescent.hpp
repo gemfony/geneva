@@ -138,13 +138,12 @@ public:
 	 /** @brief Returns the name of this optimization algorithm */
 	 G_API_GENEVA std::string getAlgorithmName() const override;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions (
-		 Gem::Common::GParserBuilder& gpb
-	 ) override;
-
 protected:
 	 /***************************************************************************/
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder& gpb
+	 ) override;
 	 /** @brief Loads the data of another population */
 	 G_API_GENEVA void load_(const GObject *) override;
 

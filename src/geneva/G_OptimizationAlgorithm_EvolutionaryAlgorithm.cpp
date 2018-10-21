@@ -283,12 +283,12 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ(
   *
   * @param gpb The GParserBuilder object to which configuration options should be added
   */
-void GEvolutionaryAlgorithm::addConfigurationOptions (
+void GEvolutionaryAlgorithm::addConfigurationOptions_ (
 	Gem::Common::GParserBuilder& gpb
 )
 {
 	// Call our parent class'es function
-	G_OptimizationAlgorithm_ParChild::addConfigurationOptions(gpb);
+	G_OptimizationAlgorithm_ParChild::addConfigurationOptions_(gpb);
 
 	// Add local data
 	gpb.registerFileParameter<std::uint16_t>(

@@ -89,10 +89,10 @@ public:
 	 /** @brief A standard copy constructor */
 	 G_API_GENEVA GLineSearchT(const GLineSearchT&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GLineSearchT();
+	 G_API_GENEVA ~GLineSearchT() override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
+	 G_API_GENEVA void compare(
 		 const GObject& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -107,13 +107,12 @@ public:
 	 /** @brief Returns the name of this optimization algorithm */
 	 G_API_GENEVA std::string getAlgorithmName() const override;
 
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions (
-		 Gem::Common::GParserBuilder& gpb
-	 ) override;
-
 protected:
 	 /***************************************************************************/
+	 /** @brief Adds local configuration options to a GParserBuilder object */
+	 G_API_GENEVA void addConfigurationOptions_ (
+		 Gem::Common::GParserBuilder& gpb
+	 ) override;
 	 /** @brief Loads the data of another population */
 	 G_API_GENEVA void load_(const GObject *) override;
 
