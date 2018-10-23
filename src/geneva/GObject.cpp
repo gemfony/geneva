@@ -73,6 +73,23 @@ void GObject::compare(
 
 /******************************************************************************/
 /**
+ * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
+ * of this function that is overloaded in derived classes.
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ */
+void GObject::addConfigurationOptions_(
+	Gem::Common::GParserBuilder &gpb
+) {
+	// Call the parent classes function
+	Gem::Common::GCommonInterfaceT<GObject>::addConfigurationOptions_(gpb);
+
+   // No local data, no relevant parent classes, hence nothing to do
+}
+
+
+/******************************************************************************/
+/**
  * Emits a name for this class / object
  */
 std::string GObject::name_() const {
@@ -82,55 +99,6 @@ std::string GObject::name_() const {
 /* ----------------------------------------------------------------------------------
  * Tested in GObject::specificTestsNoFailureExpected_GUnitTests()
  * ----------------------------------------------------------------------------------
- */
-
-/******************************************************************************/
-/**
- * Writes a configuration file to disk
- *
- * @param configFile The name of the configuration file to be written
- * @param header A header to be prepended to the configuration file
- */
-void GObject::writeConfigFile(
-	boost::filesystem::path const &configFile
-	, const std::string &header
-) {
-	// This class will handle the interaction with configuration files
-	Gem::Common::GParserBuilder gpb;
-
-	// Recursively add configuration options to gpb,
-	// starting with the most derived class
-	addConfigurationOptions(gpb);
-
-	// Write out the configuration file
-	gpb.writeConfigFile(configFile, header, true);
-}
-
-/*
- * parser-builder action is tested in Common lib tests
- */
-
-/******************************************************************************/
-/**
- * Reads a configuration file from disk
- *
- * @param configFile The name of the configuration file to be parsed
- */
-void GObject::readConfigFile(boost::filesystem::path const &configFile) {
-	// This class will handle the interaction with configuration files
-	Gem::Common::GParserBuilder gpb;
-
-	// Recursively add configuration options to gpb,
-	// starting with the most derived class
-	addConfigurationOptions(gpb);
-
-	// Read in the configuration file
-	gpb.parseConfigFile(configFile);
-}
-
-
-/*
- * parser-builder action is tested in Common lib tests
  */
 
 /******************************************************************************/
@@ -150,32 +118,6 @@ void GObject::load_(const GObject *cp) {
  * Loading is checked as part of the Geneva standard test suite
  * ----------------------------------------------------------------------------------
  */
-
-/******************************************************************************/
-/**
- * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
- * of this function that is overloaded in derived classes.
- *
- * @param gpb The GParserBuilder object to which configuration options should be added
- */
-void GObject::addConfigurationOptions(
-	Gem::Common::GParserBuilder &gpb
-) {
-	addConfigurationOptions_(gpb);
-}
-
-/******************************************************************************/
-/**
- * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
- * of this function that is overloaded in derived classes.
- *
- * @param gpb The GParserBuilder object to which configuration options should be added
- */
-void GObject::addConfigurationOptions_(
-	Gem::Common::GParserBuilder &gpb
-) {
-	// No local data, no relevant parent classes, hence nothing to do
-}
 
 /******************************************************************************/
 /**

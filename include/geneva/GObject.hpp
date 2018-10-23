@@ -87,7 +87,6 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GCommonInterfaceT.hpp"
-#include "common/GParserBuilder.hpp"
 #include "common/GSerializeTupleT.hpp"
 #include "common/GTupleIO.hpp"
 #include "geneva/GOptimizationEnums.hpp"
@@ -108,7 +107,8 @@ namespace Geneva {
 /**
  * GObject is the parent class for the majority of Geneva optimization classes.
  * Handling of optimization-related classes sometimes happens through a
- * std::shared_ptr<GObject>, hence this class has a very central role.
+ * std::shared_ptr<GObject> or std::unique_ptr<GObject>, hence this class has a
+ * very central role.
  */
 class GObject
 	: public Gem::Common::GCommonInterfaceT<GObject>
@@ -132,14 +132,6 @@ public:
 	 G_API_GENEVA GObject(const GObject& cp) = default;
 	 /** @brief The destructor */
 	 G_API_GENEVA virtual ~GObject() = default;
-
-	 /** @brief Writes a configuration file to disk */
-	 G_API_GENEVA void writeConfigFile(boost::filesystem::path const &, const std::string&);
-	 /** @brief Reads a configuration file from disk */
-	 G_API_GENEVA void readConfigFile(boost::filesystem::path const&);
-
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
 
 	 /***************************************************************************/
 	 /**
@@ -172,7 +164,7 @@ protected:
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder&) BASE;
+	 virtual G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder&) override;
 
 private:
 	 /***************************************************************************/
