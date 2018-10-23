@@ -88,9 +88,9 @@ public:
 	 // Deleted functions
 	 G_API_COMMON GToken() = delete;
 	 G_API_COMMON GToken(GToken const&) = delete;
-	 G_API_COMMON GToken(GToken &&) = delete;
+	 G_API_COMMON GToken(GToken &&) noexcept = delete;
 	 G_API_COMMON GToken& operator=(GToken const&) = delete;
-	 G_API_COMMON GToken& operator=(GToken &&) = delete;
+	 G_API_COMMON GToken& operator=(GToken &&) noexcept = delete;
 
 	 /** @brief Increments the test counter */
 	 G_API_COMMON void incrTestCounter();
@@ -144,7 +144,7 @@ private:
 /**
  * This function facilitates the output of GToken objects, mostly for debugging purposes.
  */
-G_API_COMMON std::ostream &operator<<(std::ostream &s, const GToken &g);
+G_API_COMMON std::ostream &operator<<(std::ostream &s, GToken const & g);
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -181,20 +181,20 @@ public:
 
 	 identity() = delete;
 	 identity(identity const&) = default;
-	 identity(identity &&) = default;
+	 identity(identity &&) noexcept = default;
 	 identity& operator=(identity const&) = default;
-	 identity& operator=(identity &&) = default;
+	 identity& operator=(identity &&) noexcept = default;
 
 	 /***************************************************************************/
 	 /**
 	  * Conversion operator. Needed for compare_base, so we do not need
 	  * to use macros for the implicit conversion
 	  */
-	 template<typename B>
-	 operator identity<B>() const { // NOLINT
+	 template<typename base_type>
+	 operator identity<base_type>() const { // NOLINT
 		 // We use an internal function for the actual conversion
-		 // so we may check whether B is an actual base of T
-		 return to<B>();
+		 // so we may check whether base_type is an actual base of T
+		 return to<base_type>();
 	 }
 
 	 /***************************************************************************/
@@ -208,19 +208,19 @@ public:
 private:
 	 /***************************************************************************/
 	 /**
-	  * Does the actual conversion, including a check that B is indeed a base of T
+	  * Does the actual conversion, including a check that base_type is indeed a base of T
 	  */
-	 template<typename B>
-	 identity<B> to(
-		 typename std::enable_if<std::is_base_of<B, T>::value>::type *dummy = nullptr
+	 template<typename base_type>
+	 identity<base_type> to(
+		 typename std::enable_if<std::is_base_of<base_type, T>::value>::type *dummy = nullptr
 	 ) const {
-		 const B &x_conv = dynamic_cast<const B &>(x);
-		 const B &y_conv = dynamic_cast<const B &>(y);
+		 auto const &x_conv = dynamic_cast<base_type const &>(x);
+		 auto const &y_conv = dynamic_cast<base_type const &>(y);
 
-		 const std::string x_name_conv = "(" + BASENAME(B) + ")" + x_name;
-		 const std::string y_name_conv = "(" + BASENAME(B) + ")" + y_name;
+		 const std::string x_name_conv = "(" + BASENAME(base_type) + ")" + x_name;
+		 const std::string y_name_conv = "(" + BASENAME(base_type) + ")" + y_name;
 
-		 return identity<B>(x_conv, y_conv, x_name_conv, y_name_conv, limit);
+		 return identity<base_type>(x_conv, y_conv, x_name_conv, y_name_conv, limit);
 	 }
 };
 
@@ -231,7 +231,7 @@ private:
  * Easy output of an identity object
  */
 template<typename T>
-std::ostream &operator<<(std::ostream &s, const identity<T> &i) {
+std::ostream &operator<<(std::ostream &s, identity<T> const &i) {
 	s
 		<< "Identity:" << std::endl
 		<< "x_name = " << i.x_name << std::endl
@@ -247,10 +247,10 @@ std::ostream &operator<<(std::ostream &s, const identity<T> &i) {
  */
 template<typename T>
 identity<T> getIdentity(
-	const T &x_var
-	, const T &y_var
-	, const std::string &x_name_var
-	, const std::string &y_name_var
+	T const & x_var
+	, T const & y_var
+	, std::string const & x_name_var
+	, std::string const & y_name_var
 ) {
 	return identity<T>(x_var, y_var, x_name_var, y_name_var, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE);
 }
@@ -266,8 +266,8 @@ identity<T> getIdentity(
 /**
  * Returns an identity object for base types of T
  */
-template<typename T, typename B>
-identity<B> getBaseIdentity(
+template<typename T, typename base_type>
+identity<base_type> getBaseIdentity(
 	T const &x_var
 	, T const &y_var
 	, std::string const &x_name_var
@@ -275,10 +275,10 @@ identity<B> getBaseIdentity(
 ) {
 	std::cout << "Creating base identity" << std::endl;
 
-	const B &x_var_base = dynamic_cast<const B &>(x_var);
-	const B &y_var_base = dynamic_cast<const B &>(y_var);
+	auto const &x_var_base = dynamic_cast<const base_type &>(x_var);
+	auto const &y_var_base = dynamic_cast<const base_type &>(y_var);
 
-	return identity<B>(x_var_base, y_var_base, x_name_var, y_name_var, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE);
+	return identity<base_type>(x_var_base, y_var_base, x_name_var, y_name_var, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE);
 }
 
 /******************************************************************************/
@@ -314,10 +314,10 @@ void compare(
 	, basic_type const &y
 	, std::string const &x_name
 	, std::string const &y_name
-	, Gem::Common::expectation const &e
-	, double const &limit = 0.
-	, typename std::enable_if<not std::is_floating_point<basic_type>::value>::type *dummy1 = nullptr // Note the negation!
-	, typename std::enable_if<not Gem::Common::has_gemfony_common_interface<basic_type>::value>::type *dummy2 = nullptr // Note the negation
+	, Gem::Common::expectation e
+	, double = 0.
+	, typename std::enable_if<not std::is_floating_point<basic_type>::value>::type * = nullptr // Note the negation!
+	, typename std::enable_if<not Gem::Common::has_gemfony_common_interface<basic_type>::value>::type * = nullptr // Note the negation
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -370,12 +370,12 @@ void compare(
  */
 template <typename Clock, typename Duration = typename Clock::duration>
 void compare(
-	const std::chrono::time_point<Clock, Duration> &x
-	, const std::chrono::time_point<Clock, Duration> &y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit = 0.
+	std::chrono::time_point<Clock, Duration> const & x
+	, std::chrono::time_point<Clock, Duration> const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double = 0.
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -428,12 +428,12 @@ void compare(
  */
 template <typename Rep, typename Period = std::ratio<1>>
 void compare(
-	const std::chrono::duration<Rep, Period> &x
-	, const std::chrono::duration<Rep, Period> &y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit = 0.
+	std::chrono::duration<Rep, Period> const & x
+	, std::chrono::duration<Rep, Period> const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double = 0.
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -483,13 +483,13 @@ void compare(
  */
 template<typename fp_type>
 void compare(
-	const fp_type &x
-	, const fp_type &y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+	fp_type const & x
+	, fp_type const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double limit = CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -546,13 +546,13 @@ void compare(
  */
 template<typename base_type, template <typename, typename> class c_type>
 void compare(
-	const c_type<base_type, std::allocator<base_type>>& x
-	, const c_type<base_type, std::allocator<base_type>>& y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit = 0.
-	, typename std::enable_if<not std::is_floating_point<base_type>::value>::type *dummy = nullptr
+	c_type<base_type, std::allocator<base_type>> const & x
+	, c_type<base_type, std::allocator<base_type>> const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double = 0.
+	, typename std::enable_if<not std::is_floating_point<base_type>::value>::type * = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -628,13 +628,13 @@ void compare(
  */
 template<typename base_type, template <typename, typename, typename> class s_type>
 void compare(
-	const s_type<base_type, std::less<base_type>, std::allocator<base_type>>& x
-	, const s_type<base_type, std::less<base_type>, std::allocator<base_type>>& y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit = 0.
-	, typename std::enable_if<not std::is_floating_point<base_type>::value>::type *dummy = nullptr
+	s_type<base_type, std::less<base_type>, std::allocator<base_type>> const & x
+	, s_type<base_type, std::less<base_type>, std::allocator<base_type>> const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double = 0.
+	, typename std::enable_if<not std::is_floating_point<base_type>::value>::type * = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -706,13 +706,13 @@ void compare(
  */
 template<typename fp_type, template <typename, typename> class c_type>
 void compare(
-	const c_type<fp_type, std::allocator<fp_type>> &x
-	, const c_type<fp_type, std::allocator<fp_type>> &y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+	c_type<fp_type, std::allocator<fp_type>> const & x
+	, c_type<fp_type, std::allocator<fp_type>> const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double limit = CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -805,13 +805,13 @@ void compare(
  */
 template<typename fp_type, template <typename, typename, typename> class s_type>
 void compare(
-	const s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> &x
-	, const s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> &y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type *dummy = nullptr
+	s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> const & x
+	, s_type<fp_type, std::less<fp_type>, std::allocator<fp_type>> const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double limit = CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<std::is_floating_point<fp_type>::value>::type * = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -905,13 +905,13 @@ void compare(
  */
 template <typename geneva_type>
 void compare (
-	const geneva_type& x
-	, const geneva_type& y
-	, const std::string& x_name
-	, const std::string& y_name
-	, const Gem::Common::expectation& e
-	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = nullptr
+	geneva_type const & x
+	, geneva_type const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -984,13 +984,13 @@ void compare (
  */
 template <typename geneva_type>
 void compare (
-	const std::shared_ptr<geneva_type>& x
-	, const std::shared_ptr<geneva_type>& y
-	, const std::string& x_name
-	, const std::string& y_name
-	, const Gem::Common::expectation& e
-	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = nullptr
+	std::shared_ptr<geneva_type> const & x
+	, std::shared_ptr<geneva_type> const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -1091,13 +1091,13 @@ void compare (
  */
 template <typename geneva_type, template <typename, typename> class c_type>
 void compare (
-	const c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>& x
-	, const c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>>& y
-	, const std::string& x_name
-	, const std::string& y_name
-	, const Gem::Common::expectation& e
-	, const double& limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type *dummy = nullptr
+	c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>> const & x
+	, c_type<std::shared_ptr<geneva_type>, std::allocator<std::shared_ptr<geneva_type>>> const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double limit = Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<geneva_type>::value>::type * = nullptr
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
@@ -1212,12 +1212,12 @@ void compare (
 /** @brief This function checks whether two objects of type boost::logic::tribool meet a given expectation. */
 G_API_COMMON
 void compare(
-	const boost::logic::tribool &
-	, const boost::logic::tribool &
-	, const std::string &
-	, const std::string &
-	, const Gem::Common::expectation &
-	, const double &limit = CE_DEF_SIMILARITY_DIFFERENCE
+	boost::logic::tribool const &
+	, boost::logic::tribool const &
+	, std::string const &
+	, std::string const &
+	, Gem::Common::expectation
+	, double limit = CE_DEF_SIMILARITY_DIFFERENCE
 );
 
 /******************************************************************************/
@@ -1229,7 +1229,7 @@ void compare(
  */
 template<typename T>
 void compare_t(
-	const identity<T> &data
+	identity<T> const & data
 	, GToken &token
 ) {
 	try {
@@ -1259,15 +1259,15 @@ void compare_t(
  * @param data The identity struct
  * @param token The token holding information about the number of failed tests
  */
-template<typename B>
+template<typename base_type>
 void compare_base(
-	const identity<B> &data
+	identity<base_type> const & data
 	, GToken &token
-	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<B>::value>::type *dummy = nullptr
+	, typename std::enable_if<Gem::Common::has_gemfony_common_interface<base_type>::value>::type * = nullptr
 ) {
 	try {
 		token.incrTestCounter();
-		data.x.B::compare(data.y, token.getExpectation(), data.limit);
+		data.x.base_type::compare(data.y, token.getExpectation(), data.limit);
 		token.incrSuccessCounter();
 	} catch (const g_expectation_violation &g) {
 		token.registerErrorMessage(g);

@@ -255,7 +255,7 @@ void GToken::evaluate() const {
 /**
  * Easy output of GToken objects
  */
-std::ostream &operator<<(std::ostream &s, const GToken &g) {
+std::ostream &operator<<(std::ostream &s, GToken const & g) {
 	s
 		<< "GToken for caller " << g.getCallerName() << " with expectation  " << g.getExpectationStr() << ":" << std::endl
 		<< "Test counter:     " << g.getTestCounter() << std::endl
@@ -278,12 +278,12 @@ std::ostream &operator<<(std::ostream &s, const GToken &g) {
  * @param limit The maximum allowed deviation of two floating point values
  */
 void compare(
-	const boost::logic::tribool & x
-	, const boost::logic::tribool &y
-	, const std::string &x_name
-	, const std::string &y_name
-	, const Gem::Common::expectation &e
-	, const double &limit
+	boost::logic::tribool const & x
+	, boost::logic::tribool const & y
+	, std::string const & x_name
+	, std::string const & y_name
+	, Gem::Common::expectation e
+	, double
 ) {
 	bool expectationMet = false;
 	std::string expectation_str;
