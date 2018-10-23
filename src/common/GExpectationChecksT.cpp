@@ -95,14 +95,14 @@ std::size_t GToken::getTestCounter() const {
  */
 bool GToken::expectationMet() const {
 	switch (m_e) {
-		case Gem::Common::expectation::CE_FP_SIMILARITY:
-		case Gem::Common::expectation::CE_EQUALITY:
+		case Gem::Common::expectation::FP_SIMILARITY:
+		case Gem::Common::expectation::EQUALITY:
 			if (std::get<TESTCOUNTER>(m_test_counter) == std::get<SUCCESSCOUNTER>(m_test_counter)) {
 				return true;
 			}
 			break;
 
-		case Gem::Common::expectation::CE_INEQUALITY:
+		case Gem::Common::expectation::INEQUALITY:
 			if (std::get<SUCCESSCOUNTER>(m_test_counter) > 0) {
 				return true;
 			}
@@ -134,16 +134,16 @@ Gem::Common::expectation GToken::getExpectation() const {
  */
 std::string GToken::getExpectationStr() const {
 	switch (m_e) {
-		case Gem::Common::expectation::CE_FP_SIMILARITY:
-			return "CE_FP_SIMILARITY";
+		case Gem::Common::expectation::FP_SIMILARITY:
+			return "FP_SIMILARITY";
 			break;
 
-		case Gem::Common::expectation::CE_EQUALITY:
-			return "CE_EQUALITY";
+		case Gem::Common::expectation::EQUALITY:
+			return "EQUALITY";
 			break;
 
-		case Gem::Common::expectation::CE_INEQUALITY:
-			return "CE_INEQUALITY";
+		case Gem::Common::expectation::INEQUALITY:
+			return "INEQUALITY";
 			break;
 		default:
 			return "unknown";
@@ -204,18 +204,18 @@ std::string GToken::toString() const {
 	std::string result = "Expectation of ";
 
 	switch (m_e) {
-		case Gem::Common::expectation::CE_FP_SIMILARITY: {
-			result += std::string("CE_FP_SIMILARITY was ");
+		case Gem::Common::expectation::FP_SIMILARITY: {
+			result += std::string("FP_SIMILARITY was ");
 		}
 			break;
 
-		case Gem::Common::expectation::CE_EQUALITY: {
-			result += std::string("CE_EQUALITY was ");
+		case Gem::Common::expectation::EQUALITY: {
+			result += std::string("EQUALITY was ");
 		}
 			break;
 
-		case Gem::Common::expectation::CE_INEQUALITY: {
-			result += std::string("CE_INEQUALITY was ");
+		case Gem::Common::expectation::INEQUALITY: {
+			result += std::string("INEQUALITY was ");
 		}
 			break;
 	}
@@ -231,7 +231,7 @@ std::string GToken::toString() const {
 		// Only the information "everything is equal while inequality was expected"
 		// is important. If equality or similarity were expected, every single
 		// deviation from equality is of interest.
-		if (Gem::Common::expectation::CE_INEQUALITY != m_e) {
+		if (Gem::Common::expectation::INEQUALITY != m_e) {
 			for(auto const& error: m_error_messages) {
 				result += error;
 			}
@@ -289,9 +289,9 @@ void compare(
 	std::string expectation_str;
 
 	switch (e) {
-		case Gem::Common::expectation::CE_FP_SIMILARITY:
-		case Gem::Common::expectation::CE_EQUALITY:
-			expectation_str = "CE_FP_SIMILARITY / CE_EQUALITY";
+		case Gem::Common::expectation::FP_SIMILARITY:
+		case Gem::Common::expectation::EQUALITY:
+			expectation_str = "FP_SIMILARITY / EQUALITY";
 			if ((x == true && y == true) ||
 				 (x == false && y == false) ||
 				 (boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {
@@ -299,8 +299,8 @@ void compare(
 			}
 			break;
 
-		case Gem::Common::expectation::CE_INEQUALITY:
-			expectation_str = "CE_INEQUALITY";
+		case Gem::Common::expectation::INEQUALITY:
+			expectation_str = "INEQUALITY";
 			if (not (x == true && y == true) &&
 				 not (x == false && y == false) &&
 				 not (boost::logic::indeterminate(x) && boost::logic::indeterminate(y))) {

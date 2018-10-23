@@ -469,8 +469,8 @@ namespace Gem {
 
 				// We consider two instances of this class to be always equal, as they
 				// do not have any local data and this is the base class. Hence
-				// we throw an expectation violation for the expectation CE_INEQUALITY.
-				if (Gem::Common::expectation::CE_INEQUALITY == e) {
+				// we throw an expectation violation for the expectation INEQUALITY.
+				if (Gem::Common::expectation::INEQUALITY == e) {
 					throw g_expectation_violation(
 							"In GCommonInterfaceT<g_class_type>: instance is empty and a base class, hence the expectation of inequality is always violated."
 					);

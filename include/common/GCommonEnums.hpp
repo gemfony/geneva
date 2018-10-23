@@ -207,9 +207,9 @@ const bool VAR_IS_SECONDARY = false;
  * Needed for the serialization of boost::logic::tribool
  */
 enum class triboolStates : Gem::Common::ENUMBASETYPE {
-	TBS_FALSE
-	, TBS_INDETERMINATE
-	, TBS_TRUE
+	FALSE
+	, INDETERMINATE
+	, TRUE
 };
 
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
@@ -246,12 +246,12 @@ const bool CE_WITH_MESSAGES = true;
 
 /******************************************************************************/
 /**
- * Needed to express expectations in testing framework. CE stands for "Check expectation".
+ * Needed to express expectations in testing framework.
  */
 enum class expectation : Gem::Common::ENUMBASETYPE {
-	CE_EQUALITY = 0 // bitwise equality of all checked components
-	, CE_FP_SIMILARITY = 1 // equality for non-floating point components, similarity for floating point
-	, CE_INEQUALITY = 2// at least one checked component differs
+	EQUALITY = 0 // bitwise equality of all checked components
+	, FP_SIMILARITY = 1 // equality for non-floating point components, similarity for floating point
+	, INEQUALITY = 2// at least one checked component differs
 };
 
 /** @brief Puts a Gem::Common::expectation into a stream. Needed also for boost::lexical_cast<> */

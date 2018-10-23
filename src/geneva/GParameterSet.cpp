@@ -2068,7 +2068,7 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 			try {
 				p_test->compare(
 					*p_test_0
-					, Gem::Common::expectation::CE_INEQUALITY
+					, Gem::Common::expectation::INEQUALITY
 					, Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE
 				);
 			} catch(const g_expectation_violation& e) {

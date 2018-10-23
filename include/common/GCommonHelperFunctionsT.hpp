@@ -1199,7 +1199,7 @@ bool operator==(
 	try {
 		x.compare(
 			y
-			, Gem::Common::expectation::CE_EQUALITY
+			, Gem::Common::expectation::EQUALITY
 			, CE_DEF_SIMILARITY_DIFFERENCE
 		);
 		return true;
@@ -1223,7 +1223,7 @@ bool operator!=(
 	try {
 		x.compare(
 			y
-			, Gem::Common::expectation::CE_INEQUALITY
+			, Gem::Common::expectation::INEQUALITY
 			, CE_DEF_SIMILARITY_DIFFERENCE
 		);
 		return true;
