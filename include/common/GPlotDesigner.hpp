@@ -167,7 +167,7 @@ enum class graphPlotMode : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::graphPlotMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::gColor const&);
+G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::graphPlotMode const&);
 
 /** @brief Reads a Gem::Common::graphPlotMode item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::graphPlotMode &);
@@ -1359,7 +1359,7 @@ class GHistogram1D
 
 public:
 	 /** @brief Initialization with the number of bins and automatic range detection */
-	 G_API_COMMON GHistogram1D(
+	 explicit G_API_COMMON GHistogram1D(
 		 const std::size_t &
 	 );
 
@@ -1831,8 +1831,8 @@ inline std::shared_ptr<GDataCollector1T<double>> GDataCollector2T<double, double
 	result->setPlotLabel(this->plotLabel() + " / x-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<0>(m_data.at(i));
+	for(auto const & o: m_data) {
+		(*result) & std::get<0>(o);
 	}
 
 	// Return the data
@@ -1871,8 +1871,8 @@ GDataCollector2T<double, double>::projectY(std::size_t nBinsY, std::tuple<double
 	result->setPlotLabel(this->plotLabel() + " / y-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<1>(m_data.at(i));
+	for(auto const& o: m_data) {
+		(*result) & std::get<1>(o);
 	}
 
 	// Return the data
@@ -2139,7 +2139,7 @@ public:
 		 , const double&
 		 , const double&
 		 , const double&
-		 , const double &
+		 , const double&
 	 );
 	 /** @brief Initialization with ranges */
 	 G_API_COMMON GHistogram2D(
@@ -2210,15 +2210,15 @@ private:
 
 	 G_API_COMMON GHistogram2D() = default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
-	 std::size_t nBinsX_; ///< The number of bins in the x-direction of the histogram
-	 std::size_t nBinsY_; ///< The number of bins in the y-direction of the histogram
+	 std::size_t nBinsX_ = 0; ///< The number of bins in the x-direction of the histogram
+	 std::size_t nBinsY_ = 0; ///< The number of bins in the y-direction of the histogram
 
-	 double minX_; ///< The lower boundary of the histogram in x-direction
-	 double maxX_; ///< The upper boundary of the histogram in x-direction
-	 double minY_; ///< The lower boundary of the histogram in y-direction
-	 double maxY_; ///< The upper boundary of the histogram in y-direction
+	 double minX_ = 0.; ///< The lower boundary of the histogram in x-direction
+	 double maxX_ = 0.; ///< The upper boundary of the histogram in x-direction
+	 double minY_ = 0.; ///< The lower boundary of the histogram in y-direction
+	 double maxY_ = 0.; ///< The upper boundary of the histogram in y-direction
 
-	 tddropt dropt_; ///< The drawing options for 2-d histograms
+	 tddropt dropt_ = tddropt::BOX; ///< The drawing options for 2-d histograms
 };
 
 /******************************************************************************/
@@ -2659,8 +2659,8 @@ GDataCollector3T<double, double, double>::projectX(std::size_t nBinsX, std::tupl
 	result->setPlotLabel(this->plotLabel() + " / x-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<0>(m_data.at(i));
+	for(auto const& o: m_data) {
+		(*result) & std::get<0>(o);
 	}
 
 	// Return the data
@@ -2698,8 +2698,8 @@ GDataCollector3T<double, double, double>::projectY(std::size_t nBinsY, std::tupl
 	result->setPlotLabel(this->plotLabel() + " / y-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<1>(m_data.at(i));
+	for(auto const& o: m_data) {
+		(*result) & std::get<1>(o);
 	}
 
 	// Return the data
@@ -2737,8 +2737,8 @@ GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, std::tupl
 	result->setPlotLabel(this->plotLabel() + " / z-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<2>(m_data.at(i));
+	for(auto const& o: m_data) {
+		(*result) & std::get<2>(o);
 	}
 
 	// Return the data
@@ -3145,8 +3145,8 @@ GDataCollector4T<double, double, double, double>::projectX(
 	result->setPlotLabel(this->plotLabel() + " / x-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<0>(m_data.at(i));
+	for(auto const& o: m_data) {
+		(*result) & std::get<0>(o);
 	}
 
 	// Return the data
@@ -3187,8 +3187,8 @@ GDataCollector4T<double, double, double, double>::projectY(
 	result->setPlotLabel(this->plotLabel() + " / y-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<1>(m_data.at(i));
+	for(auto const& o: m_data) {
+		(*result) & std::get<1>(o);
 	}
 
 	// Return the data
@@ -3229,8 +3229,8 @@ GDataCollector4T<double, double, double, double>::projectZ(std::size_t nBinsZ,
 	result->setPlotLabel(this->plotLabel() + " / z-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<2>(m_data.at(i));
+	for(auto const& o: m_data) {
+		(*result) & std::get<2>(o);
 	}
 
 	// Return the data
@@ -3273,8 +3273,8 @@ GDataCollector4T<double, double, double, double>::projectW(
 	result->setPlotLabel(this->plotLabel() + " / w-projection");
 
 	// Add data to the object
-	for (std::size_t i = 0; i < m_data.size(); i++) {
-		(*result) & std::get<3>(m_data.at(i));
+	for(auto const& o: m_data) {
+		(*result) & std::get<3>(o);
 	}
 
 	// Return the data
