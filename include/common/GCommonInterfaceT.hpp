@@ -109,6 +109,8 @@ public:
 	 GCommonInterfaceT() = default;
 	 /** @brief The copy constructor -- no data, hence empty*/
 	 GCommonInterfaceT(const GCommonInterfaceT<g_class_type>& cp) = default;
+	 /** @brief The destructor */
+	 virtual ~GCommonInterfaceT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -546,16 +548,6 @@ public:
 		  */
 
 protected:
-	 /***************************************************************************/
-	 /**
-		  * The standard destructor. Making this destructor protected and non-virtual
-		  * follows this discussion: http://www.gotw.ca/publications/mill18.htm .
-		  * In short we do not want to delete the hierarchy via a pointer to the base-
-		  * class and thus can afford to a) make it non-virtual and b) hide it in the
-		  * base class.
-		  */
-	 ~GCommonInterfaceT() = default;
-
 	 /***************************************************************************/
 	 /** @brief Loads the data of another g_class_type */
 	 virtual G_API_COMMON void load_(const g_class_type*) BASE = 0;

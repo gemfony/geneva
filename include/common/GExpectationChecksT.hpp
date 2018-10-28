@@ -88,9 +88,9 @@ public:
 	 // Deleted functions
 	 G_API_COMMON GToken() = delete;
 	 G_API_COMMON GToken(GToken const&) = delete;
-	 G_API_COMMON GToken(GToken &&) noexcept = delete;
+	 G_API_COMMON GToken(GToken &&) = delete;
 	 G_API_COMMON GToken& operator=(GToken const&) = delete;
-	 G_API_COMMON GToken& operator=(GToken &&) noexcept = delete;
+	 G_API_COMMON GToken& operator=(GToken &&) = delete;
 
 	 /** @brief Increments the test counter */
 	 G_API_COMMON void incrTestCounter();
@@ -181,9 +181,9 @@ public:
 
 	 identity() = delete;
 	 identity(identity const&) = default;
-	 identity(identity &&) noexcept = default;
+	 identity(identity &&) = default;
 	 identity& operator=(identity const&) = default;
-	 identity& operator=(identity &&) noexcept = default;
+	 identity& operator=(identity &&) = default;
 
 	 /***************************************************************************/
 	 /**
