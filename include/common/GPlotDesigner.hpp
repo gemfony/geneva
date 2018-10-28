@@ -150,7 +150,7 @@ enum class gLineStyle : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::gLineStyle into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gLineStyle &);
+G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::gLineStyle const&);
 
 /** @brief Reads a Gem::Common::gLineStyle item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::gLineStyle &);
@@ -167,7 +167,7 @@ enum class graphPlotMode : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::graphPlotMode into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::gColor &);
+G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::gColor const&);
 
 /** @brief Reads a Gem::Common::graphPlotMode item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::graphPlotMode &);
@@ -200,7 +200,7 @@ enum class tddropt : Gem::Common::ENUMBASETYPE {
 };
 
 /** @brief Puts a Gem::Common::tddropt into a stream. Needed also for boost::lexical_cast<> */
-G_API_COMMON std::ostream &operator<<(std::ostream &, const Gem::Common::tddropt &);
+G_API_COMMON std::ostream &operator<<(std::ostream &, Gem::Common::tddropt const&);
 
 /** @brief Reads a Gem::Common::tddropt item from a stream. Needed also for boost::lexical_cast<> */
 G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::tddropt &);
@@ -280,33 +280,18 @@ class GDecorator<dimensions::Dim2, coordinate_type>
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
-	 GDecorator()
-	 { /* nothing */ }
+	 // Defaulted constructors and destructors
 
-	 /***************************************************************************/
-	 /**
-	  * The copy constructor
-	  */
-	 GDecorator(const GDecorator<dimensions::Dim2, coordinate_type>& cp)
-		 : GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>(cp)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
-	 virtual ~GDecorator()
-	 { /* nothing */ }
+	 GDecorator() = default;
+	 GDecorator(GDecorator<dimensions::Dim2, coordinate_type> const & cp) = default;
+	 ~GDecorator() override = default;
 
 	 /***************************************************************************/
 	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GDecorator<dimensions::Dim2, coordinate_type>& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit // the limit for allowed deviations of floating point types
@@ -420,9 +405,9 @@ public:
 		 , const double& size
 	 )
 		 : m_coordinates(coordinates)
-			, m_marker(marker)
-			, m_color(color)
-			, m_size(size)
+		 , m_marker(marker)
+		 , m_color(color)
+		 , m_size(size)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -440,14 +425,14 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GMarker() = default;
+	 ~GMarker() override = default;
 
 	 /***************************************************************************/
 	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GDecorator<dimensions::Dim2, coordinate_type>& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit // the limit for allowed deviations of floating point types
@@ -497,7 +482,7 @@ public:
 	 /**
 	  * Retrieves the decorator data. Plot boundaries are taken into account.
 	  */
-	 virtual std::string decoratorData(
+	 std::string decoratorData(
 		 const std::tuple<coordinate_type, coordinate_type>& x_axis_range
 		 , const std::tuple<coordinate_type, coordinate_type>& y_axis_range
 		 , const std::string& indent
@@ -598,29 +583,18 @@ class GDecorator<dimensions::Dim3, coordinate_type>
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
+	 // Defaulted constructors and destructor
+
 	 GDecorator() = default;
-
-	 /***************************************************************************/
-	 /**
-	  * The copy constructor
-	  */
 	 GDecorator(const GDecorator<dimensions::Dim3, coordinate_type>& cp) = default;
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
-	 virtual ~GDecorator() = default;
+	 ~GDecorator() override = default;
 
 	 /***************************************************************************/
 	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GDecorator<dimensions::Dim3, coordinate_type>& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit // the limit for allowed deviations of floating point types
@@ -736,32 +710,18 @@ class GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
+	 // Defaulted constructors and destructors
+
 	 GDecoratorContainer() = default;
-
-	 /***************************************************************************/
-	 /**
-	  * The copy constructor
-	  */
-	 GDecoratorContainer(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp)
-		 : GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(cp)
-			, GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>(cp)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
-	 virtual ~GDecoratorContainer() = default;
+	 GDecoratorContainer(const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp) = default;
+	 ~GDecoratorContainer() override = default;
 
 	 /***************************************************************************/
 	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GDecoratorContainer<dimensions::Dim2, coordinate_type>& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit // the limit for allowed deviations of floating point types
@@ -896,24 +856,10 @@ class GDecoratorContainer <Gem::Common::dimensions::Dim3, coordinate_type>
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
+	 // Defaulted constructors and destructors
+
 	 GDecoratorContainer() = default;
-
-	 /***************************************************************************/
-	 /**
-	  * The copy constructor
-	  */
-	 GDecoratorContainer(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp)
-		 : GStdPtrVectorInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>(cp)
-			, GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(cp)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
+	 GDecoratorContainer(const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp) = default;
 	 virtual ~GDecoratorContainer() = default;
 
 	 /***************************************************************************/
@@ -921,7 +867,7 @@ public:
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GDecoratorContainer<dimensions::Dim3, coordinate_type>& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit // the limit for allowed deviations of floating point types
@@ -1055,18 +1001,17 @@ class GBasePlotter
 		 & BOOST_SERIALIZATION_NVP(m_y_axis_label)
 		 & BOOST_SERIALIZATION_NVP(m_z_axis_label)
 		 & BOOST_SERIALIZATION_NVP(m_plot_label)
-		 & BOOST_SERIALIZATION_NVP(dsMarker_)
-		 & BOOST_SERIALIZATION_NVP(secondaryPlotter_)
-		 & BOOST_SERIALIZATION_NVP(id_);
+		 & BOOST_SERIALIZATION_NVP(m_dsMarker)
+		 & BOOST_SERIALIZATION_NVP(m_secondaryPlotter)
+		 & BOOST_SERIALIZATION_NVP(m_id);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
 	 /** @brief The default constructor */
-	 G_API_COMMON GBasePlotter();
+	 G_API_COMMON GBasePlotter() = default;
 	 /** @brief A copy constructor */
 	 G_API_COMMON GBasePlotter(const GBasePlotter &);
-
 	 /** @brief The destructor */
 	 virtual G_API_COMMON ~GBasePlotter() = default;
 
@@ -1108,7 +1053,7 @@ public:
 	 virtual G_API_COMMON std::string getPlotterName() const BASE = 0;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -1157,7 +1102,7 @@ protected:
 	 std::string m_z_axis_label = std::string("z"); ///< A label for the z-axis (if available)
 
 	 std::string m_plot_label = std::string("");   ///< A label to be assigned to the entire plot
-	 std::string dsMarker_ = std::string("");     ///< A marker to make the origin of data structures clear in the output file
+	 std::string m_dsMarker = std::string("");     ///< A marker to make the origin of data structures clear in the output file
 
 	 std::vector<line> lines_; ///< Lines to be drawn into the drawing area
 
@@ -1170,9 +1115,9 @@ private:
 
 	 /***************************************************************************/
 	 /** @brief A list of plotters that should emit their data into the same canvas */
-	 std::vector<std::shared_ptr<GBasePlotter>> secondaryPlotter_ = std::vector<std::shared_ptr<GBasePlotter>>();
+	 std::vector<std::shared_ptr<GBasePlotter>> m_secondaryPlotter = std::vector<std::shared_ptr<GBasePlotter>>();
 
-	 std::size_t id_ = 0; ///< The id of this object
+	 std::size_t m_id = 0; ///< The id of this object
 };
 
 /******************************************************************************/
@@ -1200,32 +1145,11 @@ class GDataCollector1T
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
-	 GDataCollector1T()
-		 : GBasePlotter()
-			, m_data()
-	 { /* nothing */ }
+	 // Defaulted constructors and destructors
 
-	 /***************************************************************************/
-	 /**
-	  * A copy constructor
-	  *
-	  * @param cp A copy of another GDataCollector1T<x_type> object
-	  */
-	 GDataCollector1T(const GDataCollector1T<x_type> &cp)
-		 : GBasePlotter(cp)
-			, m_data(cp.m_data)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
-	 virtual ~GDataCollector1T() {
-		 m_data.clear();
-	 }
+	 GDataCollector1T() = default;
+	 GDataCollector1T(const GDataCollector1T<x_type> &cp) = default;
+	 ~GDataCollector1T() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1343,7 +1267,7 @@ public:
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GBasePlotter& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
@@ -1454,7 +1378,7 @@ public:
 	 G_API_COMMON GHistogram1D(const GHistogram1D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GHistogram1D() = default;
+	 G_API_COMMON ~GHistogram1D() override = default;
 
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
@@ -1468,7 +1392,7 @@ public:
 	 G_API_COMMON std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -1538,7 +1462,7 @@ public:
 	 G_API_COMMON GHistogram1I(const GHistogram1I &);
 
 	 /** @brief The destructor */
-	 G_API_COMMON ~GHistogram1I() = default;
+	 G_API_COMMON ~GHistogram1I() override = default;
 
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
@@ -1552,7 +1476,7 @@ public:
 	 G_API_COMMON std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -1611,32 +1535,11 @@ class GDataCollector2T
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
-	 GDataCollector2T()
-		 : GBasePlotter()
-			, m_data()
-	 { /* nothing */ }
+	 // Defaulted constructors and destructors
 
-	 /***************************************************************************/
-	 /**
-	  * A copy constructor
-	  *
-	  * @param cp A copy of another GDataCollector2T<x_type> object
-	  */
-	 GDataCollector2T(const GDataCollector2T<x_type, y_type> &cp)
-		 : GBasePlotter(cp)
-			, m_data(cp.m_data)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
-	 virtual ~GDataCollector2T() {
-		 m_data.clear();
-	 }
+	 GDataCollector2T() = default;
+	 GDataCollector2T(const GDataCollector2T<x_type, y_type> &cp) = default;
+	 ~GDataCollector2T() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1840,7 +1743,7 @@ public:
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GBasePlotter& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
@@ -2002,28 +1905,11 @@ class GDataCollector2ET
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
-	 GDataCollector2ET()
-		 : GBasePlotter(), m_data() { /* nothing */ }
+	 // Defaulted constructors and destructors
 
-	 /***************************************************************************/
-	 /**
-	  * A copy constructor
-	  *
-	  * @param cp A copy of another GDataCollector2ET<x_type> object
-	  */
-	 GDataCollector2ET(const GDataCollector2ET<x_type, y_type> &cp)
-		 : GBasePlotter(cp), m_data(cp.m_data) { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
-	 virtual ~GDataCollector2ET() {
-		 m_data.clear();
-	 }
+	 GDataCollector2ET() = default;
+	 GDataCollector2ET(const GDataCollector2ET<x_type, y_type> &cp) = default;
+	 ~GDataCollector2ET() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -2161,7 +2047,7 @@ public:
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GBasePlotter& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
@@ -2271,7 +2157,7 @@ public:
 	 G_API_COMMON GHistogram2D(const GHistogram2D&);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GHistogram2D() = default;
+	 G_API_COMMON ~GHistogram2D() override = default;
 
 	 /** @brief Retrieve the number of bins in x-direction */
 	 G_API_COMMON std::size_t getNBinsX() const;
@@ -2291,7 +2177,7 @@ public:
 	 G_API_COMMON  std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -2322,7 +2208,7 @@ private:
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GBasePlotter* clone_() const override;
 
-	 G_API_COMMON GHistogram2D(); ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
+	 G_API_COMMON GHistogram2D() = default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
 	 std::size_t nBinsX_; ///< The number of bins in the x-direction of the histogram
 	 std::size_t nBinsY_; ///< The number of bins in the y-direction of the histogram
@@ -2365,7 +2251,7 @@ public:
 	 /** @brief A copy constructor */
 	 G_API_COMMON GGraph2D(const GGraph2D &);
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GGraph2D() = default;
+	 G_API_COMMON ~GGraph2D() override = default;
 
 	 /** @brief Adds arrows to the plots between consecutive points */
 	 G_API_COMMON void setDrawArrows(bool= true);
@@ -2381,7 +2267,7 @@ public:
 	 G_API_COMMON std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -2441,7 +2327,7 @@ public:
 	 G_API_COMMON GGraph2ED(const GGraph2ED &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GGraph2ED() = default;
+	 G_API_COMMON ~GGraph2ED() override = default;
 
 	 /** @brief Determines whether a scatter plot or a curve is created */
 	 G_API_COMMON void setPlotMode(graphPlotMode);
@@ -2452,7 +2338,7 @@ public:
 	 G_API_COMMON  std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -2504,28 +2390,11 @@ class GDataCollector3T
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
-	 GDataCollector3T()
-		 : GBasePlotter(), m_data() { /* nothing */ }
+	 // Defaulted constructors and destructors
 
-	 /***************************************************************************/
-	 /**
-	  * A copy constructor
-	  *
-	  * @param cp A copy of another GDataCollector3T object
-	  */
-	 GDataCollector3T(const GDataCollector3T<x_type, y_type, z_type> &cp)
-		 : GBasePlotter(cp), m_data(cp.m_data) { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
-	 virtual ~GDataCollector3T() {
-		 m_data.clear();
-	 }
+	 GDataCollector3T() = default;
+	 GDataCollector3T(const GDataCollector3T<x_type, y_type, z_type> &cp) = default;
+	 ~GDataCollector3T() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -2701,7 +2570,7 @@ public:
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GBasePlotter& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
@@ -2909,7 +2778,7 @@ public:
 	 G_API_COMMON GGraph3D(const GGraph3D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GGraph3D() = default;
+	 G_API_COMMON ~GGraph3D() override = default;
 
 	 /** @brief Adds lines to the plots between consecutive points */
 	 G_API_COMMON void setDrawLines(bool= true);
@@ -2920,7 +2789,7 @@ public:
 	 G_API_COMMON std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -2977,28 +2846,11 @@ class GDataCollector4T
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
-	 GDataCollector4T()
-		 : GBasePlotter(), m_data() { /* nothing */ }
+	 // Defaulted constructors and destructors
 
-	 /***************************************************************************/
-	 /**
-	  * A copy constructor
-	  *
-	  * @param cp A copy of another GDataCollector4T object
-	  */
-	 GDataCollector4T(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp)
-		 : GBasePlotter(cp), m_data(cp.m_data) { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
-	 virtual ~GDataCollector4T() {
-		 m_data.clear();
-	 }
+	 GDataCollector4T() = default;
+	 GDataCollector4T(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) = default;
+	 ~GDataCollector4T() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -3202,7 +3054,7 @@ public:
 	  * Investigates compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 virtual void compare(
+	 void compare(
 		 const GBasePlotter& cp
 		 , const Gem::Common::expectation& e
 		 , const double& limit
@@ -3465,7 +3317,7 @@ public:
 	 G_API_COMMON GGraph4D(const GGraph4D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GGraph4D() = default;
+	 G_API_COMMON ~GGraph4D() override = default;
 
 	 /** @brief Allows to set the minimum marker size */
 	 G_API_COMMON void setMinMarkerSize(const double &);
@@ -3491,7 +3343,7 @@ public:
 	 G_API_COMMON  std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -3561,7 +3413,7 @@ public:
 	 G_API_COMMON GFunctionPlotter1D(const GFunctionPlotter1D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GFunctionPlotter1D() = default;
+	 G_API_COMMON ~GFunctionPlotter1D() override = default;
 
 	 /** @brief Allows to set the number of sampling points in x-direction */
 	 G_API_COMMON void setNSamplesX(std::size_t);
@@ -3570,7 +3422,7 @@ public:
 	 G_API_COMMON std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -3639,7 +3491,7 @@ public:
 	 G_API_COMMON GFunctionPlotter2D(const GFunctionPlotter2D &);
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GFunctionPlotter2D() = default;
+	 G_API_COMMON ~GFunctionPlotter2D() override = default;
 
 	 /** @brief Allows to set the number of sampling points in x-direction */
 	 G_API_COMMON void setNSamplesX(std::size_t);
@@ -3650,7 +3502,7 @@ public:
 	 G_API_COMMON  std::string getPlotterName() const override;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GBasePlotter& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types
@@ -3724,7 +3576,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_COMMON GPlotDesigner(const GPlotDesigner&);
 	 /** @brief The destructor */
-	 G_API_COMMON virtual ~GPlotDesigner() = default;
+	 virtual G_API_COMMON ~GPlotDesigner() = default;
 
 	 /* @brief Emits the overall plot */
 	 G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;
@@ -3763,7 +3615,7 @@ public:
 	 std::string indent() const;
 
 	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_COMMON void compare(
+	 G_API_COMMON void compare(
 		 const GPlotDesigner& // the other object
 		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		 , const double& // the limit for allowed deviations of floating point types

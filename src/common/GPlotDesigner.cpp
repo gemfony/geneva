@@ -181,13 +181,6 @@ std::istream &operator>>(std::istream &i, Gem::Common::tddropt &x) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Data members are initialized in the class body.
- */
-GBasePlotter::GBasePlotter()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * The copy constructor
  *
  * @param cp A copy of another GBasePlotter object
@@ -198,16 +191,16 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
 	  , m_y_axis_label(cp.m_y_axis_label)
 	  , m_z_axis_label(cp.m_z_axis_label)
 	  , m_plot_label(cp.m_plot_label)
-	  , dsMarker_(cp.dsMarker_)
-	  , secondaryPlotter_()
-	  , id_(cp.id_)
+	  , m_dsMarker(cp.m_dsMarker)
+	  , m_secondaryPlotter()
+	  , m_id(cp.m_id)
 {
 	// Note: Explicit scope needed for name resolution of clone -- compare
 	// https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members
 
 	// Copy secondary plot data over
-	for(auto plotter_ptr: cp.secondaryPlotter_) { // std::shared_ptr may be copied
-		secondaryPlotter_.push_back(plotter_ptr->GCommonInterfaceT<GBasePlotter>::clone());
+	for(auto plotter_ptr: cp.m_secondaryPlotter) { // std::shared_ptr may be copied
+		m_secondaryPlotter.push_back(plotter_ptr->GCommonInterfaceT<GBasePlotter>::clone());
 	}
 }
 
@@ -296,7 +289,7 @@ std::string GBasePlotter::plotLabel() const {
  * @param A marker that has been assigned to the output data structures
  */
 void GBasePlotter::setDataStructureMarker(std::string dsMarker) {
-	dsMarker_ = dsMarker;
+	m_dsMarker = dsMarker;
 }
 
 /******************************************************************************/
@@ -306,7 +299,7 @@ void GBasePlotter::setDataStructureMarker(std::string dsMarker) {
  * @return The marker that has been assigned to the output data structures
  */
 std::string GBasePlotter::dsMarker() const {
-	return dsMarker_;
+	return m_dsMarker;
 }
 
 /******************************************************************************/
@@ -334,7 +327,7 @@ void GBasePlotter::registerSecondaryPlotter(std::shared_ptr<GBasePlotter> sp) {
 	}
 
 	// Add the plotter to our collection
-	secondaryPlotter_.push_back(sp);
+	m_secondaryPlotter.push_back(sp);
 }
 
 /******************************************************************************/
@@ -369,7 +362,7 @@ std::string GBasePlotter::suffix(bool isSecondary, std::size_t pId) const {
  * Allows to retrieve the id of this object
  */
 std::size_t GBasePlotter::id() const {
-	return id_;
+	return m_id;
 }
 
 /******************************************************************************/
@@ -379,7 +372,7 @@ std::size_t GBasePlotter::id() const {
  * @param id The id to be assigned to this object
  */
 void GBasePlotter::setId(const std::size_t &id) {
-	id_ = id;
+	m_id = id;
 }
 
 /******************************************************************************/
@@ -416,9 +409,9 @@ void GBasePlotter::compare(
 	compare_t(IDENTITY(m_y_axis_label, p_load->m_y_axis_label), token);
 	compare_t(IDENTITY(m_z_axis_label, p_load->m_z_axis_label), token);
 	compare_t(IDENTITY(m_plot_label, p_load->m_plot_label), token);
-	compare_t(IDENTITY(dsMarker_, p_load->dsMarker_), token);
-	compare_t(IDENTITY(secondaryPlotter_, p_load->secondaryPlotter_), token);
-	compare_t(IDENTITY(id_, p_load->id_), token);
+	compare_t(IDENTITY(m_dsMarker, p_load->m_dsMarker), token);
+	compare_t(IDENTITY(m_secondaryPlotter, p_load->m_secondaryPlotter), token);
+	compare_t(IDENTITY(m_id, p_load->m_id), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -440,10 +433,10 @@ void GBasePlotter::load_(const GBasePlotter* cp) {
 	m_y_axis_label     = p_load->m_y_axis_label;
 	m_z_axis_label     = p_load->m_z_axis_label;
 	m_plot_label       = p_load->m_plot_label;
-	dsMarker_         = p_load->dsMarker_;
-	id_               = p_load->id_;
+	m_dsMarker         = p_load->m_dsMarker;
+	m_id               = p_load->m_id;
 
-	copyCloneableSmartPointerContainer(p_load->secondaryPlotter_, secondaryPlotter_);
+	copyCloneableSmartPointerContainer(p_load->m_secondaryPlotter, m_secondaryPlotter);
 }
 
 /******************************************************************************/
@@ -462,7 +455,7 @@ std::string GBasePlotter::headerData(const std::string& indent) const {
 	std::size_t pos = 0;
 	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
 		cit;
-	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
+	for (cit = m_secondaryPlotter.begin(); cit != m_secondaryPlotter.end(); ++cit) {
 		// Give the plotters their own id which will act as a child id in this case
 		(*cit)->setId(pos);
 
@@ -491,7 +484,7 @@ std::string GBasePlotter::bodyData(const std::string& indent) const {
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
-	for (auto plotter_ptr: secondaryPlotter_) { // std::shared_ptr may be copied
+	for (auto plotter_ptr: m_secondaryPlotter) { // std::shared_ptr may be copied
 		body_data
 			<< indent << "// Body data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
 			<< plotter_ptr->bodyData_(true, this->id(), indent) << std::endl;
@@ -517,7 +510,7 @@ std::string GBasePlotter::footerData(const std::string& indent) const {
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
 	std::vector<std::shared_ptr<GBasePlotter>>::const_iterator cit;
-	for (cit = secondaryPlotter_.begin(); cit != secondaryPlotter_.end(); ++cit) {
+	for (cit = m_secondaryPlotter.begin(); cit != m_secondaryPlotter.end(); ++cit) {
 		footer_data
 			<< indent << "// Footer data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
 			<< (*cit)->footerData_(true, this->id(), indent) << std::endl;
@@ -652,8 +645,8 @@ std::string GGraph2D::headerData_(
 	std::string yArrayName = "y_" + arrayBaseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	header_data
@@ -683,8 +676,8 @@ std::string GGraph2D::bodyData_(
 	std::string yArrayName = "y_" + arrayBaseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		body_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		body_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Fill data from the tuples into the arrays
@@ -722,8 +715,8 @@ std::string GGraph2D::footerData_(
 	std::string graphName = std::string("graph") + baseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		footer_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		footer_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Retrieve the current drawing arguments
@@ -930,8 +923,8 @@ std::string GGraph2ED::headerData_(
 	std::string eyArrayName = "ey_" + arrayBaseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	header_data
@@ -965,8 +958,8 @@ std::string GGraph2ED::bodyData_(
 	std::string eyArrayName = "ey_" + arrayBaseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		body_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		body_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Fill data from the tuples into the arrays
@@ -1010,8 +1003,8 @@ std::string GGraph2ED::footerData_(
 	std::string graphName = std::string("graph_") + baseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		footer_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		footer_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Check whether custom drawing arguments have been set or whether one
@@ -1189,8 +1182,8 @@ std::string GGraph3D::headerData_(
 	std::string zArrayName = "z_" + arrayBaseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	header_data
@@ -1222,8 +1215,8 @@ std::string GGraph3D::bodyData_(
 	std::string zArrayName = "z_" + arrayBaseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		body_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		body_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Fill data from the tuples into the arrays
@@ -1265,8 +1258,8 @@ std::string GGraph3D::footerData_(
 	std::string graphName = std::string("graph_") + baseName;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		footer_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		footer_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Check whether custom drawing arguments have been set or whether one
@@ -1524,9 +1517,9 @@ void GGraph4D::compare(
  * Retrieve specific header settings for this plot
  */
 std::string GGraph4D::headerData_(
-	bool isSecondary
-	, std::size_t pId
-	, const std::string& indent
+	bool
+	, std::size_t
+	, std::string const&
 ) const {
 	std::ostringstream header_data;
 
@@ -1540,9 +1533,9 @@ std::string GGraph4D::headerData_(
  * Retrieves the actual data sets
  */
 std::string GGraph4D::bodyData_(
-	bool isSecondary
-	, std::size_t pId
-	, const std::string& indent
+	bool
+	, std::size_t
+	, std::string const&
 ) const {
 	std::ostringstream body_data;
 
@@ -1662,7 +1655,7 @@ std::string GGraph4D::footerData_(
 /**
  * Retrieve the current drawing arguments
  */
-std::string GGraph4D::drawingArguments(bool isSecondary) const {
+std::string GGraph4D::drawingArguments(bool) const {
 	std::string dA = "";
 
 	// nothing
@@ -1768,8 +1761,8 @@ std::string GHistogram1D::headerData_(
 	std::ostringstream header_data;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	std::string histName = "histD" + suffix(isSecondary, pId);
@@ -1805,8 +1798,8 @@ std::string GHistogram1D::bodyData_(
 	std::ostringstream body_data;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	} else {
 		comment = "";
 	}
@@ -1845,8 +1838,8 @@ std::string GHistogram1D::footerData_(
 	}
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		footer_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		footer_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Check whether custom drawing arguments have been set
@@ -2046,8 +2039,8 @@ std::string GHistogram1I::headerData_(
 	std::ostringstream header_data;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	std::string histName = "histI" + suffix(isSecondary, pId);
@@ -2072,8 +2065,8 @@ std::string GHistogram1I::bodyData_(
 	std::ostringstream body_data;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	} else {
 		comment = "";
 	}
@@ -2115,8 +2108,8 @@ std::string GHistogram1I::footerData_(
 	}
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		footer_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		footer_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Check whether custom drawing arguments have been set
@@ -2258,12 +2251,6 @@ void GHistogram1I::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor -- intentionally private, as it is only needed for (de-)serialization
- */
-GHistogram2D::GHistogram2D() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * The standard constructor
  */
 GHistogram2D::GHistogram2D(
@@ -2348,8 +2335,8 @@ std::string GHistogram2D::headerData_(
 	std::ostringstream header_data;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	std::string histName = "hist2D" + suffix(isSecondary, pId);
@@ -2421,8 +2408,8 @@ std::string GHistogram2D::bodyData_(
 	std::ostringstream body_data;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	} else {
 		comment = "";
 	}
@@ -2465,8 +2452,8 @@ std::string GHistogram2D::footerData_(
 	}
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		footer_data << "// " + dsMarker_ << std::endl;
+	if (m_dsMarker != "") {
+		footer_data << "// " + m_dsMarker << std::endl;
 	}
 
 	// Check whether custom drawing arguments have been set
@@ -2571,6 +2558,23 @@ std::string GHistogram2D::drawingArguments(bool isSecondary) const {
 	}
 
 	return dA;
+}
+
+
+/******************************************************************************/
+/**
+ * Allows to specify 2d-drawing options
+ */
+void GHistogram2D::set2DOpt(tddropt dropt) {
+	dropt_ = dropt;
+}
+
+/******************************************************************************/
+/**
+ * Allows to retrieve 2d-drawing options
+ */
+tddropt GHistogram2D::get2DOpt() const {
+	return dropt_;
 }
 
 /******************************************************************************/
@@ -2826,8 +2830,8 @@ std::string GFunctionPlotter1D::headerData_(
 	std::ostringstream result;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	std::string functionName = "func1D" + suffix(isSecondary, pId);
@@ -2845,9 +2849,9 @@ std::string GFunctionPlotter1D::headerData_(
  * @return The code to be added to the plot's data section for this function
  */
 std::string GFunctionPlotter1D::bodyData_(
-	bool isSecondary
-	, std::size_t pId
-	, const std::string& indent
+	bool
+	, std::size_t
+	, std::string const&
 ) const {
 	// No data needs to be added for a function plotter
 	return std::string();
@@ -2867,8 +2871,8 @@ std::string GFunctionPlotter1D::footerData_(
 	std::ostringstream footer_data;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	std::string functionName = "func1D" + suffix(isSecondary, pId);
@@ -3081,8 +3085,8 @@ std::string GFunctionPlotter2D::headerData_(
 	std::ostringstream result;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	std::string functionName = "func2D" + suffix(isSecondary, pId);
@@ -3114,9 +3118,9 @@ std::string GFunctionPlotter2D::headerData_(
  * @return The code to be added to the plot's data section for this function
  */
 std::string GFunctionPlotter2D::bodyData_(
-	bool isSecondary
-	, std::size_t pId
-	, const std::string& indent
+	bool
+	, std::size_t
+	, std::string const&
 ) const {
 	// No data needs to be added for a function plotter
 	return std::string();
@@ -3131,13 +3135,13 @@ std::string GFunctionPlotter2D::bodyData_(
 std::string GFunctionPlotter2D::footerData_(
 	bool isSecondary
 	, std::size_t pId
-	, const std::string& indent
+	, std::string const& indent
 ) const {
 	std::ostringstream footer_data;
 
 	std::string comment;
-	if (dsMarker_ != "") {
-		comment = "// " + dsMarker_;
+	if (m_dsMarker != "") {
+		comment = "// " + m_dsMarker;
 	}
 
 	std::string functionName = "func2D" + suffix(isSecondary, pId);

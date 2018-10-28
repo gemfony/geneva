@@ -80,13 +80,13 @@ public:
 	 /** @brief Initialization with a given probability for "true" */
 	 explicit G_API_GENEVA GBooleanObject(const double&);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GBooleanObject();
+	 G_API_GENEVA ~GBooleanObject() override;
 
 	 /** @brief An assignment operator */
 	 G_API_GENEVA bool operator=(const bool&) override;
 
 	 /** @brief Triggers random initialization of the parameter object */
-	 virtual G_API_GENEVA bool randomInit(
+	 G_API_GENEVA bool randomInit(
 		 const activityMode&
 		 , Gem::Hap::GRandomBase&
 	 ) override;
