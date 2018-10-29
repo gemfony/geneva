@@ -552,6 +552,8 @@ protected:
 	 /** @brief Loads the data of another g_class_type */
 	 virtual G_API_COMMON void load_(const g_class_type*) BASE = 0;
 
+
+
 	 /******************************************************************************/
 	 /**
 		  * Adds local configuration options to a GParserBuilder object. This is a protected, virtual version
