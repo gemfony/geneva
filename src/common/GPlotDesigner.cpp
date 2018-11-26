@@ -2214,8 +2214,8 @@ void GHistogram1I::compare(
 
 	// ... and then the local data
 	compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
-	compare_t(IDENTITY(minX_, p_load->minX_), token);
-	compare_t(IDENTITY(maxX_, p_load->maxX_), token);
+	compare_t(IDENTITY(minX_,   p_load->minX_), token);
+	compare_t(IDENTITY(maxX_,   p_load->maxX_), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -2260,14 +2260,14 @@ GHistogram2D::GHistogram2D(
 	, const double &maxX
 	, const double &minY
 	, const double &maxY
-)
-	: nBinsX_(nBinsX)
-	  , nBinsY_(nBinsY)
-	  , minX_(minX)
-	  , maxX_(maxX)
-	  , minY_(minY)
-	  , maxY_(maxY)
-	  , dropt_(tddropt::TDEMPTY)
+) :
+	nBinsX_(nBinsX)
+	, nBinsY_(nBinsY)
+	, minX_(minX)
+	, maxX_(maxX)
+	, minY_(minY)
+	, maxY_(maxY)
+	, dropt_(tddropt::TDEMPTY)
 { /* nothing */ }
 
 /******************************************************************************/

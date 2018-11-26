@@ -724,7 +724,7 @@ void compare(
 		case Gem::Common::expectation::EQUALITY: {
 			if (Gem::Common::expectation::FP_SIMILARITY == e) {
 				expectation_str = "FP_SIMILARITY";
-			} else if (Gem::Common::expectation::EQUALITY == e) {
+			} else { // May only be FP_SIMILARITY or EQUALITY in this case
 				expectation_str = "EQUALITY";
 			}
 
@@ -753,7 +753,7 @@ void compare(
 						break; // break the loop
 					}
 				}
-			} else if (Gem::Common::expectation::EQUALITY == e) {
+			} else { // May only be FP_SIMILARITY or EQUALITY in this case
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (*x_it != *y_it) {
 						foundDeviation = true;
@@ -823,7 +823,7 @@ void compare(
 		case Gem::Common::expectation::EQUALITY: {
 			if (Gem::Common::expectation::FP_SIMILARITY == e) {
 				expectation_str = "FP_SIMILARITY";
-			} else if (Gem::Common::expectation::EQUALITY == e) {
+			} else { // May only be FP_SIMILARITY or EQUALITY in this case
 				expectation_str = "EQUALITY";
 			}
 
@@ -852,7 +852,7 @@ void compare(
 						break; // break the loop
 					}
 				}
-			} else if (Gem::Common::expectation::EQUALITY == e) {
+			} else { // May only be FP_SIMILARITY or EQUALITY in this case
 				for (x_it = x.begin(), y_it = y.begin(); x_it != x.end(); ++x_it, ++y_it) {
 					if (*x_it != *y_it) {
 						foundDeviation = true;
@@ -1078,7 +1078,7 @@ void compare (
 /**
  * This function checks whether two containers of smart pointers to complex types meet a given expectation.
  * It is assumed that these types have the standard Geneva interface with corresponding "compare"
- * functions. For an idea of what the template specifyer does, search for "template template" in conjunction
+ * functions. For an idea of what the template specifier does, search for "template template" in conjunction
  * with containers.
  *
  * @param x The first vector to be compared
