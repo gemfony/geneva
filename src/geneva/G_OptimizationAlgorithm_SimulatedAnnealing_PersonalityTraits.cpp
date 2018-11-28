@@ -74,7 +74,7 @@ GSimulatedAnnealing_PersonalityTraits::~GSimulatedAnnealing_PersonalityTraits() 
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GSimulatedAnnealing_PersonalityTraits::compare(
+void GSimulatedAnnealing_PersonalityTraits::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -85,7 +85,7 @@ void GSimulatedAnnealing_PersonalityTraits::compare(
 	GToken token("GSimulatedAnnealing_PersonalityTraits", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBaseParChildPersonalityTraits>(*this, *p_load, token);
 
 	// ... no local data
 

@@ -62,7 +62,7 @@ GDoubleSumConstraint::GDoubleSumConstraint(const double &C)
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GDoubleSumConstraint::compare(
+void GDoubleSumConstraint::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -73,7 +73,7 @@ void GDoubleSumConstraint::compare(
 	Gem::Common::GToken token("GDoubleSumConstraint", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(C_, p_load->C_), token);
@@ -157,7 +157,7 @@ GDoubleSumGapConstraint::GDoubleSumGapConstraint(const double &C, const double &
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GDoubleSumGapConstraint::compare(
+void GDoubleSumGapConstraint::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -168,7 +168,7 @@ void GDoubleSumGapConstraint::compare(
 	Gem::Common::GToken token("GDoubleSumGapConstraint", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(C_, p_load->C_), token);
@@ -255,7 +255,7 @@ GSphereConstraint::GSphereConstraint(const double &diameter)
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GSphereConstraint::compare(
+void GSphereConstraint::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	// Check that we are dealing with a GSphereConstraint reference independent of this object and convert the pointer
@@ -264,7 +264,7 @@ void GSphereConstraint::compare(
 	Gem::Common::GToken token("GSphereConstraint", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(diameter_, p_load->diameter_), token);
@@ -459,7 +459,7 @@ GFunctionIndividual::GFunctionIndividual(const solverFunction &dF)
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GFunctionIndividual::compare(
+void GFunctionIndividual::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	// Check that we are dealing with a GFunctionIndividual reference independent of this object and convert the pointer
@@ -468,7 +468,7 @@ void GFunctionIndividual::compare(
 	Gem::Common::GToken token("GFunctionIndividual", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(demoFunction_, p_load->demoFunction_), token);

@@ -124,13 +124,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual ~GStarterIndividual();
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const final;
-
 	 /** @brief Adds local configuration options to a GParserBuilder object */
 	 virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
 
@@ -234,7 +227,21 @@ protected:
 	 /** @brief Loads the data of another GStarterIndividual */
 	 virtual void load_(const GObject*) final;
 
-	 /** @brief The actual value calculation takes place here */
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GStarterIndividual>(
+		GStarterIndividual const &
+		, GStarterIndividual const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual void compare_(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const final;
+
+	/** @brief The actual value calculation takes place here */
 	 virtual double fitnessCalculation() final;
 
 	 /***************************************************************************/
@@ -283,11 +290,11 @@ public:
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 virtual std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&);
+	 std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
 	 /** @brief Allows to describe local configuration options in derived classes */
-	 virtual void describeLocalOptions_(Gem::Common::GParserBuilder&);
+	 void describeLocalOptions_(Gem::Common::GParserBuilder&) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
-	 virtual void postProcess_(std::shared_ptr<GParameterSet>&);
+	 void postProcess_(std::shared_ptr<GParameterSet>&) override;
 
 private:
 	 /** @brief The default constructor. Only needed for (de-)serialization purposes */

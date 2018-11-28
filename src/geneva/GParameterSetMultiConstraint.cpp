@@ -69,7 +69,7 @@ GParameterSetConstraint::~GParameterSetConstraint() { /* nothing */ }
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GParameterSetConstraint::compare(
+void GParameterSetConstraint::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -80,7 +80,7 @@ void GParameterSetConstraint::compare(
 	GToken token("GParameterSetConstraint", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GPreEvaluationValidityCheckT<GParameterSet>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GPreEvaluationValidityCheckT<GParameterSet>>(*this, *p_load, token);
 
 	// ... no local data
 
@@ -150,7 +150,7 @@ GParameterSetFormulaConstraint::~GParameterSetFormulaConstraint() { /* nothing *
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GParameterSetFormulaConstraint::compare(
+void GParameterSetFormulaConstraint::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -161,7 +161,7 @@ void GParameterSetFormulaConstraint::compare(
 	GToken token("GParameterSetFormulaConstraint", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterSetConstraint>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterSetConstraint>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(rawFormula_, p_load->rawFormula_), token);

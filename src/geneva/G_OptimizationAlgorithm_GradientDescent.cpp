@@ -195,7 +195,7 @@ std::string GGradientDescent::getAlgorithmName() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GGradientDescent::compare(
+void GGradientDescent::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -206,7 +206,7 @@ void GGradientDescent::compare(
 	GToken token("GGradientDescent", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<G_OptimizationAlgorithm_Base>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nStartingPoints_, p_load->nStartingPoints_), token);

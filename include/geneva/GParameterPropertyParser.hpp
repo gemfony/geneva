@@ -142,41 +142,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Checks for compliance with expectations with respect to another object
-	  * of type T. This purely virtual function ensures the well-formedness of the
-	  * compare hierarchy in derived classes.
-	  *
-	  * @param cp A constant reference to another object of the same type, camouflaged as a base object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const parPropSpec<par_type>& cp // the other object
-		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		 , const double& limit // the limit for allowed deviations of floating point types
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
-		 const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
-
-		 Gem::Common::GToken token("parPropSpec<T>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GCommonInterfaceT<parPropSpec<par_type>>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then the local data
-		 Gem::Common::compare_t(IDENTITY(var, p_load->var), token);
-		 Gem::Common::compare_t(IDENTITY(lowerBoundary, p_load->lowerBoundary), token);
-		 Gem::Common::compare_t(IDENTITY(upperBoundary, p_load->upperBoundary), token);
-		 Gem::Common::compare_t(IDENTITY(nSteps, p_load->nSteps), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Swap with another parPropSpec
 	  */
 	 void swap(parPropSpec<par_type>& b) {
@@ -216,6 +181,49 @@ protected:
 		 upperBoundary = p_load->upperBoundary;
 		 nSteps        = p_load->nSteps;
 	 }
+
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<parPropSpec<par_type>>(
+		parPropSpec<par_type> const &
+		, parPropSpec<par_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Checks for compliance with expectations with respect to another object
+     * of type T. This purely virtual function ensures the well-formedness of the
+     * compare hierarchy in derived classes.
+     *
+     * @param cp A constant reference to another object of the same type, camouflaged as a base object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const parPropSpec<par_type>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
+		const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		Gem::Common::GToken token("parPropSpec<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GCommonInterfaceT<parPropSpec<par_type>>>(*this, *p_load, token);
+
+		// ... and then the local data
+		Gem::Common::compare_t(IDENTITY(var, p_load->var), token);
+		Gem::Common::compare_t(IDENTITY(lowerBoundary, p_load->lowerBoundary), token);
+		Gem::Common::compare_t(IDENTITY(upperBoundary, p_load->upperBoundary), token);
+		Gem::Common::compare_t(IDENTITY(nSteps, p_load->nSteps), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 private:
 	 /***************************************************************************/

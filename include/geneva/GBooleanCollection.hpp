@@ -90,13 +90,6 @@ public:
 	 /** @brief FLips the value at a given position */
 	 G_API_GENEVA void flip(const std::size_t&);
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const override;
-
 	 /** @brief Random initialization */
 	 virtual G_API_GENEVA bool randomInit(
 		 const activityMode&
@@ -113,8 +106,22 @@ protected:
 	 /** @brief Loads the data of another GBooleanCollection class */
 	 G_API_GENEVA void load_(const GObject *) override;
 
-	 /** @brief Triggers random initialization of the parameter collection */
-	 virtual G_API_GENEVA bool randomInit_(
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GBooleanCollection>(
+		GBooleanCollection const &
+		, GBooleanCollection const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	G_API_GENEVA void compare_(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
+
+	/** @brief Triggers random initialization of the parameter collection */
+	G_API_GENEVA bool randomInit_(
 		 const activityMode&
 		 , Gem::Hap::GRandomBase&
 	 ) override;

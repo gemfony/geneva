@@ -107,13 +107,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_GENEVA ~GSwarmAlgorithm() override = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const override;
-
 	 /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
 	 G_API_GENEVA void resetToOptimizationStart() override;
 
@@ -214,6 +207,20 @@ protected:
 	 ) override;
 	 /** @brief Loads the data of another population */
 	 G_API_GENEVA void load_(const GObject *) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GSwarmAlgorithm>(
+		GSwarmAlgorithm const &
+		, GSwarmAlgorithm const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	G_API_GENEVA void compare_(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	 /** @brief Does some preparatory work before the optimization starts */
 	 G_API_GENEVA void init() override;

@@ -52,7 +52,7 @@ G_API_GENEVA const std::string GEvolutionaryAlgorithm_PersonalityTraits::nicknam
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GEvolutionaryAlgorithm_PersonalityTraits::compare(
+void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -63,7 +63,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::compare(
 	GToken token("GEvolutionaryAlgorithm_PersonalityTraits", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBaseParChildPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBaseParChildPersonalityTraits>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(isOnParetoFront_, p_load->isOnParetoFront_), token);

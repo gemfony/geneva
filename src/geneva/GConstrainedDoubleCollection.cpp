@@ -101,7 +101,7 @@ GConstrainedDoubleCollection::~GConstrainedDoubleCollection() { /* nothing */ }
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GConstrainedDoubleCollection::compare(
+void GConstrainedDoubleCollection::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -112,7 +112,7 @@ void GConstrainedDoubleCollection::compare(
 	GToken token("GConstrainedDoubleCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GConstrainedFPNumCollectionT<double>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GConstrainedFPNumCollectionT<double>>(*this, *p_load, token);
 
 	// ... no local data
 

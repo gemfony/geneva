@@ -87,14 +87,7 @@ public:
 	 /**
 	  * The standard constructor.
 	  */
-	 GNumGaussAdaptorT()
-		 : GAdaptorT<num_type> ()
-			, sigma_(fp_type(DEFAULTSIGMA))
-			, sigma_reset_(sigma_)
-			, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
-			, minSigma_(fp_type(DEFAULTMINSIGMA))
-			, maxSigma_(fp_type(DEFAULTMAXSIGMA))
-	 { /* nothing */ }
+	 GNumGaussAdaptorT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -102,13 +95,7 @@ public:
 	  *
 	  * @param probability The likelihood for a adaption actually taking place
 	  */
-	 GNumGaussAdaptorT(const double& probability)
-		 : GAdaptorT<num_type> (probability)
-			, sigma_(fp_type(DEFAULTSIGMA))
-			, sigma_reset_(sigma_)
-			, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
-			, minSigma_(fp_type(DEFAULTMINSIGMA))
-			, maxSigma_(fp_type(DEFAULTMAXSIGMA))
+	 GNumGaussAdaptorT(const double& probability) : GAdaptorT<num_type> (probability)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -125,14 +112,7 @@ public:
 		 , const fp_type& sigmaSigma
 		 , const fp_type& minSigma
 		 , const fp_type& maxSigma
-	 )
-		 : GAdaptorT<num_type> ()
-			, sigma_(fp_type(DEFAULTSIGMA))
-			, sigma_reset_(fp_type(DEFAULTSIGMA))
-			, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
-			, minSigma_(fp_type(DEFAULTMINSIGMA))
-			, maxSigma_(fp_type(DEFAULTMAXSIGMA))
-	 {
+	 ){
 		 // These functions do error checks on their values
 		 setSigmaAdaptionRate(sigmaSigma);
 		 setSigmaRange(minSigma, maxSigma);
@@ -159,19 +139,7 @@ public:
 		 , const double& probability
 	 )
 		 : GAdaptorT<num_type> (probability)
-			, sigma_(fp_type(DEFAULTSIGMA))
-			, sigma_reset_(fp_type(DEFAULTSIGMA))
-			, sigmaSigma_(fp_type(DEFAULTSIGMASIGMA))
-			, minSigma_(fp_type(DEFAULTMINSIGMA))
-			, maxSigma_(fp_type(DEFAULTMAXSIGMA))
-	 {
-		 // These functions do error checks on their values
-		 setSigmaAdaptionRate(sigmaSigma);
-		 setSigmaRange(minSigma, maxSigma);
-		 setSigma(sigma); // Must be set last so an error check for compliance with the boundaries can be made
-
-		 sigma_reset_ = sigma_;
-	 }
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -180,57 +148,14 @@ public:
 	  *
 	  * @param cp Another GNumGaussAdaptorT object
 	  */
-	 GNumGaussAdaptorT(const GNumGaussAdaptorT<num_type, fp_type>& cp)
-		 : GAdaptorT<num_type> (cp)
-			, sigma_(cp.sigma_)
-			, sigma_reset_(cp.sigma_reset_)
-			, sigmaSigma_(cp.sigmaSigma_)
-			, minSigma_(cp.minSigma_)
-			, maxSigma_(cp.maxSigma_)
-	 { /* nothing */	}
+	 GNumGaussAdaptorT(const GNumGaussAdaptorT<num_type, fp_type>& cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The standard destructor. Empty, as we have no local, dynamically
 	  * allocated data.
 	  */
-	 virtual ~GNumGaussAdaptorT()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
-		 const GNumGaussAdaptorT<num_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumGaussAdaptorT<num_type, fp_type>>(cp, this);
-
-		 GToken token("GNumGaussAdaptorT<num_type, fp_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GAdaptorT<num_type>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then the local data
-		 compare_t(IDENTITY(sigma_, p_load->sigma_), token);
-		 compare_t(IDENTITY(sigma_reset_, p_load->sigma_reset_), token);
-		 compare_t(IDENTITY(sigmaSigma_, p_load->sigmaSigma_), token);
-		 compare_t(IDENTITY(minSigma_, p_load->minSigma_), token);
-		 compare_t(IDENTITY(maxSigma_, p_load->maxSigma_), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
+	 virtual ~GNumGaussAdaptorT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -509,7 +434,50 @@ protected:
 		 maxSigma_    = p_load->maxSigma_;
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GNumGaussAdaptorT<num_type, fp_type>>(
+		GNumGaussAdaptorT<num_type, fp_type> const &
+		, GNumGaussAdaptorT<num_type, fp_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GNumGaussAdaptorT<num_type, fp_type> reference independent of this object and convert the pointer
+		const GNumGaussAdaptorT<num_type, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumGaussAdaptorT<num_type, fp_type>>(cp, this);
+
+		GToken token("GNumGaussAdaptorT<num_type, fp_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GAdaptorT<num_type>>(*this, *p_load, token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(sigma_, p_load->sigma_), token);
+		compare_t(IDENTITY(sigma_reset_, p_load->sigma_reset_), token);
+		compare_t(IDENTITY(sigmaSigma_, p_load->sigmaSigma_), token);
+		compare_t(IDENTITY(minSigma_, p_load->minSigma_), token);
+		compare_t(IDENTITY(maxSigma_, p_load->maxSigma_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
 	 /**
 	  * This adaptor allows the evolutionary adaption of sigma_. This allows the
 	  * algorithm to adapt to changing geometries of the quality surface.
@@ -575,11 +543,11 @@ protected:
 
 	 // "protected" for performance reasons, so we do not have to go through access functions
 	 /***************************************************************************/
-	 fp_type sigma_; ///< The width of the gaussian used to adapt values
-	 fp_type sigma_reset_; ///< The value to which sigma_ will be reset if "updateOnStall()" is called
-	 fp_type sigmaSigma_; ///< affects sigma_ adaption
-	 fp_type minSigma_; ///< minimum allowed value for sigma_
-	 fp_type maxSigma_; ///< maximum allowed value for sigma_
+	 fp_type sigma_ = fp_type(DEFAULTSIGMA); ///< The width of the gaussian used to adapt values
+	 fp_type sigma_reset_ = sigma_; ///< The value to which sigma_ will be reset if "updateOnStall()" is called
+	 fp_type sigmaSigma_ = fp_type(DEFAULTSIGMASIGMA); ///< affects sigma_ adaption
+	 fp_type minSigma_ = fp_type(DEFAULTMINSIGMA); ///< minimum allowed value for sigma_
+	 fp_type maxSigma_ = fp_type(DEFAULTMAXSIGMA); ///< maximum allowed value for sigma_
 
 private:
 	 /***************************************************************************/

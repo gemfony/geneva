@@ -85,13 +85,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_GENEVA ~GParameterObjectCollection() override;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const override;
-
 	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	 G_API_GENEVA std::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
 
@@ -131,6 +124,20 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GObject */
 	 G_API_GENEVA void load_(const GObject*) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GParameterObjectCollection>(
+		GParameterObjectCollection const &
+		, GParameterObjectCollection const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA void compare_(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 private:
 	 /** @brief Emits a name for this class / object */

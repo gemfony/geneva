@@ -123,8 +123,7 @@ public:
 	 /**
 	  * The default constructor -- uses a delegating constructor
 	  */
-	 GAdaptorT() : GAdaptorT<T>(DEFAULTADPROB)
-	 { /* nothing */ }
+	 GAdaptorT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -171,65 +170,14 @@ public:
 	  *
 	  * @param cp A copy of another GAdaptorT<T>
 	  */
-	 GAdaptorT(const GAdaptorT<T> &cp) :
-		 GObject(cp)
-		 , m_adaptionCounter(cp.m_adaptionCounter)
-		 , m_adaptionThreshold(cp.m_adaptionThreshold)
-		 , m_adProb(cp.m_adProb)
-		 , m_adaptAdProb(cp.m_adaptAdProb)
-		 , m_minAdProb(cp.m_minAdProb)
-		 , m_maxAdProb(cp.m_maxAdProb)
-		 , m_adaptionMode(cp.m_adaptionMode)
-		 , m_adaptAdaptionProbability(cp.m_adaptAdaptionProbability)
-		 , m_adProb_reset(cp.m_adProb_reset)
-	 { /* nothing */}
+	 GAdaptorT(const GAdaptorT<T> &cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The standard destructor. Gets rid of the local random number generator, unless
 	  * an external generator has been assigned.
 	  */
-     ~GAdaptorT() override
-	 { /* nothing */}
-
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 void compare(
-		 const GObject &cp
-		 , const Gem::Common::expectation &e
-		 , const fp_type &limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
-		 const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(cp, this);
-
-		 GToken token("GAdaptorT<T>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then the local data
-		 compare_t(IDENTITY(m_adaptionCounter, p_load->m_adaptionCounter), token);
-		 compare_t(IDENTITY(m_adaptionThreshold, p_load->m_adaptionThreshold), token);
-		 compare_t(IDENTITY(m_adProb, p_load->m_adProb), token);
-		 compare_t(IDENTITY(m_adaptAdProb, p_load->m_adaptAdProb), token);
-		 compare_t(IDENTITY(m_minAdProb, p_load->m_minAdProb), token);
-		 compare_t(IDENTITY(m_maxAdProb, p_load->m_maxAdProb), token);
-		 compare_t(IDENTITY(m_adaptionMode, p_load->m_adaptionMode), token);
-		 compare_t(IDENTITY(m_adaptAdaptionProbability, p_load->m_adaptAdaptionProbability), token);
-		 compare_t(IDENTITY(m_adProb_reset, p_load->m_adProb_reset), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
+     ~GAdaptorT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -851,7 +799,53 @@ protected:
 		 m_adProb_reset = p_load->m_adProb_reset;
 	 }
 
-	 /***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GAdaptorT<T>>(
+		GAdaptorT<T> const &
+		, GAdaptorT<T> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	void compare_(
+		const GObject &cp
+		, const Gem::Common::expectation &e
+		, const fp_type &limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
+		const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(cp, this);
+
+		GToken token("GAdaptorT<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(m_adaptionCounter, p_load->m_adaptionCounter), token);
+		compare_t(IDENTITY(m_adaptionThreshold, p_load->m_adaptionThreshold), token);
+		compare_t(IDENTITY(m_adProb, p_load->m_adProb), token);
+		compare_t(IDENTITY(m_adaptAdProb, p_load->m_adaptAdProb), token);
+		compare_t(IDENTITY(m_minAdProb, p_load->m_minAdProb), token);
+		compare_t(IDENTITY(m_maxAdProb, p_load->m_maxAdProb), token);
+		compare_t(IDENTITY(m_adaptionMode, p_load->m_adaptionMode), token);
+		compare_t(IDENTITY(m_adaptAdaptionProbability, p_load->m_adaptAdaptionProbability), token);
+		compare_t(IDENTITY(m_adProb_reset, p_load->m_adProb_reset), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
 	 /**
 	  * This function helps to adapt the adaption parameters, if certain conditions are met.
 	  * Adaption is triggered by the parameter object.

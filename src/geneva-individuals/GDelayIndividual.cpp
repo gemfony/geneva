@@ -78,7 +78,7 @@ GDelayIndividual::~GDelayIndividual()
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GDelayIndividual::compare(
+void GDelayIndividual::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -91,7 +91,7 @@ void GDelayIndividual::compare(
 	Gem::Common::GToken token("GDelayIndividual", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<Gem::Geneva::GParameterSet>(*this, *p_load, token);
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(m_fixedSleepTime, p_load->m_fixedSleepTime), token);

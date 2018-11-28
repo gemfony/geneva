@@ -232,7 +232,7 @@ bool GBooleanObject::range() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GBooleanObject::compare(
+void GBooleanObject::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -243,7 +243,7 @@ void GBooleanObject::compare(
 	GToken token("GBooleanObject", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterT<bool>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterT<bool>>(*this, *p_load, token);
 
 	// ... no local data
 

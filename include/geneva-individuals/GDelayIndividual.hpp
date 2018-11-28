@@ -112,13 +112,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_INDIVIDUALS ~GDelayIndividual();
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_INDIVIDUALS void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const final;
-
 	 /** @brief Sets the sleep-time to a user-defined value */
 	 G_API_INDIVIDUALS void setFixedSleepTime(const std::chrono::duration<double>&);
 	 /** @brief Retrieval of the current value of the m_fixedSleepTime variable */
@@ -141,7 +134,22 @@ public:
 protected:
 	 /** @brief Loads the data of another GDelayIndividual, camouflaged as a GObject */
 	 G_API_INDIVIDUALS virtual void load_(const GObject*) final;
-	 /** @brief The actual adaption operations */
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GDelayIndividual>(
+		GDelayIndividual const &
+		, GDelayIndividual const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_INDIVIDUALS void compare_(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const final;
+
+	/** @brief The actual adaption operations */
 	 virtual G_API_INDIVIDUALS std::size_t customAdaptions() final;
 	 /** @brief The actual fitness calculation takes place here */
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;

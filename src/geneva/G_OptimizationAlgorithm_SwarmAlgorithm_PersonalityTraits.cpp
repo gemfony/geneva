@@ -73,7 +73,7 @@ GSwarmAlgorithm_PersonalityTraits::GSwarmAlgorithm_PersonalityTraits(const GSwar
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GSwarmAlgorithm_PersonalityTraits::compare(
+void GSwarmAlgorithm_PersonalityTraits::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -84,7 +84,7 @@ void GSwarmAlgorithm_PersonalityTraits::compare(
 	GToken token("GSwarmAlgorithm_PersonalityTraits", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GPersonalityTraits>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(neighborhood_, p_load->neighborhood_), token);

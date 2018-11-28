@@ -108,7 +108,7 @@ GObject *GBooleanObjectCollection::clone_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GBooleanObjectCollection::compare(
+void GBooleanObjectCollection::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -119,7 +119,7 @@ void GBooleanObjectCollection::compare(
 	GToken token("GBooleanObjectCollection", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterTCollectionT<GBooleanObject>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterTCollectionT<GBooleanObject>>(*this, *p_load, token);
 
 	// ... no local data
 

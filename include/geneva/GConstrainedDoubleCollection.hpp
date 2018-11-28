@@ -92,17 +92,24 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_GENEVA ~GConstrainedDoubleCollection();
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const override;
-
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GConstrainedDoubleCollection object */
 	 G_API_GENEVA void load_(const GObject *) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GConstrainedDoubleCollection>(
+		GConstrainedDoubleCollection const &
+		, GConstrainedDoubleCollection const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	 G_API_GENEVA void compare_(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	 /** @brief Attach our local values to the vector. */
 	 G_API_GENEVA void doubleStreamline(std::vector<double>&, const activityMode& am) const override;

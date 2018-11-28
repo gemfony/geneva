@@ -82,7 +82,7 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
   * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GEvolutionaryAlgorithm::compare(
+void GEvolutionaryAlgorithm::compare_(
 	const GObject& cp // the other object
 	, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 	, const double& limit// the limit for allowed deviations of floating point types
@@ -96,7 +96,7 @@ void GEvolutionaryAlgorithm::compare(
 	GToken token("GEvolutionaryAlgorithm", e);
 
 // Compare our parent data ...
-	Gem::Common::compare_base<G_OptimizationAlgorithm_ParChild>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<G_OptimizationAlgorithm_ParChild>(*this, *p_load, token);
 
 // ... and then the local data
 	compare_t(IDENTITY(m_sorting_mode, p_load->m_sorting_mode), token);

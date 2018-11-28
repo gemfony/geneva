@@ -83,19 +83,20 @@ namespace Common {
  * As one example, (de-)serialization is simplified by some of the functions
  * in this class, as is the task of conversion to the derived types.
  */
-template <typename g_class_type>
+template<typename g_class_type>
 class GCommonInterfaceT
     // This simplifies detection of classes that implement the Gemfony interface -- see GTypeTraits.hpp
     // The problem here is that GCommonInterfaceT<g_class_type> is usually the base class of g_class_type and thus an incomplete
     // type at the time type traits are applied. Hence we use another (trivial) base class that simplifies
     // detection.
-    : private gemfony_common_interface_indicator
+    :
+        private gemfony_common_interface_indicator
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
 
     template<typename Archive>
-    void serialize(Archive &ar, const unsigned int)  {
+    void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
         // no local data
@@ -106,8 +107,10 @@ public:
     /***************************************************************************/
     /** @brief The default constructor */
     GCommonInterfaceT() = default;
+
     /** @brief The copy constructor -- no data, hence empty*/
-    GCommonInterfaceT(const GCommonInterfaceT<g_class_type>& cp) = default;
+    GCommonInterfaceT(const GCommonInterfaceT<g_class_type> &cp) = default;
+
     /** @brief The destructor */
     virtual ~GCommonInterfaceT() = default;
 
@@ -120,19 +123,22 @@ public:
      * @param serMod The desired serialization mode
      */
     void toStream(
-            std::ostream &oarchive_stream
-            , const Gem::Common::serializationMode &serMod
+        std::ostream &oarchive_stream
+        , const Gem::Common::serializationMode &serMod
     ) const {
         const g_class_type *local;
 
         // Note: (De-)serialization must happen through a pointer to the same type.
 #ifdef DEBUG
         local = dynamic_cast<const g_class_type *>(this);
-        if(not local) {
+        if (not local) {
             throw gemfony_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
-                            << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << std::endl
-                            << "Conversion failed" << std::endl
+                g_error_streamer(
+                    DO_LOG
+                    , time_and_place
+                )
+                    << "In GCommonInterfaceT<g_class_type>::toStream(): Error!" << std::endl
+                    << "Conversion failed" << std::endl
             );
         }
 #else
@@ -142,21 +148,30 @@ public:
         switch (serMod) {
             case Gem::Common::serializationMode::TEXT: {
                 boost::archive::text_oarchive oa(oarchive_stream);
-                oa << boost::serialization::make_nvp("classhierarchyFromT", local);
+                oa << boost::serialization::make_nvp(
+                    "classhierarchyFromT"
+                    , local
+                );
             } // note: explicit scope here is essential so the oa-destructor gets called
 
                 break;
 
             case Gem::Common::serializationMode::XML: {
                 boost::archive::xml_oarchive oa(oarchive_stream);
-                oa << boost::serialization::make_nvp("classhierarchyFromT", local);
+                oa << boost::serialization::make_nvp(
+                    "classhierarchyFromT"
+                    , local
+                );
             } // note: explicit scope here is essential so the oa-destructor gets called
 
                 break;
 
             case Gem::Common::serializationMode::BINARY: {
                 boost::archive::binary_oarchive oa(oarchive_stream);
-                oa << boost::serialization::make_nvp("classhierarchyFromT", local);
+                oa << boost::serialization::make_nvp(
+                    "classhierarchyFromT"
+                    , local
+                );
             } // note: explicit scope here is essential so the oa-destructor gets called
 
                 break;
@@ -178,36 +193,45 @@ public:
      *
      */
     void fromStream(
-            std::istream &istr
-            , const Gem::Common::serializationMode &serMod
+        std::istream &istr
+        , const Gem::Common::serializationMode &serMod
     ) {
         g_class_type *local = nullptr;
 
         switch (serMod) {
             case Gem::Common::serializationMode::TEXT: {
                 boost::archive::text_iarchive ia(istr);
-                ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
+                ia >> boost::serialization::make_nvp(
+                    "classhierarchyFromT"
+                    , local
+                );
             } // note: explicit scope here is essential so the ia-destructor gets called
 
                 break;
 
             case Gem::Common::serializationMode::XML: {
                 boost::archive::xml_iarchive ia(istr);
-                ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
+                ia >> boost::serialization::make_nvp(
+                    "classhierarchyFromT"
+                    , local
+                );
             } // note: explicit scope here is essential so the ia-destructor gets called
 
                 break;
 
             case Gem::Common::serializationMode::BINARY: {
                 boost::archive::binary_iarchive ia(istr);
-                ia >> boost::serialization::make_nvp("classhierarchyFromT", local);
+                ia >> boost::serialization::make_nvp(
+                    "classhierarchyFromT"
+                    , local
+                );
             } // note: explicit scope here is essential so the ia-destructor gets called
 
                 break;
         }
 
         this->load_(local);
-        if(local) {
+        if (local) {
             g_delete(local);
         }
     }
@@ -229,7 +253,10 @@ public:
      */
     std::string toString(const Gem::Common::serializationMode &serMod) const {
         std::ostringstream oarchive_stream;
-        toStream(oarchive_stream, serMod);
+        toStream(
+            oarchive_stream
+            , serMod
+        );
         return oarchive_stream.str();
     }
 
@@ -249,11 +276,14 @@ public:
      * @param descr A text representation of a g_class_type-derivative
      */
     void fromString(
-            const std::string &descr
-            , const Gem::Common::serializationMode &serMod
+        const std::string &descr
+        , const Gem::Common::serializationMode &serMod
     ) {
         std::istringstream istr(descr);
-        fromStream(istr, serMod);
+        fromStream(
+            istr
+            , serMod
+        );
     }
 
     /* ----------------------------------------------------------------------------------
@@ -270,29 +300,41 @@ public:
      * @param serMod The desired serialization mode
      */
     void toFile(
-            const bf::path &p
-            , const Gem::Common::serializationMode &serMod
+        const bf::path &p
+        , const Gem::Common::serializationMode &serMod
     ) const {
-        bf::ofstream ofstr(p, std::ofstream::trunc); // Note: will overwrite existing files
+        bf::ofstream ofstr(
+            p
+            , std::ofstream::trunc
+        ); // Note: will overwrite existing files
 
         if (not ofstr) {
             throw gemfony_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
-                            << "In GCommonInterfaceT::toFile():" << std::endl
-                            << "Problems connecting to file " << p.string() << std::endl
+                g_error_streamer(
+                    DO_LOG
+                    , time_and_place
+                )
+                    << "In GCommonInterfaceT::toFile():" << std::endl
+                    << "Problems connecting to file " << p.string() << std::endl
             );
         }
 
-        toStream(ofstr, serMod);
+        toStream(
+            ofstr
+            , serMod
+        );
         ofstr.close();
 
 #ifdef DEBUG
-        if(not bf::exists(bf::path(p))) {
+        if (not bf::exists(bf::path(p))) {
             throw gemfony_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
-                            << "In GCommonInterfaceT::toFile():" << std::endl
-                            << "Data was written to " << p.string() << std::endl
-                            << "but file does not seem to exist." << std::endl
+                g_error_streamer(
+                    DO_LOG
+                    , time_and_place
+                )
+                    << "In GCommonInterfaceT::toFile():" << std::endl
+                    << "Data was written to " << p.string() << std::endl
+                    << "but file does not seem to exist." << std::endl
             );
         }
 #endif
@@ -312,16 +354,19 @@ public:
      * @param serMod The desired serialization mode
      */
     void fromFile(
-            const bf::path &p
-            , const Gem::Common::serializationMode &serMod
+        const bf::path &p
+        , const Gem::Common::serializationMode &serMod
     ) {
         // Check that the file exists
         if (not bf::exists(bf::path(p))) {
             throw gemfony_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
-                            << "In GCommonInterfaceT::fromFile(): Error!" << std::endl
-                            << "Requested input file " << p.string() << std::endl
-                            << "does not exist." << std::endl
+                g_error_streamer(
+                    DO_LOG
+                    , time_and_place
+                )
+                    << "In GCommonInterfaceT::fromFile(): Error!" << std::endl
+                    << "Requested input file " << p.string() << std::endl
+                    << "does not exist." << std::endl
             );
         }
 
@@ -329,13 +374,19 @@ public:
 
         if (not ifstr) {
             throw gemfony_exception(
-                    g_error_streamer(DO_LOG, time_and_place)
-                            << "In GCommonInterfaceT::fromFile():" << std::endl
-                            << "Problem connecting to file " << p.string() << std::endl
+                g_error_streamer(
+                    DO_LOG
+                    , time_and_place
+                )
+                    << "In GCommonInterfaceT::fromFile():" << std::endl
+                    << "Problem connecting to file " << p.string() << std::endl
             );
         }
 
-        fromStream(ifstr, serMod);
+        fromStream(
+            ifstr
+            , serMod
+        );
         ifstr.close();
     }
 
@@ -369,7 +420,7 @@ public:
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
     void addConfigurationOptions(
-            Gem::Common::GParserBuilder &gpb
+        Gem::Common::GParserBuilder &gpb
     ) {
         addConfigurationOptions_(gpb);
     }
@@ -382,8 +433,8 @@ public:
      * @param header A header to be prepended to the configuration file
      */
     void writeConfigFile(
-            boost::filesystem::path const &configFile
-            , const std::string &header
+        boost::filesystem::path const &configFile
+        , const std::string &header
     ) {
         // This class will handle the interaction with configuration files
         Gem::Common::GParserBuilder gpb;
@@ -393,12 +444,12 @@ public:
         addConfigurationOptions(gpb);
 
         // Write out the configuration file
-        gpb.writeConfigFile(configFile, header, true);
+        gpb.writeConfigFile(
+            configFile
+            , header
+            , true
+        );
     }
-
-    /*
-     * parser-builder action is tested in Common lib tests
-     */
 
     /******************************************************************************/
     /**
@@ -418,10 +469,6 @@ public:
         gpb.parseConfigFile(configFile);
     }
 
-    /*
-     * parser-builder action is tested in Common lib tests
-     */
-
     /***************************************************************************/
     /**
      * Emits a name for this class / object. Wrapper to avoid public virtual.
@@ -438,45 +485,18 @@ public:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare(
-            const g_class_type& cp // the other object
-            , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-            , const double& limit // the limit for allowed deviations of floating point types
-    ) const BASE = 0;
-
-    /***************************************************************************/
-    /**
-     * Checks for compliance with expectations with respect to another object
-     * of the same type. This function does the real check. Without it we would get
-     * an error about "no known conversion from GCommonInterfaceT<g_class_type> to g_class_type.
-     *
-     * @param cp A constant reference to another object of the same type, camouflaged as a base object
-     * @param e The expected outcome of the comparison
-     * @param limit The maximum deviation for floating point values (important for similarity checks)
-     */
     void compare(
-            const GCommonInterfaceT<g_class_type>& cp // the other object
-            , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-            , const double& limit // the limit for allowed deviations of floating point types
+        const g_class_type &cp // the other object
+        , const Gem::Common::expectation &e // the expectation for this object, e.g. equality
+        , const double &limit // the limit for allowed deviations of floating point types
     ) const {
-        using namespace Gem::Common;
-
-        // Check that cp isn't the same object as this one
-        Gem::Common::ptrDifferenceCheck(&cp, this);
-
-        // No parent classes to check...
-
-        // ... and no local data
-
-        // We consider two instances of this class to be always equal, as they
-        // do not have any local data and this is the base class. Hence
-        // we throw an expectation violation for the expectation INEQUALITY.
-        if (Gem::Common::expectation::INEQUALITY == e) {
-            throw g_expectation_violation(
-                    "In GCommonInterfaceT<g_class_type>: instance is empty and a base class, hence the expectation of inequality is always violated."
-            );
-        }
+        this->compare_(
+            cp
+            , e
+            , limit
+        );
     }
+
 
     /***************************************************************************/
     /**
@@ -494,17 +514,12 @@ public:
      *
      * @return A converted clone of this object, wrapped into a std::shared_ptr
      */
-    template <typename clone_type>
+    template<typename clone_type>
     std::shared_ptr<clone_type> clone(
-            typename std::enable_if<std::is_base_of<g_class_type, clone_type>::value>::type *dummy = nullptr
+        typename std::enable_if<std::is_base_of<g_class_type, clone_type>::value>::type *dummy = nullptr
     ) const {
         return Gem::Common::convertSmartPointer<g_class_type, clone_type>(std::shared_ptr<g_class_type>(this->clone_()));
     }
-
-    /* ----------------------------------------------------------------------------------
-         * cloning is tested for all objects taking part in the Geneva standard tests
-         * ----------------------------------------------------------------------------------
-         */
 
     /***************************************************************************/
     /**
@@ -513,18 +528,13 @@ public:
      *
      * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
      */
-    template <typename load_type>
+    template<typename load_type>
     void load(
-            const std::shared_ptr<load_type>& cp
-            , typename std::enable_if<std::is_base_of<g_class_type, load_type>::value>::type *dummy = nullptr
+        const std::shared_ptr<load_type> &cp
+        , typename std::enable_if<std::is_base_of<g_class_type, load_type>::value>::type *dummy = nullptr
     ) {
         load_(cp.get());
     }
-
-    /* ----------------------------------------------------------------------------------
-         * loading is tested for all objects taking part in the Geneva standard tests
-         * ----------------------------------------------------------------------------------
-         */
 
     /***************************************************************************/
     /**
@@ -533,25 +543,79 @@ public:
      *
      * @param cp A copy of another g_class_type-derivative, wrapped into a std::shared_ptr<>
      */
-    template <typename load_type>
+    template<typename load_type>
     void load(
-            const load_type& cp
-            , typename std::enable_if<std::is_base_of<g_class_type, load_type>::value>::type *dummy = nullptr
+        const load_type &cp
+        , typename std::enable_if<std::is_base_of<g_class_type, load_type>::value>::type *dummy = nullptr
     ) {
         load_(&cp);
     }
 
-    /* ----------------------------------------------------------------------------------
-         * loading is tested for all objects taking part in the Geneva standard tests
-         * ----------------------------------------------------------------------------------
-         */
-
 protected:
     /***************************************************************************/
     /** @brief Loads the data of another g_class_type */
-    virtual G_API_COMMON void load_(const g_class_type*) BASE = 0;
+    virtual G_API_COMMON void load_(const g_class_type *) BASE = 0;
 
+    /***************************************************************************/
+    /** @brief Allow access to this classes compare_ function */
+    friend void compare_base_t<GCommonInterfaceT<g_class_type>>(
+        GCommonInterfaceT<g_class_type> const &
+        , GCommonInterfaceT<g_class_type> const &
+        , GToken &
+    );
 
+    /***************************************************************************/
+    /**
+     * Checks for compliance with expectations with respect to another object
+     * of type g_class_type. This purely virtual function ensures the well-formedness of the
+     * compare hierarchy in derived classes.
+     *
+     * @param cp A constant reference to another object of the same type, camouflaged as a base object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+    virtual void compare_(
+        const g_class_type &cp // the other object
+        , const Gem::Common::expectation &e // the expectation for this object, e.g. equality
+        , const double &limit // the limit for allowed deviations of floating point types
+    ) const BASE = 0;
+
+    /***************************************************************************/
+    /**
+     * Checks for compliance with expectations with respect to another object
+     * of the same type. This function does the real check. Without it we would get
+     * an error about "no known conversion from GCommonInterfaceT<g_class_type> to g_class_type.
+     *
+     * @param cp A constant reference to another object of the same type, camouflaged as a base object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+    void compare_(
+        const GCommonInterfaceT<g_class_type> &cp // the other object
+        , const Gem::Common::expectation &e // the expectation for this object, e.g. equality
+        , const double &limit // the limit for allowed deviations of floating point types
+    ) const {
+        using namespace Gem::Common;
+
+        // Check that cp isn't the same object as this one
+        ptrDifferenceCheck(
+            &cp
+            , this
+        );
+
+        // No parent classes to check...
+
+        // ... and no local data
+
+        // We consider two instances of this class to be always equal, as they
+        // do not have any local data and this is the base class. Hence
+        // we throw an expectation violation for the expectation INEQUALITY.
+        if (expectation::INEQUALITY == e) {
+            throw g_expectation_violation(
+                "In GCommonInterfaceT<g_class_type>: instance is empty and a base class, hence the expectation of inequality is always violated."
+            );
+        }
+    }
 
     /******************************************************************************/
     /**
@@ -561,7 +625,7 @@ protected:
      * @param gpb The GParserBuilder object to which configuration options should be added
      */
     virtual void addConfigurationOptions_(
-            Gem::Common::GParserBuilder &gpb
+        Gem::Common::GParserBuilder &gpb
     ) BASE {
         // No local data, no relevant parent classes, hence nothing to do
     }
@@ -577,7 +641,7 @@ private:
 
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
-    virtual G_API_COMMON g_class_type* clone_() const BASE = 0;
+    virtual G_API_COMMON g_class_type *clone_() const BASE = 0;
 };
 
 /******************************************************************************/
@@ -593,9 +657,15 @@ private:
 namespace boost {
 namespace serialization {
 template<typename g_class_type>
-struct is_abstract<Gem::Common::GCommonInterfaceT<g_class_type>> : public boost::true_type {};
+struct is_abstract<Gem::Common::GCommonInterfaceT<g_class_type>> :
+    public boost::true_type
+{
+};
 template<typename g_class_type>
-struct is_abstract< const Gem::Common::GCommonInterfaceT<g_class_type>> : public boost::true_type {};
+struct is_abstract<const Gem::Common::GCommonInterfaceT<g_class_type>> :
+    public boost::true_type
+{
+};
 }
 }
 

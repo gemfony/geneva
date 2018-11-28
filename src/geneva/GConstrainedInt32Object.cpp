@@ -132,7 +132,7 @@ GObject *GConstrainedInt32Object::clone_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GConstrainedInt32Object::compare(
+void GConstrainedInt32Object::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -143,7 +143,7 @@ void GConstrainedInt32Object::compare(
 	GToken token("GConstrainedInt32Object", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GConstrainedIntT<std::int32_t>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GConstrainedIntT<std::int32_t>>(*this, *p_load, token);
 
 	// .... no local data
 

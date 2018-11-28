@@ -110,7 +110,7 @@ void GBooleanAdaptor::customAdaptions(
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GBooleanAdaptor::compare(
+void GBooleanAdaptor::compare_(
 	const GObject &cp
 	, const Gem::Common::expectation &e
 	, const double &limit
@@ -123,7 +123,7 @@ void GBooleanAdaptor::compare(
 	GToken token("GBooleanAdaptor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GAdaptorT<bool>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GAdaptorT<bool>>(*this, *p_load, token);
 
 	// ... no local data
 

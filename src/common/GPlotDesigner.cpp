@@ -44,26 +44,26 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::gColor into a stream. Needed also for boost::lexical_cast<>
+ * Puts a gColor into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::gColor &x) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+std::ostream &operator<<(std::ostream &o, const gColor &x) {
+	ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
 	o << tmp;
 	return o;
 }
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::gColor item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a gColor item from a stream. Needed also for boost::lexical_cast<>
  */
-std::istream &operator>>(std::istream &i, Gem::Common::gColor &x) {
-	Gem::Common::ENUMBASETYPE tmp;
+std::istream &operator>>(std::istream &i, gColor &x) {
+	ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	x = boost::numeric_cast<Gem::Common::gColor>(tmp);
+	x = boost::numeric_cast<gColor>(tmp);
 #else
-	x = static_cast<Gem::Common::gColor>(tmp);
+	x = static_cast<gColor>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -71,26 +71,26 @@ std::istream &operator>>(std::istream &i, Gem::Common::gColor &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::gMarker into a stream. Needed also for boost::lexical_cast<>
+ * Puts a gMarker into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::gMarker &x) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+std::ostream &operator<<(std::ostream &o, const gMarker &x) {
+	ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
 	o << tmp;
 	return o;
 }
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::gMarker item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a gMarker item from a stream. Needed also for boost::lexical_cast<>
  */
-std::istream &operator>>(std::istream &i, Gem::Common::gMarker &x) {
-	Gem::Common::ENUMBASETYPE tmp;
+std::istream &operator>>(std::istream &i, gMarker &x) {
+	ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	x = boost::numeric_cast<Gem::Common::gMarker>(tmp);
+	x = boost::numeric_cast<gMarker>(tmp);
 #else
-	x = static_cast<Gem::Common::gMarker>(tmp);
+	x = static_cast<gMarker>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -98,26 +98,26 @@ std::istream &operator>>(std::istream &i, Gem::Common::gMarker &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::gLineStyle into a stream. Needed also for boost::lexical_cast<>
+ * Puts a gLineStyle into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::gLineStyle &x) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+std::ostream &operator<<(std::ostream &o, const gLineStyle &x) {
+	ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
 	o << tmp;
 	return o;
 }
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::gLineStyle item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a gLineStyle item from a stream. Needed also for boost::lexical_cast<>
  */
-std::istream &operator>>(std::istream &i, Gem::Common::gLineStyle &x) {
-	Gem::Common::ENUMBASETYPE tmp;
+std::istream &operator>>(std::istream &i, gLineStyle &x) {
+	ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	x = boost::numeric_cast<Gem::Common::gLineStyle>(tmp);
+	x = boost::numeric_cast<gLineStyle>(tmp);
 #else
-	x = static_cast<Gem::Common::gLineStyle>(tmp);
+	x = static_cast<gLineStyle>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -125,26 +125,26 @@ std::istream &operator>>(std::istream &i, Gem::Common::gLineStyle &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::graphPlotMode into a stream. Needed also for boost::lexical_cast<>
+ * Puts a graphPlotMode into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::graphPlotMode &x) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+std::ostream &operator<<(std::ostream &o, const graphPlotMode &x) {
+	ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
 	o << tmp;
 	return o;
 }
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::graphPlotMode item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a graphPlotMode item from a stream. Needed also for boost::lexical_cast<>
  */
-std::istream &operator>>(std::istream &i, Gem::Common::graphPlotMode &x) {
-	Gem::Common::ENUMBASETYPE tmp;
+std::istream &operator>>(std::istream &i, graphPlotMode &x) {
+	ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	x = boost::numeric_cast<Gem::Common::graphPlotMode>(tmp);
+	x = boost::numeric_cast<graphPlotMode>(tmp);
 #else
-	x = static_cast<Gem::Common::graphPlotMode>(tmp);
+	x = static_cast<graphPlotMode>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -152,26 +152,26 @@ std::istream &operator>>(std::istream &i, Gem::Common::graphPlotMode &x) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Common::tddropt into a stream. Needed also for boost::lexical_cast<>
+ * Puts a tddropt into a stream. Needed also for boost::lexical_cast<>
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Common::tddropt &x) {
-	Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(x);
+std::ostream &operator<<(std::ostream &o, const tddropt &x) {
+	ENUMBASETYPE tmp = static_cast<ENUMBASETYPE>(x);
 	o << tmp;
 	return o;
 }
 
 /******************************************************************************/
 /**
- * Reads a Gem::Common::tddropt item from a stream. Needed also for boost::lexical_cast<>
+ * Reads a tddropt item from a stream. Needed also for boost::lexical_cast<>
  */
-std::istream &operator>>(std::istream &i, Gem::Common::tddropt &x) {
-	Gem::Common::ENUMBASETYPE tmp;
+std::istream &operator>>(std::istream &i, tddropt &x) {
+	ENUMBASETYPE tmp;
 	i >> tmp;
 
 #ifdef DEBUG
-	x = boost::numeric_cast<Gem::Common::tddropt>(tmp);
+	x = boost::numeric_cast<tddropt>(tmp);
 #else
-	x = static_cast<Gem::Common::tddropt>(tmp);
+	x = static_cast<tddropt>(tmp);
 #endif /* DEBUG */
 
 	return i;
@@ -348,10 +348,10 @@ std::string GBasePlotter::suffix(bool isSecondary, std::size_t pId) const {
 	std::string result;
 
 	if (not isSecondary) {
-		result = std::string("_") + Gem::Common::to_string(this->id());
+		result = std::string("_") + to_string(this->id());
 	} else {
-		result = std::string("_") + Gem::Common::to_string(pId) + std::string("_") +
-					Gem::Common::to_string(this->id());
+		result = std::string("_") + to_string(pId) + std::string("_") +
+					to_string(this->id());
 	}
 
 	return result;
@@ -388,20 +388,18 @@ std::string GBasePlotter::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GBasePlotter::compare(
+void GBasePlotter::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GBasePlotter *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GBasePlotter", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GCommonInterfaceT<GBasePlotter>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GCommonInterfaceT<GBasePlotter>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(m_drawingArguments, p_load->m_drawingArguments), token);
@@ -423,7 +421,7 @@ void GBasePlotter::compare(
  */
 void GBasePlotter::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GBasePlotter *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// No parent class with loadable data
 
@@ -525,23 +523,6 @@ std::string GBasePlotter::footerData(const std::string& indent) const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Member variables are initialized in the class body.
- */
-GGraph2D::GGraph2D()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- */
-GGraph2D::GGraph2D(const GGraph2D &cp)
-	: GDataCollector2T<double, double>(cp)
-	  , pM_(cp.pM_)
-	  , drawArrows_(cp.drawArrows_)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Adds arrows to the plots between consecutive points. Note that setting this
  * value to true will force "SCATTER" mode
  *
@@ -603,20 +584,18 @@ std::string GGraph2D::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GGraph2D::compare(
+void GGraph2D::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GGraph2D reference independent of this object and convert the pointer
-	const GGraph2D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GGraph2D", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GDataCollector2T<double, double>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GDataCollector2T<double, double>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(pM_, p_load->pM_), token);
@@ -650,8 +629,8 @@ std::string GGraph2D::headerData_(
 	}
 
 	header_data
-		<< indent << "double " << xArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
-		<< indent << "double " << yArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << xArrayName << "[" << to_string(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
+		<< indent << "double " << yArrayName << "[" << to_string(m_data.size()) << "];" << std::endl
 		<< std::endl;
 
 	return header_data.str();
@@ -811,7 +790,7 @@ GBasePlotter* GGraph2D::clone_() const {
  */
 void GGraph2D::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GGraph2D reference independent of this object and convert the pointer
-	const GGraph2D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GGraph2D>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GDataCollector2T<double, double>::load_(cp);
@@ -823,22 +802,6 @@ void GGraph2D::load_(const GBasePlotter* cp) {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor. Data members are initialized in the class body.
- */
-GGraph2ED::GGraph2ED()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- */
-GGraph2ED::GGraph2ED(const GGraph2ED &cp)
-	: GDataCollector2ET<double, double>(cp)
-	  , pM_(cp.pM_)
-{ /* nothing */ }
-
 /******************************************************************************/
 /**
  * Determines whether a scatter plot or a curve is created
@@ -880,20 +843,18 @@ std::string GGraph2ED::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GGraph2ED::compare(
+void GGraph2ED::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GGraph2ED *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GGraph2ED", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GDataCollector2ET<double, double>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GDataCollector2ET<double, double>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(pM_, p_load->pM_), token);
@@ -928,10 +889,10 @@ std::string GGraph2ED::headerData_(
 	}
 
 	header_data
-		<< indent << "double " << xArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << comment << std::endl
-		<< indent << "double " << exArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
-		<< indent << "double " << yArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
-		<< indent << "double " << eyArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << xArrayName << "[" << to_string(m_data.size()) << "];" << comment << std::endl
+		<< indent << "double " << exArrayName << "[" << to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << yArrayName << "[" << to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << eyArrayName << "[" << to_string(m_data.size()) << "];" << std::endl
 		<< std::endl;
 
 	return header_data.str();
@@ -1072,7 +1033,7 @@ GBasePlotter* GGraph2ED::clone_() const {
  */
 void GGraph2ED::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GGraph2ED reference independent of this object and convert the pointer
-	const GGraph2ED *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GGraph2ED>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GDataCollector2ET<double, double>::load_(cp);
@@ -1083,22 +1044,6 @@ void GGraph2ED::load_(const GBasePlotter* cp) {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor. Data members are initialized in the class body.
- */
-GGraph3D::GGraph3D()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- */
-GGraph3D::GGraph3D(const GGraph3D &cp)
-	: GDataCollector3T<double, double, double>(cp)
-	  , drawLines_(cp.drawLines_)
-{ /* nothing */ }
-
 /******************************************************************************/
 /**
  * Adds lines to the plots between consecutive points.
@@ -1140,20 +1085,18 @@ std::string GGraph3D::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GGraph3D::compare(
+void GGraph3D::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
-	const GGraph3D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GGraph3D", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GDataCollector3T<double, double, double>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GDataCollector3T<double, double, double>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(drawLines_, p_load->drawLines_), token);
@@ -1187,9 +1130,9 @@ std::string GGraph3D::headerData_(
 	}
 
 	header_data
-		<< indent << "double " << xArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
-		<< indent << "double " << yArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
-		<< indent << "double " << zArrayName << "[" << Gem::Common::to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << xArrayName << "[" << to_string(m_data.size()) << "];" << (comment != "" ? comment : "") << std::endl
+		<< indent << "double " << yArrayName << "[" << to_string(m_data.size()) << "];" << std::endl
+		<< indent << "double " << zArrayName << "[" << to_string(m_data.size()) << "];" << std::endl
 		<< std::endl;
 
 	return header_data.str();
@@ -1353,7 +1296,7 @@ GBasePlotter* GGraph3D::clone_() const {
  */
 void GGraph3D::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
-	const GGraph3D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GGraph3D>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GDataCollector3T<double, double, double>::load_(cp);
@@ -1364,25 +1307,6 @@ void GGraph3D::load_(const GBasePlotter* cp) {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor. Data members are initialized in the class body.
- */
-GGraph4D::GGraph4D()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- */
-GGraph4D::GGraph4D(const GGraph4D &cp)
-	: GDataCollector4T<double, double, double, double>(cp)
-	  , minMarkerSize_(cp.minMarkerSize_)
-	  , maxMarkerSize_(cp.maxMarkerSize_)
-	  , smallWLargeMarker_(cp.smallWLargeMarker_)
-	  , nBest_(cp.nBest_)
-{ /* nothing */ }
-
 /******************************************************************************/
 /**
  * Allows to set the minimum marker size
@@ -1486,20 +1410,18 @@ std::string GGraph4D::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GGraph4D::compare(
+void GGraph4D::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
-	const GGraph4D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GGraph4D", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GDataCollector4T<double, double, double, double>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GDataCollector4T<double, double, double, double>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(minMarkerSize_, p_load->minMarkerSize_), token);
@@ -1579,7 +1501,7 @@ std::string GGraph4D::footerData_(
 	std::ostringstream footer_data;
 
 	// Find out about the minimum and maximum values of the data vector
-	std::tuple<double, double, double, double, double, double, double, double> minMax = Gem::Common::getMinMax(
+	std::tuple<double, double, double, double, double, double, double, double> minMax = getMinMax(
 		localData);
 
 	// Set up TView object for our 3D data, spanning the minimum and maximum values
@@ -1607,7 +1529,7 @@ std::string GGraph4D::footerData_(
 	std::vector<std::tuple<double, double, double, double>>::const_iterator it;
 	for (it = localData.begin(); it != localData.end(); ++it) {
 		std::string polyMarkerName =
-			std::string("pm3d_") + baseName + std::string("_") + Gem::Common::to_string(pos);
+			std::string("pm3d_") + baseName + std::string("_") + to_string(pos);
 
 		// create a TPolyMarker3D for a single data point
 		footer_data
@@ -1677,7 +1599,7 @@ GBasePlotter* GGraph4D::clone_() const {
  */
 void GGraph4D::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GGraph4D reference independent of this object and convert the pointer
-	const GGraph4D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GGraph4D>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GDataCollector4T<double, double, double, double>::load_(cp);
@@ -1691,12 +1613,6 @@ void GGraph4D::load_(const GBasePlotter* cp) {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor -- intentionally private as it is only needed for (de-)serialization
- */
-GHistogram1D::GHistogram1D(){ /* nothing */ }
-
 /******************************************************************************/
 /**
  * Initialization with number of bins and automatic range detection
@@ -1734,19 +1650,6 @@ GHistogram1D::GHistogram1D(
 	: nBinsX_(nBinsX)
 	  , minX_(std::get<0>(rangeX))
 	  , maxX_(std::get<1>(rangeX))
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- *
- * @param cp a copy of another GHistogram1D object
- */
-GHistogram1D::GHistogram1D(const GHistogram1D &cp)
-	: GDataCollector1T<double>(cp)
-	  , nBinsX_(cp.nBinsX_)
-	  , minX_(cp.minX_)
-	  , maxX_(cp.maxX_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1927,20 +1830,18 @@ std::string GHistogram1D::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GHistogram1D::compare(
+void GHistogram1D::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GHistogram1D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GHistogram1D", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GDataCollector1T<double>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GDataCollector1T<double>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
@@ -1965,7 +1866,7 @@ GBasePlotter* GHistogram1D::clone_() const {
  */
 void GHistogram1D::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GHistogram1D reference independent of this object and convert the pointer
-	const GHistogram1D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GHistogram1D>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GDataCollector1T<double>::load_(cp);
@@ -1978,13 +1879,6 @@ void GHistogram1D::load_(const GBasePlotter* cp) {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor -- intentionally private as it is only needed for (de-)serialization
- */
-GHistogram1I::GHistogram1I()
-{ /* nothing */ }
-
 /******************************************************************************/
 /**
  * The standard constructor
@@ -2012,19 +1906,6 @@ GHistogram1I::GHistogram1I(
 	  , nBinsX_(nBinsX)
 	  , minX_(std::get<0>(rangeX))
 	  , maxX_(std::get<1>(rangeX))
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- *
- * @param cp a copy of another GHistogram1I object
- */
-GHistogram1I::GHistogram1I(const GHistogram1I &cp)
-	: GDataCollector1T<std::int32_t>(cp)
-	  , nBinsX_(cp.nBinsX_)
-	  , minX_(cp.minX_)
-	  , maxX_(cp.maxX_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -2197,20 +2078,18 @@ std::string GHistogram1I::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GHistogram1I::compare(
+void GHistogram1I::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GHistogram1I *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GHistogram1I", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GDataCollector1T<std::int32_t>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GDataCollector1T<std::int32_t>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
@@ -2236,7 +2115,7 @@ GBasePlotter* GHistogram1I::clone_() const {
  */
 void GHistogram1I::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GHistogram1I reference independent of this object and convert the pointer
-	const GHistogram1I *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GHistogram1I>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GDataCollector1T<std::int32_t>::load_(cp);
@@ -2304,23 +2183,6 @@ GHistogram2D::GHistogram2D(
 	  , minY_(0)
 	  , maxY_(minY_)
 	  , dropt_(tddropt::TDEMPTY)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- *
- * @param cp a copy of another GHistogram2D object
- */
-GHistogram2D::GHistogram2D(const GHistogram2D &cp)
-	: GDataCollector2T<double, double>(cp)
-	  , nBinsX_(cp.nBinsX_)
-	  , nBinsY_(cp.nBinsY_)
-	  , minX_(cp.minX_)
-	  , maxX_(cp.maxX_)
-	  , minY_(cp.minY_)
-	  , maxY_(cp.maxY_)
-	  , dropt_(cp.dropt_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -2658,20 +2520,18 @@ std::string GHistogram2D::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GHistogram2D::compare(
+void GHistogram2D::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GHistogram2D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GHistogram2D", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GDataCollector2T<double, double>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GDataCollector2T<double, double>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(nBinsX_, p_load->nBinsX_), token);
@@ -2700,7 +2560,7 @@ GBasePlotter* GHistogram2D::clone_() const {
  */
 void GHistogram2D::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GHistogram2D reference independent of this object and convert the pointer
-	const GHistogram2D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GHistogram2D>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GDataCollector2T<double, double>::load_(cp);
@@ -2719,12 +2579,6 @@ void GHistogram2D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Intentionally private, as it is only needed for (de-)serialization
- */
-GFunctionPlotter1D::GFunctionPlotter1D() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * The standard constructor. Some member variables may be initialized in the
  * class body.
  *
@@ -2736,19 +2590,6 @@ GFunctionPlotter1D::GFunctionPlotter1D(
 )
 	: functionDescription_(fD)
 	  , xExtremes_(xExtremes)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- *
- * @param cp A reference to another GFunctionPlotter1D object
- */
-GFunctionPlotter1D::GFunctionPlotter1D(const GFunctionPlotter1D &cp)
-	: GBasePlotter(cp)
-	  , functionDescription_(cp.functionDescription_)
-	  , xExtremes_(cp.xExtremes_)
-	  , nSamplesX_(cp.nSamplesX_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -2782,20 +2623,18 @@ std::string GFunctionPlotter1D::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GFunctionPlotter1D::compare(
+void GFunctionPlotter1D::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
-	const GFunctionPlotter1D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GFunctionPlotter1D", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GBasePlotter>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(functionDescription_, p_load->functionDescription_), token);
@@ -2934,7 +2773,7 @@ GBasePlotter* GFunctionPlotter1D::clone_() const {
  */
 void GFunctionPlotter1D::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GFunctionPlotter1D reference independent of this object and convert the pointer
-	const GFunctionPlotter1D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GFunctionPlotter1D>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GBasePlotter::load_(cp);
@@ -2949,12 +2788,6 @@ void GFunctionPlotter1D::load_(const GBasePlotter* cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor -- intentionally private, as it is only needed for (de-)serialization
- */
-GFunctionPlotter2D::GFunctionPlotter2D() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * The standard constructor
  *
  * @param fD A descriptor for the function to be plotted
@@ -2967,21 +2800,6 @@ GFunctionPlotter2D::GFunctionPlotter2D(
 	: functionDescription_(fD)
 	  , xExtremes_(xExtremes)
 	  , yExtremes_(yExtremes)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A copy constructor
- *
- * @param cp A reference to another GFunctionPlotter2D object
- */
-GFunctionPlotter2D::GFunctionPlotter2D(const GFunctionPlotter2D &cp)
-	: GBasePlotter(cp)
-	  , functionDescription_(cp.functionDescription_)
-	  , xExtremes_(cp.xExtremes_)
-	  , yExtremes_(cp.yExtremes_)
-	  , nSamplesX_(cp.nSamplesX_)
-	  , nSamplesY_(cp.nSamplesY_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -3025,20 +2843,18 @@ std::string GFunctionPlotter2D::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GFunctionPlotter2D::compare(
+void GFunctionPlotter2D::compare_(
 	const GBasePlotter& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GGraph3D reference independent of this object and convert the pointer
-	const GFunctionPlotter2D *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GFunctionPlotter2D", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePlotter>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GBasePlotter>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(functionDescription_, p_load->functionDescription_), token);
@@ -3201,7 +3017,7 @@ GBasePlotter* GFunctionPlotter2D::clone_() const {
  */
 void GFunctionPlotter2D::load_(const GBasePlotter* cp) {
 	// Check that we are dealing with a GFunctionPlotter2D reference independent of this object and convert the pointer
-	const GFunctionPlotter2D *p_load = Gem::Common::g_convert_and_compare<GBasePlotter, GFunctionPlotter2D>(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// Load our parent class'es data ...
 	GBasePlotter::load_(cp);
@@ -3237,13 +3053,6 @@ GPlotDesigner::GPlotDesigner(
 
 /******************************************************************************/
 /**
- * The default constructor -- only needed for (de-)serialization
- */
-GPlotDesigner::GPlotDesigner()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * The copy constructor
  */
 GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
@@ -3256,7 +3065,7 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
 	  , nIndentionSpaces_(cp.nIndentionSpaces_)
 {
 	// Copy any secondary plotters over
-	Gem::Common::copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
+	copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
 }
 
 /******************************************************************************/
@@ -3518,20 +3327,18 @@ std::string GPlotDesigner::name_() const {
  * Searches for compliance with expectations with respect to another object
  * of the same type
  */
-void GPlotDesigner::compare(
+void GPlotDesigner::compare_(
 	const GPlotDesigner& cp
-	, const Gem::Common::expectation& e
+	, const expectation& e
 	, const double& limit
 ) const {
-	using namespace Gem::Common;
-
 	// Check that we are dealing with a GPlotDesigner reference independent of this object and convert the pointer
-	const GPlotDesigner *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	GToken token("GPlotDesigner", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GCommonInterfaceT<GPlotDesigner>>(IDENTITY(*this, *p_load), token);
+	compare_base_t<GCommonInterfaceT<GPlotDesigner>>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(plotters_, p_load->plotters_), token);
@@ -3561,7 +3368,7 @@ GPlotDesigner* GPlotDesigner::clone_() const {
  */
 void GPlotDesigner::load_(const GPlotDesigner* cp) {
 	// Check that we are dealing with a GBasePlotter reference independent of this object and convert the pointer
-	const GPlotDesigner *p_load = Gem::Common::g_convert_and_compare(cp, this);
+	const auto *p_load = g_convert_and_compare(cp, this);
 
 	// No "loadable" parent class
 

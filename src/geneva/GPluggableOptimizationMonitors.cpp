@@ -108,7 +108,7 @@ std::string GStandardMonitor::name_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GStandardMonitor::compare(
+void GStandardMonitor::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -121,7 +121,7 @@ void GStandardMonitor::compare(
 	GToken token("GStandardMonitor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
 	// ... no local data
 
@@ -466,7 +466,7 @@ std::string GFitnessMonitor::name_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GFitnessMonitor::compare(
+void GFitnessMonitor::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -479,7 +479,7 @@ void GFitnessMonitor::compare(
 	GToken token("GFitnessMonitor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
 	// ... and then our local data
 	compare_t(IDENTITY(m_xDim, p_load->m_xDim), token);
@@ -662,7 +662,7 @@ std::string GCollectiveMonitor::name_() const  {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GCollectiveMonitor::compare(
+void GCollectiveMonitor::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -675,7 +675,7 @@ void GCollectiveMonitor::compare(
 	GToken token("GCollectiveMonitor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
 	// ... and then our local data
 	compare_t(IDENTITY(m_pluggable_monitors, p_load->m_pluggable_monitors), token);
@@ -828,7 +828,7 @@ std::string GAllSolutionFileLogger::name_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GAllSolutionFileLogger::compare(
+void GAllSolutionFileLogger::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -841,7 +841,7 @@ void GAllSolutionFileLogger::compare(
 	GToken token("GAllSolutionFileLogger", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
 	// ... and then our local data
 	compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -1224,7 +1224,7 @@ std::string GIterationResultsFileLogger::name_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GIterationResultsFileLogger::compare(
+void GIterationResultsFileLogger::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -1238,7 +1238,7 @@ void GIterationResultsFileLogger::compare(
 	GToken token("GIterationResultsFileLogger", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
 	// ... and then our local data
 	compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -1496,7 +1496,7 @@ GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger& cp)
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GNAdpationsLogger::compare(
+void GNAdpationsLogger::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -1509,7 +1509,7 @@ void GNAdpationsLogger::compare(
 	GToken token("GNAdpationsLogger", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
 	// ... and then our local data
 	compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
@@ -1902,7 +1902,7 @@ std::string GProcessingTimesLogger::name_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GProcessingTimesLogger::compare(
+void GProcessingTimesLogger::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -1915,7 +1915,7 @@ void GProcessingTimesLogger::compare(
 	GToken token("GProcessingTimesLogger", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
 
 	// ... and then our local data
 	compare_t(IDENTITY(m_fileName_pth, p_load->m_fileName_pth), token);

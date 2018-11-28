@@ -247,7 +247,7 @@ GParameterSet::GParameterSet(GParameterSet const &cp)
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GParameterSet::compare(
+void GParameterSet::compare_(
 	GObject const &cp
 	, Gem::Common::expectation const &e
 	, double const & limit
@@ -260,7 +260,7 @@ void GParameterSet::compare(
 	GToken token("GParameterSet", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(this->data,  p_load->data), token); // data is actually contained in a parent class

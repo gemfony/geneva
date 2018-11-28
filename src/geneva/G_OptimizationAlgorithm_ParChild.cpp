@@ -87,7 +87,7 @@ G_OptimizationAlgorithm_ParChild::G_OptimizationAlgorithm_ParChild(const G_Optim
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void G_OptimizationAlgorithm_ParChild::compare(
+void G_OptimizationAlgorithm_ParChild::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -100,7 +100,7 @@ void G_OptimizationAlgorithm_ParChild::compare(
 	GToken token("G_OptimizationAlgorithm_ParChild", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<G_OptimizationAlgorithm_Base>(*this, *p_load, token);
 
 	// ... and then the local data
 	compare_t(IDENTITY(m_n_parents, p_load->m_n_parents), token);

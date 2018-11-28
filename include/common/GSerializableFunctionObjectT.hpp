@@ -111,37 +111,6 @@ public:
 		 return this->process_(p);
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Checks for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GSerializableFunctionObjectT<processable_type> object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GSerializableFunctionObjectT<processable_type> &cp
-		 , const Gem::Common::expectation &e
-		 , const double &limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
-		 const GSerializableFunctionObjectT<processable_type> *p_load
-			 = Gem::Common::g_convert_and_compare<GSerializableFunctionObjectT<processable_type>, GSerializableFunctionObjectT<processable_type>>(cp, this);
-
-		 GToken token("GSerializableFunctionObjectT<processable_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>>(IDENTITY(*this, *p_load), token);
-
-		 // ... no local data
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -153,6 +122,45 @@ protected:
 
 		 // ... no local data
 	 }
+
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GSerializableFunctionObjectT<processable_type>>(
+		GSerializableFunctionObjectT<processable_type> const &
+		, GSerializableFunctionObjectT<processable_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Checks for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GSerializableFunctionObjectT<processable_type> object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const GSerializableFunctionObjectT<processable_type> &cp
+		, const Gem::Common::expectation &e
+		, const double &limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GSerializableFunctionObjectT<processable_type> reference independent of this object and convert the pointer
+		const GSerializableFunctionObjectT<processable_type> *p_load
+			= Gem::Common::g_convert_and_compare<GSerializableFunctionObjectT<processable_type>, GSerializableFunctionObjectT<processable_type>>(cp, this);
+
+		GToken token("GSerializableFunctionObjectT<processable_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>>(*this, *p_load, token);
+
+		// ... no local data
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	 /***************************************************************************/
 

@@ -81,7 +81,7 @@ GBasePluggableOM::~GBasePluggableOM()
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GBasePluggableOM::compare(
+void GBasePluggableOM::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -94,7 +94,7 @@ void GBasePluggableOM::compare(
 	GToken token("GBasePluggableOM", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
 	// ... and then our local data
 	compare_t(IDENTITY(m_useRawEvaluation, p_load->m_useRawEvaluation), token);
@@ -478,7 +478,7 @@ bool G_OptimizationAlgorithm_Base::checkpointFilesAreRemoved() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void G_OptimizationAlgorithm_Base::compare(
+void G_OptimizationAlgorithm_Base::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -491,7 +491,7 @@ void G_OptimizationAlgorithm_Base::compare(
 	GToken token("G_OptimizationAlgorithm_Base", e);
 
 // Compare our parent data ...
-	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
 // ... and then the local data
 	compare_t(IDENTITY(this->data,  p_load->data), token); // This allows us to compare the parent class without directly referring to it.

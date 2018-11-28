@@ -53,58 +53,69 @@ namespace Geneva {
  * This adaptor increases or decreases a value by 1
  */
 class GInt32FlipAdaptor
-	:public GIntFlipAdaptorT<std::int32_t>
+    :
+        public GIntFlipAdaptorT<std::int32_t>
 {
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
 
-	 template<typename Archive>
-	 void serialize(Archive & ar, const unsigned int){
-		 using boost::serialization::make_nvp;
+    template<typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
 
-		 ar
-		 & make_nvp("GIntFlipAdaptorT_int32", boost::serialization::base_object<GIntFlipAdaptorT<std::int32_t>>(*this));
-	 }
-	 ///////////////////////////////////////////////////////////////////////
+        ar
+        & make_nvp(
+            "GIntFlipAdaptorT_int32"
+            , boost::serialization::base_object<GIntFlipAdaptorT<std::int32_t>>(*this));
+    }
+    ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA GInt32FlipAdaptor();
-	 /** @brief The copy constructor */
-	 G_API_GENEVA GInt32FlipAdaptor(const GInt32FlipAdaptor&);
-	 /** @brief Initialization with a adaption probability */
-	 explicit G_API_GENEVA GInt32FlipAdaptor(const double&);
+    /** @brief The default constructor */
+    G_API_GENEVA GInt32FlipAdaptor();
+    /** @brief The copy constructor */
+    G_API_GENEVA GInt32FlipAdaptor(const GInt32FlipAdaptor &);
 
-	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GInt32FlipAdaptor();
+    /** @brief Initialization with a adaption probability */
+    explicit G_API_GENEVA GInt32FlipAdaptor(const double &);
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const override;
+    /** @brief The destructor */
+    virtual G_API_GENEVA ~GInt32FlipAdaptor();
 
-	 /** @brief Retrieves the id of this adaptor */
-	 G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;
+    /** @brief Retrieves the id of this adaptor */
+    G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;
 
 protected:
-	 /** @brief Loads the data of another GObject */
-	 G_API_GENEVA void load_(const GObject*) override;
+    /** @brief Loads the data of another GObject */
+    G_API_GENEVA void load_(const GObject *) override;
+
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GInt32FlipAdaptor>(
+        GInt32FlipAdaptor const &
+        , GInt32FlipAdaptor const &
+        , Gem::Common::GToken &
+    );
+
+    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    virtual G_API_GENEVA void compare_(
+        const GObject & // the other object
+        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        , const double & // the limit for allowed deviations of floating point types
+    ) const override;
 
 private:
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name_() const override;
-	 /** @brief Creates a deep clone of this object. */
-	 G_API_GENEVA GObject* clone_() const override;
+    /** @brief Emits a name for this class / object */
+    G_API_GENEVA std::string name_() const override;
+    /** @brief Creates a deep clone of this object. */
+    G_API_GENEVA GObject *clone_() const override;
 
 public:
-	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 G_API_GENEVA bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

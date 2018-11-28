@@ -471,33 +471,6 @@ public:
 		 return m_iteration_end_time;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  */
-	 void compare(
-		 const GBaseExecutorT<processable_type>& cp // the other object
-		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		 , const double& limit // the limit for allowed deviations of floating point types
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
-		 const GBaseExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
-
-		 GToken token("GBaseExecutorT<processable_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GCommonInterfaceT<GBaseExecutorT<processable_type>>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(this->m_maxResubmissions,  p_load->m_maxResubmissions), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -513,7 +486,42 @@ protected:
 		 m_maxResubmissions = p_load_ptr->m_maxResubmissions;
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GBaseExecutorT<processable_type>>(
+		GBaseExecutorT<processable_type> const &
+		, GBaseExecutorT<processable_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     */
+	void compare_(
+		const GBaseExecutorT<processable_type>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GDecorator reference independent of this object and convert the pointer
+		const GBaseExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GBaseExecutorT<processable_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GCommonInterfaceT<GBaseExecutorT<processable_type>>>(*this, *p_load, token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(this->m_maxResubmissions,  p_load->m_maxResubmissions), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
 	 /**
 	  * General initialization function to be called prior to the first submission
 	  */
@@ -1064,32 +1072,6 @@ public:
 		 // No local data
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  */
-	 void compare(
-		 const GBaseExecutorT<processable_type>& cp // the other object
-		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		 , const double& limit // the limit for allowed deviations of floating point types
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GSerialExecutorT reference independent of this object and convert the pointer
-		 const GSerialExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
-
-		 GToken token("GSerialExecutorT<processable_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBaseExecutorT<processable_type>>(IDENTITY(*this, *p_load), token);
-
-		 // ... no local data
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -1111,7 +1093,41 @@ protected:
 		 GBaseExecutorT<processable_type>::load_(p_load_ptr);
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GSerialExecutorT<processable_type>>(
+		GSerialExecutorT<processable_type> const &
+		, GSerialExecutorT<processable_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     */
+	void compare_(
+		const GBaseExecutorT<processable_type>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GSerialExecutorT reference independent of this object and convert the pointer
+		const GSerialExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GSerialExecutorT<processable_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GBaseExecutorT<processable_type>>(*this, *p_load, token);
+
+		// ... no local data
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
 	 /**
 	  * Submits a single work item. In the case of serial execution, all work
 	  * is done inside of this function. We rely on the process() function which
@@ -1399,33 +1415,6 @@ public:
 		 return m_n_threads;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  */
-	 void compare(
-		 const GBaseExecutorT<processable_type>& cp // the other object
-		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		 , const double& limit // the limit for allowed deviations of floating point types
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GSerialExecutorT reference independent of this object and convert the pointer
-		 const GMTExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
-
-		 GToken token("GMTExecutorT<processable_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBaseExecutorT<processable_type>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -1449,6 +1438,41 @@ protected:
 		 // Load our local data
 		 m_n_threads = p_load_ptr->m_n_threads;
 	 }
+
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GMTExecutorT<processable_type>>(
+		GMTExecutorT<processable_type> const &
+		, GMTExecutorT<processable_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     */
+	void compare_(
+		const GBaseExecutorT<processable_type>& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GSerialExecutorT reference independent of this object and convert the pointer
+		const GMTExecutorT<processable_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GMTExecutorT<processable_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GBaseExecutorT<processable_type>>(*this, *p_load, token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(m_n_threads, p_load->m_n_threads), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	 /***************************************************************************/
 	 /**
@@ -1850,12 +1874,20 @@ public:
 		 m_minPartialReturnPercentage = minPartialReturnPercentage;
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GBrokerExecutorT<processable_type>>(
+		GBrokerExecutorT<processable_type> const &
+		, GBrokerExecutorT<processable_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
 	 /**
 	  * Searches for compliance with expectations with respect to another object
 	  * of the same type
 	  */
-	 void compare(
+	 void compare_(
 		 const GBaseExecutorT<processable_type>& cp // the other object
 		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		 , const double& limit // the limit for allowed deviations of floating point types
@@ -1868,7 +1900,7 @@ public:
 		 GToken token("GBrokerExecutorT<processable_type>", e);
 
 		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBaseExecutorT<processable_type>>(IDENTITY(*this, *p_load), token);
+		 Gem::Common::compare_base_t<GBaseExecutorT<processable_type>>(*this, *p_load, token);
 
 		 // ... and then our local data
 		 compare_t(IDENTITY(m_waitFactor, p_load->m_waitFactor), token);

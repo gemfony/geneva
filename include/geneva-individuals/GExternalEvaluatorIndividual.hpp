@@ -168,13 +168,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_INDIVIDUALS ~GExternalEvaluatorIndividual();
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_INDIVIDUALS void compare(
-		 const GObject & // the other object
-		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		 , const double & // the limit for allowed deviations of floating point types
-	 ) const final;
-
 	 /** @brief Sets the name of the external evaluation program */
 	 G_API_INDIVIDUALS void setProgramName(const std::string &);
 	 /** @brief Retrieves the name of the external evaluation program */
@@ -214,6 +207,20 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GExternalEvaluatorIndividual */
 	 virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GExternalEvaluatorIndividual>(
+		GExternalEvaluatorIndividual const &
+		, GExternalEvaluatorIndividual const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_INDIVIDUALS void compare_(
+		const GObject & // the other object
+		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		, const double & // the limit for allowed deviations of floating point types
+	) const final;
 
 	 /** @brief The actual fitness calculation takes place here */
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;

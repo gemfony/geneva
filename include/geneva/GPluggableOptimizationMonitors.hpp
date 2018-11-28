@@ -104,17 +104,25 @@ public:
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA  void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override;
-
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another object */
 	 G_API_GENEVA  void load_(const GObject* cp) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GStandardMonitor>(
+		GStandardMonitor const &
+		, GStandardMonitor const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA  void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override;
+
 
 private:
 	 /** @brief Emits a name for this class / object */
@@ -200,17 +208,24 @@ public:
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA  void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override;
-
 protected:
 	 /************************************************************************/
 	 /** @brief Loads the data of another object */
 	 G_API_GENEVA  void load_(const GObject* cp) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GFitnessMonitor>(
+		GFitnessMonitor const &
+		, GFitnessMonitor const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA  void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override;
 
 private:
 	 /************************************************************************/
@@ -295,17 +310,24 @@ public:
 	 /** @brief Allows to clear all registered monitors */
 	 G_API_GENEVA void resetPluggbleOM();
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA  void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override;
-
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another object */
 	 G_API_GENEVA  void load_(const GObject* cp) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GCollectiveMonitor>(
+		GCollectiveMonitor const &
+		, GCollectiveMonitor const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA  void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override;
 
 private:
 	 /***************************************************************************/
@@ -884,47 +906,6 @@ public:
 		 };
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GProgressPlotterT<fp_type reference independent of this object and convert the pointer
-		 const GProgressPlotterT<fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
-
-		 GToken token("GProgressPlotterT<fp_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(m_fp_profVarVec, p_load->m_fp_profVarVec), token);
-		 compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
-		 compare_t(IDENTITY(m_progressPlotter2D_oa, p_load->m_progressPlotter2D_oa), token);
-		 compare_t(IDENTITY(m_progressPlotter3D_oa, p_load->m_progressPlotter3D_oa), token);
-		 compare_t(IDENTITY(m_progressPlotter4D_oa, p_load->m_progressPlotter4D_oa), token);
-		 compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-		 compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
-		 compare_t(IDENTITY(m_monitorBestOnly, p_load->m_monitorBestOnly), token);
-		 compare_t(IDENTITY(m_monitorValidOnly, p_load->m_monitorValidOnly), token);
-		 compare_t(IDENTITY(m_observeBoundaries, p_load->m_observeBoundaries), token);
-		 compare_t(IDENTITY(m_addPrintCommand, p_load->m_addPrintCommand), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
 protected:
 	 /************************************************************************/
 	 /**
@@ -952,6 +933,56 @@ protected:
 		 m_observeBoundaries = p_load->m_observeBoundaries;
 		 m_addPrintCommand = p_load->m_addPrintCommand;
 	 }
+
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GProgressPlotterT<fp_type>>(
+		GProgressPlotterT<fp_type> const &
+		, GProgressPlotterT<fp_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GProgressPlotterT<fp_type reference independent of this object and convert the pointer
+		const GProgressPlotterT<fp_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+		GToken token("GProgressPlotterT<fp_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(m_fp_profVarVec, p_load->m_fp_profVarVec), token);
+		compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
+		compare_t(IDENTITY(m_progressPlotter2D_oa, p_load->m_progressPlotter2D_oa), token);
+		compare_t(IDENTITY(m_progressPlotter3D_oa, p_load->m_progressPlotter3D_oa), token);
+		compare_t(IDENTITY(m_progressPlotter4D_oa, p_load->m_progressPlotter4D_oa), token);
+		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
+		compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
+		compare_t(IDENTITY(m_monitorBestOnly, p_load->m_monitorBestOnly), token);
+		compare_t(IDENTITY(m_monitorValidOnly, p_load->m_monitorValidOnly), token);
+		compare_t(IDENTITY(m_observeBoundaries, p_load->m_observeBoundaries), token);
+		compare_t(IDENTITY(m_addPrintCommand, p_load->m_addPrintCommand), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 
 private:
 	 /***************************************************************************/
@@ -1111,13 +1142,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GAllSolutionFileLogger() = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA  void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override;
-
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
@@ -1174,6 +1198,19 @@ protected:
 	 /** @brief Loads the data of another object */
 	 G_API_GENEVA  void load_(const GObject* cp) override;
 
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GAllSolutionFileLogger>(
+		GAllSolutionFileLogger const &
+		, GAllSolutionFileLogger const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA  void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override;
 
 private:
 	 /***************************************************************************/
@@ -1251,13 +1288,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GIterationResultsFileLogger() = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA  void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override;
-
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
@@ -1281,9 +1311,22 @@ public:
 
 protected:
 	 /************************************************************************/
-
 	 /** @brief Loads the data of another object */
 	 G_API_GENEVA  void load_(const GObject* cp) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GIterationResultsFileLogger>(
+		GIterationResultsFileLogger const &
+		, GIterationResultsFileLogger const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA  void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override;
 
 private:
 	 /***************************************************************************/
@@ -1355,13 +1398,6 @@ public:
 	 /** @brief The destructor */
 	 virtual G_API_GENEVA  ~GNAdpationsLogger() = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object */
-	 virtual G_API_GENEVA  void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override;
-
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
@@ -1395,6 +1431,20 @@ protected:
 
 	 /** @brief Loads the data of another object */
 	 G_API_GENEVA  void load_(const GObject* cp) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GNAdpationsLogger>(
+		GNAdpationsLogger const &
+		, GNAdpationsLogger const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object */
+	virtual G_API_GENEVA  void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override;
 
 private:
 	 /***************************************************************************/
@@ -1525,48 +1575,6 @@ public:
 	  * The destructor
 	  */
 	 virtual ~GAdaptorPropertyLoggerT() = default;
-
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GAdaptorPropertyLoggerT<num_type> reference independent of this object and convert the pointer
-		 const GAdaptorPropertyLoggerT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<num_type>>(cp, this);
-
-		 GToken token("GAdaptorPropertyLoggerT", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
-		 compare_t(IDENTITY(m_adaptorName, p_load->m_adaptorName), token);
-		 compare_t(IDENTITY(m_property, p_load->m_property), token);
-		 compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
-		 compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
-		 compare_t(IDENTITY(m_adaptorPropertyHist2D_oa, p_load->m_adaptorPropertyHist2D_oa), token);
-		 compare_t(IDENTITY(m_fitnessGraph2D_oa, p_load->m_fitnessGraph2D_oa), token);
-		 compare_t(IDENTITY(m_monitorBestOnly, p_load->m_monitorBestOnly), token);
-		 compare_t(IDENTITY(m_addPrintCommand, p_load->m_addPrintCommand), token);
-		 compare_t(IDENTITY(m_maxIteration, p_load->m_maxIteration), token);
-		 compare_t(IDENTITY(m_nIterationsRecorded, p_load->m_nIterationsRecorded), token);
-		 compare_t(IDENTITY(m_adaptorPropertyStore, p_load->m_adaptorPropertyStore), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
 
 	 /***************************************************************************/
 	 /**
@@ -1845,6 +1853,55 @@ protected:
 		 m_adaptorPropertyStore = p_load->m_adaptorPropertyStore;
 	 }
 
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GAdaptorPropertyLoggerT<num_type>>(
+		GAdaptorPropertyLoggerT<num_type> const &
+		, GAdaptorPropertyLoggerT<num_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GAdaptorPropertyLoggerT<num_type> reference independent of this object and convert the pointer
+		const GAdaptorPropertyLoggerT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorPropertyLoggerT<num_type>>(cp, this);
+
+		GToken token("GAdaptorPropertyLoggerT", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GBasePluggableOM>(*this, *p_load, token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(m_fileName, p_load->m_fileName), token);
+		compare_t(IDENTITY(m_adaptorName, p_load->m_adaptorName), token);
+		compare_t(IDENTITY(m_property, p_load->m_property), token);
+		compare_t(IDENTITY(m_canvasDimensions, p_load->m_canvasDimensions), token);
+		compare_t(IDENTITY(m_gpd, p_load->m_gpd), token);
+		compare_t(IDENTITY(m_adaptorPropertyHist2D_oa, p_load->m_adaptorPropertyHist2D_oa), token);
+		compare_t(IDENTITY(m_fitnessGraph2D_oa, p_load->m_fitnessGraph2D_oa), token);
+		compare_t(IDENTITY(m_monitorBestOnly, p_load->m_monitorBestOnly), token);
+		compare_t(IDENTITY(m_addPrintCommand, p_load->m_addPrintCommand), token);
+		compare_t(IDENTITY(m_maxIteration, p_load->m_maxIteration), token);
+		compare_t(IDENTITY(m_nIterationsRecorded, p_load->m_nIterationsRecorded), token);
+		compare_t(IDENTITY(m_adaptorPropertyStore, p_load->m_adaptorPropertyStore), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
 private:
 	 /***************************************************************************/
 	 /**
@@ -2008,13 +2065,6 @@ public:
 	 /** @brief  The destructor */
 	 virtual G_API_GENEVA  ~GProcessingTimesLogger() = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_GENEVA  void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override;
-
 	 /** @brief Sets the file name for the processing times histogram */
 	 G_API_GENEVA void setFileName_pth(const std::string& fileName);
 	 /** @brief Retrieves the current file name for the processing times histogram */
@@ -2065,6 +2115,20 @@ protected:
 
 	 /** @brief Loads the data of another object */
 	 G_API_GENEVA  void load_(const GObject* cp) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GProcessingTimesLogger>(
+		GProcessingTimesLogger const &
+		, GProcessingTimesLogger const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_GENEVA  void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override;
 
 private:
 	 /************************************************************************/

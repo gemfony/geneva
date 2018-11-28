@@ -66,7 +66,7 @@ namespace Geneva {
  * is delegated to the Broker (which may in turn use other means, such as threads or
  * networked execution for the evaluation step).
  */
-class GLineSearchT
+class GLineSearch
 	:public G_OptimizationAlgorithm_Base<Gem::Courtier::GBrokerExecutorT<GParameterSet>>
 {
 	 ///////////////////////////////////////////////////////////////////////
@@ -85,18 +85,11 @@ class GLineSearchT
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GLineSearchT();
+	 G_API_GENEVA GLineSearch();
 	 /** @brief A standard copy constructor */
-	 G_API_GENEVA GLineSearchT(const GLineSearchT&);
+	 G_API_GENEVA GLineSearch(const GLineSearch&);
 	 /** @brief The destructor */
-	 G_API_GENEVA ~GLineSearchT() override;
-
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const override;
+	 G_API_GENEVA ~GLineSearch() override;
 
 	 /** @brief Returns information about the type of optimization algorithm */
 	 G_API_GENEVA std::string getOptimizationAlgorithm() const override;
@@ -115,6 +108,27 @@ protected:
 	 ) override;
 	 /** @brief Loads the data of another population */
 	 G_API_GENEVA void load_(const GObject *) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GParameterBase>(
+		GParameterBase const &
+		, GParameterBase const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GLineSearch>(
+		GLineSearch const &
+		, GLineSearch const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	G_API_GENEVA void compare_(
+		const GObject& // the other object
+		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
+		, const double& // the limit for allowed deviations of floating point types
+	) const override;
 
 	 /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
 	 G_API_GENEVA std::tuple<double, double> cycleLogic() override;
@@ -157,4 +171,4 @@ public
 } /* namespace Gem */
 
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GLineSearchT)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GLineSearch)

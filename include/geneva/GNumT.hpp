@@ -148,38 +148,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GNumT<T> reference independent of this object and convert the pointer
-		 const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T>>(cp, this);
-
-		 GToken token("GNumT<T>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GParameterT<T>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then the local data
-		 compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
-		 compare_t(IDENTITY(upperInitBoundary_, p_load->upperInitBoundary_), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Sets the initialization boundaries
 	  *
 	  * @param lowerInitBoundary The lower boundary for random initialization
@@ -289,6 +257,46 @@ protected:
 		 lowerInitBoundary_ = p_load->lowerInitBoundary_;
 		 upperInitBoundary_ = p_load->upperInitBoundary_;
 	 }
+
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GNumT<T>>(
+		GNumT<T> const &
+		, GNumT<T> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GNumT<T> reference independent of this object and convert the pointer
+		const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T>>(cp, this);
+
+		GToken token("GNumT<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GParameterT<T>>(*this, *p_load, token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
+		compare_t(IDENTITY(upperInitBoundary_, p_load->upperInitBoundary_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	 /***************************************************************************/
 	 /**

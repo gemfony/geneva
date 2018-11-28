@@ -448,40 +448,6 @@ public:
 		 return m_maxSize;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Checks for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GFixedSizePriorityQueueT<T> object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 void compare(
-		 const GFixedSizePriorityQueueT<T> &cp
-		 , const Gem::Common::expectation &e
-		 , const double &limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
-		 const GFixedSizePriorityQueueT<T> *p_load
-		 	= Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
-
-		 GToken token("GFixedSizePriorityQueueT<T>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(m_data, p_load->m_data), token);
-		 compare_t(IDENTITY(m_maxSize, p_load->m_maxSize), token);
-		 compare_t(IDENTITY(m_sortOrder, p_load->m_sortOrder), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
 protected:
 	 /***************************************************************************/
 	 /**
@@ -498,7 +464,49 @@ protected:
 		 m_sortOrder = p_load->m_sortOrder;
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GFixedSizePriorityQueueT<T>>(
+		GFixedSizePriorityQueueT<T> const &
+		, GFixedSizePriorityQueueT<T> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Checks for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GFixedSizePriorityQueueT<T> object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	void compare_(
+		const GFixedSizePriorityQueueT<T> &cp
+		, const Gem::Common::expectation &e
+		, const double &limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GFixedSizePriorityQueueT<T> reference independent of this object and convert the pointer
+		const GFixedSizePriorityQueueT<T> *p_load
+			= Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
+
+		GToken token("GFixedSizePriorityQueueT<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(*this, *p_load, token);
+
+		// ... and then our local data
+		compare_t(IDENTITY(m_data, p_load->m_data), token);
+		compare_t(IDENTITY(m_maxSize, p_load->m_maxSize), token);
+		compare_t(IDENTITY(m_sortOrder, p_load->m_sortOrder), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
 	 /**
 	  * Checks whether value new_item is better than value old_item
 	  */

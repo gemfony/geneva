@@ -408,13 +408,6 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_INDIVIDUALS ~GNeuralNetworkIndividual();
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_INDIVIDUALS void compare(
-		 const GObject & // the other object
-		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		 , const double & // the limit for allowed deviations of floating point types
-	 ) const final;
-
 	 /** @brief Initialization according to user-specifications */
 	 G_API_INDIVIDUALS void init(
 		 const double & /* min */, const double & /* max */
@@ -630,6 +623,7 @@ public:
 				 {
 					 //////////////////////////////////////////////////////////////////
 					 // Create the required random numbers in spherical coordinates.
+					 // nDim will be at least 3 here.
 					 // nDim will be at least 3 here.
 					 std::size_t nAngles = nDim - 1;
 					 std::vector<double> angle_collection(nAngles);
@@ -969,6 +963,20 @@ protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GNeuralNetworkIndividual */
 	 virtual G_API_INDIVIDUALS void load_(const GObject *cp) final;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GNeuralNetworkIndividual>(
+		GNeuralNetworkIndividual const &
+		, GNeuralNetworkIndividual const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_INDIVIDUALS void compare_(
+		const GObject & // the other object
+		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		, const double & // the limit for allowed deviations of floating point types
+	) const final;
 
 	 /** @brief The actual fitness calculation */
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;

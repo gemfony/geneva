@@ -66,7 +66,7 @@ std::string GParameterSetFixedSizePriorityQueue::name_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GParameterSetFixedSizePriorityQueue::compare(
+void GParameterSetFixedSizePriorityQueue::compare_(
 	const Gem::Common::GFixedSizePriorityQueueT<GParameterSet>&  cp // the other object
 	, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 	, const double& limit // the limit for allowed deviations of floating point types
@@ -79,7 +79,7 @@ void GParameterSetFixedSizePriorityQueue::compare(
 	GToken token("GBasGParameterSetFixedSizePriorityQueueeEA", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<Gem::Common::GFixedSizePriorityQueueT<GParameterSet>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<Gem::Common::GFixedSizePriorityQueueT<GParameterSet>>(*this, *p_load, token);
 
 	// ... no local data
 

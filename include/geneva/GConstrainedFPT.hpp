@@ -169,34 +169,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GConstrainedFPT<fp_type>  reference independent of this object and convert the pointer
-		 const GConstrainedFPT<fp_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPT<fp_type>>(cp, this);
-
-		 GToken token("GConstrainedFPT<fp_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GConstrainedNumT<fp_type>>(IDENTITY(*this, *p_load), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * A standard assignment operator for T values.
 	  *
 	  * @param The desired new external value
@@ -412,6 +384,42 @@ protected:
 
 		 // no local data ...
 	 }
+
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GConstrainedFPT<fp_type>>(
+		GConstrainedFPT<fp_type> const &
+		, GConstrainedFPT<fp_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GConstrainedFPT<fp_type>  reference independent of this object and convert the pointer
+		const GConstrainedFPT<fp_type>  *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedFPT<fp_type>>(cp, this);
+
+		GToken token("GConstrainedFPT<fp_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GConstrainedNumT<fp_type>>(*this, *p_load, token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	 /***************************************************************************/
 	 /**

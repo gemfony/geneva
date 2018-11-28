@@ -132,7 +132,7 @@ GTestIndividual3::~GTestIndividual3()
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GTestIndividual3::compare(
+void GTestIndividual3::compare_(
 	const GObject &cp
 	, const Gem::Common::expectation &e
 	, const double &limit
@@ -146,7 +146,7 @@ void GTestIndividual3::compare(
 	Gem::Common::GToken token("GTestIndividual3", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
 
 	// ...no local data
 

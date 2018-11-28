@@ -92,7 +92,7 @@ std::string GEvolutionaryAlgorithmPostOptimizer::name_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GEvolutionaryAlgorithmPostOptimizer::compare(
+void GEvolutionaryAlgorithmPostOptimizer::compare_(
 	const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
 	, const Gem::Common::expectation &e
 	, const double &limit
@@ -106,7 +106,7 @@ void GEvolutionaryAlgorithmPostOptimizer::compare(
 	GToken token("GEvolutionaryAlgorithmPostOptimizer", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GPostProcessorBaseT<GParameterSet>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GPostProcessorBaseT<GParameterSet>>(*this, *p_load, token);
 
 	// ... and then our local data
 	compare_t(IDENTITY(m_oa_configFile, p_load->m_oa_configFile), token);

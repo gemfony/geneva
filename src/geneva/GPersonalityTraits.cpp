@@ -71,7 +71,7 @@ GPersonalityTraits::~GPersonalityTraits()
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GPersonalityTraits::compare(
+void GPersonalityTraits::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -82,7 +82,7 @@ void GPersonalityTraits::compare(
 	GToken token("GPersonalityTraits", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GObject>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
 	// ... no local data
 

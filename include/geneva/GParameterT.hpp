@@ -172,37 +172,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a  GParameterT<T> reference independent of this object and convert the pointer
-		 const  GParameterT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterT<T>>(cp, this);
-
-		 GToken token("GParameterT<T>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GParameterBaseWithAdaptorsT<T>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then the local data
-		 compare_t(IDENTITY(val_, p_load->val_), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to adapt the value stored in this class.
 	  *
 	  * @return The number of adaptions that were performed
@@ -286,6 +255,44 @@ protected:
 		 // ... and then our own data
 		 val_ = p_load->val_;
 	 }
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GParameterT<T>>(
+		GParameterT<T> const &
+		, GParameterT<T> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a  GParameterT<T> reference independent of this object and convert the pointer
+		const  GParameterT<T> *p_load = Gem::Common::g_convert_and_compare<GObject,  GParameterT<T>>(cp, this);
+
+		GToken token("GParameterT<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GParameterBaseWithAdaptorsT<T>>(*this, *p_load, token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(val_, p_load->val_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
 
 	 /***************************************************************************/
 

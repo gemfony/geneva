@@ -230,38 +230,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GConstrainedNumT<T> reference independent of this object and convert the pointer
-		 const GConstrainedNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T>>(cp, this);
-
-		 GToken token("GConstrainedNumT<T>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GParameterT<T>>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then the local data
-		 compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
-		 compare_t(IDENTITY(upperBoundary_, p_load->upperBoundary_), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /***************************************************************************/
-	 /**
 		* Retrieves the lower boundary
 		*
 		* @return The value of the lower boundary
@@ -555,7 +523,48 @@ protected:
 		 upperBoundary_ = p_load->upperBoundary_;
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GConstrainedNumT<T>>(
+		GConstrainedNumT<T> const &
+		, GConstrainedNumT<T> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GConstrainedNumT<T> reference independent of this object and convert the pointer
+		const GConstrainedNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GConstrainedNumT<T>>(cp, this);
+
+		GToken token("GConstrainedNumT<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GParameterT<T>>(*this, *p_load, token);
+
+		// ... and then the local data
+		compare_t(IDENTITY(lowerBoundary_, p_load->lowerBoundary_), token);
+		compare_t(IDENTITY(upperBoundary_, p_load->upperBoundary_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+
+	/***************************************************************************/
 	 /**
 	  * Returns a "comparative range". This is e.g. used to make Gauss-adaption
 	  * independent of a parameters value range

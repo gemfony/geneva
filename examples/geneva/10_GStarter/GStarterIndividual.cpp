@@ -156,7 +156,7 @@ GStarterIndividual::~GStarterIndividual()
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GStarterIndividual::compare(
+void GStarterIndividual::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -169,7 +169,7 @@ void GStarterIndividual::compare(
 	Gem::Common::GToken token("GStarterIndividual", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<Gem::Geneva::GParameterSet>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<Gem::Geneva::GParameterSet>(*this, *p_load, token);
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(m_targetFunction, p_load->m_targetFunction), token);

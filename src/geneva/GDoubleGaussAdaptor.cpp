@@ -118,7 +118,7 @@ GObject *GDoubleGaussAdaptor::clone_() const {
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GDoubleGaussAdaptor::compare(
+void GDoubleGaussAdaptor::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	using namespace Gem::Common;
@@ -130,7 +130,7 @@ void GDoubleGaussAdaptor::compare(
 	GToken token("GDoubleGaussAdaptor", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GFPGaussAdaptorT<double>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GFPGaussAdaptorT<double>>(*this, *p_load, token);
 
 	// ... no local data
 

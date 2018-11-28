@@ -137,44 +137,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Searches for compliance with expectations with respect to another
-	  * object of the same type.
-	  *
-	  * Leave the structure of this function intact, but add compare_t-calls for local
-	  * data needing to be compared in tests. You can add POD-data directly, or objects
-	  * which directly or indirectly derive from Gem::Common::GCommonInterfaceT<> (this
-	  * class specifies the common interface for the majority of classes in the Geneva
-	  * framework).
-	  *
-	  * @param cp A copy of another G_OA_AlgorithmTemplateT object, camouflaged as a GObject
-	  * @param e The expectation for the comparison (see e.g. operator ==)
-	  * @param limit Determines, below which difference the comparison of two doubles is considered as equality
-	  */
-	 virtual void compare(
-		 const GObject& cp // the other object
-		 , const Gem::Common::expectation& e // the expectation for this object, e.g. equality
-		 , const double& limit // the limit for allowed deviations of floating point types
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
-		 const GEvolutionaryAlgorithmT *p_load
-			 = Gem::Common::g_convert_and_compare<GObject, GEvolutionaryAlgorithmT>(cp, this);
-
-		 GToken token("GEvolutionaryAlgorithmT", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<G_OptimizationAlgorithm_Base>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then the local data
-		 // compare_t(IDENTITY(some_local_pod_or_gci_derivative, p_load->some_local_pod_or_gci_derivative), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /***************************************************************************/
-	 /**
  	  * Resets the class to the state before the optimize call. This will in
  	  * particular erase all individuals stored in this class and clear the list
  	  * of best individuals. Please note that a subsequent call to optimize will
@@ -293,7 +255,45 @@ protected:
 		 // some_var = p_load->some_var;
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another
+     * object of the same type.
+     *
+     * Leave the structure of this function intact, but add compare_t-calls for local
+     * data needing to be compared in tests. You can add POD-data directly, or objects
+     * which directly or indirectly derive from Gem::Common::GCommonInterfaceT<> (this
+     * class specifies the common interface for the majority of classes in the Geneva
+     * framework).
+     *
+     * @param cp A copy of another G_OA_AlgorithmTemplateT object, camouflaged as a GObject
+     * @param e The expectation for the comparison (see e.g. operator ==)
+     * @param limit Determines, below which difference the comparison of two doubles is considered as equality
+     */
+	virtual void compare_(
+		const GObject& cp // the other object
+		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
+		, const double& limit // the limit for allowed deviations of floating point types
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GBaseSwarm::GSwarmOptimizationMonitor reference independent of this object and convert the pointer
+		const GEvolutionaryAlgorithmT *p_load
+			= g_convert_and_compare<GObject, GEvolutionaryAlgorithmT>(cp, this);
+
+		GToken token("GEvolutionaryAlgorithmT", e);
+
+		// Compare our parent data ...
+		compare_base_t<G_OptimizationAlgorithm_Base>(*this, *p_load, token);
+
+		// ... and then the local data
+		// compare_t(IDENTITY(some_local_pod_or_gci_derivative, p_load->some_local_pod_or_gci_derivative), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
 	 /**
 	  * Saves the state of the class to disc
 	  *

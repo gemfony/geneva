@@ -81,13 +81,9 @@ class GParameterBaseWithAdaptorsT:	public GParameterBase
 public:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor. adaptor_ will be initialized with the default adaptor for this
-	  * type
+	  * The default constructor.
 	  */
-	 GParameterBaseWithAdaptorsT()
-		 : GParameterBase()
-			, adaptor_(Gem::Geneva::getDefaultAdaptor<T>())
-	 { /* nothing */	}
+	 GParameterBaseWithAdaptorsT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -97,46 +93,14 @@ public:
 	  */
 	 GParameterBaseWithAdaptorsT(const GParameterBaseWithAdaptorsT<T>& cp)
 		 : GParameterBase(cp)
-			, adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T>>())
+		 , adaptor_((cp.adaptor_)->GObject::template clone<GAdaptorT<T>>())
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor. All cleanup work is done by std::shared_ptr.
 	  */
-	 virtual ~GParameterBaseWithAdaptorsT()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
-		 const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
-
-		 GToken token("GParameterBaseWithAdaptorsT<T>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GParameterBase>(IDENTITY(*this, *p_load), token);
-
-		 // We access the relevant data of one of the parent classes directly for simplicity reasons
-		 compare_t(IDENTITY(adaptor_, p_load->adaptor_), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
+	 ~GParameterBaseWithAdaptorsT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -359,7 +323,47 @@ protected:
 		 }
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GParameterBaseWithAdaptorsT<T>>(
+		GParameterBaseWithAdaptorsT<T> const &
+		, GParameterBaseWithAdaptorsT<T> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a  GParameterBaseWithAdaptorsT<T> reference independent of this object and convert the pointer
+		const GParameterBaseWithAdaptorsT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GParameterBaseWithAdaptorsT<T>>(cp, this);
+
+		GToken token("GParameterBaseWithAdaptorsT<T>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GParameterBase>(*this, *p_load, token);
+
+		// We access the relevant data of one of the parent classes directly for simplicity reasons
+		compare_t(IDENTITY(adaptor_, p_load->adaptor_), token);
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+
+	/***************************************************************************/
 
 	 /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
 	 virtual T range() const = 0;
@@ -451,7 +455,7 @@ private:
 	 /**
 	  * @brief Holds the adaptor used for adaption of the values stored in derived classes.
 	  */
-	 std::shared_ptr<GAdaptorT<T>> adaptor_;
+	 std::shared_ptr<GAdaptorT<T>> adaptor_{Gem::Geneva::getDefaultAdaptor<T>()};
 
 public:
 	 /***************************************************************************/

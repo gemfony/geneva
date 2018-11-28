@@ -190,13 +190,6 @@ public:
 	 /** @brief The standard destructor */
 	 G_API_INDIVIDUALS ~GFunctionIndividual() override = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 G_API_INDIVIDUALS void compare(
-		 const GObject & // the other object
-		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		 , const double & // the limit for allowed deviations of floating point types
-	 ) const final;
-
 	 /** @brief Allows to set the demo function */
 	 G_API_INDIVIDUALS void setDemoFunction(solverFunction);
 	 /** @brief Allows to retrieve the current demo function */
@@ -379,6 +372,20 @@ protected:
 	 G_API_INDIVIDUALS void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 	 /** @brief Loads the data of another GFunctionIndividual */
 	 G_API_INDIVIDUALS void load_(const GObject *) final;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GFunctionIndividual>(
+		GFunctionIndividual const &
+		, GFunctionIndividual const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	G_API_INDIVIDUALS void compare_(
+		const GObject & // the other object
+		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		, const double & // the limit for allowed deviations of floating point types
+	) const final;
 
 	 /** @brief The actual value calculation takes place here */
 	 G_API_INDIVIDUALS double fitnessCalculation() final;
@@ -665,13 +672,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_INDIVIDUALS ~GDoubleSumConstraint() override = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 G_API_INDIVIDUALS void compare(
-		 const GObject & // the other object
-		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		 , const double & // the limit for allowed deviations of floating point types
-	 ) const final;
-
 protected:
 	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
@@ -679,6 +679,20 @@ protected:
 	 G_API_INDIVIDUALS void addConfigurationOptions_(Gem::Common::GParserBuilder&) override;
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 G_API_INDIVIDUALS void load_(const GObject *) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GDoubleSumConstraint>(
+		GDoubleSumConstraint const &
+		, GDoubleSumConstraint const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	G_API_INDIVIDUALS void compare_(
+		const GObject & // the other object
+		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		, const double & // the limit for allowed deviations of floating point types
+	) const final;
 
 private:
 	 /** @brief Creates a deep clone of this object */
@@ -719,13 +733,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_INDIVIDUALS ~GDoubleSumGapConstraint() override = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 G_API_INDIVIDUALS void compare(
-		 const GObject & // the other object
-		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		 , const double & // the limit for allowed deviations of floating point types
-	 ) const final;
-
 protected:
 	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
@@ -733,6 +740,20 @@ protected:
 	 G_API_INDIVIDUALS void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 G_API_INDIVIDUALS void load_(const GObject *) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GDoubleSumGapConstraint>(
+		GDoubleSumGapConstraint const &
+		, GDoubleSumGapConstraint const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	G_API_INDIVIDUALS void compare_(
+		const GObject & // the other object
+		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		, const double & // the limit for allowed deviations of floating point types
+	) const final;
 
 private:
 	 /** @brief Creates a deep clone of this object */
@@ -772,13 +793,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_INDIVIDUALS ~GSphereConstraint() override = default;
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 G_API_INDIVIDUALS void compare(
-		 const GObject & // the other object
-		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		 , const double & // the limit for allowed deviations of floating point types
-	 ) const final;
-
 protected:
 	 G_API_INDIVIDUALS double check_(const GParameterSet *) const override;
 
@@ -786,6 +800,20 @@ protected:
 	 G_API_INDIVIDUALS void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 	 /** @brief Loads the data of another GParameterSetMultiConstraint */
 	 G_API_INDIVIDUALS void load_(const GObject *) override;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GSphereConstraint>(
+		GSphereConstraint const &
+		, GSphereConstraint const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	G_API_INDIVIDUALS void compare_(
+		const GObject & // the other object
+		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		, const double & // the limit for allowed deviations of floating point types
+	) const final;
 
 private:
 	 /** @brief Creates a deep clone of this object */

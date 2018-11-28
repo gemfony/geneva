@@ -76,7 +76,9 @@
 #include <boost/property_tree/ptree_serialization.hpp>
 
 #ifdef GEM_TESTING
+
 #include <boost/test/unit_test.hpp>
+
 #endif /* GEM_TESTING */
 
 // Geneva header files go here
@@ -94,7 +96,9 @@
 #include "hap/GRandomDistributionsT.hpp"
 
 #ifdef GEM_TESTING
+
 #include "common/GUnitTestFrameworkT.hpp"
+
 #endif /* GEM_TESTING */
 
 // aliases for ease of use
@@ -111,80 +115,93 @@ namespace Geneva {
  * very central role.
  */
 class GObject
-	: public Gem::Common::GCommonInterfaceT<GObject>
+    :
+        public Gem::Common::GCommonInterfaceT<GObject>
 {
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
 
-	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int)  {
-		 using boost::serialization::make_nvp;
+    template<typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
 
-		 ar
-		 & make_nvp("GCommonInterfaceT_GObject", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GObject>>(*this));
-	 }
-	 ///////////////////////////////////////////////////////////////////////
+        ar
+        & make_nvp(
+            "GCommonInterfaceT_GObject"
+            , boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GObject>>(*this));
+    }
+    ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA GObject() = default;
-	 /** @brief The copy constructor */
-	 G_API_GENEVA GObject(const GObject& cp) = default;
-	 /** @brief The destructor */
-	 G_API_GENEVA virtual ~GObject() = default;
+    /** @brief The default constructor */
+    G_API_GENEVA GObject() = default;
+    /** @brief The copy constructor */
+    G_API_GENEVA GObject(const GObject &cp) = default;
+    /** @brief The destructor */
+    G_API_GENEVA virtual ~GObject() = default;
 
-	 /***************************************************************************/
-	 /**
-	  * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent
-	  */
-	 static G_API_GENEVA bool G_SIGHUP_SENT() {
-		 return (1==GObject::GenevaSigHupSent);
-	 }
+    /***************************************************************************/
+    /**
+     * Checks whether a SIGHUP or CTRL_CLOSE_EVENT signal has been sent
+     */
+    static G_API_GENEVA bool G_SIGHUP_SENT() {
+        return (1 == GObject::GenevaSigHupSent);
+    }
 
-	 /***************************************************************************/
-	 /**
-	  * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function should work
-	  * both for Windows and Unix-Systems.
-	  */
-	 static G_API_GENEVA void sigHupHandler(int signum) {
-		 if(G_SIGHUP == signum) {
-			 GObject::GenevaSigHupSent = 1;
-		 }
-	 }
-
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 G_API_GENEVA void compare(
-		 const GObject& // the other object
-		 , const Gem::Common::expectation& // the expectation for this object, e.g. equality
-		 , const double& // the limit for allowed deviations of floating point types
-	 ) const override;
+    /***************************************************************************/
+    /**
+     * A handler for SIGHUP or CTRL_CLOSE_EVENT signals. This function should work
+     * both for Windows and Unix-Systems.
+     */
+    static G_API_GENEVA void sigHupHandler(int signum) {
+        if (G_SIGHUP == signum) {
+            GObject::GenevaSigHupSent = 1;
+        }
+    }
 
 protected:
-	 /***************************************************************************/
-	 /** @brief Loads the data of another GObject */
-	 G_API_GENEVA void load_(const GObject*) override;
-	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder&) override;
+    /***************************************************************************/
+    /** @brief Loads the data of another GObject */
+    G_API_GENEVA void load_(const GObject *) override;
+
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GObject>(
+        GObject const &
+        , GObject const &
+        , Gem::Common::GToken &
+    );
+
+    /** @brief Searches for compliance with expectations with respect to another object of the same type */
+    G_API_GENEVA void compare_(
+        const GObject & // the other object
+        , const Gem::Common::expectation & // the expectation for this object, e.g. equality
+        , const double & // the limit for allowed deviations of floating point types
+    ) const override;
+
+    /** @brief Adds local configuration options to a GParserBuilder object */
+    G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
 private:
-	 /***************************************************************************/
-	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA std::string name_() const override;
-	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA GObject* clone_() const override = 0;
+    /***************************************************************************/
+    /** @brief Emits a name for this class / object */
+    G_API_GENEVA std::string name_() const override;
+    /** @brief Creates a deep clone of this object */
+    G_API_GENEVA GObject *clone_() const override = 0;
 
-	 // Needed to allow interruption of the optimization run without loss of data
-	 // Npte that "volatile" is needed in order for the signal handler to work
-	 static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
+    // Needed to allow interruption of the optimization run without loss of data
+    // Npte that "volatile" is needed in order for the signal handler to work
+    static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
 
 public:
-	 /***************************************************************************/
-	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 virtual G_API_GENEVA bool modify_GUnitTests();
-	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests();
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
+    /***************************************************************************/
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    virtual G_API_GENEVA bool modify_GUnitTests();
+
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests();
+
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/

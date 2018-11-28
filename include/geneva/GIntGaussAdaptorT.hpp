@@ -154,36 +154,6 @@ public:
 	 { /* nothing */ }
 
 	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GIntGaussAdaptorT<int_type> reference independent of this object and convert the pointer
-		 const GIntGaussAdaptorT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
-
-		 GToken token("GIntGaussAdaptorT<int_type>", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GNumGaussAdaptorT<int_type, double>>(IDENTITY(*this, *p_load), token);
-
-		 // // ... no local data
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
-
-	 /***************************************************************************/
 	 /** @brief Retrieves the id of this adaptor */
 	 Gem::Geneva::adaptorId getAdaptorId() const override = 0;
 
@@ -204,7 +174,45 @@ protected:
 		 // ... no local data
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GIntGaussAdaptorT<int_type>>(
+		GIntGaussAdaptorT<int_type> const &
+		, GIntGaussAdaptorT<int_type> const &
+		, Gem::Common::GToken &
+	);
+
+	/***************************************************************************/
+	/**
+     * Searches for compliance with expectations with respect to another object
+     * of the same type
+     *
+     * @param cp A constant reference to another GObject object
+     * @param e The expected outcome of the comparison
+     * @param limit The maximum deviation for floating point values (important for similarity checks)
+     */
+	virtual void compare_(
+		const GObject& cp
+		, const Gem::Common::expectation& e
+		, const double& limit
+	) const override {
+		using namespace Gem::Common;
+
+		// Check that we are dealing with a GIntGaussAdaptorT<int_type> reference independent of this object and convert the pointer
+		const GIntGaussAdaptorT<int_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GIntGaussAdaptorT<int_type>>(cp, this);
+
+		GToken token("GIntGaussAdaptorT<int_type>", e);
+
+		// Compare our parent data ...
+		Gem::Common::compare_base_t<GNumGaussAdaptorT<int_type, double>>(*this, *p_load, token);
+
+		// // ... no local data
+
+		// React on deviations from the expectation
+		token.evaluate();
+	}
+
+	/***************************************************************************/
 	 /**
 	  * The actual adaption of the supplied value takes place here.
 	  *

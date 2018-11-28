@@ -50,7 +50,7 @@ volatile G_API_GENEVA std::sig_atomic_t GObject::GenevaSigHupSent = 0;
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GObject::compare(
+void GObject::compare_(
 	const GObject &cp
 	, const Gem::Common::expectation &e
 	, const double &limit
@@ -63,7 +63,7 @@ void GObject::compare(
 	GToken token("GObject", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GCommonInterfaceT<GObject>>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GCommonInterfaceT<GObject>>(*this, *p_load, token);
 
 	// ... no local data
 

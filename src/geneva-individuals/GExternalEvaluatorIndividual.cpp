@@ -85,7 +85,7 @@ GExternalEvaluatorIndividual::~GExternalEvaluatorIndividual() { /* nothing */ }
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GExternalEvaluatorIndividual::compare(
+void GExternalEvaluatorIndividual::compare_(
 	const GObject &cp, const Gem::Common::expectation &e, const double &limit
 ) const {
 	// Check that we are dealing with a GExternalEvaluatorIndividual reference independent of this object and convert the pointer
@@ -94,7 +94,7 @@ void GExternalEvaluatorIndividual::compare(
 	Gem::Common::GToken token("GExternalEvaluatorIndividual", e);
 
 	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
+	Gem::Common::compare_base_t<GParameterSet>(*this, *p_load, token);
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(m_program_name, p_load->m_program_name), token);

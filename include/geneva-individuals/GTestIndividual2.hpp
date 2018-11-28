@@ -117,16 +117,23 @@ public:
 	 /** @brief The standard destructor */
 	 virtual G_API_INDIVIDUALS ~GTestIndividual2();
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual G_API_INDIVIDUALS void compare(
-		 const GObject & // the other object
-		 , const Gem::Common::expectation & // the expectation for this object, e.g. equality
-		 , const double & // the limit for allowed deviations of floating point types
-	 ) const final;
-
 protected:
 	 /** @brief Loads the data of another GTestIndividual2 */
 	 virtual G_API_INDIVIDUALS void load_(const GObject *) final;
+
+	/** @brief Allow access to this classes compare_ function */
+	friend void Gem::Common::compare_base_t<GTestIndividual2>(
+		GTestIndividual2 const &
+		, GTestIndividual2 const &
+		, Gem::Common::GToken &
+	);
+
+	/** @brief Searches for compliance with expectations with respect to another object of the same type */
+	virtual G_API_INDIVIDUALS void compare_(
+		const GObject & // the other object
+		, const Gem::Common::expectation & // the expectation for this object, e.g. equality
+		, const double & // the limit for allowed deviations of floating point types
+	) const final;
 
 	 /** @brief The actual fitness calculation takes place here. */
 	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
