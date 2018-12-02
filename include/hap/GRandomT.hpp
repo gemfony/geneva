@@ -74,11 +74,11 @@ public:
 	 GRandomT();
 
 	 /** @brief The destructor */
-	 virtual ~GRandomT();
+	 ~GRandomT() override;
 
-protected:
+private:
 	 /** @brief Uniformly distributed integer random numbers */
-	 virtual GRandomBase::result_type int_random();
+	 GRandomBase::result_type int_random() override;
 };
 
 /******************************************************************************/
@@ -113,7 +113,7 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GRandomT() {
+	~GRandomT() override {
 		if (m_p) {
 			m_grf->returnUsedPackage(std::move(m_p));
 		}
@@ -129,7 +129,7 @@ public:
 		return std::this_thread::get_id();
 	}
 
-protected:
+private:
 	/***************************************************************************/
 	/**
 	 * This function retrieves random number packages from a global
@@ -139,7 +139,7 @@ protected:
 	 * caller it appears as if random numbers are created locally. This function
 	 * assumes that a valid container is already available.
 	 */
-	virtual GRandomBase::result_type int_random() {
+	GRandomBase::result_type int_random() override {
 		if (m_p->empty()) {
 			// Get rid of the old container ...
 			m_grf->returnUsedPackage(std::move(m_p));
@@ -149,7 +149,6 @@ protected:
 		return m_p->next();
 	}
 
-private:
 	/***************************************************************************/
 	/**
 	 * (Re-)Initialization of p_. Checks that a valid GRandomFactory still
@@ -227,19 +226,17 @@ public:
 	/**
 	 * The standard destructor
 	 */
-	virtual ~GRandomT()
-	{ /* nothing */ }
+	~GRandomT() override = default;
 
-protected:
+private:
 	/***************************************************************************/
 	/**
 	 * This function produces uniform random numbers locally.
 	 */
-	virtual GRandomBase::result_type int_random() {
+	GRandomBase::result_type int_random() override {
 		return m_rng();
 	}
 
-private:
 	/***************************************************************************/
 	/** @brief The actual generator for local random number creation */
 	G_BASE_GENERATOR m_rng;

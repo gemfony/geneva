@@ -43,25 +43,6 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor
- */
-GParameterSetConstraint::GParameterSetConstraint() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GParameterSetConstraint::GParameterSetConstraint(const GParameterSetConstraint &cp)
-	: GPreEvaluationValidityCheckT<GParameterSet>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GParameterSetConstraint::~GParameterSetConstraint() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *
@@ -117,29 +98,11 @@ void GParameterSetConstraint::load_(const GObject *cp) {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor -- private, only needed for (de-)serialization
- */
-GParameterSetFormulaConstraint::GParameterSetFormulaConstraint() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * A constructor that accepts a formula in string form as its argument
  */
 GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(std::string rawFormula)
-	: rawFormula_(rawFormula) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GParameterSetFormulaConstraint::GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint &cp)
-	: GParameterSetConstraint(cp), rawFormula_(cp.rawFormula_) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GParameterSetFormulaConstraint::~GParameterSetFormulaConstraint() { /* nothing */ }
+	: rawFormula_(rawFormula)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

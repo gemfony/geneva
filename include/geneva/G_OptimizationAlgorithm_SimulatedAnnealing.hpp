@@ -87,7 +87,7 @@ public:
     /** @brief The default constructor */
     G_API_GENEVA GSimulatedAnnealing();
     /** @brief A standard copy constructor */
-    G_API_GENEVA GSimulatedAnnealing(const GSimulatedAnnealing &cp);
+    G_API_GENEVA GSimulatedAnnealing(const GSimulatedAnnealing &) = default;
     /** @brief The standard destructor */
     G_API_GENEVA ~GSimulatedAnnealing() override = default;
 

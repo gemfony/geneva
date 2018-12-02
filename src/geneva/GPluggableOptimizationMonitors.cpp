@@ -797,22 +797,6 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(
 
 /******************************************************************************/
 /**
- * The copy constructor
- */
-GAllSolutionFileLogger::GAllSolutionFileLogger(const GAllSolutionFileLogger& cp)
-	: m_fileName(cp.m_fileName)
-	  , m_boundaries(cp.m_boundaries)
-	  , m_boundariesActive(cp.m_boundariesActive)
-	  , m_withNameAndType(cp.m_withNameAndType)
-	  , m_withCommas(cp.m_withCommas)
-	  , m_useRawFitness(cp.m_useRawFitness)
-	  , m_showValidity(cp.m_showValidity)
-	  , m_printInitial(cp.m_printInitial)
-	  , m_showIterationBoundaries(cp.m_showIterationBoundaries)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Emits a name for this class / object
  */
 std::string GAllSolutionFileLogger::name_() const {
@@ -1199,16 +1183,6 @@ GIterationResultsFileLogger::GIterationResultsFileLogger(const std::string& file
 
 /******************************************************************************/
 /**
- * The copy constructor
- */
-GIterationResultsFileLogger::GIterationResultsFileLogger(const GIterationResultsFileLogger& cp)
-	: m_fileName(cp.m_fileName)
-	  , m_withCommas(cp.m_withCommas)
-	  , m_useRawFitness(cp.m_useRawFitness)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Emits a name for this class / object
  */
 std::string GIterationResultsFileLogger::name_() const {
@@ -1446,17 +1420,6 @@ void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests() {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-
-/**
- * The default constructor. Note that some variables may be
- * initialized in the class body.
- */
-GNAdpationsLogger::GNAdpationsLogger()
-	: m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
-	  , m_gpd("Number of adaptions per iteration", 1, 2)
-{ /* nothing */ }
-
 /******************************************************************************/
 /**
  * Initialization with a file name. Note that some variables may be
@@ -1837,12 +1800,7 @@ void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests() {
 /**
  * The default constructor. Note that some variables may be initialized in the class body.
  */
-GProcessingTimesLogger::GProcessingTimesLogger()
-	: m_canvasDimensions_pth(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
-	  , m_gpd_pth("Timings for the processing steps of individuals", 2, 2)
-	  , m_canvasDimensions_pth2(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
-	  , m_gpd_pth2("Timings for the processing steps of individuals vs. iteration", 2, 2)
-{ /* nothing */ }
+GProcessingTimesLogger::GProcessingTimesLogger() = default;
 
 /******************************************************************************/
 /**
@@ -1865,25 +1823,6 @@ GProcessingTimesLogger::GProcessingTimesLogger(
 	  , m_nBinsX(nBinsX)
 	  , m_nBinsY(nBinsY)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GProcessingTimesLogger::GProcessingTimesLogger(const GProcessingTimesLogger& cp)
-	: m_fileName_pth(cp.m_fileName_pth)
-	  , m_canvasDimensions_pth(cp.m_canvasDimensions_pth)
-	  , m_gpd_pth(cp.m_gpd_pth)
-	  , m_fileName_pth2(cp.m_fileName_pth2)
-	  , m_canvasDimensions_pth2(cp.m_canvasDimensions_pth2)
-	  , m_gpd_pth2(cp.m_gpd_pth2)
-	  , m_fileName_txt(cp.m_fileName_txt)
-	  , m_nBinsX(cp.m_nBinsX)
-	  , m_nBinsY(cp.m_nBinsY)
-{
-	// No need to copy the histograms over, as they will be instantiated
-	// in the INFOINIT section.
-}
 
 /******************************************************************************/
 /**

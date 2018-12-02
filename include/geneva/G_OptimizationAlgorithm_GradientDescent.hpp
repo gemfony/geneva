@@ -176,10 +176,10 @@ protected:
     G_API_GENEVA void runFitnessCalculation() override;
 
     /** @brief Updates the individual parameters of children */
-    virtual G_API_GENEVA void updateChildParameters();
+    virtual G_API_GENEVA void updateChildParameters() BASE;
 
     /** @brief Performs a step of the parent individuals */
-    virtual G_API_GENEVA void updateParentIndividuals();
+    virtual G_API_GENEVA void updateParentIndividuals() BASE;
 
 private:
     /***************************************************************************/

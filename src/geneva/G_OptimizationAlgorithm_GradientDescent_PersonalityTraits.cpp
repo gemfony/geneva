@@ -44,28 +44,6 @@ G_API_GENEVA const std::string GGradientDescent_PersonalityTraits::nickname = "g
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GGradientDescent_PersonalityTraits::GGradientDescent_PersonalityTraits()
-	: GPersonalityTraits(), popPos_(0) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy contructor
- *
- * @param cp A copy of another GGDPersonalityTraits object
- */
-GGradientDescent_PersonalityTraits::GGradientDescent_PersonalityTraits(const GGradientDescent_PersonalityTraits &cp)
-	: GPersonalityTraits(cp), popPos_(cp.popPos_) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor
- */
-GGradientDescent_PersonalityTraits::~GGradientDescent_PersonalityTraits() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

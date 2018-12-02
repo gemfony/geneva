@@ -57,7 +57,7 @@ namespace Geneva {
 class GMutableParameterI {
 public:
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GMutableParameterI(){ /* nothing */ }
+	 virtual G_API_GENEVA ~GMutableParameterI() BASE = default;
 
 	 /** @brief Allows derivatives to be adapted */
 	 virtual G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase&) BASE = 0;

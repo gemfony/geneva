@@ -159,7 +159,7 @@ protected:
 	  *
 	  * @param gpb The GParserBuilder object, to which configuration options will be added
 	  */
-	 virtual void addConfigurationOptions(
+	 void addConfigurationOptions(
 		 Gem::Common::GParserBuilder &gpb
 	 ) override {
 		 // Call our parent class'es function

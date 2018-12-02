@@ -60,23 +60,6 @@ GSimulatedAnnealing::GSimulatedAnnealing()
 
 /******************************************************************************/
 /**
- * A standard copy constructor
- *
- * @param cp Another GSimulatedAnnealingT object
- */
-GSimulatedAnnealing::GSimulatedAnnealing(const GSimulatedAnnealing& cp)
-	: G_OptimizationAlgorithm_ParChild(cp)
-	  , m_t0(cp.m_t0)
-	  , m_t(cp.m_t)
-	  , m_alpha(cp.m_alpha)
-	  , m_n_threads(cp.m_n_threads)
-{
-	// Copying / setting of the optimization algorithm id is done by the parent class. The same
-	// applies to the copying of optimization monitors.
-}
-
-/******************************************************************************/
-/**
   * Searches for compliance with expectations with respect to another object
   * of the same type
   *

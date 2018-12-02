@@ -92,9 +92,7 @@ public:
 	 /**
 	  * The default constructor.
 	  */
-	 GConstrainedFPT()
-		 : GConstrainedNumT<fp_type>()
-	 { /* nothing */ }
+	 GConstrainedFPT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -156,16 +154,13 @@ public:
 	  *
 	  * @param cp Another GConstrainedNumT<fp_type> object
 	  */
-	 GConstrainedFPT (const GConstrainedFPT<fp_type>& cp)
-		 : GConstrainedNumT<fp_type>(cp)
-	 { /* nothing */ }
+	 GConstrainedFPT (const GConstrainedFPT<fp_type>& cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The standard destructor
 	  */
-	 virtual ~GConstrainedFPT()
-	 { /* nothing */	}
+	 ~GConstrainedFPT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -224,7 +219,7 @@ public:
 	  * @param lowerBoundary The lower boundary of the value range
 	  * @param upperBoundary The upper boundary of the value range
 	  */
-	 virtual void setValue(
+	 void setValue(
 		 const fp_type& val
 		 , const fp_type& lowerBoundary
 		 , const fp_type& upperBoundary
@@ -402,7 +397,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -425,7 +420,7 @@ protected:
 	 /**
 	  * Randomly initializes the parameter (within its limits)
 	  */
-	 virtual bool randomInit_(
+	 bool randomInit_(
 		 const activityMode&
 		 , Gem::Hap::GRandomBase& gr
 	 ) override {

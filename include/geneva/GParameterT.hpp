@@ -68,7 +68,7 @@ class GParameterT
 
 		 ar
 		 & make_nvp("GParameterBaseWithAdaptors_T", boost::serialization::base_object<GParameterBaseWithAdaptorsT<T>>(*this))
-		 & BOOST_SERIALIZATION_NVP(val_);
+		 & BOOST_SERIALIZATION_NVP(m_val);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -78,10 +78,7 @@ public:
 
 	 /***************************************************************************/
 	 /** The default constructor */
-	 GParameterT()
-		 : GParameterBaseWithAdaptorsT<T>()
-			, val_(Gem::Common::GDefaultValueT<T>::value())
-	 { /* nothing */ }
+	 GParameterT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -89,9 +86,9 @@ public:
 	  *
 	  * @param val The new value of val_
 	  */
-	 GParameterT(const T& val)
+	 explicit GParameterT(const T& val)
 		 : GParameterBaseWithAdaptorsT<T>()
-			, val_(val)
+		 , m_val(val)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -100,17 +97,13 @@ public:
 	  *
 	  * @param cp A copy of another GParameterT<T> object
 	  */
-	 GParameterT(const GParameterT<T>& cp)
-		 : GParameterBaseWithAdaptorsT<T>(cp)
-			, val_(cp.val_)
-	 { /* nothing */   }
+	 GParameterT(const GParameterT<T>& cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GParameterT()
-	 { /* nothing */ }
+	 ~GParameterT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -120,9 +113,9 @@ public:
 	  * @param val The new value for val_
 	  * @return The new value of val_
 	  */
-	 virtual T operator=(const T& val) {
+	 virtual T operator=(const T& val) BASE {
 		 setValue(val);
-		 return val_;
+		 return m_val;
 	 }
 
 	 /***************************************************************************/
@@ -134,7 +127,7 @@ public:
 	  * @param val The new T value stored in this class
 	  */
 	 virtual void setValue(const T& val) BASE {
-		 val_ = val;
+		 m_val = val;
 	 }
 
 	 /* ----------------------------------------------------------------------------------
@@ -162,7 +155,7 @@ public:
 	  * @return The value of val_
 	  */
 	 virtual T value() const BASE {
-		 return val_;
+		 return m_val;
 	 }
 
 	 /* ----------------------------------------------------------------------------------
@@ -176,11 +169,11 @@ public:
 	  *
 	  * @return The number of adaptions that were performed
 	  */
-	 virtual std::size_t adaptImpl(
+	 std::size_t adaptImpl(
 		 Gem::Hap::GRandomBase& gr
 	 ) override {
 		 return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
-			 val_
+			 m_val
 			 , this->range()
 			 , gr
 		 );
@@ -198,7 +191,7 @@ public:
 	  * @param ptr The boost::property_tree object the data should be saved to
 	  * @param baseName The name assigned to the object
 	  */
-	 virtual void toPropertyTree (
+	 void toPropertyTree (
 		 pt::ptree& ptr
 		 , const std::string& baseName
 	 ) const override {
@@ -231,7 +224,7 @@ protected:
 	  * @param val The new T value stored in this class
 	  */
 	 void setValue_(const T& val) const {
-		 val_ = val;
+		 m_val = val;
 	 }
 
 	 /* ----------------------------------------------------------------------------------
@@ -253,7 +246,7 @@ protected:
 		 GParameterBaseWithAdaptorsT<T>::load_(cp);
 
 		 // ... and then our own data
-		 val_ = p_load->val_;
+		 m_val = p_load->m_val;
 	 }
 
 	/** @brief Allow access to this classes compare_ function */
@@ -272,7 +265,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -288,7 +281,7 @@ protected:
 		Gem::Common::compare_base_t<GParameterBaseWithAdaptorsT<T>>(*this, *p_load, token);
 
 		// ... and then the local data
-		compare_t(IDENTITY(val_, p_load->val_), token);
+		compare_t(IDENTITY(m_val, p_load->m_val), token);
 
 		// React on deviations from the expectation
 		token.evaluate();
@@ -297,7 +290,7 @@ protected:
 	 /***************************************************************************/
 
 	 /** @brief Triggers random initialization of the parameter(-collection) */
-	 virtual bool randomInit_(
+	 bool randomInit_(
 		 const activityMode&
 		 , Gem::Hap::GRandomBase&
 	 ) override = 0;
@@ -310,7 +303,7 @@ protected:
 	  * classes can (re-)set the value from a const function without forcing us to declare
 	  * setValue() const.
 	  */
-	 mutable T val_;
+	 mutable T m_val = Gem::Common::GDefaultValueT<T>::value();
 
 private:
 	 /***************************************************************************/

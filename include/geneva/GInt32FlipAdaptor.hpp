@@ -72,15 +72,15 @@ class GInt32FlipAdaptor
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GInt32FlipAdaptor();
+    G_API_GENEVA GInt32FlipAdaptor() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GInt32FlipAdaptor(const GInt32FlipAdaptor &);
+    G_API_GENEVA GInt32FlipAdaptor(const GInt32FlipAdaptor &) = default;
 
     /** @brief Initialization with a adaption probability */
     explicit G_API_GENEVA GInt32FlipAdaptor(const double &);
 
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GInt32FlipAdaptor();
+    G_API_GENEVA ~GInt32FlipAdaptor() override = default;
 
     /** @brief Retrieves the id of this adaptor */
     G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;
@@ -97,7 +97,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types

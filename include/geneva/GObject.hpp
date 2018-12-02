@@ -138,7 +138,7 @@ public:
     /** @brief The copy constructor */
     G_API_GENEVA GObject(const GObject &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA virtual ~GObject() = default;
+    G_API_GENEVA ~GObject() override = default;
 
     /***************************************************************************/
     /**
@@ -195,13 +195,13 @@ private:
 public:
     /***************************************************************************/
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    virtual G_API_GENEVA bool modify_GUnitTests();
+    G_API_GENEVA bool modify_GUnitTests() override;
 
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests();
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
 
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests();
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

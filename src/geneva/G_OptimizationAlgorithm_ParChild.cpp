@@ -60,26 +60,6 @@ G_OptimizationAlgorithm_ParChild::G_OptimizationAlgorithm_ParChild()
 
 /******************************************************************************/
 /**
- * A standard copy constructor. Note that the generation number is reset to 0 and
- * is not copied from the other object. We assume that a new optimization run will
- * be started.
- *
- * @param cp Another GParChildT object
- */
-G_OptimizationAlgorithm_ParChild::G_OptimizationAlgorithm_ParChild(const G_OptimizationAlgorithm_ParChild& cp)
-	: G_OptimizationAlgorithm_Base(cp)
-	  , m_n_parents(cp.m_n_parents)
-	  , m_recombination_method(cp.m_recombination_method)
-	  , m_default_n_children(cp.m_default_n_children)
-	  , m_growth_rate(cp.m_growth_rate)
-	  , m_max_population_size(cp.m_max_population_size)
-	  , m_amalgamationLikelihood(cp.m_amalgamationLikelihood)
-{
-	// Copying of individuals is done by the parent class
-}
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

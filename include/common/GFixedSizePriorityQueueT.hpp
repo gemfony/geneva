@@ -155,7 +155,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GFixedSizePriorityQueueT() = default;
+	 ~GFixedSizePriorityQueueT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -228,7 +228,7 @@ public:
 	 virtual void add(
 		 std::shared_ptr<T> item
 		 , bool do_clone
-	 ) {
+	 ) BASE {
 		 // Add the work item to the queue
 		 // - If the queue is unlimited
 		 // - If the queue isn't full yet
@@ -300,7 +300,7 @@ public:
 		 const std::vector<std::shared_ptr<T>>& items
 		 , bool do_clone
 		 , bool replace
-	 ) {
+	 ) BASE {
 		 double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_sortOrder);
 		 if (true == replace || m_data.empty()) {
 			 m_data.clear();

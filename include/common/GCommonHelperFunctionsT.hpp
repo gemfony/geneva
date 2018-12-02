@@ -226,7 +226,7 @@ const target_type * g_ptr_conversion (
 	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
 ) {
 #ifdef DEBUG
-	auto p = dynamic_cast<const target_type *>(convert_ptr);
+	const auto *p = dynamic_cast<const target_type *>(convert_ptr);
 
 	if(nullptr==convert_ptr || p) {
 		return p;
@@ -351,7 +351,7 @@ const target_type* g_convert_and_compare (
 	, typename std::enable_if<std::is_base_of<base_type, target_type>::value>::type *dummy = nullptr
 ) {
 	// Convert the base pointer -- this call will throw, if conversion cannot be done
-	const target_type * p =  g_ptr_conversion<base_type, target_type>(&convert_ref);
+	const auto * p =  g_ptr_conversion<base_type, target_type>(&convert_ref);
 
 	// Then compare the two pointers (will throw in case of equality)
 	ptrDifferenceCheck(p, compare_ptr);

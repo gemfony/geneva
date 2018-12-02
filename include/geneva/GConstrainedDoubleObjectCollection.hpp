@@ -74,14 +74,13 @@ class GConstrainedDoubleObjectCollection
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GConstrainedDoubleObjectCollection();
+    G_API_GENEVA GConstrainedDoubleObjectCollection() = default;
     /** @brief Initialization with a number of GConstrainedDoubleObject objects */
     G_API_GENEVA GConstrainedDoubleObjectCollection(const std::size_t &, std::shared_ptr<GConstrainedDoubleObject>);
     /** @brief The copy constructor */
-    G_API_GENEVA GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection &);
-
+    G_API_GENEVA GConstrainedDoubleObjectCollection(const GConstrainedDoubleObjectCollection &) = default;
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GConstrainedDoubleObjectCollection();
+    G_API_GENEVA ~GConstrainedDoubleObjectCollection() override = default;
 
 protected:
     /** @brief Loads the data of another GObject */
@@ -95,7 +94,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types

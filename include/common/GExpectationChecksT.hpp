@@ -1334,7 +1334,7 @@ void compare_base_t(
 ) {
     try {
         token.incrTestCounter();
-        x.compare_(
+        x.base_type::compare_( // Force usage of the base-type compare_ function
             y
             , token.getExpectation()
             , Gem::Common::CE_DEF_SIMILARITY_DIFFERENCE

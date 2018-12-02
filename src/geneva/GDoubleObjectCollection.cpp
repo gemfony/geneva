@@ -40,12 +40,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GDoubleObjectCollection::GDoubleObjectCollection() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with a number of identical GDoubleObject objects
  */
 GDoubleObjectCollection::GDoubleObjectCollection(
@@ -56,22 +50,6 @@ GDoubleObjectCollection::GDoubleObjectCollection(
         nCp
         , tmpl_ptr
     ) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GDoubleObjectCollection object
- */
-GDoubleObjectCollection::GDoubleObjectCollection(const GDoubleObjectCollection &cp)
-    :
-    GParameterTCollectionT<GDoubleObject>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GDoubleObjectCollection::~GDoubleObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**

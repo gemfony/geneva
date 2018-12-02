@@ -77,9 +77,9 @@ namespace Geneva {
  * percentage of adaptions is actually performed at run-time.
  *
  * In order to use this class, the user must derive a class from
- * GAdaptorT<T> and specify the type of adaption he wishes to
+ * GAdaptorT<T, fp_type> and specify the type of adaption he wishes to
  * have applied to items, by overloading of
- * GAdaptorT<T>::customAdaptions(T&) .  T will often be
+ * GAdaptorT<T, fp_type>::customAdaptions(T&) .  T will often be
  * represented by a basic value (double, long, bool, ...). Where
  * this is not the case, the adaptor will only be able to access
  * public functions of T, unless T declares the adaptor as a friend.
@@ -145,7 +145,7 @@ public:
 			 , "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + ")"
 		 )) {
 			 glogger
-				 << "In GAdaptorT<T>::GadaptorT(const fp_type& adProb):" << std::endl << "adProb value " << m_adProb
+				 << "In GAdaptorT<T, fp_type>::GadaptorT(const fp_type& adProb):" << std::endl << "adProb value " << m_adProb
 				 << " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb << "]" << std::endl
 				 << "The value will be adapted to fit this range." << std::endl << GWARNING;
 
@@ -168,9 +168,9 @@ public:
 	 /**
 	  * A standard copy constructor.
 	  *
-	  * @param cp A copy of another GAdaptorT<T>
+	  * @param cp A copy of another GAdaptorT<T, fp_type>
 	  */
-	 GAdaptorT(const GAdaptorT<T> &cp) = default;
+	 GAdaptorT(const GAdaptorT<T, fp_type> &cp) = default;
 
 	 /***************************************************************************/
 	 /**
@@ -186,7 +186,7 @@ public:
 	  *
 	  * @return The id of the adaptor
 	  */
-	 virtual Gem::Geneva::adaptorId getAdaptorId() const = 0;
+	 virtual Gem::Geneva::adaptorId getAdaptorId() const BASE = 0;
 
 	 /* ----------------------------------------------------------------------------------
 	  * Tested in GBooleanAdaptor
@@ -209,7 +209,7 @@ public:
 		 if (adProb < fp_type(0.) || adProb > fp_type(1.)) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type&):" << std::endl
+					 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type&):" << std::endl
 					 << "Bad probability value given: " << adProb << std::endl
 			 );
 		 }
@@ -223,7 +223,7 @@ public:
 		 )) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T>::setAdaptionProbability(const fp_type& adProb):" << std::endl
+					 << "In GAdaptorT<T, fp_type>::setAdaptionProbability(const fp_type& adProb):" << std::endl
 					 << "adProb value " << adProb << " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb
 					 << "]" << std::endl
 					 << "Set new boundaries first before setting a new \"adProb\" value" << std::endl
@@ -234,9 +234,9 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Setting of valid probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * Checks for setting of invalid probabilities is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * The effects on the probability of adaptions actually taking place are tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Setting of valid probabilities is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Checks for setting of invalid probabilities is tested in GAdaptorT<T, fp_type>::specificTestsFailuresExpected_GUnitTests()
+	  * The effects on the probability of adaptions actually taking place are tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -252,7 +252,7 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Retrieval of probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Retrieval of probabilities is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -275,7 +275,7 @@ public:
 		 )) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T>::setResetAdaptionProbability(const fp_type&):" << std::endl
+					 << "In GAdaptorT<T, fp_type>::setResetAdaptionProbability(const fp_type&):" << std::endl
 					 << "adProb_reset value " << adProb_reset << " is outside of allowed value range [" << m_minAdProb << ", "
 					 << m_maxAdProb << "]" << std::endl
 					 << "Set new boundaries first before setting a new \"adProb_reset\" value" << std::endl
@@ -313,7 +313,7 @@ public:
 		 )) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T>::setAdaptAdaptionProbability(const fp_type&) :" << std::endl
+					 << "In GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(const fp_type&) :" << std::endl
 					 << "Probability " << probability << " not in allowed range [0.,1.]" << std::endl
 			 );
 		 }
@@ -322,8 +322,8 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Setting of valid probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * Checks for setting of invalid probabilities is tested in GAdaptorT<T>::specificTestsFailuresExpected_GUnitTests()
+	  * Setting of valid probabilities is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Checks for setting of invalid probabilities is tested in GAdaptorT<T, fp_type>::specificTestsFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -339,7 +339,7 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Retrieval of probabilities is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Retrieval of probabilities is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -378,13 +378,13 @@ public:
 	  *
 	  * @return The value of the adaptionCounter_ variable
 	  */
-	 virtual std::uint32_t getAdaptionCounter() const
+	 virtual std::uint32_t getAdaptionCounter() const BASE
 	 {
 		 return m_adaptionCounter;
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * It is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests() that the
+	  * It is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests() that the
 	  * adaption counter does not exceed the set adaption threshold
 	  * ----------------------------------------------------------------------------------
 	  */
@@ -402,7 +402,7 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Setting of adaption thresholds is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Setting of adaption thresholds is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -418,7 +418,7 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Retrieval of adaption threshold is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Retrieval of adaption threshold is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -430,13 +430,13 @@ public:
 	  *
 	  * @param adaptionMode The desired mode (always/never/with a given probability)
 	  */
-	 virtual void setAdaptionMode(adaptionMode am) {
+	 virtual void setAdaptionMode(adaptionMode am) BASE {
 		 m_adaptionMode = am;
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Setting of the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * The effect of setting the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Setting of the adaption mode is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
+	  * The effect of setting the adaption mode is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -451,7 +451,7 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Retrieval of the adaption mode is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Retrieval of the adaption mode is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -467,7 +467,7 @@ public:
 		 if (minAdProb < 0.) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
 					 << "minAdProb < 0: " << minAdProb << std::endl
 			 );
 		 }
@@ -475,7 +475,7 @@ public:
 		 if (maxAdProb > 1.) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
 					 << "maxAdProb > 1: " << maxAdProb << std::endl
 			 );
 		 }
@@ -483,7 +483,7 @@ public:
 		 if (minAdProb > maxAdProb) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GAdaptorT<T>::setAdProbRange(): Error!" << std::endl
+					 << "In GAdaptorT<T, fp_type>::setAdProbRange(): Error!" << std::endl
 					 << "Invalid minAdProb and/or maxAdProb: " << minAdProb << " / " << maxAdProb << std::endl
 			 );
 		 }
@@ -588,7 +588,7 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Adaption is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Adaption is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -675,7 +675,7 @@ public:
 	 }
 
 	 /* ----------------------------------------------------------------------------------
-	  * Adaption is tested in GAdaptorT<T>::specificTestsNoFailuresExpected_GUnitTests()
+	  * Adaption is tested in GAdaptorT<T, fp_type>::specificTestsNoFailuresExpected_GUnitTests()
 	  * ----------------------------------------------------------------------------------
 	  */
 
@@ -717,7 +717,7 @@ public:
 	  *
 	  * @return A diagnostic message
 	  */
-	 virtual std::string printDiagnostics() const
+	 virtual std::string printDiagnostics() const BASE
 	 {
 		 return std::string();
 	 }
@@ -754,7 +754,7 @@ public:
 				 )) {
 					 throw gemfony_exception(
 						 g_error_streamer(DO_LOG, time_and_place)
-							 << "In GAdaptorT<T>::queryPropertyFrom(): Error!" << std::endl
+							 << "In GAdaptorT<T, fp_type>::queryPropertyFrom(): Error!" << std::endl
 							 << "Function was called for unimplemented property " << property << std::endl
 							 << "on adaptor " << adaptorName << std::endl
 					 );
@@ -770,19 +770,19 @@ public:
 protected:
 	 /***************************************************************************/
 	 /**
-	  * Loads the contents of another GAdaptorT<T>. The function
+	  * Loads the contents of another GAdaptorT<T, fp_type>. The function
 	  * is similar to a copy constructor (but with a pointer as
 	  * argument). As this function might be called in an environment
 	  * where we do not know the exact type of the class, the
-	  * GAdaptorT<T> is camouflaged as a GObject . This implies the
+	  * GAdaptorT<T, fp_type> is camouflaged as a GObject . This implies the
 	  * need for dynamic conversion.
 	  *
-	  * @param gb A pointer to another GAdaptorT<T>, camouflaged as a GObject
+	  * @param gb A pointer to another GAdaptorT<T, fp_type>, camouflaged as a GObject
 	  */
 	 void load_(const GObject *cp) override
 	 {
-		 // Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
-		 const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(cp, this);
+		 // Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
+		 const GAdaptorT<T, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T, fp_type>>(cp, this);
 
 		 // Load the parent class'es data
 		 GObject::load_(cp);
@@ -800,9 +800,9 @@ protected:
 	 }
 
 	/** @brief Allow access to this classes compare_ function */
-	friend void Gem::Common::compare_base_t<GAdaptorT<T>>(
-		GAdaptorT<T> const &
-		, GAdaptorT<T> const &
+	friend void Gem::Common::compare_base_t<GAdaptorT<T, fp_type>>(
+		GAdaptorT<T, fp_type> const &
+		, GAdaptorT<T, fp_type> const &
 		, Gem::Common::GToken &
 	);
 
@@ -822,10 +822,10 @@ protected:
 	) const override {
 		using namespace Gem::Common;
 
-		// Check that we are dealing with a GAdaptorT<T> reference independent of this object and convert the pointer
-		const GAdaptorT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T>>(cp, this);
+		// Check that we are dealing with a GAdaptorT<T, fp_type> reference independent of this object and convert the pointer
+		const GAdaptorT<T, fp_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GAdaptorT<T, fp_type>>(cp, this);
 
-		GToken token("GAdaptorT<T>", e);
+		GToken token("GAdaptorT<T, fp_type>", e);
 
 		// Compare our parent data ...
 		Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
@@ -884,7 +884,7 @@ protected:
 	 virtual bool customQueryProperty(
 		 const std::string &property
 		 , std::vector<boost::any> &data
-	 ) const {
+	 ) const BASE {
 		 return false;
 	 }
 
@@ -899,7 +899,7 @@ protected:
 	 virtual void customAdaptAdaption(
 		 const T &
 		 , Gem::Hap::GRandomBase& gr
-	 ) { /* nothing */}
+	 ) BASE { /* nothing */}
 
 	 /***************************************************************************/
 
@@ -991,8 +991,8 @@ public:
 
 		 //------------------------------------------------------------------------------
 
-		 { // Test of GAdaptorT<T>::set/getAdaptionProbability()
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+		 { // Test of GAdaptorT<T, fp_type>::set/getAdaptionProbability()
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // The adaption probability should have been cloned
 			 BOOST_CHECK_MESSAGE(
@@ -1024,7 +1024,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 		 { // Check that mutating a value with this class actually work with different likelihoods
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // Make sure the adaption probability is taken into account
 			 p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
@@ -1053,8 +1053,8 @@ public:
 
 		 //------------------------------------------------------------------------------
 
-		 { // Test of GAdaptorT<T>::setAdaptionProbability() regarding the effects on the likelihood for adaption of the variable
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+		 { // Test of GAdaptorT<T, fp_type>::setAdaptionProbability() regarding the effects on the likelihood for adaption of the variable
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // Make sure the adaption probability is taken into account
 			 p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
@@ -1110,7 +1110,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 		 { // Check setting and retrieval of the adaption mode
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // Check setting of the different allowed values
 			 // false
@@ -1144,7 +1144,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 		 { // Check the effect of the adaption mode settings
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 			 p_test->setAdaptionProbability(0.5);
 
 			 const std::size_t nTests = 10000;
@@ -1197,8 +1197,8 @@ public:
 
 		 //------------------------------------------------------------------------------
 
-		 { // Test of GAdaptorT<T>::set/getAdaptAdaptionProbability()
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+		 { // Test of GAdaptorT<T, fp_type>::set/getAdaptAdaptionProbability()
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // The adaption probability should have been cloned
 			 BOOST_CHECK_MESSAGE(
@@ -1224,7 +1224,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 		 { // Test retrieval and setting of the adaption threshold and whether the adaptionCounter behaves nicely
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // Make sure we have the right adaption mode
 			 p_test->setAdaptionMode(adaptionMode::WITHPROBABILITY);
@@ -1301,7 +1301,7 @@ public:
 		 //------------------------------------------------------------------------------
 
 		 { // Test that customAdaptions() in derived classes changes a test value on every call
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 std::size_t nTests = 10000;
 
@@ -1350,8 +1350,8 @@ public:
 
 		 //------------------------------------------------------------------------------
 
-		 { // Test of GAdaptorT<T>::setAdaptionProbability(): Setting a value < 0. should throw
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+		 { // Test of GAdaptorT<T, fp_type>::setAdaptionProbability(): Setting a value < 0. should throw
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // Setting a probability < 0 should throw
 			 BOOST_CHECK_THROW(
@@ -1362,8 +1362,8 @@ public:
 
 		 //------------------------------------------------------------------------------
 
-		 { // Test of GAdaptorT<T>::setAdaptionProbability(): Setting a value > 1. should throw
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+		 { // Test of GAdaptorT<T, fp_type>::setAdaptionProbability(): Setting a value > 1. should throw
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // Setting a probability > 1 should throw
 			 BOOST_CHECK_THROW(
@@ -1374,8 +1374,8 @@ public:
 
 		 //------------------------------------------------------------------------------
 
-		 { // Test of GAdaptorT<T>::setAdaptAdaptionProbability(): Setting a value < 0. should throw
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+		 { // Test of GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(): Setting a value < 0. should throw
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // Setting a probability < 0 should throw
 			 BOOST_CHECK_THROW(
@@ -1386,8 +1386,8 @@ public:
 
 		 //------------------------------------------------------------------------------
 
-		 { // Test of GAdaptorT<T>::setAdaptAdaptionProbability(): Setting a value > 1. should throw
-			 std::shared_ptr<GAdaptorT<T>> p_test = this->clone<GAdaptorT<T>>();
+		 { // Test of GAdaptorT<T, fp_type>::setAdaptAdaptionProbability(): Setting a value > 1. should throw
+			 std::shared_ptr<GAdaptorT<T, fp_type>> p_test = this->clone<GAdaptorT<T, fp_type>>();
 
 			 // Setting a probability > 1 should throw
 			 BOOST_CHECK_THROW(
@@ -1420,11 +1420,11 @@ std::size_t GAdaptorT<bool, double>::adapt(std::vector<bool> &, const bool &, Ge
 
 namespace boost {
 namespace serialization {
-template<typename T>
-struct is_abstract<Gem::Geneva::GAdaptorT<T>> : public boost::true_type
+template<typename T, typename fp_type>
+struct is_abstract<Gem::Geneva::GAdaptorT<T, fp_type>> : public boost::true_type
 {};
-template<typename T>
-struct is_abstract<const Gem::Geneva::GAdaptorT<T>> : public boost::true_type
+template<typename T, typename fp_type>
+struct is_abstract<const Gem::Geneva::GAdaptorT<T, fp_type>> : public boost::true_type
 {};
 }
 }

@@ -45,28 +45,6 @@ G_API_GENEVA const std::string GSimulatedAnnealing_PersonalityTraits::nickname =
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GSimulatedAnnealing_PersonalityTraits::GSimulatedAnnealing_PersonalityTraits()
-	: GBaseParChildPersonalityTraits() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy contructor
- *
- * @param cp A copy of another GSAPersonalityTraits object
- */
-GSimulatedAnnealing_PersonalityTraits::GSimulatedAnnealing_PersonalityTraits(const GSimulatedAnnealing_PersonalityTraits &cp)
-	: GBaseParChildPersonalityTraits(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor
- */
-GSimulatedAnnealing_PersonalityTraits::~GSimulatedAnnealing_PersonalityTraits() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

@@ -69,9 +69,9 @@ class GDoubleCollection
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GDoubleCollection();
+	 G_API_GENEVA GDoubleCollection() = default;
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GDoubleCollection(const GDoubleCollection&);
+	 G_API_GENEVA GDoubleCollection(const GDoubleCollection&) = default;
 	 /** @brief Initialization with a number of random values in a given range */
 	 G_API_GENEVA GDoubleCollection(
 		 const std::size_t&
@@ -86,7 +86,7 @@ public:
 		 , const double&
 	 );
 	 /** @brief The destructor */
-	 G_API_GENEVA ~GDoubleCollection() override;
+	 G_API_GENEVA ~GDoubleCollection() override = default;
 
 protected:
 	 /** @brief Loads the data of another GObject */

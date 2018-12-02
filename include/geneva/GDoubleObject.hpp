@@ -76,9 +76,9 @@ class GDoubleObject
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GDoubleObject();
+    G_API_GENEVA GDoubleObject() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GDoubleObject(const GDoubleObject &);
+    G_API_GENEVA GDoubleObject(const GDoubleObject &) = default;
 
     /** @brief Initialization by contained value */
     explicit G_API_GENEVA GDoubleObject(const double &);
@@ -88,7 +88,7 @@ public:
     G_API_GENEVA GDoubleObject(const double &, const double &, const double &);
 
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GDoubleObject();
+    G_API_GENEVA ~GDoubleObject() override = default;
 
     /** @brief An assignment operator for the contained value type */
     G_API_GENEVA double operator=(const double &) override;
@@ -105,7 +105,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types

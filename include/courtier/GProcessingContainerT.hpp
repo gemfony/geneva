@@ -177,7 +177,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GProcessingContainerT() = default;
+	 virtual ~GProcessingContainerT() BASE = default;
 
 	 /***************************************************************************/
 	 /**

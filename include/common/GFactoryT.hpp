@@ -141,7 +141,7 @@ public:
 	 /**
 	  * The destructor.
 	  */
-	 virtual ~GFactoryT() = default;
+	 virtual ~GFactoryT() BASE = default;
 
 	 /***************************************************************************/
 	 /**
@@ -230,14 +230,13 @@ public:
 	  * Retrieves an object of the desired type and converts it to a target type,
 	  * if possible.
 	  */
-	 template<typename tT>
-	 // "tT" stands for "target type"
-	 std::shared_ptr<tT> get_as() {
+	 template<typename target_type>
+	 std::shared_ptr<target_type> get_as() {
 		 std::shared_ptr <prod_type> p = this->get();
 		 if (p) {
-			 return Gem::Common::convertSmartPointer<prod_type, tT>(p);
+			 return Gem::Common::convertSmartPointer<prod_type, target_type>(p);
 		 } else {
-			 return std::shared_ptr<tT>(); // Just return an empty pointer
+			 return std::shared_ptr<target_type>(); // Just return an empty pointer
 		 }
 	 }
 

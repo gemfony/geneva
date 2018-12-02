@@ -119,26 +119,19 @@ public:
 	  * The (trivial) default constructor. Class members are initialized in the
 	  * class body.
 	  */
-	 parPropSpec()
-	 { /* nothing */ }
+	 parPropSpec() = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The copy constructor
 	  */
-	 parPropSpec(const parPropSpec<par_type>& cp)
-		 : var(cp.var)
-			, lowerBoundary(cp.lowerBoundary)
-			, upperBoundary(cp.upperBoundary)
-			, nSteps(cp.nSteps)
-	 { /* nothing */ }
+	 parPropSpec(const parPropSpec<par_type>& cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The standard destructor
 	  * */
-	 virtual ~parPropSpec()
-	 { /* nothing */ }
+	 ~parPropSpec() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -169,7 +162,7 @@ protected:
 	  *
 	  * cp A pointer to another parPropSpec<T> object
 	  */
-	 virtual void load_(const parPropSpec<par_type>* cp) override {
+	 void load_(const parPropSpec<par_type>* cp) override {
 		 // Check that we are dealing with a parPropSpec<T> reference independent of this object and convert the pointer
 		 const parPropSpec<par_type> *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -200,7 +193,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const parPropSpec<par_type>& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
@@ -238,7 +231,7 @@ private:
 	 /**
 	  * Creates a deep clone of this object
 	  */
-	 virtual parPropSpec<par_type>* clone_() const override {
+	 parPropSpec<par_type>* clone_() const override {
 		 return new parPropSpec<par_type>(*this);
 	 }
 };
@@ -356,6 +349,8 @@ namespace Geneva {
 class GParameterPropertyParser: boost::noncopyable // Make sure this class cannot be copied
 {
 public:
+	 /** @brief The default constructor -- intentionally undefined */
+	 GParameterPropertyParser() = delete;
 	 /** @brief The standard constructor -- assignment of the "raw" paramter property string */
 	 G_API_GENEVA GParameterPropertyParser(const std::string&);
 
@@ -410,8 +405,6 @@ public:
 
 private:
 	 /***************************************************************************/
-	 /** @brief The default constructor -- intentionally private and undefined */
-	 GParameterPropertyParser() = delete;
 
 	 boost::spirit::qi::rule<std::string::const_iterator, std::string(), boost::spirit::ascii::space_type> varSpec;
 	 boost::spirit::qi::rule<std::string::const_iterator, std::tuple<char, std::string>(), boost::spirit::ascii::space_type> varString;

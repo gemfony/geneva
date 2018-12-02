@@ -89,9 +89,7 @@ public:
     /**
      * The standard constructor.
      */
-    GFPBiGaussAdaptorT()
-        :
-        GNumBiGaussAdaptorT<fp_type, fp_type>() { /* nothing */ }
+    GFPBiGaussAdaptorT() = default;
 
     /***************************************************************************/
     /**
@@ -101,25 +99,23 @@ public:
      */
     GFPBiGaussAdaptorT(const fp_type &probability)
         :
-        GNumBiGaussAdaptorT<fp_type, fp_type>(probability) { /* nothing */ }
+        GNumBiGaussAdaptorT<fp_type, fp_type>(probability)
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
-     * A standard copy constructor. It assumes that the values of the other object are correct
-     * and does no additional error checks.
+     * A standard copy constructor
      *
      * @param cp Another GFPBiGaussAdaptorT object
      */
-    GFPBiGaussAdaptorT(const GFPBiGaussAdaptorT<fp_type> &cp)
-        :
-        GNumBiGaussAdaptorT<fp_type, fp_type>(cp) { /* nothing */    }
+    GFPBiGaussAdaptorT(const GFPBiGaussAdaptorT<fp_type> &) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor. Empty, as we have no local, dynamically
      * allocated data.
      */
-    virtual ~GFPBiGaussAdaptorT() { /* nothing */ }
+    ~GFPBiGaussAdaptorT() override = default;
 
     /***********************************************************************************/
     /** @brief Retrieves the id of the adaptor */
@@ -163,7 +159,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const fp_type &limit
@@ -202,7 +198,7 @@ protected:
      * @param value The value that is going to be adapted in situ
      * @param range A typical range for the parameter with type num_type
      */
-    virtual void customAdaptions(
+    void customAdaptions(
         fp_type &value
         , const fp_type &range
         , Gem::Hap::GRandomBase &gr

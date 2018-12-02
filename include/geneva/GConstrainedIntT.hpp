@@ -92,9 +92,7 @@ public:
     /**
      * The default constructor
      */
-    GConstrainedIntT()
-        :
-        GConstrainedNumT<int_type>() { /* nothing */ }
+    GConstrainedIntT() = default;
 
     /***************************************************************************/
     /**
@@ -158,15 +156,13 @@ public:
      *
      * @param cp Another GConstrainedNumT<int_type> object
      */
-    GConstrainedIntT(const GConstrainedIntT<int_type> &cp)
-        :
-        GConstrainedNumT<int_type>(cp) { /* nothing */ }
+    GConstrainedIntT(const GConstrainedIntT<int_type> &) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor
      */
-    virtual ~GConstrainedIntT() { /* nothing */    }
+    ~GConstrainedIntT() override = default;
 
     /***************************************************************************/
     /**

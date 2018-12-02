@@ -91,9 +91,7 @@ public:
 	  *
 	  * @param cp A copy of another GIntGaussAdaptorT<int_type> object
 	  */
-	 GIntGaussAdaptorT(const GIntGaussAdaptorT<int_type>& cp)
-		 : GNumGaussAdaptorT<int_type, double>(cp)
-	 { /* nothing */ }
+	 GIntGaussAdaptorT(const GIntGaussAdaptorT<int_type>& cp) = default;
 
 	 /***************************************************************************/
 	 /**
@@ -150,8 +148,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GIntGaussAdaptorT()
-	 { /* nothing */ }
+	 ~GIntGaussAdaptorT() = default;
 
 	 /***************************************************************************/
 	 /** @brief Retrieves the id of this adaptor */
@@ -191,7 +188,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -219,7 +216,7 @@ protected:
 	  * @param value The value that is going to be adapted in situ
 	  * @param range A typical range for the parameter with type num_type
 	  */
-	 virtual void customAdaptions(
+	 void customAdaptions(
 		 int_type& value
 		 , const int_type& range
 		 , Gem::Hap::GRandomBase& gr
@@ -228,7 +225,7 @@ protected:
 		 using namespace Gem::Hap;
 
 		 // Calculate a suitable addition to the current parameter value
-		 int_type addition = static_cast<int_type>(
+		 auto addition = static_cast<int_type>(
 			 static_cast<double>(range)
 			 * GAdaptorT<int_type, double>::m_normal_distribution(
 				 gr

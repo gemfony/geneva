@@ -122,7 +122,7 @@ public:
 	// Defaulted constructors and destructors;
 
 	GStdPtrVectorInterfaceT() = default;
-	virtual ~GStdPtrVectorInterfaceT() = default;
+	virtual ~GStdPtrVectorInterfaceT() BASE = default;
 
 	/***************************************************************************/
 	/**
@@ -963,7 +963,7 @@ protected:
 	std::vector<std::shared_ptr<T>> data;
 
 	/** @brief Intentionally make this object purely virtual, for performance reasons */
-	virtual void dummyFunction() = 0;
+	virtual void dummyFunction() BASE = 0;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */

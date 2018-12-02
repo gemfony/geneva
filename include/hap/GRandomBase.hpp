@@ -86,6 +86,13 @@ public:
 	 /** @brief Retrieves a "raw" random item item */
 	 G_API_HAP GRandomBase::result_type operator()();
 
+	/***************************************************************************/
+	// Prevent copying
+	GRandomBase(const GRandomBase&) = delete;
+	GRandomBase(const GRandomBase&&) = delete;
+	GRandomBase& operator=(const GRandomBase&) = delete;
+	GRandomBase& operator=(const GRandomBase&&) = delete;
+
 	 /***************************************************************************/
 	 /**
 	  * This function is part of the standard interface of C++11 random number
@@ -108,14 +115,8 @@ public:
 		 return (G_BASE_GENERATOR::max)();
 	 }
 
-protected:
+private:
 	 /***************************************************************************/
-	 // Prevent copying
-	 GRandomBase(const GRandomBase&) = delete;
-	 GRandomBase(const GRandomBase&&) = delete;
-	 GRandomBase& operator=(const GRandomBase&) = delete;
-	 GRandomBase& operator=(const GRandomBase&&) = delete;
-
 	 /** @brief Uniformly distributed integer numbers in the range min/max */
 	 virtual G_API_HAP result_type int_random() = 0;
 };

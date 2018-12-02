@@ -155,7 +155,7 @@ public:
 	  * means termination of the program. No logging takes place, as we want
 	  * this class to be independent of the Geneva framework
 	  */
-	 virtual ~GBoundedBufferT() {
+	 virtual ~GBoundedBufferT() BASE {
 		 // Any error here is deadly ...
 		 try {
 			 std::unique_lock<std::mutex> lock(m_mutex);

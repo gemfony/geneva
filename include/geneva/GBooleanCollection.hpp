@@ -74,7 +74,7 @@ class GBooleanCollection :public GParameterCollectionT<bool>
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GBooleanCollection();
+	 G_API_GENEVA GBooleanCollection() = default;
 	 /** @brief Random initialization with a given number of values */
 	 explicit G_API_GENEVA GBooleanCollection(const std::size_t&);
 	 /** @brief Initialization with a given number of items of defined value */
@@ -83,15 +83,15 @@ public:
 	  * a certain probability structure */
 	 G_API_GENEVA GBooleanCollection(const std::size_t&, const double&);
 	 /** @brief A standard copy constructor */
-	 G_API_GENEVA GBooleanCollection(const GBooleanCollection&);
+	 G_API_GENEVA GBooleanCollection(const GBooleanCollection&) = default;
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GBooleanCollection();
+	 G_API_GENEVA ~GBooleanCollection() override = default;
 
 	 /** @brief FLips the value at a given position */
 	 G_API_GENEVA void flip(const std::size_t&);
 
 	 /** @brief Random initialization */
-	 virtual G_API_GENEVA bool randomInit(
+	 G_API_GENEVA bool randomInit(
 		 const activityMode&
 		 , Gem::Hap::GRandomBase&
 	 ) override;

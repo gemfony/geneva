@@ -42,34 +42,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GInt32FlipAdaptor::GInt32FlipAdaptor()
-	: GIntFlipAdaptorT<std::int32_t>() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GInt32FlipAdaptor object
- */
-GInt32FlipAdaptor::GInt32FlipAdaptor(const GInt32FlipAdaptor &cp)
-	: GIntFlipAdaptorT<std::int32_t>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with a adaption probability
  *
  * @param adProb The adaption probability
  */
 GInt32FlipAdaptor::GInt32FlipAdaptor(const double &adProb)
 	: GIntFlipAdaptorT<std::int32_t>(adProb) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GInt32FlipAdaptor::~GInt32FlipAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**

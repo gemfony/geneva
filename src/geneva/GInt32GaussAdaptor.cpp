@@ -47,16 +47,8 @@ namespace Geneva {
  */
 GInt32GaussAdaptor::GInt32GaussAdaptor()
 	: GIntGaussAdaptorT<std::int32_t>(DEFAULTINT32SIGMA, DEFAULTSIGMASIGMA, DEFAULTMINSIGMA,
-													DEFAULTMAXSIGMA) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GInt32GaussAdaptor object
- */
-GInt32GaussAdaptor::GInt32GaussAdaptor(const GInt32GaussAdaptor &cp)
-	: GIntGaussAdaptorT<std::int32_t>(cp) { /* nothing */ }
+													DEFAULTMAXSIGMA)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -99,12 +91,6 @@ GInt32GaussAdaptor::GInt32GaussAdaptor(
 	const double &sigma, const double &sigmaSigma, const double &minSigma, const double &maxSigma, const double &adProb
 )
 	: GIntGaussAdaptorT<std::int32_t>(sigma, sigmaSigma, minSigma, maxSigma, adProb) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GInt32GaussAdaptor::~GInt32GaussAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**

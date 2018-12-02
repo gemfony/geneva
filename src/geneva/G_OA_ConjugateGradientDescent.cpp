@@ -41,32 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GConjugateGradientDescent::GConjugateGradientDescent()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * A standard copy constructor.
- *
- * @param cp A copy of another ConjugateGradientDescent object
- */
-GConjugateGradientDescent::GConjugateGradientDescent(const GConjugateGradientDescent &cp)
-	: G_OptimizationAlgorithm_Base(cp)
-{
-	// Copying / setting of the optimization algorithm id is done by the parent class. The same
-	// applies to the copying of the optimization monitor.
-}
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GConjugateGradientDescent::~GConjugateGradientDescent() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Returns information about the type of optimization algorithm. This function needs
  * to be overloaded by the actual algorithms to return the correct type.
  *

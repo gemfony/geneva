@@ -41,23 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GInt32Object::GInt32Object()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GInt32Object object
- */
-GInt32Object::GInt32Object(const GInt32Object &cp)
-	: GNumIntT<std::int32_t>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization by contained value
  *
  * @param val A value used for the initialization
@@ -96,12 +79,6 @@ GInt32Object::GInt32Object(
 )
 	: GNumIntT<std::int32_t>(val, lowerBoundary, upperBoundary)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GInt32Object::~GInt32Object() { /* nothing */ }
 
 /******************************************************************************/
 /**

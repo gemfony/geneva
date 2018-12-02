@@ -40,37 +40,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GParameterObjectCollection::GParameterObjectCollection()
-	: GParameterTCollectionT<GParameterBase>()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with a number of identical GParameterBase objects
  */
 GParameterObjectCollection::GParameterObjectCollection(
 	const std::size_t &nCp, std::shared_ptr <GParameterBase> tmpl_ptr
 )
 	: GParameterTCollectionT<GParameterBase>(nCp, tmpl_ptr)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GParameterObjectCollection object
- */
-GParameterObjectCollection::GParameterObjectCollection(const GParameterObjectCollection &cp)
-	: GParameterTCollectionT<GParameterBase>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GParameterObjectCollection::~GParameterObjectCollection()
 { /* nothing */ }
 
 /******************************************************************************/

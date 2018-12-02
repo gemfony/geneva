@@ -77,12 +77,12 @@ public:
     static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
     /** @brief The default constructor */
-    G_API_GENEVA GSimulatedAnnealing_PersonalityTraits();
+    G_API_GENEVA GSimulatedAnnealing_PersonalityTraits() = default;
     /** @brief The copy contructor */
-    G_API_GENEVA GSimulatedAnnealing_PersonalityTraits(const GSimulatedAnnealing_PersonalityTraits &);
+    G_API_GENEVA GSimulatedAnnealing_PersonalityTraits(const GSimulatedAnnealing_PersonalityTraits &) = default;
 
     /** @brief The standard destructor */
-    virtual G_API_GENEVA ~GSimulatedAnnealing_PersonalityTraits();
+    G_API_GENEVA ~GSimulatedAnnealing_PersonalityTraits() override = default;
 
     /** @brief Retrieves the mnemonic of the optimization algorithm */
     G_API_GENEVA std::string getMnemonic() const override;
@@ -99,7 +99,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types

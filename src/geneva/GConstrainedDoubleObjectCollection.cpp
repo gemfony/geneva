@@ -41,12 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
 GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
@@ -57,24 +51,6 @@ GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
         nCp
         , tmpl_ptr
     ) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GConstrainedDoubleObjectCollection object
- */
-GConstrainedDoubleObjectCollection::GConstrainedDoubleObjectCollection(
-    const GConstrainedDoubleObjectCollection &cp
-)
-    :
-    GParameterTCollectionT<GConstrainedDoubleObject>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GConstrainedDoubleObjectCollection::~GConstrainedDoubleObjectCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**

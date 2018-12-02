@@ -60,21 +60,6 @@ GEvolutionaryAlgorithm::GEvolutionaryAlgorithm()
 
 /******************************************************************************/
 /**
- * A standard copy constructor
- *
- * @param cp Another GEvolutionaryAlgorithm object
- */
-GEvolutionaryAlgorithm::GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm& cp)
-	: G_OptimizationAlgorithm_ParChild(cp)
-	  , m_sorting_mode(cp.m_sorting_mode)
-	  , m_n_threads(cp.m_n_threads)
-{
-	// Copying / setting of the optimization algorithm id is done by the parent class. The same
-	// applies to the copying of optimization monitors.
-}
-
-/******************************************************************************/
-/**
   * Searches for compliance with expectations with respect to another object
   * of the same type
   *

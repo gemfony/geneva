@@ -42,8 +42,7 @@ namespace Geneva {
  * The default constructor
  */
 GGradientDescentFactory::GGradientDescentFactory()
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(
-	"./config/GGradientDescent.json")
+	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>("./config/GGradientDescent.json")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -66,21 +65,6 @@ GGradientDescentFactory::GGradientDescentFactory(
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GGradientDescentFactory::GGradientDescentFactory(const GGradientDescentFactory& cp)
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GGradientDescentFactory::~GGradientDescentFactory()
 { /* nothing */ }
 
 /******************************************************************************/

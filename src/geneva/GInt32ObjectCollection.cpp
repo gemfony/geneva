@@ -43,33 +43,13 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GInt32ObjectCollection::GInt32ObjectCollection() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with a number of identical GConstrainedDoubleObject objects
  */
 GInt32ObjectCollection::GInt32ObjectCollection(
 	const std::size_t &nCp, std::shared_ptr <GInt32Object> tmpl_ptr
 )
-	: GParameterTCollectionT<GInt32Object>(nCp, tmpl_ptr) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GInt32ObjectCollection object
- */
-GInt32ObjectCollection::GInt32ObjectCollection(const GInt32ObjectCollection &cp)
-	: GParameterTCollectionT<GInt32Object>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GInt32ObjectCollection::~GInt32ObjectCollection() { /* nothing */ }
+	: GParameterTCollectionT<GInt32Object>(nCp, tmpl_ptr)
+{ /* nothing */ }
 
 /******************************************************************************/
 /**

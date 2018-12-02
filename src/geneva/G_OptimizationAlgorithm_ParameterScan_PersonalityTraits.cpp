@@ -45,28 +45,6 @@ G_API_GENEVA const std::string GParameterScan_PersonalityTraits::nickname = "ps"
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GParameterScan_PersonalityTraits::GParameterScan_PersonalityTraits()
-	: GPersonalityTraits(), popPos_(0) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy contructor
- *
- * @param cp A copy of another GPSPersonalityTraits object
- */
-GParameterScan_PersonalityTraits::GParameterScan_PersonalityTraits(const GParameterScan_PersonalityTraits &cp)
-	: GPersonalityTraits(cp), popPos_(cp.popPos_) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor
- */
-GParameterScan_PersonalityTraits::~GParameterScan_PersonalityTraits() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

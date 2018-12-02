@@ -41,12 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GDoubleCollection::GDoubleCollection() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with a number of random values in a given range
  *
  * @param nval The amount of random values
@@ -77,23 +71,6 @@ GDoubleCollection::GDoubleCollection(
 	, const double &max
 )
 	: GFPNumCollectionT<double>(nval, val, min, max)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GDoubleCollection object
- */
-GDoubleCollection::GDoubleCollection(const GDoubleCollection &cp)
-	: GFPNumCollectionT<double>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GDoubleCollection::~GDoubleCollection()
 { /* nothing */ }
 
 /******************************************************************************/

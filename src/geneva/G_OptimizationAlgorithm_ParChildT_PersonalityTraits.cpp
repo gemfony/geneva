@@ -41,35 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits() : GPersonalityTraits()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy contructor
- *
- * @param cp A copy of another GBaseParChildPersonalityTraits object
- */
-GBaseParChildPersonalityTraits::GBaseParChildPersonalityTraits(
-	const GBaseParChildPersonalityTraits &cp
-)
-	: GPersonalityTraits(cp)
-	  , parentCounter_(cp.parentCounter_)
-	  , popPos_(cp.popPos_)
-	  , parentId_(cp.parentId_)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor
- */
-GBaseParChildPersonalityTraits::~GBaseParChildPersonalityTraits()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

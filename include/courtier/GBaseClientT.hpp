@@ -133,7 +133,7 @@ public:
 
 	 //---------------------------------------------------------------------------
 	 /** @brief The destructor */
-	 virtual ~GBaseClientT() = default;
+	 virtual ~GBaseClientT() BASE = default;
 
 	 //---------------------------------------------------------------------------
 	 // Deleted copy- and move-constructors a well as assignment operators

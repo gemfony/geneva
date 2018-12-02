@@ -75,9 +75,9 @@ public:
 		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory&);
+	 G_API_GENEVA GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GSwarmAlgorithmFactory();
+	 virtual G_API_GENEVA ~GSwarmAlgorithmFactory() = default;
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 G_API_GENEVA std::string getMnemonic() const override;
@@ -86,7 +86,7 @@ public:
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 virtual G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
+	 G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
 		 Gem::Common::GParserBuilder&
 		 , const std::size_t&
 	 ) override;

@@ -79,8 +79,8 @@ class GConstrainedNumCollectionT
         & make_nvp(
             "GParameterCollectionT"
             , boost::serialization::base_object<GParameterCollectionT<num_type>>(*this))
-        & BOOST_SERIALIZATION_NVP(lowerBoundary_)
-        & BOOST_SERIALIZATION_NVP(upperBoundary_);
+        & BOOST_SERIALIZATION_NVP(m_lowerBoundary)
+        & BOOST_SERIALIZATION_NVP(m_upperBoundary);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -106,15 +106,15 @@ public:
             size
             , lowerBoundary
         )
-        , lowerBoundary_(lowerBoundary)
-        , upperBoundary_(upperBoundary) {
+        , m_lowerBoundary(lowerBoundary)
+        , m_upperBoundary(upperBoundary) {
         // Naturally the upper boundary should be >= the lower boundary
-        if (lowerBoundary_ > upperBoundary_) {
+        if (m_lowerBoundary > m_upperBoundary) {
             glogger
                 << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, lower,upper):"
                 << std::endl
-                << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-                << "upperBoundary_ = " << upperBoundary_ << std::endl
+                << "lowerBoundary_ = " << m_lowerBoundary << "is larger than" << std::endl
+                << "upperBoundary_ = " << m_upperBoundary << std::endl
                 << GTERMINATION;
         }
 
@@ -155,15 +155,15 @@ public:
             size
             , val
         )
-        , lowerBoundary_(lowerBoundary)
-        , upperBoundary_(upperBoundary) {
+        , m_lowerBoundary(lowerBoundary)
+        , m_upperBoundary(upperBoundary) {
         // Naturally the upper boundary should be > the lower boundary
-        if (lowerBoundary_ > upperBoundary_) {
+        if (m_lowerBoundary > m_upperBoundary) {
             glogger
                 << "In GConstrainedNumCollectionT<num_type>::GConstrainedNumCollectionT(size, val, lower,upper):"
                 << std::endl
-                << "lowerBoundary_ = " << lowerBoundary_ << "is larger than" << std::endl
-                << "upperBoundary_ = " << upperBoundary_ << std::endl
+                << "lowerBoundary_ = " << m_lowerBoundary << "is larger than" << std::endl
+                << "upperBoundary_ = " << m_upperBoundary << std::endl
                 << GTERMINATION;
         }
 
@@ -201,18 +201,13 @@ public:
      * The standard copy constructor. We assume that the boundaries have
      * "legal" values. Thus we do not make any error checks here.
      */
-    GConstrainedNumCollectionT(const GConstrainedNumCollectionT<num_type> &cp)
-        :
-        GParameterCollectionT<num_type>(cp)
-        , lowerBoundary_(cp.lowerBoundary_)
-        , upperBoundary_(cp.upperBoundary_) { /* nothing */ }
+    GConstrainedNumCollectionT(const GConstrainedNumCollectionT<num_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor
      */
-    virtual ~GConstrainedNumCollectionT() { /* nothing */ }
-
+    ~GConstrainedNumCollectionT() override = default;
 
     /***************************************************************************/
     /**
@@ -221,7 +216,7 @@ public:
        * @return The value of the lower boundary
        */
     num_type getLowerBoundary() const {
-        return lowerBoundary_;
+        return m_lowerBoundary;
     }
 
     /***************************************************************************/
@@ -231,7 +226,7 @@ public:
        * @return The value of the upper boundary
        */
     num_type getUpperBoundary() const {
-        return upperBoundary_;
+        return m_upperBoundary;
     }
 
     /***************************************************************************/
@@ -256,7 +251,7 @@ public:
      * @param lower The new lower boundary for this object
      * @param upper The new upper boundary for this object
      */
-    virtual void setBoundaries(const num_type &lower, const num_type &upper) {
+    virtual void setBoundaries(const num_type &lower, const num_type &upper) BASE {
         std::vector<num_type> currentValues;
         for (std::size_t pos = 0; pos < this->size(); pos++) {
             currentValues.push_back(GParameterCollectionT<num_type>::value(pos));
@@ -290,8 +285,8 @@ public:
             );
         }
 
-        lowerBoundary_ = lower;
-        upperBoundary_ = upper;
+        m_lowerBoundary = lower;
+        m_upperBoundary = upper;
 
         // Re-set the internal representation of the values -- we might be in a different
         // region of the transformation internally, and the mapping will likely depend on
@@ -314,7 +309,7 @@ public:
      */
     void setValue(const std::size_t &pos, const num_type &val) override {
         // Do some error checking
-        if (val < lowerBoundary_ || val > upperBoundary_) {
+        if (val < m_lowerBoundary || val > m_upperBoundary) {
             throw gemfony_exception(
                 g_error_streamer(
                     DO_LOG
@@ -323,8 +318,8 @@ public:
                     << "In GConstrainedNumCollectionT<num_type>::setValue(pos, val):" << std::endl
                     << "In position " << pos << ":" << std::endl
                     << "Assigned value " << val << " is outside of its allowed boundaries: " << std::endl
-                    << "lowerBoundary_ = " << lowerBoundary_ << std::endl
-                    << "upperBoundary_ = " << upperBoundary_ << std::endl
+                    << "lowerBoundary_ = " << m_lowerBoundary << std::endl
+                    << "upperBoundary_ = " << m_upperBoundary << std::endl
             );
         }
 
@@ -359,7 +354,7 @@ public:
     /***************************************************************************/
     /** @brief The transfer function needed to calculate the externally visible
      * value. Declared public so we can do tests of the value transformation. */
-    virtual num_type transfer(const num_type &) const = 0;
+    virtual num_type transfer(const num_type &) const BASE = 0;
 
     /***************************************************************************/
     /**
@@ -368,7 +363,7 @@ public:
      * @param ptr The boost::property_tree object the data should be saved to
      * @param id The id assigned to this object
      */
-    virtual void toPropertyTree(
+    void toPropertyTree(
         pt::ptree &ptr
         , const std::string &baseName
     ) const override {
@@ -448,8 +443,8 @@ protected:
         GParameterCollectionT<num_type>::load_(cp);
 
         // ... and then our local data
-        lowerBoundary_ = p_load->lowerBoundary_;
-        upperBoundary_ = p_load->upperBoundary_;
+        m_lowerBoundary = p_load->m_lowerBoundary;
+        m_upperBoundary = p_load->m_upperBoundary;
     }
 
     /***************************************************************************/
@@ -469,7 +464,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -497,13 +492,13 @@ protected:
 
         // ... and then the local data
         compare_t(
-            IDENTITY(lowerBoundary_
-                     , p_load->lowerBoundary_)
+            IDENTITY(m_lowerBoundary
+                     , p_load->m_lowerBoundary)
             , token
         );
         compare_t(
-            IDENTITY(upperBoundary_
-                     , p_load->upperBoundary_)
+            IDENTITY(m_upperBoundary
+                     , p_load->m_upperBoundary)
             , token
         );
 
@@ -517,12 +512,12 @@ protected:
      * independent of a parameters value range
      */
     num_type range() const override {
-        return upperBoundary_ - lowerBoundary_;
+        return m_upperBoundary - m_lowerBoundary;
     }
 
     /***************************************************************************/
     /** @brief Triggers random initialization of the parameter collection */
-    virtual bool randomInit_(
+    bool randomInit_(
         const activityMode &
         , Gem::Hap::GRandomBase &gr
     ) override = 0;
@@ -533,11 +528,7 @@ protected:
      * for de-serialization and as the basis for derived class'es default
      * constructors
      */
-    GConstrainedNumCollectionT()
-        :
-        GParameterCollectionT<num_type>()
-        , lowerBoundary_(num_type(0))
-        , upperBoundary_(num_type(1)) { /* nothing */ }
+    GConstrainedNumCollectionT() = default;
 
 private:
     /***************************************************************************/
@@ -558,8 +549,8 @@ private:
     GObject *clone_() const override = 0;
 
     /***************************************************************************/
-    num_type lowerBoundary_; ///< The lower allowed boundary for our value
-    num_type upperBoundary_; ///< The upper allowed boundary for our value
+    num_type m_lowerBoundary = num_type(0); ///< The lower allowed boundary for our value
+    num_type m_upperBoundary = num_type(1); ///< The upper allowed boundary for our value
 
 public:
     /***************************************************************************/

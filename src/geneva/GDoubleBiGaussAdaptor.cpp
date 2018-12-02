@@ -41,35 +41,12 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GDoubleBiGaussAdaptor object
- */
-GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const GDoubleBiGaussAdaptor &cp)
-	: GFPBiGaussAdaptorT<double>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with a adaption probability
  *
  * @param adProb The adaption probability
  */
 GDoubleBiGaussAdaptor::GDoubleBiGaussAdaptor(const double &adProb)
 	: GFPBiGaussAdaptorT<double>(adProb) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GDoubleBiGaussAdaptor::~GDoubleBiGaussAdaptor() { /* nothing */ }
 
 /******************************************************************************/
 /**

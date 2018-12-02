@@ -61,10 +61,10 @@ public:
 	 virtual G_API_GENEVA std::size_t adapt() BASE = 0;
 
 protected:
-	 /**
- 	  * The standard destructor. Making this destructor protected follows this
- 	  * discussion: http://www.gotw.ca/publications/mill18.htm
- 	  */
+	/**
+      * The destructor. Making this function protected and non-virtual follows
+      * this discussion: http://www.gotw.ca/publications/mill18.htm
+      */
 	 G_API_GENEVA ~G_Interface_Mutable() = default;
 
 };

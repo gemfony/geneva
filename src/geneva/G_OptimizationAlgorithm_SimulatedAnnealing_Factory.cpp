@@ -72,21 +72,6 @@ GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(
 
 /******************************************************************************/
 /**
- * The copy constructor
- */
-GSimulatedAnnealingFactory::GSimulatedAnnealingFactory(const GSimulatedAnnealingFactory& cp)
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GSimulatedAnnealingFactory::~GSimulatedAnnealingFactory()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GSimulatedAnnealingFactory::getMnemonic() const {

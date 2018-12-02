@@ -979,7 +979,7 @@ public:
 
     GDecoratorContainer(const GDecoratorContainer<dimensions::Dim3, coordinate_type> &cp) = default;
 
-    virtual ~GDecoratorContainer() = default;
+    ~GDecoratorContainer() override = default;
 
     /***************************************************************************/
     /**

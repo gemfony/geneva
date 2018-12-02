@@ -76,9 +76,9 @@ public:
 		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory&);
+	 G_API_GENEVA GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory();
+	 virtual G_API_GENEVA ~GEvolutionaryAlgorithmFactory() = default;
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 G_API_GENEVA std::string getMnemonic() const override;

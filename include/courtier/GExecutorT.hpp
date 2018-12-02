@@ -160,7 +160,7 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief The standard destructor */
-	 virtual ~GBaseExecutorT() = default;
+	 ~GBaseExecutorT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1055,7 +1055,7 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief The destructor */
-	 virtual ~GSerialExecutorT() = default;
+	 ~GSerialExecutorT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1358,7 +1358,7 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief The destructor */
-	 virtual ~GMTExecutorT() = default;
+	 ~GMTExecutorT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1785,7 +1785,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GBrokerExecutorT()
+	 ~GBrokerExecutorT() override
 	 {
 		 // Register the plotter
 		 m_gpd.registerPlotter(m_waiting_times_graph);

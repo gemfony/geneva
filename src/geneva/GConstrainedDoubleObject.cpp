@@ -41,13 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GConstrainedDoubleObject::GConstrainedDoubleObject()
-	: GConstrainedFPT<double>() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with boundaries only. The value is set randomly.
  *
  * @param lowerBoundary The lower boundary of the value range
@@ -78,29 +71,12 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(
 
 /******************************************************************************/
 /**
- * The copy constructor
- *
- * @param cp A copy of another GConstrainedDoubleObject object
- */
-GConstrainedDoubleObject::GConstrainedDoubleObject(const GConstrainedDoubleObject &cp)
-	: GConstrainedFPT<double>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization by contained value
  *
  * @param val A value used for the initialization
  */
 GConstrainedDoubleObject::GConstrainedDoubleObject(const double &val)
 	: GConstrainedFPT<double>(val)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GConstrainedDoubleObject::~GConstrainedDoubleObject()
 { /* nothing */ }
 
 /******************************************************************************/

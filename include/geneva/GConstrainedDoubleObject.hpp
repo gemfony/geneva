@@ -73,19 +73,19 @@ class GConstrainedDoubleObject
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GConstrainedDoubleObject();
+    G_API_GENEVA GConstrainedDoubleObject() = default;
     /** @brief Initialization with boundaries only */
     G_API_GENEVA GConstrainedDoubleObject(const double &, const double &);
     /** @brief Initialization with value and boundaries */
     G_API_GENEVA GConstrainedDoubleObject(const double &, const double &, const double &);
     /** @brief The copy constructor */
-    G_API_GENEVA GConstrainedDoubleObject(const GConstrainedDoubleObject &);
+    G_API_GENEVA GConstrainedDoubleObject(const GConstrainedDoubleObject &) = default;
 
     /** @brief Initialization by contained value */
     explicit G_API_GENEVA GConstrainedDoubleObject(const double &);
 
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GConstrainedDoubleObject();
+    G_API_GENEVA ~GConstrainedDoubleObject() override = default;
 
     /** @brief An assignment operator for the contained value type */
     G_API_GENEVA double operator=(const double &) override;

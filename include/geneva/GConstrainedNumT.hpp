@@ -94,8 +94,6 @@ public:
 	  */
 	 GConstrainedNumT()
 		 : GParameterT<T>(GConstrainedValueLimitT<T>::lowest())
-			, lowerBoundary_(GConstrainedValueLimitT<T>::lowest())
-			, upperBoundary_(GConstrainedValueLimitT<T>::highest())
 	 { /* nothing */ }
 
 
@@ -108,8 +106,6 @@ public:
 	  */
 	 explicit GConstrainedNumT(const T& val)
 		 : GParameterT<T>(val)
-			, lowerBoundary_(GConstrainedValueLimitT<T>::lowest())
-			, upperBoundary_(GConstrainedValueLimitT<T>::highest())
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -202,18 +198,13 @@ public:
 	  *
 	  * @param cp Another GConstrainedNumT<T> object
 	  */
-	 GConstrainedNumT(const GConstrainedNumT<T>& cp)
-		 : GParameterT<T>(cp)
-			, lowerBoundary_(cp.lowerBoundary_)
-			, upperBoundary_(cp.upperBoundary_)
-	 { /* nothing */ }
+	 GConstrainedNumT(const GConstrainedNumT<T>&) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The standard destructor
 	  */
-	 virtual ~GConstrainedNumT()
-	 { /* nothing */	}
+	 ~GConstrainedNumT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -283,7 +274,7 @@ public:
 	  * @param lowerBoundary The new lower boundary for this object
 	  * @param upperBoundary The new upper boundary for this object
 	  */
-	 virtual void setBoundaries(const T& lowerBoundary, const T& upperBoundary) {
+	 virtual void setBoundaries(const T& lowerBoundary, const T& upperBoundary) BASE {
 		 const T currentValue = this->value(); // Store the externally visible value
 
 		 // Check that the boundaries make sense
@@ -478,7 +469,7 @@ public:
 	  * The transfer function needed to calculate the externally visible
 	  * value. Declared public so we can do tests of the value transformation.
 	  */
-	 virtual T transfer(const T&) const = 0;
+	 virtual T transfer(const T&) const BASE = 0;
 
 
 	 /***************************************************************************/
@@ -488,7 +479,7 @@ public:
 	  * @param ptr The boost::property_tree object the data should be saved to
 	  * @param baseName The name assigned to the object
 	  */
-	 virtual void toPropertyTree(
+	 void toPropertyTree(
 		 pt::ptree& ptr
 		 , const std::string& baseName
 	 ) const override {
@@ -591,8 +582,8 @@ private:
 
 	 /***************************************************************************/
 
-	 T lowerBoundary_; ///< The lower allowed boundary for our value
-	 T upperBoundary_; ///< The upper allowed boundary for our value
+	 T lowerBoundary_ = GConstrainedValueLimitT<T>::lowest();  ///< The lower allowed boundary for our value
+	 T upperBoundary_ = GConstrainedValueLimitT<T>::highest(); ///< The upper allowed boundary for our value
 
 public:
 	 /***************************************************************************/

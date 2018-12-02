@@ -132,7 +132,7 @@ public:
     /**
      * The standard destructor
      */
-    virtual ~GParameterTCollectionT() = default;
+    ~GParameterTCollectionT() override = default;
 
 
     /***************************************************************************/
@@ -194,7 +194,7 @@ public:
      * @param ptr The boost::property_tree object the data should be saved to
      * @param id The id assigned to this object
      */
-    virtual void toPropertyTree(
+    void toPropertyTree(
         pt::ptree &ptr
         , const std::string &baseName
     ) const override {
@@ -246,7 +246,7 @@ public:
      * @param property The property for which information is sought
      * @param data A vector, to which the properties should be added
      */
-    virtual void queryAdaptor(
+    void queryAdaptor(
         const std::string &adaptorName
         , const std::string &property
         , std::vector<boost::any> &data
@@ -347,7 +347,7 @@ protected:
     /**
      * This function distributes the random initialization to other objects
      */
-    virtual bool randomInit_(
+    bool randomInit_(
         const activityMode &am
         , Gem::Hap::GRandomBase &gr
     ) override {
@@ -376,7 +376,7 @@ protected:
      *
      * @param parVec The vector to which the float parameters will be attached
      */
-    virtual void floatStreamline(
+    void floatStreamline(
         std::vector<float> &parVec
         , const activityMode &am
     ) const override {
@@ -401,7 +401,7 @@ protected:
      *
      * @param parVec The vector to which the double parameters will be attached
      */
-    virtual void doubleStreamline(
+    void doubleStreamline(
         std::vector<double> &parVec
         , const activityMode &am
     ) const override {
@@ -426,7 +426,7 @@ protected:
      *
      * @param parVec The vector to which the std::int32_t parameters will be attached
      */
-    virtual void int32Streamline(
+    void int32Streamline(
         std::vector<std::int32_t> &parVec
         , const activityMode &am
     ) const override {
@@ -451,7 +451,7 @@ protected:
      *
      * @param parVec The vector to which the boolean parameters will be attached
      */
-    virtual void booleanStreamline(
+    void booleanStreamline(
         std::vector<bool> &parVec
         , const activityMode &am
     ) const override {
@@ -476,7 +476,7 @@ protected:
      *
      * @param parVec The map to which the float parameters will be attached
      */
-    virtual void floatStreamline(
+    void floatStreamline(
         std::map<std::string, std::vector<float>> &parVec
         , const activityMode &am
     ) const override {
@@ -501,7 +501,7 @@ protected:
      *
      * @param parVec The map to which the double parameters will be attached
      */
-    virtual void doubleStreamline(
+    void doubleStreamline(
         std::map<std::string, std::vector<double>> &parVec
         , const activityMode &am
     ) const override {
@@ -526,7 +526,7 @@ protected:
      *
      * @param parVec The map to which the std::int32_t parameters will be attached
      */
-    virtual void int32Streamline(
+    void int32Streamline(
         std::map<std::string, std::vector<std::int32_t>> &parVec
         , const activityMode &am
     ) const override {
@@ -551,7 +551,7 @@ protected:
      *
      * @param parVec The map to which the boolean parameters will be attached
      */
-    virtual void booleanStreamline(
+    void booleanStreamline(
         std::map<std::string, std::vector<bool>> &parVec
         , const activityMode &am
     ) const override {
@@ -576,7 +576,7 @@ protected:
      * @param lBndVec A vector of lower float parameter boundaries
      * @param uBndVec A vector of upper float parameter boundaries
      */
-    virtual void floatBoundaries(
+    void floatBoundaries(
         std::vector<float> &lBndVec
         , std::vector<float> &uBndVec
         , const activityMode &am
@@ -598,7 +598,7 @@ protected:
      * @param lBndVec A vector of lower double parameter boundaries
      * @param uBndVec A vector of upper double parameter boundaries
      */
-    virtual void doubleBoundaries(
+    void doubleBoundaries(
         std::vector<double> &lBndVec
         , std::vector<double> &uBndVec
         , const activityMode &am
@@ -620,7 +620,7 @@ protected:
      * @param lBndVec A vector of lower std::int32_t parameter boundaries
      * @param uBndVec A vector of upper std::int32_t parameter boundaries
      */
-    virtual void int32Boundaries(
+    void int32Boundaries(
         std::vector<std::int32_t> &lBndVec
         , std::vector<std::int32_t> &uBndVec
         , const activityMode &am
@@ -645,7 +645,7 @@ protected:
      * @param lBndVec A vector of lower bool parameter boundaries
      * @param uBndVec A vector of upper bool parameter boundaries
      */
-    virtual void booleanBoundaries(
+    void booleanBoundaries(
         std::vector<bool> &lBndVec
         , std::vector<bool> &uBndVec
         , const activityMode &am
@@ -668,7 +668,7 @@ protected:
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      * @return The number of float parameters in this collection
      */
-    virtual std::size_t countFloatParameters(
+    std::size_t countFloatParameters(
         const activityMode &am
     ) const override {
         std::size_t result = 0;
@@ -689,7 +689,7 @@ protected:
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      * @return The number of double parameters in this collection
      */
-    virtual std::size_t countDoubleParameters(
+    std::size_t countDoubleParameters(
         const activityMode &am
     ) const override {
         std::size_t result = 0;
@@ -710,7 +710,7 @@ protected:
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      * @return The number of std::int32_t parameters in this collection
      */
-    virtual std::size_t countInt32Parameters(
+    std::size_t countInt32Parameters(
         const activityMode &am
     ) const override {
         std::size_t result = 0;
@@ -731,7 +731,7 @@ protected:
      * @param am An enum indicating whether only information about active, inactive or all parameters of this type should be extracted
      * @return The number of bool parameters in this collection
      */
-    virtual std::size_t countBoolParameters(
+    std::size_t countBoolParameters(
         const activityMode &am
     ) const override {
         std::size_t result = 0;
@@ -748,7 +748,7 @@ protected:
     /**
      * Assigns part of a value vector to the parameter
      */
-    virtual void assignFloatValueVector(
+    void assignFloatValueVector(
         const std::vector<float> &parVec
         , std::size_t &pos
         , const activityMode &am
@@ -772,7 +772,7 @@ protected:
     /**
      * Assigns part of a value vector to the parameter
      */
-    virtual void assignDoubleValueVector(
+    void assignDoubleValueVector(
         const std::vector<double> &parVec
         , std::size_t &pos
         , const activityMode &am
@@ -796,7 +796,7 @@ protected:
     /**
      * Assigns part of a value vector to the parameter
      */
-    virtual void assignInt32ValueVector(
+    void assignInt32ValueVector(
         const std::vector<std::int32_t> &parVec
         , std::size_t &pos
         , const activityMode &am
@@ -820,7 +820,7 @@ protected:
     /**
      * Assigns part of a value vector to the parameter
      */
-    virtual void assignBooleanValueVector(
+    void assignBooleanValueVector(
         const std::vector<bool> &parVec
         , std::size_t &pos
         , const activityMode &am
@@ -844,7 +844,7 @@ protected:
     /**
      * Assigns part of a value vector to the parameter
      */
-    virtual void assignFloatValueVectors(
+    void assignFloatValueVectors(
         const std::map<std::string, std::vector<float>> &parMap
         , const activityMode &am
     ) override {
@@ -866,7 +866,7 @@ protected:
     /**
      * Assigns part of a value vector to the parameter
      */
-    virtual void assignDoubleValueVectors(
+    void assignDoubleValueVectors(
         const std::map<std::string, std::vector<double>> &parMap
         , const activityMode &am
     ) override {
@@ -888,7 +888,7 @@ protected:
     /**
      * Assigns part of a value vector to the parameter
      */
-    virtual void assignInt32ValueVectors(
+    void assignInt32ValueVectors(
         const std::map<std::string, std::vector<std::int32_t>> &parMap
         , const activityMode &am
     ) override {
@@ -910,7 +910,7 @@ protected:
     /**
      * Assigns part of a value vector to the parameter
      */
-    virtual void assignBooleanValueVectors(
+    void assignBooleanValueVectors(
         const std::map<std::string, std::vector<bool>> &parMap
         , const activityMode &am
     ) override {
@@ -932,7 +932,7 @@ protected:
     /**
      * Multiplication with a random value in a given range
      */
-    virtual void floatMultiplyByRandom(
+    void floatMultiplyByRandom(
         const float &min
         , const float &max
         , const activityMode &am
@@ -953,7 +953,7 @@ protected:
     /**
      * Multiplication with a random value in a given range
      */
-    virtual void doubleMultiplyByRandom(
+    void doubleMultiplyByRandom(
         const double &min
         , const double &max
         , const activityMode &am
@@ -974,7 +974,7 @@ protected:
     /**
      * Multiplication with a random value in a given range
      */
-    virtual void int32MultiplyByRandom(
+    void int32MultiplyByRandom(
         const std::int32_t &min
         , const std::int32_t &max
         , const activityMode &am
@@ -995,7 +995,7 @@ protected:
     /**
      * Multiplication with a random value in the range [0,1[
      */
-    virtual void floatMultiplyByRandom(
+    void floatMultiplyByRandom(
         const activityMode &am
         , Gem::Hap::GRandomBase &gr
     ) override {
@@ -1012,7 +1012,7 @@ protected:
     /**
      * Multiplication with a random value in the range [0,1[
      */
-    virtual void doubleMultiplyByRandom(
+    void doubleMultiplyByRandom(
         const activityMode &am
         , Gem::Hap::GRandomBase &gr
     ) override {
@@ -1029,7 +1029,7 @@ protected:
     /**
      * Multiplication with a random value in the range [0,1[
      */
-    virtual void int32MultiplyByRandom(
+    void int32MultiplyByRandom(
         const activityMode &am
         , Gem::Hap::GRandomBase &gr
     ) override {
@@ -1046,7 +1046,7 @@ protected:
     /**
      * Multiplication with a constant value
      */
-    virtual void floatMultiplyBy(
+    void floatMultiplyBy(
         const float &value
         , const activityMode &am
     ) override {
@@ -1063,7 +1063,7 @@ protected:
     /**
      * Multiplication with a constant value
      */
-    virtual void doubleMultiplyBy(
+    void doubleMultiplyBy(
         const double &value
         , const activityMode &am
     ) override {
@@ -1080,7 +1080,7 @@ protected:
     /**
      * Multiplication with a constant value
      */
-    virtual void int32MultiplyBy(
+    void int32MultiplyBy(
         const std::int32_t &value
         , const activityMode &am
     ) override {
@@ -1097,7 +1097,7 @@ protected:
     /**
      * Initialization with a constant value
      */
-    virtual void floatFixedValueInit(
+    void floatFixedValueInit(
         const float &value
         , const activityMode &am
     ) override {
@@ -1114,7 +1114,7 @@ protected:
     /**
      * Initialization with a constant value
      */
-    virtual void doubleFixedValueInit(
+    void doubleFixedValueInit(
         const double &value
         , const activityMode &am
     ) override {
@@ -1131,7 +1131,7 @@ protected:
     /**
      * Initialization with a constant value
      */
-    virtual void int32FixedValueInit(
+    void int32FixedValueInit(
         const std::int32_t &value
         , const activityMode &am
     ) override {
@@ -1148,7 +1148,7 @@ protected:
     /**
      * Initialization with a constant value
      */
-    virtual void booleanFixedValueInit(
+    void booleanFixedValueInit(
         const bool &value
         , const activityMode &am
     ) override {
@@ -1165,7 +1165,7 @@ protected:
     /**
      * Adds the "same-type" parameters of another GParameterBase object to this one
      */
-    virtual void floatAdd(
+    void floatAdd(
         std::shared_ptr<GParameterBase> p_base
         , const activityMode &am
     ) override {
@@ -1199,7 +1199,7 @@ protected:
     /**
      * Adds the "same-type" parameters of another GParameterBase object to this one
      */
-    virtual void doubleAdd(
+    void doubleAdd(
         std::shared_ptr<GParameterBase> p_base
         , const activityMode &am
     ) override {
@@ -1233,7 +1233,7 @@ protected:
     /**
      * Adds the "same-type" parameters of another GParameterBase object to this one
      */
-    virtual void int32Add(
+    void int32Add(
         std::shared_ptr<GParameterBase> p_base
         , const activityMode &am
     ) override {
@@ -1267,7 +1267,7 @@ protected:
     /**
      * Subtracts the "same-type" parameters of another GParameterBase object from this one
      */
-    virtual void floatSubtract(
+    void floatSubtract(
         std::shared_ptr<GParameterBase> p_base
         , const activityMode &am
     ) override {
@@ -1301,7 +1301,7 @@ protected:
     /**
      * Subtracts the "same-type" parameters of another GParameterBase object from this one
      */
-    virtual void doubleSubtract(
+    void doubleSubtract(
         std::shared_ptr<GParameterBase> p_base
         , const activityMode &am
     ) override {
@@ -1335,7 +1335,7 @@ protected:
     /**
      * Subtracts the "same-type" parameters of another GParameterBase object from this one
      */
-    virtual void int32Subtract(
+    void int32Subtract(
         std::shared_ptr<GParameterBase> p_base
         , const activityMode &am
     ) override {

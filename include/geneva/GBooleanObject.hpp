@@ -75,17 +75,15 @@ class GBooleanObject
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GBooleanObject();
+    G_API_GENEVA GBooleanObject() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GBooleanObject(const GBooleanObject &);
-
+    G_API_GENEVA GBooleanObject(const GBooleanObject &) = default;
     /** @brief Initialization by contained value */
     explicit G_API_GENEVA GBooleanObject(const bool &);
-
     /** @brief Initialization with a given probability for "true" */
     explicit G_API_GENEVA GBooleanObject(const double &);
     /** @brief The destructor */
-    G_API_GENEVA ~GBooleanObject() override;
+    G_API_GENEVA ~GBooleanObject() override = default;
 
     /** @brief An assignment operator */
     G_API_GENEVA bool operator=(const bool &) override;
@@ -117,14 +115,14 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types
     ) const override;
 
     /** @brief Triggers random initialization of the parameter object */
-    virtual G_API_GENEVA bool randomInit_(
+    G_API_GENEVA bool randomInit_(
         const activityMode &
         , Gem::Hap::GRandomBase &
     ) override;

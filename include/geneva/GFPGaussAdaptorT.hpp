@@ -162,7 +162,7 @@ public:
     /**
      * The destructor
      */
-    virtual ~GFPGaussAdaptorT() = default;
+    ~GFPGaussAdaptorT() override = default;
 
     /***************************************************************************/
     /** @brief Retrieves the id of this adaptor */
@@ -245,7 +245,7 @@ protected:
      * @param value The value that is going to be adapted in situ
      * @param range A typical range for the parameter with type num_type
      */
-    virtual void customAdaptions(
+    void customAdaptions(
         fp_type &value
         , const fp_type &range
         , Gem::Hap::GRandomBase &gr

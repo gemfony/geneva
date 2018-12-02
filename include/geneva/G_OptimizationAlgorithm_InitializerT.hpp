@@ -73,7 +73,7 @@ class G_OptimizationAlgorithm_InitializerT {
 
 public:
 	/** @brief The initializing constructor */
-	inline G_OptimizationAlgorithm_InitializerT() {
+	G_OptimizationAlgorithm_InitializerT() {
 		// Create a smart pointer holding the algorithm
 		std::shared_ptr<G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>> p(new oaf_type());
 		std::string mnemonic = p->getMnemonic();
@@ -81,8 +81,9 @@ public:
 		// Add the factory to the store, if it hasn't been stored there yet
 		GOAFactoryStore->setOnce(mnemonic, p);
 	}
-	/** @brief An empty destructor */
-	virtual inline ~G_OptimizationAlgorithm_InitializerT() { /* nothing */ }
+
+	/** @brief Defaulted destructor */
+	virtual ~G_OptimizationAlgorithm_InitializerT() BASE = default;
 };
 
 /******************************************************************************/

@@ -81,13 +81,13 @@ public:
     /** @brief The default constructor */
     G_API_GENEVA GBooleanAdaptor();
     /** @brief The copy constructor */
-    G_API_GENEVA GBooleanAdaptor(const GBooleanAdaptor &);
+    G_API_GENEVA GBooleanAdaptor(const GBooleanAdaptor &) = default;
 
     /** @brief Initialization with a adaption probability */
     explicit G_API_GENEVA GBooleanAdaptor(const double &);
 
     /** @brief The destructor */
-    G_API_GENEVA ~GBooleanAdaptor() override;
+    G_API_GENEVA ~GBooleanAdaptor() override = default;
 
     /** @brief Retrieves the id of this adaptor */
     G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;
@@ -114,7 +114,7 @@ protected:
     ) const override;
 
     /** @brief Flip the value up or down by 1, depending on a random number */
-    virtual G_API_GENEVA void customAdaptions(
+    G_API_GENEVA void customAdaptions(
         bool &
         , const bool &
         , Gem::Hap::GRandomBase &

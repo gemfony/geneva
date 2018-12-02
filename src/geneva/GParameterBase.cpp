@@ -41,13 +41,7 @@ namespace Geneva {
 /**
  * The default constructor. Adaptions are switched on by default.
  */
-GParameterBase::GParameterBase()
-	: GObject()
-   , GMutableParameterI()
-   , m_adaptionsActive(true)
-   , m_randomInitializationBlocked(false)
-   , m_parameterName(Gem::Common::to_string(boost::uuids::random_generator()()))
-{ /* nothing */ }
+GParameterBase::GParameterBase() = default;
 
 /******************************************************************************/
 /**
@@ -55,19 +49,7 @@ GParameterBase::GParameterBase()
  *
  * @param cp A copy of another GParameterBase object
  */
-GParameterBase::GParameterBase(const GParameterBase &cp)
-	: GObject(cp)
-	  , GMutableParameterI(cp)
-	  , m_adaptionsActive(cp.m_adaptionsActive)
-	  , m_randomInitializationBlocked(cp.m_randomInitializationBlocked)
-	  , m_parameterName(cp.m_parameterName)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor. No local data, hence nothing to do.
- */
-GParameterBase::~GParameterBase() { /* nothing */ }
+GParameterBase::GParameterBase(const GParameterBase &cp) = default;
 
 /******************************************************************************/
 /**

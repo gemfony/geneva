@@ -82,7 +82,7 @@ public:
     /**
      * The default constructor
      */
-    GIntNumCollectionT() { /* nothing */ }
+    GIntNumCollectionT() = default;
 
     /***************************************************************************/
     /**
@@ -149,15 +149,13 @@ public:
      *
      * @param cp A copy of another GIntNumCollectionT<int_type> object
      */
-    GIntNumCollectionT(const GIntNumCollectionT<int_type> &cp)
-        :
-        GNumCollectionT<int_type>(cp) { /* nothing */ }
+    GIntNumCollectionT(const GIntNumCollectionT<int_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The destructor
      */
-    virtual ~GIntNumCollectionT() { /* nothing */ }
+    ~GIntNumCollectionT() override = default;
 
 protected:
     /***************************************************************************/
@@ -197,7 +195,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit

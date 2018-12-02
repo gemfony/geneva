@@ -223,7 +223,7 @@ public:
 	 G_API_COMMON GRgb(GRgb &&) = default;
 	 G_API_COMMON GRgb& operator=(GRgb const&) = default;
 	 G_API_COMMON GRgb& operator=(GRgb &&) = default;
-	 virtual G_API_COMMON ~GRgb() = default;
+	 virtual G_API_COMMON ~GRgb() BASE = default;
 
 	 /** @brief Explicit reset of colors */
 	 G_API_COMMON void setColor(float, float, float);
@@ -267,7 +267,7 @@ public:
 	 G_API_COMMON GColumn(GColumn const &) = default;
 
 	 /** @brief The destructor */
-	 virtual G_API_COMMON ~GColumn() = default;
+	 virtual G_API_COMMON ~GColumn() BASE = default;
 
 	 /** @brief Assignment operator */
 	 G_API_COMMON  GColumn &operator=(GColumn const &) = default;
@@ -355,7 +355,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GCanvas() = default;
+	 virtual ~GCanvas() BASE = default;
 
 	 /***************************************************************************/
 	 /**

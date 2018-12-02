@@ -95,7 +95,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GWorkerT() = default;
+	 virtual ~GWorkerT() BASE = default;
 
 	 /************************************************************************/
 	 /**
@@ -250,13 +250,13 @@ public:
 	 /************************************************************************/
 	 /**
 	  * Adds local configuration options to a GParserBuilder object. This function
-	  * only relays to our local implementation, which may be overridden in derived
+	  * only relies to our local implementation, which may be overridden in derived
 	  * classes. Note that the overriding function should take care to call the parent's
 	  * addConfigurationOptions_() function.
 	  *
 	  * @param gpb The GParserBuilder object, to which configuration options will be added
 	  */
-	 virtual void addConfigurationOptions(
+	  void addConfigurationOptions(
 		 Gem::Common::GParserBuilder &gpb
 	 ) {
 		 this->addConfigurationOptions_(gpb);
@@ -272,7 +272,7 @@ protected:
 	  */
 	 virtual void addConfigurationOptions_(
 		 Gem::Common::GParserBuilder &gpb
-	 ) { /* nothing -- no local data */ }
+	 ) BASE { /* nothing -- no local data */ }
 
 private:
 	 /************************************************************************/
@@ -509,7 +509,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GLocalConsumerWorkerT() = default;
+	 ~GLocalConsumerWorkerT() override = default;
 
 	 /************************************************************************/
 	 /**
@@ -575,7 +575,7 @@ private:
 
 	 /************************************************************************/
 	 /** @brief Retrieval of work items */
-	 virtual std::shared_ptr<processable_type> retrieve_(
+	 std::shared_ptr<processable_type> retrieve_(
 		 const std::chrono::milliseconds& timeout
 	 ) override {
 		 return this->m_broker_ferry_ptr->retrieve(timeout);
@@ -583,7 +583,7 @@ private:
 
 	 /************************************************************************/
 	 /** @brief Submission of work items */
-	 virtual void submit_(
+	 void submit_(
 		 std::shared_ptr<processable_type> p
 		 , const std::chrono::milliseconds& timeout
 	 ) override {

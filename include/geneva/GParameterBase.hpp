@@ -90,7 +90,7 @@ public:
     G_API_GENEVA GParameterBase(const GParameterBase &);
 
     /** @brief The standard destructor */
-    virtual G_API_GENEVA ~GParameterBase();
+    G_API_GENEVA ~GParameterBase() override = default;
 
     /** @brief The adaption interface */
     G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase &) override;
@@ -414,7 +414,7 @@ public:
     virtual G_API_GENEVA bool hasAdaptor() const BASE;
 
     /** @brief Converts the local data to a boost::property_tree node */
-    virtual G_API_GENEVA void toPropertyTree(pt::ptree &, const std::string &) const = 0;
+    virtual G_API_GENEVA void toPropertyTree(pt::ptree &, const std::string &) const BASE = 0;
 
     /** @brief Lets the audience know whether this is a leaf or a branch object */
     virtual G_API_GENEVA bool isLeaf() const BASE;
@@ -673,9 +673,9 @@ private:
     G_API_GENEVA GObject *clone_() const override = 0;
 
     /***************************************************************************/
-    bool m_adaptionsActive; ///< Specifies whether adaptions of this object should be carried out
-    bool m_randomInitializationBlocked; ///< Specifies that this object should not be initialized again
-    std::string m_parameterName; ///< A name assigned to this parameter object
+    bool m_adaptionsActive = true; ///< Specifies whether adaptions of this object should be carried out
+    bool m_randomInitializationBlocked = false; ///< Specifies that this object should not be initialized again
+    std::string m_parameterName = Gem::Common::to_string(boost::uuids::random_generator()()); ///< A name assigned to this parameter object
 
 public:
     /***************************************************************************/

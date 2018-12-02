@@ -89,11 +89,7 @@ public:
 	 /**
 	  * The default constructor.
 	  */
-	 GNumT()
-		 : GParameterT<T> ()
-			, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
-			, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
-	 { /* nothing */ }
+	 GNumT() = default;
 
 	 /*****************************************************************/
 	 /*
@@ -103,8 +99,6 @@ public:
 	  */
 	 explicit GNumT(const T& val)
 		 : GParameterT<T>(val)
-			, lowerInitBoundary_(T(DEFAULTLOWERINITBOUNDARYSINGLE))
-			, upperInitBoundary_(T(DEFAULTUPPERINITBOUNDARYSINGLE))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -117,26 +111,21 @@ public:
 	  */
 	 GNumT(const T& min, const T& max)
 		 : GParameterT<T> (min)
-			, lowerInitBoundary_(min)
-			, upperInitBoundary_(max)
+		 , lowerInitBoundary_(min)
+		 , upperInitBoundary_(max)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
 	  * The standard copy constructor
 	  */
-	 GNumT(const GNumT<T>& cp)
-		 : GParameterT<T> (cp)
-			, lowerInitBoundary_(cp.lowerInitBoundary_)
-			, upperInitBoundary_(cp.upperInitBoundary_)
-	 { /* nothing */ }
+	 GNumT(const GNumT<T>& cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The standard destructor
 	  */
-	 virtual ~GNumT()
-	 { /* nothing */ }
+	 ~GNumT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -220,7 +209,7 @@ public:
 	  * @param ptr The boost::property_tree object the data should be saved to
 	  * @param baseName The name assigned to the object
 	  */
-	 virtual void toPropertyTree (
+	 void toPropertyTree (
 		 pt::ptree& ptr
 		 , const std::string& baseName
 	 ) const override {
@@ -275,7 +264,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -309,7 +298,7 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief Triggers random initialization of the parameter */
-	 virtual bool randomInit_(
+	 bool randomInit_(
 		 const activityMode&
 		 , Gem::Hap::GRandomBase&
 	 ) override = 0;
@@ -333,8 +322,8 @@ private:
 	 GObject *clone_() const override = 0;
 
 	 /***************************************************************************/
-	 T lowerInitBoundary_; ///< The lower boundary for random initialization
-	 T upperInitBoundary_; ///< The upper boundary for random initialization
+	 T lowerInitBoundary_ = T(DEFAULTLOWERINITBOUNDARYSINGLE); ///< The lower boundary for random initialization
+	 T upperInitBoundary_ = T(DEFAULTUPPERINITBOUNDARYSINGLE); ///< The upper boundary for random initialization
 
 public:
 

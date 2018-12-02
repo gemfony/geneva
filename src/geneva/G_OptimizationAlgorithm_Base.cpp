@@ -50,30 +50,6 @@ namespace Geneva {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. Some member variables may be initialized in the class body.
- */
-GBasePluggableOM::GBasePluggableOM()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GBasePluggableOM::GBasePluggableOM(
-	const GBasePluggableOM& cp
-)
-	: m_useRawEvaluation(cp.m_useRawEvaluation)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The Destructor
- */
-GBasePluggableOM::~GBasePluggableOM()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

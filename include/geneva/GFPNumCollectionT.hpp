@@ -86,9 +86,7 @@ public:
     /**
      * The default constructor.
      */
-    GFPNumCollectionT()
-        :
-        GNumCollectionT<fp_type>() { /* nothing */ }
+    GFPNumCollectionT() = default;
 
     /***************************************************************************/
     /**
@@ -148,15 +146,13 @@ public:
     /**
      * The standard copy constructor
      */
-    GFPNumCollectionT(const GFPNumCollectionT<fp_type> &cp)
-        :
-        GNumCollectionT<fp_type>(cp) { /* nothing */ }
+    GFPNumCollectionT(const GFPNumCollectionT<fp_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor
      */
-    virtual ~GFPNumCollectionT() { /* nothing */ }
+    ~GFPNumCollectionT() override = default;
 
 protected:
     /***************************************************************************/
@@ -200,7 +196,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -238,7 +234,7 @@ protected:
      * that this function assumes that the collection has been completely
      * set up. Data that is added later will remain unaffected.
      */
-    virtual bool randomInit_(
+    bool randomInit_(
         const activityMode &am
         , Gem::Hap::GRandomBase &gr
     ) override {

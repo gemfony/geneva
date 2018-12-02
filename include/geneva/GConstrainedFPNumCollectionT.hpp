@@ -158,15 +158,13 @@ public:
     /**
      * The standard copy constructor
      */
-    GConstrainedFPNumCollectionT(const GConstrainedFPNumCollectionT<fp_type> &cp)
-        :
-        GConstrainedNumCollectionT<fp_type>(cp) { /* nothing */ }
+    GConstrainedFPNumCollectionT(const GConstrainedFPNumCollectionT<fp_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor
      */
-    virtual ~GConstrainedFPNumCollectionT() { /* nothing */ }
+    ~GConstrainedFPNumCollectionT() override = default;
 
     /****************************************************************************/
     /**
@@ -252,7 +250,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -288,7 +286,7 @@ protected:
     /**
      * Triggers random initialization of the parameter collection
      */
-    virtual bool randomInit_(
+    bool randomInit_(
         const activityMode &
         , Gem::Hap::GRandomBase &gr
     ) override {
@@ -311,9 +309,7 @@ protected:
      * needed for de-serialization and as the basis for derived class'es
      * default constructors.
      */
-    GConstrainedFPNumCollectionT()
-        :
-        GConstrainedNumCollectionT<fp_type>() { /* nothing */ }
+    GConstrainedFPNumCollectionT() = default;
 
 private:
     /***************************************************************************/

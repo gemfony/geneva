@@ -74,12 +74,11 @@ class GBaseParChildPersonalityTraits
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GBaseParChildPersonalityTraits();
+    G_API_GENEVA GBaseParChildPersonalityTraits() = default;
     /** @brief The copy contructor */
-    G_API_GENEVA GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits &);
-
+    G_API_GENEVA GBaseParChildPersonalityTraits(const GBaseParChildPersonalityTraits &) = default;
     /** @brief The standard destructor */
-    virtual G_API_GENEVA ~GBaseParChildPersonalityTraits();
+    G_API_GENEVA ~GBaseParChildPersonalityTraits() override = default;
 
     /** @brief Marks an individual as a parent*/
     G_API_GENEVA bool setIsParent();
@@ -120,7 +119,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types

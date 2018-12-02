@@ -41,17 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The standard constructor. As we have no local data, all work is done
- * by the parent class.
- */
-GBooleanCollection::GBooleanCollection()
-	: GParameterCollectionT<bool>()
-{ /* nothing */ }
-
-// Tested in this class
-
-/******************************************************************************/
-/**
  * Initializes the class with a set of nval random bits.
  *
  * @param nval The size of the collection
@@ -103,25 +92,6 @@ GBooleanCollection::GBooleanCollection(
 }
 
 // Tested in this class
-
-/******************************************************************************/
-/**
- * No local data, hence we can rely on the parent class.
- *
- * @param cp A copy of another GBooleanCollection object
- */
-GBooleanCollection::GBooleanCollection(const GBooleanCollection &cp)
-	: GParameterCollectionT<bool>(cp)
-{ /* nothing */ }
-
-// Tested in this class
-
-/******************************************************************************/
-/**
- * The standard destructor. No local data, hence it is empty.
- */
-GBooleanCollection::~GBooleanCollection()
-{ /* nothing */ }
 
 /******************************************************************************/
 /**

@@ -75,9 +75,9 @@ public:
 		 , std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GGradientDescentFactory(const GGradientDescentFactory&);
+	 G_API_GENEVA GGradientDescentFactory(const GGradientDescentFactory&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GGradientDescentFactory();
+	 G_API_GENEVA ~GGradientDescentFactory() override = default;
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 G_API_GENEVA std::string getMnemonic() const override;
@@ -86,7 +86,7 @@ public:
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 virtual G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
+	 G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
 		 Gem::Common::GParserBuilder&
 		 , const std::size_t&
 	 ) override;

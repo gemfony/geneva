@@ -86,9 +86,7 @@ public:
     /**
      * The default constructor.
      */
-    GNumFPT()
-        :
-        GNumT<fp_type>() { /* nothing */ }
+    GNumFPT() = default;
 
     /***************************************************************************/
     /*
@@ -154,15 +152,13 @@ public:
      *
      * @param cp A constant reference to another GNumFPT<fp_type> object
      */
-    GNumFPT(const GNumFPT<fp_type> &cp)
-        :
-        GNumT<fp_type>(cp) { /* nothing */ }
+    GNumFPT(const GNumFPT<fp_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor
      */
-    virtual ~GNumFPT() { /* nothing */ }
+    ~GNumFPT() override = default;
 
     /***************************************************************************/
     /**
@@ -215,7 +211,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -250,7 +246,7 @@ protected:
     /**
      * Triggers random initialization of the parameter
      */
-    virtual bool randomInit_(
+    bool randomInit_(
         const activityMode &am
         , Gem::Hap::GRandomBase &gr
     ) override {

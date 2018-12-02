@@ -227,7 +227,6 @@ class GParameterSet
 public:
     /** @brief The default constructor */
     G_API_GENEVA GParameterSet();
-
     /** @brief Initialization with the number of fitness criteria */
     explicit G_API_GENEVA GParameterSet(std::size_t);
     /** @brief The copy constructor */
@@ -270,7 +269,7 @@ public:
     ) const BASE;
 
     /** @brief Triggers updates of adaptors contained in this object */
-    virtual G_API_GENEVA void updateAdaptorsOnStall(std::uint32_t const &);
+    virtual G_API_GENEVA void updateAdaptorsOnStall(std::uint32_t const &) BASE;
 
     /** @brief Retrieves information from adaptors with a given property */
     virtual G_API_GENEVA void queryAdaptor(
@@ -280,7 +279,7 @@ public:
     ) const BASE;
 
     /** @brief Retrieves parameters relevant for the evaluation from another GParameterSet */
-    virtual G_API_GENEVA void cannibalize(GParameterSet &);
+    virtual G_API_GENEVA void cannibalize(GParameterSet &) BASE;
 
     /** @brief The adaption interface */
     G_API_GENEVA std::size_t adapt() override;

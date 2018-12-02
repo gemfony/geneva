@@ -73,7 +73,7 @@ class GInt32Collection
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GInt32Collection();
+    G_API_GENEVA GInt32Collection() = default;
     /** @brief Initialization with a number of random values in a given range */
     G_API_GENEVA GInt32Collection(
         const std::size_t &
@@ -88,10 +88,10 @@ public:
         , const std::int32_t &
     );
     /** @brief The copy constructor */
-    G_API_GENEVA GInt32Collection(const GInt32Collection &);
+    G_API_GENEVA GInt32Collection(const GInt32Collection &) = default;
 
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GInt32Collection();
+    G_API_GENEVA ~GInt32Collection() override = default;
 
 protected:
     /** @brief Loads the data of another GObject */
@@ -105,7 +105,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types
@@ -133,7 +133,7 @@ protected:
     ) override;
 
     /** @brief Multiplication with a random value in a given range */
-    virtual G_API_GENEVA void int32MultiplyByRandom(
+    G_API_GENEVA void int32MultiplyByRandom(
         const std::int32_t &min
         , const std::int32_t &max
         , const activityMode &am

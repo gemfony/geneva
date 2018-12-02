@@ -76,12 +76,11 @@ class GParameterSetConstraint :
 public:
 
     /** @brief The default constructor */
-    G_API_GENEVA GParameterSetConstraint();
+    G_API_GENEVA GParameterSetConstraint() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GParameterSetConstraint(const GParameterSetConstraint &);
-
+    G_API_GENEVA GParameterSetConstraint(const GParameterSetConstraint &) = default;
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GParameterSetConstraint();
+    G_API_GENEVA ~GParameterSetConstraint() override = default;
 
 protected:
     /** @brief Checks whether a given individual is valid */
@@ -100,7 +99,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types
@@ -136,12 +135,11 @@ class GParameterSetFormulaConstraint :
     ///////////////////////////////////////////////////////////////////////
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GParameterSetFormulaConstraint(std::string);
+    explicit G_API_GENEVA GParameterSetFormulaConstraint(std::string);
     /** @brief The copy constructor */
-    G_API_GENEVA GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint &);
-
+    G_API_GENEVA GParameterSetFormulaConstraint(const GParameterSetFormulaConstraint &) = default;
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GParameterSetFormulaConstraint();
+    G_API_GENEVA ~GParameterSetFormulaConstraint() override = default;
 
 protected:
     /** @brief Checks whether a given GParameterSet object is valid */
@@ -160,7 +158,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types
@@ -170,8 +168,8 @@ private:
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override;
 
-    /** @brief The default constructor -- intentionally private*/
-    G_API_GENEVA GParameterSetFormulaConstraint();
+    /** @brief The default constructor -- intentionally private, only needed for (de-)serialization */
+    G_API_GENEVA GParameterSetFormulaConstraint() = default;
 
     std::string rawFormula_; ///< Holds the raw formula, in which values haven't been replaced yet
 };

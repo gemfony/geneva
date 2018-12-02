@@ -41,12 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GInt32Collection::GInt32Collection() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with a number of random values in a given range
  *
  * @param nval The amount of random values
@@ -71,23 +65,6 @@ GInt32Collection::GInt32Collection(
 	const std::size_t &nval, const std::int32_t &val, const std::int32_t &min, const std::int32_t &max
 )
 	: GIntNumCollectionT<std::int32_t>(nval, val, min, max)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GInt32Collection object
- */
-GInt32Collection::GInt32Collection(const GInt32Collection &cp)
-	: GIntNumCollectionT<std::int32_t>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GInt32Collection::~GInt32Collection()
 { /* nothing */ }
 
 /******************************************************************************/

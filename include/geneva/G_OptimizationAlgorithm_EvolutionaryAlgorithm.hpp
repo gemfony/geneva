@@ -98,7 +98,7 @@ public:
     /** @brief The default constructor */
     G_API_GENEVA GEvolutionaryAlgorithm();
     /** @brief A standard copy constructor */
-    G_API_GENEVA GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm &cp);
+    G_API_GENEVA GEvolutionaryAlgorithm(const GEvolutionaryAlgorithm &) = default;
     /** @brief The standard destructor */
     G_API_GENEVA ~GEvolutionaryAlgorithm() override = default;
 

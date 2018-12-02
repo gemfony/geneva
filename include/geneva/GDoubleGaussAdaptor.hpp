@@ -76,9 +76,9 @@ class GDoubleGaussAdaptor
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GDoubleGaussAdaptor();
+    G_API_GENEVA GDoubleGaussAdaptor() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GDoubleGaussAdaptor(const GDoubleGaussAdaptor &);
+    G_API_GENEVA GDoubleGaussAdaptor(const GDoubleGaussAdaptor &) = default;
 
     /** @brief Initialization with a adaption probability */
     explicit G_API_GENEVA GDoubleGaussAdaptor(const double &);
@@ -99,7 +99,7 @@ public:
     );
 
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GDoubleGaussAdaptor();
+    G_API_GENEVA ~GDoubleGaussAdaptor() override = default;
 
     /** @brief Retrieves the id of this adaptor */
     G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;

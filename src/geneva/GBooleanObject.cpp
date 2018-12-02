@@ -41,27 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GBooleanObject::GBooleanObject()
-	: GParameterT<bool>()
-{ /* nothing */ }
-
-// Tested in this file
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GBooleanObject object
- */
-GBooleanObject::GBooleanObject(const GBooleanObject &cp)
-	: GParameterT<bool>(cp) { /* nothing */ }
-
-// Tested in this file
-
-/******************************************************************************/
-/**
  * Initialization by contained value
  *
  * @param val A value used for the initialization
@@ -87,12 +66,6 @@ GBooleanObject::GBooleanObject(const double &probability) {
 }
 
 // Tested in this file
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GBooleanObject::~GBooleanObject() { /* nothing */ }
 
 /******************************************************************************/
 /**

@@ -70,21 +70,6 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
 
 /******************************************************************************/
 /**
- * The copy constructor
- */
-GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(const GSwarmAlgorithmFactory& cp)
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GSwarmAlgorithmFactory::~GSwarmAlgorithmFactory()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GSwarmAlgorithmFactory::getMnemonic() const {

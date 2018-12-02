@@ -96,10 +96,10 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GStandardMonitor(const GStandardMonitor& cp) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA  ~GStandardMonitor() = default;
+	 G_API_GENEVA  ~GStandardMonitor() override = default;
 
 	 /** @brief Aggregates the work of all registered pluggable monitors */
-	 virtual G_API_GENEVA  void informationFunction(
+	 G_API_GENEVA  void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
@@ -117,7 +117,7 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA  void compare_(
+	G_API_GENEVA  void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -181,7 +181,7 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GFitnessMonitor(const GFitnessMonitor& cp);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA  ~GFitnessMonitor() = default;
+	 G_API_GENEVA  ~GFitnessMonitor() override = default;
 
 	 /** @brief Allows to specify a different name for the result file */
 	 G_API_GENEVA void setResultFileName(const std::string &resultFile);
@@ -221,7 +221,7 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA  void compare_(
+	G_API_GENEVA  void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -295,10 +295,10 @@ public:
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GCollectiveMonitor(const GCollectiveMonitor& cp);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA  ~GCollectiveMonitor() = default;
+	 G_API_GENEVA  ~GCollectiveMonitor() override = default;
 
 	 /** @brief Aggregates the work of all registered pluggable monitors */
-	 virtual G_API_GENEVA  void informationFunction(
+	 G_API_GENEVA  void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
@@ -323,7 +323,7 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA  void compare_(
+	G_API_GENEVA  void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -394,13 +394,9 @@ class GProgressPlotterT
 public:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor. Some member variables may be initialized
-	  * in the class body.
+	  * The default constructor
 	  */
-	 GProgressPlotterT()
-		 : m_gpd("Progress information", 1, 1)
-			, m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1024,768))
-	 { /* nothing */ }
+	 GProgressPlotterT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -442,8 +438,7 @@ public:
 	 /**
 	  * The destuctor
 	  */
-	 virtual ~GProgressPlotterT()
-	 { /* nothing */ }
+	 ~GProgressPlotterT() override = default;
 
 	 /**************************************************************************/
 	 /**
@@ -676,7 +671,7 @@ public:
 	  * Allows to emit information in different stages of the information cycle
 	  * (initialization, during each cycle and during finalization)
 	  */
-	 virtual void informationFunction(
+	 void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override {
@@ -951,7 +946,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -1005,7 +1000,7 @@ private:
 
 	 std::vector<parPropSpec<fp_type>> m_fp_profVarVec; ///< Holds information about variables to be profiled
 
-	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
+	 Gem::Common::GPlotDesigner m_gpd{"Progress information", 1, 1}; ///< A wrapper for the plots
 
 	 // These are temporaries
 	 std::shared_ptr<Gem::Common::GGraph2D> m_progressPlotter2D_oa;
@@ -1013,7 +1008,7 @@ private:
 	 std::shared_ptr<Gem::Common::GGraph4D> m_progressPlotter4D_oa;
 
 	 std::string m_fileName = std::string("progressScan.C"); ///< The name of the file the output should be written to. Note that the class will add the name of the algorithm it acts on
-	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions; ///< The dimensions of the canvas
+	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions = std::tuple<std::uint32_t,std::uint32_t>(1024,768); ///< The dimensions of the canvas
 
 	 bool m_monitorBestOnly = false;  ///< Indicates whether only the best individuals should be monitored
 	 bool m_monitorValidOnly = false; ///< Indicates whether only valid individuals should be plotted
@@ -1138,9 +1133,9 @@ public:
 		 , const std::vector<double>& boundaries
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GAllSolutionFileLogger(const GAllSolutionFileLogger& cp);
+	 G_API_GENEVA GAllSolutionFileLogger(const GAllSolutionFileLogger& cp) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA  ~GAllSolutionFileLogger() = default;
+	 G_API_GENEVA  ~GAllSolutionFileLogger() override = default;
 
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
@@ -1187,7 +1182,7 @@ public:
 	 G_API_GENEVA bool getShowIterationBoundaries() const;
 
 	 /** @brief Allows to emit information in different stages of the information cycle */
-	 virtual G_API_GENEVA  void informationFunction(
+	 G_API_GENEVA  void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
@@ -1206,7 +1201,7 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA  void compare_(
+	G_API_GENEVA  void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -1284,9 +1279,9 @@ public:
 	 /** @brief Initialization with a file name */
 	 G_API_GENEVA GIterationResultsFileLogger(const std::string& fileName);
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GIterationResultsFileLogger(const GIterationResultsFileLogger& cp);
+	 G_API_GENEVA GIterationResultsFileLogger(const GIterationResultsFileLogger& cp) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA  ~GIterationResultsFileLogger() = default;
+	 G_API_GENEVA  ~GIterationResultsFileLogger() override = default;
 
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
@@ -1304,7 +1299,7 @@ public:
 	 G_API_GENEVA bool getUseTrueFitness() const;
 
 	 /** @brief Allows to emit information in different stages of the information cycle */
-	 virtual G_API_GENEVA  void informationFunction(
+	 G_API_GENEVA  void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
@@ -1322,7 +1317,7 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA  void compare_(
+	G_API_GENEVA  void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -1390,13 +1385,13 @@ public:
 	 /***************************************************************************/
 
 	 /** @brief The default constructor */
-	 G_API_GENEVA GNAdpationsLogger();
+	 G_API_GENEVA GNAdpationsLogger() = default;
 	 /** @brief Initialization with a file name */
 	 explicit G_API_GENEVA GNAdpationsLogger(const std::string& fileName);
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GNAdpationsLogger(const GNAdpationsLogger& cp);
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA  ~GNAdpationsLogger() = default;
+	 G_API_GENEVA  ~GNAdpationsLogger() override = default;
 
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
@@ -1421,7 +1416,7 @@ public:
 	 G_API_GENEVA bool getAddPrintCommand() const;
 
 	 /** @brief Allows to emit information in different stages of the information cycle */
-	 virtual G_API_GENEVA  void informationFunction(
+	 G_API_GENEVA  void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
@@ -1440,7 +1435,7 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object */
-	virtual G_API_GENEVA  void compare_(
+	G_API_GENEVA  void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -1453,9 +1448,9 @@ private:
 
 	 std::string m_fileName = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
-	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions; ///< The dimensions of the canvas
+	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions = std::tuple<std::uint32_t,std::uint32_t>(1200,1600); ///< The dimensions of the canvas
 
-	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
+	 Gem::Common::GPlotDesigner m_gpd{"Number of adaptions per iteration", 1, 2}; ///< A wrapper for the plots
 
 	 std::shared_ptr<Gem::Common::GHistogram2D> m_nAdaptionsHist2D_oa;  ///< Holds the actual histogram
 	 std::shared_ptr<Gem::Common::GGraph2D>     m_nAdaptionsGraph2D_oa; ///< Used if we only monitor the best solution in each iteration
@@ -1528,10 +1523,7 @@ public:
 	  * The default constructor. Note that some parmeters may be initialized in
 	  * the class body.
 	  */
-	 GAdaptorPropertyLoggerT()
-		 : m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
-			, m_gpd("Adaptor properties", 1, 2)
-	 { /* nothing */ }
+	 GAdaptorPropertyLoggerT() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1574,7 +1566,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GAdaptorPropertyLoggerT() = default;
+	 ~GAdaptorPropertyLoggerT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1685,7 +1677,7 @@ public:
 	  * Allows to emit information in different stages of the information cycle
 	  * (initialization, during each cycle and during finalization)
 	  */
-	 virtual void informationFunction(
+	 void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override {
@@ -1869,7 +1861,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -1926,9 +1918,9 @@ private:
 	 std::string m_adaptorName = "GDoubleGaussAdaptor"; ///< The  name of the adaptor for which properties should be logged
 	 std::string m_property = "sigma"; ///< The name of the property to be logged
 
-	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions; ///< The dimensions of the canvas
+	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions = std::tuple<std::uint32_t,std::uint32_t>(1200,1600); ///< The dimensions of the canvas
 
-	 Gem::Common::GPlotDesigner m_gpd; ///< A wrapper for the plots
+	 Gem::Common::GPlotDesigner m_gpd{"Adaptor properties", 1, 2}; ///< A wrapper for the plots
 
 	 std::shared_ptr<Gem::Common::GHistogram2D> m_adaptorPropertyHist2D_oa;  ///< Holds the actual histogram
 	 std::shared_ptr<Gem::Common::GGraph2D>     m_fitnessGraph2D_oa;    ///< Lets us monitor the current fitness of the population
@@ -2061,9 +2053,9 @@ public:
 		 , std::size_t nBinsY
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GProcessingTimesLogger(const GProcessingTimesLogger& cp);
+	 G_API_GENEVA GProcessingTimesLogger(const GProcessingTimesLogger& cp) = default;
 	 /** @brief  The destructor */
-	 virtual G_API_GENEVA  ~GProcessingTimesLogger() = default;
+	 G_API_GENEVA ~GProcessingTimesLogger() override = default;
 
 	 /** @brief Sets the file name for the processing times histogram */
 	 G_API_GENEVA void setFileName_pth(const std::string& fileName);
@@ -2105,7 +2097,7 @@ public:
 	 G_API_GENEVA std::size_t getNBinsY() const;
 
 	 /** @brief Allows to emit information in different stages of the information cycle */
-	 virtual G_API_GENEVA  void informationFunction(
+	 G_API_GENEVA  void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
@@ -2124,7 +2116,7 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA  void compare_(
+	G_API_GENEVA  void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -2140,12 +2132,12 @@ private:
 	 /************************************************************************/
 
 	 std::string m_fileName_pth = "processingTimingsHist.C"; ///< The name of the file to which timings should be written in ROOT format
-	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions_pth; ///< The dimensions of the canvas
-	 Gem::Common::GPlotDesigner m_gpd_pth; ///< A wrapper for the plots
+	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions_pth = std::tuple<std::uint32_t,std::uint32_t>(1600,1200); ///< The dimensions of the canvas
+	 Gem::Common::GPlotDesigner m_gpd_pth{"Timings for the processing steps of individuals", 2, 2}; ///< A wrapper for the plots
 
 	 std::string m_fileName_pth2 = "processingTimingsVsIteration.C"; ///< The name of the file to which timings should be written in ROOT format
-	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions_pth2; ///< The dimensions of the canvas
-	 Gem::Common::GPlotDesigner m_gpd_pth2; ///< A wrapper for the plots
+	 std::tuple<std::uint32_t,std::uint32_t> m_canvasDimensions_pth2 = std::tuple<std::uint32_t,std::uint32_t>(1600,1200); ///< The dimensions of the canvas
+	 Gem::Common::GPlotDesigner m_gpd_pth2{"Timings for the processing steps of individuals vs. iteration", 2, 2}; ///< A wrapper for the plots
 
 	 std::string m_fileName_txt = "processingTimings.txt"; ///< The name of the file to which timings should be written in text format
 

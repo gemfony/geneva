@@ -72,21 +72,6 @@ GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(
 
 /******************************************************************************/
 /**
- * The copy constructor
- */
-GEvolutionaryAlgorithmFactory::GEvolutionaryAlgorithmFactory(const GEvolutionaryAlgorithmFactory& cp)
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GEvolutionaryAlgorithmFactory::~GEvolutionaryAlgorithmFactory()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Gives access to the mnemonics / nickname describing an algorithm
  */
 std::string GEvolutionaryAlgorithmFactory::getMnemonic() const {

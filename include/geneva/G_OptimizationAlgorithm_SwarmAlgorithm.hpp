@@ -239,7 +239,7 @@ protected:
 	 G_API_GENEVA bool neighborhoodsHaveNominalValues() const;
 
 	 /** @brief Updates the best individuals found */
-	 virtual G_API_GENEVA std::tuple<double, double> findBests();
+	 virtual G_API_GENEVA std::tuple<double, double> findBests() BASE;
 	 /** @brief Resizes the population to the desired level and does some error checks */
 	 G_API_GENEVA void adjustPopulation() override;
 
@@ -261,7 +261,7 @@ protected:
 	 );
 
 	 /** @brief Triggers an update of all individual's positions */
-	 virtual G_API_GENEVA void updatePositions();
+	 virtual G_API_GENEVA void updatePositions() BASE;
 
 	 /** @brief Updates the fitness of all individuals */
 	 G_API_GENEVA void runFitnessCalculation() override;

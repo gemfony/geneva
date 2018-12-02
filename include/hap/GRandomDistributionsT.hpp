@@ -76,6 +76,8 @@ public:
 	 public:
 		  using distribution_type = bi_normal_distribution<fp_type>;
 
+		  param_type() = delete;
+
 		  /**
  			* Constructs the parameters of a bi_normal_distribution<fp_type>
  			*
@@ -139,9 +141,7 @@ public:
 			  if(m_mean != p.m_mean) return false;
 			  if(m_sigma1 != p.sigma1()) return false;
 			  if(m_sigma2 != p.sigma2()) return false;
-			  if(m_distance != p.distance()) return false;
-
-			  return true;
+			  return m_distance == p.distance();
 		  }
 
 		  /**
@@ -152,8 +152,6 @@ public:
 		  }
 
 	 private:
-		  param_type() = delete;
-
 		  const fp_type m_mean;
 		  const fp_type m_sigma1;
 		  const fp_type m_sigma2;
@@ -247,7 +245,7 @@ public:
 	  */
 	 bi_normal_distribution()
 		 : m_params(fp_type(DEF_BINORM_MEAN),fp_type(DEF_BINORM_SIGMA1),fp_type(DEF_BINORM_SIGMA2),fp_type(DEF_BINORM_DISTANCE))
-			, m_params_store(m_params)
+         , m_params_store(m_params)
 	 { /* nothing */ }
 
 	 /**
@@ -260,23 +258,36 @@ public:
 		 , fp_type distance
 	 )
 		 : m_params(mean, sigma1, sigma2, distance)
-			, m_params_store(m_params)
+		 , m_params_store(m_params)
 	 { /* nothing */ }
 
 	 /**
 	  * Initialization with a param_type object
 	  */
-	 bi_normal_distribution(const param_type& params)
+	 explicit bi_normal_distribution(const param_type& params)
 		 : m_params(params)
-			, m_params_store(params)
+		 , m_params_store(params)
 	 { /* nothing */ }
 
-private:
-	 bi_normal_distribution(const bi_normal_distribution<fp_type>&) = delete;
-	 bi_normal_distribution<fp_type>& operator=(const bi_normal_distribution<fp_type>&) = delete;
+	 /**
+	  * The copy constructor
+	  */
+	 bi_normal_distribution(const bi_normal_distribution<fp_type>& cp)
+	    : m_params(cp.m_params)
+        , m_params_store(cp.m_params_store)
+	 { /* nothing */ }
 
-	 std::normal_distribution<fp_type> m_normal_distribution; ///< Needed to form each gaussian "hill" of the distribution
-	 std::bernoulli_distribution m_uniform_bool; ///< Needed to decide whether a gaussian is created for the left or right peak
+	 /**
+	  * Assignment operator
+	  */
+	 bi_normal_distribution<fp_type>& operator=(const bi_normal_distribution<fp_type>& cp) {
+	     m_params = cp.m_params;
+	     m_params_store = cp.m_params_store;
+	 }
+
+private:
+	 std::normal_distribution<fp_type> m_normal_distribution{}; ///< Needed to form each gaussian "hill" of the distribution
+	 std::bernoulli_distribution m_uniform_bool{}; ///< Needed to decide whether a gaussian is created for the left or right peak
 
 	 param_type m_params; ///< The actual parameter values being used
 	 const param_type m_params_store; ///< The values the distribution will be reset to when reset() is called

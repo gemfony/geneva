@@ -40,30 +40,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GPersonalityTraits::GPersonalityTraits()
-	: GObject()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GPersonalityTraits::GPersonalityTraits(const GPersonalityTraits &cp)
-	: GObject(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor. No local, dynamically allocated data,
- * hence it does nothing.
- */
-GPersonalityTraits::~GPersonalityTraits()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Searches for compliance with expectations with respect to another object
  * of the same type
  *

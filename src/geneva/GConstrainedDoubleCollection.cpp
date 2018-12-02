@@ -41,13 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor. Protected, as it is only needed for de-serialization purposes.
- */
-GConstrainedDoubleCollection::GConstrainedDoubleCollection()
-	: GConstrainedFPNumCollectionT<double>() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialize with the lower and upper boundaries for data members of this class and
  * a number of random values within this range. Note that all action will take place in the
  * range [lowerBoundary, upperBoundary[.
@@ -76,21 +69,6 @@ GConstrainedDoubleCollection::GConstrainedDoubleCollection(
 	const std::size_t &size, const double &val, const double &lowerBoundary, const double &upperBoundary
 )
 	: GConstrainedFPNumCollectionT<double>(size, val, lowerBoundary, upperBoundary) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard copy constructor
- *
- * @param cp A copy of another GConstrainedDoubleCollection object
- */
-GConstrainedDoubleCollection::GConstrainedDoubleCollection(const GConstrainedDoubleCollection &cp)
-	: GConstrainedFPNumCollectionT<double>(cp) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor
- */
-GConstrainedDoubleCollection::~GConstrainedDoubleCollection() { /* nothing */ }
 
 /******************************************************************************/
 /**

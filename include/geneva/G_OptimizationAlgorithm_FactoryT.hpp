@@ -68,8 +68,12 @@ public:
 	 using pType = oa_type;
 
 	 /***************************************************************************/
+	 // Deleted default constructor
+	 G_OptimizationAlgorithm_FactoryT() = delete;
+
+	 /***************************************************************************/
 	 /**
-	  * The standard constructor
+	  * Initialization with the name of a config file
 	  */
 	 explicit G_OptimizationAlgorithm_FactoryT(
 	 	boost::filesystem::path const &configFile
@@ -115,8 +119,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~G_OptimizationAlgorithm_FactoryT()
-	 { /* nothing */ }
+	 virtual ~G_OptimizationAlgorithm_FactoryT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -407,8 +410,6 @@ protected:
 
 private:
 	 /***************************************************************************/
-	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
-	 G_OptimizationAlgorithm_FactoryT() = default;
 
 	 std::int32_t m_maxIterationCL = -1; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET
 	 std::int32_t m_maxStallIterationCL = -1; ///< The maximum number of generations without improvement, after which optimization is stopped. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET

@@ -122,10 +122,10 @@ namespace Common {
 class math_logic_error : public gemfony_exception {
 public:
 	/** @brief The standard constructor */
-	G_API_COMMON math_logic_error(const std::string &) throw();
+	G_API_COMMON math_logic_error(const std::string &) noexcept;
 
 	/** @brief The destructor */
-	virtual G_API_COMMON ~math_logic_error() throw();
+	G_API_COMMON ~math_logic_error() noexcept(true) override = default;
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
@@ -141,10 +141,10 @@ private:
 class division_by_0 : public math_logic_error {
 public:
 	/** @brief The default constructor */
-	G_API_COMMON division_by_0() throw();
+	G_API_COMMON division_by_0() noexcept;
 
 	/** @brief The destructor */
-	virtual G_API_COMMON ~division_by_0() throw();
+	G_API_COMMON ~division_by_0() noexcept(true) override = default;
 };
 
 /******************************************************************************/
@@ -157,13 +157,13 @@ template<typename fp_type>
 class acos_invalid_range : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	acos_invalid_range(const fp_type &val) throw()
+	acos_invalid_range(const fp_type &val) noexcept
 		: math_logic_error(std::string("acos: Value ") + Gem::Common::to_string(val) +
 								 std::string(" out of valid range [-1:1] in GFormulaParserT"))
 	{ /* nothing */ }
 
 	/** @brief The destructor */
-	virtual ~acos_invalid_range() throw() { /* nothing */ }
+	~acos_invalid_range() noexcept(true) override = default;
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
@@ -180,12 +180,12 @@ template<typename fp_type>
 class asin_invalid_range : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	asin_invalid_range(const fp_type &val) throw()
+	asin_invalid_range(const fp_type &val) noexcept
 		: math_logic_error(std::string("asin: Value ") + Gem::Common::to_string(val) +
 								 std::string(" out of valid range [-1:1] in GFormulaParserT")) { /* nothing */ }
 
 	/** @brief The destructor */
-	virtual ~asin_invalid_range() throw() { /* nothing */ }
+	~asin_invalid_range() noexcept(true) override = default;
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
@@ -203,13 +203,13 @@ template<typename fp_type>
 class log_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	log_negative_value(const fp_type &val) throw()
+	log_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("log: Value ") + Gem::Common::to_string(val) +
 								 std::string(" <= 0 in GFormulaParserT"))
 	{ /* nothing */ }
 
 	/** @brief The destructor */
-	virtual ~log_negative_value() throw() { /* nothing */ }
+	~log_negative_value() noexcept(true) override = default;
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
@@ -226,13 +226,13 @@ template<typename fp_type>
 class log10_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	log10_negative_value(const fp_type &val) throw()
+	log10_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("log10: Value ") + Gem::Common::to_string(val) +
 								 std::string(" <= 0  in GFormulaParserT"))
 	{ /* nothing */ }
 
 	/** @brief The destructor */
-	virtual ~log10_negative_value() throw() { /* nothing */ }
+	~log10_negative_value() noexcept(true) override = default;
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */
@@ -249,12 +249,12 @@ template<typename fp_type>
 class sqrt_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	sqrt_negative_value(const fp_type &val) throw()
+	sqrt_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("sqrt: Value ") + Gem::Common::to_string(val) +
 								 std::string(" < 0  in GFormulaParserT")) { /* nothing */ }
 
 	/** @brief The destructor */
-	virtual ~sqrt_negative_value() throw() { /* nothing */ }
+	~sqrt_negative_value() noexcept(true) override = default;
 
 private:
 	/** @brief The default constructor: Intentionally private and undefined */

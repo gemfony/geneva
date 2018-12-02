@@ -138,7 +138,7 @@ public:
     /**
      * The destructor.
      */
-    virtual ~GStdSimpleVectorInterfaceT() { data.clear(); }
+    virtual ~GStdSimpleVectorInterfaceT() BASE { data.clear(); }
 
     /***************************************************************************/
     /**
@@ -456,7 +456,7 @@ protected:
     std::vector<T> data;
 
     /** @brief Intentionally make this object purely virtual, for performance reasons */
-    virtual void dummyFunction() = 0;
+    virtual void dummyFunction() BASE = 0;
 
 private:
     /** @brief Checks for equality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */

@@ -74,12 +74,11 @@ class GPersonalityTraits :
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GPersonalityTraits();
+    G_API_GENEVA GPersonalityTraits() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GPersonalityTraits(const GPersonalityTraits &);
-
+    G_API_GENEVA GPersonalityTraits(const GPersonalityTraits &) = default;
     /** @brief The standard destructor */
-    virtual G_API_GENEVA ~GPersonalityTraits();
+    G_API_GENEVA ~GPersonalityTraits() override = default;
 
     /** @brief Retrieves the mnemonic of the optimization algorithm */
     virtual G_API_GENEVA std::string getMnemonic() const BASE = 0;

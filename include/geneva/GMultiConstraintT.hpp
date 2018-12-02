@@ -88,24 +88,19 @@ public:
     /**
      * The default constructor
      */
-    GPreEvaluationValidityCheckT()
-        :
-        allowNegative_(false) { /* nothing */ }
+    GPreEvaluationValidityCheckT() = default;
 
     /***************************************************************************/
     /**
      * The copy constructor
      */
-    GPreEvaluationValidityCheckT(const GPreEvaluationValidityCheckT<ind_type> &cp)
-        :
-        GObject(cp)
-        , allowNegative_(cp.allowNegative_) { /* nothing */ }
+    GPreEvaluationValidityCheckT(const GPreEvaluationValidityCheckT<ind_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The destructor
      */
-    virtual ~GPreEvaluationValidityCheckT() { /* nothing */ }
+    ~GPreEvaluationValidityCheckT() override = default;
 
     /***************************************************************************/
     /**
@@ -142,19 +137,6 @@ public:
                 }
             }
         }
-
-        throw gemfony_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GPreEvaluationValidityCheckT<ind_type>::check(): Error!" << std::endl
-                << "Error: This location should never be reached" << std::endl
-        );
-
-        // Make the compiler happy -- we return MAX_DOUBLE.
-        // Note that this line should never be reached.
-        return boost::numeric::bounds<double>::highest();
     }
 
     /***************************************************************************/
@@ -220,7 +202,7 @@ protected:
      * that this is a valid solution. This function must be overloaded in
      * derived classes.
      */
-    virtual double check_(const ind_type *) const = 0;
+    virtual double check_(const ind_type *) const BASE = 0;
 
     /***************************************************************************/
     /**
@@ -228,7 +210,7 @@ protected:
      *
      * TODO: Check whether it makes sense to provide custom configuration files -- if so, add allowNegative_ here
      */
-    virtual void addConfigurationOptions_(
+    void addConfigurationOptions_(
         Gem::Common::GParserBuilder &gpb
     ) override {
         // Call our parent class'es function
@@ -271,7 +253,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -315,7 +297,7 @@ private:
 
     /***************************************************************************/
 
-    bool allowNegative_; ///< Set to true if negative values are considered to be valid
+    bool allowNegative_ = false; ///< Set to true if negative values are considered to be valid
 };
 
 /******************************************************************************/
@@ -344,13 +326,13 @@ public:
     /**
      * The default constructor
      */
-    GValidityCheckContainerT() { /* nothing */ }
+    GValidityCheckContainerT() = default;
 
     /***************************************************************************/
     /**
      * Initialization from a vector of validity checks
      */
-    GValidityCheckContainerT(
+    explicit GValidityCheckContainerT(
         const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validityChecks
     ) {
         Gem::Common::copyCloneableSmartPointerContainer(
@@ -363,9 +345,9 @@ public:
     /**
      * The copy constructor
      */
-    GValidityCheckContainerT(const GValidityCheckContainerT<ind_type> &cp)
-        :
-        GPreEvaluationValidityCheckT<ind_type>(cp) {
+    GValidityCheckContainerT(const GValidityCheckContainerT<ind_type> &cp):
+        GPreEvaluationValidityCheckT<ind_type>(cp)
+    {
         Gem::Common::copyCloneableSmartPointerContainer(
             cp.validityChecks_
             , validityChecks_
@@ -376,7 +358,7 @@ public:
     /**
      * The destructor
      */
-    virtual ~GValidityCheckContainerT() { /* nothing */ }
+    ~GValidityCheckContainerT() override = default;
 
     /***************************************************************************/
     /**
@@ -451,7 +433,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -508,9 +490,8 @@ private:
  * user-defined policy or returns 0, if all checks are valid.
  */
 template<typename ind_type>
-class GCheckCombinerT
-    :
-        public GValidityCheckContainerT<ind_type>
+class GCheckCombinerT:
+    public GValidityCheckContainerT<ind_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -529,35 +510,30 @@ public:
     /**
      * The default constructor
      */
-    GCheckCombinerT()
-        :
-        combinerPolicy_(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID) { /* nothing */ }
+    GCheckCombinerT() = default;
 
     /***************************************************************************/
     /**
      * Initialization from a vector of validity checks
      */
-    GCheckCombinerT(
+    explicit GCheckCombinerT(
         const std::vector<std::shared_ptr<GPreEvaluationValidityCheckT<ind_type>>> &validityChecks
     )
         :
         GValidityCheckContainerT<ind_type>(validityChecks)
-        , combinerPolicy_(Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID) { /* nothing */ }
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
      * The copy constructor
      */
-    GCheckCombinerT(const GCheckCombinerT<ind_type> &cp)
-        :
-        GValidityCheckContainerT<ind_type>(cp)
-        , combinerPolicy_(cp.combinerPolicy_) { /* nothing */ }
+    GCheckCombinerT(const GCheckCombinerT<ind_type> &) = default;
 
     /***************************************************************************/
     /**
      * The destructor
      */
-    virtual ~GCheckCombinerT() { /* nothing */ }
+    ~GCheckCombinerT() override = default;
 
     /***************************************************************************/
     /**
@@ -661,27 +637,8 @@ protected:
                         << "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
                         << "Got invalid combinerPolicy_ value: " << combinerPolicy_ << std::endl
                 );
-
-                // Make the compiler happy -- we return MAX_DOUBLE.
-                // Note that this line should never be reached.
-                return boost::numeric::bounds<double>::highest();
             }
-                break;
-                // --------------------------------------------------------------------
         }
-
-        throw gemfony_exception(
-            g_error_streamer(
-                DO_LOG
-                , time_and_place
-            )
-                << "In GCheckCombinerT<ind_type>::check_(): Error!" << std::endl
-                << "Error: This location should never be reached" << std::endl
-        );
-
-        // Make the compiler happy -- we return MAX_DOUBLE.
-        // Note that this line should never be reached.
-        return boost::numeric::bounds<double>::highest();
     }
 
     /***************************************************************************/
@@ -720,7 +677,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -769,7 +726,7 @@ private:
     /***************************************************************************/
     // Local data
 
-    validityCheckCombinerPolicy combinerPolicy_; ///< Indicates how validity checks should be combined
+    validityCheckCombinerPolicy combinerPolicy_ = Gem::Geneva::validityCheckCombinerPolicy::MULTIPLYINVALID; ///< Indicates how validity checks should be combined
 };
 
 /******************************************************************************/

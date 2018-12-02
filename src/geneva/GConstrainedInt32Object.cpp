@@ -41,14 +41,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GConstrainedInt32Object::GConstrainedInt32Object()
-	: GConstrainedIntT<std::int32_t>()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with boundaries only. A random value inside of the allowed ranges will
  * be assigned to the object.
  *
@@ -77,29 +69,12 @@ GConstrainedInt32Object::GConstrainedInt32Object(
 
 /******************************************************************************/
 /**
- * The copy constructor
- *
- * @param cp A copy of another GConstrainedInt32Object object
- */
-GConstrainedInt32Object::GConstrainedInt32Object(const GConstrainedInt32Object &cp)
-	: GConstrainedIntT<std::int32_t>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization by contained value
  *
  * @param val A value used for the initialization
  */
 GConstrainedInt32Object::GConstrainedInt32Object(const std::int32_t &val)
 	: GConstrainedIntT<std::int32_t>(val)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GConstrainedInt32Object::~GConstrainedInt32Object()
 { /* nothing */ }
 
 /******************************************************************************/

@@ -84,11 +84,11 @@ class GConjugateGradientDescent : public G_OptimizationAlgorithm_Base
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GConjugateGradientDescent();
+	 G_API_GENEVA GConjugateGradientDescent() = default;
 	 /** @brief A standard copy constructor */
-	 G_API_GENEVA GConjugateGradientDescent(const GConjugateGradientDescent&);
+	 G_API_GENEVA GConjugateGradientDescent(const GConjugateGradientDescent&) = default;
 	 /** @brief The destructor */
-	 G_API_GENEVA ~GConjugateGradientDescent() override;
+	 G_API_GENEVA ~GConjugateGradientDescent() override = default;
 
 	 /** @brief Returns information about the type of optimization algorithm */
 	 G_API_GENEVA std::string getAlgorithmPersonalityType() const override;

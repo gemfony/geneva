@@ -88,9 +88,9 @@ public:
     /**
      * The standard constructor.
      */
-    GNumFlipAdaptorT()
-        :
-        GAdaptorT<num_type>(DEFAULTADPROB) { /* nothing */    }
+    GNumFlipAdaptorT() :
+        GAdaptorT<num_type>(DEFAULTADPROB)
+    { /* nothing */    }
 
     /***************************************************************************/
     /**
@@ -99,9 +99,9 @@ public:
      *
      * @param prob The probability for a flip
      */
-    explicit GNumFlipAdaptorT(const double &adProb)
-        :
-        GAdaptorT<num_type>(adProb) { /* nothing */ }
+    explicit GNumFlipAdaptorT(const double &adProb):
+        GAdaptorT<num_type>(adProb)
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
@@ -109,16 +109,14 @@ public:
      *
      * @param cp Another GNumFlipAdaptorT object
      */
-    GNumFlipAdaptorT(const GNumFlipAdaptorT<num_type> &cp)
-        :
-        GAdaptorT<num_type>(cp) { /* nothing */    }
+    GNumFlipAdaptorT(const GNumFlipAdaptorT<num_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor. Empty, as we have no local, dynamically
      * allocated data.
      */
-    virtual ~GNumFlipAdaptorT() { /* nothing */ }
+    ~GNumFlipAdaptorT() override = default;
 
     /***************************************************************************/
     /**
@@ -182,7 +180,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -222,7 +220,7 @@ protected:
      * @param value The bit value to be adapted
      * @param range A typical range for the parameter with type T (unused here)
      */
-    inline virtual void customAdaptions(
+    void customAdaptions(
         num_type &value
         , const num_type &range
         , Gem::Hap::GRandomBase &gr

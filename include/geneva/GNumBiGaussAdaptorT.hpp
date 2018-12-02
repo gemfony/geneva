@@ -93,24 +93,9 @@ class GNumBiGaussAdaptorT
 public:
     /***************************************************************************/
     /**
-     * The standard constructor.
+     * Default constructor
      */
-    GNumBiGaussAdaptorT()
-        :
-        GAdaptorT<num_type>()
-        , useSymmetricSigmas_(true)
-        , sigma1_(DEFAULTSIGMA)
-        , sigmaSigma1_(DEFAULTSIGMASIGMA)
-        , minSigma1_(DEFAULTMINSIGMA)
-        , maxSigma1_(DEFAULTMAXSIGMA)
-        , sigma2_(DEFAULTSIGMA)
-        , sigmaSigma2_(DEFAULTSIGMASIGMA)
-        , minSigma2_(DEFAULTMINSIGMA)
-        , maxSigma2_(DEFAULTMAXSIGMA)
-        , delta_(DEFAULTDELTA)
-        , sigmaDelta_(DEFAULTSIGMADELTA)
-        , minDelta_(DEFAULTMINDELTA)
-        , maxDelta_(DEFAULTMAXDELTA) { /* nothing */ }
+    GNumBiGaussAdaptorT() = default;
 
     /***************************************************************************/
     /**
@@ -118,22 +103,10 @@ public:
      *
      * @param probability The likelihood for a adaption actually taking place
      */
-    GNumBiGaussAdaptorT(const fp_type &probability)
+    explicit GNumBiGaussAdaptorT(const fp_type &probability)
         :
         GAdaptorT<num_type>(probability)
-        , useSymmetricSigmas_(true)
-        , sigma1_(DEFAULTSIGMA)
-        , sigmaSigma1_(DEFAULTSIGMASIGMA)
-        , minSigma1_(DEFAULTMINSIGMA)
-        , maxSigma1_(DEFAULTMAXSIGMA)
-        , sigma2_(DEFAULTSIGMA)
-        , sigmaSigma2_(DEFAULTSIGMASIGMA)
-        , minSigma2_(DEFAULTMINSIGMA)
-        , maxSigma2_(DEFAULTMAXSIGMA)
-        , delta_(DEFAULTDELTA)
-        , sigmaDelta_(DEFAULTSIGMADELTA)
-        , minDelta_(DEFAULTMINDELTA)
-        , maxDelta_(DEFAULTMAXDELTA) { /* nothing */ }
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
@@ -142,29 +115,14 @@ public:
      *
      * @param cp Another GNumBiGaussAdaptorT object
      */
-    GNumBiGaussAdaptorT(const GNumBiGaussAdaptorT<num_type, fp_type> &cp)
-        :
-        GAdaptorT<num_type>(cp)
-        , useSymmetricSigmas_(true)
-        , sigma1_(cp.sigma1_)
-        , sigmaSigma1_(cp.sigmaSigma1_)
-        , minSigma1_(cp.minSigma1_)
-        , maxSigma1_(cp.maxSigma1_)
-        , sigma2_(cp.sigma2_)
-        , sigmaSigma2_(cp.sigmaSigma2_)
-        , minSigma2_(cp.minSigma2_)
-        , maxSigma2_(cp.maxSigma2_)
-        , delta_(cp.delta_)
-        , sigmaDelta_(cp.sigmaDelta_)
-        , minDelta_(cp.minDelta_)
-        , maxDelta_(cp.maxDelta_) { /* nothing */    }
+    GNumBiGaussAdaptorT(const GNumBiGaussAdaptorT<num_type, fp_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor. Empty, as we have no local, dynamically
      * allocated data.
      */
-    virtual ~GNumBiGaussAdaptorT() { /* nothing */ }
+    ~GNumBiGaussAdaptorT() override = default;
 
     /***************************************************************************/
     /**
@@ -625,7 +583,7 @@ public:
     /**
      * Allows to randomly initialize parameter members
      */
-    virtual bool randomInit(
+    bool randomInit(
         Gem::Hap::GRandomBase &gr
     ) override {
         using namespace Gem::Common;
@@ -656,20 +614,20 @@ public:
 protected:
     /***************************************************************************/
     // For performance reasons, so we do not have to go through access functions
-    bool useSymmetricSigmas_; ///< Determines whether the sigmas of both gaussians should be the same
+    bool useSymmetricSigmas_ = true; ///< Determines whether the sigmas of both gaussians should be the same
 
-    fp_type sigma1_; ///< The width of the first gaussian used to adapt values
-    fp_type sigmaSigma1_; ///< affects sigma1_ adaption
-    fp_type minSigma1_; ///< minimum allowed value for sigma1_
-    fp_type maxSigma1_; ///< maximum allowed value for sigma1_
-    fp_type sigma2_; ///< The width of the second gaussian used to adapt values
-    fp_type sigmaSigma2_; ///< affects sigma2_ adaption
-    fp_type minSigma2_; ///< minimum allowed value for sigma2_
-    fp_type maxSigma2_; ///< maximum allowed value for sigma2_
-    fp_type delta_; ///< The distance between both gaussians
-    fp_type sigmaDelta_; ///< affects the adaption of delta_
-    fp_type minDelta_; ///< minimum allowed value for delta_
-    fp_type maxDelta_; ///< maximum allowed value for delta_
+    fp_type sigma1_ = DEFAULTSIGMA; ///< The width of the first gaussian used to adapt values
+    fp_type sigmaSigma1_ = DEFAULTSIGMASIGMA; ///< affects sigma1_ adaption
+    fp_type minSigma1_ = DEFAULTMINSIGMA; ///< minimum allowed value for sigma1_
+    fp_type maxSigma1_ = DEFAULTMAXSIGMA; ///< maximum allowed value for sigma1_
+    fp_type sigma2_ = DEFAULTSIGMA; ///< The width of the second gaussian used to adapt values
+    fp_type sigmaSigma2_ = DEFAULTSIGMASIGMA; ///< affects sigma2_ adaption
+    fp_type minSigma2_ = DEFAULTMINSIGMA; ///< minimum allowed value for sigma2_
+    fp_type maxSigma2_ = DEFAULTMAXSIGMA; ///< maximum allowed value for sigma2_
+    fp_type delta_ = DEFAULTDELTA; ///< The distance between both gaussians
+    fp_type sigmaDelta_ = DEFAULTSIGMADELTA; ///< affects the adaption of delta_
+    fp_type minDelta_ = DEFAULTMINDELTA; ///< minimum allowed value for delta_
+    fp_type maxDelta_ = DEFAULTMAXDELTA; ///< maximum allowed value for delta_
 
     Gem::Hap::bi_normal_distribution<fp_type>
         m_bi_normal_distribution; ///< Access to random numbers with a bi_normal distribution
@@ -725,7 +683,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const fp_type &limit
@@ -827,7 +785,7 @@ protected:
      * Adds a given property value to the vector or returns false, if the property
      * was not found.
      */
-    virtual bool customQueryProperty(
+    bool customQueryProperty(
         const std::string &property
         , std::vector<boost::any> &data
     ) const override {
@@ -851,7 +809,7 @@ protected:
      *
      * @param range A typical range for the parameter with type num_type (unused here)
      */
-    virtual void customAdaptAdaption(
+    void customAdaptAdaption(
         const num_type &
         , Gem::Hap::GRandomBase &gr
     ) override {
@@ -908,7 +866,7 @@ protected:
      * @param value The value that is going to be adapted in situ
      * @param range A typical range for the parameter with type num_type (unused here)
      */
-    virtual void customAdaptions(
+    void customAdaptions(
         num_type &
         , const num_type &
         , Gem::Hap::GRandomBase &gr

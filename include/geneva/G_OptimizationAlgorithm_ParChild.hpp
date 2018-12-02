@@ -108,10 +108,9 @@ public:
     /** @brief The default constructor */
     G_API_GENEVA G_OptimizationAlgorithm_ParChild();
     /** @brief A standard copy constructor */
-    G_API_GENEVA G_OptimizationAlgorithm_ParChild(const G_OptimizationAlgorithm_ParChild &cp);
-
+    G_API_GENEVA G_OptimizationAlgorithm_ParChild(const G_OptimizationAlgorithm_ParChild &cp) = default;
     /** @brief The standard destructor */
-    virtual G_API_GENEVA ~G_OptimizationAlgorithm_ParChild() = default;
+    G_API_GENEVA ~G_OptimizationAlgorithm_ParChild() override = default;
 
     /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
     G_API_GENEVA void resetToOptimizationStart() override;
@@ -150,7 +149,7 @@ public:
     G_API_GENEVA double getAmalgamationLikelihood() const;
 
     /** @brief This function assigns a new value to each child individual */
-    virtual G_API_GENEVA void doRecombine();
+    virtual G_API_GENEVA void doRecombine() BASE;
 
     /** @brief Gives individuals an opportunity to update their internal structures */
     G_API_GENEVA void actOnStalls() override;
@@ -200,17 +199,17 @@ public:
 protected:
     /***************************************************************************/
     /** @brief Adapts all children of this population */
-    virtual G_API_GENEVA void adaptChildren() = 0;
+    virtual G_API_GENEVA void adaptChildren() BASE = 0;
     /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
     G_API_GENEVA void runFitnessCalculation() override = 0;
 
     /** @brief Choose new parents, based on the selection scheme set by the user */
-    virtual G_API_GENEVA void selectBest() = 0;
+    virtual G_API_GENEVA void selectBest() BASE = 0;
 
     /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-    virtual G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange() const = 0; // Depends on selection scheme
+    virtual G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange() const BASE = 0; // Depends on selection scheme
     /** @brief Some error checks related to population sizes */
-    virtual G_API_GENEVA void populationSanityChecks() const = 0; // TODO: Take code from old init() function
+    virtual G_API_GENEVA void populationSanityChecks() const BASE = 0; // TODO: Take code from old init() function
 
     /***************************************************************************/
     /**
@@ -233,14 +232,14 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
     ) const override;
 
     /** @brief This function is called from G_OptimizationAlgorithm_Base::optimize() and performs the actual recombination */
-    virtual G_API_GENEVA void recombine();
+    virtual G_API_GENEVA void recombine() BASE;
 
     /** @brief Retrieves the adaption range in a given iteration and sorting scheme. */
     G_API_GENEVA std::tuple<std::size_t, std::size_t> getAdaptionRange() const;

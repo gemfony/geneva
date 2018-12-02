@@ -134,19 +134,13 @@ std::vector<double> fillWithData<double>(
 class scanParInterface
 {
 public:
-    virtual G_API_GENEVA ~scanParInterface() = default;
-
-    virtual G_API_GENEVA NAMEANDIDTYPE getVarAddress() const = 0;
-
-    virtual G_API_GENEVA bool goToNextItem() = 0;
-
-    virtual G_API_GENEVA bool isAtTerminalPosition() const = 0;
-
-    virtual G_API_GENEVA bool isAtFirstPosition() const = 0;
-
-    virtual G_API_GENEVA void resetPosition() = 0;
-
-    virtual G_API_GENEVA std::string getTypeDescriptor() const = 0;
+    virtual G_API_GENEVA ~scanParInterface() BASE = default;
+    virtual G_API_GENEVA NAMEANDIDTYPE getVarAddress() const BASE = 0;
+    virtual G_API_GENEVA bool goToNextItem() BASE = 0;
+    virtual G_API_GENEVA bool isAtTerminalPosition() const BASE = 0;
+    virtual G_API_GENEVA bool isAtFirstPosition() const BASE = 0;
+    virtual G_API_GENEVA void resetPosition() BASE = 0;
+    virtual G_API_GENEVA std::string getTypeDescriptor() const BASE = 0;
 };
 
 /******************************************************************************/
@@ -170,13 +164,13 @@ class baseScanParT
 
         ar
         & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GStdSimpleVectorInterfaceT<T>)
-        & BOOST_SERIALIZATION_NVP(var_)
-        & BOOST_SERIALIZATION_NVP(step_)
-        & BOOST_SERIALIZATION_NVP(nSteps_)
-        & BOOST_SERIALIZATION_NVP(lower_)
-        & BOOST_SERIALIZATION_NVP(upper_)
-        & BOOST_SERIALIZATION_NVP(randomScan_)
-        & BOOST_SERIALIZATION_NVP(typeDescription_);
+        & BOOST_SERIALIZATION_NVP(m_var)
+        & BOOST_SERIALIZATION_NVP(m_step)
+        & BOOST_SERIALIZATION_NVP(m_nSteps)
+        & BOOST_SERIALIZATION_NVP(m_lower)
+        & BOOST_SERIALIZATION_NVP(m_upper)
+        & BOOST_SERIALIZATION_NVP(m_randomScan)
+        & BOOST_SERIALIZATION_NVP(m_typeDescription);
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -189,41 +183,41 @@ public:
     baseScanParT(
         parPropSpec<T> pps
         , bool randomScan
-        , const std::string &t // typeDescription_
+        , const std::string &t // m_typeDescription
     )
         :
         Gem::Common::GStdSimpleVectorInterfaceT<T>()
-        , var_(pps.var)
-        , step_(0)
-        , nSteps_(pps.nSteps)
-        , lower_(pps.lowerBoundary)
-        , upper_(pps.upperBoundary)
-        , randomScan_(randomScan)
-        , typeDescription_(t) {
-        if (not randomScan_) {
+        , m_var(pps.var)
+        , m_step(0)
+        , m_nSteps(pps.nSteps)
+        , m_lower(pps.lowerBoundary)
+        , m_upper(pps.upperBoundary)
+        , m_randomScan(randomScan)
+        , m_typeDescription(t) {
+        if (not m_randomScan) {
             // Fill the object with data
             this->data = fillWithData<T>(
-                nSteps_
-                , lower_
-                , upper_
+                m_nSteps
+                , m_lower
+                , m_upper
             );
         }
     }
 
     /***************************************************************************/
     /**
-     * The copy constructor
+     * Copy constructor. Not defaulted, so we can avoid copying of the
+     * random number generator.
      */
     baseScanParT(const baseScanParT<T> &cp)
-        :
-        Gem::Common::GStdSimpleVectorInterfaceT<T>(cp)
-        , var_(cp.var_)
-        , step_(cp.step_)
-        , nSteps_(cp.nSteps_)
-        , lower_(cp.lower_)
-        , upper_(cp.upper_)
-        , randomScan_(cp.randomScan_)
-        , typeDescription_(cp.typeDescription_) { /* nothing */ }
+        : m_var(cp.m_var)
+        , m_step(cp.m_step)
+        , m_nSteps(cp.m_step)
+        , m_lower(cp.m_lower)
+        , m_upper(cp.m_upper)
+        , m_randomScan(cp.m_randomScan)
+        , m_typeDescription(cp.m_typeDescription)
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
@@ -236,7 +230,7 @@ public:
      * Retrieve the address of this object
      */
     NAMEANDIDTYPE getVarAddress() const override {
-        return var_;
+        return m_var;
     }
 
     /***************************************************************************/
@@ -244,7 +238,7 @@ public:
      * Retrieves the current item position
      */
     std::size_t getCurrentItemPos() const {
-        return step_;
+        return m_step;
     }
 
     /***************************************************************************/
@@ -254,10 +248,10 @@ public:
     T getCurrentItem(
         Gem::Hap::GRandomBase &gr
     ) const {
-        if (randomScan_) {
+        if (m_randomScan) {
             return getRandomItem(gr);
         } else {
-            return this->at(step_);
+            return this->at(m_step);
         }
     }
 
@@ -268,8 +262,8 @@ public:
      * @return A boolean indicating whether a warp has taken place
      */
     bool goToNextItem() override {
-        if (++step_ >= nSteps_) {
-            step_ = 0;
+        if (++m_step >= m_nSteps) {
+            m_step = 0;
             return true;
         }
         return false;
@@ -280,8 +274,7 @@ public:
      * Checks whether step_ points to the last item in the array
      */
     bool isAtTerminalPosition() const override {
-        if (step_ >= nSteps_) { return true; }
-        else { return false; }
+        return m_step >= m_nSteps;
     }
 
     /***************************************************************************/
@@ -289,8 +282,7 @@ public:
      * Checks whether step_ points to the first item in the array
      */
     bool isAtFirstPosition() const override {
-        if (0 == step_) { return true; }
-        else { return false; }
+        return 0 == m_step;
     }
 
     /***************************************************************************/
@@ -298,7 +290,7 @@ public:
      * Resets the current position
      */
     void resetPosition() override {
-        step_ = 0;
+        m_step = 0;
     }
 
     /***************************************************************************/
@@ -306,39 +298,39 @@ public:
      * Retrieve the type descriptor
      */
     std::string getTypeDescriptor() const override {
-        return typeDescription_;
+        return m_typeDescription;
     }
 
 protected:
     /***************************************************************************/
     // Data
 
-    NAMEANDIDTYPE var_; ///< Name and/or position of the variable
-    std::size_t step_; ///< The current position in the data vector
-    std::size_t nSteps_; ///< The number of steps to be taken in a scan
-    T lower_; ///< The lower boundary of an item
-    T upper_; ///< The upper boundary of an item
-    bool randomScan_; ///< Indicates whether we are dealing with a random scan or not
-    std::string typeDescription_; ///< Holds an identifier for the type described by this class
+    NAMEANDIDTYPE m_var; ///< Name and/or position of the variable
+    std::size_t m_step; ///< The current position in the data vector
+    std::size_t m_nSteps; ///< The number of steps to be taken in a scan
+    T m_lower; ///< The lower boundary of an item
+    T m_upper; ///< The upper boundary of an item
+    bool m_randomScan; ///< Indicates whether we are dealing with a random scan or not
+    std::string m_typeDescription; ///< Holds an identifier for the type described by this class
 
-    mutable Gem::Hap::GRandom gr_; ///< Simple access to a random number generator
+    mutable Gem::Hap::GRandom m_gr; ///< Simple access to a random number generator
 
     /***************************************************************************/
     /** @brief The default constructor -- only needed for de-serialization, hence protected */
     baseScanParT()
         :
-        var_(
+        m_var(
             NAMEANDIDTYPE(
                 0
                 , "empty"
                 , 0
             ))
-        , step_(0)
-        , nSteps_(2)
-        , lower_(T(0))
-        , upper_(T(1))
-        , randomScan_(true)
-        , typeDescription_("") { /* nothing */ }
+        , m_step(0)
+        , m_nSteps(2)
+        , m_lower(T(0))
+        , m_upper(T(1))
+        , m_randomScan(true)
+        , m_typeDescription("") { /* nothing */ }
 
     /***************************************************************************/
     /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
@@ -397,8 +389,8 @@ inline float baseScanParT<float>::getRandomItem(
     return m_uniform_float_distribution(
         gr
         , std::uniform_real_distribution<float>::param_type(
-            lower_
-            , upper_
+            m_lower
+            , m_upper
         ));
 }
 
@@ -413,8 +405,8 @@ inline double baseScanParT<double>::getRandomItem(
     return m_uniform_double_distribution(
         gr
         , std::uniform_real_distribution<double>::param_type(
-            lower_
-            , upper_
+            m_lower
+            , m_upper
         ));
 }
 
@@ -429,8 +421,8 @@ inline std::int32_t baseScanParT<std::int32_t>::getRandomItem(
     return m_uniform_int_distribution(
         gr
         , std::uniform_int_distribution<std::int32_t>::param_type(
-            lower_
-            , upper_ + 1
+            m_lower
+            , m_upper + 1
         ));
 }
 

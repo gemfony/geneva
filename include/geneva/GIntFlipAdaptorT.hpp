@@ -83,9 +83,7 @@ public:
     /**
      * The standard constructor.
      */
-    GIntFlipAdaptorT()
-        :
-        GNumFlipAdaptorT<int_type>() { /* nothing */    }
+    GIntFlipAdaptorT() = default;
 
     /***************************************************************************/
     /**
@@ -104,16 +102,14 @@ public:
      *
      * @param cp Another GIntFlipAdaptorT object
      */
-    GIntFlipAdaptorT(const GIntFlipAdaptorT<int_type> &cp)
-        :
-        GNumFlipAdaptorT<int_type>(cp) { /* nothing */    }
+    GIntFlipAdaptorT(const GIntFlipAdaptorT<int_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor. Empty, as we have no local, dynamically
      * allocated data.
      */
-    virtual ~GIntFlipAdaptorT() { /* nothing */ }
+    ~GIntFlipAdaptorT() override = default;
 
 
     /***************************************************************************/
@@ -169,7 +165,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit

@@ -73,17 +73,17 @@ public:
     static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
 
     /** @brief The default constructor */
-    G_API_GENEVA GParameterScan_PersonalityTraits();
+    G_API_GENEVA GParameterScan_PersonalityTraits() = default;
     /** @brief The copy contructor */
-    G_API_GENEVA GParameterScan_PersonalityTraits(const GParameterScan_PersonalityTraits &);
+    G_API_GENEVA GParameterScan_PersonalityTraits(const GParameterScan_PersonalityTraits &) = default;
 
     /** @brief The standard destructor */
-    virtual G_API_GENEVA ~GParameterScan_PersonalityTraits();
+    G_API_GENEVA ~GParameterScan_PersonalityTraits() override = default;
 
     /** @brief Sets the position of the individual in the population */
     G_API_GENEVA void setPopulationPosition(const std::size_t &);
     /** @brief Retrieves the position of the individual in the population */
-    G_API_GENEVA std::size_t getPopulationPosition(void) const;
+    G_API_GENEVA std::size_t getPopulationPosition() const;
 
     /** @brief Retrieves the mnemonic of the optimization algorithm */
     G_API_GENEVA std::string getMnemonic() const override;
@@ -100,7 +100,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types
@@ -113,7 +113,7 @@ private:
     G_API_GENEVA GObject *clone_() const override;
 
     /** @brief Stores the current position in the population */
-    std::size_t popPos_;
+    std::size_t popPos_ = 0;
 
 public:
     /** @brief Applies modifications to this object. This is needed for testing purposes */

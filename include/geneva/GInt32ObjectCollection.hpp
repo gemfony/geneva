@@ -74,14 +74,13 @@ class GInt32ObjectCollection
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GInt32ObjectCollection();
+    G_API_GENEVA GInt32ObjectCollection() = default;
     /** @brief Initialization with a number of GInt32Object objects */
     G_API_GENEVA GInt32ObjectCollection(const std::size_t &, std::shared_ptr<GInt32Object>);
     /** @brief The copy constructor */
-    G_API_GENEVA GInt32ObjectCollection(const GInt32ObjectCollection &);
-
+    G_API_GENEVA GInt32ObjectCollection(const GInt32ObjectCollection &) = default;
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GInt32ObjectCollection();
+    G_API_GENEVA ~GInt32ObjectCollection() override = default;
 
 protected:
     /** @brief Loads the data of another GObject */
@@ -95,7 +94,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types

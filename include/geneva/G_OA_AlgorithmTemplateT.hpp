@@ -89,38 +89,11 @@ class G_OA_AlgorithmTemplateT
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor.
-	  *
-	  * Add additional actions here, where needed. Note that, for serialization
-	  * to work, a default constructor needs to be made available.
-	  */
+	 // Defaulted functions
+
 	 G_OA_AlgorithmTemplateT() = default;
-
-	 /***************************************************************************/
-	 /**
-	  * A standard copy constructor.
-	  *
-	  * Add local data as needed.
-	  *
-	  * @param cp A copy of another G_OA_AlgorithmTemplateT object
-	  */
-	 G_OA_AlgorithmTemplateT(const G_OA_AlgorithmTemplateT& cp)
-		 : G_OptimizationAlgorithm_Base(cp)
-	 // copy local data here or fill out the function body, as needed
-	 {
-		 // nothing
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor.
-	  *
-	  * Add any necessary clean-up work.
-	  */
-	 virtual ~G_OA_AlgorithmTemplateT() {
-		 // nothing
-	 }
+	 G_OA_AlgorithmTemplateT(const G_OA_AlgorithmTemplateT& cp) = default;
+	 ~G_OA_AlgorithmTemplateT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -150,7 +123,7 @@ public:
  	  * that you wish to be reset before calling optimize() again. Make sure the
  	  * call to the parent class'es reset function remains in place.
  	  */
-	 virtual void resetToOptimizationStart() {
+	 void resetToOptimizationStart() override {
 		 // Call our parent class'es function
 		 G_OptimizationAlgorithm_Base::resetToOptimizationStart();
 	 }
@@ -167,7 +140,7 @@ public:
 	 std::string getOptimizationAlgorithm() const override {
 		 return std::string("PERSONALITY_TMPL");
 	 }
-	 ‚
+
 	 /***************************************************************************/
 	 /**
  	  * Returns the name of this optimization algorithm
@@ -270,7 +243,7 @@ protected:
      * @param e The expectation for the comparison (see e.g. operator ==)
      * @param limit Determines, below which difference the comparison of two doubles is considered as equality
      */
-	virtual void compare_(
+	void compare_(
 		const GObject& cp // the other object
 		, const Gem::Common::expectation& e // the expectation for this object, e.g. equality
 		, const double& limit // the limit for allowed deviations of floating point types
@@ -372,7 +345,7 @@ protected:
 	  *
 	  * @return boolean indicating that a stop condition was reached
 	  */
-	 virtual bool customHalt() const BASE {
+	 bool customHalt() const override {
 		 // nothing, unless you have any stop criteria specific to this algorithm
 		 return false;
 	 }

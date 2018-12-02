@@ -75,9 +75,9 @@ public:
 		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	 );
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GParameterScanFactory(const GParameterScanFactory&);
+	 G_API_GENEVA GParameterScanFactory(const GParameterScanFactory&) = default;
 	 /** @brief The destructor */
-	 virtual G_API_GENEVA ~GParameterScanFactory();
+	 virtual G_API_GENEVA ~GParameterScanFactory() = default;
 
 	 /** @brief Gives access to the mnemonics / nickname describing an algorithm */
 	 G_API_GENEVA std::string getMnemonic() const override;
@@ -85,7 +85,7 @@ public:
 	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 	 /** @brief Adds local command line options to boost::program_options::options_description objects */
-	 virtual G_API_GENEVA void addCLOptions(
+	 G_API_GENEVA void addCLOptions(
 		 boost::program_options::options_description&
 		 , boost::program_options::options_description&
 	 ) override;
@@ -99,7 +99,7 @@ public:
 
 protected:
 	 /** @brief Creates individuals of this type */
-	 virtual G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
+	 G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
 		 Gem::Common::GParserBuilder&
 		 , const std::size_t&
 	 ) override;
@@ -108,7 +108,7 @@ protected:
 
 private:
 	 /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */
-	 std::string m_parameterSpecCL;
+	 std::string m_parameterSpecCL = "empty";
 };
 
 /******************************************************************************/

@@ -43,7 +43,6 @@ namespace Geneva {
  */
 GParameterScanFactory::GParameterScanFactory()
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>("./config/GParameterScan.json")
-	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -54,7 +53,6 @@ GParameterScanFactory::GParameterScanFactory(
 	boost::filesystem::path const& configFile
 )
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
-  	, m_parameterSpecCL("empty")
 { /* nothing */ }
 
 /******************************************************************************/
@@ -67,23 +65,6 @@ GParameterScanFactory::GParameterScanFactory(
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)
-   , m_parameterSpecCL("empty")
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GParameterScanFactory::GParameterScanFactory(const GParameterScanFactory& cp)
-	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(cp)
-  	, m_parameterSpecCL(cp.m_parameterSpecCL)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GParameterScanFactory::~GParameterScanFactory()
 { /* nothing */ }
 
 /******************************************************************************/

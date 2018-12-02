@@ -77,13 +77,13 @@ class GParameterObjectCollection
 
 public:
 	 /** @brief The default constructor */
-	 G_API_GENEVA GParameterObjectCollection();
+	 G_API_GENEVA GParameterObjectCollection() = default;
 	 /** @brief Initialization with a number of GParameterBase objects */
 	 G_API_GENEVA GParameterObjectCollection(const std::size_t&, std::shared_ptr<GParameterBase>);
 	 /** @brief The copy constructor */
-	 G_API_GENEVA GParameterObjectCollection(const GParameterObjectCollection&);
+	 G_API_GENEVA GParameterObjectCollection(const GParameterObjectCollection&) = default;
 	 /** @brief The destructor */
-	 G_API_GENEVA ~GParameterObjectCollection() override;
+	 G_API_GENEVA ~GParameterObjectCollection() override = default;
 
 	 /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
 	 G_API_GENEVA std::shared_ptr<Gem::Geneva::GParameterBase> at(const std::size_t& pos);
@@ -133,7 +133,7 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual G_API_GENEVA void compare_(
+	G_API_GENEVA void compare_(
 		const GObject& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types

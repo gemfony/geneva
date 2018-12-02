@@ -112,7 +112,7 @@ public:
     GCommonInterfaceT(const GCommonInterfaceT<g_class_type> &cp) = default;
 
     /** @brief The destructor */
-    virtual ~GCommonInterfaceT() = default;
+    virtual ~GCommonInterfaceT() BASE = default;
 
     /***************************************************************************/
     /**
@@ -642,6 +642,17 @@ private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
     virtual G_API_COMMON g_class_type *clone_() const BASE = 0;
+
+public:
+    /***************************************************************************/
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    virtual G_API_GENEVA bool modify_GUnitTests() BASE { return false; }
+
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing */ }
+
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing */ }
 };
 
 /******************************************************************************/

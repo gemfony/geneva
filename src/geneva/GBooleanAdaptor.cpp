@@ -50,18 +50,6 @@ GBooleanAdaptor::GBooleanAdaptor()
 
 /******************************************************************************/
 /**
- * The copy constructor
- *
- * @param cp A copy of another GBooleanAdaptor object
- */
-GBooleanAdaptor::GBooleanAdaptor(const GBooleanAdaptor &cp)
-	: GAdaptorT<bool>(cp)
-{ /* nothing */ }
-
-// Tested in this class
-
-/******************************************************************************/
-/**
  * Initialization with a adaption probability
  *
  * @param adProb The adaption probability
@@ -71,13 +59,6 @@ GBooleanAdaptor::GBooleanAdaptor(const double &adProb)
 { /* nothing */ }
 
 // Tested in this class
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GBooleanAdaptor::~GBooleanAdaptor()
-{ /* nothing */ }
 
 /******************************************************************************/
 /**

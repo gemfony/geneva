@@ -155,7 +155,7 @@ public:
 	  * The standard destructor. Empty, as we have no local, dynamically
 	  * allocated data.
 	  */
-	 virtual ~GNumGaussAdaptorT() = default;
+	 ~GNumGaussAdaptorT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -395,7 +395,7 @@ public:
 	  * @param range A typical value range for type T
 	  * @return A boolean indicating whether updates were performed
 	  */
-	 virtual bool updateOnStall(
+	 bool updateOnStall(
 		 const std::size_t& nStalls
 		 , const num_type& range
 	 ) override {
@@ -451,7 +451,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const GObject& cp
 		, const Gem::Common::expectation& e
 		, const double& limit
@@ -484,7 +484,7 @@ protected:
 	  *
 	  * @param range A typical range for the parameter with type num_type (unused here)
 	  */
-	 virtual void customAdaptAdaption(
+	 void customAdaptAdaption(
 		 const num_type& val
 		 , Gem::Hap::GRandomBase& gr
 	 ) override {
@@ -512,7 +512,7 @@ protected:
 	 /**
 	  * Allows to randomly initialize parameter members
 	  */
-	 virtual bool randomInit(
+	 bool randomInit(
 		 Gem::Hap::GRandomBase& gr
 	 ) override {
 		 using namespace Gem::Common;
@@ -528,7 +528,7 @@ protected:
 	  * Adds a given property value to the vector or returns false, if the property
 	  * was not found.
 	  */
-	 virtual bool customQueryProperty (
+	 bool customQueryProperty (
 		 const std::string& property
 		 , std::vector<boost::any>& data
 	 ) const override {
@@ -557,6 +557,7 @@ private:
 	 std::string name_() const  override {
 		 return std::string("GNumGaussAdaptorT");
 	 }
+
 	 /***************************************************************************/
 	 /**
 	  * This function creates a deep copy of this object. Purely virtual so this class cannot

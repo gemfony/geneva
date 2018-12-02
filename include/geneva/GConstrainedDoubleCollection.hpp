@@ -88,9 +88,9 @@ public:
 		 , const double&
 	 );
 	 /** @brief The standard copy constructor */
-	 G_API_GENEVA GConstrainedDoubleCollection(const GConstrainedDoubleCollection&);
+	 G_API_GENEVA GConstrainedDoubleCollection(const GConstrainedDoubleCollection&) = default;
 	 /** @brief The standard destructor */
-	 virtual G_API_GENEVA ~GConstrainedDoubleCollection();
+	 G_API_GENEVA ~GConstrainedDoubleCollection() override = default;
 
 protected:
 	 /***************************************************************************/
@@ -139,7 +139,7 @@ protected:
 
 	 /***************************************************************************/
 	 /** @brief The default constructor. Intentionally protected	 */
-	 G_API_GENEVA GConstrainedDoubleCollection();
+	 G_API_GENEVA GConstrainedDoubleCollection() = default;
 
 private:
 	 /** @brief Emits a name for this class / object */

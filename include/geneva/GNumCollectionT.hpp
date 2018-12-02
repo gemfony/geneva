@@ -97,11 +97,7 @@ public:
     /**
      * The default constructor.
      */
-    GNumCollectionT()
-        :
-        GParameterCollectionT<num_type>()
-        , lowerInitBoundary_(num_type(DEFAULTLOWERINITBOUNDARYCOLLECTION))
-        , upperInitBoundary_(num_type(DEFAULTUPPERINITBOUNDARYCOLLECTION)) { /* nothing */ }
+    GNumCollectionT() = default;
 
     /***************************************************************************/
     /**
@@ -125,7 +121,8 @@ public:
             , min
         )
         , lowerInitBoundary_(min)
-        , upperInitBoundary_(max) { /* nothing */ }
+        , upperInitBoundary_(max)
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
@@ -152,23 +149,20 @@ public:
             , val
         )
         , lowerInitBoundary_(min)
-        , upperInitBoundary_(max) { /* nothing */ }
+        , upperInitBoundary_(max)
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
      * The standard copy constructor
      */
-    GNumCollectionT(const GNumCollectionT<num_type> &cp)
-        :
-        GParameterCollectionT<num_type>(cp)
-        , lowerInitBoundary_(cp.lowerInitBoundary_)
-        , upperInitBoundary_(cp.upperInitBoundary_) { /* nothing */ }
+    GNumCollectionT(const GNumCollectionT<num_type> &cp) = default;
 
     /***************************************************************************/
     /**
      * The standard destructor
      */
-    virtual ~GNumCollectionT() { /* nothing */ }
+    ~GNumCollectionT() override = default;
 
     /***************************************************************************/
     /**
@@ -424,8 +418,8 @@ private:
     GObject *clone_() const override = 0;
 
     /***************************************************************************/
-    num_type lowerInitBoundary_; ///< The lower boundary for random initialization
-    num_type upperInitBoundary_; ///< The upper boundary for random initialization
+    num_type lowerInitBoundary_ = num_type(DEFAULTLOWERINITBOUNDARYCOLLECTION); ///< The lower boundary for random initialization
+    num_type upperInitBoundary_ = num_type(DEFAULTUPPERINITBOUNDARYCOLLECTION); ///< The upper boundary for random initialization
 
 public:
     /***************************************************************************/

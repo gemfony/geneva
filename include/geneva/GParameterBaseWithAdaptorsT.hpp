@@ -268,7 +268,7 @@ public:
 	  * @param property The property for which information is sought
 	  * @param data A vector, to which the properties should be added
 	  */
-	 virtual void queryAdaptor(
+	 void queryAdaptor(
 		 const std::string& adaptorName
 		 , const std::string& property
 		 , std::vector<boost::any>& data
@@ -366,7 +366,7 @@ protected:
 	/***************************************************************************/
 
 	 /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
-	 virtual T range() const = 0;
+	 virtual T range() const BASE  = 0;
 
 	 /***************************************************************************/
 	 /**

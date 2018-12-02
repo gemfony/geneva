@@ -82,9 +82,9 @@ class GInt32Object
 
 public:
     /** @brief The default constructor */
-    G_API_GENEVA GInt32Object();
+    G_API_GENEVA GInt32Object() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GInt32Object(const GInt32Object &);
+    G_API_GENEVA GInt32Object(const GInt32Object &) = default;
 
     /** @brief Initialization by contained value */
     explicit G_API_GENEVA GInt32Object(const std::int32_t &);
@@ -99,9 +99,8 @@ public:
         , const std::int32_t &
         , const std::int32_t &
     );
-
     /** @brief The destructor */
-    virtual G_API_GENEVA ~GInt32Object();
+    G_API_GENEVA ~GInt32Object() override = default;
 
     /** @brief An assignment operator for the contained value type */
     G_API_GENEVA std::int32_t operator=(const std::int32_t &) override;
@@ -118,7 +117,7 @@ protected:
     );
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
-    virtual G_API_GENEVA void compare_(
+    G_API_GENEVA void compare_(
         const GObject & // the other object
         , const Gem::Common::expectation & // the expectation for this object, e.g. equality
         , const double & // the limit for allowed deviations of floating point types
@@ -146,7 +145,7 @@ protected:
     ) override;
 
     /** @brief Multiplication with a random value in a given range */
-    virtual G_API_GENEVA void int32MultiplyByRandom(
+    G_API_GENEVA void int32MultiplyByRandom(
         const std::int32_t &min
         , const std::int32_t &max
         , const activityMode &am

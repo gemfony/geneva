@@ -40,22 +40,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor
- */
-GDoubleObject::GDoubleObject() { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- *
- * @param cp A copy of another GDoubleObject object
- */
-GDoubleObject::GDoubleObject(const GDoubleObject &cp)
-	: GNumFPT<double>(cp)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization by contained value
  *
  * @param val A value used for the initialization
@@ -92,13 +76,6 @@ GDoubleObject::GDoubleObject(
 	, const double &upperBoundary
 )
 	: GNumFPT<double>(val, lowerBoundary, upperBoundary)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The destructor
- */
-GDoubleObject::~GDoubleObject()
 { /* nothing */ }
 
 /******************************************************************************/
@@ -422,7 +399,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	// --------------------------------------------------------------------------
 
 	{ // Test automatic conversion to the target type, using GParameterT<T>'s operator T()
-		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
+		std::shared_ptr<GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		double target = -1.;
 		for (double d = 0.; d < 10; d += 0.01) {

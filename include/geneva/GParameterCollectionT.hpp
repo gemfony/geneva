@@ -131,7 +131,7 @@ public:
      *
      * @return The number of adaptions that were carried out
      */
-    virtual std::size_t adaptImpl(
+    std::size_t adaptImpl(
         Gem::Hap::GRandomBase &gr
     ) override {
         return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
@@ -163,7 +163,7 @@ public:
     /**
      * Swap another object's vector with ours
      */
-    inline void swap(GParameterCollectionT<num_type> &cp) {
+    void swap(GParameterCollectionT<num_type> &cp) {
         Gem::Common::GStdSimpleVectorInterfaceT<num_type>::swap(cp.data);
     }
 
@@ -179,7 +179,7 @@ public:
      * @param pos The position for which the value needs to be returned
      * @return The value of val_
      */
-    virtual num_type value(const std::size_t &pos) {
+    virtual num_type value(const std::size_t &pos) BASE {
         return this->at(pos);
     }
 
@@ -192,7 +192,7 @@ public:
      * @param pos The position at which the value shout be stored
      * @param val The new num_type value stored in this class
      */
-    virtual void setValue(const std::size_t &pos, const num_type &val) {
+    virtual void setValue(const std::size_t &pos, const num_type &val) BASE {
         this->at(pos) = val;
 
 #ifdef DEBUG
@@ -207,7 +207,7 @@ public:
      * @param ptr The boost::property_tree object the data should be saved to
      * @param id The id assigned to this object
      */
-    virtual void toPropertyTree(
+    void toPropertyTree(
         pt::ptree &ptr
         , const std::string &baseName
     ) const override {

@@ -94,7 +94,7 @@ public:
 	 /**
 	  * The standard destructor
 	  */
-	 virtual ~GBaseConsumerT() = default;
+	 virtual ~GBaseConsumerT() BASE = default;
 
 	 //-------------------------------------------------------------------------
 	 // Some deleted functions
@@ -261,10 +261,10 @@ private:
 	 virtual void addCLOptions_(
 		 boost::program_options::options_description&
 		 , boost::program_options::options_description&
-	 ) = 0;
+	 ) BASE = 0;
 
 	 /** @brief Takes a boost::program_options::variables_map object and checks for supplied options */
-	 virtual void actOnCLOptions_(const boost::program_options::variables_map&) = 0;
+	 virtual void actOnCLOptions_(const boost::program_options::variables_map&) BASE = 0;
 
 	 /** @brief A unique identifier for a given consumer */
 	 virtual std::string getConsumerName_() const BASE = 0;

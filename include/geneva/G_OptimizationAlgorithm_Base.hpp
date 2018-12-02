@@ -102,11 +102,11 @@ class GBasePluggableOM :
 public:
     /***************************************************************************/
     /** @brief The default constructor. Some member variables may be initialized in the class body.*/
-    G_API_GENEVA GBasePluggableOM();
+    G_API_GENEVA GBasePluggableOM() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA GBasePluggableOM(const GBasePluggableOM &cp);
+    G_API_GENEVA GBasePluggableOM(const GBasePluggableOM &cp) = default;
     /** @brief The Destructor */
-    G_API_GENEVA ~GBasePluggableOM() override;
+    G_API_GENEVA ~GBasePluggableOM() override = default;
 
     /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
     virtual G_API_GENEVA void informationFunction(
@@ -131,7 +131,6 @@ protected:
         , GBasePluggableOM const &
         , Gem::Common::GToken &
     );
-
 
     /** @brief Searches for compliance with expectations with respect to another object of the same type */
     G_API_GENEVA void compare_(
@@ -542,7 +541,7 @@ protected:
     G_API_GENEVA void dummyFunction() override;
 
     /** @brief Saves the state of the class to disc */
-    virtual G_API_GENEVA void saveCheckpoint(bf::path outputFile) const;
+    virtual G_API_GENEVA void saveCheckpoint(bf::path outputFile) const BASE;
 
     /** @brief Extracts the short name of the optimization algorithm */
     G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path &p) const;
@@ -586,10 +585,10 @@ protected:
     virtual G_API_GENEVA void finalize() BASE;
 
     /** @brief Retrieve a personality trait object belong to this algorithm */
-    virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const = 0;
+    virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const BASE = 0;
 
     /** @brief Resizes the population to the desired level and does some error checks */
-    virtual G_API_GENEVA void adjustPopulation() = 0;
+    virtual G_API_GENEVA void adjustPopulation() BASE = 0;
 
     /** @brief Lets individuals know about the current iteration of the optimization cycle. */
     G_API_GENEVA void markIteration();

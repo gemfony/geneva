@@ -82,26 +82,11 @@ class GSerializableFunctionObjectT
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
-	 GSerializableFunctionObjectT()
-	 { /* nothing */ }
+	 // Defaulted functions
 
-	 /***************************************************************************/
-	 /**
-	  * The copy constructor
-	  */
-	 GSerializableFunctionObjectT(const GSerializableFunctionObjectT<processable_type>& cp)
-		 : GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>(cp)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-     */
-	 virtual ~GSerializableFunctionObjectT()
-	 { /* nothing */ }
+	 GSerializableFunctionObjectT() = default;
+	 GSerializableFunctionObjectT(const GSerializableFunctionObjectT<processable_type>& cp) = default;
+	 ~GSerializableFunctionObjectT() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -140,7 +125,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-	virtual void compare_(
+	void compare_(
 		const GSerializableFunctionObjectT<processable_type> &cp
 		, const Gem::Common::expectation &e
 		, const double &limit
