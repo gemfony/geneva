@@ -98,7 +98,7 @@ public:
     /** @brief The copy constructor */
     G_API_GENEVA GParameterSetFixedSizePriorityQueue(const GParameterSetFixedSizePriorityQueue &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GParameterSetFixedSizePriorityQueue() = default;
+    G_API_GENEVA ~GParameterSetFixedSizePriorityQueue() override = default;
 
     /** @brief Checks whether no item has the dirty flag set */
     G_API_GENEVA bool allClean(std::size_t &) const;
@@ -147,6 +147,17 @@ private:
     G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA Gem::Common::GFixedSizePriorityQueueT<GParameterSet> *clone_() const override;
+
+public:
+    /***************************************************************************/
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests() override;
+
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

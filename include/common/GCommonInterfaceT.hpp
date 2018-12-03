@@ -646,13 +646,13 @@ private:
 public:
     /***************************************************************************/
     /** @brief Applies modifications to this object. This is needed for testing purposes */
-    virtual G_API_GENEVA bool modify_GUnitTests() BASE { return false; }
+    virtual G_API_GENEVA bool modify_GUnitTests() BASE = 0;
 
     /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing */ }
+    virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() BASE = 0;
 
     /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing */ }
+    virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() BASE = 0;
 };
 
 /******************************************************************************/

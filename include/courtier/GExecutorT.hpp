@@ -315,6 +315,22 @@ public:
 		 return status;
 	 }
 
+	/***************************************************************************/
+	/**
+     * Code to be executed before the start of an iteration (i.e. a call to workOn)
+     */
+	void iterationInit(std::vector<std::shared_ptr<processable_type>>& workItems) {
+		this->iterationInit_(workItems);
+	}
+
+	/***************************************************************************/
+	/**
+     * Code to be executed before the start of an iteration (i.e. a call to workOn)
+     */
+	void iterationFinalize(std::vector<std::shared_ptr<processable_type>>& workItems) {
+		this->iterationFinalize_(workItems);
+	}
+
 	 /***************************************************************************/
 	 /**
 	  * Retrieves a copy of the old work items vector. Calling this function will
@@ -324,26 +340,6 @@ public:
 	  */
 	 std::vector<std::shared_ptr<processable_type>> getOldWorkItems() {
 		 return std::move(m_old_work_items_vec);
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Adds local configuration options to a GParserBuilder object
-	  *
-	  * @param gpb The GParserBuilder object to which configuration options should be added
-	  */
-	 virtual void addConfigurationOptions(
-		 Gem::Common::GParserBuilder &gpb
-	 ) BASE {
-		 gpb.registerFileParameter<std::size_t>(
-			 "maxResubmissions" // The name of the variable
-			 , DEFAULTMAXRESUBMISSIONS // The default value
-			 , [this](std::size_t r) {
-				 this->setMaxResubmissions(r);
-			 }
-		 )
-			 << "The amount of resubmissions allowed if a full return of work" << std::endl
-			 << "items was expected but only a subset has returned";
 	 }
 
 	 /***************************************************************************/
@@ -555,13 +551,26 @@ protected:
 		 m_n_erroneousItems = 0;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Code to be executed before the start of an iteration (i.e. a call to workOn)
-	  */
-	 void iterationInit(std::vector<std::shared_ptr<processable_type>>& workItems) {
-		 this->iterationInit_(workItems);
-	 }
+	/***************************************************************************/
+	/**
+     * Adds local configuration options to a GParserBuilder object
+     *
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
+	void addConfigurationOptions_(
+		Gem::Common::GParserBuilder &gpb
+	) override {
+		// Add local options
+		gpb.registerFileParameter<std::size_t>(
+				"maxResubmissions" // The name of the variable
+				, DEFAULTMAXRESUBMISSIONS // The default value
+				, [this](std::size_t r) {
+					this->setMaxResubmissions(r);
+				}
+		)
+				<< "The amount of resubmissions allowed if a full return of work" << std::endl
+				<< "items was expected but only a subset has returned";
+	}
 
 	 /***************************************************************************/
 	 /**
@@ -610,14 +619,6 @@ protected:
 
 		 // Make it known that the iteration has ended
 		 m_iteration_running = false;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Code to be executed before the start of an iteration (i.e. a call to workOn)
-	  */
-	 void iterationFinalize(std::vector<std::shared_ptr<processable_type>>& workItems) {
-		 this->iterationFinalize_(workItems);
 	 }
 
 	 /***************************************************************************/
@@ -1012,6 +1013,17 @@ private:
 	 std::vector<std::shared_ptr<processable_type>> m_old_work_items_vec; ///< Temporarily holds old work items of the current iteration
 
 	 std::mutex m_concurrent_workon_mutex; ///< Makes sure the workOn function is only called once at the same time on this object
+
+public:
+	/***************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	bool modify_GUnitTests() override { return false; };
+
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	void specificTestsNoFailureExpected_GUnitTests() override { /* nothing */ };
+
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	void specificTestsFailuresExpected_GUnitTests() override { /* nothing */ };
 };
 
 /******************************************************************************/
@@ -1056,21 +1068,6 @@ public:
 	 /***************************************************************************/
 	 /** @brief The destructor */
 	 ~GSerialExecutorT() override = default;
-
-	 /***************************************************************************/
-	 /**
-	  * Adds local configuration options to a GParserBuilder object
-	  *
-	  * @param gpb The GParserBuilder object to which configuration options should be added
-	  */
-	 void addConfigurationOptions(
-		 Gem::Common::GParserBuilder &gpb
-	 ) override {
-		 // Call our parent class's function
-		 GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
-
-		 // No local data
-	 }
 
 protected:
 	 /***************************************************************************/
@@ -1181,6 +1178,21 @@ protected:
 			 );
 		 }
 	 }
+
+	/***************************************************************************/
+	/**
+     * Adds local configuration options to a GParserBuilder object
+     *
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
+	void addConfigurationOptions_(
+			Gem::Common::GParserBuilder &gpb
+	) override {
+		// Call our parent class's function
+		GBaseExecutorT<processable_type>::addConfigurationOptions_(gpb);
+
+		// No local data
+	}
 
 	 /***************************************************************************/
 	 /**
@@ -1362,28 +1374,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Adds local configuration options to a GParserBuilder object
-	  *
-	  * @param gpb The GParserBuilder object to which configuration options should be added
-	  */
-	 void addConfigurationOptions(
-		 Gem::Common::GParserBuilder &gpb
-	 ) override {
-		 // Call our parent class's function ...
-		 GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
-
-		 // ... then add local dara
-		 gpb.registerFileParameter<std::uint16_t>(
-			 "nProcessingThreads" // The name of the variable in the configuration file
-			 , Gem::Courtier::DEFAULTNSTDTHREADS // The default value
-			 , [this](std::uint16_t nt) { this->setNThreads(nt); }
-		 )
-			 << "The number of threads used to simultaneously process work items" << std::endl
-			 << "0 means \"automatic\"";
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Sets the number of threads for the thread pool. If nThreads is set
 	  * to 0, a warning will be printed and the number of threads will be set to
 	  * a default value.
@@ -1551,6 +1541,28 @@ protected:
 		 // Make sure the parent classes iterationFinalize_ function is executed last
 		 GBaseExecutorT<processable_type>::iterationFinalize_(workItems);
 	 }
+
+	/***************************************************************************/
+	/**
+     * Adds local configuration options to a GParserBuilder object
+     *
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
+	void addConfigurationOptions_(
+			Gem::Common::GParserBuilder &gpb
+	) override {
+		// Call our parent class's function ...
+		GBaseExecutorT<processable_type>::addConfigurationOptions_(gpb);
+
+		// ... then add local dara
+		gpb.registerFileParameter<std::uint16_t>(
+				"nProcessingThreads" // The name of the variable in the configuration file
+				, Gem::Courtier::DEFAULTNSTDTHREADS // The default value
+				, [this](std::uint16_t nt) { this->setNThreads(nt); }
+		)
+				<< "The number of threads used to simultaneously process work items" << std::endl
+				<< "0 means \"automatic\"";
+	}
 
 	 /***************************************************************************/
 	 /**
@@ -1799,43 +1811,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Adds local configuration options to a GParserBuilder object
-	  *
-	  * @param gpb The GParserBuilder object to which configuration options should be added
-	  */
-	 void addConfigurationOptions(
-		 Gem::Common::GParserBuilder &gpb
-	 ) override {
-		 // Call our parent class's function
-		 GBaseExecutorT<processable_type>::addConfigurationOptions(gpb);
-
-		 // Add local data
-
-		 gpb.registerFileParameter<double>(
-			 "waitFactor" // The name of the variable
-			 , DEFAULTBROKERWAITFACTOR2 // The default value
-			 , [this](double w) {
-				 this->setWaitFactor(w);
-			 }
-		 )
-			 << "A static double factor for timeouts" << std::endl
-			 << "A wait factor <= 0 means \"no timeout\"." << std::endl
-			 << "It is suggested to use values >= 1.";
-
-		 gpb.registerFileParameter<std::uint16_t>(
-			 "minPartialReturnPercentage" // The name of the variable
-			 , DEFAULTEXECUTORPARTIALRETURNPERCENTAGE // The default value
-			 , [this](std::uint16_t percentage) {
-				 this->setMinPartialReturnPercentage(percentage);
-			 }
-		 )
-			 << "Set to a value < 100 to allow execution to continue when" << std::endl
-			 << "minPartialReturnPercentage percent of the expected work items"  << std::endl
-			 << "have returned. Set to 0 to disable this option.";
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to set the wait factor to be applied to timeouts. A wait factor
 	  * <= 0 indicates an indefinite waiting time.
 	  */
@@ -2055,7 +2030,44 @@ protected:
 		 GBaseExecutorT<processable_type>::iterationFinalize_(workItems);
 	 }
 
-	 /***************************************************************************/
+	/***************************************************************************/
+	/**
+     * Adds local configuration options to a GParserBuilder object
+     *
+     * @param gpb The GParserBuilder object to which configuration options should be added
+     */
+	void addConfigurationOptions_(
+			Gem::Common::GParserBuilder &gpb
+	) override {
+		// Call our parent class's function
+		GBaseExecutorT<processable_type>::addConfigurationOptions_(gpb);
+
+		// Add local data
+
+		gpb.registerFileParameter<double>(
+				"waitFactor" // The name of the variable
+				, DEFAULTBROKERWAITFACTOR2 // The default value
+				, [this](double w) {
+					this->setWaitFactor(w);
+				}
+		)
+				<< "A static double factor for timeouts" << std::endl
+				<< "A wait factor <= 0 means \"no timeout\"." << std::endl
+				<< "It is suggested to use values >= 1.";
+
+		gpb.registerFileParameter<std::uint16_t>(
+				"minPartialReturnPercentage" // The name of the variable
+				, DEFAULTEXECUTORPARTIALRETURNPERCENTAGE // The default value
+				, [this](std::uint16_t percentage) {
+					this->setMinPartialReturnPercentage(percentage);
+				}
+		)
+				<< "Set to a value < 100 to allow execution to continue when" << std::endl
+				<< "minPartialReturnPercentage percent of the expected work items"  << std::endl
+				<< "have returned. Set to 0 to disable this option.";
+	}
+
+	/***************************************************************************/
 	 /**
 	  * Submits a single work item.
 	  *

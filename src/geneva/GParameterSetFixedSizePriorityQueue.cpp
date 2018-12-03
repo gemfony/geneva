@@ -206,6 +206,21 @@ void GParameterSetFixedSizePriorityQueue::add(
 }
 
 /******************************************************************************/
+/** @brief Applies modifications to this object. This is needed for testing purposes */
+bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests()
+{ return false; }
+
+/******************************************************************************/
+/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+void GParameterSetFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTests()
+{ /* nothing */ };
+
+/******************************************************************************/
+/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+void GParameterSetFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTests()
+{ /* nothing */ };
+
+/******************************************************************************/
 
 } /* namespace Geneva */
 } /* namespace Gem */

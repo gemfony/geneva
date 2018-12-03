@@ -164,6 +164,17 @@ private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_COMMON GSerializableFunctionObjectT<processable_type> * clone_() const override = 0;
+
+public:
+	/***************************************************************************/
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	bool modify_GUnitTests() override { return false; };
+
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	void specificTestsNoFailureExpected_GUnitTests() override { /* nothing */ };
+
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	void specificTestsFailuresExpected_GUnitTests() override { /* nothing */ };
 };
 
 /******************************************************************************/
