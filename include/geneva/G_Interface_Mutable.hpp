@@ -55,18 +55,20 @@ namespace Geneva {
  */
 class G_Interface_Mutable {
 public:
-	 /** @brief The standard constructor */
-	 G_API_GENEVA G_Interface_Mutable() = default;
 	 /** @brief Allows derivatives to be adapted */
 	 virtual G_API_GENEVA std::size_t adapt() BASE = 0;
 
 protected:
+	/**************************************************************************/
+	// Defaulted constructors / destructors
+
+	/** @brief The standard constructor */
+	G_API_GENEVA G_Interface_Mutable() = default;
 	/**
       * The destructor. Making this function protected and non-virtual follows
       * this discussion: http://www.gotw.ca/publications/mill18.htm
       */
-	 G_API_GENEVA ~G_Interface_Mutable() = default;
-
+	G_API_GENEVA ~G_Interface_Mutable() = default;
 };
 
 } /* namespace Geneva */

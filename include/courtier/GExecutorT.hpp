@@ -135,8 +135,6 @@ public:
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GCommonInterfaceT_GBaseExecutotT"
-						, boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_maxResubmissions);
 	 }
 
@@ -160,7 +158,7 @@ public:
 
 	 /***************************************************************************/
 	 /** @brief The standard destructor */
-	 ~GBaseExecutorT() override = default;
+	 virtual ~GBaseExecutorT() = default;
 
 	 /***************************************************************************/
 	 /**

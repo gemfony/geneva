@@ -54,9 +54,6 @@ namespace Geneva {
  */
 class G_Interface_Rateable {
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA G_Interface_Rateable() = default;
-
 	 /** @brief Retrieves the stored raw fitness with a given id */
 	 virtual G_API_GENEVA double raw_fitness(std::size_t = 0) const BASE = 0;
 	 /** @brief Retrieves the stored transformed fitness with a given id */
@@ -69,6 +66,11 @@ public:
 	 virtual G_API_GENEVA std::vector<double> transformed_fitness_vec() const BASE = 0;
 
 protected:
+	/**************************************************************************/
+	// Defaulted constructoes / destructors
+
+	/** @brief The default constructor */
+	G_API_GENEVA G_Interface_Rateable() = default;
 	/**
       * The destructor. Making this function protected and non-virtual follows
       * this discussion: http://www.gotw.ca/publications/mill18.htm

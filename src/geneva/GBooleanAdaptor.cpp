@@ -151,7 +151,7 @@ void GBooleanAdaptor::load_(const GObject *cp) {
  *
  * @return The id of this adaptor
  */
-Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId() const {
+Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId_() const {
 	return Gem::Geneva::adaptorId::GBOOLEANADAPTOR;
 }
 

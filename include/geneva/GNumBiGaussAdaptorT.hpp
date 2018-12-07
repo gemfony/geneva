@@ -575,10 +575,6 @@ public:
         setDelta(delta);
     }
 
-    /***********************************************************************************/
-    /** @brief Retrieves the id of the adaptor */
-    Gem::Geneva::adaptorId getAdaptorId() const override = 0;
-
     /***************************************************************************/
     /**
      * Allows to randomly initialize parameter members
@@ -873,6 +869,10 @@ protected:
     ) override = 0;
 
 private:
+    /***********************************************************************************/
+    /** @brief Retrieves the id of the adaptor */
+    Gem::Geneva::adaptorId getAdaptorId_() const override = 0;
+
     /***************************************************************************/
     /**
      * Emits a name for this class / object

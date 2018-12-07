@@ -103,10 +103,6 @@ public:
     /** @brief The destructor */
     G_API_GENEVA ~GInt32GaussAdaptor() override = default;
 
-    /** @brief Retrieves the id of this adaptor */
-    G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;
-
-
 protected:
     /** @brief Loads the data of another GObject */
     G_API_GENEVA void load_(const GObject *) override;
@@ -126,6 +122,8 @@ protected:
     ) const override;
 
 private:
+    /** @brief Retrieves the id of this adaptor */
+    G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId_() const override;
     /** @brief Emits a name for this class / object */
     G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep clone of this object. */

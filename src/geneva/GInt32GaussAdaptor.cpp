@@ -160,7 +160,7 @@ void GInt32GaussAdaptor::load_(const GObject *cp) {
  *
  * @return The id of this adaptor
  */
-Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId() const {
+Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId_() const {
 	return Gem::Geneva::adaptorId::GINT32GAUSSADAPTOR;
 }
 

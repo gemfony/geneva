@@ -125,10 +125,7 @@ class GObject
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GCommonInterfaceT_GObject"
-            , boost::serialization::base_object<Gem::Common::GCommonInterfaceT<GObject>>(*this));
+        /* nothing */
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -138,7 +135,7 @@ public:
     /** @brief The copy constructor */
     G_API_GENEVA GObject(const GObject &cp) = default;
     /** @brief The destructor */
-    G_API_GENEVA ~GObject() override = default;
+    G_API_GENEVA virtual ~GObject() = default;
 
     /***************************************************************************/
     /**

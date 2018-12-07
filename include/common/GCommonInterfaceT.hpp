@@ -92,28 +92,7 @@ class GCommonInterfaceT
     :
         private gemfony_common_interface_indicator
 {
-    ///////////////////////////////////////////////////////////////////////
-    friend class boost::serialization::access;
-
-    template<typename Archive>
-    void serialize(Archive &ar, const unsigned int) {
-        using boost::serialization::make_nvp;
-
-        // no local data
-    }
-    ///////////////////////////////////////////////////////////////////////
-
 public:
-    /***************************************************************************/
-    /** @brief The default constructor */
-    GCommonInterfaceT() = default;
-
-    /** @brief The copy constructor -- no data, hence empty*/
-    GCommonInterfaceT(const GCommonInterfaceT<g_class_type> &cp) = default;
-
-    /** @brief The destructor */
-    virtual ~GCommonInterfaceT() BASE = default;
-
     /***************************************************************************/
     /**
      * Converts the class(-hierarchy) to a serial representation that is
@@ -552,6 +531,18 @@ public:
     }
 
 protected:
+    /***************************************************************************/
+    // Defaulted constructors
+
+    /** @brief The destructor. Deliberately not virtual */
+    ~GCommonInterfaceT() = default;
+
+    /** @brief The default constructor */
+    GCommonInterfaceT() = default;
+
+    /** @brief The copy constructor -- no data, hence empty*/
+    GCommonInterfaceT(const GCommonInterfaceT<g_class_type> &cp) = default;
+
     /***************************************************************************/
     /** @brief Loads the data of another g_class_type */
     virtual G_API_COMMON void load_(const g_class_type *) BASE = 0;

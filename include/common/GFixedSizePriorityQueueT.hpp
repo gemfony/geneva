@@ -95,8 +95,6 @@ class GFixedSizePriorityQueueT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & make_nvp("GCommonInterfaceT_GFixedSizePriorityQueueT_T"
-		 	, boost::serialization::base_object<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_data)
 		 & BOOST_SERIALIZATION_NVP(m_maxSize)
 		 & BOOST_SERIALIZATION_NVP(m_sortOrder);
@@ -155,7 +153,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 ~GFixedSizePriorityQueueT() override = default;
+	 virtual ~GFixedSizePriorityQueueT() = default;
 
 	 /***************************************************************************/
 	 /**

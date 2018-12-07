@@ -60,9 +60,6 @@ namespace Geneva {
 template <typename optimizer_type>
 class G_Interface_OptimizerT {
 public:
-	 /** @brief The default constructor */
-	 G_API_GENEVA G_Interface_OptimizerT() = default;
-
 	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
 	 virtual G_API_GENEVA const optimizer_type * const optimize(const std::uint32_t& offset) BASE = 0;
 
@@ -183,6 +180,11 @@ public:
 	 virtual G_API_GENEVA std::string getAlgorithmName() const BASE = 0;
 
 protected:
+	 /***************************************************************************/
+	 // Defaulted constructors / destructors
+
+	 /** @brief The default constructor */
+	 G_API_GENEVA G_Interface_OptimizerT() = default;
 	 /**
  	  * The destructor. Making this function protected and non-virtual follows
  	  * this discussion: http://www.gotw.ca/publications/mill18.htm

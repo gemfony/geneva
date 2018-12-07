@@ -111,22 +111,6 @@ public:
      */
     ~GIntFlipAdaptorT() override = default;
 
-
-    /***************************************************************************/
-    /**
-     * Retrieves the id of the adaptor. Purely virtual, as we do not want this class to be
-     * instantiated.
-     *
-     * @return The id of the adaptor
-     */
-    Gem::Geneva::adaptorId getAdaptorId() const override = 0;
-
-    /* ----------------------------------------------------------------------------------
-     * Tested in GInt32FlipAdaptor::specificTestsNoFailuresExpected_GUnitTests()
-     * Tested in GBooleanAdaptor::specificTestsNoFailuresExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
 protected:
     /***************************************************************************/
     /**
@@ -198,6 +182,21 @@ protected:
     }
 
 private:
+    /***************************************************************************/
+    /**
+     * Retrieves the id of the adaptor. Purely virtual, as we do not want this class to be
+     * instantiated.
+     *
+     * @return The id of the adaptor
+     */
+    Gem::Geneva::adaptorId getAdaptorId_() const override = 0;
+
+    /* ----------------------------------------------------------------------------------
+     * Tested in GInt32FlipAdaptor::specificTestsNoFailuresExpected_GUnitTests()
+     * Tested in GBooleanAdaptor::specificTestsNoFailuresExpected_GUnitTests()
+     * ----------------------------------------------------------------------------------
+     */
+
     /***************************************************************************/
     /**
      * Emits a name for this class / object

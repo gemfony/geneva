@@ -89,9 +89,6 @@ public:
     /** @brief The destructor */
     G_API_GENEVA ~GBooleanAdaptor() override = default;
 
-    /** @brief Retrieves the id of this adaptor */
-    G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId() const override;
-
     /** @brief Random initialization of the adaptor */
     G_API_GENEVA bool randomInit(Gem::Hap::GRandomBase &) override;
 
@@ -121,6 +118,8 @@ protected:
     ) override;
 
 private:
+    /** @brief Retrieves the id of this adaptor */
+    G_API_GENEVA Gem::Geneva::adaptorId getAdaptorId_() const override;
     /** @brief Emits a name for this class / object */
     G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep clone of this object. */

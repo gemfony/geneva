@@ -269,10 +269,7 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
 
-        ar
-        & make_nvp(
-            "GCommonInterfaceT_GDecorator2"
-            , boost::serialization::base_object<GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>>(*this));
+        /* nothing */
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1159,7 +1156,7 @@ public:
     G_API_COMMON GBasePlotter(const GBasePlotter &);
 
     /** @brief The destructor */
-    G_API_COMMON ~GBasePlotter() override = default;
+    virtual G_API_COMMON ~GBasePlotter() = default;
 
     /** @brief Allows to set the drawing arguments for this plot */
     G_API_COMMON void setDrawingArguments(std::string);
@@ -4130,9 +4127,6 @@ class GPlotDesigner
         using boost::serialization::make_nvp;
 
         ar
-        & make_nvp(
-            "GCommonInterfaceT_GPlotDesigner"
-            , boost::serialization::base_object<GCommonInterfaceT<GPlotDesigner>>(*this))
         & BOOST_SERIALIZATION_NVP(c_x_div_)
         & BOOST_SERIALIZATION_NVP(c_y_div_)
         & BOOST_SERIALIZATION_NVP(c_x_dim_)
@@ -4154,7 +4148,7 @@ public:
     G_API_COMMON GPlotDesigner(const GPlotDesigner &);
 
     /** @brief The destructor */
-    G_API_COMMON ~GPlotDesigner() override = default;
+    G_API_COMMON virtual ~GPlotDesigner() = default;
 
     /* @brief Emits the overall plot */
     G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;

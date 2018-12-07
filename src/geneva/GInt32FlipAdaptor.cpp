@@ -117,7 +117,7 @@ void GInt32FlipAdaptor::load_(const GObject *cp) {
  *
  * @return The id of this adaptor
  */
-Gem::Geneva::adaptorId GInt32FlipAdaptor::getAdaptorId() const {
+Gem::Geneva::adaptorId GInt32FlipAdaptor::getAdaptorId_() const {
 	return Gem::Geneva::adaptorId::GINT32FLIPADAPTOR;
 }
 

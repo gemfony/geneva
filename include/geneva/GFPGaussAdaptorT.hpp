@@ -164,10 +164,6 @@ public:
      */
     ~GFPGaussAdaptorT() override = default;
 
-    /***************************************************************************/
-    /** @brief Retrieves the id of this adaptor */
-    Gem::Geneva::adaptorId getAdaptorId() const override = 0;
-
 protected:
     /***************************************************************************/
     /**
@@ -270,6 +266,10 @@ protected:
      */
 
 private:
+    /***************************************************************************/
+    /** @brief Retrieves the id of this adaptor */
+    Gem::Geneva::adaptorId getAdaptorId_() const override = 0;
+
     /***************************************************************************/
     /**
      * Emits a name for this class / object

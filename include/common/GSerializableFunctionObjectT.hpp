@@ -73,9 +73,7 @@ class GSerializableFunctionObjectT
 	 void serialize(Archive &ar, const unsigned int) {
 		 using boost::serialization::make_nvp;
 
-		 ar
-		 & make_nvp("GCommonInterfaceT_GSerializableFunctionObjectT_T"
-						, boost::serialization::base_object<GCommonInterfaceT<GSerializableFunctionObjectT<processable_type>>>(*this));
+		 /* nothing */
 	 }
 
 	 ///////////////////////////////////////////////////////////////////////
@@ -86,7 +84,7 @@ public:
 
 	 GSerializableFunctionObjectT() = default;
 	 GSerializableFunctionObjectT(const GSerializableFunctionObjectT<processable_type>& cp) = default;
-	 ~GSerializableFunctionObjectT() override = default;
+	 virtual ~GSerializableFunctionObjectT() = default;
 
 	 /***************************************************************************/
 	 /**

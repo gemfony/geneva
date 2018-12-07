@@ -116,7 +116,7 @@ void GDoubleBiGaussAdaptor::load_(const GObject *cp) {
  *
  * @return The id of this adaptor
  */
-Gem::Geneva::adaptorId GDoubleBiGaussAdaptor::getAdaptorId() const {
+Gem::Geneva::adaptorId GDoubleBiGaussAdaptor::getAdaptorId_() const {
 	return Gem::Geneva::adaptorId::GDOUBLEBIGAUSSADAPTOR;
 }
 

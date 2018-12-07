@@ -383,11 +383,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * @brief Retrieves the id of the adaptor. */
-	 Gem::Geneva::adaptorId getAdaptorId() const override = 0;
-
-	 /***************************************************************************/
-	 /**
 	  * Triggers updates when the optimization process has stalled. This function
 	  * resets the sigma value to its original value and calls the parent class'es function
 	  *
@@ -550,6 +545,11 @@ protected:
 	 fp_type maxSigma_ = fp_type(DEFAULTMAXSIGMA); ///< maximum allowed value for sigma_
 
 private:
+	/***************************************************************************/
+	/**
+     * @brief Retrieves the id of the adaptor. */
+	Gem::Geneva::adaptorId getAdaptorId_() const override = 0;
+
 	 /***************************************************************************/
 	 /**
 	  * Emits a name for this class / object

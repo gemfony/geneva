@@ -105,7 +105,6 @@ class parPropSpec
 		 using namespace Gem::Common;
 
 		 ar
-		 & make_nvp("GCommonInterfaceT_parPropSpec_par_type", boost::serialization::base_object<Gem::Common::GCommonInterfaceT<parPropSpec<par_type>>>(*this))
 		 & BOOST_SERIALIZATION_NVP(var)
 		 & BOOST_SERIALIZATION_NVP(lowerBoundary)
 		 & BOOST_SERIALIZATION_NVP(upperBoundary)
@@ -131,7 +130,7 @@ public:
 	 /**
 	  * The standard destructor
 	  * */
-	 ~parPropSpec() override = default;
+	 virtual ~parPropSpec() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -363,7 +362,7 @@ public:
 	 /** @brief The default constructor -- intentionally undefined */
 	 GParameterPropertyParser() = delete;
 	 /** @brief The standard constructor -- assignment of the "raw" paramter property string */
-	 G_API_GENEVA GParameterPropertyParser(const std::string&);
+	 explicit G_API_GENEVA GParameterPropertyParser(const std::string&);
 
 	 /** @brief Retrieves the raw parameter description */
 	 G_API_GENEVA std::string getRawParameterDescription() const;

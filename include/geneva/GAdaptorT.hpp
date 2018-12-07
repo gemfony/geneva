@@ -186,7 +186,9 @@ public:
 	  *
 	  * @return The id of the adaptor
 	  */
-	 virtual Gem::Geneva::adaptorId getAdaptorId() const BASE = 0;
+	 Gem::Geneva::adaptorId getAdaptorId() const {
+	 	return getAdaptorId_();
+	 }
 
 	 /* ----------------------------------------------------------------------------------
 	  * Tested in GBooleanAdaptor
@@ -768,7 +770,7 @@ public:
 	 virtual bool randomInit(Gem::Hap::GRandomBase&) BASE = 0;
 
 protected:
-	 /***************************************************************************/
+	/***************************************************************************/
 	 /**
 	  * Loads the contents of another GAdaptorT<T, fp_type>. The function
 	  * is similar to a copy constructor (but with a pointer as
@@ -916,7 +918,24 @@ protected:
 	 std::bernoulli_distribution m_weighted_bool; ///< Access to boolean random numbers with a given probability structure
 
 private:
-	 /***************************************************************************/
+	/***************************************************************************/
+	/**
+     * Retrieves the id of the adaptor. Purely virtual, must be implemented by the
+     * actual adaptors.
+     *
+     * @return The id of the adaptor
+     */
+	virtual Gem::Geneva::adaptorId getAdaptorId_() const BASE = 0;
+
+	/* ----------------------------------------------------------------------------------
+     * Tested in GBooleanAdaptor
+     * Tested in GInt32FlipAdaptor
+     * Tested in GInt32GaussAdaptor
+     * Tested in GDoubleGaussAdaptor
+     * ----------------------------------------------------------------------------------
+     */
+
+	/***************************************************************************/
 	 /**
 	  * Emits a name for this class / object
 	  */
