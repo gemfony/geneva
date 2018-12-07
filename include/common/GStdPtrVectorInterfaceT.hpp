@@ -102,15 +102,16 @@ class GStdPtrVectorInterfaceT {
 	void serialize(Archive &ar, const unsigned int) {
 		using boost::serialization::make_nvp;
 
+#if BOOST_VERSION <= 105800
 		// Some preparation needed if this is a load operation.
 		// This is needed to work around a problem in Boost 1.58
-		// TODO: Check if this error still exists with Boost 1.59
 		if (Archive::is_loading::value) {
 			data.clear();
 		}
+#endif
 
 		ar
-		&BOOST_SERIALIZATION_NVP(data);
+		& BOOST_SERIALIZATION_NVP(data);
 	}
 	///////////////////////////////////////////////////////////////////////
 

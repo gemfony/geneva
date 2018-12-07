@@ -39,7 +39,7 @@
 
 #include "courtier/GBufferPortT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GStdThreadGroup.hpp"
+#include "common/GThreadGroup.hpp"
 #include "common/GBarrier.hpp"
 #include "common/GParserBuilder.hpp"
 

@@ -55,7 +55,7 @@
 #include "common/GLogger.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GErrorStreamer.hpp"
-#include "common/GStdThreadGroup.hpp"
+#include "common/GThreadGroup.hpp"
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 
@@ -352,7 +352,7 @@ private:
 	 boost::asio::io_context m_io_context; ///< Manages the concurrent thread execution
 	 std::shared_ptr<boost::asio::io_context::work> m_work_guard_ptr; ///< A place holder ensuring that the io_service doesn't stop prematurely
 
-	 GStdThreadGroup m_gtg; ///< Holds the actual threads
+	 GThreadGroup m_gtg; ///< Holds the actual threads
 
 	 std::atomic<std::uint32_t> m_tasksInFlight {0};  ///< The number of jobs that have been submitted in this round
 	 std::mutex m_task_counter_mutex; ///< Protects access to the "submitted" job counter

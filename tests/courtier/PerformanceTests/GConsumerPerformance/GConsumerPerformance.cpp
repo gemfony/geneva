@@ -54,7 +54,7 @@
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
 #include "common/GExceptions.hpp"
-#include "common/GStdThreadGroup.hpp"
+#include "common/GThreadGroup.hpp"
 #include "common/GParserBuilder.hpp"
 #include "common/GCommonEnums.hpp"
 

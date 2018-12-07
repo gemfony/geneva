@@ -11,8 +11,7 @@ SET ( COMMONSOURCES
 	GLogger
 	GParserBuilder
 	GPlotDesigner
-    GStdThreadGroup
-	GStdThreadGroup
+	GThreadGroup
 	GThreadPool
 )
 

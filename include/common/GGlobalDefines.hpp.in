@@ -76,7 +76,7 @@
 /** The minimum allowed version of the Boost library */
 #define MIN_BOOST_VERSION @GENEVA_MIN_BOOST_API_VERSION@
 
-#if BOOST_VERSION< MIN_BOOST_VERSION
+#if BOOST_VERSION < MIN_BOOST_VERSION
 #error "Error: Boost should at least have version @GENEVA_MIN_BOOST_VERSION@ !"
 #endif /* BOOST_VERSION */
 

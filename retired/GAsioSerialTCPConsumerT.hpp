@@ -64,7 +64,7 @@
 #include "../../../../../../opt/boost/include/boost/uuid/uuid_serialize.hpp"
 
 // Geneva headers go here
-#include "../include/common/GStdThreadGroup.hpp"
+#include "common/GThreadGroup.hpp"
 #include "../include/common/GThreadPool.hpp"
 #include "../include/common/GSerializationHelperFunctionsT.hpp"
 #include "../include/common/GCommonHelperFunctions.hpp"
@@ -1668,7 +1668,7 @@ private:
 	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
 	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 std::chrono::duration<double> m_timeout = std::chrono::milliseconds(10); ///< A timeout for put- and get-operations
-	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds listener threads
+	 Gem::Common::GThreadGroup m_gtg; ///< Holds listener threads
 	 Gem::Common::GThreadPool m_gtp; ///< Holds workers sorting processed items back into the broker
 	 std::shared_ptr<Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr; ///< A pointer to the global broker
 };

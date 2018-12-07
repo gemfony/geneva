@@ -67,72 +67,104 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-#include "common/GStdThreadGroup.hpp"
+#pragma once
+
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard headers go here
+#include <vector>
+#include <mutex>
+#include <thread>
+
+// Boost headers go here
+#include <boost/utility.hpp>
+#include <boost/lexical_cast.hpp>
+
+// Geneva header files go here
 
 namespace Gem {
 namespace Common {
 
-/******************************************************************************/
-/**
- * The default constructor
- */
-GStdThreadGroup::GStdThreadGroup()
-{ /* nothing */ }
+// Forward declaration
+class GThreadPool;
 
 /******************************************************************************/
 /**
- * The standard destructor. Assumes that all threads have already
- * been terminated (?), so that the thread objects can be safely deleted.
- * As we are using a vector of std::shared_ptr<thread> objects, we do not have
- * to manually erase anything.
+ * A simple thread group based on std::thread. This class was adapted from
+ * a version by Anthony Williams, as offered as part of the Boost 1.36 release
  */
-GStdThreadGroup::~GStdThreadGroup()
-{ /* nothing */ }
+class GThreadGroup
+{
+	 friend class GThreadPool;
 
-/******************************************************************************/
-/**
- * Adds an already created thread to the group
- *
- * @param thrd A pointer to a thread that should be added to the group
- */
-void GStdThreadGroup::add_thread(thread_ptr thrd) {
-	if (thrd) {
-		std::unique_lock<std::mutex> guard(m_mutex);
-		m_threads.push_back(thrd);
-	}
-}
+	 using thread_ptr = std::shared_ptr <std::thread>;
+	 using thread_vector = std::vector<thread_ptr>;
 
-/******************************************************************************/
-/**
- * Requests all threads to join
- */
-void GStdThreadGroup::join_all() {
-	std::unique_lock<std::mutex> guard(m_mutex);
+public:
+	 /** @brief The default constructor */
+	 G_API_COMMON GThreadGroup();
 
-	for (auto& t: m_threads) {
-		t->join();
-	}
-}
+	 /** @brief The destructor */
+	 G_API_COMMON ~GThreadGroup();
 
-/******************************************************************************/
-/**
- * Returns the size of the current thread group.
- * @return The size of the current group
- */
-std::size_t GStdThreadGroup::size() const {
-	std::unique_lock<std::mutex> guard(m_mutex);
-	return m_threads.size();
-}
+	 /** @brief Adds an already created thread to the group */
+	 G_API_COMMON void add_thread(thread_ptr);
 
-/******************************************************************************/
-/**
- * Clears the thread vector. Note that this is a very dangerous operation, which
- * is not made publicly available. This function is meant for consumption by the
- * thread GThreadPool class.
- */
-void GStdThreadGroup::clearThreads() {
-	m_threads.clear();
-}
+	 /** @brief Requests all threads to join */
+	 G_API_COMMON void join_all();
+
+	 /** @brief Returns the size of the current thread group */
+	 G_API_COMMON std::size_t size() const;
+
+	 /***************************************************************************/
+	 /**
+	  * Creates a new thread and adds it to the group
+	  *
+	  * TODO: Add perfect forwarding, so we may pass arguments directly
+	  *
+	  * @param f The function to be run by the thread
+	  * @return A pointer to the newly created thread
+	  */
+	 template<typename F>
+	 std::shared_ptr<std::thread> create_thread(F f) {
+		 std::unique_lock<std::mutex> guard(m_mutex);
+		 thread_ptr new_thread(new std::thread(f));
+		 m_threads.push_back(new_thread);
+		 return new_thread;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Creates nThreads new threads with the same function
+	  * and adds them to the group
+	  *
+	  * @param f The function to be run by the thread
+	  * @param nThreads The number of threads to add to the group
+	  * @return A pointer to the newly created thread
+	  */
+	 template<typename F>
+	 void create_threads(F f, const std::size_t &nThreads) {
+		 for (std::size_t i = 0; i < nThreads; i++) {
+			 create_thread(f);
+		 }
+	 }
+
+	 /***************************************************************************/
+
+private:
+	 // Prevent copying
+	 GThreadGroup(const GThreadGroup&) = delete;
+	 GThreadGroup(const GThreadGroup&&) = delete;
+	  GThreadGroup& operator=(const GThreadGroup&) = delete;
+	  GThreadGroup& operator=(const GThreadGroup&&) = delete;
+
+	 /** @brief Clears the thread vector */
+	 void clearThreads();
+
+	 thread_vector m_threads; ///< Holds the actual threads
+	 mutable std::mutex m_mutex; ///< Needed to synchronize access to the vector
+};
 
 /******************************************************************************/
 

@@ -59,7 +59,7 @@ SET ( GENEVACOMMONINCLUDES
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp
 	GSingletonT.hpp
-    GStdThreadGroup.hpp
+	GThreadGroup.hpp
 	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GThreadPool.hpp

@@ -84,8 +84,6 @@ namespace Common {
  * This class implements most important functions of the std::vector
  * class. It is intended to hold basic types or types that can treated
  * like simple types.
- *
- * TODO: Enable operator== etc.
  */
 template<typename T>
 class GStdSimpleVectorInterfaceT

@@ -911,9 +911,6 @@ item_type &getMapItem(std::map<std::string, item_type> &m, const std::string &ke
 				<< "key " << key << " is not in the map." << std::endl
 		);
 	}
-
-	// Make the compiler happy
-	return m.begin()->second;
 }
 
 /******************************************************************************/
@@ -942,8 +939,6 @@ const item_type &getMapItem(const std::map<std::string, item_type> &m, const std
 				<< "key " << key << " is not in the map." << std::endl
 		);
 	}
-
-	return m.begin()->second;
 }
 
 

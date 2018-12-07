@@ -60,7 +60,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva headers go here
-#include "common/GStdThreadGroup.hpp"
+#include "common/GThreadGroup.hpp"
 #include "common/GThreadPool.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
 #include "common/GCommonHelperFunctions.hpp"

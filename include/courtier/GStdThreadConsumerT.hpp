@@ -51,7 +51,7 @@
 #include <boost/lexical_cast.hpp>
 
 // Geneva headers go here
-#include "common/GStdThreadGroup.hpp"
+#include "common/GThreadGroup.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GErrorStreamer.hpp"
@@ -392,7 +392,7 @@ private:
 	 bool m_capableOfFullReturn = true; ///< Indicates whether this consumer is capable of full return
 
 	 std::size_t m_nThreads = DEFAULTTHREADSPERWORKER; ///< The maximum number of allowed threads in the pool
-	 Gem::Common::GStdThreadGroup m_gtg; ///< Holds the processing threads
+	 Gem::Common::GThreadGroup m_gtg; ///< Holds the processing threads
 
 	 std::vector<std::shared_ptr<GLocalConsumerWorkerT<processable_type>>> m_workers; ///< Holds the current worker objects
 	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_workerTemplate; ///< All workers will be created as a clone of this worker
