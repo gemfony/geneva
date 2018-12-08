@@ -73,8 +73,9 @@ namespace Common {
 /**
  * The standard constructor
  */
-math_logic_error::math_logic_error(const std::string &errorText) throw()
-	: gemfony_exception(errorText) { /* nothing */ }
+math_logic_error::math_logic_error(std::string const& errorText) noexcept
+	: gemfony_exception(errorText)
+{ /* nothing */ }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,8 +83,9 @@ math_logic_error::math_logic_error(const std::string &errorText) throw()
 /**
  * The standard constructor
  */
-division_by_0::division_by_0() throw()
-	: math_logic_error("Division by 0 in Geneva formula parser") { /* nothing */ }
+division_by_0::division_by_0() noexcept
+	: math_logic_error("Division by 0 in Geneva formula parser")
+{ /* nothing */ }
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

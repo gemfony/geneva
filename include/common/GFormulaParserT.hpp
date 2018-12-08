@@ -121,15 +121,20 @@ namespace Common {
  */
 class math_logic_error : public gemfony_exception {
 public:
+	/** @brief The default constructor: Intentionally deleted */
+	G_API_COMMON math_logic_error() = delete;
 	/** @brief The standard constructor */
-	explicit G_API_COMMON math_logic_error(const std::string &) noexcept;
+	explicit G_API_COMMON math_logic_error(std::string const&) noexcept;
 
-	/** @brief The destructor */
-	G_API_COMMON ~math_logic_error() noexcept(true) override = default;
+	/**************************************************************************/
+	// Defaulted functions, constructors and destructor; rule of five
 
-private:
-	/** @brief The default constructor: Intentionally private and undefined */
-	math_logic_error() = delete;
+	G_API_COMMON math_logic_error(math_logic_error const&) = default;
+	G_API_COMMON math_logic_error(math_logic_error &&) noexcept = default;
+	G_API_COMMON ~math_logic_error() noexcept override = default;
+
+	G_API_COMMON math_logic_error& operator=(math_logic_error const&) = default;
+	G_API_COMMON math_logic_error& operator=(math_logic_error &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -143,8 +148,15 @@ public:
 	/** @brief The default constructor */
 	G_API_COMMON division_by_0() noexcept;
 
-	/** @brief The destructor */
-	G_API_COMMON ~division_by_0() noexcept(true) override = default;
+	/**************************************************************************/
+	// Defaulted functions, constructors and destructor; rule of five
+
+	G_API_COMMON division_by_0(division_by_0 const&) = default;
+	G_API_COMMON division_by_0(division_by_0 &&) noexcept = default;
+	G_API_COMMON ~division_by_0() noexcept override = default;
+
+	G_API_COMMON division_by_0& operator=(division_by_0 const&) = default;
+	G_API_COMMON division_by_0& operator=(division_by_0 &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -156,18 +168,24 @@ public:
 template<typename fp_type>
 class acos_invalid_range : public math_logic_error {
 public:
+	/** @brief The default constructor: Intentionally deleted */
+	acos_invalid_range() = delete;
+
 	/** @brief The standard constructor */
 	explicit acos_invalid_range(const fp_type &val) noexcept
 		: math_logic_error(std::string("acos: Value ") + Gem::Common::to_string(val) +
 								 std::string(" out of valid range [-1:1] in GFormulaParserT"))
 	{ /* nothing */ }
 
-	/** @brief The destructor */
-	~acos_invalid_range() noexcept(true) override = default;
+	/**************************************************************************/
+	// Defaulted functions, constructors and destructor; rule of five
 
-private:
-	/** @brief The default constructor: Intentionally private and undefined */
-	acos_invalid_range() = delete;
+	G_API_COMMON acos_invalid_range(acos_invalid_range const&) = default;
+	G_API_COMMON acos_invalid_range(acos_invalid_range &&) noexcept = default;
+	G_API_COMMON ~acos_invalid_range() noexcept override = default;
+
+	G_API_COMMON acos_invalid_range& operator=(acos_invalid_range const&) = default;
+	G_API_COMMON acos_invalid_range& operator=(acos_invalid_range &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -179,17 +197,22 @@ private:
 template<typename fp_type>
 class asin_invalid_range : public math_logic_error {
 public:
+	/** @brief The default constructor: Intentionally deleted */
+	asin_invalid_range() = delete;
 	/** @brief The standard constructor */
 	explicit asin_invalid_range(const fp_type &val) noexcept
 		: math_logic_error(std::string("asin: Value ") + Gem::Common::to_string(val) +
 								 std::string(" out of valid range [-1:1] in GFormulaParserT")) { /* nothing */ }
 
-	/** @brief The destructor */
-	~asin_invalid_range() noexcept(true) override = default;
+	/**************************************************************************/
+	// Defaulted functions, constructors and destructor; rule of five
 
-private:
-	/** @brief The default constructor: Intentionally private and undefined */
-	asin_invalid_range() = delete;
+	G_API_COMMON asin_invalid_range(asin_invalid_range const&) = default;
+	G_API_COMMON asin_invalid_range(asin_invalid_range &&) noexcept = default;
+	G_API_COMMON ~asin_invalid_range() noexcept override = default;
+
+	G_API_COMMON asin_invalid_range& operator=(asin_invalid_range const&) = default;
+	G_API_COMMON asin_invalid_range& operator=(asin_invalid_range &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -202,18 +225,23 @@ private:
 template<typename fp_type>
 class log_negative_value : public math_logic_error {
 public:
+	/** @brief The default constructor: Intentionally deleted */
+	log_negative_value() = delete;
 	/** @brief The standard constructor */
 	explicit log_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("log: Value ") + Gem::Common::to_string(val) +
 								 std::string(" <= 0 in GFormulaParserT"))
 	{ /* nothing */ }
 
-	/** @brief The destructor */
-	~log_negative_value() noexcept(true) override = default;
+	/**************************************************************************/
+	// Defaulted functions, constructors and destructor; rule of five
 
-private:
-	/** @brief The default constructor: Intentionally private and undefined */
-	log_negative_value() = delete;
+	G_API_COMMON log_negative_value(log_negative_value const&) = default;
+	G_API_COMMON log_negative_value(log_negative_value &&) noexcept = default;
+	G_API_COMMON ~log_negative_value() noexcept override = default;
+
+	G_API_COMMON log_negative_value& operator=(log_negative_value const&) = default;
+	G_API_COMMON log_negative_value& operator=(log_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -225,18 +253,23 @@ private:
 template<typename fp_type>
 class log10_negative_value : public math_logic_error {
 public:
+	/** @brief The default constructor: Intentionally deleted */
+	log10_negative_value() = delete;
 	/** @brief The standard constructor */
 	explicit log10_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("log10: Value ") + Gem::Common::to_string(val) +
 								 std::string(" <= 0  in GFormulaParserT"))
 	{ /* nothing */ }
 
-	/** @brief The destructor */
-	~log10_negative_value() noexcept(true) override = default;
+	/**************************************************************************/
+	// Defaulted functions, constructors and destructor; rule of five
 
-private:
-	/** @brief The default constructor: Intentionally private and undefined */
-	log10_negative_value() = delete;
+	G_API_COMMON log10_negative_value(log10_negative_value const&) = default;
+	G_API_COMMON log10_negative_value(log10_negative_value &&) noexcept = default;
+	G_API_COMMON ~log10_negative_value() noexcept override = default;
+
+	G_API_COMMON log10_negative_value& operator=(log10_negative_value const&) = default;
+	G_API_COMMON log10_negative_value& operator=(log10_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -248,17 +281,22 @@ private:
 template<typename fp_type>
 class sqrt_negative_value : public math_logic_error {
 public:
+	/** @brief The default constructor: Intentionally deleted */
+	sqrt_negative_value() = delete;
 	/** @brief The standard constructor */
 	explicit sqrt_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("sqrt: Value ") + Gem::Common::to_string(val) +
 								 std::string(" < 0  in GFormulaParserT")) { /* nothing */ }
 
-	/** @brief The destructor */
-	~sqrt_negative_value() noexcept(true) override = default;
+	/**************************************************************************/
+	// Defaulted functions, constructors and destructor; rule of five
 
-private:
-	/** @brief The default constructor: Intentionally private and undefined */
-	sqrt_negative_value() = delete;
+	G_API_COMMON sqrt_negative_value(sqrt_negative_value const&) = default;
+	G_API_COMMON sqrt_negative_value(sqrt_negative_value &&) noexcept = default;
+	G_API_COMMON ~sqrt_negative_value() noexcept override = default;
+
+	G_API_COMMON sqrt_negative_value& operator=(sqrt_negative_value const&) = default;
+	G_API_COMMON sqrt_negative_value& operator=(sqrt_negative_value &&) noexcept = default;
 };
 
 /******************************************************************************/
@@ -437,6 +475,10 @@ public:
 	using constants_map = std::map<std::string, fp_type>;
 
 	/***************************************************************************/
+	/** @brief The default constructor -- intentionally deleted */
+	GFormulaParserT() = delete;
+
+	/***************************************************************************/
 	/**
 	 * The standard constructor
 	 */
@@ -546,6 +588,15 @@ public:
 				);
 		}
 	}
+
+	/***************************************************************************/
+	// Deleted copy and assignment / rule of five
+
+	GFormulaParserT(GFormulaParserT<fp_type> const&) = delete;
+	GFormulaParserT(GFormulaParserT<fp_type> &&) = delete;
+
+	GFormulaParserT<fp_type>& operator=(GFormulaParserT<fp_type> const&) = delete;
+	GFormulaParserT<fp_type>& operator=(GFormulaParserT<fp_type> &&) = delete;
 
 	/***************************************************************************/
 	/**
@@ -953,9 +1004,6 @@ private:
 
 	/***************************************************************************/
 	// Local data and empty functions
-
-	/** @brief The default constructor -- intentionally private and undefined */
-	GFormulaParserT() = delete;
 
 	std::string raw_formula_; ///< Holds the formula with place holders
 
