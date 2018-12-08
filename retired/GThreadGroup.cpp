@@ -74,16 +74,6 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * The standard destructor. Assumes that all threads have already
- * been terminated (?), so that the thread objects can be safely deleted.
- * As we are using a vector of std::shared_ptr<thread> objects, we do not have
- * to manually erase anything.
- */
-GThreadGroup::~GThreadGroup()
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Adds an already created thread to the group
  *
  * @param thrd A pointer to a thread that should be added to the group

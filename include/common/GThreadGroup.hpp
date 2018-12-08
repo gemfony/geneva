@@ -103,10 +103,15 @@ class GThreadGroup
 
 public:
 	 /** @brief The default constructor */
-	 G_API_COMMON GThreadGroup();
-
+	 G_API_COMMON GThreadGroup() = default;
 	 /** @brief The destructor */
-	 G_API_COMMON ~GThreadGroup();
+	 G_API_COMMON ~GThreadGroup() = default;
+
+    // Prevent copying
+    GThreadGroup(const GThreadGroup&) = delete;
+    GThreadGroup(const GThreadGroup&&) = delete;
+    GThreadGroup& operator=(const GThreadGroup&) = delete;
+    GThreadGroup& operator=(const GThreadGroup&&) = delete;
 
 	 /** @brief Adds an already created thread to the group */
 	 G_API_COMMON void add_thread(thread_ptr);
@@ -153,12 +158,6 @@ public:
 	 /***************************************************************************/
 
 private:
-	 // Prevent copying
-	 GThreadGroup(const GThreadGroup&) = delete;
-	 GThreadGroup(const GThreadGroup&&) = delete;
-	  GThreadGroup& operator=(const GThreadGroup&) = delete;
-	  GThreadGroup& operator=(const GThreadGroup&&) = delete;
-
 	 /** @brief Clears the thread vector */
 	 void clearThreads();
 
