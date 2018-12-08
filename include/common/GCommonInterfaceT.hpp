@@ -532,16 +532,15 @@ public:
 
 protected:
     /***************************************************************************/
-    // Defaulted constructors
+    // Defaulted constructors -- rule of five
 
-    /** @brief The destructor. Deliberately not virtual */
+    GCommonInterfaceT() = default;
+    GCommonInterfaceT(const GCommonInterfaceT<g_class_type> &cp) = default;
+    GCommonInterfaceT(GCommonInterfaceT<g_class_type> && cp) = default;
     ~GCommonInterfaceT() = default;
 
-    /** @brief The default constructor */
-    GCommonInterfaceT() = default;
-
-    /** @brief The copy constructor -- no data, hence empty*/
-    GCommonInterfaceT(const GCommonInterfaceT<g_class_type> &cp) = default;
+    GCommonInterfaceT<g_class_type>& operator=(GCommonInterfaceT<g_class_type> const &) = default;
+    GCommonInterfaceT<g_class_type>& operator=(GCommonInterfaceT<g_class_type> &&) = default;
 
     /***************************************************************************/
     /** @brief Loads the data of another g_class_type */
