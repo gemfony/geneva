@@ -122,7 +122,7 @@ namespace Common {
 class math_logic_error : public gemfony_exception {
 public:
 	/** @brief The standard constructor */
-	G_API_COMMON math_logic_error(const std::string &) noexcept;
+	explicit G_API_COMMON math_logic_error(const std::string &) noexcept;
 
 	/** @brief The destructor */
 	G_API_COMMON ~math_logic_error() noexcept(true) override = default;
@@ -157,7 +157,7 @@ template<typename fp_type>
 class acos_invalid_range : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	acos_invalid_range(const fp_type &val) noexcept
+	explicit acos_invalid_range(const fp_type &val) noexcept
 		: math_logic_error(std::string("acos: Value ") + Gem::Common::to_string(val) +
 								 std::string(" out of valid range [-1:1] in GFormulaParserT"))
 	{ /* nothing */ }
@@ -180,7 +180,7 @@ template<typename fp_type>
 class asin_invalid_range : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	asin_invalid_range(const fp_type &val) noexcept
+	explicit asin_invalid_range(const fp_type &val) noexcept
 		: math_logic_error(std::string("asin: Value ") + Gem::Common::to_string(val) +
 								 std::string(" out of valid range [-1:1] in GFormulaParserT")) { /* nothing */ }
 
@@ -203,7 +203,7 @@ template<typename fp_type>
 class log_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	log_negative_value(const fp_type &val) noexcept
+	explicit log_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("log: Value ") + Gem::Common::to_string(val) +
 								 std::string(" <= 0 in GFormulaParserT"))
 	{ /* nothing */ }
@@ -226,7 +226,7 @@ template<typename fp_type>
 class log10_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	log10_negative_value(const fp_type &val) noexcept
+	explicit log10_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("log10: Value ") + Gem::Common::to_string(val) +
 								 std::string(" <= 0  in GFormulaParserT"))
 	{ /* nothing */ }
@@ -249,7 +249,7 @@ template<typename fp_type>
 class sqrt_negative_value : public math_logic_error {
 public:
 	/** @brief The standard constructor */
-	sqrt_negative_value(const fp_type &val) noexcept
+	explicit sqrt_negative_value(const fp_type &val) noexcept
 		: math_logic_error(std::string("sqrt: Value ") + Gem::Common::to_string(val) +
 								 std::string(" < 0  in GFormulaParserT")) { /* nothing */ }
 

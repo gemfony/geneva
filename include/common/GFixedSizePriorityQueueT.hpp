@@ -167,9 +167,6 @@ public:
 					 << "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
 					 << "Priority queue is empty." << std::endl
 			 );
-
-			 // Make the compiler happy
-			 return {};
 		 } else {
 			 return m_data.front();
 		 }
@@ -187,9 +184,6 @@ public:
 					 << "In GFixedSizePriorityQueueT<T>::best(): Error!" << std::endl
 					 << "Priority queue is empty." << std::endl
 			 );
-
-			 // Make the compiler happy
-			 return {};
 		 } else {
 			 return m_data.back();
 		 }
@@ -266,11 +260,9 @@ public:
 			 , m_data.end()
 			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
 				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) { // higher is better
-					 if (this->evaluation(x_ptr) < this->evaluation(y_ptr)) return true;
-					 else return false;
+					 return this->evaluation(x_ptr) < this->evaluation(y_ptr);
 				 } else { // HIGHERISBETTER
-					 if (this->evaluation(x_ptr) > this->evaluation(y_ptr)) return true;
-					 else return false;
+					 return this->evaluation(x_ptr) > this->evaluation(y_ptr);
 				 }
 			 }
 		 );
@@ -300,7 +292,7 @@ public:
 		 , bool replace
 	 ) BASE {
 		 double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_sortOrder);
-		 if (true == replace || m_data.empty()) {
+		 if (replace || m_data.empty()) {
 			 m_data.clear();
 		 } else {
 			 // Data already exists, we know better than the worst known valid
@@ -349,11 +341,9 @@ public:
 			 , m_data.end()
 			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
 				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) {
-					 if (this->evaluation(x_ptr) < this->evaluation(y_ptr)) return true;
-					 else return false;
+					 return this->evaluation(x_ptr) < this->evaluation(y_ptr);
 				 } else {
-					 if (this->evaluation(x_ptr) > this->evaluation(y_ptr)) return true;
-					 else return false;
+					 return this->evaluation(x_ptr) > this->evaluation(y_ptr);
 				 }
 			 }
 		 );
@@ -377,9 +367,6 @@ public:
 					 << "In GFixedSizePriorityQueueT<T>::pop(): Error!" << std::endl
 					 << "Priority queue is empty." << std::endl
 			 );
-
-			 // Make the compiler happy
-			 return {};
 		 } else {
 			 auto item_ptr = m_data.front();
 			 m_data.pop_front();
@@ -513,11 +500,9 @@ protected:
 	 	, std::shared_ptr<T> old_item_ptr
 	 ) const {
 		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 if (this->evaluation(new_item_ptr) < this->evaluation(old_item_ptr)) return true;
-			 else return false;
+			 return this->evaluation(new_item_ptr) < this->evaluation(old_item_ptr);
 		 } else { // higher is better
-			 if (this->evaluation(new_item_ptr) > this->evaluation(old_item_ptr)) return true;
-			 else return false;
+			 return this->evaluation(new_item_ptr) > this->evaluation(old_item_ptr);
 		 }
 	 }
 
@@ -530,11 +515,9 @@ protected:
 	 	, const double &old_item_val
 	 ) const {
 		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 if (this->evaluation(new_item_ptr) < old_item_val) return true;
-			 else return false;
+			 return this->evaluation(new_item_ptr) < old_item_val;
 		 } else { // higher is better
-			 if (this->evaluation(new_item_ptr) > old_item_val) return true;
-			 else return false;
+			 return this->evaluation(new_item_ptr) > old_item_val;
 		 }
 	 }
 
@@ -547,11 +530,9 @@ protected:
 	 	, std::shared_ptr<T> old_item_ptr
 	 ) const {
 		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 if (new_item_val < this->evaluation(old_item_ptr)) return true;
-			 else return false;
+			 return new_item_val < this->evaluation(old_item_ptr);
 		 } else { // higher is better
-			 if (new_item_val > this->evaluation(old_item_ptr)) return true;
-			 else return false;
+			 return new_item_val > this->evaluation(old_item_ptr);
 		 }
 	 }
 
@@ -564,11 +545,9 @@ protected:
 	 	, const double &old_item_val
 	) const {
 		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 if (new_item_val < old_item_val) return true;
-			 else return false;
+			 return new_item_val < old_item_val;
 		 } else { // higher is better
-			 if (new_item_val > old_item_val) return true;
-			 else return false;
+			 return new_item_val > old_item_val;
 		 }
 	 }
 
