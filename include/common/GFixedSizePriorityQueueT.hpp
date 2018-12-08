@@ -104,20 +104,12 @@ class GFixedSizePriorityQueueT
 public:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor. Note that some variables may be initialized in the class body.
-	  */
-	 GFixedSizePriorityQueueT()
-		 : GFixedSizePriorityQueueT(10, Gem::Common::sortOrder::LOWERISBETTER)
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
 	  * Initialization with the maximum number of entries
 	  *
 	  * @param maxSize The maximum size of the queue
 	  */
 	 explicit GFixedSizePriorityQueueT(const std::size_t &maxSize)
-		 : GFixedSizePriorityQueueT(maxSize, Gem::Common::sortOrder::LOWERISBETTER)
+		 : m_maxSize(maxSize)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -131,8 +123,7 @@ public:
 		 const std::size_t &maxSize
 		 , const Gem::Common::sortOrder &sortOrder
 	 )
-		 : m_data()
-		 , m_maxSize(maxSize)
+		 : m_maxSize(maxSize)
 		 , m_sortOrder(sortOrder)
 	 { /* nothing */ }
 
@@ -144,16 +135,60 @@ public:
 		 : m_maxSize(cp.m_maxSize)
 		 , m_sortOrder(cp.m_sortOrder)
 	 {
-		 for(const auto& data_ptr: m_data) { // std::shared_ptr may be copied
+		 for(const auto& data_ptr: cp.m_data) { // std::shared_ptr may be copied
 			 m_data.push_back(data_ptr->template clone<T>());
 		 }
 	 }
 
 	 /***************************************************************************/
 	 /**
-	  * The destructor
+	  * The move constructor
 	  */
+	 GFixedSizePriorityQueueT(GFixedSizePriorityQueueT<T> && cp) noexcept {
+	 	m_data = std::move(cp.m_data);
+	 	cp.m_data.clear();
+
+	 	m_maxSize = cp.m_maxSize;
+	 	cp.m_maxSize = 10; // default value
+
+	 	m_sortOrder = cp.m_sortOrder;
+	 	cp.m_sortOrder = Gem::Common::sortOrder::LOWERISBETTER;
+	 }
+
+	 /***************************************************************************/
+	 // Defaulted functions
+
+	 GFixedSizePriorityQueueT() = default;
 	 virtual ~GFixedSizePriorityQueueT() = default;
+
+	 /***************************************************************************/
+	 /**
+	  * Assignment operator
+	  */
+	 GFixedSizePriorityQueueT<T> & operator=(GFixedSizePriorityQueueT<T> const & cp) {
+		 m_maxSize = cp.m_maxSize;
+		 m_sortOrder = cp.m_sortOrder;
+
+		 m_data.clear();
+		 for(const auto& data_ptr: cp.m_data) { // std::shared_ptr may be copied
+			 m_data.push_back(data_ptr->template clone<T>());
+		 }
+	 }
+
+	 /***************************************************************************/
+	 /**
+      * Assignment operator
+      */
+	 GFixedSizePriorityQueueT<T> & operator=(GFixedSizePriorityQueueT<T> && cp) noexcept {
+		m_maxSize = cp.m_maxSize;
+		cp.m_maxSize = 10;
+
+		m_sortOrder = cp.m_sortOrder;
+		cp.m_sortOrder = Gem::Common::sortOrder::LOWERISBETTER;
+
+		m_data = std::move(cp.m_data);
+		cp.m_data.clear();
+	 }
 
 	 /***************************************************************************/
 	 /**
