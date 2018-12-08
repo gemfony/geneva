@@ -172,14 +172,10 @@ public:
      * @param The desired new external value
      * @return The new external value of this object
      */
-    int_type operator=(const int_type &val) override {
-        return GConstrainedNumT<int_type>::operator=(val);
+    GConstrainedNumT<int_type>& operator=(const int_type &val) override {
+        GConstrainedNumT<int_type>::operator=(val);
+        return *this;
     }
-
-    /* ----------------------------------------------------------------------------------
-     * Tested with and without boundaries in GConstrainedIntT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
 
     /***************************************************************************/
     /**
@@ -236,11 +232,6 @@ public:
             return mapping;
         }
     }
-
-    /* ----------------------------------------------------------------------------------
-     * Tested in GConstrainedIntT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
 
 protected:
     /***************************************************************************/
@@ -328,11 +319,6 @@ protected:
         this->setValue(uniform_int(gr));
         return true;
     }
-
-    /* ----------------------------------------------------------------------------------
-     * Tested in GConstrainedIntT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
 
 private:
     /***************************************************************************/

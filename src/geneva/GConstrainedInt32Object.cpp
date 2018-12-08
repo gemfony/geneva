@@ -84,8 +84,9 @@ GConstrainedInt32Object::GConstrainedInt32Object(const std::int32_t &val)
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-std::int32_t GConstrainedInt32Object::operator=(const std::int32_t &val) {
-	return GConstrainedIntT<std::int32_t>::operator=(val);
+GConstrainedInt32Object& GConstrainedInt32Object::operator=(const std::int32_t &val) {
+	GConstrainedIntT<std::int32_t>::operator=(val);
+	return *this;
 }
 
 /******************************************************************************/
@@ -338,11 +339,6 @@ bool GConstrainedInt32Object::randomInit_(
 ) {
 	return GConstrainedIntT<std::int32_t>::randomInit_(am, gr);
 }
-
-/* ----------------------------------------------------------------------------------
- * Tested in GConstrainedIntT<int_type>::specificTestsNoFailuresExpected_GUnitTests()
- * ----------------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**

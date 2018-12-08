@@ -74,8 +74,9 @@ GBooleanObject::GBooleanObject(const double &probability) {
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-bool GBooleanObject::operator=(const bool &val) {
-	return GParameterT<bool>::operator=(val);
+GBooleanObject& GBooleanObject::operator=(const bool &val) {
+	GParameterT<bool>::operator=(val);
+	return *this;
 }
 
 /******************************************************************************/
@@ -93,11 +94,7 @@ GObject *GBooleanObject::clone_() const {
  * Flips the value of this object
  */
 void GBooleanObject::flip() {
-	if(true == this->value()) {
-		this->setValue(false);
-	} else {
-		this->setValue(true);
-	}
+	this->setValue(not this->value());
 }
 
 /******************************************************************************/
@@ -338,7 +335,7 @@ void GBooleanObject::assignBooleanValueVectors(
  */
 void GBooleanObject::load_(const GObject *cp) {
 	// Convert the pointer to our target type and check for self-assignment
-	const GBooleanObject * p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanObject >(cp, this);
+	const auto * p_load = Gem::Common::g_convert_and_compare<GObject, GBooleanObject >(cp, this);
 
 	// Load our parent class'es data ...
 	GParameterT<bool>::load_(cp);
@@ -377,7 +374,6 @@ bool GBooleanObject::modify_GUnitTests() {
 void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 #ifdef GEM_TESTING
 	// Some general settings
-	const bool FIXEDVALUEINIT = true;
 	const double LOWERBND = 0.8, UPPERBND = 1.2;
 	const std::size_t nTests = 10000;
 
@@ -419,7 +415,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		GBooleanObject gbo1(false), gbo2(gbo1);
 
 		BOOST_CHECK_MESSAGE (
-			gbo1.value() == false && gbo2.value() == gbo1.value(), "\n"
+			not gbo1.value() && gbo2.value() == gbo1.value(), "\n"
 			<< "gbo1.value() = " << gbo1.value()
 			<< "gbo2.value() = " << gbo2.value()
 		);
@@ -431,7 +427,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		std::size_t nTrue = 0, nFalse = 0;
 		for (std::size_t i = 0; i < nTests; i++) {
 			GBooleanObject gbo(0.5);
-			gbo.value() == true ? nTrue++ : nFalse++;
+			gbo.value() ? nTrue++ : nFalse++;
 		}
 
 		// We allow a slight deviation, as the initialization is a random process
@@ -453,7 +449,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = true);
 		// Cross-check
-		BOOST_CHECK(p_test->value() == true);
+		BOOST_CHECK(p_test->value());
 
 		// Count the number of true and false values for a number of subsequent initializations
 		// with the internal randomInit_ function.
@@ -483,7 +479,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = false);
 		// Cross-check
-		BOOST_CHECK(p_test->value() == false);
+		BOOST_CHECK(not p_test->value());
 
 		// Count the number of true and false values for a number of subsequent initializations
 		// with the internal randomInit_ function.
@@ -506,7 +502,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test = true);
 		// Cross-check
-		BOOST_CHECK(p_test->value() == true);
+		BOOST_CHECK(p_test->value());
 
 		// Count the number of true and false values for a number of subsequent initializations
 		// with the internal randomInit_ function.
@@ -530,7 +526,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 			// Assign a boolean value true
 			BOOST_CHECK_NO_THROW(*p_test = true);
 			// Cross-check
-			BOOST_CHECK(p_test->value() == true);
+			BOOST_CHECK(p_test->value());
 
 			// Randomly initialize, using the internal function, with the current probability
 			BOOST_CHECK_NO_THROW(p_test->randomInit_(d, activityMode::ALLPARAMETERS, gr));
@@ -570,11 +566,11 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
 		// Cross-check
-		BOOST_CHECK(p_test1->value() == true);
+		BOOST_CHECK(p_test1->value());
 
 		// Block random initialization and cross check
 		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-		BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+		BOOST_CHECK(p_test1->randomInitializationBlocked());
 
 		// Load the data into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -583,7 +579,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Check that random initialization is also blocked for p_test2
-		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+		BOOST_CHECK(p_test2->randomInitializationBlocked());
 
 		// Try to randomly initialize, using the *external* function
 		BOOST_CHECK_NO_THROW(p_test1->randomInit(activityMode::ALLPARAMETERS, gr));
@@ -601,11 +597,11 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
 		// Cross-check
-		BOOST_CHECK(p_test1->value() == true);
+		BOOST_CHECK(p_test1->value()); // Should be true
 
 		// Block random initialization and cross check
 		BOOST_CHECK_NO_THROW(p_test1->blockRandomInitialization());
-		BOOST_CHECK(p_test1->randomInitializationBlocked() == true);
+		BOOST_CHECK(p_test1->randomInitializationBlocked());
 
 		// Load the data into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -614,7 +610,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(*p_test1 == *p_test2);
 
 		// Check that random initialization is also blocked for p_test2
-		BOOST_CHECK(p_test2->randomInitializationBlocked() == true);
+		BOOST_CHECK(p_test2->randomInitializationBlocked());
 
 		// Try to randomly initialize, using the *external* function
 		BOOST_CHECK_NO_THROW(p_test1->randomInit(0.7, activityMode::ALLPARAMETERS, gr));
@@ -633,7 +629,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 		// Assign a boolean value true
 		BOOST_CHECK_NO_THROW(*p_test1 = true);
 		// Cross-check
-		BOOST_CHECK(p_test1->value() == true);
+		BOOST_CHECK(p_test1->value()); // should be true
 
 		// Load into p_test2 and p_test3 and test equality
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));

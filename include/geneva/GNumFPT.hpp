@@ -167,8 +167,9 @@ public:
      * @param val The value to be assigned to this object
      * @return The value that was assigned to this object
      */
-    fp_type operator=(const fp_type &val) override {
-        return GNumT<fp_type>::operator=(val);
+    GNumFPT<fp_type>& operator=(const fp_type &val) override {
+        GNumT<fp_type>::operator=(val);
+        return *this;
     }
 
 protected:
@@ -261,11 +262,6 @@ protected:
 
         return true;
     }
-
-    /* ----------------------------------------------------------------------------------
-     * Tested in GNumFPT<fp_type>::specificTestsNoFailuresExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
 
 private:
     /***************************************************************************/

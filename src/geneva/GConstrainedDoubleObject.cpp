@@ -86,8 +86,9 @@ GConstrainedDoubleObject::GConstrainedDoubleObject(const double &val)
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-double GConstrainedDoubleObject::operator=(const double &val) {
-	return GConstrainedFPT<double>::operator=(val);
+GConstrainedDoubleObject& GConstrainedDoubleObject::operator=(const double &val) {
+	GConstrainedFPT<double>::operator=(val);
+	return *this;
 }
 
 /******************************************************************************/

@@ -113,9 +113,9 @@ public:
 	  * @param val The new value for val_
 	  * @return The new value of val_
 	  */
-	 virtual T operator=(const T& val) BASE {
+	 virtual GParameterT<T>& operator=(const T& val) BASE {
 		 setValue(val);
-		 return m_val;
+		 return *this;
 	 }
 
 	 /***************************************************************************/

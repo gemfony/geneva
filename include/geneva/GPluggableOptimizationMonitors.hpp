@@ -203,7 +203,7 @@ public:
 	 G_API_GENEVA std::size_t getNMonitorIndividuals() const;
 
 	 /** @brief Aggregates the work of all registered pluggable monitors */
-	 virtual G_API_GENEVA  void informationFunction(
+	 G_API_GENEVA  void informationFunction(
 		 const infoMode& im
 		 , G_OptimizationAlgorithm_Base *const goa
 	 ) override;
@@ -446,7 +446,7 @@ public:
 	  * boolean and integer variables specified in the argument will simply
 	  * be ignored.
 	  */
-	 void setProfileSpec(std::string parStr) {
+	 void setProfileSpec(std::string const& parStr) {
 		 // Check that the parameter string isn't empty
 		 if(parStr.empty()) {
 			 throw gemfony_exception(
@@ -681,7 +681,7 @@ public:
 				 switch(this->nProfileVars()) {
 					 case 1:
 					 {
-						 m_progressPlotter2D_oa = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+						 m_progressPlotter2D_oa = std::make_shared<Gem::Common::GGraph2D>();
 
 						 m_progressPlotter2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 						 m_progressPlotter2D_oa->setPlotLabel("Fitness as a function of a parameter value");
@@ -693,7 +693,7 @@ public:
 						 break;
 					 case 2:
 					 {
-						 m_progressPlotter3D_oa = std::shared_ptr<Gem::Common::GGraph3D>(new Gem::Common::GGraph3D());
+						 m_progressPlotter3D_oa = std::make_shared<Gem::Common::GGraph3D>();
 
 						 m_progressPlotter3D_oa->setPlotLabel("Fitness as a function of parameter values");
 						 m_progressPlotter3D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
@@ -706,7 +706,7 @@ public:
 
 					 case 3:
 					 {
-						 m_progressPlotter4D_oa = std::shared_ptr<Gem::Common::GGraph4D>(new Gem::Common::GGraph4D());
+						 m_progressPlotter4D_oa = std::make_shared<Gem::Common::GGraph4D>();
 
 						 m_progressPlotter4D_oa->setPlotLabel("Fitness (color-coded) as a function of parameter values");
 						 m_progressPlotter4D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
@@ -1126,7 +1126,7 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GAllSolutionFileLogger() = default;
 	 /** @brief Initialization with a file name */
-	 G_API_GENEVA GAllSolutionFileLogger(const std::string& fileName);
+	 explicit G_API_GENEVA GAllSolutionFileLogger(const std::string& fileName);
 	 /** @brief Initialization with a file name and boundaries */
 	 G_API_GENEVA GAllSolutionFileLogger(
 		 const std::string& fileName
@@ -1277,11 +1277,11 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GIterationResultsFileLogger() = default;
 	 /** @brief Initialization with a file name */
-	 G_API_GENEVA GIterationResultsFileLogger(const std::string& fileName);
+	 explicit G_API_GENEVA GIterationResultsFileLogger(const std::string& fileName);
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GIterationResultsFileLogger(const GIterationResultsFileLogger& cp) = default;
 	 /** @brief The destructor */
-	 G_API_GENEVA  ~GIterationResultsFileLogger() override = default;
+	 G_API_GENEVA ~GIterationResultsFileLogger() override = default;
 
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
@@ -1530,15 +1530,15 @@ public:
 	  * Initialization with a file name
 	  */
 	 GAdaptorPropertyLoggerT(
-		 const std::string& fileName
-		 , const std::string& adaptorName
-		 , const std::string& property
+		 std::string fileName
+		 , std::string adaptorName
+		 , std::string property
 	 )
-		 : m_fileName(fileName)
-			, m_adaptorName(adaptorName)
-			, m_property(property)
-			, m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
-			, m_gpd("Adaptor properties", 1, 2)
+		 : m_fileName(std::move(fileName))
+		 , m_adaptorName(std::move(adaptorName))
+		 , m_property(std::move(property))
+		 , m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
+		 , m_gpd("Adaptor properties", 1, 2)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -1546,16 +1546,16 @@ public:
 	  * The copy constructor
 	  */
 	 GAdaptorPropertyLoggerT(const GAdaptorPropertyLoggerT<num_type>& cp)
-		 : m_fileName(cp.m_fileName)
-			, m_adaptorName(cp.m_adaptorName)
-			, m_property(cp.m_property)
-			, m_canvasDimensions(cp.m_canvasDimensions)
-			, m_gpd(cp.m_gpd)
-			, m_monitorBestOnly(cp.m_monitorBestOnly)
-			, m_addPrintCommand(cp.m_addPrintCommand)
-			, m_maxIteration(cp.m_maxIteration)
-			, m_nIterationsRecorded(cp.m_nIterationsRecorded)
-			, m_adaptorPropertyStore(cp.m_adaptorPropertyStore)
+	    : m_fileName(cp.m_fileName)
+		, m_adaptorName(cp.m_adaptorName)
+		, m_property(cp.m_property)
+		, m_canvasDimensions(cp.m_canvasDimensions)
+		, m_gpd(cp.m_gpd)
+		, m_monitorBestOnly(cp.m_monitorBestOnly)
+		, m_addPrintCommand(cp.m_addPrintCommand)
+		, m_maxIteration(cp.m_maxIteration)
+		, m_nIterationsRecorded(cp.m_nIterationsRecorded)
+		, m_adaptorPropertyStore(cp.m_adaptorPropertyStore)
 	 {
 		 // Copy the smart pointers over
 		 Gem::Common::copyCloneableSmartPointer(cp.m_adaptorPropertyHist2D_oa, m_adaptorPropertyHist2D_oa);
@@ -1704,7 +1704,7 @@ public:
 				 m_gpd.setCanvasDimensions(m_canvasDimensions);
 
 				 // Set up a graph to monitor the best fitness found
-				 m_fitnessGraph2D_oa = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+				 m_fitnessGraph2D_oa = std::make_shared<Gem::Common::GGraph2D>();
 				 m_fitnessGraph2D_oa->setXAxisLabel("Iteration");
 				 m_fitnessGraph2D_oa->setYAxisLabel("Fitness");
 				 m_fitnessGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
@@ -1769,13 +1769,11 @@ public:
 				 }
 
 				 // Create the histogram object
-				 m_adaptorPropertyHist2D_oa = std::shared_ptr<GHistogram2D>(
-					 new GHistogram2D(
-						 m_nIterationsRecorded
-						 , 100
-						 , 0., double(m_maxIteration)
-						 , 0., maxProperty
-					 )
+				 m_adaptorPropertyHist2D_oa = std::make_shared<GHistogram2D>(
+					 m_nIterationsRecorded
+					 , 100
+					 , 0., double(m_maxIteration)
+					 , 0., maxProperty
 				 );
 
 				 m_adaptorPropertyHist2D_oa->setXAxisLabel("Iteration");
@@ -1812,7 +1810,6 @@ public:
 						 << "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
 				 );
 			 }
-				 break;
 		 };
 	 }
 

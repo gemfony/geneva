@@ -214,9 +214,9 @@ public:
 	  * @param The desired new external value
 	  * @return The new external value of this object
 	  */
-	 T operator=(const T& val) override {
+	 GConstrainedNumT<T>& operator=(const T& val) override {
 		 GConstrainedNumT<T>::setValue(val);
-		 return val;
+		 return *this;
 	 }
 
 	 /***************************************************************************/
@@ -229,11 +229,6 @@ public:
 		 return lowerBoundary_;
 	 }
 
-	 /* ----------------------------------------------------------------------------------
-	  * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
-
 	 /***************************************************************************/
 	 /**
 		* Retrieves the upper boundary
@@ -244,11 +239,6 @@ public:
 		 return upperBoundary_;
 	 }
 
-	 /* ----------------------------------------------------------------------------------
-	  * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
-
 	 /***************************************************************************/
 	 /**
 	  * Resets the boundaries to the maximum allowed value.
@@ -256,11 +246,6 @@ public:
 	 void resetBoundaries() {
 		 this->setBoundaries(GConstrainedValueLimitT<T>::lowest(), GConstrainedValueLimitT<T>::highest());
 	 }
-
-	 /* ----------------------------------------------------------------------------------
-	  * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
 
 	 /***************************************************************************/
 	 /**
@@ -318,14 +303,6 @@ public:
 		 GParameterT<T>::setValue(currentValue);
 	 }
 
-	 /* ----------------------------------------------------------------------------------
-	  * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * Throwing for invalid boundaries tested in GConstrainedFPT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * Throwing for invalid boundaries tested in GConstrainedIntT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
-
 	 /***************************************************************************/
 	 /**
 	  * Allows to set the value. This function will throw if val is not in the currently
@@ -350,12 +327,6 @@ public:
 		 // O.k., assign value
 		 GParameterT<T>::setValue(val);
 	 }
-
-	 /* ----------------------------------------------------------------------------------
-	  * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
 
 	 /***************************************************************************/
 	 /**
@@ -416,14 +387,6 @@ public:
 		 GParameterT<T>::setValue(val);
 	 }
 
-	 /* ----------------------------------------------------------------------------------
-	  * Throwing tested in GConstrainedNumT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * Throwing for invalid boundaries tested in GConstrainedFPT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * Throwing for invalid boundaries tested in GConstrainedIntT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
-
 	 /***************************************************************************/
 	 /**
 	  * Retrieval of the value. This is an overloaded version of the original
@@ -444,12 +407,6 @@ public:
 		 return mapping;
 	 }
 
-	 /* ----------------------------------------------------------------------------------
-	  * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * Effects of variations of the internal value on the external value tested in most-derived classes
-	  * ----------------------------------------------------------------------------------
-	  */
-
 	 /***************************************************************************/
 	 /**
 	  * Retrieves GParameterT<T>'s internal value. Added here for compatibility
@@ -458,11 +415,6 @@ public:
 	 T getInternalValue() const {
 		 return GParameterT<T>::value();
 	 }
-
-	 /* ----------------------------------------------------------------------------------
-	  * Tested in GConstrainedNumT<T>::specificTestsNoFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
 
 	 /***************************************************************************/
 	 /**

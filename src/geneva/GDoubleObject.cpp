@@ -85,8 +85,9 @@ GDoubleObject::GDoubleObject(
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-double GDoubleObject::operator=(const double &val) {
-	return GNumFPT<double>::operator=(val);
+GDoubleObject& GDoubleObject::operator=(const double &val) {
+	GNumFPT<double>::operator=(val);
+	return *this;
 }
 
 /******************************************************************************/

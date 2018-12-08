@@ -123,12 +123,7 @@ public:
 		 }
 
 		 // Check whether the given mnemonic was registered with this class
-		 if(m_allowed_mnemonics.count(ind.getMnemonic()) != 0) {
-			 return true;
-		 }
-
-		 // Element was not found -- the algorithm is not eligible for post-processing
-		 return false;
+		 return m_allowed_mnemonics.count(ind.getMnemonic()) != 0;
 	 }
 
 protected:

@@ -154,8 +154,9 @@ public:
 	  * @param val The value to be assigned to this object
 	  * @return The value that was assigned to this object
 	  */
-	 int_type operator=(const int_type& val) override {
-		 return GNumT<int_type>::operator=(val);
+	 GNumT<int_type>& operator=(const int_type& val) override {
+		 GNumT<int_type>::operator=(val);
+		 return *this;
 	 }
 
 protected:
@@ -234,11 +235,6 @@ protected:
 
 		 return true;
 	 }
-
-	 /* ----------------------------------------------------------------------------------
-	  * Tested in GInt32Object::specificTestsNoFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
 
 private:
 	 /***************************************************************************/

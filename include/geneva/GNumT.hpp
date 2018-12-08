@@ -131,8 +131,9 @@ public:
 	 /**
 	  * An assignment operator for the contained value type
 	  */
-	 T operator=(const T& val) override {
-		 return GParameterT<T>::operator=(val);
+	 GNumT<T>& operator=(const T& val) override {
+		 GParameterT<T>::operator=(val);
+		 return *this;
 	 }
 
 	 /***************************************************************************/

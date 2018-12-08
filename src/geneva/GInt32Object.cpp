@@ -87,8 +87,9 @@ GInt32Object::GInt32Object(
  * @param val The value to be assigned to this object
  * @return The value that was just assigned to this object
  */
-std::int32_t GInt32Object::operator=(const std::int32_t &val) {
-	return GNumIntT<std::int32_t>::operator=(val);
+GInt32Object& GInt32Object::operator=(const std::int32_t &val) {
+	GNumIntT<std::int32_t>::operator=(val);
+	return *this;
 }
 
 /******************************************************************************/

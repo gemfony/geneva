@@ -91,7 +91,7 @@ public:
     G_API_GENEVA ~GDoubleObject() override = default;
 
     /** @brief An assignment operator for the contained value type */
-    G_API_GENEVA double operator=(const double &) override;
+    G_API_GENEVA GDoubleObject& operator=(const double &) override;
 
 protected:
     /** @brief Loads the data of another GObject */

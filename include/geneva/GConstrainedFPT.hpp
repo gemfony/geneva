@@ -169,13 +169,15 @@ public:
 	  * @param The desired new external value
 	  * @return The new external value of this object
 	  */
-	 fp_type operator=(const fp_type& val) override {
+	 GConstrainedNumT<fp_type>& operator=(const fp_type& val) override {
 		 fp_type tmpVal = val;
 		 if(val==boost::math::float_next<fp_type>(this->getUpperBoundary())) {
 			 tmpVal = boost::math::float_prior<fp_type>(val);
 		 }
 
-		 return GConstrainedNumT<fp_type>::operator=(tmpVal);
+		 GConstrainedNumT<fp_type>::operator=(tmpVal);
+
+		 return *this;
 	 }
 
 	 /* ----------------------------------------------------------------------------------

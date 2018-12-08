@@ -103,7 +103,7 @@ public:
     G_API_GENEVA ~GInt32Object() override = default;
 
     /** @brief An assignment operator for the contained value type */
-    G_API_GENEVA std::int32_t operator=(const std::int32_t &) override;
+    G_API_GENEVA GInt32Object& operator=(const std::int32_t &) override;
 
 protected:
     /** @brief Loads the data of another GObject */
