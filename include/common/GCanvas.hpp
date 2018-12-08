@@ -110,6 +110,8 @@ struct coord2D {
 	 coord2D() = default;
 	 coord2D(coord2D const&) = default;
 	 coord2D(coord2D &&) = default;
+	 ~coord2D() = default;
+
 	 coord2D& operator=(coord2D const&) = default;
 	 coord2D& operator=(coord2D &&) = default;
 
@@ -136,10 +138,10 @@ struct triangle_circle_struct {
 	 triangle_circle_struct() = default;
 	 triangle_circle_struct(triangle_circle_struct const&) = default;
 	 triangle_circle_struct(triangle_circle_struct &&) = default;
-	 triangle_circle_struct&
-	 operator=(triangle_circle_struct const&) = default;
-	 triangle_circle_struct&
-	 operator=(triangle_circle_struct &&) = default;
+	 ~triangle_circle_struct() = default;
+
+	 triangle_circle_struct& operator=(triangle_circle_struct const&) = default;
+	 triangle_circle_struct& operator=(triangle_circle_struct &&) = default;
 
 	 /** @brief Needed for sorting */
 	 float getAlphaValue() const;
@@ -177,6 +179,17 @@ operator!=(t_circle const&, t_circle const&);
  */
 using t_cart =
 struct t_spec_c {
+	//--------------------------------------------
+	// Deleted or defaulted constructors and assignment
+	// operators. Rule of five ...
+	t_spec_c() = default;
+	t_spec_c(t_spec_c const&) = default;
+	t_spec_c(t_spec_c &&) = default;
+	~t_spec_c() = default;
+
+	t_spec_c& operator=(t_spec_c const&);
+	t_spec_c& operator=(t_spec_c &&);
+
 	 coord2D tr_one{};
 	 coord2D tr_two{};
 	 coord2D tr_three{};
@@ -221,9 +234,10 @@ public:
 	 G_API_COMMON GRgb() = default;
 	 G_API_COMMON GRgb(GRgb const&) = default;
 	 G_API_COMMON GRgb(GRgb &&) = default;
+	 virtual G_API_COMMON ~GRgb() BASE = default;
+
 	 G_API_COMMON GRgb& operator=(GRgb const&) = default;
 	 G_API_COMMON GRgb& operator=(GRgb &&) = default;
-	 virtual G_API_COMMON ~GRgb() BASE = default;
 
 	 /** @brief Explicit reset of colors */
 	 G_API_COMMON void setColor(float, float, float);
@@ -256,21 +270,23 @@ class GColumn {
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_COMMON GColumn() = default;
 	 /** @brief Initialization with dimensions and colors */
 	 G_API_COMMON GColumn(
 	 	 std::size_t
 		 , std::tuple<float, float, float> const&
 	 );
-	 /** @brief Copy construction */
-	 G_API_COMMON GColumn(GColumn const &) = default;
 
-	 /** @brief The destructor */
+	//----------------------------------------------------
+	// Defaulted constructors and destructors
+	// Rule of five ...
+
+	 G_API_COMMON GColumn() = default;
+	 G_API_COMMON GColumn(GColumn const &) = default;
+	 G_API_COMMON GColumn(GColumn &&) = default;
 	 virtual G_API_COMMON ~GColumn() BASE = default;
 
-	 /** @brief Assignment operator */
 	 G_API_COMMON  GColumn &operator=(GColumn const &) = default;
+	 G_API_COMMON  GColumn &operator=(GColumn &&) = default;
 
 	 /** @brief Information about the size of this object */
 	 G_API_COMMON std::size_t size() const;
@@ -319,12 +335,6 @@ class GCanvas {
 public:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor -- will result in an empty canvas
-	  */
-	 GCanvas() = default;
-
-	 /***************************************************************************/
-	 /**
 	  * Initialization with dimensions and background colors. The default
 	  * background color is black.
 	  */
@@ -345,32 +355,17 @@ public:
 		 this->loadFromPPM(ppmString);
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Copy construction
-	  */
-	 GCanvas(GCanvas<COLORDEPTH> const & cp) = default;
+	 //----------------------------------------------------
+	 // Defaulted constructors and destructors
+	 // Rule of five ...
 
-	 /***************************************************************************/
-	 /**
-	  * The destructor
-	  */
+	 GCanvas() = default;
+	 GCanvas(GCanvas<COLORDEPTH> const &) = default;
+	 GCanvas(GCanvas<COLORDEPTH> &&) = default;
 	 virtual ~GCanvas() BASE = default;
 
-	 /***************************************************************************/
-	 /**
-	  * The assignment operator
-	  *
-	  * @param cp A copy of another GCanvas object
-	  */
-	 GCanvas<COLORDEPTH> &
-	 operator=(GCanvas<COLORDEPTH> const &cp) {
-		 m_canvasData = cp.m_canvasData;
-		 m_xDim = cp.m_xDim;
-		 m_yDim = cp.m_yDim;
-
-		 return *this;
-	 }
+	 GCanvas<COLORDEPTH> & operator=(GCanvas<COLORDEPTH> const &) = default;
+	 GCanvas<COLORDEPTH> & operator=(GCanvas<COLORDEPTH> &&) = default;
 
 	 /***************************************************************************/
 	 /**
@@ -1004,8 +999,6 @@ class GCanvas8 : public GCanvas<8> {
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_COMMON GCanvas8() = default;
 	 /** @brief Initialization with dimensions and colors */
 	 G_API_COMMON GCanvas8(
 		 std::tuple<std::size_t, std::size_t> const&
@@ -1014,13 +1007,18 @@ public:
 	 /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
 	 explicit G_API_COMMON GCanvas8(std::string const &);
 	 /** @brief Copy construction */
-	 G_API_COMMON GCanvas8(GCanvas8 const &) = default;
 
-	 /** @brief The destructor */
-	 G_API_COMMON ~GCanvas8() override = default;
+	//----------------------------------------------------
+	// Defaulted constructors and destructors
+	// Rule of five ...
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON  GCanvas8 &operator=(GCanvas8 const &) = default;
+	GCanvas8() = default;
+	GCanvas8(GCanvas8 const &) = default;
+	GCanvas8(GCanvas8 &&) = default;
+	virtual ~GCanvas8() override = default;
+
+	GCanvas8 & operator=(GCanvas8 const &) = default;
+	GCanvas8 & operator=(GCanvas8 &&) = default;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1032,37 +1030,42 @@ G_API_COMMON float operator-(GCanvas8 const &, GCanvas8 const &);
 /**
  * Specialization of GCanvas for a color depth of 16 bits
  */
-class GCanvas16 : public GCanvas<16> {
-	 ///////////////////////////////////////////////////////////////////////
-	 friend class boost::serialization::access;
+class GCanvas16 : public GCanvas<16>
+{
+	///////////////////////////////////////////////////////////////////////
+	friend class boost::serialization::access;
 
-	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int) {
-		 using boost::serialization::make_nvp;
+	template<typename Archive>
+	void serialize(Archive &ar, const unsigned int) {
+		using boost::serialization::make_nvp;
 
-		 ar
-		 &BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<16>);
-	 }
-	 ///////////////////////////////////////////////////////////////////////
+		ar
+		& BOOST_SERIALIZATION_BASE_OBJECT_NVP(GCanvas<16>);
+	}
+	///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_COMMON GCanvas16() = default;
-	 /** @brief Initialization with dimensions and colors */
-	 G_API_COMMON GCanvas16(
-		 std::tuple<std::size_t, std::size_t> const&
-		 , std::tuple<float, float, float> const&
-	 );
-	 /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-	 explicit G_API_COMMON GCanvas16(std::string const &);
-	 /** @brief Copy construction */
-	 G_API_COMMON GCanvas16(GCanvas16 const &) = default;
+	/** @brief Initialization with dimensions and colors */
+	G_API_COMMON GCanvas16(
+		std::tuple<std::size_t, std::size_t> const &
+		, std::tuple<float, float, float> const &
+	);
 
-	 /** @brief The destructor */
-	 G_API_COMMON ~GCanvas16() override = default;
+	/** @brief Initialization from data held in a string -- uses the PPM-P3 format */
+	explicit G_API_COMMON GCanvas16(std::string const &);
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON GCanvas16 &operator=(GCanvas16 const&) = default;
+	//----------------------------------------------------
+	// Defaulted constructors and destructors
+	// Rule of five ...
+
+	GCanvas16() = default;
+	GCanvas16(GCanvas16 const &) = default;
+	GCanvas16(GCanvas16 &&) = default;
+
+	virtual ~GCanvas16() override = default;
+
+	GCanvas16 &operator=(GCanvas16 const &) = default;
+	GCanvas16 &operator=(GCanvas16 &&) = default;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1090,8 +1093,6 @@ class GCanvas24 : public GCanvas<24> {
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 /** @brief The default constructor */
-	 G_API_COMMON GCanvas24() = default;
 	 /** @brief Initialization with dimensions and colors */
 	 G_API_COMMON GCanvas24(
 		 std::tuple<std::size_t, std::size_t> const&
@@ -1099,14 +1100,19 @@ public:
 	 );
 	 /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
 	 explicit G_API_COMMON GCanvas24(std::string const &);
-	 /** @brief Copy construction */
-	 G_API_COMMON GCanvas24(GCanvas24 const &) = default;
 
-	 /** @brief The destructor */
-	 G_API_COMMON ~GCanvas24() override = default;
+	//----------------------------------------------------
+	// Defaulted constructors and destructors
+	// Rule of five ...
 
-	 /** @brief The assignment operator */
-	 G_API_COMMON GCanvas24 &operator=(GCanvas24 const &) = default;
+	GCanvas24() = default;
+	GCanvas24(GCanvas24 const &) = default;
+	GCanvas24(GCanvas24 &&) = default;
+
+	virtual ~GCanvas24() override = default;
+
+	GCanvas24 &operator=(GCanvas24 const &) = default;
+	GCanvas24 &operator=(GCanvas24 &&) = default;
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */

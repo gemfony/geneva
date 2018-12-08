@@ -240,7 +240,7 @@ public:
      * @param ptr The boost::property_tree object the data should be saved to
      * @param id The id assigned to this object
      */
-    virtual void toPropertyTree(
+    void toPropertyTree(
         pt::ptree &ptr
         , const std::string &baseName
     ) const override {
@@ -341,7 +341,7 @@ protected:
      * @param e The expected outcome of the comparison
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
-    virtual void compare_(
+    void compare_(
         const GObject &cp
         , const Gem::Common::expectation &e
         , const double &limit
@@ -394,7 +394,7 @@ protected:
 
     /***************************************************************************/
     /** @brief Triggers random initialization of the parameter collection */
-    virtual bool randomInit_(
+    bool randomInit_(
         const activityMode &
         , Gem::Hap::GRandomBase &
     ) override = 0;
