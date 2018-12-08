@@ -83,15 +83,12 @@ public:
     /** @brief The standard constructor -- initialization with class name and expectation */
     G_API_COMMON GToken(std::string, Gem::Common::expectation);
 
-    // Deleted functions
+    // Deleted functions / rule of five
     G_API_COMMON GToken() = delete;
-
     G_API_COMMON GToken(GToken const &) = delete;
-
     G_API_COMMON GToken(GToken &&) = delete;
 
     G_API_COMMON GToken &operator=(GToken const &) = delete;
-
     G_API_COMMON GToken &operator=(GToken &&) = delete;
 
     /** @brief Increments the test counter */
@@ -180,16 +177,13 @@ public:
         , limit(l_var) { /* nothing */ }
 
     /***************************************************************************/
-    // Deleted and defaulted functions
+    // Deleted and defaulted functions / rule of five
 
     identity() = delete;
-
     identity(identity const &) = default;
-
     identity(identity &&) = default;
 
     identity &operator=(identity const &) = default;
-
     identity &operator=(identity &&) = default;
 
     /***************************************************************************/

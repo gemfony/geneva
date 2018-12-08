@@ -127,21 +127,19 @@ public:
 	  *
 	  * @param configFile The name of a configuration file holding information about objects of type T
 	  */
-	 explicit GFactoryT(boost::filesystem::path const &configFile)
-		 : m_config_path(configFile)
+	 explicit GFactoryT(boost::filesystem::path configFile)
+		 : m_config_path(std::move(configFile))
 	 { /* nothing */ }
 
 	 /***************************************************************************/
-	 /**
-	  * The copy constructor
-	  */
-	 GFactoryT(const GFactoryT<prod_type> &cp) = default;
+	 // Defaulted functions / rule of five
 
-	 /***************************************************************************/
-	 /**
-	  * The destructor.
-	  */
+	 GFactoryT(const GFactoryT<prod_type> &cp) = default;
+	 GFactoryT(GFactoryT<prod_type> && cp) noexcept = default;
 	 virtual ~GFactoryT() BASE = default;
+
+	 GFactoryT<prod_type>& operator=(GFactoryT<prod_type> const&) = default;
+	 GFactoryT<prod_type>& operator=(GFactoryT<prod_type> &&) noexcept = default;
 
 	 /***************************************************************************/
 	 /**
@@ -301,9 +299,6 @@ public:
 				 << "Function was called when it shouldn't be." << std::endl
 				 << "This function is a trap." << std::endl
 		 );
-
-		 // Make the compiler happy
-		 return std::shared_ptr<GFactoryT<prod_type>>();
 	 }
 
 protected:
