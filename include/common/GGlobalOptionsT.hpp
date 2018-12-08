@@ -65,12 +65,16 @@ template<typename T>
 class GGlobalOptionsT {
 public:
 	/***************************************************************************/
-	/**
-	 * The default constructor
-	 */
-	GGlobalOptionsT()
-		: kvp_(), pos(kvp_.begin())
-	{ /* nothing */ }
+	// Defaulted or deleted constructors, destructor and assignment operators
+	// Rule of five
+
+	GGlobalOptionsT() = default;
+
+	GGlobalOptionsT(GGlobalOptionsT<T> const&) = delete;
+	GGlobalOptionsT(GGlobalOptionsT<T> &&) = delete;
+
+	GGlobalOptionsT<T>& operator=(GGlobalOptionsT<T> const&) = delete;
+	GGlobalOptionsT<T>& operator=(GGlobalOptionsT<T> &&) = delete;
 
 	/***************************************************************************/
 	/**
@@ -158,7 +162,7 @@ public:
 	 */
 	bool exists(const std::string &key) const {
 		std::unique_lock<std::mutex> guard(m_mutex);
-		return (kvp_.find(key) != kvp_.end() ? true : false);
+		return kvp_.find(key) != kvp_.end();
 	}
 
 	/************************************************************************/
@@ -273,9 +277,9 @@ public:
 private:
 	/************************************************************************/
 	// Holds the actual data
-	std::map<std::string, T> kvp_;
+	std::map<std::string, T> kvp_{};
 
-	typename std::map<std::string, T>::iterator pos;
+	typename std::map<std::string, T>::iterator pos = kvp_.begin();
 	mutable std::mutex m_mutex; ///< Lock get/set operations
 };
 
