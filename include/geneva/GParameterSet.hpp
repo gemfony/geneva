@@ -183,12 +183,11 @@ private:
  * will form the basis of many user-defined individuals.
  */
 class GParameterSet
-    :
-        public GObject
-        , public G_Interface_Mutable
-        , public G_Interface_Rateable
-        , public Gem::Common::GPtrVectorT<GParameterBase, GObject>
-        , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>
+    : public GObject
+    , public G_Interface_Mutable
+    , public G_Interface_Rateable
+    , public Gem::Common::GPtrVectorT<GParameterBase, GObject>
+    , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>
 {
     friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
 

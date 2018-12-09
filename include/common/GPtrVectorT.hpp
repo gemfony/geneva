@@ -132,11 +132,11 @@ public:
 
     /***************************************************************************/
     /**
-     * Make class purely virtual through deleted destructor. Cmp. e.g.
-     * https://en.cppreference.com/w/cpp/language/destructor --> "Pure virtual destructors" .
-     * The function definition can be found below the class.
+     * The destructor
      */
-    virtual ~GPtrVectorT() BASE = 0;
+    virtual ~GPtrVectorT() BASE {
+    	data.clear();
+    }
 
 	/***************************************************************************/
 	/**
@@ -984,15 +984,6 @@ public:
 
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
 	virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */ }
-};
-
-/******************************************************************************/
-/**
- * Definition of purely virtual destructor. Must be outside of the class.
- */
-template <typename T, typename U, typename V>
-inline GPtrVectorT<T,U,V>::~GPtrVectorT() {
-	data.clear();
 };
 
 /******************************************************************************/
