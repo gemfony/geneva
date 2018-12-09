@@ -117,7 +117,7 @@ void GFileLogger::log(const std::string &msg) const {
 /******************************************************************************/
 /**
  * This function logs a message to a file, whose name it takes from the private
- * variable fname_. The file is reopened in append mode for every log message.
+ * variable m_fname_. The file is reopened in append mode for every log message.
  * In addition to the standard log() function, this function appends the logging
  * source to the file name
  */

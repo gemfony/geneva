@@ -109,9 +109,6 @@ namespace Common {
  */
 class GBaseLogTarget {
 public:
-	 /** @brief The default constructor */
-	 G_API_COMMON GBaseLogTarget() = default;
-
 	 /** @brief The standard destructor */
 	 virtual G_API_COMMON ~GBaseLogTarget() BASE = default;
 
@@ -130,12 +127,6 @@ public:
  */
 class GConsoleLogger : public GBaseLogTarget {
 public:
-	 /** @brief A standard constructor */
-	 G_API_COMMON GConsoleLogger() = default;
-
-	 /** @brief The standard destructor */
-	 G_API_COMMON ~GConsoleLogger() override = default;
-
 	 /** @brief Implements the logging to the console */
 	 G_API_COMMON void log(const std::string &) const override;
 
@@ -153,14 +144,22 @@ public:
  */
 class GFileLogger : public GBaseLogTarget {
 public:
-/** @brief A standard constructor */
-	 G_API_COMMON GFileLogger() = default;
-
 	 /** @brief This constructor accepts a boost path to a file name as argument */
 	 explicit G_API_COMMON GFileLogger(const boost::filesystem::path &);
 
-	 /** @brief The standard destructor */
+	 /*************************************************************************/
+	 // Defaulted or deleted constructors, destructor and assignment operators
+	 // rule of five
+
+     G_API_COMMON GFileLogger() = default;
+     G_API_COMMON GFileLogger(GFileLogger const&) = delete;
+     G_API_COMMON GFileLogger(GFileLogger &&) = default;
 	 G_API_COMMON ~GFileLogger() override = default;
+
+     G_API_COMMON GFileLogger& operator=(GFileLogger const&) = delete;
+     G_API_COMMON GFileLogger& operator=(GFileLogger &&) = default;
+
+     /*************************************************************************/
 
 	 /** @brief Implements logging to a file on disk */
 	 G_API_COMMON void log(const std::string &msg) const override;
