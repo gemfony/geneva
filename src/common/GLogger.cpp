@@ -65,32 +65,6 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor. No local data, hence empty
- */
-GBaseLogTarget::GBaseLogTarget(void) { /* nothing */ }
-
-/***********************************************************************************/
-/**
- * The standard destructor. No local data, hence empty
- */
-GBaseLogTarget::~GBaseLogTarget() { /* nothing */ }
-
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor. No local data, hence empty
- */
-GConsoleLogger::GConsoleLogger(void) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor. No local data, hence empty
- */
-GConsoleLogger::~GConsoleLogger() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Logs a message to the console.
  *
  * @param msg The log message
@@ -113,29 +87,13 @@ void GConsoleLogger::logWithSource(
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * The default constructor
- */
-GFileLogger::GFileLogger(void)
-	: m_fname("Geneva-Library-Collection.log")
-   , m_first(true)
-{ /* nothing */ }
-
 /*******************************************************************************/
 /**
  * This constructor accepts a boost path to a file name as argument
  */
 GFileLogger::GFileLogger(const boost::filesystem::path &p)
 	: m_fname(p.string())
-   , m_first(true)
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The standard destructor.
- */
-GFileLogger::~GFileLogger() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -199,17 +157,8 @@ GManipulator::GManipulator(
 	const std::string &accompInfo
 	, const logType &lt
 )
-	: m_accomp_info(accompInfo)
+   : m_accomp_info(accompInfo)
    , m_log_type(lt)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor
- */
-GManipulator::GManipulator(const GManipulator &cp)
-	: m_accomp_info(cp.m_accomp_info)
-   , m_log_type(cp.m_log_type)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -217,7 +166,7 @@ GManipulator::GManipulator(const GManipulator &cp)
  * A constructor that stores the logging type only
  */
 GManipulator::GManipulator(const logType &lt)
-	: m_accomp_info()
+   : m_accomp_info()
    , m_log_type(lt)
 { /* nothing */ }
 
@@ -249,29 +198,11 @@ bool GManipulator::hasAccompInfo() const {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * The default constructor.
- */
-GLogStreamer::GLogStreamer(void) { /* nothing */ }
-
-/******************************************************************************/
-/**
- * The copy constructor.
- */
-GLogStreamer::GLogStreamer(const GLogStreamer &cp)
-	: m_oss(cp.m_oss.str())
-   , m_extension(cp.m_extension)
-   , m_log_file(cp.m_log_file)
-{ /* nothing */ }
-
-/******************************************************************************/
-/**
  * Initialization with an optional string source extension for log files
  * or as additional information in std-output logs
  */
 GLogStreamer::GLogStreamer(const std::string &extension)
-	: m_oss()
-   , m_extension(extension)
-   , m_log_file()
+	: m_extension(extension)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -280,16 +211,8 @@ GLogStreamer::GLogStreamer(const std::string &extension)
  * one-time logging
  */
 GLogStreamer::GLogStreamer(boost::filesystem::path logFile)
-	: m_oss()
-   , m_extension()
-   , m_log_file(logFile)
+	: m_log_file(std::move(logFile))
 { /* nothing */ }
-
-/******************************************************************************/
-/**
- * A standard destructor.
- */
-GLogStreamer::~GLogStreamer() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -467,7 +390,7 @@ void GLogStreamer::operator<<(const GManipulator &gm) {
  *
  * @return The content of the ostringstream object
  */
-std::string GLogStreamer::content(void) const {
+std::string GLogStreamer::content() const {
 	return m_oss.str();
 }
 

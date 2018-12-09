@@ -173,6 +173,8 @@ public:
 		 for(const auto& data_ptr: cp.m_data) { // std::shared_ptr may be copied
 			 m_data.push_back(data_ptr->template clone<T>());
 		 }
+
+		 return *this;
 	 }
 
 	 /***************************************************************************/
@@ -188,6 +190,8 @@ public:
 
 		m_data = std::move(cp.m_data);
 		cp.m_data.clear();
+
+		return *this;
 	 }
 
 	 /***************************************************************************/

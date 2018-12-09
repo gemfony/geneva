@@ -110,10 +110,10 @@ namespace Common {
 class GBaseLogTarget {
 public:
 	 /** @brief The default constructor */
-	 G_API_COMMON GBaseLogTarget();
+	 G_API_COMMON GBaseLogTarget() = default;
 
 	 /** @brief The standard destructor */
-	 virtual G_API_COMMON ~GBaseLogTarget() BASE;
+	 virtual G_API_COMMON ~GBaseLogTarget() BASE = default;
 
 	 /** @brief The logging interface */
 	 virtual G_API_COMMON void log(const std::string &) const BASE = 0;
@@ -131,10 +131,10 @@ public:
 class GConsoleLogger : public GBaseLogTarget {
 public:
 	 /** @brief A standard constructor */
-	 G_API_COMMON GConsoleLogger();
+	 G_API_COMMON GConsoleLogger() = default;
 
 	 /** @brief The standard destructor */
-	 G_API_COMMON ~GConsoleLogger() override;
+	 G_API_COMMON ~GConsoleLogger() override = default;
 
 	 /** @brief Implements the logging to the console */
 	 G_API_COMMON void log(const std::string &) const override;
@@ -154,13 +154,13 @@ public:
 class GFileLogger : public GBaseLogTarget {
 public:
 /** @brief A standard constructor */
-	 G_API_COMMON GFileLogger();
+	 G_API_COMMON GFileLogger() = default;
 
 	 /** @brief This constructor accepts a boost path to a file name as argument */
 	 explicit G_API_COMMON GFileLogger(const boost::filesystem::path &);
 
 	 /** @brief The standard destructor */
-	 G_API_COMMON ~GFileLogger() override;
+	 G_API_COMMON ~GFileLogger() override = default;
 
 	 /** @brief Implements logging to a file on disk */
 	 G_API_COMMON void log(const std::string &msg) const override;
@@ -171,8 +171,8 @@ public:
 	 ) const override;
 
 private:
-	 std::string m_fname; ///< The name of the log file
-	 mutable bool m_first; ///< Indicates whether any logging has already been done
+	 std::string m_fname = "Geneva-Library-Collection.log"; ///< The name of the log file
+	 mutable bool m_first = true; ///< Indicates whether any logging has already been done
 };
 
 /******************************************************************************/
@@ -191,9 +191,7 @@ class GLogger
 public:
 	 /***************************************************************************/
 	 /** @brief The default constructor - needed for the singleton */
-	 GLogger()
-		 : m_default_logger(new GConsoleLogger())
-	 { /* nothing */ }
+	 GLogger() = default;
 
 	 /***************************************************************************/
 	 /**
@@ -240,11 +238,11 @@ public:
 
 	 /***************************************************************************/
 	 /**
-		 * This function instructs the logger architecture to emit additional
-		 * specifications for the data being logged. When writing to the console,
-		 * a corresponding text will be emitted. When writing to a file, the
-		 * modifier will be appended with an underscore to the filename.
-		 */
+      * This function instructs the logger architecture to emit additional
+      * specifications for the data being logged. When writing to the console,
+      * a corresponding text will be emitted. When writing to a file, the
+      * modifier will be appended with an underscore to the filename.
+      */
 	 S operator()(const std::string &extension) {
 		 S s(extension);
 		 return s;
@@ -252,9 +250,9 @@ public:
 
 	 /***************************************************************************/
 	 /**
-		 * This function instructs the logger architecture to emit data to the file
-		 * specified by the boost::path object
-		 */
+      * This function instructs the logger architecture to emit data to the file
+      * specified by the boost::path object
+      */
 	 S operator()(boost::filesystem::path p) {
 		 S s(p);
 		 return s;
@@ -412,7 +410,7 @@ private:
 	 std::vector<std::shared_ptr<GBaseLogTarget>> m_log_vector; ///< Contains the log targets
 	 mutable std::mutex m_logger_mutex; ///< Needed for concurrent access to the log targets
 
-	 std::shared_ptr <GBaseLogTarget> m_default_logger; ///< The default log target
+	 std::shared_ptr<GBaseLogTarget> m_default_logger = std::make_shared<GConsoleLogger>(); ///< The default log target
 };
 
 /******************************************************************************/
@@ -430,7 +428,7 @@ public:
 		 const std::string &accompInfo, const logType &lt
 	 );
 	 /** @brief The copy constructor */
-	 G_API_COMMON GManipulator(const GManipulator &);
+	 G_API_COMMON GManipulator(GManipulator const &) = default;
 
 	 /** @brief A constructor that stores the logging type only */
 	 explicit G_API_COMMON GManipulator(const logType &lt);
@@ -462,19 +460,28 @@ private:
  */
 class GLogStreamer {
 public:
-	 /** @brief The default constructor */
-	 G_API_COMMON GLogStreamer();
-	 /** @brief The copy constructor */
-	 G_API_COMMON GLogStreamer(const GLogStreamer &);
+    /** @brief A constructor that adds an extension string to the output */
+    explicit G_API_COMMON GLogStreamer(const std::string &);
 
-	 /** @brief A constructor that adds an extension string to the output */
-	 explicit G_API_COMMON GLogStreamer(const std::string &);
+    /** @brief A constructor that logs data to a file specified by a boost::filesystem::path object */
+    explicit G_API_COMMON GLogStreamer(boost::filesystem::path);
 
-	 /** @brief A constructor that logs data to a file specified by a boost::filesystem::path object */
-	 explicit G_API_COMMON GLogStreamer(boost::filesystem::path);
+
+    /*************************************************************************/
+     // Deleted and defaulted constructors, destructor and assignment operators.
+     // Rule of five ...
+
+	 G_API_COMMON GLogStreamer() = default;
+	 G_API_COMMON GLogStreamer(GLogStreamer const &) = delete;
+     G_API_COMMON GLogStreamer(GLogStreamer &&) = default;
 
 	 /** @brief A standard destructor */
-	 virtual G_API_COMMON ~GLogStreamer() BASE;
+	 virtual G_API_COMMON ~GLogStreamer() BASE = default;
+
+     G_API_COMMON GLogStreamer& operator=(GLogStreamer const&) = delete;
+     G_API_COMMON GLogStreamer& operator=(GLogStreamer &&) = default;
+
+     /*************************************************************************/
 
 	 /** @brief Needed for std::ostringstream */
 	 G_API_COMMON GLogStreamer &operator<<(std::ostream &(*val)(std::ostream &));
@@ -526,15 +533,15 @@ private:
 #else
 		 std::ostringstream oss;
 		 std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-		 struct tm timeinfo;
+		 struct tm time_info{};
 
 #if defined(_MSC_VER)  && (_MSC_VER >= 1020)
 		 localtime_s(&timeinfo, &now);
 #else // We assume a POSIX-compliand platform
-		 localtime_r(&now, &timeinfo);
+		 localtime_r(&now, &time_info);
 #endif
 
-		 oss << std::put_time(&timeinfo, "%c");
+		 oss << std::put_time(&time_info, "%c");
 		 return oss.str();
 #endif
 	 }
