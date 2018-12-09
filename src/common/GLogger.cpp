@@ -69,7 +69,7 @@ namespace Common {
  *
  * @param msg The log message
  */
-void GConsoleLogger::log(const std::string &msg) const {
+void GConsoleLogger::log(std::string const& msg) const {
 	std::clog << msg;
 }
 
@@ -80,7 +80,7 @@ void GConsoleLogger::log(const std::string &msg) const {
  * @param msg The log message
  */
 void GConsoleLogger::logWithSource(
-	const std::string &msg, const std::string &extension
+	std::string const& msg, std::string const& extension
 ) const {
 	this->log(std::string("Message from source \"") + extension + "\":\n" + msg);
 }
@@ -91,7 +91,7 @@ void GConsoleLogger::logWithSource(
 /**
  * This constructor accepts a boost path to a file name as argument
  */
-GFileLogger::GFileLogger(const boost::filesystem::path &p)
+GFileLogger::GFileLogger(boost::filesystem::path const& p)
 	: m_fname(p.string())
 { /* nothing */ }
 
@@ -100,7 +100,7 @@ GFileLogger::GFileLogger(const boost::filesystem::path &p)
  * This function logs a message to a file, whose name it takes from the private
  * variable fname_. The file is reopened in append mode for every log message.
  */
-void GFileLogger::log(const std::string &msg) const {
+void GFileLogger::log(std::string const& msg) const {
 	boost::filesystem::ofstream ofstr(boost::filesystem::path(m_fname), std::ios_base::app);
 	if (ofstr) {
 		ofstr << msg;
@@ -122,7 +122,7 @@ void GFileLogger::log(const std::string &msg) const {
  * source to the file name
  */
 void GFileLogger::logWithSource(
-	const std::string &msg, const std::string &extension
+	std::string const& msg, std::string const& extension
 ) const {
 	boost::filesystem::ofstream ofstr(boost::filesystem::path(m_fname + "_" + extension), std::ios_base::app);
 	if (ofstr) {
@@ -154,8 +154,8 @@ void GFileLogger::logWithSource(
  * later perusal.
  */
 GManipulator::GManipulator(
-	const std::string &accompInfo
-	, const logType &lt
+	std::string const& accompInfo
+	, logType lt
 )
    : m_accomp_info(accompInfo)
    , m_log_type(lt)
@@ -165,7 +165,7 @@ GManipulator::GManipulator(
 /**
  * A constructor that stores the logging type only
  */
-GManipulator::GManipulator(const logType &lt)
+GManipulator::GManipulator(logType lt)
    : m_accomp_info()
    , m_log_type(lt)
 { /* nothing */ }
@@ -201,7 +201,7 @@ bool GManipulator::hasAccompInfo() const {
  * Initialization with an optional string source extension for log files
  * or as additional information in std-output logs
  */
-GLogStreamer::GLogStreamer(const std::string &extension)
+GLogStreamer::GLogStreamer(std::string const& extension)
 	: m_extension(extension)
 { /* nothing */ }
 
@@ -249,7 +249,7 @@ GLogStreamer &GLogStreamer::operator<<(std::ios_base &( *val )(std::ios_base &))
  *
  * @param gm A GManipulator object, usually emitted by the logLevel() function.
  */
-void GLogStreamer::operator<<(const GManipulator &gm) {
+void GLogStreamer::operator<<(GManipulator const& gm) {
 	switch (gm.getLogType()) {
 		//------------------------------------------------------------------------
 		case Gem::Common::logType::EXCEPTION: {

@@ -83,7 +83,6 @@
 #include <cstdio>
 
 // Boost header files go here
-#include <boost/noncopyable.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
@@ -113,10 +112,10 @@ public:
 	 virtual G_API_COMMON ~GBaseLogTarget() BASE = default;
 
 	 /** @brief The logging interface */
-	 virtual G_API_COMMON void log(const std::string &) const BASE = 0;
+	 virtual G_API_COMMON void log(std::string const&) const BASE = 0;
 
 	 /** @brief Adds an extension to the output */
-	 virtual G_API_COMMON void logWithSource(const std::string &, const std::string &) const BASE = 0;
+	 virtual G_API_COMMON void logWithSource(std::string const&, std::string const&) const BASE = 0;
 };
 
 /******************************************************************************/
@@ -128,11 +127,11 @@ public:
 class GConsoleLogger : public GBaseLogTarget {
 public:
 	 /** @brief Implements the logging to the console */
-	 G_API_COMMON void log(const std::string &) const override;
+	 G_API_COMMON void log(std::string const&) const override;
 
 	 /** @brief Adds a specifier to the output */
 	 G_API_COMMON void logWithSource(
-		 const std::string &, const std::string &
+		 std::string const&, std::string const&
 	 ) const override;
 };
 
@@ -145,7 +144,7 @@ public:
 class GFileLogger : public GBaseLogTarget {
 public:
 	 /** @brief This constructor accepts a boost path to a file name as argument */
-	 explicit G_API_COMMON GFileLogger(const boost::filesystem::path &);
+	 explicit G_API_COMMON GFileLogger(boost::filesystem::path const&);
 
 	 /*************************************************************************/
 	 // Defaulted or deleted constructors, destructor and assignment operators
@@ -162,11 +161,11 @@ public:
      /*************************************************************************/
 
 	 /** @brief Implements logging to a file on disk */
-	 G_API_COMMON void log(const std::string &msg) const override;
+	 G_API_COMMON void log(std::string const&) const override;
 
 	 /** @brief Adds an extension to the output file */
 	 G_API_COMMON void logWithSource(
-		 const std::string &, const std::string &
+		 std::string const&, std::string const&
 	 ) const override;
 
 private:
@@ -186,11 +185,19 @@ private:
  */
 template<class S> // "S" means "streamer"
 class GLogger
-	: boost::noncopyable {
+{
 public:
 	 /***************************************************************************/
-	 /** @brief The default constructor - needed for the singleton */
+	 // Defaulted or deleted constructors / destructor and assignment operators
+	 // Rule of five
+
 	 GLogger() = default;
+	 GLogger(GLogger<S> const&) = delete;
+	 GLogger(GLogger<S> &&) noexcept(false) = default;
+	 ~GLogger() = default;
+
+	 GLogger<S>& operator=(GLogger<S> const&) = delete;
+	 GLogger<S>& operator=(GLogger<S> &&) noexcept(false) = default;
 
 	 /***************************************************************************/
 	 /**
@@ -199,7 +206,7 @@ public:
 		 * will not survive beyond the end of the stream-chain.
 		 */
 	 template<typename T>
-	 S operator<<(const T &t) {
+	 S operator<<(T const& t) {
 		 S s;
 		 s << t;
 		 return s;
@@ -242,7 +249,7 @@ public:
       * a corresponding text will be emitted. When writing to a file, the
       * modifier will be appended with an underscore to the filename.
       */
-	 S operator()(const std::string &extension) {
+	 S operator()(std::string const& extension) {
 		 S s(extension);
 		 return s;
 	 }
@@ -309,7 +316,7 @@ public:
 		 * function is thread-safe and thus may be called from different threads.
 		 * Note that this function throws if no logging targets have been registered.
 		 */
-	 void log(const std::string &message) const {
+	 void log(std::string const& message) const {
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
@@ -336,7 +343,7 @@ public:
 		 * function is thread-safe and thus may be called from different threads.
 		 * Note that this function throws if no logging targets have been registered.
 		 */
-	 void logWithSource(const std::string &message, const std::string &extension) const {
+	 void logWithSource(std::string const& message, std::string const& extension) const {
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
@@ -362,7 +369,7 @@ public:
 		 * Throws an exception from a global position. This prevents exceptions thrown
 		 * from within threads from getting lost.
 		 */
-	 void throwException(const std::string &error) {
+	 void throwException(std::string const& error) {
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
@@ -373,7 +380,7 @@ public:
 	 /**
 		 * Initiates the termination sequence
 		 */
-	 void terminateApplication(const std::string &error) {
+	 void terminateApplication(std::string const& error) {
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
@@ -385,7 +392,7 @@ public:
 	 /**
 		 * Output to stdout
 		 */
-	 void toStdOut(const std::string &message) {
+	 void toStdOut(std::string const& message) {
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
@@ -396,7 +403,7 @@ public:
 	 /**
 		 * Output to stderr
 		 */
-	 void toStdErr(const std::string &message) {
+	 void toStdErr(std::string const& message) {
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
@@ -422,24 +429,32 @@ private:
  */
 class GManipulator {
 public:
+	 /** @brief A constructor that stores the logging type only */
+	 explicit G_API_COMMON GManipulator(logType);
 	 /** @brief A constructor that stores both accompanying information and the logging type */
 	 G_API_COMMON GManipulator(
-		 const std::string &accompInfo, const logType &lt
+		 std::string const&, logType
 	 );
-	 /** @brief The copy constructor */
-	 G_API_COMMON GManipulator(GManipulator const &) = default;
 
-	 /** @brief A constructor that stores the logging type only */
-	 explicit G_API_COMMON GManipulator(const logType &lt);
+	/*************************************************************************/
+	// Deleted and defaulted constructors, destructor and assignment operators.
+	// Rule of five ...
 
-	 /** @brief Retrieves the stored logging type */
+	G_API_COMMON GManipulator() = delete; ///< Intentionally deleted -- enforce specific log types
+	G_API_COMMON GManipulator(GManipulator const&) = default;
+	G_API_COMMON GManipulator(GManipulator &&) noexcept = default;
+
+	G_API_COMMON GManipulator& operator=(GManipulator const&) = default;
+	G_API_COMMON GManipulator& operator=(GManipulator &&) = default;
+
+	/*************************************************************************/
+
+	/** @brief Retrieves the stored logging type */
 	 G_API_COMMON logType getLogType() const;
 	 /** @brief Retrieves stored accompanying information (if any) */
 	 G_API_COMMON std::string getAccompInfo() const;
 	 /** @brief Checks whether any accompanying information is available */
 	 G_API_COMMON bool hasAccompInfo() const;
-
-	 GManipulator() = delete; ///< Intentionally private and undefined
 
 private:
 	 std::string m_accomp_info; ///< Holds accompanying information
@@ -460,7 +475,7 @@ private:
 class GLogStreamer {
 public:
     /** @brief A constructor that adds an extension string to the output */
-    explicit G_API_COMMON GLogStreamer(const std::string &);
+    explicit G_API_COMMON GLogStreamer(std::string const&);
 
     /** @brief A constructor that logs data to a file specified by a boost::filesystem::path object */
     explicit G_API_COMMON GLogStreamer(boost::filesystem::path);
@@ -471,7 +486,7 @@ public:
      // Rule of five ...
 
 	 G_API_COMMON GLogStreamer() = default;
-	 G_API_COMMON GLogStreamer(GLogStreamer const &) = delete;
+	 G_API_COMMON GLogStreamer(GLogStreamer const&) = delete;
      G_API_COMMON GLogStreamer(GLogStreamer &&) = default;
 
 	 /** @brief A standard destructor */
@@ -490,7 +505,7 @@ public:
 	 G_API_COMMON GLogStreamer &operator<<(std::ios_base &(*val)(std::ios_base &));
 
 	 /** @brief A GManipulator object triggers the actual logging procedure */
-	 G_API_COMMON void operator<<(const GManipulator &gm);
+	 G_API_COMMON void operator<<(GManipulator const& gm);
 
 	 /** @brief Returns the content of the stream */
 	 G_API_COMMON std::string content() const;
@@ -511,7 +526,7 @@ public:
 	  * Output of all standard values and types with a predefined operator<<
 	  */
 	 template<typename T>
-	 GLogStreamer &operator<<(const T &val) {
+	 GLogStreamer &operator<<(T const& val) {
 		 m_oss << val;
 		 return *this;
 	 }

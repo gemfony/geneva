@@ -898,7 +898,7 @@ public:
 
 	private:
 		/************************************************************************/
-		friend class boost::iterator_core_access; // NOLINT ///< Boost's iterator classes need access to the internals of this class
+		friend class boost::iterator_core_access; ///< Boost's iterator classes need access to the internals of this class
 
 		/************************************************************************/
 		/**
@@ -916,14 +916,14 @@ public:
 				);
 			}
 
-			if(m_valid_ptr) return m_valid_ptr;
+			if(m_valid_ptr) {
+				return m_valid_ptr;
+			}
 			else {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG, time_and_place)
 						<< "In conversion_iterator::dereference(): Error: empty pointer" << std::endl
 				);
-
-			   return std::shared_ptr<derivedType>(); // Make the compiler happy / empty pointer
 			}
 #else
 			return m_valid_ptr;
