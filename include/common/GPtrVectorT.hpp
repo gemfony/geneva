@@ -84,7 +84,7 @@ namespace Common {
  * std::vector, which has a non-virtual destructor. Note that we assume here
  * that T holds a complex type, such as a class.  T must implement
  * the interface "usual" for Gemfony optimization library objects, in particular
- * T must implement the clone() and function.
+ * T must implement the clone() function.
  *
  * Some std::vector functions can not be fully implemented, as they require
  * the data in this class to be default-constructible. As this class can hold
@@ -123,9 +123,12 @@ class GPtrVectorT
 
 public:
 	/***************************************************************************/
-	// Defaulted constructors and destructors;
+	// Defaulted constructors, destructors and assignment operators
 
 	GPtrVectorT() = default;
+    GPtrVectorT(GPtrVectorT &&) noexcept = default;
+
+    GPtrVectorT& operator=(GPtrVectorT &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -142,31 +145,31 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-	GPtrVectorT(const GPtrVectorT<T,B> &cp) {
+	GPtrVectorT(GPtrVectorT const& cp) {
 		for(auto const& item_ptr: cp)  {
 			data.push_back(item_ptr->T::template clone<T>());
 		}
 	}
 
+    /***************************************************************************/
+    /**
+     * The assignment operator
+     */
+    GPtrVectorT & operator=(GPtrVectorT const& cp) {
+        for(auto const& item_ptr: cp)  {
+            data.push_back(item_ptr->T::template clone<T>());
+        }
+
+        return *this;
+    }
+
 	 /***************************************************************************/
 	 // Deleted comparison operators
 
-	 bool operator==(const GPtrVectorT<T,B> &) const = delete;
-	 bool operator!=(const GPtrVectorT<T,B> &) const = delete;
+	 bool operator==(GPtrVectorT const &) const = delete;
+	 bool operator!=(GPtrVectorT const &) const = delete;
 	 bool operator==(const std::vector<std::shared_ptr<T>>&) const = delete;
 	 bool operator!=(const std::vector<std::shared_ptr<T>>&) const = delete;
-
-	/***************************************************************************/
-	/**
-	 * Assginment operator
-	 *
-	 * @param cp A copy of another GStdPtrVectorInterfaceT<T, B> object
-	 * @return The argument of this function
-	 */
-	GPtrVectorT<T,B> &operator=(GPtrVectorT<T,B> const& cp) {
-		this->operator=(cp.data);
-		return *this;
-	}
 
 	/***************************************************************************/
 	/**
@@ -176,7 +179,7 @@ public:
 	 * @param cp A constant reference to another std::vector<std::shared_ptr<T>>
 	 * @return A reference to this object
 	 */
-	 GPtrVectorT<T,B> & operator=(std::vector<std::shared_ptr <T>> const& cp) {
+	 GPtrVectorT &operator=(std::vector<std::shared_ptr <T>> const& cp) {
 		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
 		typename std::vector<std::shared_ptr <T>>::iterator it;
 
@@ -220,9 +223,9 @@ public:
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 	virtual void compare_base(
-		const GPtrVectorT<T,B> &cp
-		, const Gem::Common::expectation &e
-		, const double &limit
+		GPtrVectorT const &cp
+		, Gem::Common::expectation const &e
+		, double const &limit
 	) const BASE {
 		Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
 		Gem::Common::compare_t(IDENTITY(this->data, cp.data), token);
@@ -262,7 +265,7 @@ public:
 	 */
 	template<typename item_type>
 	size_type count(
-		const std::shared_ptr <item_type> &item,
+	    std::shared_ptr <item_type> const &item,
 		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
 	) const {
 		if (not item) { // Check that item actually contains something useful
@@ -308,7 +311,7 @@ public:
 	 */
 	template<typename item_type>
 	const_iterator find(
-		const std::shared_ptr <item_type> &item,
+	    std::shared_ptr <item_type> const & item,
 		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
 	) const {
 		if (not item) { // Check that item actually contains something useful
@@ -356,9 +359,7 @@ public:
 	// Modifying functions
 
 	// Exchange of two data sets
-	void swap(std::vector<std::shared_ptr < T>
-
-	>& cont) { data.swap(cont); } // not tested -- trivial mapping
+	void swap(std::vector<std::shared_ptr<T>>& cont) { data.swap(cont); } // not tested -- trivial mapping
 
 	// Access to elements (unchecked / checked)
 	reference operator[](std::size_t pos) { return data[pos]; } // not tested -- trivial mapping
@@ -409,13 +410,13 @@ public:
 	/***************************************************************************/
 	/**
 	 * Inserts a given item at position pos. Checks whether the item actually points
-	 * somewhere. Note that the shared_ptr will inserted itself. Hence any Change you
+	 * somewhere. Note that the shared_ptr will be inserted itself. Hence any change you
 	 * might make to the object pointed to will also affect the item in the collection.
 	 *
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert_noclone(iterator pos, std::shared_ptr <T> item_ptr) {
+	iterator insert_noclone(iterator pos, std::shared_ptr<T> item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -442,7 +443,7 @@ public:
 	 * @param pos The position where the item should be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	iterator insert_clone(iterator pos, std::shared_ptr <T> item_ptr) {
+	iterator insert_clone(iterator pos, std::shared_ptr<T> const & item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -469,7 +470,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
+	void insert(iterator pos, size_type amount, std::shared_ptr<T> const & item_ptr) {
 		this->insert_clone(pos, amount, item_ptr);
 	}
 
@@ -486,7 +487,7 @@ public:
 	 * @param amount The amount of items to be inserted
 	 * @param item_ptr The item to be inserted into the collection
 	 */
-	void insert_clone(iterator pos, size_type amount, std::shared_ptr<T> item_ptr) {
+	void insert_clone(iterator pos, size_type amount, std::shared_ptr<T> const & item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -510,9 +511,9 @@ public:
 
 	/***************************************************************************/
 	/**
-	 * Inserts a given amount of items at position pos. Will not clone the argument.
-	 * Note that changes made to item_ptr's object after a call to this function will
-	 * also affect the container.
+	 * Inserts a given amount of items as of position pos. item_ptr will be cloned
+	 * and added to the collection itself. Note that changes made to item_ptr's object
+	 * after a call to this function will also affect the container.
 	 *
 	 * @param pos The position where items should be inserted
 	 * @param amount The amount of items to be inserted
@@ -550,7 +551,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back(std::shared_ptr <T> item_ptr) {
+	void push_back(std::shared_ptr<T> item_ptr) {
 		this->push_back_noclone(item_ptr);
 	}
 
@@ -567,7 +568,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back_noclone(std::shared_ptr <T> item_ptr) {
+	void push_back_noclone(std::shared_ptr<T> item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -593,7 +594,7 @@ public:
 	 *
 	 * @param item_ptr The item to be appended to the collection
 	 */
-	void push_back_clone(std::shared_ptr <T> item_ptr) {
+	void push_back_clone(std::shared_ptr<T> const & item_ptr) {
 		if (not item_ptr) { // Check that item actually contains something useful
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
@@ -1006,11 +1007,11 @@ inline GPtrVectorT<T,U,V>::~GPtrVectorT() = default;
  */
 namespace boost {
 namespace serialization {
-template<typename T, typename B>
-struct is_abstract<Gem::Common::GPtrVectorT<T, B>> : public boost::true_type {
+template<typename T, typename B, typename U>
+struct is_abstract<Gem::Common::GPtrVectorT<T, B, U>> : public boost::true_type {
 };
-template<typename T, typename B>
-struct is_abstract<const Gem::Common::GPtrVectorT<T, B>> : public boost::true_type {
+template<typename T, typename B, typename U>
+struct is_abstract<const Gem::Common::GPtrVectorT<T, B, U>> : public boost::true_type {
 };
 }
 }

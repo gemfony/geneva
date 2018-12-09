@@ -58,9 +58,12 @@ const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
  * in this class are double and std::int32_t . By using the framework provided
  * by GParameterT, this class becomes rather simple.
  */
-template <typename T>
+template <
+    typename num_type
+	, typename = std::enable_if_t<std::is_arithmetic<num_type>::value>
+>
 class GNumT
-	: public GParameterT<T>
+	: public GParameterT<num_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -69,21 +72,15 @@ class GNumT
 	 void serialize(Archive & ar, const unsigned int) {
 		 using boost::serialization::make_nvp;
 		 ar
-		 & make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<T>>(*this))
+		 & make_nvp("GParameterT",	boost::serialization::base_object<GParameterT<num_type>>(*this))
 		 & BOOST_SERIALIZATION_NVP(lowerInitBoundary_)
 		 & BOOST_SERIALIZATION_NVP(upperInitBoundary_);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
-	 // Make sure this class can only be instantiated with T as an arithmetic type
-	 static_assert(
-		 std::is_arithmetic<T>::value
-		 , "T should be an arithmetic type"
-	 );
-
 public:
 	 /** @brief Specifies the type of parameters stored in this collection */
-	 using collection_type = T;
+	 using collection_type = num_type;
 
 	 /***************************************************************************/
 	 /**
@@ -97,8 +94,8 @@ public:
 	  *
 	  * @param val The value used for the initialization
 	  */
-	 explicit GNumT(const T& val)
-		 : GParameterT<T>(val)
+	 explicit GNumT(const num_type& val)
+		 : GParameterT<num_type>(val)
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -109,8 +106,8 @@ public:
 	  * @param min The lower boundary for random entries
 	  * @param max The upper boundary for random entries
 	  */
-	 GNumT(const T& min, const T& max)
-		 : GParameterT<T> (min)
+	 GNumT(const num_type& min, const num_type& max)
+		 : GParameterT<num_type> (min)
 		 , lowerInitBoundary_(min)
 		 , upperInitBoundary_(max)
 	 { /* nothing */ }
@@ -119,7 +116,7 @@ public:
 	 /**
 	  * The standard copy constructor
 	  */
-	 GNumT(const GNumT<T>& cp) = default;
+	 GNumT(const GNumT<num_type>& cp) = default;
 
 	 /***************************************************************************/
 	 /**
@@ -131,8 +128,8 @@ public:
 	 /**
 	  * An assignment operator for the contained value type
 	  */
-	 GNumT<T>& operator=(const T& val) override {
-		 GParameterT<T>::operator=(val);
+	 GNumT<num_type>& operator=(const num_type& val) override {
+		 GParameterT<num_type>::operator=(val);
 		 return *this;
 	 }
 
@@ -143,7 +140,7 @@ public:
 	  * @param lowerInitBoundary The lower boundary for random initialization
 	  * @param upperInitBoundary The upper boundary for random initialization
 	  */
-	 void setInitBoundaries(const T& lowerInitBoundary, const T& upperInitBoundary) {
+	 void setInitBoundaries(const num_type& lowerInitBoundary, const num_type& upperInitBoundary) {
 		 // Do some error checking
 		 if(lowerInitBoundary >= upperInitBoundary) {
 			 throw gemfony_exception(
@@ -171,7 +168,7 @@ public:
 	  *
 	  * @return The value of the lower initialization boundary
 	  */
-	 T getLowerInitBoundary() const {
+	 num_type getLowerInitBoundary() const {
 		 return lowerInitBoundary_;
 	 }
 
@@ -186,7 +183,7 @@ public:
 	  *
 	  * @return The value of the upper initialization boundary
 	  */
-	 T getUpperInitBoundary() const {
+	 num_type getUpperInitBoundary() const {
 		 return upperInitBoundary_;
 	 }
 
@@ -216,7 +213,7 @@ public:
 	 ) const override {
 		 ptr.put(baseName + ".name", this->getParameterName());
 		 ptr.put(baseName + ".type", this->name());
-		 ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<T>::value());
+		 ptr.put(baseName + ".baseType", Gem::Common::GTypeToStringT<num_type>::value());
 		 ptr.put(baseName + ".isLeaf", this->isLeaf());
 		 ptr.put(baseName + ".nVals", 1);
 		 ptr.put(baseName + ".values.value0", this->value());
@@ -238,10 +235,10 @@ protected:
 	  */
 	 void load_(const GObject *cp) override {
 		 // Check that we are dealing with a GNumT<T> reference independent of this object and convert the pointer
-		 const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T>>(cp, this);
+		 const GNumT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<num_type>>(cp, this);
 
 		 // Load our parent class'es data ...
-		 GParameterT<T>::load_(cp);
+		 GParameterT<num_type>::load_(cp);
 
 		 // ... and then our local data
 		 lowerInitBoundary_ = p_load->lowerInitBoundary_;
@@ -250,9 +247,9 @@ protected:
 
 	/***************************************************************************/
 	/** @brief Allow access to this classes compare_ function */
-	friend void Gem::Common::compare_base_t<GNumT<T>>(
-		GNumT<T> const &
-		, GNumT<T> const &
+	friend void Gem::Common::compare_base_t<GNumT<num_type>>(
+		GNumT<num_type> const &
+		, GNumT<num_type> const &
 		, Gem::Common::GToken &
 	);
 
@@ -273,12 +270,12 @@ protected:
 		using namespace Gem::Common;
 
 		// Check that we are dealing with a GNumT<T> reference independent of this object and convert the pointer
-		const GNumT<T> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<T>>(cp, this);
+		const GNumT<num_type> *p_load = Gem::Common::g_convert_and_compare<GObject, GNumT<num_type>>(cp, this);
 
 		GToken token("GNumT<T>", e);
 
 		// Compare our parent data ...
-		Gem::Common::compare_base_t<GParameterT<T>>(*this, *p_load, token);
+		Gem::Common::compare_base_t<GParameterT<num_type>>(*this, *p_load, token);
 
 		// ... and then the local data
 		compare_t(IDENTITY(lowerInitBoundary_, p_load->lowerInitBoundary_), token);
@@ -293,7 +290,7 @@ protected:
 	  * Returns a "comparative range". This is e.g. used to make Gauss-adaption
 	  * independent of a parameters value range
 	  */
-	 T range() const override {
+	 num_type range() const override {
 		 return upperInitBoundary_ - lowerInitBoundary_;
 	 }
 
@@ -323,8 +320,8 @@ private:
 	 GObject *clone_() const override = 0;
 
 	 /***************************************************************************/
-	 T lowerInitBoundary_ = T(DEFAULTLOWERINITBOUNDARYSINGLE); ///< The lower boundary for random initialization
-	 T upperInitBoundary_ = T(DEFAULTUPPERINITBOUNDARYSINGLE); ///< The upper boundary for random initialization
+	 num_type lowerInitBoundary_ = num_type(DEFAULTLOWERINITBOUNDARYSINGLE); ///< The lower boundary for random initialization
+	 num_type upperInitBoundary_ = num_type(DEFAULTUPPERINITBOUNDARYSINGLE); ///< The upper boundary for random initialization
 
 public:
 
@@ -339,7 +336,7 @@ public:
 		 bool result = false;
 
 		 // Call the parent classes' functions
-		 if(GParameterT<T>::modify_GUnitTests()) result = true;
+		 if(GParameterT<num_type>::modify_GUnitTests()) result = true;
 
 		 return result;
 
@@ -356,16 +353,16 @@ public:
 	 void specificTestsNoFailureExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
-		 GParameterT<T>::specificTestsNoFailureExpected_GUnitTests();
+		 GParameterT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 
 		 // A few settings
-		 const T LOWERTESTINITVAL = T(1); // Do not choose a negative value as T might be an unsigned type
-		 const T UPPERTESTINITVAL = T(3);
+		 const num_type LOWERTESTINITVAL = num_type(1); // Do not choose a negative value as T might be an unsigned type
+		 const num_type UPPERTESTINITVAL = num_type(3);
 
 		 //------------------------------------------------------------------------------
 
 		 { // Test setting and retrieval of initialization boundaries
-			 std::shared_ptr<GNumT<T>> p_test = this->template clone<GNumT<T>>();
+			 std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
 
 			 // Set the boundaries
 			 BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
@@ -389,16 +386,16 @@ public:
 	 void specificTestsFailuresExpected_GUnitTests() override {
 #ifdef GEM_TESTING
 		 // Call the parent classes' functions
-		 GParameterT<T>::specificTestsFailuresExpected_GUnitTests();
+		 GParameterT<num_type>::specificTestsFailuresExpected_GUnitTests();
 
 		 // A few settings
-		 const T LOWERTESTINITVAL = T(1); // Do not choose a negative value as T might be an unsigned type
-		 const T UPPERTESTINITVAL = T(3);
+		 const num_type LOWERTESTINITVAL = num_type(1); // Do not choose a negative value as T might be an unsigned type
+		 const num_type UPPERTESTINITVAL = num_type(3);
 
 		 //------------------------------------------------------------------------------
 
 		 { // Check that assignement of initialization boundaries throws for invalid boundaries
-			 std::shared_ptr<GNumT<T>> p_test = this->template clone<GNumT<T>>();
+			 std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
 
 			 BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), gemfony_exception);
 		 }
@@ -423,10 +420,10 @@ public:
 
 namespace boost {
 namespace serialization {
-template<typename T>
-struct is_abstract<Gem::Geneva::GNumT<T>> : public boost::true_type {};
-template<typename T>
-struct is_abstract< const Gem::Geneva::GNumT<T>> : public boost::true_type {};
+template<typename num_type, typename dummy_type>
+struct is_abstract<Gem::Geneva::GNumT<num_type, dummy_type>> : public boost::true_type {};
+template<typename num_type, typename dummy_type>
+struct is_abstract< const Gem::Geneva::GNumT<num_type, dummy_type>> : public boost::true_type {};
 }
 }
 

@@ -138,17 +138,17 @@ public:
      * The default constructor
      */
     GPODVectorT() = default;
-    GPODVectorT(GPODVectorT<T> const&) = default;
-    GPODVectorT(GPODVectorT<T> &&) noexcept = default;
+    GPODVectorT(GPODVectorT const&) = default;
+    GPODVectorT(GPODVectorT &&) noexcept = default;
 
-    GPODVectorT<T>& operator=(GPODVectorT<T> const&) = default;
-    GPODVectorT<T>& operator=(GPODVectorT<T> &&) noexcept = default;
+    GPODVectorT& operator=(GPODVectorT const&) = default;
+    GPODVectorT& operator=(GPODVectorT &&) noexcept = default;
 
     /***************************************************************************/
     // Deleted comparison operators
 
-    bool operator==(const GPODVectorT<T> &cp) const = delete;
-    bool operator!=(const GPODVectorT<T> &cp) const = delete;
+    bool operator==(const GPODVectorT &cp) const = delete;
+    bool operator!=(const GPODVectorT &cp) const = delete;
     bool operator==(const std::vector<T> &cp_data) const = delete;
     bool operator!=(const std::vector<T> &cp_data) const = delete;
 
@@ -370,7 +370,7 @@ public:
      * @param cp A constant reference to another std::vector<T>
      * @return The argument of this function (a std::vector<T>)
      */
-    GPODVectorT<T>& operator=(const std::vector<T> &cp) {
+    GPODVectorT& operator=(const std::vector<T> &cp) {
         data = cp;
         return *this;
     }
@@ -490,13 +490,13 @@ inline GPODVectorT<T,U>::~GPODVectorT() = default;
  */
 namespace boost {
 namespace serialization {
-template<typename T>
-struct is_abstract<Gem::Common::GPODVectorT<T>> :
+template<typename T, typename U>
+struct is_abstract<Gem::Common::GPODVectorT<T,U>> :
     public boost::true_type
 {
 };
-template<typename T>
-struct is_abstract<const Gem::Common::GPODVectorT<T>> :
+template<typename T, typename U>
+struct is_abstract<const Gem::Common::GPODVectorT<T, U>> :
     public boost::true_type
 {
 };

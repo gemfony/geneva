@@ -65,9 +65,8 @@ namespace Geneva {
  * defines the interface that needs to be implemented by parameter classes.
  */
 class GParameterBase
-    :
-        public GObject
-        , public GMutableParameterI
+    : public GObject
+    , public GMutableParameterI
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -445,9 +444,6 @@ public:
                     << "In std::shared_ptr<load_type> GParameterBase::parameterbase_cast<load_type>() :" << std::endl
                     << "Invalid conversion with load_type = " << typeid(load_type).name() << std::endl
             );
-
-            // Make the compiler happy
-            return std::shared_ptr<load_type>();
         }
 #else
         return std::static_pointer_cast<load_type>(load_ptr);

@@ -62,10 +62,12 @@ const double DEFAULTUPPERINITBOUNDARYCOLLECTION = 1.;
  * class are double and std::int32_t . By using the framework provided
  * by GParameterCollectionT, this class becomes rather simple.
  */
-template<typename num_type>
+template<
+    typename num_type
+    , typename = std::enable_if_t<std::is_arithmetic<num_type>::value>
+>
 class GNumCollectionT
-    :
-        public GParameterCollectionT<num_type>
+    : public GParameterCollectionT<num_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -113,7 +115,6 @@ public:
         const std::size_t &nval
         , const num_type &min
         , const num_type &max
-        , typename std::enable_if<std::is_arithmetic<num_type>::value>::type *dummy = nullptr
     )
         :
         GParameterCollectionT<num_type>(
@@ -141,7 +142,6 @@ public:
         , const num_type &val
         , const num_type &min
         , const num_type &max
-        , typename std::enable_if<std::is_arithmetic<num_type>::value>::type *dummy = nullptr
     )
         :
         GParameterCollectionT<num_type>(
@@ -156,7 +156,7 @@ public:
     /**
      * The standard copy constructor
      */
-    GNumCollectionT(const GNumCollectionT<num_type> &cp) = default;
+    GNumCollectionT(GNumCollectionT const &cp) = default;
 
     /***************************************************************************/
     /**
@@ -174,7 +174,6 @@ public:
     void setInitBoundaries(
         const num_type &lowerInitBoundary
         , const num_type &upperInitBoundary
-        , typename std::enable_if<std::is_arithmetic<num_type>::value>::type *dummy = nullptr
     ) {
         // Do some error checking
         if (lowerInitBoundary >= upperInitBoundary) {
@@ -526,13 +525,13 @@ public:
 
 namespace boost {
 namespace serialization {
-template<typename num_type>
-struct is_abstract<Gem::Geneva::GNumCollectionT<num_type>> :
+template<typename num_type, typename dummy_type>
+struct is_abstract<Gem::Geneva::GNumCollectionT<num_type, dummy_type>> :
     public boost::true_type
 {
 };
-template<typename num_type>
-struct is_abstract<const Gem::Geneva::GNumCollectionT<num_type>> :
+template<typename num_type, typename dummy_type>
+struct is_abstract<const Gem::Geneva::GNumCollectionT<num_type, dummy_type>> :
     public boost::true_type
 {
 };

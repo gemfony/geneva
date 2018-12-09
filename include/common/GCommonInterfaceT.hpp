@@ -89,8 +89,7 @@ class GCommonInterfaceT
     // The problem here is that GCommonInterfaceT<g_class_type> is usually the base class of g_class_type and thus an incomplete
     // type at the time type traits are applied. Hence we use another (trivial) base class that simplifies
     // detection.
-    :
-        private gemfony_common_interface_indicator
+    : private gemfony_common_interface_indicator
 {
 public:
     /***************************************************************************/
@@ -651,24 +650,6 @@ public:
 
 } /* namespace Common */
 } /* namespace Gem */
-
-/******************************************************************************/
-// The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(GCommonInterfaceT<g_class_type>)
-
-namespace boost {
-namespace serialization {
-template<typename g_class_type>
-struct is_abstract<Gem::Common::GCommonInterfaceT<g_class_type>> :
-    public boost::true_type
-{
-};
-template<typename g_class_type>
-struct is_abstract<const Gem::Common::GCommonInterfaceT<g_class_type>> :
-    public boost::true_type
-{
-};
-}
-}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

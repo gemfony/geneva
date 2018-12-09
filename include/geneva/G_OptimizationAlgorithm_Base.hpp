@@ -172,10 +172,9 @@ public:
  * algorithms, such as a general call to "optimize()".
  */
 class G_OptimizationAlgorithm_Base
-    :
-        public GObject
-        , public Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>
-        , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base>
+    : public GObject
+    , public Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>
+    , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base>
 {
 private:
     ///////////////////////////////////////////////////////////////////////
