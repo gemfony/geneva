@@ -54,7 +54,7 @@
 #include <boost/utility.hpp>
 
 // Geneva headers go here
-#include "common/GStdSimpleVectorInterfaceT.hpp"
+#include "common/GPODVectorT.hpp"
 #include "common/GExpectationChecksT.hpp"
 #include "geneva/GObject.hpp"
 
@@ -126,12 +126,12 @@ public:
 	bool isEqual(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
+      , typename std::enable_if<std::is_base_of<Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
 	) const	{
 	   using namespace Gem::Common;
 
 	   try{
-	     x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+	     x.Gem::Common::template GPODVectorT<typename geneva_simplecontainer_type::value_type>::compare_base(
 	        y, Gem::Common::expectation::EQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
 
@@ -187,12 +187,12 @@ public:
 	bool isInEqual(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
+      , typename std::enable_if<std::is_base_of<Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
 	) const	{
       using namespace Gem::Common;
 
       try{
-        x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+        x.Gem::Common::template GPODVectorT<typename geneva_simplecontainer_type::value_type>::compare_base(
            y, Gem::Common::expectation::INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
         );
         return true;
@@ -249,12 +249,12 @@ public:
 	bool isSimilar(
         const geneva_simplecontainer_type& x
       , const std::vector<typename geneva_simplecontainer_type::value_type>& y
-      , typename std::enable_if<std::is_base_of<Gem::Common::GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
+      , typename std::enable_if<std::is_base_of<Gem::Common::GPODVectorT<typename geneva_simplecontainer_type::value_type>, geneva_simplecontainer_type>::value>::type *dummy = nullptr
 	) const	{
       using namespace Gem::Common;
 
       try {
-         x.Gem::Common::template GStdSimpleVectorInterfaceT<typename geneva_simplecontainer_type::value_type>::compare_base(
+         x.Gem::Common::template GPODVectorT<typename geneva_simplecontainer_type::value_type>::compare_base(
             y, Gem::Common::expectation::INEQUALITY, CE_DEF_SIMILARITY_DIFFERENCE
          );
          return true;

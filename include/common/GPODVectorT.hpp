@@ -86,7 +86,7 @@ namespace Common {
  * like simple types.
  */
 template<typename T>
-class GStdSimpleVectorInterfaceT
+class GPODVectorT
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -109,7 +109,7 @@ public:
      * @param nval The number of items to be added to the collection
      * @param val  The value to be assigned to each position
      */
-    GStdSimpleVectorInterfaceT(const std::size_t &nval, const T &val)
+    GPODVectorT(const std::size_t &nval, const T &val)
         :data(nval, val)
     { /* nothing */ }
 
@@ -119,18 +119,18 @@ public:
      * https://en.cppreference.com/w/cpp/language/destructor --> "Pure virtual destructors" .
      * The function definition can be found below the class.
      */
-    virtual ~GStdSimpleVectorInterfaceT() BASE = 0;
+    virtual ~GPODVectorT() BASE = 0;
 
     /***************************************************************************/
     /**
      * The default constructor
      */
-    GStdSimpleVectorInterfaceT() = default;
-    GStdSimpleVectorInterfaceT(GStdSimpleVectorInterfaceT<T> const&) = default;
-    GStdSimpleVectorInterfaceT(GStdSimpleVectorInterfaceT<T> &&) noexcept = default;
+    GPODVectorT() = default;
+    GPODVectorT(GPODVectorT<T> const&) = default;
+    GPODVectorT(GPODVectorT<T> &&) noexcept = default;
 
-    GStdSimpleVectorInterfaceT<T>& operator=(GStdSimpleVectorInterfaceT<T> const&) = default;
-    GStdSimpleVectorInterfaceT<T>& operator=(GStdSimpleVectorInterfaceT<T> &&) noexcept = default;
+    GPODVectorT<T>& operator=(GPODVectorT<T> const&) = default;
+    GPODVectorT<T>& operator=(GPODVectorT<T> &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -142,7 +142,7 @@ public:
      * @param limit The maximum deviation for floating point values (important for similarity checks)
      */
     virtual void compare_base(
-        const GStdSimpleVectorInterfaceT<T> &cp, const Gem::Common::expectation &e, const double &limit
+        const GPODVectorT<T> &cp, const Gem::Common::expectation &e, const double &limit
     ) const BASE {
         Gem::Common::GToken token(
             "GBaseEA::GEAOptimizationMonitor"
@@ -350,7 +350,7 @@ public:
      * @param cp A constant reference to another std::vector<T>
      * @return The argument of this function (a std::vector<T>)
      */
-    GStdSimpleVectorInterfaceT<T>& operator=(const std::vector<T> &cp) {
+    GPODVectorT<T>& operator=(const std::vector<T> &cp) {
         data = cp;
         return *this;
     }
@@ -379,7 +379,7 @@ public:
      * @param cp A copy of another GStdSimpleVectorInterfaceT<T> object
      * @param pos The position as of which the cross-over should be performed
      */
-    void crossOver(GStdSimpleVectorInterfaceT<T> &cp, const std::size_t &pos) {
+    void crossOver(GPODVectorT<T> &cp, const std::size_t &pos) {
         // Find out the minimum size of both vectors
         std::size_t minSize = (std::min)(
             this->size()
@@ -393,7 +393,7 @@ public:
                     DO_LOG
                     , time_and_place
                 )
-                    << "In GStdSimpleVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
+                    << "In GPODVectorT::crossOver(cp,pos): Error!" << std::endl
                     << "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
             );
         }
@@ -436,9 +436,9 @@ public:
 
     /***************************************************************************/
     /** @brief Checks for equality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
-    bool operator==(const GStdSimpleVectorInterfaceT<T> &cp) const = delete;
+    bool operator==(const GPODVectorT<T> &cp) const = delete;
     /** @brief Checks inequality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
-    bool operator!=(const GStdSimpleVectorInterfaceT<T> &cp) const = delete;
+    bool operator!=(const GPODVectorT<T> &cp) const = delete;
     /** @brief Checks for equality with a std::vector<T> object. Intentionally left undefined */
     bool operator==(const std::vector<T> &cp_data) const = delete;
     /** @brief Checks for inequality with a std::vector<T> object. Intentionally left undefined */
@@ -466,7 +466,7 @@ public:
  * Definition of purely virtual destructor. Must be outside the class.
  */
 template <typename T>
-GStdSimpleVectorInterfaceT<T>::~GStdSimpleVectorInterfaceT() = default;
+GPODVectorT<T>::~GPODVectorT() = default;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -482,12 +482,12 @@ GStdSimpleVectorInterfaceT<T>::~GStdSimpleVectorInterfaceT() = default;
 namespace boost {
 namespace serialization {
 template<typename T>
-struct is_abstract<Gem::Common::GStdSimpleVectorInterfaceT<T>> :
+struct is_abstract<Gem::Common::GPODVectorT<T>> :
     public boost::true_type
 {
 };
 template<typename T>
-struct is_abstract<const Gem::Common::GStdSimpleVectorInterfaceT<T>> :
+struct is_abstract<const Gem::Common::GPODVectorT<T>> :
     public boost::true_type
 {
 };

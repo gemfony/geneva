@@ -54,13 +54,13 @@ SET ( GENEVACOMMONINCLUDES
 	GGlobalOptionsT.hpp
 	GLogger.hpp
 	GParserBuilder.hpp
+	GPODVectorT.hpp
 	GPlotDesigner.hpp
     GSerializableFunctionObjectT.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp
 	GSingletonT.hpp
 	GThreadGroup.hpp
-	GStdSimpleVectorInterfaceT.hpp
 	GStdPtrVectorInterfaceT.hpp
 	GThreadPool.hpp
     GTupleIO.hpp

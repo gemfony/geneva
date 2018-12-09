@@ -154,7 +154,7 @@ networkData::networkData()
  * @param arraySize The desired size of the array
  */
 networkData::networkData(const std::size_t &arraySize)
-	: Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>(), arraySize_(arraySize),
+	: Gem::Common::GPODVectorT<std::size_t>(), arraySize_(arraySize),
 	data_(new std::shared_ptr <trainingSet>[arraySize_]) { /* nothing */ }
 
 /******************************************************************************/
@@ -164,7 +164,7 @@ networkData::networkData(const std::size_t &arraySize)
  * @param networkDataFile The name of a file holding the training data
  */
 networkData::networkData(const std::string &networkDataFile)
-	: Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>(), arraySize_(0),
+	: Gem::Common::GPODVectorT<std::size_t>(), arraySize_(0),
 	data_(nullptr) {
 	this->loadFromDisk(networkDataFile);
 }
@@ -176,7 +176,7 @@ networkData::networkData(const std::string &networkDataFile)
  * @param cp A copy of another networkData object
  */
 networkData::networkData(const networkData &cp)
-	: Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>(cp), arraySize_(0),
+	: Gem::Common::GPODVectorT<std::size_t>(cp), arraySize_(0),
 	data_(nullptr) {
 	// Make sure the local data is copied
 	Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
@@ -207,7 +207,7 @@ networkData::~networkData() {
 networkData &networkData::operator=(const networkData &cp) {
 	// Make sure the local data is copied
 	Gem::Common::copySmartPointerArrays(cp.data_, data_, cp.arraySize_, arraySize_);
-	Gem::Common::GStdSimpleVectorInterfaceT<std::size_t>::operator=(cp);
+	Gem::Common::GPODVectorT<std::size_t>::operator=(cp);
 	return *this;
 }
 

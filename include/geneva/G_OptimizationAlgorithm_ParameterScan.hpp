@@ -49,7 +49,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GPlotDesigner.hpp"
 #include "common/GSerializeTupleT.hpp"
-#include "common/GStdSimpleVectorInterfaceT.hpp"
+#include "common/GPODVectorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterPropertyParser.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
@@ -152,7 +152,7 @@ public:
 template<typename T>
 class baseScanParT
     :
-        public Gem::Common::GStdSimpleVectorInterfaceT<T>
+        public Gem::Common::GPODVectorT<T>
         , public scanParInterface
 {
     ///////////////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ class baseScanParT
         using boost::serialization::make_nvp;
 
         ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GStdSimpleVectorInterfaceT<T>)
+        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Gem::Common::GPODVectorT<T>)
         & BOOST_SERIALIZATION_NVP(m_var)
         & BOOST_SERIALIZATION_NVP(m_step)
         & BOOST_SERIALIZATION_NVP(m_nSteps)
@@ -186,7 +186,7 @@ public:
         , const std::string &t // m_typeDescription
     )
         :
-        Gem::Common::GStdSimpleVectorInterfaceT<T>()
+        Gem::Common::GPODVectorT<T>()
         , m_var(pps.var)
         , m_step(0)
         , m_nSteps(pps.nSteps)

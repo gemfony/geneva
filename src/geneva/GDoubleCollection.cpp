@@ -526,8 +526,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 			// Extract the data vectors from p_test1 and p_test3
 			std::vector<double> data1, data3;
-			BOOST_CHECK_NO_THROW(p_test1->Gem::Common::GStdSimpleVectorInterfaceT<double>::getDataCopy(data1));
-			BOOST_CHECK_NO_THROW(p_test3->Gem::Common::GStdSimpleVectorInterfaceT<double>::getDataCopy(data3));
+			BOOST_CHECK_NO_THROW(p_test1->Gem::Common::GPODVectorT<double>::getDataCopy(data1));
+			BOOST_CHECK_NO_THROW(p_test3->Gem::Common::GPODVectorT<double>::getDataCopy(data3));
 
 			// Now p_test1->data  and p_test3->data should be the same, while p_test2 differs from both
 			BOOST_CHECK(data1 == data3);
@@ -538,7 +538,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test the GStdSimpleVectorInterfaceT<double>::reserve(), capacity() and max_size() functions
+	{ // Test the GPODVectorT<double>::reserve(), capacity() and max_size() functions
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Make sure the collection is empty
@@ -567,7 +567,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test the GStdSimpleVectorInterfaceT<double>::count(), find() and begin() functions
+	{ // Test the GPODVectorT<double>::count(), find() and begin() functions
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
@@ -587,7 +587,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test setting and retrieval of items with the operator[] and at() functions of GStdSimpleVectorInterfaceT<double>
+	{ // Test setting and retrieval of items with the operator[] and at() functions of GPODVectorT<double>
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
@@ -606,7 +606,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test the GStdSimpleVectorInterfaceT<double>::front() and back() functions
+	{ // Test the GPODVectorT<double>::front() and back() functions
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
@@ -619,7 +619,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test iteration over the vector and retrieval of the end() iterator (Test of GStdSimpleVectorInterfaceT<double> functionality)
+	{ // Test iteration over the vector and retrieval of the end() iterator (Test of GPODVectorT<double> functionality)
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
@@ -634,7 +634,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test inserting and erasure of items, the pop_and_block and resize functions and the getDataCopy and operator= functions (Test of GStdSimpleVectorInterfaceT<double> functionality)
+	{ // Test inserting and erasure of items, the pop_and_block and resize functions and the getDataCopy and operator= functions (Test of GPODVectorT<double> functionality)
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
@@ -681,7 +681,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		for (std::size_t i = 0; i < nItems; i++) dataCopy.push_back(0.);
 
 		// Assign the vector to p_test1 and cross-check
-		BOOST_CHECK_NO_THROW(p_test1->Gem::Common::GStdSimpleVectorInterfaceT<double>::operator=(dataCopy));
+		BOOST_CHECK_NO_THROW(p_test1->Gem::Common::GPODVectorT<double>::operator=(dataCopy));
 		BOOST_CHECK(p_test1->size() == 2 * nItems);
 		BOOST_CHECK(p_test1->count(0.) == 2 * nItems);
 	}

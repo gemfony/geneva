@@ -44,7 +44,7 @@
 
 // Geneva header files go here
 #include "common/GTypeToStringT.hpp"
-#include "common/GStdSimpleVectorInterfaceT.hpp"
+#include "common/GPODVectorT.hpp"
 #include "geneva/GObject.hpp"
 #include "geneva/GParameterBaseWithAdaptorsT.hpp"
 
@@ -60,7 +60,7 @@ template<typename num_type>
 class GParameterCollectionT
     :
         public GParameterBaseWithAdaptorsT<num_type>
-        , public Gem::Common::GStdSimpleVectorInterfaceT<num_type>
+        , public Gem::Common::GPODVectorT<num_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -74,7 +74,7 @@ class GParameterCollectionT
             , boost::serialization::base_object<GParameterBaseWithAdaptorsT<num_type>>(*this))
         & make_nvp(
             "GStdSimpleVectorInterfaceT_num_type"
-            , boost::serialization::base_object<Gem::Common::GStdSimpleVectorInterfaceT<num_type>>(*this));
+            , boost::serialization::base_object<Gem::Common::GPODVectorT<num_type>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -104,7 +104,7 @@ public:
     )
         :
         GParameterBaseWithAdaptorsT<num_type>()
-        , Gem::Common::GStdSimpleVectorInterfaceT<num_type>(
+        , Gem::Common::GPODVectorT<num_type>(
         nval
         , val
     ) { /* nothing */ }
@@ -135,7 +135,7 @@ public:
         Gem::Hap::GRandomBase &gr
     ) override {
         return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
-            Gem::Common::GStdSimpleVectorInterfaceT<num_type>::data
+            Gem::Common::GPODVectorT<num_type>::data
             , this->range()
             , gr
         );
@@ -164,7 +164,7 @@ public:
      * Swap another object's vector with ours
      */
     void swap(GParameterCollectionT<num_type> &cp) {
-        Gem::Common::GStdSimpleVectorInterfaceT<num_type>::swap(cp.data);
+        Gem::Common::GPODVectorT<num_type>::swap(cp.data);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -287,7 +287,7 @@ protected:
 
         // Load our parent class'es data ...
         GParameterBaseWithAdaptorsT<num_type>::load_(cp);
-        Gem::Common::GStdSimpleVectorInterfaceT<num_type>::operator=(*p_load);
+        Gem::Common::GPODVectorT<num_type>::operator=(*p_load);
     }
 
     /** @brief Allow access to this classes compare_ function */
@@ -371,7 +371,7 @@ public:
 
         // Call the parent classes' functions
         if (GParameterBaseWithAdaptorsT<num_type>::modify_GUnitTests()) { result = true; }
-        if (Gem::Common::GStdSimpleVectorInterfaceT<num_type>::modify_GUnitTests()) { result = true; }
+        if (Gem::Common::GPODVectorT<num_type>::modify_GUnitTests()) { result = true; }
 
         return result;
 
@@ -389,7 +389,7 @@ public:
 #ifdef GEM_TESTING
         // Call the parent classes' functions
         GParameterBaseWithAdaptorsT<num_type>::specificTestsNoFailureExpected_GUnitTests();
-        Gem::Common::GStdSimpleVectorInterfaceT<num_type>::specificTestsNoFailureExpected_GUnitTests();
+        Gem::Common::GPODVectorT<num_type>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -404,7 +404,7 @@ public:
 #ifdef GEM_TESTING
         // Call the parent classes' functions
         GParameterBaseWithAdaptorsT<num_type>::specificTestsFailuresExpected_GUnitTests();
-        Gem::Common::GStdSimpleVectorInterfaceT<num_type>::specificTestsFailuresExpected_GUnitTests();
+        Gem::Common::GPODVectorT<num_type>::specificTestsFailuresExpected_GUnitTests();
 
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
