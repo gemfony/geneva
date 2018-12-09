@@ -201,14 +201,6 @@ public:
 
 protected:
 	 /***************************************************************************/
-	 /**
-	  * Re-implementation of a corresponding function in GStdPtrVectorInterface.
-	  * Make the vector wrapper purely virtual allows the compiler to perform
-	  * further optimizations.
-	  */
-	 void dummyFunction() final { /* nothing */ }
-
-	 /***************************************************************************/
 	 /** @brief Retrieves the best individual found */
 	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const final;
 	 /** @brief Retrieves a list of the best individuals found */

@@ -126,9 +126,9 @@ public:
 	// Defaulted constructors, destructors and assignment operators
 
 	GPtrVectorT() = default;
-    GPtrVectorT(GPtrVectorT &&) noexcept = default;
+    GPtrVectorT(GPtrVectorT<T,B> &&) noexcept = default;
 
-    GPtrVectorT& operator=(GPtrVectorT &&) noexcept = default;
+    GPtrVectorT<T,B>& operator=(GPtrVectorT<T,B> &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -145,7 +145,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-	GPtrVectorT(GPtrVectorT const& cp) {
+	GPtrVectorT(GPtrVectorT<T,B> const& cp) {
 		for(auto const& item_ptr: cp)  {
 			data.push_back(item_ptr->T::template clone<T>());
 		}
@@ -155,7 +155,7 @@ public:
     /**
      * The assignment operator
      */
-    GPtrVectorT & operator=(GPtrVectorT const& cp) {
+    GPtrVectorT<T,B> & operator=(GPtrVectorT<T,B> const& cp) {
         for(auto const& item_ptr: cp)  {
             data.push_back(item_ptr->T::template clone<T>());
         }
@@ -166,8 +166,8 @@ public:
 	 /***************************************************************************/
 	 // Deleted comparison operators
 
-	 bool operator==(GPtrVectorT const &) const = delete;
-	 bool operator!=(GPtrVectorT const &) const = delete;
+	 bool operator==(GPtrVectorT<T,B> const &) const = delete;
+	 bool operator!=(GPtrVectorT<T,B> const &) const = delete;
 	 bool operator==(const std::vector<std::shared_ptr<T>>&) const = delete;
 	 bool operator!=(const std::vector<std::shared_ptr<T>>&) const = delete;
 
@@ -179,7 +179,7 @@ public:
 	 * @param cp A constant reference to another std::vector<std::shared_ptr<T>>
 	 * @return A reference to this object
 	 */
-	 GPtrVectorT &operator=(std::vector<std::shared_ptr <T>> const& cp) {
+	 GPtrVectorT<T,B> &operator=(std::vector<std::shared_ptr <T>> const& cp) {
 		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
 		typename std::vector<std::shared_ptr <T>>::iterator it;
 
@@ -223,7 +223,7 @@ public:
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 	virtual void compare_base(
-		GPtrVectorT const &cp
+		GPtrVectorT<T,B> const &cp
 		, Gem::Common::expectation const &e
 		, double const &limit
 	) const BASE {
@@ -974,9 +974,6 @@ public:
 protected:
 	std::vector<std::shared_ptr<T>> data;
 
-	/** @brief Intentionally make this object purely virtual, for performance reasons */
-	virtual void dummyFunction() BASE = 0;
-
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	// Note to self: changes to GStdPtrVectorInterface should be minimal and not involve objects pointed to
@@ -994,7 +991,9 @@ public:
  * Definition of purely virtual destructor. Must be outside of the class.
  */
 template <typename T, typename U, typename V>
-inline GPtrVectorT<T,U,V>::~GPtrVectorT() = default;
+inline GPtrVectorT<T,U,V>::~GPtrVectorT() {
+	data.clear();
+};
 
 /******************************************************************************/
 

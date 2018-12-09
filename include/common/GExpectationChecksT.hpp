@@ -1145,7 +1145,7 @@ void compare(
                 error
                     << "containers " << x_name << " and " << y_name << " have different sizes " << x.size() << " / "
                     << y.size() << std::endl
-                    << "Thus the expectation of " << expectation_str << " was violated:" << std::endl;
+                    << "Thus the expectation of " << expectation_str << " was violated" << std::endl;
                 // Terminate the switch statement. expectationMet will be false then
                 break;
             }

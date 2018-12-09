@@ -138,17 +138,17 @@ public:
      * The default constructor
      */
     GPODVectorT() = default;
-    GPODVectorT(GPODVectorT const&) = default;
-    GPODVectorT(GPODVectorT &&) noexcept = default;
+    GPODVectorT(GPODVectorT<T> const&) = default;
+    GPODVectorT(GPODVectorT<T> &&) noexcept = default;
 
-    GPODVectorT& operator=(GPODVectorT const&) = default;
-    GPODVectorT& operator=(GPODVectorT &&) noexcept = default;
+    GPODVectorT<T>& operator=(GPODVectorT<T> const&) = default;
+    GPODVectorT<T>& operator=(GPODVectorT<T> &&) noexcept = default;
 
     /***************************************************************************/
     // Deleted comparison operators
 
-    bool operator==(const GPODVectorT &cp) const = delete;
-    bool operator!=(const GPODVectorT &cp) const = delete;
+    bool operator==(const GPODVectorT<T> &cp) const = delete;
+    bool operator!=(const GPODVectorT<T> &cp) const = delete;
     bool operator==(const std::vector<T> &cp_data) const = delete;
     bool operator!=(const std::vector<T> &cp_data) const = delete;
 
@@ -475,7 +475,9 @@ public:
  * Definition of purely virtual destructor. Must be outside of the class.
  */
 template <typename T, typename U>
-inline GPODVectorT<T,U>::~GPODVectorT() = default;
+inline GPODVectorT<T,U>::~GPODVectorT() {
+    data.clear();
+};
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

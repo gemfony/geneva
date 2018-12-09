@@ -536,9 +536,6 @@ protected:
     /** @brief Retrieves a vector of old work items after job submission */
     G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
 
-    /** @brief Re-implementation of a corresponding function in GStdPtrVectorInterface */
-    G_API_GENEVA void dummyFunction() override;
-
     /** @brief Saves the state of the class to disc */
     virtual G_API_GENEVA void saveCheckpoint(bf::path outputFile) const BASE;
 

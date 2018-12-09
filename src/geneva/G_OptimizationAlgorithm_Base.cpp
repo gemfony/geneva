@@ -1511,14 +1511,6 @@ std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getOld
 
 /******************************************************************************/
 /**
- * Re-implementation of a corresponding function in GStdPtrVectorInterface.
- * Make the vector wrapper purely virtual allows the compiler to perform
- * further optimizations.
- */
-void G_OptimizationAlgorithm_Base::dummyFunction() { /* nothing */ }
-
-/******************************************************************************/
-/**
  * Saves the state of the class to disc
  */
 void G_OptimizationAlgorithm_Base::saveCheckpoint(bf::path outputFile) const {

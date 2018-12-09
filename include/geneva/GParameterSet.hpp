@@ -923,14 +923,6 @@ protected:
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> m_gr;
 
     /***************************************************************************/
-    /**
-     * Re-implementation of a corresponding function in GStdPtrVectorInterface.
-     * Make the vector wrapper purely virtual allows the compiler to perform
-     * further optimizations.
-     */
-    void dummyFunction() override { /* nothing */ }
-
-    /***************************************************************************/
     /** @brief Do the required processing for this object */
     G_API_GENEVA void process_() override;
 

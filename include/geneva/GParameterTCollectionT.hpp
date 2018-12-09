@@ -337,14 +337,6 @@ protected:
 
     /***************************************************************************/
     /**
-     * Re-implementation of a corresponding function in GStdPtrVectorInterface.
-     * Making the vector wrapper purely virtual allows the compiler to perform
-     * further optimizations.
-     */
-    void dummyFunction() override { /* nothing */ }
-
-    /***************************************************************************/
-    /**
      * This function distributes the random initialization to other objects
      */
     bool randomInit_(
