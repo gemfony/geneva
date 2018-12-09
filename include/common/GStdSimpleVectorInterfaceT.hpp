@@ -104,48 +104,33 @@ class GStdSimpleVectorInterfaceT
 public:
     /***************************************************************************/
     /**
-     * The default constructor
-     */
-    GStdSimpleVectorInterfaceT() { /* nothing */ }
-
-    /***************************************************************************/
-    /**
      * Initialization with a number of items of defined value
      *
      * @param nval The number of items to be added to the collection
      * @param val  The value to be assigned to each position
      */
     GStdSimpleVectorInterfaceT(const std::size_t &nval, const T &val)
-        :
-        data(
-            nval
-            , val
-        ) { /* nothing */ }
+        :data(nval, val)
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
-     * Copy construction
-     *
-     * @param cp A constant reference to another GStdSimpleVectorInterfaceT object
+     * Make class purely virtual through deleted destructor. Cmp. e.g.
+     * https://en.cppreference.com/w/cpp/language/destructor --> "Pure virtual destructors" .
+     * The function definition can be found below the class.
      */
-    GStdSimpleVectorInterfaceT(const GStdSimpleVectorInterfaceT<T> &cp)
-        :
-        data(cp.data) { /* nothing */ }
+    virtual ~GStdSimpleVectorInterfaceT() BASE = 0;
 
     /***************************************************************************/
     /**
-     * The destructor.
+     * The default constructor
      */
-    virtual ~GStdSimpleVectorInterfaceT() BASE { data.clear(); }
+    GStdSimpleVectorInterfaceT() = default;
+    GStdSimpleVectorInterfaceT(GStdSimpleVectorInterfaceT<T> const&) = default;
+    GStdSimpleVectorInterfaceT(GStdSimpleVectorInterfaceT<T> &&) noexcept = default;
 
-    /***************************************************************************/
-    /**
-     * Assginment operator
-     */
-    const GStdSimpleVectorInterfaceT &operator=(const GStdSimpleVectorInterfaceT<T> &cp) {
-        this->operator=(cp.data);
-        return cp;
-    }
+    GStdSimpleVectorInterfaceT<T>& operator=(GStdSimpleVectorInterfaceT<T> const&) = default;
+    GStdSimpleVectorInterfaceT<T>& operator=(GStdSimpleVectorInterfaceT<T> &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -164,8 +149,7 @@ public:
             , e
         );
         Gem::Common::compare_t(
-            IDENTITY(this->data
-                     , cp.data)
+            IDENTITY(this->data, cp.data)
             , token
         );
         token.evaluate();
@@ -366,9 +350,9 @@ public:
      * @param cp A constant reference to another std::vector<T>
      * @return The argument of this function (a std::vector<T>)
      */
-    const std::vector<T> &operator=(const std::vector<T> &cp) {
+    GStdSimpleVectorInterfaceT<T>& operator=(const std::vector<T> &cp) {
         data = cp;
-        return cp;
+        return *this;
     }
 
     /* ----------------------------------------------------------------------------
@@ -450,24 +434,19 @@ public:
         // Nothing to do if both vectors have the same size
     }
 
-protected:
-    std::vector<T> data;
-
-    /** @brief Intentionally make this object purely virtual, for performance reasons */
-    virtual void dummyFunction() BASE = 0;
-
-private:
+    /***************************************************************************/
     /** @brief Checks for equality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
     bool operator==(const GStdSimpleVectorInterfaceT<T> &cp) const = delete;
-
     /** @brief Checks inequality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
     bool operator!=(const GStdSimpleVectorInterfaceT<T> &cp) const = delete;
-
     /** @brief Checks for equality with a std::vector<T> object. Intentionally left undefined */
     bool operator==(const std::vector<T> &cp_data) const = delete;
-
     /** @brief Checks for inequality with a std::vector<T> object. Intentionally left undefined */
     bool operator!=(const std::vector<T> &cp_data) const = delete;
+    /***************************************************************************/
+
+protected:
+    std::vector<T> data;
 
 public:
     /***************************************************************************/
@@ -481,6 +460,13 @@ public:
     virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */  }
     /***************************************************************************/
 };
+
+/******************************************************************************/
+/**
+ * Definition of purely virtual destructor. Must be outside the class.
+ */
+template <typename T>
+GStdSimpleVectorInterfaceT<T>::~GStdSimpleVectorInterfaceT() = default;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

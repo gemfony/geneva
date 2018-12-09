@@ -343,14 +343,6 @@ protected:
         token.evaluate();
     }
 
-    /***************************************************************************/
-    /**
-     * Re-implementation of a corresponding function in GStdSimpleVectorInterface.
-     * Making the vector wrapper purely virtual allows the compiler to perform
-     * further optimizations.
-     */
-    void dummyFunction() override { /* nothing */ }
-
 private:
     /***************************************************************************/
     /**

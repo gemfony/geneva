@@ -330,11 +330,8 @@ protected:
         , m_lower(T(0))
         , m_upper(T(1))
         , m_randomScan(true)
-        , m_typeDescription("") { /* nothing */ }
-
-    /***************************************************************************/
-    /** @brief Needs to be re-implemented for derivatives of GStdSimpleVectorInterfaceT<> */
-    void dummyFunction() override {};
+        , m_typeDescription("")
+    { /* nothing */ }
 
     /***************************************************************************/
     /**
