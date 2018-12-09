@@ -102,7 +102,7 @@ using GOABase = Gem::Geneva::G_OptimizationAlgorithm_Base;
  */
 class Go2
 	: public G_Interface_OptimizerT<Go2>
-	, public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, GObject>
+	, public Gem::Common::GPtrVectorT<GParameterSet, GObject>
 {
 public:
 	 /** @brief The default constructor */

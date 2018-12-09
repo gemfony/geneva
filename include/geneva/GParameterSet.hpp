@@ -53,7 +53,7 @@
 #include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GLogger.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GStdPtrVectorInterfaceT.hpp"
+#include "common/GPtrVectorT.hpp"
 #include "hap/GRandomT.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 #include "geneva/GObject.hpp"
@@ -187,7 +187,7 @@ class GParameterSet
         public GObject
         , public G_Interface_Mutable
         , public G_Interface_Rateable
-        , public Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>
+        , public Gem::Common::GPtrVectorT<GParameterBase, GObject>
         , public Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>
 {
     friend class Gem::Tests::GTestIndividual1; ///< Needed for testing purposes
@@ -202,7 +202,7 @@ class GParameterSet
         & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
         & make_nvp(
             "GStdPtrVectorInterfaceT_GParameterBase"
-            , boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>>(*this))
+            , boost::serialization::base_object<Gem::Common::GPtrVectorT<GParameterBase, GObject>>(*this))
         & make_nvp(
             "GProcessingContainerT_ParameterSet_double"
             , boost::serialization::base_object<Gem::Courtier::GProcessingContainerT<GParameterSet, parameterset_processing_result>>(*this))
@@ -258,7 +258,7 @@ public:
     ) const;
 
     /** @brief Prevent shadowing of std::vector<GParameterBase>::at() */
-    G_API_GENEVA Gem::Common::GStdPtrVectorInterfaceT<GParameterBase, GObject>::reference at(std::size_t const &pos);
+    G_API_GENEVA Gem::Common::GPtrVectorT<GParameterBase, GObject>::reference at(std::size_t const &pos);
 
     /** @brief Checks whether this object is better than a given set of evaluations */
     G_API_GENEVA bool isGoodEnough(std::vector<double> const &);

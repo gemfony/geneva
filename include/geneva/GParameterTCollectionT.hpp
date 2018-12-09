@@ -44,7 +44,7 @@
 
 // Geneva header files go here
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GStdPtrVectorInterfaceT.hpp"
+#include "common/GPtrVectorT.hpp"
 #include "geneva/GParameterBase.hpp"
 #include "geneva/GParameterT.hpp"
 
@@ -65,7 +65,7 @@ template<typename T>
 class GParameterTCollectionT
     :
         public GParameterBase
-        , public Gem::Common::GStdPtrVectorInterfaceT<T, GObject>
+        , public Gem::Common::GPtrVectorT<T, GObject>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -81,7 +81,7 @@ class GParameterTCollectionT
             , boost::serialization::base_object<GParameterBase>(*this))
         & make_nvp(
             "GStdPtrVectorInterfaceT_T"
-            , boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>>(*this));
+            , boost::serialization::base_object<Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -278,7 +278,7 @@ protected:
 
         // Load our parent class'es data ...
         GParameterBase::load_(cp);
-        Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::operator=(*p_load);
+        Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>::operator=(*p_load);
     }
 
     /***************************************************************************/
@@ -324,7 +324,7 @@ protected:
             , token
         );
 
-        // We treat GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::data as local data
+        // We treat GPtrVectorT<T, Gem::Geneva::GObject>::data as local data
         compare_t(
             IDENTITY(this->data
                      , p_load->data)
@@ -1394,7 +1394,7 @@ public:
 
         // Call the parent classes' functions
         if (GParameterBase::modify_GUnitTests()) { result = true; }
-        if (Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::modify_GUnitTests()) { result = true; }
+        if (Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>::modify_GUnitTests()) { result = true; }
 
         return result;
 
@@ -1412,7 +1412,7 @@ public:
 #ifdef GEM_TESTING
         // Call the parent classes' functions
         GParameterBase::specificTestsNoFailureExpected_GUnitTests();
-        Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
+        Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
 
         //------------------------------------------------------------------------------
 
@@ -1429,7 +1429,7 @@ public:
 #ifdef GEM_TESTING
         // Call the parent classes' functions
         GParameterBase::specificTestsFailuresExpected_GUnitTests();
-        Gem::Common::GStdPtrVectorInterfaceT<T, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
+        Gem::Common::GPtrVectorT<T, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
 
         //------------------------------------------------------------------------------
 

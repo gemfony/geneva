@@ -177,7 +177,7 @@ void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests() {
  */
 G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationAlgorithm_Base& cp)
 	: GObject(cp)
-	  , Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>(cp)
+	  , Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>(cp)
 	  , m_iteration(cp.m_iteration)
 	  , m_offset(DEFAULTOFFSET)
 	  , m_minIteration(cp.m_minIteration)
@@ -1433,7 +1433,7 @@ void G_OptimizationAlgorithm_Base::load_(const GObject* cp) {
 
 	// Load the parent class'es data
 	GObject::load_(cp);
-	Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::operator=(*p_load);
+	Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::operator=(*p_load);
 
 	// and then our local data
 	m_iteration = p_load->m_iteration;
@@ -2162,7 +2162,7 @@ bool G_OptimizationAlgorithm_Base::modify_GUnitTests() {
 
 	// Call the parent class'es function
 	if(GObject::modify_GUnitTests()) result = true;
-	if(Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::modify_GUnitTests()) result = true;
+	if(Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::modify_GUnitTests()) result = true;
 
 	// Try to change the objects contained in the collection
 	for(auto o_ptr: *this) {
@@ -2191,7 +2191,7 @@ void G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests() {
 
 	// Call the parent classes' functions
 	GObject::specificTestsNoFailureExpected_GUnitTests();
-	Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
+	Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("G_OptimizationAlgorithm_Base<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -2209,7 +2209,7 @@ void G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests() {
 
 	// Call the parent classes' functions
 	GObject::specificTestsFailuresExpected_GUnitTests();
-	Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
+	Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("G_OptimizationAlgorithm_Base<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

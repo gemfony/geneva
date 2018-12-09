@@ -56,12 +56,12 @@ SET ( GENEVACOMMONINCLUDES
 	GParserBuilder.hpp
 	GPODVectorT.hpp
 	GPlotDesigner.hpp
+    GPtrVectorT.hpp
     GSerializableFunctionObjectT.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp
 	GSingletonT.hpp
 	GThreadGroup.hpp
-	GStdPtrVectorInterfaceT.hpp
 	GThreadPool.hpp
     GTupleIO.hpp
     GTypeToStringT.hpp

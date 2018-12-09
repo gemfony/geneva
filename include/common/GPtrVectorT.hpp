@@ -70,6 +70,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GLogger.hpp"
 #include "common/GExpectationChecksT.hpp"
+#include "common/GTypeTraitsT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -92,8 +93,13 @@ namespace Common {
  * add default-constructed T() objects, if the requested size is larger than
  * the current one.
  */
-template<typename T, typename B> // B stands for "base type"
-class GStdPtrVectorInterfaceT {
+template<
+    typename T
+    , typename B // B stands for "base type"
+    , typename = std::enable_if_t<std::is_base_of<B,T>::value && Gem::Common::has_gemfony_common_interface<B>::value>
+>
+class GPtrVectorT
+{
 
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
@@ -115,15 +121,19 @@ class GStdPtrVectorInterfaceT {
 	}
 	///////////////////////////////////////////////////////////////////////
 
-	// Make sure B is a base class of T
-	static_assert(std::is_base_of<B,T>::value, "B should be a base of T");
-
 public:
 	/***************************************************************************/
 	// Defaulted constructors and destructors;
 
-	GStdPtrVectorInterfaceT() = default;
-	virtual ~GStdPtrVectorInterfaceT() BASE = default;
+	GPtrVectorT() = default;
+
+    /***************************************************************************/
+    /**
+     * Make class purely virtual through deleted destructor. Cmp. e.g.
+     * https://en.cppreference.com/w/cpp/language/destructor --> "Pure virtual destructors" .
+     * The function definition can be found below the class.
+     */
+    virtual ~GPtrVectorT() BASE = 0;
 
 	/***************************************************************************/
 	/**
@@ -132,7 +142,7 @@ public:
 	 *
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
-	GStdPtrVectorInterfaceT(const GStdPtrVectorInterfaceT<T,B> &cp) {
+	GPtrVectorT(const GPtrVectorT<T,B> &cp) {
 		for(auto const& item_ptr: cp)  {
 			data.push_back(item_ptr->T::template clone<T>());
 		}
@@ -141,8 +151,8 @@ public:
 	 /***************************************************************************/
 	 // Deleted comparison operators
 
-	 bool operator==(const GStdPtrVectorInterfaceT<T,B> &) const = delete;
-	 bool operator!=(const GStdPtrVectorInterfaceT<T,B> &) const = delete;
+	 bool operator==(const GPtrVectorT<T,B> &) const = delete;
+	 bool operator!=(const GPtrVectorT<T,B> &) const = delete;
 	 bool operator==(const std::vector<std::shared_ptr<T>>&) const = delete;
 	 bool operator!=(const std::vector<std::shared_ptr<T>>&) const = delete;
 
@@ -153,7 +163,7 @@ public:
 	 * @param cp A copy of another GStdPtrVectorInterfaceT<T, B> object
 	 * @return The argument of this function
 	 */
-	GStdPtrVectorInterfaceT<T,B> &operator=(GStdPtrVectorInterfaceT<T,B> const& cp) {
+	GPtrVectorT<T,B> &operator=(GPtrVectorT<T,B> const& cp) {
 		this->operator=(cp.data);
 		return *this;
 	}
@@ -166,7 +176,7 @@ public:
 	 * @param cp A constant reference to another std::vector<std::shared_ptr<T>>
 	 * @return A reference to this object
 	 */
-	 GStdPtrVectorInterfaceT<T,B> & operator=(std::vector<std::shared_ptr <T>> const& cp) {
+	 GPtrVectorT<T,B> & operator=(std::vector<std::shared_ptr <T>> const& cp) {
 		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
 		typename std::vector<std::shared_ptr <T>>::iterator it;
 
@@ -210,7 +220,7 @@ public:
 	 * @param limit The maximum deviation for floating point values (important for similarity checks)
 	 */
 	virtual void compare_base(
-		const GStdPtrVectorInterfaceT<T,B> &cp
+		const GPtrVectorT<T,B> &cp
 		, const Gem::Common::expectation &e
 		, const double &limit
 	) const BASE {
@@ -274,7 +284,7 @@ public:
             catch(...) {
 					throw gemfony_exception(
 						g_error_streamer(DO_LOG, time_and_place)
-							<< "Conversion error in GStdPtrVectorInterfaceT::count()" << std::endl
+							<< "Conversion error in GPtrVectorT::count()" << std::endl
 					);
             }
 #else
@@ -317,7 +327,7 @@ public:
             } catch(...) {
 					throw gemfony_exception(
 						g_error_streamer(DO_LOG, time_and_place)
-							<< "Conversion error in GStdPtrVectorInterfaceT::find()" << std::endl
+							<< "Conversion error in GPtrVectorT::find()" << std::endl
 					);
             }
 #else
@@ -771,7 +781,7 @@ public:
 	 * @param cp A copy of another GStdPtrVectorInterfaceT<T, B> object
 	 * @param pos The position as of which the cross-over should be performed
 	 */
-	void crossOver(GStdPtrVectorInterfaceT<T, B> &cp, const std::size_t &pos) {
+	void crossOver(GPtrVectorT<T, B> &cp, const std::size_t &pos) {
 		// Find out the minimum size of both vectors
 		std::size_t minSize = (std::min)(this->size(), cp.size());
 
@@ -780,7 +790,7 @@ public:
 		if(pos >= minSize) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GStdPtrVectorInterfaceT::crossOver(cp,pos): Error!" << std::endl
+					<< "In GPtrVectorT::crossOver(cp,pos): Error!" << std::endl
 					<< "Invalid position " << pos << " / " << this->size() << " / " << cp.size() << std::endl
 			);
 		}
@@ -979,6 +989,13 @@ public:
 };
 
 /******************************************************************************/
+/**
+ * Definition of purely virtual destructor. Must be outside of the class.
+ */
+template <typename T, typename U, typename V>
+inline GPtrVectorT<T,U,V>::~GPtrVectorT() = default;
+
+/******************************************************************************/
 
 } /* namespace Common */
 } /* namespace Gem */
@@ -990,10 +1007,10 @@ public:
 namespace boost {
 namespace serialization {
 template<typename T, typename B>
-struct is_abstract<Gem::Common::GStdPtrVectorInterfaceT<T, B>> : public boost::true_type {
+struct is_abstract<Gem::Common::GPtrVectorT<T, B>> : public boost::true_type {
 };
 template<typename T, typename B>
-struct is_abstract<const Gem::Common::GStdPtrVectorInterfaceT<T, B>> : public boost::true_type {
+struct is_abstract<const Gem::Common::GPtrVectorT<T, B>> : public boost::true_type {
 };
 }
 }

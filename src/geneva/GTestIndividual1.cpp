@@ -401,7 +401,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test of Gem::Common::GStdPtrVectorInterfaceT<T,GObject>::swap(...)
+	{ // Test of Gem::Common::GPtrVectorT<T,GObject>::swap(...)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test1 = this->clone<Gem::Tests::GTestIndividual1>();
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test2 = this->clone<Gem::Tests::GTestIndividual1>();
 
@@ -504,7 +504,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test resize_clone, resize_noclone, finding and counting of items (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test resize_clone, resize_noclone, finding and counting of items (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -549,7 +549,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test insert_clone, insert_noclone (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test insert_clone, insert_noclone (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -623,7 +623,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test push_back_clone and push_back_noclone (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test push_back_clone and push_back_noclone (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -653,7 +653,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test retrieval of a data copy (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test retrieval of a data copy (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -798,7 +798,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to count an empty smart pointer throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to count an empty smart pointer throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -810,7 +810,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to find an empty smart pointer throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to find an empty smart pointer throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -822,7 +822,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to insert an empty smart pointer with insert_noclone(pos, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to insert an empty smart pointer with insert_noclone(pos, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -835,7 +835,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to insert an empty smart pointer with insert_noclone(pos, amount, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to insert an empty smart pointer with insert_noclone(pos, amount, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -848,7 +848,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to insert an empty smart pointer with insert_clone(pos, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to insert an empty smart pointer with insert_clone(pos, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -861,7 +861,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to insert an empty smart pointer with insert_clone(pos, amount, item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to insert an empty smart pointer with insert_clone(pos, amount, item) throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -874,7 +874,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to add an empty smart pointer with push_back_clone(item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to add an empty smart pointer with push_back_clone(item) throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -887,7 +887,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to add an empty smart pointer with push_back_noclone(item) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to add an empty smart pointer with push_back_noclone(item) throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
@@ -900,7 +900,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to resize an empty collection with resize(amount) throws (Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to resize an empty collection with resize(amount) throws (Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure p_test is empty
@@ -913,7 +913,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to resize an empty collection with resize_noclone(amount, item) throws if item is an empty smart pointer(Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to resize an empty collection with resize_noclone(amount, item) throws if item is an empty smart pointer(Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure p_test is empty
@@ -927,7 +927,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test that trying to resize an empty collection with resize_clone(amount, item) throws if item is an empty smart pointer(Test of GStdPtrVectorInterfaceT<GParameterBase> functionality)
+	{ // Test that trying to resize an empty collection with resize_clone(amount, item) throws if item is an empty smart pointer(Test of GPtrVectorT<GParameterBase> functionality)
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Make sure p_test is empty

@@ -54,7 +54,7 @@ Bugs fixed:
    and replace it with the compare()-function.
  - The poorly named GStdThreadGroup was renamed to GThreadGroup
  - GStdSimpleVectorInterfaceT was renamed to GPODVectorT
- - GStdPtrVectorInterfaceT was renamed to GPtrVectorT
+ - GPtrVectorT was renamed to GPtrVectorT
  - Some public virtual functions were replaced by private or protected alternatives.
    The base-class then holds a wrapper function calling the virtual function. This
    has happened to follow common C++ coding practice:

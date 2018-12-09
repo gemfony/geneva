@@ -85,7 +85,11 @@ namespace Common {
  * class. It is intended to hold basic types or types that can treated
  * like simple types.
  */
-template<typename T>
+template<
+    typename T
+    // Make sure T is a POD (is_pod will be deprecated in C++20)
+    , typename = std::enable_if_t<std::is_trivial<T>::value && std::is_standard_layout<T>::value>
+>
 class GPODVectorT
 {
     ///////////////////////////////////////////////////////////////////////
@@ -94,6 +98,14 @@ class GPODVectorT
     template<typename Archive>
     void serialize(Archive &ar, const unsigned int) {
         using boost::serialization::make_nvp;
+
+#if BOOST_VERSION <= 105800
+        // Some preparation needed if this is a load operation.
+		// This is needed to work around a problem in Boost 1.58
+		if (Archive::is_loading::value) {
+			data.clear();
+		}
+#endif
 
         ar & BOOST_SERIALIZATION_NVP(data);
     }
@@ -131,6 +143,14 @@ public:
 
     GPODVectorT<T>& operator=(GPODVectorT<T> const&) = default;
     GPODVectorT<T>& operator=(GPODVectorT<T> &&) noexcept = default;
+
+    /***************************************************************************/
+    // Deleted comparison operators
+
+    bool operator==(const GPODVectorT<T> &cp) const = delete;
+    bool operator!=(const GPODVectorT<T> &cp) const = delete;
+    bool operator==(const std::vector<T> &cp_data) const = delete;
+    bool operator!=(const std::vector<T> &cp_data) const = delete;
 
     /***************************************************************************/
     /**
@@ -434,17 +454,6 @@ public:
         // Nothing to do if both vectors have the same size
     }
 
-    /***************************************************************************/
-    /** @brief Checks for equality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
-    bool operator==(const GPODVectorT<T> &cp) const = delete;
-    /** @brief Checks inequality with another GStdSimpleVectorInterfaceT<T> object. Intentionally left undefined */
-    bool operator!=(const GPODVectorT<T> &cp) const = delete;
-    /** @brief Checks for equality with a std::vector<T> object. Intentionally left undefined */
-    bool operator==(const std::vector<T> &cp_data) const = delete;
-    /** @brief Checks for inequality with a std::vector<T> object. Intentionally left undefined */
-    bool operator!=(const std::vector<T> &cp_data) const = delete;
-    /***************************************************************************/
-
 protected:
     std::vector<T> data;
 
@@ -463,10 +472,10 @@ public:
 
 /******************************************************************************/
 /**
- * Definition of purely virtual destructor. Must be outside the class.
+ * Definition of purely virtual destructor. Must be outside of the class.
  */
-template <typename T>
-GPODVectorT<T>::~GPODVectorT() = default;
+template <typename T, typename U>
+inline GPODVectorT<T,U>::~GPODVectorT() = default;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

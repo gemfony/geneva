@@ -50,7 +50,7 @@
 #include <boost/filesystem/fstream.hpp>
 
 // Geneva headers go here
-#include "common/GStdPtrVectorInterfaceT.hpp"
+#include "common/GPtrVectorT.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
@@ -174,7 +174,7 @@ public:
 class G_OptimizationAlgorithm_Base
     :
         public GObject
-        , public Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>
+        , public Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>
         , public G_Interface_OptimizerT<G_OptimizationAlgorithm_Base>
 {
 private:
@@ -191,7 +191,7 @@ private:
         & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
         & make_nvp(
             "GStdPtrVectorInterfaceT_T"
-            , boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>>(*this))
+            , boost::serialization::base_object<Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>>(*this))
         & BOOST_SERIALIZATION_NVP(m_iteration)
         & BOOST_SERIALIZATION_NVP(m_offset)
         & BOOST_SERIALIZATION_NVP(m_maxIteration)
@@ -240,7 +240,7 @@ private:
         & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GObject)
         & make_nvp(
             "GStdPtrVectorInterfaceT_T"
-            , boost::serialization::base_object<Gem::Common::GStdPtrVectorInterfaceT<GParameterSet, Gem::Geneva::GObject>>(*this))
+            , boost::serialization::base_object<Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>>(*this))
         & BOOST_SERIALIZATION_NVP(m_iteration)
         & BOOST_SERIALIZATION_NVP(m_offset)
         & BOOST_SERIALIZATION_NVP(m_maxIteration)
