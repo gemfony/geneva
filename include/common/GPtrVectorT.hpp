@@ -255,47 +255,47 @@ public:
 	size_type capacity() const { return data.capacity(); } // not tested -- trivial mapping
 	void reserve(size_type amount) { data.reserve(amount); } // not tested -- trivial mapping
 
-	/***************************************************************************/
-	/**
-	 * Counts the elements whose content is equal to the content of item.
-	 * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
-	 * and we do not want to compare the pointers themselves.
-	 *
-	 * @param item The item to be counted in the collection
-	 */
-	template<typename item_type>
-	size_type count(
-	    std::shared_ptr <item_type> const &item,
-		typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
-	) const {
-		if (not item) { // Check that item actually contains something useful
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG, time_and_place)
-					<< "In GParameterTCollectionT<T>::count(item):"
-					<< "Tried to count an empty smart pointer." << std::endl
-			);
-		}
+    /***************************************************************************/
+    /**
+     * Counts the elements whose content is equal to the content of item.
+     * Needs to be re-implemented here, as we are dealing with a collection of smart pointers
+     * and we do not want to compare the pointers themselves.
+     *
+     * @param item The item to be counted in the collection
+     */
+    template<typename item_type>
+    size_type count(
+        std::shared_ptr <item_type> const &item,
+        typename std::enable_if<std::is_base_of<T, item_type>::value>::type *dummy = nullptr
+    ) const {
+        if (not item) { // Check that item actually contains something useful
+            throw gemfony_exception(
+                g_error_streamer(DO_LOG, time_and_place)
+                    << "In GParameterTCollectionT<T>::count(item):"
+                    << "Tried to count an empty smart pointer." << std::endl
+            );
+        }
 
-		return boost::numeric_cast<size_type>(std::count_if(
-			data.begin()
-			, data.end()
-			, [&item](const std::shared_ptr <T> &cont_item) -> bool {
+        return boost::numeric_cast<size_type>(std::count_if(
+            data.begin()
+            , data.end()
+            , [&item](const std::shared_ptr <T> &cont_item) -> bool {
 #ifdef DEBUG
-            try {
-               return (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
-            }
-            catch(...) {
-					throw gemfony_exception(
-						g_error_streamer(DO_LOG, time_and_place)
-							<< "Conversion error in GPtrVectorT::count()" << std::endl
-					);
-            }
+                try {
+                    return (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
+                }
+                catch(...) {
+                    throw gemfony_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                            << "Conversion error in GPtrVectorT::count()" << std::endl
+                    );
+                }
 #else
-			   return (*item == *(std::static_pointer_cast<item_type>(cont_item)));
+                return (*item == *(std::static_pointer_cast<item_type>(cont_item)));
 #endif
-			}
-		));
-	}
+            }
+        ));
+    }
 
 	/* -------------------------------------------------------------------------
 	 * Tested in GTestIndividual1::specificTestsNoFailureExpected_GUnitTests()
