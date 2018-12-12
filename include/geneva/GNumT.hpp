@@ -58,10 +58,7 @@ const double DEFAULTUPPERINITBOUNDARYSINGLE=1.;
  * in this class are double and std::int32_t . By using the framework provided
  * by GParameterT, this class becomes rather simple.
  */
-template <
-    typename num_type
-	, typename = std::enable_if_t<std::is_arithmetic<num_type>::value>
->
+template <typename num_type>
 class GNumT
 	: public GParameterT<num_type>
 {
@@ -77,6 +74,8 @@ class GNumT
 		 & BOOST_SERIALIZATION_NVP(upperInitBoundary_);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
+
+	static_assert(std::is_arithmetic<num_type>::value, "num_type is not arithmetic");
 
 public:
 	 /** @brief Specifies the type of parameters stored in this collection */
@@ -420,10 +419,10 @@ public:
 
 namespace boost {
 namespace serialization {
-template<typename num_type, typename dummy_type>
-struct is_abstract<Gem::Geneva::GNumT<num_type, dummy_type>> : public boost::true_type {};
-template<typename num_type, typename dummy_type>
-struct is_abstract< const Gem::Geneva::GNumT<num_type, dummy_type>> : public boost::true_type {};
+template<typename num_type>
+struct is_abstract<Gem::Geneva::GNumT<num_type>> : public boost::true_type {};
+template<typename num_type>
+struct is_abstract< const Gem::Geneva::GNumT<num_type>> : public boost::true_type {};
 }
 }
 
