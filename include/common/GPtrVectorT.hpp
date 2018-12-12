@@ -136,11 +136,9 @@ public:
 
     /***************************************************************************/
     /**
-     * The destructor
+     * The destructor -- purely virtual to make this an abstract base class
      */
-    virtual ~GPtrVectorT() BASE {
-    	data.clear();
-    }
+    virtual ~GPtrVectorT() BASE = 0;
 
 	/***************************************************************************/
 	/**
@@ -990,6 +988,17 @@ public:
 	virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */ }
 };
 
+/******************************************************************************/
+/**
+ * The destructor -- purely virtual to make this an abstract base class
+ */
+template<typename T, typename B>
+inline GPtrVectorT<T, B>::~GPtrVectorT() {
+	data.clear();
+}
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
 } /* namespace Common */

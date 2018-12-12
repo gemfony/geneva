@@ -62,10 +62,7 @@ const double DEFAULTUPPERINITBOUNDARYCOLLECTION = 1.;
  * class are double and std::int32_t . By using the framework provided
  * by GParameterCollectionT, this class becomes rather simple.
  */
-template<
-    typename num_type
-    , typename = std::enable_if_t<std::is_arithmetic<num_type>::value>
->
+template<typename num_type>
 class GNumCollectionT
     : public GParameterCollectionT<num_type>
 {
@@ -525,16 +522,14 @@ public:
 
 namespace boost {
 namespace serialization {
-template<typename num_type, typename dummy_type>
-struct is_abstract<Gem::Geneva::GNumCollectionT<num_type, dummy_type>> :
+template<typename num_type>
+struct is_abstract<Gem::Geneva::GNumCollectionT<num_type>> :
     public boost::true_type
-{
-};
-template<typename num_type, typename dummy_type>
-struct is_abstract<const Gem::Geneva::GNumCollectionT<num_type, dummy_type>> :
+{ /* nothing */ };
+template<typename num_type>
+struct is_abstract<const Gem::Geneva::GNumCollectionT<num_type>> :
     public boost::true_type
-{
-};
+{ /* nothing */ };
 }
 }
 /******************************************************************************/

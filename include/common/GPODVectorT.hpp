@@ -128,11 +128,9 @@ public:
 
     /***************************************************************************/
     /**
-     * Destructor
+     * The destructor -- purely virtual to make this an abstract base class
      */
-    virtual ~GPODVectorT() BASE {
-        data.clear();
-    }
+    virtual ~GPODVectorT() BASE = 0;
 
     /***************************************************************************/
     /**
@@ -470,6 +468,15 @@ public:
     virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */  }
     /***************************************************************************/
 };
+
+/******************************************************************************/
+/**
+ * The destructor -- purely virtual to make this an abstract base class
+ */
+template<typename T>
+inline GPODVectorT<T>::~GPODVectorT() {
+    data.clear();
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
