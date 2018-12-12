@@ -390,8 +390,7 @@ private:
  */
 template<typename coordinate_type>
 class GMarker
-    :
-        public GDecorator<dimensions::Dim2, coordinate_type>
+    : public GDecorator<dimensions::Dim2, coordinate_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -621,8 +620,7 @@ private:
  */
 template<typename coordinate_type>
 class GDecorator<dimensions::Dim3, coordinate_type>
-    :
-        public GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>>
+    : public GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -769,9 +767,8 @@ class GDecoratorContainer
  */
 template<typename coordinate_type>
 class GDecoratorContainer<dimensions::Dim2, coordinate_type>
-    :
-        public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>
-        , public GPtrVectorT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>
+    : public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>
+    , public GPtrVectorT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -946,9 +943,8 @@ private:
  */
 template<typename coordinate_type>
 class GDecoratorContainer<dimensions::Dim3, coordinate_type>
-    :
-        public GPtrVectorT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>
-        , public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
+    : public GPtrVectorT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>
+    , public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -1127,8 +1123,7 @@ private:
  * to plot them into sub-pads.
  */
 class GBasePlotter
-    :
-        public GCommonInterfaceT<GBasePlotter>
+    : public GCommonInterfaceT<GBasePlotter>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

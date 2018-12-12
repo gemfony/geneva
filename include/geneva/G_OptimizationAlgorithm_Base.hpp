@@ -660,21 +660,15 @@ private:
     // Data
 
     std::uint32_t m_iteration = 0; ///< The current iteration
-    std::uint32_t m_offset
-        = DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
+    std::uint32_t m_offset = DEFAULTOFFSET; ///< An iteration offset which can be used, if the optimization starts from a checkpoint file
     std::uint32_t m_minIteration = DEFAULTMINIT; ///< The minimum number of iterations
     std::uint32_t m_maxIteration = DEFAULTMAXIT; ///< The maximum number of iterations
-    std::uint32_t m_maxStallIteration
-        = DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
-    std::uint32_t
-        m_reportIteration = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
+    std::uint32_t m_maxStallIteration = DEFAULTMAXSTALLIT; ///< The maximum number of generations without improvement, after which optimization is stopped
+    std::uint32_t m_reportIteration = DEFAULTREPORTITER; ///< The number of generations after which a report should be issued
 
-    std::size_t m_nRecordbestGlobalIndividuals
-        = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
-    GParameterSetFixedSizePriorityQueue
-        m_bestGlobalIndividuals_pq{m_nRecordbestGlobalIndividuals}; ///< A priority queue with the best individuals found so far
-    GParameterSetFixedSizePriorityQueue
-        m_bestIterationIndividuals_pq{0}; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
+    std::size_t m_nRecordbestGlobalIndividuals = DEFNRECORDBESTINDIVIDUALS; ///< Indicates the number of best individuals to be recorded/updated in each iteration
+    GParameterSetFixedSizePriorityQueue m_bestGlobalIndividuals_pq{m_nRecordbestGlobalIndividuals}; ///< A priority queue with the best individuals found so far
+    GParameterSetFixedSizePriorityQueue m_bestIterationIndividuals_pq{0}; ///< A priority queue with the best individuals of a given iteration; unlimited size so all individuals of an iteration fit in
 
     std::size_t m_defaultPopulationSize = DEFAULTPOPULATIONSIZE; ///< The nominal size of the population
     std::tuple<double, double> m_bestKnownPrimaryFitness = std::tuple<double, double>(
@@ -687,18 +681,14 @@ private:
     ); ///< Records the best fitness found in the current iteration
 
     std::uint32_t m_stallCounter = 0; ///< Counts the number of iterations without improvement
-    std::uint32_t m_stallCounterThreshold
-        = DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
+    std::uint32_t m_stallCounterThreshold = DEFAULTSTALLCOUNTERTHRESHOLD; ///< The number of stalls after which individuals are asked to update their internal data structures
 
-    std::int32_t m_cp_interval
-        = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
+    std::int32_t m_cp_interval = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
     std::string m_cp_base_name = DEFAULTCPBASENAME; ///< The base name of the checkpoint file
-    boost::filesystem::path
-        m_cp_directory_path = boost::filesystem::path(DEFAULTCPDIR); ///< Path object to store the directory
+    boost::filesystem::path m_cp_directory_path = boost::filesystem::path(DEFAULTCPDIR); ///< Path object to store the directory
     mutable std::string m_cp_last = "empty"; ///< The name of the last saved checkpoint
     bool m_cp_remove = true; ///< Whether checkpoint files should be overwritten or kept
-    Gem::Common::serializationMode m_cp_serialization_mode
-        = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
+    Gem::Common::serializationMode m_cp_serialization_mode = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
     double m_qualityThreshold = DEFAULTQUALITYTHRESHOLD; ///< A threshold beyond which optimization is expected to stop
     bool m_hasQualityThreshold = false; ///< Specifies whether a qualityThreshold has been set
     std::chrono::duration<double>
