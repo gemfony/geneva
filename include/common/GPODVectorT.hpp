@@ -85,11 +85,7 @@ namespace Common {
  * class. It is intended to hold basic types or types that can treated
  * like simple types.
  */
-template<
-    typename T
-    // Make sure T is a POD (is_pod will be deprecated in C++20)
-    , typename = std::enable_if_t<std::is_trivial<T>::value && std::is_standard_layout<T>::value>
->
+template<typename T>
 class GPODVectorT
 {
     ///////////////////////////////////////////////////////////////////////
@@ -112,6 +108,11 @@ class GPODVectorT
     ///////////////////////////////////////////////////////////////////////
 
     friend class GEqualityPrinter;
+
+    static_assert(
+        std::is_trivial<T>::value && std::is_standard_layout<T>::value
+        , "T is no POD"
+    );
 
 public:
     /***************************************************************************/
@@ -483,16 +484,14 @@ public:
  */
 namespace boost {
 namespace serialization {
-template<typename T, typename U>
-struct is_abstract<Gem::Common::GPODVectorT<T,U>> :
+template<typename T>
+struct is_abstract<Gem::Common::GPODVectorT<T>> :
     public boost::true_type
-{
-};
-template<typename T, typename U>
-struct is_abstract<const Gem::Common::GPODVectorT<T, U>> :
+{ /* nothing */ };
+template<typename T>
+struct is_abstract<const Gem::Common::GPODVectorT<T>> :
     public boost::true_type
-{
-};
+{ /* nothing */ };
 } /* namespace serialization */
 } /* namespace boost */
 

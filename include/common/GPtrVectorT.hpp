@@ -96,7 +96,6 @@ namespace Common {
 template<
     typename T
     , typename B // B stands for "base type"
-    , typename = std::enable_if_t<std::is_base_of<B,T>::value && Gem::Common::has_gemfony_common_interface<B>::value>
 >
 class GPtrVectorT
 {
@@ -120,6 +119,11 @@ class GPtrVectorT
 		& BOOST_SERIALIZATION_NVP(data);
 	}
 	///////////////////////////////////////////////////////////////////////
+
+	static_assert(
+		std::is_base_of<B,T>::value && Gem::Common::has_gemfony_common_interface<B>::value
+		, "B is no base of T or B has no gemfony_common_interface"
+	);
 
 public:
 	/***************************************************************************/
@@ -997,12 +1001,10 @@ public:
  */
 namespace boost {
 namespace serialization {
-template<typename T, typename B, typename U>
-struct is_abstract<Gem::Common::GPtrVectorT<T, B, U>> : public boost::true_type {
-};
-template<typename T, typename B, typename U>
-struct is_abstract<const Gem::Common::GPtrVectorT<T, B, U>> : public boost::true_type {
-};
+template<typename T, typename B>
+struct is_abstract<Gem::Common::GPtrVectorT<T, B>> : public boost::true_type { /* nothing */ };
+template<typename T, typename B>
+struct is_abstract<const Gem::Common::GPtrVectorT<T, B>> : public boost::true_type { /* nothing */ };
 }
 }
 
