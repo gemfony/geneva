@@ -63,6 +63,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/variant.hpp>
@@ -244,12 +245,12 @@ class GPlotDesigner;
  * to accidentally "mix" decorators for different dimensions. "Storage" of the
  * dimension (in the form of a compile-time template argument) is the main
  * purpose of this class. NOTE: As different access functions are needed for different
- * dimensions, some code duplication is unavoidable. C++ does not allo to add
- * "just" an additional funcion to a template specialization, unfortunately.
+ * dimensions, some code duplication is unavoidable. C++ does not allow to add
+ * "just" an additional function to a template specialization, unfortunately.
  */
 template<dimensions dim, typename coordinate_type>
 class GDecorator
-{ /* nothting */ };
+{ /* nothing */ };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -259,8 +260,7 @@ class GDecorator
  */
 template<typename coordinate_type>
 class GDecorator<dimensions::Dim2, coordinate_type>
-    :
-        public GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>
+    : public GCommonInterfaceT<GDecorator<dimensions::Dim2, coordinate_type>>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -273,15 +273,22 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     }
     ///////////////////////////////////////////////////////////////////////
 
+    static_assert(
+        std::is_floating_point<coordinate_type>::value || std::is_integral<coordinate_type>::value
+        , "coordinate_type should either be a floating-point or an integer type"
+    );
+
 public:
     /***************************************************************************/
-    // Defaulted constructors and destructors
+    // Defaulted constructors, destructor and assignment operators
 
     GDecorator() = default;
-
     GDecorator(GDecorator<dimensions::Dim2, coordinate_type> const &cp) = default;
+    GDecorator(GDecorator<dimensions::Dim2, coordinate_type> &&cp) noexcept = default;
+    virtual ~GDecorator() = default;
 
-    ~GDecorator() override = default;
+    GDecorator<dimensions::Dim2, coordinate_type> &operator=(GDecorator<dimensions::Dim2, coordinate_type> const&) = default;
+    GDecorator<dimensions::Dim2, coordinate_type> &operator=(GDecorator<dimensions::Dim2, coordinate_type> &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -422,24 +429,22 @@ public:
         , const gColor &color
         , const double &size
     )
-        :
-        m_coordinates(coordinates)
+        : m_coordinates(coordinates)
         , m_marker(marker)
         , m_color(color)
         , m_size(size)
     { /* nothing */ }
 
     /***************************************************************************/
-    /**
-	  * The copy constructor
-	  */
-    GMarker(const GMarker<coordinate_type> &cp) = default;
+    // Defaulted constructos, destructor and assignment operators. The default-
+    // constructor is private, as it is only needed for (de)serialization.
 
-    /***************************************************************************/
-    /**
-	  * The destructor
-	  */
+    GMarker(GMarker<coordinate_type> const &cp) = default;
+    GMarker(GMarker<coordinate_type> &&cp) noexcept = default;
     ~GMarker() override = default;
+
+    GMarker<coordinate_type> & operator=(GMarker<coordinate_type> const&) = default;
+    GMarker<coordinate_type> & operator=(GMarker<coordinate_type> &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -636,15 +641,22 @@ class GDecorator<dimensions::Dim3, coordinate_type>
     }
     ///////////////////////////////////////////////////////////////////////
 
+    static_assert(
+        std::is_floating_point<coordinate_type>::value || std::is_integral<coordinate_type>::value
+        , "coordinate_type should either be a floating-point or an integer type"
+    );
+
 public:
     /***************************************************************************/
-    // Defaulted constructors and destructor
+    // Defaulted constructors, destructor and assignment operators.
 
     GDecorator() = default;
+    GDecorator(GDecorator<dimensions::Dim3, coordinate_type> const &cp) = default;
+    GDecorator(GDecorator<dimensions::Dim3, coordinate_type> &&cp) noexcept = default;
+    virtual ~GDecorator() = default;
 
-    GDecorator(const GDecorator<dimensions::Dim3, coordinate_type> &cp) = default;
-
-    ~GDecorator() override = default;
+    GDecorator<dimensions::Dim3, coordinate_type> &operator=(GDecorator<dimensions::Dim3, coordinate_type> const&) = default;
+    GDecorator<dimensions::Dim3, coordinate_type> &operator=(GDecorator<dimensions::Dim3, coordinate_type> &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -749,8 +761,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class acts as a container of decorator objects. In it specialiazations,
- * it is derived from GStdPtrVectorInterfaceT and may thus be treated like a
+ * This class acts as a container of decorator objects. In its specializations,
+ * it is derived from GPtrVectorT and may thus be treated like a
  * std::vector of std::shared_ptr<GDecorator<dim>> . Note that the actual work
  * is done in the specializations for different dimensions. Hence some code
  * duplications for the different template specializations cannot be avoided.
@@ -787,16 +799,22 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     }
     ///////////////////////////////////////////////////////////////////////
 
+    static_assert(
+            std::is_floating_point<coordinate_type>::value || std::is_integral<coordinate_type>::value
+            , "coordinate_type should either be a floating-point or an integer type"
+    );
 
 public:
     /***************************************************************************/
-    // Defaulted constructors and destructors
+    // Defaulted constructors, destructor and assignment operators
 
     GDecoratorContainer() = default;
+    GDecoratorContainer(GDecoratorContainer<dimensions::Dim2, coordinate_type> const &cp) = default;
+    GDecoratorContainer(GDecoratorContainer<dimensions::Dim2, coordinate_type> &&cp) noexcept = default;
+    virtual ~GDecoratorContainer() = default;
 
-    GDecoratorContainer(const GDecoratorContainer<dimensions::Dim2, coordinate_type> &cp) = default;
-
-    ~GDecoratorContainer() override = default;
+    GDecoratorContainer<dimensions::Dim2, coordinate_type> &operator=(GDecoratorContainer<dimensions::Dim2, coordinate_type> const&) = default;
+    GDecoratorContainer<dimensions::Dim2, coordinate_type> &operator=(GDecoratorContainer<dimensions::Dim2, coordinate_type> &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -911,12 +929,6 @@ protected:
         token.evaluate();
     }
 
-    /***************************************************************************/
-    /**
-	  * Satisfies a GStdPtrVectorInterfaceT<> requirement.
-	  */
-    void dummyFunction() override { /* nothing */ }
-
 private:
     /***************************************************************************/
     /**
@@ -963,16 +975,22 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     }
     ///////////////////////////////////////////////////////////////////////
 
+    static_assert(
+            std::is_floating_point<coordinate_type>::value || std::is_integral<coordinate_type>::value
+            , "coordinate_type should either be a floating-point or an integer type"
+    );
 
 public:
     /***************************************************************************/
-    // Defaulted constructors and destructors
+    // Defaulted constructors, destructor and assignment operators
 
     GDecoratorContainer() = default;
+    GDecoratorContainer(GDecoratorContainer<dimensions::Dim3, coordinate_type> const &cp) = default;
+    GDecoratorContainer(GDecoratorContainer<dimensions::Dim3, coordinate_type> &&cp) noexcept = default;
+    virtual ~GDecoratorContainer() = default;
 
-    GDecoratorContainer(const GDecoratorContainer<dimensions::Dim3, coordinate_type> &cp) = default;
-
-    ~GDecoratorContainer() override = default;
+    GDecoratorContainer<dimensions::Dim3, coordinate_type> &operator=(GDecoratorContainer<dimensions::Dim3, coordinate_type> const&) = default;
+    GDecoratorContainer<dimensions::Dim3, coordinate_type> &operator=(GDecoratorContainer<dimensions::Dim3, coordinate_type> &&) noexcept = default;
 
     /***************************************************************************/
     /**
@@ -1088,12 +1106,6 @@ protected:
         // React on deviations from the expectation
         token.evaluate();
     }
-
-    /***************************************************************************/
-    /**
-	  * Satisfies a GStdPtrVectorInterfaceT<> requirement.
-	  */
-    void dummyFunction() override { /* nothing */ }
 
 private:
     /***************************************************************************/
@@ -1536,9 +1548,7 @@ private:
 /**
  * A wrapper for ROOT's TH1D class (1-d double data). This will result in a 2D-plot.
  */
-class GHistogram1D
-    :
-        public GDataCollector1T<double>
+class GHistogram1D : public GDataCollector1T<double>
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -1631,10 +1641,10 @@ private:
 
     G_API_COMMON GHistogram1D() = default; ///< The default constructor -- intentionally private as it is only needed for (de-)serialization
 
-    std::size_t nBinsX_; ///< The number of bins in the histogram
+    std::size_t nBinsX_ = 10; ///< The number of bins in the histogram
 
-    double minX_; ///< The lower boundary of the histogram
-    double maxX_; ///< The upper boundary of the histogram
+    double minX_ = 0; ///< The lower boundary of the histogram
+    double maxX_ = minX_; ///< The upper boundary of the histogram
 };
 
 /******************************************************************************/
@@ -4240,3 +4250,45 @@ public:
 
 } /* namespace Common */
 } /* namespace Gem */
+
+/******************************************************************************/
+// Declare abstract or export class names for Boost.Serialization
+namespace boost {
+namespace serialization {
+
+template<typename coordinate_type>
+struct is_abstract<Gem::Common::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename coordinate_type>
+struct is_abstract<const Gem::Common::GDecorator<Gem::Common::dimensions::Dim2, coordinate_type>> : public boost::true_type
+{ /* nothing */ };
+
+template<typename coordinate_type>
+struct is_abstract<Gem::Common::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename coordinate_type>
+struct is_abstract<const Gem::Common::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>> : public boost::true_type
+{ /* nothing */ };
+
+} /* namespace serialization */
+} /* namespace boost */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<short>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::int32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::uint32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<float>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<double>);
+
+/*
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, short>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, std::int32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, std::uint32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, float>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, double>);
+
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, short>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, std::int32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, std::uint32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, float>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, double>);
+ */

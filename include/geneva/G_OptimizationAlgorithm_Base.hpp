@@ -735,7 +735,8 @@ public:
 } /* namespace Gem */
 
 /******************************************************************************/
-// Some serialization-related exports and declarations
+// Some serialization-related exports and declarations. Note that namespace
+// specifiers are included in the macros, no need for an explicit namespace boost::serialization
 
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::GBasePluggableOM)
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Gem::Geneva::G_OptimizationAlgorithm_Base)

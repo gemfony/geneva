@@ -54,6 +54,7 @@
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/binary_iarchive.hpp>
+#include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -491,6 +492,7 @@ inline GPODVectorT<T>::~GPODVectorT() {
  */
 namespace boost {
 namespace serialization {
+
 template<typename T>
 struct is_abstract<Gem::Common::GPODVectorT<T>> :
     public boost::true_type
@@ -499,6 +501,7 @@ template<typename T>
 struct is_abstract<const Gem::Common::GPODVectorT<T>> :
     public boost::true_type
 { /* nothing */ };
+
 } /* namespace serialization */
 } /* namespace boost */
 

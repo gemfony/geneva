@@ -279,11 +279,6 @@ public:
 	 /** @brief Creates a deep clone of this object */
 	 G_API_INDIVIDUALS std::shared_ptr <networkData> clone() const;
 
-protected:
-	 /***************************************************************************/
-	 /** @brief This function is purely virtual in our parent class*/
-	 virtual G_API_INDIVIDUALS void dummyFunction() { /* nothing */ };
-
 private:
 	 /***************************************************************************/
 	 /** @brief Default constructor, intentionally private */

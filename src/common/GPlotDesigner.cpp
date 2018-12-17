@@ -34,6 +34,12 @@
 
 #include "common/GPlotDesigner.hpp"
 
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<short>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::int32_t>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<std::uint32_t>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<float>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GMarker<double>)
+
 namespace Gem {
 namespace Common {
 
@@ -1621,8 +1627,6 @@ GHistogram1D::GHistogram1D(
 	const std::size_t &nBinsX
 )
 	: nBinsX_(nBinsX)
-	  , minX_(0)
-	  , maxX_(minX_)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1635,8 +1639,8 @@ GHistogram1D::GHistogram1D(
 	, const double &maxX
 )
 	: nBinsX_(nBinsX)
-	  , minX_(minX)
-	  , maxX_(maxX)
+    , minX_(minX)
+    , maxX_(maxX)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1648,8 +1652,8 @@ GHistogram1D::GHistogram1D(
 	, const std::tuple<double, double> &rangeX
 )
 	: nBinsX_(nBinsX)
-	  , minX_(std::get<0>(rangeX))
-	  , maxX_(std::get<1>(rangeX))
+    , minX_(std::get<0>(rangeX))
+    , maxX_(std::get<1>(rangeX))
 { /* nothing */ }
 
 /******************************************************************************/
