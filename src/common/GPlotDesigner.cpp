@@ -53,6 +53,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<float>);
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<double>);
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1D);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1I);
 
 namespace Gem {
 namespace Common {

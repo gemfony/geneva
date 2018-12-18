@@ -1882,8 +1882,7 @@ private:
  * A wrapper for ROOT's TH1I class (1-d integer data)
  */
 class GHistogram1I
-    :
-        public GDataCollector1T<std::int32_t>
+    : public GDataCollector1T<std::int32_t>
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -1912,11 +1911,21 @@ public:
     G_API_COMMON GHistogram1I(
         const std::size_t &, const std::tuple<double, double> &
     );
-    /** @brief A copy constructor */
-    G_API_COMMON GHistogram1I(const GHistogram1I &) = default;
 
-    /** @brief The destructor */
+    /*********************************************************************/
+    // Defaulted constructors, destructor and assignment operator
+
+    G_API_COMMON GHistogram1I(GHistogram1I const&) = default;
+    G_API_COMMON GHistogram1I(GHistogram1I &) = default;
+
+    // Defaulted default-constructor in private section
+
     G_API_COMMON ~GHistogram1I() override = default;
+
+    GHistogram1I& operator=(GHistogram1I const&) = default;
+    GHistogram1I& operator=(GHistogram1I &&) = default;
+
+    /*********************************************************************/
 
     /** @brief Retrieve the number of bins in x-direction */
     G_API_COMMON std::size_t getNBinsX() const;
@@ -2002,8 +2011,13 @@ public:
     // Defaulted constructors and destructors
 
     GDataCollector2T() = default;
-    GDataCollector2T(const GDataCollector2T<x_type, y_type> &cp) = default;
+    GDataCollector2T(GDataCollector2T<x_type, y_type> const &) = default;
+    GDataCollector2T(GDataCollector2T<x_type, y_type> &&) = default;
+
     ~GDataCollector2T() override = default;
+
+    GDataCollector2T<x_type, y_type> &operator=(GDataCollector2T<x_type, y_type> const&) = default;
+    GDataCollector2T<x_type, y_type> &operator=(GDataCollector2T<x_type, y_type> &&) = default;
 
     /***************************************************************************/
     /**
@@ -4521,6 +4535,13 @@ template<typename x_type>
 struct is_abstract<const Gem::Common::GDataCollector1T<x_type>> : public boost::true_type
 { /* nothing */ };
 
+template<typename x_type, typename y_type>
+struct is_abstract<Gem::Common::GDataCollector2T<x_type,y_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename x_type, typename y_type>
+struct is_abstract<const Gem::Common::GDataCollector2T<x_type, y_type>> : public boost::true_type
+{ /* nothing */ };
+
 } /* namespace serialization */
 } /* namespace boost */
 
@@ -4545,3 +4566,4 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<float>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<double>);
 
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1D);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1I);
