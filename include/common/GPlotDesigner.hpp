@@ -1814,8 +1814,8 @@ public:
     G_API_COMMON GHistogram1D(GHistogram1D &&) = default;
     G_API_COMMON ~GHistogram1D() override = default;
 
-    GHistogram1D& operator=(GHistogram1D const&) = default;
-    GHistogram1D& operator=(GHistogram1D &&) = default;
+    G_API_COMMON GHistogram1D& operator=(GHistogram1D const&) = default;
+    G_API_COMMON GHistogram1D& operator=(GHistogram1D &&) = default;
 
     // Defaulted default-constructor in private section
 
@@ -1922,8 +1922,8 @@ public:
 
     G_API_COMMON ~GHistogram1I() override = default;
 
-    GHistogram1I& operator=(GHistogram1I const&) = default;
-    GHistogram1I& operator=(GHistogram1I &&) = default;
+    G_API_COMMON GHistogram1I& operator=(GHistogram1I const&) = default;
+    G_API_COMMON GHistogram1I& operator=(GHistogram1I &&) = default;
 
     /*********************************************************************/
 
@@ -2704,8 +2704,7 @@ private:
  * 3D plot.
  */
 class GHistogram2D
-    :
-        public GDataCollector2T<double, double>
+    : public GDataCollector2T<double, double>
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -2751,10 +2750,20 @@ public:
         const std::size_t &
         , const std::size_t &
     );
-    /** @brief A copy constructor */
-    G_API_COMMON GHistogram2D(const GHistogram2D &) = default;
-    /** @brief The destructor */
+
+    /**********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
+    // Defaulted default constructor in private section
+
+    G_API_COMMON GHistogram2D(GHistogram2D const &) = default;
+    G_API_COMMON GHistogram2D(GHistogram2D &&) = default;
     G_API_COMMON ~GHistogram2D() override = default;
+
+    G_API_COMMON GHistogram2D& operator=(GHistogram2D const&) = default;
+    G_API_COMMON GHistogram2D& operator=(GHistogram2D &&) = default;
+
+    /**********************************************************************/
 
     /** @brief Retrieve the number of bins in x-direction */
     G_API_COMMON std::size_t getNBinsX() const;
@@ -2834,8 +2843,7 @@ private:
  * in a 2D plot.
  */
 class GGraph2D
-    :
-        public GDataCollector2T<double, double>
+    : public GDataCollector2T<double, double>
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -2855,12 +2863,18 @@ class GGraph2D
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The default constructor */
+    /**********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
     G_API_COMMON GGraph2D() = default;
-    /** @brief A copy constructor */
-    G_API_COMMON GGraph2D(const GGraph2D &) = default;
-    /** @brief The destructor */
+    G_API_COMMON GGraph2D(GGraph2D const &) = default;
+    G_API_COMMON GGraph2D(GGraph2D &&) = default;
     G_API_COMMON ~GGraph2D() override = default;
+
+    G_API_COMMON GGraph2D& operator=(GGraph2D const&) = default;
+    G_API_COMMON GGraph2D& operator=(GGraph2D &&) = default;
+
+    /**********************************************************************/
 
     /** @brief Adds arrows to the plots between consecutive points */
     G_API_COMMON void setDrawArrows(bool= true);
@@ -4577,3 +4591,6 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<double>);
 
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1D);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1I);
+
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram2D);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2D);
