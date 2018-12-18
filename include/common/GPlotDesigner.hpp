@@ -2453,10 +2453,13 @@ public:
     // Defaulted constructors and destructors
 
     GDataCollector2ET() = default;
-
-    GDataCollector2ET(const GDataCollector2ET<x_type, y_type> &cp) = default;
+    GDataCollector2ET(GDataCollector2ET<x_type, y_type> const &) = default;
+    GDataCollector2ET(GDataCollector2ET<x_type, y_type> &&) = default;
 
     ~GDataCollector2ET() override = default;
+
+    GDataCollector2ET<x_type, y_type> &operator=(GDataCollector2ET<x_type, y_type> const&) = default;
+    GDataCollector2ET<x_type, y_type> &operator=(GDataCollector2ET<x_type, y_type> &&) = default;
 
     /***************************************************************************/
     /**
@@ -4540,6 +4543,13 @@ struct is_abstract<Gem::Common::GDataCollector2T<x_type,y_type>> : public boost:
 { /* nothing */ };
 template<typename x_type, typename y_type>
 struct is_abstract<const Gem::Common::GDataCollector2T<x_type, y_type>> : public boost::true_type
+{ /* nothing */ };
+
+template<typename x_type, typename y_type>
+struct is_abstract<Gem::Common::GDataCollector2ET<x_type,y_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename x_type, typename y_type>
+struct is_abstract<const Gem::Common::GDataCollector2ET<x_type, y_type>> : public boost::true_type
 { /* nothing */ };
 
 } /* namespace serialization */
