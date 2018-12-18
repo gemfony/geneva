@@ -522,9 +522,9 @@ protected:
 
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
-    friend void compare_base_t<GDecorator<dimensions::Dim2, coordinate_type>>(
-        GDecorator<dimensions::Dim2, coordinate_type> const &
-        , GDecorator<dimensions::Dim2, coordinate_type> const &
+    friend void compare_base_t<GMarker<coordinate_type>>(
+        GMarker<coordinate_type> const &
+        , GMarker<coordinate_type> const &
         , GToken &
     );
 
@@ -700,8 +700,8 @@ protected:
     /***************************************************************************/
     /** @brief Allow access to this classes compare_ function */
     friend void compare_base_t<GDecorator<dimensions::Dim3, coordinate_type>>(
-        GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>> const &
-        , GCommonInterfaceT<GDecorator<dimensions::Dim3, coordinate_type>> const &
+        GDecorator<dimensions::Dim3, coordinate_type> const &
+        , GDecorator<dimensions::Dim3, coordinate_type> const &
         , GToken &
     );
 
@@ -792,10 +792,7 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
         ar
         & make_nvp(
             "GStdPtrVectorInterfaceT_GDecorator2"
-            , boost::serialization::base_object<GPtrVectorT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>>(*this))
-        & make_nvp(
-            "GCommonInterfaceT_GDecoratorContainer2"
-            , boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim2, coordinate_type>>>(*this));
+            , boost::serialization::base_object<GPtrVectorT<GDecorator<dimensions::Dim2, coordinate_type>, GDecorator<dimensions::Dim2, coordinate_type>>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -967,7 +964,7 @@ class GDecoratorContainer_2D
 
         ar
         & make_nvp(
-            "GDecoratorContainer_Dim2"
+            "GDecoratorContainer_2D"
             , boost::serialization::base_object<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
@@ -976,7 +973,75 @@ public:
     // Relay to the parent class'es constructors
     using GDecoratorContainer<dimensions::Dim2, coordinate_type>::GDecoratorContainer;
 
+protected:
+    /***************************************************************************/
+    /**
+	  * Loads the data of another object
+	  */
+    void load_(const GDecoratorContainer<dimensions::Dim2, coordinate_type> *cp) override {
+        // Check that we are dealing with a GDecoratorContainer_2D reference independent of this object and convert the pointer
+        const auto *p_load = g_convert_and_compare(
+            cp
+            , this
+        );
+
+        // Load our parent data ...
+        GDecoratorContainer<dimensions::Dim2, coordinate_type>::load_(cp);
+
+        // ... no local data
+    }
+
+    /***************************************************************************/
+    /** @brief Allow access to this classes compare_ function */
+    friend void compare_base_t<GDecoratorContainer_2D<coordinate_type>>(
+        GDecoratorContainer_2D<coordinate_type> const &
+        , GDecoratorContainer_2D<coordinate_type> const &
+        , GToken &
+    );
+
+    /***************************************************************************/
+    /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  */
+    void compare_(
+        const GDecoratorContainer<dimensions::Dim2, coordinate_type> &cp // the other object
+        , const expectation &e // the expectation for this object, e.g. equality
+        , const double &limit // the limit for allowed deviations of floating point types
+    ) const override {
+        // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
+        const auto *p_load = g_convert_and_compare(
+            cp
+            , this
+        );
+
+        GToken token(
+            "GDecoratorContainer_2D<dimensions::Dim2>"
+            , e
+        );
+
+        // Compare our parent data ...
+        compare_base_t<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(
+            *this
+            , *p_load
+            , token
+        );
+
+        // ... no local data
+
+        // React on deviations from the expectation
+        token.evaluate();
+    }
+
 private:
+    /***************************************************************************/
+    /**
+	 * Returns the name of this class
+	 */
+    std::string name_() const override {
+        return std::string("GDecoratorContainer_2D<coordinate_type>");
+    }
+
     /***************************************************************************/
     /**
 	  * Creates a deep clone of this object.
@@ -1009,10 +1074,7 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
         ar
         & make_nvp(
             "GStdPtrVectorInterfaceT_GDecorator3"
-            , boost::serialization::base_object<GPtrVectorT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>>(*this))
-        & make_nvp(
-            "GCommonInterfaceT_GDecoratorContainer3"
-            , boost::serialization::base_object<GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>>(*this));
+            , boost::serialization::base_object<GPtrVectorT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>>(*this));
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -1194,7 +1256,75 @@ public:
     // Relay to the parent class'es constructors
     using GDecoratorContainer<dimensions::Dim3, coordinate_type>::GDecoratorContainer;
 
+protected:
+    /***************************************************************************/
+    /**
+	  * Loads the data of another object
+	  */
+    void load_(const GDecoratorContainer<dimensions::Dim3, coordinate_type> *cp) override {
+        // Check that we are dealing with a GDecoratorContainer_3D reference independent of this object and convert the pointer
+        const auto *p_load = g_convert_and_compare(
+            cp
+            , this
+        );
+
+        // Load our parent data ...
+        GDecoratorContainer<dimensions::Dim3, coordinate_type>::load_(cp);
+
+        // ... no local data
+    }
+
+    /***************************************************************************/
+    /** @brief Allow access to this classes compare_ function */
+    friend void compare_base_t<GDecoratorContainer_3D<coordinate_type>>(
+        GDecoratorContainer_3D<coordinate_type> const &
+        , GDecoratorContainer_3D<coordinate_type> const &
+        , GToken &
+    );
+
+    /***************************************************************************/
+    /**
+	  * Searches for compliance with expectations with respect to another object
+	  * of the same type
+	  */
+    void compare_(
+        const GDecoratorContainer<dimensions::Dim3, coordinate_type> &cp // the other object
+        , const expectation &e // the expectation for this object, e.g. equality
+        , const double &limit // the limit for allowed deviations of floating point types
+    ) const override {
+        // Check that we are dealing with a GDecoratorContainer reference independent of this object and convert the pointer
+        const auto *p_load = g_convert_and_compare(
+            cp
+            , this
+        );
+
+        GToken token(
+            "GDecoratorContainer_3D<dimensions::Dim2>"
+            , e
+        );
+
+        // Compare our parent data ...
+        compare_base_t<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(
+            *this
+            , *p_load
+            , token
+        );
+
+        // ... no local data
+
+        // React on deviations from the expectation
+        token.evaluate();
+    }
+
 private:
+    /***************************************************************************/
+    /**
+	 * Returns the name of this class
+	 */
+    std::string name_() const override {
+        return std::string("GDecoratorContainer_3D<coordinate_type>");
+    }
+
     /***************************************************************************/
     /**
 	 * Creates a deep clone of this object.
@@ -4367,6 +4497,8 @@ struct is_abstract<const Gem::Common::GDecoratorContainer<Gem::Common::dimension
 } /* namespace serialization */
 } /* namespace boost */
 
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(GBasePlotter)
+
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<short>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::int32_t>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::uint32_t>);
@@ -4384,3 +4516,4 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::int32_t>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::uint32_t>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<float>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<double>);
+

@@ -134,10 +134,10 @@ G_API_COMMON std::istream &operator>>(std::istream &, Gem::Common::parameter_sou
  * This enum denotes different dimensions (used particularly by GDecoratorCollection
  */
 enum class dimensions : Gem::Common::ENUMBASETYPE {
-	Dim1 = 0
-	, Dim2 = 1
-	, Dim3 = 2
-	, Dim4 = 3
+	Dim1 = 1
+	, Dim2 = 2
+	, Dim3 = 3
+	, Dim4 = 4
 };
 
 /** @brief Puts a Gem::Common::dimensions into a stream. Needed also for boost::lexical_cast<> */
