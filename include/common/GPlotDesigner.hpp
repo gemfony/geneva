@@ -274,7 +274,7 @@ class GDecorator<dimensions::Dim2, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
 
     static_assert(
-        std::is_floating_point<coordinate_type>::value || std::is_integral<coordinate_type>::value
+        std::is_arithmetic<coordinate_type>::value
         , "coordinate_type should either be a floating-point or an integer type"
     );
 
@@ -642,7 +642,7 @@ class GDecorator<dimensions::Dim3, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
 
     static_assert(
-        std::is_floating_point<coordinate_type>::value || std::is_integral<coordinate_type>::value
+        std::is_arithmetic<coordinate_type>::value
         , "coordinate_type should either be a floating-point or an integer type"
     );
 
@@ -800,8 +800,8 @@ class GDecoratorContainer<dimensions::Dim2, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
 
     static_assert(
-            std::is_floating_point<coordinate_type>::value || std::is_integral<coordinate_type>::value
-            , "coordinate_type should either be a floating-point or an integer type"
+        std::is_arithmetic<coordinate_type>::value
+        , "coordinate_type should either be a floating-point or an integer type"
     );
 
 public:
@@ -811,10 +811,11 @@ public:
     GDecoratorContainer() = default;
     GDecoratorContainer(GDecoratorContainer<dimensions::Dim2, coordinate_type> const &cp) = default;
     GDecoratorContainer(GDecoratorContainer<dimensions::Dim2, coordinate_type> &&cp) noexcept = default;
-    virtual ~GDecoratorContainer() = default;
 
     GDecoratorContainer<dimensions::Dim2, coordinate_type> &operator=(GDecoratorContainer<dimensions::Dim2, coordinate_type> const&) = default;
     GDecoratorContainer<dimensions::Dim2, coordinate_type> &operator=(GDecoratorContainer<dimensions::Dim2, coordinate_type> &&) noexcept = default;
+
+    virtual ~GDecoratorContainer() = default;
 
     /***************************************************************************/
     /**
@@ -825,7 +826,7 @@ public:
         std::string result;
 
         std::size_t pos = 0;
-        for (auto decorator_ptr: *this) {
+        for (auto const& decorator_ptr: *this) {
             result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData(
                 indent
                 , pos++
@@ -851,7 +852,7 @@ public:
         std::string result;
 
         std::size_t pos = 0;
-        for (auto decorator_ptr: *this) {
+        for (auto const& decorator_ptr: *this) {
             result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData(
                 x_axis_range
                 , y_axis_range
@@ -942,9 +943,49 @@ private:
     /**
 	  * Creates a deep clone of this object.
 	  */
-    GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override {
-        return new GDecoratorContainer<dimensions::Dim2, coordinate_type>(*this);
+    GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override = 0;
+
+    /***************************************************************************/
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Specialization for 2D decorators
+ */
+template <typename coordinate_type>
+class GDecoratorContainer_2D
+    : public GDecoratorContainer<dimensions::Dim2, coordinate_type>
+{
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template<typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+
+        ar
+        & make_nvp(
+            "GDecoratorContainer_Dim2"
+            , boost::serialization::base_object<GDecoratorContainer<dimensions::Dim2, coordinate_type>>(*this));
     }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    // Relay to the parent class'es constructors
+    using GDecoratorContainer<dimensions::Dim2, coordinate_type>::GDecoratorContainer;
+
+private:
+    /***************************************************************************/
+    /**
+	  * Creates a deep clone of this object.
+	  */
+    GDecoratorContainer<dimensions::Dim2, coordinate_type> *clone_() const override {
+        return new GDecoratorContainer_2D<coordinate_type>(*this);
+    }
+
+    /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -955,8 +996,8 @@ private:
  */
 template<typename coordinate_type>
 class GDecoratorContainer<dimensions::Dim3, coordinate_type>
-    : public GPtrVectorT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>
-    , public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
+    : public GCommonInterfaceT<GDecoratorContainer<dimensions::Dim3, coordinate_type>>
+    , public GPtrVectorT<GDecorator<dimensions::Dim3, coordinate_type>, GDecorator<dimensions::Dim3, coordinate_type>>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -976,8 +1017,8 @@ class GDecoratorContainer<dimensions::Dim3, coordinate_type>
     ///////////////////////////////////////////////////////////////////////
 
     static_assert(
-            std::is_floating_point<coordinate_type>::value || std::is_integral<coordinate_type>::value
-            , "coordinate_type should either be a floating-point or an integer type"
+        std::is_arithmetic<coordinate_type>::value
+        , "coordinate_type should either be a floating-point or an integer type"
     );
 
 public:
@@ -1001,7 +1042,7 @@ public:
         std::string result;
 
         std::size_t pos = 0;
-        for (auto decorator_ptr: *this) {
+        for (auto const& decorator_ptr: *this) {
             result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData(
                 indent
                 , pos++
@@ -1028,7 +1069,7 @@ public:
         std::string result;
 
         std::size_t pos = 0;
-        for (auto decorator_ptr: *this) {
+        for (auto const& decorator_ptr: *this) {
             result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData(
                 x_axis_range
                 , y_axis_range
@@ -1118,11 +1159,50 @@ private:
 
     /***************************************************************************/
     /**
-	  * Creates a deep clone of this object.
-	  */
-    GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override {
-        return new GDecoratorContainer<dimensions::Dim3, coordinate_type>(*this);
+	 * Creates a deep clone of this object.
+	 */
+    GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override = 0;
+
+    /***************************************************************************/
+};
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * Specialization for DD decorators
+ */
+template <typename coordinate_type>
+class GDecoratorContainer_3D
+    : public GDecoratorContainer<dimensions::Dim3, coordinate_type>
+{
+    ///////////////////////////////////////////////////////////////////////
+    friend class boost::serialization::access;
+
+    template<typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+
+        ar
+        & make_nvp(
+            "GDecoratorContainer_Dim3"
+            , boost::serialization::base_object<GDecoratorContainer<dimensions::Dim3, coordinate_type>>(*this));
     }
+    ///////////////////////////////////////////////////////////////////////
+
+public:
+    // Relay to the parent class'es constructors
+    using GDecoratorContainer<dimensions::Dim3, coordinate_type>::GDecoratorContainer;
+
+private:
+    /***************************************************************************/
+    /**
+	 * Creates a deep clone of this object.
+	 */
+    GDecoratorContainer<dimensions::Dim3, coordinate_type> *clone_() const override {
+        return new GDecoratorContainer_3D<coordinate_type>(*this);
+    }
+
     /***************************************************************************/
 };
 
@@ -4270,6 +4350,20 @@ template<typename coordinate_type>
 struct is_abstract<const Gem::Common::GDecorator<Gem::Common::dimensions::Dim3, coordinate_type>> : public boost::true_type
 { /* nothing */ };
 
+template<typename coordinate_type>
+struct is_abstract<Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename coordinate_type>
+struct is_abstract<const Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, coordinate_type>> : public boost::true_type
+{ /* nothing */ };
+
+template<typename coordinate_type>
+struct is_abstract<Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename coordinate_type>
+struct is_abstract<const Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>> : public boost::true_type
+{ /* nothing */ };
+
 } /* namespace serialization */
 } /* namespace boost */
 
@@ -4279,16 +4373,14 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<std::uint32_t>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<float>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GMarker<double>);
 
-/*
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, short>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, std::int32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, std::uint32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, float>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim2, double>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<short>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<std::int32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<std::uint32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<float>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_2D<double>);
 
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, short>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, std::int32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, std::uint32_t>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, float>);
-BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, double>);
- */
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<short>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::int32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::uint32_t>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<float>);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<double>);
