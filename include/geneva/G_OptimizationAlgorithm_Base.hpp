@@ -110,7 +110,7 @@ public:
 
     /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
     virtual G_API_GENEVA void informationFunction(
-        const infoMode &im
+        infoMode const &im
         , G_OptimizationAlgorithm_Base *const
     ) BASE = 0;
 
@@ -537,7 +537,7 @@ protected:
     G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
 
     /** @brief Saves the state of the class to disc */
-    virtual G_API_GENEVA void saveCheckpoint(bf::path outputFile) const BASE;
+    virtual G_API_GENEVA void saveCheckpoint(bf::path const & outputFile) const BASE;
 
     /** @brief Extracts the short name of the optimization algorithm */
     G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path &p) const;

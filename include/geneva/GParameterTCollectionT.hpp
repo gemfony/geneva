@@ -146,7 +146,7 @@ public:
     std::size_t adaptImpl(Gem::Hap::GRandomBase &gr) override {
         std::size_t nAdapted = 0;
 
-        for (auto p_ptr : *this) { // std::shared_ptr may be copied
+        for (auto const & p_ptr : *this) {
             nAdapted += p_ptr->adapt(gr);
         }
 
@@ -178,7 +178,7 @@ public:
     bool updateAdaptorsOnStall(const std::size_t &nStalls) override {
         bool updatePerformed = false;
 
-        for (auto p_ptr : *this) { // std::shared_ptr may be copied
+        for (auto const & p_ptr : *this) {
             if (p_ptr->updateAdaptorsOnStall(nStalls)) {
                 updatePerformed = true;
             }

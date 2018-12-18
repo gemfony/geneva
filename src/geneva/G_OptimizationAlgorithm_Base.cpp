@@ -123,11 +123,7 @@ bool GBasePluggableOM::modify_GUnitTests() {
 	// Call the parent class'es function
 	if(GObject::modify_GUnitTests()) result = true;
 
-	if(true == this->getUseRawEvaluation()) {
-		this->setUseRawEvaluation(false);
-	} else {
-		this->setUseRawEvaluation(true);
-	}
+	this->setUseRawEvaluation(!this->getUseRawEvaluation());
 	result = true;
 
 	return result;
@@ -718,7 +714,7 @@ const G_OptimizationAlgorithm_Base * const G_OptimizationAlgorithm_Base::optimiz
  *
  * @param im The information mode (INFOINIT, INFOPROCESSING or INFOEND)
  */
-void G_OptimizationAlgorithm_Base::informationUpdate(const infoMode& im) {
+void G_OptimizationAlgorithm_Base::informationUpdate(infoMode const& im) {
 	// Act on the information mode provided
 	switch(im) {
 		case Gem::Geneva::infoMode::INFOINIT:
@@ -743,7 +739,7 @@ void G_OptimizationAlgorithm_Base::informationUpdate(const infoMode& im) {
 	};
 
 	// Perform any action defined by the user through pluggable monitor objects
-	for(auto pm_ptr: m_pluggable_monitors_vec) { // std::shared_ptr may be copied
+	for(auto const& pm_ptr: m_pluggable_monitors_vec) {
 		pm_ptr->informationFunction(im, this);
 	}
 }
@@ -989,7 +985,7 @@ double G_OptimizationAlgorithm_Base::getQualityThreshold(bool& hasQualityThresho
  *  @param hasQualityThreshold Allows to (de-)activate "touched termination"
  */
 void G_OptimizationAlgorithm_Base::setTerminationFile(std::string terminationFile, bool terminateOnFileModification) {
-	m_terminationFile = terminationFile;
+	m_terminationFile = std::move(terminationFile);
 	m_terminateOnFileModification = terminateOnFileModification;
 }
 
@@ -1376,7 +1372,7 @@ void G_OptimizationAlgorithm_Base::addCleanStoredBests(GParameterSetFixedSizePri
 	// We simply add all *clean* individuals to the queue -- only the best ones will actually be added
 	// (and cloned) Unless we have asked for the queue to have an unlimited size, the queue will be
 	// resized as required by its maximum allowed size.
-	for(auto ind_ptr: *this) {
+	for(auto const & ind_ptr: *this) {
 		if(ind_ptr->is_processed()) {
 			bestIndividuals.add(ind_ptr, CLONE);
 		}
@@ -1414,11 +1410,7 @@ bool G_OptimizationAlgorithm_Base::cp_personality_fits(const boost::filesystem::
 	std::string opt_desc = this->extractOptAlgFromPath(p);
 
 	// Make sure it fits our own algorithm
-	if(opt_desc != this->getAlgorithmPersonalityType()) {
-		return false;
-	} else {
-		return true;
-	}
+	return opt_desc == this->getAlgorithmPersonalityType();
 }
 
 /******************************************************************************/
@@ -1513,7 +1505,7 @@ std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getOld
 /**
  * Saves the state of the class to disc
  */
-void G_OptimizationAlgorithm_Base::saveCheckpoint(bf::path outputFile) const {
+void G_OptimizationAlgorithm_Base::saveCheckpoint(bf::path const& outputFile) const {
 	this->toFile(outputFile, this->getCheckpointSerializationMode());
 }
 
@@ -1560,9 +1552,6 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestGlobalIndivi
 				<< "In G_OptimizationAlgorithm_Base<T>::getBestGlobalIndividual_(): Error!" << std::endl
 				<< "Best individual seems to be empty" << std::endl
 		);
-
-		// Make the compiler happy
-		return std::shared_ptr<GParameterSet>();
 	}
 #else
 	return m_bestGlobalIndividuals_pq.best()->clone<GParameterSet>();
@@ -1599,9 +1588,6 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationInd
 				<< "In G_OptimizationAlgorithm_Base<T>::getBestIterationIndividual_(): Error!" << std::endl
 				<< "Best individual seems to be empty" << std::endl
 		);
-
-		// Make the compiler happy
-		return std::shared_ptr<GParameterSet>();
 	}
 #else
 	return m_bestIterationIndividuals_pq.best();
@@ -1622,7 +1608,7 @@ std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getBes
  * Allows to set the personality type of the individuals
  */
 void G_OptimizationAlgorithm_Base::setIndividualPersonalities() {
-	for(auto ind_ptr: *this) { ind_ptr->setPersonality(this->getPersonalityTraits()); }
+	for(auto const & ind_ptr: *this) { ind_ptr->setPersonality(this->getPersonalityTraits()); }
 }
 
 /******************************************************************************/
@@ -1630,7 +1616,7 @@ void G_OptimizationAlgorithm_Base::setIndividualPersonalities() {
  * Resets the individual's personality types
  */
 void G_OptimizationAlgorithm_Base::resetIndividualPersonalities() {
-	for(auto ind_ptr: *this) { ind_ptr->resetPersonality(); }
+	for(auto const & ind_ptr: *this) { ind_ptr->resetPersonality(); }
 }
 
 /******************************************************************************/
@@ -1748,7 +1734,7 @@ void G_OptimizationAlgorithm_Base::finalize() {
  * cycle.
  */
 void G_OptimizationAlgorithm_Base::markIteration() {
-	for(auto ind_ptr: *this) { ind_ptr->setAssignedIteration(m_iteration); }
+	for(auto const & ind_ptr: *this) { ind_ptr->setAssignedIteration(m_iteration); }
 }
 
 /******************************************************************************/
@@ -1756,7 +1742,7 @@ void G_OptimizationAlgorithm_Base::markIteration() {
  * Let individuals know the number of stalls encountered so far
  */
 void G_OptimizationAlgorithm_Base::markNStalls() {
-	for(auto ind_ptr: *this) { ind_ptr->setNStalls(m_stallCounter); }
+	for(auto const & ind_ptr: *this) { ind_ptr->setNStalls(m_stallCounter); }
 }
 
 /******************************************************************************/
@@ -1816,11 +1802,7 @@ bool G_OptimizationAlgorithm_Base::timedHalt(const std::chrono::system_clock::ti
  * This function checks whether a minimum amount of time has passed
   */
 bool G_OptimizationAlgorithm_Base::minTimePassed(const std::chrono::system_clock::time_point& currentTime) const {
-	if((currentTime - m_startTime) <= m_minDuration) {
-		return false;
-	} else {
-		return true;
-	}
+	return (currentTime - m_startTime) > m_minDuration;
 }
 
 /******************************************************************************/
@@ -1903,10 +1885,7 @@ bool G_OptimizationAlgorithm_Base::iterationHalt() const {
  * been passed.
  */
 bool G_OptimizationAlgorithm_Base::minIterationPassed() const {
-	if(m_iteration <= m_minIteration) {
-		return false;
-	}
-	return true;
+	return m_iteration > m_minIteration;
 }
 
 /******************************************************************************/
@@ -2044,10 +2023,7 @@ bool G_OptimizationAlgorithm_Base::halt() const {
 	if(qualityThresholdHaltSet() && qualityHalt()) return true;
 
 	// Has the user specified an additional stop criterion ?
-	if(customHalt_()) return true;
-
-	// Fine, we can continue.
-	return false;
+	return customHalt_();
 }
 
 /******************************************************************************/
@@ -2057,8 +2033,7 @@ bool G_OptimizationAlgorithm_Base::halt() const {
  * @return A boolean indicating whether the "max-iteration halt" has been set
  */
 bool G_OptimizationAlgorithm_Base::maxIterationHaltset() const {
-	if(0 == m_maxIteration) return false;
-	else return true;
+	return 0 != m_maxIteration;
 }
 
 /******************************************************************************/
@@ -2068,8 +2043,7 @@ bool G_OptimizationAlgorithm_Base::maxIterationHaltset() const {
  * @return A boolean indicating whether a halt criterion based on the number of stalls has been set
  */
 bool G_OptimizationAlgorithm_Base::stallHaltSet() const {
-	if(0 == m_maxStallIteration) return false;
-	else return true;
+	return 0 != m_maxStallIteration;
 }
 
 /******************************************************************************/
@@ -2079,8 +2053,7 @@ bool G_OptimizationAlgorithm_Base::stallHaltSet() const {
  * @return A boolean indication whether the max-duration halt criterion has been set
  */
 bool G_OptimizationAlgorithm_Base::maxDurationHaltSet() const {
-	if(0. == m_maxDuration.count()) return false;
-	else return true;
+	return 0. != m_maxDuration.count();
 }
 
 /******************************************************************************/
@@ -2098,7 +2071,7 @@ bool G_OptimizationAlgorithm_Base::qualityThresholdHaltSet() const {
  * Marks the globally best known fitness in all individuals
  */
 void G_OptimizationAlgorithm_Base::markBestFitness() {
-	for(auto ind_ptr: *this) { ind_ptr->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness()); }
+	for(auto const & ind_ptr: *this) { ind_ptr->setBestKnownPrimaryFitness(this->getBestKnownPrimaryFitness()); }
 }
 
 /******************************************************************************/
@@ -2157,7 +2130,7 @@ bool G_OptimizationAlgorithm_Base::modify_GUnitTests() {
 	if(Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::modify_GUnitTests()) result = true;
 
 	// Try to change the objects contained in the collection
-	for(auto o_ptr: *this) {
+	for(auto const & o_ptr: *this) {
 		if(o_ptr->modify_GUnitTests()) result = true;
 	}
 

@@ -414,7 +414,7 @@ bool GParserBuilder::parseConfigFile(boost::filesystem::path const & configFile)
 		Gem::Common::read_json(config_path, ptr);
 
 		// Load the data into our objects and execute the relevant call-back functions
-		for(auto const& proxy_ptr: m_file_parameter_proxies) { // std::shared_ptr may be copied
+		for(auto const& proxy_ptr: m_file_parameter_proxies) {
 			proxy_ptr->load_from(ptr);
 			proxy_ptr->executeCallBackFunction();
 		}

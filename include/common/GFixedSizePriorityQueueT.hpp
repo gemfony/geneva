@@ -135,7 +135,7 @@ public:
 		 : m_maxSize(cp.m_maxSize)
 		 , m_sortOrder(cp.m_sortOrder)
 	 {
-		 for(const auto& data_ptr: cp.m_data) { // std::shared_ptr may be copied
+		 for(auto const & data_ptr: cp.m_data) {
 			 m_data.push_back(data_ptr->template clone<T>());
 		 }
 	 }
@@ -170,7 +170,7 @@ public:
 		 m_sortOrder = cp.m_sortOrder;
 
 		 m_data.clear();
-		 for(const auto& data_ptr: cp.m_data) { // std::shared_ptr may be copied
+		 for(auto const & data_ptr: cp.m_data) {
 			 m_data.push_back(data_ptr->template clone<T>());
 		 }
 

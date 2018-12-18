@@ -812,7 +812,7 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 #ifdef DEBUG
 	// Check that we do not accidently trigger value calculation
 	std::size_t pos = 0;
-	for(const auto& ind_ptr: *this) { // std::shared_ptr may be copied
+	for(auto const & ind_ptr: *this) {
 		if(ind_ptr->is_due_for_processing()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)

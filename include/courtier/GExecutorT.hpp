@@ -678,7 +678,7 @@ protected:
 		 COLLECTION_POSITION_TYPE pos_cnt = 0;
 		 std::size_t nSubmittedItems = 0;
 		 bool got_first_processable_item_id = false;
-		 for(auto w_ptr: workItems) { // std::shared_ptr may be copied
+		 for(auto const & w_ptr: workItems) {
 #ifdef DEBUG
 			 if(not w_ptr) {
 				 throw gemfony_exception(

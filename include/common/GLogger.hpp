@@ -322,7 +322,7 @@ public:
 
 		 if (not m_log_vector.empty()) {
 			 // Do the actual logging
-			 for(auto cit: m_log_vector) { // std::shared_ptr may be copied
+			 for(auto const& cit: m_log_vector) {
 				 cit->log(message);
 			 }
 		 } else {

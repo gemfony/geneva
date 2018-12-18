@@ -485,7 +485,7 @@ const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 	m_sorted = false;
 	for (const auto& alg_ptr: m_algorithms_vec) {
 		// Add the pluggable optimization monitors to the algorithm
-		for(const auto& pm_ptr: m_pluggable_monitors_vec) { // std::shared_ptr may be copied
+		for(auto const & pm_ptr: m_pluggable_monitors_vec) {
 			alg_ptr->registerPluggableOM(pm_ptr);
 		}
 

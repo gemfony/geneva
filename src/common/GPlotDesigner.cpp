@@ -205,7 +205,7 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
 	// https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members
 
 	// Copy secondary plot data over
-	for(auto plotter_ptr: cp.m_secondaryPlotter) { // std::shared_ptr may be copied
+	for(auto const & plotter_ptr: cp.m_secondaryPlotter) {
 		m_secondaryPlotter.push_back(plotter_ptr->GCommonInterfaceT<GBasePlotter>::clone());
 	}
 }
@@ -488,7 +488,7 @@ std::string GBasePlotter::bodyData(const std::string& indent) const {
 
 	// Extract data from the secondary plotters, if any
 	std::size_t pos = 0;
-	for (auto plotter_ptr: m_secondaryPlotter) { // std::shared_ptr may be copied
+	for (auto const & plotter_ptr: m_secondaryPlotter) {
 		body_data
 			<< indent << "// Body data for secondary plotter " << pos << " of " << this->getPlotterName() << std::endl
 			<< plotter_ptr->bodyData_(true, this->id(), indent) << std::endl;

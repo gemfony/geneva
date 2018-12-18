@@ -606,7 +606,7 @@ void GCollectiveMonitor::informationFunction(
 	const infoMode& im
 	, G_OptimizationAlgorithm_Base *const goa
 )  {
-	for(const auto& pm_ptr : m_pluggable_monitors) { // std::shared_ptr may be copied
+	for(auto const & pm_ptr : m_pluggable_monitors) {
 		pm_ptr->informationFunction(im,goa);
 	}
 }

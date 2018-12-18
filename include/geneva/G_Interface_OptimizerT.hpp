@@ -108,7 +108,7 @@ public:
 			 );
 		 }
 
-		 for(const auto& ind_ptr: bestBaseIndividuals) { // std::shared_ptr may be copied
+		 for(auto const& ind_ptr: bestBaseIndividuals) {
 			 bestIndividuals.push_back(std::dynamic_pointer_cast<individual_type>(ind_ptr));
 		 }
 
@@ -159,7 +159,7 @@ public:
 			 );
 		 }
 
-		 for(const auto& ind_ptr: bestBaseIndividuals) { // std::shared_ptr may be copied
+		 for(auto const & ind_ptr: bestBaseIndividuals) {
 			 bestIndividuals.push_back(ind_ptr->template clone<individual_type>());
 		 }
 
