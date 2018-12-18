@@ -84,6 +84,7 @@
 #include "common/GCommonEnums.hpp"
 #include "common/GCommonInterfaceT.hpp"
 #include "common/GExpectationChecksT.hpp"
+#include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GPtrVectorT.hpp"
 #include "common/GTypeTraitsT.hpp"
 #include "common/GTupleIO.hpp"
@@ -1367,13 +1368,21 @@ class GBasePlotter
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The default constructor */
-    G_API_COMMON GBasePlotter() = default;
-    /** @brief A copy constructor */
-    G_API_COMMON GBasePlotter(const GBasePlotter &);
+    /** @brief Copy constructor */
+    G_API_COMMON GBasePlotter(GBasePlotter const &);
+    /** @brief Assignment operator */
+    G_API_COMMON GBasePlotter& operator=(GBasePlotter const &);
 
-    /** @brief The destructor */
+    /*********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
+    G_API_COMMON GBasePlotter() = default;
+    G_API_COMMON GBasePlotter(GBasePlotter &&) = default;
     virtual G_API_COMMON ~GBasePlotter() = default;
+
+    G_API_COMMON GBasePlotter& operator=(GBasePlotter &&) = default;
+
+    /*********************************************************************/
 
     /** @brief Allows to set the drawing arguments for this plot */
     G_API_COMMON void setDrawingArguments(std::string);
@@ -1473,8 +1482,7 @@ protected:
     std::string m_z_axis_label = std::string("z"); ///< A label for the z-axis (if available)
 
     std::string m_plot_label = std::string("");   ///< A label to be assigned to the entire plot
-    std::string
-        m_dsMarker = std::string("");     ///< A marker to make the origin of data structures clear in the output file
+    std::string m_dsMarker = std::string("");     ///< A marker to make the origin of data structures clear in the output file
 
     std::vector<line> lines_; ///< Lines to be drawn into the drawing area
 
@@ -1506,12 +1514,12 @@ public:
 /******************************************************************************/
 /**
  * A data collector for 1-d data of user-defined type. This will usually be
- * data of a histogram type.
+ * data of a histogram type. It is assumed to be movable, hence we use all
+ * defaulted constructors and assignment operators.
  */
 template<typename x_type>
 class GDataCollector1T
-    :
-        public GBasePlotter
+    : public GBasePlotter
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -1532,10 +1540,13 @@ public:
     // Defaulted constructors and destructors
 
     GDataCollector1T() = default;
-
-    GDataCollector1T(const GDataCollector1T<x_type> &cp) = default;
+    GDataCollector1T(GDataCollector1T<x_type> const &) = default;
+    GDataCollector1T(GDataCollector1T<x_type> &&) = default;
 
     ~GDataCollector1T() override = default;
+
+    GDataCollector1T<x_type>& operator=(GDataCollector1T<x_type> const&) = default;
+    GDataCollector1T<x_type>& operator=(GDataCollector1T<x_type> &&) = default;
 
     /***************************************************************************/
     /**
@@ -1795,11 +1806,20 @@ public:
         const std::size_t &
         , const std::tuple<double, double> &
     );
-    /** @brief A copy constructor */
-    G_API_COMMON GHistogram1D(const GHistogram1D &) = default;
 
-    /** @brief The destructor */
+    /**********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
+    G_API_COMMON GHistogram1D(GHistogram1D const &) = default;
+    G_API_COMMON GHistogram1D(GHistogram1D &&) = default;
     G_API_COMMON ~GHistogram1D() override = default;
+
+    GHistogram1D& operator=(GHistogram1D const&) = default;
+    GHistogram1D& operator=(GHistogram1D &&) = default;
+
+    // Defaulted default-constructor in private section
+
+    /**********************************************************************/
 
     /** @brief Retrieve the number of bins in x-direction */
     G_API_COMMON std::size_t getNBinsX() const;
@@ -4494,6 +4514,13 @@ template<typename coordinate_type>
 struct is_abstract<const Gem::Common::GDecoratorContainer<Gem::Common::dimensions::Dim3, coordinate_type>> : public boost::true_type
 { /* nothing */ };
 
+template<typename x_type>
+struct is_abstract<Gem::Common::GDataCollector1T<x_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename x_type>
+struct is_abstract<const Gem::Common::GDataCollector1T<x_type>> : public boost::true_type
+{ /* nothing */ };
+
 } /* namespace serialization */
 } /* namespace boost */
 
@@ -4517,3 +4544,4 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<std::uint32_t>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<float>);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GDecoratorContainer_3D<double>);
 
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1D);

@@ -52,6 +52,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<std::uint32_t>)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<float>);
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GDecoratorContainer_3D<double>);
 
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1D);
+
 namespace Gem {
 namespace Common {
 
@@ -204,14 +206,15 @@ std::istream &operator>>(std::istream &i, tddropt &x) {
  * @param cp A copy of another GBasePlotter object
  */
 GBasePlotter::GBasePlotter(const GBasePlotter &cp)
-	: m_drawingArguments(cp.m_drawingArguments)
-	  , m_x_axis_label(cp.m_x_axis_label)
-	  , m_y_axis_label(cp.m_y_axis_label)
-	  , m_z_axis_label(cp.m_z_axis_label)
-	  , m_plot_label(cp.m_plot_label)
-	  , m_dsMarker(cp.m_dsMarker)
-	  , m_secondaryPlotter()
-	  , m_id(cp.m_id)
+	: Gem::Common::GCommonInterfaceT<GBasePlotter>(cp)
+	, m_drawingArguments(cp.m_drawingArguments)
+	, m_x_axis_label(cp.m_x_axis_label)
+	, m_y_axis_label(cp.m_y_axis_label)
+	, m_z_axis_label(cp.m_z_axis_label)
+	, m_plot_label(cp.m_plot_label)
+	, m_dsMarker(cp.m_dsMarker)
+	, m_secondaryPlotter()
+	, m_id(cp.m_id)
 {
 	// Note: Explicit scope needed for name resolution of clone -- compare
 	// https://isocpp.org/wiki/faq/templates#nondependent-name-lookup-members
@@ -220,6 +223,26 @@ GBasePlotter::GBasePlotter(const GBasePlotter &cp)
 	for(auto const & plotter_ptr: cp.m_secondaryPlotter) {
 		m_secondaryPlotter.push_back(plotter_ptr->GCommonInterfaceT<GBasePlotter>::clone());
 	}
+}
+
+/******************************************************************************/
+/**
+ * Assignment operator
+ */
+GBasePlotter& GBasePlotter::operator=(GBasePlotter const & cp) {
+	GCommonInterfaceT<GBasePlotter>::operator=(cp);
+
+	m_drawingArguments = cp.m_drawingArguments;
+	m_x_axis_label = cp.m_x_axis_label;
+	m_y_axis_label = cp.m_y_axis_label;
+	m_z_axis_label = cp.m_z_axis_label;
+	m_plot_label   = cp.m_plot_label;
+	m_dsMarker     = cp.m_dsMarker;
+	m_id           = cp.m_id;
+
+	Gem::Common::copyCloneableSmartPointerContainer(cp.m_secondaryPlotter, m_secondaryPlotter);
+
+	return *this;
 }
 
 /******************************************************************************/
