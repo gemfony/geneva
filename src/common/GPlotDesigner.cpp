@@ -57,6 +57,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram1I);
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GHistogram2D);
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph2D);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph2ED);
 
 namespace Gem {
 namespace Common {

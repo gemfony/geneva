@@ -89,6 +89,7 @@
 #include "common/GTypeTraitsT.hpp"
 #include "common/GTupleIO.hpp"
 #include "common/GSerializationHelperFunctionsT.hpp"
+#include "common/GSerializeTupleT.hpp"
 
 namespace Gem {
 namespace Common {
@@ -2935,8 +2936,7 @@ private:
  * This results in a 2D plot.
  */
 class GGraph2ED
-    :
-        public GDataCollector2ET<double, double>
+    : public GDataCollector2ET<double, double>
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -2955,14 +2955,18 @@ class GGraph2ED
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The default constructor */
+    /**********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
     G_API_COMMON GGraph2ED() = default;
-
-    /** @brief A copy constructor */
-    G_API_COMMON GGraph2ED(const GGraph2ED &) = default;
-
-    /** @brief The destructor */
+    G_API_COMMON GGraph2ED(GGraph2ED const &) = default;
+    G_API_COMMON GGraph2ED(GGraph2ED &&) = default;
     G_API_COMMON ~GGraph2ED() override = default;
+
+    G_API_COMMON GGraph2ED& operator=(GGraph2ED const&) = default;
+    G_API_COMMON GGraph2ED& operator=(GGraph2ED &&) = default;
+
+    /**********************************************************************/
 
     /** @brief Determines whether a scatter plot or a curve is created */
     G_API_COMMON void setPlotMode(graphPlotMode);
@@ -4594,3 +4598,4 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1I);
 
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram2D);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2D);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2ED);
