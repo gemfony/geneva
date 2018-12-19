@@ -63,6 +63,11 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph3D);
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GGraph4D);
 
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter1D);
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GFunctionPlotter2D);
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Common::GPlotDesigner);
+
 namespace Gem {
 namespace Common {
 
@@ -3105,15 +3110,34 @@ GPlotDesigner::GPlotDesigner(
  */
 GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
 	: c_x_div_(cp.c_x_div_)
-	  , c_y_div_(cp.c_y_div_)
-	  , c_x_dim_(cp.c_x_dim_)
-	  , c_y_dim_(cp.c_y_dim_)
-	  , canvasLabel_(cp.canvasLabel_)
-	  , addPrintCommand_(cp.addPrintCommand_)
-	  , nIndentionSpaces_(cp.nIndentionSpaces_)
+	, c_y_div_(cp.c_y_div_)
+	, c_x_dim_(cp.c_x_dim_)
+	, c_y_dim_(cp.c_y_dim_)
+	, canvasLabel_(cp.canvasLabel_)
+	, addPrintCommand_(cp.addPrintCommand_)
+	, nIndentionSpaces_(cp.nIndentionSpaces_)
 {
 	// Copy any secondary plotters over
 	copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
+}
+
+/******************************************************************************/
+/**
+ * The assignment operator
+ */
+GPlotDesigner& GPlotDesigner::operator=(GPlotDesigner const& cp) {
+	c_x_div_ = cp.c_x_div_;
+	c_y_div_ = cp.c_y_div_;
+	c_x_dim_ = cp.c_x_dim_;
+	c_y_dim_ = cp.c_y_dim_;
+	canvasLabel_      = cp.canvasLabel_;
+	addPrintCommand_  = cp.addPrintCommand_;
+	nIndentionSpaces_ = cp.nIndentionSpaces_;
+
+	// Copy any secondary plotters over
+	copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
+
+	return *this;
 }
 
 /******************************************************************************/

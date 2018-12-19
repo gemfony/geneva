@@ -4220,8 +4220,7 @@ private:
  * TODO: Add ability to add markers!
  */
 class GFunctionPlotter1D
-    :
-        public GBasePlotter
+    : public GBasePlotter
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -4245,10 +4244,19 @@ public:
         const std::string &, const std::tuple<double, double> &
     );
 
-    /** @brief A copy constructor */
-    G_API_COMMON GFunctionPlotter1D(const GFunctionPlotter1D &) = default;
-    /** @brief The destructor */
+    /*********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
+    // Defaulted default constructor in private section
+
+    G_API_COMMON GFunctionPlotter1D(GFunctionPlotter1D const&) = default;
+    G_API_COMMON GFunctionPlotter1D(GFunctionPlotter1D &&) = default;
     G_API_COMMON ~GFunctionPlotter1D() override = default;
+
+    G_API_COMMON GFunctionPlotter1D& operator=(GFunctionPlotter1D const&) = default;
+    G_API_COMMON GFunctionPlotter1D& operator=(GFunctionPlotter1D &&) = default;
+
+    /*********************************************************************/
 
     /** @brief Allows to set the number of sampling points in x-direction */
     G_API_COMMON void setNSamplesX(std::size_t);
@@ -4292,7 +4300,7 @@ private:
     /** @brief Creates a deep clone of this object */
     G_API_COMMON GBasePlotter *clone_() const override;
 
-    GFunctionPlotter1D() = default; ///< The default constructor. Intentionally private, as it is only needed for (de-)serialization
+    G_API_COMMON GFunctionPlotter1D() = default; ///< The default constructor. Intentionally private, as it is only needed for (de-)serialization
 
     std::string functionDescription_;
 
@@ -4305,8 +4313,7 @@ private:
  * A wrapper for the ROOT TF2 2d-function plotter
  */
 class GFunctionPlotter2D
-    :
-        public GBasePlotter
+    : public GBasePlotter
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -4332,11 +4339,19 @@ public:
         const std::string &, const std::tuple<double, double> &, const std::tuple<double, double> &
     );
 
-    /** @brief A copy constructor */
-    G_API_COMMON GFunctionPlotter2D(const GFunctionPlotter2D &) = default;
+    /*********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
 
-    /** @brief The destructor */
+    // Defaulted default constructor in private section
+
+    G_API_COMMON GFunctionPlotter2D(GFunctionPlotter2D const&) = default;
+    G_API_COMMON GFunctionPlotter2D(GFunctionPlotter2D &&) = default;
     G_API_COMMON ~GFunctionPlotter2D() override = default;
+
+    G_API_COMMON GFunctionPlotter2D& operator=(GFunctionPlotter2D const&) = default;
+    G_API_COMMON GFunctionPlotter2D& operator=(GFunctionPlotter2D &&) = default;
+
+    /*********************************************************************/
 
     /** @brief Allows to set the number of sampling points in x-direction */
     G_API_COMMON void setNSamplesX(std::size_t);
@@ -4382,7 +4397,7 @@ private:
     /** @brief Creates a deep clone of this object */
     G_API_COMMON GBasePlotter *clone_() const override;
 
-    GFunctionPlotter2D() = default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
+    G_API_COMMON GFunctionPlotter2D() = default; ///< The default constructor -- intentionally private, as it is only needed for (de-)serialization
 
     std::string functionDescription_;
 
@@ -4426,11 +4441,23 @@ public:
         , const std::size_t &
         , const std::size_t &
     );
-    /** @brief The copy constructor */
-    G_API_COMMON GPlotDesigner(const GPlotDesigner &);
 
-    /** @brief The destructor */
+    /** @brief Copy constructor */
+    G_API_COMMON GPlotDesigner(GPlotDesigner const &);
+    /** @brief Assignment operator */
+    G_API_COMMON GPlotDesigner& operator=(GPlotDesigner const &);
+
+    /*********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
+    // Defaulted default constructor in private section
+
+    G_API_COMMON GPlotDesigner(GPlotDesigner &&) = default;
     G_API_COMMON virtual ~GPlotDesigner() = default;
+
+    G_API_COMMON GPlotDesigner& operator=(GPlotDesigner &&) = default;
+
+    /*********************************************************************/
 
     /* @brief Emits the overall plot */
     G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;
@@ -4470,9 +4497,6 @@ public:
     std::string indent() const;
 
 protected:
-    /** @brief The default constructor -- only needed for (de-)serialization, but must be accessible by derived classes */
-    GPlotDesigner() = default;
-
     /** @brief A header for static data in a ROOT file */
     std::string staticHeader(const std::string &) const;
 
@@ -4494,6 +4518,9 @@ protected:
     ) const override;
 
 private:
+    /** @brief The default constructor -- only needed for (de-)serialization */
+    GPlotDesigner() = default;
+
     /** @brief Returns the name of this class */
     G_API_COMMON std::string name_() const override;
     /** @brief Creates a deep clone of this object */
@@ -4629,3 +4656,8 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2ED);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph3D);
 
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph4D);
+
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GFunctionPlotter1D);
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GFunctionPlotter2D);
+
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GPlotDesigner);
