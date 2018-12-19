@@ -3021,8 +3021,7 @@ private:
  */
 template<typename x_type, typename y_type, typename z_type>
 class GDataCollector3T
-    :
-        public GBasePlotter
+    : public GBasePlotter
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -3043,8 +3042,13 @@ public:
     // Defaulted constructors and destructors
 
     GDataCollector3T() = default;
-    GDataCollector3T(const GDataCollector3T<x_type, y_type, z_type> &cp) = default;
+    GDataCollector3T(GDataCollector3T<x_type, y_type, z_type> const &) = default;
+    GDataCollector3T(GDataCollector3T<x_type, y_type, z_type> &&) = default;
+
     ~GDataCollector3T() override = default;
+
+    GDataCollector3T<x_type, y_type, z_type>& operator=(GDataCollector3T<x_type, y_type, z_type> const&) = default;
+    GDataCollector3T<x_type, y_type, z_type>& operator=(GDataCollector3T<x_type, y_type, z_type> &&) = default;
 
     /***************************************************************************/
     /**
@@ -3469,8 +3473,7 @@ GDataCollector3T<double, double, double>::projectZ(std::size_t nBinsZ, std::tupl
  * only allows a single plot mode. This results in a 3D plot.
  */
 class GGraph3D
-    :
-        public GDataCollector3T<double, double, double>
+    : public GDataCollector3T<double, double, double>
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -3489,14 +3492,18 @@ class GGraph3D
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The default constructor */
+    /*********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
     G_API_COMMON GGraph3D() = default;
-
-    /** @brief A copy constructor */
-    G_API_COMMON GGraph3D(const GGraph3D &) = default;
-
-    /** @brief The destructor */
+    G_API_COMMON GGraph3D(GGraph3D const &) = default;
+    G_API_COMMON GGraph3D(GGraph3D &&) = default;
     G_API_COMMON ~GGraph3D() override = default;
+
+    G_API_COMMON GGraph3D& operator=(GGraph3D const&) = default;
+    G_API_COMMON GGraph3D& operator=(GGraph3D &&) = default;
+
+    /*********************************************************************/
 
     /** @brief Adds lines to the plots between consecutive points */
     G_API_COMMON void setDrawLines(bool= true);
@@ -3553,8 +3560,7 @@ template<
     typename x_type, typename y_type, typename z_type, typename w_type
         >
 class GDataCollector4T
-    :
-        public GBasePlotter
+    : public GBasePlotter
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -3575,8 +3581,12 @@ public:
     // Defaulted constructors and destructors
 
     GDataCollector4T() = default;
-    GDataCollector4T(const GDataCollector4T<x_type, y_type, z_type, w_type> &cp) = default;
+    GDataCollector4T(GDataCollector4T<x_type, y_type, z_type, w_type> const&) = default;
+    GDataCollector4T(GDataCollector4T<x_type, y_type, z_type, w_type> &&) = default;
     ~GDataCollector4T() override = default;
+
+    GDataCollector4T<x_type, y_type, z_type, w_type>& operator=(GDataCollector4T<x_type, y_type, z_type, w_type> const&) = default;
+    GDataCollector4T<x_type, y_type, z_type, w_type>& operator=(GDataCollector4T<x_type, y_type, z_type, w_type> &&) = default;
 
     /***************************************************************************/
     /**
@@ -4100,8 +4110,7 @@ GDataCollector4T<double, double, double, double>::projectW(
  * default only draw a selection of items. This results in a 3D plot.
  */
 class GGraph4D
-    :
-        public GDataCollector4T<double, double, double, double>
+    : public GDataCollector4T<double, double, double, double>
 {
 
     ///////////////////////////////////////////////////////////////////////
@@ -4123,14 +4132,18 @@ class GGraph4D
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The default constructor */
+    /*********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
     G_API_COMMON GGraph4D() = default;
-
-    /** @brief A copy constructor */
     G_API_COMMON GGraph4D(const GGraph4D &) = default;
-
-    /** @brief The destructor */
+    G_API_COMMON GGraph4D(GGraph4D &&) = default;
     G_API_COMMON ~GGraph4D() override = default;
+
+    G_API_COMMON GGraph4D& operator=(GGraph4D const&) = default;
+    G_API_COMMON GGraph4D& operator=(GGraph4D &&) = default;
+
+    /*********************************************************************/
 
     /** @brief Allows to set the minimum marker size */
     G_API_COMMON void setMinMarkerSize(const double &);
@@ -4386,8 +4399,7 @@ private:
  * on the data providers stored in it.
  */
 class GPlotDesigner
-    :
-        public GCommonInterfaceT<GPlotDesigner>
+    : public GCommonInterfaceT<GPlotDesigner>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -4570,6 +4582,20 @@ template<typename x_type, typename y_type>
 struct is_abstract<const Gem::Common::GDataCollector2ET<x_type, y_type>> : public boost::true_type
 { /* nothing */ };
 
+template<typename x_type, typename y_type, typename z_type>
+struct is_abstract<Gem::Common::GDataCollector3T<x_type, y_type, z_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename x_type, typename y_type, typename z_type>
+struct is_abstract<const Gem::Common::GDataCollector3T<x_type, y_type, z_type>> : public boost::true_type
+{ /* nothing */ };
+
+template<typename x_type, typename y_type, typename z_type, typename w_type>
+struct is_abstract<Gem::Common::GDataCollector4T<x_type, y_type, z_type, w_type>> : public boost::true_type
+{ /* nothing */ };
+template<typename x_type, typename y_type, typename z_type, typename w_type>
+struct is_abstract<const Gem::Common::GDataCollector4T<x_type, y_type, z_type, w_type>> : public boost::true_type
+{ /* nothing */ };
+
 } /* namespace serialization */
 } /* namespace boost */
 
@@ -4599,3 +4625,7 @@ BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram1I);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GHistogram2D);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2D);
 BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph2ED);
+
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph3D);
+
+BOOST_CLASS_EXPORT_KEY(Gem::Common::GGraph4D);
