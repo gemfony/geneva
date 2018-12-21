@@ -645,97 +645,97 @@ std::shared_ptr<GParameterSet> GParameterSet::crossOverWith(std::shared_ptr<GPar
 	std::shared_ptr<GParameterSet> this_cp = this->GObject::clone<GParameterSet>();
 
 	// Extract all data items
-	std::vector<double> this_double_vec, cp_double_vec;
-	std::vector<float> this_float_vec, cp_float_vec;
-	std::vector<bool> this_bool_vec, cp_bool_vec;
-	std::vector<std::int32_t> this_int_vec, cp_int_vec;
+	std::vector<double> this_double_cnt, cp_double_cnt;
+	std::vector<float> this_float_cnt, cp_float_cnt;
+	std::vector<bool> this_bool_cnt, cp_bool_cnt;
+	std::vector<std::int32_t> this_int_cnt, cp_int_cnt;
 
-	this_cp->streamline(this_double_vec);
-	this_cp->streamline(this_float_vec);
-	this_cp->streamline(this_bool_vec);
-	this_cp->streamline(this_int_vec);
+	this_cp->streamline(this_double_cnt);
+	this_cp->streamline(this_float_cnt);
+	this_cp->streamline(this_bool_cnt);
+	this_cp->streamline(this_int_cnt);
 
-	cp->streamline(cp_double_vec);
-	cp->streamline(cp_float_vec);
-	cp->streamline(cp_bool_vec);
-	cp->streamline(cp_int_vec);
+	cp->streamline(cp_double_cnt);
+	cp->streamline(cp_float_cnt);
+	cp->streamline(cp_bool_cnt);
+	cp->streamline(cp_int_cnt);
 
 #ifdef DEBUG
 	// Do some error checking
-	if(this_double_vec.size() != cp_double_vec.size()) {
+	if(this_double_cnt.size() != cp_double_cnt.size()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-				<< "Got invalid sizes (double): " << this_double_vec.size() << " / " << cp_double_vec.size() << std::endl
+				<< "Got invalid sizes (double): " << this_double_cnt.size() << " / " << cp_double_cnt.size() << std::endl
 		);
 	}
-	if(this_float_vec.size() != cp_float_vec.size()) {
+	if(this_float_cnt.size() != cp_float_cnt.size()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-				<< "Got invalid sizes (float): " << this_float_vec.size() << " / " << cp_float_vec.size() << std::endl
+				<< "Got invalid sizes (float): " << this_float_cnt.size() << " / " << cp_float_cnt.size() << std::endl
 		);
 	}
-	if(this_bool_vec.size() != cp_bool_vec.size()) {
+	if(this_bool_cnt.size() != cp_bool_cnt.size()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-				<< "Got invalid sizes (bool): " << this_bool_vec.size() << " / " << cp_bool_vec.size() << std::endl
+				<< "Got invalid sizes (bool): " << this_bool_cnt.size() << " / " << cp_bool_cnt.size() << std::endl
 		);
 	}
-	if(this_int_vec.size() != cp_int_vec.size()) {
+	if(this_int_cnt.size() != cp_int_cnt.size()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GParameterSet::perItemCrossOver(): Error!" << std::endl
-				<< "Got invalid sizes (std::int32_t): " << this_int_vec.size() << " / " << cp_int_vec.size() << std::endl
+				<< "Got invalid sizes (std::int32_t): " << this_int_cnt.size() << " / " << cp_int_cnt.size() << std::endl
 		);
 	}
 #endif /* DEBUG */
 
 	// Do the actual cross-over
-	if (not this_double_vec.empty()) {
+	if (not this_double_cnt.empty()) {
 		// Calculate a suitable position for the cross-over
 		// We use this->cp as the source for getCrossOverPos in order to avoid
 		// having to mark getCrossOverPos const and this m_gr mutable.
-		auto pos = this_cp->getCrossOverPos(1, this_double_vec.size());
+		auto pos = this_cp->getCrossOverPos(1, this_double_cnt.size());
 
 		// Perform the actual cross-over operation. This is in fact
 		// a "half" cross-over, as we only need one output vector
-		std::copy(cp_double_vec.begin()+pos, cp_double_vec.end(), this_double_vec.begin()+pos);
+		std::copy(cp_double_cnt.begin()+pos, cp_double_cnt.end(), this_double_cnt.begin()+pos);
 	}
 
-	if (not this_float_vec.empty()) {
+	if (not this_float_cnt.empty()) {
 		// Calculate a suitable position for the cross-over
-		auto pos = this_cp->getCrossOverPos(1, this_float_vec.size());
+		auto pos = this_cp->getCrossOverPos(1, this_float_cnt.size());
 
 		// Perform the actual cross-over operation. This is in fact
 		// a "half" cross-over, as we only need one output vector
-		std::copy(cp_float_vec.begin()+pos, cp_float_vec.end(), this_float_vec.begin()+pos);
+		std::copy(cp_float_cnt.begin()+pos, cp_float_cnt.end(), this_float_cnt.begin()+pos);
 	}
 
-	if (not this_bool_vec.empty()) {
+	if (not this_bool_cnt.empty()) {
 		// Calculate a suitable position for the cross-over
-		auto pos = this_cp->getCrossOverPos(1, this_bool_vec.size());
+		auto pos = this_cp->getCrossOverPos(1, this_bool_cnt.size());
 
 		// Perform the actual cross-over operation. This is in fact
 		// a "half" cross-over, as we only need one output vector
-		std::copy(cp_bool_vec.begin()+pos, cp_bool_vec.end(), this_bool_vec.begin()+pos);
+		std::copy(cp_bool_cnt.begin()+pos, cp_bool_cnt.end(), this_bool_cnt.begin()+pos);
 	}
 
-	if (not this_int_vec.empty()) {
+	if (not this_int_cnt.empty()) {
 		// Calculate a suitable position for the cross-over
-		auto pos = this_cp->getCrossOverPos(1, this_int_vec.size());
+		auto pos = this_cp->getCrossOverPos(1, this_int_cnt.size());
 
 		// Perform the actual cross-over operation. This is in fact
 		// a "half" cross-over, as we only need one output vector
-		std::copy(cp_int_vec.begin()+pos, cp_int_vec.end(), this_int_vec.begin()+pos);
+		std::copy(cp_int_cnt.begin()+pos, cp_int_cnt.end(), this_int_cnt.begin()+pos);
 	}
 
 	// Load the data vectors back into this object
-	this_cp->assignValueVector(this_double_vec);
-	this_cp->assignValueVector(this_float_vec);
-	this_cp->assignValueVector(this_bool_vec);
-	this_cp->assignValueVector(this_int_vec);
+	this_cp->assignValueVector(this_double_cnt);
+	this_cp->assignValueVector(this_float_cnt);
+	this_cp->assignValueVector(this_bool_cnt);
+	this_cp->assignValueVector(this_int_cnt);
 
 	// Mark this individual as "dirty"
 	this_cp->mark_as_due_for_processing();
@@ -1674,16 +1674,16 @@ std::size_t GParameterSet::customAdaptions() {
  * OpenCL-Consumer. The fitness vector is interpreted as raw fitness values, and
  * transformed fitness values are calculated as needed.
  *
- * @param f_vec A vector of raw fitness values
+ * @param f_cnt A vector of raw fitness values
  */
-void GParameterSet::setFitness_(std::vector<double> const & f_vec) {
+void GParameterSet::setFitness_(std::vector<double> const & f_cnt) {
 #ifdef DEBUG
-	if(f_vec.size() != this->getNStoredResults()) {
+	if(f_cnt.size() != this->getNStoredResults()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG, time_and_place)
 				<< "In GParameterSet::setFitness_(...): Error!" << std::endl
 				<< "Invalid size of fitness vector: " << std::endl
-				<< f_vec.size() << ", expected: " << this->getNStoredResults() << std::endl
+				<< f_cnt.size() << ", expected: " << this->getNStoredResults() << std::endl
 		);
 	}
 #endif /* DEBUG */
@@ -1694,13 +1694,13 @@ void GParameterSet::setFitness_(std::vector<double> const & f_vec) {
 		|| evaluationPolicy::USESIMPLEEVALUATION == m_eval_policy
 	) {
 	   // Create a vector of parameterset_processing_result objects
-		std::vector<parameterset_processing_result> processing_results(f_vec.size(), parameterset_processing_result());
+		std::vector<parameterset_processing_result> processing_results(f_cnt.size(), parameterset_processing_result());
 
 		// Take care of the transformed fitness
 		std::size_t pos = 0;
 		for(auto& p: processing_results) {
 			// Set the raw fitness
-			p.reset(f_vec.at(pos));
+			p.reset(f_cnt.at(pos));
 
 			if (evaluationPolicy::USESIGMOID == m_eval_policy) { // Update the fitness value to use sigmoidal values
 				p.setTransformedFitnessWith(

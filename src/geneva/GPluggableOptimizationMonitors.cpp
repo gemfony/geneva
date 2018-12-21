@@ -1303,17 +1303,17 @@ void GIterationResultsFileLogger::informationFunction(
 		{
 			// Open the external file
 			boost::filesystem::ofstream data(m_fileName.c_str(), std::ofstream::app);
-			std::vector<double> fitnessVec;
+			std::vector<double> fitness_cnt;
 
 			// Loop over all individuals of the algorithm.
 			std::size_t nIndividuals = goa->size();
 			for(std::size_t pos=0; pos<nIndividuals; pos++) {
 				std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-				fitnessVec = goa->at(pos)->raw_fitness_vec();
+				fitness_cnt = goa->at(pos)->raw_fitness_vec();
 
 				std::size_t nFitnessCriteria = goa->at(0)->getNStoredResults();
 				for(std::size_t i=0; i<nFitnessCriteria; i++) {
-					data << fitnessVec.at(i) << ((m_withCommas && (nFitnessCriteria*nIndividuals > (i+1)*(pos+1)))?", ":" ");
+					data << fitness_cnt.at(i) << ((m_withCommas && (nFitnessCriteria*nIndividuals > (i+1)*(pos+1)))?", ":" ");
 				}
 			}
 			data << std::endl;

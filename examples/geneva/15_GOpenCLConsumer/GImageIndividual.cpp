@@ -374,13 +374,13 @@ std::vector<Gem::Common::t_circle> GImageIndividual::getTriangleData() const {
 
 	std::size_t offset = 0;
 	double angle1 = 0., angle2 = 0., angle3 = 0.;
-	std::vector<Gem::Common::t_circle> circle_vec(nTriangles_);
+	std::vector<Gem::Common::t_circle> circle_cnt(nTriangles_);
 	for(std::size_t i=0; i<nTriangles_; i++) {
 		offset = i*10;
 
-		circle_vec[i].middle.x = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+0)->value());
-		circle_vec[i].middle.y = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+1)->value());
-		circle_vec[i].radius   = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+2)->value());
+		circle_cnt[i].middle.x = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+0)->value());
+		circle_cnt[i].middle.y = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+1)->value());
+		circle_cnt[i].radius   = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+2)->value());
 
 		angle1 = this->at<GConstrainedDoubleObject>(offset+3)->value();
 		angle2 = this->at<GConstrainedDoubleObject>(offset+4)->value();
@@ -393,28 +393,28 @@ std::vector<Gem::Common::t_circle> GImageIndividual::getTriangleData() const {
 
 		angle3 = Gem::Common::gmin(angle3, 0.99999999);
 
-		circle_vec[i].angle1   = static_cast<float>(angle1);
-		circle_vec[i].angle2   = static_cast<float>(angle2);
-		circle_vec[i].angle3   = static_cast<float>(angle3);
+		circle_cnt[i].angle1   = static_cast<float>(angle1);
+		circle_cnt[i].angle2   = static_cast<float>(angle2);
+		circle_cnt[i].angle3   = static_cast<float>(angle3);
 
-		circle_vec[i].r        = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+6)->value());
-		circle_vec[i].g        = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+7)->value());
-		circle_vec[i].b        = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+8)->value());
-		circle_vec[i].a        = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+9)->value());
+		circle_cnt[i].r        = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+6)->value());
+		circle_cnt[i].g        = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+7)->value());
+		circle_cnt[i].b        = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+8)->value());
+		circle_cnt[i].a        = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+9)->value());
 	}
 
 	if(alphaSort_) {
-		// Sort circle_vec so that items with higher opacity are in the front position
+		// Sort circle_cnt so that items with higher opacity are in the front position
 		std::sort(
-			circle_vec.begin()
-			, circle_vec.end()
+			circle_cnt.begin()
+			, circle_cnt.end()
 			, [](Gem::Common::t_circle& x, Gem::Common::t_circle& y) {
 				return x.getAlphaValue() > y.getAlphaValue();
 			}
 		);
 	}
 
-	return circle_vec;
+	return circle_cnt;
 }
 
 /*******************************************************************************************/

@@ -162,7 +162,7 @@ std::string GParameterSetFixedSizePriorityQueue::id(
 
 /******************************************************************************/
 /**
- * Adds the items in the items_vec vector to the queue. This overload makes sure
+ * Adds the items in the items_cnt vector to the queue. This overload makes sure
  * that only processed items (i.e. without errors and with the PROCESSED flag) are
  * entered into the priority queue.
  */
@@ -173,18 +173,18 @@ void GParameterSetFixedSizePriorityQueue::add(
 ) {
 	// Create a std::vector containing only processed items. We only want
 	// to add "clean" (i.e. processed) individuals to the queue.
-	std::vector<std::shared_ptr<GParameterSet>> processed_vec(items_cnt.size());
+	std::vector<std::shared_ptr<GParameterSet>> processed_cnt(items_cnt.size());
 	auto it = std::copy_if(
 		items_cnt.begin()
 		, items_cnt.end()
-		, processed_vec.begin()
+		, processed_cnt.begin()
 		, [](const std::shared_ptr<GParameterSet>& item_ptr){
 			return item_ptr->is_processed();
 		}
 	);
-	processed_vec.resize(std::distance(processed_vec.begin(), it));
+	processed_cnt.resize(std::distance(processed_cnt.begin(), it));
 
-	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(processed_vec, do_clone, do_replace);
+	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::add(processed_cnt, do_clone, do_replace);
 }
 
 /******************************************************************************/
