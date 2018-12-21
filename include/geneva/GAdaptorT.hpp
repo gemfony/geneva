@@ -181,8 +181,7 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves the id of the adaptor. Purely virtual, must be implemented by the
-	  * actual adaptors.
+	  * Retrieves the id of the adaptor.
 	  *
 	  * @return The id of the adaptor
 	  */
@@ -376,11 +375,11 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Retrieves the current value of the adaptionCounter_ variable.
+	  * Retrieves the current value of the m_adaptionCounter variable.
 	  *
-	  * @return The value of the adaptionCounter_ variable
+	  * @return The value of the m_adaptionCounter variable
 	  */
-	 virtual std::uint32_t getAdaptionCounter() const BASE
+	 std::uint32_t getAdaptionCounter() const
 	 {
 		 return m_adaptionCounter;
 	 }
@@ -801,6 +800,7 @@ protected:
 		 m_adProb_reset = p_load->m_adProb_reset;
 	 }
 
+	/***************************************************************************/
 	/** @brief Allow access to this classes compare_ function */
 	friend void Gem::Common::compare_base_t<GAdaptorT<T, fp_type>>(
 		GAdaptorT<T, fp_type> const &
