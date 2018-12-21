@@ -106,14 +106,14 @@ public:
 
     /** @brief Adds the items in the items_vec vector to the queue */
     void add(
-        const std::vector<std::shared_ptr<GParameterSet>> &items_vec
+        std::vector<std::shared_ptr<GParameterSet>> const &items_vec
         , bool do_clone
         , bool replace
     ) override;
 
     /** @brief Adds a single item to the queue */
     void add(
-        std::shared_ptr<GParameterSet> item
+        std::shared_ptr<GParameterSet> const& item
         , bool do_clone
     ) override;
 

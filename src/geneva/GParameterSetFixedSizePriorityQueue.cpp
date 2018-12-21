@@ -115,7 +115,7 @@ Gem::Common::GFixedSizePriorityQueueT<GParameterSet> * GParameterSetFixedSizePri
  */
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 	pos = 0;
-	for(const auto& item_ptr: m_data) {
+	for(const auto& item_ptr: m_data_deq) {
 		if (not item_ptr->is_processed()) { return false; }
 		pos++;
 	}
@@ -130,7 +130,7 @@ bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 std::string GParameterSetFixedSizePriorityQueue::getCleanStatus() const {
 	std::size_t pos = 0;
 	std::ostringstream oss;
-	for(const auto& item_ptr: m_data) {
+	for(const auto& item_ptr: m_data_deq) {
 		oss << "(" << pos++ << ", " << (not item_ptr->is_processed() ? "d" : "c") << ") ";
 	}
 
@@ -167,7 +167,7 @@ std::string GParameterSetFixedSizePriorityQueue::id(
  * entered into the priority queue.
  */
 void GParameterSetFixedSizePriorityQueue::add(
-	const std::vector<std::shared_ptr<GParameterSet>>& items_vec
+    std::vector<std::shared_ptr<GParameterSet>> const & items_vec
 	, bool do_clone
 	, bool do_replace
 ) {
@@ -194,7 +194,7 @@ void GParameterSetFixedSizePriorityQueue::add(
  * entered into the priority queue.
  */
 void GParameterSetFixedSizePriorityQueue::add(
-	std::shared_ptr<GParameterSet> item_ptr
+	std::shared_ptr<GParameterSet> const & item_ptr
 	, bool do_clone
 ) {
 	if(item_ptr->is_processed()) {

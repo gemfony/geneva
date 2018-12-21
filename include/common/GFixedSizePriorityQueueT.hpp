@@ -95,7 +95,7 @@ class GFixedSizePriorityQueueT
 		 using boost::serialization::make_nvp;
 
 		 ar
-		 & BOOST_SERIALIZATION_NVP(m_data)
+		 & BOOST_SERIALIZATION_NVP(m_data_deq)
 		 & BOOST_SERIALIZATION_NVP(m_maxSize)
 		 & BOOST_SERIALIZATION_NVP(m_sortOrder);
 	 }
@@ -135,7 +135,7 @@ public:
 		 : m_maxSize(cp.m_maxSize)
 		 , m_sortOrder(cp.m_sortOrder)
 	 {
-         Gem::Common::copyCloneableSmartPointerContainer(cp.m_data, m_data);
+         Gem::Common::copyCloneableSmartPointerContainer(cp.m_data_deq, m_data_deq);
 	 }
 
 	 /***************************************************************************/
@@ -143,8 +143,8 @@ public:
 	  * The move constructor
 	  */
 	 GFixedSizePriorityQueueT(GFixedSizePriorityQueueT<T> && cp) noexcept {
-	 	m_data = std::move(cp.m_data);
-	 	cp.m_data.clear();
+	 	m_data_deq = std::move(cp.m_data_deq);
+	 	cp.m_data_deq.clear();
 
 	 	m_maxSize = cp.m_maxSize;
 	 	cp.m_maxSize = 10; // default value
@@ -167,7 +167,7 @@ public:
 		 m_maxSize = cp.m_maxSize;
 		 m_sortOrder = cp.m_sortOrder;
 
-         Gem::Common::copyCloneableSmartPointerContainer(cp.m_data, m_data);
+         Gem::Common::copyCloneableSmartPointerContainer(cp.m_data_deq, m_data_deq);
 
 		 return *this;
 	 }
@@ -183,8 +183,8 @@ public:
 		m_sortOrder = cp.m_sortOrder;
 		cp.m_sortOrder = Gem::Common::sortOrder::LOWERISBETTER;
 
-		m_data = std::move(cp.m_data);
-		cp.m_data.clear();
+		m_data_deq = std::move(cp.m_data_deq);
+		cp.m_data_deq.clear();
 
 		return *this;
 	 }
@@ -194,7 +194,7 @@ public:
 	  * Gives access to the best item without copying it
 	  */
 	 std::shared_ptr<T> best() const {
-		 if (m_data.empty()) {
+		 if (m_data_deq.empty()) {
 			 // Throw an exception
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -202,7 +202,7 @@ public:
 					 << "Priority queue is empty." << std::endl
 			 );
 		 } else {
-			 return m_data.front();
+			 return m_data_deq.front();
 		 }
 	 }
 
@@ -211,7 +211,7 @@ public:
 	  * Gives access to the worst item without copying it
 	  */
 	 std::shared_ptr<T> worst() const {
-		 if (m_data.empty()) {
+		 if (m_data_deq.empty()) {
 			 // Throw an exception
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -219,7 +219,7 @@ public:
 					 << "Priority queue is empty." << std::endl
 			 );
 		 } else {
-			 return m_data.back();
+			 return m_data_deq.back();
 		 }
 	 }
 
@@ -252,47 +252,47 @@ public:
 	  * @param do_clone If set to true, work items will be cloned. Otherwise only the smart pointer will be added
 	  */
 	 virtual void add(
-		 std::shared_ptr<T> item
+		 std::shared_ptr<T> const & item
 		 , bool do_clone
 	 ) BASE {
 		 // Add the work item to the queue
 		 // - If the queue is unlimited
 		 // - If the queue isn't full yet
 		 // - If the item is better than the worst one contained in the queue
-		 if (0 == m_maxSize || m_data.size() < m_maxSize ||
+		 if (0 == m_maxSize || m_data_deq.size() < m_maxSize ||
 			  isBetter(this->evaluation(item), this->evaluation(this->worst()))) {
 			 if (do_clone) {
-				 m_data.push_back(item->template clone<T>());
+				 m_data_deq.push_back(item->template clone<T>());
 			 } else {
-				 m_data.push_back(item);
+				 m_data_deq.push_back(item);
 			 }
 		 }
 
 		 // Sort the data according to their ids, so we may remove duplicates
 		 std::sort(
-			 m_data.begin()
-			 , m_data.end()
-			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
+			 m_data_deq.begin()
+			 , m_data_deq.end()
+			 , [this](std::shared_ptr<T> const & x_ptr, std::shared_ptr<T> const & y_ptr) -> bool {
 				 return (this->id(x_ptr) < this->id(y_ptr));
 			 }
 		 );
 
 		 // Remove duplicate items
-		 m_data.erase(
+		 m_data_deq.erase(
 			 std::unique(
-				 m_data.begin()
-				 , m_data.end()
-				 , [this](const std::shared_ptr <T> &x_ptr, const std::shared_ptr <T> &y_ptr) -> bool {
+				 m_data_deq.begin()
+				 , m_data_deq.end()
+				 , [this](std::shared_ptr<T> const & x_ptr, std::shared_ptr <T> const & y_ptr) -> bool {
 					 return (this->id(x_ptr) == this->id(y_ptr));
 				 }
-			 ), m_data.end()
+			 ), m_data_deq.end()
 		 );
 
 		 // Sort the data according to the evaluation
 		 std::sort(
-			 m_data.begin()
-			 , m_data.end()
-			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
+			 m_data_deq.begin()
+			 , m_data_deq.end()
+			 , [this](std::shared_ptr<T> const & x_ptr, std::shared_ptr<T> const & y_ptr) -> bool {
 				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) { // higher is better
 					 return this->evaluation(x_ptr) < this->evaluation(y_ptr);
 				 } else { // HIGHERISBETTER
@@ -304,8 +304,8 @@ public:
 		 // Remove surplus work items, if the queue has reached the corresponding size
 		 // As the worst items are not at the end of the queue, they will be removed, if
 		 // they are beyond the allowed size. This will only have an effect if m_maxSize is != 0 .
-		 if (m_maxSize && m_data.size() > m_maxSize) {
-			 m_data.resize(m_maxSize);
+		 if (m_maxSize && m_data_deq.size() > m_maxSize) {
+			 m_data_deq.resize(m_maxSize);
 		 }
 	 }
 
@@ -321,13 +321,13 @@ public:
 	  * @param replace If set to true, the queue will be emptied before adding new work items
 	  */
 	 virtual void add(
-		 const std::vector<std::shared_ptr<T>>& items
+		 std::vector<std::shared_ptr<T>> const & items
 		 , bool do_clone
 		 , bool replace
 	 ) BASE {
 		 double worstKnownEvaluation = Gem::Common::getWorstCase<double>(m_sortOrder);
-		 if (replace || m_data.empty()) {
-			 m_data.clear();
+		 if (replace || m_data_deq.empty()) {
+			 m_data_deq.clear();
 		 } else {
 			 // Data already exists, we know better than the worst known valid
 			 worstKnownEvaluation = this->evaluation(this->worst());
@@ -336,44 +336,44 @@ public:
 		 // At this point, worstKnownEvaluation will be
 		 // - the worst case, if the queue is empty or all entries in the queue will be replaced
 		 // - the evaluation of the worst entry in the queue if we only add items (regardless of whether they will be cloned or not)
-		 for(const auto& item_ptr: items) {
+		 for(auto const & item_ptr: items) {
 			 // Add the work item to the queue
 			 // - If the queue is unlimited
 			 // - If the queue isn't full yet
 			 // - If the item is better than the worst one already contained in the queue
-			 if (0 == m_maxSize || m_data.size() < m_maxSize || isBetter(this->evaluation(item_ptr), worstKnownEvaluation)) {
+			 if (0 == m_maxSize || m_data_deq.size() < m_maxSize || isBetter(this->evaluation(item_ptr), worstKnownEvaluation)) {
 				 if (do_clone) {
-					 m_data.push_back(item_ptr->template clone<T>());
+					 m_data_deq.push_back(item_ptr->template clone<T>());
 				 } else {
-					 m_data.push_back(item_ptr);
+					 m_data_deq.push_back(item_ptr);
 				 }
 			 }
 		 }
 
 		 // Sort the data according to their ids, so we may remove duplicates
 		 std::sort(
-			 m_data.begin()
-			 , m_data.end()
-			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
+			 m_data_deq.begin()
+			 , m_data_deq.end()
+			 , [this](std::shared_ptr<T> const & x_ptr, std::shared_ptr<T> const & y_ptr) -> bool {
 				 return (this->id(x_ptr) < this->id(y_ptr));
 			 }
 		 );
 
 		 // Remove duplicate items
-		 m_data.erase(
+		 m_data_deq.erase(
 			 std::unique(
-				 m_data.begin()
-				 , m_data.end()
-				 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &_ptr) -> bool {
-					 return (this->id(x_ptr) == this->id(_ptr));
+				 m_data_deq.begin()
+				 , m_data_deq.end()
+				 , [this](std::shared_ptr<T> const & x_ptr, std::shared_ptr<T> const & y_ptr) -> bool {
+					 return (this->id(x_ptr) == this->id(y_ptr));
 				 }
-			 ), m_data.end()
+			 ), m_data_deq.end()
 		 );
 
 		 std::sort(
-			 m_data.begin()
-			 , m_data.end()
-			 , [this](const std::shared_ptr<T> &x_ptr, const std::shared_ptr<T> &y_ptr) -> bool {
+			 m_data_deq.begin()
+			 , m_data_deq.end()
+			 , [this](std::shared_ptr<T> const & x_ptr, std::shared_ptr<T> const & y_ptr) -> bool {
 				 if (this->getSortOrder() == Gem::Common::sortOrder::LOWERISBETTER) {
 					 return this->evaluation(x_ptr) < this->evaluation(y_ptr);
 				 } else {
@@ -384,8 +384,8 @@ public:
 
 		 // Remove surplus work items, if the queue has reached the corresponding size
 		 // This will only have an effect if m_maxSize is != 0
-		 if (m_maxSize && m_data.size() > m_maxSize) {
-			 m_data.resize(m_maxSize);
+		 if (m_maxSize && m_data_deq.size() > m_maxSize) {
+			 m_data_deq.resize(m_maxSize);
 		 }
 	 }
 
@@ -394,7 +394,7 @@ public:
 	  * Removes the best item from the queue and returns it
 	  */
 	 std::shared_ptr<T> pop() {
-		 if (m_data.empty()) {
+		 if (m_data_deq.empty()) {
 			 // Throw an exception
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
@@ -402,8 +402,8 @@ public:
 					 << "Priority queue is empty." << std::endl
 			 );
 		 } else {
-			 auto item_ptr = m_data.front();
-			 m_data.pop_front();
+			 auto item_ptr = m_data_deq.front();
+			 m_data_deq.pop_front();
 			 return item_ptr;
 		 }
 	 }
@@ -415,7 +415,7 @@ public:
 	 std::vector<std::shared_ptr<T>> toVector() const {
 		 std::vector<std::shared_ptr<T>> result;
 
-		 for(const auto& item_ptr: m_data) {
+		 for(auto const & item_ptr: m_data_deq) {
 			 result.push_back(item_ptr);
 		 }
 
@@ -427,7 +427,7 @@ public:
 	  * Returns the current size of the queue
 	  */
 	 std::size_t size() const {
-		 return m_data.size();
+		 return m_data_deq.size();
 	 }
 
 	 /***************************************************************************/
@@ -435,7 +435,7 @@ public:
 	  * Checks whether the data is empty
 	  */
 	 bool empty() const {
-		 return m_data.empty();
+		 return m_data_deq.empty();
 	 }
 
 	 /***************************************************************************/
@@ -443,7 +443,7 @@ public:
 	  * Allows to clear the queue
 	  */
 	 void clear() {
-		 m_data.clear();
+		 m_data_deq.clear();
 	 }
 
 	 /***************************************************************************/
@@ -452,8 +452,8 @@ public:
 	  */
 	 void setMaxSize(std::size_t maxSize) {
 		 // Make sure the current size of m_data complies with maxSize
-		 if (m_data.size() > maxSize) {
-			 m_data.resize(maxSize);
+		 if (m_data_deq.size() > maxSize) {
+			 m_data_deq.resize(maxSize);
 		 }
 
 		 m_maxSize = maxSize;
@@ -478,7 +478,7 @@ protected:
 		 	= Gem::Common::g_convert_and_compare<GFixedSizePriorityQueueT<T>, GFixedSizePriorityQueueT<T>>(cp, this);
 
 		 // Load local data
-		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_data, m_data);
+		 Gem::Common::copyCloneableSmartPointerContainer(p_load->m_data_deq, m_data_deq);
 		 m_maxSize = p_load->m_maxSize;
 		 m_sortOrder = p_load->m_sortOrder;
 	 }
@@ -517,7 +517,7 @@ protected:
 		Gem::Common::compare_base_t<GCommonInterfaceT<GFixedSizePriorityQueueT<T>>>(*this, *p_load, token);
 
 		// ... and then our local data
-		compare_t(IDENTITY(m_data, p_load->m_data), token);
+		compare_t(IDENTITY(m_data_deq, p_load->m_data_deq), token);
 		compare_t(IDENTITY(m_maxSize, p_load->m_maxSize), token);
 		compare_t(IDENTITY(m_sortOrder, p_load->m_sortOrder), token);
 
@@ -552,8 +552,8 @@ protected:
 	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(
-             double new_item_val
-             , std::shared_ptr<T> const& old_item_ptr
+         double new_item_val
+         , std::shared_ptr<T> const& old_item_ptr
      ) const {
          return this->isBetter(new_item_val, this->evaluation(old_item_ptr));
 	 }
@@ -579,7 +579,7 @@ protected:
 	 /** @brief Returns a unique id for a work item */
 	 virtual G_API_COMMON std::string id(const std::shared_ptr<T> &) const BASE = 0;
 
-	 std::deque<std::shared_ptr<T>> m_data; ///< Holds the actual data
+	 std::deque<std::shared_ptr<T>> m_data_deq; ///< Holds the actual data
 
 	 std::size_t m_maxSize = 10; ///< The maximum number of work-items
 	 Gem::Common::sortOrder m_sortOrder = Gem::Common::sortOrder::LOWERISBETTER; ///< Indicates whether higher evaluations of items indicate a higher priority
