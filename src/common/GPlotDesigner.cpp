@@ -3099,9 +3099,9 @@ GPlotDesigner::GPlotDesigner(
 	, const std::size_t &c_x_div
 	, const std::size_t &c_y_div
 )
-	: c_x_div_(c_x_div)
-	  , c_y_div_(c_y_div)
-	  , canvasLabel_(canvasLabel)
+	: m_c_x_div(c_x_div)
+	  , m_c_y_div(c_y_div)
+	  , m_canvas_label(canvasLabel)
 { /* nothing */ }
 
 /******************************************************************************/
@@ -3109,16 +3109,16 @@ GPlotDesigner::GPlotDesigner(
  * The copy constructor
  */
 GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
-	: c_x_div_(cp.c_x_div_)
-	, c_y_div_(cp.c_y_div_)
-	, c_x_dim_(cp.c_x_dim_)
-	, c_y_dim_(cp.c_y_dim_)
-	, canvasLabel_(cp.canvasLabel_)
-	, addPrintCommand_(cp.addPrintCommand_)
-	, nIndentionSpaces_(cp.nIndentionSpaces_)
+	: m_c_x_div(cp.m_c_x_div)
+	, m_c_y_div(cp.m_c_y_div)
+	, m_c_x_dim(cp.m_c_x_dim)
+	, m_c_y_dim(cp.m_c_y_dim)
+	, m_canvas_label(cp.m_canvas_label)
+	, m_add_print_command(cp.m_add_print_command)
+	, m_n_indention_spaces(cp.m_n_indention_spaces)
 {
 	// Copy any secondary plotters over
-	copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
+	copyCloneableSmartPointerContainer<GBasePlotter>(cp.m_plotters_vec, m_plotters_vec);
 }
 
 /******************************************************************************/
@@ -3126,16 +3126,16 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
  * The assignment operator
  */
 GPlotDesigner& GPlotDesigner::operator=(GPlotDesigner const& cp) {
-	c_x_div_ = cp.c_x_div_;
-	c_y_div_ = cp.c_y_div_;
-	c_x_dim_ = cp.c_x_dim_;
-	c_y_dim_ = cp.c_y_dim_;
-	canvasLabel_      = cp.canvasLabel_;
-	addPrintCommand_  = cp.addPrintCommand_;
-	nIndentionSpaces_ = cp.nIndentionSpaces_;
+	m_c_x_div = cp.m_c_x_div;
+	m_c_y_div = cp.m_c_y_div;
+	m_c_x_dim = cp.m_c_x_dim;
+	m_c_y_dim = cp.m_c_y_dim;
+	m_canvas_label      = cp.m_canvas_label;
+	m_add_print_command  = cp.m_add_print_command;
+	m_n_indention_spaces = cp.m_n_indention_spaces;
 
 	// Copy any secondary plotters over
-	copyCloneableSmartPointerContainer<GBasePlotter>(cp.plotters_, plotters_);
+	copyCloneableSmartPointerContainer<GBasePlotter>(cp.m_plotters_vec, m_plotters_vec);
 
 	return *this;
 }
@@ -3158,12 +3158,12 @@ void GPlotDesigner::writeToFile(const boost::filesystem::path &fileName) {
  */
 std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 	std::ostringstream result;
-	std::size_t maxPlots = c_x_div_ * c_y_div_;
+	std::size_t maxPlots = m_c_x_div * m_c_y_div;
 
-	if (plotters_.size() > maxPlots) {
+	if (m_plotters_vec.size() > maxPlots) {
 		glogger
 			<< "In GPlotDesigner::plot() (Canvas label = \"" << this->getCanvasLabel() << "\":" << std::endl
-			<< "Warning! Found more plots than pads (" << plotters_.size() << " vs. " << maxPlots << ")" << std::endl
+			<< "Warning! Found more plots than pads (" << m_plotters_vec.size() << " vs. " << maxPlots << ")" << std::endl
 			<< "Some of the plots will be ignored" << std::endl
 			<< GWARNING;
 	}
@@ -3182,7 +3182,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 	std::size_t nPlots = 0;
 	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
 		it;
-	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
+	for (it = m_plotters_vec.begin(); it != m_plotters_vec.end(); ++it) {
 		if (nPlots++ < maxPlots) {
 			result
 				<< (*it)->headerData(indent()) << std::endl;
@@ -3195,7 +3195,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 		<< std::endl;
 
 	nPlots = 0;
-	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
+	for (it = m_plotters_vec.begin(); it != m_plotters_vec.end(); ++it) {
 		if (nPlots++ < maxPlots) {
 			result
 				<< (*it)->bodyData(indent()) << std::endl;
@@ -3208,7 +3208,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 		<< std::endl;
 
 	nPlots = 0;
-	for (it = plotters_.begin(); it != plotters_.end(); ++it) {
+	for (it = m_plotters_vec.begin(); it != m_plotters_vec.end(); ++it) {
 		if (nPlots < maxPlots) {
 			result
 				<< indent() << "graphPad->cd(" << nPlots + 1 << ");" << std::endl /* cd starts at 1 */
@@ -3223,7 +3223,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 		<< indent() << "cc->cd();" << std::endl;
 
 	// Check if we are supposed to output a png file
-	if (addPrintCommand_ && plotName.string() != "empty" && not (plotName.string()).empty()) {
+	if (m_add_print_command && plotName.string() != "empty" && not (plotName.string()).empty()) {
 		std::string plotName_local = plotName.string(); // Make sure there are no white spaces
 		boost::trim(plotName_local);
 		result
@@ -3251,14 +3251,14 @@ std::string GPlotDesigner::staticHeader(const std::string& indent) const {
 		<< indent << "gStyle->SetStatBorderSize(1);" << std::endl
 		<< indent << "gStyle->SetOptStat(0);" << std::endl
 		<< std::endl
-		<< indent << "TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0," << c_x_dim_ << "," << c_y_dim_ << ");" << std::endl
+		<< indent << "TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0," << m_c_x_dim << "," << m_c_y_dim << ");" << std::endl
 		<< std::endl
-		<< indent << "TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \"" << canvasLabel_ << "\");" << std::endl
+		<< indent << "TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \"" << m_canvas_label << "\");" << std::endl
 		<< indent << "canvasTitle->Draw();" << std::endl
 		<< std::endl
 		<< indent << "TPad* graphPad = new TPad(\"Graphs\", \"Graphs\", 0.01, 0.01, 0.99, 0.94);" << std::endl
 		<< indent << "graphPad->Draw();" << std::endl
-		<< indent << "graphPad->Divide(" << c_x_div_ << "," << c_y_div_ << ");" << std::endl
+		<< indent << "graphPad->Divide(" << m_c_x_div << "," << m_c_y_div << ");" << std::endl
 		<< std::endl;
 
 	return result.str();
@@ -3272,8 +3272,8 @@ std::string GPlotDesigner::staticHeader(const std::string& indent) const {
  */
 void GPlotDesigner::registerPlotter(std::shared_ptr < GBasePlotter > plotter_ptr) {
 	if (plotter_ptr) {
-		plotter_ptr->setId(plotters_.size());
-		plotters_.push_back(plotter_ptr);
+		plotter_ptr->setId(m_plotters_vec.size());
+		m_plotters_vec.push_back(plotter_ptr);
 	} else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -3293,8 +3293,8 @@ void GPlotDesigner::registerPlotter(std::shared_ptr < GBasePlotter > plotter_ptr
 void GPlotDesigner::setCanvasDimensions(
 	const std::uint32_t &c_x_dim, const std::uint32_t &c_y_dim
 ) {
-	c_x_dim_ = c_x_dim;
-	c_y_dim_ = c_y_dim;
+	m_c_x_dim = c_x_dim;
+	m_c_y_dim = c_y_dim;
 }
 
 /******************************************************************************/
@@ -3317,7 +3317,7 @@ void GPlotDesigner::setCanvasDimensions(
  * @return A std::tuple holding the canvas dimensions
  */
 std::tuple<std::uint32_t, std::uint32_t> GPlotDesigner::getCanvasDimensions() const {
-	return std::tuple<std::uint32_t, std::uint32_t>{c_x_dim_, c_y_dim_};
+	return std::tuple<std::uint32_t, std::uint32_t>{m_c_x_dim, m_c_y_dim};
 }
 
 /******************************************************************************/
@@ -3325,7 +3325,7 @@ std::tuple<std::uint32_t, std::uint32_t> GPlotDesigner::getCanvasDimensions() co
  * Allows to set the canvas label
  */
 void GPlotDesigner::setCanvasLabel(const std::string &canvasLabel) {
-	canvasLabel_ = canvasLabel;
+	m_canvas_label = canvasLabel;
 }
 
 /******************************************************************************/
@@ -3333,7 +3333,7 @@ void GPlotDesigner::setCanvasLabel(const std::string &canvasLabel) {
  * Allows to retrieve the canvas label
  */
 std::string GPlotDesigner::getCanvasLabel() const {
-	return canvasLabel_;
+	return m_canvas_label;
 }
 
 /******************************************************************************/
@@ -3341,7 +3341,7 @@ std::string GPlotDesigner::getCanvasLabel() const {
  * Allows to add a "Print" command to the end of the script so that picture files are created
  */
 void GPlotDesigner::setAddPrintCommand(bool addPrintCommand) {
-	addPrintCommand_ = addPrintCommand;
+	m_add_print_command = addPrintCommand;
 }
 
 /******************************************************************************/
@@ -3349,7 +3349,7 @@ void GPlotDesigner::setAddPrintCommand(bool addPrintCommand) {
  * Allows to retrieve the current value of the addPrintCommand_ variable
  */
 bool GPlotDesigner::getAddPrintCommand() const {
-	return addPrintCommand_;
+	return m_add_print_command;
 }
 
 /******************************************************************************/
@@ -3359,7 +3359,7 @@ bool GPlotDesigner::getAddPrintCommand() const {
 void GPlotDesigner::setNIndentionSpaces(
 	const std::size_t& nIndentionSpaces
 ) {
-	nIndentionSpaces_ = nIndentionSpaces;
+	m_n_indention_spaces = nIndentionSpaces;
 }
 
 /******************************************************************************/
@@ -3367,7 +3367,7 @@ void GPlotDesigner::setNIndentionSpaces(
  * Allows to retrieve the number spaces used for indention
  */
 std::size_t GPlotDesigner::getNIndentionSpaces() const {
-	return nIndentionSpaces_;
+	return m_n_indention_spaces;
 }
 
 /******************************************************************************/
@@ -3375,7 +3375,7 @@ std::size_t GPlotDesigner::getNIndentionSpaces() const {
  * Returns the current number of indention spaces as a string
  */
 std::string GPlotDesigner::indent() const {
-	return std::string(nIndentionSpaces_, ' ');
+	return std::string(m_n_indention_spaces, ' ');
 }
 
 /******************************************************************************/
@@ -3383,7 +3383,7 @@ std::string GPlotDesigner::indent() const {
  * Resets the plotters
  */
 void GPlotDesigner::resetPlotters() {
-	plotters_.clear();
+	m_plotters_vec.clear();
 }
 
 /******************************************************************************/
@@ -3413,14 +3413,14 @@ void GPlotDesigner::compare_(
 	compare_base_t<GCommonInterfaceT<GPlotDesigner>>(*this, *p_load, token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(plotters_, p_load->plotters_), token);
-	compare_t(IDENTITY(c_x_div_, p_load->c_x_div_), token);
-	compare_t(IDENTITY(c_y_div_, p_load->c_y_div_), token);
-	compare_t(IDENTITY(c_x_dim_, p_load->c_x_dim_), token);
-	compare_t(IDENTITY(c_y_dim_, p_load->c_y_dim_), token);
-	compare_t(IDENTITY(canvasLabel_, p_load->canvasLabel_), token);
-	compare_t(IDENTITY(addPrintCommand_, p_load->addPrintCommand_), token);
-	compare_t(IDENTITY(nIndentionSpaces_, p_load->nIndentionSpaces_), token);
+	compare_t(IDENTITY(m_plotters_vec, p_load->m_plotters_vec), token);
+	compare_t(IDENTITY(m_c_x_div, p_load->m_c_x_div), token);
+	compare_t(IDENTITY(m_c_y_div, p_load->m_c_y_div), token);
+	compare_t(IDENTITY(m_c_x_dim, p_load->m_c_x_dim), token);
+	compare_t(IDENTITY(m_c_y_dim, p_load->m_c_y_dim), token);
+	compare_t(IDENTITY(m_canvas_label, p_load->m_canvas_label), token);
+	compare_t(IDENTITY(m_add_print_command, p_load->m_add_print_command), token);
+	compare_t(IDENTITY(m_n_indention_spaces, p_load->m_n_indention_spaces), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -3445,14 +3445,14 @@ void GPlotDesigner::load_(const GPlotDesigner* cp) {
 	// No "loadable" parent class
 
 	// Load local data
-	copyCloneableSmartPointerContainer(p_load->plotters_, plotters_);
-	c_x_div_           = p_load->c_x_div_;
-	c_y_div_           = p_load->c_y_div_;
-	c_x_dim_           = p_load->c_x_dim_;
-	c_y_dim_           = p_load->c_y_dim_;
-	canvasLabel_       = p_load->canvasLabel_;
-	addPrintCommand_   = p_load->addPrintCommand_;
-	nIndentionSpaces_  = p_load->nIndentionSpaces_;
+	copyCloneableSmartPointerContainer(p_load->m_plotters_vec, m_plotters_vec);
+	m_c_x_div           = p_load->m_c_x_div;
+	m_c_y_div           = p_load->m_c_y_div;
+	m_c_x_dim           = p_load->m_c_x_dim;
+	m_c_y_dim           = p_load->m_c_y_dim;
+	m_canvas_label       = p_load->m_canvas_label;
+	m_add_print_command   = p_load->m_add_print_command;
+	m_n_indention_spaces  = p_load->m_n_indention_spaces;
 }
 
 /******************************************************************************/

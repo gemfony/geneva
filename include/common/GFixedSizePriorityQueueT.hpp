@@ -108,7 +108,7 @@ public:
 	  *
 	  * @param maxSize The maximum size of the queue
 	  */
-	 explicit GFixedSizePriorityQueueT(const std::size_t &maxSize)
+	 explicit GFixedSizePriorityQueueT(size_t maxSize)
 		 : m_maxSize(maxSize)
 	 { /* nothing */ }
 
@@ -120,9 +120,9 @@ public:
 	  * @param maxSize The maximum size of the queue
 	  */
 	 GFixedSizePriorityQueueT(
-		 const std::size_t &maxSize
-		 , const Gem::Common::sortOrder &sortOrder
-	 )
+         size_t maxSize
+         , sortOrder sortOrder
+     )
 		 : m_maxSize(maxSize)
 		 , m_sortOrder(sortOrder)
 	 { /* nothing */ }
@@ -131,13 +131,11 @@ public:
 	 /**
 	  * The copy constructor
 	  */
-	 GFixedSizePriorityQueueT(const GFixedSizePriorityQueueT<T> &cp)
+	 GFixedSizePriorityQueueT(GFixedSizePriorityQueueT<T> const &cp)
 		 : m_maxSize(cp.m_maxSize)
 		 , m_sortOrder(cp.m_sortOrder)
 	 {
-		 for(auto const & data_ptr: cp.m_data) {
-			 m_data.push_back(data_ptr->template clone<T>());
-		 }
+         Gem::Common::copyCloneableSmartPointerContainer(cp.m_data, m_data);
 	 }
 
 	 /***************************************************************************/
@@ -169,10 +167,7 @@ public:
 		 m_maxSize = cp.m_maxSize;
 		 m_sortOrder = cp.m_sortOrder;
 
-		 m_data.clear();
-		 for(auto const & data_ptr: cp.m_data) {
-			 m_data.push_back(data_ptr->template clone<T>());
-		 }
+         Gem::Common::copyCloneableSmartPointerContainer(cp.m_data, m_data);
 
 		 return *this;
 	 }
@@ -535,14 +530,10 @@ protected:
 	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(
-	 	std::shared_ptr<T> new_item_ptr
-	 	, std::shared_ptr<T> old_item_ptr
+	 	std::shared_ptr<T> const& new_item_ptr
+	 	, std::shared_ptr<T> const& old_item_ptr
 	 ) const {
-		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 return this->evaluation(new_item_ptr) < this->evaluation(old_item_ptr);
-		 } else { // higher is better
-			 return this->evaluation(new_item_ptr) > this->evaluation(old_item_ptr);
-		 }
+	     return this->isBetter(this->evaluation(new_item_ptr), this->evaluation(old_item_ptr));
 	 }
 
 	 /***************************************************************************/
@@ -550,14 +541,10 @@ protected:
 	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(
-	 	std::shared_ptr<T> new_item_ptr
-	 	, const double &old_item_val
+	 	std::shared_ptr<T> const& new_item_ptr
+	 	, double old_item_val
 	 ) const {
-		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 return this->evaluation(new_item_ptr) < old_item_val;
-		 } else { // higher is better
-			 return this->evaluation(new_item_ptr) > old_item_val;
-		 }
+         return this->isBetter(this->evaluation(new_item_ptr), old_item_val);
 	 }
 
 	 /***************************************************************************/
@@ -565,14 +552,10 @@ protected:
 	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(
-	 	const double &new_item_val
-	 	, std::shared_ptr<T> old_item_ptr
-	 ) const {
-		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 return new_item_val < this->evaluation(old_item_ptr);
-		 } else { // higher is better
-			 return new_item_val > this->evaluation(old_item_ptr);
-		 }
+             double new_item_val
+             , std::shared_ptr<T> const& old_item_ptr
+     ) const {
+         return this->isBetter(new_item_val, this->evaluation(old_item_ptr));
 	 }
 
 	 /***************************************************************************/
@@ -580,14 +563,13 @@ protected:
 	  * Checks whether value new_item is better than value old_item
 	  */
 	 bool isBetter(
-	 	const double &new_item_val
-	 	, const double &old_item_val
+         double new_item_val
+	 	, double old_item_val
 	) const {
-		 if (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER) {
-			 return new_item_val < old_item_val;
-		 } else { // higher is better
-			 return new_item_val > old_item_val;
-		 }
+	     return
+	        (m_sortOrder == Gem::Common::sortOrder::LOWERISBETTER)
+	        ? (new_item_val < old_item_val)
+	        : (new_item_val > old_item_val);
 	 }
 
 	 /***************************************************************************/

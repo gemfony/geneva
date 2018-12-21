@@ -116,7 +116,7 @@ Gem::Common::GFixedSizePriorityQueueT<GParameterSet> * GParameterSetFixedSizePri
 bool GParameterSetFixedSizePriorityQueue::allClean(std::size_t &pos) const {
 	pos = 0;
 	for(const auto& item_ptr: m_data) {
-		if (false == item_ptr->is_processed()) { return false; }
+		if (not item_ptr->is_processed()) { return false; }
 		pos++;
 	}
 

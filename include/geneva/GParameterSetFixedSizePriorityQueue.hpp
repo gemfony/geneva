@@ -72,8 +72,7 @@ namespace Geneva {
  * the objects.
  */
 class GParameterSetFixedSizePriorityQueue
-    :
-        public Gem::Common::GFixedSizePriorityQueueT<GParameterSet>
+    : public Gem::Common::GFixedSizePriorityQueueT<GParameterSet>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;

@@ -4424,13 +4424,13 @@ class GPlotDesigner
         using boost::serialization::make_nvp;
 
         ar
-        & BOOST_SERIALIZATION_NVP(c_x_div_)
-        & BOOST_SERIALIZATION_NVP(c_y_div_)
-        & BOOST_SERIALIZATION_NVP(c_x_dim_)
-        & BOOST_SERIALIZATION_NVP(c_y_dim_)
-        & BOOST_SERIALIZATION_NVP(canvasLabel_)
-        & BOOST_SERIALIZATION_NVP(addPrintCommand_)
-        & BOOST_SERIALIZATION_NVP(nIndentionSpaces_);
+        & BOOST_SERIALIZATION_NVP(m_c_x_div)
+        & BOOST_SERIALIZATION_NVP(m_c_y_div)
+        & BOOST_SERIALIZATION_NVP(m_c_x_dim)
+        & BOOST_SERIALIZATION_NVP(m_c_y_dim)
+        & BOOST_SERIALIZATION_NVP(m_canvas_label)
+        & BOOST_SERIALIZATION_NVP(m_add_print_command)
+        & BOOST_SERIALIZATION_NVP(m_n_indention_spaces);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -4527,16 +4527,16 @@ private:
     G_API_COMMON GPlotDesigner *clone_() const override;
 
     std::vector<std::shared_ptr<GBasePlotter>>
-        plotters_ = std::vector<std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
+        m_plotters_vec = std::vector<std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
 
-    std::size_t c_x_div_ = 1, c_y_div_ = 1; ///< The number of divisions in x- and y-direction
-    std::uint32_t c_x_dim_ = DEFCXDIM, c_y_dim_ = DEFCYDIM; ///< Holds the number of pixels of the canvas
+    std::size_t m_c_x_div = 1, m_c_y_div = 1; ///< The number of divisions in x- and y-direction
+    std::uint32_t m_c_x_dim = DEFCXDIM, m_c_y_dim = DEFCYDIM; ///< Holds the number of pixels of the canvas
 
-    std::string canvasLabel_ = std::string("empty"); ///< A label to be assigned to the entire canvas
+    std::string m_canvas_label = std::string("empty"); ///< A label to be assigned to the entire canvas
 
-    bool addPrintCommand_ = false; ///< Indicates whether a print command for the creation of a png file should be added
+    bool m_add_print_command = false; ///< Indicates whether a print command for the creation of a png file should be added
 
-    std::size_t nIndentionSpaces_ = std::size_t(DEFNINDENTIONSPACES);
+    std::size_t m_n_indention_spaces = std::size_t(DEFNINDENTIONSPACES);
 
 public:
     /***************************************************************************/
