@@ -1189,9 +1189,10 @@ public:
 		 , std::vector<parameter_type> const &def_val
 		 , bool isEssentialVar
 	 )
-		 : GFileParsableI(
-		 optionNameVar, commentVar, isEssentialVar
-	 ), m_def_val_vec(def_val), m_par_vec() { /* nothing */ }
+		 : GFileParsableI(optionNameVar, commentVar, isEssentialVar)
+		 , m_def_val_cnt(def_val)
+		 , m_par_cnt()
+	 { /* nothing */ }
 
 	 /***************************************************************************/
 	 /**
@@ -1213,12 +1214,12 @@ protected:
 	  * Allows derived classes to reset the default value.
 	  */
 	 void resetDefault(std::vector<parameter_type> const & def_val) {
-		 m_def_val_vec = def_val;
+		 m_def_val_cnt = def_val;
 	 }
 
 	 /***************************************************************************/
-	 std::vector<parameter_type> m_def_val_vec; ///< Holds default values
-	 std::vector<parameter_type> m_par_vec; ///< Holds the parsed parameters
+	 std::vector<parameter_type> m_def_val_cnt; ///< Holds default values
+	 std::vector<parameter_type> m_par_cnt; ///< Holds the parsed parameters
 
 private:
 	 /***************************************************************************/
@@ -1322,11 +1323,11 @@ private:
 		 using namespace boost::property_tree;
 
 		 // Make sure the recipient vector is empty
-		 GVectorParT<parameter_type>::m_par_vec.clear();
+		 GVectorParT<parameter_type>::m_par_cnt.clear();
 
 		 std::string ppath = GParsableI::optionName(0) + ".value";
 		 for(auto const& v: pt.get_child(ppath.c_str())) {
-			 GVectorParT<parameter_type>::m_par_vec.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+			 GVectorParT<parameter_type>::m_par_cnt.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
 		 }
 	 }
 
@@ -1359,7 +1360,7 @@ private:
 		 }
 
 		 // Do some error checking
-		 if (GVectorParT<parameter_type>::m_def_val_vec.empty()) {
+		 if (GVectorParT<parameter_type>::m_def_val_cnt.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GVectorParsableParameter::save_to(): Error!" << std::endl
@@ -1368,8 +1369,8 @@ private:
 		 }
 
 		 // Add the value and default items
-		 auto par_it = GVectorParT<parameter_type>::m_par_vec.cbegin();
-		 for(auto const& def_val: GVectorParT<parameter_type>::m_def_val_vec) {
+		 auto par_it = GVectorParT<parameter_type>::m_par_cnt.cbegin();
+		 for(auto const& def_val: GVectorParT<parameter_type>::m_def_val_cnt) {
 			 pt.add((GParsableI::optionName(0) + ".default.item").c_str(), def_val);
 			 pt.add((GParsableI::optionName(0) + ".value.item").c_str(), *par_it);
 
@@ -1392,7 +1393,7 @@ private:
 		 }
 
 		 // Execute the function
-		 m_call_back_func(GVectorParT<parameter_type>::m_par_vec);
+		 m_call_back_func(GVectorParT<parameter_type>::m_par_cnt);
 	 }
 
 	 /***************************************************************************/
@@ -1481,11 +1482,11 @@ private:
 		 using namespace boost::property_tree;
 
 		 // Make sure the recipient vector is empty
-		 GVectorParT<parameter_type>::m_par_vec.clear();
+		 GVectorParT<parameter_type>::m_par_cnt.clear();
 
 		 std::string ppath = GParsableI::optionName(0) + ".value";
 		 for(auto const& v: pt.get_child(ppath.c_str())) {
-			 GVectorParT<parameter_type>::m_par_vec.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
+			 GVectorParT<parameter_type>::m_par_cnt.push_back(boost::lexical_cast<parameter_type>(v.second.data()));
 		 }
 	 }
 
@@ -1518,7 +1519,7 @@ private:
 		 }
 
 		 // Do some error checking
-		 if (GVectorParT<parameter_type>::m_def_val_vec.empty()) {
+		 if (GVectorParT<parameter_type>::m_def_val_cnt.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GFileVectorReferenceParsableParameterT::save_to(): Error!" << std::endl
@@ -1528,8 +1529,8 @@ private:
 
 
 		 // Add the value and default items
-		 auto par_it = GVectorParT<parameter_type>::m_par_vec.cbegin();
-		 for(auto const& def_val: GVectorParT<parameter_type>::m_def_val_vec) {
+		 auto par_it = GVectorParT<parameter_type>::m_par_cnt.cbegin();
+		 for(auto const& def_val: GVectorParT<parameter_type>::m_def_val_cnt) {
 			 pt.add((GParsableI::optionName(0) + ".default.item").c_str(), def_val);
 			 pt.add((GParsableI::optionName(0) + ".value.item").c_str(), *par_it);
 
@@ -1542,7 +1543,7 @@ private:
 	  * Assigns the parsed parameters to the reference vector
 	  */
 	 void executeCallBackFunction_() override {
-		 m_stored_reference = GVectorParT<parameter_type>::m_par_vec;
+		 m_stored_reference = GVectorParT<parameter_type>::m_par_cnt;
 	 }
 
 	 /***************************************************************************/

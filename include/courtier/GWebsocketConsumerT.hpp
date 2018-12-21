@@ -1192,8 +1192,8 @@ protected:
 
 		 //------------------------------------------------------
 		 // Wait for context threads to finish
-		 for (auto &t: m_io_context_thread_vec) { t.join(); }
-		 m_io_context_thread_vec.clear();
+		 for (auto &t: m_io_context_thread_cnt) { t.join(); }
+		 m_io_context_thread_cnt.clear();
 
 		 //------------------------------------------------------
 	 }
@@ -1311,9 +1311,9 @@ private:
 		 async_start_accept();
 
 		 // Allow to serve requests simultaneously from multiple threads
-		 m_io_context_thread_vec.reserve(m_n_listener_threads);
+		 m_io_context_thread_cnt.reserve(m_n_listener_threads);
 		 for(std::size_t t_cnt=0; t_cnt<m_n_listener_threads; t_cnt++) {
-			 m_io_context_thread_vec.emplace_back(
+			 m_io_context_thread_cnt.emplace_back(
 				 [this](){
 					 this->m_io_context.run();
 				 }
@@ -1485,7 +1485,7 @@ private:
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_context};
 	 boost::asio::ip::tcp::socket m_socket{m_io_context};
 	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
-	 std::vector<std::thread> m_io_context_thread_vec;
+	 std::vector<std::thread> m_io_context_thread_cnt;
 	 std::atomic<std::size_t> m_n_active_sessions{0};
 	 std::size_t m_ping_interval = GBEASTCONSUMERPINGINTERVAL;
 	 bool m_verbose_control_frames = false; ///< Whether the control_callback should emit information when a control frame is received

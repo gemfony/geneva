@@ -169,7 +169,7 @@ void Go2::registerPluggableOM(
 	std::shared_ptr<GBasePluggableOM> pluggableOM
 ) {
 	if (pluggableOM) {
-		m_pluggable_monitors_vec.push_back(pluggableOM);
+		m_pluggable_monitors_cnt.push_back(pluggableOM);
 	} else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -183,7 +183,7 @@ void Go2::registerPluggableOM(
  * Allows to reset the local pluggable optimization monitor
  */
 void Go2::resetPluggableOM() {
-	m_pluggable_monitors_vec.clear();
+	m_pluggable_monitors_cnt.clear();
 }
 
 /******************************************************************************/
@@ -191,7 +191,7 @@ void Go2::resetPluggableOM() {
  * Allows to check whether pluggable optimization monitors were registered
  */
 bool Go2::hasOptimizationMonitors() const {
-	return not m_pluggable_monitors_vec.empty();
+	return not m_pluggable_monitors_cnt.empty();
 }
 
 /******************************************************************************/
@@ -292,7 +292,7 @@ bool Go2::onlyBestIndividualsAreCopied() const {
  * Retrieves the currently registered number of algorithms
  */
 std::size_t Go2::getNAlgorithms() const {
-	return m_algorithms_vec.size();
+	return m_algorithms_cnt.size();
 }
 
 /******************************************************************************/
@@ -322,7 +322,7 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
 		alg->clear();
 	}
 
-	m_algorithms_vec.push_back(alg);
+	m_algorithms_cnt.push_back(alg);
 }
 
 /******************************************************************************/
@@ -335,7 +335,7 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
  * @return The algorithms that were registered with this class
  */
 std::vector<std::shared_ptr<GOABase>> Go2::getRegisteredAlgorithms() {
-	return m_algorithms_vec;
+	return m_algorithms_cnt;
 }
 
 /******************************************************************************/
@@ -413,7 +413,7 @@ void Go2::registerContentCreator(
  */
 const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 	// Check that algorithms have indeed been registered. If not, try to add a default algorithm
-	if (m_algorithms_vec.empty()) {
+	if (m_algorithms_cnt.empty()) {
 		if (not m_default_algorithm) {
 			// No algorithms given, no default algorithm specified by the user:
 			// Simply add the Geneva-side default algorithm
@@ -426,31 +426,31 @@ const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 				<< GLOGGING;
 		}
 
-		m_algorithms_vec.push_back(m_default_algorithm->clone<GOABase>());
+		m_algorithms_cnt.push_back(m_default_algorithm->clone<GOABase>());
 	}
 
 	// Check whether a possible checkpoint file fits the first algorithm in the chain
-	if(m_cp_file != "empty" && not m_algorithms_vec[0]->cp_personality_fits(boost::filesystem::path(m_cp_file))) {
+	if(m_cp_file != "empty" && not m_algorithms_cnt[0]->cp_personality_fits(boost::filesystem::path(m_cp_file))) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::optimize(): Error!" << std::endl
 				<< "Checkpoint file " << m_cp_file << " does not" << std::endl
-				<< "fit requirements of first algorithm " << m_algorithms_vec[0]->getAlgorithmPersonalityType() << std::endl
+				<< "fit requirements of first algorithm " << m_algorithms_cnt[0]->getAlgorithmPersonalityType() << std::endl
 		);
 	}
 
 	// Load the checkpoint file or create individuals from the content creator
 	if(m_cp_file != "empty") {
 		// Load the external data
-		m_algorithms_vec[0]->loadCheckpoint(boost::filesystem::path(m_cp_file));
+		m_algorithms_cnt[0]->loadCheckpoint(boost::filesystem::path(m_cp_file));
 
 		// Make sure the first algorithm starts right after the iteration where the checkpoint file ended
-		m_iterations_consumed = m_algorithms_vec[0]->getIteration() + 1;
+		m_iterations_consumed = m_algorithms_cnt[0]->getIteration() + 1;
 	} else {
 		// Check that individuals have been registered
 		if (this->empty()) {
 			if (m_content_creator_ptr) {
-				for (std::size_t ind = 0; ind < m_algorithms_vec.at(0)->getDefaultPopulationSize(); ind++) {
+				for (std::size_t ind = 0; ind < m_algorithms_cnt.at(0)->getDefaultPopulationSize(); ind++) {
 					std::shared_ptr<GParameterSet> p_ind = (*m_content_creator_ptr)();
 					if (p_ind) {
 						this->push_back(p_ind);
@@ -483,9 +483,9 @@ const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 
 	// Loop over all algorithms
 	m_sorted = false;
-	for (const auto& alg_ptr: m_algorithms_vec) {
+	for (const auto& alg_ptr: m_algorithms_cnt) {
 		// Add the pluggable optimization monitors to the algorithm
-		for(auto const & pm_ptr: m_pluggable_monitors_vec) {
+		for(auto const & pm_ptr: m_pluggable_monitors_cnt) {
 			alg_ptr->registerPluggableOM(pm_ptr);
 		}
 
@@ -949,7 +949,7 @@ void Go2::parseCommandLine(
 				}
 
 				// Retrieve an algorithm from the factory and add it to the list
-				m_algorithms_vec.push_back(p->get());
+				m_algorithms_cnt.push_back(p->get());
 			}
 		}
 

@@ -266,8 +266,8 @@ void GGradientDescent::load_(const GObject *cp) {
 	finiteStep_ = p_load->finiteStep_;
 	stepSize_ = p_load->stepSize_;
 	// stepRatio_ = p_load->stepRatio_; // temporary parameter
-	// m_dbl_lower_parameter_boundaries_vec = p_load->m_dbl_lower_parameter_boundaries_vec; // temporary parameter
-	// m_dbl_upper_parameter_boundaries_vec = p_load->m_dbl_upper_parameter_boundaries_vec; // temporary parameter
+	// m_dbl_lower_parameter_boundaries_cnt = p_load->m_dbl_lower_parameter_boundaries_cnt; // temporary parameter
+	// m_dbl_upper_parameter_boundaries_cnt = p_load->m_dbl_upper_parameter_boundaries_cnt; // temporary parameter
 	// adjustedFiniteStep_ = p_load->adjustedFiniteStep_; // temporary parameter
 }
 

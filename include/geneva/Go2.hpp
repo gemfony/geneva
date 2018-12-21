@@ -248,7 +248,7 @@ private:
 
 	 //---------------------------------------------------------------------------
 	 // The list of "chained" optimization algorithms
-	 std::vector<std::shared_ptr<GOABase>> m_algorithms_vec;
+	 std::vector<std::shared_ptr<GOABase>> m_algorithms_cnt;
 	 // The default algorithm (if any)
 	 std::shared_ptr<GOABase> m_default_algorithm;
 	 // A string representation of the default algorithm
@@ -256,7 +256,7 @@ private:
 	 // Holds an object capable of producing objects of the desired type
 	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_content_creator_ptr;
 	 // A user-defined means for information retrieval
-	 std::vector<std::shared_ptr<GBasePluggableOM>> m_pluggable_monitors_vec;
+	 std::vector<std::shared_ptr<GBasePluggableOM>> m_pluggable_monitors_cnt;
 };
 
 /******************************************************************************/

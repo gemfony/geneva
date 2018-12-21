@@ -265,7 +265,7 @@ class GColumn {
 	 void serialize(Archive &ar, const unsigned int) {
 		 using boost::serialization::make_nvp;
 
-		 ar &BOOST_SERIALIZATION_NVP(m_column_data_vec);
+		 ar &BOOST_SERIALIZATION_NVP(m_column_data_mnt);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
 
@@ -307,7 +307,7 @@ public:
 	 );
 
 private:
-	 std::vector<GRgb> m_column_data_vec;  ///< Holds this column's pixels
+	 std::vector<GRgb> m_column_data_mnt;  ///< Holds this column's pixels
 };
 
 /******************************************************************************/

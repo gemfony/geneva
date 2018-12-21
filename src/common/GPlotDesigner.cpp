@@ -3118,7 +3118,7 @@ GPlotDesigner::GPlotDesigner(const GPlotDesigner& cp)
 	, m_n_indention_spaces(cp.m_n_indention_spaces)
 {
 	// Copy any secondary plotters over
-	copyCloneableSmartPointerContainer<GBasePlotter>(cp.m_plotters_vec, m_plotters_vec);
+	copyCloneableSmartPointerContainer<GBasePlotter>(cp.m_plotters_cnt, m_plotters_cnt);
 }
 
 /******************************************************************************/
@@ -3135,7 +3135,7 @@ GPlotDesigner& GPlotDesigner::operator=(GPlotDesigner const& cp) {
 	m_n_indention_spaces = cp.m_n_indention_spaces;
 
 	// Copy any secondary plotters over
-	copyCloneableSmartPointerContainer<GBasePlotter>(cp.m_plotters_vec, m_plotters_vec);
+	copyCloneableSmartPointerContainer<GBasePlotter>(cp.m_plotters_cnt, m_plotters_cnt);
 
 	return *this;
 }
@@ -3160,10 +3160,10 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 	std::ostringstream result;
 	std::size_t maxPlots = m_c_x_div * m_c_y_div;
 
-	if (m_plotters_vec.size() > maxPlots) {
+	if (m_plotters_cnt.size() > maxPlots) {
 		glogger
 			<< "In GPlotDesigner::plot() (Canvas label = \"" << this->getCanvasLabel() << "\":" << std::endl
-			<< "Warning! Found more plots than pads (" << m_plotters_vec.size() << " vs. " << maxPlots << ")" << std::endl
+			<< "Warning! Found more plots than pads (" << m_plotters_cnt.size() << " vs. " << maxPlots << ")" << std::endl
 			<< "Some of the plots will be ignored" << std::endl
 			<< GWARNING;
 	}
@@ -3182,7 +3182,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 	std::size_t nPlots = 0;
 	std::vector<std::shared_ptr < GBasePlotter>> ::const_iterator
 		it;
-	for (it = m_plotters_vec.begin(); it != m_plotters_vec.end(); ++it) {
+	for (it = m_plotters_cnt.begin(); it != m_plotters_cnt.end(); ++it) {
 		if (nPlots++ < maxPlots) {
 			result
 				<< (*it)->headerData(indent()) << std::endl;
@@ -3195,7 +3195,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 		<< std::endl;
 
 	nPlots = 0;
-	for (it = m_plotters_vec.begin(); it != m_plotters_vec.end(); ++it) {
+	for (it = m_plotters_cnt.begin(); it != m_plotters_cnt.end(); ++it) {
 		if (nPlots++ < maxPlots) {
 			result
 				<< (*it)->bodyData(indent()) << std::endl;
@@ -3208,7 +3208,7 @@ std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
 		<< std::endl;
 
 	nPlots = 0;
-	for (it = m_plotters_vec.begin(); it != m_plotters_vec.end(); ++it) {
+	for (it = m_plotters_cnt.begin(); it != m_plotters_cnt.end(); ++it) {
 		if (nPlots < maxPlots) {
 			result
 				<< indent() << "graphPad->cd(" << nPlots + 1 << ");" << std::endl /* cd starts at 1 */
@@ -3272,8 +3272,8 @@ std::string GPlotDesigner::staticHeader(const std::string& indent) const {
  */
 void GPlotDesigner::registerPlotter(std::shared_ptr < GBasePlotter > plotter_ptr) {
 	if (plotter_ptr) {
-		plotter_ptr->setId(m_plotters_vec.size());
-		m_plotters_vec.push_back(plotter_ptr);
+		plotter_ptr->setId(m_plotters_cnt.size());
+		m_plotters_cnt.push_back(plotter_ptr);
 	} else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -3383,7 +3383,7 @@ std::string GPlotDesigner::indent() const {
  * Resets the plotters
  */
 void GPlotDesigner::resetPlotters() {
-	m_plotters_vec.clear();
+	m_plotters_cnt.clear();
 }
 
 /******************************************************************************/
@@ -3413,7 +3413,7 @@ void GPlotDesigner::compare_(
 	compare_base_t<GCommonInterfaceT<GPlotDesigner>>(*this, *p_load, token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(m_plotters_vec, p_load->m_plotters_vec), token);
+	compare_t(IDENTITY(m_plotters_cnt, p_load->m_plotters_cnt), token);
 	compare_t(IDENTITY(m_c_x_div, p_load->m_c_x_div), token);
 	compare_t(IDENTITY(m_c_y_div, p_load->m_c_y_div), token);
 	compare_t(IDENTITY(m_c_x_dim, p_load->m_c_x_dim), token);
@@ -3445,7 +3445,7 @@ void GPlotDesigner::load_(const GPlotDesigner* cp) {
 	// No "loadable" parent class
 
 	// Load local data
-	copyCloneableSmartPointerContainer(p_load->m_plotters_vec, m_plotters_vec);
+	copyCloneableSmartPointerContainer(p_load->m_plotters_cnt, m_plotters_cnt);
 	m_c_x_div           = p_load->m_c_x_div;
 	m_c_y_div           = p_load->m_c_y_div;
 	m_c_x_dim           = p_load->m_c_x_dim;

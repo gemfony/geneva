@@ -324,23 +324,23 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
 
 	// Load the parameter objects
 	std::vector<std::shared_ptr < bScanPar>> ::const_iterator b_it;
-	for (b_it = cp.m_b_vec.begin(); b_it != cp.m_b_vec.end(); ++b_it) {
-		m_b_vec.push_back((*b_it)->clone());
+	for (b_it = cp.m_b_cnt.begin(); b_it != cp.m_b_cnt.end(); ++b_it) {
+		m_b_cnt.push_back((*b_it)->clone());
 	}
 
 	std::vector<std::shared_ptr < int32ScanPar>> ::const_iterator i_it;
-	for (i_it = cp.m_int32_vec.begin(); i_it != cp.m_int32_vec.end(); ++i_it) {
-		m_int32_vec.push_back((*i_it)->clone());
+	for (i_it = cp.m_int32_cnt.begin(); i_it != cp.m_int32_cnt.end(); ++i_it) {
+		m_int32_cnt.push_back((*i_it)->clone());
 	}
 
 	std::vector<std::shared_ptr < dScanPar>> ::const_iterator d_it;
-	for (d_it = cp.m_d_vec.begin(); d_it != cp.m_d_vec.end(); ++d_it) {
-		m_d_vec.push_back((*d_it)->clone());
+	for (d_it = cp.m_d_cnt.begin(); d_it != cp.m_d_cnt.end(); ++d_it) {
+		m_d_cnt.push_back((*d_it)->clone());
 	}
 
 	std::vector<std::shared_ptr < fScanPar>> ::const_iterator f_it;
-	for (f_it = cp.m_f_vec.begin(); f_it != cp.m_f_vec.end(); ++f_it) {
-		m_f_vec.push_back((*f_it)->clone());
+	for (f_it = cp.m_f_cnt.begin(); f_it != cp.m_f_cnt.end(); ++f_it) {
+		m_f_cnt.push_back((*f_it)->clone());
 	}
 }
 
@@ -414,7 +414,7 @@ void GParameterScan::compare_(
  * the optimize()-call was issued
  */
 void GParameterScan::resetToOptimizationStart() {
-	// Reset m_b_vec, m_int32_vec, m_d_vec and m_f_vec
+	// Reset m_b_cnt, m_int32_cnt, m_d_cnt and m_f_cnt
 	this->resetParameterObjects();
 
 	// Reset the custom halt criterion
@@ -479,28 +479,28 @@ void GParameterScan::load_(const GObject *cp) {
 	m_scansPerformed = p_load->m_scansPerformed;
 
 	// Load the parameter objects
-	m_b_vec.clear();
+	m_b_cnt.clear();
 	std::vector<std::shared_ptr < bScanPar>> ::const_iterator b_it;
-	for (b_it = (p_load->m_b_vec).begin(); b_it != (p_load->m_b_vec).end(); ++b_it) {
-		m_b_vec.push_back((*b_it)->clone());
+	for (b_it = (p_load->m_b_cnt).begin(); b_it != (p_load->m_b_cnt).end(); ++b_it) {
+		m_b_cnt.push_back((*b_it)->clone());
 	}
 
-	m_int32_vec.clear();
+	m_int32_cnt.clear();
 	std::vector<std::shared_ptr < int32ScanPar>> ::const_iterator i_it;
-	for (i_it = (p_load->m_int32_vec).begin(); i_it != (p_load->m_int32_vec).end(); ++i_it) {
-		m_int32_vec.push_back((*i_it)->clone());
+	for (i_it = (p_load->m_int32_cnt).begin(); i_it != (p_load->m_int32_cnt).end(); ++i_it) {
+		m_int32_cnt.push_back((*i_it)->clone());
 	}
 
-	m_d_vec.clear();
+	m_d_cnt.clear();
 	std::vector<std::shared_ptr < dScanPar>> ::const_iterator d_it;
-	for (d_it = (p_load->m_d_vec).begin(); d_it != (p_load->m_d_vec).end(); ++d_it) {
-		m_d_vec.push_back((*d_it)->clone());
+	for (d_it = (p_load->m_d_cnt).begin(); d_it != (p_load->m_d_cnt).end(); ++d_it) {
+		m_d_cnt.push_back((*d_it)->clone());
 	}
 
-	m_f_vec.clear();
+	m_f_cnt.clear();
 	std::vector<std::shared_ptr < fScanPar>> ::const_iterator f_it;
-	for (f_it = (p_load->m_f_vec).begin(); f_it != (p_load->m_f_vec).end(); ++f_it) {
-		m_f_vec.push_back((*f_it)->clone());
+	for (f_it = (p_load->m_f_cnt).begin(); f_it != (p_load->m_f_cnt).end(); ++f_it) {
+		m_f_cnt.push_back((*f_it)->clone());
 	}
 }
 
@@ -766,22 +766,22 @@ void GParameterScan::randomShuffle() {
  */
 void GParameterScan::resetParameterObjects() {
 	std::vector<std::shared_ptr < bScanPar>> ::iterator b_it;
-	for (b_it = m_b_vec.begin(); b_it != m_b_vec.end(); ++b_it) {
+	for (b_it = m_b_cnt.begin(); b_it != m_b_cnt.end(); ++b_it) {
 		(*b_it)->resetPosition();
 	}
 
 	std::vector<std::shared_ptr < int32ScanPar>> ::iterator i_it;
-	for (i_it = m_int32_vec.begin(); i_it != m_int32_vec.end(); ++i_it) {
+	for (i_it = m_int32_cnt.begin(); i_it != m_int32_cnt.end(); ++i_it) {
 		(*i_it)->resetPosition();
 	}
 
 	std::vector<std::shared_ptr < fScanPar>> ::iterator f_it;
-	for (f_it = m_f_vec.begin(); f_it != m_f_vec.end(); ++f_it) {
+	for (f_it = m_f_cnt.begin(); f_it != m_f_cnt.end(); ++f_it) {
 		(*f_it)->resetPosition();
 	}
 
 	std::vector<std::shared_ptr < dScanPar>> ::iterator d_it;
-	for (d_it = m_d_vec.begin(); d_it != m_d_vec.end(); ++d_it) {
+	for (d_it = m_d_cnt.begin(); d_it != m_d_cnt.end(); ++d_it) {
 		(*d_it)->resetPosition();
 	}
 
@@ -804,7 +804,7 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 	// Extract the relevant data and store it in a parSet object
 	// 1) For boolean objects
 	std::vector<std::shared_ptr < bScanPar>>::iterator b_it;
-	for (b_it = m_b_vec.begin(); b_it != m_b_vec.end(); ++b_it) {
+	for (b_it = m_b_cnt.begin(); b_it != m_b_cnt.end(); ++b_it) {
 		NAMEANDIDTYPE var = (*b_it)->getVarAddress();
 
 		if (modeSet) {
@@ -825,7 +825,7 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 	}
 	// 2) For std::int32_t objects
 	std::vector<std::shared_ptr < int32ScanPar>>::iterator i_it;
-	for (i_it = m_int32_vec.begin(); i_it != m_int32_vec.end(); ++i_it) {
+	for (i_it = m_int32_cnt.begin(); i_it != m_int32_cnt.end(); ++i_it) {
 		NAMEANDIDTYPE var = (*i_it)->getVarAddress();
 
 		if (modeSet) {
@@ -846,7 +846,7 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 	}
 	// 3) For float objects
 	std::vector<std::shared_ptr < fScanPar>>::iterator f_it;
-	for (f_it = m_f_vec.begin(); f_it != m_f_vec.end(); ++f_it) {
+	for (f_it = m_f_cnt.begin(); f_it != m_f_cnt.end(); ++f_it) {
 		NAMEANDIDTYPE var = (*f_it)->getVarAddress();
 
 		if (modeSet) {
@@ -867,7 +867,7 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
 	}
 	// 4) For double objects
 	std::vector<std::shared_ptr < dScanPar>>::iterator d_it;
-	for (d_it = m_d_vec.begin(); d_it != m_d_vec.end(); ++d_it) {
+	for (d_it = m_d_cnt.begin(); d_it != m_d_cnt.end(); ++d_it) {
 		NAMEANDIDTYPE var = (*d_it)->getVarAddress();
 
 		if (modeSet) {
@@ -899,12 +899,12 @@ std::shared_ptr <parSet> GParameterScan::getParameterSet(std::size_t &mode) {
  * collection (false)
  */
 bool GParameterScan::switchToNextParameterSet() {
-	auto it = m_all_par_vec.begin();
+	auto it = m_all_par_cnt.begin();
 
 	// Switch to the next parameter set
 	while (true) {
 		if ((*it)->goToNextItem()) { // Will trigger if a warp has occurred
-			if (it + 1 == m_all_par_vec.end()) return false; // All possible combinations were found
+			if (it + 1 == m_all_par_cnt.end()) return false; // All possible combinations were found
 			else ++it; // Try the next parameter object
 		} else {
 			return true; // We have successfully switched to the next parameter set
@@ -921,13 +921,13 @@ bool GParameterScan::switchToNextParameterSet() {
  */
 void GParameterScan::fillAllParVec() {
 	// 1) For boolean objects
-	for(const auto& item_ptr: m_b_vec)     { m_all_par_vec.push_back(item_ptr); }
+	for(const auto& item_ptr: m_b_cnt)     { m_all_par_cnt.push_back(item_ptr); }
 	// 2) For std::int32_t objects
-	for(const auto& item_ptr: m_int32_vec) { m_all_par_vec.push_back(item_ptr); }
+	for(const auto& item_ptr: m_int32_cnt) { m_all_par_cnt.push_back(item_ptr); }
 	// 3) For float objects
-	for(const auto& item_ptr: m_f_vec)     { m_all_par_vec.push_back(item_ptr); }
+	for(const auto& item_ptr: m_f_cnt)     { m_all_par_cnt.push_back(item_ptr); }
 	// 4) For double objects
-	for(const auto& item_ptr: m_d_vec)     { m_all_par_vec.push_back(item_ptr); }
+	for(const auto& item_ptr: m_d_cnt)     { m_all_par_cnt.push_back(item_ptr); }
 }
 
 /******************************************************************************/
@@ -935,7 +935,7 @@ void GParameterScan::fillAllParVec() {
  * Clears the allParVec_ vector
  */
 void GParameterScan::clearAllParVec() {
-	m_all_par_vec.clear();
+	m_all_par_cnt.clear();
 }
 
 /******************************************************************************/
@@ -1067,10 +1067,10 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 
 	//---------------------------------------------------------------------------
 	// Clear the parameter vectors
-	m_d_vec.clear();
-	m_f_vec.clear();
-	m_int32_vec.clear();
-	m_b_vec.clear();
+	m_d_cnt.clear();
+	m_f_cnt.clear();
+	m_int32_cnt.clear();
+	m_b_cnt.clear();
 
 	// Parse the parameter string
 	GParameterPropertyParser ppp(parStr);
@@ -1089,7 +1089,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 		auto d_cit = std::get<0>(t_d);
 		auto d_end = std::get<1>(t_d);
 		for (; d_cit != d_end; ++d_cit) { // Note: d_cit is already set to the begin of the double parameter arrays
-			m_d_vec.push_back(std::shared_ptr<dScanPar>(new dScanPar(*d_cit, m_scanRandomly)));
+			m_d_cnt.push_back(std::shared_ptr<dScanPar>(new dScanPar(*d_cit, m_scanRandomly)));
 		}
 
 		// Retrieve float parameters
@@ -1100,7 +1100,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 		auto f_cit = std::get<0>(t_f);
 		auto f_end = std::get<1>(t_f);
 		for (; f_cit != f_end; ++f_cit) { // Note: f_cit is already set to the begin of the double parameter arrays
-			m_f_vec.push_back(std::shared_ptr<fScanPar>(new fScanPar(*f_cit, m_scanRandomly)));
+			m_f_cnt.push_back(std::shared_ptr<fScanPar>(new fScanPar(*f_cit, m_scanRandomly)));
 		}
 
 		// Retrieve integer parameters
@@ -1111,7 +1111,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 		auto i_cit = std::get<0>(t_i);
 		auto i_end = std::get<1>(t_i);
 		for (; i_cit != i_end; ++i_cit) { // Note: i_cit is already set to the begin of the double parameter arrays
-			m_int32_vec.push_back(std::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, m_scanRandomly)));
+			m_int32_cnt.push_back(std::shared_ptr<int32ScanPar>(new int32ScanPar(*i_cit, m_scanRandomly)));
 		}
 
 		// Retrieve boolean parameters
@@ -1122,7 +1122,7 @@ void GParameterScan::setParameterSpecs(std::string parStr) {
 		auto b_cit = std::get<0>(t_b);
 		auto b_end = std::get<1>(t_b);
 		for (; b_cit != b_end; ++b_cit) { // Note: b_cit is already set to the begin of the double parameter arrays
-			m_b_vec.push_back(std::shared_ptr<bScanPar>(new bScanPar(*b_cit, m_scanRandomly)));
+			m_b_cnt.push_back(std::shared_ptr<bScanPar>(new bScanPar(*b_cit, m_scanRandomly)));
 		}
 	}
 

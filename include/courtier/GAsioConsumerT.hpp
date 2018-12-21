@@ -903,8 +903,8 @@ protected:
 
 		 //------------------------------------------------------
 		 // Wait for context threads to finish
-		 for (auto &t: m_context_thread_vec) { t.join(); }
-		 m_context_thread_vec.clear();
+		 for (auto &t: m_context_thread_cnt) { t.join(); }
+		 m_context_thread_cnt.clear();
 
 		 //------------------------------------------------------
 	 }
@@ -1023,9 +1023,9 @@ private:
 		 assert(m_n_threads > 0);
 
 		 // Allow to serve requests from multiple threads
-		 m_context_thread_vec.reserve(m_n_threads);
+		 m_context_thread_cnt.reserve(m_n_threads);
 		 for(std::size_t t_cnt=0; t_cnt<m_n_threads; t_cnt++) {
-			 m_context_thread_vec.emplace_back(
+			 m_context_thread_cnt.emplace_back(
 				 [this](){
 					 this->m_io_context.run();
 				 }
@@ -1175,7 +1175,7 @@ private:
 	 boost::asio::ip::tcp::acceptor m_acceptor{m_io_context};
 	 boost::asio::ip::tcp::socket m_socket{m_io_context};
 	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
-	 std::vector<std::thread> m_context_thread_vec;
+	 std::vector<std::thread> m_context_thread_cnt;
 	 std::atomic<std::size_t> m_n_active_sessions{0};
 	 std::size_t m_n_max_reconnects = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
 

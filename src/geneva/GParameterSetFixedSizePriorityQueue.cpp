@@ -167,16 +167,16 @@ std::string GParameterSetFixedSizePriorityQueue::id(
  * entered into the priority queue.
  */
 void GParameterSetFixedSizePriorityQueue::add(
-    std::vector<std::shared_ptr<GParameterSet>> const & items_vec
+    std::vector<std::shared_ptr<GParameterSet>> const & items_cnt
 	, bool do_clone
 	, bool do_replace
 ) {
 	// Create a std::vector containing only processed items. We only want
 	// to add "clean" (i.e. processed) individuals to the queue.
-	std::vector<std::shared_ptr<GParameterSet>> processed_vec(items_vec.size());
+	std::vector<std::shared_ptr<GParameterSet>> processed_vec(items_cnt.size());
 	auto it = std::copy_if(
-		items_vec.begin()
-		, items_vec.end()
+		items_cnt.begin()
+		, items_cnt.end()
 		, processed_vec.begin()
 		, [](const std::shared_ptr<GParameterSet>& item_ptr){
 			return item_ptr->is_processed();

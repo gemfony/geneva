@@ -285,7 +285,7 @@ public:
 		 */
 	 void addLogTarget(std::shared_ptr <GBaseLogTarget> gblt) {
 		 if (gblt) {
-			 m_log_vector.push_back(gblt);
+			 m_log_cnt.push_back(gblt);
 		 } else {
 			 raiseException(
 				 "In GLogger::addLogTarget(): Error!" << std::endl
@@ -299,7 +299,7 @@ public:
 		 * Checks whether any log targets are present
 		 */
 	 bool hasLogTargets() const {
-		 return not m_log_vector.empty();
+		 return not m_log_cnt.empty();
 	 }
 
 	 /***************************************************************************/
@@ -307,7 +307,7 @@ public:
 		 * Clears local log-targets
 		 */
 	 void resetLogTargets() {
-		 m_log_vector.clear();
+		 m_log_cnt.clear();
 	 }
 
 	 /***************************************************************************/
@@ -320,9 +320,9 @@ public:
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
-		 if (not m_log_vector.empty()) {
+		 if (not m_log_cnt.empty()) {
 			 // Do the actual logging
-			 for(auto const& cit: m_log_vector) {
+			 for(auto const& cit: m_log_cnt) {
 				 cit->log(message);
 			 }
 		 } else {
@@ -347,9 +347,9 @@ public:
 		 // Make sure only one entity outputs data
 		 std::unique_lock<std::mutex> lk(m_logger_mutex);
 
-		 if (not m_log_vector.empty()) {
+		 if (not m_log_cnt.empty()) {
 			 // Do the actual logging
-			 for(auto cit: m_log_vector) { // std::shared_ptr max be copied
+			 for(auto cit: m_log_cnt) { // std::shared_ptr max be copied
 				 cit->logWithSource(message, extension);
 			 }
 		 } else {
@@ -413,7 +413,7 @@ public:
 private:
 	 /***************************************************************************/
 
-	 std::vector<std::shared_ptr<GBaseLogTarget>> m_log_vector; ///< Contains the log targets
+	 std::vector<std::shared_ptr<GBaseLogTarget>> m_log_cnt; ///< Contains the log targets
 	 mutable std::mutex m_logger_mutex; ///< Needed for concurrent access to the log targets
 
 	 std::shared_ptr<GBaseLogTarget> m_default_logger = std::make_shared<GConsoleLogger>(); ///< The default log target

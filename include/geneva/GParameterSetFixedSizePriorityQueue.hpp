@@ -104,9 +104,9 @@ public:
     /** @brief Emits information about the "dirty flag" of all items */
     G_API_GENEVA std::string getCleanStatus() const;
 
-    /** @brief Adds the items in the items_vec vector to the queue */
+    /** @brief Adds the items in the items_cnt container to the queue */
     void add(
-        std::vector<std::shared_ptr<GParameterSet>> const &items_vec
+        std::vector<std::shared_ptr<GParameterSet>> const &items_cnt
         , bool do_clone
         , bool replace
     ) override;

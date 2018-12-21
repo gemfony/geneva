@@ -124,7 +124,7 @@ class GProcessingContainerT
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_raw_submission_time)
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_proc_retrieval_time)
 		 & BOOST_SERIALIZATION_NVP(m_bufferport_proc_submission_time)
-		 & BOOST_SERIALIZATION_NVP(m_stored_results_vec)
+		 & BOOST_SERIALIZATION_NVP(m_stored_results_cnt)
 		 & BOOST_SERIALIZATION_NVP(m_stored_error_descriptions)
 		 & BOOST_SERIALIZATION_NVP(m_processing_status)
 		 & BOOST_SERIALIZATION_NVP(m_evaluation_id);
@@ -141,7 +141,7 @@ public:
 	  * Initialization with the number of stored results
 	  */
 	 explicit GProcessingContainerT(std::size_t n_stored_results)
-	 	: m_stored_results_vec(n_stored_results, processing_result_type())
+	 	: m_stored_results_cnt(n_stored_results, processing_result_type())
 	 { /* nothing */ }
 
 	 /***************************************************************************/
@@ -164,7 +164,7 @@ public:
 		 , m_bufferport_raw_submission_time(cp.m_bufferport_raw_submission_time)
 		 , m_bufferport_proc_retrieval_time(cp.m_bufferport_proc_retrieval_time)
 		 , m_bufferport_proc_submission_time(cp.m_bufferport_proc_submission_time)
-	 	 , m_stored_results_vec(cp.m_stored_results_vec) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
+	 	 , m_stored_results_cnt(cp.m_stored_results_cnt) // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
 		 , m_stored_error_descriptions(cp.m_stored_error_descriptions)
 		 , m_processing_status(cp.m_processing_status)
 		 , m_evaluation_id(cp.m_evaluation_id)
@@ -184,20 +184,20 @@ public:
 	  * Sets the vector of stored results to a given collection and marks
 	  * the object as processed
 	  */
-	 processing_result_type markAsProcessedWith(const std::vector<processing_result_type>& result_vec) {
+	 processing_result_type markAsProcessedWith(std::vector<processing_result_type> const & result_cnt) {
 #ifdef DEBUG
 		 // Check that we have been given a suitable new results vector
-		 if(result_vec.size() != m_stored_results_vec.size()) {
+		 if(result_cnt.size() != m_stored_results_cnt.size()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GProcessingContainerT::markAsProcessedWith(): Vector dimensions" << std::endl
-				 	 << "do not fit: " << result_vec.size() << " / " << m_stored_results_vec.size() << std::endl
+				 	 << "do not fit: " << result_cnt.size() << " / " << m_stored_results_cnt.size() << std::endl
 			 );
 		 }
 #endif
 
 		 // Transfer the new values
-		 m_stored_results_vec = result_vec;
+		 m_stored_results_cnt = result_cnt;
 
 		 // Clear the error descriptions
 		 m_stored_error_descriptions.clear();
@@ -206,7 +206,7 @@ public:
 		 m_processing_status = processingStatus::PROCESSED;
 
 		 // This part of the code should never be reached if an exception was thrown
-		 return this->m_stored_results_vec.at(0);
+		 return this->m_stored_results_cnt.at(0);
 	 }
 
 	 /***************************************************************************/
@@ -316,7 +316,7 @@ public:
 		 }
 
 		 // This part of the code should never be reached if an exception was thrown
-		 return this->m_stored_results_vec.at(0);
+		 return this->m_stored_results_cnt.at(0);
 	 }
 
 	 /***************************************************************************/
@@ -337,7 +337,7 @@ public:
 			 );
 		 }
 
-		 return m_stored_results_vec.at(id);
+		 return m_stored_results_cnt.at(id);
 	 }
 
 
@@ -793,7 +793,7 @@ public:
 	  * Allows to retrieve the number of stored results
 	  */
 	 std::size_t getNStoredResults() const {
-		 return m_stored_results_vec.size();
+		 return m_stored_results_cnt.size();
 	 }
 
 	 /***************************************************************************/
@@ -819,7 +819,7 @@ public:
 		 m_bufferport_raw_retrieval_time = p_load->m_bufferport_raw_retrieval_time;
 		 m_bufferport_proc_submission_time = p_load->m_bufferport_proc_submission_time;
 		 m_bufferport_proc_retrieval_time = p_load->m_bufferport_proc_retrieval_time;
-		 m_stored_results_vec = p_load->m_stored_results_vec; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
+		 m_stored_results_cnt = p_load->m_stored_results_cnt; // note that this implies that processing_result_type is copyable --> e.g. it should not contain pointers
 		 m_stored_error_descriptions = p_load->m_stored_error_descriptions;
 		 m_processing_status = p_load->m_processing_status;
 		 m_evaluation_id = p_load->m_evaluation_id;
@@ -846,7 +846,7 @@ protected:
 	  * @return The stored result at position id in m_stored_results_vec
 	  */
 	 processing_result_type& modifyStoredResult(std::size_t id = 0) {
-		 return m_stored_results_vec.at(id);
+		 return m_stored_results_cnt.at(id);
 	 }
 
 	 /***************************************************************************/
@@ -862,7 +862,7 @@ protected:
 		 std::size_t n_stored_results
 		 , processing_result_type new_val
 	 ) {
-		 m_stored_results_vec.resize(n_stored_results, new_val);
+		 m_stored_results_cnt.resize(n_stored_results, new_val);
 	 }
 
 	 /***************************************************************************/
@@ -884,7 +884,7 @@ protected:
 	  * result storage. This function should be called from inside of the process_ call.
 	  */
 	 void registerResult(std::size_t id, const processing_result_type& r) {
-		 m_stored_results_vec.at(id) = r;
+		 m_stored_results_cnt.at(id) = r;
 	 }
 
 	 /***************************************************************************/
@@ -917,8 +917,8 @@ private:
 	  * Little helper function to (re-)initialize the result storage vector
 	  */
 	 void clear_stored_results_vec() {
-		 // "Nullify the result list. We cannot use range-based for here, as m_stored_results_vec might hold booleans
-		 for(auto it=m_stored_results_vec.begin(); it!=m_stored_results_vec.end(); ++it) {
+		 // "Nullify the result list. We cannot use range-based for here, as m_stored_results_cnt might hold booleans
+		 for(auto it=m_stored_results_cnt.begin(); it!=m_stored_results_cnt.end(); ++it) {
 			 *it = processing_result_type();
 		 }
 	 }
@@ -989,7 +989,7 @@ private:
 	 std::chrono::high_resolution_clock::time_point m_bufferport_proc_retrieval_time;  ///< Time when the item was retrieved from the processed queue
 	 std::chrono::high_resolution_clock::time_point m_bufferport_proc_submission_time; ///< Time when the item was submitted to the processed queue
 
-	 std::vector<processing_result_type> m_stored_results_vec = std::vector<processing_result_type>(1, processing_result_type()); ///< The results stored by this object
+	 std::vector<processing_result_type> m_stored_results_cnt = std::vector<processing_result_type>(1, processing_result_type()); ///< The results stored by this object
 
 	 std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
 	 processingStatus m_processing_status = processingStatus::DO_IGNORE; ///< By default no processing is initiated

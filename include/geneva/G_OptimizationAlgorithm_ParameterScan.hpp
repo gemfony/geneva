@@ -664,10 +664,10 @@ class GParameterScan
             , boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
         & BOOST_SERIALIZATION_NVP(m_scanRandomly)
         & BOOST_SERIALIZATION_NVP(m_nMonitorInds)
-        & BOOST_SERIALIZATION_NVP(m_b_vec)
-        & BOOST_SERIALIZATION_NVP(m_int32_vec)
-        & BOOST_SERIALIZATION_NVP(m_d_vec)
-        & BOOST_SERIALIZATION_NVP(m_f_vec)
+        & BOOST_SERIALIZATION_NVP(m_b_cnt)
+        & BOOST_SERIALIZATION_NVP(m_int32_cnt)
+        & BOOST_SERIALIZATION_NVP(m_d_cnt)
+        & BOOST_SERIALIZATION_NVP(m_f_cnt)
         & BOOST_SERIALIZATION_NVP(m_simpleScanItems)
         & BOOST_SERIALIZATION_NVP(m_scansPerformed);
     }
@@ -850,12 +850,12 @@ private:
         = true;   ///< Determines whether the algorithm should scan the parameter space randomly or on a grid
     std::size_t m_nMonitorInds = DEFAULTNMONITORINDS; ///< The number of best individuals of the entire run to be kept
 
-    std::vector<std::shared_ptr<bScanPar>> m_b_vec;     ///< Holds boolean parameters to be scanned
-    std::vector<std::shared_ptr<int32ScanPar>> m_int32_vec; ///< Holds 32 bit integer parameters to be scanned
-    std::vector<std::shared_ptr<dScanPar>> m_d_vec;     ///< Holds double values to be scanned
-    std::vector<std::shared_ptr<fScanPar>> m_f_vec;     ///< Holds float values to be scanned
+    std::vector<std::shared_ptr<bScanPar>> m_b_cnt;     ///< Holds boolean parameters to be scanned
+    std::vector<std::shared_ptr<int32ScanPar>> m_int32_cnt; ///< Holds 32 bit integer parameters to be scanned
+    std::vector<std::shared_ptr<dScanPar>> m_d_cnt;     ///< Holds double values to be scanned
+    std::vector<std::shared_ptr<fScanPar>> m_f_cnt;     ///< Holds float values to be scanned
 
-    std::vector<std::shared_ptr<scanParInterface>> m_all_par_vec; /// Holds pointers to all parameter objects
+    std::vector<std::shared_ptr<scanParInterface>> m_all_par_cnt; /// Holds pointers to all parameter objects
 
     std::size_t m_simpleScanItems
         = 0; ///< When set to a value > 0, a random scan of the entire parameter space will be made instead of individual parameters -- set through the configuration file

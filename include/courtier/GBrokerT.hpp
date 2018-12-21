@@ -147,7 +147,7 @@ public:
 		 if (m_finalized) return;
 
 		 // Shut down all consumers
-		 for(auto const& c_ptr: m_consumer_collection_vec) {
+		 for(auto const& c_ptr: m_consumer_collection_cnt) {
 			 c_ptr->shutdown();
 		 }
 
@@ -177,7 +177,7 @@ public:
 			 // Clear raw and processed buffers and the consumer lists
 			 m_RawBuffers.clear();
 			 m_ProcessedBuffers.clear();
-			 m_consumer_collection_vec.clear();
+			 m_consumer_collection_cnt.clear();
 			 m_buffersPresent.store(false);
 
 			 // Make sure this function does not execute code a second time
@@ -335,7 +335,7 @@ public:
 		 }
 
 		 // Archive the consumer and its name, then start its thread
-		 m_consumer_collection_vec.push_back(gc_ptr);
+		 m_consumer_collection_cnt.push_back(gc_ptr);
 		 m_consumerTypesPresent.push_back(gc_ptr->getConsumerName());
 
 		 // Initiate processing in the consumer. This call will not block.
@@ -361,9 +361,9 @@ public:
 	 /**
 	  * Adds multiple consumers to this class and starts their threads.
 	  *
-	  * @param gc_ptr_vec A vector of pointers to GBaseConsumerT<processable_type> objects
+	  * @param gc_ptr_cnt A vector of pointers to GBaseConsumerT<processable_type> objects
 	  */
-	 void enrol_consumer_vec(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_vec) {
+	 void enrol_consumer_vec(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_cnt) {
 		 //-----------------------------------------------------------------------
 		 // Check whether consumers have already been enrolled. As this may happen
 		 // only once, we emit a warning and return
@@ -379,7 +379,7 @@ public:
 		 //-----------------------------------------------------------------------
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
 
-		 for(auto const& consumer_ptr: gc_ptr_vec) {
+		 for(auto const& consumer_ptr: gc_ptr_cnt) {
 			 // Do nothing if a consumer of this type has already been registered
 			 if (std::find(
 				 m_consumerTypesPresent.begin()
@@ -395,7 +395,7 @@ public:
 			 }
 
 			 // Archive the consumer and its name, then start its thread
-			 m_consumer_collection_vec.push_back(consumer_ptr);
+			 m_consumer_collection_cnt.push_back(consumer_ptr);
 			 m_consumerTypesPresent.push_back(consumer_ptr->getConsumerName());
 
 			 // Initiate processing in the consumer. This call will not block.
@@ -623,7 +623,7 @@ private:
 	  * @return A boolean indicating whether all registered consumers are capable of full return
 	  */
 	 bool checkConsumersCapableOfFullReturn() {
-		 if (m_consumer_collection_vec.empty()) {
+		 if (m_consumer_collection_cnt.empty()) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBrokerT<processable_type>::checkConsumersCapableOfFullReturn(): Error!" << std::endl
@@ -632,7 +632,7 @@ private:
 		 }
 
 		 bool capable_of_full_return = true;
-		 for(auto const& item_ptr: m_consumer_collection_vec) {
+		 for(auto const& item_ptr: m_consumer_collection_cnt) {
 			 if (not item_ptr->capableOfFullReturn()) {
 				 capable_of_full_return = false;
 				 break; // stop the loop
@@ -697,7 +697,7 @@ private:
 	 std::atomic<bool> m_consumersPresent{false}; ///< Set to true once one or more consumers have been enrolled
 	 std::atomic<bool> m_capable_of_full_return{false}; ///< Set to true if all registered consumers are capable of full return, otherwise false
 
-	 std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> m_consumer_collection_vec; ///< Holds the actual consumers
+	 std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> m_consumer_collection_cnt; ///< Holds the actual consumers
 	 std::vector<std::string> m_consumerTypesPresent; ///< Holds identifying strings for each consumer
 
 	 std::atomic<BUFFERPORT_ID_TYPE> m_current_bufferport_id{BUFFERPORT_ID_TYPE(0)}; ///< The id assigned to the last registered buffer port

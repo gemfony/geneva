@@ -191,7 +191,7 @@ public:
 	  * still have the DO_PROCESS flag set (if items did not return in time). Note that
 	  * items still marked as DO_PROCESS may well return in later iterations. It is thus
 	  * also possible that returned items do not belong to the current submission cycle.
-	  * They will be appended to the m_old_work_items_vec vector. You might thus have to
+	  * They will be appended to the m_old_work_items_cnt vector. You might thus have to
 	  * post-process such "old" work items and decide what to do with them. This vector
 	  * will be cleared for each new iteration. Hence, if you are interested in old work
 	  * items, you need to retrieve them before a new submission of work items. The return
@@ -265,7 +265,7 @@ public:
 			 // be re-implemented in derived classes.
 			 auto current_status = waitForReturn(
 				 workItems
-				 , m_old_work_items_vec
+				 , m_old_work_items_cnt
 			 );
 
 			 // There may not be errors during resubmission, so we need to save the "error state"
@@ -337,7 +337,7 @@ public:
 	  * @return A copy of the old work items vector
 	  */
 	 std::vector<std::shared_ptr<processable_type>> getOldWorkItems() {
-		 return std::move(m_old_work_items_vec);
+		 return std::move(m_old_work_items_cnt);
 	 }
 
 	 /***************************************************************************/
@@ -540,7 +540,7 @@ protected:
 		 m_no_items_submitted_in_iteration = true;
 
 		 // Clear old work items not cleared by the caller after the last iteration
-		 m_old_work_items_vec.clear();
+		 m_old_work_items_cnt.clear();
 
 		 // Reset some counters and flags
 		 m_n_returnedLast = 0;
@@ -577,26 +577,26 @@ protected:
 	 virtual void iterationFinalize_(std::vector<std::shared_ptr<processable_type>>& workItems) BASE {
 		 // Sort remaining old work items according to their position
 		 std::sort(
-			 m_old_work_items_vec.begin()
-			 , m_old_work_items_vec.end()
+			 m_old_work_items_cnt.begin()
+			 , m_old_work_items_cnt.end()
 			 , [](std::shared_ptr<processable_type> x_ptr, std::shared_ptr<processable_type> y_ptr) -> bool {
 				 using namespace boost;
 				 return x_ptr->getCollectionPosition() <= y_ptr->getCollectionPosition();
 			 }
 		 );
 		 // Remove duplicates
-		 m_old_work_items_vec.erase(
+		 m_old_work_items_cnt.erase(
 			 std::unique(
-				 m_old_work_items_vec.begin()
-				 , m_old_work_items_vec.end()
+				 m_old_work_items_cnt.begin()
+				 , m_old_work_items_cnt.end()
 				 , [](std::shared_ptr<processable_type> x_ptr, std::shared_ptr<processable_type> y_ptr) -> bool {
 					 return x_ptr->getCollectionPosition() == y_ptr->getCollectionPosition();
 				 }
 			 ) // Returns the begin() of the duplicates moved to the end of the vector
-			 , m_old_work_items_vec.end()
+			 , m_old_work_items_cnt.end()
 		 );
 		 // Remove unprocessed or erroneous items and count the remaining items
-		 m_n_oldWorkItems    = this->cleanItemsWithoutFlag(m_old_work_items_vec, processingStatus::PROCESSED);
+		 m_n_oldWorkItems    = this->cleanItemsWithoutFlag(m_old_work_items_cnt, processingStatus::PROCESSED);
 
 		 // Find out about the number of items that have not returned (yet) from the last submission.
 		 // These are equivalent to the items that still have the DO_PROCESS flag set.
@@ -867,12 +867,12 @@ protected:
 	  * the number of remaining items
 	  */
 	 std::size_t cleanItemsWithoutFlag(
-		 std::vector<std::shared_ptr<processable_type>>& items_vec
+		 std::vector<std::shared_ptr<processable_type>>& items_cnt
 		 , const processingStatus& desired_ps
 	 ) {
 		 // Remove unprocessed items from the list of old work items
 		 Gem::Common::erase_if(
-			 items_vec
+			 items_cnt
 			 , [this, desired_ps](std::shared_ptr<processable_type> item_ptr) {
 				 auto ps = item_ptr->getProcessingStatus();
 				 if(ps != desired_ps) {
@@ -896,7 +896,7 @@ protected:
 		 );
 
 		 // Return the number of remaining items
-		 return items_vec.size();
+		 return items_cnt.size();
 	 }
 
 	 /***************************************************************************/
@@ -1008,7 +1008,7 @@ private:
 	 std::size_t m_n_oldWorkItems = 0; ///< The number of old work items returned in a given iteration
 	 std::size_t m_n_erroneousItems = 0; ///< The number of work items with errors in the current iteration
 
-	 std::vector<std::shared_ptr<processable_type>> m_old_work_items_vec; ///< Temporarily holds old work items of the current iteration
+	 std::vector<std::shared_ptr<processable_type>> m_old_work_items_cnt; ///< Temporarily holds old work items of the current iteration
 
 	 std::mutex m_concurrent_workon_mutex; ///< Makes sure the workOn function is only called once at the same time on this object
 
@@ -1502,7 +1502,7 @@ protected:
 
 		 // We want an empty futures vector for a new submission cycle,
 		 // so we do not deal with old errors.
-		 m_future_vec.clear();
+		 m_future_cnt.clear();
 	 }
 
 	 /***************************************************************************/
@@ -1577,7 +1577,7 @@ protected:
 
 		 if (m_gtp_ptr && w_ptr) { // Do we have a valid thread pool and a valid work item ?
 			 // async_schedule emits a future, which is std::moved into the std::vector
-			 m_future_vec.push_back(
+			 m_future_cnt.push_back(
 				 m_gtp_ptr->async_schedule( [w_ptr](){ return w_ptr->process(); })
 			 );
 		 } else {
@@ -1615,7 +1615,7 @@ protected:
 		 // Note: Old work items are cleared in the "workOn" function
 
 		 // Find out about the errors that were found
-		 for(auto &f: m_future_vec) {
+		 for(auto &f: m_future_cnt) {
 			 // Retrieve the future and check for errors
 			 try {
 				 result_type r = f.get();
@@ -1704,7 +1704,7 @@ private:
 	 std::uint16_t m_n_threads = Gem::Courtier::DEFAULTNSTDTHREADS; ///< The number of threads
 	 std::shared_ptr<Gem::Common::GThreadPool> m_gtp_ptr; ///< Temporarily holds a thread pool
 
-	 std::vector<std::future<typename processable_type::result_type>> m_future_vec; ///< Temporarily hold futures stored during the submit call
+	 std::vector<std::future<typename processable_type::result_type>> m_future_cnt; ///< Temporarily hold futures stored during the submit call
 };
 
 /******************************************************************************/

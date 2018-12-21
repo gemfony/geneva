@@ -1620,16 +1620,16 @@ public:
 	  * Allows to add a collection of data items of undetermined type in one go,
 	  * provided the type can be converted safely into the target type
 	  *
-	  * @param x_vec_undet A collection of data items of undetermined type, to be added to the collection
+	  * @param x_cnt_undet A collection of data items of undetermined type, to be added to the collection
 	  */
     template<typename x_type_undet>
-    void operator&(const std::vector<x_type_undet> &x_vec_undet) {
+    void operator&(const std::vector<x_type_undet> &x_cnt_undet) {
         using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
 
         typename std::vector<x_type_undet>::const_iterator cit;
-        for (cit = x_vec_undet.begin(); cit != x_vec_undet.end(); ++cit) {
+        for (cit = x_cnt_undet.begin(); cit != x_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
                 x = boost::numeric_cast<x_type>(*cit);
@@ -1656,11 +1656,11 @@ public:
     /**
 	  * Allows to add a collection of data items of type x_type to our m_data vector.
 	  *
-	  * @param x_vec A vector of data items to be added to the m_data vector
+	  * @param x_cnt A vector of data items to be added to the m_data vector
 	  */
-    void operator&(const std::vector<x_type> &x_vec) {
+    void operator&(const std::vector<x_type> &x_cnt) {
         typename std::vector<x_type>::const_iterator cit;
-        for (cit = x_vec.begin(); cit != x_vec.end(); ++cit) {
+        for (cit = x_cnt.begin(); cit != x_cnt.end(); ++cit) {
             // Add the data item to our collection
             m_data.push_back(*cit);
         }
@@ -2147,17 +2147,17 @@ public:
 	  * collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
-	  * @param point_vec_undet The collection of data items to be added to the collection
+	  * @param point_cnt_undet The collection of data items to be added to the collection
 	  */
     template<typename x_type_undet, typename y_type_undet>
-    void operator&(const std::vector<std::tuple<x_type_undet, y_type_undet>> &point_vec_undet) {
+    void operator&(const std::vector<std::tuple<x_type_undet, y_type_undet>> &point_cnt_undet) {
         using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
         y_type y = y_type(0);
 
         typename std::vector<std::tuple<x_type_undet, y_type_undet>>::const_iterator cit;
-        for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
+        for (cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
                 x = boost::numeric_cast<x_type>(std::get<0>(*cit));
@@ -2190,11 +2190,11 @@ public:
 	  * to the collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
-	  * @param point_vec The collection of data items to be added to the collection
+	  * @param point_cnt The collection of data items to be added to the collection
 	  */
-    void operator&(const std::vector<std::tuple<x_type, y_type>> &point_vec) {
+    void operator&(const std::vector<std::tuple<x_type, y_type>> &point_cnt) {
         typename std::vector<std::tuple<x_type, y_type>>::const_iterator cit;
-        for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
+        for (cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
             // Add the data item to the collection
             m_data.push_back(*cit);
         }
@@ -2525,11 +2525,11 @@ public:
 	  * collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
-	  * @param point_vec_undet The collection of data items to be added to the collection
+	  * @param point_cnt_undet The collection of data items to be added to the collection
 	  */
     template<typename x_type_undet, typename y_type_undet>
     void operator&(
-        const std::vector<std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>> &point_vec_undet
+        const std::vector<std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>> &point_cnt_undet
     ) {
         using boost::numeric::bad_numeric_cast;
 
@@ -2539,7 +2539,7 @@ public:
         y_type ey = y_type(0);
 
         typename std::vector<std::tuple<x_type_undet, x_type_undet, y_type_undet, y_type_undet>>::const_iterator cit;
-        for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
+        for (cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
                 x = boost::numeric_cast<x_type>(std::get<0>(*cit));
@@ -2577,11 +2577,11 @@ public:
 	  * to the collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
-	  * @param point_vec The collection of data items to be added to the collection
+	  * @param point_cnt The collection of data items to be added to the collection
 	  */
-    void operator&(const std::vector<std::tuple<x_type, x_type, y_type, y_type>> &point_vec) {
+    void operator&(const std::vector<std::tuple<x_type, x_type, y_type, y_type>> &point_cnt) {
         typename std::vector<std::tuple<x_type, x_type, y_type, y_type>>::const_iterator cit;
-        for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
+        for (cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
             // Add the data item to the collection
             m_data.push_back(*cit);
         }
@@ -3188,10 +3188,10 @@ public:
 	  * collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
-	  * @param point_vec_undet The collection of data items to be added to the collection
+	  * @param point_cnt_undet The collection of data items to be added to the collection
 	  */
     template<typename x_type_undet, typename y_type_undet, typename z_type_undet>
-    void operator&(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &point_vec_undet) {
+    void operator&(const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>> &point_cnt_undet) {
         using boost::numeric::bad_numeric_cast;
 
         x_type x = x_type(0);
@@ -3199,7 +3199,7 @@ public:
         z_type z = z_type(0);
 
         typename std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator cit;
-        for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
+        for (cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
                 x = boost::numeric_cast<x_type>(std::get<0>(*cit));
@@ -3234,11 +3234,11 @@ public:
 	  * to the collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
-	  * @param point_vec The collection of data items to be added to the collection
+	  * @param point_cnt The collection of data items to be added to the collection
 	  */
-    void operator&(const std::vector<std::tuple<x_type, y_type, z_type>> &point_vec) {
+    void operator&(const std::vector<std::tuple<x_type, y_type, z_type>> &point_cnt) {
         typename std::vector<std::tuple<x_type, y_type, z_type>>::const_iterator cit;
-        for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
+        for (cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
             // Add the data item to the collection
             m_data.push_back(*cit);
         }
@@ -3753,13 +3753,13 @@ public:
 	  * collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
-	  * @param point_vec_undet The collection of data items to be added to the collection
+	  * @param point_cnt_undet The collection of data items to be added to the collection
 	  */
     template<
         typename x_type_undet, typename y_type_undet, typename z_type_undet, typename w_type_undet
             >
     void operator&(
-        const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &point_vec_undet
+        const std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet, w_type_undet>> &point_cnt_undet
     ) {
         using boost::numeric::bad_numeric_cast;
 
@@ -3769,7 +3769,7 @@ public:
         w_type w = w_type(0);
 
         typename std::vector<std::tuple<x_type_undet, y_type_undet, z_type_undet>>::const_iterator cit;
-        for (cit = point_vec_undet.begin(); cit != point_vec_undet.end(); ++cit) {
+        for (cit = point_cnt_undet.begin(); cit != point_cnt_undet.end(); ++cit) {
             // Make sure the data can be converted to doubles
             try {
                 x = boost::numeric_cast<x_type>(std::get<0>(*cit));
@@ -3807,11 +3807,11 @@ public:
 	  * to the collection in an intuitive way, provided they can be converted safely
 	  * to the target type.
 	  *
-	  * @param point_vec The collection of data items to be added to the collection
+	  * @param point_cnt The collection of data items to be added to the collection
 	  */
-    void operator&(const std::vector<std::tuple<x_type, y_type, z_type, w_type>> &point_vec) {
+    void operator&(const std::vector<std::tuple<x_type, y_type, z_type, w_type>> &point_cnt) {
         typename std::vector<std::tuple<x_type, y_type, z_type, w_type>>::const_iterator cit;
-        for (cit = point_vec.begin(); cit != point_vec.end(); ++cit) {
+        for (cit = point_cnt.begin(); cit != point_cnt.end(); ++cit) {
             // Add the data item to the collection
             m_data.push_back(*cit);
         }
@@ -4527,7 +4527,7 @@ private:
     G_API_COMMON GPlotDesigner *clone_() const override;
 
     std::vector<std::shared_ptr<GBasePlotter>>
-        m_plotters_vec = std::vector<std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
+        m_plotters_cnt = std::vector<std::shared_ptr<GBasePlotter>>(); ///< A list of plots to be added to the diagram
 
     std::size_t m_c_x_div = 1, m_c_y_div = 1; ///< The number of divisions in x- and y-direction
     std::uint32_t m_c_x_dim = DEFCXDIM, m_c_y_dim = DEFCYDIM; ///< Holds the number of pixels of the canvas

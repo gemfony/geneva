@@ -80,9 +80,9 @@ class GSwarmAlgorithm
 		 & make_nvp("G_OptimizationAlgorithm_Base", boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
 		 & BOOST_SERIALIZATION_NVP(m_n_neighborhoods)
 		 & BOOST_SERIALIZATION_NVP(m_default_n_neighborhood_members)
-		 & BOOST_SERIALIZATION_NVP(m_n_neighborhood_members_vec)
+		 & BOOST_SERIALIZATION_NVP(m_n_neighborhood_members_cnt)
 		 & BOOST_SERIALIZATION_NVP(m_global_best_ptr)
-		 & BOOST_SERIALIZATION_NVP(m_neighborhood_bests_vec)
+		 & BOOST_SERIALIZATION_NVP(m_neighborhood_bests_cnt)
 		 & BOOST_SERIALIZATION_NVP(m_c_personal)
 		 & BOOST_SERIALIZATION_NVP(m_c_neighborhood)
 		 & BOOST_SERIALIZATION_NVP(m_c_global)
@@ -90,9 +90,9 @@ class GSwarmAlgorithm
 		 & BOOST_SERIALIZATION_NVP(m_update_rule)
 		 & BOOST_SERIALIZATION_NVP(m_random_fill_up)
 		 & BOOST_SERIALIZATION_NVP(m_repulsion_threshold)
-		 & BOOST_SERIALIZATION_NVP(m_dbl_lower_parameter_boundaries_vec)
-		 & BOOST_SERIALIZATION_NVP(m_dbl_upper_parameter_boundaries_vec)
-		 & BOOST_SERIALIZATION_NVP(m_dbl_vel_max_vec)
+		 & BOOST_SERIALIZATION_NVP(m_dbl_lower_parameter_boundaries_cnt)
+		 & BOOST_SERIALIZATION_NVP(m_dbl_upper_parameter_boundaries_cnt)
+		 & BOOST_SERIALIZATION_NVP(m_dbl_vel_max_cnt)
 		 & BOOST_SERIALIZATION_NVP(m_velocity_range_percentage);
 	 }
 	 ///////////////////////////////////////////////////////////////////////
@@ -197,7 +197,7 @@ public:
 #endif /* DEBUG */
 
 		 // Does error checks on the conversion internally
-		 return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(m_neighborhood_bests_vec[neighborhood]);
+		 return Gem::Common::convertSmartPointer<GParameterSet, parameterset_type>(m_neighborhood_bests_cnt[neighborhood]);
 	 }
 
 protected:
@@ -278,11 +278,11 @@ protected:
 
 	 std::size_t m_n_neighborhoods = (DEFAULTNNEIGHBORHOODS ? DEFAULTNNEIGHBORHOODS : 1); ///< The number of neighborhoods in the population
 	 std::size_t m_default_n_neighborhood_members = ((DEFAULTNNEIGHBORHOODMEMBERS <= 1) ? 2 : DEFAULTNNEIGHBORHOODMEMBERS); ///< The desired number of individuals belonging to each neighborhood
-	 std::vector<std::size_t> m_n_neighborhood_members_vec = std::vector<std::size_t>(m_n_neighborhoods, 0); ///< The current number of individuals belonging to each neighborhood
+	 std::vector<std::size_t> m_n_neighborhood_members_cnt = std::vector<std::size_t>(m_n_neighborhoods, 0); ///< The current number of individuals belonging to each neighborhood
 
 	 std::shared_ptr<GParameterSet> m_global_best_ptr; ///< The globally best individual
 
-	 std::vector<std::shared_ptr<GParameterSet>> m_neighborhood_bests_vec = std::vector<std::shared_ptr<GParameterSet>>(m_n_neighborhoods); ///< The collection of best individuals from each neighborhood
+	 std::vector<std::shared_ptr<GParameterSet>> m_neighborhood_bests_cnt = std::vector<std::shared_ptr<GParameterSet>>(m_n_neighborhoods); ///< The collection of best individuals from each neighborhood
 	 std::vector<std::shared_ptr<GParameterSet>> m_velocities_vec = std::vector<std::shared_ptr<GParameterSet>>(); ///< Holds velocities, as calculated in the previous iteration
 
 	 double m_c_personal = DEFAULTCPERSONAL; ///< A factor for multiplication of personal best distances
@@ -295,9 +295,9 @@ protected:
 
 	 std::uint32_t m_repulsion_threshold = DEFREPULSIONTHRESHOLD; ///< The number of stalls until the swarm algorithm switches to repulsion instead of attraction
 
-	 std::vector<double> m_dbl_lower_parameter_boundaries_vec = std::vector<double>(); ///< Holds lower boundaries of double parameters
-	 std::vector<double> m_dbl_upper_parameter_boundaries_vec = std::vector<double>(); ///< Holds upper boundaries of double parameters
-	 std::vector<double> m_dbl_vel_max_vec = std::vector<double>(); ///< Holds the maximum allowed values of double-type velocities
+	 std::vector<double> m_dbl_lower_parameter_boundaries_cnt = std::vector<double>(); ///< Holds lower boundaries of double parameters
+	 std::vector<double> m_dbl_upper_parameter_boundaries_cnt = std::vector<double>(); ///< Holds upper boundaries of double parameters
+	 std::vector<double> m_dbl_vel_max_cnt = std::vector<double>(); ///< Holds the maximum allowed values of double-type velocities
 
 	 double m_velocity_range_percentage = DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
