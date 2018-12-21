@@ -283,7 +283,7 @@ protected:
 	 std::shared_ptr<GParameterSet> m_global_best_ptr; ///< The globally best individual
 
 	 std::vector<std::shared_ptr<GParameterSet>> m_neighborhood_bests_cnt = std::vector<std::shared_ptr<GParameterSet>>(m_n_neighborhoods); ///< The collection of best individuals from each neighborhood
-	 std::vector<std::shared_ptr<GParameterSet>> m_velocities_vec = std::vector<std::shared_ptr<GParameterSet>>(); ///< Holds velocities, as calculated in the previous iteration
+	 std::vector<std::shared_ptr<GParameterSet>> m_velocities_cnt = std::vector<std::shared_ptr<GParameterSet>>(); ///< Holds velocities, as calculated in the previous iteration
 
 	 double m_c_personal = DEFAULTCPERSONAL; ///< A factor for multiplication of personal best distances
 	 double m_c_neighborhood = DEFAULTCNEIGHBORHOOD; ///< A factor for multiplication of neighborhood best distances
@@ -301,7 +301,7 @@ protected:
 
 	 double m_velocity_range_percentage = DEFAULTVELOCITYRANGEPERCENTAGE; ///< Indicates the percentage of a value range used for the initialization of the velocity
 
-	 std::vector<std::shared_ptr<GParameterSet>> m_last_iteration_individuals_vec; ///< A temporary copy of the last iteration's individuals
+	 std::vector<std::shared_ptr<GParameterSet>> m_last_iteration_individuals_cnt; ///< A temporary copy of the last iteration's individuals
 
 private:
 	 /***************************************************************************/

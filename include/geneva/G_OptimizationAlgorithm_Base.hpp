@@ -218,8 +218,8 @@ private:
         & BOOST_SERIALIZATION_NVP(m_terminateOnFileModification)
         & BOOST_SERIALIZATION_NVP(m_emitTerminationReason)
         & BOOST_SERIALIZATION_NVP(m_halted)
-        & BOOST_SERIALIZATION_NVP(m_worstKnownValids_vec)
-        & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_vec)
+        & BOOST_SERIALIZATION_NVP(m_worstKnownValids_cnt)
+        & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_cnt)
         & BOOST_SERIALIZATION_NVP(m_executor_ptr)
         & BOOST_SERIALIZATION_NVP(m_default_execMode)
         & BOOST_SERIALIZATION_NVP(m_default_executor_config);
@@ -267,8 +267,8 @@ private:
         & BOOST_SERIALIZATION_NVP(m_terminateOnFileModification)
         & BOOST_SERIALIZATION_NVP(m_emitTerminationReason)
         & BOOST_SERIALIZATION_NVP(m_halted)
-        & BOOST_SERIALIZATION_NVP(m_worstKnownValids_vec)
-        & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_vec)
+        & BOOST_SERIALIZATION_NVP(m_worstKnownValids_cnt)
+        & BOOST_SERIALIZATION_NVP(m_pluggable_monitors_cnt)
         & BOOST_SERIALIZATION_NVP(m_executor_ptr)
         & BOOST_SERIALIZATION_NVP(m_default_execMode)
         & BOOST_SERIALIZATION_NVP(m_default_executor_config);
@@ -704,8 +704,8 @@ private:
         = DEFAULTEMITTERMINATIONREASON; ///< Specifies whether information about reasons for termination should be emitted
     std::atomic<bool> m_halted{true}; ///< Set to true when halt() has returned "true"
     std::vector<std::tuple<double, double>>
-        m_worstKnownValids_vec; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
-    std::vector<std::shared_ptr<GBasePluggableOM>> m_pluggable_monitors_vec; ///< A collection of monitors
+        m_worstKnownValids_cnt; ///< Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
+    std::vector<std::shared_ptr<GBasePluggableOM>> m_pluggable_monitors_cnt; ///< A collection of monitors
 
     std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>>
         m_executor_ptr; ///< Holds the current executor for this algorithm

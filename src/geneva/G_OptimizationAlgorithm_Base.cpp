@@ -201,7 +201,7 @@ G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationA
 	  , m_terminationFile(cp.m_terminationFile)
 	  , m_terminateOnFileModification(cp.m_terminateOnFileModification)
 	  , m_emitTerminationReason(cp.m_emitTerminationReason)
-	  , m_worstKnownValids_vec(cp.m_worstKnownValids_vec)
+	  , m_worstKnownValids_cnt(cp.m_worstKnownValids_cnt)
 	  , m_default_execMode(cp.m_default_execMode)
 	  , m_default_executor_config(cp.m_default_executor_config)
 {
@@ -212,7 +212,7 @@ G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationA
 	Gem::Common::copyCloneableSmartPointer(cp.m_executor_ptr, m_executor_ptr);
 
 	// Copy the pluggable optimization monitors over (if any)
-	Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors_vec, m_pluggable_monitors_vec);
+	Gem::Common::copyCloneableSmartPointerContainer(cp.m_pluggable_monitors_cnt, m_pluggable_monitors_cnt);
 }
 
 /******************************************************************************/
@@ -495,8 +495,8 @@ void G_OptimizationAlgorithm_Base::compare_(
 	compare_t(IDENTITY(m_terminateOnFileModification, p_load->m_terminateOnFileModification), token);
 	compare_t(IDENTITY(m_emitTerminationReason, p_load->m_emitTerminationReason), token);
 	compare_t(IDENTITY(m_halted, p_load->m_halted), token);
-	compare_t(IDENTITY(m_worstKnownValids_vec, p_load->m_worstKnownValids_vec), token);
-	compare_t(IDENTITY(m_pluggable_monitors_vec, p_load->m_pluggable_monitors_vec), token);
+	compare_t(IDENTITY(m_worstKnownValids_cnt, p_load->m_worstKnownValids_cnt), token);
+	compare_t(IDENTITY(m_pluggable_monitors_cnt, p_load->m_pluggable_monitors_cnt), token);
 	compare_t(IDENTITY(m_executor_ptr, p_load->m_executor_ptr), token);
 	compare_t(IDENTITY(m_default_execMode, p_load->m_default_execMode), token);
 	compare_t(IDENTITY(m_default_executor_config, p_load->m_default_executor_config), token);
@@ -532,7 +532,7 @@ void G_OptimizationAlgorithm_Base::resetToOptimizationStart() {
 
 	m_halted = true; // Also means: No optimization is currently running
 
-	m_worstKnownValids_vec.clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
+	m_worstKnownValids_cnt.clear(); // Stores the worst known valid evaluations up to the current iteration (first entry: raw, second: tranformed)
 
 	m_executor_ptr.reset(); // Removes the local executor
 }
@@ -739,7 +739,7 @@ void G_OptimizationAlgorithm_Base::informationUpdate(infoMode const& im) {
 	};
 
 	// Perform any action defined by the user through pluggable monitor objects
-	for(auto const& pm_ptr: m_pluggable_monitors_vec) {
+	for(auto const& pm_ptr: m_pluggable_monitors_cnt) {
 		pm_ptr->informationFunction(im, this);
 	}
 }
@@ -764,7 +764,7 @@ void G_OptimizationAlgorithm_Base::registerPluggableOM(
 	std::shared_ptr<GBasePluggableOM> pluggableOM
 ) {
 	if(pluggableOM) {
-		m_pluggable_monitors_vec.push_back(pluggableOM);
+		m_pluggable_monitors_cnt.push_back(pluggableOM);
 	} else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -778,7 +778,7 @@ void G_OptimizationAlgorithm_Base::registerPluggableOM(
  * Allows to reset the local pluggable optimization monitors
  */
 void G_OptimizationAlgorithm_Base::resetPluggableOM() {
-	m_pluggable_monitors_vec.clear();
+	m_pluggable_monitors_cnt.clear();
 }
 
 /******************************************************************************/
@@ -786,7 +786,7 @@ void G_OptimizationAlgorithm_Base::resetPluggableOM() {
  * Allows to check whether pluggable optimization monitors were registered
   */
 bool G_OptimizationAlgorithm_Base::hasPluggableOptimizationMonitors() const {
-	return not m_pluggable_monitors_vec.empty();
+	return not m_pluggable_monitors_cnt.empty();
 }
 
 /******************************************************************************/
@@ -1456,8 +1456,8 @@ void G_OptimizationAlgorithm_Base::load_(const GObject* cp) {
 	m_minDuration = p_load->m_minDuration;
 	m_emitTerminationReason = p_load->m_emitTerminationReason;
 	m_halted.store(p_load->m_halted.load());
-	m_worstKnownValids_vec = p_load->m_worstKnownValids_vec;
-	Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors_vec, m_pluggable_monitors_vec);
+	m_worstKnownValids_cnt = p_load->m_worstKnownValids_cnt;
+	Gem::Common::copyCloneableSmartPointerContainer(p_load->m_pluggable_monitors_cnt, m_pluggable_monitors_cnt);
 	Gem::Common::copyCloneableSmartPointer(p_load->m_executor_ptr, m_executor_ptr);
 	m_default_execMode = p_load->m_default_execMode;
 	m_default_executor_config = p_load->m_default_executor_config;

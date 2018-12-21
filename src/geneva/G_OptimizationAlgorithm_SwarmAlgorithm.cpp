@@ -278,13 +278,13 @@ void GSwarmAlgorithm::resetToOptimizationStart() {
 	m_global_best_ptr.reset(); // The globally best individual
 
 	m_neighborhood_bests_cnt = std::vector<std::shared_ptr<GParameterSet>>(m_n_neighborhoods); // The collection of best individuals from each neighborhood
-	m_velocities_vec = std::vector<std::shared_ptr<GParameterSet>>(); // Holds velocities, as calculated in the previous iteration
+	m_velocities_cnt = std::vector<std::shared_ptr<GParameterSet>>(); // Holds velocities, as calculated in the previous iteration
 
 	m_dbl_lower_parameter_boundaries_cnt.clear(); // Holds lower boundaries of double parameters
 	m_dbl_upper_parameter_boundaries_cnt.clear(); // Holds upper boundaries of double parameters
 	m_dbl_vel_max_cnt.clear(); // Holds the maximum allowed values of double-type velocities
 
-	m_last_iteration_individuals_vec.clear(); // A temporary copy of the last iteration's individuals
+	m_last_iteration_individuals_cnt.clear(); // A temporary copy of the last iteration's individuals
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
@@ -628,10 +628,10 @@ void GSwarmAlgorithm::init() {
 		m_dbl_vel_max_cnt.push_back(l * (m_dbl_upper_parameter_boundaries_cnt[i] - m_dbl_lower_parameter_boundaries_cnt[i]));
 	}
 
-	// Make sure the m_velocities_vec vector is really empty
-	m_velocities_vec.clear();
+	// Make sure the m_velocities_cnt vector is really empty
+	m_velocities_cnt.clear();
 
-	// Create copies of our individuals in the m_velocities_vec vector.
+	// Create copies of our individuals in the m_velocities_cnt vector.
 	std::size_t pos = 0;
 	for(const auto& ind_ptr: *this) {
 #ifdef DEBUG
@@ -679,7 +679,7 @@ void GSwarmAlgorithm::init() {
 		p->mark_as_due_for_processing(); // Catch cases where a value is calculated for the velocity individual
 
 		// Add the initialized velocity to the array.
-		m_velocities_vec.push_back(p);
+		m_velocities_cnt.push_back(p);
 
 		pos++;
 	}
@@ -700,7 +700,7 @@ void GSwarmAlgorithm::init() {
 void GSwarmAlgorithm::finalize() {
 	// Remove remaining velocity individuals. The std::shared_ptr<GParameterSet>s
 	// will take care of deleting the GParameterSet objects.
-	m_velocities_vec.clear();
+	m_velocities_cnt.clear();
 
 	// Last action
 	G_OptimizationAlgorithm_Base::finalize();
@@ -754,14 +754,14 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 	std::size_t firstNIPos; // Will hold the expected first position of a neighborhood
 
 #ifdef DEBUG
-	// Check that m_last_iteration_individuals_vec has the desired size in iterations other than the first
-	if(afterFirstIteration() && m_last_iteration_individuals_vec.size() != m_default_n_neighborhood_members*m_n_neighborhoods) {
+	// Check that m_last_iteration_individuals_cnt has the desired size in iterations other than the first
+	if(afterFirstIteration() && m_last_iteration_individuals_cnt.size() != m_default_n_neighborhood_members*m_n_neighborhoods) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GSwarmAlgorithm::adjustNeighborhoods(): Error!" << std::endl
-				<< "m_last_iteration_individuals_vec has incorrect size! Expected" << std::endl
+				<< "m_last_iteration_individuals_cnt has incorrect size! Expected" << std::endl
 				<< "m_default_n_neighborhood_members*m_n_neighborhoods = " << m_default_n_neighborhood_members*m_n_neighborhoods << std::endl
-				<< "but found " << m_last_iteration_individuals_vec.size() << std::endl
+				<< "but found " << m_last_iteration_individuals_cnt.size() << std::endl
 		);
 	}
 #endif /* DEBUG */
@@ -794,11 +794,11 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 			std::size_t nMissing = m_default_n_neighborhood_members - m_n_neighborhood_members_cnt[n];
 
 			if (afterFirstIteration()) { // The most likely case
-				// Copy the best items of this neighborhood over from the m_last_iteration_individuals_vec vector.
+				// Copy the best items of this neighborhood over from the m_last_iteration_individuals_cnt vector.
 				// Each neighborhood there should have been sorted according to the individuals
 				// fitness, with the best individuals in the front of each neighborhood.
 				for (std::size_t i = 0; i < nMissing; i++) {
-					data.insert(data.begin() + firstNIPos, *(m_last_iteration_individuals_vec.begin() + firstNIPos + i));
+					data.insert(data.begin() + firstNIPos, *(m_last_iteration_individuals_cnt.begin() + firstNIPos + i));
 				}
 			} else { // first iteration
 #ifdef DEBUG
@@ -842,7 +842,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 	}
 #endif
 
-	m_last_iteration_individuals_vec.clear(); // Get rid of the copies
+	m_last_iteration_individuals_cnt.clear(); // Get rid of the copies
 }
 
 
@@ -895,11 +895,11 @@ void GSwarmAlgorithm::updatePositions() {
 	}
 #endif
 
-	m_last_iteration_individuals_vec.clear();
+	m_last_iteration_individuals_cnt.clear();
 	if (afterFirstIteration()) {
 		// Clone the individuals and copy them over
 		for(const auto& ind_ptr: *this) {
-			m_last_iteration_individuals_vec.push_back(ind_ptr->clone<GParameterSet>());
+			m_last_iteration_individuals_cnt.push_back(ind_ptr->clone<GParameterSet>());
 		}
 	}
 
@@ -957,7 +957,7 @@ void GSwarmAlgorithm::updatePositions() {
 				 not (*current)->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->checkNoPositionUpdateAndReset()) {
 				// Update the swarm positions:
 				updateIndividualPositions(
-					n, (*current), m_neighborhood_bests_cnt[n], m_global_best_ptr, m_velocities_vec[neighborhood_offset], std::make_tuple(
+					n, (*current), m_neighborhood_bests_cnt[n], m_global_best_ptr, m_velocities_cnt[neighborhood_offset], std::make_tuple(
 						getCPersonal(), getCNeighborhood(), getCGlobal(), getCVelocity()
 					)
 				);

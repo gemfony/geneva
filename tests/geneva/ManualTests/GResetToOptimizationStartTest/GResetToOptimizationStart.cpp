@@ -85,17 +85,17 @@ int main(int argc, char **argv) {
 	}
 
 	// Retrieve the registered algorithms
-	auto algorithms_vec = go.getRegisteredAlgorithms();
+	auto algorithms_cnt = go.getRegisteredAlgorithms();
 
-	std::cout << "Got algorithms_vec of size " << algorithms_vec.size() << std::endl;
+	std::cout << "Got algorithms_cnt of size " << algorithms_cnt.size() << std::endl;
 
-	for(auto alg: algorithms_vec) {
+	for(auto const & alg_ptr: algorithms_cnt) {
 		for(std::size_t resetCounter=0; resetCounter<NRESETS; resetCounter++) {
-			alg->push_back(gfif_ptr->get());
-			alg->optimize();
+			alg_ptr->push_back(gfif_ptr->get());
+			alg_ptr->optimize();
 
 			if(resetCounter < NRESETS) {
-				alg->resetToOptimizationStart();
+				alg_ptr->resetToOptimizationStart();
 				std::cout << "Algorithm was reset" << std::endl;
 			}
 		}
