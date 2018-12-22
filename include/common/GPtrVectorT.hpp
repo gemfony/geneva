@@ -148,9 +148,7 @@ public:
 	 * @param cp A constant reference to another GStdPtrVectorInterfaceT object
 	 */
 	GPtrVectorT(GPtrVectorT<T,B> const& cp) {
-		for(auto const& item_ptr: cp)  {
-			m_data_cnt.push_back(item_ptr->T::template clone<T>());
-		}
+	    Gem::Common::copyCloneableSmartPointerContainer(cp.m_data_cnt, m_data_cnt);
 	}
 
     /***************************************************************************/
@@ -158,10 +156,7 @@ public:
      * The assignment operator
      */
     GPtrVectorT<T,B> & operator=(GPtrVectorT<T,B> const& cp) {
-        for(auto const& item_ptr: cp)  {
-            m_data_cnt.push_back(item_ptr->T::template clone<T>());
-        }
-
+        Gem::Common::copyCloneableSmartPointerContainer(cp.m_data_cnt, m_data_cnt);
         return *this;
     }
 
@@ -181,7 +176,7 @@ public:
 	 * @param cp A constant reference to another std::vector<std::shared_ptr<T>>
 	 * @return A reference to this object
 	 */
-	 GPtrVectorT<T,B> &operator=(std::vector<std::shared_ptr <T>> const& cp) {
+	 GPtrVectorT<T,B> &operator=(std::vector<std::shared_ptr<T>> const& cp) {
 		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
 		typename std::vector<std::shared_ptr <T>>::iterator it;
 
