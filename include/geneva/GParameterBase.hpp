@@ -152,7 +152,7 @@ public:
      */
     template<typename par_type>
     std::size_t countParameters(
-        const activityMode &am
+        activityMode am
     ) const {
         throw gemfony_exception(
             g_error_streamer(
@@ -180,7 +180,7 @@ public:
     void boundaries(
         std::vector<par_type> &lBndVec
         , std::vector<par_type> &uBndVec
-        , const activityMode &am
+        , activityMode am
     ) const {
         throw gemfony_exception(
             g_error_streamer(
@@ -203,7 +203,7 @@ public:
     template<typename par_type>
     void streamline(
         std::vector<par_type> &parVec
-        , const activityMode &am
+        , activityMode am
     ) const {
         throw gemfony_exception(
             g_error_streamer(
@@ -226,7 +226,7 @@ public:
     template<typename par_type>
     void streamline(
         std::map<std::string, std::vector<par_type>> &parVec
-        , const activityMode &am
+        , activityMode am
     ) const {
         throw gemfony_exception(
             g_error_streamer(
@@ -251,7 +251,7 @@ public:
     void assignValueVector(
         const std::vector<par_type> &parVec
         , std::size_t &pos
-        , const activityMode &am
+        , activityMode am
     ) {
         throw gemfony_exception(
             g_error_streamer(
@@ -272,7 +272,7 @@ public:
     template<typename par_type>
     void assignValueVectors(
         const std::map<std::string, std::vector<par_type>> &parMap
-        , const activityMode &am
+        , activityMode am
     ) {
         throw gemfony_exception(
             g_error_streamer(
@@ -292,7 +292,7 @@ public:
     void multiplyByRandom(
         const par_type &min
         , const par_type &max
-        , const activityMode &am
+        , activityMode am
         , Gem::Hap::GRandomBase &
     ) {
         throw gemfony_exception(
@@ -311,7 +311,7 @@ public:
      */
     template<typename par_type>
     void multiplyByRandom(
-        const activityMode &am
+        activityMode am
         , Gem::Hap::GRandomBase &
     ) {
         throw gemfony_exception(
@@ -330,8 +330,8 @@ public:
      */
     template<typename par_type>
     void multiplyBy(
-        const par_type &val
-        , const activityMode &am
+        par_type val
+        , activityMode am
     ) {
         throw gemfony_exception(
             g_error_streamer(
@@ -349,8 +349,8 @@ public:
      */
     template<typename par_type>
     void fixedValueInit(
-        const par_type &val
-        , const activityMode &am
+        par_type val
+        , activityMode am
     ) {
         throw gemfony_exception(
             g_error_streamer(
@@ -368,8 +368,8 @@ public:
      */
     template<typename par_type>
     void add(
-        std::shared_ptr<GParameterBase> p
-        , const activityMode &am
+        const std::shared_ptr<GParameterBase> &p
+        , activityMode am
     ) {
         throw gemfony_exception(
             g_error_streamer(
@@ -387,8 +387,8 @@ public:
      */
     template<typename par_type>
     void subtract(
-        std::shared_ptr<GParameterBase> p
-        , const activityMode &am
+        const std::shared_ptr<GParameterBase> &p
+        , activityMode am
     ) {
         throw gemfony_exception(
             g_error_streamer(
@@ -697,7 +697,7 @@ public:
 template<>
 inline void GParameterBase::streamline<float>(
     std::vector<float> &parVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->floatStreamline(
@@ -716,7 +716,7 @@ inline void GParameterBase::streamline<float>(
 template<>
 inline void GParameterBase::streamline<double>(
     std::vector<double> &parVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->doubleStreamline(
@@ -735,7 +735,7 @@ inline void GParameterBase::streamline<double>(
 template<>
 inline void GParameterBase::streamline<std::int32_t>(
     std::vector<std::int32_t> &parVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->int32Streamline(
@@ -754,7 +754,7 @@ inline void GParameterBase::streamline<std::int32_t>(
 template<>
 inline void GParameterBase::streamline<bool>(
     std::vector<bool> &parVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->booleanStreamline(
@@ -773,7 +773,7 @@ inline void GParameterBase::streamline<bool>(
 template<>
 inline void GParameterBase::streamline<float>(
     std::map<std::string, std::vector<float>> &parVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->floatStreamline(
@@ -792,7 +792,7 @@ inline void GParameterBase::streamline<float>(
 template<>
 inline void GParameterBase::streamline<double>(
     std::map<std::string, std::vector<double>> &parVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->doubleStreamline(
@@ -811,7 +811,7 @@ inline void GParameterBase::streamline<double>(
 template<>
 inline void GParameterBase::streamline<std::int32_t>(
     std::map<std::string, std::vector<std::int32_t>> &parVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->int32Streamline(
@@ -830,7 +830,7 @@ inline void GParameterBase::streamline<std::int32_t>(
 template<>
 inline void GParameterBase::streamline<bool>(
     std::map<std::string, std::vector<bool>> &parVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->booleanStreamline(
@@ -852,7 +852,7 @@ template<>
 inline void GParameterBase::boundaries<float>(
     std::vector<float> &lBndVec
     , std::vector<float> &uBndVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->floatBoundaries(
@@ -874,7 +874,7 @@ template<>
 inline void GParameterBase::boundaries<double>(
     std::vector<double> &lBndVec
     , std::vector<double> &uBndVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->doubleBoundaries(
@@ -896,7 +896,7 @@ template<>
 inline void GParameterBase::boundaries<std::int32_t>(
     std::vector<std::int32_t> &lBndVec
     , std::vector<std::int32_t> &uBndVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->int32Boundaries(
@@ -918,7 +918,7 @@ template<>
 inline void GParameterBase::boundaries<bool>(
     std::vector<bool> &lBndVec
     , std::vector<bool> &uBndVec
-    , const activityMode &am
+    , activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->booleanBoundaries(
@@ -938,7 +938,7 @@ inline void GParameterBase::boundaries<bool>(
  */
 template<>
 inline std::size_t GParameterBase::countParameters<float>(
-    const activityMode &am
+    activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         return this->countFloatParameters(am);
@@ -956,7 +956,7 @@ inline std::size_t GParameterBase::countParameters<float>(
  */
 template<>
 inline std::size_t GParameterBase::countParameters<double>(
-    const activityMode &am
+    activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         return this->countDoubleParameters(am);
@@ -974,7 +974,7 @@ inline std::size_t GParameterBase::countParameters<double>(
  */
 template<>
 inline std::size_t GParameterBase::countParameters<std::int32_t>(
-    const activityMode &am
+    activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         return this->countInt32Parameters(am);
@@ -992,7 +992,7 @@ inline std::size_t GParameterBase::countParameters<std::int32_t>(
  */
 template<>
 inline std::size_t GParameterBase::countParameters<bool>(
-    const activityMode &am
+    activityMode am
 ) const {
     if (this->modifiableAmMatchOrHandover(am)) {
         return this->countBoolParameters(am);
@@ -1012,7 +1012,7 @@ template<>
 inline void GParameterBase::assignValueVector<float>(
     const std::vector<float> &parVec
     , std::size_t &pos
-    , const activityMode &am
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->assignFloatValueVector(
@@ -1034,7 +1034,7 @@ template<>
 inline void GParameterBase::assignValueVector<double>(
     const std::vector<double> &parVec
     , std::size_t &pos
-    , const activityMode &am
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->assignDoubleValueVector(
@@ -1056,7 +1056,7 @@ template<>
 inline void GParameterBase::assignValueVector<std::int32_t>(
     const std::vector<std::int32_t> &parVec
     , std::size_t &pos
-    , const activityMode &am
+    , activityMode am
 ) {
     this->assignInt32ValueVector(
         parVec
@@ -1076,7 +1076,7 @@ template<>
 inline void GParameterBase::assignValueVector<bool>(
     const std::vector<bool> &parVec
     , std::size_t &pos
-    , const activityMode &am
+    , activityMode am
 ) {
     this->assignBooleanValueVector(
         parVec
@@ -1094,7 +1094,7 @@ inline void GParameterBase::assignValueVector<bool>(
 template<>
 inline void GParameterBase::assignValueVectors<float>(
     const std::map<std::string, std::vector<float>> &parMap
-    , const activityMode &am
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->assignFloatValueVectors(
@@ -1113,7 +1113,7 @@ inline void GParameterBase::assignValueVectors<float>(
 template<>
 inline void GParameterBase::assignValueVectors<double>(
     const std::map<std::string, std::vector<double>> &parMap
-    , const activityMode &am
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->assignDoubleValueVectors(
@@ -1132,7 +1132,7 @@ inline void GParameterBase::assignValueVectors<double>(
 template<>
 inline void GParameterBase::assignValueVectors<std::int32_t>(
     const std::map<std::string, std::vector<std::int32_t>> &parMap
-    , const activityMode &am
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->assignInt32ValueVectors(
@@ -1151,7 +1151,7 @@ inline void GParameterBase::assignValueVectors<std::int32_t>(
 template<>
 inline void GParameterBase::assignValueVectors<bool>(
     const std::map<std::string, std::vector<bool>> &parMap
-    , const activityMode &am
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->assignBooleanValueVectors(
@@ -1169,7 +1169,7 @@ template<>
 inline void GParameterBase::multiplyByRandom<float>(
     const float &min
     , const float &max
-    , const activityMode &am
+    , activityMode am
     , Gem::Hap::GRandomBase &gr
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
@@ -1190,7 +1190,7 @@ template<>
 inline void GParameterBase::multiplyByRandom<double>(
     const double &min
     , const double &max
-    , const activityMode &am
+    , activityMode am
     , Gem::Hap::GRandomBase &gr
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
@@ -1211,7 +1211,7 @@ template<>
 inline void GParameterBase::multiplyByRandom<std::int32_t>(
     const std::int32_t &min
     , const std::int32_t &max
-    , const activityMode &am
+    , activityMode am
     , Gem::Hap::GRandomBase &gr
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
@@ -1234,7 +1234,7 @@ template<>
 inline void GParameterBase::multiplyByRandom<bool>(
     const bool &min
     , const bool &max
-    , const activityMode &am
+    , activityMode am
     , Gem::Hap::GRandomBase &gr
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
@@ -1254,7 +1254,7 @@ inline void GParameterBase::multiplyByRandom<bool>(
  */
 template<>
 inline void GParameterBase::multiplyByRandom<float>(
-    const activityMode &am
+    activityMode am
     , Gem::Hap::GRandomBase &gr
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
@@ -1271,7 +1271,7 @@ inline void GParameterBase::multiplyByRandom<float>(
  */
 template<>
 inline void GParameterBase::multiplyByRandom<double>(
-    const activityMode &am
+    activityMode am
     , Gem::Hap::GRandomBase &gr
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
@@ -1288,7 +1288,7 @@ inline void GParameterBase::multiplyByRandom<double>(
  */
 template<>
 inline void GParameterBase::multiplyByRandom<std::int32_t>(
-    const activityMode &am
+    activityMode am
     , Gem::Hap::GRandomBase &gr
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
@@ -1307,7 +1307,7 @@ inline void GParameterBase::multiplyByRandom<std::int32_t>(
  */
 template<>
 inline void GParameterBase::multiplyByRandom<bool>(
-    const activityMode &am
+    activityMode am
     , Gem::Hap::GRandomBase &gr
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
@@ -1325,8 +1325,8 @@ inline void GParameterBase::multiplyByRandom<bool>(
  */
 template<>
 inline void GParameterBase::multiplyBy<float>(
-    const float &val
-    , const activityMode &am
+    float val
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->floatMultiplyBy(
@@ -1342,8 +1342,8 @@ inline void GParameterBase::multiplyBy<float>(
  */
 template<>
 inline void GParameterBase::multiplyBy<double>(
-    const double &val
-    , const activityMode &am
+    double val
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->doubleMultiplyBy(
@@ -1359,8 +1359,8 @@ inline void GParameterBase::multiplyBy<double>(
  */
 template<>
 inline void GParameterBase::multiplyBy<std::int32_t>(
-    const std::int32_t &val
-    , const activityMode &am
+    std::int32_t val
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->int32MultiplyBy(
@@ -1378,8 +1378,8 @@ inline void GParameterBase::multiplyBy<std::int32_t>(
  */
 template<>
 inline void GParameterBase::multiplyBy<bool>(
-    const bool &val
-    , const activityMode &am
+    bool val
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         // NOTE: This will throw
@@ -1396,8 +1396,8 @@ inline void GParameterBase::multiplyBy<bool>(
  */
 template<>
 inline void GParameterBase::fixedValueInit<float>(
-    const float &val
-    , const activityMode &am
+    float val
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->floatFixedValueInit(
@@ -1413,8 +1413,8 @@ inline void GParameterBase::fixedValueInit<float>(
  */
 template<>
 inline void GParameterBase::fixedValueInit<double>(
-    const double &val
-    , const activityMode &am
+    double val
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->doubleFixedValueInit(
@@ -1430,8 +1430,8 @@ inline void GParameterBase::fixedValueInit<double>(
  */
 template<>
 inline void GParameterBase::fixedValueInit<std::int32_t>(
-    const std::int32_t &val
-    , const activityMode &am
+    std::int32_t val
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->int32FixedValueInit(
@@ -1447,8 +1447,8 @@ inline void GParameterBase::fixedValueInit<std::int32_t>(
  */
 template<>
 inline void GParameterBase::fixedValueInit<bool>(
-    const bool &val
-    , const activityMode &am
+    bool val
+    , activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->booleanFixedValueInit(
@@ -1464,8 +1464,7 @@ inline void GParameterBase::fixedValueInit<bool>(
  */
 template<>
 inline void GParameterBase::add<float>(
-    std::shared_ptr<GParameterBase> p
-    , const activityMode &am
+    const std::shared_ptr<GParameterBase> &p, activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->floatAdd(
@@ -1481,8 +1480,7 @@ inline void GParameterBase::add<float>(
  */
 template<>
 inline void GParameterBase::add<double>(
-    std::shared_ptr<GParameterBase> p
-    , const activityMode &am
+    const std::shared_ptr<GParameterBase> &p, activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->doubleAdd(
@@ -1498,8 +1496,7 @@ inline void GParameterBase::add<double>(
  */
 template<>
 inline void GParameterBase::add<std::int32_t>(
-    std::shared_ptr<GParameterBase> p
-    , const activityMode &am
+    const std::shared_ptr<GParameterBase> &p, activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->int32Add(
@@ -1517,8 +1514,7 @@ inline void GParameterBase::add<std::int32_t>(
  */
 template<>
 inline void GParameterBase::add<bool>(
-    std::shared_ptr<GParameterBase> p
-    , const activityMode &am
+    const std::shared_ptr<GParameterBase> &p, activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         // Note: This call will throw!
@@ -1535,8 +1531,7 @@ inline void GParameterBase::add<bool>(
  */
 template<>
 inline void GParameterBase::subtract<float>(
-    std::shared_ptr<GParameterBase> p
-    , const activityMode &am
+    const std::shared_ptr<GParameterBase> &p, activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->floatSubtract(
@@ -1552,8 +1547,7 @@ inline void GParameterBase::subtract<float>(
  */
 template<>
 inline void GParameterBase::subtract<double>(
-    std::shared_ptr<GParameterBase> p
-    , const activityMode &am
+    const std::shared_ptr<GParameterBase> &p, activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->doubleSubtract(
@@ -1569,8 +1563,7 @@ inline void GParameterBase::subtract<double>(
  */
 template<>
 inline void GParameterBase::subtract<std::int32_t>(
-    std::shared_ptr<GParameterBase> p
-    , const activityMode &am
+    const std::shared_ptr<GParameterBase> &p, activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         this->int32Subtract(
@@ -1588,8 +1581,7 @@ inline void GParameterBase::subtract<std::int32_t>(
  */
 template<>
 inline void GParameterBase::subtract<bool>(
-    std::shared_ptr<GParameterBase> p
-    , const activityMode &am
+    const std::shared_ptr<GParameterBase> &p, activityMode am
 ) {
     if (this->modifiableAmMatchOrHandover(am)) {
         // NOTE: This call will throw
