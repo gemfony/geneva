@@ -87,7 +87,6 @@ public:
     /*********************************************************************/
     // Defaulted constructors, destructor and assignment operators
 
-    /** @brief The standard constructor */
     G_API_GENEVA GParameterBase() = default;
     G_API_GENEVA GParameterBase(GParameterBase const &) = default;
     G_API_GENEVA GParameterBase(GParameterBase &&) = default;
