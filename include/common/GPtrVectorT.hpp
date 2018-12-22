@@ -116,7 +116,7 @@ class GPtrVectorT
 #endif
 
 		ar
-		& BOOST_SERIALIZATION_NVP(data);
+		& BOOST_SERIALIZATION_NVP(m_data_cnt);
 	}
 	///////////////////////////////////////////////////////////////////////
 
@@ -149,7 +149,7 @@ public:
 	 */
 	GPtrVectorT(GPtrVectorT<T,B> const& cp) {
 		for(auto const& item_ptr: cp)  {
-			data.push_back(item_ptr->T::template clone<T>());
+			m_data_cnt.push_back(item_ptr->T::template clone<T>());
 		}
 	}
 
@@ -159,7 +159,7 @@ public:
      */
     GPtrVectorT<T,B> & operator=(GPtrVectorT<T,B> const& cp) {
         for(auto const& item_ptr: cp)  {
-            data.push_back(item_ptr->T::template clone<T>());
+            m_data_cnt.push_back(item_ptr->T::template clone<T>());
         }
 
         return *this;
@@ -185,29 +185,29 @@ public:
 		typename std::vector<std::shared_ptr <T>>::const_iterator cp_it;
 		typename std::vector<std::shared_ptr <T>>::iterator it;
 
-		std::size_t localSize = data.size();
+		std::size_t localSize = m_data_cnt.size();
 		std::size_t cpSize = cp.size();
 
 		if (cpSize == localSize) { // The most likely case
-			for (it = data.begin(), cp_it = cp.begin(); it != data.end(); ++it, ++cp_it) {
+			for (it = m_data_cnt.begin(), cp_it = cp.begin(); it != m_data_cnt.end(); ++it, ++cp_it) {
 				(*it)->B::load(*cp_it);
 			}
 		} else if (cpSize > localSize) {
 			// First copy the initial elements
-			for (it = data.begin(), cp_it = cp.begin(); it != data.end(); ++it, ++cp_it) {
+			for (it = m_data_cnt.begin(), cp_it = cp.begin(); it != m_data_cnt.end(); ++it, ++cp_it) {
 				(*it)->B::load(*cp_it);
 			}
 
 			// Then attach the remaining objects from cp
 			for (cp_it = cp.begin() + localSize; cp_it != cp.end(); ++cp_it) {
-				data.push_back((*cp_it)->T::template clone<T>());
+				m_data_cnt.push_back((*cp_it)->T::template clone<T>());
 			}
 		} else if (cpSize < localSize) {
 			// First get rid of surplus items
-			data.resize(cpSize);
+			m_data_cnt.resize(cpSize);
 
 			// Then copy the elements
-			for (it = data.begin(), cp_it = cp.begin(); it != data.end(); ++it, ++cp_it) {
+			for (it = m_data_cnt.begin(), cp_it = cp.begin(); it != m_data_cnt.end(); ++it, ++cp_it) {
 				(*it)->B::load(*cp_it);
 			}
 		}
@@ -230,7 +230,7 @@ public:
 		, double const &limit
 	) const BASE {
 		Gem::Common::GToken token("GBaseEA::GEAOptimizationMonitor", e);
-		Gem::Common::compare_t(IDENTITY(this->data, cp.data), token);
+		Gem::Common::compare_t(IDENTITY(this->m_data_cnt, cp.m_data_cnt), token);
 		token.evaluate();
 	}
 
@@ -250,12 +250,12 @@ public:
 
 	/***************************************************************************/
 	// Non modifying access
-	size_type size() const { return data.size(); } // not tested -- trivial mapping
-	bool empty() const { return data.empty(); } // not tested -- trivial mapping
-	size_type max_size() const { return data.max_size(); } // not tested -- trivial mapping
+	size_type size() const { return m_data_cnt.size(); } // not tested -- trivial mapping
+	bool empty() const { return m_data_cnt.empty(); } // not tested -- trivial mapping
+	size_type max_size() const { return m_data_cnt.max_size(); } // not tested -- trivial mapping
 
-	size_type capacity() const { return data.capacity(); } // not tested -- trivial mapping
-	void reserve(size_type amount) { data.reserve(amount); } // not tested -- trivial mapping
+	size_type capacity() const { return m_data_cnt.capacity(); } // not tested -- trivial mapping
+	void reserve(size_type amount) { m_data_cnt.reserve(amount); } // not tested -- trivial mapping
 
     /***************************************************************************/
     /**
@@ -279,8 +279,8 @@ public:
         }
 
         return boost::numeric_cast<size_type>(std::count_if(
-            data.begin()
-            , data.end()
+            m_data_cnt.begin()
+            , m_data_cnt.end()
             , [&item](const std::shared_ptr <T> &cont_item) -> bool {
 #ifdef DEBUG
                 try {
@@ -325,7 +325,7 @@ public:
 		}
 
 		return std::find_if(
-			data.begin(), data.end(), [&item](const std::shared_ptr <T> &cont_item) -> bool {
+			m_data_cnt.begin(), m_data_cnt.end(), [&item](const std::shared_ptr <T> &cont_item) -> bool {
 #ifdef DEBUG
             try {
                return (*item == *(std::dynamic_pointer_cast<item_type>(cont_item)));
@@ -354,40 +354,40 @@ public:
 	 */
 	template<typename target_type>
 	std::shared_ptr <target_type> clone_at(std::size_t pos) const {
-		return (data.at(pos))->T::template clone<target_type>();
+		return (m_data_cnt.at(pos))->T::template clone<target_type>();
 	}
 
 	/***************************************************************************/
 	// Modifying functions
 
 	// Exchange of two data sets
-	void swap(std::vector<std::shared_ptr<T>>& cont) { data.swap(cont); } // not tested -- trivial mapping
+	void swap(std::vector<std::shared_ptr<T>>& cont) { m_data_cnt.swap(cont); } // not tested -- trivial mapping
 
 	// Access to elements (unchecked / checked)
-	reference operator[](std::size_t pos) { return data[pos]; } // not tested -- trivial mapping
-	const_reference operator[](std::size_t pos) const { return data[pos]; } // not tested -- trivial mapping
+	reference operator[](std::size_t pos) { return m_data_cnt[pos]; } // not tested -- trivial mapping
+	const_reference operator[](std::size_t pos) const { return m_data_cnt[pos]; } // not tested -- trivial mapping
 
-	reference at(std::size_t pos) { return data.at(pos); } // not tested -- trivial mapping
-	const_reference at(std::size_t pos) const { return data.at(pos); } // not tested -- trivial mapping
+	reference at(std::size_t pos) { return m_data_cnt.at(pos); } // not tested -- trivial mapping
+	const_reference at(std::size_t pos) const { return m_data_cnt.at(pos); } // not tested -- trivial mapping
 
-	reference front() { return data.front(); } // not tested -- trivial mapping
-	const_reference front() const { return data.front(); } // not tested -- trivial mapping
+	reference front() { return m_data_cnt.front(); } // not tested -- trivial mapping
+	const_reference front() const { return m_data_cnt.front(); } // not tested -- trivial mapping
 
-	reference back() { return data.back(); } // not tested -- trivial mapping
-	const_reference back() const { return data.back(); } // not tested -- trivial mapping
+	reference back() { return m_data_cnt.back(); } // not tested -- trivial mapping
+	const_reference back() const { return m_data_cnt.back(); } // not tested -- trivial mapping
 
 	// Iterators
-	iterator begin() { return data.begin(); } // not tested -- trivial mapping
-	const_iterator begin() const { return data.begin(); } // not tested -- trivial mapping
+	iterator begin() { return m_data_cnt.begin(); } // not tested -- trivial mapping
+	const_iterator begin() const { return m_data_cnt.begin(); } // not tested -- trivial mapping
 
-	iterator end() { return data.end(); } // not tested -- trivial mapping
-	const_iterator end() const { return data.end(); } // not tested -- trivial mapping
+	iterator end() { return m_data_cnt.end(); } // not tested -- trivial mapping
+	const_iterator end() const { return m_data_cnt.end(); } // not tested -- trivial mapping
 
-	reverse_iterator rbegin() { return data.rbegin(); } // not tested -- trivial mapping
-	const_reverse_iterator rbegin() const { return data.rbegin(); } // not tested -- trivial mapping
+	reverse_iterator rbegin() { return m_data_cnt.rbegin(); } // not tested -- trivial mapping
+	const_reverse_iterator rbegin() const { return m_data_cnt.rbegin(); } // not tested -- trivial mapping
 
-	reverse_iterator rend() { return data.rend(); } // not tested -- trivial mapping
-	const_reverse_iterator rend() const { return data.rend(); } // not tested -- trivial mapping
+	reverse_iterator rend() { return m_data_cnt.rend(); } // not tested -- trivial mapping
+	const_reverse_iterator rend() const { return m_data_cnt.rend(); } // not tested -- trivial mapping
 
 	/***************************************************************************/
 	// Insertion and removal
@@ -427,7 +427,7 @@ public:
 			);
 		}
 
-		return data.insert(pos, item_ptr);
+		return m_data_cnt.insert(pos, item_ptr);
 	}
 
 	/* ------------------------------------------------------------------------------------------------
@@ -454,7 +454,7 @@ public:
 			);
 		}
 
-		return data.insert(pos, item_ptr->T::template clone<T>());
+		return m_data_cnt.insert(pos, item_ptr->T::template clone<T>());
 	}
 
 	/* ------------------------------------------------------------------------------------------------
@@ -498,10 +498,10 @@ public:
 			);
 		}
 
-		std::size_t iterator_pos = pos - data.begin();
+		std::size_t iterator_pos = pos - m_data_cnt.begin();
 		for (std::size_t i = 0; i < amount; i++) {
 			// Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos, item_ptr->T::template clone<T>());
+			m_data_cnt.insert(m_data_cnt.begin() + iterator_pos, item_ptr->T::template clone<T>());
 		}
 	}
 
@@ -530,14 +530,14 @@ public:
 			);
 		}
 
-		std::size_t iterator_pos = pos - data.begin();
+		std::size_t iterator_pos = pos - m_data_cnt.begin();
 		// Create (amount-1) clones
 		for (std::size_t i = 0; i < amount - 1; i++) {
 			// Note that we re-calculate the iterator, as it is not clear whether it remains valid
-			data.insert(data.begin() + iterator_pos, item_ptr->T::template clone<T>());
+			m_data_cnt.insert(m_data_cnt.begin() + iterator_pos, item_ptr->T::template clone<T>());
 		}
 		// Add the argument
-		data.insert(data.begin() + iterator_pos, item_ptr);
+		m_data_cnt.insert(m_data_cnt.begin() + iterator_pos, item_ptr);
 	}
 
 	/* ------------------------------------------------------------------------------------------------
@@ -579,7 +579,7 @@ public:
 			);
 		}
 
-		data.push_back(item_ptr);
+		m_data_cnt.push_back(item_ptr);
 	}
 
 	/* ------------------------------------------------------------------------------------------------
@@ -605,7 +605,7 @@ public:
 			);
 		}
 
-		data.push_back(item_ptr->T::template clone<T>());
+		m_data_cnt.push_back(item_ptr->T::template clone<T>());
 	}
 
 	/* ------------------------------------------------------------------------------------------------
@@ -616,11 +616,11 @@ public:
 
 	/***************************************************************************/
 	// Removal at a given position or in a range
-	iterator erase(iterator pos) { return data.erase(pos); }  // not tested -- trivial mapping
-	iterator erase(iterator from, iterator to) { return data.erase(from, to); }  // not tested -- trivial mapping
+	iterator erase(iterator pos) { return m_data_cnt.erase(pos); }  // not tested -- trivial mapping
+	iterator erase(iterator from, iterator to) { return m_data_cnt.erase(from, to); }  // not tested -- trivial mapping
 
 	// Removing an element from the end of the vector
-	void pop_back() { data.pop_back(); }  // not tested -- trivial mapping
+	void pop_back() { m_data_cnt.pop_back(); }  // not tested -- trivial mapping
 
 	/***************************************************************************/
 	/**
@@ -675,10 +675,10 @@ public:
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
 	void resize_noclone(size_type amount, std::shared_ptr <T> item_ptr) {
-		std::size_t dataSize = data.size();
+		std::size_t dataSize = m_data_cnt.size();
 
 		if (amount < dataSize)
-			data.resize(amount);
+			m_data_cnt.resize(amount);
 		else if (amount > dataSize) {
 			// Check that item is not empty
 			if (not item_ptr) { // Check that item actually contains something useful
@@ -691,11 +691,11 @@ public:
 
 			// Create a (amount - dataSize -1) clones
 			for (std::size_t i = dataSize; i < amount - 1; i++) {
-				data.push_back(item_ptr->T::template clone<T>());
+				m_data_cnt.push_back(item_ptr->T::template clone<T>());
 			}
 
 			// Finally add item_ptr
-			data.push_back(item_ptr);
+			m_data_cnt.push_back(item_ptr);
 		}
 	}
 
@@ -715,10 +715,10 @@ public:
 	 * @param item An item that should be used for initialization of new items, if any
 	 */
 	void resize_clone(size_type amount, std::shared_ptr <T> item_ptr) {
-		std::size_t dataSize = data.size();
+		std::size_t dataSize = m_data_cnt.size();
 
 		if (amount < dataSize)
-			data.resize(amount);
+			m_data_cnt.resize(amount);
 		else if (amount > dataSize) {
 			// Check that item is not empty
 			if (not item_ptr) { // Check that item actually contains something useful
@@ -730,7 +730,7 @@ public:
 			}
 
 			for (std::size_t i = dataSize; i < amount; i++) {
-				data.push_back(item_ptr->T::template clone<T>());
+				m_data_cnt.push_back(item_ptr->T::template clone<T>());
 			}
 		}
 	}
@@ -748,19 +748,19 @@ public:
 	 * data items to each position.
 	 */
 	void resize_empty(size_type amount) {
-		std::size_t dataSize = data.size();
+		std::size_t dataSize = m_data_cnt.size();
 		if (amount < dataSize) {
-			data.resize(amount);
+			m_data_cnt.resize(amount);
 		} else if (amount > dataSize) { // Add empty smart pointers
 			for (std::size_t i = dataSize; i < amount; i++) {
-				data.push_back(std::shared_ptr<T>());
+				m_data_cnt.push_back(std::shared_ptr<T>());
 			}
 		}
 	}
 
 	/***************************************************************************/
 	/** @brief Clearing the data vector */
-	void clear() { data.clear(); } // Not tested -- trivial mapping
+	void clear() { m_data_cnt.clear(); } // Not tested -- trivial mapping
 
 	/***************************************************************************/
 	/**
@@ -771,7 +771,7 @@ public:
 	 */
 	void getDataCopy(std::vector<std::shared_ptr<T>>& cp) const {
 		cp.clear();
-		for(const auto& item: data) {
+		for(const auto& item: m_data_cnt) {
 			cp.push_back(item->T::template clone<T>());
 		}
 	}
@@ -836,7 +836,7 @@ public:
 	 */
 	template<typename derivedType>
 	void attachViewTo(std::vector<std::shared_ptr<derivedType>>& target) {
-		for(auto& item_ptr: data) {
+		for(auto& item_ptr: m_data_cnt) {
 			std::shared_ptr<derivedType> derived_item_ptr = std::dynamic_pointer_cast<derivedType>(item_ptr);
 			if (derived_item_ptr) { target.push_back(derived_item_ptr); }
 		}
@@ -974,7 +974,7 @@ public:
 	};
 
 protected:
-	std::vector<std::shared_ptr<T>> data;
+	std::vector<std::shared_ptr<T>> m_data_cnt;
 
 public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
@@ -994,7 +994,7 @@ public:
  */
 template<typename T, typename B>
 inline GPtrVectorT<T, B>::~GPtrVectorT() {
-	data.clear();
+	m_data_cnt.clear();
 }
 
 /******************************************************************************/

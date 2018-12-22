@@ -104,7 +104,7 @@ class GPODVectorT
 		}
 #endif
 
-        ar & BOOST_SERIALIZATION_NVP(data);
+        ar & BOOST_SERIALIZATION_NVP(m_data_cnt);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -124,7 +124,7 @@ public:
      * @param val  The value to be assigned to each position
      */
     GPODVectorT(const std::size_t &nval, const T &val)
-        :data(nval, val)
+        :m_data_cnt(nval, val)
     { /* nothing */ }
 
     /***************************************************************************/
@@ -169,7 +169,7 @@ public:
             , e
         );
         Gem::Common::compare_t(
-            IDENTITY(this->data, cp.data)
+            IDENTITY(this->m_data_cnt, cp.m_data_cnt)
             , token
         );
         token.evaluate();
@@ -191,13 +191,13 @@ public:
 
     /***************************************************************************/
     // Non modifying access
-    size_type size() const { return data.size(); } // Used/tested in GDoubleCollection::fillWithData()
-    bool empty() const { return data.empty(); } // Used/tested in GDoubleCollection::fillWithData()
-    size_type max_size() const { return data.max_size(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    size_type size() const { return m_data_cnt.size(); } // Used/tested in GDoubleCollection::fillWithData()
+    bool empty() const { return m_data_cnt.empty(); } // Used/tested in GDoubleCollection::fillWithData()
+    size_type max_size() const { return m_data_cnt.max_size(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-    size_type capacity() const { return data.capacity(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    size_type capacity() const { return m_data_cnt.capacity(); } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
     void reserve(size_type amount) {
-        data.reserve(amount);
+        m_data_cnt.reserve(amount);
     } // Used/tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
     /***************************************************************************/
@@ -210,8 +210,8 @@ public:
     size_type count(const T &item) const {
         return boost::numeric_cast<size_type>(
             std::count(
-                data.begin()
-                , data.end()
+                m_data_cnt.begin()
+                , m_data_cnt.end()
                 , item
             ));
     }
@@ -227,8 +227,8 @@ public:
      */
     const_iterator /* decltype(auto) */ find(const T &item) const {
         return std::find(
-            data.begin()
-            , data.end()
+            m_data_cnt.begin()
+            , m_data_cnt.end()
             , item
         );
     }
@@ -243,7 +243,7 @@ public:
     // Modifying functions
     void swap(std::vector<T> &cont) {
         std::swap(
-            data
+            m_data_cnt
             , cont
         );
     } // untested (likely irrelevant)
@@ -251,33 +251,33 @@ public:
     // Access to elements (unchecked / checked)
     reference operator[](
         std::size_t pos
-    ) { return data[pos]; } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-    const_reference operator[](std::size_t pos) const { return data[pos]; }
+    ) { return m_data_cnt[pos]; } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    const_reference operator[](std::size_t pos) const { return m_data_cnt[pos]; }
 
     reference at(std::size_t pos) {
-        return data.at(pos);
+        return m_data_cnt.at(pos);
     } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-    const_reference at(std::size_t pos) const { return data.at(pos); }
+    const_reference at(std::size_t pos) const { return m_data_cnt.at(pos); }
 
-    reference front() { return data.front(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-    const_reference front() const { return data.front(); }
+    reference front() { return m_data_cnt.front(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    const_reference front() const { return m_data_cnt.front(); }
 
-    reference back() { return data.back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-    const_reference back() const { return data.back(); }
+    reference back() { return m_data_cnt.back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    const_reference back() const { return m_data_cnt.back(); }
 
     // Iterators
-    iterator begin() { return data.begin(); }
+    iterator begin() { return m_data_cnt.begin(); }
 
-    const_iterator begin() const { return data.begin(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    const_iterator begin() const { return m_data_cnt.begin(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
-    iterator end() { return data.end(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
-    const_iterator end() const { return data.end(); }
+    iterator end() { return m_data_cnt.end(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    const_iterator end() const { return m_data_cnt.end(); }
 
-    reverse_iterator rbegin() { return data.rbegin(); } // untested (likely irrelevant)
-    const_reverse_iterator rbegin() const { return data.rbegin(); }
+    reverse_iterator rbegin() { return m_data_cnt.rbegin(); } // untested (likely irrelevant)
+    const_reverse_iterator rbegin() const { return m_data_cnt.rbegin(); }
 
-    reverse_iterator rend() { return data.rend(); } // untested (likely irrelevant)
-    const_reverse_iterator rend() const { return data.rend(); }
+    reverse_iterator rend() { return m_data_cnt.rend(); } // untested (likely irrelevant)
+    const_reverse_iterator rend() const { return m_data_cnt.rend(); }
 
     /***************************************************************************/
     // Insertion and removal
@@ -287,7 +287,7 @@ public:
      * somewhere.
      */
     iterator insert(iterator pos, const T &item) {
-        return data.insert(
+        return m_data_cnt.insert(
             pos
             , item
         );
@@ -303,7 +303,7 @@ public:
      * Inserts a given amount of items after position pos.
      */
     void insert(iterator pos, size_type amount, const T &item) {
-        data.insert(
+        m_data_cnt.insert(
             pos
             , amount
             , item
@@ -317,23 +317,23 @@ public:
 
     /***************************************************************************/
     // Adding simple items to the  back of the vector
-    void push_back(const T &item) { data.push_back(item); } // Used/tested in GDoubleCollection::fillWithData()
+    void push_back(const T &item) { m_data_cnt.push_back(item); } // Used/tested in GDoubleCollection::fillWithData()
 
     /***************************************************************************/
 
     // Removal at a given position or in a range
     iterator erase(iterator pos) {
-        return data.erase(pos);
+        return m_data_cnt.erase(pos);
     } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
     iterator erase(iterator from, iterator to) {
-        return data.erase(
+        return m_data_cnt.erase(
             from
             , to
         );
     } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
     // Removing an element from the end of the vector
-    void pop_back() { data.pop_back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    void pop_back() { m_data_cnt.pop_back(); } // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
     /***************************************************************************/
     /**
@@ -345,7 +345,7 @@ public:
      * @param item An item that should be used for initialization of new items, if any
      */
     void resize(size_type amount, const T &item) {
-        data.resize(
+        m_data_cnt.resize(
             amount
             , item
         );
@@ -357,11 +357,11 @@ public:
      * T will be default-constructed. For numeric values this will usually mean
      * T(0).
      */
-    void resize(size_type amount) { data.resize(amount); }
+    void resize(size_type amount) { m_data_cnt.resize(amount); }
 
     /***************************************************************************/
     /** @brief Clearing the data vector */
-    void clear() { data.clear(); } // Used/tested in GDoubleCollection::fillWithData()
+    void clear() { m_data_cnt.clear(); } // Used/tested in GDoubleCollection::fillWithData()
 
     /***************************************************************************/
     /**
@@ -371,7 +371,7 @@ public:
      * @return The argument of this function (a std::vector<T>)
      */
     GPODVectorT& operator=(const std::vector<T> &cp) {
-        data = cp;
+        m_data_cnt = cp;
         return *this;
     }
 
@@ -389,7 +389,7 @@ public:
      */
     void getDataCopy(
         std::vector<T> &cp
-    ) const { cp = data; }  // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
+    ) const { cp = m_data_cnt; }  // Tested in GDoubleCollection::specificTestsNoFailureExpected_GUnitTests()
 
     /***************************************************************************/
     /**
@@ -455,7 +455,7 @@ public:
     }
 
 protected:
-    std::vector<T> data;
+    std::vector<T> m_data_cnt;
 
 public:
     /***************************************************************************/
@@ -476,7 +476,7 @@ public:
  */
 template<typename T>
 inline GPODVectorT<T>::~GPODVectorT() {
-    data.clear();
+    m_data_cnt.clear();
 }
 
 /******************************************************************************/

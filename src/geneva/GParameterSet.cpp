@@ -263,7 +263,7 @@ void GParameterSet::compare_(
 	Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(this->data,  p_load->data), token); // data is actually contained in a parent class
+	compare_t(IDENTITY(this->m_data_cnt,  p_load->m_data_cnt), token); // data is actually contained in a parent class
 	compare_t(IDENTITY(m_best_past_primary_fitness, p_load->m_best_past_primary_fitness), token);
 	compare_t(IDENTITY(m_n_stalls, p_load->m_n_stalls), token);
 	compare_t(IDENTITY(m_maxmode, p_load->m_maxmode), token);
@@ -288,7 +288,7 @@ void GParameterSet::compare_(
  * individuals in this case.
  */
 void GParameterSet::swap(GParameterSet& cp) {
-	Gem::Common::GPtrVectorT<GParameterBase, GObject>::swap(cp.data);
+	Gem::Common::GPtrVectorT<GParameterBase, GObject>::swap(cp.m_data_cnt);
 	this->mark_as_due_for_processing();
 	cp.mark_as_due_for_processing();
 }

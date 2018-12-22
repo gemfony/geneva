@@ -784,9 +784,9 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 			std::size_t nSurplus = m_n_neighborhood_members_cnt[n] - m_default_n_neighborhood_members;
 
 			// Remove nSurplus items from the position (n+1)*m_default_n_neighborhood_members
-			data.erase(
-				data.begin() + (n + 1) * m_default_n_neighborhood_members
-				, data.begin() + ((n + 1) * m_default_n_neighborhood_members + nSurplus)
+			m_data_cnt.erase(
+				m_data_cnt.begin() + (n + 1) * m_default_n_neighborhood_members
+				, m_data_cnt.begin() + ((n + 1) * m_default_n_neighborhood_members + nSurplus)
 			);
 		} else { // m_n_neighborhood_members_cnt[n] < m_default_n_neighborhood_members
 			// TODO: Deal with cases where no items of a given neighborhood have returned
@@ -798,7 +798,7 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 				// Each neighborhood there should have been sorted according to the individuals
 				// fitness, with the best individuals in the front of each neighborhood.
 				for (std::size_t i = 0; i < nMissing; i++) {
-					data.insert(data.begin() + firstNIPos, *(m_last_iteration_individuals_cnt.begin() + firstNIPos + i));
+					m_data_cnt.insert(m_data_cnt.begin() + firstNIPos, *(m_last_iteration_individuals_cnt.begin() + firstNIPos + i));
 				}
 			} else { // first iteration
 #ifdef DEBUG
@@ -815,14 +815,14 @@ void GSwarmAlgorithm::adjustNeighborhoods() {
 				// Fill up with random items.
 				for (std::size_t nM = 0; nM < nMissing; nM++) {
 					// Insert a clone of the first individual of the collection
-					data.insert(data.begin() + firstNIPos, (this->front())->clone<GParameterSet>());
+					m_data_cnt.insert(m_data_cnt.begin() + firstNIPos, (this->front())->clone<GParameterSet>());
 
 					// Randomly initialize the item and prevent position updates
-					(*(data.begin() + firstNIPos))->randomInit(activityMode::ACTIVEONLY);
-					(*(data.begin() + firstNIPos))->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->setNoPositionUpdate();
+					(*(m_data_cnt.begin() + firstNIPos))->randomInit(activityMode::ACTIVEONLY);
+					(*(m_data_cnt.begin() + firstNIPos))->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->setNoPositionUpdate();
 
 					// Set the neighborhood as required
-					(*(data.begin() + firstNIPos))->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->setNeighborhood(n);
+					(*(m_data_cnt.begin() + firstNIPos))->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->setNeighborhood(n);
 				}
 			}
 		}
@@ -1177,9 +1177,9 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 
 	//--------------------------------------------------------------------------------
 	// Submit work items and wait for results.
-	setProcessingFlag(this->data, std::make_tuple(std::size_t(0), this->data.size()));
+	setProcessingFlag(this->m_data_cnt, std::make_tuple(std::size_t(0), this->m_data_cnt.size()));
 	auto status = this->workOn(
-		data
+		m_data_cnt
 		, false // do not resubmit unprocessed items
 		, "GSwarmAlgorithm::runFitnessCalculation()"
 	);
@@ -1199,7 +1199,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	// Take care of unprocessed items, if these exist
 	if(not status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
-			this->data
+			this->m_data_cnt
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
 				return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
 			}
@@ -1216,7 +1216,7 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	// Remove items for which an error has occurred during processing
 	if(status.has_errors) {
 		std::size_t n_erased = Gem::Common::erase_if(
-			this->data
+			this->m_data_cnt
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
 				return p->has_errors();
 			}
@@ -1233,8 +1233,8 @@ void GSwarmAlgorithm::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Sort according to the individuals' neighborhoods
 	sort(
-		data.begin()
-		, data.end()
+		m_data_cnt.begin()
+		, m_data_cnt.end()
 		, [](std::shared_ptr<GParameterSet> x, std::shared_ptr<GParameterSet> y) -> bool {
 			return x->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood() < y->getPersonalityTraits<GSwarmAlgorithm_PersonalityTraits>()->getNeighborhood();
 		}

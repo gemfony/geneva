@@ -408,12 +408,12 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Set the "DO_PROCESS" flag in all required work items, the "DO_IGNORE" flag in all others.
 
-	setProcessingFlag(this->data, range);
+	setProcessingFlag(this->m_data_cnt, range);
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
 	auto status = this->workOn(
-		this->data
+		this->m_data_cnt
 		, false // do not resubmit unprocessed items
 		, "GSimulatedAnnealing::runFitnessCalculation()"
 	);
@@ -422,7 +422,7 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 	// Take care of unprocessed items, if these exist. We simply remove them and continue.
 	if(not status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
-			this->data
+			this->m_data_cnt
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
 				return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
 			}
@@ -440,7 +440,7 @@ void GSimulatedAnnealing::runFitnessCalculation() {
 	// We simply remove them and continue.
 	if(status.has_errors) {
 		std::size_t n_erased = Gem::Common::erase_if(
-			this->data
+			this->m_data_cnt
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
 				return p->has_errors();
 			}

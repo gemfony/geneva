@@ -326,8 +326,8 @@ protected:
 
         // We treat GPtrVectorT<T, Gem::Geneva::GObject>::data as local data
         compare_t(
-            IDENTITY(this->data
-                     , p_load->data)
+            IDENTITY(this->m_data_cnt
+                     , p_load->m_data_cnt)
             , token
         );
 

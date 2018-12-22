@@ -920,7 +920,7 @@ protected:
         // ... and then the local data. Actually this allows us to compare
         // the second parent class without directly calling it.
         compare_t(
-            IDENTITY(this->data
+            IDENTITY(this->m_data_cnt
                      , p_load->data)
             , token
         );
@@ -1203,7 +1203,7 @@ protected:
         // ... and then the local data. This allows us to compare
         // the second parent class without directly calling it.
         compare_t(
-            IDENTITY(this->data
+            IDENTITY(this->m_data_cnt
                      , p_load->data)
             , token
         );

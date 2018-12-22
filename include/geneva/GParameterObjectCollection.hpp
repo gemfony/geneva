@@ -117,7 +117,7 @@ public:
 #endif /* DEBUG */
 
 		 // Does error checks on the conversion internally
-		 return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(data.at(pos));
+		 return Gem::Common::convertSmartPointer<GParameterBase, parameter_type>(m_data_cnt.at(pos));
 	 }
 
 protected:

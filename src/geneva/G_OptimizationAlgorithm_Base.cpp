@@ -466,7 +466,7 @@ void G_OptimizationAlgorithm_Base::compare_(
 	Gem::Common::compare_base_t<GObject>(*this, *p_load, token);
 
 // ... and then the local data
-	compare_t(IDENTITY(this->data,  p_load->data), token); // This allows us to compare the parent class without directly referring to it.
+	compare_t(IDENTITY(this->m_data_cnt,  p_load->m_data_cnt), token); // This allows us to compare the parent class without directly referring to it.
 	compare_t(IDENTITY(m_iteration, p_load->m_iteration), token);
 	compare_t(IDENTITY(m_offset, p_load->m_offset), token);
 	compare_t(IDENTITY(m_maxIteration, p_load->m_maxIteration), token);
@@ -1330,7 +1330,7 @@ void G_OptimizationAlgorithm_Base::updateGlobalBestsPQ(GParameterSetFixedSizePri
 	// We simply add all individuals to the queue -- only the best ones will actually be added (and cloned)
 	// Unless we have asked for the queue to have an unlimited size, the queue will be resized as required
 	// by its maximum allowed size.
-	bestIndividuals.add(this->data, CLONE, DONOTREPLACE);
+	bestIndividuals.add(this->m_data_cnt, CLONE, DONOTREPLACE);
 }
 
 /******************************************************************************/
@@ -1355,7 +1355,7 @@ void G_OptimizationAlgorithm_Base::updateIterationBestsPQ(GParameterSetFixedSize
 #endif /* DEBUG */
 
 	// We simply add all individuals to the queue. They will automatically be sorted.
-	bestIndividuals.add(this->data, CLONE, REPLACE);
+	bestIndividuals.add(this->m_data_cnt, CLONE, REPLACE);
 }
 
 /******************************************************************************/

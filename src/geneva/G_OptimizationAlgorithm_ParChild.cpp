@@ -350,8 +350,8 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
 
 	std::vector<std::shared_ptr<GParameterSet>>::iterator it;
 	std::bernoulli_distribution amalgamationWanted(m_amalgamationLikelihood); // true with a likelihood of m_amalgamation_likelihood
-	for (it = G_OptimizationAlgorithm_Base::data.begin() + m_n_parents;
-		  it != G_OptimizationAlgorithm_Base::data.end(); ++it) {
+	for (it = G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents;
+		  it != G_OptimizationAlgorithm_Base::m_data_cnt.end(); ++it) {
 		// Retrieve a random number so we can decide whether to perform cross-over or duplication
 		// If we do perform cross-over, we always cross the best individual with another random parent
 		if (m_n_parents > 1 && amalgamationWanted(this->m_gr)) { // Create individuals using a cross-over scheme
@@ -369,7 +369,7 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
 
 				case duplicationScheme::VALUEDUPLICATIONSCHEME: {
 					if (m_n_parents == 1) {
-						(*it)->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin()));
+						(*it)->GObject::load(*(G_OptimizationAlgorithm_Base::m_data_cnt.begin()));
 						(*it)->GParameterSet::getPersonalityTraits<GBaseParChildPersonalityTraits> ()->setParentId(0);
 					} else {
 						// A recombination taking into account the value does not make
@@ -490,7 +490,7 @@ std::tuple<std::size_t,std::size_t> G_OptimizationAlgorithm_ParChild::getAdaptio
  */
 void G_OptimizationAlgorithm_ParChild::markParents() {
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-	for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.begin()+m_n_parents; ++it){
+	for(it=G_OptimizationAlgorithm_Base::m_data_cnt.begin(); it!=G_OptimizationAlgorithm_Base::m_data_cnt.begin()+m_n_parents; ++it){
 		(*it)->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsParent();
 	}
 }
@@ -501,7 +501,7 @@ void G_OptimizationAlgorithm_ParChild::markParents() {
  */
 void G_OptimizationAlgorithm_ParChild::markChildren() {
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-	for(it=G_OptimizationAlgorithm_Base::data.begin()+m_n_parents; it!=G_OptimizationAlgorithm_Base::data.end(); ++it){
+	for(it=G_OptimizationAlgorithm_Base::m_data_cnt.begin()+m_n_parents; it!=G_OptimizationAlgorithm_Base::m_data_cnt.end(); ++it){
 		(*it)->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setIsChild();
 	}
 }
@@ -514,7 +514,7 @@ void G_OptimizationAlgorithm_ParChild::markChildren() {
 void G_OptimizationAlgorithm_ParChild::markIndividualPositions() {
 	std::size_t pos = 0;
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-	for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
+	for(it=G_OptimizationAlgorithm_Base::m_data_cnt.begin(); it!=G_OptimizationAlgorithm_Base::m_data_cnt.end(); ++it) {
 		(*it)->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setPopulationPosition(pos++);
 	}
 }
@@ -625,7 +625,7 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation() {
 
 	// Do the smart pointers actually point to any objects ?
 	typename std::vector<std::shared_ptr<GParameterSet>>::iterator it;
-	for(it=G_OptimizationAlgorithm_Base::data.begin(); it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
+	for(it=G_OptimizationAlgorithm_Base::m_data_cnt.begin(); it!=G_OptimizationAlgorithm_Base::m_data_cnt.end(); ++it) {
 		if(not (*it)) { // shared_ptr can be implicitly converted to bool
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
@@ -639,11 +639,11 @@ void G_OptimizationAlgorithm_ParChild::adjustPopulation() {
 	if(this_sz < G_OptimizationAlgorithm_Base::getDefaultPopulationSize()) {
 		this->resize_clone(
 			G_OptimizationAlgorithm_Base::getDefaultPopulationSize()
-			, G_OptimizationAlgorithm_Base::data[0]
+			, G_OptimizationAlgorithm_Base::m_data_cnt[0]
 		);
 
 		// Randomly initialize new items
-		for(it=G_OptimizationAlgorithm_Base::data.begin()+this_sz; it!=G_OptimizationAlgorithm_Base::data.end(); ++it) {
+		for(it=G_OptimizationAlgorithm_Base::m_data_cnt.begin()+this_sz; it!=G_OptimizationAlgorithm_Base::m_data_cnt.end(); ++it) {
 			(*it)->randomInit(activityMode::ACTIVEONLY);
 		}
 	}
@@ -664,7 +664,7 @@ void G_OptimizationAlgorithm_ParChild::performScheduledPopulationGrowth() {
 		this->setPopulationSizes(this->getDefaultPopulationSize() + m_growth_rate, this->getNParents());
 
 		// Add missing items as copies of the last individual in the list
-		this->resize_clone(G_OptimizationAlgorithm_Base::getDefaultPopulationSize(), G_OptimizationAlgorithm_Base::data[0]);
+		this->resize_clone(G_OptimizationAlgorithm_Base::getDefaultPopulationSize(), G_OptimizationAlgorithm_Base::m_data_cnt[0]);
 	}
 }
 
@@ -690,7 +690,7 @@ void G_OptimizationAlgorithm_ParChild::randomRecombine(std::shared_ptr<GParamete
 	}
 
 	// Load the parent data into the individual
-	child->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin() + parent_pos));
+	child->GObject::load(*(G_OptimizationAlgorithm_Base::m_data_cnt.begin() + parent_pos));
 
 	// Let the individual know the id of the parent
 	child->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(parent_pos);
@@ -718,7 +718,7 @@ void G_OptimizationAlgorithm_ParChild::valueRecombine(
 	for(std::size_t par=0; par<m_n_parents; par++) {
 		if(randTest<threshold[par]) {
 			// Load the parent's data
-			p->GObject::load(*(G_OptimizationAlgorithm_Base::data.begin() + par));
+			p->GObject::load(*(G_OptimizationAlgorithm_Base::m_data_cnt.begin() + par));
 			// Let the individual know the parent's id
 			p->GParameterSet::template getPersonalityTraits<GBaseParChildPersonalityTraits>()->setParentId(par);
 			done = true;

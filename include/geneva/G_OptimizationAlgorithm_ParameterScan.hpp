@@ -196,7 +196,7 @@ public:
         , m_typeDescription(t) {
         if (not m_randomScan) {
             // Fill the object with data
-            this->data = fillWithData<T>(
+            this->m_data_cnt = fillWithData<T>(
                 m_nSteps
                 , m_lower
                 , m_upper

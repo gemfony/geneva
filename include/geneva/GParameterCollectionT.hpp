@@ -135,7 +135,7 @@ public:
         Gem::Hap::GRandomBase &gr
     ) override {
         return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
-            Gem::Common::GPODVectorT<num_type>::data
+            Gem::Common::GPODVectorT<num_type>::m_data_cnt
             , this->range()
             , gr
         );
@@ -164,7 +164,7 @@ public:
      * Swap another object's vector with ours
      */
     void swap(GParameterCollectionT<num_type> &cp) {
-        Gem::Common::GPODVectorT<num_type>::swap(cp.data);
+        Gem::Common::GPODVectorT<num_type>::swap(cp.m_data_cnt);
     }
 
     /* ----------------------------------------------------------------------------------
@@ -334,8 +334,8 @@ protected:
 
         // We access the relevant data of one of the parent classes directly for simplicity reasons
         compare_t(
-            IDENTITY(this->data
-                     , p_load->data)
+            IDENTITY(this->m_data_cnt
+                     , p_load->m_data_cnt)
             , token
         );
 

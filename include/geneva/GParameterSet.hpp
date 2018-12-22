@@ -500,7 +500,7 @@ public:
         , typename std::enable_if<std::is_base_of<GParameterBase, par_type>::value>::type *dummy = nullptr
     ) const {
         // Does error checks on the conversion internally
-        return Gem::Common::convertSmartPointer<GParameterBase, par_type>(data.at(pos));
+        return Gem::Common::convertSmartPointer<GParameterBase, par_type>(m_data_cnt.at(pos));
     }
 
     /* ----------------------------------------------------------------------------------

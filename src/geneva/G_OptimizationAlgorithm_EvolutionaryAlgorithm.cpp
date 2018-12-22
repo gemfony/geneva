@@ -513,12 +513,12 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 	//--------------------------------------------------------------------------------
 	// Set the "DO_PROCESS" flag in all required work items, the "DO_IGNORE" flag in all others.
 
-	setProcessingFlag(this->data, range);
+	setProcessingFlag(this->m_data_cnt, range);
 
 	//--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
 	auto status = this->workOn(
-		this->data
+		this->m_data_cnt
 		, false // do not resubmit unprocessed items
 		, "GEvolutionaryAlgorithm::runFitnessCalculation()"
 	);
@@ -527,7 +527,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 	// Take care of unprocessed items, if these exist
 	if(not status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(
-			this->data
+			this->m_data_cnt
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
 				return (p->getProcessingStatus() == Gem::Courtier::processingStatus::DO_PROCESS);
 			}
@@ -544,7 +544,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation() {
 	// Remove items for which an error has occurred during processing
 	if(status.has_errors) {
 		std::size_t n_erased = Gem::Common::erase_if(
-			this->data
+			this->m_data_cnt
 			, [this](std::shared_ptr<GParameterSet> p) -> bool {
 				return p->has_errors();
 			}
@@ -827,9 +827,9 @@ void GEvolutionaryAlgorithm::sortMuPlusNuMode() {
 
 	// Only partially sort the arrays
 	std::partial_sort(
-		G_OptimizationAlgorithm_Base::data.begin()
-		, G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
-		, G_OptimizationAlgorithm_Base::data.end()
+		G_OptimizationAlgorithm_Base::m_data_cnt.begin()
+		, G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
+		, G_OptimizationAlgorithm_Base::m_data_cnt.end()
 		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
 			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
@@ -881,18 +881,18 @@ void GEvolutionaryAlgorithm::sortMuCommaNuMode() {
 
 	// Only sort the children
 	std::partial_sort(
-		G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
-		, G_OptimizationAlgorithm_Base::data.begin() + 2 * m_n_parents
-		, G_OptimizationAlgorithm_Base::data.end()
+		G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
+		, G_OptimizationAlgorithm_Base::m_data_cnt.begin() + 2 * m_n_parents
+		, G_OptimizationAlgorithm_Base::m_data_cnt.end()
 		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
 			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
 	);
 
 	std::swap_ranges(
-		G_OptimizationAlgorithm_Base::data.begin()
-		, G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
-		, G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
+		G_OptimizationAlgorithm_Base::m_data_cnt.begin()
+		, G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
+		, G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
 	);
 }
 
@@ -924,9 +924,9 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 
 	// Sort the children
 	std::partial_sort(
-		G_OptimizationAlgorithm_Base::data.begin() + m_n_parents
-		, G_OptimizationAlgorithm_Base::data.begin() + 2*m_n_parents
-		, G_OptimizationAlgorithm_Base::data.end()
+		G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents
+		, G_OptimizationAlgorithm_Base::m_data_cnt.begin() + 2*m_n_parents
+		, G_OptimizationAlgorithm_Base::m_data_cnt.end()
 		, [](std::shared_ptr<GParameterSet> x_ptr, std::shared_ptr<GParameterSet> y_ptr) -> bool {
 			return minOnly_transformed_fitness(x_ptr) < minOnly_transformed_fitness(y_ptr);
 		}
@@ -934,21 +934,21 @@ void GEvolutionaryAlgorithm::sortMunu1pretainMode() {
 
 	// Retrieve the best child's and the last generation's best parent's fitness
 	double bestTranformedChildFitness_MinOnly  = minOnly_transformed_fitness(
-		*(G_OptimizationAlgorithm_Base::data.begin() + m_n_parents));
-	double bestTranformedParentFitness_MinOnly = minOnly_transformed_fitness(*(G_OptimizationAlgorithm_Base::data.begin()));
+		*(G_OptimizationAlgorithm_Base::m_data_cnt.begin() + m_n_parents));
+	double bestTranformedParentFitness_MinOnly = minOnly_transformed_fitness(*(G_OptimizationAlgorithm_Base::m_data_cnt.begin()));
 
 	// Leave the best parent in place, if no better child was found
 	if(bestTranformedChildFitness_MinOnly < bestTranformedParentFitness_MinOnly) { // A better child was found. Overwrite all parents
 		std::swap_ranges(
-			G_OptimizationAlgorithm_Base::data.begin()
-			,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
-			,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
+			G_OptimizationAlgorithm_Base::m_data_cnt.begin()
+			,G_OptimizationAlgorithm_Base::m_data_cnt.begin()+m_n_parents
+			,G_OptimizationAlgorithm_Base::m_data_cnt.begin()+m_n_parents
 		);
 	} else {
 		std::swap_ranges(
-			G_OptimizationAlgorithm_Base::data.begin()+1
-			,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
-			,G_OptimizationAlgorithm_Base::data.begin()+m_n_parents
+			G_OptimizationAlgorithm_Base::m_data_cnt.begin()+1
+			,G_OptimizationAlgorithm_Base::m_data_cnt.begin()+m_n_parents
+			,G_OptimizationAlgorithm_Base::m_data_cnt.begin()+m_n_parents
 		);
 	}
 }

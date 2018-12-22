@@ -227,7 +227,7 @@ void networkData::compare(
 
 	// Compare our local data
 	Gem::Common::compare_t(IDENTITY(arraySize_, cp.arraySize_), token);
-	Gem::Common::compare_t(IDENTITY(this->data, cp.data), token);
+	Gem::Common::compare_t(IDENTITY(this->m_data_cnt, cp.m_data_cnt), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -744,7 +744,7 @@ void GNeuralNetworkIndividual::init(
 			}
 
 			// Make the parameter collection known to this individual
-			this->data.push_back(gdoc);
+			this->m_data_cnt.push_back(gdoc);
 
 			nNodesPrevious = nNodes;
 			layerNumber++;
@@ -1230,7 +1230,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile
 			 << "      register std::size_t nodeCounter = 0;" << std::endl
 			 << "      register std::size_t prevNodeCounter = 0;" << std::endl
 			 << std::endl
-			 << "      const std::size_t nLayers = " << this->data.size() << ";" << std::endl
+			 << "      const std::size_t nLayers = " << this->m_data_cnt.size() << ";" << std::endl
 			 << "      const std::size_t architecture[nLayers] = {" << std::endl;
 
 	for (std::size_t i = 0; i < nD_->size(); i++) {
@@ -1422,7 +1422,7 @@ double GNeuralNetworkIndividual::fitnessCalculation() {
 		}
 
 		// All other layers
-		std::size_t nLayers = this->data.size();
+		std::size_t nLayers = this->m_data_cnt.size();
 		for (std::size_t layerCounter = 1; layerCounter < nLayers; layerCounter++) {
 			std::vector<double> currentResults;
 			nLayerNodes = (*nD_)[layerCounter];
