@@ -83,17 +83,26 @@ class GParameterBase
     }
     ///////////////////////////////////////////////////////////////////////
 public:
-    /** @brief The standard constructor */
-    G_API_GENEVA GParameterBase();
-    /** @brief The copy constructor */
-    G_API_GENEVA GParameterBase(const GParameterBase &);
 
-    /** @brief The standard destructor */
+    /*********************************************************************/
+    // Defaulted constructors, destructor and assignment operators
+
+    /** @brief The standard constructor */
+    G_API_GENEVA GParameterBase() = default;
+    G_API_GENEVA GParameterBase(GParameterBase const &) = default;
+    G_API_GENEVA GParameterBase(GParameterBase &&) = default;
+
     G_API_GENEVA ~GParameterBase() override = default;
+
+    G_API_GENEVA GParameterBase& operator=(GParameterBase const&) = default;
+    G_API_GENEVA GParameterBase& operator=(GParameterBase &&) = default;
+
+    /*********************************************************************/
 
     /** @brief The adaption interface */
     G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase &) override;
 
+    /** @brief Update adaptors depending on the number of iterations without improvement */
     G_API_GENEVA bool updateAdaptorsOnStall(std::size_t);
 
     /** @brief Retrieves information from an adaptor on a given property */

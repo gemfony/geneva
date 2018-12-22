@@ -39,20 +39,6 @@ namespace Geneva {
 
 /******************************************************************************/
 /**
- * The default constructor. Adaptions are switched on by default.
- */
-GParameterBase::GParameterBase() = default;
-
-/******************************************************************************/
-/**
- * The standard copy constructor.
- *
- * @param cp A copy of another GParameterBase object
- */
-GParameterBase::GParameterBase(const GParameterBase &cp) = default;
-
-/******************************************************************************/
-/**
  * Loads the data of another GObject
  *
  * @param cp A copy of another GParameterBase object, camouflaged as a GObject
