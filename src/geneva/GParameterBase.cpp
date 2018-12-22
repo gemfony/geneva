@@ -85,10 +85,11 @@ std::size_t GParameterBase::adapt(Gem::Hap::GRandomBase& gr) {
 	}
 }
 
-/* -----------------------------------------------------------------------------
- * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * -----------------------------------------------------------------------------
- */
+/******************************************************************************/
+
+bool GParameterBase::updateAdaptorsOnStall(std::size_t nStalls) {
+    return updateAdaptorsOnStall_(nStalls);
+}
 
 /******************************************************************************/
 /**
@@ -99,11 +100,6 @@ bool GParameterBase::setAdaptionsActive() {
 	m_adaptionsActive = true;
 	return previous;
 }
-
-/* -----------------------------------------------------------------------------
- * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * -----------------------------------------------------------------------------
- */
 
 /******************************************************************************/
 /**

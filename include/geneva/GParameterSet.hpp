@@ -268,7 +268,7 @@ public:
     ) const BASE;
 
     /** @brief Triggers updates of adaptors contained in this object */
-    virtual G_API_GENEVA void updateAdaptorsOnStall(std::uint32_t const &) BASE;
+    G_API_GENEVA void updateAdaptorsOnStall(std::uint32_t);
 
     /** @brief Retrieves information from adaptors with a given property */
     virtual G_API_GENEVA void queryAdaptor(

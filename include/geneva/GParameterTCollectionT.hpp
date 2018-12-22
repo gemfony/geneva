@@ -149,22 +149,6 @@ public:
 
     /***************************************************************************/
     /**
-     * Triggers updates when the optimization process has stalled
-     */
-    bool updateAdaptorsOnStall(const std::size_t &nStalls) override {
-        bool updatePerformed = false;
-
-        for (auto const & p_ptr : *this) {
-            if (p_ptr->updateAdaptorsOnStall(nStalls)) {
-                updatePerformed = true;
-            }
-        }
-
-        return updatePerformed;
-    }
-
-    /***************************************************************************/
-    /**
      * Converts the local data to a boost::property_tree node
      *
      * @param ptr The boost::property_tree object the data should be saved to
@@ -1349,7 +1333,6 @@ private:
      */
     GObject *clone_() const override = 0;
 
-
     /***************************************************************************/
     /**
      * Allows to adapt the values stored in this class. We assume here that
@@ -1366,6 +1349,22 @@ private:
         }
 
         return nAdapted;
+    }
+
+    /***************************************************************************/
+    /**
+     * Triggers updates when the optimization process has stalled
+     */
+    bool updateAdaptorsOnStall_(std::size_t nStalls) override {
+        bool updatePerformed = false;
+
+        for (auto const & p_ptr : *this) {
+            if (p_ptr->updateAdaptorsOnStall(nStalls)) {
+                updatePerformed = true;
+            }
+        }
+
+        return updatePerformed;
     }
 
 public:

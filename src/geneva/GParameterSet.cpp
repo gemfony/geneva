@@ -747,8 +747,8 @@ std::shared_ptr<GParameterSet> GParameterSet::crossOverWith(std::shared_ptr<GPar
 /**
  * Triggers updates of adaptors contained in this object.
  */
-void GParameterSet::updateAdaptorsOnStall(std::uint32_t const &nStalls) {
-	for(auto& item_ptr: *this) {
+void GParameterSet::updateAdaptorsOnStall(std::uint32_t nStalls) {
+	for(auto const& item_ptr: *this) {
 		item_ptr->updateAdaptorsOnStall(nStalls);
 	}
 }

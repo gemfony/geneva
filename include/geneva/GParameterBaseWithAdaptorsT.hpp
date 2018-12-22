@@ -240,28 +240,6 @@ public:
 
 	 /******************************************************************************/
 	 /**
-	  * Triggers updates when the optimization process has stalled
-	  *
-	  * @param nStalls The number of consecutive stalls up to this point
-	  * @return A boolean indicating whether updates were performed
-	  */
-	 bool updateAdaptorsOnStall(const std::size_t& nStalls) override {
-#ifdef DEBUG
-		 if (not adaptor_) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall(...):" << std::endl
-					 << "with typeid(T).name() = " << typeid(T).name() << std::endl
-					 << "Error: No adaptor was found." << std::endl
-			 );
-		 }
-#endif /* DEBUG */
-
-		 return this->adaptor_->updateOnStall(nStalls, this->range());
-	 }
-
-	 /******************************************************************************/
-	 /**
 	  * Retrieves information from an adaptor on a given property
 	  *
 	  * @param adaoptorName The name of the adaptor to be queried
@@ -438,6 +416,28 @@ private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
 	 GObject* clone_() const override = 0;
+
+    /******************************************************************************/
+    /**
+     * Triggers updates when the optimization process has stalled
+     *
+     * @param nStalls The number of consecutive stalls up to this point
+     * @return A boolean indicating whether updates were performed
+     */
+    bool updateAdaptorsOnStall_(std::size_t nStalls) override {
+#ifdef DEBUG
+        if (not adaptor_) {
+            throw gemfony_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                            << "In GParameterBaseWithAdaptorsT<T>::updateAdaptorsOnStall_(...):" << std::endl
+                            << "with typeid(T).name() = " << typeid(T).name() << std::endl
+                            << "Error: No adaptor was found." << std::endl
+            );
+        }
+#endif /* DEBUG */
+
+        return this->adaptor_->updateOnStall(nStalls, this->range());
+    }
 
 	 /***************************************************************************/
 	 /**

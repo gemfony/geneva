@@ -94,8 +94,7 @@ public:
     /** @brief The adaption interface */
     G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase &) override;
 
-    /** @brief Triggers updates when the optimization process has stalled */
-    virtual G_API_GENEVA bool updateAdaptorsOnStall(const std::size_t &) BASE = 0;
+    G_API_GENEVA bool updateAdaptorsOnStall(std::size_t);
 
     /** @brief Retrieves information from an adaptor on a given property */
     virtual G_API_GENEVA void queryAdaptor(
@@ -667,6 +666,8 @@ private:
 
     /** @brief The actual adaption logic */
     virtual G_API_GENEVA std::size_t adapt_(Gem::Hap::GRandomBase &) BASE = 0;
+    /** @brief Triggers updates when the optimization process has stalled */
+    virtual G_API_GENEVA bool updateAdaptorsOnStall_(std::size_t) BASE = 0;
 
     /***************************************************************************/
     bool m_adaptionsActive = true; ///< Specifies whether adaptions of this object should be carried out
