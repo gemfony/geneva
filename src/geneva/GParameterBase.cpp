@@ -79,7 +79,7 @@ void GParameterBase::load_(const GObject *cp) {
  */
 std::size_t GParameterBase::adapt(Gem::Hap::GRandomBase& gr) {
 	if (m_adaptionsActive) {
-		return adaptImpl(gr); // Will determine whether a modification was made
+		return adapt_(gr); // Will determine whether a modification was made
 	} else {
 		return 0;
 	}

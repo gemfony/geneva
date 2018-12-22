@@ -134,30 +134,6 @@ public:
      */
     ~GParameterTCollectionT() override = default;
 
-
-    /***************************************************************************/
-    /**
-     * Allows to adapt the values stored in this class. We assume here that
-     * each item has its own adapt function. Hence we do not need to use or
-     * store own adaptors.
-     *
-     * @return The number of adaptions that were carried out
-     */
-    std::size_t adaptImpl(Gem::Hap::GRandomBase &gr) override {
-        std::size_t nAdapted = 0;
-
-        for (auto const & p_ptr : *this) {
-            nAdapted += p_ptr->adapt(gr);
-        }
-
-        return nAdapted;
-    }
-
-    /* ----------------------------------------------------------------------------------
-     * Tested in GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
     /***************************************************************************/
     /**
      * Allows to identify whether we are dealing with a collection or an individual parameter
@@ -1372,6 +1348,25 @@ private:
      * intended to be used directly.
      */
     GObject *clone_() const override = 0;
+
+
+    /***************************************************************************/
+    /**
+     * Allows to adapt the values stored in this class. We assume here that
+     * each item has its own adapt function. Hence we do not need to use or
+     * store own adaptors.
+     *
+     * @return The number of adaptions that were carried out
+     */
+    std::size_t adapt_(Gem::Hap::GRandomBase &gr) override {
+        std::size_t nAdapted = 0;
+
+        for (auto const & p_ptr : *this) {
+            nAdapted += p_ptr->adapt(gr);
+        }
+
+        return nAdapted;
+    }
 
 public:
     /***************************************************************************/

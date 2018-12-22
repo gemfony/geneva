@@ -412,7 +412,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 
 	// --------------------------------------------------------------------------
 
-	{ // Test the GParameterT<T>::adaptImpl() implementation
+	{ // Test the GParameterT<T>::adapt() implementation
 		std::shared_ptr <GDoubleObject> p_test = this->clone<GDoubleObject>();
 
 		if (p_test->hasAdaptor()) {
@@ -422,7 +422,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK(origVal == 1.);
 
 			for (std::size_t i = 0; i < nTests; i++) {
-				BOOST_CHECK_NO_THROW(p_test->adaptImpl(gr));
+				BOOST_CHECK_NO_THROW(p_test->adapt(gr));
 				BOOST_CHECK(origVal != *p_test); // Should be different
 				BOOST_CHECK_NO_THROW(origVal = *p_test);
 			}

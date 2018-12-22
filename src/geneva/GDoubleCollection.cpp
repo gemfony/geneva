@@ -453,7 +453,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 
 	//------------------------------------------------------------------------------
 
-	{ // Test the GParameterT<T>::adaptImpl() implementation
+	{ // Test the GParameterT<T>::adapt() implementation
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 		std::shared_ptr <GDoubleCollection> p_test2 = this->clone<GDoubleCollection>();
 
@@ -473,8 +473,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 				// Make sure the objects match
 				BOOST_CHECK(*p_test1 == *p_test2);
 
-				// Adapt p_test1, using the internal function
-				BOOST_CHECK_NO_THROW(p_test1->adaptImpl(gr));
+				// Adapt p_test1
+				BOOST_CHECK_NO_THROW(p_test1->adapt(gr));
 
 				// Test whether the two objects differ now
 				BOOST_CHECK(*p_test1 != *p_test2);
@@ -512,8 +512,8 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 			BOOST_CHECK(*p_test1 == *p_test3);
 			BOOST_CHECK(*p_test3 == *p_test2);
 
-			// Adapt p_test1, using the internal function
-			BOOST_CHECK_NO_THROW(p_test1->adaptImpl(gr));
+			// Adapt p_test1
+			BOOST_CHECK_NO_THROW(p_test1->adapt(gr));
 
 			// Test whether p_test1 and p_test2/3 differ now
 			BOOST_CHECK(*p_test1 != *p_test2);

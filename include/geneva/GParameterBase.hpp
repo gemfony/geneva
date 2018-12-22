@@ -94,9 +94,6 @@ public:
     /** @brief The adaption interface */
     G_API_GENEVA std::size_t adapt(Gem::Hap::GRandomBase &) override;
 
-    /** @brief The actual adaption logic */
-    virtual G_API_GENEVA std::size_t adaptImpl(Gem::Hap::GRandomBase &) BASE = 0;
-
     /** @brief Triggers updates when the optimization process has stalled */
     virtual G_API_GENEVA bool updateAdaptorsOnStall(const std::size_t &) BASE = 0;
 
@@ -667,6 +664,9 @@ private:
     G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override = 0;
+
+    /** @brief The actual adaption logic */
+    virtual G_API_GENEVA std::size_t adapt_(Gem::Hap::GRandomBase &) BASE = 0;
 
     /***************************************************************************/
     bool m_adaptionsActive = true; ///< Specifies whether adaptions of this object should be carried out

@@ -397,12 +397,6 @@ protected:
 		 return adaptor_->adapt(value, range, gr);
 	 }
 
-	 /* ----------------------------------------------------------------------------------
-	  * Tested / used indirectly through GParameterT<T>::adaptImpl()
-	  * Failures/throws tested in GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
-
 	 /***************************************************************************/
 	 /**
 	  * This function applies our adaptor to a collection of values. Note that the argument
@@ -431,12 +425,6 @@ protected:
 		 // Apply the adaptor to each data item in turn
 		 return adaptor_->adapt(collection, range, gr);
 	 }
-
-	 /* ----------------------------------------------------------------------------------
-	  * Tested / used indirectly through GParameterCollectionT<T>::adaptImpl()
-	  * Failures/throws tested in GParameterBaseWithAdaptorsT<T>::specificTestsFailuresExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
 
 private:
 	 /***************************************************************************/

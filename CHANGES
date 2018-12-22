@@ -57,10 +57,13 @@ Bugs fixed:
  - GPtrVectorT was renamed to GPtrVectorT
  - Some public virtual functions were replaced by private or protected alternatives.
    The base-class then holds a wrapper function calling the virtual function. This
-   has happened to follow common C++ coding practice:
+   has happened to follow common C++ coding practice.
+   Throughout Geneva:
      name() --> name_() / private
      addConfigurationOptions() --> addConfigurationOptions_() / protected
-     compare() --> compare_()  (note: you need to add a friend declaration. See e.g. the example individuals)
+     compare() --> compare_() / protected  (note: you need to add a friend declaration. See e.g. the example individuals)
+   GParameterBase and derivatives:
+     adaptImpl() --> adapt_() / private
 
 ********************************************************************************
 

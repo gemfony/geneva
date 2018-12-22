@@ -125,29 +125,6 @@ public:
 
     /***************************************************************************/
     /**
-     * Allows to adapt the values stored in this class. applyAdaptor expects a reference
-     * to a std::vector<num_type>. As we are derived from a wrapper of this class, we can just pass
-     * a reference to its data vector to the function.
-     *
-     * @return The number of adaptions that were carried out
-     */
-    std::size_t adaptImpl(
-        Gem::Hap::GRandomBase &gr
-    ) override {
-        return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
-            Gem::Common::GPODVectorT<num_type>::m_data_cnt
-            , this->range()
-            , gr
-        );
-    }
-
-    /* ----------------------------------------------------------------------------------
-     * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
-     * ----------------------------------------------------------------------------------
-     */
-
-    /***************************************************************************/
-    /**
      * Allows to identify whether we are dealing with a collection or an individual parameter
      * (which is obviously not the case here). This function needs to be overloaded for parameter
      * collections so that its inverse (GParameterBase::isParameterCollection() ) returns the
@@ -357,6 +334,24 @@ private:
      * Creates a deep clone of this object. Purely virtual, so this class cannot be instantiated.
      */
     GObject *clone_() const override = 0;
+
+    /***************************************************************************/
+    /**
+     * Allows to adapt the values stored in this class. applyAdaptor expects a reference
+     * to a std::vector<num_type>. As we are derived from a wrapper of this class, we can just pass
+     * a reference to its data vector to the function.
+     *
+     * @return The number of adaptions that were carried out
+     */
+    std::size_t adapt_(
+            Gem::Hap::GRandomBase &gr
+    ) override {
+        return GParameterBaseWithAdaptorsT<num_type>::applyAdaptor(
+                Gem::Common::GPODVectorT<num_type>::m_data_cnt
+                , this->range()
+                , gr
+        );
+    }
 
 public:
     /***************************************************************************/

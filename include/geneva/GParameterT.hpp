@@ -165,27 +165,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows to adapt the value stored in this class.
-	  *
-	  * @return The number of adaptions that were performed
-	  */
-	 std::size_t adaptImpl(
-		 Gem::Hap::GRandomBase& gr
-	 ) override {
-		 return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
-			 m_val
-			 , this->range()
-			 , gr
-		 );
-	 }
-
-	 /* ----------------------------------------------------------------------------------
-	  * Tested in GDoubleObject::specificTestsNoFailureExpected_GUnitTests()
-	  * ----------------------------------------------------------------------------------
-	  */
-
-	 /***************************************************************************/
-	 /**
 	  * Converts the local data to a boost::property_tree node
 	  *
 	  * @param ptr The boost::property_tree object the data should be saved to
@@ -317,6 +296,22 @@ private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 GObject* clone_() const override = 0;
+
+	/***************************************************************************/
+	/**
+     * Allows to adapt the value stored in this class.
+     *
+     * @return The number of adaptions that were performed
+     */
+	std::size_t adapt_(
+		Gem::Hap::GRandomBase& gr
+	) override {
+		return GParameterBaseWithAdaptorsT<T>::applyAdaptor(
+			m_val
+			, this->range()
+			, gr
+		);
+	}
 
 public:
 	 /***************************************************************************/

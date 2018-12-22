@@ -237,7 +237,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 
     // --------------------------------------------------------------------------
 
-    { // Test the GParameterTCollectionT<T>::adaptImpl() implementation
+    { // Test the GParameterTCollectionT<T>::adapt() implementation
         std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
         std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
@@ -250,8 +250,8 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         // Check that both objects are identical
         BOOST_CHECK(*p_test1 == *p_test2);
 
-        // Modify p_test2 using its adaptImpl function
-        BOOST_CHECK_NO_THROW(p_test2->adaptImpl(gr));
+        // Modify p_test2 using its adapt-function
+        BOOST_CHECK_NO_THROW(p_test2->adapt(gr));
 
         // Check that both objects differ
         // Check that both objects are identical
