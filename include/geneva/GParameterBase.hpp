@@ -97,11 +97,11 @@ public:
     G_API_GENEVA bool updateAdaptorsOnStall(std::size_t);
 
     /** @brief Retrieves information from an adaptor on a given property */
-    virtual G_API_GENEVA void queryAdaptor(
+    G_API_GENEVA void queryAdaptor(
         const std::string &adaptorName
         , const std::string &property
         , std::vector<boost::any> &data
-    ) const BASE = 0;
+    ) const;
 
     /** @brief Switches on adaptions for this object */
     G_API_GENEVA bool setAdaptionsActive();
@@ -668,6 +668,13 @@ private:
     virtual G_API_GENEVA std::size_t adapt_(Gem::Hap::GRandomBase &) BASE = 0;
     /** @brief Triggers updates when the optimization process has stalled */
     virtual G_API_GENEVA bool updateAdaptorsOnStall_(std::size_t) BASE = 0;
+
+    /** @brief Retrieves information from an adaptor on a given property */
+    virtual G_API_GENEVA void queryAdaptor_(
+        const std::string &adaptorName
+        , const std::string &property
+        , std::vector<boost::any> &data
+    ) const BASE = 0;
 
     /***************************************************************************/
     bool m_adaptionsActive = true; ///< Specifies whether adaptions of this object should be carried out

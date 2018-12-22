@@ -86,9 +86,27 @@ std::size_t GParameterBase::adapt(Gem::Hap::GRandomBase& gr) {
 }
 
 /******************************************************************************/
-
+/**
+ * Allows to update the way adaptors work depending on the number of iterations
+ * without impprovements.
+ *
+ * @param nStalls The number of iterations without improvements
+ * @return A boolean indicating whether adaptors were changed
+ */
 bool GParameterBase::updateAdaptorsOnStall(std::size_t nStalls) {
     return updateAdaptorsOnStall_(nStalls);
+}
+
+/******************************************************************************/
+/**
+ * Retrieves information from an adaptor on a given property
+ */
+void GParameterBase::queryAdaptor(
+	const std::string &adaptorName
+	, const std::string &property
+	, std::vector<boost::any> &data
+) const {
+	queryAdaptor_(adaptorName, property, data);
 }
 
 /******************************************************************************/

@@ -271,11 +271,11 @@ public:
     G_API_GENEVA void updateAdaptorsOnStall(std::uint32_t);
 
     /** @brief Retrieves information from adaptors with a given property */
-    virtual G_API_GENEVA void queryAdaptor(
+    G_API_GENEVA void queryAdaptor(
         std::string const &adaptorName
         , std::string const &property
         , std::vector<boost::any> &data
-    ) const BASE;
+    ) const;
 
     /** @brief Retrieves parameters relevant for the evaluation from another GParameterSet */
     virtual G_API_GENEVA void cannibalize(GParameterSet &) BASE;

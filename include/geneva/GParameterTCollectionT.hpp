@@ -198,29 +198,6 @@ public:
         }
     }
 
-    /******************************************************************************/
-    /**
-     * Retrieves information from adaptors with a given property
-     *
-     * @param adaoptorName The name of the adaptor to be queried
-     * @param property The property for which information is sought
-     * @param data A vector, to which the properties should be added
-     */
-    void queryAdaptor(
-        const std::string &adaptorName
-        , const std::string &property
-        , std::vector<boost::any> &data
-    ) const override {
-        typename GParameterTCollectionT<T>::const_iterator cit;
-        for (cit = this->begin(); cit != this->end(); ++cit) {
-            (*cit)->queryAdaptor(
-                adaptorName
-                , property
-                , data
-            );
-        }
-    }
-
 protected:
     /***************************************************************************/
     /**
@@ -1344,8 +1321,8 @@ private:
     std::size_t adapt_(Gem::Hap::GRandomBase &gr) override {
         std::size_t nAdapted = 0;
 
-        for (auto const & p_ptr : *this) {
-            nAdapted += p_ptr->adapt(gr);
+        for (auto const & par_ptr : *this) {
+            nAdapted += par_ptr->adapt(gr);
         }
 
         return nAdapted;
@@ -1358,13 +1335,35 @@ private:
     bool updateAdaptorsOnStall_(std::size_t nStalls) override {
         bool updatePerformed = false;
 
-        for (auto const & p_ptr : *this) {
-            if (p_ptr->updateAdaptorsOnStall(nStalls)) {
+        for (auto const & par_ptr : *this) {
+            if (par_ptr->updateAdaptorsOnStall(nStalls)) {
                 updatePerformed = true;
             }
         }
 
         return updatePerformed;
+    }
+
+    /******************************************************************************/
+    /**
+     * Retrieves information from adaptors with a given property
+     *
+     * @param adaoptorName The name of the adaptor to be queried
+     * @param property The property for which information is sought
+     * @param data A vector, to which the properties should be added
+     */
+    void queryAdaptor_(
+            const std::string &adaptorName
+            , const std::string &property
+            , std::vector<boost::any> &data
+    ) const override {
+        for(auto const& par_ptr: *this) {
+            par_ptr->queryAdaptor(
+                adaptorName
+                , property
+                , data
+            );
+        }
     }
 
 public:
