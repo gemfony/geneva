@@ -136,19 +136,6 @@ public:
 
     /***************************************************************************/
     /**
-     * Allows to identify whether we are dealing with a collection or an individual parameter
-     * (which is obviously not the case here). This function needs to be overloaded for parameter
-     * collections so that its inverse (GParameterBase::isParameterCollection() ) returns the
-     * correct value.
-     *
-     * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
-     */
-    bool isIndividualParameter() const override {
-        return false;
-    }
-
-    /***************************************************************************/
-    /**
      * Converts the local data to a boost::property_tree node
      *
      * @param ptr The boost::property_tree object the data should be saved to
@@ -1364,6 +1351,19 @@ private:
                 , data
             );
         }
+    }
+
+    /***************************************************************************/
+    /**
+     * Allows to identify whether we are dealing with a collection or an individual parameter
+     * (which is obviously not the case here). This function needs to be overloaded for parameter
+     * collections so that its inverse (GParameterBase::isParameterCollection() ) returns the
+     * correct value.
+     *
+     * @return A boolean indicating whether this GParameterBase-derivative is an individual parameter
+     */
+    bool isIndividualParameter_() const override {
+        return false;
     }
 
 public:

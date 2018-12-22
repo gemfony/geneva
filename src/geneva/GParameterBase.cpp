@@ -276,11 +276,6 @@ bool GParameterBase::hasAdaptor() const {
 	return false;
 }
 
-/* -----------------------------------------------------------------------------
- * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * -----------------------------------------------------------------------------
- */
-
 /******************************************************************************/
 /**
  * Triggers random initialization of the parameter(-collection). This is the public
@@ -297,11 +292,6 @@ bool GParameterBase::randomInit(
 	}
 }
 
-/* -----------------------------------------------------------------------------
- * Tested in GParameterBase::specificTestsNoFailuresExpected_GUnitTests()
- * -----------------------------------------------------------------------------
- */
-
 /******************************************************************************/
 /**
  * Allows to identify whether we are dealing with a collection or an individual parameter.
@@ -311,6 +301,18 @@ bool GParameterBase::randomInit(
  * @return A boolean indicating whether the GParameterBase-derivative is an individual parameter
  */
 bool GParameterBase::isIndividualParameter() const {
+	return isIndividualParameter_();
+}
+
+/******************************************************************************/
+/**
+ * Allows to identify whether we are dealing with a collection or an individual parameter.
+ * This function needs to be overloaded for parameter collections so that it returns the
+ * correct value.
+ *
+ * @return A boolean indicating whether the GParameterBase-derivative is an individual parameter
+ */
+bool GParameterBase::isIndividualParameter_() const {
 	return true;
 }
 

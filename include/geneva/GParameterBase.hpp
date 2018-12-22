@@ -124,13 +124,12 @@ public:
     virtual G_API_GENEVA bool randomInit(
         const activityMode &
         , Gem::Hap::GRandomBase &
-    ) BASE;
+    );
 
     /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
-    virtual G_API_GENEVA bool isIndividualParameter() const BASE;
-
+    G_API_GENEVA bool isIndividualParameter() const;
     /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
-    virtual G_API_GENEVA bool isParameterCollection() const BASE;
+    G_API_GENEVA bool isParameterCollection() const;
 
     /** @brief Allows to assign a name to this parameter */
     G_API_GENEVA void setParameterName(const std::string &);
@@ -683,6 +682,9 @@ private:
         , const std::string &property
         , std::vector<boost::any> &data
     ) const BASE = 0;
+
+    /** @brief Allows to identify whether we are dealing with a collection or an individual parameter */
+    virtual G_API_GENEVA bool isIndividualParameter_() const BASE;
 
     /***************************************************************************/
     bool m_adaptionsActive = true; ///< Specifies whether adaptions of this object should be carried out
