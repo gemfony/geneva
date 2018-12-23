@@ -368,12 +368,23 @@ private:
  */
 class commentLevel {
 public:
-	 /** @brief The standard constructor */
+	 /** @brief Enforce setting of the comment level */
 	 explicit G_API_COMMON commentLevel(std::size_t);
 
-	 commentLevel() = delete; ///< The default constructor -- intentionally undefined
+	 /*************************************************************************/
+	 // Defaulted or deleted functions functions
 
-	 /** @brief Retrieves the current commentLevel */
+	 commentLevel() = delete;
+
+	 commentLevel(commentLevel const&) = default;
+	 commentLevel(commentLevel &&) = delete; // enforce explicit settinf of comment level
+
+	 commentLevel& operator=(commentLevel const&) = default;
+	 commentLevel& operator=(commentLevel &&) = delete; // enforce explicit settinf of comment level
+
+	 /*************************************************************************/
+
+	/** @brief Retrieves the current commentLevel */
 	 G_API_COMMON std::size_t getCommentLevel() const;
 
 private:
