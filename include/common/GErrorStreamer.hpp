@@ -77,25 +77,24 @@ public:
 	  * @param do_log Instructs the object to also send data to the logger
 	  */
 	 explicit g_error_streamer(
-		 bool do_log = NO_LOG
-		 , std::string where_and_when = std::string()
+		 bool do_log
+		 , std::string where_and_when
 	 )
 		 : m_do_log(do_log)
 	 	 , m_where_and_when(std::move(where_and_when))
 	 { /* nothing */ }
 
-	 /**************************************************************************/
-	 /**
-	  * The standard destructor
-	  */
-	 ~g_error_streamer() = default;
+	/*************************************************************************/
+	// Defaulted or deleted constructors, destructor and assignment operators
 
-	 /**************************************************************************/
-	 // Prevent copying and assignment
-	 g_error_streamer(const g_error_streamer&) = delete;
-	 g_error_streamer& operator=(g_error_streamer&) = delete;
-	 g_error_streamer(const g_error_streamer&&) = delete;
-	 g_error_streamer& operator=(g_error_streamer &&) = delete;
+	g_error_streamer() = default;
+
+	g_error_streamer(const g_error_streamer&) = delete;
+	g_error_streamer& operator=(g_error_streamer&) = delete;
+	g_error_streamer(const g_error_streamer&&) = delete;
+	g_error_streamer& operator=(g_error_streamer &&) = delete;
+
+	~g_error_streamer() = default;
 
 	 /**************************************************************************/
 	 /**
@@ -175,9 +174,9 @@ private:
 	 /**************************************************************************/
 	 // Data
 	 std::ostringstream m_ostream;
-	 bool m_do_log = false;
+	 bool m_do_log = NO_LOG;
 	 const std::string exception_file = "./GENEVA-EXCEPTION.log";
-	 std::string m_where_and_when;
+	 std::string m_where_and_when{};
 
 	 /**************************************************************************/
 };

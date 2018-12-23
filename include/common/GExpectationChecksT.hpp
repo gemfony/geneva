@@ -83,13 +83,18 @@ public:
     /** @brief The standard constructor -- initialization with class name and expectation */
     G_API_COMMON GToken(std::string, Gem::Common::expectation);
 
-    // Deleted functions / rule of five
+    /*************************************************************************/
+    // Defaulted or deleted constructors, destructor and assignment operators
+    // We enforce the usage of a signle constructor and prevent any assignment.
+
     G_API_COMMON GToken() = delete;
     G_API_COMMON GToken(GToken const &) = delete;
     G_API_COMMON GToken(GToken &&) = delete;
 
     G_API_COMMON GToken &operator=(GToken const &) = delete;
     G_API_COMMON GToken &operator=(GToken &&) = delete;
+
+    /*************************************************************************/
 
     /** @brief Increments the test counter */
     G_API_COMMON void incrTestCounter();

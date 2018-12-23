@@ -143,7 +143,9 @@ struct triangle_circle_struct {
 	 triangle_circle_struct& operator=(triangle_circle_struct const&) = default;
 	 triangle_circle_struct& operator=(triangle_circle_struct &&) = default;
 
-	 /** @brief Needed for sorting */
+	//--------------------------------------------
+
+	/** @brief Needed for sorting */
 	 float getAlphaValue() const;
 
 	 /** @brief Translate to a string */
@@ -190,7 +192,9 @@ struct t_spec_c {
 	t_spec_c& operator=(t_spec_c const&);
 	t_spec_c& operator=(t_spec_c &&);
 
-	 coord2D tr_one{};
+	//--------------------------------------------
+
+	coord2D tr_one{};
 	 coord2D tr_two{};
 	 coord2D tr_three{};
 	 float r = 0.f;
@@ -239,7 +243,9 @@ public:
 	 G_API_COMMON GRgb& operator=(GRgb const&) = default;
 	 G_API_COMMON GRgb& operator=(GRgb &&) = default;
 
-	 /** @brief Explicit reset of colors */
+	//--------------------------------------------
+
+	/** @brief Explicit reset of colors */
 	 G_API_COMMON void setColor(float, float, float);
 	 /** @brief Explicit reset of colors, using a std::tuple */
 	 G_API_COMMON void setColor(
@@ -288,7 +294,9 @@ public:
 	 G_API_COMMON  GColumn &operator=(GColumn const &) = default;
 	 G_API_COMMON  GColumn &operator=(GColumn &&) = default;
 
-	 /** @brief Information about the size of this object */
+	//--------------------------------------------
+
+	/** @brief Information about the size of this object */
 	 G_API_COMMON std::size_t size() const;
 
 	 /** @brief Unchecked access */
@@ -367,7 +375,10 @@ public:
 	 GCanvas<COLORDEPTH> & operator=(GCanvas<COLORDEPTH> const &) = default;
 	 GCanvas<COLORDEPTH> & operator=(GCanvas<COLORDEPTH> &&) = default;
 
-	 /***************************************************************************/
+	//--------------------------------------------
+
+
+	/***************************************************************************/
 	 /**
 	  * Get information about the canvas dimensions
 	  */
@@ -1019,6 +1030,9 @@ public:
 
 	GCanvas8 & operator=(GCanvas8 const &) = default;
 	GCanvas8 & operator=(GCanvas8 &&) = default;
+
+	//-----------------------------------------------------
+
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1066,6 +1080,8 @@ public:
 
 	GCanvas16 &operator=(GCanvas16 const &) = default;
 	GCanvas16 &operator=(GCanvas16 &&) = default;
+
+	//-----------------------------------------------------
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -1113,6 +1129,8 @@ public:
 
 	GCanvas24 &operator=(GCanvas24 const &) = default;
 	GCanvas24 &operator=(GCanvas24 &&) = default;
+
+	//-----------------------------------------------------
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */

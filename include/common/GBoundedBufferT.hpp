@@ -135,13 +135,12 @@ class GBoundedBufferT {
 public:
 	 using container_type = std::deque<T>;
 
-	 /***************************************************************************/
-	 /** The default constructor */
+	 /*************************************************************************/
+	 // Defaulted or deleted constructors, destructor and assignment operators
+
 	 GBoundedBufferT() = default;
 
-	 /***************************************************************************/
-	 // Prevent assignment and copying
-
+	 // Prevent assignment
 	 GBoundedBufferT(GBoundedBufferT<T, t_capacity> const &) = delete; ///< Disabled copy constructor
 	 GBoundedBufferT &operator=(GBoundedBufferT<T, t_capacity> const &) = delete; ///< Disabled assign operator
 	 GBoundedBufferT(GBoundedBufferT<T, t_capacity> &&) = delete; ///< Disabled move constructor

@@ -107,6 +107,9 @@ public:
 	 	}
 	 }
 
+	 /*************************************************************************/
+	 // Defaulted or deleted constructors, destructor and assignment operators
+
 	 ~GBarrier() = default;
 
 	 GBarrier() = delete;
@@ -115,7 +118,9 @@ public:
 	 GBarrier& operator=(GBarrier const&) = delete;
 	 GBarrier& operator=(GBarrier&&) = delete;
 
-	 bool
+	/*************************************************************************/
+
+	bool
 	 wait() {
 		 std::unique_lock<std::mutex> lock(m_mutex);
 		 std::uint32_t gen = m_generation;
