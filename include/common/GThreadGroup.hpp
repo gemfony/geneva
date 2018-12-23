@@ -102,18 +102,21 @@ class GThreadGroup
 	 using thread_vector = std::vector<thread_ptr>;
 
 public:
-	 /** @brief The default constructor */
-	 G_API_COMMON GThreadGroup() = default;
-	 /** @brief The destructor */
-	 G_API_COMMON ~GThreadGroup() = default;
 
-    // Prevent copying
-    GThreadGroup(const GThreadGroup&) = delete;
-    GThreadGroup(const GThreadGroup&&) = delete;
-    GThreadGroup& operator=(const GThreadGroup&) = delete;
-    GThreadGroup& operator=(const GThreadGroup&&) = delete;
+	/*************************************************************************/
+	// Defaulted or deleted constructors, destructor and assignment operators
 
-	 /** @brief Adds an already created thread to the group */
+	G_API_COMMON GThreadGroup() = default;
+	G_API_COMMON ~GThreadGroup() = default;
+	G_API_COMMON GThreadGroup(GThreadGroup const &) = delete;
+	G_API_COMMON GThreadGroup(GThreadGroup&&) = delete;
+	G_API_COMMON GThreadGroup& operator=(GThreadGroup const &) = delete;
+	G_API_COMMON GThreadGroup& operator=(GThreadGroup&&) = delete;
+
+	/*************************************************************************/
+
+
+	/** @brief Adds an already created thread to the group */
 	 G_API_COMMON void add_thread(thread_ptr);
 
 	 /** @brief Requests all threads to join */

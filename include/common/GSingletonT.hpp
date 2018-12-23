@@ -102,7 +102,21 @@ class GSingletonT
 	: boost::noncopyable
 {
 public:
-	 using STYPE = T;
+	/***************************************************************************/
+	// Deleted constructors, destructor and assignment operators. This class is
+	// not meant to be instantible.
+	GSingletonT() = delete;
+	GSingletonT(GSingletonT<T> const&) = delete;
+	GSingletonT(GSingletonT<T> &&) = delete;
+	~GSingletonT() = delete;
+
+	GSingletonT<T> & operator=(GSingletonT<T> const&) = delete;
+	GSingletonT<T> & operator=(GSingletonT<T> &&) = delete;
+
+	/***************************************************************************/
+
+
+	using STYPE = T;
 
 	 /***************************************************************************/
 	 /**
@@ -139,10 +153,6 @@ public:
 	 }
 
 	 /***************************************************************************/
-
-private:
-	 GSingletonT(); ///< Intentionally left undefined
-	 ~GSingletonT(); ///< Intentionally left undefined
 };
 
 /******************************************************************************/

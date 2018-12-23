@@ -83,8 +83,12 @@ public:
 	 // Defaulted functions
 
 	 GSerializableFunctionObjectT() = default;
-	 GSerializableFunctionObjectT(const GSerializableFunctionObjectT<processable_type>& cp) = default;
-	 virtual ~GSerializableFunctionObjectT() = default;
+	 GSerializableFunctionObjectT(GSerializableFunctionObjectT<processable_type> const& cp) = default;
+	 GSerializableFunctionObjectT(GSerializableFunctionObjectT<processable_type> && cp) = default;
+	 virtual ~GSerializableFunctionObjectT() BASE = default;
+
+	 GSerializableFunctionObjectT<processable_type>& operator=(GSerializableFunctionObjectT<processable_type> const&) = default;
+	 GSerializableFunctionObjectT<processable_type>& operator=(GSerializableFunctionObjectT<processable_type> &&) = default;
 
 	 /***************************************************************************/
 	 /**

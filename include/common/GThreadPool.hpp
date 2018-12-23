@@ -88,7 +88,7 @@ public:
 	 G_API_COMMON void wait();
 
 	 /***************************************************************************/
-	 // Some deleted functions
+	 // Some deleted functions and constructors
 	 G_API_COMMON GThreadPool(const GThreadPool&) = delete; // deleted copy constructor
 	 G_API_COMMON GThreadPool& operator=(GThreadPool&) = delete; // deleted assignment operator
 	 G_API_COMMON GThreadPool(const GThreadPool&&) = delete; // deleted move constructor
