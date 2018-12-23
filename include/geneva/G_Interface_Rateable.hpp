@@ -67,15 +67,19 @@ public:
 
 protected:
 	/**************************************************************************/
-	// Defaulted constructoes / destructors
+	// Defaulted constructoes / destructors / assignment operators
 
-	/** @brief The default constructor */
 	G_API_GENEVA G_Interface_Rateable() = default;
+	G_API_GENEVA G_Interface_Rateable(G_Interface_Rateable const &) = default;
+	G_API_GENEVA G_Interface_Rateable(G_Interface_Rateable &&) = default;
 	/**
       * The destructor. Making this function protected and non-virtual follows
       * this discussion: http://www.gotw.ca/publications/mill18.htm
       */
-	 G_API_GENEVA ~G_Interface_Rateable() BASE = default;
+	G_API_GENEVA ~G_Interface_Rateable() BASE = default;
+
+	G_API_GENEVA G_Interface_Rateable& operator=(G_Interface_Rateable const&) = default;
+	G_API_GENEVA G_Interface_Rateable& operator=(G_Interface_Rateable &&) = default;
 };
 
 /******************************************************************************/

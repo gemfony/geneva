@@ -60,15 +60,22 @@ public:
 
 protected:
 	/**************************************************************************/
-	// Defaulted constructors / destructors
+	// Defaulted constructors / destructors / assignment operators / rule of five
 
-	/** @brief The standard constructor */
 	G_API_GENEVA G_Interface_Mutable() = default;
+	G_API_GENEVA G_Interface_Mutable(G_Interface_Mutable const&) = default;
+	G_API_GENEVA G_Interface_Mutable(G_Interface_Mutable &&) = default;
+
 	/**
       * The destructor. Making this function protected and non-virtual follows
       * this discussion: http://www.gotw.ca/publications/mill18.htm
       */
 	G_API_GENEVA ~G_Interface_Mutable() = default;
+
+	G_API_GENEVA G_Interface_Mutable& operator=(G_Interface_Mutable const&) = default;
+	G_API_GENEVA G_Interface_Mutable& operator=(G_Interface_Mutable &&) = default;
+
+	/**************************************************************************/
 };
 
 } /* namespace Geneva */

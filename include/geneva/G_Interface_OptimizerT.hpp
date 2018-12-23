@@ -181,15 +181,19 @@ public:
 
 protected:
 	 /***************************************************************************/
-	 // Defaulted constructors / destructors
+	 // Defaulted constructors / destructors / assignment operators
 
-	 /** @brief The default constructor */
 	 G_API_GENEVA G_Interface_OptimizerT() = default;
+	 G_API_GENEVA G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> const &) = default;
+	 G_API_GENEVA G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> &&) = default;
 	 /**
  	  * The destructor. Making this function protected and non-virtual follows
  	  * this discussion: http://www.gotw.ca/publications/mill18.htm
  	  */
 	 G_API_GENEVA ~G_Interface_OptimizerT() = default;
+
+	 G_API_GENEVA G_Interface_OptimizerT<optimizer_type>& operator=(G_Interface_OptimizerT<optimizer_type> const &) = default;
+	 G_API_GENEVA G_Interface_OptimizerT<optimizer_type>& operator=(G_Interface_OptimizerT<optimizer_type> &&) = default;
 
 	 /***************************************************************************/
 	 /** @brief Retrieves the best individual found globally */

@@ -92,8 +92,13 @@ public:
 	 // Defaulted functions
 
 	 G_OA_AlgorithmTemplateT() = default;
-	 G_OA_AlgorithmTemplateT(const G_OA_AlgorithmTemplateT& cp) = default;
+	 G_OA_AlgorithmTemplateT(G_OA_AlgorithmTemplateT const & cp) = default;
+	 G_OA_AlgorithmTemplateT(G_OA_AlgorithmTemplateT && cp) = default;
+
 	 ~G_OA_AlgorithmTemplateT() override = default;
+
+	 G_OA_AlgorithmTemplateT& operator=(G_OA_AlgorithmTemplateT const&) = default;
+	 G_OA_AlgorithmTemplateT& operator=(G_OA_AlgorithmTemplateT &&) = default;
 
 	 /***************************************************************************/
 	 /**
