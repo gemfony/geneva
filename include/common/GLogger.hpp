@@ -108,10 +108,21 @@ namespace Common {
  */
 class GBaseLogTarget {
 public:
-	 /** @brief The standard destructor */
-	 virtual G_API_COMMON ~GBaseLogTarget() BASE = default;
+	/*************************************************************************/
+	// Defaulted or deleted constructors, destructor and assignment operators
 
-	 /** @brief The logging interface */
+	G_API_COMMON GBaseLogTarget() = default;
+	G_API_COMMON GBaseLogTarget(GBaseLogTarget const&) = default;
+	G_API_COMMON GBaseLogTarget(GBaseLogTarget &&) = default;
+
+	virtual G_API_COMMON ~GBaseLogTarget() BASE = default;
+
+	G_API_COMMON GBaseLogTarget& operator=(GBaseLogTarget const&) = default;
+	G_API_COMMON GBaseLogTarget& operator=(GBaseLogTarget &&) = default;
+
+	/*************************************************************************/
+
+	/** @brief The logging interface */
 	 virtual G_API_COMMON void log(std::string const&) const BASE = 0;
 
 	 /** @brief Adds an extension to the output */
@@ -126,6 +137,20 @@ public:
  */
 class GConsoleLogger : public GBaseLogTarget {
 public:
+	/*************************************************************************/
+	// Defaulted or deleted constructors, destructor and assignment operators
+	// rule of five
+
+	G_API_COMMON GConsoleLogger() = default;
+	G_API_COMMON GConsoleLogger(GConsoleLogger const&) = delete;
+	G_API_COMMON GConsoleLogger(GConsoleLogger &&) = default;
+	G_API_COMMON ~GConsoleLogger() override = default;
+
+	G_API_COMMON GConsoleLogger& operator=(GConsoleLogger const&) = delete;
+	G_API_COMMON GConsoleLogger& operator=(GConsoleLogger &&) = default;
+
+	/*************************************************************************/
+
 	 /** @brief Implements the logging to the console */
 	 G_API_COMMON void log(std::string const&) const override;
 
