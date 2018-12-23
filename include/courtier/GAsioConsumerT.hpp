@@ -119,7 +119,7 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 ~GAsioConsumerClientT() {
+	 ~GAsioConsumerClientT() override {
 		 glogger
 			 << std::endl
 			 << "GAsioConsumerClientT<> is shutting down. Processed " << this->getNProcessed() << " items in total" << std::endl
@@ -138,6 +138,8 @@ public:
 	 GAsioConsumerClientT(GAsioConsumerClientT<processable_type>&&) = delete;
 	 GAsioConsumerClientT<processable_type>& operator=(const GAsioConsumerClientT<processable_type>&) = delete;
 	 GAsioConsumerClientT<processable_type>& operator=(GAsioConsumerClientT<processable_type>&&) = delete;
+
+	 //-------------------------------------------------------------------------
 
 private:
 	 //-------------------------------------------------------------------------
@@ -522,7 +524,7 @@ public:
 	 }
 
 	 //-------------------------------------------------------------------------
-	 // Deleted functions
+	 // Deleted constructors and assignment operators
 
 	 GAsioConsumerSessionT() = delete;
 	 GAsioConsumerSessionT(const GAsioConsumerSessionT<processable_type>&) = delete;

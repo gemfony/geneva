@@ -119,65 +119,56 @@ public:
 	  */
 	 using adaption_type = T;
 
-	 /***************************************************************************/
-	 /**
-	  * The default constructor -- uses a delegating constructor
-	  */
+	/***************************************************************************/
+	/**
+     * This constructor allows to set the probability with which an adaption is indeed
+     * performed.
+     *
+     * @param adProb The likelihood for a an adaption to be actually carried out
+     */
+	explicit GAdaptorT(const fp_type &adProb)
+			: GObject()
+			, m_adProb(adProb)
+	{
+		// Do some error checking
+		// Check that m_adProb is in the allowed range. Adapt, if necessary
+		if (not Gem::Common::checkRangeCompliance<fp_type>(
+				m_adProb
+				, m_minAdProb
+				, m_maxAdProb
+				, "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + ")"
+		)) {
+			glogger
+					<< "In GAdaptorT<T, fp_type>::GadaptorT(const fp_type& adProb):" << std::endl << "adProb value " << m_adProb
+					<< " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb << "]" << std::endl
+					<< "The value will be adapted to fit this range." << std::endl << GWARNING;
+
+			Gem::Common::enforceRangeConstraint<fp_type>(
+					m_adProb
+					, m_minAdProb
+					, m_maxAdProb
+					, "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 1)"
+			);
+			Gem::Common::enforceRangeConstraint<fp_type>(
+					m_adProb_reset
+					, m_minAdProb
+					, m_maxAdProb
+					, "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 2)"
+			);
+		}
+	}
+
+	/***************************************************************************/
+	// Defaulted constructors, destructor and assignment operators -- rule of five
+
 	 GAdaptorT() = default;
+	 GAdaptorT(GAdaptorT<T, fp_type> const & cp) = default;
+	 GAdaptorT(GAdaptorT<T, fp_type> && cp) = default;
 
-	 /***************************************************************************/
-	 /**
-	  * This constructor allows to set the probability with which an adaption is indeed
-	  * performed.
-	  *
-	  * @param adProb The likelihood for a an adaption to be actually carried out
-	  */
-	 explicit GAdaptorT(const fp_type &adProb)
-		 : GObject()
-		 , m_adProb(adProb)
-	 {
-		 // Do some error checking
-		 // Check that m_adProb is in the allowed range. Adapt, if necessary
-		 if (not Gem::Common::checkRangeCompliance<fp_type>(
-			 m_adProb
-			 , m_minAdProb
-			 , m_maxAdProb
-			 , "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + ")"
-		 )) {
-			 glogger
-				 << "In GAdaptorT<T, fp_type>::GadaptorT(const fp_type& adProb):" << std::endl << "adProb value " << m_adProb
-				 << " is outside of allowed value range [" << m_minAdProb << ", " << m_maxAdProb << "]" << std::endl
-				 << "The value will be adapted to fit this range." << std::endl << GWARNING;
-
-			 Gem::Common::enforceRangeConstraint<fp_type>(
-				 m_adProb
-				 , m_minAdProb
-				 , m_maxAdProb
-				 , "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 1)"
-			 );
-			 Gem::Common::enforceRangeConstraint<fp_type>(
-				 m_adProb_reset
-				 , m_minAdProb
-				 , m_maxAdProb
-				 , "GAdaptorT<>::GAdaptorT(" + Gem::Common::to_string(adProb) + " / 2)"
-			 );
-		 }
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * A standard copy constructor.
-	  *
-	  * @param cp A copy of another GAdaptorT<T, fp_type>
-	  */
-	 GAdaptorT(const GAdaptorT<T, fp_type> &cp) = default;
-
-	 /***************************************************************************/
-	 /**
-	  * The standard destructor. Gets rid of the local random number generator, unless
-	  * an external generator has been assigned.
-	  */
      ~GAdaptorT() override = default;
+
+	 GAdaptorT<T, fp_type>& operator=(GAdaptorT<T, fp_type> const&) = default;
+	 GAdaptorT<T, fp_type>& operator=(GAdaptorT<T, fp_type> &&) = default;
 
 	 /***************************************************************************/
 	 /**

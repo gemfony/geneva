@@ -101,12 +101,18 @@ class GBasePluggableOM :
 
 public:
     /***************************************************************************/
-    /** @brief The default constructor. Some member variables may be initialized in the class body.*/
+    // Defaulted constructors, destructor and assignment operators
+
     G_API_GENEVA GBasePluggableOM() = default;
-    /** @brief The copy constructor */
-    G_API_GENEVA GBasePluggableOM(const GBasePluggableOM &cp) = default;
-    /** @brief The Destructor */
+    G_API_GENEVA GBasePluggableOM(GBasePluggableOM const & cp) = default;
+    G_API_GENEVA GBasePluggableOM(GBasePluggableOM && cp) = default;
+
     G_API_GENEVA ~GBasePluggableOM() override = default;
+
+    G_API_GENEVA GBasePluggableOM& operator=(GBasePluggableOM const&) = default;
+    G_API_GENEVA GBasePluggableOM& operator=(GBasePluggableOM &&) = default;
+
+    /***************************************************************************/
 
     /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
     virtual G_API_GENEVA void informationFunction(
@@ -279,13 +285,16 @@ private:
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /***************************************************************************/
-    /** @brief The default constructor. */
-    G_API_GENEVA G_OptimizationAlgorithm_Base() = default;
     /** @brief The copy constructor */
-    G_API_GENEVA G_OptimizationAlgorithm_Base(const G_OptimizationAlgorithm_Base &cp);
-    /** @brief The destructor */
+    G_API_GENEVA G_OptimizationAlgorithm_Base(G_OptimizationAlgorithm_Base const & cp);
+
+    /***************************************************************************/
+    // Defaulted functions
+
+    G_API_GENEVA G_OptimizationAlgorithm_Base() = default;
     G_API_GENEVA ~G_OptimizationAlgorithm_Base() override = default;
+
+    /***************************************************************************/
 
     /** @brief Performs the necessary administratory work of doing check-pointing */
     G_API_GENEVA void checkpoint(const bool &is_better) const;

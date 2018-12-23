@@ -74,7 +74,7 @@ template <typename processable_type> class GBrokerT;
  * single population.
  */
 template<typename processable_type>
-class GBufferPortT : private boost::noncopyable
+class GBufferPortT
 {
 	 // Make sure processable_type adheres to the GProcessingContainerT interface
 	 static_assert(
@@ -90,13 +90,17 @@ class GBufferPortT : private boost::noncopyable
 
 public:
 	 /***************************************************************************/
-	 /**
-	  * The default constructor
-	  */
-	 GBufferPortT()
-		 : m_raw_ptr(new RAW_BUFFER_TYPE())
-		 , m_processed_ptr(new PROCESSED_BUFFER_TYPE())
-	 { /* nothing */ }
+	 // Defaulted or deleted constructors, destructor and assignment operators
+
+	 GBufferPortT() = default;
+
+	 ~GBufferPortT() = default;
+
+	 GBufferPortT(GBufferPortT<processable_type> const&) = delete;
+	 GBufferPortT(GBufferPortT<processable_type> &&) = delete;
+
+	 GBufferPortT<processable_type>& operator=(GBufferPortT<processable_type> const&) = delete;
+	 GBufferPortT<processable_type>& operator=(GBufferPortT<processable_type> &&) = delete;
 
 	 /***************************************************************************/
 	 /**
@@ -372,8 +376,8 @@ private:
 	 std::chrono::high_resolution_clock::time_point m_retrieval_start_time = std::chrono::high_resolution_clock::now(); ///< Holds the time when the first work item was retrieved from the queue
 	 mutable std::condition_variable m_retrievalTimeCondition; ///< Regulates retrieval of the data in m_retrieval_start_time
 
-	 std::shared_ptr<RAW_BUFFER_TYPE> m_raw_ptr; ///< The queue for raw objects
-	 std::shared_ptr<PROCESSED_BUFFER_TYPE> m_processed_ptr; ///< The queue for processed objects
+	 std::shared_ptr<RAW_BUFFER_TYPE> m_raw_ptr{new RAW_BUFFER_TYPE()}; ///< The queue for raw objects
+	 std::shared_ptr<PROCESSED_BUFFER_TYPE> m_processed_ptr{new PROCESSED_BUFFER_TYPE()}; ///< The queue for processed objects
 
 	 std::atomic<bool> m_connected_to_producer{true}; ///< Indicates whether this object is currently connected to a producer. We assume that this happens upon creation of this object
 

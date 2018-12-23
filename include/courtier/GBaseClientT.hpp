@@ -116,10 +116,6 @@ class GBaseClientT
 
 public:
 	 //---------------------------------------------------------------------------
-	 /** @brief The default constructor. */
-	 GBaseClientT() = default;
-
-	 //---------------------------------------------------------------------------
 	 /**
 	  * A constructor that accepts a model of the item to be processed. This can be
 	  * used to avoid having to transfer or reload data that doesn't change. Note that
@@ -132,14 +128,14 @@ public:
 	 { /* nothing*/ }
 
 	 //---------------------------------------------------------------------------
-	 /** @brief The destructor */
-	 virtual ~GBaseClientT() BASE = default;
+	 // Defaulted or Deleted constructors and assignment operators
 
-	 //---------------------------------------------------------------------------
-	 // Deleted copy- and move-constructors a well as assignment operators
+	 GBaseClientT() = default;
 
 	 GBaseClientT(const GBaseClientT<processable_type>&) = delete;
 	 GBaseClientT(GBaseClientT<processable_type>&&) = delete;
+
+	virtual ~GBaseClientT() BASE = default;
 
 	 GBaseClientT<processable_type>& operator=(const GBaseClientT<processable_type>&) = delete;
 	 GBaseClientT<processable_type>& operator=(GBaseClientT<processable_type>&&) = delete;

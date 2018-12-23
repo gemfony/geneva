@@ -115,8 +115,7 @@ namespace Geneva {
  * very central role.
  */
 class GObject
-    :
-        public Gem::Common::GCommonInterfaceT<GObject>
+    : public Gem::Common::GCommonInterfaceT<GObject>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -130,12 +129,17 @@ class GObject
     ///////////////////////////////////////////////////////////////////////
 
 public:
-    /** @brief The default constructor */
+    /***************************************************************************/
+    // Defaulted constructors, destructor and assignment operators -- rule of five
+
     G_API_GENEVA GObject() = default;
-    /** @brief The copy constructor */
-    G_API_GENEVA GObject(const GObject &cp) = default;
-    /** @brief The destructor */
-    G_API_GENEVA virtual ~GObject() = default;
+    G_API_GENEVA GObject(GObject const & cp) = default;
+    G_API_GENEVA GObject(GObject && cp) = default;
+
+    G_API_GENEVA virtual ~GObject() BASE = default;
+
+    G_API_GENEVA GObject& operator=(GObject const&) = default;
+    G_API_GENEVA GObject& operator=(GObject &&) = default;
 
     /***************************************************************************/
     /**

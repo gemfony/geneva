@@ -104,16 +104,6 @@ class GBrokerT {
 public:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor.
-	  */
-	 GBrokerT()
-		 : m_finalized(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
-		 , m_currentGetPosition(m_RawBuffers.begin())
-		 , m_buffersPresent(false) // used to be ATOMIC_FLAG_INIT -- react to a Clang warning
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
 	  * The standard destructor. Notifies all consumers that they should stop, then waits
 	  * for their threads to terminate.
 	  */
@@ -125,9 +115,14 @@ public:
 	 }
 
 	 /***************************************************************************/
-	 // Deleted copy constructors and assignment operators. This class should be noncopyable.
+	 // Defaulted or deleted constructors and assignment operators.
+	 // This class should be noncopyable.
+
+	 GBrokerT() = default;
+
 	 GBrokerT(const GBrokerT<processable_type>&) = delete;
 	 GBrokerT(GBrokerT<processable_type>&&) = delete;
+
 	 GBrokerT<processable_type>& operator=(const GBrokerT<processable_type>&) = delete;
 	 GBrokerT<processable_type>& operator=(GBrokerT<processable_type>&&) = delete;
 
@@ -680,7 +675,7 @@ private:
 	 /***************************************************************************/
 	 // Data
 
-	 std::atomic<bool> m_finalized; ///< Indicates whether the finalization code has already been executed
+	 std::atomic<bool> m_finalized{false}; ///< Indicates whether the finalization code has already been executed
 
 	 mutable std::mutex m_consumerEnrolmentMutex; ///< Protects the enrolment of consumers
 	 mutable std::mutex m_switchGetPositionMutex; ///< Protects switches to the next get position
@@ -691,8 +686,8 @@ private:
 	 RawBufferPtrMap m_RawBuffers; ///< Holds a std::map of buffer pointers
 	 ProcessedBufferPtrMap m_ProcessedBuffers; ///< Holds a std::map of buffer pointers
 
-	 typename RawBufferPtrMap::iterator m_currentGetPosition; ///< The current get position in the m_RawBuffers collection
-	 std::atomic<bool> m_buffersPresent; ///< Set to true once the first buffers have been enrolled
+	 typename RawBufferPtrMap::iterator m_currentGetPosition{m_RawBuffers.begin()}; ///< The current get position in the m_RawBuffers collection
+	 std::atomic<bool> m_buffersPresent{false}; ///< Set to true once the first buffers have been enrolled
 
 	 std::atomic<bool> m_consumersPresent{false}; ///< Set to true once one or more consumers have been enrolled
 	 std::atomic<bool> m_capable_of_full_return{false}; ///< Set to true if all registered consumers are capable of full return, otherwise false

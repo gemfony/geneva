@@ -85,22 +85,15 @@ template<typename processable_type>
 class GBaseConsumerT {
 public:
 	 //-------------------------------------------------------------------------
-	 /**
-	  * The default constructor
-	  */
+	 // Defaulted or deleted constructors, destructor and assignment operators
+
 	 GBaseConsumerT() = default;
-
-	 //-------------------------------------------------------------------------
-	 /**
-	  * The standard destructor
-	  */
-	 virtual ~GBaseConsumerT() BASE = default;
-
-	 //-------------------------------------------------------------------------
-	 // Some deleted functions
 
 	 GBaseConsumerT(const GBaseConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
 	 GBaseConsumerT(GBaseConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
+
+	 virtual ~GBaseConsumerT() BASE = default;
+
 	 GBaseConsumerT<processable_type> &operator=(const GBaseConsumerT<processable_type> &) = delete; ///< Intentionally left undefined
 	 GBaseConsumerT<processable_type> &operator=(GBaseConsumerT<processable_type> &&) = delete; ///< Intentionally left undefined
 
