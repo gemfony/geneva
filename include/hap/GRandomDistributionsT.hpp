@@ -77,6 +77,8 @@ public:
 		  using distribution_type = bi_normal_distribution<fp_type>;
 
 		  param_type() = delete;
+
+		  // Do not allow "empty" parameter types
 		  param_type(param_type &&) = delete;
 	  	  param_type& operator=(param_type &&) = delete;
 
@@ -110,7 +112,7 @@ public:
 		  /**
 		   * The assignment operator
 		   */
-		  param_type& operator=(const param_type& params) {
+		  param_type& operator=(param_type const& params) {
 			  m_mean = params.m_mean;
 			  m_sigma1 = params.m_sigma1;
 			  m_sigma2 = params.m_sigma2;
@@ -154,101 +156,21 @@ public:
 		  }
 
 	 private:
-		  const fp_type m_mean;
-		  const fp_type m_sigma1;
-		  const fp_type m_sigma2;
-		  const fp_type m_distance;
+	 	  fp_type m_mean = 0.;
+		  fp_type m_sigma1 = 0.;
+		  fp_type m_sigma2 = 0.;
+		  fp_type m_distance = 0.;
 	 };
 
-	 /**
-	  * Returns the middle between both peaks
-	  */
-	 fp_type mean() const { return m_params.mean(); }
-	 /**
-	  * Returns the sigma value of the first peak
-	  */
-	 fp_type sigma1() const { return m_params.sigma1(); }
-	 /**
-	  * Returns the sigma value of the second peak
-	  */
-	 fp_type sigma2() const { return m_params.sigma2(); }
-	 /**
-	  * Returns the distance between both peaks
-	  */
-	 fp_type distance() const { return m_params.distance(); }
+	 /********************************************************************************************/
+	 // Deleted or defaulted constructors and assignment operators
 
-	 /**
-	  * Returns a parameter object holding information on the distribution parameters
-	  */
-	 const typename bi_normal_distribution<fp_type>::param_type& param() const {
-		 return m_params;
-	 }
+	 bi_normal_distribution() = default;
 
-	 /**
-	  * Sets the distribution parameters from another param object
-	  */
-	 void param(const typename bi_normal_distribution<fp_type>::param_type& params) {
-		 m_params = params;
-	 }
+	 bi_normal_distribution(bi_normal_distribution<fp_type> &&) = delete;
+	 bi_normal_distribution<fp_type> & operator=(bi_normal_distribution<fp_type> &&) = delete;
 
-	 /**
-	  * Returns the minimum value of the distribution. As we are
-	  * essentially dealing with gaussian distributions, any floating
-	  * point value is allowed.
-	  */
-	 fp_type (min)() const {
-		 return std::numeric_limits<fp_type>::lowest();
-	 }
-
-	 /**
- 	  * Returns the minimum value of the distribution. As we are
-	  * essentially dealing with gaussian distributions, any floating
-	  * point value is allowed.
- 	  */
-	 fp_type (max)() const {
-		 return (std::numeric_limits<fp_type>::max)();
-	 }
-
-	 /**
-	  * Resets the distribution to the values used for its construction
-	  */
-	 void reset() {
-		 m_params = m_params_store;
-	 };
-
-	 /**
- 	  * Returns a the next random number with a bi_normal distribution
- 	  * according to the data contained in the param_type object
- 	  */
-	 template <class T_Generator>
-	 result_type operator()(T_Generator& g, const param_type& params) {
-		 if (m_uniform_bool(g)) {
-			 fp_type mean_left  = params.mean() - Gem::Common::gfabs(params.distance() / 2.);
-			 fp_type sigma_left = params.sigma1();
-			 return sigma_left*m_normal_distribution(g) + mean_left;
-		 } else {
-			 fp_type mean_right  = params.mean() + Gem::Common::gfabs(params.distance() / 2.);
-			 fp_type sigma_right = params.sigma2();
-			 return sigma_right*m_normal_distribution(g) + mean_right;
-		 }
-	 }
-
-	 /**
- 	  * Returns a the next random number with a bi_normal distribution,
- 	  * using the distribution parameters stored internally.
-     */
-	 template <class T_Generator>
-	 result_type operator()(T_Generator& g) {
-		 return (*this)(g, m_params);
-	 }
-
-	 /**
-	  * The default constructor
-	  */
-	 bi_normal_distribution()
-		 : m_params(fp_type(DEF_BINORM_MEAN),fp_type(DEF_BINORM_SIGMA1),fp_type(DEF_BINORM_SIGMA2),fp_type(DEF_BINORM_DISTANCE))
-         , m_params_store(m_params)
-	 { /* nothing */ }
+	 /********************************************************************************************/
 
 	 /**
 	  * The standard constructor
@@ -266,7 +188,7 @@ public:
 	 /**
 	  * Initialization with a param_type object
 	  */
-	 explicit bi_normal_distribution(const param_type& params)
+	 explicit bi_normal_distribution(param_type const & params)
 		 : m_params(params)
 		 , m_params_store(params)
 	 { /* nothing */ }
@@ -274,7 +196,7 @@ public:
 	 /**
 	  * The copy constructor
 	  */
-	 bi_normal_distribution(const bi_normal_distribution<fp_type>& cp)
+	 bi_normal_distribution(bi_normal_distribution<fp_type> const & cp)
 	    : m_params(cp.m_params)
         , m_params_store(cp.m_params_store)
 	 { /* nothing */ }
@@ -282,17 +204,106 @@ public:
 	 /**
 	  * Assignment operator
 	  */
-	 bi_normal_distribution<fp_type>& operator=(const bi_normal_distribution<fp_type>& cp) {
+	 bi_normal_distribution<fp_type>& operator=(bi_normal_distribution<fp_type> const & cp) {
 	     m_params = cp.m_params;
 	     m_params_store = cp.m_params_store;
+
+	     return *this;
 	 }
+
+	/**
+* Returns the middle between both peaks
+*/
+	fp_type mean() const { return m_params.mean(); }
+	/**
+     * Returns the sigma value of the first peak
+     */
+	fp_type sigma1() const { return m_params.sigma1(); }
+	/**
+     * Returns the sigma value of the second peak
+     */
+	fp_type sigma2() const { return m_params.sigma2(); }
+	/**
+     * Returns the distance between both peaks
+     */
+	fp_type distance() const { return m_params.distance(); }
+
+	/**
+     * Returns a parameter object holding information on the distribution parameters
+     */
+	const typename bi_normal_distribution<fp_type>::param_type& param() const {
+		return m_params;
+	}
+
+	/**
+     * Sets the distribution parameters from another param object
+     */
+	void param(const typename bi_normal_distribution<fp_type>::param_type& params) {
+		m_params = params;
+	}
+
+	/**
+     * Returns the minimum value of the distribution. As we are
+     * essentially dealing with gaussian distributions, any floating
+     * point value is allowed.
+     */
+	fp_type (min)() const {
+		return std::numeric_limits<fp_type>::lowest();
+	}
+
+	/**
+      * Returns the minimum value of the distribution. As we are
+     * essentially dealing with gaussian distributions, any floating
+     * point value is allowed.
+      */
+	fp_type (max)() const {
+		return (std::numeric_limits<fp_type>::max)();
+	}
+
+	/**
+     * Resets the distribution to the values used for its construction
+     */
+	void reset() {
+		m_params = m_params_store;
+	};
+
+	/**
+      * Returns a the next random number with a bi_normal distribution
+      * according to the data contained in the param_type object
+      */
+	template <class T_Generator>
+	result_type operator()(T_Generator& g, const param_type& params) {
+		if (m_uniform_bool(g)) {
+			fp_type mean_left  = params.mean() - Gem::Common::gfabs(params.distance() / 2.);
+			fp_type sigma_left = params.sigma1();
+			return sigma_left*m_normal_distribution(g) + mean_left;
+		} else {
+			fp_type mean_right  = params.mean() + Gem::Common::gfabs(params.distance() / 2.);
+			fp_type sigma_right = params.sigma2();
+			return sigma_right*m_normal_distribution(g) + mean_right;
+		}
+	}
+
+	/**
+      * Returns a the next random number with a bi_normal distribution,
+      * using the distribution parameters stored internally.
+    */
+	template <class T_Generator>
+	result_type operator()(T_Generator& g) {
+		return (*this)(g, m_params);
+	}
 
 private:
 	 std::normal_distribution<fp_type> m_normal_distribution{}; ///< Needed to form each gaussian "hill" of the distribution
 	 std::bernoulli_distribution m_uniform_bool{}; ///< Needed to decide whether a gaussian is created for the left or right peak
 
-	 param_type m_params; ///< The actual parameter values being used
-	 const param_type m_params_store; ///< The values the distribution will be reset to when reset() is called
+	 param_type m_params {
+		 fp_type(DEF_BINORM_MEAN)
+		 ,fp_type(DEF_BINORM_SIGMA1)
+		 ,fp_type(DEF_BINORM_SIGMA2)
+		 ,fp_type(DEF_BINORM_DISTANCE)
+	 }; ///< The actual parameter values being used
+	 const param_type m_params_store{m_params}; ///< The values the distribution will be reset to when reset() is called
 };
 
 /******************************************************************************/
