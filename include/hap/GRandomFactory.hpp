@@ -91,16 +91,22 @@ class GRandomFactory; // Forward declaration, so we can make random_container co
  * None of the functions in this class is thread-safe (in the sense of being usable
  * concurrently from multiple threads).
  */
-class random_container
-	: private boost::noncopyable
-{
+class random_container {
 	 friend class GRandomFactory; // Needed so we can prevent construction of containers outside of the factory
 
 public:
+	/***************************************************************************/
+	// Deleted constructors and assignment operators
+
+	random_container() = delete; ///< The default constructor -- intentionally private and undefined
+	random_container(const random_container &) = delete; ///< The copy constructor -- intentionally private and undefined
+	random_container(random_container&&) = delete; ///< The move constructor -- intentionally private and undefined
+	random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
+	random_container &operator=(random_container &&) = delete; ///< Intentionally private and undefined
+
 	 /***************************************************************************/
 	 /** @brief The destructor */
-	 ~random_container()
-	 { /* nothing */ }
+	 ~random_container() = default;
 
 	 /***************************************************************************/
 	 /** @brief Returns the size of the buffer */
@@ -179,15 +185,8 @@ private:
 	 }
 	 /***************************************************************************/
 
-	 random_container() = delete; ///< The default constructor -- intentionally private and undefined
-	 random_container(const random_container &) = delete; ///< The copy constructor -- intentionally private and undefined
-	 random_container(random_container&&) = delete; ///< The move constructor -- intentionally private and undefined
-	 random_container &operator=(const random_container &) = delete; ///< intentionally private and undefined
-	 random_container &operator=(random_container &&) = delete; ///< Intentionally private and undefined
-
 	 std::size_t m_current_pos = 0; ///< The current position in the array
-
-	 std::array<G_BASE_GENERATOR::result_type, DEFAULTARRAYSIZE> m_r; ///< Holds the actual random numbers
+	 std::array<G_BASE_GENERATOR::result_type, DEFAULTARRAYSIZE> m_r{}; ///< Holds the actual random numbers
 };
 
 /******************************************************************************/
@@ -224,6 +223,16 @@ public:
 	 /** @brief The destructor */
 	 G_API_HAP ~GRandomFactory();
 
+	 /***************************************************************************/
+	 // Prevent copying and moving
+
+	 GRandomFactory(GRandomFactory const &) = delete;
+	 GRandomFactory(GRandomFactory &&) = delete;
+	 GRandomFactory& operator=(GRandomFactory const &) = delete;
+	 GRandomFactory& operator=(GRandomFactory &&) = delete;
+
+	 /***************************************************************************/
+
 	 /** @brief Initialization code for the GRandomFactory */
 	 G_API_HAP void init();
 	 /** @brief Finalization code for the GRandomFactory */
@@ -247,13 +256,6 @@ public:
 	 G_API_HAP void returnUsedPackage(std::unique_ptr<random_container>&&);
 
 private:
-	 /***************************************************************************/
-	 // Prevent copying
-	 GRandomFactory(const GRandomFactory&) = delete;
-	 GRandomFactory(const GRandomFactory&&) = delete;
-	 GRandomFactory& operator=(const GRandomFactory&) = delete;
-	 GRandomFactory& operator=(const GRandomFactory&&) = delete;
-
 	 /** @brief The production of [0,1[ random numbers takes place here */
 	 void producer(std::uint32_t seed);
 
@@ -307,6 +309,6 @@ private:
 /**
  * A single, global random number factory is created as a singleton.
  */
-#define GRANDOMFACTORY      Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(0)
-#define RESETGRANDOMFACTORY Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(1)
+#define GRANDOMFACTORY       Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(0)
+#define GRANDOMFACTORY_RESET Gem::Common::GSingletonT<Gem::Hap::GRandomFactory>::Instance(1)
 

@@ -68,17 +68,23 @@ namespace Hap {
  */
 template<Gem::Hap::RANDFLAVOURS s = Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
 class GRandomT
-	: public Gem::Hap::GRandomBase {
+	: public Gem::Hap::GRandomBase
+{
 public:
-	 /** @brief The default constructor */
-	 GRandomT();
+	 /***************************************************************************/
+	 // This class is not meant to be used.
 
-	 /** @brief The destructor */
-	 ~GRandomT() override;
+	 GRandomT() = delete;
 
-private:
-	 /** @brief Uniformly distributed integer random numbers */
-	 GRandomBase::result_type int_random() override;
+	 GRandomT(GRandomT const&) = delete;
+	 GRandomT(GRandomT &&) = delete;
+
+	 GRandomT& operator=(GRandomT const&) = delete;
+	 GRandomT& operator=(GRandomT &&) = delete;
+
+	 /***************************************************************************/
+
+	 ~GRandomT() override = default;
 };
 
 /******************************************************************************/
@@ -98,15 +104,15 @@ class GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>
 public:
 	/***************************************************************************/
 	/**
-	 * The standard constructor
+	 * Default constructor. Note that getNewRandomContainer() may throw.
 	 */
-	GRandomT()
+	GRandomT() noexcept(false)
 		: Gem::Hap::GRandomBase()
 	  	, m_p( /* empty */ )
 	  	, m_grf(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
 	{
 		// Make sure we have a first random number package available
-		getNewRandomContainer();
+		this->getNewRandomContainer();
 	}
 
 	/***************************************************************************/
@@ -118,6 +124,53 @@ public:
 			m_grf->returnUsedPackage(std::move(m_p));
 		}
 		m_grf.reset();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Copy construction is identical to default construction, as every class
+	 * should hold a unique set of random numbers. We use a delegating constructor
+	 * to make this happen.
+	 */
+	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const &cp) noexcept(false)
+		: GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * Move construction. Note that getNewRandomContainer() may throw.
+	 */
+	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> && cp) noexcept(false)
+		: m_p(std::move(cp.m_p))
+		, m_grf(GRANDOMFACTORY) // Make sure we have a local pointer to the factory
+	{
+		// Make sure cp is in pristine condition -- we need to give it a new random number container
+		cp.getNewRandomContainer();
+	}
+
+	/***************************************************************************/
+	/**
+	 * Copy assignment -- empty, as every class is meant to hold its own,
+	 * unique set of random numbers (compare copy constructor).
+	 */
+	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> const& cp) noexcept(false) {
+		return *this;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Move assignment
+	 */
+	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> && cp) noexcept(false)
+	{
+		m_p = std::move(cp.m_p);
+		// We keep our own pointer to the random factory
+
+		// Re-initialize the random-number container of the remote class
+		cp.m_p.reset();
+		cp.getNewRandomContainer();
+
+		return *this;
 	}
 
 	/***************************************************************************/
@@ -217,9 +270,25 @@ public:
 	/**
 	 * The standard constructor
 	 */
-	GRandomT()
+	GRandomT() noexcept(false)
 		: Gem::Hap::GRandomBase()
 	  	, m_rng(GRANDOMFACTORY->getSeed())
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * Copy construction does nothing, delegates to default constructor
+	 */
+	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const& cp) noexcept(false)
+		: GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>()
+	{ /* nothing */ }
+
+	/***************************************************************************/
+	/**
+	 * Move construction does nothing, delegates to default constructor
+	 */
+	GRandomT(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false)
+		: GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>()
 	{ /* nothing */ }
 
 	/***************************************************************************/
@@ -227,6 +296,24 @@ public:
 	 * The standard destructor
 	 */
 	~GRandomT() override = default;
+
+	/***************************************************************************/
+	/**
+	 * Copy-assignment does nothing
+	 */
+	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> const& cp) noexcept(false)
+	{
+		return *this;
+	}
+
+	/***************************************************************************/
+	/**
+	 * Move-assignment does nothing
+	 */
+	GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL>& operator=(GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMLOCAL> && cp) noexcept(false)
+	{
+		return *this;
+	}
 
 private:
 	/***************************************************************************/
@@ -245,12 +332,6 @@ private:
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-// Access to a thread_local copy of a random proxy object
-// extern thread_local GRandomT<RANDFLAVOURS::RANDOMPROXY> GRANDOM_TLS;
-
-// /** @brief Gives access to a thread-local copy of the GRandomT proxy */
-// G_API_HAP GRandomT<RANDFLAVOURS::RANDOMPROXY>& randomProxy();
 
 } /* namespace Hap */
 } /* namespace Gem */

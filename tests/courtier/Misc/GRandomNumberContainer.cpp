@@ -50,7 +50,7 @@ GRandomNumberContainer::GRandomNumberContainer(const std::size_t& nrnr)
 	: Gem::Courtier::GProcessingContainerT<GRandomNumberContainer, bool>(1)
 {
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
-            std::uniform_real_distribution<double> uniform_real_distribution;
+	std::uniform_real_distribution<double> uniform_real_distribution;
 	for(std::size_t i=0; i<nrnr; i++) {
 		randomNumbers_.push_back(uniform_real_distribution(gr));
 	}

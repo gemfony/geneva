@@ -70,13 +70,15 @@ public:
 
 	 /**************************************************************************/
 	 /**
-	  * This embedded class identifies parameters needed for the bi_normal_distribition
+	  * This embedded class identifies parameters needed for the bi_normal_distribution
 	  */
 	 class param_type {
 	 public:
 		  using distribution_type = bi_normal_distribution<fp_type>;
 
 		  param_type() = delete;
+		  param_type(param_type &&) = delete;
+	  	  param_type& operator=(param_type &&) = delete;
 
 		  /**
  			* Constructs the parameters of a bi_normal_distribution<fp_type>
