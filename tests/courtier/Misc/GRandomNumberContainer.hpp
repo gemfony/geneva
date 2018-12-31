@@ -89,11 +89,22 @@ class GRandomNumberContainer
 
 public:
 	 /** @brief The standard constructor -- Initialization with an amount of random numbers */
-	 GRandomNumberContainer(const std::size_t&);
-	 /** @brief The copy constructor */
+	 explicit GRandomNumberContainer(const std::size_t&);
+
+	 /******************************************************************************************/
+	 // Defaulted constructors, destructor and assignment operators
+
+	 // Default constructor is in the private section (only needed for de-serialization)
+
 	 GRandomNumberContainer(const GRandomNumberContainer&) = default;
-	 /** @brief The destructor */
-	 virtual ~GRandomNumberContainer() = default;
+	 GRandomNumberContainer(GRandomNumberContainer&&) = default;
+
+	 ~GRandomNumberContainer() override = default;
+
+	GRandomNumberContainer& operator=(GRandomNumberContainer const&) = default;
+	GRandomNumberContainer& operator=(GRandomNumberContainer &&) = default;
+
+	 /******************************************************************************************/
 
 	 /** @brief Prints out this objects random number container */
 	 void print();
@@ -102,7 +113,7 @@ private:
 	 /** @brief The default constructor -- only needed for de-serialization purposes */
 	 GRandomNumberContainer() = default;
 	 /** @brief Allows to specify the tasks to be performed for this object */
-	 virtual void process_() override;
+	 void process_() override;
 
 	 std::vector<double> randomNumbers_; ///< Holds the pay-load of this object
 };

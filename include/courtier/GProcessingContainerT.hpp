@@ -938,15 +938,16 @@ protected:
 		 m_processing_status = processingStatus::ERROR_FLAGGED;
 	 }
 
-private:
 	/***************************************************************************/
 	/**
      * The default constructor. It is only needed for (de-)serialization purposes.
      * We want to enforce the specification of the number of evaluation criteria
-     * in derived classes.
+     * in derived classes. Protected, so that a derived class can have a defaulted
+     * default constructor.
      */
 	GProcessingContainerT() = default;
 
+private:
 	 /***************************************************************************/
 	 /**
 	  * Little helper function to (re-)initialize the result storage vector
