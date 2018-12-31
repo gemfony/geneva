@@ -141,12 +141,8 @@ public:
 	 /////////////////////////////////////////////////////////////////////////////
 
 	 /***************************************************************************/
-	 /** @brief The default constructor */
-	 GBaseExecutorT() = default;
-
-	 /***************************************************************************/
 	 /**
-	  * The copy constructor. Several data items are not copied, as we want them
+	  * Copy constructor. Many data items are not copied, as we want them
 	  * in pristine condition for a new object.
 	  *
 	  * @param cp A copy of another GBrokerConnector object
@@ -156,9 +152,50 @@ public:
 		 , m_maxResubmissions(cp.m_maxResubmissions)
 	 { /* nothing */ }
 
+	/***************************************************************************/
+	/**
+     * Copy constructor. Many data items are not moved, as we want them
+     * in pristine condition for a new object.
+     *
+     * @param cp A copy of another GBrokerConnector object
+     */
+	GBaseExecutorT(GBaseExecutorT<processable_type> && cp)
+		: Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(std::move(cp))
+		, m_maxResubmissions(cp.m_maxResubmissions)
+	{
+		// Reset the other object
+		cp.m_iteration_counter = ITERATION_COUNTER_TYPE(0);
+		cp.m_expectedNumber    = 0;
+		cp.m_object_first_submission_time = std::chrono::high_resolution_clock::time_point{};
+		cp.m_iteration_first_submission_time = std::chrono::high_resolution_clock::time_point{};
+		cp.m_iteration_end_time = std::chrono::high_resolution_clock::time_point{};
+		cp.m_iteration_running.store(true);
+		cp.m_cycle_first_submission_time = std::chrono::high_resolution_clock::time_point{};
+		cp.m_approx_cycle_start_time = std::chrono::high_resolution_clock::time_point{};
+		cp.m_cycle_end_time = std::chrono::high_resolution_clock::time_point{};
+		cp.m_cycle_running.store(true);
+		cp.m_no_items_submitted_in_object.store(true);
+		cp.m_no_items_submitted_in_iteration.store(true);
+		cp.m_no_items_submitted_in_cycle.store(true);
+		cp.m_in_first_iteration.store(true);
+		cp.m_iteration_first_individual_position = 0;
+		cp.m_maxResubmissions = DEFAULTMAXRESUBMISSIONS;
+		cp.m_nResubmissions = 0;
+		cp.m_n_returnedLast = 0;
+		cp.m_n_notReturnedLast = 0;
+		cp.m_n_oldWorkItems = 0;
+		cp.m_n_erroneousItems = 0;
+		cp.m_old_work_items_cnt.clear();
+	}
+
 	 /***************************************************************************/
-	 /** @brief The standard destructor */
+	 // Some defaulted or deleted constructors, destructor and assignment operators
+
+	 GBaseExecutorT() = default;
 	 virtual ~GBaseExecutorT() = default;
+
+	 GBaseExecutorT<processable_type>& operator=(GBaseExecutorT<processable_type> const&) = delete;
+	 GBaseExecutorT<processable_type>& operator=(GBaseExecutorT<processable_type> &&) = delete;
 
 	 /***************************************************************************/
 	 /**

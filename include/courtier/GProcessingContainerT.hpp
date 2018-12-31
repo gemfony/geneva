@@ -150,7 +150,7 @@ public:
 	  *
 	  * @param cp A copy of another GSubmissionContainer object
 	  */
-	 explicit GProcessingContainerT(const GProcessingContainerT<processable_type, processing_result_type> &cp)
+	 explicit GProcessingContainerT(GProcessingContainerT<processable_type, processing_result_type> const &cp)
 		 : m_iteration_counter(cp.m_iteration_counter)
 		 , m_resubmission_counter(cp.m_resubmission_counter)
 		 , m_collection_position(cp.m_collection_position)
@@ -175,9 +175,44 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * The destructor
+	  * Assignment operator
 	  */
+	 GProcessingContainerT<processable_type, processing_result_type>&
+	 operator=(GProcessingContainerT<processable_type, processing_result_type> const& cp) {
+	 	m_iteration_counter = cp.m_iteration_counter;
+	 	m_resubmission_counter = cp.m_resubmission_counter;
+	 	m_collection_position = cp.m_collection_position;
+	 	m_bufferport_id = cp.m_bufferport_id;
+	 	m_preProcessingDisabled = cp.m_preProcessingDisabled;
+	 	m_postProcessingDisabled = cp.m_postProcessingDisabled;
+	 	m_pre_processing_time = cp.m_pre_processing_time;
+	 	m_processing_time = cp.m_processing_time;
+	 	m_post_processing_time = cp.m_post_processing_time;
+	 	m_bufferport_raw_retrieval_time = cp.m_bufferport_raw_retrieval_time;
+	 	m_bufferport_raw_submission_time = cp.m_bufferport_raw_submission_time;
+	 	m_bufferport_proc_retrieval_time = cp.m_bufferport_proc_retrieval_time;
+	 	m_bufferport_proc_submission_time = cp.m_bufferport_proc_submission_time;
+	 	m_stored_results_cnt = cp.m_stored_results_cnt; // Note: processing_result_type must be copyable (e.g. it should not contain pointers)
+	 	m_stored_error_descriptions = cp.m_stored_error_descriptions;
+	 	m_processing_status = cp.m_processing_status;
+	 	m_evaluation_id = cp.m_evaluation_id;
+
+	    Gem::Common::copyCloneableSmartPointer(cp.m_pre_processor_ptr, m_pre_processor_ptr);
+	    Gem::Common::copyCloneableSmartPointer(cp.m_post_processor_ptr, m_post_processor_ptr);
+
+	 	return *this;
+	 }
+
+	 /***************************************************************************/
+	 // Defaulted or deleted constructors, destructor and move assignment operator
+
+	 // Default constructor may be found in private section
+
+	 // TODO: Make class movable
+	 GProcessingContainerT(GProcessingContainerT<processable_type, processing_result_type> &&) = default;
 	 virtual ~GProcessingContainerT() BASE = default;
+
+	 GProcessingContainerT<processable_type, processing_result_type>& operator=(GProcessingContainerT<processable_type, processing_result_type> &&) = default;
 
 	 /***************************************************************************/
 	 /**
@@ -831,14 +866,6 @@ public:
 protected:
 	 /***************************************************************************/
 	 /**
-	  * The default constructor. It is only needed for (de-)serialization purposes.
-	  * We want to enforce the specification of the number of evaluation criteria
-	  * in derived classes.
-	  */
-	 GProcessingContainerT() = default;
-
-	 /***************************************************************************/
-	 /**
 	  * Retrieval of the stored result. This function allows modifications of its
 	  * return value and is hence protected and only accessible by derived classes.
 	  *
@@ -912,6 +939,14 @@ protected:
 	 }
 
 private:
+	/***************************************************************************/
+	/**
+     * The default constructor. It is only needed for (de-)serialization purposes.
+     * We want to enforce the specification of the number of evaluation criteria
+     * in derived classes.
+     */
+	GProcessingContainerT() = default;
+
 	 /***************************************************************************/
 	 /**
 	  * Little helper function to (re-)initialize the result storage vector

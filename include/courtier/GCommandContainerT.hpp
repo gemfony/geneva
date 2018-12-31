@@ -101,10 +101,6 @@ class GCommandContainerT {
 
 public:
 	 //-------------------------------------------------------------------------
-	 /** Default constructor */
-	 GCommandContainerT() = default;
-
-	 //-------------------------------------------------------------------------
 	 /**
 	  * Initialization with a command only, in cases where no payload
 	  * needs to be transported
@@ -128,39 +124,17 @@ public:
 		 , std::shared_ptr<processable_type> payload_ptr
 	 )
 		 : m_command(command)
-			, m_payload_ptr(payload_ptr)
+		 , m_payload_ptr(payload_ptr)
 	 { /* nothing */ }
 
 	 //-------------------------------------------------------------------------
-	 /**
-	  * The move constructor
-	  * @param cp Another GCommandContainerT<processable_type> object
-	  */
-	 GCommandContainerT(GCommandContainerT<processable_type, command_type>&& cp) noexcept {
-		 m_command = cp.m_command; cp.m_command = command_type(0);
-		 m_payload_ptr.swap(cp.m_payload_ptr); cp.m_payload_ptr.reset();
-	 }
+	 // Defaulted constructors, destructor and move assigment operator
 
-	 //-------------------------------------------------------------------------
-	 /**
-	  * The destructor
-	  */
-	 ~GCommandContainerT() {
-		 m_payload_ptr.reset();
-	 }
+	 GCommandContainerT() = default;
+	 GCommandContainerT(GCommandContainerT<processable_type, command_type>&& cp) noexcept = default;
+	 ~GCommandContainerT() = default;
 
-	 //-------------------------------------------------------------------------
-	 /**
-	  * Move assignment
-	  * @param cp Another GCommandContainerT<processable_type, command_type> object
-	  * @return A reference to this object
-	  */
-	 GCommandContainerT<processable_type, command_type>& operator=(GCommandContainerT<processable_type, command_type>&& cp) noexcept {
-		 m_command = cp.m_command; cp.m_command = command_type(0);
-		 m_payload_ptr.swap(cp.m_payload_ptr); cp.m_payload_ptr.reset();
-
-		 return *this;
-	 }
+	 GCommandContainerT<processable_type, command_type>& operator=(GCommandContainerT<processable_type, command_type>&& cp) noexcept = default;
 
 	 //-------------------------------------------------------------------------
 	 // Deleted copy-constructors and assignment operator -- the class is non-copyable
