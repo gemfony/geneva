@@ -91,15 +91,6 @@ public:
     /** @brief The standard destructor */
     G_API_GENEVA ~GSimulatedAnnealing() override = default;
 
-    /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-    G_API_GENEVA void resetToOptimizationStart() override;
-
-    /** @brief Returns information about the type of optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
-
-    /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName() const override;
-
     /** @brief Sets the number of threads this population uses for adaption */
     G_API_GENEVA void setNThreads(std::uint16_t nThreads);
     /** @brief Retrieves the number of threads this population uses for adaption */
@@ -119,6 +110,7 @@ public:
 
 protected:
     /***************************************************************************/
+    // Virtual or overridden protected functions
 
     /** @brief Adds local configuration options to a GParserBuilder object */
     G_API_GENEVA void addConfigurationOptions_(
@@ -142,38 +134,50 @@ protected:
         , const double &limit// the limit for allowed deviations of floating point types
     ) const override;
 
-    /** @brief Some error checks related to population sizes */
-    G_API_GENEVA void populationSanityChecks() const override;
-
-    /** @brief Adapt all children in parallel */
-    G_API_GENEVA void adaptChildren() override;
-
-    /** @brief  We submit individuals to the broker connector and wait for processed items. */
-    G_API_GENEVA void runFitnessCalculation() override;
-
-    /** @brief Fixes the population after a job submission */
-    G_API_GENEVA void fixAfterJobSubmission();
-
-    /** @brief Choose new parents, based on the SA selection scheme. */
-    G_API_GENEVA void selectBest() override;
-
-    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
-    G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange() const override;
+    /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
+    G_API_GENEVA void resetToOptimizationStart_() override;
 
     /** @brief Does any necessary initialization work before the optimization loop starts */
     G_API_GENEVA void init() override;
     /** @brief Does any necessary finalization work after the optimization loop has ended */
     G_API_GENEVA void finalize() override;
 
-    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
+    /***************************************************************************/
+
+    /** @brief Fixes the population after a job submission */
+    G_API_GENEVA void fixAfterJobSubmission();
 
 private:
     /***************************************************************************/
+    // Virtual or overridden private functions
+
     /** @brief Emits a name for this class / object */
     G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep copy of this object */
     G_API_GENEVA GObject *clone_() const override;
+
+    /** @brief  We submit individuals to the broker connector and wait for processed items. */
+    G_API_GENEVA void runFitnessCalculation_() override;
+
+    /** @brief Returns information about the type of optimization algorithm */
+    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
+    /** @brief Returns the name of this optimization algorithm */
+    G_API_GENEVA std::string getAlgorithmName_() const override;
+
+    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
+
+    /** @brief Adapt all children in parallel */
+    G_API_GENEVA void adaptChildren_() override;
+    /** @brief Choose new parents, based on the SA selection scheme. */
+    G_API_GENEVA void selectBest_() override;
+
+    /** @brief Retrieves the evaluation range in a given iteration and sorting scheme */
+    G_API_GENEVA std::tuple<std::size_t, std::size_t> getEvaluationRange_() const override;
+    /** @brief Some error checks related to population sizes */
+    G_API_GENEVA void populationSanityChecks_() const override;
+
+    /***************************************************************************/
 
     /** @brief Performs a simulated annealing style sorting and selection */
     void sortSAMode();

@@ -46,7 +46,7 @@ namespace Geneva {
  *
  * @return The type of optimization algorithm
  */
-std::string GConjugateGradientDescent::getAlgorithmPersonalityType() const {
+std::string GConjugateGradientDescent::getAlgorithmPersonalityType_() const {
 	return "PERSONALITY_GD";
 }
 
@@ -56,7 +56,7 @@ std::string GConjugateGradientDescent::getAlgorithmPersonalityType() const {
  *
  * @return The number of processable items in the current iteration
  */
-std::size_t GConjugateGradientDescent::getNProcessableItems() const {
+std::size_t GConjugateGradientDescent::getNProcessableItems_() const {
 	return this->size(); // Evaluation always needs to be done for the entire population
 }
 
@@ -66,7 +66,7 @@ std::size_t GConjugateGradientDescent::getNProcessableItems() const {
  *
  * @return The name assigned to this optimization algorithm
  */
-std::string GConjugateGradientDescent::getAlgorithmName() const {
+std::string GConjugateGradientDescent::getAlgorithmName_() const {
 	return std::string("Gradient Descent");
 }
 
@@ -139,7 +139,7 @@ GObject *GConjugateGradientDescent::clone_() const {
  *
  * @return The value of the best individual found in this iteration
  */
-std::tuple<double, double> GConjugateGradientDescent::cycleLogic() {
+std::tuple<double, double> GConjugateGradientDescent::cycleLogic_() {
 	// return bestFitness;
 	return std::tuple<double, double>{0., 0.};
 }
@@ -166,7 +166,7 @@ void GConjugateGradientDescent::addConfigurationOptions_(
  * in GBaseGD, albeit by delegating work to the broker. Items are evaluated up to the maximum position
  * in the vector. Note that we always start the evaluation with the first item in the vector.
  */
-void GConjugateGradientDescent::runFitnessCalculation() {
+void GConjugateGradientDescent::runFitnessCalculation_() {
 	// ...
 }
 
@@ -194,15 +194,26 @@ void GConjugateGradientDescent::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-std::shared_ptr <GPersonalityTraits> GConjugateGradientDescent::getPersonalityTraits() const {
+std::shared_ptr <GPersonalityTraits> GConjugateGradientDescent::getPersonalityTraits_() const {
 	return std::shared_ptr<GGradientDescent_PersonalityTraits>(new GGradientDescent_PersonalityTraits());
 }
 
 /******************************************************************************/
 /**
+ * Gives individuals an opportunity to update their internal structures. Nothing
+ * here yet. Might search in the vicinity of the best known solution or run a
+ * small EA in case of a stall.
+ */
+void GConjugateGradientDescent::actOnStalls_() {
+	/* nothing */
+}
+
+
+/******************************************************************************/
+/**
  * Resizes the population to the desired level and does some error checks.
  */
-void GConjugateGradientDescent::adjustPopulation() {
+void GConjugateGradientDescent::adjustPopulation_() {
 	// ...
 }
 

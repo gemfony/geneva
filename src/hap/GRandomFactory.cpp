@@ -226,7 +226,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 				<< "In GRandomFactory::setNProducerThreads(nProducerThreads) / 2:" << std::endl
 				<< "nProducerThreads == 0 was requested. nProducerThreads_local was set to the default "
 				<< DEFAULT01PRODUCERTHREADS << std::endl
-			   << GWARNING;
+			    << GWARNING;
 		} else {
 			nProducerThreads_local = nProducerThreads;
 		}

@@ -99,10 +99,10 @@ void G_OptimizationAlgorithm_ParChild::compare_(
  * Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
-void G_OptimizationAlgorithm_ParChild::resetToOptimizationStart() {
+void G_OptimizationAlgorithm_ParChild::resetToOptimizationStart_() {
 	// There is nothing to reset here, so we simply call the
 	// function of the parent class
-	G_OptimizationAlgorithm_Base::resetToOptimizationStart();
+	G_OptimizationAlgorithm_Base::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -169,8 +169,8 @@ std::size_t G_OptimizationAlgorithm_ParChild::getDefaultNChildren() const {
  *
  * @return The number of processible items in the current iteration
  */
-std::size_t G_OptimizationAlgorithm_ParChild::getNProcessableItems() const {
-	std::tuple<std::size_t,std::size_t> range = this->getEvaluationRange();
+std::size_t G_OptimizationAlgorithm_ParChild::getNProcessableItems_() const {
+	std::tuple<std::size_t,std::size_t> range = this->getEvaluationRange_();
 
 #ifdef DEBUG
 	if(std::get<1>(range) <= std::get<0>(range)) {
@@ -397,10 +397,7 @@ void G_OptimizationAlgorithm_ParChild::doRecombine() {
  * they will be replicated in the next iteration. We leave the best parent
  * untouched, so that otherwise successful adaptor settings may survive.
  */
-void G_OptimizationAlgorithm_ParChild::actOnStalls() {
-	// Make sure the actions of our parent class are carried out
-	G_OptimizationAlgorithm_Base::actOnStalls();
-
+void G_OptimizationAlgorithm_ParChild::actOnStalls_() {
 	if (this->getNParents() > 1) {
 		// Update parent individuals. We leave the best parent untouched
 		for(auto it = this->begin() + 1; it != this->begin() + this->getNParents(); ++it) {
@@ -526,7 +523,7 @@ void G_OptimizationAlgorithm_ParChild::markIndividualPositions() {
  *
  * @return The value of the best individual found
  */
-std::tuple<double, double> G_OptimizationAlgorithm_ParChild::cycleLogic() {
+std::tuple<double, double> G_OptimizationAlgorithm_ParChild::cycleLogic_() {
 	// If this is not the first iteration, check whether we need to increase the population
 	if(G_OptimizationAlgorithm_Base::afterFirstIteration()) {
 		performScheduledPopulationGrowth();
@@ -536,13 +533,13 @@ std::tuple<double, double> G_OptimizationAlgorithm_ParChild::cycleLogic() {
 	recombine();
 
 	// adapt children
-	adaptChildren();
+	adaptChildren_();
 
 	// calculate the children's (and possibly their parents' values)
-	runFitnessCalculation();
+	runFitnessCalculation_();
 
 	// find out the best individuals of the population
-	selectBest();
+	selectBest_();
 
 #ifdef DEBUG
 	// The dirty flag of this individual shouldn't be set
@@ -571,7 +568,7 @@ void G_OptimizationAlgorithm_ParChild::init() {
 	G_OptimizationAlgorithm_Base::init();
 
 	// Perform some checks regarding population sizes
-	populationSanityChecks();
+	populationSanityChecks_();
 
 	// Let parents know they are parents
 	markParents();
@@ -601,7 +598,7 @@ void G_OptimizationAlgorithm_ParChild::finalize() {
  * been added will not be replaced. This function is called once before the optimization
  * cycle from within G_OptimizationAlgorithm_Base::optimize()
  */
-void G_OptimizationAlgorithm_ParChild::adjustPopulation() {
+void G_OptimizationAlgorithm_ParChild::adjustPopulation_() {
 	// Has the population size been set at all ?
 	if(G_OptimizationAlgorithm_Base::getDefaultPopulationSize() == 0) {
 		throw gemfony_exception(

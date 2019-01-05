@@ -116,8 +116,8 @@ public:
 
     /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
     virtual G_API_GENEVA void informationFunction(
-        infoMode const &im
-        , G_OptimizationAlgorithm_Base *const
+        infoMode
+        , G_OptimizationAlgorithm_Base const * const
     ) BASE = 0;
 
     /** @brief Allows to set the m_useRawEvaluation variable */
@@ -297,10 +297,10 @@ public:
     /***************************************************************************/
 
     /** @brief Performs the necessary administratory work of doing check-pointing */
-    G_API_GENEVA void checkpoint(const bool &is_better) const;
+    G_API_GENEVA void checkpoint(bool is_better) const;
 
     /** @brief Loads the state of the class from disc */
-    virtual G_API_GENEVA void loadCheckpoint(const bf::path &cpFile) BASE;
+    G_API_GENEVA void loadCheckpoint(bf::path const & cpFile);
 
     /** @brief Checks whether the optimization process has been halted */
     G_API_GENEVA bool halted() const;
@@ -328,7 +328,7 @@ public:
     G_API_GENEVA bool checkpointFilesAreRemoved() const;
 
     /** @brief Resets the class to the state before the optimize call. */
-    virtual G_API_GENEVA void resetToOptimizationStart() BASE;
+    G_API_GENEVA void resetToOptimizationStart();
 
     /** @brief Adds a new executor to the class, replacing the default executor */
     G_API_GENEVA void registerExecutor(
@@ -359,9 +359,6 @@ public:
     }
 
     /******************************************************************************/
-
-    /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
-    G_API_GENEVA const G_OptimizationAlgorithm_Base *const optimize(const std::uint32_t &offset = 0) final;
 
     /** @brief Emits information specific to this class */
     G_API_GENEVA void informationUpdate(const infoMode &im);
@@ -423,8 +420,6 @@ public:
     /** @brief Checks whether a quality threshold has been set */
     G_API_GENEVA bool hasQualityThreshold() const;
 
-    /** @brief Retrieve the current iteration of the optimization run */
-    G_API_GENEVA std::uint32_t getIteration() const override;
     /** @brief Returns the current offset used to calculate the current iteration */
     G_API_GENEVA std::uint32_t getStartIteration() const;
 
@@ -462,8 +457,8 @@ public:
      */
     template<typename target_type>
     std::shared_ptr<target_type> individual_cast(
-        const std::size_t &pos
-    ) {
+        std::size_t pos
+    ) const {
 #ifdef DEBUG
         if (pos >= this->size()) {
             throw gemfony_exception(
@@ -474,9 +469,6 @@ public:
                     << "In G_OptimizationAlgorithm_Base::individual_cast<>() : Error" << std::endl
                     << "Tried to access position " << pos << " which is >= array size " << this->size() << std::endl
             );
-
-            // Make the compiler happy
-            return std::shared_ptr<target_type>();
         }
 #endif /* DEBUG */
 
@@ -487,13 +479,8 @@ public:
     /***************************************************************************/
 
     /** @brief Retrieve the number of processable items in the current iteration. */
-    virtual G_API_GENEVA std::size_t getNProcessableItems() const BASE;
+    G_API_GENEVA std::size_t getNProcessableItems() const;
 
-    /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual G_API_GENEVA void updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue &bestIndividuals) BASE;
-
-    /** @brief Adds the individuals of this iteration to a priority queue. */
-    virtual G_API_GENEVA void updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue &bestIndividuals) BASE;
     /** @brief If individuals have been stored in this population, they are added to the priority queue. */
     G_API_GENEVA void addCleanStoredBests(GParameterSetFixedSizePriorityQueue &bestIndividuals);
 
@@ -515,6 +502,8 @@ protected:
         m_uniform_real_distribution; ///< Access to uniformly distributed double random values
 
     /***************************************************************************/
+    // Overridden or virtual protected functions
+
     /** @brief Adds local configuration options to a GParserBuilder object */
     G_API_GENEVA void addConfigurationOptions_(
         Gem::Common::GParserBuilder &gpb
@@ -536,6 +525,16 @@ protected:
         , const double &limit
     ) const override;
 
+    /** @brief Resets the class to the state before the optimize call. */
+    virtual G_API_GENEVA void resetToOptimizationStart_() BASE;
+
+    /** @brief Initialization code to be run before the optimization cycle */
+    virtual G_API_GENEVA void init() BASE;
+    /** @brief Finalization code to be run after the optimization cycle */
+    virtual G_API_GENEVA void finalize() BASE;
+
+    /***************************************************************************/
+
     /** @brief Delegation of work to be performed to the private executor object */
     G_API_GENEVA Gem::Courtier::executor_status_t workOn(
         std::vector<std::shared_ptr<GParameterSet>> &workItems
@@ -546,54 +545,32 @@ protected:
     G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
 
     /** @brief Saves the state of the class to disc */
-    virtual G_API_GENEVA void saveCheckpoint(bf::path const & outputFile) const BASE;
+    G_API_GENEVA void saveCheckpoint(bf::path const & outputFile) const;
 
     /** @brief Extracts the short name of the optimization algorithm */
     G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path &p) const;
-
-    /** @brief Retrieves the best individual found up to now */
-    G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const override;
-    /** @brief Retrieves a list of the best individuals found */
-    G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const override;
-
-    /** @brief Retrieves the best individual found in the iteration */
-    G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() override;
-    /** @brief Retrieves a list of the best individuals found in the */
-    G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() override;
 
     /** @brief Allows to set the personality type of the individuals */
     G_API_GENEVA void setIndividualPersonalities();
     /** @brief Resets the individual's personality types */
     G_API_GENEVA void resetIndividualPersonalities();
 
-    /** @brief The actual business logic to be performed during each iteration */
-    virtual G_API_GENEVA std::tuple<double, double> cycleLogic() BASE = 0;
-
     /** @brief Sets the default size of the population */
-    virtual G_API_GENEVA void setDefaultPopulationSize(const std::size_t &defPopSize) BASE;
+    G_API_GENEVA void setDefaultPopulationSize(const std::size_t &defPopSize);
+
+    // NB: protected, as a derived function may fall back to this function, cmp EA in non-pareto mode
+    /** @brief Adds the individuals of this iteration to a priority queue. */
+    virtual G_API_GENEVA void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) BASE;
+    /** @brief Adds the individuals of this iteration to a priority queue. */
+    virtual G_API_GENEVA void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) BASE;
 
     /** @brief Set the number of "best" individuals to be recorded in each iteration */
     G_API_GENEVA void setNRecordBestIndividuals(std::size_t nRecordBestIndividuals);
     /** @brief Retrieve the number of best individuals to be recorded in each iteration */
     G_API_GENEVA std::size_t getNRecordBestIndividuals() const;
 
-    /** @brief Custom setting of halt criteria */
-    virtual G_API_GENEVA bool customHalt() const BASE;
-
     /** @brief Allows derived classes to reset the stall counter. */
     G_API_GENEVA void resetStallCounter();
-
-    /** @brief Initialization code to be run before the optimization cycle */
-    virtual G_API_GENEVA void init() BASE;
-
-    /** @brief Finalization code to be run after the optimization cycle */
-    virtual G_API_GENEVA void finalize() BASE;
-
-    /** @brief Retrieve a personality trait object belong to this algorithm */
-    virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const BASE = 0;
-
-    /** @brief Resizes the population to the desired level and does some error checks */
-    virtual G_API_GENEVA void adjustPopulation() BASE = 0;
 
     /** @brief Lets individuals know about the current iteration of the optimization cycle. */
     G_API_GENEVA void markIteration();
@@ -601,19 +578,48 @@ protected:
     /** @brief Let individuals know the number of stalls encountered so far */
     G_API_GENEVA void markNStalls();
 
-    /** @brief Gives derived classes an opportunity to update their internal structures. */
-    virtual G_API_GENEVA void actOnStalls() BASE;
-
-    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-    G_API_GENEVA void runFitnessCalculation() override = 0;
-
 private:
     /***************************************************************************/
+    // Overloaded or virtual base functions
 
+    /** @brief This function encapsulates some common functionality of iteration-based optimization algorithms. */
+    G_API_GENEVA G_OptimizationAlgorithm_Base const * const optimize_(std::uint32_t offset) final;
     /** @brief Emits a name for this class / object; this can be a long name with spaces */
     G_API_GENEVA std::string name_() const override = 0;
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override = 0;
+
+    /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
+    G_API_GENEVA void runFitnessCalculation_() override = 0;
+    /** @brief The actual business logic to be performed during each iteration */
+    virtual G_API_GENEVA std::tuple<double, double> cycleLogic_() BASE = 0;
+
+    /** @brief Retrieve the current iteration of the optimization run */
+    G_API_GENEVA std::uint32_t getIteration_() const override;
+
+    /** @brief Retrieves the best individual found up to now */
+    G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const final;
+    /** @brief Retrieves a list of the best individuals found */
+    G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const final;
+
+    /** @brief Retrieves the best individual found in the iteration */
+    G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() const final;
+    /** @brief Retrieves a list of the best individuals found in the */
+    G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const final;
+
+    /** @brief Retrieve the number of processable items in the current iteration. */
+    virtual G_API_GENEVA std::size_t getNProcessableItems_() const BASE;
+
+    /** @brief Retrieve a personality trait object belonging to this algorithm */
+    virtual G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const BASE = 0;
+
+    /** @brief Resizes the population to the desired level and does some error checks */
+    virtual G_API_GENEVA void adjustPopulation_() BASE = 0;
+
+    /** @brief Gives derived classes an opportunity to update their internal structures. */
+    virtual G_API_GENEVA void actOnStalls_() BASE = 0;
+
+    /***************************************************************************/
 
     /** @brief Update the stall counter. */
     G_API_GENEVA void updateStallCounter(const std::tuple<double, double> &bestEval);
@@ -640,8 +646,10 @@ private:
     /** @brief Triggers termination of the optimization run, when a file with a user-defined file is modified */
     G_API_GENEVA bool touchHalt() const;
 
-    /** @brief A wrapper for the customHalt() function that allows us to emit the termination reason */
-    G_API_GENEVA bool customHalt_() const;
+    /** @brief A wrapper for customHalt_ that allows to emit the termination reason */
+    G_API_GENEVA bool customHalt() const BASE;
+    /** @brief Custom setting of halt criteria */
+    virtual G_API_GENEVA bool customHalt_() const BASE;
 
     /** @brief This function checks whether a halt criterion has been reached. */
     G_API_GENEVA bool halt() const;

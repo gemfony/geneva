@@ -351,18 +351,8 @@ GParameterScan::GParameterScan(const GParameterScan &cp)
  *
  * @return The type of optimization algorithm
  */
-std::string GParameterScan::getAlgorithmPersonalityType() const {
+std::string GParameterScan::getAlgorithmPersonalityType_() const {
 	return "PERSONALITY_PS";
-}
-
-/******************************************************************************/
-/**
- * Retrieve the number of processable items in the current iteration.
- *
- * @return The number of processable items in the current iteration
- */
-std::size_t GParameterScan::getNProcessableItems() const {
-	return this->size(); // Evaluation always needs to be done for the entire population
 }
 
 /******************************************************************************/
@@ -371,8 +361,18 @@ std::size_t GParameterScan::getNProcessableItems() const {
  *
  * @return The name assigned to this optimization algorithm
  */
-std::string GParameterScan::getAlgorithmName() const {
+std::string GParameterScan::getAlgorithmName_() const {
 	return std::string("Parameter Scan");
+}
+
+/******************************************************************************/
+/**
+ * Retrieve the number of processable items in the current iteration.
+ *
+ * @return The number of processable items in the current iteration
+ */
+std::size_t GParameterScan::getNProcessableItems_() const {
+	return this->size(); // Evaluation always needs to be done for the entire population
 }
 
 /******************************************************************************/
@@ -413,7 +413,7 @@ void GParameterScan::compare_(
  * Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
-void GParameterScan::resetToOptimizationStart() {
+void GParameterScan::resetToOptimizationStart_() {
 	// Reset m_b_cnt, m_int32_cnt, m_d_cnt and m_f_cnt
 	this->resetParameterObjects();
 
@@ -428,7 +428,7 @@ void GParameterScan::resetToOptimizationStart() {
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
-	G_OptimizationAlgorithm_Base::resetToOptimizationStart();
+	G_OptimizationAlgorithm_Base::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -520,7 +520,7 @@ GObject *GParameterScan::clone_() const {
  *
  * @return The value of the best individual found
  */
-std::tuple<double, double> GParameterScan::cycleLogic() {
+std::tuple<double, double> GParameterScan::cycleLogic_() {
 	std::tuple<double, double> bestFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
 	// Apply all necessary modifications to individuals
@@ -533,7 +533,7 @@ std::tuple<double, double> GParameterScan::cycleLogic() {
 	// Trigger value calculation for all individuals
 	// This function is purely virtual and needs to be
 	// re-implemented in derived classes
-	runFitnessCalculation();
+	runFitnessCalculation_();
 
 	// Retrieve information about the best fitness found and disallow re-evaluation
 	GParameterScan::iterator it;
@@ -943,7 +943,7 @@ void GParameterScan::clearAllParVec() {
  * A custom halt criterion for the optimization, allowing to stop the loop
  * when no items are left to be scanned
  */
-bool GParameterScan::customHalt() const {
+bool GParameterScan::customHalt_() const {
 	if (this->m_cycleLogicHalt) {
 		glogger
 			<< "Terminating the loop as no items are left to be" << std::endl
@@ -1005,7 +1005,7 @@ void GParameterScan::addConfigurationOptions_(
  * @param finalPos The position in the vector up to which the fitness calculation should be performed
  * @return The best fitness found amongst all parents
  */
-void GParameterScan::runFitnessCalculation() {
+void GParameterScan::runFitnessCalculation_() {
 	using namespace Gem::Courtier;
 
 #ifdef DEBUG
@@ -1205,15 +1205,24 @@ void GParameterScan::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-std::shared_ptr <GPersonalityTraits> GParameterScan::getPersonalityTraits() const {
+std::shared_ptr <GPersonalityTraits> GParameterScan::getPersonalityTraits_() const {
 	return std::shared_ptr<GParameterScan_PersonalityTraits>(new GParameterScan_PersonalityTraits());
+}
+
+/******************************************************************************/
+/**
+ * Gives individuals an opportunity to update their internal structures. This
+ * function has no deeper meaning for a parameter scan and is hence empty.
+ */
+void GParameterScan::actOnStalls_() {
+	/* nothing */
 }
 
 /******************************************************************************/
 /**
  * Resizes the population to the desired level and does some error checks.
  */
-void GParameterScan::adjustPopulation() {
+void GParameterScan::adjustPopulation_() {
 	// Check how many individuals we already have
 	std::size_t nStart = this->size();
 

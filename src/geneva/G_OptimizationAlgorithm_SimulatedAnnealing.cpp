@@ -98,13 +98,13 @@ void GSimulatedAnnealing::compare_(
  * Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
-void GSimulatedAnnealing::resetToOptimizationStart() {
+void GSimulatedAnnealing::resetToOptimizationStart_() {
 	// Reset the temperature
 	m_t = m_t0;
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
-	G_OptimizationAlgorithm_ParChild::resetToOptimizationStart();
+	G_OptimizationAlgorithm_ParChild::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -114,7 +114,7 @@ void GSimulatedAnnealing::resetToOptimizationStart() {
  *
  * @return The type of optimization algorithm
  */
-std::string GSimulatedAnnealing::getAlgorithmPersonalityType() const {
+std::string GSimulatedAnnealing::getAlgorithmPersonalityType_() const {
 	return std::string("PERSONALITY_SA");
 }
 
@@ -124,7 +124,7 @@ std::string GSimulatedAnnealing::getAlgorithmPersonalityType() const {
   *
   * @return The name assigned to this optimization algorithm
   */
-std::string GSimulatedAnnealing::getAlgorithmName() const {
+std::string GSimulatedAnnealing::getAlgorithmName_() const {
 	return std::string("Simulated Annealing");
 }
 
@@ -307,7 +307,7 @@ GObject * GSimulatedAnnealing::clone_() const {
 /**
   * Some error checks related to population sizes
   */
-void GSimulatedAnnealing::populationSanityChecks() const {
+void GSimulatedAnnealing::populationSanityChecks_() const {
 	// First check that we have been given a suitable value for the number of parents.
 	// Note that a number of checks (e.g. population size != 0) has already been done
 	// in the parent class.
@@ -334,7 +334,7 @@ void GSimulatedAnnealing::populationSanityChecks() const {
 /**
   * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
   */
-void GSimulatedAnnealing::adaptChildren() {
+void GSimulatedAnnealing::adaptChildren_() {
 	// Retrieve the range of individuals to be adapted
 	std::tuple<std::size_t, std::size_t> range = this->getAdaptionRange();
 
@@ -382,12 +382,12 @@ void GSimulatedAnnealing::adaptChildren() {
 /**
   * We submit individuals to the broker connector and wait for processed items.
  */
-void GSimulatedAnnealing::runFitnessCalculation() {
+void GSimulatedAnnealing::runFitnessCalculation_() {
 	//--------------------------------------------------------------------------------
 	// Start by marking the work to be done in the individuals.
 	// "range" will hold the start- and end-points of the range
 	// to be worked on
-	std::tuple<std::size_t, std::size_t> range = getEvaluationRange();
+	std::tuple<std::size_t, std::size_t> range = getEvaluationRange_();
 
 #ifdef DEBUG
 	// There should be no situation in which a "clean" child is submitted
@@ -562,7 +562,7 @@ void GSimulatedAnnealing::fixAfterJobSubmission() {
 /**
   * Choose new parents, based on the SA selection scheme.
   */
-void GSimulatedAnnealing::selectBest() {
+void GSimulatedAnnealing::selectBest_() {
 	// Sort according to the "Simulated Annealing" scheme
 	sortSAMode();
 
@@ -601,7 +601,7 @@ void GSimulatedAnnealing::selectBest() {
   *
   * @return The range inside which evaluation should take place
   */
-std::tuple<std::size_t,std::size_t> GSimulatedAnnealing::getEvaluationRange() const {
+std::tuple<std::size_t,std::size_t> GSimulatedAnnealing::getEvaluationRange_() const {
 	// We evaluate all individuals in the first iteration This happens so pluggable
 	// optimization monitors do not need to distinguish between algorithms
 	return std::tuple<std::size_t,std::size_t>{this->inFirstIteration() ? 0 : this->getNParents(), this->size()};
@@ -635,7 +635,7 @@ void GSimulatedAnnealing::finalize() {
 /**
   * Retrieve a GPersonalityTraits object belonging to this algorithm
   */
-std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits() const {
+std::shared_ptr<GPersonalityTraits> GSimulatedAnnealing::getPersonalityTraits_() const {
 	return std::shared_ptr<GSimulatedAnnealing_PersonalityTraits>(new GSimulatedAnnealing_PersonalityTraits());
 }
 

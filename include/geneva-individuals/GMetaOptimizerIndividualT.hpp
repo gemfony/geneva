@@ -183,8 +183,8 @@ const std::size_t MOT_NVAR = 11;
  * but may be used to find better optima as well.
  */
 template<typename ind_type = Gem::Geneva::GFunctionIndividual>
-class GMetaOptimizerIndividualT :
-    public GParameterSet
+class GMetaOptimizerIndividualT
+    : public GParameterSet
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -1830,8 +1830,8 @@ public:
      * (initialization, during each cycle and during finalization)
      */
     virtual void informationFunction(
-        const infoMode &im
-        , G_OptimizationAlgorithm_Base *const goa
+        infoMode im
+        , G_OptimizationAlgorithm_Base const * const goa
     ) override {
         using namespace Gem::Common;
 
@@ -1896,7 +1896,7 @@ public:
 
             case Gem::Geneva::infoMode::INFOPROCESSING: {
                 // Convert the base pointer to the target type
-                GEvolutionaryAlgorithm *const ea = static_cast<GEvolutionaryAlgorithm *const>(goa);
+                GEvolutionaryAlgorithm const * const ea = static_cast<GEvolutionaryAlgorithm const * const>(goa);
 
                 // Extract the requested data. First retrieve the best individual.
                 // It can always be found in the first position with evolutionary algorithms

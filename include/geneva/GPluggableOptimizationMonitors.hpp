@@ -100,8 +100,8 @@ public:
 
 	 /** @brief Aggregates the work of all registered pluggable monitors */
 	 G_API_GENEVA  void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override;
 
 protected:
@@ -204,8 +204,8 @@ public:
 
 	 /** @brief Aggregates the work of all registered pluggable monitors */
 	 G_API_GENEVA  void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override;
 
 protected:
@@ -299,8 +299,8 @@ public:
 
 	 /** @brief Aggregates the work of all registered pluggable monitors */
 	 G_API_GENEVA  void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override;
 
 	 /** @brief Allows to register a new pluggable monitor */
@@ -671,8 +671,8 @@ public:
 	  * (initialization, during each cycle and during finalization)
 	  */
 	 void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode im
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override {
 		 switch(im) {
 			 case Gem::Geneva::infoMode::INFOINIT:
@@ -1182,8 +1182,8 @@ public:
 
 	 /** @brief Allows to emit information in different stages of the information cycle */
 	 G_API_GENEVA  void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override;
 
 protected:
@@ -1216,7 +1216,7 @@ private:
 	 /** @brief Does the actual printing */
 	 G_API_GENEVA void printPopulation(
 		 const std::string& iterationDescription
-		 , G_OptimizationAlgorithm_Base *const goa
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 );
 
 	 /***************************************************************************/
@@ -1299,8 +1299,8 @@ public:
 
 	 /** @brief Allows to emit information in different stages of the information cycle */
 	 G_API_GENEVA  void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override;
 
 protected:
@@ -1416,8 +1416,8 @@ public:
 
 	 /** @brief Allows to emit information in different stages of the information cycle */
 	 G_API_GENEVA  void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override;
 
 protected:
@@ -1677,8 +1677,8 @@ public:
 	  * (initialization, during each cycle and during finalization)
 	  */
 	 void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode im
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override {
 		 using namespace Gem::Common;
 
@@ -2094,8 +2094,8 @@ public:
 
 	 /** @brief Allows to emit information in different stages of the information cycle */
 	 G_API_GENEVA  void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base *const goa
+		 infoMode
+		 , G_OptimizationAlgorithm_Base const * const goa
 	 ) override;
 
 protected:

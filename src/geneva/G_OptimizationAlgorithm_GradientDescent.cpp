@@ -68,17 +68,6 @@ GGradientDescent::GGradientDescent(
 
 /******************************************************************************/
 /**
- * Returns information about the type of optimization algorithm. This function needs
- * to be overloaded by the actual algorithms to return the correct type.
- *
- * @return The type of optimization algorithm
- */
-std::string GGradientDescent::getAlgorithmPersonalityType() const {
-	return "PERSONALITY_GD";
-}
-
-/******************************************************************************/
-/**
  * Retrieves the number of starting points of the algorithm
  *
  * @return The number of simultaneous starting points of the gradient descent
@@ -172,8 +161,19 @@ double GGradientDescent::getStepSize() const {
  *
  * @return The number of processable items in the current iteration
  */
-std::size_t GGradientDescent::getNProcessableItems() const {
+std::size_t GGradientDescent::getNProcessableItems_() const {
 	return this->size(); // Evaluation always needs to be done for the entire population
+}
+
+/******************************************************************************/
+/**
+ * Returns information about the type of optimization algorithm. This function needs
+ * to be overloaded by the actual algorithms to return the correct type.
+ *
+ * @return The type of optimization algorithm
+ */
+std::string GGradientDescent::getAlgorithmPersonalityType_() const {
+	return "PERSONALITY_GD";
 }
 
 /******************************************************************************/
@@ -182,7 +182,7 @@ std::size_t GGradientDescent::getNProcessableItems() const {
  *
  * @return The name assigned to this optimization algorithm
  */
-std::string GGradientDescent::getAlgorithmName() const {
+std::string GGradientDescent::getAlgorithmName_() const {
 	return std::string("Gradient Descent");
 }
 
@@ -228,14 +228,14 @@ void GGradientDescent::compare_(
  * Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
-void GGradientDescent::resetToOptimizationStart() {
+void GGradientDescent::resetToOptimizationStart_() {
 	dblLowerParameterBoundaries_.clear(); // Holds lower boundaries of double parameters; Will be extracted in init()
 	dblUpperParameterBoundaries_.clear(); // Holds upper boundaries of double parameters; Will be extracted in init()
 	adjustedFiniteStep_.clear(); // A step-size normalized to each parameter range; Will be recalculated in init()
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
-	G_OptimizationAlgorithm_Base::resetToOptimizationStart();
+	G_OptimizationAlgorithm_Base::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -285,7 +285,7 @@ GObject *GGradientDescent::clone_() const {
  *
  * @return The value of the best individual found in this iteration
  */
-std::tuple<double, double> GGradientDescent::cycleLogic() {
+std::tuple<double, double> GGradientDescent::cycleLogic_() {
 	if (afterFirstIteration()) {
 		// Update the parameters of the parent individuals. This
 		// only makes sense once the individuals have been evaluated
@@ -296,7 +296,7 @@ std::tuple<double, double> GGradientDescent::cycleLogic() {
 	this->updateChildParameters();
 
 	// Trigger value calculation for all individuals (including parents)
-	runFitnessCalculation();
+	runFitnessCalculation_();
 
 	std::tuple<double, double> bestFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 	std::tuple<double, double> fitnessCandidate = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
@@ -456,7 +456,7 @@ void GGradientDescent::addConfigurationOptions_(
  * in GBaseGD, albeit by delegating work to the broker. Items are evaluated up to the maximum position
  * in the vector. Note that we always start the evaluation with the first item in the vector.
  */
-void GGradientDescent::runFitnessCalculation() {
+void GGradientDescent::runFitnessCalculation_() {
 	using namespace Gem::Courtier;
 
 #ifdef DEBUG
@@ -581,15 +581,26 @@ void GGradientDescent::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-std::shared_ptr <GPersonalityTraits> GGradientDescent::getPersonalityTraits() const {
+std::shared_ptr <GPersonalityTraits> GGradientDescent::getPersonalityTraits_() const {
 	return std::shared_ptr<GGradientDescent_PersonalityTraits>(new GGradientDescent_PersonalityTraits());
+}
+
+/******************************************************************************/
+/**
+ * Gives individuals an opportunity to update their internal structures. The
+ * inner workings of a gradient descent are largely deterministic. An option
+ * to improve this might be to scan the immediate vicinity of the best solution(s)
+ * or to run a small EA.
+ */
+void GGradientDescent::actOnStalls_() {
+	/* nothing */
 }
 
 /******************************************************************************/
 /**
  * Resizes the population to the desired level and does some error checks.
  */
-void GGradientDescent::adjustPopulation() {
+void GGradientDescent::adjustPopulation_() {
 	// Check how many individuals we already have
 	std::size_t nStart = this->size();
 

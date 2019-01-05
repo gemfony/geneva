@@ -96,10 +96,10 @@ void GEvolutionaryAlgorithm::compare_(
  * Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
-void GEvolutionaryAlgorithm::resetToOptimizationStart() {
+void GEvolutionaryAlgorithm::resetToOptimizationStart_() {
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
-	G_OptimizationAlgorithm_ParChild::resetToOptimizationStart();
+	G_OptimizationAlgorithm_ParChild::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -108,7 +108,7 @@ void GEvolutionaryAlgorithm::resetToOptimizationStart() {
  *
  * @return The type of optimization algorithm
  */
-std::string GEvolutionaryAlgorithm::getAlgorithmPersonalityType() const {
+std::string GEvolutionaryAlgorithm::getAlgorithmPersonalityType_() const {
 	return std::string("PERSONALITY_EA");
 }
 
@@ -118,7 +118,7 @@ std::string GEvolutionaryAlgorithm::getAlgorithmPersonalityType() const {
   *
   * @return The name assigned to this optimization algorithm
   */
-std::string GEvolutionaryAlgorithm::getAlgorithmName() const {
+std::string GEvolutionaryAlgorithm::getAlgorithmName_() const {
 	return std::string("Evolutionary Algorithm");
 }
 
@@ -172,7 +172,7 @@ void GEvolutionaryAlgorithm::extractCurrentParetoIndividuals(
   * settings. The procedure is different for pareto optimization, as we only
   * want the individuals on the current pareto front to be added.
   */
-void GEvolutionaryAlgorithm::updateGlobalBestsPQ(
+void GEvolutionaryAlgorithm::updateGlobalBestsPQ_(
 	GParameterSetFixedSizePriorityQueue & bestIndividuals
 ) {
 	const bool REPLACE = true;
@@ -193,7 +193,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ(
 		case sortingMode::MUPLUSNU_SINGLEEVAL:
 		case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 		case sortingMode::MUCOMMANU_SINGLEEVAL:
-			G_OptimizationAlgorithm_Base::updateGlobalBestsPQ(bestIndividuals);
+			G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(bestIndividuals);
 			break;
 
 			//----------------------------------------------------------------------------
@@ -221,7 +221,7 @@ void GEvolutionaryAlgorithm::updateGlobalBestsPQ(
  * and will be cleared prior to adding the new individuals. This results in
  * the best individuals of the current iteration.
  */
-void GEvolutionaryAlgorithm::updateIterationBestsPQ(
+void GEvolutionaryAlgorithm::updateIterationBestsPQ_(
 	GParameterSetFixedSizePriorityQueue& bestIndividuals
 ) {
 	const bool CLONE = true;
@@ -242,7 +242,7 @@ void GEvolutionaryAlgorithm::updateIterationBestsPQ(
 		case sortingMode::MUPLUSNU_SINGLEEVAL:
 		case sortingMode::MUNU1PRETAIN_SINGLEEVAL:
 		case sortingMode::MUCOMMANU_SINGLEEVAL: {
-			G_OptimizationAlgorithm_Base::updateIterationBestsPQ(bestIndividuals);
+			G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(bestIndividuals);
 		} break;
 
 			//----------------------------------------------------------------------------
@@ -373,7 +373,7 @@ GObject * GEvolutionaryAlgorithm::clone_() const {
 /**
  * Some error checks related to population sizes
  */
-void GEvolutionaryAlgorithm::populationSanityChecks() const {
+void GEvolutionaryAlgorithm::populationSanityChecks_() const {
 	// First check that we have been given a suitable value for the number of parents.
 	// Note that a number of checks (e.g. population size != 0) has already been done
 	// in the parent class.
@@ -430,7 +430,7 @@ void GEvolutionaryAlgorithm::populationSanityChecks() const {
 /**
   * Adapt all children in parallel. Evaluation is done in a separate function (runFitnessCalculation).
   */
-void GEvolutionaryAlgorithm::adaptChildren() {
+void GEvolutionaryAlgorithm::adaptChildren_() {
 	// Retrieve the range of individuals to be adapted
 	std::tuple<std::size_t, std::size_t> range = this->getAdaptionRange();
 
@@ -478,12 +478,12 @@ void GEvolutionaryAlgorithm::adaptChildren() {
 /**
   * We submit individuals to the broker connector and wait for processed items.
  */
-void GEvolutionaryAlgorithm::runFitnessCalculation() {
+void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 	//--------------------------------------------------------------------------------
 	// Start by marking the work to be done in the individuals.
 	// "range" will hold the start- and end-points of the range
 	// to be worked on
-	std::tuple<std::size_t, std::size_t> range = getEvaluationRange();
+	std::tuple<std::size_t, std::size_t> range = getEvaluationRange_();
 
 #ifdef DEBUG
 	// There should be no situation in which a "clean" child is submitted
@@ -669,7 +669,7 @@ void GEvolutionaryAlgorithm::fixAfterJobSubmission() {
 /**
 	* Choose new parents, based on the selection scheme set by the user.
 	*/
-void GEvolutionaryAlgorithm::selectBest() {
+void GEvolutionaryAlgorithm::selectBest_() {
 #ifdef DEBUG
 	// We require at this stage that at least the default number of
 	// children is present. If individuals can get lost in your setting,
@@ -763,7 +763,7 @@ void GEvolutionaryAlgorithm::selectBest() {
   *
   * @return The range inside which evaluation should take place
   */
-std::tuple<std::size_t,std::size_t> GEvolutionaryAlgorithm::getEvaluationRange() const {
+std::tuple<std::size_t,std::size_t> GEvolutionaryAlgorithm::getEvaluationRange_() const {
 	// We evaluate all individuals in the first iteration This happens so pluggable
 	// optimization monitors do not need to distinguish between algorithms, and
 	// MUCOMMANU selection may fall back to MUPLUSNU in the first iteration.
@@ -798,7 +798,7 @@ void GEvolutionaryAlgorithm::finalize() {
 /**
   * Retrieve a GPersonalityTraits object belonging to this algorithm
   */
-std::shared_ptr<GPersonalityTraits> GEvolutionaryAlgorithm::getPersonalityTraits() const {
+std::shared_ptr<GPersonalityTraits> GEvolutionaryAlgorithm::getPersonalityTraits_() const {
 	return std::shared_ptr<GEvolutionaryAlgorithm_PersonalityTraits>(new GEvolutionaryAlgorithm_PersonalityTraits());
 }
 

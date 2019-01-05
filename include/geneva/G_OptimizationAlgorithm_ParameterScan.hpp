@@ -682,18 +682,6 @@ public:
     /** @brief The destructor */
     G_API_GENEVA ~GParameterScan() override = default;
 
-    /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
-    G_API_GENEVA void resetToOptimizationStart() override;
-
-    /** @brief Returns information about the type of optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmPersonalityType() const override;
-
-    /** @brief Retrieves the number of processable items for the current iteration */
-    G_API_GENEVA std::size_t getNProcessableItems() const override;
-
-    /** @brief Returns the name of this optimization algorithm */
-    G_API_GENEVA std::string getAlgorithmName() const override;
-
     /** @brief Allows to set the number of "best" individuals to be monitored over the course of the algorithm run */
     G_API_GENEVA void setNMonitorInds(std::size_t);
     /** @brief Allows to retrieve  the number of "best" individuals to be monitored over the course of the algorithm run */
@@ -716,6 +704,8 @@ public:
 
 protected:
     /***************************************************************************/
+    // Virtual or overridden protected functions
+
     /** @brief Adds local configuration options to a GParserBuilder object */
     G_API_GENEVA void addConfigurationOptions_(
         Gem::Common::GParserBuilder &gpb
@@ -737,31 +727,47 @@ protected:
         , const double & // the limit for allowed deviations of floating point types
     ) const override;
 
-    /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
-    G_API_GENEVA std::tuple<double, double> cycleLogic() override;
+    /** @brief Resets the settings of this population to what was configured when the optimize()-call was issued */
+    G_API_GENEVA void resetToOptimizationStart_() override;
+
     /** @brief Does some preparatory work before the optimization starts */
     G_API_GENEVA void init() override;
     /** @brief Does any necessary finalization work */
     G_API_GENEVA void finalize() override;
 
-    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits() const override;
-
-    /** @brief Resizes the population to the desired level and does some error checks */
-    G_API_GENEVA void adjustPopulation() override;
-
-    /** @brief Triggers fitness calculation of a number of individuals */
-    G_API_GENEVA void runFitnessCalculation() override;
-
-    /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
-    G_API_GENEVA bool customHalt() const override;
+    /***************************************************************************/
 
 private:
     /***************************************************************************/
+    // Virtual or overridden private functions
+
     /** @brief Emits a name for this class / object */
     G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override;
+
+    /** @brief The actual business logic to be performed during each iteration. Returns the best achieved fitness */
+    G_API_GENEVA std::tuple<double, double> cycleLogic_() override;
+    /** @brief Triggers fitness calculation of a number of individuals */
+    G_API_GENEVA void runFitnessCalculation_() override;
+
+    /** @brief Returns information about the type of optimization algorithm */
+    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
+    /** @brief Returns the name of this optimization algorithm */
+    G_API_GENEVA std::string getAlgorithmName_() const override;
+
+    /** @brief Retrieves the number of processable items for the current iteration */
+    G_API_GENEVA std::size_t getNProcessableItems_() const override;
+
+    /** @brief A custom halt criterion for the optimization, allowing to stop the loop when no items are left to be scanned */
+    G_API_GENEVA bool customHalt_() const override;
+
+    /** @brief Resizes the population to the desired level and does some error checks */
+    G_API_GENEVA void adjustPopulation_() override;
+    /** @brief Retrieve a GPersonalityTraits object belonging to this algorithm */
+    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
+    /** @brief Gives individuals an opportunity to update their internal structures */
+    G_API_GENEVA void actOnStalls_() override;
 
     /***************************************************************************/
     /**

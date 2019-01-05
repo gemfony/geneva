@@ -59,8 +59,8 @@ namespace Geneva {
  * Aggregates the work of all registered pluggable monitors
  */
 void GStandardMonitor::informationFunction(
-	const infoMode& im
-	, G_OptimizationAlgorithm_Base *const goa
+	infoMode im
+	, G_OptimizationAlgorithm_Base const * const goa
 ) {
 	switch(im) {
 		case Gem::Geneva::infoMode::INFOINIT: {
@@ -333,8 +333,8 @@ std::size_t GFitnessMonitor::getNMonitorIndividuals() const {
  * Aggregates the work of all registered pluggable monitors
  */
 void GFitnessMonitor::informationFunction(
-	const infoMode& im
-	, G_OptimizationAlgorithm_Base *const goa
+	infoMode im
+	, G_OptimizationAlgorithm_Base const * const goa
 ) {
 	switch(im) {
 		case Gem::Geneva::infoMode::INFOINIT: {
@@ -603,8 +603,8 @@ GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor& cp) : GBasePlug
  * Aggregates the work of all registered pluggable monitors
  */
 void GCollectiveMonitor::informationFunction(
-	const infoMode& im
-	, G_OptimizationAlgorithm_Base *const goa
+	infoMode im
+	, G_OptimizationAlgorithm_Base const * const goa
 )  {
 	for(auto const & pm_ptr : m_pluggable_monitors) {
 		pm_ptr->informationFunction(im,goa);
@@ -999,8 +999,8 @@ bool GAllSolutionFileLogger::getShowIterationBoundaries() const {
  * (initialization, during each cycle and during finalization)
  */
 void GAllSolutionFileLogger::informationFunction(
-	const infoMode& im
-	, G_OptimizationAlgorithm_Base *const goa
+	infoMode im
+	, G_OptimizationAlgorithm_Base const * const goa
 ) {
 	switch(im) {
 		case Gem::Geneva::infoMode::INFOINIT:
@@ -1076,7 +1076,7 @@ GObject* GAllSolutionFileLogger::clone_() const {
  */
 void GAllSolutionFileLogger::printPopulation(
 	const std::string& iterationDescription
-	, G_OptimizationAlgorithm_Base *const goa
+	, G_OptimizationAlgorithm_Base const * const goa
 ) {
 	// Open the external file
 	boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
@@ -1277,8 +1277,8 @@ bool GIterationResultsFileLogger::getUseTrueFitness() const {
  * (initialization, during each cycle and during finalization)
  */
 void GIterationResultsFileLogger::informationFunction(
-	const infoMode& im
-	, G_OptimizationAlgorithm_Base *const goa
+	infoMode im
+	, G_OptimizationAlgorithm_Base const * const goa
 ) {
 	switch(im) {
 		case Gem::Geneva::infoMode::INFOINIT:
@@ -1569,8 +1569,8 @@ bool GNAdpationsLogger::getAddPrintCommand() const {
  * (initialization, during each cycle and during finalization)
  */
 void GNAdpationsLogger::informationFunction(
-	const infoMode& im
-	, G_OptimizationAlgorithm_Base *const goa
+	infoMode im
+	, G_OptimizationAlgorithm_Base const * const goa
 ) {
 	using namespace Gem::Common;
 
@@ -2033,8 +2033,8 @@ std::size_t GProcessingTimesLogger::getNBinsY() const {
  * (initialization, during each cycle and during finalization)
  */
 void GProcessingTimesLogger::informationFunction(
-	const infoMode& im
-	, G_OptimizationAlgorithm_Base *const goa
+	infoMode im
+	, G_OptimizationAlgorithm_Base const * const goa
 ) {
 	switch(im) {
 		case Gem::Geneva::infoMode::INFOINIT: {

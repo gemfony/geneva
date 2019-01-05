@@ -60,11 +60,21 @@ namespace Geneva {
 template <typename optimizer_type>
 class G_Interface_OptimizerT {
 public:
-	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
-	 virtual G_API_GENEVA const optimizer_type * const optimize(const std::uint32_t& offset) BASE = 0;
+	 /***************************************************************************/
+	 // Deleted move construction and move assignment operators. For now moving
+	 // optimization algorithms seems too complex and of very limited use, so
+	 // we prevent it until the need arises.
 
-	 /** @brief Retrieves the current iteration of this object */
-	 virtual G_API_GENEVA std::uint32_t getIteration() const BASE = 0;
+	 G_API_GENEVA G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> &&) noexcept = delete;
+	 G_API_GENEVA G_Interface_OptimizerT<optimizer_type>& operator=(G_Interface_OptimizerT<optimizer_type> &&) noexcept = delete;
+
+	 /***************************************************************************/
+	 /**
+	  * Triggers the optimization cycle, starting to count iterations at a given offset
+	  */
+	 optimizer_type const * const optimize(std::uint32_t offset = 0) {
+	 	return this->optimize_(offset);
+	 }
 
 	 /***************************************************************************/
 	 /**
@@ -126,9 +136,9 @@ public:
 	  * @return A copy of the best individual found in the iteration
 	  */
 	 template <typename individual_type>
-	 std::shared_ptr<individual_type> getBestIterationIndividual (
+	 std::shared_ptr<individual_type> getBestIterationIndividual(
 		 typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = nullptr
-	 ) {
+	 ) const {
 		 std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
 		 return getBestIterationIndividual_()->template clone<individual_type>();
 	 }
@@ -144,7 +154,7 @@ public:
 	 template <typename individual_type>
 	 std::vector<std::shared_ptr<individual_type>> getBestIterationIndividuals(
 		 typename std::enable_if<std::is_base_of<GParameterSet, individual_type>::value>::type *dummy = nullptr
-	 ) {
+	 ) const {
 		 std::unique_lock<std::mutex> iteration_best_lock(m_get_best_mutex);
 
 		 std::vector<std::shared_ptr<individual_type>> bestIndividuals;
@@ -170,22 +180,33 @@ public:
 	 /**
 	  * Returns one-word information about the type of optimization algorithm.
 	  */
-	 virtual std::string getAlgorithmPersonalityType() const BASE {
-		 return std::string("PERSONALITY_NONE");
+	 std::string getAlgorithmPersonalityType() const {
+		 return this->getAlgorithmPersonalityType_();
 	 }
 
 	 /***************************************************************************/
+	 /**
+	  * Returns a descriptive name assigned to this algorithm
+	  */
+	 std::string getAlgorithmName() const {
+	 	return this->getAlgorithmName_();
+	 }
 
-	 /** @brief Returns a descriptive name assigned to this algorithm */
-	 virtual G_API_GENEVA std::string getAlgorithmName() const BASE = 0;
+	 /***************************************************************************/
+	 /**
+	  * Retrieves the current iteration of this object
+	  */
+	 std::uint32_t getIteration() const {
+	 	return this->getIteration_();
+	 }
 
 protected:
 	 /***************************************************************************/
-	 // Defaulted constructors / destructors / assignment operators
+	 // Defaulted or constructors / destructors / assignment operators
 
 	 G_API_GENEVA G_Interface_OptimizerT() = default;
 	 G_API_GENEVA G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> const &) = default;
-	 G_API_GENEVA G_Interface_OptimizerT(G_Interface_OptimizerT<optimizer_type> &&) = default;
+
 	 /**
  	  * The destructor. Making this function protected and non-virtual follows
  	  * this discussion: http://www.gotw.ca/publications/mill18.htm
@@ -193,25 +214,35 @@ protected:
 	 G_API_GENEVA ~G_Interface_OptimizerT() = default;
 
 	 G_API_GENEVA G_Interface_OptimizerT<optimizer_type>& operator=(G_Interface_OptimizerT<optimizer_type> const &) = default;
-	 G_API_GENEVA G_Interface_OptimizerT<optimizer_type>& operator=(G_Interface_OptimizerT<optimizer_type> &&) = default;
 
 	 /***************************************************************************/
+
+private:
+	 /** @brief Perform the actual optimization cycle, starting to count iterations at a given offset */
+	 virtual G_API_GENEVA optimizer_type const * const optimize_(std::uint32_t offset) BASE = 0;
+
+	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
+	 virtual G_API_GENEVA void runFitnessCalculation_() BASE = 0;
+
 	 /** @brief Retrieves the best individual found globally */
 	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const BASE = 0;
 	 /** @brief Retrieves a list of the best individuals found globally*/
 	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const BASE = 0;
 	 /** @brief Retrieves the best individual found in the current iteration*/
-	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() BASE = 0;
+	 virtual G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() const BASE = 0;
 	 /** @brief Retrieves a list of the best individuals found in the current iteration */
-	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() BASE = 0;
+	 virtual G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const BASE = 0;
+
+	 /** @brief Returns one-word information about the type of optimization algorithm. */
+	 virtual std::string getAlgorithmPersonalityType_() const BASE = 0;
+	 /** @brief Returns a descriptive name assigned to this algorithm */
+	 virtual G_API_GENEVA std::string getAlgorithmName_() const BASE = 0;
+	 /** @brief Retrieves the current iteration of this object */
+	 virtual G_API_GENEVA std::uint32_t getIteration_() const BASE = 0;
 
 	 /***************************************************************************/
-	 /** @brief Calculates the fitness of all required individuals; to be re-implemented in derived classes */
-	 virtual G_API_GENEVA void runFitnessCalculation() BASE = 0;
+	 // Data
 
-	 /***************************************************************************/
-
-private:
 	 mutable std::mutex m_get_best_mutex; ///< Protects access to the best individual of an iteration
 };
 

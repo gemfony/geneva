@@ -2,7 +2,7 @@
 * Version 1.9.1, yet unnamed, release date unknown
 
 Recommended versions:
-- Boost 1.66 or later is required, Boost 1.67 or later is recommended
+- Boost 1.67 or later is required, Boost 1.68 or later is recommended
   due to a bug on Boost.Beast in 1.66
 - CMake Version 3.1 or higher is required.
 - g++ is recommended to be at least 5.1, earlier versions
@@ -55,6 +55,10 @@ Bugs fixed:
  - The poorly named GStdThreadGroup was renamed to GThreadGroup
  - GStdSimpleVectorInterfaceT was renamed to GPODVectorT
  - GPtrVectorT was renamed to GPtrVectorT
+ - The signature of G_OptimizationAlgorithm_Base::GBasePluggableOM::informationFunction and
+   derivatives was changed to (infoMode, G_OptimizationAlgorithm_Base const * const) to better
+   protect the passed information. This should have no effect on you unless you have created
+   custom pluggable optimization monitors
  - Some public virtual functions were replaced by private or protected alternatives.
    The base-class then holds a wrapper function calling the virtual function. This
    has happened to follow common C++ coding practice.
@@ -62,8 +66,27 @@ Bugs fixed:
      name() --> name_() / private
      addConfigurationOptions() --> addConfigurationOptions_() / protected
      compare() --> compare_() / protected  (note: you need to add a friend declaration. See e.g. the example individuals)
+   G_OptimizationAlgorithm_Base and derivatives:
+     resetToOptimizationStart() --> resetToOptimizationStart_() / protected
+     getNProcessableItems() --> getNProcessableItems_() / private
+     cycleLogic() --> cycleLogic_() / private
+     actOnStalls() --> actOnStalls_() / private
    GParameterBase and derivatives:
      adaptImpl() --> adapt_() / private
+   G_Interface_OptimizerT and derivatives (all optimization algorithms and Go2):
+     optimize(offset) --> optimize_(offset) / private
+     runFitnessCalculation() --> runFitnessCalculation_() / private
+     getBestGlobalIndividual() --> getBestGlobalIndividual_() / private
+     getBestGlobalIndividuals() --> getBestGlobalIndividuals_() / private
+     getBestIterationIndividual() --> getBestIterationIndividual_() / private
+     getBestIterationIndividuals() --> getBestIterationIndividuals_() / private
+     getAlgorithmPersonalityType() --> getAlgorithmPersonalityType_() / private
+     getAlgorithmName() --> getAlgorithmName_() / private
+     getIteration() --> getIteration_() / private
+   As the base class still holds a public wrapper function, this should have no effect on you unless
+   you have overloaded these functions in your own code.
+ - The virtual customHalt() is now called customHalt_() in line with Geneva conditions, and has moved
+   to the private section of G_OptimizationAlgorithm_Base and derivatives
 
 ********************************************************************************
 

@@ -114,7 +114,7 @@ GSwarmAlgorithm::GSwarmAlgorithm(const GSwarmAlgorithm &cp)
  *
  * @return The type of optimization algorithm
  */
-std::string GSwarmAlgorithm::getAlgorithmPersonalityType() const {
+std::string GSwarmAlgorithm::getAlgorithmPersonalityType_() const {
 	return "PERSONALITY_SWARM";
 }
 
@@ -272,7 +272,7 @@ void GSwarmAlgorithm::compare_(
  * Resets the settings of this population to what was configured when
  * the optimize()-call was issued
  */
-void GSwarmAlgorithm::resetToOptimizationStart() {
+void GSwarmAlgorithm::resetToOptimizationStart_() {
 	m_n_neighborhood_members_cnt = std::vector<std::size_t>(m_n_neighborhoods, 0); // The current number of individuals belonging to each neighborhood
 
 	m_global_best_ptr.reset(); // The globally best individual
@@ -288,7 +288,7 @@ void GSwarmAlgorithm::resetToOptimizationStart() {
 
 	// There is no more work to be done here, so we simply call the
 	// function of the parent class
-	G_OptimizationAlgorithm_Base::resetToOptimizationStart();
+	G_OptimizationAlgorithm_Base::resetToOptimizationStart_();
 }
 
 /******************************************************************************/
@@ -593,7 +593,7 @@ void GSwarmAlgorithm::addConfigurationOptions_(
  *
  * @return The name assigned to this optimization algorithm
  */
-std::string GSwarmAlgorithm::getAlgorithmName() const {
+std::string GSwarmAlgorithm::getAlgorithmName_() const {
 	return std::string("Swarm Algorithm");
 }
 
@@ -710,8 +710,18 @@ void GSwarmAlgorithm::finalize() {
 /**
  * Retrieve a GPersonalityTraits object belonging to this algorithm
  */
-std::shared_ptr <GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits() const {
+std::shared_ptr <GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits_() const {
 	return std::shared_ptr<GSwarmAlgorithm_PersonalityTraits>(new GSwarmAlgorithm_PersonalityTraits());
+}
+
+/******************************************************************************/
+/**
+ * Gives individuals an opportunity to update their internal structures. Currently
+ * nothing -- might search in the vicinity of the best known solution or run a small
+ * EA.
+ */
+void GSwarmAlgorithm::actOnStalls_() {
+	/* nothing */
 }
 
 /******************************************************************************/
@@ -722,14 +732,14 @@ std::shared_ptr <GPersonalityTraits> GSwarmAlgorithm::getPersonalityTraits() con
  *
  * @return The value of the best individual found
  */
-std::tuple<double, double> GSwarmAlgorithm::cycleLogic() {
+std::tuple<double, double> GSwarmAlgorithm::cycleLogic_() {
 	std::tuple<double, double> bestIndividualFitness;
 
 	// First update the positions and neighborhood ids
 	updatePositions();
 
 	// Now update each individual's fitness
-	runFitnessCalculation();
+	runFitnessCalculation_();
 
 	// Search for the personal, neighborhood and globally best individuals and
 	// update the lists of best solutions, if necessary.
@@ -1172,7 +1182,7 @@ void GSwarmAlgorithm::pruneVelocity(std::vector<double> &velVec) {
 /**
  * Triggers the fitness calculation of all individuals
  */
-void GSwarmAlgorithm::runFitnessCalculation() {
+void GSwarmAlgorithm::runFitnessCalculation_() {
 	using namespace Gem::Courtier;
 
 	//--------------------------------------------------------------------------------
@@ -1369,7 +1379,7 @@ std::tuple<double, double> GSwarmAlgorithm::findBests() {
  * Resizes the population to the desired level and does some error checks. This function implements
  * the purely virtual function G_OptimizationAlgorithm_Base::adjustPopulation() .
  */
-void GSwarmAlgorithm::adjustPopulation() {
+void GSwarmAlgorithm::adjustPopulation_() {
 	const std::size_t currentSize = this->size();
 	const std::size_t defaultPopSize = getDefaultPopulationSize();
 	const std::size_t nNeighborhoods = getNNeighborhoods();
@@ -1723,7 +1733,7 @@ bool GSwarmAlgorithm::neighborhoodsFilledUpRandomly() const {
  *
  * @return The number of processable items in the current iteration
  */
-std::size_t GSwarmAlgorithm::getNProcessableItems() const {
+std::size_t GSwarmAlgorithm::getNProcessableItems_() const {
 	return this->size(); // All items in the population are updated in each iteration and need to be processed
 }
 

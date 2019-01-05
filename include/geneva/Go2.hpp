@@ -112,14 +112,14 @@ public:
 	 G_API_GENEVA Go2(
 		 int
 		 , char **
-		 , const std::string&
-		 , const boost::program_options::options_description& = boost::program_options::options_description()
+		 , std::string const &
+		 , boost::program_options::options_description const & = boost::program_options::options_description()
 	 );
 	 /** @brief Deleted copy constructor */
-	 G_API_GENEVA Go2(const Go2&) = delete;
+	 G_API_GENEVA Go2(Go2 const &) = delete;
 
 	 /** @brief The (defaulted) destructor */
-	 G_API_GENEVA ~Go2() = default;
+	 G_API_GENEVA ~Go2() override = default;
 
 	 /** @brief Triggers execution of the client loop */
 	 G_API_GENEVA int clientRun();
@@ -136,9 +136,9 @@ public:
 	 /** @brief Makes it easier to add algorithms */
 	 G_API_GENEVA Go2& operator&(std::shared_ptr<GOABase>);
 	 /** @brief Allows to add an optimization algorithm through its mnemonic */
-	 G_API_GENEVA void addAlgorithm(const std::string&);
+	 G_API_GENEVA void addAlgorithm(std::string const &);
 	 /** @brief Makes it easier to add algorithms */
-	 G_API_GENEVA Go2& operator&(const std::string&);
+	 G_API_GENEVA Go2& operator&(std::string const &);
 
 	 /** @brief Retrieves the currently registered number of algorithms */
 	 G_API_GENEVA std::size_t getNAlgorithms() const;
@@ -147,8 +147,6 @@ public:
 	 G_API_GENEVA void registerContentCreator(
 		 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>>
 	 );
-	 /** @brief Perform the actual optimization cycle */
-	 G_API_GENEVA const Go2 * const optimize(const std::uint32_t& = 0) final;
 
 	 /***************************************************************************/
 	 // The following is a trivial list of getters and setters
@@ -157,32 +155,26 @@ public:
 
 	 G_API_GENEVA std::uint16_t getNProducerThreads() const;
 
-	 G_API_GENEVA void setOffset(const std::uint32_t&);
+	 G_API_GENEVA void setOffset(std::uint32_t);
 	 G_API_GENEVA std::uint32_t getIterationOffset() const;
-
-	 /** @brief Retrieval of the current iteration */
-	 G_API_GENEVA uint32_t getIteration() const final;
-
-	 /** @brief Returns the name of this optimization algorithm */
-	 G_API_GENEVA std::string getAlgorithmName() const final;
 
 	 /** @brief Loads some configuration data from arguments passed on the command line (or another char ** that is presented to it) */
 	 G_API_GENEVA void parseCommandLine(
 		 int
 		 , char **
-		 , const boost::program_options::options_description& = boost::program_options::options_description()
+		 , boost::program_options::options_description const & = boost::program_options::options_description()
 	 );
 	 /** @brief Loads some configuration data from a configuration file */
-	 G_API_GENEVA void parseConfigFile(boost::filesystem::path const&);
+	 G_API_GENEVA void parseConfigFile(boost::filesystem::path const &);
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder&);
+	 G_API_GENEVA void addConfigurationOptions(Gem::Common::GParserBuilder &);
 
 	 /***************************************************************************/
 	 /** @brief Allows to register a default algorithm. */
 	 G_API_GENEVA void registerDefaultAlgorithm(std::shared_ptr<GOABase>);
 	 /** @brief Allows to register a default algorithm. */
-	 G_API_GENEVA void registerDefaultAlgorithm(const std::string& default_algorithm);
+	 G_API_GENEVA void registerDefaultAlgorithm(std::string const & default_algorithm);
 
 	 /** @brief Allows to register a pluggable optimization monitor */
 	 G_API_GENEVA void registerPluggableOM(std::shared_ptr<GBasePluggableOM>);
@@ -206,17 +198,30 @@ protected:
 	 /** @brief Retrieves a list of the best individuals found */
 	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestGlobalIndividuals_() const final;
 	 /** @brief Retrieves the best individual found */
-	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() final;
+	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() const final;
 	 /** @brief Retrieves a list of the best individuals found */
-	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() final;
-
-	 /** @brief Satisfies a requirement of G_Interface_Optimizer */
-	 G_API_GENEVA void runFitnessCalculation() final;
+	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const final;
 
 private:
 	 /***************************************************************************/
+
+	 /** @brief Returns one-word information about the type of optimization algorithm. */
+	 std::string getAlgorithmPersonalityType_() const final;
+	 /** @brief Returns the name of this optimization algorithm */
+	 G_API_GENEVA std::string getAlgorithmName_() const final;
+
+	 /** @brief Satisfies a requirement of G_Interface_Optimizer */
+	 G_API_GENEVA void runFitnessCalculation_() final;
+
+	 /** @brief Retrieval of the current iteration */
+	 G_API_GENEVA uint32_t getIteration_() const final;
+
+	 /***************************************************************************/
 	 /** @brief Sets the number of random number production threads */
-	 void setNProducerThreads(const std::uint16_t&);
+	 void setNProducerThreads(std::uint16_t);
+
+	 /** @brief Perform the actual optimization cycle */
+	 G_API_GENEVA Go2 const * const optimize_(std::uint32_t) final;
 
 	 /***************************************************************************/
 	 // Initialization code for the Geneva library

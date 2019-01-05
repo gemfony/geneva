@@ -36,9 +36,9 @@
 
 /******************************************************************************/
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>)
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GBrokerExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSerialExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GMTExecutorT<Gem::Geneva::GParameterSet>) // NOLINT
 
 /******************************************************************************/
 
@@ -223,7 +223,7 @@ G_OptimizationAlgorithm_Base::G_OptimizationAlgorithm_Base(const G_OptimizationA
  *
  * @param better A boolean which indicates whether a better result was found
  */
-void G_OptimizationAlgorithm_Base::checkpoint(const bool& is_better) const {
+void G_OptimizationAlgorithm_Base::checkpoint(bool is_better) const {
 	bool do_save = false;
 
 	// Determine a suitable name for the checkpoint file
@@ -266,7 +266,7 @@ void G_OptimizationAlgorithm_Base::checkpoint(const bool& is_better) const {
 /**
  * Loads the state of the class from disc
  */
-void G_OptimizationAlgorithm_Base::loadCheckpoint(const bf::path& cpFile) {
+void G_OptimizationAlgorithm_Base::loadCheckpoint(bf::path const & cpFile) {
 	// Extract the name of the optimization algorithm used for this file
 	std::string opt_desc = this->extractOptAlgFromPath(cpFile);
 
@@ -507,6 +507,14 @@ void G_OptimizationAlgorithm_Base::compare_(
 
 /******************************************************************************/
 /**
+ * Resets the class to the state before the optimize call.
+ */
+void G_OptimizationAlgorithm_Base::resetToOptimizationStart() {
+	resetToOptimizationStart_();
+}
+
+/******************************************************************************/
+/**
  * Resets the class to the state before the optimize call. This will in
  * particular erase all individuals stored in this class and clear the list
  * of best individuals. Please note that a subsequent call to optimize will
@@ -518,7 +526,7 @@ void G_OptimizationAlgorithm_Base::compare_(
  * unless you register a new executor, calling this function will result in
  * the default executor being used.
  */
-void G_OptimizationAlgorithm_Base::resetToOptimizationStart() {
+void G_OptimizationAlgorithm_Base::resetToOptimizationStart_() {
 	this->clear(); // Remove all individuals found in this population
 
 	m_iteration = 0; // The current iteration
@@ -612,8 +620,8 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
  * @param offset Specifies the iteration number to start with (e.g. useful when starting from a checkpoint file)
  * @return A constant pointer to this object
  */
-const G_OptimizationAlgorithm_Base * const G_OptimizationAlgorithm_Base::optimize(
-	const std::uint32_t& offset
+G_OptimizationAlgorithm_Base const * const G_OptimizationAlgorithm_Base::optimize_(
+	std::uint32_t offset
 ) {
 	// Reset the generation counter
 	m_iteration = offset;
@@ -628,7 +636,7 @@ const G_OptimizationAlgorithm_Base * const G_OptimizationAlgorithm_Base::optimiz
 
 	// Resize the population to the desired size and do some error checks.
 	// This function will also check that individuals have indeed been registered
-	adjustPopulation();
+	adjustPopulation_();
 
 	// Set the individual's personalities (some algorithm-specific information needs to be stored
 	// in individuals. Optimization algorithms need to re-implement this function to add
@@ -661,12 +669,12 @@ const G_OptimizationAlgorithm_Base * const G_OptimizationAlgorithm_Base::optimiz
 		markIteration();
 
 		// Update fitness values and the stall counter
-		updateStallCounter((m_bestCurrentPrimaryFitness=cycleLogic()));
+		updateStallCounter((m_bestCurrentPrimaryFitness= cycleLogic_()));
 
 		// Add the best individuals to the m_bestGlobalIndividuals_pq
 		// and m_bestIterationIndividuals_pq vectors
-		updateGlobalBestsPQ(m_bestGlobalIndividuals_pq);
-		updateIterationBestsPQ(m_bestIterationIndividuals_pq);
+		updateGlobalBestsPQ_(m_bestGlobalIndividuals_pq);
+		updateIterationBestsPQ_(m_bestIterationIndividuals_pq);
 
 		// Check whether a better value was found, and do the check-pointing, if necessary and requested.
 		checkpoint(progress());
@@ -680,7 +688,7 @@ const G_OptimizationAlgorithm_Base * const G_OptimizationAlgorithm_Base::optimiz
 		// Give derived classes an opportunity to act on stalls. NOTE that no action
 		// may be taken that affects the "dirty" state of individuals
 		if(m_stallCounterThreshold && stallCounterThresholdExceeded()) {
-			actOnStalls();
+			actOnStalls_();
 		}
 
 		// We want to provide feedback to the user in regular intervals.
@@ -1026,7 +1034,7 @@ bool G_OptimizationAlgorithm_Base::hasQualityThreshold() const {
  *
  * @return The current iteration of the optimization run
  */
-std::uint32_t G_OptimizationAlgorithm_Base::getIteration() const {
+std::uint32_t G_OptimizationAlgorithm_Base::getIteration_() const {
 	return m_iteration;
 }
 
@@ -1119,8 +1127,8 @@ std::tuple<double, double> G_OptimizationAlgorithm_Base::getBestCurrentPrimaryFi
  *
  * @param etr A boolean which specifies whether reasons for the termination of the optimization run should be emitted
  */
-void G_OptimizationAlgorithm_Base::setEmitTerminationReason(bool emitTerminatioReason) {
-	m_emitTerminationReason = emitTerminatioReason;
+void G_OptimizationAlgorithm_Base::setEmitTerminationReason(bool emitTerminationReason) {
+	m_emitTerminationReason = emitTerminationReason;
 }
 
 /******************************************************************************/
@@ -1135,13 +1143,21 @@ bool G_OptimizationAlgorithm_Base::getEmitTerminationReason() const {
 
 /******************************************************************************/
 /**
+ * Retrieve the number of processable items in the current iteration.
+ */
+std::size_t G_OptimizationAlgorithm_Base::getNProcessableItems() const {
+    return getNProcessableItems_();
+}
+
+/******************************************************************************/
+/**
  * Retrieve the number of processable items in the current iteration. This function should
  * be overloaded for derived classes. It is used to determine a suitable wait factor for
  * networked execution.
  *
  * @return The number of processable items in the current iteration
  */
-std::size_t G_OptimizationAlgorithm_Base::getNProcessableItems() const {
+std::size_t G_OptimizationAlgorithm_Base::getNProcessableItems_() const {
 	return this->size();
 }
 
@@ -1301,9 +1317,6 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_ (
 		<< "1: multi-threaded" << std::endl
 		<< "2: brokered" << std::endl << Gem::Common::nextComment()
 		<< "The configuration file for the default executor. Note that it needs to fit the executor type.";
-
-	execMode m_default_execMode = execMode::BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
-	std::string m_default_executor_config = "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
 }
 
 /******************************************************************************/
@@ -1313,7 +1326,7 @@ void G_OptimizationAlgorithm_Base::addConfigurationOptions_ (
   * and may either have a limited or unlimited size, depending on user-
   * settings
  */
-void G_OptimizationAlgorithm_Base::updateGlobalBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) {
+void G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue & bestIndividuals) {
 	const bool CLONE = true;
 	const bool DONOTREPLACE = false;
 
@@ -1340,7 +1353,7 @@ void G_OptimizationAlgorithm_Base::updateGlobalBestsPQ(GParameterSetFixedSizePri
  * and may either have a limited or unlimited size, depending on user-
  * settings
  */
-void G_OptimizationAlgorithm_Base::updateIterationBestsPQ(GParameterSetFixedSizePriorityQueue& bestIndividuals) {
+void G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue & bestIndividuals) {
 	const bool CLONE = true;
 	const bool REPLACE = true;
 
@@ -1578,7 +1591,7 @@ std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getBes
  * Retrieves the best individual found in the iteration (which is the best individual
  * in the priority queue).
  */
-std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationIndividual_() {
+std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationIndividual_() const {
 #ifdef DEBUG
 	std::shared_ptr<GParameterSet> p = m_bestIterationIndividuals_pq.best();
 	if(p) return p;
@@ -1599,7 +1612,7 @@ std::shared_ptr<GParameterSet> G_OptimizationAlgorithm_Base::getBestIterationInd
  * Retrieves a list of the best individuals found in the iteration (equal to the content of
  * the priority queue)
  */
-std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getBestIterationIndividuals_() {
+std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getBestIterationIndividuals_() const {
 	return m_bestIterationIndividuals_pq.toVector();
 }
 
@@ -1608,7 +1621,7 @@ std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getBes
  * Allows to set the personality type of the individuals
  */
 void G_OptimizationAlgorithm_Base::setIndividualPersonalities() {
-	for(auto const & ind_ptr: *this) { ind_ptr->setPersonality(this->getPersonalityTraits()); }
+	for(auto const & ind_ptr: *this) { ind_ptr->setPersonality(this->getPersonalityTraits_()); }
 }
 
 /******************************************************************************/
@@ -1656,21 +1669,6 @@ void G_OptimizationAlgorithm_Base::setNRecordBestIndividuals(std::size_t nRecord
  */
 std::size_t G_OptimizationAlgorithm_Base::getNRecordBestIndividuals() const {
 	return m_nRecordbestGlobalIndividuals;
-}
-
-/******************************************************************************/
-/**
- * It is possible for derived classes to specify in overloaded versions of this
- * function under which conditions the optimization should be stopped. The
- * function is called from G_OptimizationAlgorithm_Base::halt .
- *
- * @return boolean indicating that a stop condition was reached
- */
-bool G_OptimizationAlgorithm_Base::customHalt() const {
-	/* nothing - specify your own criteria in derived classes. Make sure
-	 * to emit a suitable message if execution was halted due to a
-	 * custom criterion */
-	return false;
 }
 
 /******************************************************************************/
@@ -1744,16 +1742,6 @@ void G_OptimizationAlgorithm_Base::markIteration() {
 void G_OptimizationAlgorithm_Base::markNStalls() {
 	for(auto const & ind_ptr: *this) { ind_ptr->setNStalls(m_stallCounter); }
 }
-
-/******************************************************************************/
-/**
- * Gives derived classes an opportunity to update their internal structures.
- * NOTE that no action may be taken here that affects the "dirty" state
- * of individuals. A typical usage scenario would be the update of the adaptor
- * settings in evolutionary algorithms.
- */
-void G_OptimizationAlgorithm_Base::actOnStalls()
-{ /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -1953,8 +1941,8 @@ bool G_OptimizationAlgorithm_Base::touchHalt() const {
  *
  * @return A boolean indicating whether a custom halt criterion has been reached
  */
-bool G_OptimizationAlgorithm_Base::customHalt_() const {
-	if(customHalt()) {
+bool G_OptimizationAlgorithm_Base::customHalt() const {
+	if(customHalt_()) {
 		if(m_emitTerminationReason) {
 			glogger
 				<< "Terminating optimization run because custom halt criterion has triggered." << std::endl
@@ -1965,7 +1953,16 @@ bool G_OptimizationAlgorithm_Base::customHalt_() const {
 	} else {
 		return false;
 	}
+}
 
+/******************************************************************************/
+/**
+ * Custom halt condition
+ *
+ * @return A boolean indicating whether a custom halt criterion has been reached
+ */
+bool G_OptimizationAlgorithm_Base::customHalt_() const {
+	return false;
 }
 
 /******************************************************************************/
@@ -2023,7 +2020,7 @@ bool G_OptimizationAlgorithm_Base::halt() const {
 	if(qualityThresholdHaltSet() && qualityHalt()) return true;
 
 	// Has the user specified an additional stop criterion ?
-	return customHalt_();
+	return customHalt();
 }
 
 /******************************************************************************/

@@ -71,12 +71,12 @@ std::once_flag f_go2;
  */
 Go2::Go2(
 	int argc, char **argv
-	, const std::string &configFilename
-	, const boost::program_options::options_description &userDescriptions
+	, std::string const & configFilename
+	, boost::program_options::options_description const & userDescriptions
 )
 	: G_Interface_OptimizerT<Go2>()
-   , Gem::Common::GPtrVectorT<GParameterSet, GObject>()
-   , m_config_filename(configFilename)
+    , Gem::Common::GPtrVectorT<GParameterSet, GObject>()
+    , m_config_filename(configFilename)
 {
 	//--------------------------------------------
 	// Initialize Geneva as well as the known optimization algorithms
@@ -118,7 +118,7 @@ Go2::Go2(
  *
  * @param mn A small mnemonic for the optimization algorithm
  */
-void Go2::registerDefaultAlgorithm(const std::string &mn) {
+void Go2::registerDefaultAlgorithm(std::string const & mn) {
 	// Retrieve the algorithm from the global store
 	std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 	if (not GOAFactoryStore->get(mn, p)) {
@@ -358,7 +358,7 @@ Go2 &Go2::operator&(std::shared_ptr<GOABase> alg) {
 /**
  * Allows to add an optimization algorithm through its mnemonic
  */
-void Go2::addAlgorithm(const std::string &mn) {
+void Go2::addAlgorithm(std::string const & mn) {
 	// Retrieve the algorithm from the global store
 	std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
 	if (not GOAFactoryStore->get(mn, p)) {
@@ -376,7 +376,7 @@ void Go2::addAlgorithm(const std::string &mn) {
 /**
  * Makes it easier to add algorithms through their mnemonics
  */
-Go2 &Go2::operator&(const std::string &mn) {
+Go2 &Go2::operator&(std::string const & mn) {
 	this->addAlgorithm(mn);
 	return *this;
 }
@@ -411,7 +411,7 @@ void Go2::registerContentCreator(
  *
  * @param offset An offset at which the first algorithm should start
  */
-const Go2 * const Go2::optimize(const std::uint32_t &offset) {
+Go2 const * const Go2::optimize_(std::uint32_t) {
 	// Check that algorithms have indeed been registered. If not, try to add a default algorithm
 	if (m_algorithms_cnt.empty()) {
 		if (not m_default_algorithm) {
@@ -490,7 +490,6 @@ const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 		}
 
 		// Add the individuals to the algorithm
-		std::size_t ind_pos = 0;
 		for (const auto& ind_ptr: *this) {
 			alg_ptr->push_back(ind_ptr);
 		}
@@ -505,7 +504,6 @@ const Go2 * const Go2::optimize(const std::uint32_t &offset) {
 		m_iterations_consumed = alg_ptr->getIteration();
 
 		// Unload the individuals from the last algorithm and store them again in this object
-		ind_pos = 0;
 		if(m_copyBestIndividualsOnly) {
 			for (const auto &best_ind_ptr: alg_ptr->getBestGlobalIndividuals<GParameterSet>()) {
 				this->push_back(best_ind_ptr);
@@ -619,15 +617,12 @@ std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestGlobalIndiv
  *
  * @return The best individual found
  */
-std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() {
+std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() const {
 	throw gemfony_exception(
 		g_error_streamer(DO_LOG,  time_and_place)
 			<< "In Go2::getBestIterationIndividual_(): Error!" << std::endl
 			<< "This function should not be called" << std::endl
 	);
-
-	// Make the compiler happy
-	return std::shared_ptr<Gem::Geneva::GParameterSet>();
 }
 
 /******************************************************************************/
@@ -637,22 +632,19 @@ std::shared_ptr<Gem::Geneva::GParameterSet> Go2::getBestIterationIndividual_() {
  *
  * @return The best individual found
  */
-std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestIterationIndividuals_() {
+std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>> Go2::getBestIterationIndividuals_() const {
 	throw gemfony_exception(
 		g_error_streamer(DO_LOG,  time_and_place)
 			<< "In Go2::getBestIterationIndividuals_(): Error!" << std::endl
 			<< "This function should not be called" << std::endl
 	);
-
-	// Make the compiler happy
-	return std::vector<std::shared_ptr<Gem::Geneva::GParameterSet>>();
 }
 
 /******************************************************************************/
 /**
  * Satisfies a requirement of G_Interface_Optimizer
  */
-void Go2::runFitnessCalculation() { /* nothing */ }
+void Go2::runFitnessCalculation_() { /* nothing */ }
 
 /******************************************************************************/
 /**
@@ -708,7 +700,7 @@ bool Go2::getClientMode() const {
  *
  * @param nProducerThreads The number of threads that will simultaneously produce random numbers
  */
-void Go2::setNProducerThreads(const std::uint16_t &nProducerThreads) {
+void Go2::setNProducerThreads(std::uint16_t nProducerThreads) {
 	m_n_producer_threads = nProducerThreads;
 }
 
@@ -729,7 +721,7 @@ std::uint16_t Go2::getNProducerThreads() const {
  *
  * @param offset The offset with which the iteration counter should start
  */
-void Go2::setOffset(const std::uint32_t &offset) {
+void Go2::setOffset(std::uint32_t offset) {
 	m_offset = offset;
 }
 
@@ -737,7 +729,7 @@ void Go2::setOffset(const std::uint32_t &offset) {
 /**
  * Retrieval of the current iteration
  */
-uint32_t Go2::getIteration() const {
+uint32_t Go2::getIteration_() const {
 	return m_iterations_consumed;
 }
 
@@ -747,8 +739,14 @@ uint32_t Go2::getIteration() const {
  *
  * @return The name assigned to this optimization algorithm
  */
-std::string Go2::getAlgorithmName() const {
+std::string Go2::getAlgorithmName_() const {
 	return std::string("Algorithm Combiner");
+}
+
+/******************************************************************************/
+/** @brief Returns one-word information about the type of optimization algorithm. */
+std::string Go2::getAlgorithmPersonalityType_() const {
+	return std::string("PERSONALITY_NONE");
 }
 
 /******************************************************************************/
@@ -771,7 +769,7 @@ std::uint32_t Go2::getIterationOffset() const {
 void Go2::parseCommandLine(
 	int argc
 	, char **argv
-	, const boost::program_options::options_description &userOptions
+	, boost::program_options::options_description const & userOptions
 ) {
 	namespace po = boost::program_options;
 
@@ -935,7 +933,6 @@ void Go2::parseCommandLine(
 		if (vm.count("optimizationAlgorithms")) {
 			std::vector<std::string> algs = Gem::Common::splitString(optimization_algorithms, ",");
 
-			std::size_t pos = 0;
 			for (const auto& alg_str: algs) {
 				// Retrieve the algorithm factory from the global store
 				std::shared_ptr<G_OptimizationAlgorithm_FactoryT<GOABase>> p;
@@ -974,7 +971,7 @@ void Go2::parseCommandLine(
  *
  * @param configFilename The name of a configuration file to be parsed
  */
-void Go2::parseConfigFile(boost::filesystem::path const &configFilename) {
+void Go2::parseConfigFile(boost::filesystem::path const & configFilename) {
 	// Create a parser builder object. It will be destroyed at
 	// the end of this scope and thus cannot cause trouble
 	// due to registered call-backs and references
