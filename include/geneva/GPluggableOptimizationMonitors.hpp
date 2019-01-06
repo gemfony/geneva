@@ -98,12 +98,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_GENEVA  ~GStandardMonitor() override = default;
 
-	 /** @brief Aggregates the work of all registered pluggable monitors */
-	 G_API_GENEVA  void informationFunction(
-		 infoMode
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override;
-
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another object */
@@ -135,6 +129,12 @@ private:
 	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
+
+	/** @brief Aggregates the work of all registered pluggable monitors */
+	G_API_GENEVA  void informationFunction_(
+			infoMode
+			, G_OptimizationAlgorithm_Base const * const goa
+	) override;
 };
 
 /******************************************************************************/
@@ -198,12 +198,6 @@ public:
 	 /** @brief Retrieves the number of individuals that are being monitored */
 	 G_API_GENEVA std::size_t getNMonitorIndividuals() const;
 
-	 /** @brief Aggregates the work of all registered pluggable monitors */
-	 G_API_GENEVA  void informationFunction(
-		 infoMode
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override;
-
 protected:
 	 /************************************************************************/
 	 /** @brief Loads the data of another object */
@@ -236,6 +230,12 @@ private:
 	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
+
+	/** @brief Aggregates the work of all registered pluggable monitors */
+	G_API_GENEVA  void informationFunction_(
+		infoMode
+		, G_OptimizationAlgorithm_Base const * const goa
+	) override;
 
 	 /************************************************************************/
 
@@ -289,12 +289,6 @@ public:
 	 /** @brief The destructor */
 	 G_API_GENEVA  ~GCollectiveMonitor() override = default;
 
-	 /** @brief Aggregates the work of all registered pluggable monitors */
-	 G_API_GENEVA  void informationFunction(
-		 infoMode
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override;
-
 	 /** @brief Allows to register a new pluggable monitor */
 	 G_API_GENEVA void registerPluggableOM(std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr);
 	 /** @brief Checks if adaptors have been registered in the collective monitor */
@@ -334,6 +328,12 @@ private:
 	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
+
+	/** @brief Aggregates the work of all registered pluggable monitors */
+	G_API_GENEVA  void informationFunction_(
+		infoMode
+		, G_OptimizationAlgorithm_Base const * const goa
+	) override;
 
 	 std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM>> m_pluggable_monitors; ///< The collection of monitors
 };
@@ -653,241 +653,6 @@ public:
 		 return result;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Allows to emit information in different stages of the information cycle
-	  * (initialization, during each cycle and during finalization)
-	  */
-	 void informationFunction(
-		 infoMode im
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override {
-		 switch(im) {
-			 case Gem::Geneva::infoMode::INFOINIT:
-			 {
-				 switch(this->nProfileVars()) {
-					 case 1:
-					 {
-						 m_progressPlotter2D_oa = std::make_shared<Gem::Common::GGraph2D>();
-
-						 m_progressPlotter2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-						 m_progressPlotter2D_oa->setPlotLabel("Fitness as a function of a parameter value");
-						 m_progressPlotter2D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
-						 m_progressPlotter2D_oa->setYAxisLabel("Fitness");
-
-						 m_gpd.registerPlotter(m_progressPlotter2D_oa);
-					 }
-						 break;
-					 case 2:
-					 {
-						 m_progressPlotter3D_oa = std::make_shared<Gem::Common::GGraph3D>();
-
-						 m_progressPlotter3D_oa->setPlotLabel("Fitness as a function of parameter values");
-						 m_progressPlotter3D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
-						 m_progressPlotter3D_oa->setYAxisLabel(this->getLabel(m_fp_profVarVec[1]));
-						 m_progressPlotter3D_oa->setZAxisLabel("Fitness");
-
-						 m_gpd.registerPlotter(m_progressPlotter3D_oa);
-					 }
-						 break;
-
-					 case 3:
-					 {
-						 m_progressPlotter4D_oa = std::make_shared<Gem::Common::GGraph4D>();
-
-						 m_progressPlotter4D_oa->setPlotLabel("Fitness (color-coded) as a function of parameter values");
-						 m_progressPlotter4D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
-						 m_progressPlotter4D_oa->setYAxisLabel(this->getLabel(m_fp_profVarVec[1]));
-						 m_progressPlotter4D_oa->setZAxisLabel(this->getLabel(m_fp_profVarVec[2]));
-
-						 m_gpd.registerPlotter(m_progressPlotter4D_oa);
-					 }
-						 break;
-
-					 default:
-					 {
-						 glogger
-							 << "NOTE: In GProgressPlotterT<fp_type>::informationFunction(infoMode::INFOINIT):" << std::endl
-							 << "Number of profiling dimensions " << this->nProfileVars() << " can not be displayed." << std::endl
-							 << "No graphical output will be created." << std::endl
-							 << GLOGGING;
-					 }
-						 break;
-				 }
-
-				 m_gpd.setCanvasDimensions(m_canvasDimensions);
-			 }
-				 break;
-
-			 case Gem::Geneva::infoMode::INFOPROCESSING:
-			 {
-				 bool isDirty = true;
-				 double primaryFitness;
-
-				 if(m_monitorBestOnly) { // Monitor the best individuals only
-					 std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-					 if(GBasePluggableOM::m_useRawEvaluation) {
-						 primaryFitness = p->raw_fitness(0);
-					 } else {
-						 primaryFitness = p->transformed_fitness(0);
-					 }
-
-					 if(not m_monitorValidOnly || p->isValid()) {
-						 switch(this->nProfileVars()) {
-							 case 1:
-							 {
-								 fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
-
-								 if(m_observeBoundaries) {
-									 if(
-										 val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
-										 ) {
-										 m_progressPlotter2D_oa->add(double(val0), primaryFitness);
-									 }
-								 } else {
-									 m_progressPlotter2D_oa->add(double(val0), primaryFitness);
-								 }
-							 }
-								 break;
-
-							 case 2:
-							 {
-								 fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
-								 fp_type val1 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[1].var);
-
-								 if(m_observeBoundaries) {
-									 if(
-										 val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
-										 && val1 >= m_fp_profVarVec[1].lowerBoundary && val1 <= m_fp_profVarVec[1].upperBoundary
-										 ) {
-										 m_progressPlotter3D_oa->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
-									 }
-								 } else {
-									 m_progressPlotter3D_oa->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
-								 }
-							 }
-								 break;
-
-							 case 3:
-							 {
-								 fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
-								 fp_type val1 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[1].var);
-								 fp_type val2 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[2].var);
-
-								 if(m_observeBoundaries) {
-									 if(
-										 val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
-										 && val1 >= m_fp_profVarVec[1].lowerBoundary && val1 <= m_fp_profVarVec[1].upperBoundary
-										 && val2 >= m_fp_profVarVec[2].lowerBoundary && val2 <= m_fp_profVarVec[2].upperBoundary
-										 ) {
-										 m_progressPlotter4D_oa->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
-									 }
-								 } else {
-									 m_progressPlotter4D_oa->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
-								 }
-							 }
-								 break;
-
-							 default: // Do nothing by default. The number of profiling dimensions is too large
-								 break;
-						 }
-					 }
-				 } else { // Monitor all individuals
-					 for(const auto& ind_ptr: *goa) {
-						 if(GBasePluggableOM::m_useRawEvaluation) {
-							 primaryFitness = ind_ptr->raw_fitness(0);
-						 } else {
-							 primaryFitness = ind_ptr->transformed_fitness(0);
-						 }
-
-						 if(not m_monitorValidOnly || ind_ptr->isValid()) {
-							 switch(this->nProfileVars()) {
-								 case 1:
-								 {
-									 fp_type val0    = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
-
-									 if(m_observeBoundaries) {
-										 if(
-											 val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
-											 ) {
-											 m_progressPlotter2D_oa->add(double(val0), primaryFitness);
-										 }
-									 } else {
-										 m_progressPlotter2D_oa->add(double(val0), primaryFitness);
-									 }
-								 }
-									 break;
-
-								 case 2:
-								 {
-									 fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
-									 fp_type val1 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
-
-									 if(m_observeBoundaries) {
-										 if(
-											 val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
-											 && val1 >= m_fp_profVarVec[1].lowerBoundary && val1 <= m_fp_profVarVec[1].upperBoundary
-											 ) {
-											 m_progressPlotter3D_oa->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
-										 }
-									 } else {
-										 m_progressPlotter3D_oa->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
-									 }
-								 }
-									 break;
-
-								 case 3:
-								 {
-									 fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
-									 fp_type val1 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
-									 fp_type val2 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[2].var);
-
-									 if(m_observeBoundaries) {
-										 if(
-											 val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
-											 && val1 >= m_fp_profVarVec[1].lowerBoundary && val1 <= m_fp_profVarVec[1].upperBoundary
-											 && val2 >= m_fp_profVarVec[2].lowerBoundary && val2 <= m_fp_profVarVec[2].upperBoundary
-											 ) {
-											 m_progressPlotter4D_oa->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
-										 }
-									 } else {
-										 m_progressPlotter4D_oa->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
-									 }
-								 }
-									 break;
-
-								 default: // Do nothing by default. The number of profiling dimensions is too large
-									 break;
-							 }
-						 }
-					 }
-				 }
-			 }
-				 break;
-
-			 case Gem::Geneva::infoMode::INFOEND:
-			 {
-				 // Make sure 1-D data is sorted
-				 if(1 == this->nProfileVars()) {
-					 m_progressPlotter2D_oa->sortX();
-				 }
-
-				 // Inform the plot designer whether it should print png files
-				 m_gpd.setAddPrintCommand(m_addPrintCommand);
-
-				 // Write out the result.
-				 m_gpd.writeToFile(m_fileName);
-
-				 // Remove all plotters
-				 m_gpd.resetPlotters();
-				 m_progressPlotter2D_oa.reset();
-				 m_progressPlotter3D_oa.reset();
-				 m_progressPlotter4D_oa.reset();
-			 }
-				 break;
-		 };
-	 }
-
 protected:
 	 /************************************************************************/
 	 /**
@@ -1044,7 +809,242 @@ private:
 		 return new GProgressPlotterT<fp_type>(*this);
 	 }
 
-	 /************************************************************************/
+	/***************************************************************************/
+	/**
+     * Allows to emit information in different stages of the information cycle
+     * (initialization, during each cycle and during finalization)
+     */
+	void informationFunction_(
+		infoMode im
+		, G_OptimizationAlgorithm_Base const * const goa
+	) override {
+		switch(im) {
+			case Gem::Geneva::infoMode::INFOINIT:
+			{
+				switch(this->nProfileVars()) {
+					case 1:
+					{
+						m_progressPlotter2D_oa = std::make_shared<Gem::Common::GGraph2D>();
+
+						m_progressPlotter2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+						m_progressPlotter2D_oa->setPlotLabel("Fitness as a function of a parameter value");
+						m_progressPlotter2D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
+						m_progressPlotter2D_oa->setYAxisLabel("Fitness");
+
+						m_gpd.registerPlotter(m_progressPlotter2D_oa);
+					}
+						break;
+					case 2:
+					{
+						m_progressPlotter3D_oa = std::make_shared<Gem::Common::GGraph3D>();
+
+						m_progressPlotter3D_oa->setPlotLabel("Fitness as a function of parameter values");
+						m_progressPlotter3D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
+						m_progressPlotter3D_oa->setYAxisLabel(this->getLabel(m_fp_profVarVec[1]));
+						m_progressPlotter3D_oa->setZAxisLabel("Fitness");
+
+						m_gpd.registerPlotter(m_progressPlotter3D_oa);
+					}
+						break;
+
+					case 3:
+					{
+						m_progressPlotter4D_oa = std::make_shared<Gem::Common::GGraph4D>();
+
+						m_progressPlotter4D_oa->setPlotLabel("Fitness (color-coded) as a function of parameter values");
+						m_progressPlotter4D_oa->setXAxisLabel(this->getLabel(m_fp_profVarVec[0]));
+						m_progressPlotter4D_oa->setYAxisLabel(this->getLabel(m_fp_profVarVec[1]));
+						m_progressPlotter4D_oa->setZAxisLabel(this->getLabel(m_fp_profVarVec[2]));
+
+						m_gpd.registerPlotter(m_progressPlotter4D_oa);
+					}
+						break;
+
+					default:
+					{
+						glogger
+								<< "NOTE: In GProgressPlotterT<fp_type>::informationFunction_(infoMode::INFOINIT):" << std::endl
+								<< "Number of profiling dimensions " << this->nProfileVars() << " can not be displayed." << std::endl
+								<< "No graphical output will be created." << std::endl
+								<< GLOGGING;
+					}
+						break;
+				}
+
+				m_gpd.setCanvasDimensions(m_canvasDimensions);
+			}
+				break;
+
+			case Gem::Geneva::infoMode::INFOPROCESSING:
+			{
+				bool isDirty = true;
+				double primaryFitness;
+
+				if(m_monitorBestOnly) { // Monitor the best individuals only
+					std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
+					if(GBasePluggableOM::m_useRawEvaluation) {
+						primaryFitness = p->raw_fitness(0);
+					} else {
+						primaryFitness = p->transformed_fitness(0);
+					}
+
+					if(not m_monitorValidOnly || p->isValid()) {
+						switch(this->nProfileVars()) {
+							case 1:
+							{
+								fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
+
+								if(m_observeBoundaries) {
+									if(
+											val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
+											) {
+										m_progressPlotter2D_oa->add(double(val0), primaryFitness);
+									}
+								} else {
+									m_progressPlotter2D_oa->add(double(val0), primaryFitness);
+								}
+							}
+								break;
+
+							case 2:
+							{
+								fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
+								fp_type val1 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[1].var);
+
+								if(m_observeBoundaries) {
+									if(
+											val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
+											&& val1 >= m_fp_profVarVec[1].lowerBoundary && val1 <= m_fp_profVarVec[1].upperBoundary
+											) {
+										m_progressPlotter3D_oa->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
+									}
+								} else {
+									m_progressPlotter3D_oa->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
+								}
+							}
+								break;
+
+							case 3:
+							{
+								fp_type val0 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[0].var);
+								fp_type val1 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[1].var);
+								fp_type val2 = p->GParameterSet::getVarVal<fp_type>(m_fp_profVarVec[2].var);
+
+								if(m_observeBoundaries) {
+									if(
+											val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
+											&& val1 >= m_fp_profVarVec[1].lowerBoundary && val1 <= m_fp_profVarVec[1].upperBoundary
+											&& val2 >= m_fp_profVarVec[2].lowerBoundary && val2 <= m_fp_profVarVec[2].upperBoundary
+											) {
+										m_progressPlotter4D_oa->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
+									}
+								} else {
+									m_progressPlotter4D_oa->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
+								}
+							}
+								break;
+
+							default: // Do nothing by default. The number of profiling dimensions is too large
+								break;
+						}
+					}
+				} else { // Monitor all individuals
+					for(const auto& ind_ptr: *goa) {
+						if(GBasePluggableOM::m_useRawEvaluation) {
+							primaryFitness = ind_ptr->raw_fitness(0);
+						} else {
+							primaryFitness = ind_ptr->transformed_fitness(0);
+						}
+
+						if(not m_monitorValidOnly || ind_ptr->isValid()) {
+							switch(this->nProfileVars()) {
+								case 1:
+								{
+									fp_type val0    = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+
+									if(m_observeBoundaries) {
+										if(
+												val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
+												) {
+											m_progressPlotter2D_oa->add(double(val0), primaryFitness);
+										}
+									} else {
+										m_progressPlotter2D_oa->add(double(val0), primaryFitness);
+									}
+								}
+									break;
+
+								case 2:
+								{
+									fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+									fp_type val1 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
+
+									if(m_observeBoundaries) {
+										if(
+												val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
+												&& val1 >= m_fp_profVarVec[1].lowerBoundary && val1 <= m_fp_profVarVec[1].upperBoundary
+												) {
+											m_progressPlotter3D_oa->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
+										}
+									} else {
+										m_progressPlotter3D_oa->add(std::tuple<double,double,double>(double(val0), double(val1), primaryFitness));
+									}
+								}
+									break;
+
+								case 3:
+								{
+									fp_type val0 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[0].var);
+									fp_type val1 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[1].var);
+									fp_type val2 = ind_ptr->GParameterSet::template getVarVal<fp_type>(m_fp_profVarVec[2].var);
+
+									if(m_observeBoundaries) {
+										if(
+												val0 >= m_fp_profVarVec[0].lowerBoundary && val0 <= m_fp_profVarVec[0].upperBoundary
+												&& val1 >= m_fp_profVarVec[1].lowerBoundary && val1 <= m_fp_profVarVec[1].upperBoundary
+												&& val2 >= m_fp_profVarVec[2].lowerBoundary && val2 <= m_fp_profVarVec[2].upperBoundary
+												) {
+											m_progressPlotter4D_oa->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
+										}
+									} else {
+										m_progressPlotter4D_oa->add(std::tuple<double,double,double,double>(double(val0), double(val1), double(val2), primaryFitness));
+									}
+								}
+									break;
+
+								default: // Do nothing by default. The number of profiling dimensions is too large
+									break;
+							}
+						}
+					}
+				}
+			}
+				break;
+
+			case Gem::Geneva::infoMode::INFOEND:
+			{
+				// Make sure 1-D data is sorted
+				if(1 == this->nProfileVars()) {
+					m_progressPlotter2D_oa->sortX();
+				}
+
+				// Inform the plot designer whether it should print png files
+				m_gpd.setAddPrintCommand(m_addPrintCommand);
+
+				// Write out the result.
+				m_gpd.writeToFile(m_fileName);
+
+				// Remove all plotters
+				m_gpd.resetPlotters();
+				m_progressPlotter2D_oa.reset();
+				m_progressPlotter3D_oa.reset();
+				m_progressPlotter4D_oa.reset();
+			}
+				break;
+		};
+	}
+
+	/************************************************************************/
 
 	 std::vector<parPropSpec<fp_type>> m_fp_profVarVec; ///< Holds information about variables to be profiled
 
@@ -1166,12 +1166,6 @@ public:
 	 /** @brief Allows to check whether a comment line should be inserted between iterations */
 	 G_API_GENEVA bool getShowIterationBoundaries() const;
 
-	 /** @brief Allows to emit information in different stages of the information cycle */
-	 G_API_GENEVA  void informationFunction(
-		 infoMode
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override;
-
 protected:
 	 /************************************************************************/
 
@@ -1205,6 +1199,12 @@ private:
 	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
+
+	/** @brief Allows to emit information in different stages of the information cycle */
+	G_API_GENEVA  void informationFunction_(
+			infoMode
+			, G_OptimizationAlgorithm_Base const * const goa
+	) override;
 
 	 /** @brief Does the actual printing */
 	 G_API_GENEVA void printPopulation(
@@ -1278,12 +1278,6 @@ public:
 	 /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
 	 G_API_GENEVA bool getUseTrueFitness() const;
 
-	 /** @brief Allows to emit information in different stages of the information cycle */
-	 G_API_GENEVA  void informationFunction(
-		 infoMode
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override;
-
 protected:
 	 /************************************************************************/
 	 /** @brief Loads the data of another object */
@@ -1316,6 +1310,12 @@ private:
 	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
+
+	/** @brief Allows to emit information in different stages of the information cycle */
+	G_API_GENEVA  void informationFunction_(
+			infoMode
+			, G_OptimizationAlgorithm_Base const * const goa
+	) override;
 
 	 std::string m_fileName = "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
 	 bool m_withCommas = true; ///< When set to true, commas will be printed in-between values
@@ -1390,12 +1390,6 @@ public:
 	 /** @brief Allows to retrieve the current value of the m_addPrintCommand variable */
 	 G_API_GENEVA bool getAddPrintCommand() const;
 
-	 /** @brief Allows to emit information in different stages of the information cycle */
-	 G_API_GENEVA  void informationFunction(
-		 infoMode
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override;
-
 protected:
 	 /************************************************************************/
 
@@ -1427,6 +1421,12 @@ private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
+
+	/** @brief Allows to emit information in different stages of the information cycle */
+	G_API_GENEVA  void informationFunction_(
+		infoMode
+		, G_OptimizationAlgorithm_Base const * const goa
+	) override;
 
 	 std::string m_fileName = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
 
@@ -1642,147 +1642,6 @@ public:
 		 return m_addPrintCommand;
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Allows to emit information in different stages of the information cycle
-	  * (initialization, during each cycle and during finalization)
-	  */
-	 void informationFunction(
-		 infoMode im
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override {
-		 using namespace Gem::Common;
-
-		 switch(im) {
-			 case Gem::Geneva::infoMode::INFOINIT:
-			 {
-				 // If the file pointed to by m_fileName already exists, make a back-up
-				 if(bf::exists(m_fileName)) {
-					 std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
-
-					 glogger
-						 << "In GAdaptorPropertyLoggerT::informationFunction(): Error!" << std::endl
-						 << "Attempt to output information to file " << m_fileName << std::endl
-						 << "which already exists. We will rename the old file to" << std::endl
-						 << newFileName << std::endl
-						 << GWARNING;
-
-					 bf::rename(m_fileName, newFileName);
-				 }
-
-				 // Make sure the progress plotter has the desired size
-				 m_gpd.setCanvasDimensions(m_canvasDimensions);
-
-				 // Set up a graph to monitor the best fitness found
-				 m_fitnessGraph2D_oa = std::make_shared<Gem::Common::GGraph2D>();
-				 m_fitnessGraph2D_oa->setXAxisLabel("Iteration");
-				 m_fitnessGraph2D_oa->setYAxisLabel("Fitness");
-				 m_fitnessGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-			 }
-				 break;
-
-			 case Gem::Geneva::infoMode::INFOPROCESSING:
-			 {
-				 std::uint32_t iteration = goa->getIteration();
-
-				 // Record the current fitness
-				 std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-				 (*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), p->raw_fitness(0));
-
-				 // Update the largest known iteration and the number of recorded iterations
-				 m_maxIteration = iteration;
-				 m_nIterationsRecorded++;
-
-				 // Will hold the adaptor properties
-				 std::vector<boost::any> data;
-
-				 // Do the actual logging
-				 if(m_monitorBestOnly) {
-					 std::shared_ptr<GParameterSet> best = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
-
-					 // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
-					 best->queryAdaptor(m_adaptorName, m_property, data);
-
-					 // Attach the data to m_adaptorPropertyStore
-					 std::vector<boost::any>::iterator prop_it;
-					 for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
-						 m_adaptorPropertyStore.push_back(std::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
-					 }
-				 } else { // Monitor all individuals
-					 // Loop over all individuals of the algorithm.
-					 for(std::size_t pos=0; pos<goa->size(); pos++) {
-						 std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
-
-						 // Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
-						 ind->queryAdaptor(m_adaptorName, m_property, data);
-
-						 // Attach the data to m_adaptorPropertyStore
-						 std::vector<boost::any>::iterator prop_it;
-						 for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
-							 m_adaptorPropertyStore.push_back(std::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
-						 }
-					 }
-				 }
-			 }
-				 break;
-
-			 case Gem::Geneva::infoMode::INFOEND:
-			 {
-				 std::vector<std::tuple<double, double>>::iterator it;
-
-				 // Within m_adaptorPropertyStore, find the largest number of adaptions performed
-				 double maxProperty = 0.;
-				 for(it=m_adaptorPropertyStore.begin(); it!=m_adaptorPropertyStore.end(); ++it) {
-					 if(std::get<1>(*it) > maxProperty) {
-						 maxProperty = std::get<1>(*it);
-					 }
-				 }
-
-				 // Create the histogram object
-				 m_adaptorPropertyHist2D_oa = std::make_shared<GHistogram2D>(
-					 m_nIterationsRecorded
-					 , 100
-					 , 0., double(m_maxIteration)
-					 , 0., maxProperty
-				 );
-
-				 m_adaptorPropertyHist2D_oa->setXAxisLabel("Iteration");
-				 m_adaptorPropertyHist2D_oa->setYAxisLabel(std::string("Adaptor-Name: ") + m_adaptorName + std::string(", Property: ") + m_property);
-				 m_adaptorPropertyHist2D_oa->setDrawingArguments("BOX");
-
-				 // Fill the object with data
-				 for(it=m_adaptorPropertyStore.begin(); it!=m_adaptorPropertyStore.end(); ++it) {
-					 (*m_adaptorPropertyHist2D_oa) & *it;
-				 }
-
-				 // Add the histogram to the plot designer
-				 m_gpd.registerPlotter(m_adaptorPropertyHist2D_oa);
-
-				 // Add the fitness monitor
-				 m_gpd.registerPlotter(m_fitnessGraph2D_oa);
-
-				 // Inform the plot designer whether it should print png files
-				 m_gpd.setAddPrintCommand(m_addPrintCommand);
-
-				 // Write out the result. Note that we add
-				 m_gpd.writeToFile(m_fileName);
-
-				 // Remove all plotters (they will survive inside of gpd)
-				 m_gpd.resetPlotters();
-				 m_adaptorPropertyHist2D_oa.reset();
-			 }
-				 break;
-
-			 default:
-			 {
-				 throw gemfony_exception(
-					 g_error_streamer(DO_LOG, time_and_place)
-						 << "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
-				 );
-			 }
-		 };
-	 }
-
 protected:
 	 /************************************************************************/
 	 /**
@@ -1939,6 +1798,147 @@ private:
 		 return new GAdaptorPropertyLoggerT<num_type>(*this);
 	 }
 
+	/***************************************************************************/
+	/**
+     * Allows to emit information in different stages of the information cycle
+     * (initialization, during each cycle and during finalization)
+     */
+	void informationFunction_(
+			infoMode im
+			, G_OptimizationAlgorithm_Base const * const goa
+	) override {
+		using namespace Gem::Common;
+
+		switch(im) {
+			case Gem::Geneva::infoMode::INFOINIT:
+			{
+				// If the file pointed to by m_fileName already exists, make a back-up
+				if(bf::exists(m_fileName)) {
+					std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
+
+					glogger
+							<< "In GAdaptorPropertyLoggerT::informationFunction_(): Error!" << std::endl
+							<< "Attempt to output information to file " << m_fileName << std::endl
+							<< "which already exists. We will rename the old file to" << std::endl
+							<< newFileName << std::endl
+							<< GWARNING;
+
+					bf::rename(m_fileName, newFileName);
+				}
+
+				// Make sure the progress plotter has the desired size
+				m_gpd.setCanvasDimensions(m_canvasDimensions);
+
+				// Set up a graph to monitor the best fitness found
+				m_fitnessGraph2D_oa = std::make_shared<Gem::Common::GGraph2D>();
+				m_fitnessGraph2D_oa->setXAxisLabel("Iteration");
+				m_fitnessGraph2D_oa->setYAxisLabel("Fitness");
+				m_fitnessGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+			}
+				break;
+
+			case Gem::Geneva::infoMode::INFOPROCESSING:
+			{
+				std::uint32_t iteration = goa->getIteration();
+
+				// Record the current fitness
+				std::shared_ptr<GParameterSet> p = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
+				(*m_fitnessGraph2D_oa) & std::tuple<double,double>(double(iteration), p->raw_fitness(0));
+
+				// Update the largest known iteration and the number of recorded iterations
+				m_maxIteration = iteration;
+				m_nIterationsRecorded++;
+
+				// Will hold the adaptor properties
+				std::vector<boost::any> data;
+
+				// Do the actual logging
+				if(m_monitorBestOnly) {
+					std::shared_ptr<GParameterSet> best = goa->G_Interface_OptimizerT::template getBestGlobalIndividual<GParameterSet>();
+
+					// Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
+					best->queryAdaptor(m_adaptorName, m_property, data);
+
+					// Attach the data to m_adaptorPropertyStore
+					std::vector<boost::any>::iterator prop_it;
+					for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
+						m_adaptorPropertyStore.push_back(std::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
+					}
+				} else { // Monitor all individuals
+					// Loop over all individuals of the algorithm.
+					for(std::size_t pos=0; pos<goa->size(); pos++) {
+						std::shared_ptr<GParameterSet> ind = goa->template individual_cast<GParameterSet>(pos);
+
+						// Retrieve the adaptor data (e.g. the sigma of a GDoubleGaussAdaptor
+						ind->queryAdaptor(m_adaptorName, m_property, data);
+
+						// Attach the data to m_adaptorPropertyStore
+						std::vector<boost::any>::iterator prop_it;
+						for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
+							m_adaptorPropertyStore.push_back(std::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
+						}
+					}
+				}
+			}
+				break;
+
+			case Gem::Geneva::infoMode::INFOEND:
+			{
+				std::vector<std::tuple<double, double>>::iterator it;
+
+				// Within m_adaptorPropertyStore, find the largest number of adaptions performed
+				double maxProperty = 0.;
+				for(it=m_adaptorPropertyStore.begin(); it!=m_adaptorPropertyStore.end(); ++it) {
+					if(std::get<1>(*it) > maxProperty) {
+						maxProperty = std::get<1>(*it);
+					}
+				}
+
+				// Create the histogram object
+				m_adaptorPropertyHist2D_oa = std::make_shared<GHistogram2D>(
+						m_nIterationsRecorded
+						, 100
+						, 0., double(m_maxIteration)
+						, 0., maxProperty
+				);
+
+				m_adaptorPropertyHist2D_oa->setXAxisLabel("Iteration");
+				m_adaptorPropertyHist2D_oa->setYAxisLabel(std::string("Adaptor-Name: ") + m_adaptorName + std::string(", Property: ") + m_property);
+				m_adaptorPropertyHist2D_oa->setDrawingArguments("BOX");
+
+				// Fill the object with data
+				for(it=m_adaptorPropertyStore.begin(); it!=m_adaptorPropertyStore.end(); ++it) {
+					(*m_adaptorPropertyHist2D_oa) & *it;
+				}
+
+				// Add the histogram to the plot designer
+				m_gpd.registerPlotter(m_adaptorPropertyHist2D_oa);
+
+				// Add the fitness monitor
+				m_gpd.registerPlotter(m_fitnessGraph2D_oa);
+
+				// Inform the plot designer whether it should print png files
+				m_gpd.setAddPrintCommand(m_addPrintCommand);
+
+				// Write out the result. Note that we add
+				m_gpd.writeToFile(m_fileName);
+
+				// Remove all plotters (they will survive inside of gpd)
+				m_gpd.resetPlotters();
+				m_adaptorPropertyHist2D_oa.reset();
+			}
+				break;
+
+			default:
+			{
+				throw gemfony_exception(
+						g_error_streamer(DO_LOG, time_and_place)
+								<< "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
+				);
+			}
+		};
+	}
+
 	 /************************************************************************/
 
 	 std::string m_fileName = "NAdaptions.C"; ///< The name of the file to which solutions should be stored
@@ -2061,12 +2061,6 @@ public:
 	 /** @brief Retrieves the current number of bins for the processing times histograms in y-direction */
 	 G_API_GENEVA std::size_t getNBinsY() const;
 
-	 /** @brief Allows to emit information in different stages of the information cycle */
-	 G_API_GENEVA  void informationFunction(
-		 infoMode
-		 , G_OptimizationAlgorithm_Base const * const goa
-	 ) override;
-
 protected:
 	 /************************************************************************/
 
@@ -2100,6 +2094,12 @@ private:
 	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
+
+	/** @brief Allows to emit information in different stages of the information cycle */
+	G_API_GENEVA  void informationFunction_(
+		infoMode
+		, G_OptimizationAlgorithm_Base const * const goa
+	) override;
 
 	 /************************************************************************/
 

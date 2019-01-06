@@ -58,7 +58,7 @@ namespace Geneva {
 /**
  * Aggregates the work of all registered pluggable monitors
  */
-void GStandardMonitor::informationFunction(
+void GStandardMonitor::informationFunction_(
 	infoMode im
 	, G_OptimizationAlgorithm_Base const * const goa
 ) {
@@ -332,7 +332,7 @@ std::size_t GFitnessMonitor::getNMonitorIndividuals() const {
 /**
  * Aggregates the work of all registered pluggable monitors
  */
-void GFitnessMonitor::informationFunction(
+void GFitnessMonitor::informationFunction_(
 	infoMode im
 	, G_OptimizationAlgorithm_Base const * const goa
 ) {
@@ -355,7 +355,7 @@ void GFitnessMonitor::informationFunction(
 			if(global_bests.size() != iter_bests.size()) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
-						<< "In GFitnessMonitor::informationFunction(): Error!" << std::endl
+						<< "In GFitnessMonitor::informationFunction_(): Error!" << std::endl
 						<< "global_bests.size() = " << global_bests.size() << " != iter_bests.size() = " << iter_bests.size() << std::endl
 				);
 			}
@@ -367,7 +367,7 @@ void GFitnessMonitor::informationFunction(
 				// Reset the number of monitored individuals to a suitable value, if necessary.
 				if(m_nMonitorInds > global_bests.size()) {
 					glogger
-						<< "In GFitnessMonitor::informationFunction(): Warning!" << std::endl
+						<< "In GFitnessMonitor::informationFunction_(): Warning!" << std::endl
 						<< "Requested number of individuals to be monitored in iteration " << iteration << " is larger" << std::endl
 						<< "than the number of best individuals " << m_nMonitorInds << " / " << global_bests.size() << std::endl
 						<< GWARNING;
@@ -406,7 +406,7 @@ void GFitnessMonitor::informationFunction(
 				// individuals will then be lost -- the program will warn about this.
 				if(m_nMonitorInds > global_bests.size()) {
 					glogger
-						<< "In GFitnessMonitor::informationFunction(): Warning!" << std::endl
+						<< "In GFitnessMonitor::informationFunction_(): Warning!" << std::endl
 						<< "Requested number of individuals to be monitored in iteration " << iteration << " is larger" << std::endl
 						<< "than the number of best individuals " << m_nMonitorInds << " / " << global_bests.size() << std::endl
 						<< "This seems to be a result of a varying number of best individuals." << std::endl
@@ -602,7 +602,7 @@ GCollectiveMonitor::GCollectiveMonitor(const GCollectiveMonitor& cp) : GBasePlug
 /**
  * Aggregates the work of all registered pluggable monitors
  */
-void GCollectiveMonitor::informationFunction(
+void GCollectiveMonitor::informationFunction_(
 	infoMode im
 	, G_OptimizationAlgorithm_Base const * const goa
 )  {
@@ -998,7 +998,7 @@ bool GAllSolutionFileLogger::getShowIterationBoundaries() const {
  * Allows to emit information in different stages of the information cycle
  * (initialization, during each cycle and during finalization)
  */
-void GAllSolutionFileLogger::informationFunction(
+void GAllSolutionFileLogger::informationFunction_(
 	infoMode im
 	, G_OptimizationAlgorithm_Base const * const goa
 ) {
@@ -1010,7 +1010,7 @@ void GAllSolutionFileLogger::informationFunction(
 				std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
-					<< "In GAllSolutionFileLogger::informationFunction(): Warning!" << std::endl
+					<< "In GAllSolutionFileLogger::informationFunction_(): Warning!" << std::endl
 					<< "Attempt to output information to file " << m_fileName << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -1276,7 +1276,7 @@ bool GIterationResultsFileLogger::getUseTrueFitness() const {
  * Allows to emit information in different stages of the information cycle
  * (initialization, during each cycle and during finalization)
  */
-void GIterationResultsFileLogger::informationFunction(
+void GIterationResultsFileLogger::informationFunction_(
 	infoMode im
 	, G_OptimizationAlgorithm_Base const * const goa
 ) {
@@ -1288,7 +1288,7 @@ void GIterationResultsFileLogger::informationFunction(
 				std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
-					<< "In GIterationResultsFileLogger::informationFunction(): Warning!" << std::endl
+					<< "In GIterationResultsFileLogger::informationFunction_(): Warning!" << std::endl
 					<< "Attempt to output information to file " << m_fileName << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -1568,7 +1568,7 @@ bool GNAdpationsLogger::getAddPrintCommand() const {
  * Allows to emit information in different stages of the information cycle
  * (initialization, during each cycle and during finalization)
  */
-void GNAdpationsLogger::informationFunction(
+void GNAdpationsLogger::informationFunction_(
 	infoMode im
 	, G_OptimizationAlgorithm_Base const * const goa
 ) {
@@ -1582,7 +1582,7 @@ void GNAdpationsLogger::informationFunction(
 				std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
-					<< "In GNAdpationsLogger::informationFunction(): Error!" << std::endl
+					<< "In GNAdpationsLogger::informationFunction_(): Error!" << std::endl
 					<< "Attempt to output information to file " << m_fileName << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -2032,7 +2032,7 @@ std::size_t GProcessingTimesLogger::getNBinsY() const {
  * Allows to emit information in different stages of the information cycle
  * (initialization, during each cycle and during finalization)
  */
-void GProcessingTimesLogger::informationFunction(
+void GProcessingTimesLogger::informationFunction_(
 	infoMode im
 	, G_OptimizationAlgorithm_Base const * const goa
 ) {
@@ -2046,7 +2046,7 @@ void GProcessingTimesLogger::informationFunction(
 				std::string newFileName = m_fileName_pth + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
-					<< "In GProcessingTimesLogger::informationFunction(): Warning!" << std::endl
+					<< "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
 					<< "Attempt to output information to file " << m_fileName_pth << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -2094,7 +2094,7 @@ void GProcessingTimesLogger::informationFunction(
 				std::string newFileName = m_fileName_pth2 + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
-					<< "In GProcessingTimesLogger::informationFunction(): Warning!" << std::endl
+					<< "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
 					<< "Attempt to output information to file " << m_fileName_pth2 << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl
@@ -2147,7 +2147,7 @@ void GProcessingTimesLogger::informationFunction(
 				std::string newFileName = m_fileName_txt + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
-					<< "In GProcessingTimesLogger::informationFunction(): Warning!" << std::endl
+					<< "In GProcessingTimesLogger::informationFunction_(): Warning!" << std::endl
 					<< "Attempt to output information to file " << m_fileName_pth2 << std::endl
 					<< "which already exists. We will rename the old file to" << std::endl
 					<< newFileName << std::endl

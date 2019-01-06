@@ -69,7 +69,7 @@ namespace Geneva {
 /*
  * This is a collection of simple pluggable modules suitable for emitting certain specialized
  * information from within optimization algorithms. They can be plugged into G_OptimizationAlgorithm_Base
- * derivatives. A requirement is that they implement a function "informationFunction"
+ * derivatives. A requirement is that they implement a private function "informationFunction_"
  * according to the API of GBasePluggableOM .
  */
 
@@ -112,12 +112,11 @@ public:
     G_API_GENEVA GBasePluggableOM& operator=(GBasePluggableOM &&) = default;
 
     /***************************************************************************/
-
-    /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
-    virtual G_API_GENEVA void informationFunction(
+    /** @brief Access tp information about the current iteration */
+    G_API_GENEVA void informationFunction(
         infoMode
         , G_OptimizationAlgorithm_Base const * const
-    ) BASE = 0;
+    );
 
     /** @brief Allows to set the m_useRawEvaluation variable */
     void G_API_GENEVA setUseRawEvaluation(bool useRaw);
@@ -160,6 +159,12 @@ protected:
 private:
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override = 0;
+
+    /** @brief Overload this function in derived classes, specifying actions for initialization, the optimization cycles and finalization. */
+    virtual G_API_GENEVA void informationFunction_(
+        infoMode
+        , G_OptimizationAlgorithm_Base const * const
+    ) BASE = 0;
 };
 
 /******************************************************************************/

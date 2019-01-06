@@ -97,6 +97,18 @@ bool GBasePluggableOM::getUseRawEvaluation() const {
 
 /******************************************************************************/
 /**
+ * Access tp information about the current iteration. This is a wrapper
+ * function to avoid public virtual.
+ */
+void GBasePluggableOM::informationFunction(
+	infoMode im
+	, G_OptimizationAlgorithm_Base const * const goa
+) {
+	informationFunction_(im, goa);
+}
+
+/******************************************************************************/
+/**
  * Loads the data of another object
  *
  * cp A pointer to another GBasePluggableOMT object, camouflaged as a GObject
