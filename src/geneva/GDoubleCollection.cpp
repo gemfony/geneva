@@ -365,14 +365,14 @@ void GDoubleCollection::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GDoubleCollection::modify_GUnitTests() {
+bool GDoubleCollection::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GFPNumCollectionT<double>::modify_GUnitTests()) result = true;
+	if (GFPNumCollectionT<double>::modify_GUnitTests_()) result = true;
 
-	this->push_back(5.);
+	this->fillWithData_(10);
 	result = true;
 
 	return result;
@@ -387,7 +387,7 @@ bool GDoubleCollection::modify_GUnitTests() {
 /**
  * Fills the collection with some random data
  */
-void GDoubleCollection::fillWithData(const std::size_t &nItems) {
+void GDoubleCollection::fillWithData_(const std::size_t &nItems) {
 #ifdef GEM_TESTING
 	// Get a random number generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -424,7 +424,7 @@ void GDoubleCollection::fillWithData(const std::size_t &nItems) {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
+void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// A few settings
 	const std::size_t nItems = 10000;
@@ -446,7 +446,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
-	GFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// Get a random number generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -558,7 +558,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		BOOST_CHECK(p_test1->capacity() > 0);
 
 		// Add some data
-		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
 
 		// Check the size again
 		BOOST_CHECK(p_test1->size() == nItems);
@@ -571,7 +571,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
-		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
 
 		// Count the number of values == 0. . Should be >= 1
 		BOOST_CHECK(p_test1->count(0.) >= 1);
@@ -591,7 +591,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
-		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
 
 		// Retrieve items
 		BOOST_CHECK((*p_test1)[0] == 0.);
@@ -610,7 +610,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
-		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
 
 		// Check the front and back of the vector -- we know the values
 		BOOST_CHECK(p_test1->front() == 0.);
@@ -623,7 +623,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
-		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
 
 		// Iterate over the sequence
 		GDoubleCollection::iterator it;
@@ -638,7 +638,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GDoubleCollection> p_test1 = this->clone<GDoubleCollection>();
 
 		// Add some data
-		BOOST_CHECK_NO_THROW(p_test1->fillWithData(nItems));
+		BOOST_CHECK_NO_THROW(p_test1->fillWithData_(nItems));
 
 		// Insert 1 item at position 1 and cross-check
 		BOOST_CHECK_NO_THROW(p_test1->insert(p_test1->begin() + 1, 1.));
@@ -705,7 +705,7 @@ void GDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
+void GDoubleCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
@@ -722,7 +722,7 @@ void GDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
-	GFPNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests();
+	GFPNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests_();
 
 	// Nothing to check -- no local data
 

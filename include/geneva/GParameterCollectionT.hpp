@@ -58,9 +58,8 @@ namespace Geneva {
  */
 template<typename num_type>
 class GParameterCollectionT
-    :
-        public GParameterBaseWithAdaptorsT<num_type>
-        , public Gem::Common::GPODVectorT<num_type>
+    : public GParameterBaseWithAdaptorsT<num_type>
+    , public Gem::Common::GPODVectorT<num_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -307,6 +306,61 @@ protected:
         token.evaluate();
     }
 
+    /***************************************************************************/
+    /**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        bool result = false;
+
+        // Call the parent classes' functions
+        if (GParameterBaseWithAdaptorsT<num_type>::modify_GUnitTests_()) { result = true; }
+        if (Gem::Common::GPODVectorT<num_type>::modify_GUnitTests_()) { result = true; }
+
+        return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset("GParameterCollectionT<>::modify_GUnitTests", "GEM_TESTING");
+       return false;
+#endif /* GEM_TESTING */
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+    void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        // Call the parent classes' functions
+        GParameterBaseWithAdaptorsT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
+        Gem::Common::GPODVectorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+    void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        // Call the parent classes' functions
+        GParameterBaseWithAdaptorsT<num_type>::specificTestsFailuresExpected_GUnitTests_();
+        Gem::Common::GPODVectorT<num_type>::specificTestsFailuresExpected_GUnitTests_();
+
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset("GParameterCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+    }
+
+    /******************************************************************************/
+
 private:
     /***************************************************************************/
     /**
@@ -352,62 +406,6 @@ private:
     bool isIndividualParameter_() const override {
         return false;
     }
-
-public:
-    /***************************************************************************/
-    /**
-     * Applies modifications to this object. This is needed for testing purposes
-     *
-     * @return A boolean which indicates whether modifications were made
-     */
-    bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-        bool result = false;
-
-        // Call the parent classes' functions
-        if (GParameterBaseWithAdaptorsT<num_type>::modify_GUnitTests()) { result = true; }
-        if (Gem::Common::GPODVectorT<num_type>::modify_GUnitTests()) { result = true; }
-
-        return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GParameterCollectionT<>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
-     */
-    void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-        // Call the parent classes' functions
-        GParameterBaseWithAdaptorsT<num_type>::specificTestsNoFailureExpected_GUnitTests();
-        Gem::Common::GPODVectorT<num_type>::specificTestsNoFailureExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GParameterCollectionT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
-     */
-    void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-        // Call the parent classes' functions
-        GParameterBaseWithAdaptorsT<num_type>::specificTestsFailuresExpected_GUnitTests();
-        Gem::Common::GPODVectorT<num_type>::specificTestsFailuresExpected_GUnitTests();
-
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GParameterCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-    }
-
-    /******************************************************************************/
 };
 
 } /* namespace Geneva */

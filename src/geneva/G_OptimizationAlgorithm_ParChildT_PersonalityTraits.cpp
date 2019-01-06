@@ -295,12 +295,12 @@ void GBaseParChildPersonalityTraits::unsetParentId() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GBaseParChildPersonalityTraits::modify_GUnitTests() {
+bool GBaseParChildPersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GPersonalityTraits::modify_GUnitTests()) result = true;
+	if (GPersonalityTraits::modify_GUnitTests_()) result = true;
 
 	// A relatively harmless modification is a change of the parentCounter variable
 	parentCounter_++;
@@ -318,13 +318,13 @@ bool GBaseParChildPersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 
@@ -403,13 +403,13 @@ void GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests()
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 

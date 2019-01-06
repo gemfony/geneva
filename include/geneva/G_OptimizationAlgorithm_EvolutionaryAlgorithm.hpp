@@ -150,6 +150,13 @@ protected:
     /** @brief Does any necessary finalization work */
     G_API_GENEVA void finalize() override;
 
+    /** @brief Applies modifications to this object */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
     /***************************************************************************/
 
     /** @brief Fixes the population after a job submission */
@@ -213,24 +220,15 @@ private:
         , std::shared_ptr<GParameterSet> b
     ) const;
 
+    /** @brief Fills the collection with individuals */
+    G_API_GENEVA void fillWithObjects(const std::size_t &nIndividuals);
+
     /***************************************************************************/
     // Local data
 
     sortingMode m_sorting_mode = DEFAULTEASORTINGMODE; ///< The chosen sorting scheme
     std::uint16_t m_n_threads = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
     std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
-
-public:
-    /***************************************************************************/
-
-    /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Fills the collection with individuals */
-    G_API_GENEVA void fillWithObjects(const std::size_t &nIndividuals);
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 
     /***************************************************************************/
 };

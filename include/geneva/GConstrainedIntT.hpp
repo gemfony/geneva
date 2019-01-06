@@ -63,8 +63,7 @@ namespace Geneva {
  */
 template<typename int_type>
 class GConstrainedIntT
-    :
-        public GConstrainedNumT<int_type>
+    : public GConstrainedNumT<int_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -320,45 +319,18 @@ protected:
         return true;
     }
 
-private:
-    /***************************************************************************/
-    /**
-     * Emits a name for this class / object
-     */
-    std::string name_() const override {
-        return std::string("GConstrainedIntT");
-    }
-
-    /** @brief Create a deep copy of this object */
-    GObject *clone_() const override = 0;
-
-    /***************************************************************************/
-    /**
-     * Reverts the value to descending order. Note: No check is made whether the value
-     * is indeed in the allowed region.
-     *
-     * @param value The value to be reverted
-     * @return The reverted value
-     */
-    int_type revert(const int_type &value) const {
-        int_type position = value - GConstrainedNumT<int_type>::getLowerBoundary();
-        int_type reverted = GConstrainedNumT<int_type>::getUpperBoundary() - position;
-        return reverted;
-    }
-
-public:
     /***************************************************************************/
     /**
      * Applies modifications to this object. This is needed for testing purposes
      *
      * @return A boolean which indicates whether modifications were made
      */
-    bool modify_GUnitTests() override {
+    bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
         bool result = false;
 
         // Call the parent classes' functions
-        if (GConstrainedNumT<int_type>::modify_GUnitTests()) { result = true; }
+        if (GConstrainedNumT<int_type>::modify_GUnitTests_()) { result = true; }
 
         return result;
 
@@ -372,18 +344,18 @@ public:
     /**
      * Performs self tests that are expected to succeed. This is needed for testing purposes
      */
-    void specificTestsNoFailureExpected_GUnitTests() override {
+    void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Some general settings
         const int_type minLower
-            = -50; // NOTE: This will fail if int_type is unsigned; GConstrainedIntT has been designed for signed types only
+                = -50; // NOTE: This will fail if int_type is unsigned; GConstrainedIntT has been designed for signed types only
         const int_type maxLower = 50;
         const int_type minUpper = 25; // Allow some overlap
         const int_type maxUpper = 125;
         const int_type nTests = 10000;
 
         // Call the parent classes' functions
-        GConstrainedNumT<int_type>::specificTestsNoFailureExpected_GUnitTests();
+        GConstrainedNumT<int_type>::specificTestsNoFailureExpected_GUnitTests_();
 
         // A random generator
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -414,33 +386,33 @@ public:
                 BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
-                    gr
-                    , typename std::uniform_int_distribution<int_type>::param_type(
-                        minLower
-                        , maxLower
-                    ));
+                        gr
+                        , typename std::uniform_int_distribution<int_type>::param_type(
+                                minLower
+                                , maxLower
+                        ));
                 int_type upperBoundary;
                 while ((
-                           upperBoundary = uniform_int(
-                               gr
-                               , typename std::uniform_int_distribution<int_type>::param_type(
-                                   minUpper
-                                   , maxUpper
-                               ))) <= lowerBoundary) {}
+                               upperBoundary = uniform_int(
+                                       gr
+                                       , typename std::uniform_int_distribution<int_type>::param_type(
+                                               minUpper
+                                               , maxUpper
+                                       ))) <= lowerBoundary) {}
 
                 BOOST_CHECK_NO_THROW(p_test->setValue(
-                    lowerBoundary
-                    , lowerBoundary
-                    , upperBoundary
+                        lowerBoundary
+                        , lowerBoundary
+                        , upperBoundary
                 ));
 
                 // Check that there are no values outside of the allowed range
                 int_type probe = uniform_int(
-                    gr
-                    , typename std::uniform_int_distribution<int_type>::param_type(
-                        lowerBoundary
-                        , upperBoundary
-                    ));
+                        gr
+                        , typename std::uniform_int_distribution<int_type>::param_type(
+                                lowerBoundary
+                                , upperBoundary
+                        ));
                 BOOST_CHECK_NO_THROW(*p_test = probe);
                 BOOST_CHECK(p_test->value() == probe);
             }
@@ -456,34 +428,34 @@ public:
                 BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
-                    gr
-                    , typename std::uniform_int_distribution<int_type>::param_type(
-                        minLower
-                        , maxLower
-                    ));
+                        gr
+                        , typename std::uniform_int_distribution<int_type>::param_type(
+                                minLower
+                                , maxLower
+                        ));
                 int_type upperBoundary;
                 while ((
-                           upperBoundary = uniform_int(
-                               gr
-                               , typename std::uniform_int_distribution<int_type>::param_type(
-                                   minUpper
-                                   , maxUpper
-                               ))) <= lowerBoundary) {}
+                               upperBoundary = uniform_int(
+                                       gr
+                                       , typename std::uniform_int_distribution<int_type>::param_type(
+                                               minUpper
+                                               , maxUpper
+                                       ))) <= lowerBoundary) {}
 
                 BOOST_CHECK_NO_THROW(p_test->setValue(
-                    lowerBoundary
-                    , lowerBoundary
-                    , upperBoundary
+                        lowerBoundary
+                        , lowerBoundary
+                        , upperBoundary
                 ));
 
                 // Check that there are no values outside of the allowed range
                 for (std::size_t j = 0; j < 100; j++) {
                     int_type probe = uniform_int(
-                        gr
-                        , typename std::uniform_int_distribution<int_type>::param_type(
-                            -10000
-                            , 10000
-                        ));
+                            gr
+                            , typename std::uniform_int_distribution<int_type>::param_type(
+                                    -10000
+                                    , 10000
+                            ));
                     int_type mapping = int_type(0);
                     BOOST_CHECK_NO_THROW(mapping = p_test->transfer(probe));
                     BOOST_CHECK(mapping >= lowerBoundary && mapping <= upperBoundary);
@@ -501,8 +473,8 @@ public:
 
             // Randomly initialize using our internal function -- will use the most extreme boundaries available
             BOOST_CHECK_NO_THROW(p_test->randomInit_(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
         }
 
@@ -516,30 +488,30 @@ public:
                 BOOST_CHECK_NO_THROW(p_test->resetBoundaries());
 
                 int_type lowerBoundary = uniform_int(
-                    gr
-                    , typename std::uniform_int_distribution<int_type>::param_type(
-                        minLower
-                        , maxLower
-                    ));
+                        gr
+                        , typename std::uniform_int_distribution<int_type>::param_type(
+                                minLower
+                                , maxLower
+                        ));
                 int_type upperBoundary;
                 while ((
-                           upperBoundary = uniform_int(
-                               gr
-                               , typename std::uniform_int_distribution<int_type>::param_type(
-                                   minUpper
-                                   , maxUpper
-                               ))) <= lowerBoundary) {}
+                               upperBoundary = uniform_int(
+                                       gr
+                                       , typename std::uniform_int_distribution<int_type>::param_type(
+                                               minUpper
+                                               , maxUpper
+                                       ))) <= lowerBoundary) {}
 
                 BOOST_CHECK_NO_THROW(p_test->setValue(
-                    lowerBoundary
-                    , lowerBoundary
-                    , upperBoundary
+                        lowerBoundary
+                        , lowerBoundary
+                        , upperBoundary
                 ));
 
                 // Randomly initialize, using our internal value
                 BOOST_CHECK_NO_THROW(p_test->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
+                        activityMode::ALLPARAMETERS
+                        , gr
                 ));
             }
         }
@@ -558,10 +530,10 @@ public:
 
             // Try to set a boundary to a bad value
             BOOST_CHECK_THROW(p_test->setValue(
-                0
-                , 0
-                , boost::numeric::bounds<int_type>::highest())
-                              , gemfony_exception);
+                    0
+                    , 0
+                    , boost::numeric::bounds<int_type>::highest())
+            , gemfony_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -578,11 +550,11 @@ public:
 
             // Try to set a boundary to a bad value
             BOOST_CHECK_THROW(p_test->setValue(
-                0
-                , boost::numeric::bounds<int_type>::lowest()
-                , 100
+                    0
+                    , boost::numeric::bounds<int_type>::lowest()
+                    , 100
             )
-                              , gemfony_exception);
+            , gemfony_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -599,9 +571,9 @@ public:
 
             // Try to set a boundary to a bad value
             BOOST_CHECK_THROW(p_test->setBoundaries(
-                0
-                , boost::numeric::bounds<int_type>::highest())
-                              , gemfony_exception);
+                    0
+                    , boost::numeric::bounds<int_type>::highest())
+            , gemfony_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -618,10 +590,10 @@ public:
 
             // Try to set a boundary to a bad value
             BOOST_CHECK_THROW(p_test->setBoundaries(
-                boost::numeric::bounds<int_type>::lowest()
-                , 100
+                    boost::numeric::bounds<int_type>::lowest()
+                    , 100
             )
-                              , gemfony_exception);
+            , gemfony_exception);
         }
 
         //------------------------------------------------------------------------------
@@ -634,15 +606,15 @@ public:
 
             for (int_type i = 1; i < 100; i++) {
                 int_type probe = uniform_int(
-                    gr
-                    , typename std::uniform_int_distribution<int_type>::param_type(
-                        i
-                        , 2 * i
-                    ));
+                        gr
+                        , typename std::uniform_int_distribution<int_type>::param_type(
+                                i
+                                , 2 * i
+                        ));
                 BOOST_CHECK_NO_THROW(p_test->setValue(
-                    probe
-                    , i
-                    , 2 * i
+                        probe
+                        , i
+                        , 2 * i
                 ));
                 BOOST_CHECK(p_test->revert(probe) == p_test->getUpperBoundary() - (probe - p_test->getLowerBoundary()));
             }
@@ -659,10 +631,10 @@ public:
     /**
      * Performs self tests that are expected to fail. This is needed for testing purposes
      */
-    void specificTestsFailuresExpected_GUnitTests() override {
+    void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Call the parent classes' functions
-        GConstrainedNumT<int_type>::specificTestsFailuresExpected_GUnitTests();
+        GConstrainedNumT<int_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GConstrainedIntT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -670,6 +642,32 @@ public:
     }
 
     /***************************************************************************/
+
+private:
+    /***************************************************************************/
+    /**
+     * Emits a name for this class / object
+     */
+    std::string name_() const override {
+        return std::string("GConstrainedIntT");
+    }
+
+    /** @brief Create a deep copy of this object */
+    GObject *clone_() const override = 0;
+
+    /***************************************************************************/
+    /**
+     * Reverts the value to descending order. Note: No check is made whether the value
+     * is indeed in the allowed region.
+     *
+     * @param value The value to be reverted
+     * @return The reverted value
+     */
+    int_type revert(const int_type &value) const {
+        int_type position = value - GConstrainedNumT<int_type>::getLowerBoundary();
+        int_type reverted = GConstrainedNumT<int_type>::getUpperBoundary() - position;
+        return reverted;
+    }
 };
 
 } /* namespace Geneva */

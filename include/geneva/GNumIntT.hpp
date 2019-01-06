@@ -58,7 +58,7 @@ namespace Geneva {
  */
 template <typename int_type>
 class GNumIntT
-	:public GNumT<int_type>
+	: public GNumT<int_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -236,6 +236,142 @@ protected:
 		 return true;
 	 }
 
+	/***************************************************************************/
+	/**
+     * Applies modifications to this object. This is needed for testing purposes
+     */
+	bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+		bool result = false;
+
+		// Call the parent classes' functions^
+		if(GNumT<int_type>::modify_GUnitTests_()) result = true;
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumIntT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+	void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// A few settings
+		const std::size_t nTests = 10000;
+		const int_type LOWERINITBOUNDARY = int_type(0); // >= 0, as int_type might be unsigned
+		const int_type UPPERINITBOUNDARY =  int_type(10);
+		const int_type FIXEDVALUEINIT = int_type(1);
+
+		// Call the parent classes' functions
+		GNumT<int_type>::specificTestsNoFailureExpected_GUnitTests_();
+
+		// A random generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
+		//------------------------------------------------------------------------------
+
+		{ // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
+			std::shared_ptr<GNumIntT<int_type>> p_test1 = this->template clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test2 = this->template clone<GNumIntT<int_type>>();
+
+			// Assign a boolean value true
+			BOOST_CHECK_NO_THROW(*p_test1 = 2*UPPERINITBOUNDARY); // Make sure random initialization cannot randomly result in an unchanged value
+			// Cross-check
+			BOOST_CHECK(p_test1->value() == 2*UPPERINITBOUNDARY);
+
+			// Set initialization boundaries
+			BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
+
+			// Check that the boundaries have been set as expected
+			BOOST_CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
+			BOOST_CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
+
+			// Load the data of p_test1 into p_test2
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			// Cross check that both are indeed equal
+			BOOST_CHECK(*p_test1 == *p_test2);
+
+			// Check that the values of p_test1 are inside of the allowed boundaries
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
+				BOOST_CHECK(p_test1->value() >= LOWERINITBOUNDARY);
+				BOOST_CHECK(p_test1->value() <= UPPERINITBOUNDARY);
+				BOOST_CHECK(p_test1->value() != p_test2->value());
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that the fp-family of functions doesn't have an effect on this object
+			std::shared_ptr<GNumIntT<int_type>> p_test1 = this->template clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test2 = this->template clone<GNumIntT<int_type>>();
+			std::shared_ptr<GNumIntT<int_type>> p_test3 = this->template clone<GNumIntT<int_type>>();
+
+			// Assign a boolean value true
+			BOOST_CHECK_NO_THROW(*p_test1 = FIXEDVALUEINIT); // Make sure random initialization cannot randomly result in an unchanged value
+			// Cross-check
+			BOOST_CHECK(p_test1->value() == FIXEDVALUEINIT);
+
+			// Load into p_test2 and p_test3 and test equality
+			BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
+			BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
+			BOOST_CHECK(*p_test2 == *p_test1);
+			BOOST_CHECK(*p_test3 == *p_test1);
+			BOOST_CHECK(*p_test3 == *p_test2);
+
+			// Check that initialization with a fixed floating point value has no effect on this object
+			BOOST_CHECK_NO_THROW(p_test2->template fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
+			BOOST_CHECK(*p_test2 == *p_test1);
+
+			// Check that multiplication with a fixed floating point value has no effect on this object
+			BOOST_CHECK_NO_THROW(p_test2->template multiplyBy<double>(2., activityMode::ALLPARAMETERS));
+			BOOST_CHECK(*p_test2 == *p_test1);
+
+			// Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
+			BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
+			BOOST_CHECK(*p_test2 == *p_test1);
+
+			// Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
+			BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
+			BOOST_CHECK(*p_test2 == *p_test1);
+
+			// Check that adding p_test1 to p_test3 does not have an effect
+			BOOST_CHECK_NO_THROW(p_test3->template add<double>(p_test1, activityMode::ALLPARAMETERS));
+			BOOST_CHECK(*p_test3 == *p_test2);
+
+			// Check that subtracting p_test1 from p_test3 does not have an effect
+			BOOST_CHECK_NO_THROW(p_test3->template subtract<double>(p_test1, activityMode::ALLPARAMETERS));
+			BOOST_CHECK(*p_test3 == *p_test2);
+		}
+
+		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumIntT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+	void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent classes' functions
+		GNumT<int_type>::specificTestsFailuresExpected_GUnitTests_();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumIntT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+
 private:
 	 /***************************************************************************/
 	 /**
@@ -248,144 +384,6 @@ private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. Needs to be redefined in derived classes */
 	 GObject* clone_() const override = 0;
-
-public:
-	 /***************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  */
-	 bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 bool result = false;
-
-		 // Call the parent classes' functions^
-		 if(GNumT<int_type>::modify_GUnitTests()) result = true;
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumIntT<>::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // A few settings
-		 const std::size_t nTests = 10000;
-		 const int_type LOWERINITBOUNDARY = int_type(0); // >= 0, as int_type might be unsigned
-		 const int_type UPPERINITBOUNDARY =  int_type(10);
-		 const int_type FIXEDVALUEINIT = int_type(1);
-
-		 // Call the parent classes' functions
-		 GNumT<int_type>::specificTestsNoFailureExpected_GUnitTests();
-
-		 // A random generator
-		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
-
-		 //------------------------------------------------------------------------------
-
-		 { // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
-			 std::shared_ptr<GNumIntT<int_type>> p_test1 = this->template clone<GNumIntT<int_type>>();
-			 std::shared_ptr<GNumIntT<int_type>> p_test2 = this->template clone<GNumIntT<int_type>>();
-
-			 // Assign a boolean value true
-			 BOOST_CHECK_NO_THROW(*p_test1 = 2*UPPERINITBOUNDARY); // Make sure random initialization cannot randomly result in an unchanged value
-			 // Cross-check
-			 BOOST_CHECK(p_test1->value() == 2*UPPERINITBOUNDARY);
-
-			 // Set initialization boundaries
-			 BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(LOWERINITBOUNDARY, UPPERINITBOUNDARY));
-
-			 // Check that the boundaries have been set as expected
-			 BOOST_CHECK(p_test1->getLowerInitBoundary() == LOWERINITBOUNDARY);
-			 BOOST_CHECK(p_test1->getUpperInitBoundary() == UPPERINITBOUNDARY);
-
-			 // Load the data of p_test1 into p_test2
-			 BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-			 // Cross check that both are indeed equal
-			 BOOST_CHECK(*p_test1 == *p_test2);
-
-			 // Check that the values of p_test1 are inside of the allowed boundaries
-			 for(std::size_t i=0; i<nTests; i++) {
-				 BOOST_CHECK_NO_THROW(p_test1->randomInit_(activityMode::ALLPARAMETERS, gr));
-				 BOOST_CHECK(p_test1->value() >= LOWERINITBOUNDARY);
-				 BOOST_CHECK(p_test1->value() <= UPPERINITBOUNDARY);
-				 BOOST_CHECK(p_test1->value() != p_test2->value());
-			 }
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Check that the fp-family of functions doesn't have an effect on this object
-			 std::shared_ptr<GNumIntT<int_type>> p_test1 = this->template clone<GNumIntT<int_type>>();
-			 std::shared_ptr<GNumIntT<int_type>> p_test2 = this->template clone<GNumIntT<int_type>>();
-			 std::shared_ptr<GNumIntT<int_type>> p_test3 = this->template clone<GNumIntT<int_type>>();
-
-			 // Assign a boolean value true
-			 BOOST_CHECK_NO_THROW(*p_test1 = FIXEDVALUEINIT); // Make sure random initialization cannot randomly result in an unchanged value
-			 // Cross-check
-			 BOOST_CHECK(p_test1->value() == FIXEDVALUEINIT);
-
-			 // Load into p_test2 and p_test3 and test equality
-			 BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
-			 BOOST_CHECK_NO_THROW(p_test3->load(p_test1));
-			 BOOST_CHECK(*p_test2 == *p_test1);
-			 BOOST_CHECK(*p_test3 == *p_test1);
-			 BOOST_CHECK(*p_test3 == *p_test2);
-
-			 // Check that initialization with a fixed floating point value has no effect on this object
-			 BOOST_CHECK_NO_THROW(p_test2->template fixedValueInit<double>(2., activityMode::ALLPARAMETERS));
-			 BOOST_CHECK(*p_test2 == *p_test1);
-
-			 // Check that multiplication with a fixed floating point value has no effect on this object
-			 BOOST_CHECK_NO_THROW(p_test2->template multiplyBy<double>(2., activityMode::ALLPARAMETERS));
-			 BOOST_CHECK(*p_test2 == *p_test1);
-
-			 // Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
-			 BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(1., 2., activityMode::ALLPARAMETERS, gr));
-			 BOOST_CHECK(*p_test2 == *p_test1);
-
-			 // Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
-			 BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(activityMode::ALLPARAMETERS, gr));
-			 BOOST_CHECK(*p_test2 == *p_test1);
-
-			 // Check that adding p_test1 to p_test3 does not have an effect
-			 BOOST_CHECK_NO_THROW(p_test3->template add<double>(p_test1, activityMode::ALLPARAMETERS));
-			 BOOST_CHECK(*p_test3 == *p_test2);
-
-			 // Check that subtracting p_test1 from p_test3 does not have an effect
-			 BOOST_CHECK_NO_THROW(p_test3->template subtract<double>(p_test1, activityMode::ALLPARAMETERS));
-			 BOOST_CHECK(*p_test3 == *p_test2);
-		 }
-
-		 //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumIntT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent classes' functions
-		 GNumT<int_type>::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumIntT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-
 };
 
 /******************************************************************************/

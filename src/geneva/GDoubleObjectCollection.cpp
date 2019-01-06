@@ -132,12 +132,12 @@ void GDoubleObjectCollection::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GDoubleObjectCollection::modify_GUnitTests() {
+bool GDoubleObjectCollection::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-    this->fillWithObjects(10);
+    this->fillWithObjects_(10);
 
     // Call the parent class'es function
-    GParameterTCollectionT<GDoubleObject>::modify_GUnitTests();
+    GParameterTCollectionT<GDoubleObject>::modify_GUnitTests_();
 
     return true;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -150,7 +150,7 @@ bool GDoubleObjectCollection::modify_GUnitTests() {
 /**
  * Fills the collection with GDoubleObject objects
  */
-void GDoubleObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
+void GDoubleObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -208,7 +208,7 @@ void GDoubleObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) 
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
     const std::size_t nAddedObjects = 10;
@@ -229,10 +229,10 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test with objects
-        p_test->fillWithObjects(nAddedObjects);
+        p_test->fillWithObjects_(nAddedObjects);
 
         // Execute the parent class'es tests
-        p_test->GParameterTCollectionT<GDoubleObject>::specificTestsNoFailureExpected_GUnitTests();
+        p_test->GParameterTCollectionT<GDoubleObject>::specificTestsNoFailureExpected_GUnitTests_();
     }
 
     // --------------------------------------------------------------------------
@@ -242,7 +242,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Load the p_test1 data into p_test2
         BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -269,7 +269,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Cross check the amount of items in the collection
         BOOST_CHECK(p_test1->size() == nAddedObjects);
@@ -292,7 +292,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test1 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Cross check the amount of items in the collection
         BOOST_CHECK(p_test1->size() == nAddedObjects);
@@ -322,7 +322,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Make sure p_test2 is empty
         BOOST_CHECK_NO_THROW(p_test2->clear());
@@ -366,7 +366,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Make sure p_test2 is empty
         BOOST_CHECK_NO_THROW(p_test2->clear());
@@ -408,7 +408,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Make sure p_test2 is empty
         BOOST_CHECK_NO_THROW(p_test2->clear());
@@ -446,7 +446,7 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Make sure p_test2 is empty
         BOOST_CHECK_NO_THROW(p_test2->clear());
@@ -488,13 +488,13 @@ void GDoubleObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
     const std::size_t nAddedObjects = 10;
 
     // Call the parent class'es function
-    GParameterTCollectionT<GDoubleObject>::specificTestsFailuresExpected_GUnitTests();
+    GParameterTCollectionT<GDoubleObject>::specificTestsFailuresExpected_GUnitTests_();
 
     // --------------------------------------------------------------------------
 
@@ -503,7 +503,7 @@ void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Clear p_test2, so we are sure it is empty
         BOOST_CHECK_NO_THROW(p_test2->clear());
@@ -529,7 +529,7 @@ void GDoubleObjectCollection::specificTestsFailuresExpected_GUnitTests() {
         std::shared_ptr<GDoubleObjectCollection> p_test2 = this->clone<GDoubleObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Clear p_test2, so we are sure it is empty
         BOOST_CHECK_NO_THROW(p_test2->clear());

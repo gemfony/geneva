@@ -1080,6 +1080,93 @@ protected:
         return std::string();
     }
 
+    /***************************************************************************/
+    /**
+     * Applies modifications to this object.
+     *
+     * @return A boolean indicating whether
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        using boost::unit_test_framework::test_suite;
+        using boost::unit_test_framework::test_case;
+
+        bool result = false;
+
+        // Call the parent classes' functions
+        if (Gem::Geneva::GParameterSet::modify_GUnitTests_()) { result = true; }
+
+        // Change the parameter settings
+        if (not this->empty()) {
+            this->adapt();
+            result = true;
+        }
+
+        // Let the audience know whether we have changed the content
+        return result;
+
+#else /* GEM_TESTING */
+        Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::modify_GUnitTests()", "GEM_TESTING");
+     return false;
+#endif /* GEM_TESTING */
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to succeed.
+     */
+    void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        using namespace Gem::Geneva;
+
+        using boost::unit_test_framework::test_suite;
+        using boost::unit_test_framework::test_case;
+
+        // Call the parent classes' functions
+        Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+
+        //------------------------------------------------------------------------------
+
+        {
+            /* nothing. Add test cases here that are expected to succeed. */
+        }
+
+        //------------------------------------------------------------------------------
+#else /* GEM_TESTING */
+        Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
+#endif /* GEM_TESTING */
+    }
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to fail.
+     */
+    void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        using namespace Gem::Geneva;
+
+        using boost::unit_test_framework::test_suite;
+        using boost::unit_test_framework::test_case;
+
+        // Call the parent classes' functions
+        Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+
+        //------------------------------------------------------------------------------
+
+        {
+            /* Nothing. Add test cases here that are expected to fail.
+                Enclose with a BOOST_CHECK_THROW, using the expected
+                exception type as an additional argument. See the
+                documentation for the Boost.Test library for further
+                information */
+        }
+
+        //------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */
+        Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
+#endif /* GEM_TESTING */
+    }
+
 private:
     /***************************************************************************/
     /**
@@ -1101,95 +1188,6 @@ private:
     std::string subEA_config_; ///< Path and name of the configuration file needed for (sub-)evolutionary algorithms
 
     std::shared_ptr<typename ind_type::FACTORYTYPE> ind_factory_; ///< Holds a factory for our individuals
-
-public:
-    /***************************************************************************/
-    /**
-     * Applies modifications to this object.
-     *
-     * @return A boolean indicating whether
-     */
-    bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
-        bool result = false;
-
-        // Call the parent classes' functions
-        if (Gem::Geneva::GParameterSet::modify_GUnitTests()) { result = true; }
-
-        // Change the parameter settings
-        if (not this->empty()) {
-            this->adapt();
-            result = true;
-        }
-
-        // Let the audience know whether we have changed the content
-        return result;
-
-#else /* GEM_TESTING */
-        Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::modify_GUnitTests()", "GEM_TESTING");
-     return false;
-#endif /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to succeed.
-     */
-    void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-        using namespace Gem::Geneva;
-
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
-        // Call the parent classes' functions
-        Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
-
-        //------------------------------------------------------------------------------
-
-        {
-            /* nothing. Add test cases here that are expected to succeed. */
-        }
-
-        //------------------------------------------------------------------------------
-#else /* GEM_TESTING */
-        Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
-#endif /* GEM_TESTING */
-    }
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to fail.
-     */
-    void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-        using namespace Gem::Geneva;
-
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
-        // Call the parent classes' functions
-        Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
-
-        //------------------------------------------------------------------------------
-
-        {
-            /* Nothing. Add test cases here that are expected to fail.
-                Enclose with a BOOST_CHECK_THROW, using the expected
-                exception type as an additional argument. See the
-                documentation for the Boost.Test library for further
-                information */
-        }
-
-        //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */
-        Gem::Common::condnotset("GMetaOptimizerIndividualT<ind_type>::specificTestsNoFailureExpected_GUnitTests()", "GEM_TESTING");
-#endif /* GEM_TESTING */
-    }
-    /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -1215,8 +1213,7 @@ std::ostream &operator<<(
  */
 template<typename ind_type>
 class GMetaOptimizerIndividualFactoryT
-    :
-        public Gem::Common::GFactoryT<GParameterSet>
+    : public Gem::Common::GFactoryT<GParameterSet>
 {
 public:
     /***************************************************************************/
@@ -2105,6 +2102,68 @@ protected:
         token.evaluate();
     }
 
+    /***************************************************************************/
+    /**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+    bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+        using boost::unit_test_framework::test_suite;
+        using boost::unit_test_framework::test_case;
+
+        bool result = false;
+
+        // Call the parent classes' functions
+        if (GBasePluggableOM::modify_GUnitTests_()) {
+            result = true;
+        }
+
+        // no local data -- nothing to change
+
+        return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset("GOptOptMonitorT<ind_type>::modify_GUnitTests", "GEM_TESTING");
+       return false;
+#endif /* GEM_TESTING */
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+    void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        using boost::unit_test_framework::test_suite;
+        using boost::unit_test_framework::test_case;
+
+        // Call the parent classes' functions
+        GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset("GOptOptMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+    void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+        using boost::unit_test_framework::test_suite;
+        using boost::unit_test_framework::test_case;
+
+        // Call the parent classes' functions
+        GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+        Gem::Common::condnotset("GOptOptMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+    }
+    /***************************************************************************/
+
 private:
     /***************************************************************************/
     /**
@@ -2145,69 +2204,6 @@ private:
     std::shared_ptr<Gem::Common::GGraph2D> m_maxSigmaPlotter; ///< Records the development of the upper sigma boundary
     std::shared_ptr<Gem::Common::GGraph2D> m_sigmaRangePlotter; ///< Records the development of the sigma range
     std::shared_ptr<Gem::Common::GGraph2D> m_sigmaSigmaPlotter; ///< Records the development of the adaption strength
-
-public:
-    /***************************************************************************/
-    /**
-     * Applies modifications to this object. This is needed for testing purposes
-     *
-     * @return A boolean which indicates whether modifications were made
-     */
-    bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
-        bool result = false;
-
-        // Call the parent classes' functions
-        if (GBasePluggableOM::modify_GUnitTests()) {
-            result = true;
-        }
-
-        // no local data -- nothing to change
-
-        return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GOptOptMonitorT<ind_type>::modify_GUnitTests", "GEM_TESTING");
-       return false;
-#endif /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to succeed. This is needed for testing purposes
-     */
-    void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
-        // Call the parent classes' functions
-        GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GOptOptMonitorT<ind_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-    }
-
-    /***************************************************************************/
-    /**
-     * Performs self tests that are expected to fail. This is needed for testing purposes
-     */
-    void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-        using boost::unit_test_framework::test_suite;
-        using boost::unit_test_framework::test_case;
-
-        // Call the parent classes' functions
-        GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-        Gem::Common::condnotset("GOptOptMonitorT<ind_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-    }
-    /***************************************************************************/
 };
 
 /******************************************************************************/

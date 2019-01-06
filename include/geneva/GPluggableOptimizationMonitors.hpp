@@ -123,22 +123,18 @@ protected:
 		, const double& limit
 	) const override;
 
+	/** @brief Applies modifications to this object. */
+	G_API_GENEVA  bool modify_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to succeed. */
+	G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to fail. */
+	G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA  std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA  GObject* clone_() const override;
-
-public:
-	 /***************************************************************************/
-
-	 /** @brief Applies modifications to this object. */
-	 G_API_GENEVA  bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed. */
-	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. */
-	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/
@@ -227,6 +223,13 @@ protected:
 		, const double& limit
 	) const override;
 
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	G_API_GENEVA  bool modify_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
 	 /************************************************************************/
 	 /** @brief Emits a name for this class / object */
@@ -244,17 +247,6 @@ private:
 	 bool m_infoInitRun = false; ///< Allows to check whether the INFOINIT section of informationFunction has already been passed at least once
 	 std::vector<std::shared_ptr<Gem::Common::GGraph2D>> m_globalFitnessGraphVec; ///< Will hold progress information for the globally best individual
 	 std::vector<std::shared_ptr<Gem::Common::GGraph2D>> m_iterationFitnessGraphVec; ///< Will hold progress information for an iteration best's individual
-
-public:
-	 /***************************************************************************/
-	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 G_API_GENEVA  bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
-
-	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -329,6 +321,13 @@ protected:
 		, const double& limit
 	) const override;
 
+	/** @brief Applies modifications to this object */
+	G_API_GENEVA  bool modify_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to succeed */
+	G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to fail */
+	void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
 	 /***************************************************************************/
 	 /** @brief Emits a name for this class / object */
@@ -337,17 +336,6 @@ private:
 	 G_API_GENEVA  GObject* clone_() const override;
 
 	 std::vector<std::shared_ptr<Gem::Geneva::GBasePluggableOM>> m_pluggable_monitors; ///< The collection of monitors
-
-public:
-	 /***************************************************************************/
-	 /** @brief Applies modifications to this object */
-	 G_API_GENEVA  bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed */
-	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail */
-	 void specificTestsFailuresExpected_GUnitTests() override;
-
-	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -977,6 +965,67 @@ protected:
 		token.evaluate();
 	}
 
+	/***************************************************************************/
+	/**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+	bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GBasePluggableOM::modify_GUnitTests_()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GProgressPlotterT<fp_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+	void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GProgressPlotterT<fp_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+	void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GProgressPlotterT<fp_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+	/***************************************************************************/
 
 private:
 	 /***************************************************************************/
@@ -1014,69 +1063,6 @@ private:
 	 bool m_observeBoundaries = false; ///< When set to true, the plotter will ignore values outside of a scan boundary
 
 	 bool m_addPrintCommand = false; ///< Asks the GPlotDesigner to add a print command to result files
-
-public:
-	 /***************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  *
-	  * @return A boolean which indicates whether modifications were made
-	  */
-	 bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 bool result = false;
-
-		 // Call the parent classes' functions
-		 if(GBasePluggableOM::modify_GUnitTests()) {
-			 result = true;
-		 }
-
-		 // no local data -- nothing to change
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GProgressPlotterT<fp_type>::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 // Call the parent classes' functions
-		 GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GProgressPlotterT<fp_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 // Call the parent classes' functions
-		 GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GProgressPlotterT<fp_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -1206,6 +1192,13 @@ protected:
 		, const double& limit
 	) const override;
 
+	/** @brief Applies modifications to this object */
+	G_API_GENEVA  bool modify_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to succeed */
+	G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to fail */
+	G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
 	 /***************************************************************************/
 	 /** @brief Emits a name for this class / object */
@@ -1231,18 +1224,6 @@ private:
 	 bool m_showValidity = true; ///< Indicates whether the validity of a solution should be shown
 	 bool m_printInitial = false; ///< Indicates whether the initial population should be printed
 	 bool m_showIterationBoundaries = false; ///< Indicates whether a comment indicating the end of an iteration should be printed
-
-public:
-	 /***************************************************************************/
-
-	 /** @brief Applies modifications to this object */
-	 G_API_GENEVA  bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed */
-	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail */
-	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
-
-	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -1322,6 +1303,13 @@ protected:
 		, const double& limit
 	) const override;
 
+	/** @brief Applies modifications to this object */
+	G_API_GENEVA  bool modify_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to succeed */
+	G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
 	 /***************************************************************************/
 	 /** @brief Emits a name for this class / object */
@@ -1332,18 +1320,6 @@ private:
 	 std::string m_fileName = "IterationResultsLog.txt"; ///< The name of the file to which solutions should be stored
 	 bool m_withCommas = true; ///< When set to true, commas will be printed in-between values
 	 bool m_useRawFitness = false; ///< Indicates whether true- or transformed fitness should be output
-
-public:
-	 /***************************************************************************/
-
-	 /** @brief Applies modifications to this object */
-	 G_API_GENEVA  bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed */
-	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
-
-	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -1440,6 +1416,13 @@ protected:
 		, const double& limit
 	) const override;
 
+	/** @brief Applies modifications to this object */
+	G_API_GENEVA  bool modify_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to succeed */
+	G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
@@ -1462,18 +1445,6 @@ private:
 	 std::size_t m_nIterationsRecorded = 0; ///< Holds the number of iterations that were recorded (not necessarily == m_maxIteration
 
 	 std::vector<std::tuple<double, double>> m_nAdaptionsStore; ///< Holds all information about the number of adaptions
-
-public:
-	 /***************************************************************************/
-
-	 /** @brief Applies modifications to this object */
-	 G_API_GENEVA  bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed */
-	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
-
-	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -1890,6 +1861,67 @@ protected:
 		token.evaluate();
 	}
 
+	/***************************************************************************/
+	/**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+	bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GBasePluggableOM::modify_GUnitTests_()) {
+			result = true;
+		}
+
+		// no local data -- nothing to change
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+	void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+	void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
 private:
 	 /***************************************************************************/
 	 /**
@@ -1928,69 +1960,6 @@ private:
 	 std::size_t m_nIterationsRecorded = 0; ///< Holds the number of iterations that were recorded (not necessarily == m_maxIteration
 
 	 std::vector<std::tuple<double, double>> m_adaptorPropertyStore; ///< Holds all information about the number of adaptions
-
-public:
-	 /***************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  *
-	  * @return A boolean which indicates whether modifications were made
-	  */
-	 bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 bool result = false;
-
-		 // Call the parent classes' functions
-		 if(GBasePluggableOM::modify_GUnitTests()) {
-			 result = true;
-		 }
-
-		 // no local data -- nothing to change
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 // Call the parent classes' functions
-		 GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 // Call the parent classes' functions
-		 GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GAdaptorPropertyLoggerT<num_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-	 /***************************************************************************/
 };
 
 /******************************************************************************/
@@ -2118,6 +2087,13 @@ protected:
 		, const double& limit
 	) const override;
 
+	/** @brief Applies modifications to this object */
+	G_API_GENEVA  bool modify_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to succeed */
+	G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
 	 /************************************************************************/
 	 /** @brief Emits a name for this class / object */
@@ -2149,18 +2125,6 @@ private:
 
 	 std::size_t m_nBinsX = Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms in x-direction
 	 std::size_t m_nBinsY = Gem::Common::DEFAULTNBINSGPD; ///< The number of bins in the histograms in y-direction
-
-public:
-	 /***************************************************************************/
-
-	 /** @brief Applies modifications to this object */
-	 G_API_GENEVA  bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed */
-	 G_API_GENEVA  void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA  void specificTestsFailuresExpected_GUnitTests() override;
-
-	 /***************************************************************************/
 };
 
 /******************************************************************************/

@@ -1263,12 +1263,12 @@ void GParameterScan::adjustPopulation_() {
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GParameterScan::modify_GUnitTests() {
+bool GParameterScan::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
+	if (G_OptimizationAlgorithm_Base::modify_GUnitTests_()) result = true;
 
 	return result;
 #else /* GEM_TESTING */
@@ -1281,10 +1281,10 @@ bool GParameterScan::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GParameterScan::specificTestsNoFailureExpected_GUnitTests() {
+void GParameterScan::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1294,10 +1294,10 @@ void GParameterScan::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GParameterScan::specificTestsFailuresExpected_GUnitTests() {
+void GParameterScan::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GParameterScan::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */

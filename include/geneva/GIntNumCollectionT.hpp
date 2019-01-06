@@ -54,8 +54,7 @@ namespace Geneva {
  */
 template<typename int_type>
 class GIntNumCollectionT
-    :
-        public GNumCollectionT<int_type>
+    : public GNumCollectionT<int_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -257,30 +256,16 @@ protected:
      * ----------------------------------------------------------------------------------
      */
 
-private:
-    /***************************************************************************/
-    /**
-     * Emits a name for this class / object
-     */
-    std::string name_() const override {
-        return std::string("GIntNumCollectionT");
-    }
-
-    /***************************************************************************/
-    /** @brief Creates a deep clone of this object. Purely virtual, needs to be defined by derived classes */
-    GObject *clone_() const override = 0;
-
-public:
     /***************************************************************************/
     /**
      * Applies modifications to this object. This is needed for testing purposes
      */
-    bool modify_GUnitTests() override {
+    bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
         bool result = false;
 
         // Call the parent class'es function
-        if (GNumCollectionT<int_type>::modify_GUnitTests()) { result = true; }
+        if (GNumCollectionT<int_type>::modify_GUnitTests_()) { result = true; }
 
         return result;
 
@@ -294,7 +279,7 @@ public:
     /**
      * Performs self tests that are expected to succeed. This is needed for testing purposes
      */
-    void specificTestsNoFailureExpected_GUnitTests() override {
+    void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few general settings
         const std::size_t nItems = 100;
@@ -303,7 +288,7 @@ public:
         const int_type FIXEDVALUEINIT = int_type(1);
 
         // Call the parent class'es function
-        GNumCollectionT<int_type>::specificTestsNoFailureExpected_GUnitTests();
+        GNumCollectionT<int_type>::specificTestsNoFailureExpected_GUnitTests_();
 
         // A random generator
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -312,9 +297,9 @@ public:
 
         { // Initialize with a fixed value, then check setting and retrieval of boundaries and random initialization
             std::shared_ptr<GIntNumCollectionT<int_type>>
-                p_test1 = this->template clone<GIntNumCollectionT<int_type>>();
+                    p_test1 = this->template clone<GIntNumCollectionT<int_type>>();
             std::shared_ptr<GIntNumCollectionT<int_type>>
-                p_test2 = this->template clone<GIntNumCollectionT<int_type>>();
+                    p_test2 = this->template clone<GIntNumCollectionT<int_type>>();
 
             // Make sure p_test1 and p_test2 are empty
             BOOST_CHECK_NO_THROW(p_test1->clear());
@@ -323,14 +308,14 @@ public:
             // Add a few items
             for (std::size_t i = 0; i < nItems; i++) {
                 p_test1->push_back(
-                    2 * UPPERINITBOUNDARY
+                        2 * UPPERINITBOUNDARY
                 ); // Make sure random initialization cannot randomly leave the value unchanged
             }
 
             // Set initialization boundaries
             BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(
-                LOWERINITBOUNDARY
-                , UPPERINITBOUNDARY
+                    LOWERINITBOUNDARY
+                    , UPPERINITBOUNDARY
             ));
 
             // Check that the boundaries have been set as expected
@@ -344,8 +329,8 @@ public:
 
             // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
             BOOST_CHECK_NO_THROW(p_test1->randomInit_(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
 
             // Check that the object has indeed changed
@@ -363,11 +348,11 @@ public:
 
         { // Check that the fp-family of functions doesn't have an effect on this object
             std::shared_ptr<GIntNumCollectionT<int_type>>
-                p_test1 = this->template clone<GIntNumCollectionT<int_type>>();
+                    p_test1 = this->template clone<GIntNumCollectionT<int_type>>();
             std::shared_ptr<GIntNumCollectionT<int_type>>
-                p_test2 = this->template clone<GIntNumCollectionT<int_type>>();
+                    p_test2 = this->template clone<GIntNumCollectionT<int_type>>();
             std::shared_ptr<GIntNumCollectionT<int_type>>
-                p_test3 = this->template clone<GIntNumCollectionT<int_type>>();
+                    p_test3 = this->template clone<GIntNumCollectionT<int_type>>();
 
             // Add a few items to p_test1
             for (std::size_t i = 0; i < nItems; i++) {
@@ -383,45 +368,45 @@ public:
 
             // Check that initialization with a fixed floating point value has no effect on this object
             BOOST_CHECK_NO_THROW(p_test2->template fixedValueInit<double>(
-                2.
-                , activityMode::ALLPARAMETERS
+                    2.
+                    , activityMode::ALLPARAMETERS
             ));
             BOOST_CHECK(*p_test2 == *p_test1);
 
             // Check that multiplication with a fixed floating point value has no effect on this object
             BOOST_CHECK_NO_THROW(p_test2->template multiplyBy<double>(
-                2.
-                , activityMode::ALLPARAMETERS
+                    2.
+                    , activityMode::ALLPARAMETERS
             ));
             BOOST_CHECK(*p_test2 == *p_test1);
 
             // Check that a component-wise multiplication with a random fp value in a given range does not have an effect on this object
             BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(
-                1.
-                , 2.
-                , activityMode::ALLPARAMETERS
-                , gr
+                    1.
+                    , 2.
+                    , activityMode::ALLPARAMETERS
+                    , gr
             ));
             BOOST_CHECK(*p_test2 == *p_test1);
 
             // Check that a component-wise multiplication with a random fp value in the range [0:1[ does not have an effect on this object
             BOOST_CHECK_NO_THROW(p_test2->template multiplyByRandom<double>(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
             BOOST_CHECK(*p_test2 == *p_test1);
 
             // Check that adding p_test1 to p_test3 does not have an effect
             BOOST_CHECK_NO_THROW(p_test3->template add<double>(
-                p_test1
-                , activityMode::ALLPARAMETERS
+                    p_test1
+                    , activityMode::ALLPARAMETERS
             ));
             BOOST_CHECK(*p_test3 == *p_test2);
 
             // Check that subtracting p_test1 from p_test3 does not have an effect
             BOOST_CHECK_NO_THROW(p_test3->template subtract<double>(
-                p_test1
-                , activityMode::ALLPARAMETERS
+                    p_test1
+                    , activityMode::ALLPARAMETERS
             ));
             BOOST_CHECK(*p_test3 == *p_test2);
         }
@@ -437,10 +422,10 @@ public:
     /**
      * Performs self tests that are expected to fail. This is needed for testing purposes
      */
-    void specificTestsFailuresExpected_GUnitTests() override {
+    void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Call the parent class'es function
-        GNumCollectionT<int_type>::specificTestsFailuresExpected_GUnitTests();
+        GNumCollectionT<int_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GIntNumCollectionT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -448,6 +433,19 @@ public:
     }
 
     /***************************************************************************/
+
+private:
+    /***************************************************************************/
+    /**
+     * Emits a name for this class / object
+     */
+    std::string name_() const override {
+        return std::string("GIntNumCollectionT");
+    }
+
+    /***************************************************************************/
+    /** @brief Creates a deep clone of this object. Purely virtual, needs to be defined by derived classes */
+    GObject *clone_() const override = 0;
 };
 
 /******************************************************************************/

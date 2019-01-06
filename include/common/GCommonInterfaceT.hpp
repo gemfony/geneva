@@ -529,6 +529,30 @@ public:
         load_(&cp);
     }
 
+    /***************************************************************************/
+    /**
+     * Applies modifications to this object. This is needed for testing purposes
+     */
+    bool modify_GUnitTests() {
+        return this->modify_GUnitTests_();
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+    void specificTestsNoFailureExpected_GUnitTests() {
+        this->specificTestsNoFailureExpected_GUnitTests_();
+    }
+
+    /***************************************************************************/
+    /**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+    void specificTestsFailuresExpected_GUnitTests() {
+        this->specificTestsFailuresExpected_GUnitTests_();
+    }
+
 protected:
     /***************************************************************************/
     // Defaulted constructors -- rule of five
@@ -619,6 +643,14 @@ protected:
         // No local data, no relevant parent classes, hence nothing to do
     }
 
+    /***************************************************************************/
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    virtual G_API_GENEVA bool modify_GUnitTests_() BASE = 0;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() BASE = 0;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() BASE = 0;
+
 private:
     /***************************************************************************/
     /**
@@ -631,17 +663,6 @@ private:
     /***************************************************************************/
     /** @brief Creates a deep clone of this object */
     virtual G_API_COMMON g_class_type *clone_() const BASE = 0;
-
-public:
-    /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    virtual G_API_GENEVA bool modify_GUnitTests() BASE = 0;
-
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    virtual G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() BASE = 0;
-
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    virtual G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() BASE = 0;
 };
 
 /******************************************************************************/

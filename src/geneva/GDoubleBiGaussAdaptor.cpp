@@ -131,7 +131,7 @@ Gem::Geneva::adaptorId GDoubleBiGaussAdaptor::getAdaptorId_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GDoubleBiGaussAdaptor::modify_GUnitTests() {
+bool GDoubleBiGaussAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -139,7 +139,7 @@ bool GDoubleBiGaussAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GFPBiGaussAdaptorT<double>::modify_GUnitTests()) result = true;
+	if (GFPBiGaussAdaptorT<double>::modify_GUnitTests_()) result = true;
 
 	return result;
 
@@ -153,13 +153,13 @@ bool GDoubleBiGaussAdaptor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+void GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GFPBiGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GFPBiGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 
@@ -190,13 +190,13 @@ void GDoubleBiGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GDoubleBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
+void GDoubleBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GFPBiGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
+	GFPBiGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GDoubleBiGaussAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

@@ -245,7 +245,7 @@ double GTestIndividual2::fitnessCalculation() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GTestIndividual2::modify_GUnitTests() {
+bool GTestIndividual2::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -253,7 +253,7 @@ bool GTestIndividual2::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if (Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
+	if (Gem::Geneva::GParameterSet::modify_GUnitTests_()) result = true;
 
 	// Change the parameter settings
 	result = true;
@@ -270,7 +270,7 @@ bool GTestIndividual2::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests() {
+void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
@@ -278,7 +278,7 @@ void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------
@@ -292,7 +292,7 @@ void GTestIndividual2::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GTestIndividual2::specificTestsFailuresExpected_GUnitTests() {
+void GTestIndividual2::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
@@ -300,7 +300,7 @@ void GTestIndividual2::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
+	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------

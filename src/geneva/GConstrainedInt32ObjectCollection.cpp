@@ -116,12 +116,12 @@ void GConstrainedInt32ObjectCollection::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
+bool GConstrainedInt32ObjectCollection::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-	this->fillWithObjects(10);
+	this->fillWithObjects_(10);
 
 	// Call the parent class'es function
-	GParameterTCollectionT<GConstrainedInt32Object>::modify_GUnitTests();
+	GParameterTCollectionT<GConstrainedInt32Object>::modify_GUnitTests_();
 
 	return true;
 
@@ -135,7 +135,7 @@ bool GConstrainedInt32ObjectCollection::modify_GUnitTests() {
 /**
  * Fills the collection with GConstrainedInt32Object objects
  */
-void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
+void GConstrainedInt32ObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -179,7 +179,7 @@ void GConstrainedInt32ObjectCollection::fillWithObjects(const std::size_t &nAdde
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Some settings
 	const std::size_t nAddedObjects = 10;
@@ -200,10 +200,10 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		std::shared_ptr <GConstrainedInt32ObjectCollection> p_test = this->clone<GConstrainedInt32ObjectCollection>();
 
 		// Fill p_test with objects
-		p_test->fillWithObjects(nAddedObjects);
+		p_test->fillWithObjects_(nAddedObjects);
 
 		// Execute the parent class'es tests
-		p_test->GParameterTCollectionT<GConstrainedInt32Object>::specificTestsNoFailureExpected_GUnitTests();
+		p_test->GParameterTCollectionT<GConstrainedInt32Object>::specificTestsNoFailureExpected_GUnitTests_();
 	}
 
 	// --------------------------------------------------------------------------
@@ -213,7 +213,7 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 		std::shared_ptr <GConstrainedInt32ObjectCollection> p_test2 = this->clone<GConstrainedInt32ObjectCollection>();
 
 		// Fill p_test1 with objects
-		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
 		// Make sure it has the expected size
 		BOOST_CHECK(p_test1->size() == nAddedObjects);
@@ -261,10 +261,10 @@ void GConstrainedInt32ObjectCollection::specificTestsNoFailureExpected_GUnitTest
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+void GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GParameterTCollectionT<GConstrainedInt32Object>::specificTestsFailuresExpected_GUnitTests();
+	GParameterTCollectionT<GConstrainedInt32Object>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GConstrainedInt32ObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

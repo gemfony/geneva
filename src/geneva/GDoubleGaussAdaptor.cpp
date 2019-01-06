@@ -162,7 +162,7 @@ Gem::Geneva::adaptorId GDoubleGaussAdaptor::getAdaptorId_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GDoubleGaussAdaptor::modify_GUnitTests() {
+bool GDoubleGaussAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -170,7 +170,7 @@ bool GDoubleGaussAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GFPGaussAdaptorT<double>::modify_GUnitTests()) result = true;
+	if (GFPGaussAdaptorT<double>::modify_GUnitTests_()) result = true;
 
 	return result;
 
@@ -184,13 +184,13 @@ bool GDoubleGaussAdaptor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GFPGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GFPGaussAdaptorT<double>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 
@@ -220,13 +220,13 @@ void GDoubleGaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
+void GDoubleGaussAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GFPGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests();
+	GFPGaussAdaptorT<double>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GBrokerEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

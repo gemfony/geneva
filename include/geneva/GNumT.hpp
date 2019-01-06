@@ -300,6 +300,89 @@ protected:
 		 , Gem::Hap::GRandomBase&
 	 ) override = 0;
 
+	/***************************************************************************/
+	/**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+	bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GParameterT<num_type>::modify_GUnitTests_()) result = true;
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+	void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent classes' functions
+		GParameterT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
+
+		// A few settings
+		const num_type LOWERTESTINITVAL = num_type(1); // Do not choose a negative value as T might be an unsigned type
+		const num_type UPPERTESTINITVAL = num_type(3);
+
+		//------------------------------------------------------------------------------
+
+		{ // Test setting and retrieval of initialization boundaries
+			std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
+
+			// Set the boundaries
+			BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
+
+			// Check that these values have indeed been assigned
+			BOOST_CHECK(p_test->getLowerInitBoundary() == LOWERTESTINITVAL);
+			BOOST_CHECK(p_test->getUpperInitBoundary() == UPPERTESTINITVAL);
+		}
+
+		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+	void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent classes' functions
+		GParameterT<num_type>::specificTestsFailuresExpected_GUnitTests_();
+
+		// A few settings
+		const num_type LOWERTESTINITVAL = num_type(1); // Do not choose a negative value as T might be an unsigned type
+		const num_type UPPERTESTINITVAL = num_type(3);
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that assignement of initialization boundaries throws for invalid boundaries
+			std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
+
+			BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), gemfony_exception);
+		}
+
+		//------------------------------------------------------------------------------
+
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
 private:
 	 /***************************************************************************/
 	 /**
@@ -321,92 +404,6 @@ private:
 	 /***************************************************************************/
 	 num_type lowerInitBoundary_ = num_type(DEFAULTLOWERINITBOUNDARYSINGLE); ///< The lower boundary for random initialization
 	 num_type upperInitBoundary_ = num_type(DEFAULTUPPERINITBOUNDARYSINGLE); ///< The upper boundary for random initialization
-
-public:
-
-	 /***************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  *
-	  * @return A boolean which indicates whether modifications were made
-	  */
-	 bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 bool result = false;
-
-		 // Call the parent classes' functions
-		 if(GParameterT<num_type>::modify_GUnitTests()) result = true;
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumT<>::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent classes' functions
-		 GParameterT<num_type>::specificTestsNoFailureExpected_GUnitTests();
-
-		 // A few settings
-		 const num_type LOWERTESTINITVAL = num_type(1); // Do not choose a negative value as T might be an unsigned type
-		 const num_type UPPERTESTINITVAL = num_type(3);
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test setting and retrieval of initialization boundaries
-			 std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
-
-			 // Set the boundaries
-			 BOOST_CHECK_NO_THROW(p_test->setInitBoundaries(LOWERTESTINITVAL, UPPERTESTINITVAL));
-
-			 // Check that these values have indeed been assigned
-			 BOOST_CHECK(p_test->getLowerInitBoundary() == LOWERTESTINITVAL);
-			 BOOST_CHECK(p_test->getUpperInitBoundary() == UPPERTESTINITVAL);
-		 }
-
-		 //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent classes' functions
-		 GParameterT<num_type>::specificTestsFailuresExpected_GUnitTests();
-
-		 // A few settings
-		 const num_type LOWERTESTINITVAL = num_type(1); // Do not choose a negative value as T might be an unsigned type
-		 const num_type UPPERTESTINITVAL = num_type(3);
-
-		 //------------------------------------------------------------------------------
-
-		 { // Check that assignement of initialization boundaries throws for invalid boundaries
-			 std::shared_ptr<GNumT<num_type>> p_test = this->template clone<GNumT<num_type>>();
-
-			 BOOST_CHECK_THROW(p_test->setInitBoundaries(UPPERTESTINITVAL, LOWERTESTINITVAL), gemfony_exception);
-		 }
-
-		 //------------------------------------------------------------------------------
-
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
 };
 
 /******************************************************************************/

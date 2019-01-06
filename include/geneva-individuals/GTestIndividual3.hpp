@@ -129,20 +129,18 @@ protected:
 
 
 	/** @brief The actual fitness calculation takes place here. */
-	 virtual G_API_INDIVIDUALS double fitnessCalculation() final;
+	virtual G_API_INDIVIDUALS double fitnessCalculation() final;
 
-public:
+	/** @brief Applies modifications to this object. */
+	virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
+	/** @brief Performs self tests that are expected to succeed. */
+	virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
+	/** @brief Performs self tests that are expected to fail. */
+	virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
+
+private:
 	 /** @brief Creates a deep clone of this object */
 	 virtual G_API_INDIVIDUALS GObject *clone_() const final;
-
-	 /** @brief Applies modifications to this object. */
-	 virtual G_API_INDIVIDUALS bool modify_GUnitTests();
-
-	 /** @brief Performs self tests that are expected to succeed. */
-	 virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests();
-
-	 /** @brief Performs self tests that are expected to fail. */
-	 virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests();
 };
 
 /******************************************************************************/

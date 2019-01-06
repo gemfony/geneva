@@ -65,7 +65,7 @@ void GGradientDescent_PersonalityTraits::compare_(
 	Gem::Common::compare_base_t<GPersonalityTraits>(*this, *p_load, token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(popPos_, p_load->popPos_), token);
+	compare_t(IDENTITY(m_popPos, p_load->m_popPos), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -111,7 +111,7 @@ void GGradientDescent_PersonalityTraits::load_(const GObject *cp) {
 	GPersonalityTraits::load_(cp);
 
 	// and then the local data
-	popPos_ = p_load->popPos_;
+	m_popPos = p_load->m_popPos;
 }
 
 /******************************************************************************/
@@ -121,7 +121,7 @@ void GGradientDescent_PersonalityTraits::load_(const GObject *cp) {
  * @param popPos The new position of this individual in the population
  */
 void GGradientDescent_PersonalityTraits::setPopulationPosition(const std::size_t &popPos) {
-	popPos_ = popPos;
+	m_popPos = popPos;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -136,7 +136,7 @@ void GGradientDescent_PersonalityTraits::setPopulationPosition(const std::size_t
  * @return The current position of this individual in the population
  */
 std::size_t GGradientDescent_PersonalityTraits::getPopulationPosition(void) const {
-	return popPos_;
+	return m_popPos;
 }
 
 /* ----------------------------------------------------------------------------------
@@ -150,12 +150,12 @@ std::size_t GGradientDescent_PersonalityTraits::getPopulationPosition(void) cons
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GGradientDescent_PersonalityTraits::modify_GUnitTests() {
+bool GGradientDescent_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GPersonalityTraits::modify_GUnitTests()) result = true;
+	if (GPersonalityTraits::modify_GUnitTests_()) result = true;
 
 	this->setPopulationPosition(this->getPopulationPosition() + 1);
 	result = true;
@@ -172,13 +172,13 @@ bool GGradientDescent_PersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GGradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void GGradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
 
 	// --------------------------------------------------------------------------
@@ -194,13 +194,13 @@ void GGradientDescent_PersonalityTraits::specificTestsNoFailureExpected_GUnitTes
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GGradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void GGradientDescent_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 

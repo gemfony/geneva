@@ -390,12 +390,12 @@ void GBooleanCollection::assignBooleanValueVectors(
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GBooleanCollection::modify_GUnitTests() {
+bool GBooleanCollection::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GParameterCollectionT<bool>::modify_GUnitTests()) result = true;
+	if (GParameterCollectionT<bool>::modify_GUnitTests_()) result = true;
 
 	this->push_back(true);
 	return true;
@@ -412,7 +412,7 @@ bool GBooleanCollection::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
+void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// A few settings
 	const std::size_t nItems = 10000;
@@ -434,7 +434,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(gba_ptr);
 
 	// Call the parent class'es function
-	GParameterCollectionT<bool>::specificTestsNoFailureExpected_GUnitTests();
+	GParameterCollectionT<bool>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -815,7 +815,7 @@ void GBooleanCollection::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
+void GBooleanCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// A few settings
 	std::size_t nItems = 10000;
@@ -835,7 +835,7 @@ void GBooleanCollection::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(gba_ptr);
 
 	// Call the parent class'es function
-	GParameterCollectionT<bool>::specificTestsFailuresExpected_GUnitTests();
+	GParameterCollectionT<bool>::specificTestsFailuresExpected_GUnitTests_();
 
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;

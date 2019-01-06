@@ -739,13 +739,13 @@ void G_OptimizationAlgorithm_ParChild::valueRecombine(
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool G_OptimizationAlgorithm_ParChild::modify_GUnitTests() {
+bool G_OptimizationAlgorithm_ParChild::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	bool result = false;
 
 	// Call the parent class'es function
-	if(G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
+	if(G_OptimizationAlgorithm_Base::modify_GUnitTests_()) result = true;
 
 	return result;
 
@@ -759,10 +759,10 @@ bool G_OptimizationAlgorithm_ParChild::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests() {
+void G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -773,10 +773,10 @@ void G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests() {
+void G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */
 	Gem::Common::condnotset("G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

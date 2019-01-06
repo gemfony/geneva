@@ -55,8 +55,7 @@ namespace Geneva {
  * GParameterSet derivative.
  */
 class GDoubleObjectCollection
-    :
-        public GParameterTCollectionT<GDoubleObject>
+    : public GParameterTCollectionT<GDoubleObject>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -100,21 +99,21 @@ protected:
         , const double & // the limit for allowed deviations of floating point types
     ) const override;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
     /** @brief Emits a name for this class / object */
     G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep clone of this object. */
     G_API_GENEVA GObject *clone_() const override;
 
-public:
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests() override;
     /** @brief Fills the collection with GDoubleObject objects */
-    G_API_GENEVA void fillWithObjects(const std::size_t &);
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+    G_API_GENEVA void fillWithObjects_(const std::size_t &);
 };
 
 /******************************************************************************/

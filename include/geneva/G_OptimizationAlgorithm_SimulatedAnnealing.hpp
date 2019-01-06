@@ -142,6 +142,13 @@ protected:
     /** @brief Does any necessary finalization work after the optimization loop has ended */
     G_API_GENEVA void finalize() override;
 
+    /** @brief Applies modifications to this object */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
     /***************************************************************************/
 
     /** @brief Fixes the population after a job submission */
@@ -198,18 +205,6 @@ private:
     std::uint16_t m_n_threads = Gem::Common::DEFAULTNHARDWARETHREADS; ///< The number of threads
 
     std::shared_ptr<Gem::Common::GThreadPool> m_tp_ptr; ///< Temporarily holds a thread pool
-
-public:
-    /***************************************************************************/
-
-    /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-    /***************************************************************************/
 };
 
 /******************************************************************************/

@@ -108,6 +108,9 @@ public:
     G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
+    /***************************************************************************/
+    // Virtual or overridden protected functions
+
     /** @brief Loads the data of another GBaseParChildPersonalityTraits object */
     G_API_GENEVA void load_(const GObject *) override;
 
@@ -125,6 +128,14 @@ protected:
         , const double & // the limit for allowed deviations of floating point types
     ) const override;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
+    /***************************************************************************/
 
 private:
     /** @brief Emits a name for this class / object */
@@ -138,14 +149,6 @@ private:
     std::size_t popPos_ = 0;
     /** @brief The id of the old parent individual. This is intentionally a signed value. A negative value refers to an unset parent id */
     std::int16_t parentId_ = -1;
-
-public:
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

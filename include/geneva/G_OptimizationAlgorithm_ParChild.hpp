@@ -216,6 +216,14 @@ protected:
     /** @brief Does any necessary finalization work atfer the optimization loop has ended */
     G_API_GENEVA void finalize() override;
 
+
+    /** @brief Applies modifications to this object */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
     /***************************************************************************/
 
     /** @brief This function is called from G_OptimizationAlgorithm_Base::optimize() and performs the actual recombination */
@@ -300,15 +308,7 @@ private:
 
     std::uniform_int_distribution<std::size_t> m_uniform_int_distribution; ///< Access to uniformly distributed random numbers
 
-public:
     /***************************************************************************/
-
-    /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Performs self tests that are expected to succeed */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

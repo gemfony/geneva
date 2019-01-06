@@ -57,7 +57,7 @@ namespace Geneva {
  */
 template<typename num_type, typename fp_type>
 class GNumGaussAdaptorT
-	:public GAdaptorT<num_type, fp_type>
+	: public GAdaptorT<num_type, fp_type>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -536,6 +536,254 @@ protected:
 		 return true;
 	 }
 
+	/***************************************************************************/
+	/**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+	bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GAdaptorT<num_type>::modify_GUnitTests_()) result = true;
+
+		// A relatively harmless change
+		sigmaSigma_ *= fp_type(1.1);
+		result = true;
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+	void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
+
+		// Get a random number generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
+		//------------------------------------------------------------------------------
+
+		{ // Test setting and retrieval of the sigma range
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			for(fp_type dlower=fp_type(0.); dlower<fp_type(0.8); dlower+=fp_type(0.1)) {
+				fp_type dupper = Gem::Common::gmin(fp_type(2.)*dlower, fp_type(1.));
+				if(0==dupper) {
+					dupper = 1.;
+				}
+
+				BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dupper));
+				typename std::tuple<fp_type, fp_type> range;
+				BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
+
+				using namespace boost;
+
+				if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
+					BOOST_CHECK_MESSAGE(
+							std::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
+					, std::get<0>(range) << " / " << boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
+					);
+					BOOST_CHECK_MESSAGE(
+							std::get<1>(range) == boost::numeric_cast<fp_type>(1.)
+					, std::get<1>(range) << " / " << boost::numeric_cast<fp_type>(1.)
+					);
+				}
+				else {
+					BOOST_CHECK(std::get<0>(range) == dlower);
+				}
+			}
+
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
+			BOOST_CHECK_NO_THROW(p_test->setSigma(fp_type(DEFAULTMINSIGMA)));
+			BOOST_CHECK(p_test->getSigma() == fp_type(DEFAULTMINSIGMA));
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Tests setting and retrieval of the sigma parameter
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
+
+			for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
+				BOOST_CHECK_NO_THROW(p_test->setSigma(d));
+				BOOST_CHECK(p_test->getSigma() == d);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test setting and retrieval of the sigma adaption rate
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
+				BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(d));
+				BOOST_CHECK(p_test->getSigmaAdaptionRate() == d);
+			}
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Check that simultaneous setting of all "sigma-values" has an effect
+			using namespace boost;
+
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			BOOST_CHECK_NO_THROW(p_test->setAll(fp_type(0.5), fp_type(0.8), fp_type(0.), fp_type(1.)));
+			BOOST_CHECK(p_test->getSigma() == fp_type(0.5));
+			BOOST_CHECK(p_test->getSigmaAdaptionRate() == fp_type(0.8));
+			std::tuple<fp_type, fp_type> range;
+			BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
+			BOOST_CHECK(std::get<0>(range) == fp_type(DEFAULTMINSIGMA));
+			BOOST_CHECK(std::get<1>(range) == fp_type(1.));
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test sigma adaption
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			// true: Adaptions should happen always, independent of the adaption probability
+			BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
+
+			const fp_type minSigma = fp_type(0.0001);
+			const fp_type maxSigma = fp_type(1.);
+			const fp_type sigmaStart = fp_type(1.);
+			const fp_type sigmaSigma = fp_type(0.001);
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(minSigma, maxSigma));
+			BOOST_CHECK_NO_THROW(p_test->setSigma(sigmaStart));
+			BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(sigmaSigma));
+
+			fp_type oldSigma = p_test->getSigma();
+			fp_type newSigma = 0.;
+			BOOST_CHECK(oldSigma == sigmaStart);
+
+			std::size_t nTests = 10000;
+			std::size_t maxCounter = 0;
+			std::size_t maxMaxCounter = 500;
+			for(std::size_t i=0; i<nTests; i++) {
+				BOOST_CHECK_NO_THROW(p_test->adaptAdaption(num_type(1), gr));
+				BOOST_CHECK(newSigma = p_test->getSigma());
+				BOOST_CHECK(newSigma >= minSigma && newSigma <= maxSigma);
+
+				if(newSigma != minSigma && newSigma != maxSigma) {
+					BOOST_CHECK_MESSAGE (
+							newSigma != oldSigma
+					,  "\n"
+									<< "oldSigma = " << oldSigma << "\n"
+									<< "newSigma = " << newSigma << "\n"
+									<< "iteration = " << i << "\n"
+					);
+					oldSigma = newSigma;
+				}
+				else {
+					// We want to know how often we have exceeded the boundaries
+					maxCounter++;
+				}
+			}
+
+			BOOST_CHECK_MESSAGE (
+					maxCounter < maxMaxCounter
+			,  "\n"
+							<< "maxCounter = " << maxCounter << "\n"
+							<< "maxMaxCounter = " << maxMaxCounter << "\n"
+			);
+		}
+
+		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+	void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		using boost::unit_test_framework::test_suite;
+		using boost::unit_test_framework::test_case;
+
+		// Call the parent classes' functions
+		GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests_();
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a minimal sigma < 0. throws
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(-1.), fp_type(2.)), gemfony_exception);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a minimal sigma > the maximum sigma throws
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(2.), fp_type(1.)), gemfony_exception);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a negative sigma throws
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(-1.)), gemfony_exception);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a sigma below the allowed range throws
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), gemfony_exception);
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that setting a sigma above the allowed range throws
+			std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
+
+			BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
+			BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), gemfony_exception);
+		}
+
+		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GNumGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
 	 // "protected" for performance reasons, so we do not have to go through access functions
 	 /***************************************************************************/
 	 fp_type sigma_ = fp_type(DEFAULTSIGMA); ///< The width of the gaussian used to adapt values
@@ -566,255 +814,6 @@ private:
 	  * @return A deep copy of this object
 	  */
 	 GObject *clone_() const override = 0;
-
-public:
-	 /***************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  *
-	  * @return A boolean which indicates whether modifications were made
-	  */
-	 bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 bool result = false;
-
-		 // Call the parent classes' functions
-		 if(GAdaptorT<num_type>::modify_GUnitTests()) result = true;
-
-		 // A relatively harmless change
-		 sigmaSigma_ *= fp_type(1.1);
-		 result = true;
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 // Call the parent classes' functions
-		 GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests();
-
-		 // Get a random number generator
-		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test setting and retrieval of the sigma range
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 for(fp_type dlower=fp_type(0.); dlower<fp_type(0.8); dlower+=fp_type(0.1)) {
-				 fp_type dupper = Gem::Common::gmin(fp_type(2.)*dlower, fp_type(1.));
-				 if(0==dupper) {
-					 dupper = 1.;
-				 }
-
-				 BOOST_CHECK_NO_THROW(p_test->setSigmaRange(dlower, dupper));
-				 typename std::tuple<fp_type, fp_type> range;
-				 BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
-
-				 using namespace boost;
-
-				 if(dlower == 0.) { // Account for the fact that a lower boundary of 0. will be silently changed
-					 BOOST_CHECK_MESSAGE(
-						 std::get<0>(range) == boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
-						 , std::get<0>(range) << " / " << boost::numeric_cast<fp_type>(DEFAULTMINSIGMA)
-					 );
-					 BOOST_CHECK_MESSAGE(
-						 std::get<1>(range) == boost::numeric_cast<fp_type>(1.)
-						 , std::get<1>(range) << " / " << boost::numeric_cast<fp_type>(1.)
-					 );
-				 }
-				 else {
-					 BOOST_CHECK(std::get<0>(range) == dlower);
-				 }
-			 }
-
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test that setting a sigma of 0. will result in a sigma with value DEFAULTMINSIGMA
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
-			 BOOST_CHECK_NO_THROW(p_test->setSigma(fp_type(DEFAULTMINSIGMA)));
-			 BOOST_CHECK(p_test->getSigma() == fp_type(DEFAULTMINSIGMA));
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Tests setting and retrieval of the sigma parameter
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.), fp_type(1.)));
-
-			 for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
-				 BOOST_CHECK_NO_THROW(p_test->setSigma(d));
-				 BOOST_CHECK(p_test->getSigma() == d);
-			 }
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test setting and retrieval of the sigma adaption rate
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 for(fp_type d=fp_type(0.1); d<fp_type(0.9); d+=fp_type(0.1)) {
-				 BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(d));
-				 BOOST_CHECK(p_test->getSigmaAdaptionRate() == d);
-			 }
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Check that simultaneous setting of all "sigma-values" has an effect
-			 using namespace boost;
-
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 BOOST_CHECK_NO_THROW(p_test->setAll(fp_type(0.5), fp_type(0.8), fp_type(0.), fp_type(1.)));
-			 BOOST_CHECK(p_test->getSigma() == fp_type(0.5));
-			 BOOST_CHECK(p_test->getSigmaAdaptionRate() == fp_type(0.8));
-			 std::tuple<fp_type, fp_type> range;
-			 BOOST_CHECK_NO_THROW(range = p_test->getSigmaRange());
-			 BOOST_CHECK(std::get<0>(range) == fp_type(DEFAULTMINSIGMA));
-			 BOOST_CHECK(std::get<1>(range) == fp_type(1.));
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test sigma adaption
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 // true: Adaptions should happen always, independent of the adaption probability
-			 BOOST_CHECK_NO_THROW (p_test->setAdaptionMode(adaptionMode::ALWAYS));
-
-			 const fp_type minSigma = fp_type(0.0001);
-			 const fp_type maxSigma = fp_type(1.);
-			 const fp_type sigmaStart = fp_type(1.);
-			 const fp_type sigmaSigma = fp_type(0.001);
-
-			 BOOST_CHECK_NO_THROW(p_test->setSigmaRange(minSigma, maxSigma));
-			 BOOST_CHECK_NO_THROW(p_test->setSigma(sigmaStart));
-			 BOOST_CHECK_NO_THROW(p_test->setSigmaAdaptionRate(sigmaSigma));
-
-			 fp_type oldSigma = p_test->getSigma();
-			 fp_type newSigma = 0.;
-			 BOOST_CHECK(oldSigma == sigmaStart);
-
-			 std::size_t nTests = 10000;
-			 std::size_t maxCounter = 0;
-			 std::size_t maxMaxCounter = 500;
-			 for(std::size_t i=0; i<nTests; i++) {
-				 BOOST_CHECK_NO_THROW(p_test->adaptAdaption(num_type(1), gr));
-				 BOOST_CHECK(newSigma = p_test->getSigma());
-				 BOOST_CHECK(newSigma >= minSigma && newSigma <= maxSigma);
-
-				 if(newSigma != minSigma && newSigma != maxSigma) {
-					 BOOST_CHECK_MESSAGE (
-						 newSigma != oldSigma
-						 ,  "\n"
-						 << "oldSigma = " << oldSigma << "\n"
-						 << "newSigma = " << newSigma << "\n"
-						 << "iteration = " << i << "\n"
-					 );
-					 oldSigma = newSigma;
-				 }
-				 else {
-					 // We want to know how often we have exceeded the boundaries
-					 maxCounter++;
-				 }
-			 }
-
-			 BOOST_CHECK_MESSAGE (
-				 maxCounter < maxMaxCounter
-				 ,  "\n"
-				 << "maxCounter = " << maxCounter << "\n"
-				 << "maxMaxCounter = " << maxMaxCounter << "\n"
-			 );
-		 }
-
-		 //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 // Call the parent classes' functions
-		 GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests();
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test that setting a minimal sigma < 0. throws
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(-1.), fp_type(2.)), gemfony_exception);
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test that setting a minimal sigma > the maximum sigma throws
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 BOOST_CHECK_THROW(p_test->setSigmaRange(fp_type(2.), fp_type(1.)), gemfony_exception);
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test that setting a negative sigma throws
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 BOOST_CHECK_THROW(p_test->setSigma(fp_type(-1.)), gemfony_exception);
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test that setting a sigma below the allowed range throws
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-			 BOOST_CHECK_THROW(p_test->setSigma(fp_type(0.1)), gemfony_exception);
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test that setting a sigma above the allowed range throws
-			 std::shared_ptr<GNumGaussAdaptorT<num_type, fp_type>> p_test = this->template clone<GNumGaussAdaptorT<num_type, fp_type>>();
-
-			 BOOST_CHECK_NO_THROW(p_test->setSigmaRange(fp_type(0.5), fp_type(1.)));
-			 BOOST_CHECK_THROW(p_test->setSigma(fp_type(3.)), gemfony_exception);
-		 }
-
-		 //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GNumGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
 };
 
 /******************************************************************************/

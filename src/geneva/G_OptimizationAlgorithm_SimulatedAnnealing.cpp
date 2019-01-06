@@ -712,13 +712,13 @@ void GSimulatedAnnealing::updateTemperature() {
   *
   * @return A boolean which indicates whether modifications were made
   */
-bool GSimulatedAnnealing::modify_GUnitTests() {
+bool GSimulatedAnnealing::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	bool result = false;
 
 	// Call the parent class'es function
-	if(G_OptimizationAlgorithm_ParChild::modify_GUnitTests()) result = true;
+	if(G_OptimizationAlgorithm_ParChild::modify_GUnitTests_()) result = true;
 
 	return result;
 
@@ -732,10 +732,10 @@ bool GSimulatedAnnealing::modify_GUnitTests() {
 /**
   * Performs self tests that are expected to succeed. This is needed for testing purposes
   */
-void GSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests() {
+void GSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------
@@ -749,10 +749,10 @@ void GSimulatedAnnealing::specificTestsNoFailureExpected_GUnitTests() {
 /**
   * Performs self tests that are expected to fail. This is needed for testing purposes
   */
-void GSimulatedAnnealing::specificTestsFailuresExpected_GUnitTests() {
+void GSimulatedAnnealing::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 	//------------------------------------------------------------------------------

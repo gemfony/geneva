@@ -969,6 +969,13 @@ protected:
     /** @brief Checks whether this solution has been rated to be valid; meant to be called by internal functions only */
     G_API_GENEVA bool parameterSetFulfillsConstraints(double &) const;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
@@ -1034,16 +1041,6 @@ private:
     bool m_useRandomCrash
         = false; ///< Indicates whether the individual should crash at random intervals for debugging purposes
     double m_randomCrashProb = 0.; ///< The probability for a random crash
-
-public:
-    /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-    /***************************************************************************/
 };
 
 } /* namespace Geneva */

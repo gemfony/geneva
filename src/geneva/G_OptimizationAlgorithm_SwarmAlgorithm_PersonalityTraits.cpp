@@ -319,12 +319,12 @@ std::size_t GSwarmAlgorithm_PersonalityTraits::getNeighborhood() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests() {
+bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GPersonalityTraits::modify_GUnitTests()) result = true;
+	if (GPersonalityTraits::modify_GUnitTests_()) result = true;
 
 	this->setNeighborhood(this->getNeighborhood() + 1);
 	result = true;
@@ -341,13 +341,13 @@ bool GSwarmAlgorithm_PersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	GPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
 	//---------------------------------------------------------------------------
 
@@ -394,13 +394,13 @@ void GSwarmAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTest
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void GSwarmAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	GPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
 
 	//---------------------------------------------------------------------------

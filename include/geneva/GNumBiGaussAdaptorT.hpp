@@ -59,8 +59,7 @@ namespace Geneva {
  */
 template<typename num_type, typename fp_type>
 class GNumBiGaussAdaptorT
-    :
-        public GAdaptorT<num_type, fp_type>
+    : public GAdaptorT<num_type, fp_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -868,31 +867,13 @@ protected:
         , Gem::Hap::GRandomBase &gr
     ) override = 0;
 
-private:
-    /***********************************************************************************/
-    /** @brief Retrieves the id of the adaptor */
-    Gem::Geneva::adaptorId getAdaptorId_() const override = 0;
-
-    /***************************************************************************/
-    /**
-     * Emits a name for this class / object
-     */
-    std::string name_() const override {
-        return std::string("GNumBiGaussAdaptorT");
-    }
-
-    /***************************************************************************/
-    /** @brief This function creates a deep copy of this object */
-    GObject *clone_() const override = 0;
-
-public:
     /***************************************************************************/
     /**
      * Applies modifications to this object. This is needed for testing purposes
      *
      * @return A boolean which indicates whether modifications were made
      */
-    bool modify_GUnitTests() override {
+    bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
         using boost::unit_test_framework::test_suite;
         using boost::unit_test_framework::test_case;
@@ -900,7 +881,7 @@ public:
         bool result = false;
 
         // Call the parent classes' functions
-        if (GAdaptorT<num_type>::modify_GUnitTests()) { result = true; }
+        if (GAdaptorT<num_type>::modify_GUnitTests_()) { result = true; }
 
         // A relatively harmless change
         sigmaSigma1_ *= 1.1;
@@ -918,13 +899,13 @@ public:
     /**
      * Performs self tests that are expected to succeed. This is needed for testing purposes
      */
-    void specificTestsNoFailureExpected_GUnitTests() override {
+    void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         using boost::unit_test_framework::test_suite;
         using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
-        GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests();
+        GAdaptorT<num_type>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GNumBiGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -935,19 +916,35 @@ public:
     /**
      * Performs self tests that are expected to fail. This is needed for testing purposes
      */
-    void specificTestsFailuresExpected_GUnitTests() override {
+    void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         using boost::unit_test_framework::test_suite;
         using boost::unit_test_framework::test_case;
 
         // Call the parent classes' functions
-        GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests();
+        GAdaptorT<num_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GNumBiGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
     }
 
+private:
+    /***********************************************************************************/
+    /** @brief Retrieves the id of the adaptor */
+    Gem::Geneva::adaptorId getAdaptorId_() const override = 0;
+
+    /***************************************************************************/
+    /**
+     * Emits a name for this class / object
+     */
+    std::string name_() const override {
+        return std::string("GNumBiGaussAdaptorT");
+    }
+
+    /***************************************************************************/
+    /** @brief This function creates a deep copy of this object */
+    GObject *clone_() const override = 0;
 };
 
 /******************************************************************************/

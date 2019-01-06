@@ -99,7 +99,6 @@ template<
 >
 class GPtrVectorT
 {
-
 	///////////////////////////////////////////////////////////////////////
 	friend class boost::serialization::access;
 
@@ -969,18 +968,15 @@ public:
 	};
 
 protected:
-	std::vector<std::shared_ptr<T>> m_data_cnt;
-
-public:
 	/** @brief Applies modifications to this object. This is needed for testing purposes */
 	// Note to self: changes to GStdPtrVectorInterface should be minimal and not involve objects pointed to
-	virtual bool modify_GUnitTests() BASE { /* nothing here yet */ return false; }
-
+	virtual bool modify_GUnitTests_() BASE { /* nothing here yet */ return false; }
 	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	virtual void specificTestsNoFailureExpected_GUnitTests() BASE { /* nothing here yet */ }
-
+	virtual void specificTestsNoFailureExpected_GUnitTests_() BASE { /* nothing here yet */ }
 	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	virtual void specificTestsFailuresExpected_GUnitTests() BASE { /* nothing here yet */ }
+	virtual void specificTestsFailuresExpected_GUnitTests_() BASE { /* nothing here yet */ }
+
+	std::vector<std::shared_ptr<T>> m_data_cnt;
 };
 
 /******************************************************************************/

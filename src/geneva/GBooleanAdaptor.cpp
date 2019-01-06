@@ -166,7 +166,7 @@ Gem::Geneva::adaptorId GBooleanAdaptor::getAdaptorId_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GBooleanAdaptor::modify_GUnitTests() {
+bool GBooleanAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -174,7 +174,7 @@ bool GBooleanAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GAdaptorT<bool>::modify_GUnitTests()) result = true;
+	if (GAdaptorT<bool>::modify_GUnitTests_()) result = true;
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -187,13 +187,13 @@ bool GBooleanAdaptor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GAdaptorT<bool>::specificTestsNoFailureExpected_GUnitTests();
+	GAdaptorT<bool>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 
@@ -257,13 +257,13 @@ void GBooleanAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests() {
+void GBooleanAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GAdaptorT<bool>::specificTestsFailuresExpected_GUnitTests();
+	GAdaptorT<bool>::specificTestsFailuresExpected_GUnitTests_();
 
 	// no local data - nothing to test
 

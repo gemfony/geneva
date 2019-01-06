@@ -1898,7 +1898,7 @@ void GParameterSet::setAllFitnessTo(double val) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GParameterSet::modify_GUnitTests() {
+bool GParameterSet::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -1906,8 +1906,8 @@ bool GParameterSet::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GObject::modify_GUnitTests()) result = true;
-	if(Gem::Common::GPtrVectorT<GParameterBase, GObject>::modify_GUnitTests()) result = true;
+	if (GObject::modify_GUnitTests_()) result = true;
+	if(Gem::Common::GPtrVectorT<GParameterBase, GObject>::modify_GUnitTests_()) result = true;
 
 	for(const auto& o_ptr: *this) {
 		if(o_ptr->modify_GUnitTests()) result = true;
@@ -1933,15 +1933,15 @@ bool GParameterSet::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
+void GParameterSet::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	// Access to uniformly distributed double random numbers
 	std::uniform_real_distribution<double> uniform_real_distribution;
 
 	// Call the parent class'es function
-	GObject::specificTestsNoFailureExpected_GUnitTests();
-	Gem::Common::GPtrVectorT<GParameterBase, GObject>::specificTestsNoFailureExpected_GUnitTests();
+	GObject::specificTestsNoFailureExpected_GUnitTests_();
+	Gem::Common::GPtrVectorT<GParameterBase, GObject>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 
@@ -2663,14 +2663,14 @@ void GParameterSet::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GParameterSet::specificTestsFailuresExpected_GUnitTests() {
+void GParameterSet::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GObject::specificTestsFailuresExpected_GUnitTests();
-	Gem::Common::GPtrVectorT<GParameterBase, GObject>::specificTestsFailuresExpected_GUnitTests();
+	GObject::specificTestsFailuresExpected_GUnitTests_();
+	Gem::Common::GPtrVectorT<GParameterBase, GObject>::specificTestsFailuresExpected_GUnitTests_();
 
 	// no tests here yet
 

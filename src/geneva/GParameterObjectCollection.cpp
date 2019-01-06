@@ -127,12 +127,12 @@ std::shared_ptr <Gem::Geneva::GParameterBase> GParameterObjectCollection::at(con
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GParameterObjectCollection::modify_GUnitTests() {
+bool GParameterObjectCollection::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-	this->fillWithObjects();
+	this->fillWithObjects_();
 
 	// Call the parent class'es function
-	GParameterTCollectionT<GParameterBase>::modify_GUnitTests();
+	GParameterTCollectionT<GParameterBase>::modify_GUnitTests_();
 
 	return true;
 
@@ -146,7 +146,7 @@ bool GParameterObjectCollection::modify_GUnitTests() {
 /**
  * Fills the collection with GParameterBase derivatives
  */
-void GParameterObjectCollection::fillWithObjects() {
+void GParameterObjectCollection::fillWithObjects_() {
 #ifdef GEM_TESTING
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -230,7 +230,7 @@ void GParameterObjectCollection::fillWithObjects() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Some settings
 	const double LOWERINITBOUNDARY = -10;
@@ -249,10 +249,10 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GParameterObjectCollection> p_test = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test with parameters
-		p_test->fillWithObjects();
+		p_test->fillWithObjects_();
 
 		// Run the parent class'es tests
-		p_test->GParameterTCollectionT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests();
+		p_test->GParameterTCollectionT<GParameterBase>::specificTestsNoFailureExpected_GUnitTests_();
 	}
 
 	//------------------------------------------------------------------------------
@@ -262,7 +262,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
-		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
 
 		// Load the data intp p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -296,7 +296,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
-		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
 
 		// Load the data into p_test2
 		BOOST_CHECK_NO_THROW(p_test2->load(p_test1));
@@ -343,7 +343,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
-		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
 
 		// Initialize p_test1 with a fixed value
 		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
@@ -377,7 +377,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
-		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
 
 		// Initialize p_test1 with a fixed value
 		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
@@ -411,7 +411,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
-		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
 
 		// Initialize p_test1 with a fixed value
 		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
@@ -446,7 +446,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
-		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
 
 		// Initialize p_test1 with a fixed value
 		BOOST_CHECK_NO_THROW(p_test1->fixedValueInit<double>(FIXEDVALUEINIT, activityMode::ALLPARAMETERS));
@@ -481,7 +481,7 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr<GParameterObjectCollection> p_test2 = this->clone<GParameterObjectCollection>();
 
 		// Fill p_test1 with parameters
-		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects());
+		BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_());
 		BOOST_REQUIRE(not p_test1->empty());
 
 		// Load the data intp p_test2
@@ -512,10 +512,10 @@ void GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GParameterObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+void GParameterObjectCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GParameterTCollectionT<GParameterBase>::specificTestsFailuresExpected_GUnitTests();
+	GParameterTCollectionT<GParameterBase>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GParameterObjectCollection::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");

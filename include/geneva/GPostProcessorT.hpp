@@ -201,6 +201,55 @@ protected:
 		token.evaluate();
 	}
 
+	/**************************************************************************/
+	/**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+	bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+		bool result = false;
+
+		// Call the parent classes' functions
+		if (Gem::Common::GSerializableFunctionObjectT<base_type>::modify_GUnitTests_()) { result = true; }
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GPostProcessorBaseT<base_type>::modify_GUnitTests", "GEM_TESTING");
+        return false;
+#endif /* GEM_TESTING */
+	}
+
+	/**************************************************************************/
+	/**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+	void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent classes' functions
+		Gem::Common::GSerializableFunctionObjectT<base_type>::specificTestsNoFailureExpected_GUnitTests_();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GPostProcessorBaseT<base_type>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/**************************************************************************/
+	/**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+	void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent classes' functions
+		Gem::Common::GSerializableFunctionObjectT<base_type>::specificTestsFailuresExpected_GUnitTests_();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GPostProcessorBaseT<base_type>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
 private:
 	 /**************************************************************************/
 	 /**
@@ -282,22 +331,29 @@ protected:
 	 /** @brief Loads the data of another GEvolutionaryAlgorithmPostOptimizer object */
 	 G_API_GENEVA void load_(const Gem::Common::GSerializableFunctionObjectT<GParameterSet> *cp) override;
 
-	/** @brief Allow access to this classes compare_ function */
-	friend void Gem::Common::compare_base_t<GEvolutionaryAlgorithmPostOptimizer>(
+	 /** @brief Allow access to this classes compare_ function */
+	 friend void Gem::Common::compare_base_t<GEvolutionaryAlgorithmPostOptimizer>(
 		GEvolutionaryAlgorithmPostOptimizer const &
 		, GEvolutionaryAlgorithmPostOptimizer const &
 		, Gem::Common::GToken &
-	);
+	 );
 
-	/** @brief Checks for compliance with expectations with respect to another object of the same type */
-	G_API_GENEVA void compare_(
+	 /** @brief Checks for compliance with expectations with respect to another object of the same type */
+	 G_API_GENEVA void compare_(
 		const Gem::Common::GSerializableFunctionObjectT<GParameterSet> &cp
 		, const Gem::Common::expectation &e
 		, const double &limit
-	) const override;
+	 ) const override;
 
-	/** @brief The actual post-processing takes place here (no further checks) */
+	 /** @brief The actual post-processing takes place here (no further checks) */
 	 G_API_GENEVA bool raw_processing_(GParameterSet& p) override;
+
+	 /** @brief Applies modifications to this object. This is needed for testing purposes */
+	 G_API_GENEVA bool modify_GUnitTests_() override;
+	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
 	 /** @brief Returns the name of this class */

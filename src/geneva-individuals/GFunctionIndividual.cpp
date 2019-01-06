@@ -568,6 +568,77 @@ GObject *GFunctionIndividual::clone_() const {
 
 /******************************************************************************/
 /**
+ * Applies modifications to this object. This is needed for testing purposes
+ *
+ * @return A boolean which indicates whether modifications were made
+ */
+bool GFunctionIndividual::modify_GUnitTests_() {
+#ifdef GEM_TESTING
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	bool result = false;
+
+	// Call the parent classes' functions
+	if (Gem::Geneva::GParameterSet::modify_GUnitTests_()) result = true;
+
+	// Change the parameter settings
+	result = true;
+
+	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GFunctionIndividual::modify_GUnitTests", "GEM_TESTING");
+return false;
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+	using namespace Gem::Geneva;
+
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	// Call the parent classes' functions
+	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
+
+	//------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GFunctionIndividual::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GFunctionIndividual::specificTestsFailuresExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+	using namespace Gem::Geneva;
+
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	// Call the parent classes' functions
+	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
+
+	//------------------------------------------------------------------------------
+	//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GFunctionIndividual::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
  * The actual value calculation takes place here
  *
  * @param The id of the target function (ignored here)

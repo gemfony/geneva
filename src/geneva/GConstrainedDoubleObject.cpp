@@ -330,7 +330,7 @@ void GConstrainedDoubleObject::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GConstrainedDoubleObject::modify_GUnitTests() {
+bool GConstrainedDoubleObject::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -338,7 +338,7 @@ bool GConstrainedDoubleObject::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GConstrainedFPT<double>::modify_GUnitTests()) result = true;
+	if (GConstrainedFPT<double>::modify_GUnitTests_()) result = true;
 
 	this->randomInit(activityMode::ALLPARAMETERS, gr);
 	result = true;
@@ -355,7 +355,7 @@ bool GConstrainedDoubleObject::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
+void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Some general settings
 	const double testVal = 42.;
@@ -380,7 +380,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
-	GConstrainedFPT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GConstrainedFPT<double>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 
@@ -459,7 +459,7 @@ void GConstrainedDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
+void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
@@ -476,7 +476,7 @@ void GConstrainedDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
-	GConstrainedFPT<double>::specificTestsFailuresExpected_GUnitTests();
+	GConstrainedFPT<double>::specificTestsFailuresExpected_GUnitTests_();
 
 	// Remove the test adaptor
 	this->resetAdaptor();

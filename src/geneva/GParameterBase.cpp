@@ -1052,12 +1052,12 @@ bool GParameterBase::randomInitializationBlocked() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GParameterBase::modify_GUnitTests() {
+bool GParameterBase::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GObject::modify_GUnitTests()) result = true;
+	if (GObject::modify_GUnitTests_()) result = true;
 
 	return result;
 
@@ -1071,10 +1071,10 @@ bool GParameterBase::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
+void GParameterBase::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GObject::specificTestsNoFailureExpected_GUnitTests();
+	GObject::specificTestsNoFailureExpected_GUnitTests_();
 
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -1212,10 +1212,10 @@ void GParameterBase::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GParameterBase::specificTestsFailuresExpected_GUnitTests() {
+void GParameterBase::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GObject::specificTestsFailuresExpected_GUnitTests();
+	GObject::specificTestsFailuresExpected_GUnitTests_();
 
 	//---------------------------------------------------------------------------
 

@@ -62,7 +62,7 @@ namespace Geneva {
  */
 template <typename int_type>
 class GIntGaussAdaptorT
-	:public GNumGaussAdaptorT<int_type, double>
+	: public GNumGaussAdaptorT<int_type, double>
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -244,6 +244,60 @@ protected:
 	  * ----------------------------------------------------------------------------------
 	  */
 
+	/***************************************************************************/
+	/**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+	bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+		bool result = false;
+
+		// Call the parent class'es function
+		if(GNumGaussAdaptorT<int_type, double>::modify_GUnitTests_()) result = true;
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GIntGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+	void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent class'es function
+		GNumGaussAdaptorT<int_type, double>::specificTestsNoFailureExpected_GUnitTests_();
+
+		//------------------------------------------------------------------------------
+		// nothing yet
+		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+	void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent class'es function
+		GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests_();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+
 private:
 	/***************************************************************************/
 	/** @brief Retrieves the id of this adaptor */
@@ -260,61 +314,6 @@ private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. */
 	 GObject* clone_() const override = 0;
-
-public:
-	 /***************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  *
-	  * @return A boolean which indicates whether modifications were made
-	  */
-	 bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 bool result = false;
-
-		 // Call the parent class'es function
-		 if(GNumGaussAdaptorT<int_type, double>::modify_GUnitTests()) result = true;
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GIntGaussAdaptorT<>::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent class'es function
-		 GNumGaussAdaptorT<int_type, double>::specificTestsNoFailureExpected_GUnitTests();
-
-		 //------------------------------------------------------------------------------
-		 // nothing yet
-		 //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent class'es function
-		 GNumGaussAdaptorT<int_type, double>::specificTestsFailuresExpected_GUnitTests();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GIntGaussAdaptorT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
 };
 
 

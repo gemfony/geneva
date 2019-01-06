@@ -182,6 +182,13 @@ protected:
     /** @brief Adds local configuration options to a GParserBuilder object */
     G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &) override;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
@@ -192,17 +199,6 @@ private:
     // Needed to allow interruption of the optimization run without loss of data
     // Npte that "volatile" is needed in order for the signal handler to work
     static volatile G_API_GENEVA std::sig_atomic_t GenevaSigHupSent;  // Initialized in GObject.cpp
-
-public:
-    /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests() override;
-
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

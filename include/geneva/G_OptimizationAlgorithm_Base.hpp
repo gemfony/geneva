@@ -17,7 +17,6 @@
  * and http://scc.kit.edu .
  *
  * Geneva is free software: you can redistribute and/or modify it under
- * Geneva is free software: you can redistribute and/or modify it under
  * the terms of version 3 of the GNU Affero General Public License
  * as published by the Free Software Foundation.
  *
@@ -145,6 +144,14 @@ protected:
         , const double &limit
     ) const override;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes
+ */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
     /***************************************************************************/
     // Data
 
@@ -153,19 +160,6 @@ protected:
 private:
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override = 0;
-
-public:
-    /************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes
-     */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-    /************************************************************************/
 };
 
 /******************************************************************************/
@@ -533,6 +527,13 @@ protected:
     /** @brief Finalization code to be run after the optimization cycle */
     virtual G_API_GENEVA void finalize() BASE;
 
+    /** @brief Applies modifications to this object */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
     /***************************************************************************/
 
     /** @brief Delegation of work to be performed to the private executor object */
@@ -730,18 +731,6 @@ private:
         = execMode::BROKER; ///< The default execution mode. Unless explicitöy requested by the user, we always go through the broker
     std::string m_default_executor_config
         = "./config/GBrokerExecutor.json"; ///< The default configuration file for the broker executor
-
-public:
-    /***************************************************************************/
-
-    /** @brief Applies modifications to this object */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-
-    /***************************************************************************/
 };
 
 /*******************************************************************************/

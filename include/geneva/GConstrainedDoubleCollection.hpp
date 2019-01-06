@@ -137,6 +137,13 @@ protected:
 	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
 	 G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
+	 /** @brief Applies modifications to this object */
+	 G_API_GENEVA bool modify_GUnitTests_() override;
+	 /** @brief Performs self tests that are expected to succeed */
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+	 /** @brief Performs self tests that are expected to fail */
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
 	 /***************************************************************************/
 	 /** @brief The default constructor. Intentionally protected	 */
 	 G_API_GENEVA GConstrainedDoubleCollection() = default;
@@ -146,16 +153,6 @@ private:
 	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
 	 G_API_GENEVA GObject* clone_() const override;
-
-public:
-	 /***************************************************************************/
-	 /** @brief Applies modifications to this object */
-	 G_API_GENEVA bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed */
-	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail */
-	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
-	 /***************************************************************************/
 };
 
 /******************************************************************************/

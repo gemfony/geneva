@@ -159,7 +159,7 @@ GObject* GStandardMonitor::clone_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GStandardMonitor::modify_GUnitTests() {
+bool GStandardMonitor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -167,7 +167,7 @@ bool GStandardMonitor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(GBasePluggableOM::modify_GUnitTests()) {
+	if(GBasePluggableOM::modify_GUnitTests_()) {
 		result = true;
 	}
 
@@ -185,13 +185,13 @@ bool GStandardMonitor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests() {
+void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GStandardMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -201,13 +201,13 @@ void GStandardMonitor::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GStandardMonitor::specificTestsFailuresExpected_GUnitTests() {
+void GStandardMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GStandardMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -531,7 +531,7 @@ GObject* GFitnessMonitor::clone_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GFitnessMonitor::modify_GUnitTests() {
+bool GFitnessMonitor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -539,7 +539,7 @@ bool GFitnessMonitor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(GBasePluggableOM::modify_GUnitTests()) {
+	if(GBasePluggableOM::modify_GUnitTests_()) {
 		result = true;
 	}
 
@@ -557,13 +557,13 @@ bool GFitnessMonitor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests() {
+void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -573,13 +573,13 @@ void GFitnessMonitor::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests() {
+void GFitnessMonitor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GFitnessMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -715,7 +715,7 @@ GObject* GCollectiveMonitor::clone_() const  {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GCollectiveMonitor::modify_GUnitTests()  {
+bool GCollectiveMonitor::modify_GUnitTests_()  {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -723,7 +723,7 @@ bool GCollectiveMonitor::modify_GUnitTests()  {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(GBasePluggableOM::modify_GUnitTests()) {
+	if(GBasePluggableOM::modify_GUnitTests_()) {
 		result = true;
 	}
 
@@ -741,13 +741,13 @@ bool GCollectiveMonitor::modify_GUnitTests()  {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests()  {
+void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests_()  {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -757,13 +757,13 @@ void GCollectiveMonitor::specificTestsNoFailureExpected_GUnitTests()  {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests()  {
+void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_()  {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -1114,7 +1114,7 @@ void GAllSolutionFileLogger::printPopulation(
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GAllSolutionFileLogger::modify_GUnitTests() {
+bool GAllSolutionFileLogger::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -1122,7 +1122,7 @@ bool GAllSolutionFileLogger::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(GBasePluggableOM::modify_GUnitTests()) {
+	if(GBasePluggableOM::modify_GUnitTests_()) {
 		result = true;
 	}
 
@@ -1140,13 +1140,13 @@ bool GAllSolutionFileLogger::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests() {
+void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1156,13 +1156,13 @@ void GAllSolutionFileLogger::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests() {
+void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -1363,7 +1363,7 @@ GObject* GIterationResultsFileLogger::clone_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GIterationResultsFileLogger::modify_GUnitTests() {
+bool GIterationResultsFileLogger::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -1371,7 +1371,7 @@ bool GIterationResultsFileLogger::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(GBasePluggableOM::modify_GUnitTests()) {
+	if(GBasePluggableOM::modify_GUnitTests_()) {
 		result = true;
 	}
 
@@ -1389,13 +1389,13 @@ bool GIterationResultsFileLogger::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests() {
+void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1405,13 +1405,13 @@ void GIterationResultsFileLogger::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests() {
+void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -1738,7 +1738,7 @@ GObject* GNAdpationsLogger::clone_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GNAdpationsLogger::modify_GUnitTests() {
+bool GNAdpationsLogger::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -1746,7 +1746,7 @@ bool GNAdpationsLogger::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(GBasePluggableOM::modify_GUnitTests()) {
+	if(GBasePluggableOM::modify_GUnitTests_()) {
 		result = true;
 	}
 
@@ -1764,13 +1764,13 @@ bool GNAdpationsLogger::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests() {
+void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -1780,13 +1780,13 @@ void GNAdpationsLogger::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests() {
+void GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GNAdpationsLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -2274,7 +2274,7 @@ GObject* GProcessingTimesLogger::clone_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GProcessingTimesLogger::modify_GUnitTests() {
+bool GProcessingTimesLogger::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -2282,7 +2282,7 @@ bool GProcessingTimesLogger::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(GBasePluggableOM::modify_GUnitTests()) {
+	if(GBasePluggableOM::modify_GUnitTests_()) {
 		result = true;
 	}
 
@@ -2300,13 +2300,13 @@ bool GProcessingTimesLogger::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests() {
+void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+	GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -2316,13 +2316,13 @@ void GProcessingTimesLogger::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests() {
+void GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+	GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

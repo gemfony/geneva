@@ -127,6 +127,13 @@ protected:
 	/** @brief Does any necessary finalization work */
 	G_API_GENEVA void finalize() override;
 
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	G_API_GENEVA bool modify_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
 	/***************************************************************************/
 
 private:
@@ -158,15 +165,6 @@ private:
 
  	 /** @brief Resizes the population to the desired level and does some error checks */
 	 G_API_GENEVA void adjustPopulation_() override;
-
-public
-	 /***************************************************************************/:
-	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 G_API_GENEVA bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

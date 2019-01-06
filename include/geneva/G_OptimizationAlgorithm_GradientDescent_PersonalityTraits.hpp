@@ -64,7 +64,7 @@ class GGradientDescent_PersonalityTraits :
 
         ar
         & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-        & BOOST_SERIALIZATION_NVP(popPos_);
+        & BOOST_SERIALIZATION_NVP(m_popPos);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -89,6 +89,9 @@ public:
     G_API_GENEVA std::string getMnemonic() const override;
 
 protected:
+    /***************************************************************************/
+    // Virtual or overridden protected functions
+
     /** @brief Loads the data of another GGDPersonalityTraits object */
     G_API_GENEVA void load_(const GObject *) override;
 
@@ -106,6 +109,14 @@ protected:
         , const double & // the limit for allowed deviations of floating point types
     ) const override;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
+    /***************************************************************************/
 
 private:
     /** @brief Emits a name for this class / object */
@@ -114,15 +125,7 @@ private:
     G_API_GENEVA GObject *clone_() const override;
 
     /** @brief Stores the current position in the population */
-    std::size_t popPos_ = 0;
-
-public:
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+    std::size_t m_popPos = 0;
 };
 
 /******************************************************************************/

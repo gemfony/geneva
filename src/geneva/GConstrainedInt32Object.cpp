@@ -346,12 +346,12 @@ bool GConstrainedInt32Object::randomInit_(
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GConstrainedInt32Object::modify_GUnitTests() {
+bool GConstrainedInt32Object::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GConstrainedIntT<std::int32_t>::modify_GUnitTests()) result = true;
+	if (GConstrainedIntT<std::int32_t>::modify_GUnitTests_()) result = true;
 
 	if(this->value() == this->getLowerBoundary()) {
 		this->setValue(this->getLowerBoundary() + 1);
@@ -372,7 +372,7 @@ bool GConstrainedInt32Object::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
+void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
@@ -389,7 +389,7 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GConstrainedIntT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GConstrainedIntT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// Remove the test adaptor
 	this->resetAdaptor();
@@ -408,7 +408,7 @@ void GConstrainedInt32Object::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
+void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
@@ -425,7 +425,7 @@ void GConstrainedInt32Object::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(giga_ptr);
 
 	// Call the parent class'es function
-	GConstrainedIntT<std::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GConstrainedIntT<std::int32_t>::specificTestsFailuresExpected_GUnitTests_();
 
 	// Remove the test adaptor
 	this->resetAdaptor();

@@ -147,7 +147,7 @@ double GTestIndividual1::fitnessCalculation() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GTestIndividual1::modify_GUnitTests() {
+bool GTestIndividual1::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -155,7 +155,7 @@ bool GTestIndividual1::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if (Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
+	if (Gem::Geneva::GParameterSet::modify_GUnitTests_()) result = true;
 
 	// Change the parameter settings
 	this->adapt();
@@ -173,7 +173,7 @@ bool GTestIndividual1::modify_GUnitTests() {
  *
  * @param nItems The number of items to be added
  */
-void GTestIndividual1::addGDoubleObjects(const std::size_t &nItems) {
+void GTestIndividual1::addGDoubleObjects_(const std::size_t &nItems) {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
@@ -213,7 +213,7 @@ void GTestIndividual1::addGDoubleObjects(const std::size_t &nItems) {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
+void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
@@ -224,7 +224,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 
@@ -508,7 +508,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Initialize with a fixed value
 		BOOST_CHECK_NO_THROW(p_test->fixedValueInit<double>(42., activityMode::ALLPARAMETERS));
@@ -553,7 +553,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Check the current size
 		BOOST_CHECK(p_test->size() == nItems);
@@ -627,7 +627,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Check the current size
 		BOOST_CHECK(p_test->size() == nItems);
@@ -657,7 +657,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Check the current size
 		BOOST_CHECK(p_test->size() == nItems);
@@ -769,7 +769,7 @@ void GTestIndividual1::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
+void GTestIndividual1::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
@@ -780,7 +780,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
+	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 
@@ -802,7 +802,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Try to count the number of occurrences of an empty smart pointer. Should throw
 		BOOST_CHECK_THROW(p_test->count(std::shared_ptr<GDoubleObject>()), gemfony_exception);
@@ -814,7 +814,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Try to find an empty smart pointer. Should throw
 		BOOST_CHECK_THROW(p_test->find(std::shared_ptr<GDoubleObject>()), gemfony_exception);
@@ -826,7 +826,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Try to insert an empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), std::shared_ptr<GDoubleObject>()),
@@ -839,7 +839,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Try to insert a number of empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_noclone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()),
@@ -852,7 +852,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Try to insert a number of empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), std::shared_ptr<GDoubleObject>()),
@@ -865,7 +865,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Try to insert a number of empty smart pointers. Should throw
 		BOOST_CHECK_THROW(p_test->insert_clone(p_test->begin(), 10, std::shared_ptr<GDoubleObject>()),
@@ -878,7 +878,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Try to attach an empty smart pointer Should throw
 		BOOST_CHECK_THROW(p_test->push_back_clone(std::shared_ptr<GDoubleObject>()),
@@ -891,7 +891,7 @@ void GTestIndividual1::specificTestsFailuresExpected_GUnitTests() {
 		std::shared_ptr <Gem::Tests::GTestIndividual1> p_test = this->clone<Gem::Tests::GTestIndividual1>();
 
 		// Add a few data items
-		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects(nItems));
+		BOOST_CHECK_NO_THROW(p_test->addGDoubleObjects_(nItems));
 
 		// Try to attach an empty smart pointer Should throw
 		BOOST_CHECK_THROW(p_test->push_back_noclone(std::shared_ptr<GDoubleObject>()),

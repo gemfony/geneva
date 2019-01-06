@@ -221,12 +221,12 @@ void GConjugateGradientDescent::adjustPopulation_() {
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GConjugateGradientDescent::modify_GUnitTests() {
+bool GConjugateGradientDescent::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
+	if (G_OptimizationAlgorithm_Base::modify_GUnitTests_()) result = true;
 
 	return result;
 #else /* GEM_TESTING */
@@ -239,10 +239,10 @@ bool GConjugateGradientDescent::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
+void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */
@@ -252,10 +252,10 @@ void GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests() {
+void GConjugateGradientDescent::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_();
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GConjugateGradientDescent::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
 #endif /* GEM_TESTING */

@@ -66,7 +66,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::compare_(
 	Gem::Common::compare_base_t<GBaseParChildPersonalityTraits>(*this, *p_load, token);
 
 	// ... and then the local data
-	compare_t(IDENTITY(isOnParetoFront_, p_load->isOnParetoFront_), token);
+	compare_t(IDENTITY(m_isOnParetoFront, p_load->m_isOnParetoFront), token);
 
 	// React on deviations from the expectation
 	token.evaluate();
@@ -112,7 +112,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GObject *cp) {
 	GBaseParChildPersonalityTraits::load_(cp);
 
 	// Then load our local data
-	isOnParetoFront_ = p_load->isOnParetoFront_;
+	m_isOnParetoFront = p_load->m_isOnParetoFront;
 }
 
 /******************************************************************************/
@@ -123,7 +123,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::load_(const GObject *cp) {
  * @return A boolean indicating whether this object lies on the current pareto front
  */
 bool GEvolutionaryAlgorithm_PersonalityTraits::isOnParetoFront() const {
-	return isOnParetoFront_;
+	return m_isOnParetoFront;
 }
 
 /******************************************************************************/
@@ -131,7 +131,7 @@ bool GEvolutionaryAlgorithm_PersonalityTraits::isOnParetoFront() const {
  * Allows to reset the pareto tag to "true"
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::resetParetoTag() {
-	isOnParetoFront_ = true;
+	m_isOnParetoFront = true;
 }
 
 /******************************************************************************/
@@ -140,7 +140,7 @@ void GEvolutionaryAlgorithm_PersonalityTraits::resetParetoTag() {
  * of the current iteration
  */
 void GEvolutionaryAlgorithm_PersonalityTraits::setIsNotOnParetoFront() {
-	isOnParetoFront_ = false;
+	m_isOnParetoFront = false;
 }
 
 /******************************************************************************/
@@ -149,12 +149,12 @@ void GEvolutionaryAlgorithm_PersonalityTraits::setIsNotOnParetoFront() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GEvolutionaryAlgorithm_PersonalityTraits::modify_GUnitTests() {
+bool GEvolutionaryAlgorithm_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GBaseParChildPersonalityTraits::modify_GUnitTests()) result = true;
+	if (GBaseParChildPersonalityTraits::modify_GUnitTests_()) result = true;
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -167,13 +167,13 @@ bool GEvolutionaryAlgorithm_PersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 	// --------------------------------------------------------------------------
@@ -187,13 +187,13 @@ void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsNoFailureExpected_GU
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void GEvolutionaryAlgorithm_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 	// --------------------------------------------------------------------------

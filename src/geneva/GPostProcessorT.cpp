@@ -50,8 +50,8 @@ GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer(
 	execMode executionMode
 	, const std::string& oa_configFile
 	, const std::string& executor_configFile
-) :
-	GPostProcessorBaseT<GParameterSet>()
+)
+	: GPostProcessorBaseT<GParameterSet>()
 	, m_oa_configFile(oa_configFile)
 	, m_executor_configFile(executor_configFile)
 	, m_executionMode((executionMode == execMode::SERIAL || executionMode == execMode::MULTITHREADED) ? executionMode : execMode::SERIAL)
@@ -271,6 +271,58 @@ bool GEvolutionaryAlgorithmPostOptimizer::raw_processing_(GParameterSet &p) {
  */
 GEvolutionaryAlgorithmPostOptimizer::GEvolutionaryAlgorithmPostOptimizer()
 { /* nothing */ }
+
+
+/******************************************************************************/
+/**
+ * Applies modifications to this object. This is needed for testing purposes
+ */
+bool GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests_() {
+#ifdef GEM_TESTING
+	bool result = false;
+
+	// Call the parent class'es function
+	if (GPostProcessorBaseT<GParameterSet>::modify_GUnitTests_()) result = true;
+
+	return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GEvolutionaryAlgorithmPostOptimizer::modify_GUnitTests", "GEM_TESTING");
+    return false;
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to succeed. This is needed for testing purposes
+ */
+void GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+	// Call the parent class'es function
+	GPostProcessorBaseT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
+
+	//---------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GEvolutionaryAlgorithmPostOptimizer::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
+
+/******************************************************************************/
+/**
+ * Performs self tests that are expected to fail. This is needed for testing purposes
+ */
+void GEvolutionaryAlgorithmPostOptimizer::specificTestsFailuresExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+	// Call the parent class'es function
+	GPostProcessorBaseT<GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
+
+	//---------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GEvolutionaryAlgorithmPostOptimizer::specificTestsFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

@@ -664,6 +664,13 @@ protected:
         , Gem::Hap::GRandomBase &
     ) BASE = 0;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
@@ -690,15 +697,6 @@ private:
     bool m_adaptionsActive = true; ///< Specifies whether adaptions of this object should be carried out
     bool m_randomInitializationBlocked = false; ///< Specifies that this object should not be initialized again
     std::string m_parameterName = Gem::Common::to_string(boost::uuids::random_generator()()); ///< A name assigned to this parameter object
-
-public:
-    /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests() override;
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

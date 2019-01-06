@@ -119,22 +119,22 @@ protected:
 	/** @brief The actual fitness calculation takes place here. */
 	G_API_GENEVA double fitnessCalculation() final;
 
-private:
-	/** @brief Creates a deep clone of this object */
-	G_API_GENEVA GObject* clone_() const final;
-
-public:
 	// Note: The following functions are, in the context of GTestIndividual1,
 	// designed to mainly test parent classes
 
 	/** @brief Applies modifications to this object. */
-	G_API_GENEVA bool modify_GUnitTests() override;
-	/** @brief Adds a number of GDoubleObject objects to the individual */
-	void G_API_GENEVA addGDoubleObjects(const std::size_t&);
+	G_API_GENEVA bool modify_GUnitTests_() override;
 	/** @brief Performs self tests that are expected to succeed. */
-	G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
+	G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
 	/** @brief Performs self tests that are expected to fail. */
-	G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
+private:
+	/** @brief Creates a deep clone of this object */
+	G_API_GENEVA GObject* clone_() const final;
+
+	/** @brief Adds a number of GDoubleObject objects to the individual */
+	void G_API_GENEVA addGDoubleObjects_(const std::size_t&);
 };
 
 /******************************************************************************/

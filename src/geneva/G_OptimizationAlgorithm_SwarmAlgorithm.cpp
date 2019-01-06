@@ -1743,12 +1743,12 @@ std::size_t GSwarmAlgorithm::getNProcessableItems_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GSwarmAlgorithm::modify_GUnitTests() {
+bool GSwarmAlgorithm::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (G_OptimizationAlgorithm_Base::modify_GUnitTests()) result = true;
+	if (G_OptimizationAlgorithm_Base::modify_GUnitTests_()) result = true;
 
 	return result;
 
@@ -1762,10 +1762,10 @@ bool GSwarmAlgorithm::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
+void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -1776,10 +1776,10 @@ void GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests() {
+void GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

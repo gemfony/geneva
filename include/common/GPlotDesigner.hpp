@@ -1464,12 +1464,18 @@ protected:
     /** @brief Retrieve the current drawing arguments */
     virtual G_API_COMMON std::string drawingArguments(bool) const BASE = 0;
 
-    /***************************************************************************/
     /** @brief Check that a given plotter is compatible with us */
     virtual G_API_COMMON bool isCompatible(std::shared_ptr<GBasePlotter>) const BASE;
 
     /** @brief calculate a suffix from id and parent ids */
     G_API_COMMON std::string suffix(bool, std::size_t) const;
+
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_GENEVA bool modify_GUnitTests_() override { return false; }
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
 
     /***************************************************************************/
 
@@ -1496,17 +1502,6 @@ private:
     std::vector<std::shared_ptr<GBasePlotter>> m_secondaryPlotter = std::vector<std::shared_ptr<GBasePlotter>>();
 
     std::size_t m_id = 0; ///< The id of this object
-
-public:
-    /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_GENEVA bool modify_GUnitTests() override { return false; }
-
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override { /* nothing */ };
-
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override { /* nothing */ };
 };
 
 /******************************************************************************/
@@ -4514,6 +4509,13 @@ protected:
         , const double & // the limit for allowed deviations of floating point types
     ) const override;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    G_API_COMMON bool modify_GUnitTests_() override { return false; }
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    G_API_COMMON void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    G_API_COMMON void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
+
 private:
     /** @brief The default constructor -- only needed for (de-)serialization */
     GPlotDesigner() = default;
@@ -4534,17 +4536,6 @@ private:
     bool m_add_print_command = false; ///< Indicates whether a print command for the creation of a png file should be added
 
     std::size_t m_n_indention_spaces = std::size_t(DEFNINDENTIONSPACES);
-
-public:
-    /***************************************************************************/
-    /** @brief Applies modifications to this object. This is needed for testing purposes */
-    G_API_COMMON bool modify_GUnitTests() override { return false; }
-
-    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-    G_API_COMMON void specificTestsNoFailureExpected_GUnitTests() override { /* nothing */ };
-
-    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-    G_API_COMMON void specificTestsFailuresExpected_GUnitTests() override { /* nothing */ };
 };
 
 /******************************************************************************/

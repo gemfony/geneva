@@ -56,8 +56,7 @@ namespace Geneva {
  */
 template<typename fp_type>
 class GNumFPT
-    :
-        public GNumT<fp_type>
+    : public GNumT<fp_type>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -263,39 +262,18 @@ protected:
         return true;
     }
 
-private:
-    /***************************************************************************/
-    /**
-     * Emits a name for this class / object
-     */
-    std::string name_() const override {
-        return std::string("GNumFPT");
-    }
-
-    /***************************************************************************/
-    /**
-     * Creates a deep copy of this object. Purely virtual as this class
-     * should not be instantiable.
-     *
-     * @return A pointer to a deep clone of this object
-     */
-    GObject *clone_() const override = 0;
-
-
-public:
-
     /***************************************************************************/
     /**
      * Applies modifications to this object. This is needed for testing purposes
      *
      * @return A boolean which indicates whether modifications were made
      */
-    bool modify_GUnitTests() override {
+    bool modify_GUnitTests_() override {
 #ifdef GEM_TESTING
         bool result = false;
 
         // Call the parent classes' functions
-        if (GNumT<fp_type>::modify_GUnitTests()) { result = true; }
+        if (GNumT<fp_type>::modify_GUnitTests_()) { result = true; }
 
         return result;
 
@@ -309,7 +287,7 @@ public:
     /**
      * Performs self tests that are expected to succeed. This is needed for testing purposes
      */
-    void specificTestsNoFailureExpected_GUnitTests() override {
+    void specificTestsNoFailureExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // A few settings
         const std::size_t nTests = 100;
@@ -321,7 +299,7 @@ public:
         const fp_type RANDUPPERBOUNDARY = 10.;
 
         // Call the parent classes' functions
-        GNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests();
+        GNumT<fp_type>::specificTestsNoFailureExpected_GUnitTests_();
 
         // A random generator
         Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -337,34 +315,34 @@ public:
 
             // Initialize with a fixed value
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                boost::numeric_cast<fp_type>(
-                    2. * UPPERINITBOUNDARY
-                )
-                , activityMode::ALLPARAMETERS
+                    boost::numeric_cast<fp_type>(
+                            2. * UPPERINITBOUNDARY
+                    )
+                    , activityMode::ALLPARAMETERS
             )); // Make sure the parameters indeed change
 
             // Check that the value has indeed been set.
             BOOST_CHECK_MESSAGE(
-                fabs(p_test1->value() - fp_type(2. * UPPERINITBOUNDARY)) < pow(
+                    fabs(p_test1->value() - fp_type(2. * UPPERINITBOUNDARY)) < pow(
+                            10.
+                            , -6
+                    )
+            , "\n"
+                            << std::setprecision(10)
+                            << "p_test1->value() = " << p_test1->value() << "\n"
+                            << "2.*UPPERINITBOUNDARY = " << 2. * UPPERINITBOUNDARY << "\n"
+                            << "fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) = " << fabs(p_test1->value() - 2. * UPPERINITBOUNDARY)
+                            << "\n"
+                            << "pow(10., -8) = " << pow(
                     10.
-                    , -6
-                )
-                , "\n"
-                << std::setprecision(10)
-                << "p_test1->value() = " << p_test1->value() << "\n"
-                << "2.*UPPERINITBOUNDARY = " << 2. * UPPERINITBOUNDARY << "\n"
-                << "fabs(p_test1->value() - 2.*UPPERINITBOUNDARY) = " << fabs(p_test1->value() - 2. * UPPERINITBOUNDARY)
-                << "\n"
-                << "pow(10., -8) = " << pow(
-                10.
-                , -8
+                    , -8
             ) << "\n"
             );
 
             // Set initialization boundaries
             BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(
-                LOWERINITBOUNDARY
-                , UPPERINITBOUNDARY
+                    LOWERINITBOUNDARY
+                    , UPPERINITBOUNDARY
             ));
 
             // Cross-check the boundaries
@@ -380,8 +358,8 @@ public:
 
                 // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
                 BOOST_CHECK_NO_THROW(p_test2->randomInit_(
-                    activityMode::ALLPARAMETERS
-                    , gr
+                        activityMode::ALLPARAMETERS
+                        , gr
                 ));
 
                 // Check that the object has indeed changed
@@ -401,8 +379,8 @@ public:
 
             // Initialize with a fixed value
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                FIXEDVALUEINIT
-                , activityMode::ALLPARAMETERS
+                    FIXEDVALUEINIT
+                    , activityMode::ALLPARAMETERS
             ));
 
             // Check that this value has been set
@@ -410,14 +388,14 @@ public:
 
             // Set initialization boundaries
             BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(
-                LOWERINITBOUNDARY
-                , UPPERINITBOUNDARY
+                    LOWERINITBOUNDARY
+                    , UPPERINITBOUNDARY
             ));
 
             // Randomly initialize one of the two objects. Note: we are using the protected function rather than the "global" function
             BOOST_CHECK_NO_THROW(p_test1->randomInit_(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
 
             // Load the data into p_test2 and check that both objects are equal
@@ -426,8 +404,8 @@ public:
 
             // Multiply p_test1 with a fixed value
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyBy<fp_type>(
-                MULTVALUE
-                , activityMode::ALLPARAMETERS
+                    MULTVALUE
+                    , activityMode::ALLPARAMETERS
             ));
 
             // Check that the multiplication has succeeded
@@ -441,8 +419,8 @@ public:
 
             // Initialize with a fixed value
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                1.
-                , activityMode::ALLPARAMETERS
+                    1.
+                    , activityMode::ALLPARAMETERS
             )); // 1. chosen so we see the multiplication value of the random number generator
 
             // Check that this value has been set
@@ -450,10 +428,10 @@ public:
 
             // Multiply with random values in a given range
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(
-                RANDLOWERBOUNDARY
-                , RANDUPPERBOUNDARY
-                , activityMode::ALLPARAMETERS
-                , gr
+                    RANDLOWERBOUNDARY
+                    , RANDUPPERBOUNDARY
+                    , activityMode::ALLPARAMETERS
+                    , gr
             ));
 
             // Check that all values are in the allowed range
@@ -468,8 +446,8 @@ public:
 
             // Initialize with a fixed value
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                1.
-                , activityMode::ALLPARAMETERS
+                    1.
+                    , activityMode::ALLPARAMETERS
             )); // 1. chosen so we see the multiplication value of the random number generator
 
             // Check that this value has been set
@@ -477,8 +455,8 @@ public:
 
             // Multiply with random values in a given range
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template multiplyByRandom<fp_type>(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
 
             // Check that all values are in the allowed range
@@ -495,15 +473,15 @@ public:
 
             // Initialize with a fixed value
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                0.
-                , activityMode::ALLPARAMETERS
+                    0.
+                    , activityMode::ALLPARAMETERS
             ));
             BOOST_CHECK(p_test1->value() == 0.);
 
             // Set initialization boundaries
             BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(
-                LOWERINITBOUNDARY
-                , UPPERINITBOUNDARY
+                    LOWERINITBOUNDARY
+                    , UPPERINITBOUNDARY
             ));
 
             // Load the data of p_test_1 into p_test2
@@ -511,12 +489,12 @@ public:
 
             // Randomly initialize p_test1 and p_test2, so that both objects are different
             BOOST_CHECK_NO_THROW(p_test1->randomInit_(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
             BOOST_CHECK_NO_THROW(p_test2->randomInit_(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
 
             // Check that they are indeed different
@@ -527,8 +505,8 @@ public:
 
             // Add p_test1 to p_test3
             BOOST_CHECK_NO_THROW(p_test3->GParameterBase::template add<fp_type>(
-                p_test1
-                , activityMode::ALLPARAMETERS
+                    p_test1
+                    , activityMode::ALLPARAMETERS
             ));
 
             // Cross-check that the addition has worked
@@ -544,15 +522,15 @@ public:
 
             // Initialize with a fixed value
             BOOST_CHECK_NO_THROW(p_test1->GParameterBase::template fixedValueInit<fp_type>(
-                0.
-                , activityMode::ALLPARAMETERS
+                    0.
+                    , activityMode::ALLPARAMETERS
             ));
             BOOST_CHECK(p_test1->value() == 0.);
 
             // Set initialization boundaries
             BOOST_CHECK_NO_THROW(p_test1->setInitBoundaries(
-                LOWERINITBOUNDARY
-                , UPPERINITBOUNDARY
+                    LOWERINITBOUNDARY
+                    , UPPERINITBOUNDARY
             ));
 
             // Load the data of p_test_1 into p_test2
@@ -560,12 +538,12 @@ public:
 
             // Randomly initialize p_test1 and p_test2, so that both objects are different
             BOOST_CHECK_NO_THROW(p_test1->randomInit_(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
             BOOST_CHECK_NO_THROW(p_test2->randomInit_(
-                activityMode::ALLPARAMETERS
-                , gr
+                    activityMode::ALLPARAMETERS
+                    , gr
             ));
 
             // Check that they are indeed different
@@ -576,8 +554,8 @@ public:
 
             // Subtract p_test1 from p_test3
             BOOST_CHECK_NO_THROW(p_test3->template subtract<fp_type>(
-                p_test1
-                , activityMode::ALLPARAMETERS
+                    p_test1
+                    , activityMode::ALLPARAMETERS
             ));
 
             // Cross-check that the addition has worked. Note that we do need to take into
@@ -596,10 +574,10 @@ public:
     /**
      * Performs self tests that are expected to fail. This is needed for testing purposes
      */
-    void specificTestsFailuresExpected_GUnitTests() override {
+    void specificTestsFailuresExpected_GUnitTests_() override {
 #ifdef GEM_TESTING
         // Call the parent classes' functions
-        GNumT<fp_type>::specificTestsFailuresExpected_GUnitTests();
+        GNumT<fp_type>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
         Gem::Common::condnotset("GNumFPT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -607,6 +585,24 @@ public:
     }
 
     /***************************************************************************/
+
+private:
+    /***************************************************************************/
+    /**
+     * Emits a name for this class / object
+     */
+    std::string name_() const override {
+        return std::string("GNumFPT");
+    }
+
+    /***************************************************************************/
+    /**
+     * Creates a deep copy of this object. Purely virtual as this class
+     * should not be instantiable.
+     *
+     * @return A pointer to a deep clone of this object
+     */
+    GObject *clone_() const override = 0;
 };
 
 } /* namespace Geneva */

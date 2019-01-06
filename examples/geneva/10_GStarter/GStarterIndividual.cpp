@@ -370,7 +370,7 @@ double GStarterIndividual::noisyParabola(const std::vector<double>& parVec) cons
  *
  * @return A boolean indicating whether
  */
-bool GStarterIndividual::modify_GUnitTests() {
+bool GStarterIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -378,7 +378,7 @@ bool GStarterIndividual::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if(Gem::Geneva::GParameterSet::modify_GUnitTests()) result = true;
+	if(Gem::Geneva::GParameterSet::modify_GUnitTests_()) result = true;
 
 	// Change the parameter settings
 	if(!this->empty()) {
@@ -400,7 +400,7 @@ bool GStarterIndividual::modify_GUnitTests() {
  * Performs self tests that are expected to succeed. This function is only useful
  * if you wish to run unit tests with your individual.
  */
-void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
+void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
@@ -408,7 +408,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests();
+	Gem::Geneva::GParameterSet::specificTestsNoFailureExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 
@@ -467,7 +467,7 @@ void GStarterIndividual::specificTestsNoFailureExpected_GUnitTests() {
  * Performs self tests that are expected to fail. This function is only useful
  * if you wish to run unit tests with your individual.
  */
-void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
+void GStarterIndividual::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
@@ -475,7 +475,7 @@ void GStarterIndividual::specificTestsFailuresExpected_GUnitTests() {
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests();
+	Gem::Geneva::GParameterSet::specificTestsFailuresExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 

@@ -207,18 +207,58 @@ void GParameterSetFixedSizePriorityQueue::add(
 
 /******************************************************************************/
 /** @brief Applies modifications to this object. This is needed for testing purposes */
-bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests()
-{ return false; }
+bool GParameterSetFixedSizePriorityQueue::modify_GUnitTests_() {
+#ifdef GEM_TESTING
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	bool result = false;
+
+	// Call the parent classes' functions
+	if(Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::modify_GUnitTests_()) result = true;
+
+	return result;
+
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GParameterSetFixedSizePriorityQueueT<GParameterSet>::modify_GUnitTests", "GEM_TESTING");
+	return false;
+#endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-void GParameterSetFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTests()
-{ /* nothing */ };
+void GParameterSetFixedSizePriorityQueue::specificTestsNoFailureExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	// Call the parent classes' functions
+	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests_();
+
+	//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GParameterSetFixedSizePriorityQueueT<GParameterSet>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-void GParameterSetFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTests()
-{ /* nothing */ };
+void GParameterSetFixedSizePriorityQueue::specificTestsFailuresExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+	using boost::unit_test_framework::test_suite;
+	using boost::unit_test_framework::test_case;
+
+	// Call the parent classes' functions
+	Gem::Common::GFixedSizePriorityQueueT<GParameterSet>::specificTestsFailuresExpected_GUnitTests_();
+
+	//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+	Gem::Common::condnotset("GParameterSetFixedSizePriorityQueueT<GParameterSet>::specificTestsFailuresExpected_GUnitTests_", "GEM_TESTING");
+#endif /* GEM_TESTING */
+}
 
 /******************************************************************************/
 

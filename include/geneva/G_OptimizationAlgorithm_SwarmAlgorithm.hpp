@@ -229,6 +229,13 @@ protected:
 	 /** @brief Fixes an incomplete population */
 	 virtual G_API_GENEVA void adjustNeighborhoods() BASE;
 
+	 /** @brief Applies modifications to this object. This is needed for testing purposes */
+	 G_API_GENEVA bool modify_GUnitTests_() override;
+	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
 	 /***************************************************************************/
 
 	 /** @brief Checks whether each neighborhood has the default size */
@@ -323,15 +330,6 @@ private:
 
 	 /** @brief Small helper function that helps to fill up a neighborhood, if there is just one entry in it */
 	 void fillUpNeighborhood1();
-
-public:
-	 /***************************************************************************/
-	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 G_API_GENEVA bool modify_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
 };
 
 /******************************************************************************/

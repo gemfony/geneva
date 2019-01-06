@@ -175,13 +175,13 @@ Gem::Geneva::adaptorId GInt32GaussAdaptor::getAdaptorId_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GInt32GaussAdaptor::modify_GUnitTests() {
+bool GInt32GaussAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GIntGaussAdaptorT<std::int32_t>::modify_GUnitTests()) result = true;
+	if (GIntGaussAdaptorT<std::int32_t>::modify_GUnitTests_()) result = true;
 
 	return result;
 
@@ -195,11 +195,11 @@ bool GInt32GaussAdaptor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	// Call the parent class'es function
-	GIntGaussAdaptorT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GIntGaussAdaptorT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 
@@ -224,10 +224,10 @@ void GInt32GaussAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests() {
+void GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GIntGaussAdaptorT<std::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GIntGaussAdaptorT<std::int32_t>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
    Gem::Common::condnotset("GInt32GaussAdaptor::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

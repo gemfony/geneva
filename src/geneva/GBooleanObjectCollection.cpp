@@ -149,12 +149,12 @@ void GBooleanObjectCollection::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GBooleanObjectCollection::modify_GUnitTests() {
+bool GBooleanObjectCollection::modify_GUnitTests_() {
 #ifdef GEM_TESTING
-    this->fillWithObjects(10);
+    this->fillWithObjects_(10);
 
     // Call the parent class'es function
-    GParameterTCollectionT<GBooleanObject>::modify_GUnitTests();
+    GParameterTCollectionT<GBooleanObject>::modify_GUnitTests_();
 
     return true;
 
@@ -168,7 +168,7 @@ bool GBooleanObjectCollection::modify_GUnitTests() {
 /**
  * Fills the collection with GBooleanObject objects
  */
-void GBooleanObjectCollection::fillWithObjects(const std::size_t &nAddedObjects) {
+void GBooleanObjectCollection::fillWithObjects_(const std::size_t &nAddedObjects) {
 #ifdef GEM_TESTING
     // A random generator
     Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -215,7 +215,7 @@ void GBooleanObjectCollection::fillWithObjects(const std::size_t &nAddedObjects)
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
+void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Some settings
     const std::size_t nAddedObjects = 10;
@@ -237,10 +237,10 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GBooleanObjectCollection> p_test = this->clone<GBooleanObjectCollection>();
 
         // Fill p_test with objects
-        p_test->fillWithObjects(nAddedObjects);
+        p_test->fillWithObjects_(nAddedObjects);
 
         // Call the parent's tests
-        p_test->GParameterTCollectionT<GBooleanObject>::specificTestsNoFailureExpected_GUnitTests();
+        p_test->GParameterTCollectionT<GBooleanObject>::specificTestsNoFailureExpected_GUnitTests_();
     }
 
     //----------------------------------------------------------------------------
@@ -327,7 +327,7 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
         std::shared_ptr<GBooleanObjectCollection> p_test2 = this->clone<GBooleanObjectCollection>();
 
         // Fill p_test1 with objects
-        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects(nAddedObjects));
+        BOOST_CHECK_NO_THROW(p_test1->fillWithObjects_(nAddedObjects));
 
         // Make sure it has the expected size
         BOOST_CHECK(p_test1->size() == nAddedObjects);
@@ -394,10 +394,10 @@ void GBooleanObjectCollection::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests() {
+void GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
     // Call the parent class'es function
-    GParameterTCollectionT<GBooleanObject>::specificTestsFailuresExpected_GUnitTests();
+    GParameterTCollectionT<GBooleanObject>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
     Gem::Common::condnotset("GBooleanObjectCollection::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

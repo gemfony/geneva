@@ -120,12 +120,12 @@ void GSimulatedAnnealing_PersonalityTraits::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests() {
+bool GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GBaseParChildPersonalityTraits::modify_GUnitTests()) result = true;
+	if (GBaseParChildPersonalityTraits::modify_GUnitTests_()) result = true;
 
 	return result;
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
@@ -138,13 +138,13 @@ bool GSimulatedAnnealing_PersonalityTraits::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests() {
+void GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests();
+	GBaseParChildPersonalityTraits::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 	// --------------------------------------------------------------------------
@@ -158,13 +158,13 @@ void GSimulatedAnnealing_PersonalityTraits::specificTestsNoFailureExpected_GUnit
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GSimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests() {
+void GSimulatedAnnealing_PersonalityTraits::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests();
+	GBaseParChildPersonalityTraits::specificTestsFailuresExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 	// --------------------------------------------------------------------------

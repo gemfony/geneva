@@ -242,12 +242,19 @@ protected:
 	) const final;
 
 	/** @brief The actual value calculation takes place here */
-	 virtual double fitnessCalculation() final;
+	virtual double fitnessCalculation() final;
 
-	 /***************************************************************************/
+	/** @brief Applies modifications to this object. */
+	virtual bool modify_GUnitTests_();
+	/** @brief Performs self tests that are expected to succeed. */
+	virtual void specificTestsNoFailureExpected_GUnitTests_();
+	/** @brief Performs self tests that are expected to fail. */
+	virtual void specificTestsFailuresExpected_GUnitTests_();
 
 private:
-	 targetFunction m_targetFunction = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
+	/***************************************************************************/
+
+	targetFunction m_targetFunction = GO_DEF_TARGETFUNCTION; ///< Specifies which demo function should be used
 
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
@@ -260,14 +267,6 @@ private:
 	 double noisyParabola(const std::vector<double>& parVec) const;
 
 	 /***************************************************************************/
-
-public:
-	 /** @brief Applies modifications to this object. */
-	 virtual bool modify_GUnitTests();
-	 /** @brief Performs self tests that are expected to succeed. */
-	 virtual void specificTestsNoFailureExpected_GUnitTests();
-	 /** @brief Performs self tests that are expected to fail. */
-	 virtual void specificTestsFailuresExpected_GUnitTests();
 };
 
 /** @brief Allows to output a GStarterIndividual or convert it to a string using boost::lexical_cast */

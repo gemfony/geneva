@@ -63,7 +63,8 @@ namespace Geneva {
  * GParameterSet collections.
  */
 template <typename T>
-class GParameterBaseWithAdaptorsT:	public GParameterBase
+class GParameterBaseWithAdaptorsT
+	 : public GParameterBase
 {
 	 ///////////////////////////////////////////////////////////////////////
 	 friend class boost::serialization::access;
@@ -375,6 +376,91 @@ protected:
 		 return adaptor_->adapt(collection, range, gr);
 	 }
 
+	/***************************************************************************/
+	/**
+     * Applies modifications to this object. This is needed for testing purposes
+     *
+     * @return A boolean which indicates whether modifications were made
+     */
+	bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+		bool result = false;
+
+		// Call the parent classes' functions
+		if(GParameterBase::modify_GUnitTests_()) result = true;
+
+		return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::modify_GUnitTests", "GEM_TESTING");
+		return false;
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to succeed. This is needed for testing purposes
+     */
+	void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent classes' functions
+		GParameterBase::specificTestsNoFailureExpected_GUnitTests_();
+
+		// Get a random number generator
+		Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to reset the adaptor will not remove it
+			std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
+
+			// Make sure no adaptor is present
+			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			BOOST_CHECK(p_test->hasAdaptor() == true);
+
+			T testVal = T(0);
+			// We have a local adaptor, so trying to call the applyAdaptor() function should not throw
+			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal, T(1), gr));
+		}
+
+		//------------------------------------------------------------------------------
+
+		{ // Test that trying to call applyAdaptor(collection) after resetting the adaptor works
+			std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
+
+			// Make sure no adaptor is present
+			BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
+			BOOST_CHECK(p_test->hasAdaptor() == true);
+
+			std::vector<T> testVec;
+			for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
+			// We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
+			BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec, T(1), gr));
+		}
+
+		//------------------------------------------------------------------------------
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+	/**
+     * Performs self tests that are expected to fail. This is needed for testing purposes
+     */
+	void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+		// Call the parent classes' functions
+		GParameterBase::specificTestsFailuresExpected_GUnitTests_();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+		Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+	}
+
+	/***************************************************************************/
+
 private:
 	 /***************************************************************************/
 	 /**
@@ -444,92 +530,6 @@ private:
 	  * @brief Holds the adaptor used for adaption of the values stored in derived classes.
 	  */
 	 std::shared_ptr<GAdaptorT<T>> adaptor_{Gem::Geneva::getDefaultAdaptor<T>()};
-
-public:
-	 /***************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  *
-	  * @return A boolean which indicates whether modifications were made
-	  */
-	 bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 bool result = false;
-
-		 // Call the parent classes' functions
-		 if(GParameterBase::modify_GUnitTests()) result = true;
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent classes' functions
-		 GParameterBase::specificTestsNoFailureExpected_GUnitTests();
-
-		 // Get a random number generator
-		 Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test that trying to reset the adaptor will not remove it
-			 std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
-
-			 // Make sure no adaptor is present
-			 BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			 BOOST_CHECK(p_test->hasAdaptor() == true);
-
-			 T testVal = T(0);
-			 // We have a local adaptor, so trying to call the applyAdaptor() function should not throw
-			 BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVal, T(1), gr));
-		 }
-
-		 //------------------------------------------------------------------------------
-
-		 { // Test that trying to call applyAdaptor(collection) after resetting the adaptor works
-			 std::shared_ptr<GParameterBaseWithAdaptorsT<T>> p_test = this->clone<GParameterBaseWithAdaptorsT<T>>();
-
-			 // Make sure no adaptor is present
-			 BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
-			 BOOST_CHECK(p_test->hasAdaptor() == true);
-
-			 std::vector<T> testVec;
-			 for(std::size_t i=0; i<10; i++) testVec.push_back(T(0));
-			 // We have a local adaptor, so trying to call the applyAdaptor(collection) function should not throw
-			 BOOST_CHECK_NO_THROW(p_test->applyAdaptor(testVec, T(1), gr));
-		 }
-
-		 //------------------------------------------------------------------------------
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 // Call the parent classes' functions
-		 GParameterBase::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 Gem::Common::condnotset("GParameterBaseWithAdaptorsT<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
 };
 
 /******************************************************************************/

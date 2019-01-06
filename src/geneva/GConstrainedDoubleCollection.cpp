@@ -364,7 +364,7 @@ GObject *GConstrainedDoubleCollection::clone_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GConstrainedDoubleCollection::modify_GUnitTests() {
+bool GConstrainedDoubleCollection::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -372,7 +372,7 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent classes' functions
-	if (GConstrainedFPNumCollectionT<double>::modify_GUnitTests()) result = true;
+	if (GConstrainedFPNumCollectionT<double>::modify_GUnitTests_()) result = true;
 
 	this->randomInit(activityMode::ALLPARAMETERS, gr);
 	result = true;
@@ -389,10 +389,10 @@ bool GConstrainedDoubleCollection::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
+void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent classes' functions
-	GConstrainedFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GConstrainedFPNumCollectionT<double>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// Some parameters
 	const std::size_t DEFSIZE = 10;
@@ -443,10 +443,10 @@ void GConstrainedDoubleCollection::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests() {
+void GConstrainedDoubleCollection::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent classes' functions
-	GConstrainedFPNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests();
+	GConstrainedFPNumCollectionT<double>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GBrokerEA::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

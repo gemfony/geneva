@@ -132,7 +132,7 @@ Gem::Geneva::adaptorId GInt32FlipAdaptor::getAdaptorId_() const {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GInt32FlipAdaptor::modify_GUnitTests() {
+bool GInt32FlipAdaptor::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	using boost::unit_test_framework::test_suite;
@@ -141,7 +141,7 @@ bool GInt32FlipAdaptor::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GIntFlipAdaptorT<std::int32_t>::modify_GUnitTests()) result = true;
+	if (GIntFlipAdaptorT<std::int32_t>::modify_GUnitTests_()) result = true;
 
 	return result;
 
@@ -155,14 +155,14 @@ bool GInt32FlipAdaptor::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
+void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GIntFlipAdaptorT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests();
+	GIntFlipAdaptorT<std::int32_t>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 
@@ -187,14 +187,14 @@ void GInt32FlipAdaptor::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests() {
+void GInt32FlipAdaptor::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent class'es function
-	GIntFlipAdaptorT<std::int32_t>::specificTestsFailuresExpected_GUnitTests();
+	GIntFlipAdaptorT<std::int32_t>::specificTestsFailuresExpected_GUnitTests_();
 
 	// no local data - nothing to test
 

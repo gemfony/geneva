@@ -83,8 +83,14 @@ Bugs fixed:
      getAlgorithmPersonalityType() --> getAlgorithmPersonalityType_() / private
      getAlgorithmName() --> getAlgorithmName_() / private
      getIteration() --> getIteration_() / private
-   As the base class still holds a public wrapper function, this should have no effect on you unless
-   you have overloaded these functions in your own code.
+   GCommonInterfaceT and derivatives:
+     modify_GUnitTests() --> modify_GUnitTests_() / protected
+     specificTestsNoFailureExpected_GUnitTests() --> specificTestsNoFailureExpected_GUnitTests_() / protected
+     specificTestsFailuresExpected_GUnitTests() --> specificTestsFailuresExpected_GUnitTests_() / protected
+   As the base class still holds a public wrapper function, this might have no effect on you unless
+   you have overloaded these functions in your own code. One case where this may be is if you have
+   used the GStarterIndividual from example 10 as the basis for your own individuals. In this case the
+   test-functions need to be renamed and moved to the protected section (see GCommonInterfaceT above)
  - The virtual customHalt() is now called customHalt_() in line with Geneva conditions, and has moved
    to the private section of G_OptimizationAlgorithm_Base and derivatives
 

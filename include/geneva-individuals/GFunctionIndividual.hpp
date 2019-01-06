@@ -392,6 +392,13 @@ protected:
 
 	 //---------------------------------------------------------------------------
 
+	 /** @brief Applies modifications to this object. */
+	 virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
+	 /** @brief Performs self tests that are expected to succeed. */
+	 virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
+	 /** @brief Performs self tests that are expected to fail. */
+	 virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
+
 private:
 	 //---------------------------------------------------------------------------
 	 /** @brief Creates a deep clone of this object */

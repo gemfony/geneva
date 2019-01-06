@@ -968,6 +968,13 @@ protected:
 		 return (0==m_nResubmissions);
 	 }
 
+	/** @brief Applies modifications to this object. This is needed for testing purposes */
+	bool modify_GUnitTests_() override { return false; };
+	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
+	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
+
 private:
 	 /***************************************************************************/
 	 /**
@@ -1048,17 +1055,6 @@ private:
 	 std::vector<std::shared_ptr<processable_type>> m_old_work_items_cnt; ///< Temporarily holds old work items of the current iteration
 
 	 std::mutex m_concurrent_workon_mutex; ///< Makes sure the workOn function is only called once at the same time on this object
-
-public:
-	/***************************************************************************/
-	/** @brief Applies modifications to this object. This is needed for testing purposes */
-	bool modify_GUnitTests() override { return false; };
-
-	/** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	void specificTestsNoFailureExpected_GUnitTests() override { /* nothing */ };
-
-	/** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	void specificTestsFailuresExpected_GUnitTests() override { /* nothing */ };
 };
 
 /******************************************************************************/

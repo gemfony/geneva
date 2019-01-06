@@ -332,7 +332,7 @@ void GDoubleObject::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GDoubleObject::modify_GUnitTests() {
+bool GDoubleObject::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -340,7 +340,7 @@ bool GDoubleObject::modify_GUnitTests() {
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GNumFPT<double>::modify_GUnitTests()) result = true;
+	if (GNumFPT<double>::modify_GUnitTests_()) result = true;
 
 	this->randomInit(activityMode::ALLPARAMETERS, gr);
 	result = true;
@@ -357,7 +357,7 @@ bool GDoubleObject::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
+void GDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// A few settings
 	const std::size_t nTests = 10000;
@@ -377,7 +377,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
-	GNumFPT<double>::specificTestsNoFailureExpected_GUnitTests();
+	GNumFPT<double>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// Get a random number generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -520,7 +520,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
+void GDoubleObject::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Make sure we have an appropriate adaptor loaded when performing these tests
 	bool adaptorStored = false;
@@ -537,7 +537,7 @@ void GDoubleObject::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(gdga_ptr);
 
 	// Call the parent class'es function
-	GNumFPT<double>::specificTestsFailuresExpected_GUnitTests();
+	GNumFPT<double>::specificTestsFailuresExpected_GUnitTests_();
 
 	// --------------------------------------------------------------------------
 

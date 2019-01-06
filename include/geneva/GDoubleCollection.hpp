@@ -132,21 +132,21 @@ protected:
 	 /** @brief Adds the "same-type" parameters of another GParameterBase object to this one */
 	 G_API_GENEVA void doubleSubtract(std::shared_ptr<GParameterBase>, const activityMode& am) override;
 
+	 /** @brief Applies modifications to this object. This is needed for testing purposes */
+	 G_API_GENEVA bool modify_GUnitTests_() override;
+	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
 private:
 	 /** @brief Emits a name for this class / object */
 	 G_API_GENEVA std::string name_() const override;
 	 /** @brief Creates a deep clone of this object. */
 	 G_API_GENEVA GObject* clone_() const override;
 
-public:
-	 /** @brief Applies modifications to this object. This is needed for testing purposes */
-	 G_API_GENEVA bool modify_GUnitTests() override;
 	 /** @brief Fills the collection with some random data */
-	 G_API_GENEVA void fillWithData(const std::size_t&);
-	 /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
-	 G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests() override;
-	 /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
-	 G_API_GENEVA void specificTestsFailuresExpected_GUnitTests() override;
+	 G_API_GENEVA void fillWithData_(const std::size_t&);
 };
 
 /******************************************************************************/

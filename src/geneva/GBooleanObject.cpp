@@ -349,12 +349,12 @@ void GBooleanObject::load_(const GObject *cp) {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GBooleanObject::modify_GUnitTests() {
+bool GBooleanObject::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if (GParameterT<bool>::modify_GUnitTests()) result = true;
+	if (GParameterT<bool>::modify_GUnitTests_()) result = true;
 
 	this->flip();
 	result = true;
@@ -371,7 +371,7 @@ bool GBooleanObject::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
+void GBooleanObject::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Some general settings
 	const double LOWERBND = 0.8, UPPERBND = 1.2;
@@ -392,7 +392,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 	this->addAdaptor(gba_ptr);
 
 	// Call the parent class'es function
-	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests();
+	GParameterT<bool>::specificTestsNoFailureExpected_GUnitTests_();
 
 	// A random generator
 	Gem::Hap::GRandomT<Gem::Hap::RANDFLAVOURS::RANDOMPROXY> gr;
@@ -682,7 +682,7 @@ void GBooleanObject::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
+void GBooleanObject::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	// Make sure we have an appropriate adaptor loaded when performing these tests
@@ -700,7 +700,7 @@ void GBooleanObject::specificTestsFailuresExpected_GUnitTests() {
 	this->addAdaptor(gba_ptr);
 
 	// Call the parent class'es function
-	GParameterT<bool>::specificTestsFailuresExpected_GUnitTests();
+	GParameterT<bool>::specificTestsFailuresExpected_GUnitTests_();
 
 	// Restore the adaptor to pristine condition
 	this->resetAdaptor();

@@ -116,12 +116,12 @@ void GBasePluggableOM::load_(const GObject* cp) {
 /**
  * Applies modifications to this object. This is needed for testing purposes
  */
-bool GBasePluggableOM::modify_GUnitTests() {
+bool GBasePluggableOM::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GObject::modify_GUnitTests()) result = true;
+	if(GObject::modify_GUnitTests_()) result = true;
 
 	this->setUseRawEvaluation(!this->getUseRawEvaluation());
 	result = true;
@@ -138,10 +138,10 @@ bool GBasePluggableOM::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests() {
+void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GObject::specificTestsNoFailureExpected_GUnitTests();
+	GObject::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -152,10 +152,10 @@ void GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests() {
+void GBasePluggableOM::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	GObject::specificTestsFailuresExpected_GUnitTests();
+	GObject::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("GBasePluggableOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
@@ -2118,13 +2118,13 @@ std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> G_OptimizationAlgo
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool G_OptimizationAlgorithm_Base::modify_GUnitTests() {
+bool G_OptimizationAlgorithm_Base::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	bool result = false;
 
 	// Call the parent class'es function
-	if(GObject::modify_GUnitTests()) result = true;
-	if(Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::modify_GUnitTests()) result = true;
+	if(GObject::modify_GUnitTests_()) result = true;
+	if(Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::modify_GUnitTests_()) result = true;
 
 	// Try to change the objects contained in the collection
 	for(auto const & o_ptr: *this) {
@@ -2146,14 +2146,14 @@ bool G_OptimizationAlgorithm_Base::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests() {
+void G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GObject::specificTestsNoFailureExpected_GUnitTests();
-	Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests();
+	GObject::specificTestsNoFailureExpected_GUnitTests_();
+	Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::specificTestsNoFailureExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("G_OptimizationAlgorithm_Base<>::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
@@ -2164,14 +2164,14 @@ void G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests() {
+void G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
 
 	// Call the parent classes' functions
-	GObject::specificTestsFailuresExpected_GUnitTests();
-	Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests();
+	GObject::specificTestsFailuresExpected_GUnitTests_();
+	Gem::Common::GPtrVectorT<GParameterSet, Gem::Geneva::GObject>::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
 	Gem::Common::condnotset("G_OptimizationAlgorithm_Base<>::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

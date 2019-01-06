@@ -1184,13 +1184,13 @@ bool GEvolutionaryAlgorithm::aDominatesB(
   *
   * @return A boolean which indicates whether modifications were made
   */
-bool GEvolutionaryAlgorithm::modify_GUnitTests() {
+bool GEvolutionaryAlgorithm::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 
 	bool result = false;
 
 	// Call the parent class'es function
-	if (G_OptimizationAlgorithm_ParChild::modify_GUnitTests()) result = true;
+	if (G_OptimizationAlgorithm_ParChild::modify_GUnitTests_()) result = true;
 
 	if(sortingMode::MUPLUSNU_SINGLEEVAL == this->getSortingScheme()) {
 		this->setSortingScheme(sortingMode::MUCOMMANU_SINGLEEVAL);
@@ -1237,10 +1237,10 @@ void GEvolutionaryAlgorithm::fillWithObjects(const std::size_t &nIndividuals) {
 /**
   * Performs self tests that are expected to succeed. This is needed for testing purposes
   */
-void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
+void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests();
+	G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests_();
 
 	//------------------------------------------------------------------------------
 
@@ -1251,7 +1251,7 @@ void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 		p_test->fillWithObjects(100);
 
 		// Run the parent class'es tests
-		p_test->G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests();
+		p_test->G_OptimizationAlgorithm_ParChild::specificTestsNoFailureExpected_GUnitTests_();
 	}
 
 	//------------------------------------------------------------------------------
@@ -1295,10 +1295,10 @@ void GEvolutionaryAlgorithm::specificTestsNoFailureExpected_GUnitTests() {
 /**
   * Performs self tests that are expected to fail. This is needed for testing purposes
   */
-void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests() {
+void GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	// Call the parent class'es function
-	G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests();
+	G_OptimizationAlgorithm_ParChild::specificTestsFailuresExpected_GUnitTests_();
 
 #else /* GEM_TESTING */
 	Gem::Common::condnotset("GEvolutionaryAlgorithm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");

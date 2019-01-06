@@ -579,6 +579,30 @@ protected:
 	 /** @brief Returns a unique id for a work item */
 	 virtual G_API_COMMON std::string id(const std::shared_ptr<T> &) const BASE = 0;
 
+	 /***************************************************************************/
+	 /**
+	  * Applies modifications to this object. This is needed for testing purposes
+	  */
+	 bool modify_GUnitTests_() override {
+	     return false;
+	 }
+
+	 /***************************************************************************/
+	 /**
+	  * Performs self tests that are expected to succeed. This is needed for testing purposes
+	  */
+	 void specificTestsNoFailureExpected_GUnitTests_() override
+	 { /* nothing */ }
+
+	/***************************************************************************/
+	 /**
+	  * Performs self tests that are expected to fail. This is needed for testing purposes
+	  */
+	 void specificTestsFailuresExpected_GUnitTests_() override
+	 { /* nothing */ }
+
+	/***************************************************************************/
+
 	 std::deque<std::shared_ptr<T>> m_data_deq; ///< Holds the actual data
 
 	 std::size_t m_maxSize = 10; ///< The maximum number of work-items
