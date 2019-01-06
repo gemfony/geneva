@@ -283,16 +283,6 @@ public:
     /** @brief The adaption interface */
     G_API_GENEVA std::size_t adapt() override;
 
-    /** @brief Retrieves the stored raw fitness with a given id */
-    G_API_GENEVA double raw_fitness(std::size_t) const override;
-    /** @brief Retrieves the stored transformed fitness with a given id */
-    G_API_GENEVA double transformed_fitness(std::size_t) const override;
-
-    /** @brief Returns all raw fitness results in a std::vector */
-    G_API_GENEVA std::vector<double> raw_fitness_vec() const override;
-    /** @brief Returns all transformed fitness results in a std::vector */
-    G_API_GENEVA std::vector<double> transformed_fitness_vec() const override;
-
     /** @brief Register another result value of the fitness calculation */
     G_API_GENEVA void setResult(std::size_t, double);
     /** @brief Determines whether more than one fitness criterion is present for this individual */
@@ -953,7 +943,7 @@ protected:
     virtual G_API_GENEVA std::size_t customAdaptions() BASE;
 
     /** @brief The fitness calculation for the main quality criterion takes place here */
-    virtual G_API_GENEVA double fitnessCalculation() BASE = 0;
+    G_API_GENEVA double fitnessCalculation() override = 0;
     /** @brief Sets the fitness to a given set of values and clears the dirty flag */
     G_API_GENEVA void setFitness_(std::vector<double> const &);
 
@@ -978,10 +968,24 @@ protected:
 
 private:
     /***************************************************************************/
+    // Overridden or virtual private functions
+
     /** @brief Emits a name for this class / object */
     G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override = 0;
+
+    /** @brief Retrieves the stored raw fitness with a given id */
+    G_API_GENEVA double raw_fitness_(std::size_t) const final;
+    /** @brief Retrieves the stored transformed fitness with a given id */
+    G_API_GENEVA double transformed_fitness_(std::size_t) const final;
+
+    /** @brief Returns all raw fitness results in a std::vector */
+    G_API_GENEVA std::vector<double> raw_fitness_vec_() const final;
+    /** @brief Returns all transformed fitness results in a std::vector */
+    G_API_GENEVA std::vector<double> transformed_fitness_vec_() const final;
+
+    /***************************************************************************/
 
     /** @brief Retrieves a parameter of a given type at the specified position */
     G_API_GENEVA boost::any getVarVal(

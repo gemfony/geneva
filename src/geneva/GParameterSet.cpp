@@ -865,7 +865,7 @@ std::size_t GParameterSet::adapt() {
 /**
  * Retrieves the stored raw fitness with a given id
  */
-double GParameterSet::raw_fitness(std::size_t id) const {
+double GParameterSet::raw_fitness_(std::size_t id) const {
 	return this->getStoredResult(id).rawFitness();
 }
 
@@ -873,7 +873,7 @@ double GParameterSet::raw_fitness(std::size_t id) const {
 /**
  * Retrieves the stored transformed fitness with a given id
  */
-double GParameterSet::transformed_fitness(std::size_t id) const {
+double GParameterSet::transformed_fitness_(std::size_t id) const {
 	return this->getStoredResult(id).transformedFitness();
 }
 
@@ -881,7 +881,7 @@ double GParameterSet::transformed_fitness(std::size_t id) const {
 /**
  * Returns all raw fitness results in a std::vector
  */
-std::vector<double> GParameterSet::raw_fitness_vec() const {
+std::vector<double> GParameterSet::raw_fitness_vec_() const {
 	std::size_t nFitnessCriteria = this->getNStoredResults();
 	std::vector<double> resultVec;
 
@@ -896,7 +896,7 @@ std::vector<double> GParameterSet::raw_fitness_vec() const {
 /**
  * Returns all transformed fitness results in a std::vector
  */
-std::vector<double> GParameterSet::transformed_fitness_vec() const {
+std::vector<double> GParameterSet::transformed_fitness_vec_() const {
 	std::size_t nFitnessCriteria = this->getNStoredResults();
 	std::vector<double> resultVec;
 

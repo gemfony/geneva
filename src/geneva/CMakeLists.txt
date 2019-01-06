@@ -1,7 +1,8 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( OPTIMIZATIONSOURCES
-    GAdaptorT
+	G_Interface_Rateable
+	GAdaptorT
 	GBooleanAdaptor
 	GBooleanCollection
 	GBooleanObject
