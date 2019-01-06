@@ -1821,132 +1821,6 @@ public:
         return m_fileName;
     }
 
-    /***************************************************************************/
-    /**
-     * Allows to emit information in different stages of the information cycle
-     * (initialization, during each cycle and during finalization)
-     */
-    virtual void informationFunction(
-        infoMode im
-        , G_OptimizationAlgorithm_Base const * const goa
-    ) override {
-        using namespace Gem::Common;
-
-        switch (im) {
-            case Gem::Geneva::infoMode::INFOINIT: {
-                // Initialize the plots we want to record
-                m_progressPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_progressPlotter->setPlotLabel("Number of solver calls");
-                m_progressPlotter->setXAxisLabel("Iteration");
-                m_progressPlotter->setYAxisLabel("Best Result (lower is better)");
-
-                m_nParentPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_nParentPlotter->setPlotLabel("Number of parents as a function of the iteration");
-                m_nParentPlotter->setXAxisLabel("Iteration");
-                m_nParentPlotter->setYAxisLabel("Number of parents");
-
-                m_nChildrenPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_nChildrenPlotter->setPlotLabel("Number of children as a function of the iteration");
-                m_nChildrenPlotter->setXAxisLabel("Iteration");
-                m_nChildrenPlotter->setYAxisLabel("Number of children");
-
-                m_adProbPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_adProbPlotter->setPlotLabel("Adaption probability as a function of the iteration");
-                m_adProbPlotter->setXAxisLabel("Iteration");
-                m_adProbPlotter->setYAxisLabel("Adaption probability");
-
-                m_minSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_minSigmaPlotter->setPlotLabel("Lower sigma boundary as a function of the iteration");
-                m_minSigmaPlotter->setXAxisLabel("Iteration");
-                m_minSigmaPlotter->setYAxisLabel("Lower sigma boundary");
-
-                m_maxSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_maxSigmaPlotter->setPlotLabel("Upper sigma boundary as a function of the iteration");
-                m_maxSigmaPlotter->setXAxisLabel("Iteration");
-                m_maxSigmaPlotter->setYAxisLabel("Upper sigma boundary");
-
-                m_sigmaRangePlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_sigmaRangePlotter->setPlotLabel("Development of the sigma range as a function of the iteration");
-                m_sigmaRangePlotter->setXAxisLabel("Iteration");
-                m_sigmaRangePlotter->setYAxisLabel("Sigma range");
-
-                m_sigmaSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
-                m_sigmaSigmaPlotter->setPlotLabel("Development of the adaption strength as a function of the iteration");
-                m_sigmaSigmaPlotter->setXAxisLabel("Iteration");
-                m_sigmaSigmaPlotter->setYAxisLabel("Sigma-Sigma");
-
-                m_gpd.registerPlotter(m_progressPlotter);
-                m_gpd.registerPlotter(m_nParentPlotter);
-                m_gpd.registerPlotter(m_nChildrenPlotter);
-                m_gpd.registerPlotter(m_adProbPlotter);
-                m_gpd.registerPlotter(m_minSigmaPlotter);
-                m_gpd.registerPlotter(m_maxSigmaPlotter);
-                m_gpd.registerPlotter(m_sigmaRangePlotter);
-                m_gpd.registerPlotter(m_sigmaSigmaPlotter);
-
-                m_gpd.setCanvasDimensions(
-                    P_XDIM
-                    , P_YDIM
-                );
-            }
-                break;
-
-            case Gem::Geneva::infoMode::INFOPROCESSING: {
-                // Convert the base pointer to the target type
-                GEvolutionaryAlgorithm const * const ea = static_cast<GEvolutionaryAlgorithm const * const>(goa);
-
-                // Extract the requested data. First retrieve the best individual.
-                // It can always be found in the first position with evolutionary algorithms
-                std::shared_ptr<GMetaOptimizerIndividualT<ind_type>>
-                    p = ea->clone_at<GMetaOptimizerIndividualT<ind_type>>(0);
-
-                // Retrieve the best fitness and average sigma value and add it to our local storage
-                (*m_progressPlotter) & std::tuple<double, double>((double) ea->getIteration()
-                                                                  , p->raw_fitness(0));
-                (*m_nParentPlotter) & std::tuple<double, double>((double) ea->getIteration()
-                                                                 , (double) p->getNParents());
-                (*m_nChildrenPlotter) & std::tuple<double, double>((double) ea->getIteration()
-                                                                   , (double) p->getNChildren());
-                (*m_adProbPlotter) & std::tuple<double, double>((double) ea->getIteration()
-                                                                , p->getAdProb());
-
-                double minSigma = p->getMinSigma();
-                double sigmaRange = p->getSigmaRange();
-                double maxSigma = minSigma + sigmaRange;
-
-                (*m_minSigmaPlotter) & std::tuple<double, double>((double) ea->getIteration()
-                                                                  , minSigma
-                );
-                (*m_maxSigmaPlotter) & std::tuple<double, double>((double) ea->getIteration()
-                                                                  , maxSigma
-                );
-                (*m_sigmaRangePlotter) & std::tuple<double, double>((double) ea->getIteration()
-                                                                    , sigmaRange
-                );
-                (*m_sigmaSigmaPlotter) & std::tuple<double, double>((double) ea->getIteration()
-                                                                    , p->getSigmaSigma());
-            }
-                break;
-
-            case Gem::Geneva::infoMode::INFOEND: {
-                // Write out the result
-                m_gpd.writeToFile(m_fileName);
-            }
-                break;
-
-            default: {
-                throw gemfony_exception(
-                    g_error_streamer(
-                        DO_LOG
-                        , time_and_place
-                    )
-                        << "In GOptOptMonitorT<ind_type>>: Received invalid infoMode " << im << std::endl
-                );
-            }
-                break;
-        };
-    }
-
 protected:
     /***************************************************************************/
     /**
@@ -2184,9 +2058,135 @@ private:
     }
 
     /***************************************************************************/
+    /**
+     * Allows to emit information in different stages of the information cycle
+     * (initialization, during each cycle and during finalization)
+     */
+    void informationFunction_(
+        infoMode im
+        , G_OptimizationAlgorithm_Base const * const goa
+    ) override {
+        using namespace Gem::Common;
 
-    GOptOptMonitorT() :
-        m_gpd(
+        switch (im) {
+            case Gem::Geneva::infoMode::INFOINIT: {
+                // Initialize the plots we want to record
+                m_progressPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                m_progressPlotter->setPlotLabel("Number of solver calls");
+                m_progressPlotter->setXAxisLabel("Iteration");
+                m_progressPlotter->setYAxisLabel("Best Result (lower is better)");
+
+                m_nParentPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                m_nParentPlotter->setPlotLabel("Number of parents as a function of the iteration");
+                m_nParentPlotter->setXAxisLabel("Iteration");
+                m_nParentPlotter->setYAxisLabel("Number of parents");
+
+                m_nChildrenPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                m_nChildrenPlotter->setPlotLabel("Number of children as a function of the iteration");
+                m_nChildrenPlotter->setXAxisLabel("Iteration");
+                m_nChildrenPlotter->setYAxisLabel("Number of children");
+
+                m_adProbPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                m_adProbPlotter->setPlotLabel("Adaption probability as a function of the iteration");
+                m_adProbPlotter->setXAxisLabel("Iteration");
+                m_adProbPlotter->setYAxisLabel("Adaption probability");
+
+                m_minSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                m_minSigmaPlotter->setPlotLabel("Lower sigma boundary as a function of the iteration");
+                m_minSigmaPlotter->setXAxisLabel("Iteration");
+                m_minSigmaPlotter->setYAxisLabel("Lower sigma boundary");
+
+                m_maxSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                m_maxSigmaPlotter->setPlotLabel("Upper sigma boundary as a function of the iteration");
+                m_maxSigmaPlotter->setXAxisLabel("Iteration");
+                m_maxSigmaPlotter->setYAxisLabel("Upper sigma boundary");
+
+                m_sigmaRangePlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                m_sigmaRangePlotter->setPlotLabel("Development of the sigma range as a function of the iteration");
+                m_sigmaRangePlotter->setXAxisLabel("Iteration");
+                m_sigmaRangePlotter->setYAxisLabel("Sigma range");
+
+                m_sigmaSigmaPlotter->setPlotMode(Gem::Common::graphPlotMode::CURVE);
+                m_sigmaSigmaPlotter->setPlotLabel("Development of the adaption strength as a function of the iteration");
+                m_sigmaSigmaPlotter->setXAxisLabel("Iteration");
+                m_sigmaSigmaPlotter->setYAxisLabel("Sigma-Sigma");
+
+                m_gpd.registerPlotter(m_progressPlotter);
+                m_gpd.registerPlotter(m_nParentPlotter);
+                m_gpd.registerPlotter(m_nChildrenPlotter);
+                m_gpd.registerPlotter(m_adProbPlotter);
+                m_gpd.registerPlotter(m_minSigmaPlotter);
+                m_gpd.registerPlotter(m_maxSigmaPlotter);
+                m_gpd.registerPlotter(m_sigmaRangePlotter);
+                m_gpd.registerPlotter(m_sigmaSigmaPlotter);
+
+                m_gpd.setCanvasDimensions(
+                        P_XDIM
+                        , P_YDIM
+                );
+            }
+                break;
+
+            case Gem::Geneva::infoMode::INFOPROCESSING: {
+                // Convert the base pointer to the target type
+                GEvolutionaryAlgorithm const * const ea = static_cast<GEvolutionaryAlgorithm const * const>(goa);
+
+                // Extract the requested data. First retrieve the best individual.
+                // It can always be found in the first position with evolutionary algorithms
+                std::shared_ptr<GMetaOptimizerIndividualT<ind_type>>
+                        p = ea->clone_at<GMetaOptimizerIndividualT<ind_type>>(0);
+
+                // Retrieve the best fitness and average sigma value and add it to our local storage
+                (*m_progressPlotter) & std::tuple<double, double>((double) ea->getIteration()
+                        , p->raw_fitness(0));
+                (*m_nParentPlotter) & std::tuple<double, double>((double) ea->getIteration()
+                        , (double) p->getNParents());
+                (*m_nChildrenPlotter) & std::tuple<double, double>((double) ea->getIteration()
+                        , (double) p->getNChildren());
+                (*m_adProbPlotter) & std::tuple<double, double>((double) ea->getIteration()
+                        , p->getAdProb());
+
+                double minSigma = p->getMinSigma();
+                double sigmaRange = p->getSigmaRange();
+                double maxSigma = minSigma + sigmaRange;
+
+                (*m_minSigmaPlotter) & std::tuple<double, double>((double) ea->getIteration()
+                        , minSigma
+                );
+                (*m_maxSigmaPlotter) & std::tuple<double, double>((double) ea->getIteration()
+                        , maxSigma
+                );
+                (*m_sigmaRangePlotter) & std::tuple<double, double>((double) ea->getIteration()
+                        , sigmaRange
+                );
+                (*m_sigmaSigmaPlotter) & std::tuple<double, double>((double) ea->getIteration()
+                        , p->getSigmaSigma());
+            }
+                break;
+
+            case Gem::Geneva::infoMode::INFOEND: {
+                // Write out the result
+                m_gpd.writeToFile(m_fileName);
+            }
+                break;
+
+            default: {
+                throw gemfony_exception(
+                        g_error_streamer(
+                                DO_LOG
+                                , time_and_place
+                        )
+                                << "In GOptOptMonitorT<ind_type>>: Received invalid infoMode " << im << std::endl
+                );
+            }
+                break;
+        };
+    }
+
+    /***************************************************************************/
+
+    GOptOptMonitorT()
+        : m_gpd(
             "empty"
             , 1
             , 1
