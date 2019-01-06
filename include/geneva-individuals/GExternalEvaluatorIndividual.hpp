@@ -422,10 +422,6 @@ public:
 
 
 protected:
-	 /** @brief Creates individuals of this type */
-	 virtual G_API_INDIVIDUALS std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &,
-		 const std::size_t &);
-
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder &);
 
@@ -433,6 +429,9 @@ protected:
 	 virtual G_API_INDIVIDUALS void postProcess_(std::shared_ptr <GParameterSet> &);
 
 private:
+	 /** @brief Creates individuals of this type */
+	 virtual G_API_INDIVIDUALS std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &, const std::size_t &);
+
 	 /** @brief Sets up the boost property object holding information about the individual structure */
 	 void setUpPropertyTree();
 

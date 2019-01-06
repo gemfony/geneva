@@ -85,13 +85,15 @@ public:
 	 G_API_GENEVA std::string getAlgorithmName() const override;
 
 protected:
-	 /** @brief Creates individuals of this type */
-	 G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
-		 Gem::Common::GParserBuilder&
-		 , const std::size_t&
-	 ) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
 	 G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
+
+private:
+	/** @brief Creates individuals of this type */
+	G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
+			Gem::Common::GParserBuilder&
+			, const std::size_t&
+	) override;
 };
 
 /******************************************************************************/

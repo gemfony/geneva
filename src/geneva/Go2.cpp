@@ -129,7 +129,7 @@ void Go2::registerDefaultAlgorithm(std::string const & mn) {
 		);
 	}
 
-	this->registerDefaultAlgorithm(p->get());
+	this->registerDefaultAlgorithm(p->Gem::Common::GFactoryT<GOABase>::get());
 }
 
 /******************************************************************************/
@@ -369,7 +369,7 @@ void Go2::addAlgorithm(std::string const & mn) {
 		);
 	}
 
-	this->addAlgorithm(p->get()); // The factory might add a monitor to the object
+	this->addAlgorithm(p->Gem::Common::GFactoryT<GOABase>::get()); // The factory might add a monitor to the object
 }
 
 /***************************************************************************/
@@ -946,7 +946,7 @@ void Go2::parseCommandLine(
 				}
 
 				// Retrieve an algorithm from the factory and add it to the list
-				m_algorithms_cnt.push_back(p->get());
+				m_algorithms_cnt.push_back(p->Gem::Common::GFactoryT<GOABase>::get());
 			}
 		}
 

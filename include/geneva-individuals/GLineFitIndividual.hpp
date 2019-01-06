@@ -159,10 +159,6 @@ public:
 	 virtual G_API_INDIVIDUALS ~GLineFitIndividualFactory();
 
 protected:
-	 /** @brief Creates individuals of this type */
-	 virtual G_API_INDIVIDUALS std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &,
-		 const std::size_t &);
-
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder &);
 
@@ -172,6 +168,10 @@ protected:
 private:
 	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
 	 GLineFitIndividualFactory() = default;
+
+	 /** @brief Creates individuals of this type */
+	 virtual G_API_INDIVIDUALS std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &,
+																		 const std::size_t &);
 
 	 std::vector<std::tuple<double, double>> dataPoints_; ///< Holds data points for the fit
 };

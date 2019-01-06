@@ -153,49 +153,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Allows the creation of objects of the desired type.
-	  */
-	 virtual std::shared_ptr<prod_type> get() BASE {
-		 // Make sure the initialization code has been executed.
-		 // This function will do nothing when called more than once
-		 this->globalInit();
-
-		 // Create a parser builder object. It will be destroyed at
-		 // the end of this function and thus cannot cause trouble
-		 // due to registered call-backs and references
-		 Gem::Common::GParserBuilder gpb;
-
-		 // Add specific configuration options for the derived factory.
-		 // These may correspond to local variables
-		 this->describeLocalOptions_(gpb);
-
-		 // Retrieve the actual object. It may, in the process of its
-		 // creation, add further configuration options and call-backs to
-		 // the parser
-		 std::shared_ptr<prod_type> p = this->getObject_(gpb, m_id);
-
-		 // Read the configuration parameters from file
-		 if (not gpb.parseConfigFile(m_config_path)) {
-			 throw gemfony_exception(
-				 g_error_streamer(DO_LOG, time_and_place)
-					 << "In GFactoryT<prod_type>::operator(): Error!" << std::endl
-					 << "Could not parse configuration file " << m_config_path.string() << std::endl
-			 );
-		 }
-
-		 // Allow the factory to act on configuration options received
-		 // in the parsing process.
-		 this->postProcess_(p);
-
-		 // Update the id
-		 m_id++;
-
-		 // Let the audience know
-		 return p;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Allows to retrieve the name of the config file, including its path
 	  *
 	  * @return The name of the config-file
@@ -301,6 +258,14 @@ public:
 		 );
 	 }
 
+	/***************************************************************************/
+	/**
+	 * Allows the creation of objects of the desired type.
+	 */
+	std::shared_ptr<prod_type> get() {
+		return this->get_();
+	}
+
 protected:
 	 /***************************************************************************/
 	 /** @brief Performs necessary initialization work */
@@ -308,9 +273,6 @@ protected:
 
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 virtual void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) BASE { /* nothing */ };
-
-	 /** @brief Creates individuals of the desired type */
-	 virtual std::shared_ptr <prod_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) BASE = 0;
 
 	 /** @brief Allows to act on the configuration options received from the configuration file */
 	 virtual void postProcess_(std::shared_ptr <prod_type> &) BASE = 0;
@@ -322,6 +284,49 @@ protected:
 	 std::size_t getId() const {
 		 return m_id;
 	 }
+
+	/***************************************************************************/
+	/**
+     * Allows the creation of objects of the desired type.
+     */
+	virtual std::shared_ptr<prod_type> get_() BASE {
+		// Make sure the initialization code has been executed.
+		// This function will do nothing when called more than once
+		this->globalInit();
+
+		// Create a parser builder object. It will be destroyed at
+		// the end of this function and thus cannot cause trouble
+		// due to registered call-backs and references
+		Gem::Common::GParserBuilder gpb;
+
+		// Add specific configuration options for the derived factory.
+		// These may correspond to local variables
+		this->describeLocalOptions_(gpb);
+
+		// Retrieve the actual object. It may, in the process of its
+		// creation, add further configuration options and call-backs to
+		// the parser
+		std::shared_ptr<prod_type> p = this->getObject_(gpb, m_id);
+
+		// Read the configuration parameters from file
+		if (not gpb.parseConfigFile(m_config_path)) {
+			throw gemfony_exception(
+					g_error_streamer(DO_LOG, time_and_place)
+							<< "In GFactoryT<prod_type>::operator(): Error!" << std::endl
+							<< "Could not parse configuration file " << m_config_path.string() << std::endl
+			);
+		}
+
+		// Allow the factory to act on configuration options received
+		// in the parsing process.
+		this->postProcess_(p);
+
+		// Update the id
+		m_id++;
+
+		// Let the audience know
+		return p;
+	}
 
 private:
 	 /***************************************************************************/
@@ -342,6 +347,10 @@ private:
 			 m_initialized = true;
 		 }
 	 }
+
+	 /***************************************************************************/
+	 /** @brief Creates individuals of the desired type */
+	 virtual std::shared_ptr <prod_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) BASE = 0;
 
 	 /***************************************************************************/
 

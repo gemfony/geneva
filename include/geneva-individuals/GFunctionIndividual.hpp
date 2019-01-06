@@ -587,14 +587,15 @@ public:
 	 G_API_INDIVIDUALS std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> clone() const override;
 
 protected:
-	 /** @brief Creates individuals of this type */
-	 G_API_INDIVIDUALS std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder &) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
 	 G_API_INDIVIDUALS void postProcess_(std::shared_ptr<GParameterSet> &) override;
 
 private:
+     /** @brief Creates individuals of this type */
+     G_API_INDIVIDUALS std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override;
+
 	 /** @brief Set the value of the minVar_ variable */
 	 void setMinVar(double minVar);
 

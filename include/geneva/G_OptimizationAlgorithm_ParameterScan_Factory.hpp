@@ -98,15 +98,16 @@ public:
 	 G_API_GENEVA void resetCLParameterSpecs();
 
 protected:
-	 /** @brief Creates individuals of this type */
-	 G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
-		 Gem::Common::GParserBuilder&
-		 , const std::size_t&
-	 ) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
 	 G_API_GENEVA void postProcess_(std::shared_ptr<G_OptimizationAlgorithm_Base>&) override;
 
 private:
+	 /** @brief Creates individuals of this type */
+	 G_API_GENEVA std::shared_ptr<G_OptimizationAlgorithm_Base> getObject_(
+		Gem::Common::GParserBuilder&
+		, const std::size_t&
+	 ) override;
+
 	 /** @brief Holds information on the variables to be optimized -- set through the corresponding member function or on the command line */
 	 std::string m_parameterSpecCL = "empty";
 };

@@ -288,8 +288,6 @@ public:
 	 ~GStarterIndividualFactory() override = default;
 
 protected:
-	 /** @brief Creates individuals of this type */
-	 std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 void describeLocalOptions_(Gem::Common::GParserBuilder&) override;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
@@ -298,6 +296,8 @@ protected:
 private:
 	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
 	 GStarterIndividualFactory() = default;
+     /** @brief Creates individuals of this type */
+     std::shared_ptr<GParameterSet> getObject_(Gem::Common::GParserBuilder&, const std::size_t&) override;
 
 	 double m_adProb = GSI_DEF_ADPROB; ///< Probability for a parameter to be mutated
 	 double m_sigma = GSI_DEF_SIGMA; ///< Step-width

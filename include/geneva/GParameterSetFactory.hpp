@@ -128,30 +128,30 @@ public:
 		 }
 	 }
 
-	 /***************************************************************************/
-	 /**
-	  * Production of GParameterSet-derivatives
-	  */
-	 std::shared_ptr<GParameterSet> get() override {
-		 std::shared_ptr<GParameterSet> p = GFactoryT<GParameterSet>::get();
-
-		 if(m_preProcessor) {
-			 p->registerPreProcessor(m_preProcessor->clone());
-		 }
-
-		 if(m_postProcessor) {
-			 p->registerPostProcessor(m_postProcessor->clone());
-		 }
-
-		 return p;
-	 }
-
 protected:
 	 /** @brief A pre-processor for GParameterSet-derivatives */
 	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_preProcessor;
 
 	 /** @brief A post-processor for GParameterSet-derivatives */
 	 std::shared_ptr<Gem::Common::GSerializableFunctionObjectT<GParameterSet>> m_postProcessor;
+
+	/***************************************************************************/
+	/**
+     * Production of GParameterSet-derivatives
+     */
+	std::shared_ptr<GParameterSet> get_() override {
+		std::shared_ptr<GParameterSet> p = GFactoryT<GParameterSet>::get_();
+
+		if(m_preProcessor) {
+			p->registerPreProcessor(m_preProcessor->clone());
+		}
+
+		if(m_postProcessor) {
+			p->registerPostProcessor(m_postProcessor->clone());
+		}
+
+		return p;
+	}
 
 private:
 	 // Only needed for (de-)serialization purposes, hence private

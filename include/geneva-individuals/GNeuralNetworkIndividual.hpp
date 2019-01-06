@@ -1011,9 +1011,6 @@ public:
 	 G_API_INDIVIDUALS transferFunction getTransferFunction() const;
 
 protected:
-	 /** @brief Creates individuals of this type */
-	 G_API_INDIVIDUALS virtual std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &,
-		 const std::size_t &);
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 G_API_INDIVIDUALS virtual void describeLocalOptions_(Gem::Common::GParserBuilder &);
 	 /** @brief Allows to act on the configuration options received from the configuration file */
@@ -1022,6 +1019,10 @@ protected:
 private:
 	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
 	 GNeuralNetworkIndividualFactory() = default;
+
+	 /** @brief Creates individuals of this type */
+	 G_API_INDIVIDUALS virtual std::shared_ptr <GParameterSet> getObject_(Gem::Common::GParserBuilder &,
+																		 const std::size_t &);
 
 	 double adProb_;
 	 double adaptAdProb_;

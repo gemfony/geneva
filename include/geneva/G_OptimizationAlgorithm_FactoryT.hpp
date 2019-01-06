@@ -160,39 +160,6 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Triggers the creation of objects of the desired type with the preset
-	  * parallelization mode.
-	  *
-	  * @return An object of the desired algorithm type
-	  */
-	 std::shared_ptr<oa_type> get() override {
-		 // Retrieve a work item using the methods implemented in our parent class
-		 std::shared_ptr<oa_type> p_alg = Gem::Common::GFactoryT<oa_type>::get();
-
-		 // If we have been given a factory function for individuals, fill the object with data
-		 if (m_contentCreatorPtr) { // Has a content creation object been registered ? If so, add individuals to the population
-			 for (std::size_t ind = 0; ind < p_alg->getDefaultPopulationSize(); ind++) {
-				 std::shared_ptr<GParameterSet> p_ind = (*m_contentCreatorPtr)();
-				 if (not p_ind) { // No valid item received, the factory has run empty
-					 break;
-				 } else {
-					 p_alg->push_back(p_ind);
-				 }
-			 }
-		 }
-
-		 // Check if any pluggable optimization monitor was registered. If so,
-		 // load it into the optimization algorithm
-		 if (m_pluggableOM) {
-			 p_alg->registerPluggableOM(m_pluggableOM);
-		 }
-
-		 // Return the filled object to the audience
-		 return p_alg;
-	 }
-
-	 /***************************************************************************/
-	 /**
 	  * Triggers the creation of objects of the desired type and converts them
 	  * to a given target type. Will throw if conversion is unsuccessful.
 	  *
@@ -200,7 +167,7 @@ public:
 	  */
 	 template<typename target_type>
 	 std::shared_ptr<target_type> get() {
-		 return Gem::Common::convertSmartPointer<oa_type, target_type>(this->get());
+		 return Gem::Common::convertSmartPointer<oa_type, target_type>(Gem::Common::GFactoryT<oa_type>::get());
 	 }
 
 	 /***************************************************************************/
@@ -368,6 +335,39 @@ public:
 protected:
 	 /***************************************************************************/
 	 /**
+      * Triggers the creation of objects of the desired type with the preset
+      * parallelization mode.
+      *
+      * @return An object of the desired algorithm type
+      */
+	 std::shared_ptr<oa_type> get_() override {
+		// Retrieve a work item using the methods implemented in our parent class
+		std::shared_ptr<oa_type> p_alg = Gem::Common::GFactoryT<oa_type>::get_();
+
+		// If we have been given a factory function for individuals, fill the object with data
+		if (m_contentCreatorPtr) { // Has a content creation object been registered ? If so, add individuals to the population
+			for (std::size_t ind = 0; ind < p_alg->getDefaultPopulationSize(); ind++) {
+				std::shared_ptr<GParameterSet> p_ind = (*m_contentCreatorPtr)();
+				if (not p_ind) { // No valid item received, the factory has run empty
+					break;
+				} else {
+					p_alg->push_back(p_ind);
+				}
+			}
+		}
+
+		// Check if any pluggable optimization monitor was registered. If so,
+		// load it into the optimization algorithm
+		if (m_pluggableOM) {
+			p_alg->registerPluggableOM(m_pluggableOM);
+		}
+
+		// Return the filled object to the audience
+		return p_alg;
+	 }
+
+	 /***************************************************************************/
+	 /**
 	  * Allows to describe configuration options
 	  *
 	  * @param gpb A reference to the parser-builder
@@ -402,13 +402,15 @@ protected:
 	 }
 
 	 /***************************************************************************/
-	 /** @brief Creates individuals of this type */
-	 std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override = 0;
 
 	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_contentCreatorPtr; ///< Holds an object capable of producing objects of the desired type
 	 std::shared_ptr<GBasePluggableOM> m_pluggableOM; // A user-defined means for information retrieval
 
 private:
+	 /***************************************************************************/
+	 /** @brief Creates individuals of this type */
+	 std::shared_ptr<oa_type> getObject_(Gem::Common::GParserBuilder &, const std::size_t &) override = 0;
+
 	 /***************************************************************************/
 
 	 std::int32_t m_maxIterationCL = -1; ///< The maximum number of iterations. NOTE: SIGNED TO ALLOW CHECK WHETHER PARAMETER WAS SET

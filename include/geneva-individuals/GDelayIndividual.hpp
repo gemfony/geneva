@@ -196,11 +196,6 @@ public:
 	 G_API_INDIVIDUALS std::vector<std::tuple<unsigned int, unsigned int>> getSleepTimes() const;
 
 protected:
-	 /** @brief Creates individuals of this type */
-	 virtual G_API_INDIVIDUALS std::shared_ptr<GParameterSet> getObject_(
-		 Gem::Common::GParserBuilder&
-		 , const std::size_t&
-	 ) final;
 	 /** @brief Allows to describe local configuration options in derived classes */
 	 virtual G_API_INDIVIDUALS void describeLocalOptions_(Gem::Common::GParserBuilder&) final;
 	 /** @brief Allows to act on the configuration options received from the configuration file */
@@ -209,6 +204,12 @@ protected:
 private:
 	 /** @brief The default constructor. Only needed for (de-)serialization purposes */
 	 GDelayIndividualFactory() = default;
+
+	 /** @brief Creates individuals of this type */
+	 virtual G_API_INDIVIDUALS std::shared_ptr<GParameterSet> getObject_(
+		Gem::Common::GParserBuilder&
+		, const std::size_t&
+	 ) final;
 
 	 /** @brief Converts a tuple to a time format */
 	 std::chrono::duration<double> tupleToTime(const std::tuple<unsigned int, unsigned int>&);

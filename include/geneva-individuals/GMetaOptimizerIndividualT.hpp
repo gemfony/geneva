@@ -1258,25 +1258,6 @@ public:
 protected:
     /***************************************************************************/
     /**
-     * Creates items of this type
-     *
-     * @return Items of the desired type
-     */
-    virtual std::shared_ptr<GParameterSet> getObject_(
-        Gem::Common::GParserBuilder &gpb, const std::size_t &id
-    ) {
-        // Will hold the result
-        std::shared_ptr<GMetaOptimizerIndividualT<ind_type>>
-            target(new GMetaOptimizerIndividualT<ind_type>());
-
-        // Make the object's local configuration options known
-        target->addConfigurationOptions(gpb);
-
-        return target;
-    }
-
-    /***************************************************************************/
-    /**
      * Allows to describe local configuration options for gradient descents
      */
     virtual void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
@@ -1638,6 +1619,28 @@ private:
     /***************************************************************************/
     /** @brief The default constructor. Only needed for (de-)serialization */
     GMetaOptimizerIndividualFactoryT() = default;
+
+    /***************************************************************************/
+    /**
+     * Creates items of this type
+     *
+     * @return Items of the desired type
+     */
+    std::shared_ptr<GParameterSet> getObject_(
+            Gem::Common::GParserBuilder &gpb, const std::size_t &id
+    ) override {
+        // Will hold the result
+        std::shared_ptr<GMetaOptimizerIndividualT<ind_type>>
+                target(new GMetaOptimizerIndividualT<ind_type>());
+
+        // Make the object's local configuration options known
+        target->addConfigurationOptions(gpb);
+
+        return target;
+    }
+
+    /***************************************************************************/
+    // Data
 
     // Parameters pertaining to the ea population
     std::size_t initNParents_ = GMETAOPT_DEF_INITNPARENTS;  ///< The initial number of parents
