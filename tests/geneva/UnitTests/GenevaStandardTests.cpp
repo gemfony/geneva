@@ -84,7 +84,7 @@ class GenevaStandardTestSuite
 	: public test_suite
 {
 public:
-	GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
+    G_API_GENEVA GenevaStandardTestSuite() :test_suite("GenevaStandardTestSuite") {
 
 		using adaptor_types = boost::mpl::list<
 			GInt32FlipAdaptor
@@ -162,7 +162,7 @@ public:
 		add( BOOST_TEST_CASE_TEMPLATE( StandardTests_failures_expected, individual_types ) );
 	}
 
-	~GenevaStandardTestSuite() {
+    G_API_GENEVA ~GenevaStandardTestSuite() {
 		std::cout << "GenevaStandardTestSuite has ended." << std::endl;
 	}
 };
