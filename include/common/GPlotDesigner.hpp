@@ -918,7 +918,7 @@ protected:
         // the second parent class without directly calling it.
         compare_t(
             IDENTITY(this->m_data_cnt
-                     , p_load->data)
+                     , p_load->m_data_cnt)
             , token
         );
 
