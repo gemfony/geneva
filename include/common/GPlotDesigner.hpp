@@ -1909,7 +1909,7 @@ public:
     // Defaulted constructors, destructor and assignment operator
 
     G_API_COMMON GHistogram1I(GHistogram1I const&) = default;
-    G_API_COMMON GHistogram1I(GHistogram1I &) = default;
+    G_API_COMMON GHistogram1I(GHistogram1I &&) = default;
 
     // Defaulted default-constructor in private section
 
