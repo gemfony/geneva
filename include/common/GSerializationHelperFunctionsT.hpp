@@ -200,11 +200,11 @@ void save(
 	, const boost::logic::tribool &val
 	, unsigned int version
 ) {
-	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::FALSE;
+	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
 	if (val == true)
-		tbs = Gem::Common::triboolStates::TRUE;
+		tbs = Gem::Common::triboolStates::TBS_TRUE;
 	else if (boost::logic::indeterminate(val))
-		tbs = Gem::Common::triboolStates::INDETERMINATE;
+		tbs = Gem::Common::triboolStates::TBS_INDETERMINATE;
 
 	ar &make_nvp("tbs", tbs);
 }
@@ -219,19 +219,19 @@ void load(
 	, boost::logic::tribool &val
 	, unsigned int version
 ) {
-	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::FALSE;
+	Gem::Common::triboolStates tbs = Gem::Common::triboolStates::TBS_FALSE;
 	ar &make_nvp("tbs", tbs);
 
 	switch (tbs) {
-		case Gem::Common::triboolStates::FALSE:
+		case Gem::Common::triboolStates::TBS_FALSE:
 			val = false;
 			break;
 
-		case Gem::Common::triboolStates::TRUE:
+		case Gem::Common::triboolStates::TBS_TRUE:
 			val = true;
 			break;
 
-		case Gem::Common::triboolStates::INDETERMINATE:
+		case Gem::Common::triboolStates::TBS_INDETERMINATE:
 			val = boost::logic::indeterminate;
 			break;
 	};

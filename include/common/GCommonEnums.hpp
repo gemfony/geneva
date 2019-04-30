@@ -207,9 +207,9 @@ const bool VAR_IS_SECONDARY = false;
  * Needed for the serialization of boost::logic::tribool
  */
 enum class triboolStates : Gem::Common::ENUMBASETYPE {
-	FALSE
-	, INDETERMINATE
-	, TRUE
+	TBS_FALSE
+	, TBS_INDETERMINATE
+	, TBS_TRUE
 };
 
 /** @brief Puts a Gem::Common::triboolStates into a stream. Needed also for boost::lexical_cast<> */
