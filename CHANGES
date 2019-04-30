@@ -4,7 +4,7 @@
 Recommended versions:
 - Boost 1.67 or later is required, Boost 1.68 or later is recommended
   due to a bug on Boost.Beast in 1.66
-- CMake Version 3.1 or higher is required.
+- CMake Version 3.14 or higher is required, so we can handle Boost 1.70
 - g++ is recommended to be at least 5.1, earlier versions
   might work if C++14 is sufficiently supported.
 
@@ -24,6 +24,7 @@ Bugs fixed:
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
+ - You need a fairly recent version of CMake, at least CMake 3.14, so Boost 1.70 can be used
  - Changed Gem::Common::serializationMode::SERIALIZATIONMODE_XML to
    Gem::Common::serializationMode::XML, similar for TEXT and BINARY
  - GThreadPool will no longer initialize itself with the number of hardware threads when
