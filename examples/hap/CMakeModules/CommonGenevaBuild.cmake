@@ -220,6 +220,9 @@ IF(GENEVA_BUILD_TESTS)
 	)
 ENDIF()
 
+# Make sure we use the old CMake behaviour (cmp. Boost 1.70)
+SET(Boost_NO_BOOST_CMAKE ON)
+
 # Search for the required libraries
 MESSAGE("Searching for Boost...\n")
 FIND_PACKAGE(

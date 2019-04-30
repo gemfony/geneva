@@ -30,8 +30,7 @@
 #
 ################################################################################
 
-# We need a recent version of cmake that can handle Boost 1.70
-CMAKE_MINIMUM_REQUIRED(VERSION 3.14)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 MESSAGE ("")
 
