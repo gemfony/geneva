@@ -575,7 +575,7 @@ private:
 		 struct tm time_info{};
 
 #if defined(_MSC_VER)  && (_MSC_VER >= 1020)
-		 localtime_s(&timeinfo, &now);
+		 localtime_s(&time_info, &now);
 #else // We assume a POSIX-compliand platform
 		 localtime_r(&now, &time_info);
 #endif
