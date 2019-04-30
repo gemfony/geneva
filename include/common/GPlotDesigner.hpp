@@ -1032,6 +1032,14 @@ protected:
         token.evaluate();
     }
 
+    /***************************************************************************/
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    bool modify_GUnitTests_() override { return false; }
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
+
 private:
     /***************************************************************************/
     /**
@@ -1314,6 +1322,14 @@ protected:
         // React on deviations from the expectation
         token.evaluate();
     }
+
+    /***************************************************************************/
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
+    bool modify_GUnitTests_() override { return false; }
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
+    void specificTestsNoFailureExpected_GUnitTests_() override { /* nothing */ };
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
+    void specificTestsFailuresExpected_GUnitTests_() override { /* nothing */ };
 
 private:
     /***************************************************************************/
