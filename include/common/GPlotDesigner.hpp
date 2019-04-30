@@ -1089,7 +1089,7 @@ public:
     GDecoratorContainer() = default;
     GDecoratorContainer(GDecoratorContainer<dimensions::Dim3, coordinate_type> const &cp) = default;
     GDecoratorContainer(GDecoratorContainer<dimensions::Dim3, coordinate_type> &&cp) noexcept = default;
-    virtual ~GDecoratorContainer() = default;
+    ~GDecoratorContainer() override = default;
 
     GDecoratorContainer<dimensions::Dim3, coordinate_type> &operator=(GDecoratorContainer<dimensions::Dim3, coordinate_type> const&) = default;
     GDecoratorContainer<dimensions::Dim3, coordinate_type> &operator=(GDecoratorContainer<dimensions::Dim3, coordinate_type> &&) noexcept = default;
