@@ -691,7 +691,11 @@ public:
 		 // ---------------------------------------------------
 		 // Set the auto_fragment option, so control frames are delivered timely
 		 m_ws.auto_fragment(true);
-		 m_ws.write_buffer_size(16384);
+#if (BOOST_VERSION >= 107000)
+         m_ws.write_buffer_bytes(16384);
+#else
+         m_ws.write_buffer_size(16384);
+#endif
 
 		 // ---------------------------------------------------
 		 // Set the transfer mode according to the defines in CMakeLists.txt
