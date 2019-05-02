@@ -2,7 +2,7 @@
 * Version 1.9.1, yet unnamed, release date unknown
 
 Recommended versions:
-- Boost 1.67 or later is required, Boost 1.68 or later is recommended
+- Boost 1.70 as a minimum
   due to a bug on Boost.Beast in 1.66
 - CMake Version 3.1 or higher is required
 - g++ is recommended to be at least 5.1, earlier versions
