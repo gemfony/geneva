@@ -500,14 +500,15 @@ public:
 	  * @param serialization_mode The serialization mode used for data transfers (binary, xml or plain text)
 	  */
 	 GAsioConsumerSessionT(
-		 boost::asio::ip::tcp::socket socket
+         boost::asio::io_context& io_context
+		 , boost::asio::ip::tcp::socket socket
 		 , std::function<std::shared_ptr<processable_type>()> get_payload_item
 		 , std::function<void(std::shared_ptr<processable_type>)> put_payload_item
 		 , std::function<bool()> check_server_stopped
 		 , Gem::Common::serializationMode serialization_mode
 	 )
 		 : m_socket(std::move(socket))
-		 , m_strand(m_socket.get_executor())
+		 , m_strand(io_context.get_executor())
 		 , m_get_payload_item(std::move(get_payload_item))
 		 , m_put_payload_item(std::move(put_payload_item))
 		 , m_check_server_stopped(std::move(check_server_stopped))
@@ -1067,7 +1068,8 @@ private:
 		 } else {
 			 // Create the GAsioConsumerSessionT and run it. This call will return immediately.
 			 std::make_shared<GAsioConsumerSessionT<processable_type>>(
-				 std::move(m_socket) // Our local m_socket will stay in a valid state
+                 m_io_context
+                 , std::move(m_socket) // Our local m_socket will stay in a valid state
 				 , [this]() -> std::shared_ptr<processable_type> { return this->getPayloadItem(); }
 				 , [this](std::shared_ptr<processable_type> p) { this->putPayloadItem(p); }
 				 , [this]() -> bool { return this->stopped(); }
