@@ -296,7 +296,7 @@ public:
     /**
 	  * Retrieves the decorator data. Plot boundaries are not taken into account.
 	  */
-    virtual std::string decoratorData(const std::string &, const std::size_t &) const BASE = 0;
+    virtual G_API_COMMON std::string decoratorData(const std::string &, const std::size_t &) const BASE = 0;
 
     /***************************************************************************/
     /**
@@ -306,7 +306,7 @@ public:
 	  * not be affected by the boundaries. This function needs to be implemented by derived
 	  * classes.
 	  */
-    virtual std::string decoratorData(
+    virtual G_API_COMMON std::string decoratorData(
         const std::tuple<coordinate_type, coordinate_type> &x_axis_range
         , const std::tuple<coordinate_type, coordinate_type> &y_axis_range
         , const std::string &indent
@@ -830,7 +830,7 @@ public:
 
         std::size_t pos = 0;
         for (auto const& decorator_ptr: *this) {
-            result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData(
+            result += decorator_ptr->decoratorData(
                 indent
                 , pos++
             );
@@ -856,7 +856,7 @@ public:
 
         std::size_t pos = 0;
         for (auto const& decorator_ptr: *this) {
-            result += decorator_ptr->GDecorator<dimensions::Dim2, coordinate_type>::decoratorData(
+            result += decorator_ptr->decoratorData(
                 x_axis_range
                 , y_axis_range
                 , indent
@@ -1119,7 +1119,7 @@ public:
 
         std::size_t pos = 0;
         for (auto const& decorator_ptr: *this) {
-            result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData(
+            result += decorator_ptr->decoratorData(
                 indent
                 , pos++
             );
@@ -1146,7 +1146,7 @@ public:
 
         std::size_t pos = 0;
         for (auto const& decorator_ptr: *this) {
-            result += decorator_ptr->GDecorator<dimensions::Dim3, coordinate_type>::decoratorData(
+            result += decorator_ptr->decoratorData(
                 x_axis_range
                 , y_axis_range
                 , z_axis_range
