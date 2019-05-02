@@ -89,7 +89,7 @@ fi
 
 # Start the workers
 for i in `seq 1 $2`; do
-    (./${PROGNAME} -c asio_tcpc --client --asio_ip=localhost --asio_port=${PORT} >& ./output/output_client_$i) &
+    (./${PROGNAME} -c asio --client --asio_ip=localhost --asio_port=${PORT} >& ./output/output_client_$i) &
 done
 
 tail -f ./output/output_server
