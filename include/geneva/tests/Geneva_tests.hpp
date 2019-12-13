@@ -48,9 +48,7 @@
 #include <tuple>
 
 // Boost header files go here
-
 #include <boost/test/unit_test.hpp>
-#include <boost/test/test_case_template.hpp>
 #include <boost/mpl/list.hpp>
 
 using namespace Gem::Hap;

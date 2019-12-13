@@ -267,6 +267,10 @@ public:
 	}
 
 protected:
+     /***************************************************************************/
+     /** @brief The default constructor. Only needed for (de-)serialization purposes, hence protected */
+     GFactoryT() = default;
+
 	 /***************************************************************************/
 	 /** @brief Performs necessary initialization work */
 	 virtual void init_() BASE { /* nothing */ }
@@ -329,10 +333,6 @@ protected:
 	}
 
 private:
-	 /***************************************************************************/
-	 /** @brief The default constructor. Only needed for (de-)serialization purposes, hence private */
-	 GFactoryT() = default;
-
 	 /***************************************************************************/
 	 /**
 	  * Performs necessary global initialization work. This function is meant for

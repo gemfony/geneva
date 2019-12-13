@@ -1260,7 +1260,7 @@ protected:
     /**
      * Allows to describe local configuration options for gradient descents
      */
-    virtual void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) {
+    void describeLocalOptions_(Gem::Common::GParserBuilder &gpb) override {
         // Describe our own options
         using namespace Gem::Courtier;
 
@@ -1570,9 +1570,9 @@ protected:
      *
      * @param p A smart-pointer to be acted on during post-processing
      */
-    virtual void postProcess_(
+    void postProcess_(
         std::shared_ptr<GParameterSet> &p_base
-    ) {
+    ) override {
         // Convert the base pointer to our local type
         std::shared_ptr<GMetaOptimizerIndividualT<ind_type>> p
             = Gem::Common::convertSmartPointer<GParameterSet, GMetaOptimizerIndividualT<ind_type>>(p_base);

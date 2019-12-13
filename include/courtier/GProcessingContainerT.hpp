@@ -210,9 +210,9 @@ public:
 
 	 // TODO: Make class movable
 	 GProcessingContainerT(GProcessingContainerT<processable_type, processing_result_type> &&) = delete;
-	 virtual ~GProcessingContainerT() BASE = default;
-
 	 GProcessingContainerT<processable_type, processing_result_type>& operator=(GProcessingContainerT<processable_type, processing_result_type> &&) = delete;
+
+     virtual ~GProcessingContainerT() BASE = default;
 
 	 /***************************************************************************/
 	 /**

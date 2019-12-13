@@ -393,11 +393,11 @@ protected:
 	 //---------------------------------------------------------------------------
 
 	 /** @brief Applies modifications to this object. */
-	 virtual G_API_INDIVIDUALS bool modify_GUnitTests_();
+	 G_API_INDIVIDUALS bool modify_GUnitTests_() override;
 	 /** @brief Performs self tests that are expected to succeed. */
-	 virtual G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_();
+	 G_API_INDIVIDUALS void specificTestsNoFailureExpected_GUnitTests_() override;
 	 /** @brief Performs self tests that are expected to fail. */
-	 virtual G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_();
+	 G_API_INDIVIDUALS void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
 	 //---------------------------------------------------------------------------

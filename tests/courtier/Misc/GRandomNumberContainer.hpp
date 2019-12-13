@@ -97,12 +97,13 @@ public:
 	 // Default constructor is in the private section (only needed for de-serialization)
 
 	 GRandomNumberContainer(const GRandomNumberContainer&) = default;
-	 GRandomNumberContainer(GRandomNumberContainer&&) = default;
-
 	 ~GRandomNumberContainer() override = default;
 
 	GRandomNumberContainer& operator=(GRandomNumberContainer const&) = default;
-	GRandomNumberContainer& operator=(GRandomNumberContainer &&) = default;
+
+    // TODO: Make class movable --> see base class
+    GRandomNumberContainer(GRandomNumberContainer&&) = delete;
+	GRandomNumberContainer& operator=(GRandomNumberContainer &&) = delete;
 
 	 /******************************************************************************************/
 
