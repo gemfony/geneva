@@ -1,11 +1,3 @@
-SET (EXECUTABLENAME )
-
-SET (${EXECUTABLENAME}_SRCS
-	GConstrainedFPTTest
-)
-
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/ManualTests )
-
 ################################################################################
 #
 # Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
