@@ -19,18 +19,16 @@ algorithms on single-processor machines, but is instead targeted at
 large scale problems, where the evaluation of a single individual will
 typically take longer than a few seconds.
 
-Geneva is made available as an Open Source software, under the Affero
-GPL, version 3 (AGPL v3). External contributions to the code are very
+Geneva is made available as an Open Source software, under the Apache
+License, version 2.0. External contributions to the code are very
 welcome, and indeed we make this code available in the hope that it
 will not only be useful, but will also encourage users to let us know
 about bugs or suggest or even implement features they would want to
 see in Geneva.
 
-By the same token, however, we aim to remain the single largest
-contributor to the code and will only be able to accept contributions
-where an appropriate transfer of rights takes place. To users and
-programmers wishing to contribute to this software, the terms of the
-AGPL guarantee the continued availability of the code under this license.
+To users and programmers wishing to contribute to this software, the
+terms of the Apache License guarantee the continued availability of
+the code under this license.
 
 Geneva is maintained by Gemfony scientific. To find out more about
 Gemfony and/or Geneva, visit http://www.gemfony.eu or contact us

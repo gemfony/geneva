@@ -1,28 +1,18 @@
-Unless explicitly agreed to in writing by the management of Gemfony scientific UG
-(haftungsbeschraenkt), the Geneva library collection may be used solely according
-to the terms and conditions of version 3 of the GNU Affero General Public License.
-You should have received a copy of that license along with the Geneva library (see
-the file licenses/AfferoGPLv3). If not, see <http://www.gnu.org/licenses/>.
+The Geneva library collection may be used solely according to the terms and
+conditions of version 2.0 of the Apache License. You should have received a
+copy of that license along with the Geneva library (see the file
+licenses/ApacheLicense-2.0). If not, see <http://www.apache.org/licenses/LICENSE-2.0.txt>.
 
-A small number of files of the Geneva library collection is covered by the Boost Software
-License v1. You should have received a copy of the Boost Software License v1
-along with the Geneva library (see the file licenses/BoostSoftwareLicenseV1).
-
-Some stand-alone programs might be covered by version 2 of the GNU General
-Public License. Again you should have received a copy of the GNU General
-Public License version 2 along with the Geneva library (see the file
-licenses/GPLv2). If not, see <http://www.gnu.org/licenses/>.
-
-A few files / or programs may be dual-licensed under both the GNU General
-Public version 2 and version 3 of the GNU Affero General Public License.
+A small number of files of the Geneva library collection is covered by the Boost
+Software License v1. You should have received a copy of the Boost Software License v1
+along with the Geneva library (see the file licenses/BoostSoftwareLicense-1.0).
 
 ***************************************************************************
 IMPORTANT:
-Each code file of the Geneva library under the copyright of Gemfony scientific
-contains licensing information. So if in doubt, please have a look at each file
-individually. If doubts still remain, please contact the authors PRIOR TO USING
-THIS LIBRARY through contact@gemfony.eu. If doubts continue to remain, we recommend
-to not use the library at all.
+Each code file of the Geneva library contains licensing information.
+So if in doubt, please have a look at each file individually. If doubts
+still remain, please contact the authors PRIOR TO USING THIS LIBRARY
+through the Github project page.
 ***************************************************************************
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR

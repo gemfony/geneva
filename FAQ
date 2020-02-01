@@ -81,11 +81,9 @@ A: As in any other Open Source project, there are many options how you may help.
    you would let us know. The same applies to the implementation of new features.
 
 Q: What happens to my contributions ?
-A: We will carefully review your contributions and will then decide whether to add them to
-   the general source tree. It is likely that we will make changes to code you have supplied
-   to us before inclusion to the source tree. Please also note that we might have to ask
-   you to sign a contributor agreement before we accept changes to the code. Please see the
-   manual for further details.
+A: Your contributions should be performed via a pull request, and will they will be
+   reviewed by other project developers prior to be accepted into the source tree.
+   Please see the manual for further details.
 
 
 Technical questions:
