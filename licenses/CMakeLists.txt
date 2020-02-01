@@ -1,10 +1,9 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET ( GENEVALICENSES
-	AfferoGPLv3
-	BoostSoftwareLicenseV1
+	ApacheLicense-2.0
+	BoostSoftwareLicense-1.0
 	COPYING-CMAKE-SCRIPTS
-	GPLv2
 	README
 )
 
