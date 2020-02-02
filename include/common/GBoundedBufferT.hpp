@@ -1,7 +1,3 @@
-/**
- * @file
- */
-
 /*
  * This file is part of the Geneva library collection.
  *
@@ -16,33 +12,10 @@
  * http://www.boost.org/LICENSE_1_0.txt)
  ***************************************************************
  *
- * As allowed by the license, modifications were applied to the code.
- * These are also covered by the Boost Software License, Version 1.0, and are
- * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
  *
- * NOTE THAT THE BOOST-LICENSE DOES NOT APPLY TO ANY OTHER FILES OF THE
- * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE!
- *
- * See the AUTHORS file in the top-level directory for a list of authors.
- *
- * Contact: contact [at] gemfony (dot) eu
- *
- * Geneva was developed with kind support from Karlsruhe Institute of
- * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
- * information about KIT and SCC can be found at http://www.kit.edu/english
- * and http://scc.kit.edu .
- *
- * Geneva is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * Boost Software License for more details.
- *
- * For further information on Gemfony scientific and Geneva, visit
- * http://www.gemfony.eu .
- */
-
-/*
- * The following license applies to the code in this file:
+ * The following license applies to the code IN THIS FILE:
  *
  * ***************************************************************************
  *
@@ -71,6 +44,9 @@
  * DEALINGS IN THE SOFTWARE.
  *
  * ***************************************************************************
+ *
+ * NOTE THAT THE BOOST-LICENSE DOES NOT APPLY TO ANY OTHER FILES OF THE
+ * GENEVA LIBRARY, UNLESS THIS IS EXPLICITLY STATED IN THE CORRESPONDING FILE!
  */
 
 #pragma once
