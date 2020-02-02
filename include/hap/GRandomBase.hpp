@@ -1,7 +1,3 @@
-/**
- * @file
- */
-
 /********************************************************************************
  *
  * This file is part of the Geneva library collection. The following license

@@ -1,7 +1,3 @@
-/**
- * @file GStandard_test.hpp
- */
-
 /********************************************************************************
  *
  * This file is part of the Geneva library collection. The following license
