@@ -834,33 +834,8 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 			<< " */" << std::endl
 			<< std::endl
 			<< "/*" << std::endl
-			<< " * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)" << std::endl
-			<< " *" << std::endl
-			<< " * See the AUTHORS file in the top-level directory for a list of authors." << std::endl
-			<< " *" << std::endl
-			<< " * Contact: contact [at] gemfony (dot) eu" << std::endl
-			<< " *" << std::endl
 			<< " * This file is part of the Geneva library collection." << std::endl
-			<< " *" << std::endl
-			<< " * Geneva was developed with kind support from Karlsruhe Institute of" << std::endl
-			<< " * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further" << std::endl
-			<< " * information about KIT and SCC can be found at http://www.kit.edu/english" << std::endl
-			<< " * and http://scc.kit.edu ." << std::endl
-			<< " *" << std::endl
-			<< " * Geneva is free software: you can redistribute and/or modify it under" << std::endl
-			<< " * the terms of version 3 of the GNU Affero General Public License" << std::endl
-			<< " * as published by the Free Software Foundation." << std::endl
-			<< " *" << std::endl
-			<< " * Geneva is distributed in the hope that it will be useful," << std::endl
-			<< " * but WITHOUT ANY WARRANTY; without even the implied warranty of" << std::endl
-			<< " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << std::endl
-			<< " * GNU Affero General Public License for more details." << std::endl
-			<< " *" << std::endl
-			<< " * You should have received a copy of the GNU Affero General Public License" << std::endl
-			<< " * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>." << std::endl
-			<< " *" << std::endl
-			<< " * For further information on Gemfony scientific and Geneva, visit" << std::endl
-			<< " * http://www.gemfony.eu ." << std::endl
+			<< " * The same license applies to this generated file." << std::endl
 			<< " */" << std::endl
 			<< std::endl
 			<< std::endl
@@ -1172,33 +1147,8 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile
 			 << " */" << std::endl
 			 << std::endl
 			 << "/*" << std::endl
-			 << " * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)" << std::endl
-			 << " *" << std::endl
-			 << " * See the AUTHORS file in the top-level directory for a list of authors." << std::endl
-			 << " *" << std::endl
-			 << " * Contact: contact [at] gemfony (dot) eu" << std::endl
-			 << " *" << std::endl
 			 << " * This file is part of the Geneva library collection." << std::endl
-			 << " *" << std::endl
-			 << " * Geneva was developed with kind support from Karlsruhe Institute of" << std::endl
-			 << " * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further" << std::endl
-			 << " * information about KIT and SCC can be found at http://www.kit.edu/english" << std::endl
-			 << " * and http://scc.kit.edu ." << std::endl
-			 << " *" << std::endl
-			 << " * Geneva is free software: you can redistribute and/or modify it under" << std::endl
-			 << " * the terms of version 3 of the GNU Affero General Public License" << std::endl
-			 << " * as published by the Free Software Foundation." << std::endl
-			 << " *" << std::endl
-			 << " * Geneva is distributed in the hope that it will be useful," << std::endl
-			 << " * but WITHOUT ANY WARRANTY; without even the implied warranty of" << std::endl
-			 << " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << std::endl
-			 << " * GNU Affero General Public License for more details." << std::endl
-			 << " *" << std::endl
-			 << " * You should have received a copy of the GNU Affero General Public License" << std::endl
-			 << " * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>." << std::endl
-			 << " *" << std::endl
-			 << " * For further information on Gemfony scientific and Geneva, visit" << std::endl
-			 << " * http://www.gemfony.eu ." << std::endl
+			 << " * The same license applies to this generated file." << std::endl
 			 << " */" << std::endl
 			 << std::endl
 			 << "#include <cmath>" << std::endl
