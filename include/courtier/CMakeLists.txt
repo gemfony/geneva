@@ -4,7 +4,6 @@ SET ( COMMUNICATIONINCLUDES
     GBaseClientT.hpp
     GAsioConsumerT.hpp
     GCourtierHelperFunctions.hpp
-        ../../retired/GAsioSerialTCPConsumerT.hpp
 	GBaseConsumerT.hpp
     GCommandContainerT.hpp
     GExecutorT.hpp
