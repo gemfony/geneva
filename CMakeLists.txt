@@ -136,34 +136,34 @@ ADD_SUBDIRECTORY (examples)
 ################################################################################
 # Custom target for all compilable items in the distribution
 ADD_CUSTOM_TARGET(
-    "gemfony-build-all"  DEPENDS
-    core
-    examples
-    tests
-    # incubator
-    COMMENT "Build the entire Gemfony library collection"
+	"gemfony-build-all" DEPENDS
+	core
+	examples
+	tests
+	# incubator
+	COMMENT "Build the entire Gemfony library collection"
 )
 
 ################################################################################
 # Custom target for all compilable items in the distribution
 ADD_CUSTOM_TARGET(
-    "install_gemfony-build-all"
-    "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install
-    DEPENDS gemfony-build-all
-    COMMENT "Installing gemfony-build-all"
+	"install_gemfony-build-all"
+	"${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install
+	DEPENDS gemfony-build-all
+	COMMENT "Installing gemfony-build-all"
 )
 
 ################################################################################
 # Additional information files to be copied
 
 SET ( INFORMATIONFILES
-	AUTHORS
 	CHANGES
-	COPYING
-        FAQ
+	FAQ
 	INSTALL
 	INSTALL.Windows
 	KNOWNBUGS
+	LICENSE
+	NOTICE
 	RATEYOUREXPERIENCE
 	README
 	README.documentation
