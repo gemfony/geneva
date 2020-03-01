@@ -4,12 +4,12 @@ SET ( COMMUNICATIONINCLUDES
     GBaseClientT.hpp
     GAsioConsumerT.hpp
     GCourtierHelperFunctions.hpp
-	GBaseConsumerT.hpp
+    GBaseConsumerT.hpp
     GCommandContainerT.hpp
     GExecutorT.hpp
-	GBrokerT.hpp
-	GBufferPortT.hpp
-	GCourtierEnums.hpp
+    GBrokerT.hpp
+    GBufferPortT.hpp
+    GCourtierEnums.hpp
     GProcessingContainerT.hpp
     GSerialConsumerT.hpp
     GStdThreadConsumerT.hpp

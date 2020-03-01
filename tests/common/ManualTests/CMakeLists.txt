@@ -4,13 +4,12 @@ ADD_CUSTOM_TARGET( "tests-common-manual"
 	# Add all the available test targets (EXECUTABLENAMEs) here
 	DEPENDS
         GCanvasTest
-		GFormulaParserTest
-		GHelperFunctionsTest
-		GLoggerTest
-		GPlotDesignerTest
-		GThreadPoolTest
+        GFormulaParserTest
+        GHelperFunctionsTest
+        GLoggerTest
+        GPlotDesignerTest
+        GThreadPoolTest
         GThreadSafeQueueTest
-        ../../../retired/GThreadTest
 	COMMENT "Building the manual tests for the Common library."
 )
 
