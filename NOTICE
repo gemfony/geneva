@@ -1,0 +1,63 @@
+History of the Geneva library collection
+----------------------------------------
+
+The Geneva library collection was initially developed by Dr. Ruediger Berlich
+with kind support by the Helmholtz Society and by Steinbuch Centre
+for Computing at the Karlsruhe Institute of Technology (as well as
+other departments). It was later maintained together with Dr. Ariel Garcia under
+the auspices of Gemfony scientific. For further information on Gemfony scientific,
+see http://www.gemfomy.eu .
+
+Predecessors of Geneva were developed as of 1994 in the context of a diploma
+thesis by Ruediger Berlich at the Institute for Experimental Physics I at
+Ruhr-Universität Bochum in order to train feed forward neural networks for the
+recognition of hadronic splitoffs at the Crystal Barrel experiment at CERN/Geneva.
+That code was extended from 2001 to 2004 under the name "EVA" to support the
+optimization of particle physics analysis at the BaBar experiment (SLAC), again at
+the Institute for Experimental Physics I at RUB.
+
+Geneva is a complete re-implementation of EVA, with advanced support for distributed
+processing of objective functions, added optimization algorithms and a set of
+supporting libraries e.g. for acyclic creation of random numbers. It is predominantly used
+in physics, but also has a deployment in the automotive industry.
+
+The majority of files of Geneva was released under the Apache v2 license in February 2020
+in order to facilitate external contributions to the code and broaden the set of
+deployment scenarios. You should have received a copy of that license along with the
+Geneva library (see the file licenses/ApacheLicense-2.0). If not, see
+<http://www.apache.org/licenses/LICENSE-2.0.txt>.
+
+A small number of files of the Geneva library collection is covered by the Boost
+Software License v1. You should have received a copy of the Boost Software License v1
+along with the Geneva library (see the file licenses/BoostSoftwareLicense-1.0).
+
+
+
+Credits
+-------
+
+We'd like to sincerely thank Dr. Sven Gabriel for his kind
+support and for discovering numerous problems.
+
+Alexander Müller of the Friedrich-Alexander-Universität Erlangen-
+Nürnberg has made many suggestions, discovered bugs and has given
+important advice for porting Geneva to Windows.
+
+Lisa Schätzle has helped with the improvement of the Gradient Descent
+implementation.
+
+Mathias Michel of Mainz University has kindly shared his experiences
+during the deployment of Geneva in a package used for Dalitz plot
+analysis and thus helped to mature Geneva.
+
+Dominik Rödel and Felix Zürker of Tenneco Clean Air Europe made
+many valuable suggestions during a joint project dealing with the
+optimization of the acoustics of exhaust systems.
+
+The work with Prof. Dr. Matthias Lutz and Dr. Kilian Schwarz of
+GSI Darmstadt on scalability issues and optimization efficiency
+of a particular use case from particle physics has helped to make
+Geneva a more mature and versatile solution.
+
+
+

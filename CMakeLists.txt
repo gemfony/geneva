@@ -1,32 +1,36 @@
 ################################################################################
 #
-# Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
+# This file is part of the Geneva library collection. The following license
+# applies to this file:
 #
-# See the AUTHORS file in the top-level directory for a list of authors.
+# ------------------------------------------------------------------------------
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 #
-# Contact: contact [at] gemfony (dot) eu
+#    http://www.apache.org/licenses/LICENSE-2.0
 #
-# This file is part of the Geneva library collection.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ------------------------------------------------------------------------------
 #
-# Geneva was developed with kind support from Karlsruhe Institute of
-# Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
-# information about KIT and SCC can be found at http://www.kit.edu/english
-# and http://scc.kit.edu .
+# Note that other files in the Geneva library collection may use a different
+# license. Please see the licensing information in each file.
 #
-# Geneva is free software: you can redistribute and/or modify it under
-# the terms of version 3 of the GNU Affero General Public License
-# as published by the Free Software Foundation.
+################################################################################
 #
-# Geneva is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details.
+# Geneva was started by Dr. Rüdiger Berlich and was later maintained together
+# with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
+# information on Gemfony scientific, see http://www.gemfomy.eu .
 #
-# You should have received a copy of the GNU Affero General Public License
-# along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
+# The majority of files in Geneva was released under the Apache license v2.0
+# in February 2020.
 #
-# For further information on Gemfony scientific and Geneva, visit
-# http://www.gemfony.eu .
+# See the NOTICE file in the top-level directory of the Geneva library
+# collection for a list of contributors and copyright information.
 #
 ################################################################################
 
@@ -83,8 +87,8 @@ INCLUDE(CommonGenevaBuild)
 # versions while even minor numbers stand for production releases.
 
 SET(VERSION_MAJOR "1")
-SET(VERSION_MINOR "9")
-SET(VERSION_PATCH "2")
+SET(VERSION_MINOR "10")
+SET(VERSION_PATCH "0BETA")
 
 SET(GENEVA_VERSION ${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH})
 
@@ -132,35 +136,34 @@ ADD_SUBDIRECTORY (examples)
 ################################################################################
 # Custom target for all compilable items in the distribution
 ADD_CUSTOM_TARGET(
-    "gemfony-build-all"  DEPENDS
-    core
-    examples
-    tests
-    # incubator
-    COMMENT "Build the entire Gemfony library collection"
+	"gemfony-build-all" DEPENDS
+	core
+	examples
+	tests
+	# incubator
+	COMMENT "Build the entire Gemfony library collection"
 )
 
 ################################################################################
 # Custom target for all compilable items in the distribution
 ADD_CUSTOM_TARGET(
-    "install_gemfony-build-all"
-    "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install
-    DEPENDS gemfony-build-all
-    COMMENT "Installing gemfony-build-all"
+	"install_gemfony-build-all"
+	"${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}" --target install
+	DEPENDS gemfony-build-all
+	COMMENT "Installing gemfony-build-all"
 )
 
 ################################################################################
 # Additional information files to be copied
 
 SET ( INFORMATIONFILES
-	AUTHORS
 	CHANGES
-	COPYING
-	CREDITS
 	FAQ
 	INSTALL
 	INSTALL.Windows
 	KNOWNBUGS
+	LICENSE
+	NOTICE
 	RATEYOUREXPERIENCE
 	README
 	README.documentation
@@ -236,7 +239,7 @@ SET(
 
 # RPM specific variables
 SET(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_AUX_PACKAGE_DESCRIPTION})
-SET(CPACK_RPM_PACKAGE_LICENSE "Affero GPL v3")
+SET(CPACK_RPM_PACKAGE_LICENSE "Apache License 2.0")
 SET(CPACK_RPM_PACKAGE_GROUP "Sciences/Libraries")
 SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= ${GENEVA_MIN_BOOST_VERSION}")
 

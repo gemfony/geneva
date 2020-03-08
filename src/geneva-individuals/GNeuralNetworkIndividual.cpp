@@ -1,36 +1,38 @@
-/**
- * @file
- */
-
-/*
- * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)
+/********************************************************************************
  *
- * See the AUTHORS file in the top-level directory for a list of authors.
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
  *
- * Contact: contact [at] gemfony (dot) eu
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * This file is part of the Geneva library collection.
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
- * Geneva was developed with kind support from Karlsruhe Institute of
- * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further
- * information about KIT and SCC can be found at http://www.kit.edu/english
- * and http://scc.kit.edu .
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
  *
- * Geneva is free software: you can redistribute and/or modify it under
- * the terms of version 3 of the GNU Affero General Public License
- * as published by the Free Software Foundation.
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
  *
- * Geneva is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
+ ********************************************************************************
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>.
+ * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
+ * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
+ * information on Gemfony scientific, see http://www.gemfomy.eu .
  *
- * For further information on Gemfony scientific and Geneva, visit
- * http://www.gemfony.eu .
- */
+ * The majority of files in Geneva was released under the Apache license v2.0
+ * in February 2020.
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
 
 #include <geneva-individuals/GNeuralNetworkIndividual.hpp>
 
@@ -834,33 +836,8 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 			<< " */" << std::endl
 			<< std::endl
 			<< "/*" << std::endl
-			<< " * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)" << std::endl
-			<< " *" << std::endl
-			<< " * See the AUTHORS file in the top-level directory for a list of authors." << std::endl
-			<< " *" << std::endl
-			<< " * Contact: contact [at] gemfony (dot) eu" << std::endl
-			<< " *" << std::endl
 			<< " * This file is part of the Geneva library collection." << std::endl
-			<< " *" << std::endl
-			<< " * Geneva was developed with kind support from Karlsruhe Institute of" << std::endl
-			<< " * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further" << std::endl
-			<< " * information about KIT and SCC can be found at http://www.kit.edu/english" << std::endl
-			<< " * and http://scc.kit.edu ." << std::endl
-			<< " *" << std::endl
-			<< " * Geneva is free software: you can redistribute and/or modify it under" << std::endl
-			<< " * the terms of version 3 of the GNU Affero General Public License" << std::endl
-			<< " * as published by the Free Software Foundation." << std::endl
-			<< " *" << std::endl
-			<< " * Geneva is distributed in the hope that it will be useful," << std::endl
-			<< " * but WITHOUT ANY WARRANTY; without even the implied warranty of" << std::endl
-			<< " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << std::endl
-			<< " * GNU Affero General Public License for more details." << std::endl
-			<< " *" << std::endl
-			<< " * You should have received a copy of the GNU Affero General Public License" << std::endl
-			<< " * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>." << std::endl
-			<< " *" << std::endl
-			<< " * For further information on Gemfony scientific and Geneva, visit" << std::endl
-			<< " * http://www.gemfony.eu ." << std::endl
+			<< " * The same license applies to this generated file." << std::endl
 			<< " */" << std::endl
 			<< std::endl
 			<< std::endl
@@ -1172,33 +1149,8 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile
 			 << " */" << std::endl
 			 << std::endl
 			 << "/*" << std::endl
-			 << " * Copyright (C) Gemfony scientific UG (haftungsbeschraenkt)" << std::endl
-			 << " *" << std::endl
-			 << " * See the AUTHORS file in the top-level directory for a list of authors." << std::endl
-			 << " *" << std::endl
-			 << " * Contact: contact [at] gemfony (dot) eu" << std::endl
-			 << " *" << std::endl
 			 << " * This file is part of the Geneva library collection." << std::endl
-			 << " *" << std::endl
-			 << " * Geneva was developed with kind support from Karlsruhe Institute of" << std::endl
-			 << " * Technology (KIT) and Steinbuch Centre for Computing (SCC). Further" << std::endl
-			 << " * information about KIT and SCC can be found at http://www.kit.edu/english" << std::endl
-			 << " * and http://scc.kit.edu ." << std::endl
-			 << " *" << std::endl
-			 << " * Geneva is free software: you can redistribute and/or modify it under" << std::endl
-			 << " * the terms of version 3 of the GNU Affero General Public License" << std::endl
-			 << " * as published by the Free Software Foundation." << std::endl
-			 << " *" << std::endl
-			 << " * Geneva is distributed in the hope that it will be useful," << std::endl
-			 << " * but WITHOUT ANY WARRANTY; without even the implied warranty of" << std::endl
-			 << " * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the" << std::endl
-			 << " * GNU Affero General Public License for more details." << std::endl
-			 << " *" << std::endl
-			 << " * You should have received a copy of the GNU Affero General Public License" << std::endl
-			 << " * along with the Geneva library. If not, see <http://www.gnu.org/licenses/>." << std::endl
-			 << " *" << std::endl
-			 << " * For further information on Gemfony scientific and Geneva, visit" << std::endl
-			 << " * http://www.gemfony.eu ." << std::endl
+			 << " * The same license applies to this generated file." << std::endl
 			 << " */" << std::endl
 			 << std::endl
 			 << "#include <cmath>" << std::endl
