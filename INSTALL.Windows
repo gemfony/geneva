@@ -1,9 +1,11 @@
 Geneva Installation on Windows
 ==============================
 
-Geneva has been tested to compile on Windows 10 using the MS Visual
+Geneva has in the past been tested to compile on Windows 10 using the MS Visual
 C++ 14.0 compiler from the "Visual Studio Community 2015" developer
-environment. Kindly note that this port is still in Beta. Your mileage
+environment.
+
+Kindly note that this port is still in Alpha. Your mileage
 may also vary with other Windows/compiler version combinations. To
 correctly support Visual Studio 2015 you will need CMake 3.2.3 or newer.
 
