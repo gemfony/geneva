@@ -10,7 +10,7 @@ IF ( NOT VERSION_MAJOR MATCHES "^[0-9]$" )
 	MESSAGE ( AUTHOR_WARNING "Wrong major version number! (${VERSION_MAJOR})" )
 ENDIF ()
 
-IF ( NOT VERSION_MINOR MATCHES "^[0-9]$" )
+IF ( NOT VERSION_MINOR MATCHES "^(10|[0-9])$" )
 	MESSAGE ( AUTHOR_WARNING "Wrong minor version number! (${VERSION_MINOR})" )
 ENDIF ()
 
