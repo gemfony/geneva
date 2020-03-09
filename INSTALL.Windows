@@ -10,10 +10,10 @@ may also vary with other Windows/compiler version combinations. To
 correctly support Visual Studio 2015 you will need CMake 3.2.3 or newer.
 
 The authors would very much appreciate your feedback through the Geneva
-Development Forum http://www.gemfony.eu/index.php?forums .
+GitHub Project.
 
 In case you encounter any bugs or issues please let us know through the Geneva
-bugtracker: https://bugs.launchpad.net/geneva .
+bugtracker: https://github.com/gemfony/geneva/issues .
 
 For further information, please also have a look at our user-manual, available
 from the Downloads section of our web page.
