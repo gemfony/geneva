@@ -10,7 +10,7 @@ IF ( NOT VERSION_MAJOR MATCHES "^[0-9]$" )
 	MESSAGE ( AUTHOR_WARNING "Wrong major version number! (${VERSION_MAJOR})" )
 ENDIF ()
 
-IF ( NOT VERSION_MINOR MATCHES "^(10|[0-9])$" )
+IF ( NOT VERSION_MINOR MATCHES "^(1?[0-9])$" )
 	MESSAGE ( AUTHOR_WARNING "Wrong minor version number! (${VERSION_MINOR})" )
 ENDIF ()
 
@@ -35,16 +35,16 @@ CONFIGURE_FILE (
 
 SET ( GENEVACOMMONINCLUDES
 	GBarrier.hpp
-    GBoundedBufferT.hpp
+	GBoundedBufferT.hpp
 	GCanvas.hpp
 	GCommonEnums.hpp
-    GCommonHelperFunctions.hpp
-    GCommonHelperFunctionsT.hpp
+	GCommonHelperFunctions.hpp
+	GCommonHelperFunctionsT.hpp
 	GCommonInterfaceT.hpp
-    GCommonMathHelperFunctions.hpp
-    GCommonMathHelperFunctionsT.hpp
+	GCommonMathHelperFunctions.hpp
+	GCommonMathHelperFunctionsT.hpp
 	GDefaultValueT.hpp
-    GErrorStreamer.hpp
+	GErrorStreamer.hpp
 	GExceptions.hpp
 	GExpectationChecksT.hpp
 	GFactoryT.hpp
@@ -56,15 +56,15 @@ SET ( GENEVACOMMONINCLUDES
 	GParserBuilder.hpp
 	GPODVectorT.hpp
 	GPlotDesigner.hpp
-    GPtrVectorT.hpp
-    GSerializableFunctionObjectT.hpp
+	GPtrVectorT.hpp
+	GSerializableFunctionObjectT.hpp
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp
 	GSingletonT.hpp
 	GThreadGroup.hpp
 	GThreadPool.hpp
-    GTupleIO.hpp
-    GTypeToStringT.hpp
+	GTupleIO.hpp
+	GTypeToStringT.hpp
 	GTypeTraitsT.hpp
 	GUnitTestFrameworkT.hpp
 )
@@ -73,10 +73,10 @@ SET ( GENEVACOMMONINCLUDES
 ADD_CUSTOM_TARGET(CLION_ALL_COMMON_HEADERS SOURCES ${GENEVACOMMONINCLUDES})
 
 SET_TARGET_PROPERTIES(
-    CLION_ALL_COMMON_HEADERS
-    PROPERTIES
-    CXX_STANDARD 14
-    CXX_STANDARD_REQUIRED 14
+	CLION_ALL_COMMON_HEADERS
+	PROPERTIES
+	CXX_STANDARD 14
+	CXX_STANDARD_REQUIRED 14
 )
 
 
