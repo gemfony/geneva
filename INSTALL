@@ -2,34 +2,25 @@ Target systems
 ==============
 
 The main development work of the Geneva library collection is currently done
-on Ubuntu and Debian. It is likely that Geneva compiles on most other Linux
-and Unix systems using the GNU Compiler Collection or CLang. The main branch
-of Geneva development in Launchpad is built and tested nightly under
-	Ubuntu 16.04,
-	Ubuntu 14.04,
-	CentOS 7, and
-	Debian 9
-using different Boost versions starting from 1.66, using GCC versions
-4.8 to 6.3 or CLang versions 3.5 to 5, and different compiler settings. See
-Gemfony's autobuild system for more details:
-	http://build.gemfony.eu/index.php?project=Geneva
+on Ubuntu. It is likely that Geneva compiles on most other Linux and Unix
+systems using recent versions of the GNU Compiler Collection or CLang.
 
-We have also managed to compile Geneva on MacOS 10.9 using the Clang
+We have also managed to compile Geneva on MacOS 10.15.3 using the Clang
 compiler, which comes with the development suite. Note that support for MacOS
-is experimental at best.
+is experimental.
 
-Geneva has also been tested to compile and work under Windows both using the
-MS Visual C++ 14.0 ("Visual Studio Community 2015") compiler and the Cygwin
-environment.
+Earlier versions of Geneva are also known to compile and work under Windows
+using the MS Visual C++ 14.0 ("Visual Studio Community 2015") compiler. While we
+try to maintain Windows compatibility particularly be sticking to the C++ standard,
+there are no regular tests that ascertain that compatibility. So your mileage
+may vary.
 
 The authors would very much appreciate your feedback through the Geneva
-GitHub Project.
-
-In case you encounter any bugs or issues please let us know through the Geneva
-bugtracker: https://github.com/gemfony/geneva/issues .
+GitHub Project. In case you encounter any bugs or issues please let us know through
+the Geneva bugtracker: https://github.com/gemfony/geneva/issues .
 
 For further information, please also have a look at our user-manual, available
-from the Downloads section of our web page.
+from the Downloads section of our web page http://www.gemfony.eu .
 
 
 Prerequisites
@@ -40,8 +31,8 @@ The build system uses CMake in version 3.1 or later.
 You will also need the Boost libraries (see http://www.boost.org) in version
 1.70 or newer. Relying on the libraries provided by your system (if available)
 is the recommended way to install Boost. Alternatively, you may want to
-compile and install a custom Boost from source, see the Appendix "Compiling
-Boost" below for more details. We currently recommend Boost version 1.70.
+compile and install a custom Boost from source, see the section "Compiling
+Boost" below for more details. We currently recommend Boost version 1.70 or higher.
 
 Please do make sure that Boost has been compiled with the same C++ standard
 mode that you wish to use for Geneva. Geneva currently requires support
@@ -56,7 +47,7 @@ Installation prerequisites on Debian/Ubuntu
 -------------------------------------------
 
 The following commands should be enough to install the required prerequisites
-in any reasonably modern Debian/Ubuntu release (Debian 10, Ubuntu 18.04 or later):
+in any reasonably modern Ubuntu release (Ubuntu 18.04 or later):
 
 sudo apt-get install --no-install-recommends cmake git g++
 
@@ -70,83 +61,11 @@ sudo apt-get install --no-install-recommends libboost-dev libboost-atomic-dev \
         libboost-filesystem-dev libboost-program-options-dev libboost-regex-dev \
         libboost-serialization-dev libboost-system-dev libboost-test-dev
 
-
-Installation prerequisites on MacOS X (tested only on 10.10)
-------------------------------------------------------------
-
-** NOTE: this section is outdated. **
-
-You should first install the Xcode environment from the App store. This
-will give you a working, Clang-based C++ compiler. You should also install Mac
-versions of CMake and Git.
-
-We recommend that you compile a custom boost version. With Boost 1.57,
-unpack the archive, then run the following commands inside of the main
-directory of the boost source tree:
-
-./bootstrap.sh --prefix=/opt/boost157/
-sudo ./b2 -j 4 install
-
-This assumes a system with 4 cores. The directories can of course be adapted.
-
-MacOS contains two incompatible std C++ libs: libstdc++ and libc++ . With MacOS 10.9,
-libc++ has become the default. In order to compile Geneva with Yosemite (a.k.a. 10.10)
-you need to make sure that libstdc++ is being used both in Boost and in Geneva. All
-necessary modifications have been made in the Geneva build files so that the code
-(hopefully) compiles cleanly with libstdc++ . For Boost, however, you need to do some
-manual work:
-
-- Create a file /etc/site-config.jam with the following content (or add the lines to
-an existing file, you could also use user-config.jam in your home-directory, if you do
-not want or may not create a system-wide configuration file):
-
-using clang : 98
-    : "/usr/bin/clang++"
-    : <cxxflags>"-std=c++98 -stdlib=libstdc++" <linkflags>"-stdlib=libstdc++"
-    ;
-
-This will enforce the usage of libstdc++ and the 98 C++ standard.
-
-- bootstrap boost, then call
-
-./b2 -j4 -d+2 toolset=clang-98 define=BOOST_SYSTEM_NO_DEPRECATED variant=release threading=multi address-model=64 stage install
-
-Through the increased verbosity (through -d+2) you can check that the correct
-arguments are passed to the compiler.
-
-On Yosemite we currently use static Boost libs due to trouble with the link order. Combining
-this with dynamic Geneva libs is fine, however.
-
-Installation prerequisites on Cygwin
-------------------------------------
-
-Installing the following packages should be enough to compile Geneva
-under CygWin:
-
-        gcc-core
-        gcc-g++
-        make
-        cmake
-        libboost-devel
-        libboost_*1.70  (at least you need: atomic,beast,filesystem,
-                         program_options,random,regex,serialization,system,
-                         test_exec_monitor,unit_test_framework)
-
-Then build Geneva as in any Unix system, see "Building and installing
-Geneva" below.
-
-Installation prerequisites on Windows
--------------------------------------
-
-See the documentation file INSTALL.Windows in this same folder.
-
-
 Building and installing Geneva
 ==============================
 
-To build the Geneva library on Unix-based systems use one of the two
-procedures enumerated below. See the documentation file INSTALL.Windows
-in this same folder for compilation instructions on a Windows system.
+To build the Geneva library on Linux-based systems use one of the two
+procedures listed below.
 
 
 a) The easy (but more restricted) way
@@ -158,25 +77,29 @@ copy the config file over:
 
 cp ../Geneva/scripts/genevaConfig.gcfg ./myGenevaConfig.gcfg
 
+Note: It is recommended not to build inside of the Geneva source tree.
+
 Adapt the variables in the file appropriately. Then call
 
-sh ../Geneva/scripts/prepareBuild.sh ./myGenevaConfig.gcfg
+../Geneva/scripts/prepareBuild.sh ./myGenevaConfig.gcfg
 
 Finally build and install in the usual way:
 
-make               # Use the -j2 switch if you have a dual core CPU
+make               # Use the -j4 switch if you have a quad core CPU
 sudo make install  # Assuming you want to install to a system directory
 
 You can clean up the build folder by running "make clean" inside of $HOME/build .
 
+Running the prepareBuild.sh command again will put the build directory into
+pristine condition.
 
 b) Direct call to cmake
 -----------------------
 
 In order to compile this project and the examples:
 
-Create a build directory anywhere in the file system and change into it.
-Then call
+Create a build directory anywhere in the file system (but not inside of the Geneva
+source tree) and change into it. Then call
 
 cmake /path/to/geneva-top-dir
 
@@ -213,46 +136,28 @@ line that was used to call the compiler.
 This command needs to be called on a single line.
 
 Have a look at the configuration script prepareBuild.sh for some of the options
-available for a direct call to cmake,
+available for a direct call to cmake.
 
 
-Making the libraries known to the system
-========================================
-
-a) On Linux
------------
+Making the libraries known to the system on Linux
+=================================================
 
 Note that under Linux, you will have to make the installation directory
 known to the linker, so henceforth you can link to the library automatically.
 Under most Linux systems this can be done by creating a file
 /etc/ld.so.conf.d/geneva.conf with the content
 
-/where/the/library/goes/lib
+/where/the/library/is/stored
 
 You then need to execute "ldconfig -v".
 
 Another possibility is to export the library location prior to running
 programs based on Geneva:
 
-export LD_LIBRARY_PATH="/where/the/library/goes/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH="/where/the/library/is/stored:$LD_LIBRARY_PATH"
 
-You should follow a similar procedure for the boost libraries, if you
+You should follow a similar procedure for the Boost libraries, if you
 have compiled your own version of it.
-
-b) On MacOS
------------
-
-Currently we simply set the DYLD_LIBRARY_PATH to the Geneva and Boost
-library directories. Please do let us know about more convenient ways
-of permanently setting library paths.
-
-c) On Cygwin
-------------
-
-On Cygwin, like in Windows itself, you only need to add the DLLs to your
-path to allow the system to use them:
-
-export PATH="/where/the/library/goes/lib:$PATH"
 
 
 Recommended Software
@@ -267,18 +172,21 @@ programs). Note, though, that ROOT is not required to perform
 optimization with the Geneva library collection.
 
 
-Appendix: Compiling Boost on Linux
-==================================
+Compiling Boost on Linux
+========================
 
 Download Boost from http://www.boost.org and extract the compressed file.
 This will create a folder "boost_1_70_0", for instance. Change to that
-folder and, assuming Boost should be installed in /opt/boost170 (which
+folder and, assuming that Boost should be installed in /opt/boost170 (which
 should be writable), execute
 
 ./bootstrap.sh --prefix=/opt/boost170
-sudo ./b2 threading=multi install
+sudo ./b2 cxxflags="-std=c++14" threading=multi install
 
-You can add a "-j 2" to the second command if your system has two cores.
+This will compile Boost using the C++14 standard, which is the recommended
+version for Geneva.
+
+You can add a "-j 4" to the second command if your system has four cores.
 This will speed up the otherwise quite long compilation time.
 
 Once done you can use the Boost include path as explained above, with
@@ -288,8 +196,4 @@ If FindBoost.cmake has trouble finding the Boost libraries in the specified
 location, it might help to compile the library with the flag
 "--layout=versioned" or "--layout=tagged".
 
-
-Appendix: Known bugs and (possibly) fixes on some platforms
-===========================================================
-
-See the KNOWNBUGS file in the main source folder.
+Do not forget to add an entry for Boost to ldconfig, as discussed above.
