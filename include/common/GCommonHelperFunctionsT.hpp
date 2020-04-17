@@ -61,7 +61,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/math/special_functions/next.hpp>
-#include <boost/optional.hpp>
 #include <boost/variant.hpp>
 #include <boost/checked_delete.hpp>
 #include <boost/lockfree/spsc_queue.hpp>

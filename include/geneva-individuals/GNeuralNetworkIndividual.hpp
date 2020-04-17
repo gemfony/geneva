@@ -64,7 +64,6 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/version.hpp>
-#include <boost/optional.hpp>
 #include <boost/filesystem.hpp>
 
 // Geneva header files go here

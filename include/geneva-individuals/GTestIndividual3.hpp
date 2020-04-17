@@ -55,7 +55,6 @@
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/optional.hpp>
 
 // Geneva header files go here
 #include "geneva/GParameterSet.hpp"

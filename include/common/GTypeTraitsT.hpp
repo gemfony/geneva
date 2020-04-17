@@ -51,7 +51,7 @@
 
 // Boost headers go here
 #include <boost/cast.hpp>
-#include <boost/optional.hpp>
+//#include <boost/optional.hpp>
 #include <boost/lexical_cast.hpp>
 
 // Geneva headers go here
