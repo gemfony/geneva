@@ -66,7 +66,6 @@
 #include <boost/spirit/include/phoenix_stl.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/utility.hpp>
-#include <boost/variant.hpp>
 
 // Geneva headers go here
 #include "common/GLogger.hpp"

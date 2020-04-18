@@ -64,7 +64,6 @@
 #include <limits>
 
 // Boost header files go here
-#include <boost/any.hpp>
 #include <boost/archive/basic_archive.hpp>
 #include <boost/cast.hpp>
 #include <boost/lexical_cast.hpp>
@@ -73,7 +72,6 @@
 #include <boost/program_options.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/utility.hpp>
-#include <boost/variant.hpp>
 #include <boost/property_tree/ptree_serialization.hpp>
 
 #ifdef GEM_TESTING

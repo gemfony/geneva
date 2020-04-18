@@ -68,7 +68,6 @@
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/map.hpp>
-#include <boost/serialization/variant.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/base_object.hpp>
