@@ -73,7 +73,7 @@ void GConsoleLogger::logWithSource(
 /**
  * This constructor accepts a boost path to a file name as argument
  */
-GFileLogger::GFileLogger(boost::filesystem::path const& p)
+GFileLogger::GFileLogger(std::filesystem::path const& p)
 	: m_fname(p.string())
 { /* nothing */ }
 
@@ -83,7 +83,7 @@ GFileLogger::GFileLogger(boost::filesystem::path const& p)
  * variable fname_. The file is reopened in append mode for every log message.
  */
 void GFileLogger::log(std::string const& msg) const {
-	boost::filesystem::ofstream ofstr(boost::filesystem::path(m_fname), std::ios_base::app);
+	std::ofstream ofstr(std::filesystem::path(m_fname), std::ios_base::app);
 	if (ofstr) {
 		ofstr << msg;
 		ofstr.close();
@@ -106,7 +106,7 @@ void GFileLogger::log(std::string const& msg) const {
 void GFileLogger::logWithSource(
 	std::string const& msg, std::string const& extension
 ) const {
-	boost::filesystem::ofstream ofstr(boost::filesystem::path(m_fname + "_" + extension), std::ios_base::app);
+	std::ofstream ofstr(std::filesystem::path(m_fname + "_" + extension), std::ios_base::app);
 	if (ofstr) {
 		if (m_first) {
 			ofstr
@@ -192,7 +192,7 @@ GLogStreamer::GLogStreamer(std::string const& extension)
  * Initialization with the name and path of a file used for
  * one-time logging
  */
-GLogStreamer::GLogStreamer(boost::filesystem::path logFile)
+GLogStreamer::GLogStreamer(std::filesystem::path logFile)
 	: m_log_file(std::move(logFile))
 { /* nothing */ }
 
@@ -412,7 +412,7 @@ bool GLogStreamer::hasOneTimeLogFile() const {
 /**
  * The name of the manually specified file
  */
-boost::filesystem::path GLogStreamer::getOneTimeLogFile() const {
+std::filesystem::path GLogStreamer::getOneTimeLogFile() const {
 	return m_log_file;
 }
 

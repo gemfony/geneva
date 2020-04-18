@@ -3148,8 +3148,8 @@ GPlotDesigner& GPlotDesigner::operator=(GPlotDesigner const& cp) {
  *
  * @param fileName The name of the file to which the data can be written
  */
-void GPlotDesigner::writeToFile(const boost::filesystem::path &fileName) {
-	boost::filesystem::ofstream result(fileName);
+void GPlotDesigner::writeToFile(const std::filesystem::path &fileName) {
+	std::ofstream result(fileName);
 	result << plot(fileName);
 	result.close();
 }
@@ -3158,7 +3158,7 @@ void GPlotDesigner::writeToFile(const boost::filesystem::path &fileName) {
 /*
  * Emits the overall plot
  */
-std::string GPlotDesigner::plot(const boost::filesystem::path &plotName) const {
+std::string GPlotDesigner::plot(const std::filesystem::path &plotName) const {
 	std::ostringstream result;
 	std::size_t maxPlots = m_c_x_div * m_c_y_div;
 

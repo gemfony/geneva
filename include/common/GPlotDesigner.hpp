@@ -41,18 +41,18 @@
 
 // Standard header files go here
 #include <string>
+#include <filesystem>
 #include <vector>
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <functional>
 #include <tuple>
 #include <algorithm>
 #include <type_traits>
 
 // Boost headers go here
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/cast.hpp>
@@ -4477,9 +4477,9 @@ public:
     /*********************************************************************/
 
     /* @brief Emits the overall plot */
-    G_API_COMMON std::string plot(const boost::filesystem::path & = boost::filesystem::path("empty")) const;
+    G_API_COMMON std::string plot(const std::filesystem::path & = std::filesystem::path("empty")) const;
     /** @brief Writes the plot to a file */
-    G_API_COMMON void writeToFile(const boost::filesystem::path &);
+    G_API_COMMON void writeToFile(const std::filesystem::path &);
 
     /** @brief Allows to add a new plotter object */
     G_API_COMMON void registerPlotter(std::shared_ptr<GBasePlotter>);

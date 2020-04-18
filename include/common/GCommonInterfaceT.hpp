@@ -41,6 +41,7 @@
 
 // Standard header files go here
 #include <string>
+#include <filesystem>
 #include <fstream>
 #include <memory>
 #include <type_traits>
@@ -62,8 +63,6 @@
 #include <boost/serialization/tracking.hpp>
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp" // For the serialization mode
@@ -72,9 +71,6 @@
 #include "common/GExpectationChecksT.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GParserBuilder.hpp"
-
-// aliases for ease of use
-namespace bf = boost::filesystem;
 
 namespace Gem {
 namespace Common {
@@ -280,10 +276,10 @@ public:
      * @param serMod The desired serialization mode
      */
     void toFile(
-        const bf::path &p
+        const std::filesystem::path &p
         , const Gem::Common::serializationMode &serMod
     ) const {
-        bf::ofstream ofstr(
+        std::ofstream ofstr(
             p
             , std::ofstream::trunc
         ); // Note: will overwrite existing files
@@ -306,7 +302,7 @@ public:
         ofstr.close();
 
 #ifdef DEBUG
-        if (not bf::exists(bf::path(p))) {
+        if (not std::filesystem::exists(std::filesystem::path(p))) {
             throw gemfony_exception(
                 g_error_streamer(
                     DO_LOG
@@ -334,11 +330,11 @@ public:
      * @param serMod The desired serialization mode
      */
     void fromFile(
-        const bf::path &p
+        const std::filesystem::path &p
         , const Gem::Common::serializationMode &serMod
     ) {
         // Check that the file exists
-        if (not bf::exists(bf::path(p))) {
+        if (not std::filesystem::exists(std::filesystem::path(p))) {
             throw gemfony_exception(
                 g_error_streamer(
                     DO_LOG
@@ -350,7 +346,7 @@ public:
             );
         }
 
-        bf::ifstream ifstr(p);
+        std::ifstream ifstr(p);
 
         if (not ifstr) {
             throw gemfony_exception(
@@ -413,7 +409,7 @@ public:
      * @param header A header to be prepended to the configuration file
      */
     void writeConfigFile(
-        boost::filesystem::path const &configFile
+        std::filesystem::path const &configFile
         , const std::string &header
     ) {
         // This class will handle the interaction with configuration files
@@ -437,7 +433,7 @@ public:
      *
      * @param configFile The name of the configuration file to be parsed
      */
-    void readConfigFile(boost::filesystem::path const &configFile) {
+    void readConfigFile(std::filesystem::path const &configFile) {
         // This class will handle the interaction with configuration files
         Gem::Common::GParserBuilder gpb;
 

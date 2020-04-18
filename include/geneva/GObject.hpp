@@ -41,6 +41,7 @@
 
 // Standard header files go here
 #include <algorithm>
+#include <filesystem>
 #include <cassert>
 #include <cmath>
 #include <cfloat>
@@ -66,7 +67,6 @@
 #include <boost/any.hpp>
 #include <boost/archive/basic_archive.hpp>
 #include <boost/cast.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/numeric/conversion/bounds.hpp> // get rid of the numeric_limits<double>::min() vs. numeric_limits<int>::min() problem

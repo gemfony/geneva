@@ -1,4 +1,24 @@
 //------------------------------------------------------------------------------------------------------
+* Version 1.11, under development
+
+Recommended versions:
+- Boost version 1.72 or higher is required
+- CMake version 3.1 or higher is required
+- GCC is recommended to be at least version 8. Earlier versions
+  might work if C++17 is sufficiently supported
+
+********************** INCOMPATIBILITIES / PLEASE NOTE *************************
+
+- Geneva now uses C++17 constructs, hence you need a compiler that supports this
+
+************************* Misc *************************************************
+
+- boost::optional, boost::any, boost::filesystem, boost::variant have been replaced
+  by their C++17 counterparts
+
+********************************************************************************
+
+//------------------------------------------------------------------------------------------------------
 * Version 1.10, "Genova" - March 10, 2020
 
 Recommended versions:

@@ -41,9 +41,9 @@
 // Standard headers go here
 #include <cmath>
 #include <iostream>
+#include <filesystem>
 
 // Boost headers go here
-#include <boost/filesystem.hpp>
 
 // Geneva headers go here
 #include "common/GLogger.hpp"
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 	}
 
 	// Output to a specific file
-	glogger(boost::filesystem::path("anotherFile")) << "Some other information " << 7 << " " << 8 << std::endl << GFILE;
+	glogger(std::filesystem::path("anotherFile")) << "Some other information " << 7 << " " << 8 << std::endl << GFILE;
 
 	// Output to registered logging targets with a given extension
 	glogger(std::string("extension")) << "And yet another information " << 9 << " " << 10 << std::endl << GLOGGING;

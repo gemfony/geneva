@@ -47,8 +47,6 @@
 #include <utility>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 // Geneva headers go here
 #include "common/GPtrVectorT.hpp"
@@ -232,7 +230,7 @@ private:
         & BOOST_SERIALIZATION_NVP(m_default_executor_config);
 
         // Transfer the string to the path
-        m_cp_directory_path = boost::filesystem::path(cpDir);
+        m_cp_directory_path = std::filesystem::path(cpDir);
     }
 
     template<typename Archive>
@@ -301,7 +299,7 @@ public:
     G_API_GENEVA void checkpoint(bool is_better) const;
 
     /** @brief Loads the state of the class from disc */
-    G_API_GENEVA void loadCheckpoint(bf::path const & cpFile);
+    G_API_GENEVA void loadCheckpoint(std::filesystem::path const & cpFile);
 
     /** @brief Checks whether the optimization process has been halted */
     G_API_GENEVA bool halted() const;
@@ -318,7 +316,7 @@ public:
     /** @brief Allows to retrieve the directory where checkpoint files should be stored */
     G_API_GENEVA std::string getCheckpointDirectory() const;
     /** @brief Allows to retrieve the directory where checkpoint files should be stored */
-    G_API_GENEVA bf::path getCheckpointDirectoryPath() const;
+    G_API_GENEVA std::filesystem::path getCheckpointDirectoryPath() const;
     /** @brief Determines whether checkpointing should be done in Text-, XML- or Binary-mode */
     G_API_GENEVA void setCheckpointSerializationMode(Gem::Common::serializationMode cpSerMode);
     /** @brief Retrieves the current checkpointing serialization mode */
@@ -334,12 +332,12 @@ public:
     /** @brief Adds a new executor to the class, replacing the default executor */
     G_API_GENEVA void registerExecutor(
         std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
-        , boost::filesystem::path const &executorConfigFile
+        , std::filesystem::path const &executorConfigFile
     );
     /** @brief Adds a new executor to the class, using the chosen execution mode */
     G_API_GENEVA void registerExecutor(
         execMode e
-        , boost::filesystem::path const &executorConfigFile
+        , std::filesystem::path const &executorConfigFile
     );
 
     /******************************************************************************/
@@ -491,7 +489,7 @@ public:
     G_API_GENEVA bool afterFirstIteration() const;
 
     /** @brief Checks whether a checkpoint-file has the same "personality" as our own algorithm */
-    G_API_GENEVA bool cp_personality_fits(const boost::filesystem::path &p) const;
+    G_API_GENEVA bool cp_personality_fits(const std::filesystem::path &p) const;
 
 protected:
     /***************************************************************************/
@@ -553,10 +551,10 @@ protected:
     G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getOldWorkItems();
 
     /** @brief Saves the state of the class to disc */
-    G_API_GENEVA void saveCheckpoint(bf::path const & outputFile) const;
+    G_API_GENEVA void saveCheckpoint(std::filesystem::path const & outputFile) const;
 
     /** @brief Extracts the short name of the optimization algorithm */
-    G_API_GENEVA std::string extractOptAlgFromPath(const boost::filesystem::path &p) const;
+    G_API_GENEVA std::string extractOptAlgFromPath(const std::filesystem::path &p) const;
 
     /** @brief Allows to set the personality type of the individuals */
     G_API_GENEVA void setIndividualPersonalities();
@@ -710,7 +708,7 @@ private:
 
     std::int32_t m_cp_interval = DEFAULTCHECKPOINTIT; ///< Number of iterations after which a checkpoint should be written. -1 means: Write whenever an improvement was encountered
     std::string m_cp_base_name = DEFAULTCPBASENAME; ///< The base name of the checkpoint file
-    boost::filesystem::path m_cp_directory_path = boost::filesystem::path(DEFAULTCPDIR); ///< Path object to store the directory
+    std::filesystem::path m_cp_directory_path = std::filesystem::path(DEFAULTCPDIR); ///< Path object to store the directory
     mutable std::string m_cp_last = "empty"; ///< The name of the last saved checkpoint
     bool m_cp_remove = true; ///< Whether checkpoint files should be overwritten or kept
     Gem::Common::serializationMode m_cp_serialization_mode = DEFAULTCPSERMODE; ///< Determines whether check-pointing should be done in text-, XML, or binary mode
@@ -720,8 +718,8 @@ private:
         m_maxDuration = Gem::Common::duration_from_string(DEFAULTDURATION); ///< Maximum time-frame for the optimization
     std::chrono::duration<double> m_minDuration
         = Gem::Common::duration_from_string(DEFAULTMINDURATION); ///< Minimum time-frame for the optimization
-    mutable std::chrono::system_clock::time_point
-        m_startTime; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
+    mutable std::chrono::system_clock::time_point m_startTime; ///< Used to store the start time of the optimization. Declared mutable so the halt criteria can be const
+    mutable std::filesystem::file_time_type m_file_startTime; ///< Used for the touchHalt-feature, as system_clock file_time may not be comparable
     std::string m_terminationFile
         = DEFAULTTERMINATIONFILE; ///< The name of a file which, when modified after the start of the optimization run, will cause termination of the run
     bool m_terminateOnFileModification = false;

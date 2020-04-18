@@ -41,6 +41,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <filesystem>
 #include <cmath>
 #include <sstream>
 #include <vector>
@@ -64,7 +65,6 @@
 #include <boost/serialization/split_member.hpp>
 #include <boost/serialization/export.hpp>
 #include <boost/serialization/version.hpp>
-#include <boost/filesystem.hpp>
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
@@ -1001,7 +1001,7 @@ class GNeuralNetworkIndividualFactory
 	: public Gem::Common::GFactoryT<GParameterSet> {
 public:
 	 /** @brief The standard constructor */
-	 explicit G_API_INDIVIDUALS GNeuralNetworkIndividualFactory(boost::filesystem::path const &);
+	 explicit G_API_INDIVIDUALS GNeuralNetworkIndividualFactory(std::filesystem::path const &);
 
 	 /** @brief The destructor */
 	 virtual G_API_INDIVIDUALS ~GNeuralNetworkIndividualFactory();

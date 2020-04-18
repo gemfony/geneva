@@ -41,6 +41,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <filesystem>
 #include <sstream>
 #include <fstream>
 #include <string>
@@ -57,15 +58,11 @@
 #include <tuple>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/math/constants/constants.hpp>
-
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/text_oarchive.hpp>
@@ -92,9 +89,6 @@
 #include "common/GCommonMathHelperFunctions.hpp"
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GTupleIO.hpp"
-
-// aliases for ease of use
-namespace bf = boost::filesystem;
 
 namespace Gem {
 namespace Common {
@@ -723,7 +717,7 @@ public:
 	  * @param p The name of a file holding an image in PPM-P3 format
 	  */
 	 void
-	 loadFromFile(bf::path const &p) {
+	 loadFromFile(std::filesystem::path const &p) {
 		 // Read in the entire file
 		 std::string imageData = Gem::Common::loadTextDataFromFile(p);
 
@@ -746,8 +740,8 @@ public:
 	  * Saves the canvas to a file
 	  */
 	 void
-	 toFile(bf::path const & p) {
-		 bf::ofstream result(p);
+	 toFile(std::filesystem::path const & p) {
+		 std::ofstream result(p);
 
 		 if (not result) {
 			 throw gemfony_exception(

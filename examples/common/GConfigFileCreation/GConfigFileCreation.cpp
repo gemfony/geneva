@@ -314,7 +314,7 @@ int main(int argc, char **argv) {
 	std::cout << "Got " << gpb.numberOfFileOptions() << " options." << std::endl;
 
 	// Create a suitable path for the config file
-	boost::filesystem::path file_path(fileName);
+	std::filesystem::path file_path(fileName);
 
 	// Depending on the command line argument, write or read a configuration file
 	switch(creationSwitcher) {

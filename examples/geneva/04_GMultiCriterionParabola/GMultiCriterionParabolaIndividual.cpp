@@ -207,7 +207,7 @@ double GMultiCriterionParabolaIndividual::fitnessCalculation() {
  *
  * @param cF The name of the configuration file
  */
-GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(boost::filesystem::path const& cF)
+GMultiCriterionParabolaIndividualFactory::GMultiCriterionParabolaIndividualFactory(std::filesystem::path const& cF)
 	: Gem::Common::GFactoryT<GParameterSet>(cF)
 	  , par_min_(-10.)
 	  , par_max_( 10.)

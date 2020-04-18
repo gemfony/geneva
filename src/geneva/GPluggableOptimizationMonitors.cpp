@@ -1008,7 +1008,7 @@ void GAllSolutionFileLogger::informationFunction_(
 		case Gem::Geneva::infoMode::INFOINIT:
 		{
 			// If the file pointed to by m_fileName already exists, make a back-up
-			if(bf::exists(m_fileName)) {
+			if(std::filesystem::exists(m_fileName)) {
 				std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
@@ -1018,7 +1018,7 @@ void GAllSolutionFileLogger::informationFunction_(
 					<< newFileName << std::endl
 					<< GWARNING;
 
-				bf::rename(m_fileName, newFileName);
+				std::filesystem::rename(m_fileName, newFileName);
 			}
 
 			if(m_printInitial) {
@@ -1081,7 +1081,7 @@ void GAllSolutionFileLogger::printPopulation(
 	, G_OptimizationAlgorithm_Base const * const goa
 ) {
 	// Open the external file
-	boost::filesystem::ofstream data(m_fileName, std::ofstream::app);
+	std::ofstream data(m_fileName, std::ofstream::app);
 
 	if(m_showIterationBoundaries) {
 		data
@@ -1286,7 +1286,7 @@ void GIterationResultsFileLogger::informationFunction_(
 		case Gem::Geneva::infoMode::INFOINIT:
 		{
 			// If the file pointed to by m_fileName already exists, make a back-up
-			if(bf::exists(m_fileName)) {
+			if(std::filesystem::exists(m_fileName)) {
 				std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
@@ -1296,7 +1296,7 @@ void GIterationResultsFileLogger::informationFunction_(
 					<< newFileName << std::endl
 					<< GWARNING;
 
-				bf::rename(m_fileName, newFileName);
+				std::filesystem::rename(m_fileName, newFileName);
 			}
 		}
 			break;
@@ -1304,7 +1304,7 @@ void GIterationResultsFileLogger::informationFunction_(
 		case Gem::Geneva::infoMode::INFOPROCESSING:
 		{
 			// Open the external file
-			boost::filesystem::ofstream data(m_fileName.c_str(), std::ofstream::app);
+			std::ofstream data(m_fileName.c_str(), std::ofstream::app);
 			std::vector<double> fitness_cnt;
 
 			// Loop over all individuals of the algorithm.
@@ -1580,7 +1580,7 @@ void GNAdpationsLogger::informationFunction_(
 		case Gem::Geneva::infoMode::INFOINIT:
 		{
 			// If the file pointed to by m_fileName already exists, make a back-up
-			if(bf::exists(m_fileName)) {
+			if(std::filesystem::exists(m_fileName)) {
 				std::string newFileName = m_fileName + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
@@ -1590,7 +1590,7 @@ void GNAdpationsLogger::informationFunction_(
 					<< newFileName << std::endl
 					<< GWARNING;
 
-				bf::rename(m_fileName, newFileName);
+				std::filesystem::rename(m_fileName, newFileName);
 			}
 
 			// Make sure the progress plotter has the desired size
@@ -2044,7 +2044,7 @@ void GProcessingTimesLogger::informationFunction_(
 			// Histograms
 
 			// If the file pointed to by m_fileName_pth already exists, make a back-up
-			if(bf::exists(m_fileName_pth)) {
+			if(std::filesystem::exists(m_fileName_pth)) {
 				std::string newFileName = m_fileName_pth + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
@@ -2054,7 +2054,7 @@ void GProcessingTimesLogger::informationFunction_(
 					<< newFileName << std::endl
 					<< GWARNING;
 
-				bf::rename(m_fileName_pth, newFileName);
+				std::filesystem::rename(m_fileName_pth, newFileName);
 			}
 
 			// Make sure the processing times plotter has the desired size
@@ -2092,7 +2092,7 @@ void GProcessingTimesLogger::informationFunction_(
 			// 2D Histograms
 
 			// If the file pointed to by m_fileName_pth2 already exists, make a back-up
-			if(bf::exists(m_fileName_pth2)) {
+			if(std::filesystem::exists(m_fileName_pth2)) {
 				std::string newFileName = m_fileName_pth2 + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
@@ -2102,7 +2102,7 @@ void GProcessingTimesLogger::informationFunction_(
 					<< newFileName << std::endl
 					<< GWARNING;
 
-				bf::rename(m_fileName_pth2, newFileName);
+				std::filesystem::rename(m_fileName_pth2, newFileName);
 			}
 
 			// Make sure the processing times has the desired size
@@ -2145,7 +2145,7 @@ void GProcessingTimesLogger::informationFunction_(
 			// Make sure the output file is empty (rename, if it exists)
 
 			// If the file pointed to by m_fileName_txt already exists, make a back-up
-			if(bf::exists(m_fileName_txt)) {
+			if(std::filesystem::exists(m_fileName_txt)) {
 				std::string newFileName = m_fileName_txt + ".bak_" + Gem::Common::getMSSince1970();
 
 				glogger
@@ -2155,7 +2155,7 @@ void GProcessingTimesLogger::informationFunction_(
 					<< newFileName << std::endl
 					<< GWARNING;
 
-				bf::rename(m_fileName_txt, newFileName);
+				std::filesystem::rename(m_fileName_txt, newFileName);
 			}
 
 			//---------------------------------------------------------------
@@ -2164,7 +2164,7 @@ void GProcessingTimesLogger::informationFunction_(
 
 		case Gem::Geneva::infoMode::INFOPROCESSING: {
 			// Open the external text-file
-			boost::filesystem::ofstream data_txt(m_fileName_txt, std::ofstream::app);
+			std::ofstream data_txt(m_fileName_txt, std::ofstream::app);
 
 			// Retrieve the current iteration in the population
 			auto iteration = boost::numeric_cast<double>(goa->getIteration());

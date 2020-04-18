@@ -47,6 +47,7 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <filesystem>
 
 // Boost header files go here
 
@@ -72,7 +73,7 @@ public:
 	 * @param configFile The name of a configuration file
 	 * @param resultFile The name of a file to which results should be written
 	 */
-	explicit GOptimizationBenchmarkConfig(boost::filesystem::path const & configFile)
+	explicit GOptimizationBenchmarkConfig(std::filesystem::path const & configFile)
 		: nTests_(DEFNOPTBENCHTESTS)
 		, parDim_(0)
 		, resultFile_("result.C")

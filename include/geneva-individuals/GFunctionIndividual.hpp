@@ -41,6 +41,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <filesystem>
 #include <cmath>
 #include <sstream>
 #include <vector>
@@ -465,7 +466,7 @@ class GFunctionIndividualFactory
 
 public:
 	 /** @brief The standard constructor */
-	 explicit G_API_INDIVIDUALS GFunctionIndividualFactory(boost::filesystem::path const&);
+	 explicit G_API_INDIVIDUALS GFunctionIndividualFactory(std::filesystem::path const&);
 	 /** @brief The copy constructor */
 	 G_API_INDIVIDUALS GFunctionIndividualFactory(const GFunctionIndividualFactory &cp) = default;
 

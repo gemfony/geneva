@@ -99,13 +99,14 @@ FLAG_UNSUPPORTED_SETUPS(
 ################################################################################
 # Set the C++ standard to be used
 
-# Geneva requires at least the C++14 Standard. The user may force another
+# Geneva requires at least the C++17 Standard. The user may force another
 # value at its own risk by setting the variable CMAKE_CXX_STANDARD.
 IF( NOT DEFINED CMAKE_CXX_STANDARD )
-	SET( CMAKE_CXX_STANDARD "14" )
+	SET( CMAKE_CXX_STANDARD "17" )
 ENDIF()
 
-SET_CXX_STANDARD_FLAG()
+SET(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 ################################################################################
 # Set the compiler and linker flags
@@ -444,6 +445,9 @@ IF(NOT CMAKE_CONFIGURATION_TYPES)
 	STRING (REGEX REPLACE "[ \t]+" "\n\t\t\t\t\t " CMAKE_CXX_FLAGS_SEP ${CMAKE_CXX_FLAGS_STRIPPED})
 	MESSAGE ("\twith C++ compiler flags:\t ${CMAKE_CXX_FLAGS_SEP}")
 ENDIF ()
+
+MESSAGE("\tUsing C++ standard ${CMAKE_CXX_STANDARD}")
+
 # Don't print linker options if empty
 STRING (STRIP "${CMAKE_EXE_LINKER_FLAGS}" CMAKE_L_FLAGS_STRIPPED)
 IF(NOT "${CMAKE_L_FLAGS_STRIPPED}" STREQUAL "")

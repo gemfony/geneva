@@ -42,6 +42,8 @@
 // Standard header files go here
 #include <string>
 #include <sstream>
+#include <fstream>
+#include <filesystem>
 
 // Boost header files go here
 
@@ -150,7 +152,7 @@ public:
 	 operator std::string() const { // NOLINT
 		 using namespace Gem::Common;
 		 if(m_do_log) {
-			 glogger(boost::filesystem::path(exception_file))
+			 glogger(std::filesystem::path(exception_file))
 				 << "========================================================" << std::endl
 				 << "Error!" << std::endl
 				 << std::endl

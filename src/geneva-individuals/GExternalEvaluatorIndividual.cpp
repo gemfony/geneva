@@ -276,7 +276,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 	double main_result = 0.;
 	std::string command;
 	int errorCode = Gem::Common::runExternalCommand(
-		boost::filesystem::path(m_program_name), arguments, boost::filesystem::path(commandOutputFileName), command
+		std::filesystem::path(m_program_name), arguments, std::filesystem::path(commandOutputFileName), command
 	);
 
 	if (errorCode) { // Something went wrong
@@ -309,7 +309,7 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 		this->force_set_error(error_message.str());
 	} else { // Everything is o.k., lets retrieve the evaluation
 		// Check that the result file exists
-		if (not bf::exists(resultFileName)) {
+		if (not std::filesystem::exists(resultFileName)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GExternalEvaluatorIndividual::fitnessCalculation(): Error!" << std::endl
@@ -411,9 +411,9 @@ double GExternalEvaluatorIndividual::fitnessCalculation() {
 
 	// Clean up (remove) parameter-, result- and command-output files, if requested by the user
 	if (m_remove_exec_temporaries) {
-		bf::remove(parameterfileName);
-		bf::remove(resultFileName);
-		bf::remove(commandOutputFileName);
+		std::filesystem::remove(parameterfileName);
+		std::filesystem::remove(resultFileName);
+		std::filesystem::remove(commandOutputFileName);
 	}
 
 	// Return the master result (first result returned)
@@ -473,7 +473,7 @@ bool GExternalEvaluatorIndividual::getRemoveExecTemporaries() const {
  * @param configFile The name of the configuration file
  */
 GExternalEvaluatorIndividualFactory::GExternalEvaluatorIndividualFactory(
-	boost::filesystem::path const &configFile
+	std::filesystem::path const &configFile
 )
 	: Gem::Common::GFactoryT<GParameterSet>(configFile), m_adProb(GEEI_DEF_ADPROB), m_adaptAdProb(GEEI_DEF_ADAPTADPROB),
 	m_minAdProb(GEEI_DEF_MINADPROB), m_maxAdProb(GEEI_DEF_MAXADPROB), m_adaptionThreshold(GEEI_DEF_ADAPTIONTHRESHOLD),
@@ -533,7 +533,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
 	}
 
 	// Check that the file exists
-	if (not bf::exists(m_programName.value())) {
+	if (not std::filesystem::exists(m_programName.value())) {
 		glogger
 			<< "In GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory(): Error!" << std::endl
 			<< "External program " << m_programName.value() << " does not seem to exist" << std::endl
@@ -550,7 +550,7 @@ GExternalEvaluatorIndividualFactory::~GExternalEvaluatorIndividualFactory() {
 	// Ask the external evaluation program to perform any final work
 	std::string command;
 	int errorCode = Gem::Common::runExternalCommand(
-		boost::filesystem::path(m_programName.value()), arguments, boost::filesystem::path(), command
+		std::filesystem::path(m_programName.value()), arguments, std::filesystem::path(), command
 	);
 
 	// Let the audience know
@@ -1050,7 +1050,7 @@ void GExternalEvaluatorIndividualFactory::setProgramName(std::string programName
 	}
 
 	// Check that the file exists
-	if (not bf::exists(programName)) {
+	if (not std::filesystem::exists(programName)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setProgramName(): Error!" << std::endl
@@ -1224,9 +1224,9 @@ void GExternalEvaluatorIndividualFactory::archive(
 	// Ask the external evaluation program to perform any final work
 	std::string command;
 	int errorCode = Gem::Common::runExternalCommand(
-		boost::filesystem::path(m_programName.value())
+		std::filesystem::path(m_programName.value())
 		, arguments
-		, boost::filesystem::path()
+		, std::filesystem::path()
 		, command
 	);
 
@@ -1242,7 +1242,7 @@ void GExternalEvaluatorIndividualFactory::archive(
 	}
 
 	// Clean up (remove) the parameter file. This will only be done if no error occurred
-	bf::remove(parameterfileName);
+	std::filesystem::remove(parameterfileName);
 }
 
 /******************************************************************************/
@@ -1418,7 +1418,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 	}
 
 	// Check that the file exists
-	if (not bf::exists(m_programName.value())) {
+	if (not std::filesystem::exists(m_programName.value())) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GExternalEvaluatorIndividualFactory::setUpPropertyTree(): Error!" << std::endl
@@ -1440,7 +1440,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 		// Ask the external evaluation program to perform any initial work
 		std::string command;
 		int errorCode = Gem::Common::runExternalCommand(
-			boost::filesystem::path(m_programName.value()), arguments, boost::filesystem::path(), command
+			std::filesystem::path(m_programName.value()), arguments, std::filesystem::path(), command
 		);
 
 		if (errorCode) {
@@ -1471,7 +1471,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 		// Ask the external evaluation program tfor setup information
 		std::string command;
 		int errorCode = Gem::Common::runExternalCommand(
-			boost::filesystem::path(m_programName.value()), arguments, boost::filesystem::path(), command
+			std::filesystem::path(m_programName.value()), arguments, std::filesystem::path(), command
 		);
 
 		if (errorCode) {
@@ -1488,7 +1488,7 @@ void GExternalEvaluatorIndividualFactory::setUpPropertyTree() {
 		pt::read_xml(setupFileName, m_ptr);
 
 		// Clean up
-		bf::remove(boost::filesystem::path(setupFileName));
+		std::filesystem::remove(std::filesystem::path(setupFileName));
 	}
 }
 

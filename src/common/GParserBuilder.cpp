@@ -336,7 +336,7 @@ GParserBuilder::GParserBuilder()
 	auto basename_opt = Gem::Common::environmentVariableAs<std::string>("GENEVA_CONFIG_BASENAME");
 	if(basename_opt && ! (*basename_opt).empty()) {
 		// Read out the directory
-		m_config_base_dir = boost::filesystem::path(*basename_opt);
+		m_config_base_dir = std::filesystem::path(*basename_opt);
 	}
 }
 
@@ -347,24 +347,23 @@ GParserBuilder::GParserBuilder()
  * @param configFile The name of the configuration file to be parsed, possibly including an absolute or relative path
  * @return A boolean indicating whether parsing was successful
  */
-bool GParserBuilder::parseConfigFile(boost::filesystem::path const & configFile) {
+bool GParserBuilder::parseConfigFile(std::filesystem::path const & configFile) {
 	// Make sure only one entity is parsed at once. This allows us to
 	// concurrently create e.g. optimization algorithms, letting them
 	// parse the same config file.
 	std::unique_lock<std::mutex> lk(GParserBuilder::m_configfile_parser_mutex);
 
 	namespace pt = boost::property_tree;
-	namespace bf = boost::filesystem;
 
 	pt::ptree ptr; // A property tree object. Will hold the configuration options;
 
-	bf::path config_path;
+	std::filesystem::path config_path;
 
 	try {
 		// Assemble a path object from the config file, possibly adding a base directory
 		if(not m_config_base_dir.empty()) {
 			// Check that the base directory exists
-			if(not bf::exists(m_config_base_dir)) {
+			if(not std::filesystem::exists(m_config_base_dir)) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
@@ -379,7 +378,7 @@ bool GParserBuilder::parseConfigFile(boost::filesystem::path const & configFile)
 
 		// Check that the configuration file exists.
 		// If not, create a default version
-		if (not bf::exists(config_path)) {
+		if (not std::filesystem::exists(config_path)) {
 			glogger
 				<< "Note: In GParserBuilder::parseConfigFile():" << std::endl
 				<< "Configuration file " << config_path.string() << " does not exist." << std::endl
@@ -394,7 +393,7 @@ bool GParserBuilder::parseConfigFile(boost::filesystem::path const & configFile)
 			);
 		} else { // configFile exists
 			// Is it a regular file ?
-			if (not bf::is_regular_file(config_path)) {
+			if (not std::filesystem::is_regular_file(config_path)) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
@@ -403,7 +402,7 @@ bool GParserBuilder::parseConfigFile(boost::filesystem::path const & configFile)
 			}
 
 			// We require the file to have the json extension
-			if (not bf::path(config_path).has_extension() || bf::path(config_path).extension() != ".json") {
+			if (not std::filesystem::path(config_path).has_extension() || std::filesystem::path(config_path).extension() != ".json") {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
 						<< "In GParserBuilder::parseConfigFile(): Error!" << std::endl
@@ -451,17 +450,17 @@ bool GParserBuilder::parseConfigFile(boost::filesystem::path const & configFile)
  * @param writeAll A boolean parameter that indicates whether all or only essential parameters should be written
  */
 void GParserBuilder::writeConfigFile(
-	boost::filesystem::path const & configFile
+	std::filesystem::path const & configFile
 	, std::string const &header
 	, bool writeAll
 ) const {
 	namespace pt = boost::property_tree;
-	namespace bf = boost::filesystem;
+	namespace bf = std::filesystem;
 
 	// Do some error checking
 	{
 		// Is configFile a directory ?
-		if (bf::is_directory(configFile)) {
+		if (std::filesystem::is_directory(configFile)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
@@ -470,7 +469,7 @@ void GParserBuilder::writeConfigFile(
 		}
 
 		// We do not allow to overwrite existing files
-		if (bf::exists(configFile) && bf::is_regular_file(configFile)) {
+		if (std::filesystem::exists(configFile) && std::filesystem::is_regular_file(configFile)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
@@ -479,12 +478,12 @@ void GParserBuilder::writeConfigFile(
 		}
 
 		// Check that the target path exists and is a directory
-		if (not bf::exists(bf::path(configFile).remove_filename()) ||
-			 not bf::is_directory(bf::path(configFile).remove_filename())) { // We need to act on a copy
+		if (not std::filesystem::exists(std::filesystem::path(configFile).remove_filename()) ||
+			 not std::filesystem::is_directory(std::filesystem::path(configFile).remove_filename())) { // We need to act on a copy
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In GParserBuilder::writeConfigFile(): Error!" << std::endl
-					<< "The target path " << bf::path(configFile).remove_filename().string()
+					<< "The target path " << std::filesystem::path(configFile).remove_filename().string()
 					<< " does not exist or is no directory." << std::endl
 			);
 		}
@@ -500,7 +499,7 @@ void GParserBuilder::writeConfigFile(
 	}
 
 	// Open the required configuration file
-	bf::ofstream ofs(configFile);
+	std::ofstream ofs(configFile);
 	if (not ofs) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)

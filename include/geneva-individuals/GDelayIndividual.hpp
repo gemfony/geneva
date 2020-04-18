@@ -41,6 +41,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <filesystem>
 #include <cmath>
 #include <sstream>
 #include <vector>
@@ -180,7 +181,7 @@ class GDelayIndividualFactory
 {
 public:
 	 /** @brief The standard constructor */
-	 G_API_INDIVIDUALS GDelayIndividualFactory(boost::filesystem::path const&);
+	 G_API_INDIVIDUALS GDelayIndividualFactory(std::filesystem::path const&);
 	 /** @brief The destructor */
 	 virtual G_API_INDIVIDUALS ~GDelayIndividualFactory();
 

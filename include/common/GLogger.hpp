@@ -46,6 +46,7 @@
 // Standard header files go here
 
 #include <string>
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -63,8 +64,6 @@
 #include <cstdio>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 
 // Geneva header files go here
@@ -149,7 +148,7 @@ public:
 class GFileLogger : public GBaseLogTarget {
 public:
 	 /** @brief This constructor accepts a boost path to a file name as argument */
-	 explicit G_API_COMMON GFileLogger(boost::filesystem::path const&);
+	 explicit G_API_COMMON GFileLogger(std::filesystem::path const&);
 
 	 /*************************************************************************/
 	 // Defaulted or deleted constructors, destructor and assignment operators
@@ -264,7 +263,7 @@ public:
       * This function instructs the logger architecture to emit data to the file
       * specified by the boost::path object
       */
-	 S operator()(boost::filesystem::path p) {
+	 S operator()(std::filesystem::path p) {
 		 S s(p);
 		 return s;
 	 }
@@ -482,8 +481,8 @@ public:
     /** @brief A constructor that adds an extension string to the output */
     explicit G_API_COMMON GLogStreamer(std::string const&);
 
-    /** @brief A constructor that logs data to a file specified by a boost::filesystem::path object */
-    explicit G_API_COMMON GLogStreamer(boost::filesystem::path);
+    /** @brief A constructor that logs data to a file specified by a std::filesystem::path object */
+    explicit G_API_COMMON GLogStreamer(std::filesystem::path);
 
 
     /*************************************************************************/
@@ -524,7 +523,7 @@ public:
 	 /** @brief Checks whether a log file name has been registered */
 	 G_API_COMMON bool hasOneTimeLogFile() const;
 	 /** @brief The name of the manually specified file */
-	 G_API_COMMON boost::filesystem::path getOneTimeLogFile() const;
+	 G_API_COMMON std::filesystem::path getOneTimeLogFile() const;
 
 	 /****************************************************************************/
 	 /**
@@ -567,7 +566,7 @@ private:
 
 	 std::ostringstream m_oss; ///< Holds the actual streamed data
 	 std::string m_extension; ///< Additional information about the logging source
-	 boost::filesystem::path m_log_file; ///< The name of a manually specified log file
+	 std::filesystem::path m_log_file; ///< The name of a manually specified log file
 };
 
 /******************************************************************************/

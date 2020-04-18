@@ -522,7 +522,7 @@ std::ostream& operator<<(std::ostream& stream, std::shared_ptr<GStarterIndividua
  * @param configFile The name of the configuration file
  */
 GStarterIndividualFactory::GStarterIndividualFactory(
-	boost::filesystem::path const& configFile
+	std::filesystem::path const& configFile
 )
 	: Gem::Common::GFactoryT<GParameterSet>(configFile)
 { /* nothing */ }

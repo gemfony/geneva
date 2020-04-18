@@ -43,11 +43,11 @@
 #include <vector>
 #include <sstream>
 #include <iostream>
-#include <sstream>
+#include <filesystem>
+#include <fstream>
 #include <string>
 #include <cstdlib>
 #include <cmath>
-#include <fstream>
 #include <typeinfo>
 #include <tuple>
 #include <thread>
@@ -59,8 +59,6 @@
 
 // Boost headers go here
 #include <boost/algorithm/string.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
@@ -86,11 +84,20 @@ namespace Gem {
 namespace Common {
 
 /******************************************************************************/
-/** @brief Reads a json-document from a boost::fileystem::path. This is a helper-function */
+/** @brief Creates a file in a given path, optionally with content */
+G_API_COMMON
+std::filesystem::file_time_type touch_time(
+    std::filesystem::path const& path
+    , std::string const& content = ""
+    , bool remove_if_not_present = false
+);
+
+/******************************************************************************/
+/** @brief Reads a json-document from a std::filesystem::path. This is a helper-function */
 G_API_COMMON
 void read_json(
-	boost::filesystem::path const& path
-	, boost::property_tree::ptree & pt
+	std::filesystem::path const& path
+	, boost::property_tree::ptree& pt
 );
 
 /******************************************************************************/
@@ -101,15 +108,15 @@ unsigned int getNHardwareThreads();
 /******************************************************************************/
 /** @brief This function loads textual (ASCII) data from an external file */
 G_API_COMMON
-std::string loadTextDataFromFile(boost::filesystem::path const &);
+std::string loadTextDataFromFile(std::filesystem::path const &);
 
 /******************************************************************************/
 /** @brief This function executes an external command on the operating system */
 G_API_COMMON
 int runExternalCommand(
-	boost::filesystem::path const &
+	std::filesystem::path const &
 	, std::vector<std::string> const &
-	, boost::filesystem::path const &
+	, std::filesystem::path const &
 	, std::string &
 );
 

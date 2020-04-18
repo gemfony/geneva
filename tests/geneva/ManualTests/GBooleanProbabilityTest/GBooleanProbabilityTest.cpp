@@ -46,8 +46,6 @@
 #include <vector>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/fstream.hpp>
 
 // Geneva header files go here
 #include "geneva/GBooleanObject.hpp"
@@ -85,7 +83,7 @@ int main(int argc, char **argv){
 	A.addAdaptor(A_adaptor);
 	B.addAdaptor(B_adaptor);
 
-	boost::filesystem::ofstream ofs("bitflipResult.C"); // Output file
+	std::ofstream ofs("bitflipResult.C"); // Output file
 
 	ofs << "{" << std::endl
 	<< "  TCanvas *cc = new TCanvas(\"cc\",\"cc\",0,0,800,800);" << std::endl

@@ -432,7 +432,7 @@ Go2 const * const Go2::optimize_(std::uint32_t) {
 	}
 
 	// Check whether a possible checkpoint file fits the first algorithm in the chain
-	if(m_cp_file != "empty" && not m_algorithms_cnt[0]->cp_personality_fits(boost::filesystem::path(m_cp_file))) {
+	if(m_cp_file != "empty" && not m_algorithms_cnt[0]->cp_personality_fits(std::filesystem::path(m_cp_file))) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In Go2::optimize(): Error!" << std::endl
@@ -444,7 +444,7 @@ Go2 const * const Go2::optimize_(std::uint32_t) {
 	// Load the checkpoint file or create individuals from the content creator
 	if(m_cp_file != "empty") {
 		// Load the external data
-		m_algorithms_cnt[0]->loadCheckpoint(boost::filesystem::path(m_cp_file));
+		m_algorithms_cnt[0]->loadCheckpoint(std::filesystem::path(m_cp_file));
 
 		// Make sure the first algorithm starts right after the iteration where the checkpoint file ended
 		m_iterations_consumed = m_algorithms_cnt[0]->getIteration() + 1;
@@ -973,7 +973,7 @@ void Go2::parseCommandLine(
  *
  * @param configFilename The name of a configuration file to be parsed
  */
-void Go2::parseConfigFile(boost::filesystem::path const & configFilename) {
+void Go2::parseConfigFile(std::filesystem::path const & configFilename) {
 	// Create a parser builder object. It will be destroyed at
 	// the end of this scope and thus cannot cause trouble
 	// due to registered call-backs and references

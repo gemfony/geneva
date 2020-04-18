@@ -161,7 +161,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests_() {
 		std::string header = "A not so complicated header";
 
 		// First make sure the configuration file does not exist
-		boost::filesystem::remove(boost::filesystem::path(configFileName));
+		std::filesystem::remove(std::filesystem::path(configFileName));
 
 		// Write and read the config file
 		BOOST_CHECK_NO_THROW(p_test->writeConfigFile(configFileName, header));
@@ -169,7 +169,7 @@ void GObject::specificTestsNoFailureExpected_GUnitTests_() {
 
 		// Check that a config file exists
 		BOOST_CHECK_MESSAGE(
-			boost::filesystem::exists(boost::filesystem::path(configFileName))
+			std::filesystem::exists(std::filesystem::path(configFileName))
 			, "Error: file " << configFileName << " was not found"
 		);
 	}
@@ -247,27 +247,27 @@ void GObject::specificTestsNoFailureExpected_GUnitTests_() {
 		std::shared_ptr <GObject> p_test = this->clone();
 
 		{ // Text mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.txt"), Gem::Common::serializationMode::TEXT));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.txt"), Gem::Common::serializationMode::TEXT));
+			BOOST_CHECK_NO_THROW(p_test->toFile(std::filesystem::path("123test.txt"), Gem::Common::serializationMode::TEXT));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(std::filesystem::path("123test.txt"), Gem::Common::serializationMode::TEXT));
 
 			// Get rid of the file
-			remove(bf::path("./123test.txt"));
+			remove(std::filesystem::path("./123test.txt"));
 		}
 
 		{ // XML mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.xml"), Gem::Common::serializationMode::XML));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.xml"), Gem::Common::serializationMode::XML));
+			BOOST_CHECK_NO_THROW(p_test->toFile(std::filesystem::path("123test.xml"), Gem::Common::serializationMode::XML));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(std::filesystem::path("123test.xml"), Gem::Common::serializationMode::XML));
 
 			// Get rid of the file
-			remove(bf::path("./123test.xml"));
+			remove(std::filesystem::path("./123test.xml"));
 		}
 
 		{ // Binary mode
-			BOOST_CHECK_NO_THROW(p_test->toFile(bf::path("123test.bin"), Gem::Common::serializationMode::BINARY));
-			BOOST_CHECK_NO_THROW(p_test->fromFile(bf::path("123test.bin"), Gem::Common::serializationMode::BINARY));
+			BOOST_CHECK_NO_THROW(p_test->toFile(std::filesystem::path("123test.bin"), Gem::Common::serializationMode::BINARY));
+			BOOST_CHECK_NO_THROW(p_test->fromFile(std::filesystem::path("123test.bin"), Gem::Common::serializationMode::BINARY));
 
 			// Get rid of the file
-			remove(bf::path("./123test.bin"));
+			remove(std::filesystem::path("./123test.bin"));
 		}
 	}
 

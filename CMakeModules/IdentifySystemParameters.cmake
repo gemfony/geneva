@@ -207,25 +207,6 @@ FUNCTION (
 ENDFUNCTION()
 
 ################################################################################
-# Sets the C++ standard flags for this compiler
-#
-MACRO (
-	SET_CXX_STANDARD_FLAG
-)
-
-	#--------------------------------------------------------------------------
-	# Set the C++-standard switch for our compiler
-	IF (${CMAKE_VERSION} VERSION_LESS 3.1)
-		ADD_COMPILE_OPTIONS("${${CMAKE_CXX_COMPILER_ID}_DEF_CXX${CMAKE_CXX_STANDARD}_STANDARD_FLAG}")
-	ELSE()
-		# Let CMake take care of the C++ standard flag, using CMAKE_CXX_STANDARD
-		SET(CMAKE_CXX_STANDARD_REQUIRED ON)
-	ENDIF()
-	#--------------------------------------------------------------------------
-
-ENDMACRO()
-
-################################################################################
 # Sets the compiler flags for this platform and compiler
 #
 FUNCTION (

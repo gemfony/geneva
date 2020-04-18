@@ -60,7 +60,6 @@
 // Boost headers go here
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/cast.hpp>
 
 // Geneva headers go here

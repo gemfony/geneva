@@ -42,9 +42,9 @@
 // Standard header files go here
 #include <string>
 #include <chrono>
+#include <filesystem>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
 
 // Geneva headers go here
 #include "common/GCommonHelperFunctionsT.hpp"
@@ -78,7 +78,7 @@ public:
 	  * Initialization with the name of a config file
 	  */
 	 explicit G_OptimizationAlgorithm_FactoryT(
-	 	boost::filesystem::path const &configFile
+	 	std::filesystem::path const &configFile
 	 )
 		 : Gem::Common::GFactoryT<oa_type>(configFile)
 	 { /* nothing */ }
@@ -88,7 +88,7 @@ public:
 	  * A constructor which adds a content creation function
 	  */
 	 G_OptimizationAlgorithm_FactoryT(
-		 boost::filesystem::path const & configFile
+		 std::filesystem::path const & configFile
 		 , std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 	 )
 		 : Gem::Common::GFactoryT<oa_type>(configFile)

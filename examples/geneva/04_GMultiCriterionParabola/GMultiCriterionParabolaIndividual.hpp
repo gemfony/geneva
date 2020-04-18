@@ -124,7 +124,7 @@ class GMultiCriterionParabolaIndividualFactory
 {
 public:
 	 /** @brief The standard constructor for this class */
-	 GMultiCriterionParabolaIndividualFactory(boost::filesystem::path const&);
+	 GMultiCriterionParabolaIndividualFactory(std::filesystem::path const&);
 	 /** @brief The destructor */
 	 virtual ~GMultiCriterionParabolaIndividualFactory();
 

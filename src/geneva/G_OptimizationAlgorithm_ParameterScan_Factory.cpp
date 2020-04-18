@@ -52,7 +52,7 @@ GParameterScanFactory::GParameterScanFactory()
  * Initialization with the name of the config file
  */
 GParameterScanFactory::GParameterScanFactory(
-	boost::filesystem::path const& configFile
+	std::filesystem::path const& configFile
 )
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }
@@ -63,7 +63,7 @@ GParameterScanFactory::GParameterScanFactory(
  * to add a content creator. It initializes a target item as needed.
  */
 GParameterScanFactory::GParameterScanFactory(
-	boost::filesystem::path const& configFile
+	std::filesystem::path const& configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)

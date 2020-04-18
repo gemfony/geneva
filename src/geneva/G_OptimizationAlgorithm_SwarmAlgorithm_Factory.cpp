@@ -53,7 +53,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory()
  * Initialization with the name of the config file
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
-	boost::filesystem::path const& configFile
+	std::filesystem::path const& configFile
 )
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile)
 { /* nothing */ }
@@ -64,7 +64,7 @@ GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
  * to add a content creator. It initializes a target item as needed.
  */
 GSwarmAlgorithmFactory::GSwarmAlgorithmFactory(
-	boost::filesystem::path const& configFile
+	std::filesystem::path const& configFile
 	, std::shared_ptr <Gem::Common::GFactoryT<GParameterSet>> contentCreatorPtr
 )
 	: G_OptimizationAlgorithm_FactoryT<G_OptimizationAlgorithm_Base>(configFile, contentCreatorPtr)

@@ -241,8 +241,8 @@ void G_OptimizationAlgorithm_Base::checkpoint(bool is_better) const {
 	bool do_save = false;
 
 	// Determine a suitable name for the checkpoint file
-	bf::path output_file;
-	output_file = getCheckpointDirectoryPath() / bf::path(
+	std::filesystem::path output_file;
+	output_file = getCheckpointDirectoryPath() / std::filesystem::path(
 		"checkpoint-" + this->getAlgorithmPersonalityType() + "-" +
 		(this->halted() ? "final" : Gem::Common::to_string(getIteration())) + "-" +
 		Gem::Common::to_string(std::get<G_TRANSFORMED_FITNESS>(getBestKnownPrimaryFitness())) + "-" +
@@ -266,8 +266,8 @@ void G_OptimizationAlgorithm_Base::checkpoint(bool is_better) const {
 
 		// Remove the last checkoint file if requested by the user
 		if(m_cp_remove && m_cp_last != "empty") {
-			if(boost::filesystem::exists(boost::filesystem::path(m_cp_last))) {
-				boost::filesystem::remove(boost::filesystem::path(m_cp_last));
+			if(std::filesystem::exists(std::filesystem::path(m_cp_last))) {
+				std::filesystem::remove(std::filesystem::path(m_cp_last));
 			}
 		}
 
@@ -280,7 +280,7 @@ void G_OptimizationAlgorithm_Base::checkpoint(bool is_better) const {
 /**
  * Loads the state of the class from disc
  */
-void G_OptimizationAlgorithm_Base::loadCheckpoint(bf::path const & cpFile) {
+void G_OptimizationAlgorithm_Base::loadCheckpoint(std::filesystem::path const & cpFile) {
 	// Extract the name of the optimization algorithm used for this file
 	std::string opt_desc = this->extractOptAlgFromPath(cpFile);
 
@@ -363,23 +363,23 @@ void G_OptimizationAlgorithm_Base::setCheckpointBaseName(
 	m_cp_base_name = cpBaseName;
 
 	// Transform the directory into a path
-	m_cp_directory_path = boost::filesystem::path(cpDirectory);
+	m_cp_directory_path = std::filesystem::path(cpDirectory);
 
 	// Check that the provided directory exists
-	if(not boost::filesystem::exists(m_cp_directory_path)) {
+	if(not std::filesystem::exists(m_cp_directory_path)) {
 		glogger
 			<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Warning!" << std::endl
 			<< "Directory " << m_cp_directory_path.string() << " does not exist and will be created automatically." << std::endl
 			<< GWARNING;
 
-		if(not boost::filesystem::create_directory(m_cp_directory_path)) {
+		if(not std::filesystem::create_directory(m_cp_directory_path)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
 					<< "Could not create directory " << m_cp_directory_path.string() << std::endl
 			);
 		}
-	} else if(not boost::filesystem::is_directory(m_cp_directory_path)) {
+	} else if(not std::filesystem::is_directory(m_cp_directory_path)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In G_OptimizationAlgorithm_Base::setCheckpointBaseName(): Error!" << std::endl
@@ -414,7 +414,7 @@ std::string G_OptimizationAlgorithm_Base::getCheckpointDirectory() const {
  *
  * @return The base name used for checkpoint files
  */
-bf::path G_OptimizationAlgorithm_Base::getCheckpointDirectoryPath() const {
+std::filesystem::path G_OptimizationAlgorithm_Base::getCheckpointDirectoryPath() const {
 	return m_cp_directory_path;
 }
 
@@ -569,7 +569,7 @@ void G_OptimizationAlgorithm_Base::resetToOptimizationStart_() {
  */
 void G_OptimizationAlgorithm_Base::registerExecutor(
 	std::shared_ptr<Gem::Courtier::GBaseExecutorT<GParameterSet>> executor_ptr
-	, boost::filesystem::path const& executorConfigFile
+	, std::filesystem::path const& executorConfigFile
 ) {
 	if(not executor_ptr) {
 		glogger
@@ -618,7 +618,7 @@ void G_OptimizationAlgorithm_Base::registerExecutor(
  */
 void G_OptimizationAlgorithm_Base::registerExecutor(
 	execMode e
-	, boost::filesystem::path const& executorConfigFile
+	, std::filesystem::path const& executorConfigFile
 ) {
 	auto executor_ptr = this->createExecutor(e);
 	this->registerExecutor(executor_ptr, executorConfigFile);
@@ -677,6 +677,9 @@ G_OptimizationAlgorithm_Base const * const G_OptimizationAlgorithm_Base::optimiz
 
 	// Initialize the start time with the current time.
 	m_startTime = std::chrono::system_clock::now();
+
+	// Initialize a file start time, as it may not be comparable with system_clock
+	m_file_startTime = Gem::Common::touch_time("geneva_file_startTime","marker",true);
 
 	do {
 		// Let all individuals know the current iteration
@@ -1432,7 +1435,7 @@ bool G_OptimizationAlgorithm_Base::afterFirstIteration() const {
  * Checks whether a checkpoint-file has the same "personality" as our
  * own algorithm
  */
-bool G_OptimizationAlgorithm_Base::cp_personality_fits(const boost::filesystem::path& p) const {
+bool G_OptimizationAlgorithm_Base::cp_personality_fits(const std::filesystem::path& p) const {
 	// Extract the name of the optimization algorithm used for this file
 	std::string opt_desc = this->extractOptAlgFromPath(p);
 
@@ -1532,7 +1535,7 @@ std::vector<std::shared_ptr<GParameterSet>> G_OptimizationAlgorithm_Base::getOld
 /**
  * Saves the state of the class to disc
  */
-void G_OptimizationAlgorithm_Base::saveCheckpoint(bf::path const& outputFile) const {
+void G_OptimizationAlgorithm_Base::saveCheckpoint(std::filesystem::path const& outputFile) const {
 	this->toFile(outputFile, this->getCheckpointSerializationMode());
 }
 
@@ -1543,7 +1546,7 @@ void G_OptimizationAlgorithm_Base::saveCheckpoint(bf::path const& outputFile) co
  * scheme: /some/path/word1-PERSONALITY_EA-some-other-information .
  * This is mainly used for checkpointing and associated cross-checks.
  */
-std::string G_OptimizationAlgorithm_Base::extractOptAlgFromPath(const boost::filesystem::path& p) const {
+std::string G_OptimizationAlgorithm_Base::extractOptAlgFromPath(const std::filesystem::path& p) const {
 	// Extract the filename
 	std::string filename = p.filename().string();
 
@@ -1920,22 +1923,19 @@ bool G_OptimizationAlgorithm_Base::sigHupHalt() const {
  * possibility exists that the file isn't there until that time.
  */
 bool G_OptimizationAlgorithm_Base::touchHalt() const {
-	namespace bf = boost::filesystem;
-
 	// Create a suitable path object
-	bf::path p(m_terminationFile);
+	std::filesystem::path p(m_terminationFile);
 
 	// Return if the file doesn't exist
-	if(not bf::exists(p)) {
+	if(not std::filesystem::exists(p)) {
 		return false;
 	}
 
 	// Determine the modification time of the file
-	std::time_t t = boost::filesystem::last_write_time(p);
-	std::chrono::system_clock::time_point modTime = std::chrono::system_clock::from_time_t(t);
+    const auto modTime = std::filesystem::last_write_time(p);
 
 	// Check if the file was modified after the start of the optimization run
-	if(modTime > m_startTime) {
+	if(modTime > m_file_startTime) {
 		if(m_emitTerminationReason) {
 			glogger
 				<< "Terminating optimization run because" << std::endl

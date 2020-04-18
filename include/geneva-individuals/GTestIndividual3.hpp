@@ -50,7 +50,6 @@
 #include <tuple>
 
 // Boost header files go here
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/cast.hpp>

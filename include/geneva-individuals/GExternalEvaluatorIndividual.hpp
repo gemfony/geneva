@@ -38,6 +38,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <filesystem>
 #include <cmath>
 #include <sstream>
 #include <fstream>
@@ -49,7 +50,6 @@
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
-#include <boost/filesystem.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/exception/all.hpp>
@@ -290,7 +290,7 @@ class GExternalEvaluatorIndividualFactory
 
 public:
 	 /** @brief The standard constructor */
-	 explicit G_API_INDIVIDUALS GExternalEvaluatorIndividualFactory(boost::filesystem::path const&);
+	 explicit G_API_INDIVIDUALS GExternalEvaluatorIndividualFactory(std::filesystem::path const&);
 	 /** @brief The copy constructor */
 	 G_API_INDIVIDUALS GExternalEvaluatorIndividualFactory(const GExternalEvaluatorIndividualFactory &);
 

@@ -242,7 +242,7 @@ void networkData::compare(
  * @param fileName The name of the file that data should be saved to
  */
 void networkData::saveToDisk(const std::string &networkDataFile) const {
-	bf::ofstream trDat(networkDataFile);
+	std::ofstream trDat(networkDataFile);
 
 	if (not trDat) {
 		throw gemfony_exception(
@@ -271,14 +271,14 @@ void networkData::saveToDisk(const std::string &networkDataFile) const {
 void networkData::loadFromDisk(const std::string &networkDataFile) {
 	networkData *nD;
 
-	boost::filesystem::ifstream trDat(networkDataFile.c_str());
+	std::ifstream trDat(networkDataFile.c_str());
 
 	if (not trDat) {
 		std::ostringstream error;
 		error << "In networkData::loadFromDisk(const std::string&):" << std::endl
 				<< "Data file " << networkDataFile << " could not be opened for reading." << std::endl;
 
-		if (not boost::filesystem::exists(networkDataFile.c_str())) {
+		if (not std::filesystem::exists(networkDataFile.c_str())) {
 			error << "File does not exist." << std::endl;
 		}
 
@@ -388,7 +388,7 @@ void networkData::toROOT(
 	}
 
 	std::size_t entries1 = 0, entries2 = 0;
-	bf::ofstream of(outputFile);
+	std::ofstream of(outputFile);
 
 	of
 		<< "{" << std::endl
@@ -794,7 +794,7 @@ void GNeuralNetworkIndividual::writeVisualizationFile(const std::string &visFile
 		);
 	}
 
-	bf::ofstream visProgram(visFile);
+	std::ofstream visProgram(visFile);
 	if (not visProgram) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -1131,7 +1131,7 @@ void GNeuralNetworkIndividual::writeTrainedNetwork(const std::string &headerFile
 		);
 	}
 
-	bf::ofstream header(headerFile);
+	std::ofstream header(headerFile);
 	if (not header) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -1450,7 +1450,7 @@ double GNeuralNetworkIndividual::transfer(const double &value) const {
  *
  * @param configFile The name of the configuration file
  */
-GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(boost::filesystem::path const &configFile)
+GNeuralNetworkIndividualFactory::GNeuralNetworkIndividualFactory(std::filesystem::path const &configFile)
 	: Gem::Common::GFactoryT<GParameterSet>(configFile), adProb_(GNN_DEF_ADPROB), adaptAdProb_(GNN_DEF_ADAPTADPROB),
 	minAdProb_(GNN_DEF_MINADPROB), maxAdProb_(GNN_DEF_MAXADPROB), sigma_(GNN_DEF_SIGMA),
 	sigmaSigma_(GNN_DEF_SIGMASIGMA), minSigma_(GNN_DEF_MINSIGMA), maxSigma_(GNN_DEF_MAXSIGMA), minVar_(GNN_DEF_MINVAR),

@@ -47,6 +47,35 @@ namespace Common {
 
 /******************************************************************************/
 /**
+ * This function is meant to determine the access-time of a file in a given path.
+ * The file will be created, if it does not exist, filled with an optional text
+ * and removed afterwards, if a) the file did not exist before and b) the user
+ * wants the file to be removed. The time of the last write to the file will be
+ * returned, so this function can be used to create a time marker from the file system.
+ *
+ * @param path The path (including file name) to the file to be touched
+ * @param content An optional content for the file (default empty)
+ * @param remove_if_not_present Indicates whether the file should be removed after having been touched (default false)
+ * @return The time of the last access to the file
+ */
+std::filesystem::file_time_type
+touch_time(
+    std::filesystem::path const& path
+    , std::string const& content
+    , bool remove_if_not_present
+) {
+    bool file_already_existed = std::filesystem::exists(path);
+    std::ofstream ofs(path);
+    ofs << content;
+    auto last_write_time = std::filesystem::last_write_time(path);
+    if(remove_if_not_present && not file_already_existed) {
+        std::filesystem::remove(path);
+    }
+    return last_write_time;
+}
+
+/******************************************************************************/
+/**
  * This function retrieves the number of CPU cores on the system (possibly including "virtual cores" such
  * as in the case of hyperthreading). The function is thread-safe. When called multiple times, it will read the number of
  * hardware threads from a local cache.
@@ -79,11 +108,11 @@ getNHardwareThreads() {
 
 /******************************************************************************/
 /**
- * Reads a json-document from a boost::fileystem::path. This is a helper-function,
- * as boost::property_tree::read_json does not accept a boost::filesystem argument.
+ * Reads a json-document from a std::filesystem::path. This is a helper-function,
+ * as boost::property_tree::read_json does not accept a std::filesystem argument.
  */
 void read_json(
-	boost::filesystem::path const& path
+	std::filesystem::path const& path
 	, boost::property_tree::ptree & pt
 ){
 	boost::property_tree::read_json(path.string(), pt);
@@ -100,9 +129,9 @@ void read_json(
  * @return The data contained in the file
  */
 std::string
-loadTextDataFromFile(boost::filesystem::path const &p) {
+loadTextDataFromFile(std::filesystem::path const &p) {
 	// Check that the file exists
-	if (not boost::filesystem::exists(p)) {
+	if (not std::filesystem::exists(p)) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In loadTextDataFromFile(): Error!" << std::endl
@@ -111,7 +140,7 @@ loadTextDataFromFile(boost::filesystem::path const &p) {
 		);
 	}
 
-	boost::filesystem::ifstream sourceFileStream(p);
+	std::ifstream sourceFileStream(p);
 	std::string sourceFile(
 		std::istreambuf_iterator<char>(sourceFileStream), (std::istreambuf_iterator<char>())
 	);
@@ -130,13 +159,13 @@ loadTextDataFromFile(boost::filesystem::path const &p) {
  */
 int
 runExternalCommand(
-	boost::filesystem::path const & program
+	std::filesystem::path const & program
 	, std::vector<std::string> const & arguments
-	, boost::filesystem::path const & commandOutputFileName
+	, std::filesystem::path const & commandOutputFileName
 	, std::string &fullCommand
 ) {
 	// Convert slashes to backslashes on Windows
-	boost::filesystem::path p_program = program;
+	std::filesystem::path p_program = program;
 	std::string localCommand = (p_program.make_preferred()).string();
 
 	// Add command line arguments
@@ -146,7 +175,7 @@ runExternalCommand(
 
 	// If requested by the user, we want to send the command to an external file
 	if (not commandOutputFileName.empty()) {
-		boost::filesystem::path p_commandOutputFileName = commandOutputFileName;
+		std::filesystem::path p_commandOutputFileName = commandOutputFileName;
 		std::string localcommandOutputFileName = (p_commandOutputFileName.make_preferred()).string();
 
 		localCommand =
