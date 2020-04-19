@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.10 FATAL_ERROR)
 
 project(OAInkubator)
 
@@ -7,7 +7,7 @@ set (REQUIRED_BOOST_LIBS
 )
 
 set (MIN_BOOST_VERSION
-	1.57
+	1.70
 )
 
 message("Searching for Boost...\n")
