@@ -54,6 +54,7 @@
 
 // Geneva includes
 #include "courtier/GCourtierEnums.hpp"
+#include "courtier/GDemoProcessingContainers.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GExecutorT.hpp"
 #include "courtier/GAsioConsumerT.hpp"
@@ -64,9 +65,6 @@
 #include "common/GParserBuilder.hpp"
 #include "common/GCommonEnums.hpp"
 
-#include "../../Misc/GRandomNumberContainer.hpp"
-#include "../../Misc/GSimpleContainer.hpp"
-
 std::size_t producer_counter;
 std::mutex producer_counter_mutex;
 
@@ -74,7 +72,7 @@ using namespace Gem::Courtier;
 using namespace Gem::Common;
 
 // #define WORKLOAD GRandomNumberContainer
-#define WORKLOAD Tests::GSimpleContainer
+#define WORKLOAD GSimpleContainer
 
 /********************************************************************************/
 

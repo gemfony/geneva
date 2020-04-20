@@ -35,15 +35,15 @@
 ################################################################################
 
 SET ( COMMUNICATIONINCLUDES
-    GBaseClientT.hpp
     GAsioConsumerT.hpp
-    GCourtierHelperFunctions.hpp
+    GBaseClientT.hpp
     GBaseConsumerT.hpp
-    GCommandContainerT.hpp
-    GExecutorT.hpp
     GBrokerT.hpp
     GBufferPortT.hpp
+    GCommandContainerT.hpp
     GCourtierEnums.hpp
+    GCourtierHelperFunctions.hpp
+    GExecutorT.hpp
     GProcessingContainerT.hpp
     GSerialConsumerT.hpp
     GStdThreadConsumerT.hpp

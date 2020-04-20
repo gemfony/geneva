@@ -37,6 +37,7 @@
 SET ( COMMUNICATIONSOURCES
 	GCourtierHelperFunctions
 	GCourtierEnums
+	GDemoProcessingContainers
 )
 
 set_source_files_properties(

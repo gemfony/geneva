@@ -53,8 +53,6 @@ SET ( EXECUTABLENAME GBufferPortTTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GBufferPortTTest
-	../../Misc/GRandomNumberContainer
-	../../Misc/GSimpleContainer
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

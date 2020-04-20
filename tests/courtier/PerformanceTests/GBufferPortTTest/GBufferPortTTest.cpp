@@ -44,13 +44,11 @@
 #include <thread>
 
 #include "courtier/GBufferPortT.hpp"
+#include "courtier/GDemoProcessingContainers.hpp"
 #include "common/GExceptions.hpp"
 #include "common/GThreadGroup.hpp"
 #include "common/GBarrier.hpp"
 #include "common/GParserBuilder.hpp"
-
-#include "../../Misc/GSimpleContainer.hpp"
-#include "../../Misc/GRandomNumberContainer.hpp"
 
 #define WORKLOAD GSimpleContainer
 // #define WORKLOAD GRandomNumberContainer
@@ -72,8 +70,6 @@ std::mutex output_mutex;
 std::shared_ptr<Gem::Common::GBarrier> sync_ptr;
 
 using namespace Gem::Courtier;
-using namespace Gem::Courtier::Tests;
-
 
 /********************************************************************************/
 // Default settings
