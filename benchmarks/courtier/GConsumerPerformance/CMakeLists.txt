@@ -36,7 +36,7 @@
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(GBufferPortTTest)
+	PROJECT(GConsumerPerformance)
 
 	# For building the tests independently, we still assume that the
 	# current source folder is still part of the Geneva tree structure,
@@ -49,10 +49,10 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-SET ( EXECUTABLENAME GBufferPortTTest )
+SET ( EXECUTABLENAME GConsumerPerformance )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GBufferPortTTest
+	GConsumerPerformance
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -68,13 +68,5 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/courtier/PerformanceTests/${EXECUTABLENAME} )
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/courtier/PerformanceTests/${EXECUTABLENAME} )
 
-
-#
-# Take care of other particularities of this test
-#
-
-INCLUDE_DIRECTORIES (
-	../../Misc
-)

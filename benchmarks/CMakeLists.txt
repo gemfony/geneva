@@ -36,22 +36,22 @@
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(Geneva_Tests_Courtier)
+	PROJECT(Geneva_Benchmarks_All)
 
 	# For building the examples independently, we still assume that the
 	# 'CMakeModules' folder can be found at the same place as the current
 	# source folder... This avoids having to copy the same content over
 	# and over again in all the examples.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../CMakeModules")
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../CMakeModules")
 
 	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
 	INCLUDE(CommonGenevaBuild)
 
 ENDIF ()
 
-ADD_CUSTOM_TARGET( "tests-courtier"
-	DEPENDS #"tests-courtier-unit"
-	COMMENT "Building all the tests for the Courtier library."
+ADD_CUSTOM_TARGET( "benchmarks"
+	DEPENDS "benchmarks-courtier"
+	COMMENT "Building all the Geneva benchmarks."
 )
 
-#ADD_SUBDIRECTORY ( UnitTests )
+ADD_SUBDIRECTORY ( courtier )

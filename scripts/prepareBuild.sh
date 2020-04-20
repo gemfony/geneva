@@ -87,13 +87,23 @@ elif [ $# -eq 1 ]; then
 	fi
 
 	if [ -z "${BUILDMODE}" ]; then
-		BUILDMODE="Release"
+		BUILDMODE="Debug"
 		echo "Variable BUILDMODE wasn't set. Setting to default value '${BUILDMODE}'"
 	fi
 
 	if [ -z "${BUILDTESTCODE}" ]; then
-		BUILDTESTCODE="0"
+		BUILDTESTCODE="1"
 		echo "Variable BUILDTESTCODE wasn't set. Setting to default value '${BUILDTESTCODE}'"
+	fi
+
+	if [ -z "${BUILDEXAMPLES}" ]; then
+		BUILDEXAMPLES="1"
+		echo "Variable BUILDEXAMPLES wasn't set. Setting to default value '${BUILDEXAMPLES}'"
+	fi
+
+  if [ -z "${BUILDBENCHMARKS}" ]; then
+		BUILDBENCHMARKS="1"
+		echo "Variable BUILDBENCHMARKS wasn't set. Setting to default value '${BUILDBENCHMARKS}'"
 	fi
 
 	if [ -z "${BUILDSTATIC}" ]; then
@@ -189,6 +199,18 @@ if [ ! "${BUILDTESTCODE}" = "0" ] && [ ! "${BUILDTESTCODE}" = "1" ]; then
 	exit
 fi
 
+if [ ! "${BUILDEXAMPLES}" = "0" ] && [ ! "${BUILDEXAMPLES}" = "1" ]; then
+	echo -e "\nError: Variable BUILDEXAMPLES must be 0 or 1. Got ${BUILDEXAMPLES}"
+	echo -e "Leaving...\n"
+	exit
+fi
+
+if [ ! "${BUILDBENCHMARKS}" = "0" ] && [ ! "${BUILDBENCHMARKS}" = "1" ]; then
+	echo -e "\nError: Variable BUILDBENCHMARKS must be 0 or 1. Got ${BUILDBENCHMARKS}"
+	echo -e "Leaving...\n"
+	exit
+fi
+
 if [ ! "${BUILDSTATIC}" = "0" ] && [ ! "${BUILDSTATIC}" = "1" ]; then
 	echo -e "\nError: Variable BUILDSTATIC must be 0 or 1. Got ${BUILDSTATIC}"
 	echo -e "Leaving...\n"
@@ -250,6 +272,8 @@ fi
 CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DGENEVA_BUILD_TYPE=${BUILDMODE} \
 -DGENEVA_BUILD_TESTS=${BUILDTESTCODE} \
+-DGENEVA_BUILD_EXAMPLES=${BUILDEXAMPLES} \
+-DGENEVA_BUILD_BENCHMARKS=${BUILDBENCHMARKS} \
 -DGENEVA_STATIC=${BUILDSTATIC} \
 -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
 -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} \

@@ -69,10 +69,16 @@ CMAKE="/usr/bin/cmake"
 # 'MinSizeRel' or 'Sanitize'. NOTE: the 'Sanitize' setting is experimental!
 # It will default to 'Debug' on unsupported platforms; see
 # http://googletesting.blogspot.ru/2014/06/threadsanitizer-slaughtering-data-races.html
-BUILDMODE="Release"
+BUILDMODE="Debug"
 
 # Whether to build Geneva with testing code
-BUILDTESTCODE="0"
+BUILDTESTCODE="1"
+
+# Whether to build Geneva with examples
+BUILDEXAMPLES="1"
+
+# Whether to build Geneva with benchmarks
+BUILDBENCHMARKS="1"
 
 # Whether to build static code / libraries (experimental!)
 BUILDSTATIC="0"

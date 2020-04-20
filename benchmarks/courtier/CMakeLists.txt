@@ -34,10 +34,10 @@
 #
 ################################################################################
 
-ADD_CUSTOM_TARGET( "tests-courtier-performance"
+ADD_CUSTOM_TARGET( "benchmarks-courtier"
 	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GBufferPortTTest GConsumerPerformance
-	COMMENT "Building the performance tests for the Courtier library."
+	DEPENDS GBufferPortTTest # GConsumerPerformance
+	COMMENT "Building the benchmarks for the Courtier library."
 )
 
 ADD_SUBDIRECTORY (GBufferPortTTest )

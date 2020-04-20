@@ -50,9 +50,13 @@ PROJECT (Geneva_Library_Collection)
 SET(GENEVA_FULL_TREE_BUILD TRUE)
 
 ################################################################################
-# Set this variable to make all examples run as part of the testing with CTest.
+# Set these variables to make all examples and/or benchmarks run as part of the
+# testing with CTest.
 
-#SET(GENEVA_RUN_EXAMPLES_AS_TESTS TRUE)
+# NOTE: Not yet functional
+
+SET(GENEVA_RUN_EXAMPLES_AS_TESTS FALSE)
+SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
 
 ################################################################################
 # Different subcomponents of the Geneva binary tree can be installed in
@@ -128,9 +132,16 @@ IF( GENEVA_BUILD_TESTS )
 ENDIF()
 
 # Examples are also run as tests if enabled with 'GENEVA_RUN_EXAMPLES_AS_TESTS'
-ADD_SUBDIRECTORY (examples)
+IF( GENEVA_BUILD_EXAMPLES )
+	ADD_SUBDIRECTORY (examples)
+ENDIF()
 
-# Holds an incubator facility for new optimization algorihms
+# Benchmarks are also run as tests if enabled with GENEVA_RUN_BENCHMARKS_AS_TESTS
+IF( GENEVA_BUILD_BENCHMARKS )
+	ADD_SUBDIRECTORY (benchmarks)
+ENDIF()
+
+# Holds an incubator facility for new optimization algorithms
 # ADD_SUBDIRECTORY (incubator)
 
 ################################################################################
@@ -138,6 +149,7 @@ ADD_SUBDIRECTORY (examples)
 ADD_CUSTOM_TARGET(
 	"gemfony-build-all" DEPENDS
 	core
+	benchmarks
 	examples
 	tests
 	# incubator
