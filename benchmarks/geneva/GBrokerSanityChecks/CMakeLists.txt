@@ -36,30 +36,23 @@
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(GOptimizationBenchmark)
+	PROJECT(GBrokerSanityChecks)
 
-	# For building the tests independently, we still assume that the
+	# For building the benchmarks independently, we still assume that the
 	# current source folder is still part of the Geneva tree structure,
 	# i.e., the 'CMakeModules' folder can be found going up... This avoids
 	# having to copy the same content over and over again in the tests.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../../CMakeModules")
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
 
 	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
 	INCLUDE(CommonGenevaBuild)
 
 ENDIF ()
 
-SET ( EXECUTABLENAME GOptimizationBenchmark )
-
-SET ( ${EXECUTABLENAME}_HEADERS
-	GOptimizationBenchmarkConfig.hpp
-)
-
-# This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
-ADD_CUSTOM_TARGET(CLION_ALL_GOPTIMIZATIONBENCHMARK_HEADERS SOURCES ${${EXECUTABLENAME}_HEADERS})
+SET ( EXECUTABLENAME GBrokerSanityChecks )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GOptimizationBenchmark
+        GBrokerSanityChecks
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -75,4 +68,11 @@ ADD_SUBDIRECTORY (config)
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME} )
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )
+
+
+#
+# Take care of other particularities of this test
+#
+
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES TIMEOUT 2500)

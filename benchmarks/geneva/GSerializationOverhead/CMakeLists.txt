@@ -36,23 +36,23 @@
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-	PROJECT(GBrokerOverhead)
+	PROJECT(GSerializationOverhead)
 
-	# For building the tests independently, we still assume that the
+	# For building the benchmarks independently, we still assume that the
 	# current source folder is still part of the Geneva tree structure,
 	# i.e., the 'CMakeModules' folder can be found going up... This avoids
 	# having to copy the same content over and over again in the tests.
-	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../../CMakeModules")
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
 
 	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
 	INCLUDE(CommonGenevaBuild)
 
 ENDIF ()
 
-SET ( EXECUTABLENAME GBrokerOverhead )
+SET ( EXECUTABLENAME GSerializationOverhead )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GBrokerOverhead
+	GSerializationOverhead
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -64,8 +64,8 @@ TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
 	${Boost_LIBRARIES}
 )
 
-ADD_SUBDIRECTORY (config)
+#ADD_SUBDIRECTORY (config)
 
 ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
 
-INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME} )
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )

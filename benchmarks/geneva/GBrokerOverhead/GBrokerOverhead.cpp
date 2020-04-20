@@ -91,8 +91,8 @@ const double DEFAULTGDAADPROB=1.0;
 
 /************************************************************************************************/
 /**
-	* A function that parses the command line for all required parameters
-	*/
+ * A function that parses the command line for all required parameters
+ */
 bool parseCommandLine(
 	int argc, char **argv
 	, execMode &parallelizationMode
