@@ -16,6 +16,8 @@ Recommended versions:
 
 - boost::optional, boost::any, boost::filesystem, boost::variant have been replaced
   by their C++17 counterparts
+- Benchmarks for courtier and geneva have been moved to their own benchmarks top-level
+  directory and are no longer considered to be tests
 
 ********************************************************************************
 
