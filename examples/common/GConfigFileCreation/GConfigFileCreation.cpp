@@ -320,6 +320,10 @@ int main(int argc, char **argv) {
 	switch(creationSwitcher) {
 		case 0: // file creation
 		{
+		    // writeConfigFile will fail if the config file already exists. Check for the existance of the file
+		    // and erase it, if necessary
+		    if(std::filesystem::exists(file_path)) std::filesystem::remove(file_path);
+
 			std::string header = "This is a not so complicated header;with a second line;and a third line as well";
 			bool writeAll = true; // If set to false, only essential (but no secondary variables) are written
 			gpb.writeConfigFile(file_path, header, writeAll);
