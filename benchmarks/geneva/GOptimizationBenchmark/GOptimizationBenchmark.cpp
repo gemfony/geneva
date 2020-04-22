@@ -82,7 +82,6 @@ int main(int argc, char **argv) {
 	std::vector<xyWE> resultVec; // Will hold the results for each dimension
 	std::vector<xyWE> timingVec; // Will hold the results for each dimension
 	std::vector<std::uint32_t> dimVec = gbc.getParDim(); // Will hold the dimensions for each test row
-	std::vector<std::uint32_t>::iterator it;
 	std::string functionName;
 	std::string functionCode;
 	std::tuple<double,double> varBoundaries;
@@ -90,7 +89,8 @@ int main(int argc, char **argv) {
 	// Create a factory for GFunctionIndividual objects
 	GFunctionIndividualFactory gfi("./config/GFunctionIndividual.json");
 
-	for(it=dimVec.begin(); it!=dimVec.end(); ++it) {
+	bool first_dim = true;
+	for(const auto& dim: dimVec) {
 		// Individual test results go here
 		std::vector<double> bestResult;
 		// The time consumed until the optimization was terminated
@@ -98,13 +98,15 @@ int main(int argc, char **argv) {
 		// Holds timing measurements
 		std::chrono::system_clock::time_point startTime, endTime;
 
-		std::cout << "Starting new measurement with dimension " << *it << std::endl;
+		std::cout << "Starting new measurement with dimension " << dim << std::endl;
 
 		// Set the appropriate dimension of the function individuals
-		gfi.setParDim(*it);
+		gfi.setParDim(dim);
 
 		// Run the desired number of tests
 		for(std::size_t test=0; test<nTests; test++) {
+		    std::cout << "Starting test " << test << "/" << nTests << " in dimension " << dim << std::endl;
+
 			// Create a Go2-object for the loop
 			Go2 go_loop(argc, argv, "./config/Go2.json");
 
@@ -112,10 +114,10 @@ int main(int argc, char **argv) {
 			std::shared_ptr<GFunctionIndividual> g = gfi.get_as<GFunctionIndividual>();
 
 #ifdef DEBUG
-			if(g->getParameterSize() != *it) {
+			if(g->getParameterSize() != dim) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
-						<< "In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << *it << std::endl
+						<< "In main(): parameter size of individual != requested size: " << g->getParameterSize() << " / " << dim << std::endl
 				);
 			}
 
@@ -127,19 +129,19 @@ int main(int argc, char **argv) {
 			}
 #endif /* DEBUG */
 
-			// Make an individual known to the optimizer
+            // Make an individual known to the optimizer
 			go_loop.push_back(g);
 
-			// Start recording of time
+            // Start recording of time
 			startTime = std::chrono::system_clock::now();
 
-			// Perform the actual optimization and extract the best individual
+            // Perform the actual optimization and extract the best individual
 			std::shared_ptr<GFunctionIndividual> p = go_loop.optimize()->getBestGlobalIndividual<GFunctionIndividual>();
 
-			endTime = std::chrono::system_clock::now();
+            endTime = std::chrono::system_clock::now();
 
 			// Extract the function name in the first test row
-			if(it==dimVec.begin() && test==0) {
+			if(first_dim && test==0) {
 				functionName = GFunctionIndividual::getStringRepresentation(p->getDemoFunction());
 				functionCode = GFunctionIndividual::get2DROOTFunction(p->getDemoFunction());
 				varBoundaries = gfi.getVarBoundaries();
@@ -162,11 +164,13 @@ int main(int argc, char **argv) {
 			<< "timing      = " << std::get<0>(timing2) << " +/- " << std::get<1>(timing2) << " s" << std::endl
 			<< std::endl;
 
-		xyWE resultE(double(*it), 0., std::get<0>(resultY), std::get<1>(resultY));
-		xyWE timingE(double(*it), 0., std::get<0>(timing2), std::get<1>(timing2));
+		xyWE resultE(double(dim), 0., std::get<0>(resultY), std::get<1>(resultY));
+		xyWE timingE(double(dim), 0., std::get<0>(timing2), std::get<1>(timing2));
 
 		resultVec.push_back(resultE);
 		timingVec.push_back(timingE);
+
+        first_dim = false;
 	}
 
 	//-------------------------------------------------------------------------

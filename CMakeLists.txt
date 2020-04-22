@@ -53,10 +53,8 @@ SET(GENEVA_FULL_TREE_BUILD TRUE)
 # Set these variables to make all examples and/or benchmarks run as part of the
 # testing with CTest.
 
-# NOTE: Not yet functional
-
-SET(GENEVA_RUN_EXAMPLES_AS_TESTS FALSE)
-SET(GENEVA_RUN_BENCHMARKS_AS_TESTS FALSE)
+SET(GENEVA_RUN_EXAMPLES_AS_TESTS TRUE)
+SET(GENEVA_RUN_BENCHMARKS_AS_TESTS TRUE)
 
 ################################################################################
 # Different subcomponents of the Geneva binary tree can be installed in
