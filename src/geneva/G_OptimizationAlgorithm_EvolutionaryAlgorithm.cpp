@@ -512,12 +512,12 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 	}
 #endif
 
-	//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 	// Set the "DO_PROCESS" flag in all required work items, the "DO_IGNORE" flag in all others.
 
 	setProcessingFlag(this->m_data_cnt, range);
 
-	//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 	// Now submit work items and wait for results.
 	auto status = this->workOn(
 		this->m_data_cnt
@@ -525,7 +525,7 @@ void GEvolutionaryAlgorithm::runFitnessCalculation_() {
 		, "GEvolutionaryAlgorithm::runFitnessCalculation()"
 	);
 
-	//--------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------
 	// Take care of unprocessed items, if these exist
 	if(not status.is_complete) {
 		std::size_t n_erased = Gem::Common::erase_if(

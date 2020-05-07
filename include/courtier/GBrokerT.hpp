@@ -215,7 +215,7 @@ public:
 
 		 //-----------------------------------------------------------------------
 		 // Find orphaned items in the two collections and remove them.
-		 // Note that, unforunately, g++ < 5.0 does not support auto in lambda statements,
+		 // Note that, unfortunately, g++ < 5.0 does not support auto in lambda statements,
 		 // otherwise the following statements could be simplified.
 		 std::size_t nErasedRaw = Gem::Common::erase_if(
 			 m_RawBuffers
@@ -285,7 +285,9 @@ public:
 		 // Fix the current get-pointer. We simply attach it to the start of the list
 		 m_currentGetPosition = m_RawBuffers.begin();
 
-		 std::cout << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl;
+         glogger
+             << "In GBrokerT<>::enrol_buffer_port(buffer-port-ptr): Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl
+             << GLOGGING;
 
 		 // Let the audience know
 		 m_buffersPresent.store(true);

@@ -910,7 +910,9 @@ void Go2::parseCommandLine(
 			);
 		}
 
-		std::cout << "Using consumer " << m_consumer_name << std::endl;
+        glogger
+            << "Using consumer " << m_consumer_name
+            << GLOGGING;
 
 		// Finally give the consumer the chance to act on the command line options
 		// TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker

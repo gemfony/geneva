@@ -338,10 +338,14 @@ public:
 	 std::chrono::high_resolution_clock::time_point getFirstRetrievalTime() const {
 		 std::unique_lock<std::mutex> lock(m_first_retrieval_mutex);
 
+		 std::cout << "Before condition wait" << std::endl;
+
 		 // Wait until a first work item was retrieved
 		 m_retrievalTimeCondition.wait(lock, [this]() -> bool {return not this->m_no_retrieval;});
 
-		 // Let the audience know when the first retrieval has occurred
+         std::cout << "After condition wait" << std::endl;
+
+         // Let the audience know when the first retrieval has occurred
 		 return m_retrieval_start_time;
 	 }
 

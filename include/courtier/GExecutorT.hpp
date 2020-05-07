@@ -269,7 +269,7 @@ public:
 			 );
 		 }
 
-		 //------------------------------------------------------------------------------------------
+         //------------------------------------------------------------------------------------------
 		 // Assign an external iteration id to the iteration counter, if requested by the user
 		 bool useExternalId = std::get<1>(externalIterationCounter);
 		 if(useExternalId) {
@@ -279,42 +279,42 @@ public:
 			 this->set_external_iteration_counter(externalId);
 		 }
 
-		 //------------------------------------------------------------------------------------------
+         //------------------------------------------------------------------------------------------
 		 // Initialization of a new iteration (possibly involving more than one submission of
 		 // selected work items).
 		 this->iterationInit(workItems);
 
-		 //------------------------------------------------------------------------------------------
+         //------------------------------------------------------------------------------------------
 		 // The main business logic of item submission
 
 		 m_nResubmissions = 0;
 		 executor_status_t status {false /* is_complete */, false /* has_errors */};
 		 do {
-			 //-----------------------
+             //-----------------------
 			 // Initialization of a new "run" or resubmission
 			 this->cycleInit(workItems);
 
-			 //-----------------------
+             //-----------------------
 			 // Submission and retrieval
 
 			 // Submit all work items.
 			 m_expectedNumber = this->submitAllWorkItems(workItems);
 
-			 // Wait for work items to complete. This function needs to
+             // Wait for work items to complete. This function needs to
 			 // be re-implemented in derived classes.
 			 auto current_status = waitForReturn(
 				 workItems
 				 , m_old_work_items_cnt
 			 );
 
-			 // There may not be errors during resubmission, so we need to save the "error state"
+             // There may not be errors during resubmission, so we need to save the "error state"
 			 if (current_status.is_complete) status.is_complete = true;
 			 if (current_status.has_errors) status.has_errors = true;
 
-			 // Perform necessary cleanup work for an iteration
+             // Perform necessary cleanup work for an iteration
 			 this->cycleFinalize(workItems);
 
-			 //-----------------------
+             //-----------------------
 			 // Check whether we want to break the loop
 
 			 // Leave if we are complete or if we haven't been asked to resubmit unprocessed
@@ -330,15 +330,15 @@ public:
 				 break;
 			 }
 
-			 //-----------------------
+             //-----------------------
 		 } while(true);
 
-		 //------------------------------------------------------------------------------------------
+         //------------------------------------------------------------------------------------------
 		 // Finalization of this iteration (possibly involving more than one submission of
 		 // selected work items)
 		 this->iterationFinalize(workItems);
 
-		 //------------------------------------------------------------------------------------------
+         //------------------------------------------------------------------------------------------
 
 		 // Give feedback to the audience (may be overloaded in derived classes)
 		 this->visualize_performance();
@@ -348,7 +348,7 @@ public:
 		 // resubmissions.
 		 m_iteration_counter++;
 
-		 // Note: unprocessed items will be returned to the caller who needs to deal with them
+         // Note: unprocessed items will be returned to the caller who needs to deal with them
 		 return status;
 	 }
 
@@ -713,7 +713,7 @@ protected:
 	  * Submission of all work items in the list
 	  */
 	 std::size_t submitAllWorkItems(std::vector<std::shared_ptr<processable_type>>& workItems) {
-		 // Submit work items
+         // Submit work items
 		 COLLECTION_POSITION_TYPE pos_cnt = 0;
 		 std::size_t nSubmittedItems = 0;
 		 bool got_first_processable_item_id = false;
@@ -731,7 +731,8 @@ protected:
 
 			 // Is the item due to be submitted ?
 			 processingStatus ps = w_ptr->getProcessingStatus();
-			 if(processingStatus::DO_PROCESS == ps) {
+
+             if(processingStatus::DO_PROCESS == ps) {
 				 // Update some internal variables
 				 w_ptr->setIterationCounter(m_iteration_counter);
 				 w_ptr->setCollectionPosition(pos_cnt);
@@ -777,7 +778,7 @@ protected:
 				 );
 			 }
 
-			 pos_cnt++;
+             pos_cnt++;
 		 }
 
 		 // Set the start time of the new cycle. How this time is determined depends

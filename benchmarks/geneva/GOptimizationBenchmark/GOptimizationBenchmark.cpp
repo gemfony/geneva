@@ -98,15 +98,11 @@ int main(int argc, char **argv) {
 		// Holds timing measurements
 		std::chrono::system_clock::time_point startTime, endTime;
 
-		std::cout << "Starting new measurement with dimension " << dim << std::endl;
-
 		// Set the appropriate dimension of the function individuals
 		gfi.setParDim(dim);
 
 		// Run the desired number of tests
 		for(std::size_t test=0; test<nTests; test++) {
-		    std::cout << "Starting test " << test << "/" << nTests << " in dimension " << dim << std::endl;
-
 			// Create a Go2-object for the loop
 			Go2 go_loop(argc, argv, "./config/Go2.json");
 
