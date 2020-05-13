@@ -277,10 +277,8 @@ SET (
 # it is overwritten later by FindGeneva, with the list of full library paths.
 # The function TARGET_LINK_LIBRARIES() can use either variant.
 
-# Add explicitely stdc++fs library in case gcc < 9.0
-# Need to be adapted for other type of compiler ?
 
-SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
+SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES})
 
 ################################################################################
 # Add additional libraries if required

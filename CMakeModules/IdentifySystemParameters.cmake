@@ -314,6 +314,14 @@ FUNCTION (
 		ENDIF()
 
 	ENDIF()
+
+	IF(CMAKE_CXX_COMPILER_ID MATCHES ${GNU_DEF_IDENTIFIER})
+           # For gnu compiler version < 9.0 add explicitely
+	  IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0)
+ 	    SET(CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES} -lstdc++fs" PARENT_SCOPE)
+          ENDIF() 
+        ENDIF()
+
 	#--------------------------------------------------------------------------
 
 ENDFUNCTION()
