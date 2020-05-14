@@ -300,7 +300,7 @@ FUNCTION (
 		# For Clang on MacOSX we require the standard C++ library
 		IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
 			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-			IF( NOT GENEVA_STATIC )
+			IF(NOT GENEVA_STATIC)
 				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
 				SET (MACOSX_RPATH 1)
 			ENDIF()
@@ -308,8 +308,19 @@ FUNCTION (
 			# Avoid https://llvm.org/bugs/show_bug.cgi?id=18402
 			# when using older libstdc++ versions
 			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
-			IF( NOT GENEVA_STATIC )
+			IF(NOT GENEVA_STATIC)
 				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++" PARENT_SCOPE)
+			ENDIF()
+		ENDIF()
+
+	#*****************************************************************
+	ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES ${GNU_DEF_IDENTIFIER})
+
+		# For GCC version < 9.0 add the filesystem library explicitely
+		IF(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 9.0)
+			SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
+			IF(NOT GENEVA_STATIC)
+				SET (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -lstdc++fs" PARENT_SCOPE)
 			ENDIF()
 		ENDIF()
 
@@ -359,7 +370,7 @@ FUNCTION (
 	#--------------------------------------------------------------------------
 	IF(${GENEVA_OS_NAME_IN} STREQUAL "MacOSX")
 		# Only clang is currently supported on MacOS
-        IF(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER} AND NOT CMAKE_CXX_COMPILER_ID STREQUAL ${APPLECLANG_DEF_IDENTIFIER})
+		IF(NOT ${CMAKE_CXX_COMPILER_ID} STREQUAL ${CLANG_DEF_IDENTIFIER} AND NOT CMAKE_CXX_COMPILER_ID STREQUAL ${APPLECLANG_DEF_IDENTIFIER})
 			MESSAGE("####################################################################################")
 			MESSAGE("# Compiler ${CMAKE_CXX_COMPILER_ID} is not supported on MacOSX. Use Clang instead. #")
 			MESSAGE("####################################################################################")
