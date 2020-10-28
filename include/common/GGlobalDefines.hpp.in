@@ -49,7 +49,14 @@
 // Some standard headers needed everywhere
 #include <ciso646>
 
+
 #include <boost/version.hpp>
+
+// Add the define to avoid messages by compiling with boost_version >= 1.74
+#if BOOST_VERSION >= 107400
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
+#endif 
+
 
 //-----------------------------------------------------------
 // For Microsoft-compatible compilers
@@ -60,6 +67,7 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #endif
+
 
 #include <winsock2.h>
 #include <windows.h>

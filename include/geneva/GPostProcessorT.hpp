@@ -44,6 +44,10 @@
 #include <string>
 
 // Boost headers go here
+#if BOOST_VERSION >= 107400
+#include <boost/serialization/library_version_type.hpp>
+#endif
+
 #include <boost/serialization/serialization.hpp> // See last comment at https://svn.boost.org/trac/boost/ticket/12126 . Fixes "sole" inclusion of set.hpp
 #include <boost/serialization/set.hpp>
 
