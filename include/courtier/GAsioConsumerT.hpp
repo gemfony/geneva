@@ -77,6 +77,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
+#include "courtier/GIoContexts.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -479,6 +480,7 @@ private:
 	 GCommandContainerT<processable_type, networked_consumer_payload_command> m_command_container{networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
 };
 
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -752,7 +754,7 @@ private:
 	 //-------------------------------------------------------------------------
 };
 
-
+  
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -1191,9 +1193,309 @@ private:
 	 //-------------------------------------------------------------------------
 };
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
+
+// Add Just anOther consumer
+ 
+template<typename processable_type>
+class GAsioConsumerPT
+	: public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
+   , public std::enable_shared_from_this<GAsioConsumerPT<processable_type>>
+{
+	 //-------------------------------------------------------------------------
+	 // Simplify usage of namespaces
+	 using error_code = boost::system::error_code;
+
+public:
+  GAsioConsumerPT() = default;
+  
+  GAsioConsumerPT(int io_context_pool_size)
+    : m_io_contexts(std::abs(io_context_pool_size))
+    , m_acceptor(m_io_contexts.get())
+    , m_socket(m_io_contexts.get()){
+    std::cout << "-I- GAsioConsumerPT() created with pool size: " <<  io_context_pool_size  << std::endl;
+  }
+  
+  
+  GAsioConsumerPT(const GAsioConsumerPT<processable_type>&) = delete;
+  GAsioConsumerPT(GAsioConsumerPT<processable_type>&&) = delete;
+  GAsioConsumerPT& operator=(const GAsioConsumerPT<processable_type>&) = delete;
+  GAsioConsumerPT& operator=(GAsioConsumerPT<processable_type>&&) = delete;
+  
+  void setNoDelay(){
+    boost::system::error_code set_option_err;
+    boost::asio::ip::tcp::no_delay no_delay(true);
+    m_socket.set_option(no_delay, set_option_err);
+  }
+  
+  void setServerName(const std::string& server) {
+    m_server = server;
+  }
+  
+  std::string getServerName() const {
+    return m_server;
+  }
+  
+  void setPort(unsigned short port) {
+    m_port = port;
+  }
+  
+  unsigned short getPort() const {
+    return m_port;
+  }
+  
+  void setSerializationMode(Gem::Common::serializationMode serializationMode) {
+    m_serializationMode = serializationMode;
+  }
+  
+  Gem::Common::serializationMode getSerializationMode() const {
+    return m_serializationMode;
+  }
+  
+  void setNThreads(std::size_t nThreads) {
+    // Adapt the number of processing threads, if automatic detection was requested
+    if(0 == nThreads) {
+      glogger
+	<< "In GAsioConsumerPT<>::setNThreads(): " << std::endl
+	<< "nThreads was set to 0. m_n_threads will be set to default " << GCONSUMERLISTENERTHREADS << std::endl
+	<< "This replaces the old behaviour where a value of 0 would have" << std::endl
+	<< "resulted in the number of hardware threads being unsed" << std::endl
+	<< GWARNING;
+      
+      m_n_threads = GCONSUMERLISTENERTHREADS;
+    } else {
+      m_n_threads = nThreads;
+    }
+  }
+  
+
+  std::size_t getNProcessingThreads() const {
+    return m_n_threads;
+  }
+  
+  void setMaxReconnects(std::size_t n_max_reconnects) {
+    m_n_max_reconnects = n_max_reconnects;
+  }
+
+  std::size_t getMaxReconnects() const {
+    return m_n_max_reconnects;
+  }
+  
+protected:
+  
+         void shutdown_() override {
+	   // Set the class-wide shutdown-flag
+	   GBaseConsumerT<processable_type>::shutdown_();
+	   
+	   // Make sure context threads may terminate
+	   m_io_contexts.stop();
+
+	 }
+  
+private:
+  
+  void addCLOptions_(
+		     boost::program_options::options_description &visible
+		     , boost::program_options::options_description &hidden
+		     ) override {
+    namespace po = boost::program_options;
+
+    visible.add_options()
+      ("asio_ip", po::value<std::string>(&m_server)->default_value(GCONSUMERDEFAULTSERVER),
+       "\t[asio] The name or ip of the server")
+      ("asio_port", po::value<unsigned short>(&m_port)->default_value(GCONSUMERDEFAULTPORT),
+       "\t[asio] The port of the server");
+    
+    hidden.add_options()
+      ("asio_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(GCONSUMERSERIALIZATIONMODE),
+       "\t[asio] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+      ("asio_nProcessingThreads", po::value<std::size_t>(&m_n_threads)->default_value(GCONSUMERLISTENERTHREADS),
+				 "\t[asio] The number of threads used to process incoming connections")
+      ("asio_maxReconnects", po::value<std::size_t>(&m_n_max_reconnects)->default_value(GASIOCONSUMERMAXCONNECTIONATTEMPTS),
+       "\t[asio] The maximum number of times a client will try to reconnect to the server when no connection could be established");
+
+  }
+  
+  void actOnCLOptions_(const boost::program_options::variables_map &vm) override
+  {
+    //std::cout << " GAsioConsumerPT::actOnClOptions() : " << m_server << " : " << m_port << std::endl;
+    //std::cout << " GAsioConsumerPT::actOnClOptions() : " << vm["asio_ip"].as<std::string>() << "  port:  " << vm["asio_port"].as<unsigned short>() << std::endl;    
+    m_server = vm["asio_ip"].as<std::string>();
+    m_port = vm["asio_port"].as<unsigned short>();
+  }
+  
+  std::string getConsumerName_() const override {
+    return std::string("GAsioConsumerPT");
+  }
+  
+  std::string getMnemonic_() const override {
+    return std::string("asio_ioc");
+  }
+  
+  
+  void async_startProcessing_() override {
+		 boost::system::error_code ec;
+		 
+		 // Set up the endpoint according to the endpoint information we have received from the command line
+		 m_endpoint = std::move(boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), m_port});
+
+		 // Open the acceptor
+		 m_acceptor.open(m_endpoint.protocol(), ec);
+		 if(ec || not m_acceptor.is_open()) {
+		   if(ec) {
+		     throw gemfony_exception(
+					 g_error_streamer(DO_LOG,  time_and_place)
+					 << "GAsioConsumerPT<>::async_startProcessing_() / m_acceptor.open: Got error message \"" << ec.message() << "\"" << std::endl
+					 << "No connections will be accepted. The server is not running" << std::endl
+				 );
+		   } else {
+		     throw gemfony_exception(
+					 g_error_streamer(DO_LOG,  time_and_place)
+					 << "GAsioConsumerPT<>::async_startProcessing_() / m_acceptor.open did not succeed." << std::endl
+					 << "No connections will be accepted. The server is not running" << std::endl
+					     );
+			 }
+		 }
+		 
+		 // Bind to the server address
+		 m_acceptor.bind(m_endpoint, ec);
+		 if(ec) {
+			 throw gemfony_exception(
+						 g_error_streamer(DO_LOG,  time_and_place)
+						 << "GAsioConsumerPT<>::async_startProcessing_() / m_acceptor.bind: Got error message \"" << ec.message() << "\"" << std::endl
+					 << "No connections will be accepted. The server is not running" << std::endl
+						 );
+		 }
+		 
+		 // Some acceptor options
+		 boost::asio::socket_base::reuse_address option(true);
+		 m_acceptor.set_option(option);
+
+		 // Start listening for connections
+		 m_acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
+		 if(ec) {
+		   throw gemfony_exception(
+					   g_error_streamer(DO_LOG,  time_and_place)
+					   << "GAsioConsumerPT<>::async_startProcessing_() / m_acceptor.listen: Got error message \"" << ec.message() << "\"" << std::endl
+					   << "No connections will be accepted. The server is not running" << std::endl
+					   );
+		 }
+		 
+		 // Start accepting connections
+		 async_start_accept();
+
+		 // Cross-check ...
+		 assert(m_n_threads > 0);
+
+		 // start the io_contexts
+                 m_io_contexts.run();
+		 
+		 // Done -- the function will return immediately
+  } //! async_start_processing()
+  
+  void async_start_accept(){
+		 auto self = this->shared_from_this();
+		 m_acceptor.async_accept(
+					 m_socket
+					 , [self](boost::system::error_code ec) {
+					   self->when_accepted(ec);
+					 }
+					 );
+  }
+  
+  void when_accepted(error_code ec) {
+    if(ec) {
+      glogger
+	<< "In GAsioConsumerPT<>::when_accepted(): Got error code \"" << ec.message() << "\"" << std::endl
+	<< "We will nevertheless try to accept more connections" << std::endl
+	<< GWARNING;
+		 } else {
+      // Create the GAsioConsumerSessionT and run it. This call will return immediately.
+      std::make_shared<GAsioConsumerSessionT<processable_type>>(
+								m_io_contexts.get()
+								, std::move(m_socket) // Our local m_socket will stay in a valid state
+								, [this]() -> std::shared_ptr<processable_type> { return this->getPayloadItem(); }
+								, [this](std::shared_ptr<processable_type> p) { this->putPayloadItem(p); }
+								, [this]() -> bool { return this->stopped(); }
+								, m_serializationMode
+								)->async_start_run();
+    }
+    
+    // Accept another connection
+    if(not this->stopped()) async_start_accept();
+  }
+  
+  std::shared_ptr<processable_type> getPayloadItem() {
+		 std::shared_ptr<processable_type> p;
+		 
+		 // Try to retrieve a work item from the broker
+		 m_broker_ptr->get(p, m_timeout);
+		 
+		 // May be empty, if we ran into a timeout
+		 return p;
+	 }
+  
+  void putPayloadItem(std::shared_ptr<processable_type> p) {
+    if(not p) {
+      throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+				 << "GAsioConsumerPT<>::putPayloadItem():" << std::endl
+				 << "Function called with empty work item" << std::endl
+			      );
+    }
+
+    if(not m_broker_ptr->put(p, m_timeout)) {
+      glogger
+	<< "In GAsioConsumerPT<>::putPayloadItem():" << std::endl
+	<< "Work item could not be submitted to the broker" << std::endl
+	<< "The item will be discarded" << std::endl
+				 << GWARNING;
+    }
+  }
+  
+  std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>> getClient_() const override {
+    return std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>>(
+										   new GAsioConsumerClientT<processable_type>(
+															      m_server
+															      , m_port
+															      , m_serializationMode
+															      , m_n_max_reconnects
+															      )
+										   );
+  }
+  
+  bool needsClient_() const noexcept override {
+    return true;
+  }
+  
+  std::size_t getNProcessingUnitsEstimate_(bool& exact) const override {
+    exact=false; // mark the answer as approximate
+    return m_n_active_sessions.load();
+  }
+  
+  bool capableOfFullReturn_() const override {
+    return false;
+  }
+
+  std::size_t m_n_threads = GCONSUMERLISTENERTHREADS;  ///< The number of threads used to process incoming connections through io_context::run()
+  GIoContexts m_io_contexts;
+  boost::asio::ip::tcp::acceptor m_acceptor;
+  boost::asio::ip::tcp::socket m_socket;
+
+  std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
+  unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
+  boost::asio::ip::tcp::endpoint m_endpoint{boost::asio::ip::tcp::v4(), m_port};
+  boost::asio::io_context m_io_context{boost::numeric_cast<int>(m_n_threads)};
+  Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY;
+  std::vector<std::thread> m_context_thread_cnt;
+  std::atomic<std::size_t> m_n_active_sessions{0};
+  std::size_t m_n_max_reconnects = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
+  std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); 
+  const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(GBEASTMSTIMEOUT); 
+  
+};
+
+
+
 
 } /* namespace Courtier */
 } /* namespace Gem */

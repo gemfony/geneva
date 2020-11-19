@@ -49,6 +49,7 @@ SET ( COMMUNICATIONINCLUDES
     GStdThreadConsumerT.hpp
     GWebsocketConsumerT.hpp
     GWorkerT.hpp
+    GIoContexts.hpp	
 )
 
 set_source_files_properties(
