@@ -77,20 +77,22 @@ namespace Gem {
 								)
 						);
 	    m_threads.push_back(thread);
-	    
-	    // Create a cpu_set_t object representing a set of CPUs.
-	    cpu_set_t cpuset;
-	    CPU_ZERO(&cpuset);
-	    CPU_SET(i, &cpuset);
-	    int rc = pthread_setaffinity_np((m_threads[i].get())->native_handle(),
-					    sizeof(cpu_set_t), &cpuset);
-	    ++i;
-	    if (rc != 0) {
-	      throw gemfony_exception(
-				      g_error_streamer(DO_LOG,  time_and_place)
-				      << "In GIoContexts()::run(): Error calling pthread_setaffinity_np: " << rc << std::endl
-				      );
-	      
+
+	    if (m_pinned) {
+	      // Create a cpu_set_t object representing a set of CPUs.
+	      cpu_set_t cpuset;
+	      CPU_ZERO(&cpuset);
+	      CPU_SET(i, &cpuset);
+	      int rc = pthread_setaffinity_np((m_threads[i].get())->native_handle(),
+					      sizeof(cpu_set_t), &cpuset);
+	      ++i;
+	      if (rc != 0) {
+		throw gemfony_exception(
+					g_error_streamer(DO_LOG,  time_and_place)
+					<< "In GIoContexts()::run(): Error calling pthread_setaffinity_np: " << rc << std::endl
+					);
+		
+	      }
 	    }
 	  }//!for 
       }
