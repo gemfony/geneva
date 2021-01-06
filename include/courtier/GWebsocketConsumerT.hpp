@@ -76,6 +76,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
+#include "courtier/GIoContexts.hpp"
 
 namespace Gem {
 namespace Courtier {
@@ -593,6 +594,8 @@ private:
 
 	 //-------------------------------------------------------------------------
 };
+
+
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1148,6 +1151,7 @@ private:
 	 const std::chrono::seconds m_ping_interval{GBEASTCONSUMERPINGINTERVAL}; // Time between two pings in seconds
 	 bool m_verbose_control_frames = false;
 
+
 	 std::atomic<beast_ping_state> m_ping_state{beast_ping_state::CONNECTION_IS_ALIVE};
 	 const boost::beast::websocket::ping_data m_ping_data{};
 
@@ -1157,6 +1161,7 @@ private:
 
 	 //-------------------------------------------------------------------------
 };
+
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -1507,6 +1512,445 @@ private:
 
 	 //-------------------------------------------------------------------------
 };
+
+
+// Add just another consumer
+
+template<typename processable_type>
+class GWebsocketConsumerPT
+	: public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
+	  , public std::enable_shared_from_this<GWebsocketConsumerPT<processable_type>>
+{
+	 //-------------------------------------------------------------------------
+	 // Simplify usage of namespaces
+	 using error_code = boost::system::error_code;
+
+public:
+	 //-------------------------------------------------------------------------
+	 /** @brief The default constructor */
+	 GWebsocketConsumerPT() = default;
+  
+         GWebsocketConsumerPT(int io_context_pool_size)
+	   : m_io_contexts(io_context_pool_size)
+	   , m_acceptor(m_io_contexts.get())
+	   , m_socket(m_io_contexts.get()){
+	   std::cout << "-I- GWebsocketConsumerPT() created with pool size: " <<  io_context_pool_size  << std::endl;
+	 }
+	 //-------------------------------------------------------------------------
+	 // Deleted copy-/move-constructors and assignment operators.
+	 GWebsocketConsumerPT(const GWebsocketConsumerPT<processable_type>&) = delete;
+	 GWebsocketConsumerPT(GWebsocketConsumerPT<processable_type>&&) = delete;
+	 GWebsocketConsumerPT& operator=(const GWebsocketConsumerPT<processable_type>&) = delete;
+	 GWebsocketConsumerPT& operator=(GWebsocketConsumerPT<processable_type>&&) = delete;
+
+         //-------------------------------------------------------------------------
+	 /**
+	  * Sets the server name
+	  *
+	  * @param server The name of the server to be used by this class
+	  */
+	 void setServerName(const std::string& server) {
+	 	 m_server = server;
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Allows to retrieve the server name
+	  *
+	  * @return The name of the server configured for this class
+	  */
+	 std::string getServerName() const {
+		 return m_server;
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Sets the server port
+	  *
+	  * @param port The port to be used by the server
+	  */
+	 void setPort(unsigned short port) {
+		 m_port = port;
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Allows to retrieve the port
+	  *
+	  * @return The port configured for this server
+	  */
+  	 unsigned short getPort() const {
+  	 	return m_port;
+  	 }
+
+   
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Allos to configure the serialization mode for the communication between
+	  * clients and server
+	  *
+	  * @param serializationMode The serialization mode to be configured for this class
+	  */
+	 void setSerializationMode(Gem::Common::serializationMode serializationMode) {
+	 	 m_serializationMode = serializationMode;
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Allows to retrieve the serialization mode configured for this class
+	  *
+	  * @return The serialization mode configured for this class
+	  */
+	 Gem::Common::serializationMode getSerializationMode() const {
+	 	return m_serializationMode;
+	 } 
+
+ 	 //-------------------------------------------------------------------------
+	 /**
+	  * Configures the number of threads to be used by this class
+	  *
+	  * @param The number of threads to be used by this class
+	  */
+	 void setNThreads(std::size_t nThreads) {
+		 // Adapt the number of processing threads, if automatic detection was requested
+		 if(0 == nThreads) {
+			 glogger
+				 << "In GWebsocketConsumerPT<>::setNThreads(): " << std::endl
+				 << "nThreads was set to 0. m_n_threads will be set to default " << GCONSUMERLISTENERTHREADS << std::endl
+				 << "This replaces the old behaviour where a value of 0 would have" << std::endl
+				 << "resulted in the number of hardware threads being unsed" << std::endl
+				 << GWARNING;
+
+			 m_n_listener_threads = GCONSUMERLISTENERTHREADS;
+		 } else {
+			 m_n_listener_threads = nThreads;
+		 }
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Allows to retrieve the number of processing threads to be used for processing
+	  * incoming connections in the server
+	  */
+  	 std::size_t getNProcessingThreads() const {
+  	 	return m_n_listener_threads;
+  	 }
+
+
+  
+protected:
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Stop execution
+	  */
+	 void shutdown_() override {
+		 //------------------------------------------------------
+		 // Set the class-wide shutdown-flag
+		 GBaseConsumerT<processable_type>::shutdown_();
+
+		 // Make sure context threads may terminate
+		 m_io_contexts.stop();
+
+	 }
+
+private:
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Adds local command line options to a boost::program_options::options_description object.
+	  *
+	  * @param visible Command line options that should always be visible
+	  * @param hidden Command line options that should only be visible upon request
+	  */
+	 void addCLOptions_(
+		 boost::program_options::options_description &visible
+		 , boost::program_options::options_description &hidden
+	 ) override {
+		 namespace po = boost::program_options;
+
+		 visible.add_options()
+			 ("beast_ip", po::value<std::string>(&m_server)->default_value(GCONSUMERDEFAULTSERVER),
+				 "\t[beast] The name or ip of the server")
+			 ("beast_port", po::value<unsigned short>(&m_port)->default_value(GCONSUMERDEFAULTPORT),
+				 "\t[beast] The port of the server");
+
+		 hidden.add_options()
+			 ("beast_serializationMode", po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(GCONSUMERSERIALIZATIONMODE),
+				 "\t[beast] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)")
+			 ("beast_nListenerThreads", po::value<std::size_t>(&m_n_listener_threads)->default_value(m_n_listener_threads),
+				 "\t[beast] The number of threads used to listen for incoming connections")
+			 ("beast_pingInterval", po::value<std::size_t>(&m_ping_interval)->default_value(GBEASTCONSUMERPINGINTERVAL),
+				 "\t[beast] The number of seconds between two consecutive pings")
+			 ("beast_verboseControlFrames", po::value<bool>(&m_verbose_control_frames)->default_value(false)->implicit_value(true),
+				 "\t[beast] Whether sending and arrival of ping/pong and receipt of a close frame should be announced by client and server");
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Takes a boost::program_options::variables_map object and acts on
+	  * the received command line options.
+	  */
+	 void actOnCLOptions_(const boost::program_options::variables_map &vm) override
+         {
+	   m_server = vm["beast_ip"].as<std::string>();
+	   m_port = vm["beast_port"].as<unsigned short>();
+	   m_ping_interval = vm["beast_pingInterval"].as<std::size_t>();
+	   m_verbose_control_frames = vm["beast_verboseControlFrames"].as<bool>();
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * A unique identifier for a given consumer
+	  *
+	  * @return A unique identifier for a given consumer
+	  */
+	 std::string getConsumerName_() const override {
+		 return std::string("GWebsocketConsumerPT");
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Returns a short identifier for this consumer
+	  */
+	 std::string getMnemonic_() const override {
+		 return std::string("beast_ioc");
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Starts the consumer responder loops
+	  */
+	 void async_startProcessing_() override {
+		 boost::system::error_code ec;
+
+		 // Set up the endpoint according to the endpoint information we have received from the command line
+		 m_endpoint = std::move(boost::asio::ip::tcp::endpoint{boost::asio::ip::tcp::v4(), m_port});
+		 
+		 // Open the acceptor
+		 m_acceptor.open(m_endpoint.protocol(), ec);
+		 if(ec || not m_acceptor.is_open()) {
+			 if(ec) {
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG,  time_and_place)
+						 << "GWebsocketConsumerPT<>::async_startProcessing_() / m_acceptor.open: Got error message \"" << ec.message() << "\"" << std::endl
+						 << "No connections will be accepted. The server is not running" << std::endl
+				 );
+			 } else {
+				 throw gemfony_exception(
+					 g_error_streamer(DO_LOG,  time_and_place)
+						 << "GWebsocketConsumerPT<>::async_startProcessing_() / m_acceptor.open did not succeed." << std::endl
+						 << "No connections will be accepted. The server is not running" << std::endl
+				 );
+			 }
+		 }
+
+		 // Bind to the server address
+		 m_acceptor.bind(m_endpoint, ec);
+		 if(ec) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "GWebsocketConsumerPT<>::async_startProcessing_() / m_acceptor.bind: Got error message \"" << ec.message() << "\"" << std::endl
+					 << "No connections will be accepted. The server is not running" << std::endl
+			 );
+		 }
+
+
+		 // Some acceptor options
+		 boost::asio::socket_base::reuse_address option(true);
+		 m_acceptor.set_option(option);
+
+		 // Start listening for connections  TODO: Check if this should be increased
+		 m_acceptor.listen(boost::asio::socket_base::max_listen_connections, ec);
+		 if(ec) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "GWebsocketConsumerPT<>::async_startProcessing_() / m_acceptor.listen: Got error message \"" << ec.message() << "\"" << std::endl
+					 << "No connections will be accepted. The server is not running" << std::endl
+			 );
+		 }
+
+		 // Start accepting connections
+		 async_start_accept();
+
+		 m_io_contexts.run();
+		 
+		 // Done -- the function will return immediately
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Asynchronously accepts new sessions requests (on the ASIO- and not the
+	  * Websocket-level).
+	  */
+	 void async_start_accept(){
+		 auto self = this->shared_from_this();
+		 m_acceptor.async_accept(
+			 m_socket
+			 , [self](boost::system::error_code ec) {
+				 self->when_accepted(ec);
+			 }
+		 );
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * This callback will be executed when a new session has been accepted
+	  *
+	  * @param ec The code of a possible error
+	  */
+	 void when_accepted(error_code ec) {
+		 if(ec) {
+			 glogger
+				 << "In GWebsocketConsumerPT<>::when_accepted(): Got error code \"" << ec.message() << "\"" << std::endl
+				 << "We will nevertheless try to accept more connections" << std::endl
+				 << GWARNING;
+		 } else {
+			 // Create the GWebsocketConsumerSessionT and run it. This call will return immediately.
+			 std::make_shared<GWebsocketConsumerSessionT<processable_type>>(
+                                   m_io_contexts.get()
+				 , std::move(m_socket) // m_socket will stay in a valid state
+				 , [this]() -> std::shared_ptr<processable_type> { return this->getPayloadItem(); }
+				 , [this](std::shared_ptr<processable_type> p) { this->putPayloadItem(p); }
+				 , [this]() -> bool { return this->stopped(); }
+				 , [this](bool sign_on) {
+					 if(true==sign_on) {
+						 this->m_n_active_sessions++;
+					 } else {
+						 if(this->m_n_active_sessions > 0) {
+							 // This won't help, though, if m_n_active_sessions becomes 0 after the if-check
+							 this->m_n_active_sessions--;
+						 } else {
+							 throw gemfony_exception(
+								 g_error_streamer(DO_LOG,  time_and_place)
+									 << "In GWebsocketConsumerPT<>::when_accepted():" << std::endl
+									 << "Tried to decrement #sessions which is already 0" << std::endl
+							 );
+						 }
+					 }
+
+					 glogger
+						 << "GWebsocketConsumerPT<>: " << this->m_n_active_sessions << " active sessions" << std::endl
+						 << GLOGGING;
+				 }
+				 , m_serializationMode
+				 , m_ping_interval
+				 , m_verbose_control_frames
+			 )->async_start_run();
+		 }
+
+		 // Accept another connection
+		 if(not this->stopped()) async_start_accept();
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Tries to retrieve a work item from the server, observing a timeout
+	  *
+	  * @return A work item (possibly empty)
+	  */
+	 std::shared_ptr<processable_type> getPayloadItem() {
+		 std::shared_ptr<processable_type> p;
+
+		 // Try to retrieve a work item from the broker
+		 m_broker_ptr->get(p, m_timeout);
+
+		 // May be empty, if we ran into a timeout
+		 return p;
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Submits a work item to the server, observing a timeout
+	  */
+	 void putPayloadItem(std::shared_ptr<processable_type> p) {
+		 if(not p) {
+			 throw gemfony_exception(
+				 g_error_streamer(DO_LOG,  time_and_place)
+					 << "GWebsocketConsumerPT<>::putPayloadItem():" << std::endl
+					 << "Function called with empty work item" << std::endl
+			 );
+		 }
+
+		 if(not m_broker_ptr->put(p, m_timeout)) {
+			 glogger
+				 << "In GWebsocketConsumerPT<>::putPayloadItem():" << std::endl
+				 << "Work item could not be submitted to the broker" << std::endl
+				 << "The item will be discarded" << std::endl
+				 << GWARNING;
+		 }
+	 }
+
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * This function returns a client associated with this consumer. By default
+	  * it returns an empty smart pointer, so that consumers without the need for
+	  * clients do not need to re-implement this function.
+	  */
+	 std::shared_ptr<GBaseClientT<processable_type>> getClient_() const override {
+		 return std::shared_ptr<GBaseClientT<processable_type>>(
+			 new GWebsocketClientT<processable_type>(
+				 m_server
+				 , m_port
+				 , m_serializationMode
+				 , m_verbose_control_frames
+			 )
+		 );
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Allows to check whether this consumer needs a client to operate.
+	  *
+	  * @return A boolean indicating whether this consumer needs a client to operate
+	  */
+	 bool needsClient_() const noexcept override {
+		 return true;
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Returns the (possibly estimated) number of concurrent processing units.
+	  * Note that this function does not make any assumptions whether processing
+	  * units are dedicated solely to a given task.
+	  */
+	 std::size_t getNProcessingUnitsEstimate_(bool& exact) const override {
+		 exact=false; // mark the answer as approximate
+		 return m_n_active_sessions.load();
+	 }
+
+	 //-------------------------------------------------------------------------
+	 /**
+	  * Returns an indication whether full return can be expected from this
+	  * consumer. Since evaluation is performed remotely, we assume that this
+	  * is not the case.
+	  */
+	 bool capableOfFullReturn_() const override {
+		 return false;
+	 }
+
+	 //-------------------------------------------------------------------------
+	 // Data
+         GIoContexts m_io_contexts;
+         boost::asio::ip::tcp::acceptor m_acceptor;
+         boost::asio::ip::tcp::socket m_socket;  
+
+	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
+	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
+	 boost::asio::ip::tcp::endpoint m_endpoint{boost::asio::ip::tcp::v4(), m_port};
+	 std::size_t m_n_listener_threads = GCONSUMERLISTENERTHREADS;  ///< The number of threads used to listen for incoming connections through io_context::run()
+
+	 Gem::Common::serializationMode m_serializationMode = Gem::Common::serializationMode::BINARY; ///< Specifies the serialization mode
+	 std::vector<std::thread> m_io_context_thread_cnt;
+	 std::atomic<std::size_t> m_n_active_sessions{0};
+	 std::size_t m_ping_interval = GBEASTCONSUMERPINGINTERVAL;
+	 bool m_verbose_control_frames = false; ///< Whether the control_callback should emit information when a control frame is received
+
+	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< Simplified access to the broker
+  const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(GBEASTMSTIMEOUT); 
+
+};
+ 
+
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////

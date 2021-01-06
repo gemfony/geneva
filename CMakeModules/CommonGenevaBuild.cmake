@@ -276,7 +276,8 @@ SET (
 # This variable contains the library names. In case of an independent build,
 # it is overwritten later by FindGeneva, with the list of full library paths.
 # The function TARGET_LINK_LIBRARIES() can use either variant.
-SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
+
+SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
 
 ################################################################################
 # Add additional libraries if required

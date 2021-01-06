@@ -73,6 +73,16 @@ public:
 		// Register the consumer with the store, if it hasn't happened yet
 		GConsumerStore->setOnce(mnemonic, p);
 	}
+
+        GIndividualStandardConsumerInitializerT(int size) {
+		// Create a smart pointer holding the consumer
+		std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>> p(new c_type(size));
+		std::string mnemonic = p->getMnemonic();
+
+		// Register the consumer with the store, if it hasn't happened yet
+		GConsumerStore->setOnce(mnemonic, p);
+	}
+  
 	/** @brief An empty destructor */
 	virtual ~GIndividualStandardConsumerInitializerT() BASE = default;
 };

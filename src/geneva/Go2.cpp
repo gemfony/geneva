@@ -823,8 +823,10 @@ void Go2::parseCommandLine(
 			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
 			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION),
 				R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
-			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str());
-
+			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str())
+       		        ("ioc,i", po::value<int>(&m_ioc)->default_value(0),
+		         "io_per_cpu (network based consumers only");
+		  
 		// Add additional options coming from the algorithms and consumers
 		boost::program_options::options_description visible("Global algorithm- and consumer-options");
 		boost::program_options::options_description hidden("Hidden algorithm- and consumer-options");
@@ -891,6 +893,18 @@ void Go2::parseCommandLine(
 			);
 		}
 
+		if ( vm.count("ioc") && m_ioc != 0 ){
+		  if (m_consumer_name == "asio"){
+		    m_gi.registerConsumer<Gem::Courtier::GAsioConsumerPT<Gem::Geneva::GParameterSet>>(m_ioc);
+		  }else if (m_consumer_name == "beast"){
+		    m_gi.registerConsumer<Gem::Courtier::GWebsocketConsumerPT<Gem::Geneva::GParameterSet>>(m_ioc);
+		  }
+		  m_consumer_name +="_ioc";
+		  std::cout << " activating the ioc_per_cpu mode for n_threads: " << std::abs(m_ioc) << " c_name: " << m_consumer_name << std::endl;
+		}
+
+
+		
 		// Check that the requested consumer actually exists
 		if (vm.count("consumer") && not GConsumerStore->exists(m_consumer_name)) {
 			throw gemfony_exception(
