@@ -38,7 +38,6 @@ SET ( HAPSOURCES
 	GHapEnums
 	GRandomBase
 	GRandomFactory
-	GRandomT
 )
 
 set_source_files_properties(
