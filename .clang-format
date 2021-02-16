@@ -1,0 +1,50 @@
+BasedOnStyle: Google
+ColumnLimit: 100
+AllowShortIfStatementsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: true
+BinPackArguments: false
+BinPackParameters: false
+ExperimentalAutoDetectBinPacking: false
+AllowAllParametersOfDeclarationOnNextLine: false
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Headers in <boost/> from specific external libraries.
+  - Regex:           '<[(boost)].+>'
+    Priority:        1 
+  # Headers in <geneva/> from specific external libraries.
+  - Regex:           '<[(geneva)].+>'
+    Priority:        2
+  # Headers in <> 
+  - Regex:           '<[[:alnum"].]+>'
+    Priority:        3
+  # Headers in "" with extension.
+  - Regex:           '"[[:alnum:].]+"'
+    Priority:        5
+  - Regex:           '.*'
+    Priority:        4
+BraceWrapping:
+  AfterCaseLabel:  false
+  AfterClass:      false
+  AfterControlStatement: Never
+  AfterEnum:       false
+  AfterFunction:   false
+  AfterNamespace:  false
+  AfterObjCDeclaration: false
+  AfterStruct:     false
+  AfterUnion:      false
+  AfterExternBlock: false
+  BeforeCatch:     false
+  BeforeElse:      false
+  BeforeLambdaBody: false
+  BeforeWhile:     false
+  IndentBraces:    false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: true
+  SplitEmptyNamespace: true
+BreakBeforeBraces: Attach
+AlwaysBreakTemplateDeclarations: true
+FixNamespaceComments: true
+
