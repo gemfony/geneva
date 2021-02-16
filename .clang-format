@@ -8,4 +8,20 @@ BinPackArguments: false
 BinPackParameters: false
 ExperimentalAutoDetectBinPacking: false
 AllowAllParametersOfDeclarationOnNextLine: false
-SortIncludes: false
+SortIncludes: true
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Headers in <boost/> from specific external libraries.
+  - Regex:           '<[(boost)].+>'
+    Priority:        1 
+  # Headers in <geneva/> from specific external libraries.
+  - Regex:           '<[(geneva)].+>'
+    Priority:        2
+  # Headers in <> 
+  - Regex:           '<[[:alnum"].]+>'
+    Priority:        3
+  # Headers in "" with extension.
+  - Regex:           '"[[:alnum:].]+"'
+    Priority:        5
+  - Regex:           '.*'
+    Priority:        4
