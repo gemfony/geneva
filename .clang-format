@@ -1,44 +1,52 @@
 # Formatting options for the Geneva library collection
 ---
+Language: Cpp
 BasedOnStyle: Google
-AccessModifierOffset: -2
-AlignAfterOpenBracket: AlwaysBreak
+AccessModifierOffset: -4
+AlignAfterOpenBracket: Align
 AlignConsecutiveMacros: true
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
-AlignTrailingComments: false
+AlignTrailingComments: true
 AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortBlocksOnASingleLine: true
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+AllowShortBlocksOnASingleLine: Empty
 AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Always
 AlwaysBreakAfterReturnType: AllDefinitions
 BinPackArguments: false
 BinPackParameters: false
-BraceWrapping: 
-  AfterClass: true
-  SplitEmptyFunction: false
-  SplitEmptyRecord: false
-  SplitEmptyNamespace: false
 BreakBeforeBinaryOperators: All
-BreakBeforeBraces: Mozilla
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: MultiLine
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: true
+  BeforeElse: true
+  IndentBraces: false
 BreakBeforeInheritanceComma: true
 BreakInheritanceList: BeforeComma
 BreakConstructorInitializersBeforeComma: true
 BreakConstructorInitializers: BeforeComma
 BreakAfterJavaFieldAnnotations: true
 BreakStringLiterals: false
-ColumnLimit: 270
-ConstructorInitializerIndentWidth: 2
-ContinuationIndentWidth: 2
-Cpp11BracedListStyle: false
+ColumnLimit: 120
+ConstructorInitializerIndentWidth: 4
+ContinuationIndentWidth: 4
+Cpp11BracedListStyle: true
 DerivePointerAlignment: false
-ExperimentalAutoDetectBinPacking: true
+ExperimentalAutoDetectBinPacking: false
 IncludeBlocks: Preserve
-IndentCaseLabels: false
+IndentCaseLabels: true
 IndentPPDirectives: AfterHash
-IndentWidth: 3
+IndentWidth: 4
 JavaScriptWrapImports: false
 KeepEmptyLinesAtTheStartOfBlocks: true
 MaxEmptyLinesToKeep: 2
@@ -47,19 +55,21 @@ ObjCSpaceBeforeProtocolList: false
 PenaltyBreakAssignment: 3
 PenaltyBreakBeforeFirstCallParameter: 19
 PenaltyBreakFirstLessLess: 150
-PenaltyReturnTypeOnItsOwnLine: 60
+PenaltyReturnTypeOnItsOwnLine: 10000
 PointerAlignment: Middle
 ReflowComments: false
 SortUsingDeclarations: false
 SpaceAfterCStyleCast: true
 SpaceBeforeCpp11BracedList: true
-SpaceBeforeCtorInitializerColon: false
-SpaceBeforeInheritanceColon: false
-SpaceBeforeParens: Never
+SpaceBeforeCtorInitializerColon: true
+SpaceBeforeInheritanceColon: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
 SpaceBeforeRangeBasedForLoopColon: false
-SpacesBeforeTrailingComments: 1
+SpacesBeforeTrailingComments: 2
 SpacesInParentheses: true
-Standard: Cpp11
-TabWidth: 20
-UseTab: Always
+Standard: Latest
+TabWidth: 4
+UseTab: Never
+CommentPragmas:  '^\\.+'
 ...
