@@ -55,8 +55,13 @@
 // Add the define to avoid messages by compiling with boost_version >= 1.74
 #if BOOST_VERSION >= 107400
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS
-#endif 
+#endif
 
+//-----------------------------------------------------------
+// Make sure we have a valid definition of the OS
+#ifndef GENEVA_OS_NAME
+#define GENEVA_OS_NAME "unknown"
+#endif
 
 //-----------------------------------------------------------
 // For Microsoft-compatible compilers

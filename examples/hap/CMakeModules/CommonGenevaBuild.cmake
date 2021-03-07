@@ -86,6 +86,9 @@ FIND_HOST_OS (
 	"GENEVA_OS_VERSION"
 )
 
+# Make the OS known to the program
+ADD_DEFINITIONS(-DGENEVA_OS_NAME="${GENEVA_OS_NAME}")
+
 ###############################################################################
 # Identify unsupported setups as early as possible
 

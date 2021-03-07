@@ -86,6 +86,9 @@ FIND_HOST_OS (
 	"GENEVA_OS_VERSION"
 )
 
+# Make the OS known to the program
+ADD_DEFINITIONS(-DGENEVA_OS_NAME="${GENEVA_OS_NAME}")
+
 ###############################################################################
 # Identify unsupported setups as early as possible
 
@@ -170,6 +173,8 @@ SET (Boost_ADDITIONAL_VERSIONS
         "1.73.0"
         "1.74"
         "1.74.0"
+		"1.75"
+		"1.75.0"
 )
 
 IF ( GENEVA_STATIC )
