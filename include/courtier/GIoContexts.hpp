@@ -1,5 +1,45 @@
+/********************************************************************************
+ *
+ * This file is part of the Geneva library collection. The following license
+ * applies to this file:
+ *
+ * ------------------------------------------------------------------------------
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * ------------------------------------------------------------------------------
+ *
+ * Note that other files in the Geneva library collection may use a different
+ * license. Please see the licensing information in each file.
+ *
+ ********************************************************************************
+ *
+ * Geneva was started by Dr. Rüdiger Berlich and was later maintained together
+ * with Dr. Ariel Garcia under the auspices of Gemfony scientific. For further
+ * information on Gemfony scientific, see http://www.gemfomy.eu .
+ *
+ * The majority of files in Geneva was released under the Apache license v2.0
+ * in February 2020.
+ *
+ * See the NOTICE file in the top-level directory of the Geneva library
+ * collection for a list of contributors and copyright information.
+ *
+ ********************************************************************************/
+
 #pragma once
 
+// Global checks, defines and includes needed for all of Geneva
+#include "common/GGlobalDefines.hpp"
+
+// Standard headers go here
 #include <pthread.h>
 #include <climits>
 #include <cstdlib>
@@ -7,11 +47,13 @@
 #include <thread>
 #include <vector>
 
+// Boost headers go here
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/version.hpp>
 
+// Geneva headers go here
 #include "common/GErrorStreamer.hpp"
 #include "common/GGlobalDefines.hpp"
 #include "common/GLogger.hpp"
@@ -19,11 +61,16 @@
 
 namespace Gem::Courtier {
 
-class GIoContexts : private boost::noncopyable
-{
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * This class centralized creation and management of io_context threads. It also
+ * allows pinning of threads to a given CPU
+ */
+class GIoContexts {
 public:
-    explicit GIoContexts( int c_size )
-    {
+    explicit GIoContexts( int c_size ) {
         m_pinned = c_size < 0;
         m_size   = std::abs( c_size );
 
@@ -48,17 +95,29 @@ public:
             m_ioContexts.push_back( ioc );
 
 #if BOOST_VERSION >= 107400
-            m_work.push_back( boost::asio::require( ioc->get_executor(), boost::asio::execution::outstanding_work.tracked ) );
+            m_work.push_back(
+                boost::asio::require( ioc->get_executor(), boost::asio::execution::outstanding_work_t::tracked ) );
 #else
             m_work.push_back( boost::asio::make_work_guard( *ioc ) );
 #endif
         }
     }
 
+    //----------------------------------------------------------------------------------
+    // Deleted constructors and assignment operators
+
+    GIoContexts() = delete;
+    GIoContexts(GIoContexts const&) = delete;
+    GIoContexts(GIoContexts &&) = delete;
+
+    GIoContexts& operator=(GIoContexts const&) = delete;
+    GIoContexts& operator=(GIoContexts &&) = delete;
+
+    //----------------------------------------------------------------------------------
+
     void
     run()
     {
-
         size_t i = 0;
 
         for ( auto & ioc: m_ioContexts ) {
@@ -97,10 +156,10 @@ public:
 
 
 private:
-    int                                           m_size;
-    bool                                          m_pinned;
-    std::atomic<std::size_t>                      m_nextContext { 0 };
-    std::vector<std::shared_ptr<std::thread>>     m_threads;
+    int                                                   m_size;
+    bool                                                  m_pinned;
+    std::atomic<std::size_t>                              m_nextContext { 0 };
+    std::vector<std::shared_ptr<std::thread>>             m_threads;
     std::vector<std::shared_ptr<boost::asio::io_context>> m_ioContexts;
 
 #if BOOST_VERSION >= 107400

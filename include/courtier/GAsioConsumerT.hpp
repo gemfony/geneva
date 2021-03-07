@@ -86,7 +86,7 @@ namespace Gem::Courtier {
 /******************************************************************************/
 /**
  * This class is responsible for the client side of network communication
- * with Boost::Beast. Connections are kept open permanently.
+ * with Boost::Asio.
  */
 template<typename processable_type>
 class GAsioConsumerClientT final
