@@ -58,7 +58,6 @@
 #include "common/GGlobalDefines.hpp"
 #include "common/GLogger.hpp"
 
-
 namespace Gem::Courtier {
 
 /******************************************************************************/
@@ -70,6 +69,12 @@ namespace Gem::Courtier {
  */
 class GIoContexts {
 public:
+    //-------------------------------------------------------------------------
+    /**
+     * Initialization with number of concurrent io_contexts
+     *
+     * @param c_size
+     */
     explicit GIoContexts( int c_size ) {
         m_pinned = c_size < 0;
         m_size   = std::abs( c_size );
@@ -169,5 +174,8 @@ private:
 #endif
 };
 
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
 
 }  // namespace Gem::Courtier
