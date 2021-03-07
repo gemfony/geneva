@@ -91,8 +91,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -125,7 +124,7 @@ public:
 	  *
 	  * @param additionalDataTemplate The model of the item to be processed
 	  */
-	 GBaseClientT(std::shared_ptr<processable_type> additionalDataTemplate)
+	 explicit GBaseClientT(std::shared_ptr<processable_type> additionalDataTemplate)
 		 : m_additionalDataTemplate(additionalDataTemplate)
 	 { /* nothing*/ }
 
@@ -159,7 +158,7 @@ public:
 	  *
 	  * @return The value of the m_processMax variable
 	  */
-	 std::uint32_t getProcessMax() const {
+	 [[nodiscard]] std::uint32_t getProcessMax() const {
 		 return m_processMax;
 	 }
 
@@ -167,7 +166,7 @@ public:
 	 /**
 	  * Retrieves the number of items processed so far
 	  */
-	 std::uint32_t getNProcessed() const {
+	 [[nodiscard]] std::uint32_t getNProcessed() const {
 		 return m_processed;
 	 }
 
@@ -195,7 +194,7 @@ public:
 	 /**
 	  * Checks whether a terminal error was flagged
 	  */
-	 bool terminalErrorFlagged() const {
+	 [[nodiscard]] bool terminalErrorFlagged() const {
 		 return m_terminalError.load();
 	 }
 
@@ -203,7 +202,7 @@ public:
 	 /**
 	  * Checks whether the close-flag was set
 	  */
-	 bool closeRequested() const {
+	 [[nodiscard]] bool closeRequested() const {
 		 return m_closeRequested.load();
 	 }
 
@@ -288,7 +287,7 @@ protected:
 	 /**
 	  * Allows to flag an error that qualifies as a halt condition
 	  */
-	 void flagTerminalError() {
+     void flagTerminalError() {
 		 m_terminalError.store(true);
 	 }
 
@@ -297,7 +296,7 @@ protected:
 	  * Loads the additional data template into the processable_type target.
 	  * This function needs to be called for each new item by derived classes.
 	  */
-	 void loadDataTemplate(std::shared_ptr<processable_type> target) {
+     void loadDataTemplate(std::shared_ptr<processable_type> target) {
 		 // If we have a model for the item to be parallelized, load its data into the target
 		 if(m_additionalDataTemplate) {
 			 target->loadConstantData(m_additionalDataTemplate);
@@ -366,7 +365,7 @@ protected:
 	  * of the type "idle(5000)", where the number specifies the amount of
 	  * milliseconds the client should wait before reconnecting.
 	  */
-	 bool parseIdleCommand(std::uint32_t &idleTime, const std::string &idleCommand) {
+     bool parseIdleCommand(std::uint32_t &idleTime, const std::string &idleCommand) {
 		 using boost::spirit::ascii::space;
 		 using boost::spirit::qi::phrase_parse;
 		 using boost::spirit::qi::uint_;
@@ -420,15 +419,15 @@ private:
 		 switch(r) {
 			 case run_state::INIT:
 				 return "run_state::INIT";
-				 break;
+				 /* break; */
 
 			 case run_state::RUN:
 				 return "run_state::RUN";
-				 break;
+                 /* break; */
 
 			 case run_state::FINALLY:
 				 return "run_state::FINALLY";
-				 break;
+                 /* break; */
 		 }
 
 		 // Make the compiler happy
@@ -455,6 +454,5 @@ private:
 /******************************************************************************/
 
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 

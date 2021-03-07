@@ -50,8 +50,7 @@
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /** @brief Indicates whether the client executes the init-, run- or finally()-function */
@@ -266,6 +265,5 @@ G_API_COURTIER std::istream& operator>>(std::istream&, Gem::Courtier::consumerTy
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Geneva
 

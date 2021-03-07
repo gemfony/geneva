@@ -69,8 +69,7 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "hap/GRandomT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /**********************************************************************************************/
 /**
@@ -95,7 +94,7 @@ class GSimpleContainer
 
 public:
     /** @brief The standard constructor -- Initialization with an amount of random numbers */
-    G_API_COURTIER GSimpleContainer(const std::size_t&);
+    G_API_COURTIER explicit GSimpleContainer(const std::size_t&);
     /** @brief The copy constructor */
     G_API_COURTIER GSimpleContainer(const GSimpleContainer&) = default;
     /** @brief The destructor */
@@ -166,8 +165,7 @@ private:
 
 /**********************************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GSimpleContainer)
 BOOST_CLASS_EXPORT_KEY(Gem::Courtier::GRandomNumberContainer)

@@ -103,8 +103,7 @@
 // aliases for ease of use
 namespace pt = boost::property_tree;
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -191,9 +190,9 @@ protected:
 private:
     /***************************************************************************/
     /** @brief Emits a name for this class / object */
-    G_API_GENEVA std::string name_() const override;
+    [[nodiscard]] G_API_GENEVA std::string name_() const override;
     /** @brief Creates a deep clone of this object */
-    G_API_GENEVA GObject *clone_() const override = 0;
+    [[nodiscard]] G_API_GENEVA GObject *clone_() const override = 0;
 
     // Needed to allow interruption of the optimization run without loss of data
     // Npte that "volatile" is needed in order for the signal handler to work
@@ -202,8 +201,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} // namespace Gem::Geneva
 
 /******************************************************************************/
 /**

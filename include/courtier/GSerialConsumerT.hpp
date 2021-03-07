@@ -51,8 +51,7 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GWorkerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -202,7 +201,7 @@ private:
 	 *
 	 * @return A unique identifier for a given consumer
 	 */
-	 std::string getConsumerName_() const override {
+	 [[nodiscard]] std::string getConsumerName_() const override {
 		 return std::string("GSerialConsumerT");
 	 }
 
@@ -210,7 +209,7 @@ private:
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
-	 std::string getMnemonic_() const override {
+	 [[nodiscard]] std::string getMnemonic_() const override {
 		 return std::string("sc");
 	 }
 
@@ -291,7 +290,7 @@ private:
 	  * "full return" does not mean "fully processed return", as errors (be it in
 	  * user- or Geneva-code) are always possible.
 	  */
-	 bool capableOfFullReturn_() const override {
+	 [[nodiscard]] bool capableOfFullReturn_() const override {
 		 return m_capableOfFullReturn;
 	 }
 
@@ -309,6 +308,5 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 

@@ -61,8 +61,7 @@
 #include "common/GErrorStreamer.hpp"
 #include "courtier/GCourtierEnums.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /** @brief Assembles a query string from a given command */
@@ -89,5 +88,4 @@ G_API_COURTIER std::string pcToStr(const networked_consumer_payload_command&);
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Geneva

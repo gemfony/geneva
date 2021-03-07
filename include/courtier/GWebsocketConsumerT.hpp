@@ -78,8 +78,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GIoContexts.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +298,7 @@ private:
 			 m_ws.next_layer()
 			 , results.begin()
 			 , results.end()
-			 , [self](boost::system::error_code ec, boost::asio::ip::tcp::resolver::iterator /* unused */) {
+			 , [self](boost::system::error_code ec, boost::asio::ip::tcp::resolver::iterator /* unused */) { // NOLINT
 				 self->when_connected(ec);
 			 }
 		 );
@@ -1259,7 +1258,7 @@ private:
 	  *
 	  * @return A unique identifier for a given consumer
 	  */
-	 std::string getConsumerName_() const override {
+	 [[nodiscard]] std::string getConsumerName_() const override {
 		 return std::string("GWebsocketConsumerT");
 	 }
 
@@ -1267,7 +1266,7 @@ private:
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
-	 std::string getMnemonic_() const override {
+	 [[nodiscard]] std::string getMnemonic_() const override {
 		 return std::string("beast");
 	 }
 
@@ -1375,7 +1374,7 @@ private:
 				 , [this](std::shared_ptr<processable_type> p) { this->putPayloadItem(p); }
 				 , [this]() -> bool { return this->stopped(); }
 				 , [this](bool sign_on) {
-					 if(true==sign_on) {
+					 if( sign_on ) {
 						 this->m_n_active_sessions++;
 					 } else {
 						 if(this->m_n_active_sessions > 0) {
@@ -1466,7 +1465,7 @@ private:
 	  *
 	  * @return A boolean indicating whether this consumer needs a client to operate
 	  */
-	 bool needsClient_() const noexcept override {
+	 [[nodiscard]] bool needsClient_() const noexcept override {
 		 return true;
 	 }
 
@@ -1487,7 +1486,7 @@ private:
 	  * consumer. Since evaluation is performed remotely, we assume that this
 	  * is not the case.
 	  */
-	 bool capableOfFullReturn_() const override {
+	 [[nodiscard]] bool capableOfFullReturn_() const override {
 		 return false;
 	 }
 
@@ -1530,10 +1529,11 @@ public:
 	 /** @brief The default constructor */
 	 GWebsocketConsumerPT() = default;
   
-         GWebsocketConsumerPT(int io_context_pool_size)
+     explicit GWebsocketConsumerPT(int io_context_pool_size)
 	   : m_io_contexts(io_context_pool_size)
 	   , m_acceptor(m_io_contexts.get())
-	   , m_socket(m_io_contexts.get()){
+	   , m_socket(m_io_contexts.get())
+     {
 	   std::cout << "-I- GWebsocketConsumerPT() created with pool size: " <<  io_context_pool_size  << std::endl;
 	 }
 	 //-------------------------------------------------------------------------
@@ -1559,7 +1559,7 @@ public:
 	  *
 	  * @return The name of the server configured for this class
 	  */
-	 std::string getServerName() const {
+	 [[nodiscard]] std::string getServerName() const {
 		 return m_server;
 	 }
 
@@ -1579,7 +1579,7 @@ public:
 	  *
 	  * @return The port configured for this server
 	  */
-  	 unsigned short getPort() const {
+  	 [[nodiscard]] unsigned short getPort() const {
   	 	return m_port;
   	 }
 
@@ -1601,7 +1601,7 @@ public:
 	  *
 	  * @return The serialization mode configured for this class
 	  */
-	 Gem::Common::serializationMode getSerializationMode() const {
+	 [[nodiscard]] Gem::Common::serializationMode getSerializationMode() const {
 	 	return m_serializationMode;
 	 } 
 
@@ -1632,7 +1632,7 @@ public:
 	  * Allows to retrieve the number of processing threads to be used for processing
 	  * incoming connections in the server
 	  */
-  	 std::size_t getNProcessingThreads() const {
+  	 [[nodiscard]] std::size_t getNProcessingThreads() const {
   	 	return m_n_listener_threads;
   	 }
 
@@ -1703,7 +1703,7 @@ private:
 	  *
 	  * @return A unique identifier for a given consumer
 	  */
-	 std::string getConsumerName_() const override {
+	 [[nodiscard]] std::string getConsumerName_() const override {
 		 return std::string("GWebsocketConsumerPT");
 	 }
 
@@ -1711,7 +1711,7 @@ private:
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
-	 std::string getMnemonic_() const override {
+	 [[nodiscard]] std::string getMnemonic_() const override {
 		 return std::string("beast_ioc");
 	 }
 
@@ -1812,7 +1812,7 @@ private:
 				 , [this](std::shared_ptr<processable_type> p) { this->putPayloadItem(p); }
 				 , [this]() -> bool { return this->stopped(); }
 				 , [this](bool sign_on) {
-					 if(true==sign_on) {
+					 if( sign_on ) {
 						 this->m_n_active_sessions++;
 					 } else {
 						 if(this->m_n_active_sessions > 0) {
@@ -1903,7 +1903,7 @@ private:
 	  *
 	  * @return A boolean indicating whether this consumer needs a client to operate
 	  */
-	 bool needsClient_() const noexcept override {
+	 [[nodiscard]] bool needsClient_() const noexcept override {
 		 return true;
 	 }
 
@@ -1924,15 +1924,15 @@ private:
 	  * consumer. Since evaluation is performed remotely, we assume that this
 	  * is not the case.
 	  */
-	 bool capableOfFullReturn_() const override {
+	 [[nodiscard]] bool capableOfFullReturn_() const override {
 		 return false;
 	 }
 
 	 //-------------------------------------------------------------------------
 	 // Data
-         GIoContexts m_io_contexts;
-         boost::asio::ip::tcp::acceptor m_acceptor;
-         boost::asio::ip::tcp::socket m_socket;  
+     GIoContexts m_io_contexts;
+     boost::asio::ip::tcp::acceptor m_acceptor;
+     boost::asio::ip::tcp::socket m_socket;
 
 	 std::string m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip if the server
 	 unsigned short m_port = GCONSUMERDEFAULTPORT; ///< The port on which the server is supposed to listen
@@ -1956,6 +1956,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 

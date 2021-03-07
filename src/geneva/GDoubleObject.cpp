@@ -476,7 +476,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 		// Make sure the adaptor is in pristine condition
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
 		BOOST_CHECK(p_test->hasAdaptor() == true);
-		BOOST_CHECK_NO_THROW(p_test->getAdaptor());
+		BOOST_CHECK_NO_THROW(auto rval = p_test->getAdaptor());
 	}
 
 	// --------------------------------------------------------------------------
@@ -487,7 +487,7 @@ void GDoubleObject::specificTestsNoFailureExpected_GUnitTests_() {
 		// Make sure no adaptor is present
 		BOOST_CHECK_NO_THROW(p_test->resetAdaptor());
 		BOOST_CHECK(p_test->hasAdaptor() == true);
-		BOOST_CHECK_NO_THROW(p_test->getAdaptor<GDoubleGaussAdaptor>());
+		BOOST_CHECK_NO_THROW(auto rval = p_test->getAdaptor<GDoubleGaussAdaptor>());
 	}
 
 	// Remove the test adaptor

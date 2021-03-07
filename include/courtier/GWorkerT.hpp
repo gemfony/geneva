@@ -52,8 +52,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +79,7 @@ public:
 	  * Initialization with the worker id (a consecutive, unique id to be
 	  * supplied by the caller.
 	  */
-	 GWorkerT(std::size_t workerId) : m_worker_id(workerId)
+	 explicit GWorkerT(std::size_t workerId) : m_worker_id(workerId)
 	 { /* nothing */ }
 
 protected:
@@ -120,7 +119,7 @@ public:
 	  *
 	  * @return The current worker id
 	  */
-	 std::size_t getWorkerId() const {
+	 [[nodiscard]] std::size_t getWorkerId() const {
 		 if(m_worker_id < 0) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
@@ -342,7 +341,7 @@ private:
 	 /**
 	  * Indicates whether the worker was asked to stop processing
 	  */
-	 bool stop_requested() const {
+	 [[nodiscard]] bool stop_requested() const {
 		 return this->stop_requested_();
 	 }
 
@@ -362,7 +361,7 @@ private:
 	 /** @brief Submission of work items */
 	 virtual void submit_(std::shared_ptr<processable_type>, const std::chrono::milliseconds&) BASE = 0;
 	 /** @brief Indicates whether the worker was asked to stop processing */
-	 virtual bool stop_requested_() const BASE = 0;
+	 [[nodiscard]] virtual bool stop_requested_() const BASE = 0;
 
 	 /************************************************************************/
 	 // Data
@@ -426,6 +425,14 @@ public:
 		 }
 	 }
 
+     /************************************************************************/
+     // Some deleted functions -- this class is non-copyable
+     GBrokerFerryT() = delete;
+     GBrokerFerryT(const GBrokerFerryT<processable_type>&) = delete;
+     GBrokerFerryT(GBrokerFerryT<processable_type>&&) = delete;
+     GBrokerFerryT<processable_type>& operator=(const GBrokerFerryT<processable_type>&) = delete;
+     GBrokerFerryT<processable_type>& operator=(GBrokerFerryT<processable_type>&&) = delete;
+
 	 /************************************************************************/
 	 /**
 	  * Retrieval of work items
@@ -449,7 +456,7 @@ public:
 	 /**
 	  * Indicates whether the worker was asked to stop processing
 	  */
-	 bool stop_requested() const {
+	 [[nodiscard]] bool stop_requested() const {
 		 return this->m_stop_requested();
 	 }
 
@@ -457,19 +464,11 @@ public:
 	 /**
 	  * Access to the worker id
 	  */
-	 std::size_t getWorkerId() const {
+	 [[nodiscard]] std::size_t getWorkerId() const {
 		 return m_worker_id;
 	 }
 
 private:
-	 /************************************************************************/
-	 // Some deleted functions -- this class is non-copyable
-	 GBrokerFerryT() = delete;
-	 GBrokerFerryT(const GBrokerFerryT<processable_type>&) = delete;
-	 GBrokerFerryT(GBrokerFerryT<processable_type>&&) = delete;
-	 GBrokerFerryT<processable_type>& operator=(const GBrokerFerryT<processable_type>&) = delete;
-	 GBrokerFerryT<processable_type>& operator=(GBrokerFerryT<processable_type>&&) = delete;
-
 	 /************************************************************************/
 	 // Data and stored functions
 
@@ -594,7 +593,7 @@ private:
 
 	 /************************************************************************/
 	 /** @brief Indicates whether the worker was asked to stop processing */
-	 bool stop_requested_() const override {
+	 [[nodiscard]] bool stop_requested_() const override {
 		 return this->m_broker_ferry_ptr->stop_requested();
 	 }
 
@@ -608,6 +607,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 

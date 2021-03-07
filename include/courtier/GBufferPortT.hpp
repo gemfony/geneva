@@ -56,8 +56,7 @@
 #include "common/GCommonHelperFunctionsT.hpp"
 #include "common/GBoundedBufferT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 // Forward declaration of GBrokerT
 template <typename processable_type> class GBrokerT;
@@ -388,6 +387,5 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 

@@ -79,8 +79,7 @@
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GIoContexts.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,9 +96,9 @@ class GAsioConsumerClientT final
 	 //-------------------------------------------------------------------------
 	 // Make the code easier to read
 
-	 using error_code = boost::system::error_code;
-	 using resolver = boost::asio::ip::tcp::resolver;
-	 using socket = boost::asio::ip::tcp::socket;
+    using error_code = boost::system::error_code;
+    using resolver = boost::asio::ip::tcp::resolver;
+    using socket = boost::asio::ip::tcp::socket;
 
 public:
 	 //-------------------------------------------------------------------------
@@ -228,7 +227,7 @@ private:
 		 	 *m_socket_ptr
 			 , results.begin()
 			 , results.end()
-			 , [self](boost::system::error_code ec, boost::asio::ip::tcp::resolver::iterator /* unused */) {
+			 , [self](boost::system::error_code ec, const boost::asio::ip::tcp::resolver::iterator& /* unused */) {
 				 self->when_connected(ec);
 			 }
 		 );
@@ -420,6 +419,9 @@ private:
 				 m_command_container.reset(networked_consumer_payload_command::GETDATA);
 			 } break;
 
+             case networked_consumer_payload_command::NONE:
+             case networked_consumer_payload_command::GETDATA:
+             case networked_consumer_payload_command::RESULT:
 			 default: {
 				 // Terminate operation and return
 				 this->shutdown();
@@ -427,11 +429,11 @@ private:
 				 // Emit an exception
 				 throw gemfony_exception(
 					 g_error_streamer(DO_LOG,  time_and_place)
-						 << "GWebsocketClientT<processable_type>::process_request():" << std::endl
+						 << "GAsioConsumerClientT<processable_type>::async_process_request():" << std::endl
 						 << "Got unknown or invalid command " << boost::lexical_cast<std::string>(inboundCommand) << std::endl
 				 );
-			 } break;
-		 }
+			 } /* break */
+         }
 
 		 // Transfer the command contaner into the outgoing message string
 		 m_outgoing_message_str = Gem::Courtier::container_to_string(
@@ -654,59 +656,56 @@ private:
 	  * @return Data to be sent to the client as a response to the request
 	  */
 	 std::string process_request(){
-		 try {
-			 // De-serialize the object
-			 Gem::Courtier::container_from_string(
-				 m_incoming_message_str
-				 , m_command_container
-				 , m_serialization_mode
-			 ); // may throw
+         // De-serialize the object
+         Gem::Courtier::container_from_string(
+             m_incoming_message_str
+             , m_command_container
+             , m_serialization_mode
+         ); // may throw
 
-			 // Clear the buffer, so we may later fill it with data to be sent
-			 m_incoming_message_str.clear();
+         // Clear the buffer, so we may later fill it with data to be sent
+         m_incoming_message_str.clear();
 
-			 // Extract the command
-			 auto inboundCommand = m_command_container.get_command();
+         // Extract the command
+         auto inboundCommand = m_command_container.get_command();
 
-			 // Act on the command received
-			 switch(inboundCommand) {
-				 case networked_consumer_payload_command::GETDATA: {
-					 return getAndSerializeWorkItem();
-				 } break;
+         // Act on the command received
+         switch(inboundCommand) {
+             case networked_consumer_payload_command::GETDATA: {
+                 return getAndSerializeWorkItem();
+             } /* break; */
 
-				 case networked_consumer_payload_command::RESULT: {
-					 // Retrieve the payload from the command container
-					 auto payload_ptr = m_command_container.get_payload();
+             case networked_consumer_payload_command::RESULT: {
+                 // Retrieve the payload from the command container
+                 auto payload_ptr = m_command_container.get_payload();
 
-					 // Submit the payload to the server (which will send it to the broker)
-					 if(payload_ptr) {
-						 this->m_put_payload_item(payload_ptr);
-					 } else {
-						 glogger
-							 << "GAsioConsumerSessionT<processable_type>::process_request():" << std::endl
-							 << "payload is empty even though a result was expected" << std::endl
-							 << GWARNING;
-					 }
+                 // Submit the payload to the server (which will send it to the broker)
+                 if(payload_ptr) {
+                     this->m_put_payload_item(payload_ptr);
+                 } else {
+                     throw gemfony_exception(
+                         g_error_streamer(DO_LOG,  time_and_place)
+                             << "GAsioConsumerSessionT<processable_type>::process_request():" << std::endl
+                             << "payload is empty even though a result was expected" << std::endl
+                     );
+                 }
 
-					 // Retrieve the next work item and send it to the client for processing
-					 return getAndSerializeWorkItem();
-				 } break;
+                 // Retrieve the next work item and send it to the client for processing
+                 return getAndSerializeWorkItem();
+             } /* break; */
 
-				 default: {
-					 glogger
-						 << "GAsioConsumerSessionT<processable_type>::process_request():" << std::endl
-						 << "Got unknown or invalid command " << boost::lexical_cast<std::string>(inboundCommand) << std::endl
-						 << GWARNING;
-				 } break;
-			 }
-		 } catch(...) {
-			 glogger
-				 << "GAsioConsumerSessionT<processable_type>::process_request(): Caught exception" << std::endl
-				 << GLOGGING;
-		 }
-
-		 // Make the compiler happy
-		 return std::string();
+             case networked_consumer_payload_command::NONE:
+             case networked_consumer_payload_command::NODATA:
+             case networked_consumer_payload_command::COMPUTE:
+             default: {
+                 // Emit an exception
+                 throw gemfony_exception(
+                     g_error_streamer(DO_LOG,  time_and_place)
+                         << "GAsioConsumerSessionT<processable_type>::process_request():" << std::endl
+                         << "Got unknown or invalid command " << boost::lexical_cast<std::string>(inboundCommand) << std::endl
+                 );
+             } /* break */
+         }
 	 }
 
 	 //-------------------------------------------------------------------------
@@ -801,7 +800,7 @@ public:
 	  *
 	  * @return The name of the server configured for this class
 	  */
-	 std::string getServerName() const {
+	 [[nodiscard]] std::string getServerName() const {
 		 return m_server;
 	 }
 
@@ -821,7 +820,7 @@ public:
 	  *
 	  * @return The port configured for this server
 	  */
-  	 unsigned short getPort() const {
+  	 [[nodiscard]] unsigned short getPort() const {
   	 	return m_port;
   	 }
 
@@ -842,7 +841,7 @@ public:
 	  *
 	  * @return The serialization mode configured for this class
 	  */
-	 Gem::Common::serializationMode getSerializationMode() const {
+	 [[nodiscard]] Gem::Common::serializationMode getSerializationMode() const {
 	 	return m_serializationMode;
 	 }
 
@@ -873,7 +872,7 @@ public:
 	  * Allows to retrieve the number of processing threads to be used for processing
 	  * incoming connections in the server
 	  */
-  	 std::size_t getNProcessingThreads() const {
+  	 [[nodiscard]] std::size_t getNProcessingThreads() const {
   	 	return m_n_threads;
   	 }
 
@@ -891,7 +890,7 @@ public:
 	  * Allows to retrieve the maximum number of times a client will try to connect to
 	  * the server until it terminates.
 	  */
-  	 std::size_t getMaxReconnects() const {
+  	 [[nodiscard]] std::size_t getMaxReconnects() const {
   	 	return m_n_max_reconnects;
   	 }
 
@@ -959,7 +958,7 @@ private:
 	  *
 	  * @return A unique identifier for a given consumer
 	  */
-	 std::string getConsumerName_() const override {
+	 [[nodiscard]] std::string getConsumerName_() const override {
 		 return std::string("GAsioConsumerT");
 	 }
 
@@ -967,7 +966,7 @@ private:
 	 /**
 	  * Returns a short identifier for this consumer
 	  */
-	 std::string getMnemonic_() const override {
+	 [[nodiscard]] std::string getMnemonic_() const override {
 		 return std::string("asio");
 	 }
 
@@ -1147,7 +1146,7 @@ private:
 	  *
 	  * @return A boolean indicating whether this consumer needs a client to operate
 	  */
-	 bool needsClient_() const noexcept override {
+	 [[nodiscard]] bool needsClient_() const noexcept override {
 		 return true;
 	 }
 
@@ -1168,7 +1167,7 @@ private:
 	  * consumer. Since evaluation is performed remotely, we assume that this
 	  * is not the case.
 	  */
-	 bool capableOfFullReturn_() const override {
+	 [[nodiscard]] bool capableOfFullReturn_() const override {
 		 return false;
 	 }
 
@@ -1208,7 +1207,7 @@ class GAsioConsumerPT
 public:
   GAsioConsumerPT() = default;
   
-  GAsioConsumerPT(int io_context_pool_size)
+  explicit GAsioConsumerPT(int io_context_pool_size)
     : m_io_contexts(std::abs(io_context_pool_size))
     , m_acceptor(m_io_contexts.get())
     , m_socket(m_io_contexts.get()){
@@ -1220,18 +1219,18 @@ public:
   GAsioConsumerPT(GAsioConsumerPT<processable_type>&&) = delete;
   GAsioConsumerPT& operator=(const GAsioConsumerPT<processable_type>&) = delete;
   GAsioConsumerPT& operator=(GAsioConsumerPT<processable_type>&&) = delete;
-  
-  void setNoDelay(){
+
+    [[maybe_unused]] void setNoDelay(){
     boost::system::error_code set_option_err;
     boost::asio::ip::tcp::no_delay no_delay(true);
     m_socket.set_option(no_delay, set_option_err);
   }
   
-  void setServerName(const std::string& server) {
+  [[maybe_unused]] void setServerName(const std::string& server) {
     m_server = server;
   }
   
-  std::string getServerName() const {
+  [[nodiscard]] std::string getServerName() const {
     return m_server;
   }
   
@@ -1239,7 +1238,7 @@ public:
     m_port = port;
   }
   
-  unsigned short getPort() const {
+  [[nodiscard]] unsigned short getPort() const {
     return m_port;
   }
   
@@ -1247,7 +1246,7 @@ public:
     m_serializationMode = serializationMode;
   }
   
-  Gem::Common::serializationMode getSerializationMode() const {
+  [[nodiscard]] Gem::Common::serializationMode getSerializationMode() const {
     return m_serializationMode;
   }
   
@@ -1268,7 +1267,7 @@ public:
   }
   
 
-  std::size_t getNProcessingThreads() const {
+  [[nodiscard]] std::size_t getNProcessingThreads() const {
     return m_n_threads;
   }
   
@@ -1276,7 +1275,7 @@ public:
     m_n_max_reconnects = n_max_reconnects;
   }
 
-  std::size_t getMaxReconnects() const {
+  [[nodiscard]] std::size_t getMaxReconnects() const {
     return m_n_max_reconnects;
   }
   
@@ -1323,11 +1322,11 @@ private:
     m_port = vm["asio_port"].as<unsigned short>();
   }
   
-  std::string getConsumerName_() const override {
+  [[nodiscard]] std::string getConsumerName_() const override {
     return std::string("GAsioConsumerPT");
   }
   
-  std::string getMnemonic_() const override {
+  [[nodiscard]] std::string getMnemonic_() const override {
     return std::string("asio_ioc");
   }
   
@@ -1463,7 +1462,7 @@ private:
 										   );
   }
   
-  bool needsClient_() const noexcept override {
+  [[nodiscard]] bool needsClient_() const noexcept override {
     return true;
   }
   
@@ -1472,7 +1471,7 @@ private:
     return m_n_active_sessions.load();
   }
   
-  bool capableOfFullReturn_() const override {
+  [[nodiscard]] bool capableOfFullReturn_() const override {
     return false;
   }
 
@@ -1497,6 +1496,5 @@ private:
 
 
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Geneva
 

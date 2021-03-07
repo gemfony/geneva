@@ -42,6 +42,7 @@
 // Standard headers go here
 
 #include <cmath>
+#include <memory>
 #include <sstream>
 #include <algorithm>
 #include <vector>
@@ -92,8 +93,7 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /**
@@ -127,21 +127,21 @@ class GBaseExecutorT
 		 , "GBaseExecutorT: processable_type does not adhere to the GProcessingContainerT<> interface"
 	 );
 
+    /////////////////////////////////////////////////////////////////////////////
+
+    friend class boost::serialization::access;
+
+    template<typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+
+        ar
+        & BOOST_SERIALIZATION_NVP(m_maxResubmissions);
+    }
+
+    /////////////////////////////////////////////////////////////////////////////
+
 public:
-	 /////////////////////////////////////////////////////////////////////////////
-
-	 friend class boost::serialization::access;
-
-	 template<typename Archive>
-	 void serialize(Archive &ar, const unsigned int) {
-		 using boost::serialization::make_nvp;
-
-		 ar
-		 & BOOST_SERIALIZATION_NVP(m_maxResubmissions);
-	 }
-
-	 /////////////////////////////////////////////////////////////////////////////
-
 	 /***************************************************************************/
 	 /**
 	  * Copy constructor. Many data items are not copied, as we want them
@@ -161,7 +161,7 @@ public:
      *
      * @param cp A copy of another GBrokerConnector object
      */
-	GBaseExecutorT(GBaseExecutorT<processable_type> && cp)
+	explicit GBaseExecutorT(GBaseExecutorT<processable_type> && cp)
 		: Gem::Common::GCommonInterfaceT<GBaseExecutorT<processable_type>>(std::move(cp))
 		, m_maxResubmissions(cp.m_maxResubmissions)
 	{
@@ -396,7 +396,7 @@ public:
 	  *
 	  * @return The maximum number of allowed resubmissions
 	  */
-	 std::size_t getMaxResubmissions() const {
+	 [[nodiscard]] std::size_t getMaxResubmissions() const {
 		 return m_maxResubmissions;
 	 }
 
@@ -404,7 +404,7 @@ public:
 	 /**
 	  * Retrieve the number of individuals returned during the last iteration
 	  */
-	 std::size_t getNReturnedLast() const noexcept {
+	 [[nodiscard]] std::size_t getNReturnedLast() const noexcept {
 		 return m_n_returnedLast;
 	 }
 
@@ -412,7 +412,7 @@ public:
 	 /**
 	  * Retrieve the number of individuals NOT returned during the last iteration
 	  */
-	 std::size_t getNNotReturnedLast() const noexcept {
+	 [[nodiscard]] std::size_t getNNotReturnedLast() const noexcept {
 		 return m_n_notReturnedLast;
 	 }
 
@@ -420,7 +420,7 @@ public:
 	 /**
  	  * Retrieves the current number of old work items in this iteration
  	  */
-	 std::size_t getNOldWorkItems() const noexcept {
+	 [[nodiscard]] std::size_t getNOldWorkItems() const noexcept {
 		 return m_n_oldWorkItems;
 	 }
 
@@ -428,7 +428,7 @@ public:
 	 /**
 	  * Retrieves the number of work items with errors in this iteration
 	  */
-	 std::size_t getNErroneousWorkItems() const noexcept {
+	 [[nodiscard]] std::size_t getNErroneousWorkItems() const noexcept {
 		 return m_n_erroneousItems;
 	 }
 
@@ -436,7 +436,7 @@ public:
 	 /**
 	  * Retrieve the time of the very first submission in this object
 	  */
-	 std::chrono::high_resolution_clock::time_point getObjectFirstSubmissionTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getObjectFirstSubmissionTime() const {
 		 return m_object_first_submission_time;
 	 }
 
@@ -444,7 +444,7 @@ public:
 	 /**
 	  * Retrieve the time of the very first submission in the current iteration
 	  */
-	 std::chrono::high_resolution_clock::time_point getIterationFirstSubmissionTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getIterationFirstSubmissionTime() const {
 		 return m_iteration_first_submission_time;
 	 }
 
@@ -452,7 +452,7 @@ public:
 	 /**
 	  * Retrieve the time of the very first submission in the current resubmission
 	  */
-	 std::chrono::high_resolution_clock::time_point getCycleFirstSubmissionTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getCycleFirstSubmissionTime() const {
 		 return m_cycle_first_submission_time;
 	 }
 
@@ -460,7 +460,7 @@ public:
 	 /**
 	  * Retrieve the approximate time of the start of the cycle
 	  */
-	 std::chrono::high_resolution_clock::time_point getApproxCycleStartTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getApproxCycleStartTime() const {
 		 return m_approx_cycle_start_time;
 	 }
 
@@ -468,7 +468,7 @@ public:
 	 /**
 	  * Retrieve the end time of the last cycle
 	  */
-	 std::chrono::high_resolution_clock::time_point getCycleEndTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getCycleEndTime() const {
 #ifdef DEBUG
 		 // Cross check that the cycle has indeed ended
 		 if(m_cycle_running) {
@@ -488,7 +488,7 @@ public:
 	 /**
 	  * Retrieve the end time of the last iteration
 	  */
-	 std::chrono::high_resolution_clock::time_point getIterationEndTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getIterationEndTime() const {
 #ifdef DEBUG
 		 // Cross check that the cycle has indeed ended
 		 if(m_iteration_running) {
@@ -798,7 +798,7 @@ protected:
 	  * Returns the current iteration as used for the tagging of work items
 	  * @return The id of the current submission cycle
 	  */
-	 ITERATION_COUNTER_TYPE get_iteration_counter() const noexcept {
+	 [[nodiscard]] ITERATION_COUNTER_TYPE get_iteration_counter() const noexcept {
 		 return m_iteration_counter;
 	 }
 
@@ -806,7 +806,7 @@ protected:
 	 /**
 	  * Retrieves the expected number of work items in the current iteration
 	  */
-	 std::size_t getExpectedNumber() const noexcept {
+	 [[nodiscard]] std::size_t getExpectedNumber() const noexcept {
 		 return m_expectedNumber;
 	 }
 
@@ -814,7 +814,7 @@ protected:
 	 /**
 	  * Retrieves the time when an iteration has started
 	  */
-	 std::chrono::high_resolution_clock::time_point getIterationStartTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getIterationStartTime() const {
 		 return this->m_iteration_first_submission_time;
 	 }
 
@@ -822,7 +822,7 @@ protected:
 	 /**
 	  * A little helper function to make the code easier to read
 	  */
-	 std::chrono::high_resolution_clock::time_point now() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point now() const {
 		 return std::chrono::high_resolution_clock::now();
 	 }
 
@@ -942,7 +942,7 @@ protected:
 	 /**
 	  * Checks if any work items have already been submitted in the object
 	  */
-	 bool checkItemsSubmittedInObject() const noexcept {
+	 [[nodiscard]] bool checkItemsSubmittedInObject() const noexcept {
 		 return not m_no_items_submitted_in_object;
 	 }
 
@@ -950,7 +950,7 @@ protected:
 	 /**
 	  * Checks if any work items have already been submitted in the current iteration
 	  */
-	 bool checkItemsSubmittedInCycle() const noexcept {
+	 [[nodiscard]] bool checkItemsSubmittedInCycle() const noexcept {
 		 return not m_no_items_submitted_in_cycle;
 	 }
 
@@ -958,7 +958,7 @@ protected:
 	 /**
 	  * Checks if this is the first iteration
 	  */
-	 bool inFirstIteration() const noexcept {
+	 [[nodiscard]] bool inFirstIteration() const noexcept {
 		 return m_in_first_iteration;
 	 }
 
@@ -966,7 +966,7 @@ protected:
 	 /**
 	  * Checks if this is the first cycle of an iteration
 	  */
-	 bool inFirstCycle() const noexcept {
+	 [[nodiscard]] bool inFirstCycle() const noexcept {
 		 return (0==m_nResubmissions);
 	 }
 
@@ -982,13 +982,13 @@ private:
 	 /**
 	  * Returns the name of this class
 	  */
-	 std::string name_() const override {
+	 [[nodiscard]] std::string name_() const override {
 		 return std::string("GBaseExecutorT<processable_type>");
 	 }
 
 	 /***************************************************************************/
 	 /** @brief Determination of the time when execution of the initial cycle has started */
-	 virtual std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const BASE = 0;
+	 [[nodiscard]] virtual std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const BASE = 0;
 
 	 /***************************************************************************/
 	 /** @brief Graphical progress feedback */
@@ -1318,7 +1318,7 @@ private:
 	 /**
 	  * Returns the name of this class
 	  */
-	 std::string name_() const override {
+	 [[nodiscard]] std::string name_() const override {
 		 return std::string("GSerialExecutorT<processable_type>");
 	 }
 
@@ -1334,7 +1334,7 @@ private:
 	 /**
 	  * Retrieval of the start time of the very first cycle
 	  */
-	 std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const override {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const override {
 		 return this->getObjectFirstSubmissionTime();
 	 }
 
@@ -1434,7 +1434,7 @@ public:
 	  *
 	  * @return The maximum number of allowed threads
 	  */
-	 std::uint16_t getNThreads() const {
+	 [[nodiscard]] std::uint16_t getNThreads() const {
 		 return m_n_threads;
 	 }
 
@@ -1709,7 +1709,7 @@ private:
 	 /**
 	  * Returns the name of this class
 	  */
-	 std::string name_() const override {
+	 [[nodiscard]] std::string name_() const override {
 		 return std::string("GMTExecutorT<processable_type>");
 	 }
 
@@ -1725,7 +1725,7 @@ private:
 	 /**
 	  * Retrieval of the start time
 	  */
-	 std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const override {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point determineInitialCycleStartTime() const override {
 		 return this->getObjectFirstSubmissionTime();
 	 }
 
@@ -1788,12 +1788,12 @@ public:
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
-		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_waiting_times_graph = std::make_shared<Gem::Common::GGraph2D>();
 		 m_waiting_times_graph->setXAxisLabel("Iteration");
 		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
 		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
-		 m_returned_items_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_returned_items_graph = std::make_shared<Gem::Common::GGraph2D>();
 		 m_returned_items_graph->setXAxisLabel("Iteration");
 		 m_returned_items_graph->setYAxisLabel("Number of returned items");
 		 m_returned_items_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
@@ -1815,12 +1815,12 @@ public:
 	 {
 		 m_gpd.setCanvasDimensions(std::make_tuple<std::uint32_t,std::uint32_t>(1200,1600));
 
-		 m_waiting_times_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_waiting_times_graph = std::make_shared<Gem::Common::GGraph2D>();
 		 m_waiting_times_graph->setXAxisLabel("Iteration");
 		 m_waiting_times_graph->setYAxisLabel("Maximum waiting time [s]");
 		 m_waiting_times_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
-		 m_returned_items_graph = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+		 m_returned_items_graph = std::make_shared<Gem::Common::GGraph2D>();
 		 m_returned_items_graph->setXAxisLabel("Iteration");
 		 m_returned_items_graph->setYAxisLabel("Number of returned items");
 		 m_returned_items_graph->setPlotMode(Gem::Common::graphPlotMode::CURVE);
@@ -2293,7 +2293,7 @@ private:
 	  * @param w_ptr The last returned item
 	  */
 	 void updateTimeout(
-		 std::shared_ptr<processable_type> w_ptr
+		 std::shared_ptr<processable_type> /* w_ptr */
 	 ) {
 		 //-----------------------------------------------
 		 // We do not check for error conditions (particularly
@@ -2690,8 +2690,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 
 /******************************************************************************/
 // Some code for Boost.Serialization
@@ -2699,14 +2698,12 @@ private:
 /******************************************************************************/
 // Mark GBaseExecutorT<> as abstract. This is the content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename processable_type>
 struct is_abstract<Gem::Courtier::GBaseExecutorT<processable_type>> : public boost::true_type {};
 template<typename processable_type>
 struct is_abstract<const Gem::Courtier::GBaseExecutorT<processable_type>> : public boost::true_type {};
-}
-}
+} // namespace boost::serialization
 
 /******************************************************************************/
 

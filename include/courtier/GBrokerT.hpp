@@ -74,8 +74,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 /** @brief Exception to be thrown as a message in the case of a time-out in GBrokerT */
@@ -533,9 +532,6 @@ public:
 
 			 throw Gem::Courtier::buffer_not_present();
 		 }
-
-		 // Make the compiler happy
-		 return false;
 	 }
 
 	 /***************************************************************************/
@@ -712,6 +708,5 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 

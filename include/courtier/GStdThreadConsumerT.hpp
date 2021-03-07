@@ -62,8 +62,7 @@
 #include "courtier/GProcessingContainerT.hpp"
 #include "courtier/GWorkerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /** @brief The default number of threads per worker if the number of hardware threads cannot be determined */
 const std::uint16_t DEFAULTTHREADSPERWORKER = 4;
@@ -126,7 +125,7 @@ public:
 	 *
 	 * @return The maximum number of allowed threads
 	 */
-	 std::size_t getNThreadsPerWorker(void) const {
+	 std::size_t getNThreadsPerWorker() const {
 		 return m_nThreads;
 	 }
 
@@ -404,6 +403,5 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} // namespace Gem::Courtier
 

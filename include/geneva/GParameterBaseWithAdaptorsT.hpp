@@ -51,8 +51,7 @@
 #include "geneva/GenevaHelperFunctionsT.hpp"
 #include "geneva/GConstrainedValueLimitT.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -152,7 +151,7 @@ public:
 	  *
 	  * @return A std::shared_ptr to the adaptor
 	  */
-	 std::shared_ptr<GAdaptorT<T>> getAdaptor() const {
+	 [[nodiscard]] std::shared_ptr<GAdaptorT<T>> getAdaptor() const {
 #ifdef DEBUG
 		 if(not adaptor_) {
 			 throw gemfony_exception(
@@ -185,7 +184,7 @@ public:
 	  */
 	 template <typename adaptor_type>
 	 std::shared_ptr<adaptor_type> getAdaptor(
-		 typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type *dummy = nullptr
+		 typename std::enable_if<std::is_base_of<GAdaptorT<T>, adaptor_type>::value>::type * = nullptr // NOLINT
 	 ) const {
 #ifdef DEBUG
 		 if(not adaptor_) {
@@ -195,9 +194,6 @@ public:
 					 << "with typeid(T).name() = " << typeid(T).name() << " :" << std::endl
 					 << "Tried to access empty adaptor pointer." << std::endl
 			 );
-
-			 // Make the compiler happy
-			 return std::shared_ptr<adaptor_type>();
 		 }
 #endif /* DEBUG */
 
@@ -231,7 +227,7 @@ public:
 	  *
 	  * @return A boolean indicating whether adaptors are present
 	  */
-	 bool hasAdaptor() const override {
+	 [[nodiscard]] bool hasAdaptor() const override {
 		 if(adaptor_) return true;
 		 return false;
 	 }
@@ -318,7 +314,7 @@ protected:
 	/***************************************************************************/
 
 	 /** @brief Returns a "comparative range"; this is e.g. used to make Gauss-adaption independent of a parameters value range */
-	 virtual T range() const BASE  = 0;
+	 [[nodiscard]] virtual T range() const BASE  = 0;
 
 	 /***************************************************************************/
 	 /**
@@ -468,13 +464,13 @@ private:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 std::string name_() const override {
+	 std::string name_() const override { // NOLINT
 		 return std::string("GParameterBaseWithAdaptorsT");
 	 }
 
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object. Purely virtual, as we do not want this class to be instantiated directly */
-	 GObject* clone_() const override = 0;
+	 [[nodiscard]] GObject* clone_() const override = 0;
 
     /******************************************************************************/
     /**
@@ -578,19 +574,16 @@ inline std::size_t GParameterBaseWithAdaptorsT<bool>::applyAdaptor(
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} // namespace Gem::Geneva
 
 /******************************************************************************/
 // The content of BOOST_SERIALIZATION_ASSUME_ABSTRACT(T)
 
-namespace boost {
-namespace serialization {
+namespace boost::serialization {
 template<typename T>
 struct is_abstract<Gem::Geneva::GParameterBaseWithAdaptorsT<T>> : public boost::true_type {};
 template<typename T>
 struct is_abstract< const Gem::Geneva::GParameterBaseWithAdaptorsT<T>> : public boost::true_type {};
-}
-}
+} // namespace boost::serialization
 
 /******************************************************************************/
