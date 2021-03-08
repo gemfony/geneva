@@ -67,7 +67,8 @@ namespace Gem::Courtier {
  * This class centralized creation and management of io_context threads. It also
  * allows pinning of threads to a given CPU
  */
-class GIoContexts {
+class GIoContexts
+{
 public:
     //-------------------------------------------------------------------------
     /**
@@ -75,7 +76,8 @@ public:
      *
      * @param c_size
      */
-    explicit GIoContexts( int c_size ) {
+    explicit GIoContexts( int c_size )
+    {
         m_pinned = c_size < 0;
         m_size   = std::abs( c_size );
 
@@ -111,12 +113,12 @@ public:
     //----------------------------------------------------------------------------------
     // Deleted constructors and assignment operators
 
-    GIoContexts() = delete;
-    GIoContexts(GIoContexts const&) = delete;
-    GIoContexts(GIoContexts &&) = delete;
+    GIoContexts()                      = delete;
+    GIoContexts( GIoContexts const & ) = delete;
+    GIoContexts( GIoContexts && )      = delete;
 
-    GIoContexts& operator=(GIoContexts const&) = delete;
-    GIoContexts& operator=(GIoContexts &&) = delete;
+    GIoContexts & operator=( GIoContexts const & ) = delete;
+    GIoContexts & operator=( GIoContexts && ) = delete;
 
     //----------------------------------------------------------------------------------
 

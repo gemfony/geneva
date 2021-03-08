@@ -59,8 +59,21 @@
 
 //-----------------------------------------------------------
 // Make sure we have a valid definition of the OS
+
 #ifndef GENEVA_OS_NAME
 #define GENEVA_OS_NAME "unknown"
+#endif
+
+// This is for comparisons in macros
+#define GENEVA_UNKNOWN_OS 0
+#define GENEVA_LINUX_OS 1
+#define GENEVA_MAC_OS 2
+#define GENEVA_WIN_OS 3
+#define GENEVA_FREEBSD_OS 4
+#define GENEVA_CYGWIN_OS 5
+
+#ifndef GENEVA_OS_ID
+#define GENEVA_OS_ID GENEVA_UNKNOWN_OS
 #endif
 
 //-----------------------------------------------------------

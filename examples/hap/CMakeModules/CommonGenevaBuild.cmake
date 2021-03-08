@@ -84,10 +84,12 @@ VALIDATE_BUILD_TYPE()
 FIND_HOST_OS (
 	"GENEVA_OS_NAME"
 	"GENEVA_OS_VERSION"
+	"GENEVA_OS_ID"
 )
 
 # Make the OS known to the program
 ADD_DEFINITIONS(-DGENEVA_OS_NAME="${GENEVA_OS_NAME}")
+ADD_DEFINITIONS(-DGENEVA_OS_ID=${GENEVA_OS_ID})
 
 ###############################################################################
 # Identify unsupported setups as early as possible
@@ -173,6 +175,8 @@ SET (Boost_ADDITIONAL_VERSIONS
         "1.73.0"
         "1.74"
         "1.74.0"
+		"1.75"
+		"1.75.0"
 )
 
 IF ( GENEVA_STATIC )
@@ -279,7 +283,8 @@ SET (
 # This variable contains the library names. In case of an independent build,
 # it is overwritten later by FindGeneva, with the list of full library paths.
 # The function TARGET_LINK_LIBRARIES() can use either variant.
-SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} )
+
+SET ( GENEVA_LIBRARIES ${GENEVA_LIBNAMES} $<$<AND:$<CXX_COMPILER_ID:GNU>,$<VERSION_LESS:$<CXX_COMPILER_VERSION>,9.0>>:stdc++fs>)
 
 ################################################################################
 # Add additional libraries if required

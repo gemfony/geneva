@@ -52,8 +52,6 @@
 using namespace Gem::Geneva;
 
 int main(int argc, char **argv) {
-    std::cout << "OS name is " << GENEVA_OS_NAME << std::endl;
-
 	Go2 go(argc, argv, "./config/Go2.json");
 
 	//---------------------------------------------------------------------------

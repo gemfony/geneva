@@ -84,10 +84,12 @@ VALIDATE_BUILD_TYPE()
 FIND_HOST_OS (
 	"GENEVA_OS_NAME"
 	"GENEVA_OS_VERSION"
+	"GENEVA_OS_ID"
 )
 
 # Make the OS known to the program
 ADD_DEFINITIONS(-DGENEVA_OS_NAME="${GENEVA_OS_NAME}")
+ADD_DEFINITIONS(-DGENEVA_OS_ID=${GENEVA_OS_ID})
 
 ###############################################################################
 # Identify unsupported setups as early as possible
