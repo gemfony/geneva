@@ -754,6 +754,15 @@ public:
     GAsioConsumerT & operator=( const GAsioConsumerT<processable_type> & ) = delete;
     GAsioConsumerT & operator=( GAsioConsumerT<processable_type> && ) = delete;
 
+// TODO: find a way to add this
+//    void
+//    setNoDelay()
+//    {
+//        boost::system::error_code      set_option_err;
+//        boost::asio::ip::tcp::no_delay no_delay( true );
+//        m_socket.set_option( no_delay, set_option_err );
+//    }
+
     //-------------------------------------------------------------------------
     /**
 	  * Sets the server name
@@ -1216,8 +1225,6 @@ class GAsioConsumerPT
     using error_code = boost::system::error_code;
 
 public:
-    GAsioConsumerPT() = default;
-
     explicit GAsioConsumerPT( int io_context_pool_size )
         : m_io_contexts( std::abs( io_context_pool_size ) )
         , m_acceptor( m_io_contexts.get() )
@@ -1230,6 +1237,7 @@ public:
     // Deleted copy-/move-constructors and assignment operators.
     // This has the same effect as boost::noncopyable
 
+    GAsioConsumerPT()                                            = delete;
     GAsioConsumerPT( const GAsioConsumerPT<processable_type> & ) = delete;
     GAsioConsumerPT( GAsioConsumerPT<processable_type> && )      = delete;
     GAsioConsumerPT & operator=( const GAsioConsumerPT<processable_type> & ) = delete;
