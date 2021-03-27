@@ -53,7 +53,7 @@ namespace Common {
 
 /******************************************************************************/
 /**
- * This class provides access to global options of user-defined type.
+ * This class provides access to global class objects of user-defined type.
  * Note that these are not serialized, so you need to take care yourself
  * that these are available on remote systems. An easy way is to instantiate
  * both the client and the server from the same main function and to fill
@@ -220,7 +220,7 @@ public:
 	/**
 	 * Retrieves a vector of all content items
 	 */
-	void getContentVector(std::vector<T> content) const {
+	void getContentVector(std::vector<T> & content) const {
 		std::unique_lock<std::mutex> guard(m_mutex);
 		content.clear();
 		typename std::map<std::string, T>::const_iterator cit;

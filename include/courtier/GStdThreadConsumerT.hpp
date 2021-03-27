@@ -302,6 +302,14 @@ private:
 		 return std::string("stc");
 	 }
 
+     /***************************************************************************/
+     /**
+      * Initialization of the consumer
+      */
+     void
+     init_() override
+     { /* nothing */ }
+
 	 /***************************************************************************/
 	 /**
 	 * Starts the worker threads. This function will not block.

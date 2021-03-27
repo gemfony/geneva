@@ -174,10 +174,10 @@ public:
 			 m_RawBuffers.clear();
 			 m_ProcessedBuffers.clear();
 			 m_consumer_collection_cnt.clear();
-			 m_buffersPresent.store(false);
+			 m_buffersPresent = false;
 
 			 // Make sure this function does not execute code a second time
-			 m_finalized.store(true);
+			 m_finalized = true;
 		 }
 	 }
 
@@ -191,6 +191,8 @@ public:
 	  * It thus needs to block access to the entire object during its operation. Note that one of
 	  * the effects of this function is that the buffer collections will never run empty,
 	  * once the first buffer has been registered.
+	  *
+	  * TODO: Isn't the return bool redundant here? Not needed for buffer ports?
 	  *
 	  * @param gbp_ptr A shared pointer to a new GBufferPortT object
 	  * @return A boolean which indicates, whether all consumers are capable of full return
@@ -287,7 +289,7 @@ public:
 		 std::cout << "Buffer port with id " << gbp_tag << " successfully enrolled" << std::endl;
 
 		 // Let the audience know
-		 m_buffersPresent.store(true);
+		 m_buffersPresent = true;
 
 		 // Let the audience know whether all consumers are capable of full return
 		 return m_capable_of_full_return;
@@ -323,7 +325,7 @@ public:
 		 ) {
 			 glogger
 			 << "In GBrokerT<>::enrol_buffer_port(consumer):" << std::endl
-			 << "Consumer with name " << gc_ptr->getConsumerName() << " aleady exists." << std::endl
+			 << "Consumer with name " << gc_ptr->getConsumerName() << " already exists." << std::endl
 			 << "We will ignore the new enrolment request." << std::endl
 		    << GWARNING;
 
@@ -334,18 +336,20 @@ public:
 		 m_consumer_collection_cnt.push_back(gc_ptr);
 		 m_consumerTypesPresent.push_back(gc_ptr->getConsumerName());
 
+         // Initialize the consumer
+         gc_ptr->init();
+
 		 // Initiate processing in the consumer. This call will not block.
 		 gc_ptr->async_startProcessing();
 
 		 //-----------------------------------------------------------------------
 		 // Make it known to subsequent calls that a consumer is already present
-
-		 m_consumersPresent.store(true);
+		 m_consumersPresent = true;
 
 		 //-----------------------------------------------------------------------
 
 		 // Check whether all registered consumers are capable of full return
-		 m_capable_of_full_return.store(this->checkConsumersCapableOfFullReturn());
+		 m_capable_of_full_return = this->checkConsumersCapableOfFullReturn();
 
 		 // Notify all interested parties
 		 m_consumersEnrolledCondition.notify_all();
@@ -357,9 +361,9 @@ public:
 	 /**
 	  * Adds multiple consumers to this class and starts their threads.
 	  *
-	  * @param gc_ptr_cnt A vector of pointers to GBaseConsumerT<processable_type> objects
+	  * @param gc_ptr_vec A vector of pointers to GBaseConsumerT<processable_type> objects
 	  */
-	 void enrol_consumer_vec(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_cnt) {
+	 void enrol_consumer_vec(std::vector<std::shared_ptr<GBaseConsumerT<processable_type>>> gc_ptr_vec ) {
 		 //-----------------------------------------------------------------------
 		 // Check whether consumers have already been enrolled. As this may happen
 		 // only once, we emit a warning and return
@@ -375,15 +379,15 @@ public:
 		 //-----------------------------------------------------------------------
 		 std::unique_lock<std::mutex> consumerEnrolmentLock(m_consumerEnrolmentMutex);
 
-		 for(auto const& consumer_ptr: gc_ptr_cnt) {
+		 for(auto const& gc_ptr: gc_ptr_vec ) {
 			 // Do nothing if a consumer of this type has already been registered
 			 if (std::find(
 				 m_consumerTypesPresent.begin()
 				 , m_consumerTypesPresent.end()
-				 , consumer_ptr->getConsumerName()) != m_consumerTypesPresent.end()
+				 , gc_ptr->getConsumerName()) != m_consumerTypesPresent.end()
 			 ) {
 				 glogger
-					 << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): A consumer with name " << consumer_ptr->getConsumerName() << std::endl
+					 << "In GBrokerT<>::enrol_buffer_port(consumer_ptr_vec): A consumer with name " << gc_ptr->getConsumerName() << std::endl
 				    << "has already been enrolled. We will ignore the new enrolment request." << std::endl
 					 << GWARNING;
 
@@ -391,22 +395,25 @@ public:
 			 }
 
 			 // Archive the consumer and its name, then start its thread
-			 m_consumer_collection_cnt.push_back(consumer_ptr);
-			 m_consumerTypesPresent.push_back(consumer_ptr->getConsumerName());
+			 m_consumer_collection_cnt.push_back( gc_ptr );
+			 m_consumerTypesPresent.push_back( gc_ptr->getConsumerName());
+
+             // Initialize the consumer
+             gc_ptr->init();
 
 			 // Initiate processing in the consumer. This call will not block.
-			 consumer_ptr->async_startProcessing();
+             gc_ptr->async_startProcessing();
 		 }
 
 		 //-----------------------------------------------------------------------
 		 // Make it known to subsequent calls that a consumer is already present
 
-		 m_consumersPresent.store(true);
+		 m_consumersPresent = true;
 
 		 //-----------------------------------------------------------------------
 
 		 // Check whether all registered consumers are capable of full return
-		 m_capable_of_full_return.store(this->checkConsumersCapableOfFullReturn());
+		 m_capable_of_full_return = this->checkConsumersCapableOfFullReturn();
 
 		 // Notify all interested parties
 		 m_consumersEnrolledCondition.notify_all();

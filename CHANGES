@@ -2,15 +2,19 @@
 * Version 1.11, under development
 
 Recommended versions:
-- Boost version 1.70 or higher is required, 1.72 is recommended
+- Boost version 1.74 or higher is required, 1.75 is recommended
 - CMake version 3.10 or higher is required
 - GCC is recommended to be at least version 8. Earlier versions
   might work if C++17 is sufficiently supported
+- GAsioConsumerT and GWebsocketConsumerT have gained the ability to run one io_context object per thread
+  and to switch on the socket-no_delay option
 
 ********************** INCOMPATIBILITIES / PLEASE NOTE *************************
 
 - Geneva now uses C++17 constructs, hence you need a compiler that supports this.
   It is thus also recommended to compile Boost with C++17 support, to be consistent
+- The commandline option asio_nListenerThreads has been renamed to asio_nProcessingThreads to unify the
+  naming with the websocket consumer
 
 ************************* Misc *************************************************
 

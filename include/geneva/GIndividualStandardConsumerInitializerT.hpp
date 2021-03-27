@@ -74,7 +74,7 @@ public:
 		GConsumerStore->setOnce(mnemonic, p);
 	}
 
-        GIndividualStandardConsumerInitializerT(int size) {
+    explicit GIndividualStandardConsumerInitializerT(int size) {
 		// Create a smart pointer holding the consumer
 		std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>> p(new c_type(size));
 		std::string mnemonic = p->getMnemonic();

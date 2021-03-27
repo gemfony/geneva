@@ -218,12 +218,27 @@ public:
 		 return this->getMnemonic_();
 	 }
 
+     //-------------------------------------------------------------------------
+     /**
+      * Trigger initialization of the consumer
+      */
+     void init(){
+         this->init_();
+     }
+
 	 //-------------------------------------------------------------------------
 	 /**
-	  * The actual business logic
+	  * The actual business logic. Only one call to this function will have an effect.
 	  */
 	 void async_startProcessing() {
-		 this->async_startProcessing_();
+         if(not m_processing_is_running) {
+             this->async_startProcessing_();
+             m_processing_is_running = true;
+         } else {
+             glogger
+                << "In GBaseConsumerT<>::async_startProcessing(): Multiple calls to this function" << std::endl
+                << GWARNING;
+         }
 	 }
 
 protected:
@@ -266,6 +281,9 @@ private:
 
 	 /** @brief Returns a short identifier for this consumer */
 	 virtual std::string getMnemonic_() const BASE = 0;
+
+     /** @brief Initialization of the consumer */
+     virtual void init_() BASE = 0;
 
 	 /** @brief The actual business logic */
 	 virtual void async_startProcessing_() BASE = 0;
@@ -310,7 +328,8 @@ private:
 
 	 //-------------------------------------------------------------------------
 
-	 mutable std::atomic<bool> m_server_stopping{false}; ///< Set to true if we are expected to stop
+     std::atomic<bool> m_processing_is_running { false }; ///< Indicates whether the async_startProcessing() call has been issued
+	 mutable std::atomic<bool> m_server_stopping { false }; ///< Set to true if we are expected to stop
 
 	 //-------------------------------------------------------------------------
 };

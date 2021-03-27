@@ -520,7 +520,7 @@ protected:
         m_coordinates = p_load->m_coordinates;
         m_marker = p_load->m_marker;
         m_color = p_load->m_color;
-        m_size = p_load->m_pool_size;
+        m_size = p_load->m_size;
     }
 
     /***************************************************************************/
@@ -577,7 +577,7 @@ protected:
         );
         compare_t(
             IDENTITY(this->m_size
-                     , p_load->m_pool_size )
+                     , p_load->m_size )
             , token
         );
 

@@ -50,7 +50,6 @@
 
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
-#include <boost/optional.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 
 #include <boost/archive/xml_oarchive.hpp>

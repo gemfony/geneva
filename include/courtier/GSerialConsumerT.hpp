@@ -213,6 +213,14 @@ private:
 		 return std::string("sc");
 	 }
 
+     /***************************************************************************/
+     /**
+      * Initialization of the consumer
+      */
+     void
+     init_() override
+     { /* nothing */ }
+
 	 /***************************************************************************/
 	 /**
 	  * Starts a single worker thread. Termination of the thread is

@@ -892,18 +892,6 @@ void Go2::parseCommandLine(
 					<< "on the command line. Found " << vm.count("consumer") << "." << std::endl
 			);
 		}
-
-		if ( vm.count("ioc") && m_ioc != 0 ){
-		  if (m_consumer_name == "asio"){
-		    m_gi.registerConsumer<Gem::Courtier::GAsioConsumerPT<Gem::Geneva::GParameterSet>>(m_ioc);
-		  }else if (m_consumer_name == "beast"){
-		    m_gi.registerConsumer<Gem::Courtier::GWebsocketConsumerPT<Gem::Geneva::GParameterSet>>(m_ioc);
-		  }
-		  m_consumer_name +="_ioc";
-		  std::cout << " activating the ioc_per_cpu mode for n_threads: " << std::abs(m_ioc) << " c_name: " << m_consumer_name << std::endl;
-		}
-
-
 		
 		// Check that the requested consumer actually exists
 		if (vm.count("consumer") && not GConsumerStore->exists(m_consumer_name)) {
