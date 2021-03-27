@@ -2,7 +2,7 @@
 * Version 1.11, under development
 
 Recommended versions:
-- Boost version 1.74 or higher is required, 1.75 is recommended
+- Boost version 1.75 or higher is required, 1.76 is recommended
 - CMake version 3.10 or higher is required
 - GCC is recommended to be at least version 8. Earlier versions
   might work if C++17 is sufficiently supported
@@ -15,6 +15,10 @@ Recommended versions:
   It is thus also recommended to compile Boost with C++17 support, to be consistent
 - The commandline option asio_nListenerThreads has been renamed to asio_nProcessingThreads to unify the
   naming with the websocket consumer
+- asio_maxReconnects has been renamed to asio_maxClientReconnects
+- Many command line options for the Beast websocket implementation are now implemented
+  in a base class of both the ASIO and Beast consumer, and have thus names like asio_serializationMode
+  (i.e. no beast_-prefix)
 
 ************************* Misc *************************************************
 

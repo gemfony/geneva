@@ -263,30 +263,35 @@ protected:
 		 Gem::Common::GParserBuilder &gpb
 	 ) BASE { /* nothing -- no local data */ }
 
+    //-------------------------------------------------------------------------
+    // Some abstract protected functions
+
+    /** @brief Adds local command line options to a boost::program_options::options_description object */
+    virtual void addCLOptions_(
+        boost::program_options::options_description&
+        , boost::program_options::options_description&
+    ) BASE = 0;
+
+
+    /** @brief Takes a boost::program_options::variables_map object and checks for supplied options */
+    virtual void actOnCLOptions_(const boost::program_options::variables_map&) BASE = 0;
+
+
+    /** @brief Initialization of the consumer */
+    virtual void init_() BASE = 0;
+
+    /** @brief The actual business logic */
+    virtual void async_startProcessing_() BASE = 0;
+
 private:
 	 //-------------------------------------------------------------------------
-	 // Some abstract functions
-
-	 /** @brief Adds local command line options to a boost::program_options::options_description object */
-	 virtual void addCLOptions_(
-		 boost::program_options::options_description&
-		 , boost::program_options::options_description&
-	 ) BASE = 0;
-
-	 /** @brief Takes a boost::program_options::variables_map object and checks for supplied options */
-	 virtual void actOnCLOptions_(const boost::program_options::variables_map&) BASE = 0;
+	 // Some abstract private functions
 
 	 /** @brief A unique identifier for a given consumer */
 	 virtual std::string getConsumerName_() const BASE = 0;
 
 	 /** @brief Returns a short identifier for this consumer */
 	 virtual std::string getMnemonic_() const BASE = 0;
-
-     /** @brief Initialization of the consumer */
-     virtual void init_() BASE = 0;
-
-	 /** @brief The actual business logic */
-	 virtual void async_startProcessing_() BASE = 0;
 
 	 //-------------------------------------------------------------------------
 	 /**

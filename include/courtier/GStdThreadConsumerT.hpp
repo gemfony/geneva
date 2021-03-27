@@ -230,36 +230,36 @@ protected:
 			 << "automatically determine the number of hardware threads.";
 	 }
 
+    /***************************************************************************/
+    /**
+     * Adds local command line options to a boost::program_options::options_description object.
+     *
+     * @param visible Command line options that should always be visible
+     * @param hidden Command line options that should only be visible upon request
+     */
+    void addCLOptions_(
+        boost::program_options::options_description &visible
+        , boost::program_options::options_description &hidden
+    ) override {
+        namespace po = boost::program_options;
+
+        hidden.add_options()
+            ("nWorkerThreads", po::value<std::size_t>(&m_nThreads)->default_value(m_nThreads),
+             "\t[stc] The number of threads used to process the worker");
+
+        hidden.add_options()
+            ("stcCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
+             "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the executor");
+    }
+
+    /***************************************************************************/
+    /**
+     * Takes a boost::program_options::variables_map object and checks for supplied options.
+     */
+    void actOnCLOptions_(const boost::program_options::variables_map &vm) override
+    { /* nothing */ }
+
 private:
-	 /***************************************************************************/
-	 /**
-	  * Adds local command line options to a boost::program_options::options_description object.
-	  *
-	  * @param visible Command line options that should always be visible
-	  * @param hidden Command line options that should only be visible upon request
-	  */
-	 void addCLOptions_(
-		 boost::program_options::options_description &visible
-		 , boost::program_options::options_description &hidden
-	 ) override {
-		 namespace po = boost::program_options;
-
-		 hidden.add_options()
-			 ("nWorkerThreads", po::value<std::size_t>(&m_nThreads)->default_value(m_nThreads),
-				 "\t[stc] The number of threads used to process the worker");
-
-		 hidden.add_options()
-			 ("stcCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
-				 "\t[stc] A debugging option making the multi-threaded consumer use timeouts in the executor");
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Takes a boost::program_options::variables_map object and checks for supplied options.
-	  */
-	 void actOnCLOptions_(const boost::program_options::variables_map &vm) override
-	 { /* nothing */ }
-
 	 /***************************************************************************/
 	 /**
 	  * Sets the number of threads. Note that this function

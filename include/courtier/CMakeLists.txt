@@ -38,6 +38,7 @@ SET ( COMMUNICATIONINCLUDES
     GAsioConsumerT.hpp
     GBaseClientT.hpp
     GBaseConsumerT.hpp
+    GBoostNetworkedConsumerBaseT.hpp
     GBrokerT.hpp
     GBufferPortT.hpp
     GCommandContainerT.hpp

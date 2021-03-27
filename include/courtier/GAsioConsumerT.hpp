@@ -69,6 +69,7 @@
 #include "common/GThreadPool.hpp"
 #include "courtier/GBaseClientT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
+#include "courtier/GBoostNetworkedConsumerBaseT.hpp"
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 #include "courtier/GCourtierEnums.hpp"
@@ -735,8 +736,7 @@ private:
  */
 template <typename processable_type>
 class GAsioConsumerT
-    : public Gem::Courtier::GBaseConsumerT<processable_type>  // note: GBaseConsumerT<> is non-copyable
-    , public std::enable_shared_from_this<GAsioConsumerT<processable_type>>
+    : public Gem::Courtier::GBoostNetworkedConsumerBaseT<processable_type>
 {
     //-------------------------------------------------------------------------
     // Simplify usage of namespaces
@@ -756,109 +756,13 @@ public:
 
     //-------------------------------------------------------------------------
     /**
-	  * Sets the server name
-	  *
-	  * @param server The name of the server to be used by this class
-	  */
-    void
-    setServerName( const std::string & server )
-    {
-        m_server = server;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Allows to retrieve the server name
-	  *
-	  * @return The name of the server configured for this class
-	  */
-    [[nodiscard]] std::string
-    getServerName() const
-    {
-        return m_server;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Sets the serer port
-	  *
-	  * @param port The port to be used by the server
-	  */
-    void
-    setPort( unsigned short port )
-    {
-        m_port = port;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Allows to retrieve the port
-	  *
-	  * @return The port configured for this server
-	  */
-    [[nodiscard]] unsigned short
-    getPort() const
-    {
-        return m_port;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Allos to configure the serialization mode for the communication between
-	  * clients and server
-	  *
-	  * @param serializationMode The serialization mode to be configured for this class
-	  */
-    void
-    setSerializationMode( Gem::Common::serializationMode serializationMode )
-    {
-        m_serializationMode = serializationMode;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Allows to retrieve the serialization mode configured for this class
-	  *
-	  * @return The serialization mode configured for this class
-	  */
-    [[nodiscard]] Gem::Common::serializationMode
-    getSerializationMode() const
-    {
-        return m_serializationMode;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Configures the number of threads to be used by this class
-	  *
-	  * @param The number of threads to be used by this class
-	  */
-    void
-    setNThreads( std::size_t nThreads )
-    {
-        m_n_threads = nThreads;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Allows to retrieve the number of processing threads to be used for processing
-	  * incoming connections in the server
-	  */
-    [[nodiscard]] std::size_t
-    getNThreads() const
-    {
-        return m_n_threads;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
 	  * Configures the maximum number of times a client will try to connect to
 	  * the server until it terminates.
 	  */
     void
-    setMaxReconnects( std::size_t n_max_reconnects )
+    setMaxClientReconnects( std::size_t n_max_client_reconnects )
     {
-        m_n_max_reconnects = n_max_reconnects;
+        m_n_max_client_reconnects = n_max_client_reconnects;
     }
 
     //-------------------------------------------------------------------------
@@ -867,30 +771,12 @@ public:
 	  * the server until it terminates.
 	  */
     [[nodiscard]] std::size_t
-    getMaxReconnects() const
+    getMaxClientReconnects() const
     {
-        return m_n_max_reconnects;
+        return m_n_max_client_reconnects;
     }
 
 protected:
-    //-------------------------------------------------------------------------
-    /**
-	  * Stop execution
-	  */
-    void
-    shutdown_() override
-    {
-        //------------------------------------------------------
-        // Set the class-wide shutdown-flag
-        GBaseConsumerT<processable_type>::shutdown_();
-
-        // Make sure context threads may terminate
-        m_io_contexts.stop();
-
-        //------------------------------------------------------
-    }
-
-private:
     //-------------------------------------------------------------------------
     /**
 	  * Adds local command line options to a boost::program_options::options_description object.
@@ -904,32 +790,45 @@ private:
     {
         namespace po = boost::program_options;
 
-        visible.add_options()( "asio_ip",
-                               po::value<std::string>( &m_server )->default_value( GCONSUMERDEFAULTSERVER ),
-                               "\t[asio] The name or ip of the server" )(
-            "asio_port",
-            po::value<unsigned short>( &m_port )->default_value( GCONSUMERDEFAULTPORT ),
-            "\t[asio] The port of the server" );
+        // Add our parent class'es options
+        Gem::Courtier::GBoostNetworkedConsumerBaseT<processable_type>::addCLOptions_(visible, hidden);
 
+        // Add remaining hidden options
         hidden.add_options()
-            ("asio_serializationMode",po::value<Gem::Common::serializationMode>( &m_serializationMode )->default_value( GCONSUMERSERIALIZATIONMODE ),
-            "\t[asio] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)" )
-            ("asio_nListenerThreads",po::value<std::size_t>( &m_n_threads )->default_value( 0 ), "\t[asio] The number of threads used to process incoming connections" )
-            ("asio_use_pinning", po::value<bool>( &m_use_pinning )->default_value(false), "\t[asio] Whether to pin each thread to a given core")
-            ("asio_use_multiple_io_contexts", po::value<bool>( &m_use_multiple_io_contexts )->default_value(false), "\t[asio] Whether to use one io_context-object for each run()-call")
-            ("asio_set_no_delay", po::value<bool>( &m_use_no_delay_option )->default_value(false), "\t[asio] Whether to set the no_delay option on sockets")
-            ("asio_maxReconnects",po::value<std::size_t>( &m_n_max_reconnects )->default_value( GASIOCONSUMERMAXCONNECTIONATTEMPTS ),"\t[asio] The maximum number of times a client will try to reconnect to the server when no connection could be established" );
+            ("asio_maxClientReconnects",po::value<std::size_t>( &m_n_max_client_reconnects )->default_value( GASIOCONSUMERMAXCONNECTIONATTEMPTS ),"\t[asio] The maximum number of times a client will try to reconnect to the server when no connection could be established" );
     }
 
     //-------------------------------------------------------------------------
     /**
-	  * Takes a boost::program_options::variables_map object and acts on
-	  * the received command line options.
+	  * This callback will be executed when a new session has been accepted
+	  *
+	  * @param ec The code of a possible error
 	  */
     void
-    actOnCLOptions_( const boost::program_options::variables_map & vm ) override
-    { /* nothing */ }
+    when_accepted( error_code ec ) override
+    {
+        if ( ec ) {
+            glogger << "In GAsioConsumerT<>::when_accepted(): Got error code \"" << ec.message() << "\"" << std::endl
+                    << "We will nevertheless try to accept more connections" << std::endl
+                    << GWARNING;
+        }
+        else {
+            // Create the GAsioConsumerSessionT and run it. This call will return immediately.
+            std::make_shared<GAsioConsumerSessionT<processable_type>>(
+                M_IO_CONTEXTS.get(),
+                std::move( M_SOCKET ),  // Our local m_socket will stay in a valid state
+                [this]() -> std::shared_ptr<processable_type> { return this->getPayloadItem(); },
+                [this]( std::shared_ptr<processable_type> p ) { this->putPayloadItem( p ); },
+                [this]() -> bool { return this->stopped(); },
+                this->getSerializationMode() )
+                ->async_start_run();
+        }
 
+        // Accept another connection
+        if ( not this->stopped() ) this->async_start_accept();
+    }
+
+private:
     //-------------------------------------------------------------------------
     /**
 	  * A unique identifier for a given consumer
@@ -954,181 +853,6 @@ private:
 
     //-------------------------------------------------------------------------
     /**
-     * Activate the "no_delay"-option of sockets
-     */
-    void
-    setNoDelay_()
-    {
-        boost::system::error_code      set_option_err;
-        boost::asio::ip::tcp::no_delay no_delay( true );
-        m_socket.set_option( no_delay, set_option_err );
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-     * Initialization of the consumer
-     */
-    void
-    init_() override
-    {
-        // Make sure the io_context objects are properly set up
-        m_io_contexts.init(m_n_threads, m_use_pinning, m_use_multiple_io_contexts);
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	 * Starts the consumer responder loops
-  	 */
-    void
-    async_startProcessing_() override
-    {
-        boost::system::error_code ec;
-
-        // Set up the endpoint according to the endpoint information we have received from the command line
-        m_endpoint = std::move( boost::asio::ip::tcp::endpoint { boost::asio::ip::tcp::v4(), m_port } );
-
-        // Set up the initial acceptor and socket
-        m_acceptor = std::move(boost::asio::ip::tcp::acceptor(m_io_contexts.get()));
-        m_socket   = std::move(boost::asio::ip::tcp::socket(m_io_contexts.get()));
-
-        // Activate the no_delay option for the socket, if desired
-        if( m_use_no_delay_option ) this->setNoDelay_();
-
-        // Open the acceptor
-        m_acceptor.open( m_endpoint.protocol(), ec );
-        if ( ec || not m_acceptor.is_open() ) {
-            if ( ec ) {
-                throw gemfony_exception(
-                    g_error_streamer( DO_LOG, time_and_place )
-                    << "GAsioConsumerT<>::async_startProcessing_() / m_acceptor.open: Got error message \""
-                    << ec.message() << "\"" << std::endl
-                    << "No connections will be accepted. The server is not running" << std::endl );
-            }
-            else {
-                throw gemfony_exception(
-                    g_error_streamer( DO_LOG, time_and_place )
-                    << "GAsioConsumerT<>::async_startProcessing_() / m_acceptor.open did not succeed." << std::endl
-                    << "No connections will be accepted. The server is not running" << std::endl );
-            }
-        }
-
-        // Bind to the server address
-        m_acceptor.bind( m_endpoint, ec );
-        if ( ec ) {
-            throw gemfony_exception(
-                g_error_streamer( DO_LOG, time_and_place )
-                << "GAsioConsumerT<>::async_startProcessing_() / m_acceptor.bind: Got error message \"" << ec.message()
-                << "\"" << std::endl
-                << "No connections will be accepted. The server is not running" << std::endl );
-        }
-
-        // Some acceptor options
-        boost::asio::socket_base::reuse_address option( true );
-        m_acceptor.set_option( option );
-
-        // Start listening for connections
-        m_acceptor.listen( boost::asio::socket_base::max_listen_connections, ec );
-        if ( ec ) {
-            throw gemfony_exception(
-                g_error_streamer( DO_LOG, time_and_place )
-                << "GAsioConsumerT<>::async_startProcessing_() / m_acceptor.listen(): Got error message \""
-                << ec.message() << "\"" << std::endl
-                << "No connections will be accepted. The server is not running" << std::endl );
-        }
-
-        // Start accepting connections
-        async_start_accept();
-
-        // Start the run-cycle
-        m_io_contexts.run();
-
-        // Done -- the function will return immediately
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Asynchronously accepts new sessions requests (on the ASIO- and not the
-	  * Websocket-level).
-	  */
-    void
-    async_start_accept()
-    {
-        auto self = this->shared_from_this();
-        m_acceptor.async_accept( m_socket, [self]( boost::system::error_code ec ) { self->when_accepted( ec ); } );
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * This callback will be executed when a new session has been accepted
-	  *
-	  * @param ec The code of a possible error
-	  */
-    void
-    when_accepted( error_code ec )
-    {
-        if ( ec ) {
-            glogger << "In GAsioConsumerT<>::when_accepted(): Got error code \"" << ec.message() << "\"" << std::endl
-                    << "We will nevertheless try to accept more connections" << std::endl
-                    << GWARNING;
-        }
-        else {
-            // Create the GAsioConsumerSessionT and run it. This call will return immediately.
-            std::make_shared<GAsioConsumerSessionT<processable_type>>(
-                m_io_contexts.get(),
-                std::move( m_socket ),  // Our local m_socket will stay in a valid state
-                [this]() -> std::shared_ptr<processable_type> { return this->getPayloadItem(); },
-                [this]( std::shared_ptr<processable_type> p ) { this->putPayloadItem( p ); },
-                [this]() -> bool { return this->stopped(); },
-                m_serializationMode )
-                ->async_start_run();
-        }
-
-        // Accept another connection
-        if ( not this->stopped() ) async_start_accept();
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Tries to retrieve a work item from the server, observing a timeout
-	  *
-	  * @return A work item (possibly empty)
-	  */
-    std::shared_ptr<processable_type>
-    getPayloadItem()
-    {
-        std::shared_ptr<processable_type> p;
-
-        // Try to retrieve a work item from the broker
-        m_broker_ptr->get( p, m_timeout );
-
-        // May be empty, if we ran into a timeout
-        return p;
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Submits a work item to the server, observing a timeout
-	  */
-    void
-    putPayloadItem( std::shared_ptr<processable_type> p )
-    {
-        if ( not p ) {
-            throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
-                                     << "GAsioConsumerT<>::putPayloadItem():" << std::endl
-                                     << "Function called with empty work item" << std::endl );
-        }
-
-        if ( not m_broker_ptr->put( p, m_timeout ) ) {
-            glogger << "In GAsioConsumerT<>::putPayloadItem():" << std::endl
-                    << "Work item could not be submitted to the broker" << std::endl
-                    << "The item will be discarded" << std::endl
-                    << GWARNING;
-        }
-    }
-
-
-    //-------------------------------------------------------------------------
-    /**
 	  * This function returns a client associated with this consumer. By default
 	  * it returns an empty smart pointer, so that consumers without the need for
 	  * clients do not need to re-implement this function.
@@ -1137,19 +861,8 @@ private:
     getClient_() const override
     {
         return std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>>(
-            new GAsioConsumerClientT<processable_type>( m_server, m_port, m_serializationMode, m_n_max_reconnects ) );
-    }
-
-    //-------------------------------------------------------------------------
-    /**
-	  * Allows to check whether this consumer needs a client to operate.
-	  *
-	  * @return A boolean indicating whether this consumer needs a client to operate
-	  */
-    [[nodiscard]] bool
-    needsClient_() const noexcept override
-    {
-        return true;
+            new GAsioConsumerClientT<processable_type>( this->getServerName(), this->getPort(), this->getSerializationMode(),
+                                                        m_n_max_client_reconnects ) );
     }
 
     //-------------------------------------------------------------------------
@@ -1178,32 +891,11 @@ private:
     }
 
     //-------------------------------------------------------------------------
-    // Data
+    // Private data
 
-    std::string    m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip of the server
-    unsigned short m_port   = GCONSUMERDEFAULTPORT;    ///< The port on which the server is supposed to listen
+    std::size_t              m_n_max_client_reconnects = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
 
-    bool           m_use_pinning = false; ///< Whether to pin each thread to its own core
-    bool           m_use_multiple_io_contexts = false; ///< Whether to use a seperate io_context for each run()-call
-    bool           m_use_no_delay_option = false; ///< Whether to activate the no_delay option
-
-    std::size_t                    m_n_threads = 0;  ///< The number of threads used to process incoming connections (0 means "automatic")
-
-    GIoContexts                    m_io_contexts; ///< Will be initialized with potentially multiple io_context objects in the init call
-
-    boost::asio::ip::tcp::endpoint m_endpoint { boost::asio::ip::tcp::v4(), m_port }; ///< The endpoint is reset in async_startProcessing
-    boost::asio::ip::tcp::acceptor m_acceptor;
-    boost::asio::ip::tcp::socket   m_socket;
-
-    Gem::Common::serializationMode m_serializationMode
-        = Gem::Common::serializationMode::BINARY;  ///< Specifies the serialization mode
     std::atomic<std::size_t> m_n_active_sessions { 0 }; ///< TODO: Unused?
-    std::size_t              m_n_max_reconnects = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
-
-    std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr
-        = GBROKER( processable_type );  ///< Simplified access to the broker
-    const std::chrono::duration<double> m_timeout
-        = std::chrono::milliseconds( GBEASTMSTIMEOUT );  ///< A timeout for put- and get-operations via the broker
 
     //-------------------------------------------------------------------------
 };

@@ -370,7 +370,7 @@ int main(int argc, char **argv){
 				gatc_ptr->setPort(port);
 				gatc_ptr->setSerializationMode(serMode);
 				gatc_ptr->setNThreads(nEvaluationThreads);
-				gatc_ptr->setMaxReconnects(maxReconnects);
+                gatc_ptr->setMaxClientReconnects( maxReconnects );
 
 				// Add the consumer to the broker
 				GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(gatc_ptr);

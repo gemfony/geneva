@@ -177,6 +177,8 @@ SET (Boost_ADDITIONAL_VERSIONS
         "1.74.0"
 		"1.75"
 		"1.75.0"
+		"1.76"
+		"1.76.0"
 )
 
 IF ( GENEVA_STATIC )
@@ -200,7 +202,7 @@ ELSE () # Dynamic libraries
 ENDIF ()
 
 # The minimum Boost version required for building Geneva and Geneva applications
-SET (GENEVA_MIN_BOOST_VERSION 1.70)
+SET (GENEVA_MIN_BOOST_VERSION 1.75)
 
 # These are the libraries required for any Geneva build
 SET (

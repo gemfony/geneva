@@ -170,31 +170,31 @@ protected:
 		 // ... no local configuration
 	 }
 
+    /***************************************************************************/
+    /**
+     * Adds local command line options to a boost::program_options::options_description object.
+     *
+     * @param visible Command line options that should always be visible
+     * @param hidden Command line options that should only be visible upon request
+     */
+    void addCLOptions_(
+        boost::program_options::options_description &visible, boost::program_options::options_description &hidden
+    ) override {
+        namespace po = boost::program_options;
+
+        hidden.add_options()
+            ("scCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
+             "\t[sc] A debugging option making the serial consumer use timeouts in the executor");
+    }
+
+    /***************************************************************************/
+    /**
+     * Takes a boost::program_options::variables_map object and checks for supplied options.
+     */
+    void actOnCLOptions_(const boost::program_options::variables_map &vm) override
+    { /* nothing */ }
+
 private:
-	 /***************************************************************************/
-	 /**
-	  * Adds local command line options to a boost::program_options::options_description object.
-	  *
-	  * @param visible Command line options that should always be visible
-	  * @param hidden Command line options that should only be visible upon request
-	  */
-	 void addCLOptions_(
-		 boost::program_options::options_description &visible, boost::program_options::options_description &hidden
-	 ) override {
-		 namespace po = boost::program_options;
-
-		 hidden.add_options()
-			 ("scCapableOfFullReturn", po::value<bool>(&m_capableOfFullReturn)->default_value(m_capableOfFullReturn),
-				 "\t[sc] A debugging option making the serial consumer use timeouts in the executor");
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Takes a boost::program_options::variables_map object and checks for supplied options.
-	  */
-	 void actOnCLOptions_(const boost::program_options::variables_map &vm) override
-	 { /* nothing */ }
-
 	 /***************************************************************************/
 	 /**
 	 * A unique identifier for a given consumer

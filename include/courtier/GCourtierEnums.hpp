@@ -53,6 +53,28 @@
 namespace Gem::Courtier {
 
 /******************************************************************************/
+/**
+ * The default value for the socket's reuse_address option
+ */
+const bool DEFAULTREUSEADDRESS = true;
+
+/**
+ * Default CPU core thread pinning
+ */
+const bool DEFAULTUSECOREPINNING = true;
+
+/**
+ * Whether to use one IO-context ber thread or one io_context object with multiple
+ * run() calls, one for each thread
+ */
+const bool DEFAULTMULTIPLEIOCONTEXTS = true;
+
+/**
+ * Whether to activate the socket's no_delay option
+ */
+const bool DEFAULTUSENODELAY = false;
+
+/******************************************************************************/
 /** @brief Indicates whether the client executes the init-, run- or finally()-function */
 enum class run_state : Gem::Common::ENUMBASETYPE {
 	 INIT=0

@@ -85,20 +85,63 @@ enum class context_state {
  * The class covers the following states:
  * - Multiple threads with individual io_context objects. run() is called for each object()
  * - Multiple threads with multiple run() calls execute on one io_context object
- * It also allows pinning of threads to a given CPU. All modes can be influenced via the
- * run() function. Note that the maxmimum number of threads created is limited to the number
- * of hardware threads of a given machine.
+ * It also allows pinning of threads to a given CPU-core. Note that the maxmimum number of
+ * threads created is limited to the number of hardware threads of a given machine.
  */
 class GIoContexts
 {
 public:
     //----------------------------------------------------------------------------------
-    // Trivial default constructor
-    GIoContexts() = default;
+    /**
+     * Standard contructor
+     *
+     * @param pool_size The number of concurrent threads used for processing
+     * @param pinned Whether each threads should be pinned to one core
+     * @param use_multiple_io_contexts Whether each run() should be called for individual io_context-objects
+     */
+    explicit GIoContexts(std::size_t pool_size = 0, bool pinned = false, bool use_multiple_io_contexts = false)
+        : m_pool_size(pool_size)
+        , m_pinned(pinned)
+        , m_use_multiple_io_contexts(use_multiple_io_contexts)
+    {
+        // Rectify the pool sizes, if necessary
+        if ( m_pool_size == 0 || m_pool_size > m_max_threads ) {
+            if ( m_pool_size > m_max_threads ) {
+                glogger << "In GIoContexts::run()" << std::endl
+                        << "pool size" << m_pool_size
+                        << " too large for the underlying hardware, set to available max_cpus: " << m_max_threads
+                        << std::endl
+                        << GWARNING;
+            } else {
+                glogger << "In GIoContexts::GIoContexts(std::size_t, bool)" << std::endl
+                        << "Setting pool size to available max_cpus: " << m_max_threads << std::endl
+                        << GLOGGING;
+            }
+
+            m_pool_size = m_max_threads;
+        }
+
+        // Create and add new io_context objects.
+        for ( std::size_t i = 0; i < m_pool_size; ++i ) {
+            m_ioContext_ptr_vec.emplace_back( std::make_shared<boost::asio::io_context>() );
+            auto ioc_ptr = m_ioContext_ptr_vec.back();
+
+#if BOOST_VERSION >= 107400
+            m_work_vec.emplace_back(boost::asio::require( ioc_ptr->get_executor(), boost::asio::execution::outstanding_work_t::tracked ) );
+#else
+            m_work.emplace_back( boost::asio::make_work_guard( *ioc_ptr ) );
+#endif
+
+            // Just create one io_context object, if we do not want
+            // one context per run()
+            if ( not m_use_multiple_io_contexts ) break;
+        }
+    }
 
     //----------------------------------------------------------------------------------
-    // Deleted copy-/move-constructors and (move-)assignment operators
+    // Deleted default- copy-/move-constructors and (move-)assignment operators
 
+    GIoContexts() = delete;
     GIoContexts( GIoContexts const & ) = delete;
     GIoContexts( GIoContexts && )      = delete;
 
@@ -107,13 +150,9 @@ public:
 
     //----------------------------------------------------------------------------------
     /**
-     * Initializes the object with io_context objects
-     *
-     * @param pool_size The number of concurrent threads used for processing
-     * @param pinned Whether each threads should be pinned to one core
-     * @param use_multiple_io_contexts Whether each run() should be called for individual io_context-objects
+     * Initialization and checks
      */
-    void init(std::size_t pool_size = 0, bool pinned = false, bool use_multiple_io_contexts = false)
+    void init()
     {
         // Make sure this call can not run concurrently
         const std::lock_guard<std::mutex> lock( m_mutex );
@@ -139,7 +178,7 @@ public:
 
             case context_state::stopped: // do nothing, this is the right state
                 break;
-        };
+        }
 
 #ifdef DEBUG
         // Check that all vectors are in pristine condition
@@ -152,45 +191,6 @@ public:
                     << "m_work_vec.empty(): " << m_work_vec.empty() << std::endl );
         }
 #endif
-
-        // Create object-scope copies of our local variables
-        m_pool_size = pool_size;
-        m_pinned = pinned;
-        m_use_multiple_io_contexts = use_multiple_io_contexts;
-
-        // Rectify the pool sizes, if necessary
-        if ( m_pool_size == 0 || m_pool_size > m_max_threads ) {
-            if ( m_pool_size > m_max_threads ) {
-                glogger << "In GIoContexts::run()" << std::endl
-                        << "pool size" << m_pool_size
-                        << " too large for the underlying hardware, set to available max_cpus: " << m_max_threads
-                        << std::endl
-                        << GWARNING;
-            } else {
-                glogger << "In GIoContexts::GIoContexts(std::size_t, bool)" << std::endl
-                        << "Setting pool size to available max_cpus: " << m_max_threads << std::endl
-                        << GLOGGING;
-            }
-
-            m_pool_size = m_max_threads;
-        }
-
-        // Create and add new io_context objects.
-        // All io_contexts will run until they are explicitly stopped.
-        for ( std::size_t i = 0; i < m_pool_size; ++i ) {
-            auto ioc_ptr = std::make_shared<boost::asio::io_context>();
-            m_ioContext_ptr_vec.push_back( ioc_ptr );
-
-#if BOOST_VERSION >= 107400
-            m_work_vec.emplace_back(boost::asio::require( ioc_ptr->get_executor(), boost::asio::execution::outstanding_work_t::tracked ) );
-#else
-            m_work.emplace_back( boost::asio::make_work_guard( *ioc_ptr ) );
-#endif
-
-            // Just create one io_context object, if we do not want
-            // one context per run()
-            if ( not m_use_multiple_io_contexts ) break;
-        }
 
         // Set the current run-state
         m_context_state = context_state::initialized;
@@ -227,7 +227,7 @@ public:
                                          << std::endl
                                          << "Call init() first" << std::endl );
             }
-        };
+        }
 
         if ( m_use_multiple_io_contexts ) { // Start one run() for each io_context object
 #ifdef DEBUG
@@ -312,7 +312,7 @@ public:
                         << GWARNING;
             }
                 return;
-        };
+        }
 
         // Notify all workers that they must stop
         for ( auto & ioc_ptr: m_ioContext_ptr_vec ) ioc_ptr->stop();
@@ -358,7 +358,7 @@ public:
                                              << std::endl
                                              << "for object that is not in running state" << std::endl );
             }
-        };
+        }
 
 #ifdef DEBUG
         if( m_ioContext_ptr_vec.empty() ) {

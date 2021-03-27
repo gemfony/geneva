@@ -50,5 +50,5 @@
 
 // A global store for consumer objects
 using GConStore = Gem::Common::GSingletonT<Gem::Common::GGlobalStoreT<std::shared_ptr<Gem::Courtier::GBaseConsumerT<Gem::Geneva::GParameterSet>>>> ;
-#define GConsumerStore GConStore::Instance(0)
+#define GConsumerStore_ptr GConStore::Instance(0)
 
