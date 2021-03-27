@@ -72,9 +72,10 @@ namespace Gem::Courtier {
  * This enum signifies the run state of the GIoContexts object
  */
 enum class context_state {
-    initialized = 0
-    , running = 1
-    , stopped = 2
+    constructing = 0
+    , initialized = 1
+    , running = 2
+    , stopped = 3
 };
 
 /******************************************************************************/
@@ -100,7 +101,8 @@ public:
      * @param use_multiple_io_contexts Whether each run() should be called for individual io_context-objects
      */
     explicit GIoContexts(std::size_t pool_size = 0, bool pinned = false, bool use_multiple_io_contexts = false)
-        : m_pool_size(pool_size)
+        : m_context_state(context_state::constructing)
+        , m_pool_size(pool_size)
         , m_pinned(pinned)
         , m_use_multiple_io_contexts(use_multiple_io_contexts)
     {
@@ -127,7 +129,7 @@ public:
             auto ioc_ptr = m_ioContext_ptr_vec.back();
 
 #if BOOST_VERSION >= 107400
-            m_work_vec.emplace_back(boost::asio::require( ioc_ptr->get_executor(), boost::asio::execution::outstanding_work_t::tracked ) );
+            m_work_vec.emplace_back( boost::asio::require( ioc_ptr->get_executor(), boost::asio::execution::outstanding_work_t::tracked ) );
 #else
             m_work.emplace_back( boost::asio::make_work_guard( *ioc_ptr ) );
 #endif
@@ -176,21 +178,10 @@ public:
                         << "Call stop first" << std::endl );
             }
 
-            case context_state::stopped: // do nothing, this is the right state
+            case context_state::constructing:
+            case context_state::stopped: // do nothing, these are valid states
                 break;
         }
-
-#ifdef DEBUG
-        // Check that all vectors are in pristine condition
-        if(not m_thread_ptr_vec.empty() || not m_ioContext_ptr_vec.empty() || not m_work_vec.empty()) {
-            throw gemfony_exception(
-                g_error_streamer( DO_LOG, time_and_place )
-                    << "In GIoContexts()::init(): Not all vectors are empty:"
-                    << "m_threads_vec.empty(): " << m_thread_ptr_vec.empty() << std::endl
-                    << "m_ioContexts_vec.empty(): " << m_ioContext_ptr_vec.empty() << std::endl
-                    << "m_work_vec.empty(): " << m_work_vec.empty() << std::endl );
-        }
-#endif
 
         // Set the current run-state
         m_context_state = context_state::initialized;
@@ -220,6 +211,7 @@ public:
             }
                 return;
 
+            case context_state::constructing: // The object should have passed the init-state already
             case context_state::stopped: // init() must be called before run() is called
             {
                 throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
@@ -300,7 +292,8 @@ public:
 
         // Make sure the object is in the right state when this function is called
         switch(m_context_state) {
-            case context_state::initialized: // stop() may be called both after init() and  run()
+            case context_state::constructing: // stop() may be called both after, construction, init() and  run()
+            case context_state::initialized:
             case context_state::running:
                 break;
 
@@ -347,7 +340,8 @@ public:
 
         // Make sure the object is in the right state when this function is called
         switch(m_context_state) {
-            case context_state::running: // This is the correct state when this function is called
+            case context_state::constructing: // These are valid states for this call
+            case context_state::running:
                 break;
 
             case context_state::initialized: // get() may only be called when the object is in running()-state
@@ -384,7 +378,7 @@ public:
      }
 
 private:
-    std::atomic<context_state> m_context_state {context_state::stopped}; ///< Indicates in which state the object is
+    std::atomic<context_state> m_context_state; ///< Indicates in which state the object is
 
     std::size_t m_pool_size { 0 }; ///< 0 means "automatic"
     const std::size_t m_max_threads { std::thread::hardware_concurrency() > 0 ? std::thread::hardware_concurrency()

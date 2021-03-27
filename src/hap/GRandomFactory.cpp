@@ -213,7 +213,7 @@ void GRandomFactory::setNProducerThreads(const std::uint16_t &nProducerThreads) 
 			glogger
 				<< "In GRandomFactory::setNProducerThreads(" << nProducerThreads << "): Warning!" << std::endl
 				<< "Attempt to decrease the number of producer threads from " << m_n_producer_threads.load() << " to " << nProducerThreads << std::endl
-				<< "while threads were alredy running. The number of threads will remain unchanged." << std::endl
+				<< "while threads were already running. The number of threads will remain unchanged." << std::endl
 				<< GWARNING;
 
 			return;

@@ -275,6 +275,9 @@ protected:
         // Make sure the io_context objects are properly set up, as well as depending objects
         asio_network_context_ptr = std::make_unique<asio_network_context>(m_n_threads, m_use_pinning, m_use_multiple_io_contexts);
 
+        // Trigger initialization of the io_contexts object
+        M_IO_CONTEXTS.init();
+
         // Set up the endpoint according to the endpoint information we have received from the command line
         M_ENDPOINT = boost::asio::ip::tcp::endpoint { boost::asio::ip::tcp::v4(), m_port };
     }
