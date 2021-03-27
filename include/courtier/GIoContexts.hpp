@@ -17,6 +17,11 @@
  * limitations under the License.
  * ------------------------------------------------------------------------------
  *
+ * The code in this file is based on a contribution by Dr. Denis Bertini
+ * under the same license.
+ *
+ ********************************************************************************
+ *
  * Note that other files in the Geneva library collection may use a different
  * license. Please see the licensing information in each file.
  *
@@ -31,8 +36,6 @@
  *
  * See the NOTICE file in the top-level directory of the Geneva library
  * collection for a list of contributors and copyright information.
- *
- * The code in this file was originally contributed by Dr. Denis Bertini.
  *
  ********************************************************************************/
 
