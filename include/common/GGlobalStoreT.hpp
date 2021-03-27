@@ -64,19 +64,20 @@ namespace Common {
  * suited well for frequent querying.
  */
 template<typename T>
-class GGlobalOptionsT {
+class GGlobalStoreT
+{
 public:
 	/***************************************************************************/
 	// Defaulted or deleted constructors, destructor and assignment operators
 	// Rule of five
 
-	GGlobalOptionsT() = default;
+    GGlobalStoreT() = default;
 
-	GGlobalOptionsT(GGlobalOptionsT<T> const&) = delete;
-	GGlobalOptionsT(GGlobalOptionsT<T> &&) = delete;
+    GGlobalStoreT( GGlobalStoreT<T> const&) = delete;
+    GGlobalStoreT( GGlobalStoreT<T> &&) = delete;
 
-	GGlobalOptionsT<T>& operator=(GGlobalOptionsT<T> const&) = delete;
-	GGlobalOptionsT<T>& operator=(GGlobalOptionsT<T> &&) = delete;
+    GGlobalStoreT<T>& operator=( GGlobalStoreT<T> const&) = delete;
+    GGlobalStoreT<T>& operator=( GGlobalStoreT<T> &&) = delete;
 
 	/***************************************************************************/
 	/**

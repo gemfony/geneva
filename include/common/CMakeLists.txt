@@ -84,7 +84,7 @@ SET ( GENEVACOMMONINCLUDES
 	GFixedSizePriorityQueueT.hpp
 	GFormulaParserT.hpp
 	GGlobalDefines.hpp
-	GGlobalOptionsT.hpp
+	GGlobalStoreT.hpp
 	GLogger.hpp
 	GParserBuilder.hpp
 	GPODVectorT.hpp

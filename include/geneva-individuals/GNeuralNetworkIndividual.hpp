@@ -68,20 +68,20 @@
 
 // Geneva header files go here
 #include "common/GCommonEnums.hpp"
-#include "common/GExceptions.hpp"
 #include "common/GCommonHelperFunctions.hpp"
 #include "common/GCommonHelperFunctionsT.hpp"
-#include "common/GSingletonT.hpp"
-#include "common/GGlobalOptionsT.hpp"
-#include "common/GUnitTestFrameworkT.hpp"
-#include "common/GLogger.hpp"
+#include "common/GExceptions.hpp"
 #include "common/GFactoryT.hpp"
+#include "common/GGlobalStoreT.hpp"
+#include "common/GLogger.hpp"
 #include "common/GPODVectorT.hpp"
-#include "hap/GRandomT.hpp"
-#include "geneva/GDoubleObject.hpp"
+#include "common/GSingletonT.hpp"
+#include "common/GUnitTestFrameworkT.hpp"
 #include "geneva/GDoubleGaussAdaptor.hpp"
+#include "geneva/GDoubleObject.hpp"
 #include "geneva/GDoubleObjectCollection.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "hap/GRandomT.hpp"
 
 namespace Gem {
 namespace Geneva {
@@ -1052,7 +1052,7 @@ namespace Gem {
 namespace Common {
 
 // A global store for network configuration data
-using GNNOptStore = GSingletonT<GGlobalOptionsT<std::string>>;
+using GNNOptStore = GSingletonT<GGlobalStoreT<std::string>>;
 #define GNeuralNetworkOptions GNNOptStore::Instance(0)
 
 // A factory function for networkData objects, used by GSingletonT

@@ -45,11 +45,11 @@
 // Boost header files go here
 
 // Geneva headers go here
+#include "common/GGlobalStoreT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GGlobalOptionsT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
-#include "geneva/GParameterSet.hpp"
 #include "geneva/GConsumerStore.hpp"
+#include "geneva/GParameterSet.hpp"
 
 namespace Gem {
 namespace Geneva {

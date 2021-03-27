@@ -46,14 +46,13 @@
 // Boost header files go here
 
 // Geneva headers go here
-#include "courtier/GExecutorT.hpp"
+#include "common/GGlobalStoreT.hpp"
 #include "common/GLogger.hpp"
-#include "common/GGlobalOptionsT.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
-#include "geneva/G_OptimizationAlgorithm_Base.hpp"
-#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
+#include "courtier/GExecutorT.hpp"
 #include "geneva/GParameterSet.hpp"
+#include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/G_OptimizationAlgorithm_FactoryStore.hpp"
+#include "geneva/G_OptimizationAlgorithm_FactoryT.hpp"
 
 namespace Gem {
 namespace Geneva {
