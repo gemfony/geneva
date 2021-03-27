@@ -71,7 +71,7 @@ public:
 		std::string mnemonic = p->getMnemonic();
 
 		// Register the consumer with the store, if it hasn't happened yet
-		GConsumerStore->setOnce(mnemonic, p);
+        GConsumerStore_ptr->setOnce(mnemonic, p);
 	}
 
     explicit GIndividualStandardConsumerInitializerT(int size) {
@@ -80,7 +80,7 @@ public:
 		std::string mnemonic = p->getMnemonic();
 
 		// Register the consumer with the store, if it hasn't happened yet
-		GConsumerStore->setOnce(mnemonic, p);
+        GConsumerStore_ptr->setOnce(mnemonic, p);
 	}
   
 	/** @brief An empty destructor */

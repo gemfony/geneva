@@ -222,7 +222,7 @@ int Go2::clientRun() {
 	// Check that we have indeed been given a valid name
 	if (
 		GO2_DEF_NOCONSUMER == m_consumer_name
-		|| not GConsumerStore->exists(m_consumer_name)
+		|| not GConsumerStore_ptr->exists(m_consumer_name)
 		) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -234,8 +234,8 @@ int Go2::clientRun() {
 	// Retrieve the client worker from the consumer
 	std::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet>> p;
 
-	if (GConsumerStore->get(m_consumer_name)->needsClient()) {
-		p = GConsumerStore->get(m_consumer_name)->getClient();
+	if ( GConsumerStore_ptr->get(m_consumer_name)->needsClient()) {
+		p = GConsumerStore_ptr->get(m_consumer_name)->getClient();
 	} else {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
@@ -797,15 +797,15 @@ void Go2::parseCommandLine(
 
 		// Extract a list of consumer mnemonics and clear-text descriptions
 		std::string consumer_description;
-		GConsumerStore->getKeyVector(keys);
+        GConsumerStore_ptr->getKeyVector(keys);
 		for(const auto& key: keys) {
-			consumer_description += (key + ":  " + GConsumerStore->get(key)->getConsumerName() + "\n");
+			consumer_description += (key + ":  " + GConsumerStore_ptr->get(key)->getConsumerName() + "\n");
 		}
 
 		std::ostringstream consumer_help;
 		consumer_help
 			<< "The name of a consumer for brokered execution (an error will be flagged if called with any other execution mode than (2) ). "
-			<< GConsumerStore->size() << " consumers have been registered: " << std::endl
+			<< GConsumerStore_ptr->size() << " consumers have been registered: " << std::endl
 			<< consumer_description;
 
 		auto usageString = std::string("Usage: ") + argv[0] + " [options]";
@@ -823,20 +823,18 @@ void Go2::parseCommandLine(
 			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
 			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION),
 				R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
-			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str())
-       		        ("ioc,i", po::value<int>(&m_ioc)->default_value(0),
-		         "io_per_cpu (network based consumers only");
-		  
+			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str());
+
 		// Add additional options coming from the algorithms and consumers
 		boost::program_options::options_description visible("Global algorithm- and consumer-options");
 		boost::program_options::options_description hidden("Hidden algorithm- and consumer-options");
 
 		// Retrieve available command-line options from registered consumers, if any
-		if (not GConsumerStore->empty()) {
-			GConsumerStore->rewind();
+		if (not GConsumerStore_ptr->empty()) {
+            GConsumerStore_ptr->rewind();
 			do {
-				GConsumerStore->getCurrentItem()->addCLOptions(visible, hidden);
-			} while (GConsumerStore->goToNextPosition());
+                GConsumerStore_ptr->getCurrentItem()->addCLOptions(visible, hidden);
+			} while ( GConsumerStore_ptr->goToNextPosition());
 		}
 
 		// Retrieve available command-line options from registered optimization algorithm factories, if any
@@ -894,7 +892,7 @@ void Go2::parseCommandLine(
 		}
 		
 		// Check that the requested consumer actually exists
-		if (vm.count("consumer") && not GConsumerStore->exists(m_consumer_name)) {
+		if (vm.count("consumer") && not GConsumerStore_ptr->exists(m_consumer_name)) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::parseCommandLine(): Error!" << std::endl
@@ -903,7 +901,7 @@ void Go2::parseCommandLine(
 			);
 		}
 
-		if (m_client_mode && not GConsumerStore->get(m_consumer_name)->needsClient()) {
+		if (m_client_mode && not GConsumerStore_ptr->get(m_consumer_name)->needsClient()) {
 			throw gemfony_exception(
 				g_error_streamer(DO_LOG,  time_and_place)
 					<< "In Go2::parseCommandLine(): Error!" << std::endl
@@ -916,14 +914,14 @@ void Go2::parseCommandLine(
 
 		// Finally give the consumer the chance to act on the command line options
 		// TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker
-		GConsumerStore->get(m_consumer_name)->actOnCLOptions(vm);
+        GConsumerStore_ptr->get(m_consumer_name)->actOnCLOptions(vm);
 
 		// At this point the consumer should be fully configured
 
 		// Register the consumer with the broker, unless other consumers have already been registered or we are running in client mode
 		if (not m_client_mode) {
 			if (not GBROKER(Gem::Geneva::GParameterSet)->hasConsumers()) {
-				GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(GConsumerStore->get(m_consumer_name));
+				GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer( GConsumerStore_ptr->get(m_consumer_name));
 			} else {
 				glogger
 					<< "In Go2::parseCommandLine(): Note!" << std::endl

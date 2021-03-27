@@ -94,12 +94,6 @@ public:
 		 GIndividualStandardConsumerInitializerT<c_type> GConsumerStoreRegistrant;
 	 }
 
-    	 template <typename c_type>
-	 void registerConsumer(int size) {
-		 // This will register the consumer with the global store
-	   GIndividualStandardConsumerInitializerT<c_type> GConsumerStoreRegistrant(size);
-	 }
-
 	 /***************************************************************************/
 };
 

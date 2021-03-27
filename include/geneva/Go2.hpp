@@ -264,9 +264,6 @@ private:
 	 std::shared_ptr<Gem::Common::GFactoryT<GParameterSet>> m_content_creator_ptr;
 	 // A user-defined means for information retrieval
 	 std::vector<std::shared_ptr<GBasePluggableOM>> m_pluggable_monitors_cnt;
-         // Io per cpu option
-         int m_ioc;
-  
 };
 
 /******************************************************************************/
