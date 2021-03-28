@@ -276,7 +276,7 @@ protected:
     {
         // Make sure the io_context objects are properly set up, as well as depending objects
         asio_network_context_ptr
-            = std::make_unique<asio_network_context>( m_n_threads, m_use_pinning, m_use_multiple_io_contexts, m_port );
+            = std::make_unique<asio_network_context>( m_n_threads, m_port, m_use_pinning, m_use_multiple_io_contexts );
 
         // Trigger initialization of the io_contexts object
         M_IO_CONTEXTS.init();
@@ -344,6 +344,7 @@ protected:
                     g_error_streamer( DO_LOG, time_and_place )
                     << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.open: Got error message \""
                     << ec.message() << "\"" << std::endl
+                    << "with endpoint " << M_ENDPOINT << std::endl
                     << "No connections will be accepted. The server is not running" << std::endl );
             }
             else {
@@ -360,14 +361,18 @@ protected:
         if ( ec ) {
             throw gemfony_exception(
                 g_error_streamer( DO_LOG, time_and_place )
-                << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.bind: Got error message \""
-                << ec.message() << "\"" << std::endl
+                << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.bind(endpoint):" << std::endl
+                << "Got error message \"" << ec.message() << "\"" << std::endl
+                << "for endpoint \"" << M_ENDPOINT << "\"" << std::endl
                 << "No connections will be accepted. The server is not running" << std::endl );
         }
 
         // Some acceptor options
-        boost::asio::socket_base::reuse_address option( m_reuse_address );
-        M_ACCEPTOR.set_option( option );
+        M_ACCEPTOR.set_option(
+            boost::asio::socket_base::reuse_address(
+                m_reuse_address
+                )
+            );
 
         // Start listening for connections
         M_ACCEPTOR.listen( boost::asio::socket_base::max_listen_connections, ec );
