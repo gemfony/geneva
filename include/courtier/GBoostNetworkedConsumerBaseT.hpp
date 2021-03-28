@@ -493,7 +493,7 @@ protected:
     std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr
         = GBROKER( processable_type );  ///< Simplified access to the broker
     const std::chrono::duration<double> m_timeout
-        = std::chrono::milliseconds( GBEASTMSTIMEOUT );  ///< A timeout for put- and get-operations via the broker
+        = std::chrono::milliseconds( GBROKERMSTIMEOUT );  ///< A timeout for put- and get-operations via the broker
 
     //-------------------------------------------------------------------------
 };
