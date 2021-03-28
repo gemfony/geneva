@@ -116,14 +116,13 @@ protected:
          */
         explicit asio_network_context( std::size_t    pool_size                = 0,
                                        unsigned short port                     = GCONSUMERDEFAULTPORT,
-                                       bool           pinned                   = false,
-                                       bool           use_multiple_io_contexts = false )
+                                       bool           pinned                   = DEFAULTUSECOREPINNING,
+                                       bool           use_multiple_io_contexts = DEFAULTMULTIPLEIOCONTEXTS )
             : m_io_contexts { pool_size, pinned, use_multiple_io_contexts }
             , m_endpoint { boost::asio::ip::tcp::v4(), port }
-            , m_acceptor( m_io_contexts.get() )
-            , m_socket( m_io_contexts.get() )
-        { /* nothing */
-        }
+            , m_acceptor { m_io_contexts.get() }
+            , m_socket{ m_io_contexts.get() }
+        { /* nothing */ }
 
         //---------------------------------------------------------------------
 
@@ -481,10 +480,10 @@ protected:
     std::string    m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip of the server
     unsigned short m_port   = GCONSUMERDEFAULTPORT;    ///< The port on which the server is supposed to listen
 
-    bool m_use_pinning              = false;  ///< Whether to pin each thread to its own core
-    bool m_use_multiple_io_contexts = false;  ///< Whether to use a seperate io_context for each run()-call
-    bool m_use_no_delay_option      = false;  ///< Whether to activate the no_delay option
-    bool m_reuse_address            = true;   ///< Whether to set the socket's reuse_address option
+    bool m_use_pinning              = DEFAULTUSECOREPINNING;  ///< Whether to pin each thread to its own core
+    bool m_use_multiple_io_contexts = DEFAULTMULTIPLEIOCONTEXTS;  ///< Whether to use a seperate io_context for each run()-call
+    bool m_use_no_delay_option      = DEFAULTUSENODELAY;  ///< Whether to activate the no_delay option
+    bool m_reuse_address            = DEFAULTREUSEADDRESS;   ///< Whether to set the socket's reuse_address option
 
     std::size_t m_n_threads = 0;  ///< The number of threads used to process incoming connections (0 means "automatic")
 

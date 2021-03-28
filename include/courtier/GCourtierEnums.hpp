@@ -74,6 +74,17 @@ const bool DEFAULTMULTIPLEIOCONTEXTS = true;
  */
 const bool DEFAULTUSENODELAY = false;
 
+/**
+ * The default pool size for io_context.run() threads.
+ * "0" means: determine automatically.
+ */
+const std::size_t DEFAULTIOCONTEXTPOOLSIZE = 0;
+
+/**
+ * Whether to use verbose control frames with Boost.Beast
+ */
+const bool DEFAULTBESTVERBOSECONTROLFRAMES = false;
+
 /******************************************************************************/
 /** @brief Indicates whether the client executes the init-, run- or finally()-function */
 enum class run_state : Gem::Common::ENUMBASETYPE {

@@ -74,12 +74,7 @@ namespace Gem::Courtier {
 /**
  * This enum signifies the run state of the GIoContexts object
  */
-enum class context_state {
-    constructing = 0
-    , initialized = 1
-    , running = 2
-    , stopped = 3
-};
+enum class context_state { constructing = 0, initialized = 1, running = 2, stopped = 3 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,11 +98,13 @@ public:
      * @param pinned Whether each threads should be pinned to one core
      * @param use_multiple_io_contexts Whether each run() should be called for individual io_context-objects
      */
-    explicit GIoContexts(std::size_t pool_size = 0, bool pinned = false, bool use_multiple_io_contexts = false)
-        : m_context_state(context_state::constructing)
-        , m_pool_size(pool_size)
-        , m_pinned(pinned)
-        , m_use_multiple_io_contexts(use_multiple_io_contexts)
+    explicit GIoContexts( std::size_t pool_size                = DEFAULTIOCONTEXTPOOLSIZE,
+                          bool        pinned                   = DEFAULTUSECOREPINNING,
+                          bool        use_multiple_io_contexts = DEFAULTMULTIPLEIOCONTEXTS )
+        : m_context_state( context_state::constructing )
+        , m_pool_size( pool_size )
+        , m_pinned( pinned )
+        , m_use_multiple_io_contexts( use_multiple_io_contexts )
     {
         // Rectify the pool sizes, if necessary
         if ( m_pool_size == 0 || m_pool_size > m_max_threads ) {
@@ -117,7 +114,8 @@ public:
                         << " too large for the underlying hardware, set to available max_cpus: " << m_max_threads
                         << std::endl
                         << GWARNING;
-            } else {
+            }
+            else {
                 glogger << "In GIoContexts::GIoContexts(std::size_t, bool)" << std::endl
                         << "Setting pool size to available max_cpus: " << m_max_threads << std::endl
                         << GLOGGING;
@@ -132,7 +130,8 @@ public:
             auto ioc_ptr = m_ioContext_ptr_vec.back();
 
 #if BOOST_VERSION >= 107400
-            m_work_vec.emplace_back( boost::asio::require( ioc_ptr->get_executor(), boost::asio::execution::outstanding_work_t::tracked ) );
+            m_work_vec.emplace_back(
+                boost::asio::require( ioc_ptr->get_executor(), boost::asio::execution::outstanding_work_t::tracked ) );
 #else
             m_work.emplace_back( boost::asio::make_work_guard( *ioc_ptr ) );
 #endif
@@ -146,7 +145,7 @@ public:
     //----------------------------------------------------------------------------------
     // Deleted default- copy-/move-constructors and (move-)assignment operators
 
-    GIoContexts() = delete;
+    GIoContexts()                      = delete;
     GIoContexts( GIoContexts const & ) = delete;
     GIoContexts( GIoContexts && )      = delete;
 
@@ -157,14 +156,15 @@ public:
     /**
      * Initialization and checks
      */
-    void init()
+    void
+    init()
     {
         // Make sure this call can not run concurrently
         const std::lock_guard<std::mutex> lock( m_mutex );
 
         // Make sure the object is in the right state when this function is called
-        switch(m_context_state) {
-            case context_state::initialized: // Multiple initializations will be ignored
+        switch ( m_context_state ) {
+            case context_state::initialized:  // Multiple initializations will be ignored
             {
                 glogger << "In GIoContexts::init()" << std::endl
                         << "init() called more than once." << std::endl
@@ -173,16 +173,16 @@ public:
             }
                 return;
 
-            case context_state::running: // Attempts to initialize the object while running are an error
+            case context_state::running:  // Attempts to initialize the object while running are an error
             {
-                throw gemfony_exception(
-                    g_error_streamer( DO_LOG, time_and_place )
-                        << "In GIoContexts()::init(): Attempt to initialize while in running-state" << std::endl
-                        << "Call stop first" << std::endl );
+                throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
+                                         << "In GIoContexts()::init(): Attempt to initialize while in running-state"
+                                         << std::endl
+                                         << "Call stop first" << std::endl );
             }
 
             case context_state::constructing:
-            case context_state::stopped: // do nothing, these are valid states
+            case context_state::stopped:  // do nothing, these are valid states
                 break;
         }
 
@@ -201,11 +201,11 @@ public:
         const std::lock_guard<std::mutex> lock( m_mutex );
 
         // Make sure the object is in the right state when this function is called
-        switch(m_context_state) {
-            case context_state::initialized: // This is the expected state at the start of this call
+        switch ( m_context_state ) {
+            case context_state::initialized:  // This is the expected state at the start of this call
                 break;
 
-            case context_state::running: // Attempts to call run() on an already running object will be ignored
+            case context_state::running:  // Attempts to call run() on an already running object will be ignored
             {
                 glogger << "In GIoContexts::run()" << std::endl
                         << "run() called more than once without stop()." << std::endl
@@ -214,8 +214,8 @@ public:
             }
                 return;
 
-            case context_state::constructing: // The object should have passed the init-state already
-            case context_state::stopped: // init() must be called before run() is called
+            case context_state::constructing:  // The object should have passed the init-state already
+            case context_state::stopped:       // init() must be called before run() is called
             {
                 throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
                                          << "In GIoContexts()::run(): Attempt to call run() for stopped object"
@@ -224,26 +224,25 @@ public:
             }
         }
 
-        if ( m_use_multiple_io_contexts ) { // Start one run() for each io_context object
+        if ( m_use_multiple_io_contexts ) {  // Start one run() for each io_context object
             // There should be m_pool_size io_context objects in the collection
-            if( m_ioContext_ptr_vec.size() != m_pool_size ) {
-                throw gemfony_exception(
-                    g_error_streamer( DO_LOG, time_and_place )
-                        << "In GIoContexts()::run(): Invalid number of io_context objects: " << m_ioContext_ptr_vec.size()
-                        << std::endl
-                        << "Should have been " << m_pool_size << std::endl);
+            if ( m_ioContext_ptr_vec.size() != m_pool_size ) {
+                throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
+                                         << "In GIoContexts()::run(): Invalid number of io_context objects: "
+                                         << m_ioContext_ptr_vec.size() << std::endl
+                                         << "Should have been " << m_pool_size << std::endl );
             }
 
             for ( auto & ioc_ptr: m_ioContext_ptr_vec ) {
                 m_thread_ptr_vec.emplace_back( std::make_shared<std::thread>( [ioc_ptr] { ioc_ptr->run(); } ) );
             }  //!for
-        } else {  // multiple run()-calls for a single io_context object
-             // Check that there is only a single io_context object in the collection
-            if( m_ioContext_ptr_vec.size() != 1 ) {
-                throw gemfony_exception(
-                    g_error_streamer( DO_LOG, time_and_place )
-                        << "In GIoContexts()::run(): Invalid number of io_context objects: " << m_ioContext_ptr_vec.size()
-                        << std::endl );
+        }
+        else {  // multiple run()-calls for a single io_context object
+                // Check that there is only a single io_context object in the collection
+            if ( m_ioContext_ptr_vec.size() != 1 ) {
+                throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
+                                         << "In GIoContexts()::run(): Invalid number of io_context objects: "
+                                         << m_ioContext_ptr_vec.size() << std::endl );
             }
 
             auto & ioc_ptr = m_ioContext_ptr_vec.back();  // There should only be one
@@ -291,13 +290,13 @@ public:
         const std::lock_guard<std::mutex> lock( m_mutex );
 
         // Make sure the object is in the right state when this function is called
-        switch(m_context_state) {
-            case context_state::constructing: // stop() may be called both after, construction, init() and  run()
+        switch ( m_context_state ) {
+            case context_state::constructing:  // stop() may be called both after, construction, init() and  run()
             case context_state::initialized:
             case context_state::running:
                 break;
 
-            case context_state::stopped: // Multiple calls to stop() will be ignored
+            case context_state::stopped:  // Multiple calls to stop() will be ignored
             {
                 glogger << "In GIoContexts::stop()" << std::endl
                         << "stop() called more than once in a row" << std::endl
@@ -339,26 +338,23 @@ public:
         const std::lock_guard<std::mutex> lock( m_mutex );
 
         // Make sure the object is in the right state when this function is called
-        switch(m_context_state) {
-            case context_state::constructing: // These are valid states for this call
+        switch ( m_context_state ) {
+            case context_state::constructing:  // These are valid states for this call
             case context_state::running:
                 break;
 
-            case context_state::initialized: // get() may only be called when the object is in running()-state
-            case context_state::stopped:
-            {
+            case context_state::initialized:  // get() may only be called when the object is in running()-state
+            case context_state::stopped: {
                 throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
-                                             << "In GIoContexts()::get(): Attempt to call function"
-                                             << std::endl
-                                             << "for object that is not in running state" << std::endl );
+                                         << "In GIoContexts()::get(): Attempt to call function" << std::endl
+                                         << "for object that is not in running state" << std::endl );
             }
         }
 
 #ifdef DEBUG
-        if( m_ioContext_ptr_vec.empty() ) {
+        if ( m_ioContext_ptr_vec.empty() ) {
             throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
-                                     << "In GIoContexts()::run():  m_ioContexts_vec is empty()"
-                                     << std::endl );
+                                     << "In GIoContexts()::run():  m_ioContexts_vec is empty()" << std::endl );
         }
 #endif
 
@@ -373,19 +369,21 @@ public:
      *
      * @return A context_state class enum
      */
-     [[nodiscard]] context_state get_context_state() const {
-         return m_context_state;
-     }
+    [[nodiscard]] context_state
+    get_context_state() const
+    {
+        return m_context_state;
+    }
 
 private:
-    std::atomic<context_state> m_context_state; ///< Indicates in which state the object is
+    std::atomic<context_state> m_context_state;  ///< Indicates in which state the object is
 
-    std::size_t m_pool_size { 0 }; ///< 0 means "automatic"
     const std::size_t m_max_threads { std::thread::hardware_concurrency() > 0 ? std::thread::hardware_concurrency()
                                                                               : GCONSUMERLISTENERTHREADS };
+    std::size_t       m_pool_size { DEFAULTMULTIPLEIOCONTEXTS };  ///< 0 means "automatic"
 
-    bool m_pinned {false}; ///< Whether to pin threads to individual cores
-    bool m_use_multiple_io_contexts {false}; ///< Whether to use one io_context object for each run()-call
+    bool m_pinned { DEFAULTUSECOREPINNING };                    ///< Whether to pin threads to individual cores
+    bool m_use_multiple_io_contexts { DEFAULTMULTIPLEIOCONTEXTS };  ///< Whether to use one io_context object for each run()-call
 
     std::atomic<std::size_t> m_nextContext { 0 };
 
@@ -398,7 +396,7 @@ private:
     std::vector<boost::asio::executor_work_guard<boost::asio::io_context::executor_type>> m_work_vec;
 #endif
 
-    std::mutex m_mutex; ///< Secures access to the init(), run(), stop() and get()-functions
+    std::mutex m_mutex;  ///< Secures access to the init(), run(), stop() and get()-functions
 };
 
 /******************************************************************************/

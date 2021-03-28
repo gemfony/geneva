@@ -1321,7 +1321,7 @@ private:
     // Private data
 
     std::size_t m_ping_interval = GBEASTCONSUMERPINGINTERVAL;
-    bool        m_verbose_control_frames = false;  ///< Whether the control_callback should emit information when a control frame is received
+    bool        m_verbose_control_frames = DEFAULTBESTVERBOSECONTROLFRAMES;  ///< Whether the control_callback should emit information when a control frame is received
 
     std::atomic<std::size_t> m_n_active_sessions { 0 };
 
