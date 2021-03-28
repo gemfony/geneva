@@ -97,7 +97,6 @@ namespace Gem::Courtier {
 template <typename processable_type>
 class GBoostNetworkedConsumerBaseT
     : public Gem::Courtier::GBaseConsumerT<processable_type>  // note: GBaseConsumerT<> is non-copyable
-    , public std::enable_shared_from_this<GBoostNetworkedConsumerBaseT<processable_type>>
 {
     //-------------------------------------------------------------------------
     // Simplify usage of namespaces
@@ -310,48 +309,6 @@ protected:
 
     //-------------------------------------------------------------------------
     /**
-	  * Adds local command line options to a boost::program_options::options_description object.
-	  *
-	  * @param visible Command line options that should always be visible
-	  * @param hidden Command line options that should only be visible upon request
-	  */
-    void
-    addCLOptions_( boost::program_options::options_description & visible,
-                   boost::program_options::options_description & hidden ) override
-    {
-        namespace po = boost::program_options;
-
-        visible.add_options()( "asio_ip",
-                               po::value<std::string>( &m_server )->default_value( GCONSUMERDEFAULTSERVER ),
-                               "\t[asio_base] The name or ip of the server" )(
-            "asio_port",
-            po::value<unsigned short>( &m_port )->default_value( GCONSUMERDEFAULTPORT ),
-            "\t[asio_base] The port of the server" );
-
-        hidden.add_options()(
-            "asio_serializationMode",
-            po::value<Gem::Common::serializationMode>( &m_serializationMode )
-                ->default_value( GCONSUMERSERIALIZATIONMODE ),
-            "\t[asio_base] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)" )(
-            "asio_nListenerThreads",
-            po::value<std::size_t>( &m_n_threads )->default_value( m_n_threads ),
-            "\t[asio_base] The number of threads used to listen for incoming connections" )(
-            "asio_use_pinning",
-            po::value<bool>( &m_use_pinning )->default_value( DEFAULTUSECOREPINNING ),
-            "\t[asio_base] Whether to pin each thread to a given core" )(
-            "asio_use_multiple_io_contexts",
-            po::value<bool>( &m_use_multiple_io_contexts )->default_value( DEFAULTMULTIPLEIOCONTEXTS ),
-            "\t[asio_base] Whether to use one io_context-object for each run()-call" )(
-            "asio_set_no_delay",
-            po::value<bool>( &m_use_no_delay_option )->default_value( DEFAULTUSENODELAY ),
-            "\t[asio_base] Whether to set the no_delay option on sockets" )(
-            "asio_reuse_address",
-            po::value<bool>( &m_reuse_address )->default_value( DEFAULTREUSEADDRESS ),
-            "\t[asio_base] Whether the socket's reuse_address option should be set" );
-    }
-
-    //-------------------------------------------------------------------------
-    /**
 	  * Takes a boost::program_options::variables_map object and acts on
 	  * the received command line options.
 	  */
@@ -436,12 +393,8 @@ protected:
 	  * Asynchronously accepts new sessions requests (on the ASIO- and not the
 	  * Websocket-level).
 	  */
-    void
-    async_start_accept()
-    {
-        auto self = this->shared_from_this();
-        M_ACCEPTOR.async_accept( M_SOCKET, [self]( boost::system::error_code ec ) { self->when_accepted( ec ); } );
-    }
+    virtual void
+    async_start_accept() = 0;
 
     //-------------------------------------------------------------------------
     /**
@@ -489,11 +442,6 @@ protected:
      */
     virtual void when_accepted( error_code ) = 0;
 
-    //-------------------------------------------------------------------------
-    // Protected data
-    std::unique_ptr<asio_network_context>
-        asio_network_context_ptr;  ///< Will be initialized in the init call
-
 private:
     //-------------------------------------------------------------------------
     /**
@@ -519,8 +467,11 @@ private:
         return true;
     }
 
+protected:
     //-------------------------------------------------------------------------
-    // Private data
+    // Protected data
+    std::unique_ptr<asio_network_context>
+        asio_network_context_ptr;  ///< Will be initialized in the init call
 
     std::string    m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip of the server
     unsigned short m_port   = GCONSUMERDEFAULTPORT;    ///< The port on which the server is supposed to listen

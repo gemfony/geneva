@@ -1122,6 +1122,7 @@ private:
 template <typename processable_type>
 class GWebsocketConsumerT
     : public Gem::Courtier::GBoostNetworkedConsumerBaseT<processable_type>
+    , public std::enable_shared_from_this<GWebsocketConsumerT<processable_type>>
 {
     //-------------------------------------------------------------------------
     // Simplify usage of namespaces
@@ -1153,15 +1154,38 @@ protected:
     {
         namespace po = boost::program_options;
 
-        // Add our parent class'es options
-        GBoostNetworkedConsumerBaseT<processable_type>::addCLOptions_(visible, hidden);
+        visible.add_options()( "beast_ip",
+                               po::value<std::string>( &this->m_server )->default_value( GCONSUMERDEFAULTSERVER ),
+                               "\t[beast] The name or ip of the server" )(
+            "beast_port",
+            po::value<unsigned short>( &this->m_port )->default_value( GCONSUMERDEFAULTPORT ),
+            "\t[beast] The port of the server" );
 
         // Add remaining hidden options
         hidden.add_options()
             ("beast_pingInterval", po::value<std::size_t>( &m_ping_interval )->default_value( GBEASTCONSUMERPINGINTERVAL ),
              "\t[beast] The number of seconds between two consecutive pings" )
             ("beast_verboseControlFrames",po::value<bool>( &m_verbose_control_frames )->default_value( false )->implicit_value( true ),
-             "\t[beast] Whether sending and arrival of ping/pong and receipt of a close frame should be announced by client and server" );
+             "\t[beast] Whether sending and arrival of ping/pong and receipt of a close frame should be announced by client and server" )(
+            "beast_serializationMode",
+            po::value<Gem::Common::serializationMode>( &this->m_serializationMode )
+                ->default_value( GCONSUMERSERIALIZATIONMODE ),
+            "\t[beast] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)" )(
+            "beast_nListenerThreads",
+            po::value<std::size_t>( &this->m_n_threads )->default_value( this->m_n_threads ),
+            "\t[beast] The number of threads used to listen for incoming connections" )(
+            "beast_use_pinning",
+            po::value<bool>( &this->m_use_pinning )->default_value( DEFAULTUSECOREPINNING ),
+            "\t[beast] Whether to pin each thread to a given core" )(
+            "beast_use_multiple_io_contexts",
+            po::value<bool>( &this->m_use_multiple_io_contexts )->default_value( DEFAULTMULTIPLEIOCONTEXTS ),
+            "\t[beast] Whether to use one io_context-object for each run()-call" )(
+            "beast_set_no_delay",
+            po::value<bool>( &this->m_use_no_delay_option )->default_value( DEFAULTUSENODELAY ),
+            "\t[beast] Whether to set the no_delay option on sockets" )(
+            "beast_reuse_address",
+            po::value<bool>( &this->m_reuse_address )->default_value( DEFAULTREUSEADDRESS ),
+            "\t[beast] Whether the socket's reuse_address option should be set" );
     }
 
     //-------------------------------------------------------------------------
@@ -1207,7 +1231,7 @@ protected:
                   glogger << "GWebsocketConsumerT<>: " << this->m_n_active_sessions << " active sessions" << std::endl
                           << GLOGGING;
                 },
-                this->getSerializationMode(),
+                this->m_serializationMode,
                 m_ping_interval,
                 m_verbose_control_frames )
                 ->async_start_run();
@@ -1215,6 +1239,18 @@ protected:
 
         // Accept another connection
         if ( not this->stopped() ) this->async_start_accept();
+    }
+
+    //-------------------------------------------------------------------------
+    /**
+	  * Asynchronously accepts new sessions requests. This function could have been in the base
+      * class. However, we want the enable_shared_from_this in the final class.
+	  */
+    void
+    async_start_accept() override
+    {
+        auto self = this->shared_from_this();
+        M_ACCEPTOR.async_accept( M_SOCKET, [self]( boost::system::error_code ec ) { self->when_accepted( ec ); } );
     }
 
 private:
@@ -1250,9 +1286,9 @@ private:
     getClient_() const override
     {
         return std::shared_ptr<GBaseClientT<processable_type>>(
-            new GWebsocketClientT<processable_type>( this->getServerName(),
-                                                     this->getPort(),
-                                                     this->getSerializationMode(),
+            new GWebsocketClientT<processable_type>( this->m_server,
+                                                     this->m_port,
+                                                     this->m_serializationMode,
                                                      m_verbose_control_frames ) );
     }
 

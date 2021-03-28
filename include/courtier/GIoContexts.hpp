@@ -225,7 +225,6 @@ public:
         }
 
         if ( m_use_multiple_io_contexts ) { // Start one run() for each io_context object
-#ifdef DEBUG
             // There should be m_pool_size io_context objects in the collection
             if( m_ioContext_ptr_vec.size() != m_pool_size ) {
                 throw gemfony_exception(
@@ -234,20 +233,18 @@ public:
                         << std::endl
                         << "Should have been " << m_pool_size << std::endl);
             }
-#endif
 
             for ( auto & ioc_ptr: m_ioContext_ptr_vec ) {
                 m_thread_ptr_vec.emplace_back( std::make_shared<std::thread>( [ioc_ptr] { ioc_ptr->run(); } ) );
             }  //!for
         } else {  // multiple run()-calls for a single io_context object
-#ifdef DEBUG // Check that there is only a single io_context object in the collection
+             // Check that there is only a single io_context object in the collection
             if( m_ioContext_ptr_vec.size() != 1 ) {
                 throw gemfony_exception(
                     g_error_streamer( DO_LOG, time_and_place )
                         << "In GIoContexts()::run(): Invalid number of io_context objects: " << m_ioContext_ptr_vec.size()
                         << std::endl );
             }
-#endif
 
             auto & ioc_ptr = m_ioContext_ptr_vec.back();  // There should only be one
             for ( std::size_t t = 0; t < m_pool_size; t++ ) {

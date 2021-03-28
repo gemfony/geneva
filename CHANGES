@@ -16,9 +16,6 @@ Recommended versions:
 - The commandline option asio_nListenerThreads has been renamed to asio_nProcessingThreads to unify the
   naming with the websocket consumer
 - asio_maxReconnects has been renamed to asio_maxClientReconnects
-- Many command line options for the Beast websocket implementation are now implemented
-  in a base class of both the ASIO and Beast consumer, and have thus names like asio_serializationMode
-  (i.e. no beast_-prefix)
 
 ************************* Misc *************************************************
 
