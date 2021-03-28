@@ -447,7 +447,7 @@ private:
     std::string                    m_address;  ///< The ip address or name of the peer system
     unsigned int                   m_port;     ///< The peer port
     Gem::Common::serializationMode m_serialization_mode
-        = Gem::Common::serializationMode::BINARY;  ///< Determines which seriliztion mode should be used
+        = Gem::Common::serializationMode::BINARY;  ///< Determines which serializtion mode should be used
 
     std::size_t m_n_reconnects   = 0;
     std::size_t m_max_reconnects = 0;
@@ -735,8 +735,7 @@ private:
  * fulfilled.
  */
 template <typename processable_type>
-class GAsioConsumerT
-    : public Gem::Courtier::GBoostNetworkedConsumerBaseT<processable_type>
+class GAsioConsumerT : public Gem::Courtier::GBoostNetworkedConsumerBaseT<processable_type>
 {
     //-------------------------------------------------------------------------
     // Simplify usage of namespaces
@@ -791,11 +790,13 @@ protected:
         namespace po = boost::program_options;
 
         // Add our parent class'es options
-        Gem::Courtier::GBoostNetworkedConsumerBaseT<processable_type>::addCLOptions_(visible, hidden);
+        Gem::Courtier::GBoostNetworkedConsumerBaseT<processable_type>::addCLOptions_( visible, hidden );
 
         // Add remaining hidden options
-        hidden.add_options()
-            ("asio_maxClientReconnects",po::value<std::size_t>( &m_n_max_client_reconnects )->default_value( GASIOCONSUMERMAXCONNECTIONATTEMPTS ),"\t[asio] The maximum number of times a client will try to reconnect to the server when no connection could be established" );
+        hidden.add_options()(
+            "asio_maxClientReconnects",
+            po::value<std::size_t>( &m_n_max_client_reconnects )->default_value( GASIOCONSUMERMAXCONNECTIONATTEMPTS ),
+            "\t[asio] The maximum number of times a client will try to reconnect to the server when no connection could be established" );
     }
 
     //-------------------------------------------------------------------------
@@ -861,7 +862,9 @@ private:
     getClient_() const override
     {
         return std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>>(
-            new GAsioConsumerClientT<processable_type>( this->getServerName(), this->getPort(), this->getSerializationMode(),
+            new GAsioConsumerClientT<processable_type>( this->getServerName(),
+                                                        this->getPort(),
+                                                        this->getSerializationMode(),
                                                         m_n_max_client_reconnects ) );
     }
 
@@ -893,9 +896,9 @@ private:
     //-------------------------------------------------------------------------
     // Private data
 
-    std::size_t              m_n_max_client_reconnects = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
+    std::size_t m_n_max_client_reconnects = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
 
-    std::atomic<std::size_t> m_n_active_sessions { 0 }; ///< TODO: Unused?
+    std::atomic<std::size_t> m_n_active_sessions { 0 };  ///< TODO: Unused?
 
     //-------------------------------------------------------------------------
 };

@@ -106,8 +106,7 @@ class GBoostNetworkedConsumerBaseT
 protected:
     //-------------------------------------------------------------------------
     // Describe the network context
-    struct asio_network_context
-    {
+    struct asio_network_context {
     public:
         /**
          * Common initialization of io_contexts, endpoint, acceptor and socket
@@ -116,16 +115,20 @@ protected:
          * @param pinned Whether each threads should be pinned to one core
          * @param use_multiple_io_contexts Whether each run() should be called for individual io_context-objects
          */
-        explicit asio_network_context(std::size_t pool_size = 0, bool pinned = false, bool use_multiple_io_contexts = false)
-            : m_io_contexts{ pool_size, pinned, use_multiple_io_contexts }
-            , m_endpoint { boost::asio::ip::tcp::v4(), 10000 } ///< The endpoint is reset in async_startProcessing
-            , m_acceptor(m_io_contexts.get())
-            , m_socket(m_io_contexts.get())
-        { /* nothing */ }
+        explicit asio_network_context( std::size_t    pool_size                = 0,
+                                       unsigned short port                     = GCONSUMERDEFAULTPORT,
+                                       bool           pinned                   = false,
+                                       bool           use_multiple_io_contexts = false )
+            : m_io_contexts { pool_size, pinned, use_multiple_io_contexts }
+            , m_endpoint { boost::asio::ip::tcp::v4(), port }
+            , m_acceptor( m_io_contexts.get() )
+            , m_socket( m_io_contexts.get() )
+        { /* nothing */
+        }
 
         //---------------------------------------------------------------------
 
-        GIoContexts                    m_io_contexts;
+        GIoContexts m_io_contexts;
 
         boost::asio::ip::tcp::endpoint m_endpoint;
         boost::asio::ip::tcp::acceptor m_acceptor;
@@ -249,7 +252,7 @@ public:
      * @param reuse_address Indicates whether the socket's reuse_address option should be set
 	 */
     void
-    setReuseAddress(bool reuse_address)
+    setReuseAddress( bool reuse_address )
     {
         m_reuse_address = reuse_address;
     }
@@ -273,13 +276,11 @@ protected:
     init_() override
     {
         // Make sure the io_context objects are properly set up, as well as depending objects
-        asio_network_context_ptr = std::make_unique<asio_network_context>(m_n_threads, m_use_pinning, m_use_multiple_io_contexts);
+        asio_network_context_ptr
+            = std::make_unique<asio_network_context>( m_n_threads, m_use_pinning, m_use_multiple_io_contexts, m_port );
 
         // Trigger initialization of the io_contexts object
         M_IO_CONTEXTS.init();
-
-        // Set up the endpoint according to the endpoint information we have received from the command line
-        M_ENDPOINT = boost::asio::ip::tcp::endpoint { boost::asio::ip::tcp::v4(), m_port };
     }
 
     //-------------------------------------------------------------------------
@@ -294,11 +295,10 @@ protected:
         GBaseConsumerT<processable_type>::shutdown_();
 
         // Make sure the network context exists
-        if(not asio_network_context_ptr) {
+        if ( not asio_network_context_ptr ) {
             throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
-                                         << "In GBoostNetworkedConsumerBaseT<>::shutdown_():" << std::endl
-                                         << "asio_network_context_ptr is empty"
-                                         << std::endl );
+                                     << "In GBoostNetworkedConsumerBaseT<>::shutdown_():" << std::endl
+                                     << "asio_network_context_ptr is empty" << std::endl );
         }
 
         // Stop the io_context::run()-cycle
@@ -328,15 +328,26 @@ protected:
             po::value<unsigned short>( &m_port )->default_value( GCONSUMERDEFAULTPORT ),
             "\t[asio_base] The port of the server" );
 
-        hidden.add_options()
-            ("asio_serializationMode", po::value<Gem::Common::serializationMode>( &m_serializationMode )->default_value( GCONSUMERSERIALIZATIONMODE ),
-             "\t[asio_base] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)" )
-            ("asio_nListenerThreads", po::value<std::size_t>( &m_n_threads )->default_value( m_n_threads ),
-             "\t[asio_base] The number of threads used to listen for incoming connections" )
-            ("asio_use_pinning", po::value<bool>( &m_use_pinning )->default_value(DEFAULTUSECOREPINNING), "\t[asio_base] Whether to pin each thread to a given core")
-            ("asio_use_multiple_io_contexts", po::value<bool>( &m_use_multiple_io_contexts )->default_value(DEFAULTMULTIPLEIOCONTEXTS), "\t[asio_base] Whether to use one io_context-object for each run()-call")
-            ("asio_set_no_delay", po::value<bool>( &m_use_no_delay_option )->default_value(DEFAULTUSENODELAY), "\t[asio_base] Whether to set the no_delay option on sockets")
-            ("asio_reuse_address", po::value<bool>( &m_reuse_address)->default_value(DEFAULTREUSEADDRESS), "\t[asio_base] Whether the socket's reuse_address option should be set");
+        hidden.add_options()(
+            "asio_serializationMode",
+            po::value<Gem::Common::serializationMode>( &m_serializationMode )
+                ->default_value( GCONSUMERSERIALIZATIONMODE ),
+            "\t[asio_base] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)" )(
+            "asio_nListenerThreads",
+            po::value<std::size_t>( &m_n_threads )->default_value( m_n_threads ),
+            "\t[asio_base] The number of threads used to listen for incoming connections" )(
+            "asio_use_pinning",
+            po::value<bool>( &m_use_pinning )->default_value( DEFAULTUSECOREPINNING ),
+            "\t[asio_base] Whether to pin each thread to a given core" )(
+            "asio_use_multiple_io_contexts",
+            po::value<bool>( &m_use_multiple_io_contexts )->default_value( DEFAULTMULTIPLEIOCONTEXTS ),
+            "\t[asio_base] Whether to use one io_context-object for each run()-call" )(
+            "asio_set_no_delay",
+            po::value<bool>( &m_use_no_delay_option )->default_value( DEFAULTUSENODELAY ),
+            "\t[asio_base] Whether to set the no_delay option on sockets" )(
+            "asio_reuse_address",
+            po::value<bool>( &m_reuse_address )->default_value( DEFAULTREUSEADDRESS ),
+            "\t[asio_base] Whether the socket's reuse_address option should be set" );
     }
 
     //-------------------------------------------------------------------------
@@ -346,7 +357,8 @@ protected:
 	  */
     void
     actOnCLOptions_( const boost::program_options::variables_map & vm ) override
-    { /* nothing */ }
+    { /* nothing */
+    }
 
     //-------------------------------------------------------------------------
     /**
@@ -358,15 +370,14 @@ protected:
         boost::system::error_code ec;
 
         // Make sure the network context exists
-        if(not asio_network_context_ptr) {
+        if ( not asio_network_context_ptr ) {
             throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
-                                         << "In GBoostNetworkedConsumerBaseT<>::async_startProcessing_():" << std::endl
-                                         << "asio_network_context_ptr is empty"
-                                         << std::endl );
+                                     << "In GBoostNetworkedConsumerBaseT<>::async_startProcessing_():" << std::endl
+                                     << "asio_network_context_ptr is empty" << std::endl );
         }
 
         // Activate the no_delay option for the socket, if desired
-        if( m_use_no_delay_option ) this->setNoDelay_();
+        if ( m_use_no_delay_option ) this->setNoDelay_();
 
         // Open the acceptor
         M_ACCEPTOR.open( M_ENDPOINT.protocol(), ec );
@@ -374,15 +385,16 @@ protected:
             if ( ec ) {
                 throw gemfony_exception(
                     g_error_streamer( DO_LOG, time_and_place )
-                        << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.open: Got error message \""
-                        << ec.message() << "\"" << std::endl
-                        << "No connections will be accepted. The server is not running" << std::endl );
+                    << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.open: Got error message \""
+                    << ec.message() << "\"" << std::endl
+                    << "No connections will be accepted. The server is not running" << std::endl );
             }
             else {
                 throw gemfony_exception(
                     g_error_streamer( DO_LOG, time_and_place )
-                        << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.open did not succeed." << std::endl
-                        << "No connections will be accepted. The server is not running" << std::endl );
+                    << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.open did not succeed."
+                    << std::endl
+                    << "No connections will be accepted. The server is not running" << std::endl );
             }
         }
 
@@ -391,9 +403,9 @@ protected:
         if ( ec ) {
             throw gemfony_exception(
                 g_error_streamer( DO_LOG, time_and_place )
-                    << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.bind: Got error message \"" << ec.message()
-                    << "\"" << std::endl
-                    << "No connections will be accepted. The server is not running" << std::endl );
+                << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.bind: Got error message \""
+                << ec.message() << "\"" << std::endl
+                << "No connections will be accepted. The server is not running" << std::endl );
         }
 
         // Some acceptor options
@@ -405,9 +417,9 @@ protected:
         if ( ec ) {
             throw gemfony_exception(
                 g_error_streamer( DO_LOG, time_and_place )
-                    << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.listen(): Got error message \""
-                    << ec.message() << "\"" << std::endl
-                    << "No connections will be accepted. The server is not running" << std::endl );
+                << "GBoostNetworkedConsumerBaseT<>::async_startProcessing_() / m_acceptor.listen(): Got error message \""
+                << ec.message() << "\"" << std::endl
+                << "No connections will be accepted. The server is not running" << std::endl );
         }
 
         // Start accepting connections
@@ -428,7 +440,7 @@ protected:
     async_start_accept()
     {
         auto self = this->shared_from_this();
-        M_ACCEPTOR.async_accept(M_SOCKET, [self]( boost::system::error_code ec ) { self->when_accepted( ec ); } );
+        M_ACCEPTOR.async_accept( M_SOCKET, [self]( boost::system::error_code ec ) { self->when_accepted( ec ); } );
     }
 
     //-------------------------------------------------------------------------
@@ -458,8 +470,8 @@ protected:
     {
         if ( not p ) {
             throw gemfony_exception( g_error_streamer( DO_LOG, time_and_place )
-                                         << "GBoostNetworkedConsumerBaseT<>::putPayloadItem():" << std::endl
-                                         << "Function called with empty work item" << std::endl );
+                                     << "GBoostNetworkedConsumerBaseT<>::putPayloadItem():" << std::endl
+                                     << "Function called with empty work item" << std::endl );
         }
 
         if ( not m_broker_ptr->put( p, m_timeout ) ) {
@@ -479,7 +491,8 @@ protected:
 
     //-------------------------------------------------------------------------
     // Protected data
-    std::unique_ptr<asio_network_context>   asio_network_context_ptr; ///< Will be initialized with potentially multiple io_context objects in the init call
+    std::unique_ptr<asio_network_context>
+        asio_network_context_ptr;  ///< Will be initialized in the init call
 
 private:
     //-------------------------------------------------------------------------
@@ -512,18 +525,20 @@ private:
     std::string    m_server = GCONSUMERDEFAULTSERVER;  ///< The name or ip of the server
     unsigned short m_port   = GCONSUMERDEFAULTPORT;    ///< The port on which the server is supposed to listen
 
-    bool           m_use_pinning = false; ///< Whether to pin each thread to its own core
-    bool           m_use_multiple_io_contexts = false; ///< Whether to use a seperate io_context for each run()-call
-    bool           m_use_no_delay_option = false; ///< Whether to activate the no_delay option
-    bool           m_reuse_address = true; ///< Whether to set the socket's reuse_address option
+    bool m_use_pinning              = false;  ///< Whether to pin each thread to its own core
+    bool m_use_multiple_io_contexts = false;  ///< Whether to use a seperate io_context for each run()-call
+    bool m_use_no_delay_option      = false;  ///< Whether to activate the no_delay option
+    bool m_reuse_address            = true;   ///< Whether to set the socket's reuse_address option
 
-    std::size_t                    m_n_threads = 0;  ///< The number of threads used to process incoming connections (0 means "automatic")
+    std::size_t m_n_threads = 0;  ///< The number of threads used to process incoming connections (0 means "automatic")
 
     Gem::Common::serializationMode m_serializationMode
         = Gem::Common::serializationMode::BINARY;  ///< Specifies the serialization mode
 
-    std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr = GBROKER( processable_type );  ///< Simplified access to the broker
-    const std::chrono::duration<double> m_timeout = std::chrono::milliseconds( GBEASTMSTIMEOUT );  ///< A timeout for put- and get-operations via the broker
+    std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr
+        = GBROKER( processable_type );  ///< Simplified access to the broker
+    const std::chrono::duration<double> m_timeout
+        = std::chrono::milliseconds( GBEASTMSTIMEOUT );  ///< A timeout for put- and get-operations via the broker
 
     //-------------------------------------------------------------------------
 };
