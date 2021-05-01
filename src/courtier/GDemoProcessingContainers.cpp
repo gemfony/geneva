@@ -52,9 +52,10 @@ namespace Courtier {
 *
 * @param snr The number to be stored in the object
 */
-GSimpleContainer::GSimpleContainer(const std::size_t& snr)
+  GSimpleContainer::GSimpleContainer(const std::size_t& snr, const int& l_time)
     : Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>(1)
     , m_stored_number(snr)
+    , m_loadtime(l_time)  
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -62,7 +63,32 @@ GSimpleContainer::GSimpleContainer(const std::size_t& snr)
 * Allows to specify the tasks to be performed for this object. We simply do nothing,
 * as this class is for debugging and benchmarking purposes only.
 */
-void GSimpleContainer::process_() { /* nothing */ }
+void GSimpleContainer::process_() {
+  // Simulate some processing 
+  using std::chrono::duration_cast;
+  using millisec   = std::chrono::milliseconds;
+  
+  auto tp1 = std::chrono::steady_clock::now(); 
+  int timeStart = clock();
+  
+  while (true)
+    {
+      if ((clock() - timeStart) / CLOCKS_PER_SEC >= m_loadtime) // time in seconds
+        break;
+    }
+
+  auto tp2 = std::chrono::steady_clock::now(); 
+  // integral duration: requires duration_cast
+  auto int_ms =
+    std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1);
+  
+  std::cout << "DemoSimpleContainer: process_() Elapsed time: "
+	    << int_ms.count()
+	    << " ms"
+	    << std::endl;  
+  
+  
+}
 
 /********************************************************************************************/
 /**
