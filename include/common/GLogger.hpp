@@ -65,6 +65,7 @@
 
 // Boost header files go here
 #include <boost/lexical_cast.hpp>
+#include <boost/predef.h>
 
 // Geneva header files go here
 #include "common/GSingletonT.hpp"

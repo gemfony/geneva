@@ -793,9 +793,9 @@ protected:
 
         visible.add_options()
             ( "asio_ip", po::value<std::string>( &this->m_server )->default_value( GCONSUMERDEFAULTSERVER ),
-               "\t[asio_base] The name or ip of the server" )
+               "\t[asio] The name or ip of the server" )
             ( "asio_port", po::value<unsigned short>( &this->m_port )->default_value( GCONSUMERDEFAULTPORT ),
-                "\t[asio_base] The port of the server" );
+                "\t[asio] The port of the server" );
 
         // Add remaining hidden options
         hidden.add_options()
