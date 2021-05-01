@@ -43,19 +43,19 @@
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GSimpleContainer)
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Courtier::GRandomNumberContainer)
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /********************************************************************************************/
 /**
-* The standard constructor -- Initialization with a single number (can e.g. be used as an id).
-*
-* @param snr The number to be stored in the object
-*/
-  GSimpleContainer::GSimpleContainer(const std::size_t& snr, const int& l_time)
+ * The standard constructor -- Initialization with a single number (can e.g. be used as an id).
+ *
+ * @param snr The number to be stored in the object
+ * @param sleep_time_ms The number of milli
+ */
+GSimpleContainer::GSimpleContainer(const std::size_t& snr, const std::chrono::milliseconds& sleep_time_ms )
     : Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>(1)
     , m_stored_number(snr)
-    , m_loadtime(l_time)  
+    , m_sleep_time_ms(sleep_time_ms)
 { /* nothing */ }
 
 /********************************************************************************************/
@@ -64,38 +64,18 @@ namespace Courtier {
 * as this class is for debugging and benchmarking purposes only.
 */
 void GSimpleContainer::process_() {
-  // Simulate some processing 
-  using std::chrono::duration_cast;
-  using millisec   = std::chrono::milliseconds;
-  
-  auto tp1 = std::chrono::steady_clock::now(); 
-  int timeStart = clock();
-  
-  while (true)
-    {
-      if ((clock() - timeStart) / CLOCKS_PER_SEC >= m_loadtime) // time in seconds
-        break;
-    }
+  std::this_thread::sleep_for(m_sleep_time_ms);
 
-  auto tp2 = std::chrono::steady_clock::now(); 
-  // integral duration: requires duration_cast
-  auto int_ms =
-    std::chrono::duration_cast<std::chrono::milliseconds>(tp2 - tp1);
-  
-  std::cout << "DemoSimpleContainer: process_() Elapsed time: "
-	    << int_ms.count()
-	    << " ms"
-	    << std::endl;  
-  
-  
+  std::cout << "GSimpleContainer: process_() Elapsed time: "
+	    << m_sleep_time_ms.count() << " ms" << std::endl;
 }
 
 /********************************************************************************************/
 /**
 * Prints out this functions stored number
 */
-void GSimpleContainer::print() {
-    std::cout << "storedNumber_ = " << m_stored_number << std::endl;
+void GSimpleContainer::print() const {
+    std::cout << "m_stored_number = " << m_stored_number << std::endl;
 }
 
 /********************************************************************************************/
@@ -135,5 +115,4 @@ void GRandomNumberContainer::print() {
 
 /********************************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Gourtier */

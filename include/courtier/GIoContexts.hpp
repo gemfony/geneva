@@ -310,22 +310,23 @@ public:
         for ( auto & ioc_ptr: m_ioContext_ptr_vec ) ioc_ptr->stop();
         // Wait for all threads to terminate
         for ( auto & thread_ptr: m_thread_ptr_vec ) thread_ptr->join();
+
         // Clear threads, workers and io_context objects
-	m_thread_ptr_vec.clear();
+	    m_thread_ptr_vec.clear();
         // Reset all io_contexts 
         for ( auto & ioc_ptr: m_ioContext_ptr_vec ) ioc_ptr->reset();
-	
-        // Checkme, call to  io_contexts vector clear is crashing 
-	//  m_ioContext_ptr_vec.clear();
 
-	// Clear all workers
-	m_work_vec.clear();
+        // Clear all workers
+        m_work_vec.clear();
+
+        // Checkme, call to  io_contexts vector clear is crashing 
+	    m_ioContext_ptr_vec.clear();
 
         // Reset the io_context id
-	m_nextContext = 0;
+	    m_nextContext = 0;
 
         // Make it known that a run has stopped
-	m_context_state = context_state::stopped;
+	    m_context_state = context_state::stopped;
     }
 
     //----------------------------------------------------------------------------------

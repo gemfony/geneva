@@ -44,8 +44,9 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard headers go here
-#include <vector>
+#include <thread>
 #include <iostream>
+#include <vector>
 
 // Boost headers go here
 #include <boost/archive/xml_oarchive.hpp>
@@ -73,11 +74,13 @@ namespace Gem::Courtier {
 
 /**********************************************************************************************/
 /**
- * This class implements the simplest-possible procesiing container object, used for tests of
- * the courtier lib.
+ * This class implements the simplest-possible processing container object, used for tests of
+ * the courtier lib. The processing step involves an optional sleep-period, so that a time of
+ * busy computing can be emulated. This allows to make statements about the achievable speedup
+ * in distributed execution (compare Amdahl's law).
  */
 class GSimpleContainer
-        : public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>
+    : public Gem::Courtier::GProcessingContainerT<GSimpleContainer, bool>
 {
     ///////////////////////////////////////////////////////////////////////
     friend class boost::serialization::access;
@@ -94,14 +97,14 @@ class GSimpleContainer
 
 public:
     /** @brief The standard constructor -- Initialization with an amount of random numbers */
-    G_API_COURTIER explicit GSimpleContainer(const std::size_t&, const int&);
+    G_API_COURTIER explicit GSimpleContainer(const std::size_t&, const std::chrono::milliseconds& = std::chrono::milliseconds(1000));
     /** @brief The copy constructor */
     G_API_COURTIER GSimpleContainer(const GSimpleContainer&) = default;
     /** @brief The destructor */
     G_API_COURTIER ~GSimpleContainer() override = default;
 
     /** @brief Prints out this objects random number container */
-    G_API_COURTIER void print();
+    G_API_COURTIER void print() const;
 
 private:
     /** @brief The default constructor -- only needed for de-serialization purposes */
@@ -110,7 +113,7 @@ private:
     G_API_COURTIER void process_() override;
 
     std::size_t m_stored_number = 0; ///< Holds the pay-load of this object
-    int m_loadtime = 1; // Dummy time for processing simulation (default 1s) 
+    std::chrono::milliseconds m_sleep_time_ms{1000}; ///< Dummy time for processing simulation (default 1s)
 };
 
 /**********************************************************************************************/
