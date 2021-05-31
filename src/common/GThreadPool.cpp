@@ -36,8 +36,7 @@
 
 #include "common/GThreadPool.hpp"
 
-namespace Gem {
-namespace Common {
+namespace Gem::Common {
 
 /******************************************************************************/
 /**
@@ -178,5 +177,4 @@ void GThreadPool::wait() {
 
 /******************************************************************************/
 
-} /* namespace Common */
-} /* namespace Gem */
+} /* namespace Gem::Common */

@@ -245,7 +245,7 @@ public:
                                          << m_ioContext_ptr_vec.size() << std::endl );
             }
 
-            auto & ioc_ptr = m_ioContext_ptr_vec.back();  // There should only be one
+            auto & ioc_ptr = m_ioContext_ptr_vec.back();  // There should only be one so far
             for ( std::size_t t = 0; t < m_pool_size; t++ ) {
                 m_thread_ptr_vec.emplace_back( std::make_shared<std::thread>( [ioc_ptr] { ioc_ptr->run(); } ) );
             }
