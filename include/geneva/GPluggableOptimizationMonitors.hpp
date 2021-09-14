@@ -45,6 +45,7 @@
 #include <fstream>
 #include <type_traits>
 #include <chrono>
+#include <utility>
 
 // Boost header files go here
 
@@ -58,8 +59,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -125,9 +125,9 @@ protected:
 
 private:
 	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name_() const override;
+	 G_API_GENEVA  [[nodiscard]] std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  [[nodiscard]] GObject* clone_() const override;
 
 	/** @brief Aggregates the work of all registered pluggable monitors */
 	G_API_GENEVA  void informationFunction_(
@@ -179,23 +179,23 @@ public:
 	 G_API_GENEVA  ~GFitnessMonitor() override = default;
 
 	 /** @brief Allows to specify a different name for the result file */
-	 G_API_GENEVA void setResultFileName(const std::string &resultFile);
+	 G_API_GENEVA  void setResultFileName(const std::string &resultFile);
 	 /** @brief Allows to retrieve the current value of the result file name */
-	 G_API_GENEVA std::string getResultFileName() const;
+	 G_API_GENEVA [[nodiscard]] std::string getResultFileName() const;
 
 	 /** @brief Allows to set the dimensions of the canvas */
-	 G_API_GENEVA void setDims(const std::uint32_t &xDim, const std::uint32_t &yDim);
+	 G_API_GENEVA  void setDims(const std::uint32_t &xDim, const std::uint32_t &yDim);
 	 /** @brief Retrieve the dimensions as a tuple */
-	 G_API_GENEVA std::tuple<std::uint32_t, std::uint32_t> getDims() const;
+	 G_API_GENEVA [[nodiscard]] std::tuple<std::uint32_t, std::uint32_t> getDims() const;
 	 /** @brief Retrieves the dimension of the canvas in x-direction */
-	 G_API_GENEVA std::uint32_t getXDim() const;
+	 G_API_GENEVA [[nodiscard]] std::uint32_t getXDim() const;
 	 /** @brief Retrieves the dimension of the canvas in y-direction */
-	 G_API_GENEVA std::uint32_t getYDim() const;
+	 G_API_GENEVA [[nodiscard]] std::uint32_t getYDim() const;
 
 	 /** @brief Sets the number of individuals in the population that should be monitored */
 	 G_API_GENEVA void setNMonitorIndividuals(const std::size_t &nMonitorInds);
 	 /** @brief Retrieves the number of individuals that are being monitored */
-	 G_API_GENEVA std::size_t getNMonitorIndividuals() const;
+	 G_API_GENEVA [[nodiscard]] std::size_t getNMonitorIndividuals() const;
 
 protected:
 	 /************************************************************************/
@@ -226,9 +226,9 @@ protected:
 private:
 	 /************************************************************************/
 	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name_() const override;
+	 G_API_GENEVA  [[nodiscard]] std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  [[nodiscard]] GObject* clone_() const override;
 
 	/** @brief Aggregates the work of all registered pluggable monitors */
 	G_API_GENEVA  void informationFunction_(
@@ -291,7 +291,7 @@ public:
 	 /** @brief Allows to register a new pluggable monitor */
 	 G_API_GENEVA void registerPluggableOM(std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr);
 	 /** @brief Checks if adaptors have been registered in the collective monitor */
-	 G_API_GENEVA bool hasOptimizationMonitors() const;
+	 G_API_GENEVA [[nodiscard]] bool hasOptimizationMonitors() const;
 	 /** @brief Allows to clear all registered monitors */
 	 G_API_GENEVA void resetPluggbleOM();
 
@@ -324,9 +324,9 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name_() const override;
+	 G_API_GENEVA  [[nodiscard]] std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  [[nodiscard]] GObject* clone_() const override;
 
 	/** @brief Aggregates the work of all registered pluggable monitors */
 	G_API_GENEVA  void informationFunction_(
@@ -479,7 +479,7 @@ public:
 	 /**
 	  * Allows to check whether only the best individuals should be monitored.
 	  */
-	 bool getMonitorBestOnly() const {
+	 [[nodiscard]] bool getMonitorBestOnly() const {
 		 return m_monitorBestOnly;
 	 }
 
@@ -495,7 +495,7 @@ public:
 	 /**
 	  * Allows to check whether only valid individuals should be monitored.
 	  */
-	 bool getMonitorValidOnly() const {
+	 [[nodiscard]] bool getMonitorValidOnly() const {
 		 return m_monitorValidOnly;
 	 }
 
@@ -511,7 +511,7 @@ public:
 	 /**
 	  * Allows to check whether boundaries should be observed
 	  */
-	 bool getObserveBoundaries() const {
+	 [[nodiscard]] bool getObserveBoundaries() const {
 		 return m_observeBoundaries;
 	 }
 
@@ -519,7 +519,7 @@ public:
 	 /**
 	  * Allows to check whether parameters should be profiled
 	  */
-	 bool parameterProfileCreationRequested() const {
+	 [[nodiscard]] bool parameterProfileCreationRequested() const {
 		 return not m_fp_profVarVec.empty();
 	 }
 
@@ -527,7 +527,7 @@ public:
 	 /**
 	  * Retrieves the number of variables that will be profiled
 	  */
-	 std::size_t nProfileVars() const {
+	 [[nodiscard]] std::size_t nProfileVars() const {
 		 return m_fp_profVarVec.size();
 	 }
 
@@ -551,7 +551,7 @@ public:
 	 /**
 	  * Gives access to the canvas dimensions
 	  */
-	 std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
+	 [[nodiscard]] std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
 		 return m_canvasDimensions;
 	 }
 
@@ -567,7 +567,7 @@ public:
 	 /**
 	  * Allows to retrieve the current value of the m_addPrintCommand variable
 	  */
-	 bool getAddPrintCommand() const {
+	 [[nodiscard]] bool getAddPrintCommand() const {
 		 return m_addPrintCommand;
 	 }
 
@@ -583,7 +583,7 @@ public:
 	 /**
 	  * Retrieves the current filename to which information will be emitted
 	  */
-	 std::string getFileName() const {
+	 [[nodiscard]] std::string getFileName() const {
 		 return m_fileName;
 	 }
 
@@ -599,7 +599,7 @@ public:
 	 /**
 	  * Allows to retrieve the canvas label
 	  */
-	 std::string getCanvasLabel() const {
+	 [[nodiscard]] std::string getCanvasLabel() const {
 		 return m_gpd.getCanvasLabel();
 	 }
 
@@ -647,7 +647,7 @@ public:
 			 }
 
 				 //--------------------------------------------------------------------
-		 };
+		 }
 
 		 return result;
 	 }
@@ -796,15 +796,15 @@ private:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 std::string name_() const override {
-		 return std::string("GProgressPlotterT<fp_type>");
+	 [[nodiscard]] std::string name_() const override {
+		 return {"GProgressPlotterT<fp_type>"};
 	 }
 
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
 	  */
-	 GObject* clone_() const override {
+	 [[nodiscard]] GObject* clone_() const override {
 		 return new GProgressPlotterT<fp_type>(*this);
 	 }
 
@@ -1040,7 +1040,7 @@ private:
 				m_progressPlotter4D_oa.reset();
 			}
 				break;
-		};
+		}
 	}
 
 	/************************************************************************/
@@ -1068,7 +1068,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class allows to log all candidate solutions found to a file, including the parameetr
+ * This class allows to log all candidate solutions found to a file, including the parameter
  * values. NOTE that the file may become very large! Results are output in the following format:
  * param1 param2 ... param_m eval1 eval2 ... eval_n . By default, no commas and
  * explanations are printed. If withNameAndType is set to true, the values are
@@ -1077,7 +1077,7 @@ private:
  * asking the class to only log solutions better than a given set of values. What
  * is considered better depends on whether evaluation criteria are maximized or minimized
  * and is determined from the individual. Note that this class can only be instantiated
- * if individual_type is either a derivative of GParamterSet or is an object of the
+ * if individual_type is either a derivative of GParameterSet or is an object of the
  * GParameterSet class itself.
  */
 class GAllSolutionFileLogger
@@ -1110,11 +1110,11 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GAllSolutionFileLogger() = default;
 	 /** @brief Initialization with a file name */
-	 explicit G_API_GENEVA GAllSolutionFileLogger(const std::string& fileName);
+	 explicit G_API_GENEVA GAllSolutionFileLogger(std::string fileName);
 	 /** @brief Initialization with a file name and boundaries */
 	 G_API_GENEVA GAllSolutionFileLogger(
-		 const std::string& fileName
-		 , const std::vector<double>& boundaries
+		 std::string  fileName
+		 , std::vector<double>  boundaries
 	 );
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GAllSolutionFileLogger(const GAllSolutionFileLogger& cp) = default;
@@ -1124,46 +1124,46 @@ public:
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
-	 G_API_GENEVA std::string getFileName() const;
+	 G_API_GENEVA [[nodiscard]] std::string getFileName() const;
 
 	 /** @brief Sets the boundaries */
 	 G_API_GENEVA void setBoundaries(const std::vector<double>& boundaries);
 	 /** @brief Allows to retrieve the boundaries */
-	 G_API_GENEVA std::vector<double> getBoundaries() const;
+	 G_API_GENEVA [[nodiscard]] std::vector<double> getBoundaries() const;
 	 /** @brief Allows to check whether boundaries are active */
-	 G_API_GENEVA bool boundariesActive() const;
+	 G_API_GENEVA [[nodiscard]] bool boundariesActive() const;
 	 /** @brief Allows to inactivate boundaries */
 	 G_API_GENEVA void setBoundariesInactive();
 
 	 /** @brief  Allows to specify whether explanations should be printed for parameter- and fitness values. */
 	 G_API_GENEVA void setPrintWithNameAndType(bool withNameAndType = true);
 	 /** @brief Allows to check whether explanations should be printed for parameter-and fitness values */
-	 G_API_GENEVA bool getPrintWithNameAndType() const;
+	 G_API_GENEVA [[nodiscard]] bool getPrintWithNameAndType() const;
 
 	 /** @brief Allows to specify whether commas should be printed in-between values */
 	 G_API_GENEVA void setPrintWithCommas(bool withCommas = true);
 	 /** @brief Allows to check whether commas should be printed in-between values */
-	 G_API_GENEVA bool getPrintWithCommas() const;
+	 G_API_GENEVA [[nodiscard]] bool getPrintWithCommas() const;
 
 	 /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
 	 G_API_GENEVA void setUseTrueFitness(bool useRawFitness = true);
 	 /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
-	 G_API_GENEVA bool getUseTrueFitness() const;
+	 G_API_GENEVA [[nodiscard]] bool getUseTrueFitness() const;
 
 	 /** @brief Allows to specify whether the validity of a solution should be shown */
 	 G_API_GENEVA void setShowValidity(bool showValidity = true);
 	 /** @brief Allows to check whether the validity of a solution will be shown */
-	 G_API_GENEVA bool getShowValidity() const;
+	 G_API_GENEVA  [[nodiscard]] bool getShowValidity() const;
 
 	 /** @brief Allows to specifiy whether the initial population should be printed. */
 	 G_API_GENEVA void setPrintInitial(bool printInitial = true);
 	 /** @brief Allows to check whether the initial population should be printed. */
-	 G_API_GENEVA bool getPrintInitial() const;
+	 G_API_GENEVA [[nodiscard]] bool getPrintInitial() const;
 
 	 /** @brief Allows to specifiy whether a comment line should be inserted between iterations */
 	 G_API_GENEVA void setShowIterationBoundaries(bool showIterationBoundaries = true);
 	 /** @brief Allows to check whether a comment line should be inserted between iterations */
-	 G_API_GENEVA bool getShowIterationBoundaries() const;
+	 G_API_GENEVA [[nodiscard]] bool getShowIterationBoundaries() const;
 
 protected:
 	 /************************************************************************/
@@ -1195,9 +1195,9 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name_() const override;
+	 G_API_GENEVA  [[nodiscard]] std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  [[nodiscard]] GObject* clone_() const override;
 
 	/** @brief Allows to emit information in different stages of the information cycle */
 	G_API_GENEVA  void informationFunction_(
@@ -1256,7 +1256,7 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GIterationResultsFileLogger() = default;
 	 /** @brief Initialization with a file name */
-	 explicit G_API_GENEVA GIterationResultsFileLogger(const std::string& fileName);
+	 explicit G_API_GENEVA GIterationResultsFileLogger(std::string  fileName);
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GIterationResultsFileLogger(const GIterationResultsFileLogger& cp) = default;
 	 /** @brief The destructor */
@@ -1265,17 +1265,17 @@ public:
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
-	 G_API_GENEVA std::string getFileName() const;
+	 G_API_GENEVA [[nodiscard]] std::string getFileName() const;
 
 	 /** @brief Allows to specify whether commas should be printed in-between values */
 	 G_API_GENEVA void setPrintWithCommas(bool withCommas);
 	 /** @brief Allows to check whether commas should be printed in-between values */
-	 G_API_GENEVA bool getPrintWithCommas() const;
+	 G_API_GENEVA [[nodiscard]] bool getPrintWithCommas() const;
 
 	 /** @brief Allows to specify whether the true (instead of the transformed) fitness should be shown */
 	 G_API_GENEVA void setUseTrueFitness(bool useRawFitness);
 	 /** @brief Allows to retrieve whether the true (instead of the transformed) fitness should be shown */
-	 G_API_GENEVA bool getUseTrueFitness() const;
+	 G_API_GENEVA [[nodiscard]] bool getUseTrueFitness() const;
 
 protected:
 	 /************************************************************************/
@@ -1306,9 +1306,9 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name_() const override;
+	 G_API_GENEVA  [[nodiscard]] std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  [[nodiscard]] GObject* clone_() const override;
 
 	/** @brief Allows to emit information in different stages of the information cycle */
 	G_API_GENEVA  void informationFunction_(
@@ -1361,7 +1361,7 @@ public:
 	 /** @brief The default constructor */
 	 G_API_GENEVA GNAdpationsLogger() = default;
 	 /** @brief Initialization with a file name */
-	 explicit G_API_GENEVA GNAdpationsLogger(const std::string& fileName);
+	 explicit G_API_GENEVA GNAdpationsLogger(std::string  fileName);
 	 /** @brief The copy constructor */
 	 G_API_GENEVA GNAdpationsLogger(const GNAdpationsLogger& cp);
 	 /** @brief The destructor */
@@ -1370,24 +1370,24 @@ public:
 	 /** @brief Sets the file name */
 	 G_API_GENEVA void setFileName(const std::string& fileName);
 	 /** @brief Retrieves the current file name */
-	 G_API_GENEVA std::string getFileName() const;
+	 G_API_GENEVA [[nodiscard]] std::string getFileName() const;
 
 	 /** @brief Allows to specify whether only the best individuals should be monitored */
 	 G_API_GENEVA void setMonitorBestOnly(bool monitorBestOnly = true);
 	 /** @brief Allows to check whether only the best individuals should be monitored */
-	 G_API_GENEVA bool getMonitorBestOnly() const;
+	 G_API_GENEVA [[nodiscard]] bool getMonitorBestOnly() const;
 
 	 /** @brief Allows to set the canvas dimensions */
 	 G_API_GENEVA void setCanvasDimensions(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions);
 	 /** @brief Allows to set the canvas dimensions using separate x and y values */
 	 G_API_GENEVA void setCanvasDimensions(std::uint32_t x, std::uint32_t y);
 	 /** @brief Gives access to the canvas dimensions */
-	 G_API_GENEVA std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const;
+	 G_API_GENEVA [[nodiscard]] std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const;
 
 	 /** @brief Allows to add a "Print" command to the end of the script so that picture files are created */
 	 G_API_GENEVA void setAddPrintCommand(bool addPrintCommand);
 	 /** @brief Allows to retrieve the current value of the m_addPrintCommand variable */
-	 G_API_GENEVA bool getAddPrintCommand() const;
+	 G_API_GENEVA [[nodiscard]] bool getAddPrintCommand() const;
 
 protected:
 	 /************************************************************************/
@@ -1419,7 +1419,7 @@ protected:
 private:
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  [[nodiscard]] GObject* clone_() const override;
 
 	/** @brief Allows to emit information in different stages of the information cycle */
 	G_API_GENEVA  void informationFunction_(
@@ -1549,7 +1549,7 @@ public:
 	 /**
 	  * Retrieves the current file name
 	  */
-	 std::string getFileName() const {
+	 [[nodiscard]] std::string getFileName() const {
 		 return m_fileName;
 	 }
 
@@ -1558,14 +1558,14 @@ public:
 	  * Sets the name of the adaptor
 	  */
 	 void setAdaptorName(std::string adaptorName) {
-		 m_adaptorName = adaptorName;
+		 m_adaptorName = std::move(adaptorName);
 	 }
 
 	 /***************************************************************************/
 	 /**
 	  * Retrieves the name of the adaptor
 	  */
-	 std::string getAdaptorName() const {
+	 [[nodiscard]] std::string getAdaptorName() const {
 		 return m_adaptorName;
 	 }
 
@@ -1581,7 +1581,7 @@ public:
 	 /**
 	  * Retrieves the name of the property
 	  */
-	 std::string getPropertyName() const {
+	 [[nodiscard]] std::string getPropertyName() const {
 		 return m_property;
 	 }
 
@@ -1597,7 +1597,7 @@ public:
 	 /**
 	  * Allows to check whether only the best individuals should be monitored.
 	  */
-	 bool getMonitorBestOnly() const {
+	 [[nodiscard]] bool getMonitorBestOnly() const {
 		 return m_monitorBestOnly;
 	 }
 
@@ -1621,7 +1621,7 @@ public:
 	 /**
 	  * Gives access to the canvas dimensions
 	  */
-	 std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
+	 [[nodiscard]] std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions() const {
 		 return m_canvasDimensions;
 	 }
 
@@ -1637,7 +1637,7 @@ public:
 	 /**
 	  * Allows to retrieve the current value of the m_addPrintCommand variable
 	  */
-	 bool getAddPrintCommand() const {
+	 [[nodiscard]] bool getAddPrintCommand() const {
 		 return m_addPrintCommand;
 	 }
 
@@ -1785,15 +1785,15 @@ private:
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 std::string name_() const override {
-		 return std::string("GAdaptorPropertyLoggerT");
+	 [[nodiscard]] std::string name_() const override {
+		 return {"GAdaptorPropertyLoggerT"};
 	 }
 
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
 	  */
-	 GObject* clone_() const override {
+	 [[nodiscard]] GObject* clone_() const override {
 		 return new GAdaptorPropertyLoggerT<num_type>(*this);
 	 }
 
@@ -1859,9 +1859,8 @@ private:
 					best->queryAdaptor(m_adaptorName, m_property, data);
 
 					// Attach the data to m_adaptorPropertyStore
-					std::vector<boost::any>::iterator prop_it;
-					for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
-						m_adaptorPropertyStore.push_back(std::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
+					for(const auto& prop: data) {
+						m_adaptorPropertyStore.emplace_back(double(iteration), double(boost::any_cast<num_type>(prop)));
 					}
 				} else { // Monitor all individuals
 					// Loop over all individuals of the algorithm.
@@ -1872,9 +1871,8 @@ private:
 						ind->queryAdaptor(m_adaptorName, m_property, data);
 
 						// Attach the data to m_adaptorPropertyStore
-						std::vector<boost::any>::iterator prop_it;
-						for(prop_it=data.begin(); prop_it!=data.end(); ++prop_it) {
-							m_adaptorPropertyStore.push_back(std::tuple<double,double>(double(iteration), double(boost::any_cast<num_type>(*prop_it))));
+						for(const auto& prop: data) {
+							m_adaptorPropertyStore.emplace_back(double(iteration), double(boost::any_cast<num_type>(prop)));
 						}
 					}
 				}
@@ -1883,15 +1881,13 @@ private:
 
 			case Gem::Geneva::infoMode::INFOEND:
 			{
-				std::vector<std::tuple<double, double>>::iterator it;
-
 				// Within m_adaptorPropertyStore, find the largest number of adaptions performed
 				double maxProperty = 0.;
-				for(it=m_adaptorPropertyStore.begin(); it!=m_adaptorPropertyStore.end(); ++it) {
-					if(std::get<1>(*it) > maxProperty) {
-						maxProperty = std::get<1>(*it);
-					}
-				}
+                                for(const auto& adaptorProperty: m_adaptorPropertyStore) {
+                                  if(std::get<1>(adaptorProperty) > maxProperty) {
+                                    maxProperty = std::get<1>(adaptorProperty);
+                                  }
+                                }
 
 				// Create the histogram object
 				m_adaptorPropertyHist2D_oa = std::make_shared<GHistogram2D>(
@@ -1906,9 +1902,9 @@ private:
 				m_adaptorPropertyHist2D_oa->setDrawingArguments("BOX");
 
 				// Fill the object with data
-				for(it=m_adaptorPropertyStore.begin(); it!=m_adaptorPropertyStore.end(); ++it) {
-					(*m_adaptorPropertyHist2D_oa) & *it;
-				}
+                                for(const auto& adaptorProperty: m_adaptorPropertyStore) {
+                                  (*m_adaptorPropertyHist2D_oa) & adaptorProperty;
+                                }
 
 				// Add the histogram to the plot designer
 				m_gpd.registerPlotter(m_adaptorPropertyHist2D_oa);
@@ -1935,7 +1931,7 @@ private:
 								<< "In GAdaptorPropertyLoggerT: Received invalid infoMode " << im << std::endl
 				);
 			}
-		};
+		}
 	}
 
 	 /************************************************************************/
@@ -2010,9 +2006,9 @@ public:
 	 G_API_GENEVA GProcessingTimesLogger();
 	 /** @brief Initialization with a file name */
 	 G_API_GENEVA GProcessingTimesLogger(
-		 const std::string& fileName_pth
-		 , const std::string& fileName_pth2
-		 , const std::string& fileName_txt
+		 std::string  fileName_pth
+		 , std::string  fileName_pth2
+		 , std::string  fileName_txt
 		 , std::size_t nBinsX
 		 , std::size_t nBinsY
 	 );
@@ -2024,16 +2020,16 @@ public:
 	 /** @brief Sets the file name for the processing times histogram */
 	 G_API_GENEVA void setFileName_pth(const std::string& fileName);
 	 /** @brief Retrieves the current file name for the processing times histogram */
-	 G_API_GENEVA std::string getFileName_pth() const;
+	 G_API_GENEVA [[nodiscard]] std::string getFileName_pth() const;
 	 /** @brief Sets the file name for the processing times histograms (2D) */
 	 G_API_GENEVA void setFileName_pth2(const std::string& fileName);
 	 /** @brief Retrieves the current file name for the processing times histograms (2D) */
-	 G_API_GENEVA std::string getFileName_pth2() const;
+	 G_API_GENEVA [[nodiscard]] std::string getFileName_pth2() const;
 
 	 /** @brief Sets the file name for the text output */
 	 G_API_GENEVA void setFileName_txt(const std::string& fileName);
 	 /** @brief Retrieves the current file name for the text output */
-	 G_API_GENEVA std::string getFileName_txt() const;
+	 G_API_GENEVA [[nodiscard]] std::string getFileName_txt() const;
 
 	 /** @brief Allows to set the canvas dimensions for the processing times histograms */
 	 G_API_GENEVA void setCanvasDimensions_pth(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions);
@@ -2041,24 +2037,24 @@ public:
 	 G_API_GENEVA void setCanvasDimensions_pth(std::uint32_t x, std::uint32_t y);
 
 	 /** @brief Gives access to the canvas dimensions of the processing times histograms */
-	 G_API_GENEVA std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions_pth() const;
+	 G_API_GENEVA [[nodiscard]] std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions_pth() const;
 	 /** @brief Allows to set the canvas dimensions for the processing times histograms (2D) */
 	 G_API_GENEVA void setCanvasDimensions_pth2(std::tuple<std::uint32_t,std::uint32_t> canvasDimensions);
 
 	 /** @brief Allows to set the canvas dimensions using separate x and y values for the processing times histograms (2D) */
 	 G_API_GENEVA void setCanvasDimensions_pth2(std::uint32_t x, std::uint32_t y);
 	 /** @brief Gives access to the canvas dimensions of the processing times histograms (2D) */
-	 G_API_GENEVA std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions_pth2() const;
+	 G_API_GENEVA [[nodiscard]] std::tuple<std::uint32_t,std::uint32_t> getCanvasDimensions_pth2() const;
 
 	 /** @brief Sets the number of bins for the processing times histograms in y-direction */
 	 G_API_GENEVA void setNBinsX(std::size_t nBinsX);
 	 /** @brief Retrieves the current number of bins for the processing times histograms in x-direction */
-	 G_API_GENEVA std::size_t getNBinsX() const;
+	 G_API_GENEVA [[nodiscard]] std::size_t getNBinsX() const;
 
 	 /** @brief Sets the number of bins for the processing times histograms in y-direction */
 	 G_API_GENEVA void setNBinsY(std::size_t nBinsY);
 	 /** @brief Retrieves the current number of bins for the processing times histograms in y-direction */
-	 G_API_GENEVA std::size_t getNBinsY() const;
+	 G_API_GENEVA [[nodiscard]] std::size_t getNBinsY() const;
 
 protected:
 	 /************************************************************************/
@@ -2090,9 +2086,9 @@ protected:
 private:
 	 /************************************************************************/
 	 /** @brief Emits a name for this class / object */
-	 G_API_GENEVA  std::string name_() const override;
+	 G_API_GENEVA  [[nodiscard]] std::string name_() const override;
 	 /** @brief Creates a deep clone of this object */
-	 G_API_GENEVA  GObject* clone_() const override;
+	 G_API_GENEVA  [[nodiscard]] GObject* clone_() const override;
 
 	/** @brief Allows to emit information in different stages of the information cycle */
 	G_API_GENEVA  void informationFunction_(
@@ -2135,8 +2131,7 @@ template <typename num_type> using GAdaptorPropertyLogger = GAdaptorPropertyLogg
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 // Exports of classes

@@ -51,8 +51,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<std::int32_t>) 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GAdaptorPropertyLogger<bool>) // NOLINT
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GProcessingTimesLogger) // NOLINT
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,7 +97,7 @@ void GStandardMonitor::informationFunction_(
  * Emits a name for this class / object
  */
 std::string GStandardMonitor::name_() const {
-	return std::string("GStandardMonitor");
+	return {"GStandardMonitor"};
 }
 
 /******************************************************************************/
@@ -456,7 +455,7 @@ void GFitnessMonitor::informationFunction_(
  * Emits a name for this class / object
  */
 std::string GFitnessMonitor::name_() const {
-	return std::string("GFitnessMonitor");
+	return {"GFitnessMonitor"};
 }
 
 /******************************************************************************/
@@ -652,7 +651,7 @@ void GCollectiveMonitor::resetPluggbleOM() {
  * Emits a name for this class / object
  */
 std::string GCollectiveMonitor::name_() const  {
-	return std::string("GCollectiveMonitor");
+	return {"GCollectiveMonitor"};
 }
 
 /******************************************************************************/
@@ -779,8 +778,8 @@ void GCollectiveMonitor::specificTestsFailuresExpected_GUnitTests_()  {
 /**
  * Initialization with a file name. Note that some variables may be initialized in the class body.
  */
-GAllSolutionFileLogger::GAllSolutionFileLogger(const std::string& fileName)
-	: m_fileName(fileName)
+GAllSolutionFileLogger::GAllSolutionFileLogger(std::string  fileName)
+	: m_fileName(std::move(fileName))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -789,11 +788,11 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(const std::string& fileName)
  * Note that some variables may be initialized in the class body.
  */
 GAllSolutionFileLogger::GAllSolutionFileLogger(
-	const std::string& fileName
-	, const std::vector<double>& boundaries
+	std::string  fileName
+	, std::vector<double>  boundaries
 )
-	: m_fileName(fileName)
-	  , m_boundaries(boundaries)
+	: m_fileName(std::move(fileName))
+	  , m_boundaries(std::move(boundaries))
 	  , m_boundariesActive(true)
 { /* nothing */ }
 
@@ -802,7 +801,7 @@ GAllSolutionFileLogger::GAllSolutionFileLogger(
  * Emits a name for this class / object
  */
 std::string GAllSolutionFileLogger::name_() const {
-	return std::string("GAllSolutionFileLogger");
+	return {"GAllSolutionFileLogger"};
 }
 
 /******************************************************************************/
@@ -939,7 +938,7 @@ void GAllSolutionFileLogger::setUseTrueFitness(bool useRawFitness) {
 /**
  * Allows to retrieve whether the true (instead of the transformed) fitness should be shown
  */
-bool GAllSolutionFileLogger::getUseTrueFitness() const {
+[[maybe_unused]] bool GAllSolutionFileLogger::getUseTrueFitness() const {
 	return m_useRawFitness;
 }
 
@@ -1036,7 +1035,7 @@ void GAllSolutionFileLogger::informationFunction_(
 		case Gem::Geneva::infoMode::INFOEND:
 			// nothing
 			break;
-	};
+	}
 }
 
 /******************************************************************************/
@@ -1179,8 +1178,8 @@ void GAllSolutionFileLogger::specificTestsFailuresExpected_GUnitTests_() {
  * Initialization with a file name. Note that some variables may be initialized
  * in the class body.
  */
-GIterationResultsFileLogger::GIterationResultsFileLogger(const std::string& fileName)
-	: m_fileName(fileName)
+GIterationResultsFileLogger::GIterationResultsFileLogger(std::string  fileName)
+	: m_fileName(std::move(fileName))
 { /* nothing */ }
 
 /******************************************************************************/
@@ -1188,7 +1187,7 @@ GIterationResultsFileLogger::GIterationResultsFileLogger(const std::string& file
  * Emits a name for this class / object
  */
 std::string GIterationResultsFileLogger::name_() const {
-	return std::string("GIterationResultsFileLogger");
+	return {"GIterationResultsFileLogger"};
 }
 
 /******************************************************************************/
@@ -1328,7 +1327,7 @@ void GIterationResultsFileLogger::informationFunction_(
 		case Gem::Geneva::infoMode::INFOEND:
 			// nothing
 			break;
-	};
+	}
 }
 
 /************************************************************************/
@@ -1427,8 +1426,8 @@ void GIterationResultsFileLogger::specificTestsFailuresExpected_GUnitTests_() {
  * Initialization with a file name. Note that some variables may be
  * initialized in the class body.
  */
-GNAdpationsLogger::GNAdpationsLogger(const std::string& fileName)
-	: m_fileName(fileName)
+GNAdpationsLogger::GNAdpationsLogger(std::string  fileName)
+	: m_fileName(std::move(fileName))
 	  , m_canvasDimensions(std::tuple<std::uint32_t,std::uint32_t>(1200,1600))
 	  , m_gpd("Number of adaptions per iteration", 1, 2)
 { /* nothing */ }
@@ -1597,7 +1596,7 @@ void GNAdpationsLogger::informationFunction_(
 			m_gpd.setCanvasDimensions(m_canvasDimensions);
 
 			// Set up a graph to monitor the best fitness found
-			m_fitnessGraph2D_oa = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+			m_fitnessGraph2D_oa = std::make_shared<Gem::Common::GGraph2D>();
 			m_fitnessGraph2D_oa->setXAxisLabel("Iteration");
 			m_fitnessGraph2D_oa->setYAxisLabel("Fitness");
 			m_fitnessGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
@@ -1632,19 +1631,17 @@ void GNAdpationsLogger::informationFunction_(
 
 		case Gem::Geneva::infoMode::INFOEND:
 		{
-			std::vector<std::tuple<double, double>>::iterator it;
-
 			if(m_monitorBestOnly) {
 				// Create the graph object
-				m_nAdaptionsGraph2D_oa = std::shared_ptr<Gem::Common::GGraph2D>(new Gem::Common::GGraph2D());
+				m_nAdaptionsGraph2D_oa = std::make_shared<Gem::Common::GGraph2D>();
 				m_nAdaptionsGraph2D_oa->setXAxisLabel("Iteration");
 				m_nAdaptionsGraph2D_oa->setYAxisLabel("Number of parameter adaptions");
 				m_nAdaptionsGraph2D_oa->setPlotMode(Gem::Common::graphPlotMode::CURVE);
 
 				// Fill the object with data
-				for(it=m_nAdaptionsStore.begin(); it!=m_nAdaptionsStore.end(); ++it) {
-					(*m_nAdaptionsGraph2D_oa) & *it;
-				}
+                                for(const auto& nAdaptionsPair: m_nAdaptionsStore) {
+                                  (*m_nAdaptionsGraph2D_oa) & nAdaptionsPair;
+                                }
 
 				// Add the histogram to the plot designer
 				m_gpd.registerPlotter(m_nAdaptionsGraph2D_oa);
@@ -1652,20 +1649,20 @@ void GNAdpationsLogger::informationFunction_(
 			} else { // All individuals are monitored
 				// Within m_nAdaptionsStore, find the largest number of adaptions performed
 				std::size_t maxNAdaptions = 0;
-				for(it=m_nAdaptionsStore.begin(); it!=m_nAdaptionsStore.end(); ++it) {
-					if(std::get<1>(*it) > maxNAdaptions) {
-						maxNAdaptions = boost::numeric_cast<std::size_t>(std::get<1>(*it));
-					}
-				}
+                                for(const auto& nAdaptionsPair: m_nAdaptionsStore) {
+                                  if(std::get<1>(nAdaptionsPair) > maxNAdaptions) {
+                                    maxNAdaptions = boost::numeric_cast<std::size_t>(std::get<1>(nAdaptionsPair));
+                                  }
+                                }
 
 				// Create the histogram object
-				m_nAdaptionsHist2D_oa = std::shared_ptr<GHistogram2D>(
-					new GHistogram2D(
+				m_nAdaptionsHist2D_oa = std::make_shared<GHistogram2D>(
+
 						m_nIterationsRecorded
 						, maxNAdaptions+1
 						, 0., double(m_maxIteration)
 						, 0., double(maxNAdaptions)
-					)
+
 				);
 
 				m_nAdaptionsHist2D_oa->setXAxisLabel("Iteration");
@@ -1673,9 +1670,9 @@ void GNAdpationsLogger::informationFunction_(
 				m_nAdaptionsHist2D_oa->setDrawingArguments("BOX");
 
 				// Fill the object with data
-				for(it=m_nAdaptionsStore.begin(); it!=m_nAdaptionsStore.end(); ++it) {
-					(*m_nAdaptionsHist2D_oa) & *it;
-				}
+                                for(const auto& nAdaptionsPair: m_nAdaptionsStore) {
+                                  (*m_nAdaptionsHist2D_oa) & nAdaptionsPair;
+                                }
 
 				// Add the histogram to the plot designer
 				m_gpd.registerPlotter(m_nAdaptionsHist2D_oa);
@@ -1696,7 +1693,7 @@ void GNAdpationsLogger::informationFunction_(
 			m_nAdaptionsGraph2D_oa.reset();
 		}
 			break;
-	};
+	}
 }
 
 /************************************************************************/
@@ -1809,19 +1806,19 @@ GProcessingTimesLogger::GProcessingTimesLogger() = default;
  * Initialization with a file name. Note that some variables may be initialized in the class body.
  */
 GProcessingTimesLogger::GProcessingTimesLogger(
-	const std::string& fileName_pth
-	, const std::string& fileName_pth2
-	, const std::string& fileName_txt
+	std::string  fileName_pth
+	, std::string  fileName_pth2
+	, std::string  fileName_txt
 	, std::size_t nBinsX
 	, std::size_t nBinsY
 )
-	: m_fileName_pth(fileName_pth)
+	: m_fileName_pth(std::move(fileName_pth))
 	  , m_canvasDimensions_pth(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
 	  , m_gpd_pth("Timings for the processing steps of individuals", 2, 2)
-	  , m_fileName_pth2(fileName_pth2)
+	  , m_fileName_pth2(std::move(fileName_pth2))
 	  , m_canvasDimensions_pth2(std::tuple<std::uint32_t,std::uint32_t>(1600,1200))
 	  , m_gpd_pth2("Timings for the processing steps of individuals vs. iteration", 2, 2)
-	  , m_fileName_txt(fileName_txt)
+	  , m_fileName_txt(std::move(fileName_txt))
 	  , m_nBinsX(nBinsX)
 	  , m_nBinsY(nBinsY)
 { /* nothing */ }
@@ -1831,7 +1828,7 @@ GProcessingTimesLogger::GProcessingTimesLogger(
  * Emits a name for this class / object
  */
 std::string GProcessingTimesLogger::name_() const {
-	return std::string("GProcessingTimesLogger");
+	return {"GProcessingTimesLogger"};
 }
 
 /******************************************************************************/
@@ -2222,7 +2219,7 @@ void GProcessingTimesLogger::informationFunction_(
 			m_all_processing_times_hist2D.reset();
 		}
 			break;
-	};
+	}
 }
 
 /************************************************************************/
@@ -2335,5 +2332,4 @@ void GProcessingTimesLogger::specificTestsFailuresExpected_GUnitTests_() {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
