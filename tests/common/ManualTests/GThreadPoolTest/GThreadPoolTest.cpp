@@ -255,7 +255,7 @@ int main(int argc, char** argv) {
 		}
 
 		// Wait for all tasks to complete and check for errors
-		gtp.wait();
+        gtp.drain_queue();
 	}
 
 	// Check that each task has been called exactly nIterations times

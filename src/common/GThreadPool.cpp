@@ -49,7 +49,7 @@ GThreadPool::GThreadPool(unsigned int nThreads)
 {
 	if(0 == nThreads) {
 		glogger
-			<< "In GThreadPool::GThreadPool(unsigned int const &nThreads):" << std::endl
+			<< "In GThreadPool::GThreadPool(unsigned int nThreads):" << std::endl
 			<< "User requested nThreads == 0. nThreads was reset to the default " << DEFAULTNHARDWARETHREADS << std::endl
 			<< GWARNING;
 	}
@@ -157,11 +157,12 @@ unsigned int GThreadPool::getNThreads() const {
 
 /******************************************************************************/
 /**
- * Waits for all submitted jobs to be cleared from the pool. Note that this
+ * Waits for all submitted jobs to be cleared from the pool. This will not terminate the
+ * threads themselves, but will just wait for the work queue to run empty. Note that this
  * function may NOT be called from a task running inside of the pool.
  */
 
-void GThreadPool::wait() {
+void GThreadPool::drain_queue() {
 	// Make sure no new jobs may be submitted
 	std::unique_lock<std::mutex> job_lck(m_task_submission_mutex);
 

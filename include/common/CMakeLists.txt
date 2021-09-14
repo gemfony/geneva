@@ -77,6 +77,7 @@ SET ( GENEVACOMMONINCLUDES
 	GCommonMathHelperFunctions.hpp
 	GCommonMathHelperFunctionsT.hpp
 	GDefaultValueT.hpp
+        GAsyncDispatchQueue.hpp
 	GErrorStreamer.hpp
 	GExceptions.hpp
 	GExpectationChecksT.hpp
@@ -94,6 +95,7 @@ SET ( GENEVACOMMONINCLUDES
 	GSerializationHelperFunctionsT.hpp
 	GSerializeTupleT.hpp
 	GSingletonT.hpp
+	GSimpleThreadPool.hpp
 	GThreadGroup.hpp
 	GThreadPool.hpp
 	GTupleIO.hpp

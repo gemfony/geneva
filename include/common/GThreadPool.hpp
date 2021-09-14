@@ -73,9 +73,7 @@ namespace Gem::Common {
  */
 class GThreadPool {
 public:
-	 /** @brief Deleted default constructor enforces setting of the number of threads */
-	 G_API_COMMON GThreadPool() = delete;
-	 /** @brief Initialization with a number of threads */
+	 /** @brief Initialization with a number of threads (no other constructor provided) */
 	 explicit G_API_COMMON GThreadPool(unsigned int);
 	 /** @brief The destructor */
 	 G_API_COMMON ~GThreadPool();
@@ -86,10 +84,11 @@ public:
 	 G_API_COMMON unsigned int getNThreads() const;
 
 	 /** @brief Blocks until all submitted jobs have been cleared from the pool */
-	 G_API_COMMON void wait();
+	 G_API_COMMON void drain_queue();
 
 	 /***************************************************************************/
 	 // Some deleted functions and constructors
+     G_API_COMMON GThreadPool() = delete;
 	 G_API_COMMON GThreadPool(const GThreadPool&) = delete; // deleted copy constructor
 	 G_API_COMMON GThreadPool& operator=(GThreadPool&) = delete; // deleted assignment operator
 	 G_API_COMMON GThreadPool(const GThreadPool&&) = delete; // deleted move constructor
@@ -97,7 +96,7 @@ public:
 
 	 /***************************************************************************/
 	 /**
-	  * Submits the task to Boost.ASIO's io_service. This function will return immediately,
+	  * Submits the task to Boost.ASIO's io_context. This function will return immediately,
 	  * before the completion of the task. This overload deals with tasks that have a
 	  * void return-type.
 	  *
@@ -156,7 +155,7 @@ public:
 		 // Update the task counter. NOTE: This needs to happen here
 		 // and not in taskWrapper. m_tasksInFlight helps the wait()-function
 		 // to determine whether any jobs have been submitted to the Boost.ASIO
-		 // ioservice that haven't been processed yet. taskWrapper will
+		 // io_context that haven't been processed yet. taskWrapper will
 		 // only start execution when it is assigned to a thread. As we
 		 // cannot "look" into the io_service, we need an external counter that
 		 // is incremented upon submission, not at start of execution. Otherwise
@@ -339,6 +338,7 @@ public:
 					 }
 #endif /* DEBUG */
 					 m_tasksInFlight--;
+                     cnt_lck.unlock();
 					 m_condition.notify_one();
 				 }
 			 }

@@ -277,7 +277,7 @@ int main(int argc, char **argv) {
 	tp.async_schedule([&](){ startParallelMeasurement(go_parallel, gdif_par, parallelExecutionTimes); });
 	std::cout << "Waiting for threads to return" << std::endl;
 	// And wait for their return
-	tp.wait();
+    tp.drain_queue();
 
 	// Calculate reference times from the line parameters
 	referenceExecutionTimes = getReferenceTimes(ab, parallelExecutionTimes);

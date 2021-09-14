@@ -45,8 +45,10 @@ SET ( COMMONSOURCES
 	GLogger
 	GParserBuilder
 	GPlotDesigner
+	GSimpleThreadPool
 	GThreadGroup
 	GThreadPool
+        GAsyncDispatchQueue.cpp
 )
 
 

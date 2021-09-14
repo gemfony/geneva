@@ -451,7 +451,7 @@ void GEvolutionaryAlgorithm::adaptChildren_() {
 	}
 
 	// Wait for all threads in the pool to complete their work
-	m_tp_ptr->wait();
+    m_tp_ptr->drain_queue();
 
 #ifdef DEBUG
 	// Check for errors
