@@ -46,6 +46,7 @@
 // Standard header files go here
 #include <iostream>
 #include <cmath>
+#include <memory>
 #include <sstream>
 #include <vector>
 #include <tuple>
@@ -63,8 +64,7 @@
 #include "geneva/GParameterSet.hpp"
 #include "common/GParserBuilder.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -128,18 +128,18 @@ public:
 	 /** @brief A standard copy constructor */
 	 GStarterIndividual(const GStarterIndividual&);
 	 /** @brief The standard destructor */
-	 virtual ~GStarterIndividual();
+	 ~GStarterIndividual() override;
 
 	 /** @brief Adds local configuration options to a GParserBuilder object */
-	 virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
+         virtual void addConfigurationOptions(Gem::Common::GParserBuilder&) final;
 
 	 /** @brief Allows to set the demo function */
 	 void setTargetFunction(targetFunction);
 	 /** @brief Allows to retrieve the current demo function */
-	 targetFunction getTargetFunction() const;
+	 [[nodiscard]] targetFunction getTargetFunction() const;
 
 	 /** @brief Retrieves the average value of the sigma used in local Gauss adaptors */
-	 double getAverageSigma() const;
+	 [[nodiscard]] double getAverageSigma() const;
 
 	 /** @brief Emit information about this individual */
 	 std::string print();
@@ -196,19 +196,19 @@ public:
 		 for(std::size_t i=0; i<startValues.size(); i++) {
 			 std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr;
 			 if(Gem::Common::GFACTTORYFIRSTID == prod_id) { // First individual, initialization with standard values
-				 gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
-					 new GConstrainedDoubleObject(
+				 gcdo_ptr = std::make_shared<GConstrainedDoubleObject> (
+
 						 startValues.at(i)
 						 , lowerBoundaries.at(i)
 						 , upperBoundaries.at(i)
-					 )
+
 				 );
 			 } else { // Random initialization for all other individuals
-				 gcdo_ptr = std::shared_ptr<GConstrainedDoubleObject> (
-					 new GConstrainedDoubleObject(
+				 gcdo_ptr = std::make_shared<GConstrainedDoubleObject> (
+
 						 lowerBoundaries.at(i)
 						 , upperBoundaries.at(i)
-					 )
+
 				 );
 			 }
 
@@ -231,7 +231,7 @@ public:
 protected:
 	 /***************************************************************************/
 	 /** @brief Loads the data of another GStarterIndividual */
-	 virtual void load_(const GObject*) final;
+	 void load_(const GObject*) final;
 
 	/** @brief Allow access to this classes compare_ function */
 	friend void Gem::Common::compare_base_t<GStarterIndividual>(
@@ -241,21 +241,21 @@ protected:
 	);
 
 	/** @brief Searches for compliance with expectations with respect to another object of the same type */
-	virtual void compare_(
+	void compare_(
 		const GObject& // the other object
 		, const Gem::Common::expectation& // the expectation for this object, e.g. equality
 		, const double& // the limit for allowed deviations of floating point types
 	) const final;
 
 	/** @brief The actual value calculation takes place here */
-	virtual double fitnessCalculation() final;
+	double fitnessCalculation() final;
 
 	/** @brief Applies modifications to this object. */
-	virtual bool modify_GUnitTests_();
+	bool modify_GUnitTests_() override;
 	/** @brief Performs self tests that are expected to succeed. */
-	virtual void specificTestsNoFailureExpected_GUnitTests_();
+	void specificTestsNoFailureExpected_GUnitTests_() override;
 	/** @brief Performs self tests that are expected to fail. */
-	virtual void specificTestsFailuresExpected_GUnitTests_();
+	void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
 	/***************************************************************************/
@@ -264,13 +264,13 @@ private:
 
 	 /***************************************************************************/
 	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const final;
+	 [[nodiscard]] GObject* clone_() const final;
 
 	 /***************************************************************************/
 	 /** @brief A simple n-dimensional parabola */
-	 double parabola(const std::vector<double>& parVec) const;
+	 [[nodiscard]] double parabola(const std::vector<double>& parVec) const;
 	 /** @brief A "noisy" parabola */
-	 double noisyParabola(const std::vector<double>& parVec) const;
+	 [[nodiscard]] double noisyParabola(const std::vector<double>& parVec) const;
 
 	 /***************************************************************************/
 };
@@ -318,8 +318,7 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GStarterIndividual)
 

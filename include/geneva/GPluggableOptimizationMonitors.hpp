@@ -289,7 +289,7 @@ public:
 	 G_API_GENEVA  ~GCollectiveMonitor() override = default;
 
 	 /** @brief Allows to register a new pluggable monitor */
-	 G_API_GENEVA void registerPluggableOM(std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr);
+	 G_API_GENEVA void registerPluggableOM(const std::shared_ptr<Gem::Geneva::GBasePluggableOM>& om_ptr);
 	 /** @brief Checks if adaptors have been registered in the collective monitor */
 	 G_API_GENEVA [[nodiscard]] bool hasOptimizationMonitors() const;
 	 /** @brief Allows to clear all registered monitors */
@@ -1443,7 +1443,7 @@ private:
 	 std::size_t m_maxIteration = 0; ///< Holds the largest iteration recorded for the algorithm
 	 std::size_t m_nIterationsRecorded = 0; ///< Holds the number of iterations that were recorded (not necessarily == m_maxIteration
 
-	 std::vector<std::tuple<double, double>> m_nAdaptionsStore; ///< Holds all information about the number of adaptions
+	 std::vector<std::tuple<double, double>> m_nAdaptionsStore; ///< Holds all information about the number of adaptions TODO: why double?
 };
 
 /******************************************************************************/

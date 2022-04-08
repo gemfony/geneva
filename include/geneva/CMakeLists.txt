@@ -24,6 +24,7 @@ SET ( OPTIMIZATIONINCLUDES
 	GenevaHelperFunctionsT.hpp
     GenevaHelperFunctions.hpp
 	GenevaInitializer.hpp
+	GErrorCalculation.hpp
 	GFPBiGaussAdaptorT.hpp
 	GFPGaussAdaptorT.hpp
 	GFPNumCollectionT.hpp

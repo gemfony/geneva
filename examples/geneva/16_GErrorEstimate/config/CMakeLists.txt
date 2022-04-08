@@ -34,54 +34,17 @@
 #
 ################################################################################
 
-SET ( COMMONSOURCES
-	GCanvas
-    GCommonEnums
-    GCommonHelperFunctions
-    GCommonMathHelperFunctions
-    GExceptions
-	GExpectationChecksT
-	GFormulaParserT
-	GLogger
-	GParserBuilder
-	GPlotDesigner
-	GThreadGroup
-	GThreadPool
-        ../../include/geneva/GErrorCalculation.hpp)
-
-
-set_source_files_properties(
-    ${COMMONSOURCES}
-    PROPERTIES
-    LANGUAGE CXX
-    CXX_STANDARD 17
+SET ( CONFIGFILES
+	GEvolutionaryAlgorithm.json
+	GFunctionIndividual.json
+	GGradientDescent.json
+	Go2.json
+	GParameterScan.json
+	GSimulatedAnnealing.json
+	GSwarmAlgorithm.json
 )
 
-# BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
-IF ( GENEVA_STATIC )
-	ADD_LIBRARY ( ${COMMON_LIBNAME} STATIC ${COMMONSOURCES} )
-ELSE ()
-	ADD_LIBRARY ( ${COMMON_LIBNAME} SHARED ${COMMONSOURCES} )
-ENDIF ()
+# Copy the config files to the build tree for easier testing
+FILE ( COPY ${CONFIGFILES} DESTINATION . )
 
-SET_TARGET_PROPERTIES(
-    ${COMMON_LIBNAME}
-    PROPERTIES
-    VERSION ${GENEVA_VERSION}
-	CXX_STANDARD 17
-	CXX_STANDARD_REQUIRED ON
-	CXX_EXTENSIONS OFF
-    MACOSX_RPATH ${INSTALL_PREFIX_LIBS}
-)
-
-# Enable API-exporting for this library
-ADD_DEFINITIONS("-DGEM_COMMON_EXPORTS")
-
-IF ( PLATFORM_NEEDS_LIBRARY_LINKING )
-	TARGET_LINK_LIBRARIES(
-		${COMMON_LIBNAME}
-		${Boost_LIBRARIES}
-	)
-ENDIF ()
-
-INSTALL ( TARGETS ${COMMON_LIBNAME} DESTINATION ${INSTALL_PREFIX_LIBS} )
+INSTALL ( FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )

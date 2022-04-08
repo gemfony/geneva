@@ -617,7 +617,7 @@ void GCollectiveMonitor::informationFunction_(
  * Allows to register a new pluggable monitor
  */
 void GCollectiveMonitor::registerPluggableOM(
-	std::shared_ptr<Gem::Geneva::GBasePluggableOM> om_ptr
+	const std::shared_ptr<Gem::Geneva::GBasePluggableOM>& om_ptr
 ) {
 	if(om_ptr) {
 		m_pluggable_monitors.push_back(om_ptr);
@@ -1437,14 +1437,15 @@ GNAdpationsLogger::GNAdpationsLogger(std::string  fileName)
  * The copy constructor
  */
 GNAdpationsLogger::GNAdpationsLogger(const GNAdpationsLogger& cp)
-	: m_fileName(cp.m_fileName)
-	  , m_canvasDimensions(cp.m_canvasDimensions)
-	  , m_gpd(cp.m_gpd)
-	  , m_monitorBestOnly(cp.m_monitorBestOnly)
-	  , m_addPrintCommand(cp.m_addPrintCommand)
-	  , m_maxIteration(cp.m_maxIteration)
-	  , m_nIterationsRecorded(cp.m_nIterationsRecorded)
-	  , m_nAdaptionsStore(cp.m_nAdaptionsStore)
+	: GBasePluggableOM(cp)
+        , m_fileName(cp.m_fileName)
+        , m_canvasDimensions(cp.m_canvasDimensions)
+        , m_gpd(cp.m_gpd)
+        , m_monitorBestOnly(cp.m_monitorBestOnly)
+        , m_addPrintCommand(cp.m_addPrintCommand)
+        , m_maxIteration(cp.m_maxIteration)
+        , m_nIterationsRecorded(cp.m_nIterationsRecorded)
+        , m_nAdaptionsStore(cp.m_nAdaptionsStore)
 {
 	Gem::Common::copyCloneableSmartPointer(cp.m_nAdaptionsHist2D_oa, m_nAdaptionsHist2D_oa);
 	Gem::Common::copyCloneableSmartPointer(cp.m_nAdaptionsGraph2D_oa, m_nAdaptionsGraph2D_oa);

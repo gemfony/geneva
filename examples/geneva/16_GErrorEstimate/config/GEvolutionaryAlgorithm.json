@@ -1,0 +1,216 @@
+{
+    "header": {
+        "comment": "This configuration file was automatically created by GParserBuilder",
+        "comment": "2015-Nov-01 12:45:55"
+    },
+    "nEvaluationThreads": {
+        "comment": "Determines the number of threads simultaneously running",
+        "comment": "evaluations in multi-threaded mode. 0 means \"automatic\"",
+        "default": "0",
+        "value": "0"
+    },
+    "waitFactor": {
+      "comment": "A static double factor for timeouts",
+      "comment": "A wait factor <= 0 means \"no timeout\".",
+      "comment": "It is suggested to use values >= 1.",
+      "default": "1.1",
+      "value": "1.1"
+    },
+    "initialWaitFactor": {
+      "comment": "A static double factor for timeouts in the first iteration.",
+      "comment": "Set this to the inverse of the number of parallel processing",
+      "comment": "units being used.",
+      "default": "1",
+      "value": "1"
+    },
+    "evalPolicy": {
+        "comment": "Specifies which strategy should be used to calculate the evaluation:",
+        "comment": "0 (a.k.a. USESIMPLEEVALUATION): Always call the evaluation function, even for invalid solutions",
+        "comment": "1 (a.k.a. USEWORSTCASEFORINVALID) : Assign the worst possible value to our fitness and evaluate only valid solutions",
+        "comment": "2 (a.k.a. USESIGMOID): Assign a multiple of validityLevel_ and sigmoid barrier to invalid solutions, apply a sigmoid function to valid evaluations",
+        "comment": "3 (a.k.a. USEWORSTKNOWNVALIDFORINVALID): Assign \"invalidityLevel*worstKnownValid\" to invalid individuals, using normal evaluation otherwise",
+        "default": "0",
+        "value": "0"
+    },
+    "steepness": {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter influences the steepness of the function at the center of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "default": "1000",
+        "value": "1000"
+    },
+    "barrier": {
+        "comment": "When using a sigmoid function to transform the individual's fitness,",
+        "comment": "this parameter sets the upper\/lower boundary of the sigmoid.",
+        "comment": "The parameter must have a value > 0.",
+        "default": "10000",
+        "value": "10000"
+    },
+    "maxUnsuccessfulAdaptions": {
+        "comment": "The maximum number of unsuccessful adaptions in a row for one call to adapt()",
+        "default": "1000",
+        "value": "1000"
+    },
+    "maxRetriesUntilValid": {
+        "comment": "The maximum allowed number of retries during the",
+        "comment": "adaption of individuals until a valid solution was found",
+        "comment": "A parameter set is considered to be \"valid\" if",
+        "comment": "it passes all validity checks",
+        "default": "10",
+        "value": "10"
+    },
+    "touchedTermination": {
+      "terminationFile": {
+        "comment": "The name of a file which, when modified after the start of an",
+        "comment": "optimization run, instructs Geneva to terminate optimitation.",
+        "comment": "This can be used to \"touch a file\" after the start of an optimization",
+        "comment": "run, which will lead to the termination of the run after the current iteration.",
+        "default": "empty",
+        "value": "empty"
+      },
+      "touchedTerminationActive": {
+        "comment": "Activates (1) or de-activates (0) the \"touched termination\"",
+        "default": "false",
+        "value": "false"
+      }
+    },
+    "maxIteration": {
+        "comment": "The maximum allowed number of iterations",
+        "default": "1000",
+        "value": "1000"
+    },
+    "minIteration": {
+      "comment": "The minimum allowed number of iterations",
+      "default": "0",
+      "value": "0"
+    },
+    "maxStallIteration": {
+        "comment": "The maximum allowed number of iterations without improvement",
+        "comment": "0 means: no constraint.",
+        "default": "20",
+        "value": "20"
+    },
+    "indivdualUpdateStallCounterThreshold": {
+        "comment": "The number of iterations without improvement after which",
+        "comment": "individuals are asked to update their internal data structures",
+        "comment": "through the actOnStalls() function. A value of 0 disables this check",
+        "default": "0",
+        "value": "0"
+    },
+    "reportIteration": {
+        "comment": "The number of iterations after which a report should be issued",
+        "default": "1",
+        "value": "1"
+    },
+    "nRecordBestIndividuals": {
+        "comment": "Indicates how many \"best\" individuals should be recorded in each iteration",
+        "default": "10",
+        "value": "10"
+    },
+    "cpInterval": {
+        "comment": "The number of iterations after which a checkpoint should be written.",
+        "comment": "-1 means: Write a checkpoint file whenever an improvement was encountered",
+        "comment": " 0 means: Never emit checkpoint files.",
+        "default": "0",
+        "value": "0"
+    },
+    "checkpointLocation": {
+        "cpDirectory": {
+            "comment": "The directory where checkpoint files should be stored.",
+            "default": ".\/checkpoints\/",
+            "value": ".\/checkpoints\/"
+        },
+        "cpBaseName": {
+            "comment": "The significant part of the checkpoint file name.",
+            "default": "geneva.cp",
+            "value": "geneva.cp"
+        }
+    },
+    "cpSerMode": {
+        "comment": "Determines whether check-pointing should be done in",
+        "comment": "text- (0), XML- (1), or binary-mode (2)",
+        "default": "2",
+        "value": "2"
+    },
+    "qualityTermination": {
+        "threshold": {
+            "comment": "A threshold beyond which optimization is expected to stop",
+            "comment": "Note that in order to activate this threshold, you also need to",
+            "comment": "set \"hasQualityThreshold\" to 1.",
+            "default": "0",
+            "value": "0"
+        },
+        "thresholdActive": {
+            "comment": "Activates (1) or de-activates (0) the quality threshold",
+            "default": "false",
+            "value": "false"
+        }
+    },
+    "maxDuration": {
+        "comment": "The maximum allowed time-frame for the optimization",
+        "default": "00:00:00",
+        "value": "00:00:00"
+    },
+    "minDuration": {
+      "comment": "The minimum required time-frame for the optimization",
+      "comment": "in the format hours:minutes:seconds",
+      "default": "00:00:00",
+      "value": "00:00:00"
+    },
+    "emitTerminationReason": {
+        "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
+        "default": "true",
+        "value": "true"
+    },
+    "population": {
+        "size": {
+            "comment": "The total size of the population ",
+            "default": "42",
+            "value": "42"
+        },
+        "nParents": {
+            "comment": "The number of parents in the population",
+            "default": "2",
+            "value": "2"
+        }
+    },
+    "recombinationMethod": {
+        "comment": "The recombination method. Options",
+        "comment": "0: default",
+        "comment": "1: random selection from available parents",
+        "comment": "2: selection according to the parent's value",
+        "default": "0",
+        "value": "0"
+    },
+    "populationGrowth": {
+        "growthRate": {
+            "comment": "Specifies the number of individuals added per iteration",
+            "default": "0",
+            "value": "0"
+        },
+        "maxPopulationSize": {
+            "comment": "Specifies the maximum amount of individuals in the population",
+            "comment": "if growth is enabled",
+            "default": "0",
+            "value": "0"
+        }
+    },
+    "amalgamationLikelihood": {
+        "comment": "The likelihood for parent individuals to be \"fused\" together",
+        "comment": "rather than \"just\" being created through duplication schemes",
+        "default": "0",
+        "value": "0"
+    },
+    "sortingMethod": {
+        "comment": "The sorting scheme. Options",
+        "comment": "0: MUPLUSNU mode with a single evaluation criterion",
+        "comment": "1: MUCOMMANU mode with a single evaluation criterion",
+        "comment": "2: MUCOMMANU mode with single evaluation criterion,",
+        "comment": "   the best parent of the last iteration is retained",
+        "comment": "   unless a better individual has been found",
+        "comment": "3: MUPLUSNU mode for multiple evaluation criteria, pareto selection",
+        "comment": "4: MUCOMMANU mode for multiple evaluation criteria, pareto selection",
+        "default": "1",
+        "value": "1"
+    }
+}

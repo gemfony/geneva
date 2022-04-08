@@ -79,8 +79,7 @@
 #include "courtier/GCourtierEnums.hpp"
 #include "courtier/GCourtierHelperFunctions.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 // An exception to be thrown if an exception was thrown during processing
@@ -134,7 +133,7 @@ class GProcessingContainerT
 	 ///////////////////////////////////////////////////////////////////////
 
 public:
-	 using payload_type = processable_type;
+	 using payload_type [[maybe_unused]] = processable_type;
 	 using result_type  = processing_result_type;
 
 	 /***************************************************************************/
@@ -178,7 +177,7 @@ public:
 	 /**
 	  * Assignment operator
 	  */
-	 GProcessingContainerT<processable_type, processing_result_type>&
+	 GProcessingContainerT&
 	 operator=(GProcessingContainerT<processable_type, processing_result_type> const& cp) {
 	 	m_iteration_counter = cp.m_iteration_counter;
 	 	m_resubmission_counter = cp.m_resubmission_counter;
@@ -376,6 +375,25 @@ public:
 		 return m_stored_results_cnt.at(id);
 	 }
 
+         /***************************************************************************/
+         /**
+          * Retrieval of all stored results as a vector. This function does not allow modifications
+          * of its return value. It will throw, if value retrieval is initiated for a work
+          * item which does not have the PROCESSED flag set.
+          *
+          * @return The std::vector holding the stored results of the processing
+          */
+         std::vector<processing_result_type> getStoredResults() const {
+           if(not this->is_processed()) {
+             throw gemfony_exception(
+                 g_error_streamer(DO_LOG, time_and_place)
+                 << "In GProcessingContainerT::getStoredResults(): Tried to" << std::endl
+                 << "retrieve stored results while the PROCESSED flag was not set" << std::endl
+             );
+           }
+
+           return m_stored_results_cnt;
+         }
 
 	 /******************************************************************************/
 	 /**
@@ -383,7 +401,7 @@ public:
 	  * guaranty that the item has indeed been processed. This is id simply represents
 	  * the processing id assigned at the beginning of the last process()-call.
 	  */
-	 std::string getCurrentEvaluationID() const {
+	 [[nodiscard]] std::string getCurrentEvaluationID() const {
 		 return m_evaluation_id;
 	 }
 
@@ -406,7 +424,7 @@ public:
 	 /**
 	  * Allows to retrieve the current processing status
 	  */
-	 processingStatus getProcessingStatus() const noexcept {
+	 [[nodiscard]] processingStatus getProcessingStatus() const noexcept {
 		 return m_processing_status;
 	 }
 
@@ -415,7 +433,7 @@ public:
 	  * Allows to retrieve the current processing status as a string (mostly for
 	  * debugging purposes).
 	  */
-	 std::string getProcessingStatusAsStr() const noexcept {
+	 [[nodiscard]] std::string getProcessingStatusAsStr() const noexcept {
 		 return psToStr(m_processing_status);
 	 }
 
@@ -425,7 +443,7 @@ public:
 	  *
 	  * @return A boolean indicating whether the item was processed
 	  */
-	 bool is_processed() const noexcept {
+	 [[nodiscard]] bool is_processed() const noexcept {
 		 return (processingStatus::PROCESSED == this->getProcessingStatus());
 	 }
 
@@ -433,7 +451,7 @@ public:
 	 /**
 	  * Checks whether the IGNORED flag is set
 	  */
-	 bool is_ignored() const noexcept {
+	 [[nodiscard]] bool is_ignored() const noexcept {
 		 return (processingStatus::DO_IGNORE == this->getProcessingStatus());
 	 }
 
@@ -443,7 +461,7 @@ public:
 	  *
 	  * @return A boolean indicating whether the item is due for processing
 	  */
-	 bool is_due_for_processing() const noexcept {
+	 [[nodiscard]] bool is_due_for_processing() const noexcept {
 		 return (processingStatus::DO_PROCESS == this->getProcessingStatus());
 	 }
 
@@ -453,7 +471,7 @@ public:
 	  *
 	  * @return A boolean indicating whether there were errors during processing
 	  */
-	 bool has_errors() const noexcept {
+	 [[nodiscard]] bool has_errors() const noexcept {
 		 return
 			 (processingStatus::EXCEPTION_CAUGHT == m_processing_status)
 			 || (processingStatus::ERROR_FLAGGED == m_processing_status);
@@ -463,7 +481,7 @@ public:
 	 /**
 	  * Allows to check whether an error was flagged by the user
 	  */
-	 bool error_flagged_by_user() const noexcept {
+	 [[nodiscard]] bool error_flagged_by_user() const noexcept {
 		 return (processingStatus::ERROR_FLAGGED == m_processing_status);
 	 }
 
@@ -587,7 +605,7 @@ public:
 				 break;
 
 			 //------------------------------------------------------------------------------------
-		 };
+		 }
 	 }
 
 	 /***************************************************************************/
@@ -618,7 +636,7 @@ public:
 	 /**
 	  * Allows to retrieve the counter of a given iteration
 	  */
-	 ITERATION_COUNTER_TYPE getIterationCounter() const noexcept {
+	 [[nodiscard]] ITERATION_COUNTER_TYPE getIterationCounter() const noexcept {
 		 return m_iteration_counter;
 	 }
 
@@ -634,7 +652,7 @@ public:
 	 /**
 	  * Allows to retrieve the counter of the current submission inside of an iteration
 	  */
-	 RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
+	 [[nodiscard]] RESUBMISSION_COUNTER_TYPE getResubmissionCounter() const noexcept {
 		 return m_resubmission_counter;
 	 }
 
@@ -650,7 +668,7 @@ public:
 	 /**
 	  * Allows to retrieve the position inside of a given collection submitted to the broker
 	  */
-	 COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept {
+	 [[nodiscard]] COLLECTION_POSITION_TYPE getCollectionPosition() const noexcept {
 		 return m_collection_position;
 	 }
 
@@ -666,7 +684,7 @@ public:
 	 /**
 	  * Allows to retrieve the id of the originating buffer
 	  */
-	 BUFFERPORT_ID_TYPE getBufferId() const noexcept {
+	 [[nodiscard]] BUFFERPORT_ID_TYPE getBufferId() const noexcept {
 		 return m_bufferport_id;
 	 }
 
@@ -674,7 +692,7 @@ public:
 	 /**
 	  * Allows to retrieve the timepoint when a work item was retrieved from the raw queue
 	  */
-	 std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getRawRetrievalTime() const {
 		 return m_bufferport_raw_retrieval_time;
 	 }
 
@@ -682,7 +700,7 @@ public:
 	 /**
 	  * Allows to retrieve the timepoint when a work item was submitted to the raw queue
 	  */
-	 std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getRawSubmissionTime() const {
 		 return m_bufferport_raw_submission_time;
 	 }
 
@@ -690,7 +708,7 @@ public:
 	 /**
 	  * Allows to retrieve the timepoint when a work item was retrieved from the processed queue
 	  */
-	 std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getProcRetrievalTime() const {
 		 return m_bufferport_proc_retrieval_time;
 	 }
 
@@ -698,7 +716,7 @@ public:
 	 /**
 	  * Allows to retrieve the timepoint when a work item was submitted to the processed queue
 	  */
-	 std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
+	 [[nodiscard]] std::chrono::high_resolution_clock::time_point getProcSubmissionTime() const {
 		 return m_bufferport_proc_submission_time;
 	 }
 
@@ -707,7 +725,7 @@ public:
 	  * Allows to check whether any user-defined pre-processing before the process()-
 	  * step may occur. This may alter the individual's data.
 	  */
-	 bool mayBePreProcessed() const noexcept {
+	 [[nodiscard]] bool mayBePreProcessed() const noexcept {
 		 return not m_preProcessingDisabled;
 	 }
 
@@ -740,7 +758,7 @@ public:
 	  * to submit evaluation work items to the broker which may then start an optimization
 	  * run on the individual. This may alter the individual's data.
 	  */
-	 bool mayBePostProcessed() const {
+	 [[nodiscard]] bool mayBePostProcessed() const {
 		 return not m_postProcessingDisabled;
 	 }
 
@@ -768,7 +786,7 @@ public:
 	 /**
 	  * Allows to retrieve the processing time needed for the work item
 	  */
-	 std::tuple<double,double,double> getProcessingTimes() const {
+	 [[nodiscard]] std::tuple<double,double,double> getProcessingTimes() const {
 		 return std::make_tuple(m_pre_processing_time, m_processing_time, m_post_processing_time);
 	 };
 
@@ -788,7 +806,7 @@ public:
 	 /**
 	  * Allows to extract stored error descriptions
 	  */
-	 std::string getStoredErrorDescriptions() const {
+	 [[nodiscard]] std::string getStoredErrorDescriptions() const {
 		 return m_stored_error_descriptions;
 	 }
 
@@ -828,7 +846,7 @@ public:
 	 /**
 	  * Allows to retrieve the number of stored results
 	  */
-	 std::size_t getNStoredResults() const {
+	 [[nodiscard]] std::size_t getNStoredResults() const {
 		 return m_stored_results_cnt.size();
 	 }
 
@@ -1028,7 +1046,7 @@ private:
 
 	 std::vector<processing_result_type> m_stored_results_cnt = std::vector<processing_result_type>(1, processing_result_type()); ///< The results stored by this object
 
-	 std::string m_stored_error_descriptions = ""; ///< Stores exceptions that may have occurred during processing
+	 std::string m_stored_error_descriptions; ///< Stores exceptions that may have occurred during processing
 	 processingStatus m_processing_status = processingStatus::DO_IGNORE; ///< By default no processing is initiated
 
 	 std::string m_evaluation_id = "empty"; ///< A unique id that is assigned to an evaluation
@@ -1036,17 +1054,16 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 /******************************************************************************/
 /** @brief Mark this class as abstract */
-namespace boost { namespace serialization {
+namespace boost::serialization {
 template<typename processable_type, typename processing_result_type>
 struct is_abstract<Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {};
 template<typename processable_type, typename processing_result_type>
 struct is_abstract<const Gem::Courtier::GProcessingContainerT<processable_type, processing_result_type>> : public boost::true_type {};
-}}
+}
 
 /******************************************************************************/
 
