@@ -5,3 +5,5 @@
 /.cproject
 .DS_Store
 .com.apple.*
+build/
+cmake-build-debug/
