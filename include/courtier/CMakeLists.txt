@@ -44,6 +44,7 @@ SET ( COMMUNICATIONINCLUDES
     GCourtierEnums.hpp
     GCourtierHelperFunctions.hpp
     GExecutorT.hpp
+    GMPIConsumerT.hpp
     GProcessingContainerT.hpp
     GSerialConsumerT.hpp
     GStdThreadConsumerT.hpp

@@ -102,6 +102,8 @@ const consumerType DEFAULT_BROKER_MODE = consumerType::MULTITHREADED;
  */
 const std::uint32_t GASIOCONSUMERMAXSTALLS = 0; // infinite number of stalls
 const std::uint32_t GASIOCONSUMERMAXCONNECTIONATTEMPTS = 10;
+const std::uint32_t GMPICONSUMERMAXSTALLS = 0; // infinite number of stalls
+const std::uint32_t GMPICONSUMERMAXCONNECTIONATTEMPTS = 10;
 const unsigned short GCONSUMERDEFAULTPORT = 10000;
 const std::string GCONSUMERDEFAULTSERVER = "localhost"; // NOLINT
 const std::uint16_t GCONSUMERLISTENERTHREADS = 4;
