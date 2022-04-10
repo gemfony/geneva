@@ -1,0 +1,6 @@
+This directory contains a simple Geneva application that searches for
+the minimum of a parabola. The purpose of this example is to demonstrate how Geneva's
+MPI consumer can be used to distribute the work within the broker infrastructure.
+
+
+Call the example program with --help to find out about available options.
