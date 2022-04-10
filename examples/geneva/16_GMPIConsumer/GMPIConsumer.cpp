@@ -197,8 +197,21 @@ int main(int argc, char **argv) {
     // Retrieve all necessary configuration data from the command line
 
     if (!parseCommandLine(
-            argc, argv, serverMode, ip, port, serMode, nProducerThreads,
-            nEvaluationThreads, populationSize, nParents, maxIterations, maxMinutes, reportIteration, rScheme, smode,
+            argc,
+            argv,
+            serverMode,
+            ip,
+            port,
+            serMode,
+            nProducerThreads,
+            nEvaluationThreads,
+            populationSize,
+            nParents,
+            maxIterations,
+            maxMinutes,
+            reportIteration,
+            rScheme,
+            smode,
             maxReconnects)) {
         exit(1);
     }
@@ -210,9 +223,11 @@ int main(int argc, char **argv) {
     /****************************************************************************/
     // If this is supposed to be a client start an MPI consumer client
     if (!serverMode) {
-        auto client_ptr = std::make_shared<GMPIConsumerClientT<GParameterSet>>
-        (
-                ip, port, serMode, maxReconnects);
+        auto client_ptr = std::make_shared<GMPIConsumerClientT<GParameterSet>>(
+                ip,
+                port,
+                serMode,
+                maxReconnects);
 
         // Start the clients actual processing loop
         client_ptr->run();
@@ -247,13 +262,12 @@ int main(int argc, char **argv) {
     pop_ptr->setSortingScheme(smode);
 
     // Add individuals to the population.
-    for (auto ind: parentIndividuals) {
-        pop_ptr->push_back(ind);
+    for (auto i: parentIndividuals) {
+        pop_ptr->push_back(i);
     }
 
     // Create an MPI consumer and enrol_buffer_port it with the broker
-    auto consumer_prt = std::make_shared<GMPIConsumerT < GParameterSet >>
-    ();
+    auto consumer_prt = std::make_shared<GMPIConsumerT<GParameterSet>>();
     // Set the required options
     consumer_prt->setServerName(ip);
     consumer_prt->setPort(port);
@@ -282,7 +296,5 @@ int main(int argc, char **argv) {
             << "Best result found:" << std::endl
             << p << std::endl;
 
-    /****************************************************************************/
-    // Terminate
-    return (0);
+    return 0;
 }
