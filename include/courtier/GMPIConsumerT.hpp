@@ -54,7 +54,6 @@
 #include <array>
 
 // Boost headers go here
-#include <boost/asio.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/utility.hpp>
 #include <boost/lexical_cast.hpp>
@@ -93,9 +92,9 @@ namespace Gem::Courtier {
     class GMPIConsumerClientT final
             : public Gem::Courtier::GBaseClientT<processable_type>,
               public std::enable_shared_from_this<GMPIConsumerClientT<processable_type>> {
+
         //-------------------------------------------------------------------------
         // Make the code easier to read
-
         using error_code = boost::system::error_code;
         using resolver = boost::asio::ip::tcp::resolver;
         using socket = boost::asio::ip::tcp::socket;
@@ -106,10 +105,13 @@ namespace Gem::Courtier {
          * Initialization with host/ip and port
          */
         GMPIConsumerClientT(
-                std::string address, unsigned short port, Gem::Common::serializationMode serialization_mode,
+                std::string address,
+                unsigned short port,
+                Gem::Common::serializationMode serialization_mode,
                 std::size_t max_reconnects
         )
-                : m_address(std::move(address)), m_port(port), m_serialization_mode(serialization_mode),
+                : m_address(std::move(address)), m_port(port),
+                  m_serialization_mode(serialization_mode),
                   m_max_reconnects(max_reconnects) { /* nothing */ }
 
         //-------------------------------------------------------------------------
@@ -151,7 +153,8 @@ namespace Gem::Courtier {
         void run_() override {
             // Prepare the outgoing string for the first request
             m_outgoing_message_str = Gem::Courtier::container_to_string(
-                    m_command_container.reset(networked_consumer_payload_command::GETDATA), m_serialization_mode
+                    m_command_container.reset(networked_consumer_payload_command::GETDATA),
+                    m_serialization_mode
             );
 
             // Asynchronously submit the container to the remote side
@@ -220,7 +223,7 @@ namespace Gem::Courtier {
             auto self = this->shared_from_this();
             boost::asio::async_connect(
                     *m_socket_ptr, results.begin(), results.end(),
-                    [self](boost::system::error_code ec, boost::asio::ip::tcp::resolver::iterator /* unused */) {
+                    [self](boost::system::error_code ec, const boost::asio::ip::tcp::resolver::iterator& /* unused */) {
                         self->when_connected(ec);
                     }
             );
@@ -419,7 +422,7 @@ namespace Gem::Courtier {
                     break;
             }
 
-            // Transfer the command contaner into the outgoing message string
+            // Transfer the command container into the outgoing message string
             m_outgoing_message_str = Gem::Courtier::container_to_string(
                     m_command_container, m_serialization_mode
             );
@@ -482,7 +485,7 @@ namespace Gem::Courtier {
         /**
          * The main constructor for this class
          *
-         * @param socket The socket used for readung and writing data
+         * @param socket The socket used for reading and writing data
          * @param get_payload_item A callback used to retrieve a raw payload item from the server
          * @param put_payload_item A callback used to submit a processed payload item to the server
          * @param check_server_stopped A callback used to check whether the server has been stopped
@@ -838,7 +841,7 @@ namespace Gem::Courtier {
                         << "nThreads was set to 0. m_n_threads will be set to default " << GCONSUMERLISTENERTHREADS
                         << std::endl
                         << "This replaces the old behaviour where a value of 0 would have" << std::endl
-                        << "resulted in the number of hardware threads being unsed" << std::endl
+                        << "resulted in the number of hardware threads being unused" << std::endl
                         << GWARNING;
 
                 m_n_threads = GCONSUMERLISTENERTHREADS;

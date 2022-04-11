@@ -174,9 +174,13 @@ bool parseCommandLine(
  * The main function.
  */
 int main(int argc, char **argv) {
+    // TODO: in case of MPI we could also find the serverMode out by looking at the processes rank
+    //  However this would require us to do MPI_Init outside of the MPIConsumerClientT / MPIConsumerT classes, because
+    //  we would like to have the information about whether we are on a server or not before instantiating one of these classes.
+    //  Another option would be to merge both classes into one class which will call MPI_Init in its constructor and then set
+    //  a member variable `isServer` accordingly. This would be even easier but might diverge from the existing Consumer Interface.
+    //  If we decide to do that, then we might leave both classes as they are but create a wrapper that then instantiates the correct class as a member.
     bool serverMode;
-    std::string ip;
-    unsigned short port;
     std::uint16_t nProducerThreads;
     std::uint16_t nEvaluationThreads;
     std::size_t populationSize;
@@ -200,8 +204,6 @@ int main(int argc, char **argv) {
             argc,
             argv,
             serverMode,
-            ip,
-            port,
             serMode,
             nProducerThreads,
             nEvaluationThreads,
@@ -223,9 +225,15 @@ int main(int argc, char **argv) {
     /****************************************************************************/
     // If this is supposed to be a client start an MPI consumer client
     if (!serverMode) {
+        // TODO: We could call MPI_Init in the constructor of GMPIConsumerClientT because:
+        //  - (1) We can guarantee that the constructor is called before anything MPI specific happens (in run())
+        //  - (2) We can guarantee that we only once call the constructor of GMPIConsumerClientT
+        //  - (3) We can guarantee that we never call other MPI_Inits, becasue the other MPI_Init call will be in the
+        //          GMPIConsumerT, whose code is only executed in the server
+
+        // TODO: MPI seems not to need ip and port as those are given by mpirun. The communicator and rank are
+        //  enough for sending / receiving messages
         auto client_ptr = std::make_shared<GMPIConsumerClientT<GParameterSet>>(
-                ip,
-                port,
                 serMode,
                 maxReconnects);
 
@@ -262,15 +270,20 @@ int main(int argc, char **argv) {
     pop_ptr->setSortingScheme(smode);
 
     // Add individuals to the population.
-    for (auto i: parentIndividuals) {
+    for (const auto& i: parentIndividuals) {
         pop_ptr->push_back(i);
     }
 
     // Create an MPI consumer and enrol_buffer_port it with the broker
+    // TODO: we could call MPI_Init in the constructor of GMPIConsumer if the following assertions can be made:
+    //  (1) the constructor is always called before any MPI-action is started - CHECK
+    //  (2) we only call the constructor once in server mode -
+    //      practically it is possible to register multiple Consumers of the same type.
+    //      However, that would not make much sense as we could then also just use one MPIConsumer that is possibly multi threaded.
+    //      - CHECK
+    //  (3) we never mix client and server code such that we never would have multiple MPI_Inits on the same process - CHECK
     auto consumer_prt = std::make_shared<GMPIConsumerT<GParameterSet>>();
     // Set the required options
-    consumer_prt->setServerName(ip);
-    consumer_prt->setPort(port);
     consumer_prt->setSerializationMode(serMode);
     consumer_prt->setNThreads(nEvaluationThreads);
     consumer_prt->setMaxReconnects(maxReconnects);
