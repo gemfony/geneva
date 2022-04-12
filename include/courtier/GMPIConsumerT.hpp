@@ -104,7 +104,7 @@ namespace Gem::Courtier {
 
     public:
         GMPIConsumerWorkerNodeT(Gem::Common::serializationMode serializationMode)
-        : m_serialization_mode(serializationMode) { /* nothing */ }
+                : m_serialization_mode(serializationMode) { /* nothing */ }
 
         //-------------------------------------------------------------------------
         /**
@@ -764,7 +764,7 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
         // note: this was changed in order to comply with the new MPI interface
         GMPIConsumerMasterNodeT(Gem::Common::serializationMode serializationMode)
-        : m_serializationMode{serializationMode}{}
+                : m_serializationMode{serializationMode} {}
 
         //-------------------------------------------------------------------------
         // Deleted copy-/move-constructors and assignment operators.
@@ -1212,12 +1212,13 @@ namespace Gem::Courtier {
         /**
          * Initialization of a consumer
          *
-         * @param serialization_mode the method of serialization used by the consumer
+         * @param serializationMode the method of serialization used by the consumer
          */
-        explicit GMPIConsumerT(Gem::Common::serializationMode serialization_mode,
+        explicit GMPIConsumerT(Gem::Common::serializationMode serializationMode,
                                int *argc = nullptr,
                                char ***argv = nullptr)
-                : m_worldRank{},
+                : m_serializationMode{serializationMode},
+                  m_worldRank{},
                   m_worldSize{} {
 
             // initialize MPI
@@ -1229,9 +1230,9 @@ namespace Gem::Courtier {
 
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
-                m_masterNode = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(serialization_mode);
+                m_masterNode = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(serializationMode);
             } else {
-                m_workerNode = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(serialization_mode);
+                m_workerNode = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(serializationMode);
             }
 
             std::cout << "MPI node with rank " << m_worldRank << " started up." << std::endl;
@@ -1276,90 +1277,102 @@ namespace Gem::Courtier {
 
     protected:
         /**
-         * Inherited from GBaseConsumerT and GBaseClientT
+         * Inherited from GBaseConsumerT
          */
         void shutdown_() override {
-            // TODO: this is inherited from the client and the server, is that an issue?
-            // TODO: implement this
             GBaseConsumerT<processable_type>::shutdown_();
-        }
-
-        void addConfigurationOptions(Common::GParserBuilder &gpb) override {
-            // TODO: implement this
-            GBaseConsumerT<processable_type>::addConfigurationOptions(gpb);
+            // TODO: perform any work that needs to be done to shutdown consumer
         }
 
     private:
         //-------------------------------------------------------------------------
         // Private methods
 
+        //-------------------------------------------------------------------------
         /**
+         * Adds local command line options to a boost::program_options::options_description object.
+         *
          * Inherited from GBaseConsumerT
-         * @param description
-         * @param optionsDescription
+         *
+         * @param visible Command line options that should always be visible
+         * @param hidden Command line options that should only be visible upon request
          */
-        void addCLOptions_(boost::program_options::options_description &description,
-                           boost::program_options::options_description &optionsDescription) BASE override {
-            // TODO: implement this
+        void addCLOptions_(
+                boost::program_options::options_description &visible,
+                boost::program_options::options_description &hidden
+        ) override {
+            namespace po = boost::program_options;
+
+            hidden.add_options()
+                    ("asio_serializationMode",
+                     po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
+                             GCONSUMERSERIALIZATIONMODE),
+                     "\t[asio] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
         }
 
         /**
+         * Takes a boost::program_options::variables_map object and acts on
+         * the received command line options.
+         *
          * Inherited from GBaseConsumerT
-         * @param map
+         *
          */
-        void actOnCLOptions_(const boost::program_options::variables_map &map) BASE override {
-            // TODO: implement this
-        }
+        void actOnCLOptions_(const boost::program_options::variables_map &vm) override { /* nothing */ }
 
         /**
+         * A unique identifier for a given consumer
+         *
          * Inherited from GBaseConsumerT
-         * @return
+         *
+         * @return A unique identifier for a given consumer
          */
         [[nodiscard]] std::string getConsumerName_() const BASE override {
-            // TODO: implement this
-            return {};
+            return {"GMPIConsumerT"};
         }
 
         /**
+         * Returns a short identifier for this consumer.
+         *
          * Inherited form GBaseConsumerT
-         * @return
+         * @return short identifier for this consumer
          */
         [[nodiscard]] std::string getMnemonic_() const BASE override {
-            // TODO: implement this
-            return {};
+            return {"mpi"};
         }
 
         /**
          * Inherited from GBaseConsumerT
          */
         void async_startProcessing_() BASE override {
-            // TODO: implement this
+            if (!isMasterNode()){
+                glogger
+                        << "In GMPIConsumerT<>::async_startProcessing_():" << std::endl
+                        << "async_startProcessing_ method is only supposed to be called by instances running master mode." << std::endl
+                        << "But the calling node with rank " << m_worldRank << " is a worker node." << std::endl
+                        << "The method will therefore exit." << std::endl
+                        << GWARNING;
+                return;
+            }
+            // TODO: call corresponding method of GMPIConsumerMasterNodeT
         }
 
         /**
+         *
          * Inherited from GBaseConsumerT
-         * @return
-         */
-        std::shared_ptr<GBaseClientT<processable_type>> getClient_() const override {
-            // TODO: implement this
-        }
-
-        /**
-         * Inherited from GBaseConsumerT
-         * @return
+         * @return true if the consumer needs clients to submit the work to, otherwise false
          */
         [[nodiscard]] bool needsClient_() const noexcept override {
-            // TODO: implement this
+            return true;
         }
 
         /**
          * Inherited from GBaseConsumerT
          * @param exact
-         * @return
+         * @return the amount of worker nodes in the cluster used by the instance of GMPIConsumerT
          */
         size_t getNProcessingUnitsEstimate_(bool &exact) const BASE override {
-            // TODO: implement this
-            return 0;
+            exact = true; // mark the answer as exact
+            return m_worldSize;
         }
 
         /**
@@ -1367,16 +1380,25 @@ namespace Gem::Courtier {
          * @return
          */
         [[nodiscard]] bool capableOfFullReturn_() const BASE override {
-            // TODO: implement this
-            return false;
+            return true; // assume that MPI cluster will always return responses
+            // TODO: Is it correct to make that assumption?
         }
 
         /**
          * Inherited from GBaseClient
          */
         void run_() BASE override {
-            // TODO: implement this
-            glogger << "MPIConsumerT called run()_" << std::endl;
+            if (!isWorkerNode()){
+                glogger
+                        << "In GMPIConsumerT<>::run_():" << std::endl
+                        << "run_ method is only supposed to be called by instances running worker mode." << std::endl
+                        << "But the calling node with rank " << m_worldRank << " is the master node." << std::endl
+                        << "The method will therefore exit." << std::endl
+                        << GWARNING;
+                return;
+            }
+
+            // TODO: call method of GMPIConsumerWorkerNodeT
         }
 
         //-------------------------------------------------------------------------
@@ -1384,6 +1406,7 @@ namespace Gem::Courtier {
 
         std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNode;
         std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNode;
+        Gem::Common::serializationMode m_serializationMode;
         int m_worldSize;
         int m_worldRank;
     };
