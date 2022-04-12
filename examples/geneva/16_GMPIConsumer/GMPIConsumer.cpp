@@ -92,9 +92,7 @@ const std::size_t DEFAULTMAXRECONNECTS = 10;
  */
 bool parseCommandLine(
         int argc, char **argv,
-        bool &serverMode,
-        std::string &ip,
-        unsigned short &port,
+//        bool &serverMode,
         Gem::Common::serializationMode &serMode,
         std::uint16_t &nProducerThreads,
         std::uint16_t &nEvaluationThreads,
@@ -109,20 +107,20 @@ bool parseCommandLine(
     // Create the parser builder
     Gem::Common::GParserBuilder gpb;
 
-    gpb.registerCLParameter<bool>(
-            "serverMode,s", serverMode, false // Use client mode, if no server option is specified
-            ,
-            R"(Whether to run networked execution in server or client mode. The option only has an effect if "--parallelizationMode=2". You can either say "--server=true" or just "--server".)",
-            GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
-            ,
-            true // Use server mode, of only -s or --server was specified
-    );
+//    gpb.registerCLParameter<bool>(
+//            "serverMode,s", serverMode, false // Use client mode, if no server option is specified
+//            ,
+//            R"(Whether to run networked execution in server or client mode. The option only has an effect if "--parallelizationMode=2". You can either say "--server=true" or just "--server".)",
+//            GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
+//            ,
+//            true // Use server mode, of only -s or --server was specified
+//    );
 
-    gpb.registerCLParameter<std::string>(
-            std::string("ip"), ip, DEFAULTIP, "The ip of the server");
-
-    gpb.registerCLParameter<unsigned short>(
-            "port", port, DEFAULTPORT, "The port on the server");
+//    gpb.registerCLParameter<std::string>(
+//            std::string("ip"), ip, DEFAULTIP, "The ip of the server");
+//
+//    gpb.registerCLParameter<unsigned short>(
+//            "port", port, DEFAULTPORT, "The port on the server");
 
     gpb.registerCLParameter<std::uint16_t>(
             "nProducerThreads", nProducerThreads, DEFAULTNPRODUCERTHREADS,
@@ -180,7 +178,7 @@ int main(int argc, char **argv) {
     //  Another option would be to merge both classes into one class which will call MPI_Init in its constructor and then set
     //  a member variable `isServer` accordingly. This would be even easier but might diverge from the existing Consumer Interface.
     //  If we decide to do that, then we might leave both classes as they are but create a wrapper that then instantiates the correct class as a member.
-    bool serverMode;
+//    bool serverMode;
     std::uint16_t nProducerThreads;
     std::uint16_t nEvaluationThreads;
     std::size_t populationSize;
@@ -203,7 +201,7 @@ int main(int argc, char **argv) {
     if (!parseCommandLine(
             argc,
             argv,
-            serverMode,
+//            serverMode,
             serMode,
             nProducerThreads,
             nEvaluationThreads,
@@ -222,26 +220,19 @@ int main(int argc, char **argv) {
     // Random numbers are our most valuable good. Set the number of threads
     GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
+    //
+    // Internally calls MPI_Init and finds out whether it is the master node (rank 0) or not
+    //
+    auto consumer_ptr = std::make_shared<GMPIConsumerT<GParameterSet>>(serMode /* &argc, &argv */ /* optional */ );
+
     /****************************************************************************/
     // If this is supposed to be a client start an MPI consumer client
-    if (!serverMode) {
-        // TODO: We could call MPI_Init in the constructor of GMPIConsumerClientT because:
-        //  - (1) We can guarantee that the constructor is called before anything MPI specific happens (in run())
-        //  - (2) We can guarantee that we only once call the constructor of GMPIConsumerClientT
-        //  - (3) We can guarantee that we never call other MPI_Inits, becasue the other MPI_Init call will be in the
-        //          GMPIConsumerT, whose code is only executed in the server
-
-        // TODO: MPI seems not to need ip and port as those are given by mpirun. The communicator and rank are
-        //  enough for sending / receiving messages
-        auto client_ptr = std::make_shared<GMPIConsumerWorkerNodeT<GParameterSet>>(
-                serMode,
-                maxReconnects);
-
-        // Start the clients actual processing loop
-        client_ptr->run();
+    if (consumer_ptr->isWorkerNode()) {
+        consumer_ptr->run();
 
         return 0;
     }
+
 
     /****************************************************************************/
     // We can now start creating populations. We refer to them through the base class
@@ -270,25 +261,12 @@ int main(int argc, char **argv) {
     pop_ptr->setSortingScheme(smode);
 
     // Add individuals to the population.
-    for (const auto& i: parentIndividuals) {
+    for (const auto &i: parentIndividuals) {
         pop_ptr->push_back(i);
     }
 
-    // Create an MPI consumer and enrol_buffer_port it with the broker
-    // TODO: we could call MPI_Init in the constructor of GMPIConsumer if the following assertions can be made:
-    //  (1) the constructor is always called before any MPI-action is started - CHECK
-    //  (2) we only call the constructor once in server mode -
-    //      practically it is possible to register multiple Consumers of the same type.
-    //      However, that would not make much sense as we could then also just use one MPIConsumer that is possibly multi threaded.
-    //      - CHECK
-    //  (3) we never mix client and server code such that we never would have multiple MPI_Inits on the same process - CHECK
-    auto consumer_prt = std::make_shared<GMPIConsumerMasterNodeT<GParameterSet>>();
-    // Set the required options
-    consumer_prt->setSerializationMode(serMode);
-    consumer_prt->setNThreads(nEvaluationThreads);
-    consumer_prt->setMaxReconnects(maxReconnects);
     // Add the consumer to the broker
-    GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(consumer_prt);
+    GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(consumer_ptr);
 
     // set executor mode in the producer/optimization algorithm
     pop_ptr->registerExecutor(execMode::BROKER,
