@@ -252,7 +252,7 @@ SET(CPACK_RPM_PACKAGE_LICENSE "Apache License 2.0")
 SET(CPACK_RPM_PACKAGE_GROUP "Sciences/Libraries")
 SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= ${GENEVA_MIN_BOOST_VERSION}")
 
-# Detect the distribution to autoselect the package generator...
+# Detect the distribution to autos-elect the package generator...
 EXECUTE_PROCESS(COMMAND lsb_release -is
 	OUTPUT_VARIABLE CPACK_AUX_DISTRO
 )

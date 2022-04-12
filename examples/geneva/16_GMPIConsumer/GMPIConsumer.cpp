@@ -233,7 +233,7 @@ int main(int argc, char **argv) {
 
         // TODO: MPI seems not to need ip and port as those are given by mpirun. The communicator and rank are
         //  enough for sending / receiving messages
-        auto client_ptr = std::make_shared<GMPIConsumerClientT<GParameterSet>>(
+        auto client_ptr = std::make_shared<GMPIConsumerWorkerNodeT<GParameterSet>>(
                 serMode,
                 maxReconnects);
 
@@ -282,7 +282,7 @@ int main(int argc, char **argv) {
     //      However, that would not make much sense as we could then also just use one MPIConsumer that is possibly multi threaded.
     //      - CHECK
     //  (3) we never mix client and server code such that we never would have multiple MPI_Inits on the same process - CHECK
-    auto consumer_prt = std::make_shared<GMPIConsumerT<GParameterSet>>();
+    auto consumer_prt = std::make_shared<GMPIConsumerMasterNodeT<GParameterSet>>();
     // Set the required options
     consumer_prt->setSerializationMode(serMode);
     consumer_prt->setNThreads(nEvaluationThreads);

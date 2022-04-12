@@ -64,6 +64,10 @@
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/lexical_cast.hpp>
 
+// MPI headers go here
+
+#include <mpi.h>
+
 // Geneva headers go here
 #include "common/GThreadGroup.hpp"
 #include "common/GThreadPool.hpp"
@@ -81,7 +85,6 @@
 #include "courtier/GCommandContainerT.hpp"
 
 namespace Gem::Courtier {
-
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -89,9 +92,9 @@ namespace Gem::Courtier {
  * This class is responsible for the client side of network communication through MPI
  */
     template<typename processable_type>
-    class GMPIConsumerClientT final
+    class GMPIConsumerWorkerNodeT final
             : public Gem::Courtier::GBaseClientT<processable_type>,
-              public std::enable_shared_from_this<GMPIConsumerClientT<processable_type>> {
+              public std::enable_shared_from_this<GMPIConsumerWorkerNodeT<processable_type>> {
 
         //-------------------------------------------------------------------------
         // Make the code easier to read
@@ -104,7 +107,7 @@ namespace Gem::Courtier {
         /**
          * Initialization with host/ip and port
          */
-        GMPIConsumerClientT(
+        GMPIConsumerWorkerNodeT(
                 std::string address,
                 unsigned short port,
                 Gem::Common::serializationMode serialization_mode,
@@ -118,7 +121,7 @@ namespace Gem::Courtier {
         /**
          * The destructor
          */
-        ~GMPIConsumerClientT() override {
+        ~GMPIConsumerWorkerNodeT() override {
             glogger
                     << std::endl
                     << "GMPIConsumerClientT<> is shutting down. Processed " << this->getNProcessed()
@@ -132,16 +135,17 @@ namespace Gem::Courtier {
         // Deleted functions
 
         // Deleted default-constructor -- enforce usage of a particular constructor
-        GMPIConsumerClientT() = delete;
+        GMPIConsumerWorkerNodeT() = delete;
 
         // Deleted copy-constructors and assignment operators -- the client is non-copyable
-        GMPIConsumerClientT(const GMPIConsumerClientT<processable_type> &) = delete;
+        GMPIConsumerWorkerNodeT(const GMPIConsumerWorkerNodeT<processable_type> &) = delete;
 
-        GMPIConsumerClientT(GMPIConsumerClientT<processable_type> &&) = delete;
+        GMPIConsumerWorkerNodeT(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
-        GMPIConsumerClientT<processable_type> &operator=(const GMPIConsumerClientT<processable_type> &) = delete;
+        GMPIConsumerWorkerNodeT<processable_type> &
+        operator=(const GMPIConsumerWorkerNodeT<processable_type> &) = delete;
 
-        GMPIConsumerClientT<processable_type> &operator=(GMPIConsumerClientT<processable_type> &&) = delete;
+        GMPIConsumerWorkerNodeT<processable_type> &operator=(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
         //-------------------------------------------------------------------------
 
@@ -223,7 +227,8 @@ namespace Gem::Courtier {
             auto self = this->shared_from_this();
             boost::asio::async_connect(
                     *m_socket_ptr, results.begin(), results.end(),
-                    [self](boost::system::error_code ec, const boost::asio::ip::tcp::resolver::iterator& /* unused */) {
+                    [self](boost::system::error_code ec,
+                           const boost::asio::ip::tcp::resolver::iterator & /* unused */) {
                         self->when_connected(ec);
                     }
             );
@@ -453,7 +458,7 @@ namespace Gem::Courtier {
 
         std::string m_address; ///< The ip address or name of the peer system
         unsigned int m_port; ///< The peer port
-        Gem::Common::serializationMode m_serialization_mode = Gem::Common::serializationMode::BINARY; ///< Determines which seriliztion mode should be used
+        Gem::Common::serializationMode m_serialization_mode = Gem::Common::serializationMode::BINARY; ///< Determines which serialization mode should be used
 
         std::size_t m_n_reconnects = 0;
         std::size_t m_max_reconnects = 0;
@@ -744,9 +749,9 @@ namespace Gem::Courtier {
  * fulfilled.
  */
     template<typename processable_type>
-    class GMPIConsumerT
+    class GMPIConsumerMasterNodeT
             : public Gem::Courtier::GBaseConsumerT<processable_type> // note: GBaseConsumerT<> is non-copyable
-                    , public std::enable_shared_from_this<GMPIConsumerT<processable_type>> {
+                    , public std::enable_shared_from_this<GMPIConsumerMasterNodeT<processable_type>> {
         //-------------------------------------------------------------------------
         // Simplify usage of namespaces
         using error_code = boost::system::error_code;
@@ -754,17 +759,17 @@ namespace Gem::Courtier {
     public:
         //-------------------------------------------------------------------------
         /** @brief The default constructor */
-        GMPIConsumerT() = default;
+        GMPIConsumerMasterNodeT() = default;
 
         //-------------------------------------------------------------------------
         // Deleted copy-/move-constructors and assignment operators.
-        GMPIConsumerT(const GMPIConsumerT<processable_type> &) = delete;
+        GMPIConsumerMasterNodeT(const GMPIConsumerMasterNodeT<processable_type> &) = delete;
 
-        GMPIConsumerT(GMPIConsumerT<processable_type> &&) = delete;
+        GMPIConsumerMasterNodeT(GMPIConsumerMasterNodeT<processable_type> &&) = delete;
 
-        GMPIConsumerT &operator=(const GMPIConsumerT<processable_type> &) = delete;
+        GMPIConsumerMasterNodeT &operator=(const GMPIConsumerMasterNodeT<processable_type> &) = delete;
 
-        GMPIConsumerT &operator=(GMPIConsumerT<processable_type> &&) = delete;
+        GMPIConsumerMasterNodeT &operator=(GMPIConsumerMasterNodeT<processable_type> &&) = delete;
 
         //-------------------------------------------------------------------------
         /**
@@ -1119,7 +1124,7 @@ namespace Gem::Courtier {
          */
         std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>> getClient_() const override {
             return std::shared_ptr<typename Gem::Courtier::GBaseClientT<processable_type>>(
-                    new GMPIConsumerClientT<processable_type>(
+                    new GMPIConsumerWorkerNodeT<processable_type>(
                             m_server, m_port, m_serializationMode, m_n_max_reconnects
                     )
             );
@@ -1179,9 +1184,101 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
     };
 
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+/**
+ * This class is responsible for checking whether the current process is the master node (rank 0) or a worker node (any other rank).
+ * It is derived from both base classes - GBaseClient and GBaseConsumer and can therefore be used as either of these.
+ * It instantiates the correct classes (GMPIConsumerMasterNode or GMPIConsumerWorkerNode) and forwards calls to member
+ * functions to one of the two classes. This serves as an abstraction of MPI such that the user does not need to explicitly
+ * ask for the process's rank.
+ *
+ */
+    template<typename processable_type>
+    class GMPIConsumerT final
+            : public Gem::Courtier::GBaseConsumerT<processable_type>,
+              public Gem::Courtier::GBaseClientT<processable_type>,
+              public std::enable_shared_from_this<GMPIConsumerT<processable_type>> {
+    public:
 
-} /* namespace Gem */
+        //-------------------------------------------------------------------------
+        /**
+         * Initialization of a consumer
+         *
+         * @param serialization_mode the method of serialization used by the consumer
+         */
+        explicit GMPIConsumerT(Gem::Common::serializationMode serialization_mode,
+                               int *argc = nullptr,
+                               char ***argv = nullptr)
+                : m_serialization_mode(serialization_mode),
+                  m_worldRank{},
+                  m_worldSize{} {
+            // initialize MPI
+            MPI_Init(argc, argv);
+
+            // set members regarding the position of the process in the MPI cluster
+            MPI_Comm_size(MPI_COMM_WORLD, &m_worldSize);
+            MPI_Comm_rank(MPI_COMM_WORLD, &m_worldRank);
+
+            // instantiate the correct class according to the position in the cluster
+            if (isMasterNode()) {
+                m_masterNode = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>();
+            } else {
+                m_workerNode = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>();
+            }
+        }
+
+        //-------------------------------------------------------------------------
+        /**
+         * The destructor
+         *
+         * This constructor must call the MPI_Finalize function as this function encapsulates all
+         * MPI-specific action.
+         *
+         */
+        ~GMPIConsumerT() override {
+            MPI_Finalize();
+        }
+
+        //-------------------------------------------------------------------------
+        // Deleted functions
+
+        // Deleted default-constructor -- enforce usage of a particular constructor
+        GMPIConsumerT() = delete;
+
+        // Deleted copy-constructors and assignment operators -- the client is non-copyable
+        GMPIConsumerT(const GMPIConsumerT<processable_type> &) = delete;
+
+        GMPIConsumerT(GMPIConsumerT<processable_type> &&) = delete;
+
+        GMPIConsumerT<processable_type> &operator=(const GMPIConsumerT<processable_type> &) = delete;
+
+        GMPIConsumerT<processable_type> &operator=(GMPIConsumerT<processable_type> &&) = delete;
+
+        //-------------------------------------------------------------------------
+
+        [[nodiscard]] inline bool isMasterNode() const {
+            return m_worldRank == 0;
+        }
+
+        [[nodiscard]] inline bool isWorkerNode() const {
+            return m_worldRank != 0;
+        }
+
+    private:
+
+        //-------------------------------------------------------------------------
+        // Data
+
+        Gem::Common::serializationMode m_serialization_mode = Gem::Common::serializationMode::BINARY; ///< Determines which serialization mode should be used
+        std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNode;
+        std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNode;
+        int m_worldSize;
+        int m_worldRank;
+    };
+
+
+} /* namespace Gem::courtier */
 
