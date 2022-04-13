@@ -88,6 +88,34 @@ namespace Gem::Courtier {
 /**
  * This class is responsible for the client side of network communication through MPI
  * TODO: enhance documentation
+ *
+ * TODO: change this to asynchronous communication because we need to be able to shutdown and respond to crashed nodes
+ *      without being stuck in a never ending blocking call.
+ * TODO: finalize draft
+ * draft:
+ *
+ * At the side of the worker nodes the communication only happens when there is no more work item to processed.
+ * Therefore, we can work with synchronous send and receive operations without waisting any computation time, because the
+ * worker would have to wait for new requests anyways. Furthermore, synchronous operations make the code easier to understand
+ * Finally synchronous send calls allow the MPI implementation to directly send the bytes from the user defined buffer
+ * through the network without any copying into a second buffer. In asynchronous mode the MPI library might copy the contents
+ * of the user defined buffer to an internal second buffer and then return before the network operation has been completed.
+ * This is useful in cases where the computation time and buffer shall be reused in the meanwhile. However, as we do not
+ * have any useful tasks to complete in the mean time, we can also use synchronous calls which will avoid unnecessary
+ * buffer copying.
+ * However, one disadvantage of blocking calls is that they might never return if the other process (node 0 in this case)
+ * has some issue. Therefore, the blocking call may remain in an endless waiting state. This is also an issue when shutting
+ * down a worker. However so far we
+ *
+ * The simplified workflow of the GMPIConsumerWorkerNodeT can be described as follows:
+ *
+ * (1) send an synchronous GET request (ask for the first work item)
+ * (2) synchronous receive a message.
+ * (3) deserialize the received work item
+ * (4) process the received work item
+ * (5) synchronously send the result of the processing to the master node and simultaneously request a new work item
+ * (6) go back to a synchronously receiving the next work item i.e. step (2)
+ *
  */
     template<typename processable_type>
     class GMPIConsumerWorkerNodeT final
@@ -149,6 +177,10 @@ namespace Gem::Courtier {
         }
 
     private:
+        void shutdown() {
+            // TODO: perform any cleanup work here (probably MPI_Cancel and a following MPI_Wait)
+        }
+
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
@@ -160,6 +192,33 @@ namespace Gem::Courtier {
 /******************************************************************************/
 /**
  * TODO: documentation
+ *
+ * TODO: finalize draft
+ * draft:
+ *
+ * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:
+ *
+ * (1) Create thread pool using boost::thread_group and boost::io_service
+ * (2) Dispatch a main loop that receives requests to the own thread pool (receiver thread). This allow to let the main
+ *     thread return the function immediately, which is expected by Geneva when calling async_startProcessing.
+ * (3) Once a shutdown is supposed to occur:
+ *  (3.1) Set a member flag to tell the receiver thread to stop
+ *  (3.2) Stop the boost::io_service object
+ *  (3.3) Join all threads. The receiver thread should exit itself and all handler threads will finish their last task
+ *        and then finish.
+ *
+ *  Then the main loop in the receiver thread works as follows:
+ * (1) Asynchronously receive message from any worker node if not yet told to stop (check member variable)
+ * (2) Dispatch a handler to the thread pool and wait for another message to receive i.e. back to (2)
+ *
+ * Then the handler thread works as follows:
+ *  (3.1) Deserialize received object
+ *  (3.2) If the message from the worker includes a processed item, put it into the processed items queue of the broker
+ *  (3.3) Take an item from the non-processed items queue, if there is no current item then poll until one is available.
+ *  (3.4) Serialize the new work item.
+ *  (3.5) Asynchronously send the item to the worker node which has requested it
+ *  (3.6) Exit the handler. This lets boost allocate this thread for future jobs.
+ *
  */
     template<typename processable_type>
     class GMPIConsumerMasterNodeT
@@ -172,7 +231,7 @@ namespace Gem::Courtier {
                 Gem::Common::serializationMode serializationMode,
                 boost::int32_t worldSize)
                 : m_serializationMode{serializationMode},
-                  m_worldSize{worldSize}{ /* nothing */ }
+                  m_worldSize{worldSize} { /* nothing */ }
 
         //-------------------------------------------------------------------------
         // Deleted copy-/move-constructors and assignment operators.
