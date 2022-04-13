@@ -44,13 +44,19 @@ SET ( COMMUNICATIONINCLUDES
     GCourtierEnums.hpp
     GCourtierHelperFunctions.hpp
     GExecutorT.hpp
-    GMPIConsumerT.hpp
     GProcessingContainerT.hpp
     GSerialConsumerT.hpp
     GStdThreadConsumerT.hpp
     GWebsocketConsumerT.hpp
     GWorkerT.hpp
 )
+
+# MPI-consumer is optional, only build it when requested
+IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
+    SET( COMMUNICATIONINCLUDES
+            ${COMMUNICATIONINCLUDES}
+            ${GMPIConsumerT.hpp})
+ENDIF ()
 
 set_source_files_properties(
     ${COMMUNICATIONINCLUDES}
