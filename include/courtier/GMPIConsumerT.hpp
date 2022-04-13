@@ -121,6 +121,26 @@ namespace Gem::Courtier {
         void run() {
             // TODO: implement this
             std::cout << "Worker Node called run()" << std::endl;
+
+            /*
+             * Simplified workflow of GAsioConsumerClient:
+             *
+             * 1) set m_outgoing_message_str to an empty GET request to request work items
+             * 2) check if halt criterion is already reached, if so shutdown
+             * 3) resolve IP hostname
+             * 4) connect to socket of GAsioConsumer (server)
+             * 5.1) if connection failed
+             *      + try to reconnect until reconnection limit reached
+             * 5.2) if successfully connected
+             *      + send GET request to GAsioConsumer (server)
+             * 6) when writing finishes:
+             *      + read server response
+             * 7) when data received form server, check its variant:
+             *      + case NODATA: poll again after a few milliseconds
+             *      + case COMPUTE: process item and send a result back to server
+             *      + case default: shutdown and throw exception
+             * 8) start with 2) again which means issue a new request if the halt criterion is not reached yet
+             */
         }
 
     private:
@@ -158,6 +178,37 @@ namespace Gem::Courtier {
         void async_startProcessing() const {
             // TODO: implement this
             std::cout << "Master node called async_startProcessing" << std::endl;
+
+            /*
+             * Simplified workflow of GAsioConsumerT:
+             *
+             * 1) open server endpoint
+             * 2) connect to server address (to own address)
+             * 3) start listening for connections
+             * 4) register async callback for when connection was accepted
+             * 5) start multiple threads to handle async callbacks on the io_context
+             *
+             * ((4)) when a connection is accepted this callback will be executed)
+             * 4.1) create a GAsioConsumerSessionT and call the async_start_run() method
+             * 4.2) go back to 4) (register another connection callback to wait for new connecitons)
+             *
+             * ((4.1)) The async_start_run() method registers a callback that will
+             * be executed as soon as data can be read from the connection
+             * 4.1.1) when there is incoming data to read on the connection:
+             *      + read bytes from socket (receive data from client)
+             * 4.1.2) when all data has been read:
+             *      + deserialize received object
+             *          * CASE GETDATA:
+             *              - getAndSerializeWorkItem()
+             *          * CASE RESULT:
+             *              - m_put_payload_item();
+             *              - getAndSerializeWorkItem()
+             * 4.1.3) send serialized workItem to client
+             * 4.1.4) when work item was transmitted:
+             *      + close socket ins send direction, which indicates end of write at client side
+             *      + clear the outgoing message string
+             *
+             */
         }
 
     private:
