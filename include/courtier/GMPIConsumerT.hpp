@@ -94,8 +94,13 @@ namespace Gem::Courtier {
             : public std::enable_shared_from_this<GMPIConsumerWorkerNodeT<processable_type>> {
 
     public:
-        explicit GMPIConsumerWorkerNodeT(Gem::Common::serializationMode serializationMode)
-                : m_serializationMode{serializationMode} { /* nothing */ }
+        explicit GMPIConsumerWorkerNodeT(
+                Gem::Common::serializationMode serializationMode,
+                boost::int32_t worldSize,
+                boost::int32_t worldRank)
+                : m_serializationMode{serializationMode},
+                  m_worldSize{worldSize},
+                  m_worldRank{worldRank} { /* nothing */ }
 
         /**
          * The destructor
@@ -120,7 +125,7 @@ namespace Gem::Courtier {
 
         void run() {
             // TODO: implement this
-            std::cout << "Worker Node called run()" << std::endl;
+            std::cout << "Worker Node with rank " << m_worldRank << " called run()" << std::endl;
 
             /*
              * Simplified workflow of GAsioConsumerClient:
@@ -145,7 +150,8 @@ namespace Gem::Courtier {
 
     private:
         Gem::Common::serializationMode m_serializationMode;
-
+        boost::int32_t m_worldSize;
+        boost::int32_t m_worldRank;
     };
 
 
@@ -161,9 +167,12 @@ namespace Gem::Courtier {
 
     public:
         //-------------------------------------------------------------------------
-        // note: this was changed in order to comply with the new MPI interface
-        explicit GMPIConsumerMasterNodeT(Gem::Common::serializationMode serializationMode)
-                : m_serializationMode{serializationMode} {}
+        // TODO: documentation
+        explicit GMPIConsumerMasterNodeT(
+                Gem::Common::serializationMode serializationMode,
+                boost::int32_t worldSize)
+                : m_serializationMode{serializationMode},
+                  m_worldSize{worldSize}{ /* nothing */ }
 
         //-------------------------------------------------------------------------
         // Deleted copy-/move-constructors and assignment operators.
@@ -177,7 +186,7 @@ namespace Gem::Courtier {
 
         void async_startProcessing() const {
             // TODO: implement this
-            std::cout << "Master node called async_startProcessing" << std::endl;
+            std::cout << "Master node (rank 0) called async_startProcessing" << std::endl;
 
             /*
              * Simplified workflow of GAsioConsumerT:
@@ -214,7 +223,7 @@ namespace Gem::Courtier {
     private:
 
         Gem::Common::serializationMode m_serializationMode;
-
+        boost::int32_t m_worldSize;
     };
 
 
@@ -258,9 +267,14 @@ namespace Gem::Courtier {
 
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
-                m_masterNode = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(serializationMode);
+                m_masterNode = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
+                        serializationMode,
+                        m_worldSize);
             } else {
-                m_workerNode = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(serializationMode);
+                m_workerNode = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
+                        serializationMode,
+                        m_worldSize,
+                        m_worldRank);
             }
 
             std::cout << "MPI node with rank " << m_worldRank << " started up." << std::endl;
@@ -437,8 +451,8 @@ namespace Gem::Courtier {
         std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNode;
         std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNode;
         Gem::Common::serializationMode m_serializationMode;
-        int m_worldSize;
-        int m_worldRank;
+        boost::int32_t m_worldSize;
+        boost::int32_t m_worldRank;
     };
 
 
