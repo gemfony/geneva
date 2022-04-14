@@ -58,7 +58,6 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/serialization/vector.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/lexical_cast.hpp>
 
 // MPI headers go here
@@ -82,6 +81,9 @@
 #include "courtier/GCommandContainerT.hpp"
 
 namespace Gem::Courtier {
+    // constants that are used by the master and the worker nodes
+    const int TAG_INITIAL_WORK_ITEM_REQUEST = 42;
+
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
@@ -157,37 +159,47 @@ namespace Gem::Courtier {
 
         void run() {
             // TODO: implement this
-            std::cout << "Worker Node with rank " << m_worldRank << " called run()" << std::endl;
 
-            /*
-             * Simplified workflow of GAsioConsumerClient:
-             *
-             * 1) set m_outgoing_message_str to an empty GET request to request work items
-             * 2) check if halt criterion is already reached, if so shutdown
-             * 3) resolve IP hostname
-             * 4) connect to socket of GAsioConsumer (server)
-             * 5.1) if connection failed
-             *      + try to reconnect until reconnection limit reached
-             * 5.2) if successfully connected
-             *      + send GET request to GAsioConsumer (server)
-             * 6) when writing finishes:
-             *      + read server response
-             * 7) when data received form server, check its variant:
-             *      + case NODATA: poll again after a few milliseconds
-             *      + case COMPUTE: process item and send a result back to server
-             *      + case default: shutdown and throw exception
-             * 8) start with 2) again which means issue a new request if the halt criterion is not reached yet
-             */
+            if (!askForFirstWorkItem()) {
+                // TODO: shutdown or try again? -> probably reconnect a number of times
+            }
         }
 
     private:
+        [[nodiscard]] bool askForFirstWorkItem() {
+            // TODO: use better buffer allocation
+            // TODO: add error checking
+            std::string test_message{"Test initial worker request"};
+            int result = MPI_Ssend(
+                    test_message.data(),
+                    static_cast<int>(test_message.size()),
+                    MPI_CHAR,
+                    0,
+                    TAG_INITIAL_WORK_ITEM_REQUEST,
+                    MPI_COMM_WORLD);
+
+            if (result != MPI_SUCCESS) {
+                // TODO: enhance error handling
+                std::cout << "some error occurred sending the initial request" << std::endl;
+                return false;
+            }
+
+            std::cout << "request successfully sent from worker " << m_worldRank << std::endl;
+
+            return true;
+        }
+
         void shutdown() {
             // TODO: perform any cleanup work here (probably MPI_Cancel and a following MPI_Wait)
         }
 
+        //-------------------------------------------------------------------------
+        // Data
+
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
+
     };
 
 
@@ -220,7 +232,8 @@ namespace Gem::Courtier {
  *
  *  Then the main loop in the receiver thread works as follows:
  * (1) Asynchronously receive message from any worker node if not yet told to stop (check member variable)
- * (2) Schedule a handler on the thread pool and wait for another message to receive i.e. back to (1)
+ * (2) Once a request has been received: schedule a handler on the thread pool and wait for another message
+ *     to receive i.e. go back to (1)
  *
  * Then the handler thread works as follows:
  *  (3.1) Deserialize received object
@@ -244,7 +257,10 @@ namespace Gem::Courtier {
                 boost::uint32_t nIOThreads)
                 : m_serializationMode{serializationMode},
                   m_worldSize{worldSize},
-                  m_nIOThreads{nIOThreads}{ /* nothing */ }
+                  m_nIOThreads{nIOThreads},
+                  m_isToldToStop{false} {
+            std::cout << "GMPIConsumerMasterNodeT started with n=" << m_nIOThreads << " IO-threads" << std::endl;
+        }
 
         //-------------------------------------------------------------------------
         // Deleted copy-/move-constructors and assignment operators.
@@ -256,47 +272,114 @@ namespace Gem::Courtier {
 
         GMPIConsumerMasterNodeT &operator=(GMPIConsumerMasterNodeT<processable_type> &&) = delete;
 
-        void async_startProcessing() const {
+        void async_startProcessing() {
             // TODO: implement this
-            std::cout << "Master node (rank 0) called async_startProcessing with n=" << m_nIOThreads << " IO-Threads." << std::endl;
+            createAndStartThreadPool();
 
-            /*
-             * Simplified workflow of GAsioConsumerT:
-             *
-             * 1) open server endpoint
-             * 2) connect to server address (to own address)
-             * 3) start listening for connections
-             * 4) register async callback for when connection was accepted
-             * 5) start multiple threads to handle async callbacks on the io_context
-             *
-             * ((4)) when a connection is accepted this callback will be executed)
-             * 4.1) create a GAsioConsumerSessionT and call the async_start_run() method
-             * 4.2) go back to 4) (register another connection callback to wait for new connecitons)
-             *
-             * ((4.1)) The async_start_run() method registers a callback that will
-             * be executed as soon as data can be read from the connection
-             * 4.1.1) when there is incoming data to read on the connection:
-             *      + read bytes from socket (receive data from client)
-             * 4.1.2) when all data has been read:
-             *      + deserialize received object
-             *          * CASE GETDATA:
-             *              - getAndSerializeWorkItem()
-             *          * CASE RESULT:
-             *              - m_put_payload_item();
-             *              - getAndSerializeWorkItem()
-             * 4.1.3) send serialized workItem to client
-             * 4.1.4) when work item was transmitted:
-             *      + close socket ins send direction, which indicates end of write at client side
-             *      + clear the outgoing message string
-             *
-             */
+            // TODO: resolve bad_weak_ptr exception
+            auto self = this->shared_from_this();
+            boost::asio::post(
+                    [self] { self->listenForRequests(); });
+        }
+
+        void shutdown() {
+            // TODO: complete the implementation of shutdown
+
+            // notify other threads to stop
+            m_isToldToStop.store(true);
+
+            // do not allow scheduling new tasks
+            m_ioService.stop();
+
+            // let all threads finish their work and join them
+            m_threadGroup.join();
         }
 
     private:
 
+        void createAndStartThreadPool() {
+            // start the m_ioService processing loop
+            m_work_ptr = std::make_shared<boost::asio::io_service::work>(m_ioService);
+
+            for (boost::uint32_t i{0}; i < m_nIOThreads; ++i) {
+                m_threadGroup.create_thread(
+                        [ObjectPtr = &m_ioService] { ObjectPtr->run(); }
+                );
+            }
+        }
+
+        void listenForRequests() {
+            // register asynchronous receiving of message from any worker node
+            // TODO: improve code quality and use better way of buffer allocation
+
+            while (!m_isToldToStop) {
+                MPI_Request requestHandle;
+                const int LENGTH = 1024;
+                char buf[LENGTH];
+                MPI_Irecv(
+                        buf,
+                        LENGTH,
+                        MPI_CHAR,
+                        MPI_ANY_SOURCE,
+                        MPI_ANY_TAG,
+                        MPI_COMM_WORLD,
+                        &requestHandle
+                );
+
+                while (!m_isToldToStop) {
+                    int isCompleted;
+                    MPI_Status status;
+
+                    MPI_Test(
+                            &requestHandle,
+                            &isCompleted,
+                            &status);
+
+                    if (isCompleted) {
+                        // let a new thread handle this request and listen for further requests
+                        auto self = this->shared_from_this();
+                        boost::asio::post(
+                                [self, status] { self->handleRequest(status); });
+
+                        break;
+                    } else {
+                        usleep(10); // sleep a short amount of time until polling again for the message status
+                    }
+                }
+            }
+        }
+
+        void handleRequest(const MPI_Status &status) {
+            // TODO implement this. Also check for errors
+            std::cout << "A request handler has been started" << std::endl;
+
+            if (status.MPI_ERROR == MPI_SUCCESS) {
+                std::cout << "Request successfully received from node " << status.MPI_SOURCE << std::endl;
+            } else {
+                char errorMessage[MPI_MAX_ERROR_STRING];
+                int messageLength;
+                MPI_Error_string(status.MPI_ERROR, errorMessage, &messageLength);
+                std::cout << "Error receiving request: " << std::endl;
+                for (int i{0}; i < messageLength; ++i) {
+                    std::cout << errorMessage[i];
+                }
+                std::cout << std::endl;
+            }
+        }
+
+        //-------------------------------------------------------------------------
+        // Data
+
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::uint32_t m_nIOThreads;
+        boost::asio::detail::thread_group m_threadGroup;
+        boost::asio::io_service m_ioService;
+        // We do not want to call the constructor of boost::asio::io_service::work at the time of constructing
+        // the master node. Therefore, we need a pointer to it which can be set to the location of a boost::asio::io_service::work
+        // object at a later point in time.
+        std::shared_ptr<boost::asio::io_service::work> m_work_ptr;
+        std::atomic<bool> m_isToldToStop;
     };
 
 
@@ -331,7 +414,7 @@ namespace Gem::Courtier {
                 : m_serializationMode{serializationMode},
                   m_worldRank{},
                   m_worldSize{},
-                  m_nMasterNodeIOThreads{nMasterNodeIOThreads}{
+                  m_nMasterNodeIOThreads{nMasterNodeIOThreads} {
 
             // 0 indicates that the number of io threads shall be set to the recommended number of threads of for this system
             if (m_nMasterNodeIOThreads == 0) {
@@ -347,12 +430,12 @@ namespace Gem::Courtier {
 
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
-                m_masterNode = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
+                m_masterNode_ptr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
                         serializationMode,
                         m_worldSize,
                         m_nMasterNodeIOThreads);
             } else {
-                m_workerNode = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
+                m_workerNode_ptr = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
                         serializationMode,
                         m_worldSize,
                         m_worldRank);
@@ -400,11 +483,23 @@ namespace Gem::Courtier {
 
     protected:
         /**
+         * Shuts down the consumer. This method shall only be called if the process is running a master node and if it
+         * has already started.
+         *
          * Inherited from GBaseConsumerT
          */
         void shutdown_() override {
-            GBaseConsumerT<processable_type>::shutdown_();
-            // TODO: perform any work that needs to be done to shutdown consumer
+            if (!isMasterNode()) {
+                glogger
+                        << "In GMPIConsumerT<>::shutdown_():" << std::endl
+                        << "shutdown_ method is only supposed to be called by instances running master mode."
+                        << std::endl
+                        << "But the calling node with rank " << m_worldRank << " is a worker node." << std::endl
+                        << "The method will therefore exit." << std::endl
+                        << GWARNING;
+                return;
+            }
+            m_masterNode_ptr->shutdown();
         }
 
     private:
@@ -478,7 +573,7 @@ namespace Gem::Courtier {
                 return;
             }
 
-            m_masterNode->async_startProcessing();
+            m_masterNode_ptr->async_startProcessing();
         }
 
         /**
@@ -522,7 +617,7 @@ namespace Gem::Courtier {
                 return;
             }
 
-            m_workerNode->run();
+            m_workerNode_ptr->run();
         }
 
         //-------------------------------------------------------------------------
@@ -544,8 +639,8 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
         // Data
 
-        std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNode;
-        std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNode;
+        std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNode_ptr;
+        std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNode_ptr;
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
