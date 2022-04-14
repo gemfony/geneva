@@ -105,14 +105,18 @@ namespace Gem::Courtier {
  * buffer copying.
  * However, one disadvantage of blocking calls is that they might never return if the other process (node 0 in this case)
  * has some issue. Therefore, the blocking call may remain in an endless waiting state. This is also an issue when shutting
- * down a worker. However so far we
+ * down a worker. However, if we look at the implementation the GAsioConsumerClientT we can see that it also does not have
+ * an option to shut it down remotely, because the call method run blocks until no work remains in the io_context.
+ * Therefore, we can implement the GMPIConsumerWorkerNodeT in a similar fashion and only work with synchronous calls and trigger
+ * a remote shutdown with a specialized enum variant SHUTDOWN.
  *
  * The simplified workflow of the GMPIConsumerWorkerNodeT can be described as follows:
  *
- * (1) send an synchronous GET request (ask for the first work item)
+ * (1) send a synchronous GET request (ask for the first work item)
  * (2) synchronous receive a message.
  * (3) deserialize the received work item
- * (4) process the received work item
+ * (4.1) if the item has DATA: process the received work item
+ * (4.2) if the item is a shutdown message: shutdown the worker
  * (5) synchronously send the result of the processing to the master node and simultaneously request a new work item
  * (6) go back to a synchronously receiving the next work item i.e. step (2)
  *
@@ -196,11 +200,18 @@ namespace Gem::Courtier {
  * TODO: finalize draft
  * draft:
  *
+ * Contrary to the GMPIConsumerWorkerNodeT the GMPIConsumerMasterNodeT must only work with asynchronous IO-operations and
+ * run all operations on other threads than the main thread. The reason for this is because Geneva expects the
+ * async_startProcessing method to return immediately and have the actual operations run on a different thread. Furthermore,
+ * we want to have the ability to shut the client down, which is also only possible if the actual action is running on another
+ * thread. Moreover, if a worker node has an issue we cannot block forever on IO-operations with that worker because the
+ * entire system, whose center the GMPIConsumerMasterNodeT is, shall not be effected if single worker nodes encounter issues.
+ *
  * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:
  *
  * (1) Create thread pool using boost::thread_group and boost::io_service
- * (2) Dispatch a main loop that receives requests to the own thread pool (receiver thread). This allow to let the main
- *     thread return the function immediately, which is expected by Geneva when calling async_startProcessing.
+ * (2) Schedule a main loop that receives requests on the own thread pool (receiver thread). This allows to let the main
+ *     thread from return the function immediately, which is expected by Geneva when calling async_startProcessing.
  * (3) Once a shutdown is supposed to occur:
  *  (3.1) Set a member flag to tell the receiver thread to stop
  *  (3.2) Stop the boost::io_service object
@@ -209,7 +220,7 @@ namespace Gem::Courtier {
  *
  *  Then the main loop in the receiver thread works as follows:
  * (1) Asynchronously receive message from any worker node if not yet told to stop (check member variable)
- * (2) Dispatch a handler to the thread pool and wait for another message to receive i.e. back to (2)
+ * (2) Schedule a handler on the thread pool and wait for another message to receive i.e. back to (1)
  *
  * Then the handler thread works as follows:
  *  (3.1) Deserialize received object
@@ -217,7 +228,7 @@ namespace Gem::Courtier {
  *  (3.3) Take an item from the non-processed items queue, if there is no current item then poll until one is available.
  *  (3.4) Serialize the new work item.
  *  (3.5) Asynchronously send the item to the worker node which has requested it
- *  (3.6) Exit the handler. This lets boost allocate this thread for future jobs.
+ *  (3.6) Exit the handler. This lets boost use this thread for future jobs.
  *
  */
     template<typename processable_type>
@@ -229,9 +240,11 @@ namespace Gem::Courtier {
         // TODO: documentation
         explicit GMPIConsumerMasterNodeT(
                 Gem::Common::serializationMode serializationMode,
-                boost::int32_t worldSize)
+                boost::int32_t worldSize,
+                boost::uint32_t nIOThreads)
                 : m_serializationMode{serializationMode},
-                  m_worldSize{worldSize} { /* nothing */ }
+                  m_worldSize{worldSize},
+                  m_nIOThreads{nIOThreads}{ /* nothing */ }
 
         //-------------------------------------------------------------------------
         // Deleted copy-/move-constructors and assignment operators.
@@ -245,7 +258,7 @@ namespace Gem::Courtier {
 
         void async_startProcessing() const {
             // TODO: implement this
-            std::cout << "Master node (rank 0) called async_startProcessing" << std::endl;
+            std::cout << "Master node (rank 0) called async_startProcessing with n=" << m_nIOThreads << " IO-Threads." << std::endl;
 
             /*
              * Simplified workflow of GAsioConsumerT:
@@ -283,6 +296,7 @@ namespace Gem::Courtier {
 
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
+        boost::uint32_t m_nIOThreads;
     };
 
 
@@ -311,11 +325,18 @@ namespace Gem::Courtier {
          * @param serializationMode the method of serialization used by the consumer
          */
         explicit GMPIConsumerT(Gem::Common::serializationMode serializationMode,
+                               boost::uint32_t nMasterNodeIOThreads = 0,
                                int *argc = nullptr,
                                char ***argv = nullptr)
                 : m_serializationMode{serializationMode},
                   m_worldRank{},
-                  m_worldSize{} {
+                  m_worldSize{},
+                  m_nMasterNodeIOThreads{nMasterNodeIOThreads}{
+
+            // 0 indicates that the number of io threads shall be set to the recommended number of threads of for this system
+            if (m_nMasterNodeIOThreads == 0) {
+                m_nMasterNodeIOThreads = masterNodeIOThreadsRecommendation();
+            }
 
             // initialize MPI
             MPI_Init(argc, argv);
@@ -328,7 +349,8 @@ namespace Gem::Courtier {
             if (isMasterNode()) {
                 m_masterNode = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
                         serializationMode,
-                        m_worldSize);
+                        m_worldSize,
+                        m_nMasterNodeIOThreads);
             } else {
                 m_workerNode = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
                         serializationMode,
@@ -387,7 +409,7 @@ namespace Gem::Courtier {
 
     private:
         //-------------------------------------------------------------------------
-        // Private methods
+        // override inherited private methods
 
         //-------------------------------------------------------------------------
         /**
@@ -483,8 +505,7 @@ namespace Gem::Courtier {
          * @return
          */
         [[nodiscard]] bool capableOfFullReturn_() const BASE override {
-            return true; // assume that MPI cluster will always return responses
-            // TODO: Is it correct to make that assumption?
+            return false; // in network operations we must always expect that error can occur
         }
 
         /**
@@ -505,6 +526,22 @@ namespace Gem::Courtier {
         }
 
         //-------------------------------------------------------------------------
+        // non-inherited private methods
+
+        //-------------------------------------------------------------------------
+        /**
+         * Allows to retrieve the number of processing threads to be used for processing incoming connections.
+         */
+        [[nodiscard]] uint32_t getMasterNodeIOThreads() const {
+            return m_nMasterNodeIOThreads;
+        }
+
+        [[nodiscard]] uint32_t masterNodeIOThreadsRecommendation() const {
+            // TODO: calculate a more sophisticated recommendation that is dependent on the systems number of CPU-cores
+            return 4;
+        }
+
+        //-------------------------------------------------------------------------
         // Data
 
         std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNode;
@@ -512,6 +549,7 @@ namespace Gem::Courtier {
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
+        boost::uint32_t m_nMasterNodeIOThreads;
     };
 
 
