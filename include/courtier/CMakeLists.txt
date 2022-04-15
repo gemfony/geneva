@@ -55,7 +55,8 @@ SET ( COMMUNICATIONINCLUDES
 IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
     SET( COMMUNICATIONINCLUDES
             ${COMMUNICATIONINCLUDES}
-            ${GMPIConsumerT.hpp})
+            GMPIConsumerT.hpp
+            GMPIHelperFunctions.hpp)
 ENDIF ()
 
 set_source_files_properties(

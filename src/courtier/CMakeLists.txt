@@ -40,6 +40,13 @@ SET(COMMUNICATIONSOURCES
         GDemoProcessingContainers
         )
 
+# MPI-consumer is optional, only build it when requested
+IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
+    SET( COMMUNICATIONSOURCES
+            ${COMMUNICATIONSOURCES}
+            GMPIHelperFunctions.cpp)
+ENDIF ()
+
 set_source_files_properties(
         ${COMMUNICATIONSOURCES}
         PROPERTIES

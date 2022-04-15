@@ -39,6 +39,9 @@
 // Global checks, defines and includes needed for all of Geneva
 #include "common/GGlobalDefines.hpp"
 
+// utility functions for working with MPI
+#include "GMPIHelperFunctions.hpp"
+
 // Standard headers go here
 #include <iostream>
 #include <sstream>
@@ -339,7 +342,7 @@ namespace Gem::Courtier {
                         // let a new thread handle this request and listen for further requests
                         auto self = this->shared_from_this();
                         boost::asio::post(
-                                [self, status] { self->handleRequest(status); });
+                                [self, status, buf] { self->handleRequest(status, buf); });
 
                         break;
                     } else {
@@ -349,12 +352,15 @@ namespace Gem::Courtier {
             }
         }
 
-        void handleRequest(const MPI_Status &status) {
+        void handleRequest(const MPI_Status &status, char const *const &buffer) {
             // TODO implement this. Also check for errors
             std::cout << "A request handler has been started" << std::endl;
 
             if (status.MPI_ERROR == MPI_SUCCESS) {
                 std::cout << "Request successfully received from node " << status.MPI_SOURCE << std::endl;
+                int messageLength{mpiGetCount(status)};
+                std::cout << "Size of the message is: " << messageLength << std::endl;
+                printf("Value of the message: %.*s\n", messageLength, buffer);
             } else {
                 char errorMessage[MPI_MAX_ERROR_STRING];
                 int messageLength;
