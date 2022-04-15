@@ -279,7 +279,6 @@ namespace Gem::Courtier {
             // TODO: implement this
             createAndStartThreadPool();
 
-            // TODO: resolve bad_weak_ptr exception
             auto self = this->shared_from_this();
             boost::asio::post(
                     [self] { self->listenForRequests(); });
