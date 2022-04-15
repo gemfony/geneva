@@ -45,3 +45,7 @@
 /******************************************************************************/
 G_API_COMMON
 int mpiGetCount(const MPI_Status&, MPI_Datatype = MPI_CHAR);
+
+/******************************************************************************/
+G_API_COMMON
+std::string mpiErrorString(int);

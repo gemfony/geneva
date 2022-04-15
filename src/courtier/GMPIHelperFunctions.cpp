@@ -46,9 +46,24 @@
  * @param dataType the datatype of the MPI message. Defaults to MPI_CHAR
  * @return the amount of objects of type dataType transferred by the operation
  */
-int mpiGetCount(const MPI_Status& status, MPI_Datatype dataType){
+int mpiGetCount(const MPI_Status &status, MPI_Datatype dataType) {
     int count{};
     MPI_Get_count(&status, dataType, &count);
 
     return count;
+}
+
+/**
+ * Converts an MPI error code to the corresponding string which explains the error
+ *
+ * @param mpiError integer error code used by MPI and typically stored in an MPI_Status.status field
+ * @return a string corresponding to the error code
+ */
+std::string mpiErrorString(int mpiError) {
+    char errorMessage[MPI_MAX_ERROR_STRING];
+    int messageLength;
+    MPI_Error_string(mpiError, errorMessage, &messageLength);
+
+    // the string in errorMessage is null terminated, which allows us to pass it to the std::string constructor
+    return std::string{errorMessage};
 }

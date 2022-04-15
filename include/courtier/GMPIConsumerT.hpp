@@ -83,9 +83,17 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 
+// TODO: use constants for timeouts and retry intervalls
+
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
-    const int TAG_INITIAL_WORK_ITEM_REQUEST = 42;
+    const int TAG_REQUEST_WORK_ITEM = 42;
+    const int TAG_SEND_WORK_ITEM = 43;
+    const int MASTER_NODE_RANK = 0;
+
+    // forward declare class because we have a cyclic dependency between MPIConsumerT and MPIConsumerWorkerNodeT
+    template<typename processable_type>
+    class GMPIConsumerT;
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -118,7 +126,7 @@ namespace Gem::Courtier {
  * The simplified workflow of the GMPIConsumerWorkerNodeT can be described as follows:
  *
  * (1) send a synchronous GET request (ask for the first work item)
- * (2) synchronous receive a message.
+ * (2) synchronously receive a message.
  * (3) deserialize the received work item
  * (4.1) if the item has DATA: process the received work item
  * (4.2) if the item is a shutdown message: shutdown the worker
@@ -134,10 +142,14 @@ namespace Gem::Courtier {
         explicit GMPIConsumerWorkerNodeT(
                 Gem::Common::serializationMode serializationMode,
                 boost::int32_t worldSize,
-                boost::int32_t worldRank)
+                boost::int32_t worldRank,
+                GMPIConsumerT<processable_type> &callingConsumer,
+                boost::int32_t nMaxReconnects = 10)
                 : m_serializationMode{serializationMode},
                   m_worldSize{worldSize},
-                  m_worldRank{worldRank} { /* nothing */ }
+                  m_worldRank{worldRank},
+                  m_nMaxReconnects{nMaxReconnects},
+                  m_callingConsumer{callingConsumer} { /* nothing */ }
 
         /**
          * The destructor
@@ -163,33 +175,118 @@ namespace Gem::Courtier {
         void run() {
             // TODO: implement this
 
-            if (!askForFirstWorkItem()) {
-                // TODO: shutdown or try again? -> probably reconnect a number of times
+            // Prepare the outgoing string for the first request
+            m_outgoingMessage = Gem::Courtier::container_to_string(
+                    m_commandContainer.reset(networked_consumer_payload_command::GETDATA),
+                    m_serializationMode
+            );
+
+            while (!m_callingConsumer.halt()) {
+                if (!sendRequestMaybeWithResult()) {
+                    shutdown();
+                    return;
+                }
+
+                if (!receiveWorkItem()) {
+                    shutdown();
+                    return;
+                }
+
+                // processing the work item will put the result in the container m_commandContainer.
+                // The result will be delivered with the next iteration of the loop when sending the next request.
+                processWorkItem();
             }
         }
 
     private:
-        [[nodiscard]] bool askForFirstWorkItem() {
-            // TODO: use better buffer allocation
-            // TODO: add error checking
-            std::string test_message{"Test initial worker request"};
-            int result = MPI_Ssend(
-                    test_message.data(),
-                    static_cast<int>(test_message.size()),
-                    MPI_CHAR,
-                    0,
-                    TAG_INITIAL_WORK_ITEM_REQUEST,
-                    MPI_COMM_WORLD);
+        /**
+         * Sends the current contents of m_outgoingMessage to the master node.
+         * This message contains either just a get request (if it was the first request).
+         * Or delivers a result and requests more data (for all following requests).
+         * @return true if the communication was successful within the maximum number of reconnects, otherwise false.
+         */
+        [[nodiscard]] bool sendRequestMaybeWithResult() {
+            for (int i{0}; i < m_nMaxReconnects; ++i) {
+                int sendResult = MPI_Ssend(
+                        m_outgoingMessage.data(),
+                        static_cast<int>(m_outgoingMessage.size()),
+                        MPI_CHAR,
+                        MASTER_NODE_RANK,
+                        TAG_REQUEST_WORK_ITEM,
+                        MPI_COMM_WORLD);
 
-            if (result != MPI_SUCCESS) {
-                // TODO: enhance error handling
-                std::cout << "some error occurred sending the initial request" << std::endl;
+                if (sendResult == MPI_SUCCESS) {
+                    return true;
+                }
+
+                glogger
+                        << "GMPIConsumerWorkerNodeT<processable_type>::sendRequestMaybeWithResult():" << std::endl
+                        << "Request for work item was not successful. Error message: " << std::endl
+                        << mpiErrorString(sendResult) << std::endl
+                        << "The worker will try to request a work item again." << std::endl
+                        << GWARNING;
+            }
+            glogger
+                    << "GMPIConsumerWorkerNodeT<processable_type>::sendRequestMaybeWithResult():" << std::endl
+                    << "Request for work item was not successful for " << m_nMaxReconnects << " times."
+                    << std::endl
+                    << "This is the configures maximum number for reconnects." << std::endl
+                    << "The worker node will therefore exit now." << std::endl
+                    << GWARNING;
+
+            return false;
+        }
+
+        bool receiveWorkItem() {
+            const int LENGTH = 1042 * 10;
+            char buffer[LENGTH];
+            MPI_Status status;
+            MPI_Recv( // blocking receive
+                    buffer,
+                    LENGTH,
+                    MPI_CHAR,
+                    MASTER_NODE_RANK,
+                    MPI_ANY_TAG,
+                    MPI_COMM_WORLD,
+                    &status);
+
+            if (status.MPI_ERROR != MPI_SUCCESS) {
+                glogger
+                        << "GMPIConsumerWorkerNodeT<processable_type>::run():" << std::endl
+                        << "Worker was not able to successfully retrieve work item from master node" << std::endl
+                        << std::endl
+                        << "The worker node will therefore exit now." << std::endl
+                        << GWARNING;
+
+                return false;
+            }
+            std::string receivedMessage{buffer, static_cast<size_t>(mpiGetCount(status))};
+
+            try {
+                // Extract the string from the buffer and de-serialize the object
+                Gem::Courtier::container_from_string(
+                        receivedMessage, m_commandContainer, m_serializationMode
+                ); // may throw
+            } catch (...) {
+                glogger
+                        << "GMPIConsumerWorkerNodeT<processable_type>::receiveWorkItem(): Caught exception while deserializing command container:"
+                        << std::endl
+                        << GLOGGING;
                 return false;
             }
 
-            std::cout << "request successfully sent from worker " << m_worldRank << std::endl;
-
             return true;
+        }
+
+        void processWorkItem() {
+            // process item. This will put the result into the container
+            m_commandContainer.process();
+
+            // increment the counter for processed items
+            m_callingConsumer.incrementProcessingCounter();
+
+            // mark the container as "contains a result"
+            m_commandContainer.set_command(networked_consumer_payload_command::RESULT);
         }
 
         void shutdown() {
@@ -199,10 +296,207 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
         // Data
 
-        Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
+        Gem::Common::serializationMode m_serializationMode;
+        boost::int32_t m_nMaxReconnects;
+        GMPIConsumerT<processable_type> &m_callingConsumer;
 
+        std::string m_outgoingMessage;
+        GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
+                networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
+    };
+
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * TODO: documentation
+ */
+    template<typename processable_type>
+    class GMPIConsumerSessionT
+            : public std::enable_shared_from_this<GMPIConsumerSessionT<processable_type>> {
+    public:
+
+        GMPIConsumerSessionT(
+                MPI_Status status,
+                std::string requestMessage,
+                std::function<std::shared_ptr<processable_type>()> getPayloadItem,
+                std::function<void(std::shared_ptr<processable_type>)> putPayloadItem,
+                Gem::Common::serializationMode serializationMode,
+                std::atomic<bool> &isToldToStop)
+                : m_mpiStatus{status},
+                // avoid copying the string but also not taking it as reference because it should be owned by this object
+                  m_requestMessage{std::move(requestMessage)},
+                  m_getPayloadItem(std::move(getPayloadItem)),
+                  m_putPayloadItem(std::move(putPayloadItem)),
+                  m_serializationMode{serializationMode},
+                  m_isToldToStop{isToldToStop} {}
+
+        //-------------------------------------------------------------------------
+        // Deleted constructors and assignment operators
+
+        GMPIConsumerSessionT() = delete;
+
+        GMPIConsumerSessionT(const GMPIConsumerSessionT<processable_type> &) = delete;
+
+        GMPIConsumerSessionT(GMPIConsumerSessionT<processable_type> &&) = delete;
+
+        GMPIConsumerSessionT<processable_type> &operator=(const GMPIConsumerSessionT<processable_type> &) = delete;
+
+        GMPIConsumerSessionT<processable_type> &operator=(GMPIConsumerSessionT<processable_type> &&) = delete;
+
+        //-------------------------------------------------------------------------
+        // public functions that are not constructors or operators
+
+        /**
+         * Answers the request this session was created for
+         */
+        bool run() {
+            // only execute sendResponse if processRequest was successful
+            if (processRequest() && sendResponse()) {
+                return true;
+            }
+            return false;
+        }
+
+    private:
+
+        // TODO: fix "got unknown or invalid command: 0"
+        bool processRequest() {
+            try {
+                Gem::Courtier::container_from_string(
+                        m_requestMessage, m_commandContainer, m_serializationMode
+                ); // may throw
+
+                // Extract the command
+                auto inboundCommand = m_commandContainer.get_command();
+
+                // If we have some payload received, add it to its destination
+                // Either way retrieve the next work item and send it to the client for processing
+                switch (inboundCommand) {
+                    case networked_consumer_payload_command::GETDATA:
+                        return getAndSerializeWorkItem();
+
+                    case networked_consumer_payload_command::RESULT: {
+                        return putWorkItem() && getAndSerializeWorkItem();
+                    }
+
+                    default: {
+                        glogger
+                                << "GMPIConsumerSessionT<processable_type>::process_request():" << std::endl
+                                << "Got unknown or invalid command " << boost::lexical_cast<std::string>(inboundCommand)
+                                << std::endl
+                                << GWARNING;
+                        return false;
+                    }
+                }
+
+            } catch (...) {
+                // TODO: better error message
+                glogger
+                        << "GMPIConsumerSessionT<processable_type>::run(): Caught exception" << std::endl
+                        << GLOGGING;
+                return false;
+            }
+        }
+
+        bool putWorkItem() {
+            // Retrieve the payload from the command container
+            auto payloadPtr = m_commandContainer.get_payload();
+
+            // Submit the payload to the server (which will send it to the broker)
+            if (payloadPtr) {
+                m_putPayloadItem(payloadPtr);
+                return true;
+            }
+
+            glogger
+                    << "GMPIConsumerSessionT<processable_type>::process_request():" << std::endl
+                    << "payload is empty even though a result was expected." << std::endl
+                    << GWARNING;
+
+            return false;
+        }
+
+        bool getAndSerializeWorkItem() {
+
+            while (!m_isToldToStop) {
+                // Obtain a container_payload object from the queue, serialize it and send it off
+                // this function includes a timeout that might result in a nullptr being returned
+                auto payloadPtr = this->m_getPayloadItem();
+
+                if (payloadPtr) {
+                    // create response encapsulating the new work item
+                    m_commandContainer.reset(networked_consumer_payload_command::COMPUTE, payloadPtr);
+
+                    // serialize item, save as member and return
+                    m_outgoingMessage = Gem::Courtier::container_to_string(
+                            m_commandContainer, m_serializationMode
+                    );
+                    return true;
+                }
+
+                // if we have not been able to retrieve a work item, just try again (retrieving already includes a timeout)
+            }
+            return false;
+        }
+
+        bool sendResponse() {
+            const int LENGTH = 1042 * 10;
+            char buffer[LENGTH];
+            MPI_Request requestHandle;
+            MPI_Isend(
+                    buffer,
+                    LENGTH,
+                    MPI_CHAR,
+                    m_mpiStatus.MPI_SOURCE,
+                    TAG_SEND_WORK_ITEM,
+                    MPI_COMM_WORLD,
+                    &requestHandle);
+
+            while (!m_isToldToStop) {
+                int isCompleted;
+                MPI_Status status;
+
+                MPI_Test(
+                        &requestHandle,
+                        &isCompleted,
+                        &status);
+
+                if (isCompleted) {
+                    return true;
+                }
+                // if send not yet, sleep a short amount of time until polling again for the message status
+                usleep(10);
+            }
+
+            glogger
+                    << "In GMPIConsumerSessionT<processable_type>::sendResponse():" << std::endl
+                    << "Handler thread was told to stop before sending the response was completed." << std::endl
+                    << "Response will be canceled." << std::endl
+                    << GLOGGING;
+            return false;
+        }
+
+        //-------------------------------------------------------------------------
+        // Data
+        const MPI_Status m_mpiStatus;
+        const std::string m_requestMessage;
+
+        std::function<std::shared_ptr<processable_type>()> m_getPayloadItem;
+        std::function<void(std::shared_ptr<processable_type>)> m_putPayloadItem;
+
+        const Gem::Common::serializationMode m_serializationMode;
+
+        // references a thread-safe indicator for shutdown that is stored in the scope calling the constructor
+        std::atomic<bool> &m_isToldToStop;
+
+        GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
+                networked_consumer_payload_command::NONE
+        }; ///< Holds the current command and payload (if any)
+        std::string m_outgoingMessage;
     };
 
 
@@ -238,7 +532,7 @@ namespace Gem::Courtier {
  * (2) Once a request has been received: schedule a handler on the thread pool and wait for another message
  *     to receive i.e. go back to (1)
  *
- * Then the handler thread works as follows:
+ * Then the handler thread works as follows (implemented in the class GMPIConsumerSessionT):
  *  (3.1) Deserialize received object
  *  (3.2) If the message from the worker includes a processed item, put it into the processed items queue of the broker
  *  (3.3) Take an item from the non-processed items queue, if there is no current item then poll until one is available.
@@ -301,7 +595,7 @@ namespace Gem::Courtier {
 
         void createAndStartThreadPool() {
             // start the m_ioService processing loop
-            m_work_ptr = std::make_shared<boost::asio::io_service::work>(m_ioService);
+            m_workPtr = std::make_shared<boost::asio::io_service::work>(m_ioService);
 
             for (boost::uint32_t i{0}; i < m_nIOThreads; ++i) {
                 m_threadGroup.create_thread(
@@ -316,7 +610,7 @@ namespace Gem::Courtier {
 
             while (!m_isToldToStop) {
                 MPI_Request requestHandle;
-                const int LENGTH = 1024;
+                const int LENGTH = 1042 * 10;
                 char buf[LENGTH];
                 MPI_Irecv(
                         buf,
@@ -344,31 +638,74 @@ namespace Gem::Courtier {
                                 [self, status, buf] { self->handleRequest(status, buf); });
 
                         break;
-                    } else {
-                        usleep(10); // sleep a short amount of time until polling again for the message status
                     }
+                    // if receive not completed yet, sleep a short amount of time until polling again for the message status
+                    usleep(100);
                 }
             }
         }
 
         void handleRequest(const MPI_Status &status, char const *const &buffer) {
-            // TODO implement this. Also check for errors
-            std::cout << "A request handler has been started" << std::endl;
+            if (status.MPI_ERROR != MPI_SUCCESS) {
+                glogger
+                        << "In GMPIConsumerMasterNodeT<processable_type>::handleRequest():" << std::endl
+                        << "Received an error:" << std::endl
+                        << mpiErrorString(status.MPI_ERROR) << std::endl
+                        << "Request from worker node will not be answered." << std::endl
+                        << GLOGGING;
 
-            if (status.MPI_ERROR == MPI_SUCCESS) {
-                std::cout << "Request successfully received from node " << status.MPI_SOURCE << std::endl;
-                int messageLength{mpiGetCount(status)};
-                std::cout << "Size of the message is: " << messageLength << std::endl;
-                printf("Value of the message: %.*s\n", messageLength, buffer);
-            } else {
-                char errorMessage[MPI_MAX_ERROR_STRING];
-                int messageLength;
-                MPI_Error_string(status.MPI_ERROR, errorMessage, &messageLength);
-                std::cout << "Error receiving request: " << std::endl;
-                for (int i{0}; i < messageLength; ++i) {
-                    std::cout << errorMessage[i];
-                }
-                std::cout << std::endl;
+                // return from this handler, which means not answering the request
+                return;
+            }
+
+            // start a new session i.e. answering the request
+            GMPIConsumerSessionT<processable_type>{
+                    status,
+                    std::string{buffer, static_cast<size_t>(mpiGetCount(status))},
+                    [this]() -> std::shared_ptr<processable_type> { return getPayloadItem(); },
+                    [this](std::shared_ptr<processable_type> p) { putPayloadItem(p); },
+                    m_serializationMode,
+                    m_isToldToStop
+            }.run();
+
+            // at time of leaving this method the request has been handled and the job for this thread is finished.
+            // This thread will then be able to be scheduled for further requests by the IO-thread again
+        }
+
+        /**
+         * Tries to retrieve a work item from the server, observing a timeout
+         *
+         * @return A work item (possibly empty)
+         */
+        std::shared_ptr<processable_type> getPayloadItem() {
+            std::shared_ptr<processable_type> p;
+
+            // Try to retrieve a work item from the broker
+            m_brokerPtr->get(p, m_timeout);
+
+            // May be empty, if we ran into a timeout
+            return p;
+        }
+
+        //-------------------------------------------------------------------------
+        /**
+         * Submits a work item to the server, observing a timeout
+         */
+        void putPayloadItem(std::shared_ptr<processable_type> p) {
+            if(not p) {
+                throw gemfony_exception(
+                        g_error_streamer(DO_LOG,  time_and_place)
+                                << "GMPIConsumerMasterNodeT<>::putPayloadItem():" << std::endl
+                                << "Function called with empty work item" << std::endl
+                );
+            }
+
+            if(not m_brokerPtr->put(p, m_timeout)) {
+                glogger
+                        << "In GMPIConsumerMasterNodeT<>::putPayloadItem():" << std::endl
+                        << "Work item could not be submitted to the broker" << std::endl
+                        << "The item will be discarded" << std::endl
+                        << GWARNING;
             }
         }
 
@@ -383,8 +720,14 @@ namespace Gem::Courtier {
         // We do not want to call the constructor of boost::asio::io_service::work at the time of constructing
         // the master node. Therefore, we need a pointer to it which can be set to the location of a boost::asio::io_service::work
         // object at a later point in time.
-        std::shared_ptr<boost::asio::io_service::work> m_work_ptr;
+        std::shared_ptr<boost::asio::io_service::work> m_workPtr;
         std::atomic<bool> m_isToldToStop;
+
+        std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
+                processable_type); ///< Simplified access to the broker
+                // TODO: use other constant for timeout
+        const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(
+                GBEASTMSTIMEOUT); ///< A timeout for put- and get-operations via the broker
     };
 
 
@@ -404,6 +747,8 @@ namespace Gem::Courtier {
             : public Gem::Courtier::GBaseConsumerT<processable_type>,
               public Gem::Courtier::GBaseClientT<processable_type>,
               public std::enable_shared_from_this<GMPIConsumerT<processable_type>> {
+        // worker nodes need to access private methods that are inherited from GBaseClientT
+        friend GMPIConsumerWorkerNodeT<processable_type>;
     public:
 
         //-------------------------------------------------------------------------
@@ -435,15 +780,16 @@ namespace Gem::Courtier {
 
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
-                m_masterNode_ptr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
+                m_masterNodePtr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
                         serializationMode,
                         m_worldSize,
                         m_nMasterNodeIOThreads);
             } else {
-                m_workerNode_ptr = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
+                m_workerNodePtr = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
                         serializationMode,
                         m_worldSize,
-                        m_worldRank);
+                        m_worldRank,
+                        *this);
             }
 
             std::cout << "MPI node with rank " << m_worldRank << " started up." << std::endl;
@@ -479,11 +825,11 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
 
         [[nodiscard]] inline bool isMasterNode() const {
-            return m_worldRank == 0;
+            return m_worldRank == MASTER_NODE_RANK;
         }
 
         [[nodiscard]] inline bool isWorkerNode() const {
-            return m_worldRank != 0;
+            return m_worldRank != MASTER_NODE_RANK;
         }
 
     protected:
@@ -504,7 +850,7 @@ namespace Gem::Courtier {
                         << GWARNING;
                 return;
             }
-            m_masterNode_ptr->shutdown();
+            m_masterNodePtr->shutdown();
         }
 
     private:
@@ -526,6 +872,7 @@ namespace Gem::Courtier {
         ) override {
             namespace po = boost::program_options;
 
+            // TODO: adjust this (copy and pasted from GAsioConsumerT)
             hidden.add_options()
                     ("asio_serializationMode",
                      po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
@@ -578,7 +925,7 @@ namespace Gem::Courtier {
                 return;
             }
 
-            m_masterNode_ptr->async_startProcessing();
+            m_masterNodePtr->async_startProcessing();
         }
 
         /**
@@ -622,7 +969,7 @@ namespace Gem::Courtier {
                 return;
             }
 
-            m_workerNode_ptr->run();
+            m_workerNodePtr->run();
         }
 
         //-------------------------------------------------------------------------
@@ -644,8 +991,8 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
         // Data
 
-        std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNode_ptr;
-        std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNode_ptr;
+        std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNodePtr;
+        std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNodePtr;
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
