@@ -102,8 +102,6 @@ namespace Gem::Courtier {
  * This class is responsible for the client side of network communication through MPI
  * TODO: enhance documentation
  *
- * TODO: change this to asynchronous communication because we need to be able to shutdown and respond to crashed nodes
- *      without being stuck in a never ending blocking call.
  * TODO: finalize draft
  * draft:
  *
@@ -173,8 +171,6 @@ namespace Gem::Courtier {
         GMPIConsumerWorkerNodeT<processable_type> &operator=(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
         void run() {
-            // TODO: implement this
-
             // Prepare the outgoing string for the first request
             m_outgoingMessage = Gem::Courtier::container_to_string(
                     m_commandContainer.reset(networked_consumer_payload_command::GETDATA),
@@ -363,7 +359,6 @@ namespace Gem::Courtier {
 
     private:
 
-        // TODO: fix "got unknown or invalid command: 0"
         bool processRequest() {
             try {
                 Gem::Courtier::container_from_string(
