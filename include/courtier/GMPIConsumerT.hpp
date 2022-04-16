@@ -263,10 +263,10 @@ namespace Gem::Courtier {
                 Gem::Courtier::container_from_string(
                         receivedMessage, m_commandContainer, m_serializationMode
                 ); // may throw
-            } catch (...) {
+            } catch (const gemfony_exception &ex) {
                 glogger
                         << "GMPIConsumerWorkerNodeT<processable_type>::receiveWorkItem(): Caught exception while deserializing command container:"
-                        << std::endl
+                        << std::endl << ex.what() << std::endl
                         << GLOGGING;
                 return false;
             }
@@ -361,6 +361,7 @@ namespace Gem::Courtier {
 
         bool processRequest() {
             try {
+                // deserialize request string
                 Gem::Courtier::container_from_string(
                         m_requestMessage, m_commandContainer, m_serializationMode
                 ); // may throw
@@ -388,10 +389,12 @@ namespace Gem::Courtier {
                     }
                 }
 
-            } catch (...) {
-                // TODO: better error message
+            } catch (const gemfony_exception &ex) {
+                auto ePtr = std::current_exception();
                 glogger
-                        << "GMPIConsumerSessionT<processable_type>::run(): Caught exception" << std::endl
+                        << "GMPIConsumerSessionT<processable_type>::processRequest(): Caught exception while deserializing request"
+                        << std::endl
+                        << ex.what() << std::endl
                         << GLOGGING;
                 return false;
             }
@@ -687,15 +690,15 @@ namespace Gem::Courtier {
          * Submits a work item to the server, observing a timeout
          */
         void putPayloadItem(std::shared_ptr<processable_type> p) {
-            if(not p) {
+            if (not p) {
                 throw gemfony_exception(
-                        g_error_streamer(DO_LOG,  time_and_place)
+                        g_error_streamer(DO_LOG, time_and_place)
                                 << "GMPIConsumerMasterNodeT<>::putPayloadItem():" << std::endl
                                 << "Function called with empty work item" << std::endl
                 );
             }
 
-            if(not m_brokerPtr->put(p, m_timeout)) {
+            if (not m_brokerPtr->put(p, m_timeout)) {
                 glogger
                         << "In GMPIConsumerMasterNodeT<>::putPayloadItem():" << std::endl
                         << "Work item could not be submitted to the broker" << std::endl
@@ -720,7 +723,7 @@ namespace Gem::Courtier {
 
         std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
                 processable_type); ///< Simplified access to the broker
-                // TODO: use other constant for timeout
+        // TODO: use other constant for timeout
         const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(
                 GBEASTMSTIMEOUT); ///< A timeout for put- and get-operations via the broker
     };
