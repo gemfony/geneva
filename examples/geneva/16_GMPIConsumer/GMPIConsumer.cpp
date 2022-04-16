@@ -91,7 +91,8 @@ const std::size_t DEFAULTMAXRECONNECTS = 10;
  * Parses the command line
  */
 bool parseCommandLine(
-        int argc, char **argv,
+        int argc,
+        char **argv,
 //        bool &serverMode,
         Gem::Common::serializationMode &serMode,
         std::uint16_t &nProducerThreads,
@@ -121,6 +122,13 @@ bool parseCommandLine(
 //
 //    gpb.registerCLParameter<unsigned short>(
 //            "port", port, DEFAULTPORT, "The port on the server");
+
+    gpb.registerCLParameter<Gem::Common::serializationMode>(
+            "serializationMode"
+            , serMode
+            , DEFAULTSERMODE
+            , "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)"
+    );
 
     gpb.registerCLParameter<std::uint16_t>(
             "nProducerThreads", nProducerThreads, DEFAULTNPRODUCERTHREADS,

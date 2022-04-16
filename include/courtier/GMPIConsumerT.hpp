@@ -171,9 +171,14 @@ namespace Gem::Courtier {
         GMPIConsumerWorkerNodeT<processable_type> &operator=(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
         void run() {
+            // TODO: remove this comment when presumable no more debug work is to do
+//            bool stopForDebugger = true;
+//            while (stopForDebugger)
+//                sleep(5);
+
             // Prepare the outgoing string for the first request
             m_outgoingMessage = Gem::Courtier::container_to_string(
-                    m_commandContainer.reset(networked_consumer_payload_command::GETDATA),
+                    m_commandContainer,
                     m_serializationMode
             );
 
@@ -234,7 +239,7 @@ namespace Gem::Courtier {
         }
 
         bool receiveWorkItem() {
-            const int LENGTH = 1042 * 10;
+            const int LENGTH = 1042 * 40;
             char buffer[LENGTH];
             MPI_Status status;
             MPI_Recv( // blocking receive
@@ -248,7 +253,7 @@ namespace Gem::Courtier {
 
             if (status.MPI_ERROR != MPI_SUCCESS) {
                 glogger
-                        << "GMPIConsumerWorkerNodeT<processable_type>::run():" << std::endl
+                        << "GMPIConsumerWorkerNodeT<processable_type>::receiveWorkItem():" << std::endl
                         << "Worker was not able to successfully retrieve work item from master node" << std::endl
                         << std::endl
                         << "The worker node will therefore exit now." << std::endl
@@ -283,6 +288,12 @@ namespace Gem::Courtier {
 
             // mark the container as "contains a result"
             m_commandContainer.set_command(networked_consumer_payload_command::RESULT);
+
+            // serialize the result and set the outgoing message accordingly
+            m_outgoingMessage = Gem::Courtier::container_to_string(
+                    m_commandContainer,
+                    m_serializationMode
+            );
         }
 
         void shutdown() {
@@ -300,7 +311,7 @@ namespace Gem::Courtier {
 
         std::string m_outgoingMessage;
         GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
-                networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
+                networked_consumer_payload_command::GETDATA}; ///< Holds the current command and payload (if any)
     };
 
 
@@ -442,12 +453,10 @@ namespace Gem::Courtier {
         }
 
         bool sendResponse() {
-            const int LENGTH = 1042 * 10;
-            char buffer[LENGTH];
             MPI_Request requestHandle;
             MPI_Isend(
-                    buffer,
-                    LENGTH,
+                    m_outgoingMessage.data(),
+                    m_outgoingMessage.size(),
                     MPI_CHAR,
                     m_mpiStatus.MPI_SOURCE,
                     TAG_SEND_WORK_ITEM,
@@ -608,7 +617,7 @@ namespace Gem::Courtier {
 
             while (!m_isToldToStop) {
                 MPI_Request requestHandle;
-                const int LENGTH = 1042 * 10;
+                const int LENGTH = 1042 * 40;
                 char buf[LENGTH];
                 MPI_Irecv(
                         buf,
@@ -753,9 +762,10 @@ namespace Gem::Courtier {
         /**
          * Initialization of a consumer
          *
+         * // TODO: update documentation
          * @param serializationMode the method of serialization used by the consumer
          */
-        explicit GMPIConsumerT(Gem::Common::serializationMode serializationMode,
+        explicit GMPIConsumerT(Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
                                boost::uint32_t nMasterNodeIOThreads = 0,
                                int *argc = nullptr,
                                char ***argv = nullptr)
@@ -779,12 +789,12 @@ namespace Gem::Courtier {
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
                 m_masterNodePtr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
-                        serializationMode,
+                        m_serializationMode,
                         m_worldSize,
                         m_nMasterNodeIOThreads);
             } else {
                 m_workerNodePtr = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
-                        serializationMode,
+                        m_serializationMode,
                         m_worldSize,
                         m_worldRank,
                         *this);
