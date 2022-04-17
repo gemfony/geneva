@@ -617,15 +617,15 @@ namespace Gem::Courtier {
 
         void listenForRequests() {
             // register asynchronous receiving of message from any worker node
-            // TODO: improve code quality and use better way of buffer allocation
 
             while (!m_isToldToStop) {
                 MPI_Request requestHandle;
-                const int LENGTH = 1042 * 40;
-                char buf[LENGTH];
+                // create a buffer for each request.
+                // once the session finished handling the request, it will release the handle and the memory will be freed
+                auto buffer = std::shared_ptr<char[]>(new char[m_maxIncomingMessageSize]);
                 MPI_Irecv(
-                        buf,
-                        LENGTH,
+                        buffer.get(),
+                        m_maxIncomingMessageSize,
                         MPI_CHAR,
                         MPI_ANY_SOURCE,
                         MPI_ANY_TAG,
@@ -644,9 +644,10 @@ namespace Gem::Courtier {
 
                     if (isCompleted) {
                         // let a new thread handle this request and listen for further requests
-                        auto self = this->shared_from_this();
+                        // we capture copies of smart pointers in the closure, which keeps the underlying data alive
+                        const auto self = this->shared_from_this();
                         boost::asio::post(
-                                [self, status, buf] { self->handleRequest(status, buf); });
+                                [&self, status, buffer] { self->handleRequest(status, buffer); });
 
                         break;
                     }
@@ -656,7 +657,7 @@ namespace Gem::Courtier {
             }
         }
 
-        void handleRequest(const MPI_Status &status, char const *const &buffer) {
+        void handleRequest(const MPI_Status &status, const std::shared_ptr<char[]> &buffer) {
             if (status.MPI_ERROR != MPI_SUCCESS) {
                 glogger
                         << "In GMPIConsumerMasterNodeT<processable_type>::handleRequest():" << std::endl
@@ -672,7 +673,7 @@ namespace Gem::Courtier {
             // start a new session i.e. answering the request
             GMPIConsumerSessionT<processable_type>{
                     status,
-                    std::string{buffer, static_cast<size_t>(mpiGetCount(status))},
+                    std::string{buffer.get(), static_cast<size_t>(mpiGetCount(status))},
                     [this]() -> std::shared_ptr<processable_type> { return getPayloadItem(); },
                     [this](std::shared_ptr<processable_type> p) { putPayloadItem(p); },
                     m_serializationMode,
@@ -726,6 +727,8 @@ namespace Gem::Courtier {
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::uint32_t m_nIOThreads;
+        const boost::uint32_t m_maxIncomingMessageSize = 1024 * 40;
+
         boost::asio::detail::thread_group m_handlerThreadGroup;
         std::thread m_receiverThread;
         boost::asio::io_service m_ioService;
