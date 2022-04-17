@@ -311,7 +311,7 @@ namespace Gem::Courtier {
         GMPIConsumerT<processable_type> &m_callingConsumer;
         const boost::uint32_t m_maxIncomingMessageSize = 1024 * 40;
 
-        // we only work with one IO-thread here. So we can store the buffer as a member variable without concurrent access issues
+        // we only work with one IO-thread here. So we can store the buffer as a member variable without concurrency issues
         std::unique_ptr<char[]> m_incomingMessageBuffer;
         std::string m_outgoingMessage;
         GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
@@ -731,6 +731,8 @@ namespace Gem::Courtier {
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::uint32_t m_nIOThreads;
+        // TODO: test how big such objects are and use a better value for buffer size here
+        //  guess: maybe we use too much memory and therefore get the segmentation fault
         const boost::uint32_t m_maxIncomingMessageSize = 1024 * 40;
 
         boost::asio::detail::thread_group m_handlerThreadGroup;
