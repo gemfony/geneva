@@ -581,8 +581,9 @@ namespace Gem::Courtier {
             createAndStartThreadPool();
 
             auto self = this->shared_from_this();
-            boost::asio::post(
-                    [self] { self->listenForRequests(); });
+            m_receiverThread = std::thread(
+                    [self] { self->listenForRequests(); }
+            );
         }
 
         void shutdown() {
@@ -594,8 +595,11 @@ namespace Gem::Courtier {
             // do not allow scheduling new tasks
             m_ioService.stop();
 
+            // stop the receiver thread
+            m_receiverThread.join();
+
             // let all threads finish their work and join them
-            m_threadGroup.join();
+            m_handlerThreadGroup.join();
         }
 
     private:
@@ -605,7 +609,7 @@ namespace Gem::Courtier {
             m_workPtr = std::make_shared<boost::asio::io_service::work>(m_ioService);
 
             for (boost::uint32_t i{0}; i < m_nIOThreads; ++i) {
-                m_threadGroup.create_thread(
+                m_handlerThreadGroup.create_thread(
                         [ObjectPtr = &m_ioService] { ObjectPtr->run(); }
                 );
             }
@@ -722,7 +726,8 @@ namespace Gem::Courtier {
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::uint32_t m_nIOThreads;
-        boost::asio::detail::thread_group m_threadGroup;
+        boost::asio::detail::thread_group m_handlerThreadGroup;
+        std::thread m_receiverThread;
         boost::asio::io_service m_ioService;
         // We do not want to call the constructor of boost::asio::io_service::work at the time of constructing
         // the master node. Therefore, we need a pointer to it which can be set to the location of a boost::asio::io_service::work
@@ -765,10 +770,11 @@ namespace Gem::Courtier {
          * // TODO: update documentation
          * @param serializationMode the method of serialization used by the consumer
          */
-        explicit GMPIConsumerT(Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
-                               boost::uint32_t nMasterNodeIOThreads = 0,
-                               int *argc = nullptr,
-                               char ***argv = nullptr)
+        explicit GMPIConsumerT(
+                Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
+                boost::uint32_t nMasterNodeIOThreads = 0,
+                int *argc = nullptr,
+                char ***argv = nullptr)
                 : m_serializationMode{serializationMode},
                   m_worldRank{},
                   m_worldSize{},
