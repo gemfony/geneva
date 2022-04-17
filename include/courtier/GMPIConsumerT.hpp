@@ -147,7 +147,9 @@ namespace Gem::Courtier {
                   m_worldSize{worldSize},
                   m_worldRank{worldRank},
                   m_nMaxReconnects{nMaxReconnects},
-                  m_callingConsumer{callingConsumer} { /* nothing */ }
+                  m_callingConsumer{callingConsumer}{
+            m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[m_maxIncomingMessageSize]);
+        }
 
         /**
          * The destructor
@@ -239,12 +241,11 @@ namespace Gem::Courtier {
         }
 
         bool receiveWorkItem() {
-            const int LENGTH = 1042 * 40;
-            char buffer[LENGTH];
             MPI_Status status;
+
             MPI_Recv( // blocking receive
-                    buffer,
-                    LENGTH,
+                    m_incomingMessageBuffer.get(),
+                    m_maxIncomingMessageSize,
                     MPI_CHAR,
                     MASTER_NODE_RANK,
                     MPI_ANY_TAG,
@@ -261,7 +262,7 @@ namespace Gem::Courtier {
 
                 return false;
             }
-            std::string receivedMessage{buffer, static_cast<size_t>(mpiGetCount(status))};
+            std::string receivedMessage{m_incomingMessageBuffer.get(), static_cast<size_t>(mpiGetCount(status))};
 
             try {
                 // Extract the string from the buffer and de-serialize the object
@@ -308,7 +309,10 @@ namespace Gem::Courtier {
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_nMaxReconnects;
         GMPIConsumerT<processable_type> &m_callingConsumer;
+        const boost::uint32_t m_maxIncomingMessageSize = 1024 * 40;
 
+        // we only work with one IO-thread here. So we can store the buffer as a member variable without concurrent access issues
+        std::unique_ptr<char[]> m_incomingMessageBuffer;
         std::string m_outgoingMessage;
         GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
                 networked_consumer_payload_command::GETDATA}; ///< Holds the current command and payload (if any)
