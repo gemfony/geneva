@@ -83,7 +83,7 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 
-// TODO: use constants for timeouts and retry intervalls
+// TODO: use constants for timeouts and retry intervals
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -147,7 +147,7 @@ namespace Gem::Courtier {
                   m_worldSize{worldSize},
                   m_worldRank{worldRank},
                   m_nMaxReconnects{nMaxReconnects},
-                  m_callingConsumer{callingConsumer}{
+                  m_callingConsumer{callingConsumer} {
             m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[m_maxIncomingMessageSize]);
         }
 
@@ -173,10 +173,10 @@ namespace Gem::Courtier {
         GMPIConsumerWorkerNodeT<processable_type> &operator=(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
         void run() {
-            // TODO: remove this comment when presumable no more debug work is to do
-//            bool stopForDebugger = true;
-//            while (stopForDebugger)
-//                sleep(5);
+            // TODO: remove this when presumably no more debug work is to do
+            bool stopForDebugger = false;
+            while (stopForDebugger)
+                sleep(5);
 
             // Prepare the outgoing string for the first request
             m_outgoingMessage = Gem::Courtier::container_to_string(
@@ -185,19 +185,13 @@ namespace Gem::Courtier {
             );
 
             while (!m_callingConsumer.halt()) {
-                if (!sendRequestMaybeWithResult()) {
+                // if not all functions succeed (return true), we shut down the server and stop the request loop
+                if (!(sendRequestMaybeWithResult()
+                      && receiveWorkItem()
+                      && processWorkItem())) {
                     shutdown();
                     return;
                 }
-
-                if (!receiveWorkItem()) {
-                    shutdown();
-                    return;
-                }
-
-                // processing the work item will put the result in the container m_commandContainer.
-                // The result will be delivered with the next iteration of the loop when sending the next request.
-                processWorkItem();
             }
         }
 
@@ -241,6 +235,7 @@ namespace Gem::Courtier {
         }
 
         bool receiveWorkItem() {
+            std::cout << "DEBUG: worker sends request" << std::endl;
             MPI_Status status;
 
             MPI_Recv( // blocking receive
@@ -280,21 +275,52 @@ namespace Gem::Courtier {
             return true;
         }
 
-        void processWorkItem() {
-            // process item. This will put the result into the container
-            m_commandContainer.process();
+        [[nodiscard]] bool processWorkItem() {
+            switch (m_commandContainer.get_command()) {
+                case networked_consumer_payload_command::COMPUTE: {
+                    std::cout << "DEBUG: COMPUTE received" << std::endl;
+                    // process item. This will put the result into the container
+                    m_commandContainer.process();
 
-            // increment the counter for processed items
-            m_callingConsumer.incrementProcessingCounter();
+                    // increment the counter for processed items
+                    m_callingConsumer.incrementProcessingCounter();
 
-            // mark the container as "contains a result"
-            m_commandContainer.set_command(networked_consumer_payload_command::RESULT);
+                    // mark the container as "contains a result"
+                    m_commandContainer.set_command(networked_consumer_payload_command::RESULT);
+                }
+                    break;
+                case networked_consumer_payload_command::NODATA: {
 
-            // serialize the result and set the outgoing message accordingly
+                    // Update the NODATA counter for bookkeeping
+                    ++m_nNoData;
+                    std::cout << "DEBUG: NODATA received" << std::endl;
+
+                    // sleep for a short while (between 50 and 200 milliseconds, randomly) before asking again for new work
+                    std::uniform_int_distribution<> dist(50, 200);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(dist(m_randomNumberEngine)));
+
+                    // Tell the server again we need work
+                    m_commandContainer.reset(networked_consumer_payload_command::GETDATA);
+                }
+                    break;
+                default: {
+                    // Emit an exception
+                    glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem():" << std::endl
+                            << "Got unknown or invalid command "
+                            << boost::lexical_cast<std::string>(m_commandContainer.get_command()) << std::endl
+                            << GWARNING;
+
+                    return false;
+                }
+            }
+
+            // serialize the container and set the outgoing message accordingly
+            // the next call of sendRequestMaybeWithResult() will transmit the message
             m_outgoingMessage = Gem::Courtier::container_to_string(
                     m_commandContainer,
                     m_serializationMode
             );
+            return true;
         }
 
         void shutdown() {
@@ -310,6 +336,13 @@ namespace Gem::Courtier {
         boost::int32_t m_nMaxReconnects;
         GMPIConsumerT<processable_type> &m_callingConsumer;
         const boost::uint32_t m_maxIncomingMessageSize = 1024 * 40;
+
+        // counter for how many times we have not received data when requesting data from the master node
+        boost::int32_t m_nNoData = 0;
+
+        std::random_device m_randomDevice; ///< Source of non-deterministic random numbers
+        std::mt19937 m_randomNumberEngine{
+                m_randomDevice()}; ///< The actual random number engine, seeded by m_randomDevice
 
         // we only work with one IO-thread here. So we can store the buffer as a member variable without concurrency issues
         std::unique_ptr<char[]> m_incomingMessageBuffer;
@@ -387,20 +420,21 @@ namespace Gem::Courtier {
                 // If we have some payload received, add it to its destination
                 // Either way retrieve the next work item and send it to the client for processing
                 switch (inboundCommand) {
-                    case networked_consumer_payload_command::GETDATA:
-                        return getAndSerializeWorkItem();
-
-                    case networked_consumer_payload_command::RESULT: {
-                        return putWorkItem() && getAndSerializeWorkItem();
+                    case networked_consumer_payload_command::GETDATA: {
+                        getAndSerializeWorkItem();
+                        return true;
                     }
-
+                    case networked_consumer_payload_command::RESULT: {
+                        putWorkItem();
+                        getAndSerializeWorkItem();
+                        return true;
+                    }
                     default: {
                         glogger
                                 << "GMPIConsumerSessionT<processable_type>::process_request():" << std::endl
                                 << "Got unknown or invalid command " << boost::lexical_cast<std::string>(inboundCommand)
                                 << std::endl
                                 << GWARNING;
-                        return false;
                     }
                 }
 
@@ -411,52 +445,47 @@ namespace Gem::Courtier {
                         << std::endl
                         << ex.what() << std::endl
                         << GLOGGING;
-                return false;
             }
+
+            return false;
         }
 
-        bool putWorkItem() {
+        void putWorkItem() {
             // Retrieve the payload from the command container
             auto payloadPtr = m_commandContainer.get_payload();
 
             // Submit the payload to the server (which will send it to the broker)
             if (payloadPtr) {
                 m_putPayloadItem(payloadPtr);
-                return true;
+                return;
             }
 
             glogger
                     << "GMPIConsumerSessionT<processable_type>::process_request():" << std::endl
                     << "payload is empty even though a result was expected." << std::endl
+                    << "However, this request will also be responded normally." << std::endl
                     << GWARNING;
-
-            return false;
         }
 
-        bool getAndSerializeWorkItem() {
+        void getAndSerializeWorkItem() {
+            // Obtain a container_payload object from the queue, serialize it and send it off
+            // this function includes a timeout that might result in a nullptr being returned
+            auto payloadPtr = this->m_getPayloadItem();
 
-            while (!m_isToldToStop) {
-                // Obtain a container_payload object from the queue, serialize it and send it off
-                // this function includes a timeout that might result in a nullptr being returned
-                auto payloadPtr = this->m_getPayloadItem();
-
-                if (payloadPtr) {
-                    // create response encapsulating the new work item
-                    m_commandContainer.reset(networked_consumer_payload_command::COMPUTE, payloadPtr);
-
-                    // serialize item, save as member and return
-                    m_outgoingMessage = Gem::Courtier::container_to_string(
-                            m_commandContainer, m_serializationMode
-                    );
-                    return true;
-                }
-
-                // if we have not been able to retrieve a work item, just try again (retrieving already includes a timeout)
+            if (payloadPtr) {
+                m_commandContainer.reset(networked_consumer_payload_command::COMPUTE, payloadPtr);
+            } else {
+                m_commandContainer.reset(networked_consumer_payload_command::NODATA);
             }
-            return false;
+
+            // serialize container, save as member and return
+            m_outgoingMessage = Gem::Courtier::container_to_string(
+                    m_commandContainer, m_serializationMode
+            );
         }
 
         bool sendResponse() {
+            std::cout << "DEBUG: master sends response" << std::endl;
             MPI_Request requestHandle;
             MPI_Isend(
                     m_outgoingMessage.data(),
@@ -689,7 +718,7 @@ namespace Gem::Courtier {
         }
 
         /**
-         * Tries to retrieve a work item from the server, observing a timeout
+         * Tries to retrieve a work item from the server, observing a timeout. If timeout is reached a nullptr is returned
          *
          * @return A work item (possibly empty)
          */
