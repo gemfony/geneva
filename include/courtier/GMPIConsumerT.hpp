@@ -203,6 +203,7 @@ namespace Gem::Courtier {
          * @return true if the communication was successful within the maximum number of reconnects, otherwise false.
          */
         [[nodiscard]] bool sendRequestMaybeWithResult() {
+            std::cout << "DEBUG: worker sends request size=" << m_outgoingMessage.size() << std::endl;
             for (int i{0}; i < m_nMaxReconnects; ++i) {
                 int sendResult = MPI_Ssend(
                         m_outgoingMessage.data(),
@@ -235,7 +236,6 @@ namespace Gem::Courtier {
         }
 
         bool receiveWorkItem() {
-            std::cout << "DEBUG: worker sends request" << std::endl;
             MPI_Status status;
 
             MPI_Recv( // blocking receive
@@ -335,7 +335,7 @@ namespace Gem::Courtier {
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_nMaxReconnects;
         GMPIConsumerT<processable_type> &m_callingConsumer;
-        const boost::uint32_t m_maxIncomingMessageSize = 1024 * 40;
+        const boost::uint32_t m_maxIncomingMessageSize = 1024 * 4;
 
         // counter for how many times we have not received data when requesting data from the master node
         boost::int32_t m_nNoData = 0;
@@ -485,7 +485,7 @@ namespace Gem::Courtier {
         }
 
         bool sendResponse() {
-            std::cout << "DEBUG: master sends response" << std::endl;
+            std::cout << "DEBUG: master sends response size = " << m_outgoingMessage.size() << std::endl;
             MPI_Request requestHandle;
             MPI_Isend(
                     m_outgoingMessage.data(),
@@ -648,6 +648,8 @@ namespace Gem::Courtier {
             }
         }
 
+        // TODO: resolve seg fault error of master node (rank 0)
+        //  guess: out of memory -> reduce m_maxIncomingMessageSize
         void listenForRequests() {
             // register asynchronous receiving of message from any worker node
 
@@ -762,7 +764,7 @@ namespace Gem::Courtier {
         boost::uint32_t m_nIOThreads;
         // TODO: test how big such objects are and use a better value for buffer size here
         //  guess: maybe we use too much memory and therefore get the segmentation fault
-        const boost::uint32_t m_maxIncomingMessageSize = 1024 * 40;
+        const boost::uint32_t m_maxIncomingMessageSize = 1024 * 4;
 
         boost::asio::detail::thread_group m_handlerThreadGroup;
         std::thread m_receiverThread;
