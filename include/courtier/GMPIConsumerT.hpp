@@ -203,7 +203,6 @@ namespace Gem::Courtier {
          * @return true if the communication was successful within the maximum number of reconnects, otherwise false.
          */
         [[nodiscard]] bool sendRequestMaybeWithResult() {
-            std::cout << "DEBUG: worker sends request size=" << m_outgoingMessage.size() << std::endl;
             for (int i{0}; i < m_nMaxReconnects; ++i) {
                 int sendResult = MPI_Ssend(
                         m_outgoingMessage.data(),
@@ -278,7 +277,6 @@ namespace Gem::Courtier {
         [[nodiscard]] bool processWorkItem() {
             switch (m_commandContainer.get_command()) {
                 case networked_consumer_payload_command::COMPUTE: {
-                    std::cout << "DEBUG: COMPUTE received" << std::endl;
                     // process item. This will put the result into the container
                     m_commandContainer.process();
 
@@ -293,7 +291,6 @@ namespace Gem::Courtier {
 
                     // Update the NODATA counter for bookkeeping
                     ++m_nNoData;
-                    std::cout << "DEBUG: NODATA received" << std::endl;
 
                     // sleep for a short while (between 50 and 200 milliseconds, randomly) before asking again for new work
                     std::uniform_int_distribution<> dist(50, 200);
@@ -324,7 +321,7 @@ namespace Gem::Courtier {
         }
 
         void shutdown() {
-            // TODO: perform any cleanup work here (probably MPI_Cancel and a following MPI_Wait)
+            // TODO: perform any cleanup work here (probably MPI_Cancel and a following MPI_Wait, or MPI_Request_free?)
         }
 
         //-------------------------------------------------------------------------
@@ -485,7 +482,6 @@ namespace Gem::Courtier {
         }
 
         bool sendResponse() {
-            std::cout << "DEBUG: master sends response size = " << m_outgoingMessage.size() << std::endl;
             MPI_Request requestHandle;
             MPI_Isend(
                     m_outgoingMessage.data(),
@@ -648,8 +644,6 @@ namespace Gem::Courtier {
             }
         }
 
-        // TODO: resolve seg fault error of master node (rank 0)
-        //  guess: out of memory -> reduce m_maxIncomingMessageSize
         void listenForRequests() {
             // register asynchronous receiving of message from any worker node
 
@@ -762,8 +756,6 @@ namespace Gem::Courtier {
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::uint32_t m_nIOThreads;
-        // TODO: test how big such objects are and use a better value for buffer size here
-        //  guess: maybe we use too much memory and therefore get the segmentation fault
         const boost::uint32_t m_maxIncomingMessageSize = 1024 * 4;
 
         boost::asio::detail::thread_group m_handlerThreadGroup;
@@ -826,7 +818,19 @@ namespace Gem::Courtier {
             }
 
             // initialize MPI
-            MPI_Init(argc, argv);
+            int providedThreadingLevel = 0;
+            MPI_Init_thread(argc, argv, MPI_THREAD_MULTIPLE, &providedThreadingLevel);
+
+            if (providedThreadingLevel != MPI_THREAD_MULTIPLE) {
+                throw gemfony_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                                << "GMPIConsumerT<> constructor" << std::endl
+                                << "Geneva requires MPI implementation with level MPI_THREAD_MULTIPLE (a.k.a. "
+                                << MPI_THREAD_MULTIPLE
+                                << ") but the runtime environment implementation of MPI only supports level "
+                                << providedThreadingLevel << std::endl
+                );
+            }
 
             // set members regarding the position of the process in the MPI cluster
             MPI_Comm_size(MPI_COMM_WORLD, &m_worldSize);
