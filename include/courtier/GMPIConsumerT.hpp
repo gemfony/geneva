@@ -35,8 +35,6 @@
  ********************************************************************************/
 
 // TODO: enhance in-code documentation of public methods
-// TODO: do not issue warning but only logging once handler threads have been stopped due to member flag
-// TODO: replace std::cout with logging
 
 #pragma once
 
@@ -151,7 +149,8 @@ namespace Gem::Courtier {
                   m_worldRank{worldRank},
                   m_nMaxReconnects{nMaxReconnects},
                   m_callingConsumer{callingConsumer} {
-            std::cout << "MPIConsumerWorkerNodeT with rank " << m_worldRank << " started up" << std::endl;
+            glogger << "MPIConsumerWorkerNodeT with rank " << m_worldRank << " started up" << std::endl << GSTDOUT;
+
             m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[m_maxIncomingMessageSize]);
         }
 
@@ -228,7 +227,7 @@ namespace Gem::Courtier {
                     << std::endl
                     << "This is the configures maximum number for reconnects." << std::endl
                     << "The worker node will therefore exit now." << std::endl
-                    << GWARNING;
+                    << GTERMINATION;
 
             return false;
         }
@@ -251,7 +250,7 @@ namespace Gem::Courtier {
                         << "Worker was not able to successfully retrieve work item from master node" << std::endl
                         << std::endl
                         << "The worker node will therefore exit now." << std::endl
-                        << GWARNING;
+                        << GTERMINATION;
 
                 return false;
             }
@@ -266,7 +265,7 @@ namespace Gem::Courtier {
                 glogger
                         << "GMPIConsumerWorkerNodeT<processable_type>::receiveWorkItem(): Caught exception while deserializing command container:"
                         << std::endl << ex.what() << std::endl
-                        << GLOGGING;
+                        << GEXCEPTION;
                 return false;
             }
 
@@ -445,7 +444,7 @@ namespace Gem::Courtier {
                         << "GMPIConsumerSessionT<processable_type>::processRequest(): Caught exception while deserializing request"
                         << std::endl
                         << ex.what() << std::endl
-                        << GLOGGING;
+                        << GEXCEPTION;
             }
 
             return false;
@@ -602,7 +601,8 @@ namespace Gem::Courtier {
                   m_worldSize{worldSize},
                   m_nIOThreads{nIOThreads},
                   m_isToldToStop{false} {
-            std::cout << "GMPIConsumerMasterNodeT started with n=" << m_nIOThreads << " IO-threads" << std::endl;
+            glogger << "GMPIConsumerMasterNodeT started with n=" << m_nIOThreads << " IO-threads" << std::endl
+                    << GSTDOUT;
         }
 
         //-------------------------------------------------------------------------
@@ -702,7 +702,7 @@ namespace Gem::Courtier {
                         << "Received an error:" << std::endl
                         << mpiErrorString(status.MPI_ERROR) << std::endl
                         << "Request from worker node will not be answered." << std::endl
-                        << GLOGGING;
+                        << GWARNING;
 
                 // return from this handler, which means not answering the request
                 return;
@@ -809,15 +809,15 @@ namespace Gem::Courtier {
     public:
 
         //-------------------------------------------------------------------------
-         /**
-          *
-          * Constructor for a GMPIConsumerT
-          *
-          * @param serializationMode serialization mode to use for messages send between the master node and worker nodes
-          * @param nMasterNodeIOThreads the number of threads in the thread pool of the master node to handle connections with worker nodes
-          * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call - optional
-          * @param argv argument vector passed to main funciton, which will be forwarded to MPI_Init call - opitonal
-          */
+        /**
+         *
+         * Constructor for a GMPIConsumerT
+         *
+         * @param serializationMode serialization mode to use for messages send between the master node and worker nodes
+         * @param nMasterNodeIOThreads the number of threads in the thread pool of the master node to handle connections with worker nodes
+         * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call - optional
+         * @param argv argument vector passed to main funciton, which will be forwarded to MPI_Init call - opitonal
+         */
         explicit GMPIConsumerT(
                 Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
                 boost::uint32_t nMasterNodeIOThreads = 0,
