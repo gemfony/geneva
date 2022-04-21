@@ -89,7 +89,7 @@ namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
     const int TAG_REQUEST_WORK_ITEM = 42;
     const int TAG_SEND_WORK_ITEM = 43;
-    const int MASTER_NODE_RANK = 0;
+    const int RANK_MASTER_NODE = 0;
 
     // forward declare class because we have a cyclic dependency between MPIConsumerT and MPIConsumerWorkerNodeT
     template<typename processable_type>
@@ -142,7 +142,7 @@ namespace Gem::Courtier {
                 boost::int32_t worldSize,
                 boost::int32_t worldRank,
                 GMPIConsumerT<processable_type> &callingConsumer,
-                boost::int32_t nMaxReconnects = 10)
+                boost::int32_t nMaxReconnects = GMPICONSUMERMAXCONNECTIONATTEMPTS)
                 : m_serializationMode{serializationMode},
                   m_worldSize{worldSize},
                   m_worldRank{worldRank},
@@ -173,11 +173,6 @@ namespace Gem::Courtier {
         GMPIConsumerWorkerNodeT<processable_type> &operator=(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
         void run() {
-            // TODO: remove this when presumably no more debug work is to do
-            bool stopForDebugger = false;
-            while (stopForDebugger)
-                sleep(5);
-
             // Prepare the outgoing string for the first request
             m_outgoingMessage = Gem::Courtier::container_to_string(
                     m_commandContainer,
@@ -208,7 +203,7 @@ namespace Gem::Courtier {
                         m_outgoingMessage.data(),
                         static_cast<int>(m_outgoingMessage.size()),
                         MPI_CHAR,
-                        MASTER_NODE_RANK,
+                        RANK_MASTER_NODE,
                         TAG_REQUEST_WORK_ITEM,
                         MPI_COMM_WORLD);
 
@@ -241,7 +236,7 @@ namespace Gem::Courtier {
                     m_incomingMessageBuffer.get(),
                     m_maxIncomingMessageSize,
                     MPI_CHAR,
-                    MASTER_NODE_RANK,
+                    RANK_MASTER_NODE,
                     MPI_ANY_TAG,
                     MPI_COMM_WORLD,
                     &status);
@@ -505,7 +500,7 @@ namespace Gem::Courtier {
                     return true;
                 }
                 // if send not yet, sleep a short amount of time until polling again for the message status
-                usleep(10);
+                usleep(m_sendResponseCompletionPollInterval);
             }
 
             glogger
@@ -520,6 +515,7 @@ namespace Gem::Courtier {
         // Data
         const MPI_Status m_mpiStatus;
         const std::string m_requestMessage;
+        const boost::uint32_t m_sendResponseCompletionPollInterval = 10;
 
         std::function<std::shared_ptr<processable_type>()> m_getPayloadItem;
         std::function<void(std::shared_ptr<processable_type>)> m_putPayloadItem;
@@ -606,7 +602,6 @@ namespace Gem::Courtier {
         GMPIConsumerMasterNodeT &operator=(GMPIConsumerMasterNodeT<processable_type> &&) = delete;
 
         void async_startProcessing() {
-            // TODO: implement this
             createAndStartThreadPool();
 
             auto self = this->shared_from_this();
@@ -681,7 +676,7 @@ namespace Gem::Courtier {
                         break;
                     }
                     // if receive not completed yet, sleep a short amount of time until polling again for the message status
-                    usleep(100);
+                    usleep(m_testForNewConnectionRequestPollInterval);
                 }
             }
         }
@@ -757,6 +752,7 @@ namespace Gem::Courtier {
         boost::int32_t m_worldSize;
         boost::uint32_t m_nIOThreads;
         const boost::uint32_t m_maxIncomingMessageSize = 1024 * 4;
+        const boost::uint32_t m_testForNewConnectionRequestPollInterval = 100;
 
         boost::asio::detail::thread_group m_handlerThreadGroup;
         std::thread m_receiverThread;
@@ -769,9 +765,8 @@ namespace Gem::Courtier {
 
         std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
                 processable_type); ///< Simplified access to the broker
-        // TODO: use other constant for timeout
         const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(
-                GBEASTMSTIMEOUT); ///< A timeout for put- and get-operations via the broker
+                GMPICONSUMERBROKERACCESSBROKERTIMEOUT); ///< A timeout for put- and get-operations via the broker
     };
 
 
@@ -883,11 +878,11 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
 
         [[nodiscard]] inline bool isMasterNode() const {
-            return m_worldRank == MASTER_NODE_RANK;
+            return m_worldRank == RANK_MASTER_NODE;
         }
 
         [[nodiscard]] inline bool isWorkerNode() const {
-            return m_worldRank != MASTER_NODE_RANK;
+            return m_worldRank != RANK_MASTER_NODE;
         }
 
     protected:

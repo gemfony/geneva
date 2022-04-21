@@ -102,8 +102,6 @@ const consumerType DEFAULT_BROKER_MODE = consumerType::MULTITHREADED;
  */
 const std::uint32_t GASIOCONSUMERMAXSTALLS = 0; // infinite number of stalls
 const std::uint32_t GASIOCONSUMERMAXCONNECTIONATTEMPTS = 10;
-const std::uint32_t GMPICONSUMERMAXSTALLS = 0; // infinite number of stalls
-const std::uint32_t GMPICONSUMERMAXCONNECTIONATTEMPTS = 10;
 const unsigned short GCONSUMERDEFAULTPORT = 10000;
 const std::string GCONSUMERDEFAULTSERVER = "localhost"; // NOLINT
 const std::uint16_t GCONSUMERLISTENERTHREADS = 4;
@@ -112,6 +110,10 @@ const std::int32_t GASIOMAXOPENPINGS = 100; // The maximum number of pings witho
 const std::chrono::milliseconds GASIOPINGINTERVAL = std::chrono::milliseconds(1000); // NOLINT
 const std::size_t GBEASTCONSUMERPINGINTERVAL = 15;
 const std::size_t GBEASTMSTIMEOUT = 50;
+
+// specifically for the MPIConsumerT
+const std::uint32_t GMPICONSUMERMAXCONNECTIONATTEMPTS = 10;
+const std::size_t GMPICONSUMERBROKERACCESSBROKERTIMEOUT = 50;
 
 /******************************************************************************/
 /** @brief The default number of threads for parallelization with threads */
