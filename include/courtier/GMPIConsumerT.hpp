@@ -930,12 +930,11 @@ namespace Gem::Courtier {
         ) override {
             namespace po = boost::program_options;
 
-            // TODO: adjust this (copy and pasted from GAsioConsumerT)
             hidden.add_options()
-                    ("asio_serializationMode",
+                    ("mpi_serializationMode",
                      po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
                              GCONSUMERSERIALIZATIONMODE),
-                     "\t[asio] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
+                     "\t[MPI] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
         }
 
         /**
