@@ -34,6 +34,10 @@
  *
  ********************************************************************************/
 
+// TODO: enhance in-code documentation of public methods
+// TODO: do not issue warning but only logging once handler threads have been stopped due to member flag
+//
+
 #pragma once
 
 // Global checks, defines and includes needed for all of Geneva
