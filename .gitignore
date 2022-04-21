@@ -7,3 +7,4 @@
 .com.apple.*
 build/
 cmake-build-debug/
+.vscode

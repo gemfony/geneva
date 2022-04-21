@@ -40,7 +40,32 @@
 
 /*
  * *****************************************************************************
- * TODO: what is shown in this example?
+ * This example demonstrates how to use the MPI consumer with the geneva library
+ * to solve an example optimization problem.
+ *
+ * The GMPIConsumerT combines the qualities of a brokered consumer and a corresponding
+ * client. If running in server mode (internally that means it is the rank 0 node),
+ * the consumer must be enrolled with the broker infrastructure of geneva.
+ * If running in client mode (MPI rank 1-n) then the node just needs to run.
+ * The consumer itself figures out its position in the computation cluster and will
+ * connect to the master node (rank 0).
+ * The master node will then wait for worker nodes to request work items. If a request
+ * arrives it will retrieve a new work item from the broker and send it to the worker node.
+ * Once the worker node has processed the work item it will send it back to the master node
+ * and simultaneously request a new work item. At this point the master node will deliver the
+ * processed work item to the broker and provide the worker with a new raw work item.
+ *
+ *
+ * This example's basic structure is
+ * taken from the example `06_DirectEA`. The example `06_DirectEA` concerning
+ * consumers only provides the options of local serial execution, local multicore
+ * execution and brokered execution using the GAsioConsumer. As the GMPIConsumerT
+ * was developed at a later point in time and has another dependency (MPI library),
+ * we decided to create this example separate example of how to use the GMPIConsumerT.
+ * 
+ * The example is best started with a runner program like `mpirun` like so:
+ * `mpirun -np 4 ./GMPIConsumer
+ * 
  * *****************************************************************************
  */
 
@@ -72,16 +97,15 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 // Default settings
-const unsigned short DEFAULTPORT = 10000;
-const std::string DEFAULTIP = "localhost";
-const std::uint16_t DEFAULTNPRODUCERTHREADS = 10;
 const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serializationMode::TEXT;
-const std::uint16_t DEFAULTNEVALUATIONTHREADS = 4;
+const std::uint16_t DEFAULTNPRODUCERTHREADS = 10;
+// number of threads in thread-pool of the MPI server that are used to handle connections with workers
+const std::uint16_t DEFAULTNSERVERIOTHREADS = 0; // 0 means let GMPIConsumerT class make a suggestion
 const std::size_t DEFAULTPOPULATIONSIZE06 = 100;
 const std::size_t DEFAULTNPARENTS = 5; // Allow to explore the parameter space from many starting points
 const std::uint32_t DEFAULTMAXITERATIONS = 200;
-const std::uint32_t DEFAULTREPORTITERATION = 1;
 const long DEFAULTMAXMINUTES = 10;
+const std::uint32_t DEFAULTREPORTITERATION = 1;
 const duplicationScheme DEFAULTRSCHEME = duplicationScheme::VALUEDUPLICATIONSCHEME;
 const sortingMode DEFAULTEAAPPSORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
 const std::size_t DEFAULTMAXRECONNECTS = 10;
@@ -93,10 +117,9 @@ const std::size_t DEFAULTMAXRECONNECTS = 10;
 bool parseCommandLine(
         int argc,
         char **argv,
-//        bool &serverMode,
         Gem::Common::serializationMode &serMode,
         std::uint16_t &nProducerThreads,
-        std::uint16_t &nEvaluationThreads,
+        std::uint16_t &nServerIOThreads,
         std::size_t &populationSize,
         std::size_t &nParents,
         std::uint32_t &maxIterations,
@@ -108,35 +131,18 @@ bool parseCommandLine(
     // Create the parser builder
     Gem::Common::GParserBuilder gpb;
 
-//    gpb.registerCLParameter<bool>(
-//            "serverMode,s", serverMode, false // Use client mode, if no server option is specified
-//            ,
-//            R"(Whether to run networked execution in server or client mode. The option only has an effect if "--parallelizationMode=2". You can either say "--server=true" or just "--server".)",
-//            GCL_IMPLICIT_ALLOWED // Permit implicit values, so that we can say --server instead of --server=true
-//            ,
-//            true // Use server mode, of only -s or --server was specified
-//    );
-
-//    gpb.registerCLParameter<std::string>(
-//            std::string("ip"), ip, DEFAULTIP, "The ip of the server");
-//
-//    gpb.registerCLParameter<unsigned short>(
-//            "port", port, DEFAULTPORT, "The port on the server");
-
     gpb.registerCLParameter<Gem::Common::serializationMode>(
-            "serializationMode"
-            , serMode
-            , DEFAULTSERMODE
-            , "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)"
-    );
+            "serializationMode", serMode, DEFAULTSERMODE,
+            "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
 
     gpb.registerCLParameter<std::uint16_t>(
             "nProducerThreads", nProducerThreads, DEFAULTNPRODUCERTHREADS,
             "The amount of random number producer threads");
 
     gpb.registerCLParameter<std::uint16_t>(
-            "nEvaluationThreads", nEvaluationThreads, DEFAULTNEVALUATIONTHREADS,
-            "The amount of threads processing individuals simultaneously in multi-threaded mode");
+            "nServerIOThreads", nServerIOThreads, DEFAULTNSERVERIOTHREADS,
+            "The number of threads in the thread pool of the MPI master node, which are used to handle incoming"
+            "connections from worker nodes");
 
     gpb.registerCLParameter<std::size_t>(
             "populationSize", populationSize, DEFAULTPOPULATIONSIZE06, "The desired size of the population");
@@ -147,13 +153,13 @@ bool parseCommandLine(
     gpb.registerCLParameter<std::uint32_t>(
             "maxIterations", maxIterations, DEFAULTMAXITERATIONS, "Maximum number of iterations in the optimization");
 
-    gpb.registerCLParameter<std::uint32_t>(
-            "reportIteration", reportIteration, DEFAULTREPORTITERATION,
-            "The number of iterations after which information should be emitted in the population");
-
     gpb.registerCLParameter<long>(
             "maxMinutes", maxMinutes, DEFAULTMAXMINUTES,
             "The maximum number of minutes the optimization of the population should run");
+
+    gpb.registerCLParameter<std::uint32_t>(
+            "reportIteration", reportIteration, DEFAULTREPORTITERATION,
+            "The number of iterations after which information should be emitted in the population");
 
     gpb.registerCLParameter<duplicationScheme>(
             "rScheme", rScheme, DEFAULTRSCHEME, "The recombination scheme of the evolutionary algorithm");
@@ -180,15 +186,9 @@ bool parseCommandLine(
  * The main function.
  */
 int main(int argc, char **argv) {
-    // TODO: in case of MPI we could also find the serverMode out by looking at the processes rank
-    //  However this would require us to do MPI_Init outside of the MPIConsumerClientT / MPIConsumerT classes, because
-    //  we would like to have the information about whether we are on a server or not before instantiating one of these classes.
-    //  Another option would be to merge both classes into one class which will call MPI_Init in its constructor and then set
-    //  a member variable `isServer` accordingly. This would be even easier but might diverge from the existing Consumer Interface.
-    //  If we decide to do that, then we might leave both classes as they are but create a wrapper that then instantiates the correct class as a member.
-//    bool serverMode;
+    Gem::Common::serializationMode serMode;
     std::uint16_t nProducerThreads;
-    std::uint16_t nEvaluationThreads;
+    std::uint16_t nServerIOThreads;
     std::size_t populationSize;
     std::size_t nParents;
     std::uint32_t maxIterations;
@@ -196,7 +196,6 @@ int main(int argc, char **argv) {
     std::uint32_t reportIteration;
     duplicationScheme rScheme;
     sortingMode smode;
-    Gem::Common::serializationMode serMode;
     std::size_t maxReconnects;
 
     /****************************************************************************/
@@ -209,10 +208,9 @@ int main(int argc, char **argv) {
     if (!parseCommandLine(
             argc,
             argv,
-//            serverMode,
             serMode,
             nProducerThreads,
-            nEvaluationThreads,
+            nServerIOThreads,
             populationSize,
             nParents,
             maxIterations,
@@ -228,10 +226,9 @@ int main(int argc, char **argv) {
     // Random numbers are our most valuable good. Set the number of threads
     GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
-    //
+    // Instantiate the MPI consumer.
     // Internally calls MPI_Init and finds out whether it is the master node (rank 0) or not
-    //
-    auto consumer_ptr = std::make_shared<GMPIConsumerT<GParameterSet>>(serMode /* &argc, &argv */ /* optional */ );
+    auto consumer_ptr = std::make_shared<GMPIConsumerT<GParameterSet>>(serMode, nServerIOThreads /* &argc, &argv */ /* optional */);
 
     /****************************************************************************/
     // If this is supposed to be a client start an MPI consumer client
@@ -241,6 +238,9 @@ int main(int argc, char **argv) {
         return 0;
     }
 
+    // If this is supposed to be the master node (server), then add it to the broker.
+    // This will allow the consumer to pull raw work items from the broker and put processed work items back.
+    GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(consumer_ptr);
 
     /****************************************************************************/
     // We can now start creating populations. We refer to them through the base class
@@ -273,13 +273,9 @@ int main(int argc, char **argv) {
         pop_ptr->push_back(i);
     }
 
-    // Add the consumer to the broker
-    GBROKER(Gem::Geneva::GParameterSet)->enrol_consumer(consumer_ptr);
-
     // set executor mode in the producer/optimization algorithm
     pop_ptr->registerExecutor(execMode::BROKER,
                               "./config/GBrokerExecutor.json");
-
 
     /****************************************************************************/
     // Perform the actual optimization
