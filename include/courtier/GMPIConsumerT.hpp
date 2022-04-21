@@ -83,8 +83,6 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 
-// TODO: use constants for timeouts and retry intervals
-
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
     const int TAG_REQUEST_WORK_ITEM = 42;
@@ -99,38 +97,39 @@ namespace Gem::Courtier {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * This class is responsible for the client side of network communication through MPI
- * TODO: enhance documentation
- *
- * TODO: finalize draft
- * draft:
- *
- * At the side of the worker nodes the communication only happens when there is no more work item to processed.
- * Therefore, we can work with synchronous send and receive operations without waisting any computation time, because the
- * worker would have to wait for new requests anyways. Furthermore, synchronous operations make the code easier to understand
- * Finally synchronous send calls allow the MPI implementation to directly send the bytes from the user defined buffer
- * through the network without any copying into a second buffer. In asynchronous mode the MPI library might copy the contents
- * of the user defined buffer to an internal second buffer and then return before the network operation has been completed.
- * This is useful in cases where the computation time and buffer shall be reused in the meanwhile. However, as we do not
- * have any useful tasks to complete in the mean time, we can also use synchronous calls which will avoid unnecessary
- * buffer copying.
- * However, one disadvantage of blocking calls is that they might never return if the other process (node 0 in this case)
- * has some issue. Therefore, the blocking call may remain in an endless waiting state. This is also an issue when shutting
- * down a worker. However, if we look at the implementation the GAsioConsumerClientT we can see that it also does not have
- * an option to shut it down remotely, because the call method run blocks until no work remains in the io_context.
- * Therefore, we can implement the GMPIConsumerWorkerNodeT in a similar fashion and only work with synchronous calls and trigger
- * a remote shutdown with a specialized enum variant SHUTDOWN.
+ * This class is responsible for the client side of network communication using MPI.
+ * It will repeatedly request work items from the GMPIConsumerMasterNodeT, process those,
+ * send them back to the worker and request more work items.
  *
  * The simplified workflow of the GMPIConsumerWorkerNodeT can be described as follows:
  *
- * (1) send a synchronous GET request (ask for the first work item)
- * (2) synchronously receive a message.
- * (3) deserialize the received work item
- * (4.1) if the item has DATA: process the received work item
- * (4.2) if the item is a shutdown message: shutdown the worker
- * (5) synchronously send the result of the processing to the master node and simultaneously request a new work item
- * (6) go back to a synchronously receiving the next work item i.e. step (2)
+ * (1) Send a synchronous GET request (ask for the first work item)
+ * (2) Synchronously receive a message containing either the work item or the information that currently no items are available
+ * (3) Deserialize the received message
+ * (4.1) If the message contains DATA (a raw work item): process the received work item
+ * (4.2) If the message contains no data: poll later again i.e. back to step (1)
+ * (4.3) If the message contains a SHUTDOWN signal: shut this worker down.
+ * (5) Synchronously send the result of the processing to the master node and simultaneously request a new work item
+ * (6) Wait for the response i.e. go back to step (2) again
  *
+ */
+
+/*
+ * Notes on the decision of implementation design:
+ * At the side of the worker nodes the communication only happens when there is no more work item to processed.
+ * Therefore, we can work with synchronous send and receive operations without waisting any computation time, because at
+ * the time of communication the worker would have to wait for new requests anyway. Furthermore, synchronous operations
+ * make the code easier to understand. Finally, synchronous send calls allow the MPI implementation to directly send the
+ * bytes from the user defined buffer through the network without any copying into a second buffer. In asynchronous mode
+ * the MPI library might copy the contents of the user defined buffer to an internal second buffer and then return before
+ * the network operation has been completed. This is useful in cases where the computation time and buffer shall be reused
+ * in the meanwhile. However, as we do not have any useful tasks to complete in the meantime, we can also use synchronous
+ * calls which will avoid unnecessary buffer copying.
+ * However, one disadvantage of blocking calls is that they might never return if the other process (node 0 in this case)
+ * has some issue. Therefore, the blocking call may remain in an endless waiting state. This is also an issue when shutting
+ * down a worker. However, if we look at the implementation the GAsioConsumerClientT we can see that it also does not have
+ * an option to shut it down remotely, because the call method run blocks until no work remains in the io_context, which
+ * is never the case unless an error or halt criterion breaks the never ending chain of requests.
  */
     template<typename processable_type>
     class GMPIConsumerWorkerNodeT final
@@ -348,7 +347,12 @@ namespace Gem::Courtier {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * TODO: documentation
+ * This class represents one session between the master node and one worker node.
+ *
+ * A GMPIConsumerSessionT can be opened as soon as the master node has fully received a request from
+ * a worker node. The opened GMPIConsumerSessionT will then take care of putting deserializing and processing
+ * the request as well as responding to it with a new work item (if there are items availible in the brokers queue
+ * at that point in time).
  */
     template<typename processable_type>
     class GMPIConsumerSessionT
@@ -536,41 +540,41 @@ namespace Gem::Courtier {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
- * TODO: documentation
- *
- * TODO: finalize draft
- * draft:
- *
- * Contrary to the GMPIConsumerWorkerNodeT the GMPIConsumerMasterNodeT must only work with asynchronous IO-operations and
- * run all operations on other threads than the main thread. The reason for this is because Geneva expects the
- * async_startProcessing method to return immediately and have the actual operations run on a different thread. Furthermore,
- * we want to have the ability to shut the client down, which is also only possible if the actual action is running on another
- * thread. Moreover, if a worker node has an issue we cannot block forever on IO-operations with that worker because the
- * entire system, whose center the GMPIConsumerMasterNodeT is, shall not be effected if single worker nodes encounter issues.
- *
+ * This class is responsible for the server side of network communication using MPI.
+ * It will constantly wait for incoming work items requests, process them and answer them
+ * by opening a new GMPIConsumerSessionT for each request.
+
  * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:
  *
  * (1) Create thread pool using boost::thread_group and boost::io_service
- * (2) Schedule a main loop that receives requests on the own thread pool (receiver thread). This allows to let the main
- *     thread from return the function immediately, which is expected by Geneva when calling async_startProcessing.
+ * (2) Spawn a new thread that receives request (receiverThread). Then return from the function immediately, because
+ * geneva expects consumers to be background processes on other threads than the main thread.
  * (3) Once a shutdown is supposed to occur:
  *  (3.1) Set a member flag to tell the receiver thread to stop
  *  (3.2) Stop the boost::io_service object
  *  (3.3) Join all threads. The receiver thread should exit itself and all handler threads will finish their last task
  *        and then finish.
  *
- *  Then the main loop in the receiver thread works as follows:
- * (1) Asynchronously receive message from any worker node if not yet told to stop (check member variable)
+ * Then the main loop in the receiver thread works as follows:
+ * (2) Asynchronously receive message from any worker node if not yet told to stop (check thread safe member variable)
  * (2) Once a request has been received: schedule a handler on the thread pool and wait for another message
  *     to receive i.e. go back to (1)
  *
  * Then the handler thread works as follows (implemented in the class GMPIConsumerSessionT):
  *  (3.1) Deserialize received object
  *  (3.2) If the message from the worker includes a processed item, put it into the processed items queue of the broker
- *  (3.3) Take an item from the non-processed items queue, if there is no current item then poll until one is available.
- *  (3.4) Serialize the new work item.
+ *  (3.3) Take an item from the non-processed items queue (if there currently is one available)
+ *  (3.4) Serialize the response container, which contains a new work item or the NODATA command.
  *  (3.5) Asynchronously send the item to the worker node which has requested it
- *  (3.6) Exit the handler. This lets boost use this thread for future jobs.
+ *  (3.6) Exit the handler. This lets boost use this thread for further jobs.
+ *
+ * Contrary to the GMPIConsumerWorkerNodeT the GMPIConsumerMasterNodeT must only work with asynchronous IO-operations and
+ * run all operations on other threads than the main thread. The reason for this is that Geneva expects the
+ * async_startProcessing method to return immediately and have the actual operations run on a different thread. Furthermore,
+ * we want to have the ability to shut the server down, which is also only possible if the actual action is running on another
+ * thread. Moreover, if a worker node has an issue we cannot block forever on IO-operations with that worker because the
+ * entire system, whose center the GMPIConsumerMasterNodeT is, shall not be effected if single worker nodes encounter issues.
+ *
  *
  */
     template<typename processable_type>
@@ -578,8 +582,13 @@ namespace Gem::Courtier {
             : public std::enable_shared_from_this<GMPIConsumerMasterNodeT<processable_type>> {
 
     public:
-        //-------------------------------------------------------------------------
-        // TODO: documentation
+        /**
+         * Constructor to instantiate the GMPIConsumerMasterNodeT
+         *
+         * @param serializationMode mode of serialization to use for messages transferred between master node and worker nodes.
+         * @param worldSize the number of nodes in the MPI cluster which is equal to the number of worker nodes + 1.
+         * @param nIOThreads the number of threads in the thread pool which handles client connections.
+         */
         explicit GMPIConsumerMasterNodeT(
                 Gem::Common::serializationMode serializationMode,
                 boost::int32_t worldSize,
@@ -774,12 +783,16 @@ namespace Gem::Courtier {
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 /**
+ * This class is a wrapper around:
+ * - GMPIConsumerMasterNodeT
+ * - GMPIConsumerWorkerNodeT
+ * - MPI initialization and finalization
+ *
  * This class is responsible for checking whether the current process is the master node (rank 0) or a worker node (any other rank).
  * It is derived from both base classes - GBaseClient and GBaseConsumer and can therefore be used as either of these.
  * It instantiates the correct classes (GMPIConsumerMasterNode or GMPIConsumerWorkerNode) and forwards calls to member
  * functions to one of the two classes. This serves as an abstraction of MPI such that the user does not need to explicitly
  * ask for the process's rank.
- *
  */
     template<typename processable_type>
     class GMPIConsumerT final
@@ -791,12 +804,15 @@ namespace Gem::Courtier {
     public:
 
         //-------------------------------------------------------------------------
-        /**
-         * Initialization of a consumer
-         *
-         * // TODO: update documentation
-         * @param serializationMode the method of serialization used by the consumer
-         */
+         /**
+          *
+          * Constructor for a GMPIConsumerT
+          *
+          * @param serializationMode serialization mode to use for messages send between the master node and worker nodes
+          * @param nMasterNodeIOThreads the number of threads in the thread pool of the master node to handle connections with worker nodes
+          * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call - optional
+          * @param argv argument vector passed to main funciton, which will be forwarded to MPI_Init call - opitonal
+          */
         explicit GMPIConsumerT(
                 Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
                 boost::uint32_t nMasterNodeIOThreads = 0,
