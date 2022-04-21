@@ -36,7 +36,7 @@
 
 // TODO: enhance in-code documentation of public methods
 // TODO: do not issue warning but only logging once handler threads have been stopped due to member flag
-//
+// TODO: replace std::cout with logging
 
 #pragma once
 
@@ -151,6 +151,7 @@ namespace Gem::Courtier {
                   m_worldRank{worldRank},
                   m_nMaxReconnects{nMaxReconnects},
                   m_callingConsumer{callingConsumer} {
+            std::cout << "MPIConsumerWorkerNodeT with rank " << m_worldRank << " started up" << std::endl;
             m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[m_maxIncomingMessageSize]);
         }
 
@@ -864,8 +865,6 @@ namespace Gem::Courtier {
                         m_worldRank,
                         *this);
             }
-
-            std::cout << "MPI node with rank " << m_worldRank << " started up." << std::endl;
         }
 
         //-------------------------------------------------------------------------
