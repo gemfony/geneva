@@ -35,6 +35,10 @@
  ********************************************************************************/
 
 // TODO: enhance in-code documentation of public methods
+// TODO: initialize all variables
+// TODO: build doxygen and fix related bugs
+// TODO: send shutdown messages to worker nodes and make sure workers shut down once the server shuts down
+// TODO: use GFILE logging level in order to not spam console
 
 #pragma once
 
