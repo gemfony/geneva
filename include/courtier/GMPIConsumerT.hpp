@@ -34,7 +34,6 @@
  *
  ********************************************************************************/
 
-// TODO: enhance in-code documentation of public methods
 // TODO: initialize all variables
 // TODO: build doxygen and fix related bugs
 // TODO: send shutdown messages to worker nodes and make sure workers shut down once the server shuts down
@@ -146,13 +145,15 @@ namespace Gem::Courtier {
                 Gem::Common::serializationMode serializationMode,
                 boost::int32_t worldSize,
                 boost::int32_t worldRank,
-                GMPIConsumerT<processable_type> &callingConsumer,
-                boost::int32_t nMaxReconnects = GMPICONSUMERMAXCONNECTIONATTEMPTS)
+                boost::int32_t nMaxReconnects,
+                std::function<bool()> halt,
+                std::function<void()> incrementProcessingCounter)
                 : m_serializationMode{serializationMode},
                   m_worldSize{worldSize},
                   m_worldRank{worldRank},
                   m_nMaxReconnects{nMaxReconnects},
-                  m_callingConsumer{callingConsumer} {
+                  m_halt{std::move(halt)},
+                  m_incrementProcessingCounter{std::move(incrementProcessingCounter)} {
             glogger << "MPIConsumerWorkerNodeT with rank " << m_worldRank << " started up" << std::endl << GSTDOUT;
 
             m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[m_maxIncomingMessageSize]);
@@ -186,7 +187,7 @@ namespace Gem::Courtier {
                     m_serializationMode
             );
 
-            while (!m_callingConsumer.halt()) {
+            while (!m_halt()) {
                 // if not all functions succeed (return true), we shut down the server and stop the request loop
                 if (!(sendRequestMaybeWithResult()
                       && receiveWorkItem()
@@ -283,7 +284,7 @@ namespace Gem::Courtier {
                     m_commandContainer.process();
 
                     // increment the counter for processed items
-                    m_callingConsumer.incrementProcessingCounter();
+                    m_incrementProcessingCounter();
 
                     // mark the container as "contains a result"
                     m_commandContainer.set_command(networked_consumer_payload_command::RESULT);
@@ -333,7 +334,8 @@ namespace Gem::Courtier {
         boost::int32_t m_worldRank;
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_nMaxReconnects;
-        GMPIConsumerT<processable_type> &m_callingConsumer;
+        std::function<bool()> m_halt;
+        std::function<void()> m_incrementProcessingCounter;
         const boost::uint32_t m_maxIncomingMessageSize = 1024 * 4;
 
         // counter for how many times we have not received data when requesting data from the master node
@@ -367,6 +369,21 @@ namespace Gem::Courtier {
             : public std::enable_shared_from_this<GMPIConsumerSessionT<processable_type>> {
     public:
 
+        /**
+         * Constructor for a GMPIConsumerSessionT.
+         *
+         * The GMPIConsumerSessionT is created for a specific connection with a specific worker node.
+         * A GMPIConsumerSessionT expects the current request to already be in completed state and requires the received
+         * message as a string argument.
+         * @param status MPI_Status object that stores information about the received request, most importantly its source
+         * i.e. the rank of the worker node sending the request
+         * @param requestMessage the payload of the request
+         * @param getPayloadItem a callback function to retrieve payload items (raw work items) from their origin / producer
+         * @param putPayloadItem a callback function to put payload items (processed work items) to their destination
+         * @param serializationMode the mode of serialization between the master nodes and the worker nodes
+         * @param isToldToStop a reference to a thread safe atomic bool variable indicating wether the caller decided to
+         * abort this session.
+         */
         GMPIConsumerSessionT(
                 MPI_Status status,
                 std::string requestMessage,
@@ -619,6 +636,13 @@ namespace Gem::Courtier {
 
         GMPIConsumerMasterNodeT &operator=(GMPIConsumerMasterNodeT<processable_type> &&) = delete;
 
+        /**
+         * Starts background threads that run the GMPIConsumerMasterNodeT.
+         * First a thread-pool will be created. Then another thread will be created which listens for requests and
+         * schedules request handlers on the thread-pool. Once the threads have been created this method will immediately
+         * return to the caller while the spawned threads run in the background and fulfil their job.
+         * To stop the master node and all its threads again you can call the shutdown method.
+         */
         void async_startProcessing() {
             createAndStartThreadPool();
 
@@ -628,6 +652,11 @@ namespace Gem::Courtier {
             );
         }
 
+        /**
+         * Sends a shutdown signal to the GMPIConsumerMasterNodeT and then joins all its background threads.
+         * Once this method has returned this means that all threads have been joined and the server is shut down
+         * completely.
+         */
         void shutdown() {
             // TODO: complete the implementation of shutdown
 
@@ -817,20 +846,27 @@ namespace Gem::Courtier {
          *
          * Constructor for a GMPIConsumerT
          *
+         * Initialized the MPI framework. Then initialized the consumer to fulfill its role inside the cluster.
+         * Depending on the rank (0 = master node (server), 1-n = worker node (client)) the member variables will be
+         * set accordingly.
+         *
          * @param serializationMode serialization mode to use for messages send between the master node and worker nodes
          * @param nMasterNodeIOThreads the number of threads in the thread pool of the master node to handle connections with worker nodes
          * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call - optional
-         * @param argv argument vector passed to main funciton, which will be forwarded to MPI_Init call - opitonal
+         * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call - optional
          */
+         // TODO: pass all arguments that are used in the example to the consumer (check if any have been forgotten)
         explicit GMPIConsumerT(
                 Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
                 boost::uint32_t nMasterNodeIOThreads = 0,
+                boost::uint32_t nWorkerMaximumReconnects = GMPICONSUMERMAXCONNECTIONATTEMPTS,
                 int *argc = nullptr,
                 char ***argv = nullptr)
                 : m_serializationMode{serializationMode},
+                  m_nMasterNodeIOThreads{nMasterNodeIOThreads},
+                  m_nWorkerMaximumReconnects{nWorkerMaximumReconnects},
                   m_worldRank{},
-                  m_worldSize{},
-                  m_nMasterNodeIOThreads{nMasterNodeIOThreads} {
+                  m_worldSize{} {
 
             // 0 indicates that the number of io threads shall be set to the recommended number of threads of for this system
             if (m_nMasterNodeIOThreads == 0) {
@@ -863,11 +899,18 @@ namespace Gem::Courtier {
                         m_worldSize,
                         m_nMasterNodeIOThreads);
             } else {
+                // note that we cannot create a shared pointer from this because we are currently in the constructor
+                // and therefore the precondition that there must already exist one shared pointer pointing to this
+                // is not met. But as the lambdas are passed an instance that is a member of the consumer, we are pretty
+                // safe already with raw pointers, because the lifetime of the GMPIConsumerWorkerNodeT is bound to the
+                // lifetime of this object
                 m_workerNodePtr = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
                         m_serializationMode,
                         m_worldSize,
                         m_worldRank,
-                        *this);
+                        m_nWorkerMaximumReconnects,
+                        [this] () -> bool { return this->halt(); },
+                        [this] () -> void { this->incrementProcessingCounter(); });
             }
         }
 
@@ -900,10 +943,16 @@ namespace Gem::Courtier {
 
         //-------------------------------------------------------------------------
 
+        /**
+         * Returns true if the current process has rank 0 within the mpi cluster, otherwise returns false.
+         */
         [[nodiscard]] inline bool isMasterNode() const {
             return m_worldRank == RANK_MASTER_NODE;
         }
 
+        /**
+         * Returns true if the current process has a rank different from 0 within the mpi cluster, otherwise returns false.
+         */
         [[nodiscard]] inline bool isWorkerNode() const {
             return m_worldRank != RANK_MASTER_NODE;
         }
@@ -931,7 +980,7 @@ namespace Gem::Courtier {
 
     private:
         //-------------------------------------------------------------------------
-        // override inherited private methods
+        // private methods that override methods of the base class
 
         //-------------------------------------------------------------------------
         /**
@@ -1066,12 +1115,17 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
         // Data
 
+        // it might seem like unique pointers are sufficient in the first place.
+        // However, we need to call shared_from_this in the objects themselves to pass a reference to them
+        // to lambda functions which are used in different threads. shared_from_this has the precondition
+        // that there is already a shared pointer pointing to this. So we must use shared_ptr here already.
         std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNodePtr;
         std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNodePtr;
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
         boost::uint32_t m_nMasterNodeIOThreads;
+        boost::uint32_t m_nWorkerMaximumReconnects;
     };
 
 
