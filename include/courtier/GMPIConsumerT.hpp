@@ -35,7 +35,9 @@
  ********************************************************************************/
 
 // TODO: build doxygen and fix related bugs
-// TODO: send shutdown messages to worker nodes and make sure workers shut down once the server shuts down
+// TODO: use asynchronous communication for client/worker nodes in order to shut them down if they do not get a response
+//  from the master/server after a timeout
+// TODO: adjust the in-code documentation regarding the new workflow of the client/worker node
 
 #pragma once
 
