@@ -34,7 +34,6 @@
  *
  ********************************************************************************/
 
-// TODO: initialize all variables
 // TODO: build doxygen and fix related bugs
 // TODO: send shutdown messages to worker nodes and make sure workers shut down once the server shuts down
 
@@ -242,7 +241,7 @@ namespace Gem::Courtier {
         }
 
         bool receiveWorkItem() {
-            MPI_Status status;
+            MPI_Status status{};
 
             MPI_Recv( // blocking receive
                     m_incomingMessageBuffer.get(),
@@ -510,7 +509,7 @@ namespace Gem::Courtier {
         }
 
         bool sendResponse() {
-            MPI_Request requestHandle;
+            MPI_Request requestHandle{};
             MPI_Isend(
                     m_outgoingMessage.data(),
                     m_outgoingMessage.size(),
@@ -521,8 +520,8 @@ namespace Gem::Courtier {
                     &requestHandle);
 
             while (!m_isToldToStop) {
-                int isCompleted;
-                MPI_Status status;
+                int isCompleted{0};
+                MPI_Status status{};
 
                 MPI_Test(
                         &requestHandle,
@@ -692,13 +691,13 @@ namespace Gem::Courtier {
         }
 
         void listenForRequests() {
-            // register asynchronous receiving of message from any worker node
-
             while (!m_isToldToStop) {
-                MPI_Request requestHandle;
+                MPI_Request requestHandle{};
                 // create a buffer for each request.
                 // once the session finished handling the request, it will release the handle and the memory will be freed
                 auto buffer = std::shared_ptr<char[]>(new char[m_maxIncomingMessageSize]);
+
+                // register asynchronous receiving of message from any worker node
                 MPI_Irecv(
                         buffer.get(),
                         m_maxIncomingMessageSize,
@@ -710,8 +709,8 @@ namespace Gem::Courtier {
                 );
 
                 while (!m_isToldToStop) {
-                    int isCompleted;
-                    MPI_Status status;
+                    int isCompleted{0};
+                    MPI_Status status{};
 
                     MPI_Test(
                             &requestHandle,
