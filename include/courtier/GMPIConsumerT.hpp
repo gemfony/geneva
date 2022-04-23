@@ -37,7 +37,6 @@
 // TODO: initialize all variables
 // TODO: build doxygen and fix related bugs
 // TODO: send shutdown messages to worker nodes and make sure workers shut down once the server shuts down
-// TODO: use GFILE logging level in order to not spam console
 
 #pragma once
 
@@ -93,6 +92,10 @@ namespace Gem::Courtier {
     const int TAG_REQUEST_WORK_ITEM = 42;
     const int TAG_SEND_WORK_ITEM = 43;
     const int RANK_MASTER_NODE = 0;
+    const boost::uint32_t MAX_INCOMING_MESSAGE_SIZE = 1024 * 4;
+
+    const std::string LOGFILE_NAME = "GMPIConsumerT.log";
+
 
     // forward declare class because we have a cyclic dependency between MPIConsumerT and MPIConsumerWorkerNodeT
     template<typename processable_type>
@@ -154,7 +157,8 @@ namespace Gem::Courtier {
                   m_nMaxReconnects{nMaxReconnects},
                   m_halt{std::move(halt)},
                   m_incrementProcessingCounter{std::move(incrementProcessingCounter)} {
-            glogger << "MPIConsumerWorkerNodeT with rank " << m_worldRank << " started up" << std::endl << GSTDOUT;
+            glogger(std::filesystem::path(LOGFILE_NAME)) << "MPIConsumerWorkerNodeT with rank " << m_worldRank
+                                                         << " started up" << std::endl << GFILE;
 
             m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[m_maxIncomingMessageSize]);
         }
@@ -336,7 +340,7 @@ namespace Gem::Courtier {
         boost::int32_t m_nMaxReconnects;
         std::function<bool()> m_halt;
         std::function<void()> m_incrementProcessingCounter;
-        const boost::uint32_t m_maxIncomingMessageSize = 1024 * 4;
+        const boost::uint32_t m_maxIncomingMessageSize = MAX_INCOMING_MESSAGE_SIZE;
 
         // counter for how many times we have not received data when requesting data from the master node
         boost::int32_t m_nNoData = 0;
@@ -532,11 +536,11 @@ namespace Gem::Courtier {
                 usleep(m_sendResponseCompletionPollInterval);
             }
 
-            glogger
+            glogger(std::filesystem::path{LOGFILE_NAME})
                     << "In GMPIConsumerSessionT<processable_type>::sendResponse():" << std::endl
                     << "Handler thread was told to stop before sending the response was completed." << std::endl
                     << "Response will be canceled." << std::endl
-                    << GLOGGING;
+                    << GFILE;
             return false;
         }
 
@@ -622,8 +626,9 @@ namespace Gem::Courtier {
                   m_worldSize{worldSize},
                   m_nIOThreads{nIOThreads},
                   m_isToldToStop{false} {
-            glogger << "GMPIConsumerMasterNodeT started with n=" << m_nIOThreads << " IO-threads" << std::endl
-                    << GSTDOUT;
+            glogger(std::filesystem::path(LOGFILE_NAME)) << "GMPIConsumerMasterNodeT started with n=" << m_nIOThreads
+                                                         << " IO-threads" << std::endl
+                                                         << GFILE;
         }
 
         //-------------------------------------------------------------------------
@@ -798,7 +803,7 @@ namespace Gem::Courtier {
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         boost::uint32_t m_nIOThreads;
-        const boost::uint32_t m_maxIncomingMessageSize = 1024 * 4;
+        const boost::uint32_t m_maxIncomingMessageSize = MAX_INCOMING_MESSAGE_SIZE;
         const boost::uint32_t m_testForNewConnectionRequestPollInterval = 100;
 
         boost::asio::detail::thread_group m_handlerThreadGroup;
@@ -855,7 +860,7 @@ namespace Gem::Courtier {
          * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call - optional
          * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call - optional
          */
-         // TODO: pass all arguments that are used in the example to the consumer (check if any have been forgotten)
+        // TODO: pass all arguments that are used in the example to the consumer (check if any have been forgotten)
         explicit GMPIConsumerT(
                 Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
                 boost::uint32_t nMasterNodeIOThreads = 0,
@@ -909,8 +914,8 @@ namespace Gem::Courtier {
                         m_worldSize,
                         m_worldRank,
                         m_nWorkerMaximumReconnects,
-                        [this] () -> bool { return this->halt(); },
-                        [this] () -> void { this->incrementProcessingCounter(); });
+                        [this]() -> bool { return this->halt(); },
+                        [this]() -> void { this->incrementProcessingCounter(); });
             }
         }
 
