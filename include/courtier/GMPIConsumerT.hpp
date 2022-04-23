@@ -35,9 +35,8 @@
  ********************************************************************************/
 
 // TODO: build doxygen and fix related bugs
-// TODO: use asynchronous communication for client/worker nodes in order to shut them down if they do not get a response
-//  from the master/server after a timeout
 // TODO: adjust the in-code documentation regarding the new workflow of the client/worker node
+// TODO: make all constants configurable
 
 #pragma once
 
@@ -149,13 +148,13 @@ namespace Gem::Courtier {
                 Gem::Common::serializationMode serializationMode,
                 boost::int32_t worldSize,
                 boost::int32_t worldRank,
-                boost::int32_t nMaxReconnects,
+                bool useAsynchronousRequests,
                 std::function<bool()> halt,
                 std::function<void()> incrementProcessingCounter)
                 : m_serializationMode{serializationMode},
                   m_worldSize{worldSize},
                   m_worldRank{worldRank},
-                  m_nMaxReconnects{nMaxReconnects},
+                  m_useAsynchronousRequests{useAsynchronousRequests},
                   m_halt{std::move(halt)},
                   m_incrementProcessingCounter{std::move(incrementProcessingCounter)} {
             glogger(std::filesystem::path(LOGFILE_NAME)) << "MPIConsumerWorkerNodeT with rank " << m_worldRank
@@ -186,103 +185,135 @@ namespace Gem::Courtier {
         GMPIConsumerWorkerNodeT<processable_type> &operator=(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
         void run() {
-            // Prepare the outgoing string for the first request
+            // set message for initial GETDATA request
             m_outgoingMessage = Gem::Courtier::container_to_string(
                     m_commandContainer,
-                    m_serializationMode
-            );
+                    m_serializationMode);
+
+            // send initial GETDATA request to receive first work item
+            if (!sendResultAndRequestNewWork()) {
+                shutdown();
+                return; // return if unrecoverable error in networking occurred
+            }
 
             while (!m_halt()) {
-                // if not all functions succeed (return true), we shut down the server and stop the request loop
-                if (!(sendRequestMaybeWithResult()
-                      && receiveWorkItem()
-                      && processWorkItem())) {
-                    shutdown();
-                    return;
+                m_outgoingMessage = std::move(Gem::Courtier::container_to_string(
+                        m_commandContainer,
+                        m_serializationMode));
+                Gem::Courtier::container_from_string(
+                        m_incomingMessage,
+                        m_commandContainer,
+                        m_serializationMode);
+
+
+                if (m_useAsynchronousRequests) {
+                    std::future<bool> networkingSuccessful = std::async(
+                            std::launch::async,
+                            [this]() -> bool { return this->sendResultAndRequestNewWork(); });
+
+                    processWorkItem();
+
+                    if (!networkingSuccessful.get()) {
+                        shutdown();
+                        return; // return if unrecoverable error in networking occurred
+                    }
+
+                } else {
+                    if (!sendResultAndRequestNewWork()) {
+                        shutdown();
+                        return;  // return if unrecoverable error in networking occurred
+                    }
+                    processWorkItem();
                 }
             }
         }
 
     private:
+
         /**
-         * Sends the current contents of m_outgoingMessage to the master node.
-         * This message contains either just a get request (if it was the first request).
-         * Or delivers a result and requests more data (for all following requests).
-         * @return true if the communication was successful within the maximum number of reconnects, otherwise false.
+         * Sends the current contents of m_outgoingMessage to the master node and requests a new work item which will
+         * be assigned to m_IncomingMessage. Therefore both members m_outgoingMessage and m_incomingMessage are mutated
+         * inside of this function and shall not be mutated from other threads at the same time.
+         *
+         * @return true if successful, otherwise false. If unsuccessful, the members m_incomingMessage and m_outgoingMessage
+         * are undefined. Therefore the worker shall most likely shutdown due to this fatal error if false was returned from
+         * this function. The IO-operations also include a timeout. Therefore when this function does not return in time
+         * that means that the server is probably offline, which is another reason we believe that the return value false
+         * should trigger a shutdown.
          */
-        [[nodiscard]] bool sendRequestMaybeWithResult() {
-            for (int i{0}; i < m_nMaxReconnects; ++i) {
-                int sendResult = MPI_Ssend(
-                        m_outgoingMessage.data(),
-                        static_cast<int>(m_outgoingMessage.size()),
-                        MPI_CHAR,
-                        RANK_MASTER_NODE,
-                        TAG_REQUEST_WORK_ITEM,
-                        MPI_COMM_WORLD);
+        [[nodiscard]] bool sendResultAndRequestNewWork() {
+            MPI_Request sendHandle{};
+            MPI_Request receiveHandle{};
 
-                if (sendResult == MPI_SUCCESS) {
-                    return true;
-                }
+            // start asynchronous send call to send result of last computation (or GETDATA command if no result available)
+            MPI_Isend(
+                    m_outgoingMessage.data(),
+                    m_outgoingMessage.size(),
+                    MPI_CHAR,
+                    RANK_MASTER_NODE,
+                    TAG_REQUEST_WORK_ITEM,
+                    MPI_COMM_WORLD,
+                    &sendHandle);
 
-                glogger
-                        << "GMPIConsumerWorkerNodeT<processable_type>::sendRequestMaybeWithResult():" << std::endl
-                        << "Request for work item was not successful. Error message: " << std::endl
-                        << mpiErrorString(sendResult) << std::endl
-                        << "The worker will try to request a work item again." << std::endl
-                        << GWARNING;
-            }
-            glogger
-                    << "GMPIConsumerWorkerNodeT<processable_type>::sendRequestMaybeWithResult():" << std::endl
-                    << "Request for work item was not successful for " << m_nMaxReconnects << " times."
-                    << std::endl
-                    << "This is the configures maximum number for reconnects." << std::endl
-                    << "The worker node will therefore exit now." << std::endl
-                    << GTERMINATION;
-
-            return false;
-        }
-
-        bool receiveWorkItem() {
-            MPI_Status status{};
-
-            MPI_Recv( // blocking receive
+            // start asynchronous receive call to receive the servers result. By starting this call before we even have
+            // confirmed that the send operation has completed, we can save some time. I.e. after the server has fully received
+            // the request it can immediately respond without having to wait for the client side starting the receive call
+            MPI_Irecv(
                     m_incomingMessageBuffer.get(),
                     m_maxIncomingMessageSize,
                     MPI_CHAR,
                     RANK_MASTER_NODE,
                     MPI_ANY_TAG,
                     MPI_COMM_WORLD,
-                    &status);
+                    &receiveHandle
+            );
 
-            if (status.MPI_ERROR != MPI_SUCCESS) {
+            // time in microseconds that have been spent waiting during communication already
+            boost::uint32_t alreadyWaited{0};
+            int receiveIsCompleted{0};
+            MPI_Status receiveStatus{};
+
+            // continue testing until receive was completed or timeout has been triggered.
+            // note that we never wait for the send operation to complete, because if the receive operation will only complete
+            // if the send operation has completed, because the server/master will only send a response if it has received our request
+            while (!receiveIsCompleted) {
+                MPI_Test(&receiveHandle,
+                         &receiveIsCompleted,
+                         &receiveStatus);
+
+                alreadyWaited += m_ioPollInterval;
+                if (alreadyWaited > m_ioTimeout) {
+                    glogger(std::filesystem::path(LOGFILE_NAME))
+                            << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork():"
+                            << std::endl
+                            << "Timeout triggered when communicating with GMPIConsumerMasterNodeT" << std::endl
+                            << "We assume the server is down and will exit the worker." << std::endl
+                            << "The reason for the timeout could be that the server has completed computation and exited "
+                               "or a potential error or crash on the server side." << std::endl
+                            << GFILE;
+                    return false;
+                }
+
+                usleep(m_ioPollInterval);
+            }
+
+            if (receiveStatus.MPI_ERROR != MPI_SUCCESS) {
                 glogger
-                        << "GMPIConsumerWorkerNodeT<processable_type>::receiveWorkItem():" << std::endl
-                        << "Worker was not able to successfully retrieve work item from master node" << std::endl
-                        << std::endl
-                        << "The worker node will therefore exit now." << std::endl
-                        << GTERMINATION;
-
+                        << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork():" << std::endl
+                        << "Received an error receiving a message from GMPIConsumerMasterNodeT:" << std::endl
+                        << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl
+                        << "Worker node will shut down." << std::endl
+                        << GWARNING;
                 return false;
             }
-            std::string receivedMessage{m_incomingMessageBuffer.get(), static_cast<size_t>(mpiGetCount(status))};
 
-            try {
-                // Extract the string from the buffer and de-serialize the object
-                Gem::Courtier::container_from_string(
-                        receivedMessage, m_commandContainer, m_serializationMode
-                ); // may throw
-            } catch (const gemfony_exception &ex) {
-                glogger
-                        << "GMPIConsumerWorkerNodeT<processable_type>::receiveWorkItem(): Caught exception while deserializing command container:"
-                        << std::endl << ex.what() << std::endl
-                        << GEXCEPTION;
-                return false;
-            }
+            // create string with correct size from the fixed sie buffer
+            m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(receiveStatus));
 
             return true;
         }
 
-        [[nodiscard]] bool processWorkItem() {
+        void processWorkItem() {
             switch (m_commandContainer.get_command()) {
                 case networked_consumer_payload_command::COMPUTE: {
                     // process item. This will put the result into the container
@@ -309,23 +340,15 @@ namespace Gem::Courtier {
                 }
                     break;
                 default: {
-                    // Emit an exception
+                    // Emit a warning, ignore item and request new item
                     glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem():" << std::endl
                             << "Got unknown or invalid command "
                             << boost::lexical_cast<std::string>(m_commandContainer.get_command()) << std::endl
                             << GWARNING;
 
-                    return false;
+                    m_commandContainer.reset(networked_consumer_payload_command::GETDATA);
                 }
             }
-
-            // serialize the container and set the outgoing message accordingly
-            // the next call of sendRequestMaybeWithResult() will transmit the message
-            m_outgoingMessage = Gem::Courtier::container_to_string(
-                    m_commandContainer,
-                    m_serializationMode
-            );
-            return true;
         }
 
         void shutdown() {
@@ -338,10 +361,20 @@ namespace Gem::Courtier {
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
         Gem::Common::serializationMode m_serializationMode;
-        boost::int32_t m_nMaxReconnects;
         std::function<bool()> m_halt;
         std::function<void()> m_incrementProcessingCounter;
         const boost::uint32_t m_maxIncomingMessageSize = MAX_INCOMING_MESSAGE_SIZE;
+
+        // intervals and timeouts in microseconds:
+
+        // A poll interval that is slightly shorter than the time to process the item should suffice in async mode.
+        // Any more frequent polling will increase cpu usage on the io-thread, which might be helpful as the working thread
+        // is still busy with the item from the last iteration
+        const boost::uint32_t m_ioPollInterval = 100;
+        // maximum time between sending a result and receiving a new work item until a timeout will be triggered
+        const boost::uint32_t m_ioTimeout = 1'000'000;
+
+        const bool m_useAsynchronousRequests;
 
         // counter for how many times we have not received data when requesting data from the master node
         boost::int32_t m_nNoData = 0;
@@ -352,6 +385,7 @@ namespace Gem::Courtier {
 
         // we only work with one IO-thread here. So we can store the buffer as a member variable without concurrency issues
         std::unique_ptr<char[]> m_incomingMessageBuffer;
+        std::string m_incomingMessage;
         std::string m_outgoingMessage;
         GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
                 networked_consumer_payload_command::GETDATA}; ///< Holds the current command and payload (if any)
@@ -862,15 +896,16 @@ namespace Gem::Courtier {
          * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call - optional
          */
         // TODO: pass all arguments that are used in the example to the consumer (check if any have been forgotten)
+        // TODO: remove unused constants in the other constants file
         explicit GMPIConsumerT(
                 Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
                 boost::uint32_t nMasterNodeIOThreads = 0,
-                boost::uint32_t nWorkerMaximumReconnects = GMPICONSUMERMAXCONNECTIONATTEMPTS,
+                bool useAsyncRequests = false,
                 int *argc = nullptr,
                 char ***argv = nullptr)
                 : m_serializationMode{serializationMode},
                   m_nMasterNodeIOThreads{nMasterNodeIOThreads},
-                  m_nWorkerMaximumReconnects{nWorkerMaximumReconnects},
+                  m_useAsyncRequests{useAsyncRequests},
                   m_worldRank{},
                   m_worldSize{} {
 
@@ -914,7 +949,7 @@ namespace Gem::Courtier {
                         m_serializationMode,
                         m_worldSize,
                         m_worldRank,
-                        m_nWorkerMaximumReconnects,
+                        m_useAsyncRequests,
                         [this]() -> bool { return this->halt(); },
                         [this]() -> void { this->incrementProcessingCounter(); });
             }
@@ -1131,7 +1166,8 @@ namespace Gem::Courtier {
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
         boost::uint32_t m_nMasterNodeIOThreads;
-        boost::uint32_t m_nWorkerMaximumReconnects;
+        // whether to asynchronously request new work items from worker nodes while processing the current work item
+        bool m_useAsyncRequests;
     };
 
 
