@@ -759,12 +759,10 @@ namespace Gem::Courtier {
 
         /**
          * Sends a shutdown signal to the GMPIConsumerMasterNodeT and then joins all its background threads.
-         * Once this method has returned this means that all threads have been joined and the server is shut down
-         * completely.
+         * Once this method has returned this means that all threads have been joined, all asynchronous mpi communication
+         * requests have been either completed or have been canceled and the server is shut down completely.
          */
         void shutdown() {
-            // TODO: complete the implementation of shutdown
-
             // notify other threads to stop
             m_isToldToStop.store(true);
 
@@ -810,7 +808,7 @@ namespace Gem::Courtier {
                         &requestHandle
                 );
 
-                while (!m_isToldToStop) {
+                while (true) {
                     int isCompleted{0};
                     MPI_Status status{};
 
@@ -828,6 +826,13 @@ namespace Gem::Courtier {
 
                         break;
                     }
+
+                    if (m_isToldToStop) {
+                        // cancel pending request and return in case we receive a stop signal
+                        cancelRequest(requestHandle);
+                        return;
+                    }
+
                     // if receive not completed yet, sleep a short amount of time until polling again for the message status
                     usleep(m_config.receivePollIntervalUSec);
                 }
@@ -861,6 +866,15 @@ namespace Gem::Courtier {
 
             // at time of leaving this method the request has been handled and the job for this thread is finished.
             // This thread will then be able to be scheduled for further requests by the IO-thread again
+        }
+
+        /**
+         * Cancels an active mpi request.
+         * @param request the request to be canceled.
+         */
+        void cancelRequest(MPI_Request &request) {
+            MPI_Cancel(&request);
+            MPI_Request_free(&request);
         }
 
         /**
