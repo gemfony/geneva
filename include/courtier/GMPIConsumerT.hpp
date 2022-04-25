@@ -37,8 +37,6 @@
 // TODO: build doxygen and fix related bugs
 // TODO: adjust the in-code documentation regarding the new workflow of the client/worker node
 // TODO: make all constants configurable
-// TODO: cancel MPI requests if timeout or something similar happens
-// TODO: Use timeout for send operations in GConsumerSessionT in order to not have an endless session in case a client crashes
 // TODO: update documentation for constructors
 
 #pragma once
