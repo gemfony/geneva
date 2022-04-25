@@ -715,6 +715,7 @@ namespace Gem::Courtier {
                   m_worldSize{worldSize},
                   m_isToldToStop{false},
                   m_config{config} {
+            configureNHandlerThreads();
             glogger(std::filesystem::path(LOGFILE_NAME)) << "GMPIConsumerMasterNodeT started with n="
                                                          << m_config.nIOThreads
                                                          << " IO-threads" << std::endl
@@ -890,6 +891,29 @@ namespace Gem::Courtier {
             }
         }
 
+        void configureNHandlerThreads() {
+            // if thread pool size is set to 0 by user, set it to a recommendation
+            if (m_config.nIOThreads == 0) {
+                m_config.nIOThreads = nHandlerThreadsRecommendation();
+            }
+        }
+
+        [[nodiscard]] boost::uint32_t nHandlerThreadsRecommendation() const {
+            // At least the main thread (consumer runs not on main thread)
+            // and the thread for receiving incoming connections should get their own processor
+            const long long threadsReservedForOtherTasks{2};
+            long long numCPUCores = sysconf(_SC_NPROCESSORS_ONLN);
+
+            long long recommendation{numCPUCores - threadsReservedForOtherTasks};
+
+            // at least one thread must be used for handling requests, even if system has not as many cores
+            if (recommendation < 1) {
+                recommendation = 1;
+            }
+
+            return recommendation > 0 ? recommendation : 1;
+        }
+
         //-------------------------------------------------------------------------
         // Data
 
@@ -965,11 +989,6 @@ namespace Gem::Courtier {
                   m_workerNodeConfig{workerNodeConfig},
                   m_worldRank{},
                   m_worldSize{} {
-
-            // 0 indicates that the number of io threads shall be set to the recommended number of threads of for this system
-            if (m_masterNodeConfig.nIOThreads == 0) {
-                m_masterNodeConfig.nIOThreads = masterNodeIOThreadsRecommendation();
-            }
 
             // initialize MPI
             int providedThreadingLevel = 0;
@@ -1201,11 +1220,6 @@ namespace Gem::Courtier {
          */
         [[nodiscard]] uint32_t getMasterNodeIOThreads() const {
             return m_masterNodeConfig.nIOThreads;
-        }
-
-        [[nodiscard]] uint32_t masterNodeIOThreadsRecommendation() const {
-            // TODO: calculate a more sophisticated recommendation that is dependent on the systems number of CPU-cores
-            return 4;
         }
 
         //-------------------------------------------------------------------------
