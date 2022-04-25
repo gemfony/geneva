@@ -282,9 +282,6 @@ namespace Gem::Courtier {
          * should trigger a shutdown.
          */
         [[nodiscard]] bool sendResultAndRequestNewWork() {
-            MPI_Request sendHandle{};
-            MPI_Request receiveHandle{};
-
             // start asynchronous send call to send result of last computation (or GETDATA command if no result available)
             MPI_Isend(
                     m_outgoingMessage.data(),
@@ -293,7 +290,7 @@ namespace Gem::Courtier {
                     RANK_MASTER_NODE,
                     TAG_REQUEST_WORK_ITEM,
                     MPI_COMM_WORLD,
-                    &sendHandle);
+                    &m_sendHandle);
 
             // start asynchronous receive call to receive the servers result. By starting this call before we even have
             // confirmed that the send operation has completed, we can save some time. I.e. after the server has fully received
@@ -305,7 +302,7 @@ namespace Gem::Courtier {
                     RANK_MASTER_NODE,
                     MPI_ANY_TAG,
                     MPI_COMM_WORLD,
-                    &receiveHandle
+                    &m_receiveHandle
             );
 
             // time in microseconds that have been spent waiting during communication already
@@ -314,10 +311,10 @@ namespace Gem::Courtier {
             MPI_Status receiveStatus{};
 
             // continue testing until receive was completed or timeout has been triggered.
-            // note that we never wait for the send operation to complete, because if the receive operation will only complete
+            // note that we never wait for the send operation to complete, because receiving will only complete after
             // if the send operation has completed, because the server/master will only send a response if it has received our request
             while (!receiveIsCompleted) {
-                MPI_Test(&receiveHandle,
+                MPI_Test(&m_receiveHandle,
                          &receiveIsCompleted,
                          &receiveStatus);
 
@@ -407,8 +404,15 @@ namespace Gem::Courtier {
 
         const boost::uint32_t m_maxIncomingMessageSize = MAX_INCOMING_MESSAGE_SIZE;
 
+        // only one request is processed at a time. Even in the version with asynchronous request the thread which is
+        // responsible for handling the IO will always be joined before the next thread for the next IO-operation is spawned.
+        // So the program logic ensures that the access to these resources is exclusive to one thread, so we do not
+        // need to enforce this with mutex or something similar and can store the handles as members.
+        MPI_Request m_sendHandle{};
+        MPI_Request m_receiveHandle{};
+
         // counter for how many times we have not received data when requesting data from the master node
-        boost::int32_t m_nNoData = 0;
+        boost::int32_t m_nNoData{0};
 
         std::random_device m_randomDevice; ///< Source of non-deterministic random numbers
         std::mt19937 m_randomNumberEngine{
