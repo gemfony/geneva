@@ -779,10 +779,6 @@ namespace Gem::Courtier {
     private:
 
         void createAndStartThreadPool() {
-            // TODO: test if a local variable for io_service::work suffices or if this would call the constructor too early
-            // start the m_ioService processing loop
-            m_workPtr = std::make_shared<boost::asio::io_service::work>(m_ioService);
-
             for (boost::uint32_t i{0}; i < m_config.nIOThreads; ++i) {
                 m_handlerThreadGroup.create_thread(
                         [ObjectPtr = &m_ioService] { ObjectPtr->run(); }
