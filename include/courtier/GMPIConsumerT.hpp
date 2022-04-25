@@ -232,7 +232,6 @@ namespace Gem::Courtier {
 
             // send initial GETDATA request to receive first work item
             if (!sendResultAndRequestNewWork()) {
-                shutdown();
                 return; // return if unrecoverable error in networking occurred
             }
 
@@ -254,13 +253,11 @@ namespace Gem::Courtier {
                     processWorkItem();
 
                     if (!networkingSuccessful.get()) {
-                        shutdown();
                         return; // return if unrecoverable error in networking occurred
                     }
 
                 } else {
                     if (!sendResultAndRequestNewWork()) {
-                        shutdown();
                         return;  // return if unrecoverable error in networking occurred
                     }
                     processWorkItem();
@@ -275,11 +272,11 @@ namespace Gem::Courtier {
          * be assigned to m_IncomingMessage. Therefore both members m_outgoingMessage and m_incomingMessage are mutated
          * inside of this function and shall not be mutated from other threads at the same time.
          *
-         * @return true if successful, otherwise false. If unsuccessful, the members m_incomingMessage and m_outgoingMessage
-         * are undefined. Therefore the worker shall most likely shutdown due to this fatal error if false was returned from
-         * this function. The IO-operations also include a timeout. Therefore when this function does not return in time
-         * that means that the server is probably offline, which is another reason we believe that the return value false
-         * should trigger a shutdown.
+         * @return true if successful, otherwise false.
+         * If unsuccessful, the members m_incomingMessage and m_outgoingMessage are undefined.
+         * Once this call returns the asynchronous mpi communication requests associated with the handles, which are
+         * stored as member variables of this class, are guaranteed to be either completed or in case of an error canceled.
+         *
          */
         [[nodiscard]] bool sendResultAndRequestNewWork() {
             // start asynchronous send call to send result of last computation (or GETDATA command if no result available)
@@ -327,6 +324,8 @@ namespace Gem::Courtier {
                             << "The reason for the timeout could be that the server has completed computation and exited "
                                "or a potential error or crash on the server side." << std::endl
                             << GFILE;
+
+                    cancelActiveRequests();
                     return false;
                 }
 
@@ -341,6 +340,8 @@ namespace Gem::Courtier {
                         << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl
                         << "Worker node will shut down." << std::endl
                         << GWARNING;
+
+                cancelActiveRequests();
                 return false;
             }
 
@@ -348,6 +349,14 @@ namespace Gem::Courtier {
             m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(receiveStatus));
 
             return true;
+        }
+
+        /**
+         * Cancels the active requests that are associated with the handles, which are stored as member variables.
+         */
+        void cancelActiveRequests() {
+            MPI_Cancel(&m_receiveHandle);
+            MPI_Request_free(&m_sendHandle);
         }
 
         void processWorkItem() {
@@ -386,10 +395,6 @@ namespace Gem::Courtier {
                     m_commandContainer.reset(networked_consumer_payload_command::GETDATA);
                 }
             }
-        }
-
-        void shutdown() {
-            // TODO: perform any cleanup work here (probably MPI_Cancel and a following MPI_Wait, or MPI_Request_free?)
         }
 
         //-------------------------------------------------------------------------
@@ -613,7 +618,7 @@ namespace Gem::Courtier {
                             << " microseconds has been reached for sending a work item to a worker node" << std::endl
                             << "Response will be canceled." << std::endl
                             << GWARNING;
-                    shutdownActiveRequest();
+                    cancelActiveRequest();
                     return false;
                 }
 
@@ -627,11 +632,11 @@ namespace Gem::Courtier {
                     << "Handler thread was told to stop before sending the response was completed." << std::endl
                     << "Response will be canceled." << std::endl
                     << GFILE;
-            shutdownActiveRequest();
+            cancelActiveRequest();
             return false;
         }
 
-        void shutdownActiveRequest() {
+        void cancelActiveRequest() {
             MPI_Cancel(&m_mpiRequestHandle);
             MPI_Request_free(&m_mpiRequestHandle);
         }
