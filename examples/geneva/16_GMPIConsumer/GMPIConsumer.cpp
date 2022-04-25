@@ -97,10 +97,8 @@ namespace po = boost::program_options;
 
 /******************************************************************************/
 // Default settings
-const Gem::Common::serializationMode DEFAULTSERMODE = Gem::Common::serializationMode::TEXT;
 const std::uint16_t DEFAULTNPRODUCERTHREADS = 10;
 // number of threads in thread-pool of the MPI server that are used to handle connections with workers
-const std::uint16_t DEFAULTNSERVERIOTHREADS = 0; // 0 means let GMPIConsumerT class make a suggestion
 const std::size_t DEFAULTPOPULATIONSIZE06 = 100;
 const std::size_t DEFAULTNPARENTS = 5; // Allow to explore the parameter space from many starting points
 const std::uint32_t DEFAULTMAXITERATIONS = 200;
@@ -108,7 +106,6 @@ const long DEFAULTMAXMINUTES = 10;
 const std::uint32_t DEFAULTREPORTITERATION = 1;
 const duplicationScheme DEFAULTRSCHEME = duplicationScheme::VALUEDUPLICATIONSCHEME;
 const sortingMode DEFAULTEAAPPSORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
-const std::size_t DEFAULTMAXRECONNECTS = 10;
 
 /******************************************************************************/
 /**
@@ -117,32 +114,20 @@ const std::size_t DEFAULTMAXRECONNECTS = 10;
 bool parseCommandLine(
         int argc,
         char **argv,
-        Gem::Common::serializationMode &serMode,
         std::uint16_t &nProducerThreads,
-        std::uint16_t &nServerIOThreads,
         std::size_t &populationSize,
         std::size_t &nParents,
         std::uint32_t &maxIterations,
         long &maxMinutes,
         std::uint32_t &reportIteration,
         duplicationScheme &rScheme,
-        sortingMode &smode,
-        std::size_t &maxReconnects) {
+        sortingMode &smode) {
     // Create the parser builder
     Gem::Common::GParserBuilder gpb;
-
-    gpb.registerCLParameter<Gem::Common::serializationMode>(
-            "serializationMode", serMode, DEFAULTSERMODE,
-            "Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
 
     gpb.registerCLParameter<std::uint16_t>(
             "nProducerThreads", nProducerThreads, DEFAULTNPRODUCERTHREADS,
             "The amount of random number producer threads");
-
-    gpb.registerCLParameter<std::uint16_t>(
-            "nServerIOThreads", nServerIOThreads, DEFAULTNSERVERIOTHREADS,
-            "The number of threads in the thread pool of the MPI master node, which are used to handle incoming"
-            "connections from worker nodes");
 
     gpb.registerCLParameter<std::size_t>(
             "populationSize", populationSize, DEFAULTPOPULATIONSIZE06, "The desired size of the population");
@@ -168,10 +153,6 @@ bool parseCommandLine(
             "smode", smode, DEFAULTEAAPPSORTINGMODE,
             "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode");
 
-    gpb.registerCLParameter<std::size_t>(
-            "maxReconnects", maxReconnects, DEFAULTMAXRECONNECTS,
-            "The number of times a client will try to reconnect when it couldn't reach the server");
-
     // Parse the command line and leave if the help flag was given. The parser
     // will emit an appropriate help message by itself
     if (Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
@@ -186,9 +167,7 @@ bool parseCommandLine(
  * The main function.
  */
 int main(int argc, char **argv) {
-    Gem::Common::serializationMode serMode;
     std::uint16_t nProducerThreads;
-    std::uint16_t nServerIOThreads;
     std::size_t populationSize;
     std::size_t nParents;
     std::uint32_t maxIterations;
@@ -196,7 +175,6 @@ int main(int argc, char **argv) {
     std::uint32_t reportIteration;
     duplicationScheme rScheme;
     sortingMode smode;
-    std::size_t maxReconnects;
 
     /****************************************************************************/
     // Initialization of Geneva
@@ -208,17 +186,14 @@ int main(int argc, char **argv) {
     if (!parseCommandLine(
             argc,
             argv,
-            serMode,
             nProducerThreads,
-            nServerIOThreads,
             populationSize,
             nParents,
             maxIterations,
             maxMinutes,
             reportIteration,
             rScheme,
-            smode,
-            maxReconnects)) {
+            smode)) {
         exit(1);
     }
 
@@ -228,7 +203,7 @@ int main(int argc, char **argv) {
 
     // Instantiate the MPI consumer.
     // Internally calls MPI_Init and finds out whether it is the master node (rank 0) or not
-    auto consumer_ptr = std::make_shared<GMPIConsumerT<GParameterSet>>(serMode, nServerIOThreads /* &argc, &argv */ /* optional */);
+    auto consumer_ptr = std::make_shared<GMPIConsumerT<GParameterSet>>(/* optional configuration */);
 
     /****************************************************************************/
     // If this is supposed to be a client start an MPI consumer client
