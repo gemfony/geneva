@@ -106,6 +106,7 @@ const long DEFAULTMAXMINUTES = 10;
 const std::uint32_t DEFAULTREPORTITERATION = 1;
 const duplicationScheme DEFAULTRSCHEME = duplicationScheme::VALUEDUPLICATIONSCHEME;
 const sortingMode DEFAULTEAAPPSORTINGMODE = sortingMode::MUCOMMANU_SINGLEEVAL;
+const bool DEFAULTLOGTOFILE = false;
 
 /******************************************************************************/
 /**
@@ -121,7 +122,8 @@ bool parseCommandLine(
         long &maxMinutes,
         std::uint32_t &reportIteration,
         duplicationScheme &rScheme,
-        sortingMode &smode) {
+        sortingMode &smode,
+        bool &logToFile) {
     // Create the parser builder
     Gem::Common::GParserBuilder gpb;
 
@@ -153,6 +155,10 @@ bool parseCommandLine(
             "smode", smode, DEFAULTEAAPPSORTINGMODE,
             "Determines whether sorting is done in MUPLUSNU_SINGLEEVAL (0), MUCOMMANU_SINGLEEVAL (1) or MUNU1PRETAIN (2) mode");
 
+    gpb.registerCLParameter<bool>(
+            "logToFile", logToFile, DEFAULTLOGTOFILE,
+            "Boolean flag to indicate whether to write log messages to a file rather than print them to console");
+
     // Parse the command line and leave if the help flag was given. The parser
     // will emit an appropriate help message by itself
     if (Gem::Common::GCL_HELP_REQUESTED == gpb.parseCommandLine(argc, argv, true /*verbose*/)) {
@@ -175,6 +181,7 @@ int main(int argc, char **argv) {
     std::uint32_t reportIteration;
     duplicationScheme rScheme;
     sortingMode smode;
+    bool logToFile;
 
     /****************************************************************************/
     // Initialization of Geneva
@@ -193,12 +200,15 @@ int main(int argc, char **argv) {
             maxMinutes,
             reportIteration,
             rScheme,
-            smode)) {
+            smode,
+            logToFile)) {
         exit(1);
     }
 
-    // if you would like to log to a file instead of to the console then specify the logfile like this
-//    glogger.addLogTarget(std::make_shared<GFileLogger>("GMPIConsumer.cpp.log"));
+    if (logToFile) {
+        // writes log messages to a file rather than to std out
+        glogger.addLogTarget(std::make_shared<GFileLogger>("GMPIConsumer.cpp.log"));
+    }
 
     /****************************************************************************/
     // Random numbers are our most valuable good. Set the number of threads
