@@ -35,9 +35,6 @@
  ********************************************************************************/
 
 // TODO: build doxygen and fix related bugs
-// TODO: adjust the in-code documentation regarding the new workflow of the client/worker node
-// TODO: make all constants configurable
-// TODO: update documentation for constructors
 
 #pragma once
 
@@ -93,7 +90,6 @@ namespace Gem::Courtier {
     const int TAG_REQUEST_WORK_ITEM = 42;
     const int TAG_SEND_WORK_ITEM = 43;
     const int RANK_MASTER_NODE = 0;
-    const boost::uint32_t MAX_INCOMING_MESSAGE_SIZE = 1024 * 4;
 
     /**
      * Combines all configuration options necessary for a master node
@@ -139,9 +135,6 @@ namespace Gem::Courtier {
     template<typename processable_type>
     class GMPIConsumerT;
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
  * This class is responsible for the client side of network communication using MPI.
  * It will repeatedly request work items from the GMPIConsumerMasterNodeT, process those,
@@ -149,39 +142,38 @@ namespace Gem::Courtier {
  *
  * The simplified workflow of the GMPIConsumerWorkerNodeT can be described as follows:
  *
- * (1) Send a synchronous GET request (ask for the first work item)
- * (2) Synchronously receive a message containing either the work item or the information that currently no items are available
+ * (1) Send an asynchronous GET request (ask for the first work item)
+ * (2) Asynchronously receive a message containing either the work item (COMPUTE) or the information that currently
+ *      no items are available (NODATA)
  * (3) Deserialize the received message
  * (4.1) If the message contains DATA (a raw work item): process the received work item
  * (4.2) If the message contains no data: poll later again i.e. back to step (1)
- * (4.3) If the message contains a SHUTDOWN signal: shut this worker down.
- * (5) Synchronously send the result of the processing to the master node and simultaneously request a new work item
+ * (5) Asynchronously send the result of the processing to the master node, this message also simultaniously requests a
+ *      new work item
  * (6) Wait for the response i.e. go back to step (2) again
  *
- */
-
-/*
- * Notes on the decision of implementation design:
- * At the side of the worker nodes the communication only happens when there is no more work item to processed.
- * Therefore, we can work with synchronous send and receive operations without waisting any computation time, because at
- * the time of communication the worker would have to wait for new requests anyway. Furthermore, synchronous operations
- * make the code easier to understand. Finally, synchronous send calls allow the MPI implementation to directly send the
- * bytes from the user defined buffer through the network without any copying into a second buffer. In asynchronous mode
- * the MPI library might copy the contents of the user defined buffer to an internal second buffer and then return before
- * the network operation has been completed. This is useful in cases where the computation time and buffer shall be reused
- * in the meanwhile. However, as we do not have any useful tasks to complete in the meantime, we can also use synchronous
- * calls which will avoid unnecessary buffer copying.
- * However, one disadvantage of blocking calls is that they might never return if the other process (node 0 in this case)
- * has some issue. Therefore, the blocking call may remain in an endless waiting state. This is also an issue when shutting
- * down a worker. However, if we look at the implementation the GAsioConsumerClientT we can see that it also does not have
- * an option to shut it down remotely, because the call method run blocks until no work remains in the io_context, which
- * is never the case unless an error or halt criterion breaks the never ending chain of requests.
+ * All communication between GMPIConsumerWorkerNodeT and GMPIConsumerMasterNodeT works with asynchronous communication
+ * using the MPI. If an asynchronous request is not able to complete within a predefined timeframe, a timeout will be triggered.
+ * Depending on where the timeout happened the worker might be able to continue working or needs to shutdown.
+ * Timeouts and shutdowns will be logged.
+ *
  */
     template<typename processable_type>
     class GMPIConsumerWorkerNodeT final
             : public std::enable_shared_from_this<GMPIConsumerWorkerNodeT<processable_type>> {
 
     public:
+        /**
+         *
+         * Constructor with arguments for all configuration options for this class.
+         *
+         * @param serializationMode mode of serialization between master node and worker nodes
+         * @param worldSize number of nodes in the cluster, which is equal to number-of-workers + 1
+         * @param worldRank this node's rank within this cluster
+         * @param halt function that returns true if halt criterion has been reached
+         * @param incrementProcessingCounter function that increments the counter for already processed items on this node
+         * @param config configuration for this worker injected by the end user
+         */
         explicit GMPIConsumerWorkerNodeT(
                 Gem::Common::serializationMode serializationMode,
                 boost::int32_t worldSize,
@@ -197,8 +189,8 @@ namespace Gem::Courtier {
                   m_config{config} {
             glogger << "MPIConsumerWorkerNodeT with rank " << m_worldRank
                     << " started up" << std::endl << GLOGGING;
-
-            m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[m_maxIncomingMessageSize]);
+            // create the buffer for incoming messages
+            m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[GMPICONSUMERMAXMESSAGESIZE]);
         }
 
         /**
@@ -222,6 +214,12 @@ namespace Gem::Courtier {
 
         GMPIConsumerWorkerNodeT<processable_type> &operator=(GMPIConsumerWorkerNodeT<processable_type> &&) = delete;
 
+        /**
+         * Advises the worker to start requesting and processing work items.
+         * Once this call completes the worker was not able to receive any messages from the master node.
+         * This means that either optimization has been completed at the master node, or that there is an error (e.g. the
+         * network connection is lost)
+         */
         void run() {
             // set message for initial GETDATA request
             m_outgoingMessage = Gem::Courtier::container_to_string(
@@ -234,6 +232,7 @@ namespace Gem::Courtier {
             }
 
             while (!m_halt()) {
+                // swap messages in a
                 m_outgoingMessage = std::move(Gem::Courtier::container_to_string(
                         m_commandContainer,
                         m_serializationMode));
@@ -292,7 +291,7 @@ namespace Gem::Courtier {
             // the request it can immediately respond without having to wait for the client side starting to receive
             MPI_Irecv(
                     m_incomingMessageBuffer.get(),
-                    m_maxIncomingMessageSize,
+                    GMPICONSUMERMAXMESSAGESIZE,
                     MPI_CHAR,
                     RANK_MASTER_NODE,
                     MPI_ANY_TAG,
@@ -315,7 +314,8 @@ namespace Gem::Courtier {
 
                 if (alreadyWaited > m_config.ioPollTimeoutUSec) {
                     glogger
-                            << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork():"
+                            << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
+                            << m_worldRank << ":"
                             << std::endl
                             << "Timeout triggered when communicating with GMPIConsumerMasterNodeT" << std::endl
                             << "We assume the server is down and will exit the worker." << std::endl
@@ -333,7 +333,8 @@ namespace Gem::Courtier {
 
             if (receiveStatus.MPI_ERROR != MPI_SUCCESS) {
                 glogger
-                        << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork():" << std::endl
+                        << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
+                        << m_worldRank << ":" << std::endl
                         << "Received an error receiving a message from GMPIConsumerMasterNodeT:" << std::endl
                         << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl
                         << "Worker node will shut down." << std::endl
@@ -357,6 +358,12 @@ namespace Gem::Courtier {
             MPI_Request_free(&m_sendHandle);
         }
 
+        /**
+         * Processes the work item that is stored in the member m_commandContainer.
+         * After processing has been finished the result is put into m_commandContainer i.e. it overrides the old item.
+         * In case that m_commandContainer did not contain any work items this method will store a new GETDATA request
+         * in m_commandContainer to retrieve new work in the next iteration.
+         */
         void processWorkItem() {
             switch (m_commandContainer.get_command()) {
                 case networked_consumer_payload_command::COMPUTE: {
@@ -375,8 +382,9 @@ namespace Gem::Courtier {
                     // Update the NODATA counter for bookkeeping
                     ++m_nNoData;
 
-                    // sleep for a short while (between 50 and 200 milliseconds, randomly) before asking again for new work
-                    std::uniform_int_distribution<> dist(50, 200);
+                    // sleep for a short random time interval
+                    std::uniform_int_distribution<> dist(GMPICONSUMERWORKERNODERETRYINTERVALLOWERBOUNDARYMSEC,
+                                                         GMPICONSUMERWORKERNODERETRYINTERVALUPPERBOUNDARYMSEC);
                     std::this_thread::sleep_for(std::chrono::milliseconds(dist(m_randomNumberEngine)));
 
                     // Tell the server again we need work
@@ -385,7 +393,8 @@ namespace Gem::Courtier {
                     break;
                 default: {
                     // Emit a warning, ignore item and request new item
-                    glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem():" << std::endl
+                    glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem() with rank=" << m_worldRank
+                            << ":" << std::endl
                             << "Got unknown or invalid command "
                             << boost::lexical_cast<std::string>(m_commandContainer.get_command()) << std::endl
                             << GWARNING;
@@ -396,16 +405,32 @@ namespace Gem::Courtier {
         }
 
         //-------------------------------------------------------------------------
-        // Data
+        // Private data
 
+        /**
+         * number of nodes in the cluster (number of worker nodes + 1)
+         */
         boost::int32_t m_worldSize;
+        /**
+         * rank of this node in the cluster
+         */
         boost::int32_t m_worldRank;
+        /**
+         * serialization mode to use for messages between master node and worker nodes
+         */
         Gem::Common::serializationMode m_serializationMode;
+        /**
+         * Callback function that returns true if the halt criterion has been reached
+         */
         std::function<bool()> m_halt;
+        /**
+         * Increments the counter for processed work items of the calling instance of GConsumerBaseT.
+         */
         std::function<void()> m_incrementProcessingCounter;
+        /**
+         * Configuration of this client specified by the end-user.
+         */
         WorkerNodeConfig m_config;
-
-        const boost::uint32_t m_maxIncomingMessageSize = MAX_INCOMING_MESSAGE_SIZE;
 
         // only one request is processed at a time. Even in the version with asynchronous request the thread which is
         // responsible for handling the IO will always be joined before the next thread for the next IO-operation is spawned.
@@ -414,7 +439,9 @@ namespace Gem::Courtier {
         MPI_Request m_sendHandle{};
         MPI_Request m_receiveHandle{};
 
-        // counter for how many times we have not received data when requesting data from the master node
+        /**
+         * counter for how many times we have not received data when requesting data from the master node
+         */
         boost::int32_t m_nNoData{0};
 
         std::random_device m_randomDevice; ///< Source of non-deterministic random numbers
@@ -430,15 +457,12 @@ namespace Gem::Courtier {
     };
 
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
 /**
  * This class represents one session between the master node and one worker node.
  *
  * A GMPIConsumerSessionT can be opened as soon as the master node has fully received a request from
  * a worker node. The opened GMPIConsumerSessionT will then take care of putting deserializing and processing
- * the request as well as responding to it with a new work item (if there are items availible in the brokers queue
+ * the request as well as responding to it with a new work item (if there are items available in the brokers queue
  * at that point in time).
  */
     template<typename processable_type>
@@ -447,19 +471,17 @@ namespace Gem::Courtier {
     public:
 
         /**
-         * Constructor for a GMPIConsumerSessionT.
+         * Constructor for GMPIConsumerSessionT.
          *
-         * The GMPIConsumerSessionT is created for a specific connection with a specific worker node.
-         * A GMPIConsumerSessionT expects the current request to already be in completed state and requires the received
-         * message as a string argument.
          * @param status MPI_Status object that stores information about the received request, most importantly its source
          * i.e. the rank of the worker node sending the request
-         * @param requestMessage the payload of the request
+         * @param requestMessage the payload of the request this session was opened for
          * @param getPayloadItem a callback function to retrieve payload items (raw work items) from their origin / producer
          * @param putPayloadItem a callback function to put payload items (processed work items) to their destination
          * @param serializationMode the mode of serialization between the master nodes and the worker nodes
-         * @param isToldToStop a reference to a thread safe atomic bool variable indicating wether the caller decided to
-         * abort this session.
+         * @param isToldToStop a reference to a thread safe atomic bool variable indicating whether the caller decided abort this session.
+         * @param ioPollIntervalUSec time in microseconds between each poll for the status of the send operation of the response
+         * @param ioPollTimeoutUSec maximum time in microseconds for a sending a response until a timeout will get triggered
          */
         GMPIConsumerSessionT(
                 MPI_Status status,
@@ -531,7 +553,8 @@ namespace Gem::Courtier {
                     }
                     default: {
                         glogger
-                                << "GMPIConsumerSessionT<processable_type>::process_request():" << std::endl
+                                << "GMPIConsumerSessionT<processable_type>::process_request() connected to rank="
+                                << m_mpiStatus.MPI_SOURCE << ":" << std::endl
                                 << "Got unknown or invalid command " << boost::lexical_cast<std::string>(inboundCommand)
                                 << std::endl
                                 << GWARNING;
@@ -541,8 +564,9 @@ namespace Gem::Courtier {
             } catch (const gemfony_exception &ex) {
                 auto ePtr = std::current_exception();
                 glogger
-                        << "GMPIConsumerSessionT<processable_type>::processRequest(): Caught exception while deserializing request"
-                        << std::endl
+                        << "GMPIConsumerSessionT<processable_type>::processRequest() connected to rank="
+                        << m_mpiStatus.MPI_SOURCE << ":" << std::endl
+                        << ": Caught exception while deserializing request" << std::endl
                         << ex.what() << std::endl
                         << GEXCEPTION;
             }
@@ -561,7 +585,8 @@ namespace Gem::Courtier {
             }
 
             glogger
-                    << "GMPIConsumerSessionT<processable_type>::process_request():" << std::endl
+                    << "GMPIConsumerSessionT<processable_type>::process_request() connected to rank="
+                    << m_mpiStatus.MPI_SOURCE << ":" << std::endl
                     << "payload is empty even though a result was expected." << std::endl
                     << "However, this request will also be responded normally." << std::endl
                     << GWARNING;
@@ -585,6 +610,7 @@ namespace Gem::Courtier {
         }
 
         bool sendResponse() {
+            // asynchronously start sending the response
             MPI_Isend(
                     m_outgoingMessage.data(),
                     m_outgoingMessage.size(),
@@ -596,6 +622,7 @@ namespace Gem::Courtier {
 
             boost::uint32_t alreadyWaited{0};
 
+            // wait for the completion of the asynchronous call to verify no errors have occurred
             while (!m_isToldToStop) {
                 int isCompleted{0};
                 MPI_Status status{};
@@ -611,7 +638,8 @@ namespace Gem::Courtier {
 
                 if (alreadyWaited > m_ioPollTimeoutUSec) {
                     glogger
-                            << "In GMPIConsumerSessionT<processable_type>::sendResponse():" << std::endl
+                            << "In GMPIConsumerSessionT<processable_type>::sendResponse() connected to rank="
+                            << m_mpiStatus.MPI_SOURCE << ":" << std::endl
                             << "Configured timeout of " << m_ioPollTimeoutUSec
                             << " microseconds has been reached for sending a work item to a worker node" << std::endl
                             << "Response will be canceled." << std::endl
@@ -626,7 +654,8 @@ namespace Gem::Courtier {
             }
 
             glogger
-                    << "In GMPIConsumerSessionT<processable_type>::sendResponse():" << std::endl
+                    << "In GMPIConsumerSessionT<processable_type>::sendResponse() connected to rank="
+                    << m_mpiStatus.MPI_SOURCE << ":" << std::endl
                     << "Handler thread was told to stop before sending the response was completed." << std::endl
                     << "Response will be canceled." << std::endl
                     << GLOGGING;
@@ -634,6 +663,9 @@ namespace Gem::Courtier {
             return false;
         }
 
+        /**
+         * cancels an active send request that is referenced by the member variable m_mpiRequestHandle
+         */
         void cancelActiveRequest() {
             MPI_Cancel(&m_mpiRequestHandle);
             MPI_Request_free(&m_mpiRequestHandle);
@@ -661,47 +693,41 @@ namespace Gem::Courtier {
     };
 
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class is responsible for the server side of network communication using MPI.
- * It will constantly wait for incoming work items requests, process them and answer them
- * by opening a new GMPIConsumerSessionT for each request.
-
- * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:
- *
- * (1) Create thread pool using boost::thread_group and boost::io_service
- * (2) Spawn a new thread that receives request (receiverThread). Then return from the function immediately, because
- * geneva expects consumers to be background processes on other threads than the main thread.
- * (3) Once a shutdown is supposed to occur:
- *  (3.1) Set a member flag to tell the receiver thread to stop
- *  (3.2) Stop the boost::io_service object
- *  (3.3) Join all threads. The receiver thread should exit itself and all handler threads will finish their last task
- *        and then finish.
- *
- * Then the main loop in the receiver thread works as follows:
- * (2) Asynchronously receive message from any worker node if not yet told to stop (check thread safe member variable)
- * (2) Once a request has been received: schedule a handler on the thread pool and wait for another message
- *     to receive i.e. go back to (1)
- *
- * Then the handler thread works as follows (implemented in the class GMPIConsumerSessionT):
- *  (3.1) Deserialize received object
- *  (3.2) If the message from the worker includes a processed item, put it into the processed items queue of the broker
- *  (3.3) Take an item from the non-processed items queue (if there currently is one available)
- *  (3.4) Serialize the response container, which contains a new work item or the NODATA command.
- *  (3.5) Asynchronously send the item to the worker node which has requested it
- *  (3.6) Exit the handler. This lets boost use this thread for further jobs.
- *
- * Contrary to the GMPIConsumerWorkerNodeT the GMPIConsumerMasterNodeT must only work with asynchronous IO-operations and
- * run all operations on other threads than the main thread. The reason for this is that Geneva expects the
- * async_startProcessing method to return immediately and have the actual operations run on a different thread. Furthermore,
- * we want to have the ability to shut the server down, which is also only possible if the actual action is running on another
- * thread. Moreover, if a worker node has an issue we cannot block forever on IO-operations with that worker because the
- * entire system, whose center the GMPIConsumerMasterNodeT is, shall not be effected if single worker nodes encounter issues.
- *
- *
- */
+    /**
+     *
+     * This class is responsible for the server side of network communication using MPI.
+     *
+     * GMPIConsumerMasterNodeT will constantly wait for incoming work items requests, process them and answer them
+     * by opening a new GMPIConsumerSessionT for each request.
+     *
+     * @tparam processable_type a type that is processable like GParameterSet
+     *
+     *
+     * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:
+     *
+     * (1) Create thread pool using boost::thread_group and boost::io_service
+     * (2) Spawn a new thread that receives request (receiverThread). Then return from the function immediately, because
+     * geneva expects consumers to be background processes on other threads than the main thread.
+     * (3) Once a shutdown is supposed to occur:
+     *  (3.1) Set a member flag to tell the receiver thread to stop
+     *  (3.2) Stop the boost::io_service object
+     *  (3.3) Join all threads. The receiver thread should exit itself and all handler threads will finish their last task
+     *        and then finish.
+     *
+     * Then the main loop in the receiver thread works as follows:
+     * (2) Asynchronously receive message from any worker node if not yet told to stop (check thread safe member variable)
+     * (2) Once a request has been received: schedule a handler on the thread pool and wait for another message
+     *     to receive i.e. go back to (1)
+     *
+     * Then the handler thread works as follows (implemented in the class GMPIConsumerSessionT):
+     *  (3.1) Deserialize received object
+     *  (3.2) If the message from the worker includes a processed item, put it into the processed items queue of the broker
+     *  (3.3) Take an item from the non-processed items queue (if there currently is one available)
+     *  (3.4) Serialize the response container, which contains a new work item or the NODATA command.
+     *  (3.5) Asynchronously send the item to the worker node which has requested it
+     *  (3.6) Exit the handler. This lets boost use this thread for further jobs.
+     *
+     */
     template<typename processable_type>
     class GMPIConsumerMasterNodeT
             : public std::enable_shared_from_this<GMPIConsumerMasterNodeT<processable_type>> {
@@ -709,10 +735,9 @@ namespace Gem::Courtier {
     public:
         /**
          * Constructor to instantiate the GMPIConsumerMasterNodeT
-         *
          * @param serializationMode mode of serialization to use for messages transferred between master node and worker nodes.
-         * @param worldSize the number of nodes in the MPI cluster which is equal to the number of worker nodes + 1.
-         * @param nIOThreads the number of threads in the thread pool which handles client connections.
+         * @param worldSize number of nodes in the cluster, which is equal to number_of_workers + 1
+         * @param config configuration for this node specified by the end user
          */
         explicit GMPIConsumerMasterNodeT(
                 Gem::Common::serializationMode serializationMode,
@@ -744,7 +769,7 @@ namespace Gem::Courtier {
          * First a thread-pool will be created. Then another thread will be created which listens for requests and
          * schedules request handlers on the thread-pool. Once the threads have been created this method will immediately
          * return to the caller while the spawned threads run in the background and fulfil their job.
-         * To stop the master node and all its threads again you can call the shutdown method.
+         * To stop the master node and all its threads again the shutdown method can be called.
          */
         void async_startProcessing() {
             createAndStartThreadPool();
@@ -789,12 +814,12 @@ namespace Gem::Courtier {
                 MPI_Request requestHandle{};
                 // create a buffer for each request.
                 // once the session finished handling the request, it will release the handle and the memory will be freed
-                auto buffer = std::shared_ptr<char[]>(new char[m_maxIncomingMessageSize]);
+                auto buffer = std::shared_ptr<char[]>(new char[GMPICONSUMERMAXMESSAGESIZE]);
 
                 // register asynchronous receiving of message from any worker node
                 MPI_Irecv(
                         buffer.get(),
-                        m_maxIncomingMessageSize,
+                        GMPICONSUMERMAXMESSAGESIZE,
                         MPI_CHAR,
                         MPI_ANY_SOURCE,
                         MPI_ANY_TAG,
@@ -934,8 +959,6 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
         // Data
 
-        const boost::uint32_t m_maxIncomingMessageSize = MAX_INCOMING_MESSAGE_SIZE;
-
         Gem::Common::serializationMode m_serializationMode;
         boost::int32_t m_worldSize;
         MasterNodeConfig m_config;
@@ -956,31 +979,25 @@ namespace Gem::Courtier {
     };
 
 
-/******************************************************************************/
-////////////////////////////////////////////////////////////////////////////////
-/******************************************************************************/
-/**
- * This class is a wrapper around:
- * - GMPIConsumerMasterNodeT
- * - GMPIConsumerWorkerNodeT
- * - MPI initialization and finalization
- *
- * This class is responsible for checking whether the current process is the master node (rank 0) or a worker node (any other rank).
- * It is derived from both base classes - GBaseClient and GBaseConsumer and can therefore be used as either of these.
- * It instantiates the correct classes (GMPIConsumerMasterNode or GMPIConsumerWorkerNode) and forwards calls to member
- * functions to one of the two classes. This serves as an abstraction of MPI such that the user does not need to explicitly
- * ask for the process's rank.
- */
+    /**
+     *
+     * This class manages the initialization of MPI and is a wrapper around GMPIConsumerMasterNodeT and GMPIConsumerWorkerNodeT.
+     *
+     * This class is responsible for checking whether the current process is the master node (rank 0) or a worker node (any other rank).
+     * It is derived from both base classes - GBaseClient and GBaseConsumer and can therefore be used as either of these.
+     * It instantiates the correct classes (GMPIConsumerMasterNode or GMPIConsumerWorkerNode) and forwards calls to its methods
+     * to one methods of the two classes. This serves as an abstraction of MPI such that the user does not need to explicitly
+     * ask for the process's rank.
+     *
+     * @tparam processable_type a type that is processable like GParameterSet
+     */
     template<typename processable_type>
     class GMPIConsumerT final
             : public Gem::Courtier::GBaseConsumerT<processable_type>,
               public Gem::Courtier::GBaseClientT<processable_type>,
               public std::enable_shared_from_this<GMPIConsumerT<processable_type>> {
-        // worker nodes need to access private methods that are inherited from GBaseClientT
-        friend GMPIConsumerWorkerNodeT<processable_type>;
     public:
 
-        //-------------------------------------------------------------------------
         /**
          *
          * Constructor for a GMPIConsumerT
@@ -989,12 +1006,12 @@ namespace Gem::Courtier {
          * Depending on the rank (0 = master node (server), 1-n = worker node (client)) the member variables will be
          * set accordingly.
          *
+         * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call
+         * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call
          * @param serializationMode serialization mode to use for messages send between the master node and worker nodes
-         * @param nMasterNodeIOThreads the number of threads in the thread pool of the master node to handle connections with worker nodes
-         * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call - optional
-         * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call - optional
+         * @param masterNodeConfig configuration specifically for the case in which this instance is the master node
+         * @param workerNodeConfig configuration specifically for the case in which this instance is a worker node
          */
-        // TODO: remove unused constants in the other constants file
         explicit GMPIConsumerT(
                 int *argc = nullptr,
                 char ***argv = nullptr,
@@ -1044,17 +1061,14 @@ namespace Gem::Courtier {
                         m_worldRank,
                         [this]() -> bool { return this->halt(); },
                         [this]() -> void { this->incrementProcessingCounter(); },
-                        workerNodeConfig);
+                        m_workerNodeConfig);
             }
         }
 
-        //-------------------------------------------------------------------------
         /**
-         * The destructor
+         * The destructor finalazes the MPI framework.
          *
-         * This constructor must call the MPI_Finalize function as this function encapsulates all
-         * MPI-specific action.
-         *
+         * This constructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
          */
         ~GMPIConsumerT() override {
             MPI_Finalize();
@@ -1226,17 +1240,6 @@ namespace Gem::Courtier {
             }
 
             m_workerNodePtr->run();
-        }
-
-        //-------------------------------------------------------------------------
-        // non-inherited private methods
-
-        //-------------------------------------------------------------------------
-        /**
-         * Allows to retrieve the number of processing threads to be used for processing incoming connections.
-         */
-        [[nodiscard]] uint32_t getMasterNodeIOThreads() const {
-            return m_masterNodeConfig.nIOThreads;
         }
 
         //-------------------------------------------------------------------------
