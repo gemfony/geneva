@@ -197,6 +197,9 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    // if you would like to log to a file instead of to the console then specify the logfile like this
+//    glogger.addLogTarget(std::make_shared<GFileLogger>("GMPIConsumer.cpp.log"));
+
     /****************************************************************************/
     // Random numbers are our most valuable good. Set the number of threads
     GRANDOMFACTORY->setNProducerThreads(nProducerThreads);

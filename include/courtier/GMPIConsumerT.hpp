@@ -95,8 +95,6 @@ namespace Gem::Courtier {
     const int RANK_MASTER_NODE = 0;
     const boost::uint32_t MAX_INCOMING_MESSAGE_SIZE = 1024 * 4;
 
-    const std::string LOGFILE_NAME = "GMPIConsumerT.log";
-
     /**
      * Combines all configuration options necessary for a master node
      */
@@ -197,8 +195,8 @@ namespace Gem::Courtier {
                   m_halt{std::move(halt)},
                   m_incrementProcessingCounter{std::move(incrementProcessingCounter)},
                   m_config{config} {
-            glogger(std::filesystem::path(LOGFILE_NAME)) << "MPIConsumerWorkerNodeT with rank " << m_worldRank
-                                                         << " started up" << std::endl << GFILE;
+            glogger << "MPIConsumerWorkerNodeT with rank " << m_worldRank
+                    << " started up" << std::endl << GLOGGING;
 
             m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[m_maxIncomingMessageSize]);
         }
@@ -316,14 +314,14 @@ namespace Gem::Courtier {
                          &receiveStatus);
 
                 if (alreadyWaited > m_config.ioPollTimeoutUSec) {
-                    glogger(std::filesystem::path(LOGFILE_NAME))
+                    glogger
                             << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork():"
                             << std::endl
                             << "Timeout triggered when communicating with GMPIConsumerMasterNodeT" << std::endl
                             << "We assume the server is down and will exit the worker." << std::endl
                             << "The reason for the timeout could be that the server has completed computation and exited "
                                "or a potential error or crash on the server side." << std::endl
-                            << GFILE;
+                            << GLOGGING;
 
                     cancelActiveRequests();
                     return false;
@@ -627,11 +625,11 @@ namespace Gem::Courtier {
                 alreadyWaited += m_ioPollIntervalUSec;
             }
 
-            glogger(std::filesystem::path{LOGFILE_NAME})
+            glogger
                     << "In GMPIConsumerSessionT<processable_type>::sendResponse():" << std::endl
                     << "Handler thread was told to stop before sending the response was completed." << std::endl
                     << "Response will be canceled." << std::endl
-                    << GFILE;
+                    << GLOGGING;
             cancelActiveRequest();
             return false;
         }
@@ -725,10 +723,10 @@ namespace Gem::Courtier {
                   m_isToldToStop{false},
                   m_config{config} {
             configureNHandlerThreads();
-            glogger(std::filesystem::path(LOGFILE_NAME)) << "GMPIConsumerMasterNodeT started with n="
-                                                         << m_config.nIOThreads
-                                                         << " IO-threads" << std::endl
-                                                         << GFILE;
+            glogger << "GMPIConsumerMasterNodeT started with n="
+                    << m_config.nIOThreads
+                    << " IO-threads" << std::endl
+                    << GLOGGING;
         }
 
         //-------------------------------------------------------------------------
