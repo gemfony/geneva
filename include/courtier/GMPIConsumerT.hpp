@@ -249,7 +249,7 @@ namespace Gem::Courtier {
                   m_halt{std::move(halt)},
                   m_incrementProcessingCounter{std::move(incrementProcessingCounter)},
                   m_config{config} {
-            glogger << "MPIConsumerWorkerNodeT with rank " << m_worldRank
+            glogger << "GMPIConsumerWorkerNodeT with rank " << m_worldRank
                     << " started up" << std::endl << GLOGGING;
             // create the buffer for incoming messages
             m_incomingMessageBuffer = std::unique_ptr<char[]>(new char[GMPICONSUMERMAXMESSAGESIZE]);
@@ -810,6 +810,8 @@ namespace Gem::Courtier {
                   m_isToldToStop{false},
                   m_config{config} {
             configureNHandlerThreads();
+            glogger << "GMPIConsumerMasterNodeT started with n=" << m_config.nIOThreads << " IO-threads" << std::endl
+                    << GLOGGING;
         }
 
         //-------------------------------------------------------------------------
@@ -831,9 +833,6 @@ namespace Gem::Courtier {
          * To stop the master node and all its threads again the shutdown method can be called.
          */
         void async_startProcessing() {
-            glogger << "GMPIConsumerMasterNodeT started with n=" << m_config.nIOThreads << " IO-threads" << std::endl
-                    << GLOGGING;
-
             createAndStartThreadPool();
 
             auto self = this->shared_from_this();
