@@ -48,13 +48,17 @@
 // Geneva headers go here
 #include "common/GCommonEnums.hpp"
 #include "common/GLogger.hpp"
+#include "geneva/GParameterSet.hpp"
+#include "geneva/GIndividualStandardConsumerInitializerT.hpp"
+
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GWebsocketConsumerT.hpp"
 #include "courtier/GAsioConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
 #include "courtier/GSerialConsumerT.hpp"
-#include "geneva/GParameterSet.hpp"
-#include "geneva/GIndividualStandardConsumerInitializerT.hpp"
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+#include "courtier/GMPIConsumerT.hpp"
+#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 
 namespace Gem {
 namespace Geneva {
@@ -120,6 +124,20 @@ public:
 	/** @brief The desstructor */
  	G_API_GENEVA ~GIndividualSerialConsumer() override = default;
 };
+
+/******************************************************************************/
+////////////////////////////////////////////////////////////////////////////////
+/******************************************************************************/
+/**
+ * A consumer used for network communication with MPI, using GParameterSet-derivatives.
+ */
+class GIndividualMPIConsumer final
+        : public Gem::Courtier::GMPIConsumerT<Gem::Geneva::GParameterSet>{
+public:
+    // Forward to base-class constructor
+    using Gem::Courtier::GMPIConsumerT<Gem::Geneva::GParameterSet>::GMPIConsumerT;
+};
+
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
