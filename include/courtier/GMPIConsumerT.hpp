@@ -1068,6 +1068,11 @@ namespace Gem::Courtier {
          * Depending on the rank (0 = master node (server), 1-n = worker node (client)) the member variables will be
          * set accordingly.
          *
+         * NOTE: The constructor of GMPIConsumerT is only allowed to be called once per process. The reason for this is
+         * because the constructor of GMPIConsumerT calls MPI_Init_Thread and the destructor calls MPI_Finalize. Both
+         * those functions are not allowed to be called more than once per process. Therefore if you want to get a reference
+         * to GMPIConsumerT in multiple locations of your code, it is convenient to use the GSingletonT class.
+         *
          * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call
          * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call
          * @param serializationMode serialization mode to use for messages send between the master node and worker nodes

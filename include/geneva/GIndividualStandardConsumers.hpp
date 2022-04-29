@@ -153,3 +153,9 @@ BOOST_CLASS_EXPORT_KEY(BOOST_IDENTITY_TYPE((Gem::Courtier::GCommandContainerT<Ge
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
+/**
+ * GMPIConsumerT can only be instantiated once, because multiple calls to MPI_Init or MPI_Finalize are not allowed.
+ * Therefore if you are not totally sure that you will call the constructor exactly once, then rather use the provided
+ * macro to acquire a singleton std::shared_ptr instance.
+ */
+#define GMPIConsumerInstance Gem::Common::GSingletonT<GIndividualMPIConsumer>::Instance(0)
