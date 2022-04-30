@@ -833,7 +833,7 @@ namespace Gem::Courtier {
          * To stop the master node and all its threads again the shutdown method can be called.
          */
         void async_startProcessing() {
-            createAndStartThreadPool();
+            m_handlerThreadPool = std::make_unique<Common::GThreadPool>(m_config.nIOThreads);
 
             auto self = this->shared_from_this();
             m_receiverThread = std::thread(
@@ -851,26 +851,17 @@ namespace Gem::Courtier {
             // notify other threads to stop
             m_isToldToStop.store(true);
 
-            // do not allow scheduling new tasks
-            m_ioService.stop();
-
             // stop the receiver thread
             m_receiverThread.join();
 
-            // let all threads finish their work and join them
-            m_handlerThreadGroup.join();
+            // wait until all threads have finished their job
+            m_handlerThreadPool->wait();
+
+            // call the destructor of the thread pool
+            m_handlerThreadPool.reset();
         }
 
     private:
-
-        void createAndStartThreadPool() {
-            for (boost::uint32_t i{0}; i < m_config.nIOThreads; ++i) {
-                m_handlerThreadGroup.create_thread(
-                        [ObjectPtr = &m_ioService] { ObjectPtr->run(); }
-                );
-            }
-        }
-
         void listenForRequests() {
             while (!m_isToldToStop) {
                 MPI_Request requestHandle{};
@@ -1025,13 +1016,8 @@ namespace Gem::Courtier {
         boost::int32_t m_worldSize;
         MasterNodeConfig m_config;
 
-        boost::asio::detail::thread_group m_handlerThreadGroup;
+        std::unique_ptr<Common::GThreadPool> m_handlerThreadPool;
         std::thread m_receiverThread;
-        boost::asio::io_service m_ioService;
-        // We do not want to call the constructor of boost::asio::io_service::work at the time of constructing
-        // the master node. Therefore, we need a pointer to it which can be set to the location of a boost::asio::io_service::work
-        // object at a later point in time.
-        std::shared_ptr<boost::asio::io_service::work> m_workPtr;
         std::atomic<bool> m_isToldToStop;
 
         std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
