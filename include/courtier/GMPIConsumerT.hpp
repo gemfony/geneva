@@ -1171,7 +1171,6 @@ namespace Gem::Courtier {
                 boost::program_options::options_description &visible,
                 boost::program_options::options_description &hidden
         ) override {
-            // TODO: test that it works
             // Note that we use the current values of the members as default values, because in a default constructed
             // instance the defaults are already set. This allows to reduce duplication of those values
             namespace po = boost::program_options;
