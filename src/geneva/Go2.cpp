@@ -96,7 +96,7 @@ Go2::Go2(
 
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
     // the mpi consumer requires to be a singleton, because it is not allowed to initialize or finalize MPI multiple times
-//    m_gi.registerConsumer(GMPIConsumerInstance);
+    m_gi.registerConsumer(GMPIConsumerInstance);
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 
 	//--------------------------------------------
