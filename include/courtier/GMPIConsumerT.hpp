@@ -1358,6 +1358,19 @@ namespace Gem::Courtier {
 
         boost::int32_t m_worldSize;
         boost::int32_t m_worldRank;
+
+        // This instance of a shared_ptr keeps it alive as long as the GMPIConsumerT exists
+        // Apart from this it is unused
+        // Normally this should not be necessary, because we have a static instance of shared_ptr to the logger in the
+        // GSingleton class. However, there is a bug that could be solved by inserting this member variable.
+        // We are as of right now not sure why the bug persists.
+        // If nobody resets the GSingleton or the pointer manually that would mean that some parts of the Consumer are
+        // still running after the destructor of the static shared_ptr instance in GSingleton has been called. That would
+        // mean that there are threads in GMPIConsumerT that run longer than the main thread. This should not be the case
+        // as all threads are joined once GMPIConsumerT::shutdown() is called.
+        // TODO: investigate why there is a "pure virtual method called" error when compiling without the below line
+        //  NOTE: the error is non-deterministic and occurs roughly in 34% of the run, especially when using Go2
+        std::shared_ptr<Gem::Common::GLogger<Gem::Common::GLogStreamer>> m_logger = glogger_ptr; // DO NOT DELETE, unused but keeps instance behind shared_ptr alive
     };
 
 
