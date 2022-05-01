@@ -1370,6 +1370,8 @@ namespace Gem::Courtier {
         // as all threads are joined once GMPIConsumerT::shutdown() is called.
         // TODO: investigate why there is a "pure virtual method called" error when compiling without the below line
         //  NOTE: the error is non-deterministic and occurs roughly in 34% of the run, especially when using Go2
+        //      It occurs after the optimization has been completed in the GMPIConsumerSessionT class when logging that
+        //      a session has been told to stop and will be canceled.
         std::shared_ptr<Gem::Common::GLogger<Gem::Common::GLogStreamer>> m_logger = glogger_ptr; // DO NOT DELETE, unused but keeps instance behind shared_ptr alive
     };
 
