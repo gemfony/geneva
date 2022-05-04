@@ -7,6 +7,7 @@ RUN set -ex \
     && yum -y install \
     wget \
     tar \
+    which \
     python3 \
     gcc \
     gcc-c++\
