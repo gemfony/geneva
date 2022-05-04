@@ -3,13 +3,7 @@
 # It might have been adjusted to suit the geneva project
 #
 
-FROM centos:7
-
-LABEL org.opencontainers.image.source="https://github.com/giovtorres/slurm-docker-cluster" \
-    org.opencontainers.image.title="slurm-docker-cluster" \
-    org.opencontainers.image.description="Slurm Docker cluster on CentOS 7" \
-    org.label-schema.docker.cmd="docker-compose up -d" \
-    maintainer="Giovanni Torres"
+FROM geneva-prerequisites
 
 ARG SLURM_TAG=slurm-19-05-1-2
 ARG GOSU_VERSION=1.11
@@ -95,7 +89,7 @@ COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-WORKDIR /usr/local/bin/
+WORKDIR /home/app
 
 # copy the prebuilt binaries of the geneva library into the container
 COPY ../docker-build .

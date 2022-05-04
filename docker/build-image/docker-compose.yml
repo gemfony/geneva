@@ -2,8 +2,8 @@ version: '2.2'
 
 services:
    
-    geneva-docker-builder:
-        container_name: "geneva_docker_builder"
+    geneva-builder:
+        container_name: "geneva_builder"
         build: .
         volumes:
         # mount project root into container
