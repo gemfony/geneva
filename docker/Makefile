@@ -3,6 +3,9 @@
 # without having to memorize all docker related commands
 #
 
+# TODO: run interactive shell session in the builder container for developers and only build the run-time-image for
+# shipping the application without volumes.
+
 # runs geneva rebuilding all images
 run-geneva-fresh-build: rebuild-geneva
 	run-geneva
