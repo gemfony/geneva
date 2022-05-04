@@ -82,6 +82,9 @@
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GCommandContainerT.hpp"
 
+// TODO: make it possible to set the polling interval to 0 for all intervals. This requires using a clock for the timeout
+//  instead of just counting up the already waited usecs.
+
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
     const int TAG_REQUEST_WORK_ITEM = 42;
@@ -132,7 +135,8 @@ namespace Gem::Courtier {
             hidden.add_options()
                     ("mpi_master_receivePollInterval",
                      po::value<boost::uint32_t>(&receivePollIntervalUSec)->default_value(receivePollIntervalUSec),
-                     "\t[mpi-master-node] The time in microseconds between each check for a new incoming connection");
+                     "\t[mpi-master-node] The time in microseconds between each check for a new incoming connection. "
+                     "Setting this to 0 means repeatedly checking without waiting in between checks.");
 
             hidden.add_options()
                     ("mpi_master_sendPollInterval",
@@ -906,7 +910,9 @@ namespace Gem::Courtier {
                     }
 
                     // if receive not completed yet, sleep a short amount of time until polling again for the message status
-                    usleep(m_config.receivePollIntervalUSec);
+                    if (m_config.receivePollIntervalUSec > 0) {
+                        usleep(m_config.receivePollIntervalUSec);
+                    }
                 }
             }
         }
@@ -1098,7 +1104,7 @@ namespace Gem::Courtier {
         }
 
         /**
-         * The destructor finalazes the MPI framework.
+         * The destructor finalizes the MPI framework.
          *
          * This constructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
          */
