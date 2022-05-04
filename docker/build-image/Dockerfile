@@ -62,7 +62,7 @@ RUN tar -xzf openmpi-*.tar.gz && \
     cd openmpi-* && \
     ./configure
 RUN cd openmpi-* && \
-    make
+    make -j $(nproc)
 RUN cd openmpi-* && \
     make install
 

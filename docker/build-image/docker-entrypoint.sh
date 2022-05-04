@@ -27,4 +27,4 @@ cmake3 \
 cmake3 \
 --build ./geneva/docker/docker-geneva-build \
 --target all \
---parallel 2
+--parallel $(nproc)
