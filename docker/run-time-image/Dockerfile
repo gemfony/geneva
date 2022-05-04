@@ -13,21 +13,16 @@ RUN set -ex \
     && yum -y update \
     && yum -y install epel-release \
     && yum -y install \
-    wget \
-    bzip2 \
     perl \
-    gcc \
-    gcc-c++\
     git \
     gnupg \
-    make \
     munge \
     munge-devel \
     python-devel \
     python-pip \
-    python34 \
-    python34-devel \
-    python34-pip \
+    python3 \
+    python3-devel \
+    python3-pip \
     mariadb-server \
     mariadb-devel \
     psmisc \
@@ -36,9 +31,9 @@ RUN set -ex \
     && yum clean all \
     && rm -rf /var/cache/yum
 
-RUN ln -s /usr/bin/python3.4 /usr/bin/python3
+# RUN ln -s /usr/bin/python3.4 /usr/bin/python3
 
-RUN pip install Cython nose && pip3.4 install Cython nose
+RUN pip install Cython nose && pip3 install Cython nose
 
 RUN set -ex \
     && wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-amd64" \
@@ -84,16 +79,33 @@ RUN set -x \
     && chown -R slurm:slurm /var/*/slurm* \
     && /sbin/create-munge-key
 
-COPY slurm.conf /etc/slurm/slurm.conf
-COPY slurmdbd.conf /etc/slurm/slurmdbd.conf
+# NOTE: We expect the build context to be set to geneva/docker/ directory.
+#       This makes it possible to include files that are located outside of the
+#       Directory where this dockerfile is located.
+#       This means the paths for COPY instructions must be relative to geneva/docker/
+# 
 
-COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+COPY ./docker/run-time-image/slurm.conf /etc/slurm/slurm.conf
+COPY ./docker/run-time-image/slurmdbd.conf /etc/slurm/slurmdbd.conf
 
-WORKDIR /home/app
 
-# copy the prebuilt binaries of the geneva library into the container
-COPY ../docker-build .
+WORKDIR /home/app/geneva
 
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+COPY ./docker/run-time-image/docker-entrypoint.sh /home/app
+
+# Copy the entire library including source code and prebuilt binaries.
+# This is necessary for installation
+COPY . .
+
+# install the geneva library
+RUN cmake3 \
+    --build ./docker/run-time-image/docker-geneva-build \
+    --target install \
+    --parallel $(nproc)
+
+# set working directory to the built library to e.g. easily run examples
+WORKDIR /home/app/geneva/docker/run-time-image/docker-geneva-build/
+
+ENTRYPOINT ["/home/app/docker-entrypoint.sh"]
 
 CMD ["slurmdbd"]

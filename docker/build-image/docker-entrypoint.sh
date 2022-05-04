@@ -20,11 +20,11 @@ cmake3 \
 -DGENEVA_BUILD_WITH_MPI_CONSUMER=1 \
 -G Ninja \
 -S ./geneva \
--B ./geneva/docker/docker-geneva-build \
+-B ./geneva/docker/run-time-image/docker-geneva-build
 
 # build geneva into the docker-geneva-build directory, which is inside the shared volume.
 # The built binaries will therefore also be availible on the host system.
 cmake3 \
---build ./geneva/docker/docker-geneva-build \
+--build ./geneva/docker/run-time-image/docker-geneva-build \
 --target all \
 --parallel $(nproc)
