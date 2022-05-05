@@ -18,6 +18,7 @@ run-geneva-builder: build-prerequisites
 run-geneva-builder-interactive:
 	docker-compose -f ./builder/docker-compose-interactive.yml up --build --detach
 	docker exec -it geneva_builder /bin/bash
+	docker-compose -f ./builder/docker-compose-interactive.yml down
 
 # builds the geneva-prerequisites image, which is the base image of the other images
 build-prerequisites:
