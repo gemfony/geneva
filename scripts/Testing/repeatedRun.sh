@@ -6,8 +6,11 @@
 command=$1
 count=$2
 result_file=$3
+timestamp=`date`
 
 echo "running \`$command\` $count times and saving output to \`$result_file\`."
+
+printf "\n------------- timestamp: $timestamp -------------\n" >> "$result_file"
 
 # run many times and save stdout and stderr to a file
 for i in $(seq "$count"); do
