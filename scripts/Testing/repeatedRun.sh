@@ -12,7 +12,7 @@ echo "running \`$command\` $count times and saving output to \`$result_file\`."
 # run many times and save stdout and stderr to a file
 for i in $(seq "$count"); do
     echo "starting iteration $i/$count..."
-    printf "\n\n------------- iteration $i/$count -------------\n\n" >> "$result_file"
+    printf "\n\n------------- running \`$command\` || iteration $i/$count -------------\n\n" >> "$result_file"
     $command >> "$result_file" 2>&1
 done
 
