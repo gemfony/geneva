@@ -39,3 +39,11 @@ stop-geneva-image:
 	docker stop geneva_runner
 	docker rm geneva_runner
 
+# starts up the local slurm cluster and opens an interactive shell session in the control node
+# This assumes you have built the geneva-runner container with `make build-geneva-image`
+# if sinfo shows that you have no nodes connected, then run ./runner/.register-cluster.sh from
+# the host machine to register the nodes with the cluster manually
+run-local-slurm-cluster-interactive:
+	docker-compose -f ./runner/docker-compose-slurm.yml up --build --detach
+	docker exec -it slurmctld /bin/bash
+	docker-compose -f ./runner/docker-compose-slurm.yml down
