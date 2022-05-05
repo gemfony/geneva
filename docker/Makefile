@@ -3,38 +3,38 @@
 # without having to memorize all docker related commands
 #
 
-# TODO: run interactive shell session in the builder container for developers and only build the run-time-image for
-# shipping the application without volumes.
+# builds the geneva image, which is independent of any shared volumes
+build-geneva-image: run-geneva-builder
+	docker build -f ./runner/Dockerfile -t geneva-runner ../
 
-# runs geneva rebuilding all images
-run-geneva-fresh-build: rebuild-geneva
-	run-geneva
+# builds the geneva library into a shared volume located at ./runner/docker-geneva-build
+run-geneva-builder: build-prerequisites
+	docker-compose -f ./builder/docker-compose.yml up --build
 
-# rebuilds all images
-rebuild-geneva: build-prerequisites run-geneva-builder build-geneva-run-time
+# builds the geneva library into a shared volume and opens an interactive shell session after the build has been completed
+# This assumes you have already built the geneva-prerequisites image.
+# We do not want force rebuild here, because this target is mostly for developers, 
+# who most likely already have build the geneva-prerequisites
+run-geneva-builder-interactive:
+	docker-compose -f ./builder/docker-compose-interactive.yml up --build --detach
+	docker exec -it geneva_builder /bin/bash
 
 # builds the geneva-prerequisites image, which is the base image of the other images
 build-prerequisites:
 	docker build -f GenevaPrerequisites.Dockerfile -t geneva-prerequisites .
 
-# builds geneva into a shared volume
-run-geneva-builder: 
-	docker-compose -f ./build-image/docker-compose.yml up --build
 
-# builds the geneva run-time image by copying the prebuild library into the image
-build-geneva-run-time:
-	docker build -f ./run-time-image/Dockerfile -t geneva-run-time ../
+# runs the independent geneva image in interactive mode
+# This assumes that the geneva_runner image has been build with make build-geneva-image before
+run-geneva-image:
+	docker run -d --name geneva_runner --entrypoint sleep geneva-runner infinity
+	docker exec -it geneva_runner /bin/bash
+	make stop-geneva-image
+	docker stop geneva_runner
+	docker rm geneva_runner
 
-# runs the geneva runtime image waiting in an idle state
-run-geneva:
-	docker run -d --name geneva_run_time --entrypoint sleep geneva-run-time infinity
-	
-# runs the geneva run-time image and opens an interactive shell session inside of the container
-run-geneva-interactive: run-geneva
-	docker exec -it geneva_run_time /bin/bash
-	make stop-geneva
+# stops and removes a running instance of the geneva_runner container
+stop-geneva-image:
+	docker stop geneva_runner
+	docker rm geneva_runner
 
-# stops and removes a running instance of the geneva_run_time container
-stop-geneva:
-	docker stop geneva_run_time
-	docker rm geneva_run_time

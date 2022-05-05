@@ -85,13 +85,13 @@ RUN set -x \
 #       This means the paths for COPY instructions must be relative to geneva/docker/
 # 
 
-COPY ./docker/run-time-image/slurm.conf /etc/slurm/slurm.conf
-COPY ./docker/run-time-image/slurmdbd.conf /etc/slurm/slurmdbd.conf
+COPY ./docker/runner/slurm.conf /etc/slurm/slurm.conf
+COPY ./docker/runner/slurmdbd.conf /etc/slurm/slurmdbd.conf
 
 
 WORKDIR /home/app/geneva
 
-COPY ./docker/run-time-image/docker-entrypoint.sh /home/app
+COPY ./docker/runner/docker-entrypoint.sh /home/app
 
 # Copy the entire library including source code and prebuilt binaries.
 # This is necessary for installation
@@ -99,12 +99,12 @@ COPY . .
 
 # install the geneva library
 RUN cmake3 \
-    --build ./docker/run-time-image/docker-geneva-build \
+    --build /home/app/geneva/docker/docker-geneva-build \
     --target install \
     --parallel $(nproc)
 
-# set working directory to the built library to e.g. easily run examples
-WORKDIR /home/app/geneva/docker/run-time-image/docker-geneva-build/
+# set working directory to the app directory to not confuse people who use this as base image
+WORKDIR /home/app/
 
 ENTRYPOINT ["/home/app/docker-entrypoint.sh"]
 
