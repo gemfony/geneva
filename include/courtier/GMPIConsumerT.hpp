@@ -85,7 +85,6 @@
 // TODO: make it possible to set the polling interval to 0 for all intervals. This requires using a clock for the timeout
 //  instead of just counting up the already waited usecs.
 // TODO: extract double buffering to GBaseConsumerClientT
-// TODO: do not use boost primitive datatypes
 // TODO: extract docker setup to a separate branch
 
 namespace Gem::Courtier
@@ -108,15 +107,15 @@ namespace Gem::Courtier
         /**
          * The time in microseconds between each check for a new incoming connection
          */
-        boost::uint32_t receivePollIntervalUSec{10};
+        std::uint32_t receivePollIntervalUSec{10};
         /**
          * The time in microseconds between each check of completion of the send operation of a new work item to a worker node.
          */
-        boost::uint32_t sendPollIntervalUSec{10};
+        std::uint32_t sendPollIntervalUSec{10};
         /**
          * The maximum time in microseconds to wait until a send operation of a new work item to a worker node succeeds.
          */
-        boost::uint32_t sendPollTimeoutUSec{1'000'000};
+        std::uint32_t sendPollTimeoutUSec{1'000'000};
 
         /**
          * Adds local command line options to a boost::program_options::options_description object.
@@ -133,21 +132,21 @@ namespace Gem::Courtier
             namespace po = boost::program_options;
             // add general options for GMPIConsumerT
             visible.add_options()("mpi_master_nIOThreads",
-                                  po::value<boost::uint32_t>(&nIOThreads)->default_value(nIOThreads),
+                                  po::value<std::uint32_t>(&nIOThreads)->default_value(nIOThreads),
                                   "\t[mpi-master-node] The number of threads in a thread pool which is used to handle incoming requests."
                                   "The default of 0 triggers a dynamic configuration depending on the number of cpu cores on the current system");
 
             hidden.add_options()("mpi_master_receivePollInterval",
-                                 po::value<boost::uint32_t>(&receivePollIntervalUSec)->default_value(receivePollIntervalUSec),
+                                 po::value<std::uint32_t>(&receivePollIntervalUSec)->default_value(receivePollIntervalUSec),
                                  "\t[mpi-master-node] The time in microseconds between each check for a new incoming connection. "
                                  "Setting this to 0 means repeatedly checking without waiting in between checks.");
 
             hidden.add_options()("mpi_master_sendPollInterval",
-                                 po::value<boost::uint32_t>(&sendPollIntervalUSec)->default_value(sendPollIntervalUSec),
+                                 po::value<std::uint32_t>(&sendPollIntervalUSec)->default_value(sendPollIntervalUSec),
                                  "\t[mpi-master-node] The time in microseconds between each check of completion of the send operation of a new work item to a worker node");
 
             hidden.add_options()("mpi_master_sendPollTimeout",
-                                 po::value<boost::uint32_t>(&sendPollTimeoutUSec)->default_value(sendPollTimeoutUSec),
+                                 po::value<std::uint32_t>(&sendPollTimeoutUSec)->default_value(sendPollTimeoutUSec),
                                  "\t[mpi-master-node] The maximum time in microseconds to wait until a send operation of a new work item to a worker node succeeds");
         }
     };
@@ -164,11 +163,11 @@ namespace Gem::Courtier
         /**
          * The time in microseconds between each check for completion of the request for a new work item.
          */
-        boost::uint32_t ioPollIntervalUSec{10};
+        std::uint32_t ioPollIntervalUSec{10};
         /**
          * The maximum time in microseconds to wait until a request for a new work item has been answered.
          */
-        boost::uint32_t ioPollTimeoutUSec{1'000'000};
+        std::uint32_t ioPollTimeoutUSec{1'000'000};
 
         /**
          * Adds local command line options to a boost::program_options::options_description object.
@@ -189,11 +188,11 @@ namespace Gem::Courtier
                                   "\t[mpi-worker-node] Whether to issue a request for the next work item while the current work item is still being processed");
 
             hidden.add_options()("mpi_worker_pollInterval",
-                                 po::value<boost::uint32_t>(&ioPollIntervalUSec)->default_value(ioPollIntervalUSec),
+                                 po::value<std::uint32_t>(&ioPollIntervalUSec)->default_value(ioPollIntervalUSec),
                                  "\t[mpi-worker-node] The time in microseconds between each check for completion of the request for a new work item.");
 
             hidden.add_options()("mpi_worker_pollTimeout",
-                                 po::value<boost::uint32_t>(&ioPollTimeoutUSec)->default_value(ioPollTimeoutUSec),
+                                 po::value<std::uint32_t>(&ioPollTimeoutUSec)->default_value(ioPollTimeoutUSec),
                                  "\t[mpi-worker-node] The maximum time in microseconds to wait until a request for a new work item has been answered");
         }
     };
@@ -244,8 +243,8 @@ namespace Gem::Courtier
          */
         explicit GMPIConsumerWorkerNodeT(
             Gem::Common::serializationMode serializationMode,
-            boost::int32_t worldSize,
-            boost::int32_t worldRank,
+            std::int32_t worldSize,
+            std::int32_t worldRank,
             std::function<bool()> halt,
             std::function<void()> incrementProcessingCounter,
             WorkerNodeConfig config)
@@ -376,7 +375,7 @@ namespace Gem::Courtier
                 &m_receiveHandle);
 
             // time in microseconds that have been spent waiting during communication already
-            boost::uint32_t alreadyWaited{0};
+            std::uint32_t alreadyWaited{0};
             int receiveIsCompleted{0};
             MPI_Status receiveStatus{};
 
@@ -496,11 +495,11 @@ namespace Gem::Courtier
         /**
          * number of nodes in the cluster (number of worker nodes + 1)
          */
-        boost::int32_t m_worldSize;
+        std::int32_t m_worldSize;
         /**
          * rank of this node in the cluster
          */
-        boost::int32_t m_worldRank;
+        std::int32_t m_worldRank;
         /**
          * serialization mode to use for messages between master node and worker nodes
          */
@@ -528,7 +527,7 @@ namespace Gem::Courtier
         /**
          * counter for how many times we have not received data when requesting data from the master node
          */
-        boost::int32_t m_nNoData{0};
+        std::int32_t m_nNoData{0};
 
         std::random_device m_randomDevice; ///< Source of non-deterministic random numbers
         std::mt19937 m_randomNumberEngine{
@@ -575,8 +574,8 @@ namespace Gem::Courtier
             std::function<void(std::shared_ptr<processable_type>)> putPayloadItem,
             Gem::Common::serializationMode serializationMode,
             std::atomic<bool> &isToldToStop,
-            boost::uint32_t ioPollIntervalUSec,
-            boost::uint32_t ioPollTimeoutUSec)
+            std::uint32_t ioPollIntervalUSec,
+            std::uint32_t ioPollTimeoutUSec)
             : m_mpiStatus{status},
               // avoid copying the string but also not taking it as reference because it should be owned by this object
               m_requestMessage{std::move(requestMessage)},
@@ -719,7 +718,7 @@ namespace Gem::Courtier
                 MPI_COMMUNICATOR,
                 &m_mpiRequestHandle);
 
-            boost::uint32_t alreadyWaited{0};
+            std::uint32_t alreadyWaited{0};
 
             // wait for the completion of the asynchronous call to verify no errors have occurred
             while (!m_isToldToStop)
@@ -779,8 +778,8 @@ namespace Gem::Courtier
         const MPI_Status m_mpiStatus;
         const std::string m_requestMessage;
         const Gem::Common::serializationMode m_serializationMode;
-        const boost::uint32_t m_ioPollIntervalUSec;
-        const boost::uint32_t m_ioPollTimeoutUSec;
+        const std::uint32_t m_ioPollIntervalUSec;
+        const std::uint32_t m_ioPollTimeoutUSec;
 
         std::function<std::shared_ptr<processable_type>()> m_getPayloadItem;
         std::function<void(std::shared_ptr<processable_type>)> m_putPayloadItem;
@@ -843,7 +842,7 @@ namespace Gem::Courtier
          */
         explicit GMPIConsumerMasterNodeT(
             Gem::Common::serializationMode serializationMode,
-            boost::int32_t worldSize,
+            std::int32_t worldSize,
             MasterNodeConfig config)
             : m_serializationMode{serializationMode},
               m_worldSize{worldSize},
@@ -1054,7 +1053,7 @@ namespace Gem::Courtier
             }
         }
 
-        [[nodiscard]] boost::uint32_t nHandlerThreadsRecommendation() const
+        [[nodiscard]] std::uint32_t nHandlerThreadsRecommendation() const
         {
             // At least the main thread (consumer runs not on main thread)
             // and the thread for receiving incoming connections should get their own processor
@@ -1076,7 +1075,7 @@ namespace Gem::Courtier
         // Data
 
         Gem::Common::serializationMode m_serializationMode;
-        boost::int32_t m_worldSize;
+        std::int32_t m_worldSize;
         MasterNodeConfig m_config;
 
         std::unique_ptr<Common::GThreadPool> m_handlerThreadPool;
@@ -1440,8 +1439,8 @@ namespace Gem::Courtier
         std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNodePtr;
         std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNodePtr;
 
-        boost::int32_t m_worldSize;
-        boost::int32_t m_worldRank;
+        std::int32_t m_worldSize;
+        std::int32_t m_worldRank;
 
         // This instance of a shared_ptr keeps it alive as long as the GMPIConsumerT exists
         // Apart from this it is unused
