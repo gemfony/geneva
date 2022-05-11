@@ -46,8 +46,8 @@ SET ( COMMONSOURCES
 	GParserBuilder
 	GPlotDesigner
 	GThreadGroup
-	GThreadPool
-)
+	GThreadPool)
+
 
 
 set_source_files_properties(

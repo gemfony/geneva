@@ -51,6 +51,8 @@ SET ( OPTIMIZATIONINCLUDES
 	GNumIntT.hpp
 	GNumT.hpp
     G_OptimizationAlgorithm_Base.hpp
+	G_OptimizationAlgorithm_ArtificialBeeColony.hpp
+	G_OptimizationAlgorithm_ArtificialBeeColony_Factory.hpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm.hpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp
     G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.hpp

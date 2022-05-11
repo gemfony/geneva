@@ -62,6 +62,9 @@ SET ( OPTIMIZATIONSOURCES
 	GInt32Object
 	GInt32ObjectCollection
 	Go2
+	G_OptimizationAlgorithm_ArtificialBeeColony
+	G_OptimizationAlgorithm_ArtificialBeeColony_Factory
+	G_OptimizationAlgorithm_ArtificialBeeColony_PersonalityTraits
     G_OptimizationAlgorithm_Base
     G_OptimizationAlgorithm_EvolutionaryAlgorithm
     G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory
@@ -92,8 +95,7 @@ SET ( OPTIMIZATIONSOURCES
 	GPersonalityTraits
     GPluggableOptimizationMonitors
     GPostProcessorT
-	GTestIndividual1
-)
+	GTestIndividual1)
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted
 IF ( GENEVA_STATIC )
