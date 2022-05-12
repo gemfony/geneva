@@ -57,7 +57,7 @@ namespace Geneva {
  * to artificial bee colonies.
  */
 
-class GSwarmAlgorithm_PersonalityTraits :
+class GArtificialBeeColony_PersonalityTraits :
         public GPersonalityTraits
 {
 

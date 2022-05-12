@@ -34,13 +34,16 @@
  *
  ********************************************************************************/
 
-#include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.hpp"
+#include "geneva/G_OptimizationAlgorithm_ArtificialBeeColony_PersonalityTraits.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GSwarmAlgorithm_PersonalityTraits) // NOLINT
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GArtificialBeeColony_PersonalityTraits) // NOLINT
 
 namespace Gem {
 namespace Geneva {
 
 /******************************************************************************/
 /** A short identifier suitable for storage in a std::map */
-G_API_GENEVA const std::string GSwarmAlgorithm_PersonalityTraits::nickname = "abc";
+G_API_GENEVA const std::string GArtificialBeeColony_PersonalityTraits::nickname = "abc";
+
+} /* namespace Geneva */
+} /* namespace Gem */

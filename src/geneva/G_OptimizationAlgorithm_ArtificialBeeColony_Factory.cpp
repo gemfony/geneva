@@ -39,5 +39,5 @@
 namespace Gem {
 namespace Geneva {
 
-}
-}
+} /* namespace Geneva */
+} /* namespace Gem */
