@@ -84,6 +84,8 @@
 
 // TODO: extract double buffering to GBaseConsumerClientT
 // TODO: extract docker setup to a separate branch
+// TODO: write documentation about why we use async calls and why we use client server architecture
+// TODO: Use one thread that cleans up sessions in order to make thread pool quicker available for new sessions
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -1096,6 +1098,15 @@ namespace Gem::Courtier {
          * This constructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
          */
         ~GMPIConsumerT() override {
+            int isInitialized{0};
+            MPI_Initialized(&isInitialized);
+
+            // Do not finalize if not initialized
+            // This can happen e.g. if instantiating GMPIConsumerT in Go2 but not using it afterwards
+            if (!isInitialized) {
+                return;
+            }
+
             int isAlreadyFinalized{0};
             MPI_Finalized(&isAlreadyFinalized);
 
