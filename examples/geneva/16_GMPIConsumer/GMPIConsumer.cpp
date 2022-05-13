@@ -215,8 +215,9 @@ int main(int argc, char **argv) {
     GRANDOMFACTORY->setNProducerThreads(nProducerThreads);
 
     // Instantiate the MPI consumer.
-    // Internally calls MPI_Init and finds out whether it is the master node (rank 0) or not
     auto consumer_ptr = std::make_shared<GMPIConsumerT<GParameterSet>>(/* optional configuration */);
+    // initialize MPI and figure out position in the cluster
+    consumer_ptr->setPositionInCluster();
 
     /****************************************************************************/
     // If this is supposed to be a client start an MPI consumer client

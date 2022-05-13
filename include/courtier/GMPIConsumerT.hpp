@@ -90,7 +90,7 @@ namespace Gem::Courtier {
     const int TAG_REQUEST_WORK_ITEM = 42;
     const int TAG_SEND_WORK_ITEM = 43;
     const int RANK_MASTER_NODE = 0;
-    const MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD;
+    static MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD;
 
     /**
      * Combines all configuration options necessary for a master node
@@ -526,7 +526,7 @@ namespace Gem::Courtier {
         std::unique_ptr<char[]> m_incomingMessageBuffer;
         std::string m_incomingMessage;
         std::string m_outgoingMessage;
-        GCommandContainerT <processable_type, networked_consumer_payload_command> m_commandContainer{
+        GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
                 networked_consumer_payload_command::GETDATA}; ///< Holds the current command and payload (if any)
     };
 
@@ -763,7 +763,7 @@ namespace Gem::Courtier {
         // references a thread-safe indicator for shutdown that is stored in the scope calling the constructor
         std::atomic<bool> &m_isToldToStop;
 
-        GCommandContainerT <processable_type, networked_consumer_payload_command> m_commandContainer{
+        GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
                 networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
         MPI_Request m_mpiRequestHandle;
         std::string m_outgoingMessage;
@@ -1082,30 +1082,13 @@ namespace Gem::Courtier {
                 Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
                 MasterNodeConfig masterNodeConfig = MasterNodeConfig{},
                 WorkerNodeConfig workerNodeConfig = WorkerNodeConfig{})
-                : m_serializationMode{serializationMode},
+                : m_argc{argc},
+                  m_argv{argv},
+                  m_serializationMode{serializationMode},
                   m_masterNodeConfig{masterNodeConfig},
                   m_workerNodeConfig{workerNodeConfig},
-                  m_worldRank{},
-                  m_worldSize{} {
-
-            // initialize MPI
-            int providedThreadingLevel = 0;
-            MPI_Init_thread(argc, argv, MPI_THREAD_MULTIPLE, &providedThreadingLevel);
-
-            if (providedThreadingLevel != MPI_THREAD_MULTIPLE) {
-                throw gemfony_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
-                                << "GMPIConsumerT<> constructor" << std::endl
-                                << "Geneva requires MPI implementation with level MPI_THREAD_MULTIPLE (a.k.a. "
-                                << MPI_THREAD_MULTIPLE
-                                << ") but the runtime environment implementation of MPI only supports level "
-                                << providedThreadingLevel << std::endl);
-            }
-
-            // set members regarding the position of the process in the MPI cluster
-            MPI_Comm_size(MPI_COMMUNICATOR, &m_worldSize);
-            MPI_Comm_rank(MPI_COMMUNICATOR, &m_worldRank);
-        }
+                  m_commRank{},
+                  m_commSize{} {}
 
         /**
          * The destructor finalizes the MPI framework.
@@ -1113,7 +1096,20 @@ namespace Gem::Courtier {
          * This constructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
          */
         ~GMPIConsumerT() override {
-            MPI_Finalize();
+            int isAlreadyFinalized{0};
+            MPI_Finalized(&isAlreadyFinalized);
+
+            if (!isAlreadyFinalized) {
+                MPI_Finalize();
+            } else {
+                glogger
+                        << "In GMPIConsumerT<>::~GMPIConsumerT():" << std::endl
+                        << "MPI has been finalized before the destructor of GMPIConsumerT has been called."
+                        << std::endl
+                        << "Happened on node with rank " << m_commRank << std::endl
+                        << "This might indicate issues in the user code." << std::endl
+                        << GWARNING;
+            }
         }
 
         //-------------------------------------------------------------------------
@@ -1131,17 +1127,91 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
 
         /**
+         *
+         * Initializes MPI in the required mode. This method is static, so that it can be called without a reference to
+         * an instance of GMPIConsumerT in case the user wants to initialize MPI on his own. This is useful in case of
+         * using MPI in the user code as well e.g. for creating MPI-subClients (look at examples/geneva/17_GMPISubClients/)
+         *
+         * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call
+         * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call
+         * @return true if MPI has been initialized by this call, false if it has already been initialized and therefore not initialized again
+         */
+        static bool initializeMPI(int *argc = nullptr, char ***argv = nullptr) {
+            int isAlreadyInitialized{0};
+            MPI_Initialized(&isAlreadyInitialized);
+
+            if (!isAlreadyInitialized) {
+                int providedThreadingLevel = 0;
+                MPI_Init_thread(argc, argv, MPI_THREAD_MULTIPLE, &providedThreadingLevel);
+
+                if (providedThreadingLevel != MPI_THREAD_MULTIPLE) {
+                    throw gemfony_exception(
+                            g_error_streamer(DO_LOG, time_and_place)
+                                    << "GMPIConsumerT<> constructor" << std::endl
+                                    << "Geneva requires MPI implementation with level MPI_THREAD_MULTIPLE (a.k.a. "
+                                    << MPI_THREAD_MULTIPLE
+                                    << ") but the runtime environment implementation of MPI only supports level "
+                                    << providedThreadingLevel << std::endl);
+                }
+            }
+
+            return isAlreadyInitialized;
+        }
+
+        /**
+          * Sets the nodes position in the cluster with regard to the MPI_COMMUNICATOR
+          * This method is required to be called before any instance method except the constructor is called
+          *
+          * @return a reference to itself to allow chaining
+          */
+        GMPIConsumerT<processable_type> &setPositionInCluster() {
+            // initialize MPI if not already happened
+            initializeMPI(m_argc, m_argv);
+
+            // set members regarding the position of the process in the MPI cluster
+            MPI_Comm_size(MPI_COMMUNICATOR, &m_commSize);
+            MPI_Comm_rank(MPI_COMMUNICATOR, &m_commRank);
+            isClusterPositionDefined = true;
+
+            return *this;
+        }
+
+        /**
+         * Sets the base communicator for all communication between the master and worker nodes.
+         * This allows also working with MPI in the user code by splitting the communicators.
+         * GMPIConsumerT must receive a user defined communicator in such case and cannot create its own, because
+         * MPI_Comm_split is a collective call that must be called by all ranks.
+         *
+         * @param communicator the new communicator for communication between master node and worker nodes
+         */
+        static void setMPICommunicator(MPI_Comm communicator) {
+            MPI_COMMUNICATOR = communicator;
+        }
+
+        /**
          * Returns true if the current process has rank 0 within the mpi cluster, otherwise returns false.
+         *
+         * Requires that cluster position has already been set with  setPositionInCluster
          */
         [[nodiscard]] inline bool isMasterNode() const {
-            return m_worldRank == RANK_MASTER_NODE;
+            if (!isClusterPositionDefined) {
+                throw gemfony_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                                << "GMPIConsumerT<>::isMasterNode():" << std::endl
+                                << "The position of the process in the cluster is undefined." << std::endl
+                                << "Use GMPIConsumerT<>::setPositionInCluster() to let the node figure out its position "
+                                   "before calling any methods that require this information.");
+            }
+            return m_commRank == RANK_MASTER_NODE;
         }
 
         /**
          * Returns true if the current process has a rank different from 0 within the mpi cluster, otherwise returns false.
+         *
+         * Requires that cluster position has already been set with  setPositionInCluster
          */
         [[nodiscard]] inline bool isWorkerNode() const {
-            return m_worldRank != RANK_MASTER_NODE;
+            return !isMasterNode();
         }
 
     protected:
@@ -1157,7 +1227,7 @@ namespace Gem::Courtier {
                         << "In GMPIConsumerT<>::shutdown_():" << std::endl
                         << "shutdown_ method is only supposed to be called by instances running master mode."
                         << std::endl
-                        << "But the calling node with rank " << m_worldRank << " is a worker node." << std::endl
+                        << "But the calling node with rank " << m_commRank << " is a worker node." << std::endl
                         << "The method will therefore exit." << std::endl
                         << GWARNING;
                 return;
@@ -1228,6 +1298,8 @@ namespace Gem::Courtier {
 
         /**
          * Inherited from GBaseConsumerT
+         *
+         * Requires that cluster position has already been set with  setPositionInCluster
          */
         void async_startProcessing_() BASE override {
             if (!isMasterNode()) {
@@ -1235,7 +1307,7 @@ namespace Gem::Courtier {
                         << "In GMPIConsumerT<>::async_startProcessing_():" << std::endl
                         << "async_startProcessing_ method is only supposed to be called by instances running master mode."
                         << std::endl
-                        << "But the calling node with rank " << m_worldRank << " is a worker node." << std::endl
+                        << "But the calling node with rank " << m_commRank << " is a worker node." << std::endl
                         << "The method will therefore exit." << std::endl
                         << GWARNING;
                 return;
@@ -1261,7 +1333,7 @@ namespace Gem::Courtier {
          */
         size_t getNProcessingUnitsEstimate_(bool &exact) const BASE override {
             exact = true; // mark the answer as exact
-            return m_worldSize;
+            return m_commSize;
         }
 
         /**
@@ -1312,7 +1384,7 @@ namespace Gem::Courtier {
                 glogger
                         << "In GMPIConsumerT<>::run_():" << std::endl
                         << "run_ method is only supposed to be called by instances running worker mode." << std::endl
-                        << "But the calling node with rank " << m_worldRank << " is the master node." << std::endl
+                        << "But the calling node with rank " << m_commRank << " is the master node." << std::endl
                         << "The method will therefore exit." << std::endl
                         << GWARNING;
                 return;
@@ -1333,7 +1405,7 @@ namespace Gem::Courtier {
             if (isMasterNode()) {
                 m_masterNodePtr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
                         m_serializationMode,
-                        m_worldSize,
+                        m_commSize,
                         m_masterNodeConfig);
             } else {
                 // note that we cannot create a shared pointer from this because we are currently in the constructor
@@ -1343,8 +1415,8 @@ namespace Gem::Courtier {
                 // lifetime of this object
                 m_workerNodePtr = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
                         m_serializationMode,
-                        m_worldSize,
-                        m_worldRank,
+                        m_commSize,
+                        m_commRank,
                         [this]() -> bool { return this->halt(); },
                         [this]() -> void { this->incrementProcessingCounter(); },
                         m_workerNodeConfig);
@@ -1364,8 +1436,13 @@ namespace Gem::Courtier {
         std::shared_ptr<GMPIConsumerMasterNodeT<processable_type>> m_masterNodePtr;
         std::shared_ptr<GMPIConsumerWorkerNodeT<processable_type>> m_workerNodePtr;
 
-        std::int32_t m_worldSize;
-        std::int32_t m_worldRank;
+        std::int32_t m_commSize;
+        std::int32_t m_commRank;
+
+        int *m_argc{nullptr};
+        char ***m_argv{nullptr};
+
+        bool isClusterPositionDefined{false};
 
         // This instance of a shared_ptr keeps it alive as long as the GMPIConsumerT exists
         // Apart from this it is unused

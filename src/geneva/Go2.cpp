@@ -932,6 +932,7 @@ void Go2::parseCommandLine(
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
         if(GIndividualMPIConsumer* mpiConsumerPtr = dynamic_cast<GIndividualMPIConsumer*>(
                 GConsumerStore->get(m_consumer_name).get())) {
+            mpiConsumerPtr->setPositionInCluster();
             m_client_mode = mpiConsumerPtr->isWorkerNode();
         }
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER

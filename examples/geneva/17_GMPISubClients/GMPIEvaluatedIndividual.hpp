@@ -46,14 +46,18 @@
 // Standard header files go here
 #include <iostream>
 
+// MPI header files go here
+#include <mpi.h>
+
 // Boost header files go here
 
 // Geneva header files go here
 #include <geneva/GParameterSet.hpp>
 #include <geneva/GConstrainedDoubleObject.hpp>
 
-namespace Gem {
-namespace Geneva {
+
+
+namespace Gem::Geneva {
 
 /******************************************************************/
 /**
@@ -85,26 +89,28 @@ public:
 	 /** @brief A standard copy constructor */
 	 GMPIEvaluatedIndividual(const GMPIEvaluatedIndividual&);
 	 /** @brief The standard destructor */
-	 virtual ~GMPIEvaluatedIndividual();
+	 ~GMPIEvaluatedIndividual() override;
+
+     static void setCommunicator(MPI_Comm);
 
 protected:
 	 /** @brief Loads the data of another GMPIEvaluatedIndividual */
-	 virtual void load_(const GObject*) final;
+	 void load_(const GObject*) final;
 
 	 /** @brief The actual fitness calculation takes place here. */
-	 virtual double fitnessCalculation() final;
+	 double fitnessCalculation() final;
 
 private:
 	 /** @brief Creates a deep clone of this object */
-	 virtual GObject* clone_() const final;
+	 GObject* clone_() const final;
 
 	 const double M_PAR_MIN;
 	 const double M_PAR_MAX;
+     static MPI_Comm communicator;
 };
 
 /******************************************************************/
 
-} /* namespace Geneva */
 } /* namespace Gem */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMPIEvaluatedIndividual)

@@ -43,36 +43,119 @@
 
 // Boost header files go here
 
+// MPI header files go here
+#include <mpi.h>
+
 // Geneva header files go here
 #include "geneva/Go2.hpp"
+#include "courtier/GMPIConsumerT.hpp"
 
 // The individual that should be optimized
 #include "GMPIEvaluatedIndividual.hpp"
 
 using namespace Gem::Geneva;
 
+
+const int N_MPI_SUB_CLIENTS = 1;
+const int MPI_GENEVA_COLOR = 42;
+
+
+int runGeneva(int &argc, char **&argv) {
+    Go2 go(argc, argv, "config/Go2.json");
+
+    //---------------------------------------------------------------------
+    // Initialize a client, if requested
+    if (go.clientMode()) {
+        return go.clientRun();
+    }
+
+    //---------------------------------------------------------------------
+    // Add individuals and algorithms and perform the actual optimization cycle
+
+    // Make an individual known to the optimizer
+    std::shared_ptr<GMPIEvaluatedIndividual> p(new GMPIEvaluatedIndividual());
+    go.push_back(p);
+
+    // Add an evolutionary algorithm to the Go2 class.
+    go & "ea";
+
+    // Perform the actual optimization
+    std::shared_ptr<GMPIEvaluatedIndividual>
+            bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GMPIEvaluatedIndividual>();
+
+    // Do something with the best result
+
+    std::cout << "Best result: " << std::endl
+              << bestIndividual_ptr << std::endl;
+
+    return 0;
+}
+
+void initializeMPI() {
+    // initialize MPI by using the static method of the GMPIConsumer
+    // this ensures that MPI is initialized in the by GMPIConsumerT required way
+    Gem::Courtier::GMPIConsumerT<GParameterSet>::initializeMPI();
+}
+
+void finalizeMPI() {
+    // finalize MPI if not already done.
+    // The point in time when GMPIConsumerT calls MPI_Finalize() is an implementation detail.
+    // So it is best practice for a user to check if MPI has already been finalized by GMPIConsumerT
+    int isFinalized{0};
+    MPI_Finalized(&isFinalized);
+
+    if (!isFinalized) {
+        MPI_Finalize();
+    }
+}
+
+void runMPISubClient(MPI_Comm subClientComm) {
+    // use mpi to communicate with the fitnessCalculation function of the individual.
+    // In this case we just use a useless barrier as an example
+    MPI_Barrier(subClientComm);
+}
+
 int main(int argc, char **argv) {
-	Go2 go(argc, argv, "config/Go2.json");
+    initializeMPI();
 
-	//---------------------------------------------------------------------
-	// Initialize a client, if requested
-	if(go.clientMode()) {
-		return go.clientRun();
-	}
+    int worldRank{0};
+    int worldSize{0};
+    MPI_Comm_rank(MPI_COMM_WORLD, &worldRank);
+    MPI_Comm_size(MPI_COMM_WORLD, &worldSize);
 
-	//---------------------------------------------------------------------
-	// Add individuals and algorithms and perform the actual optimization cycle
+    MPI_Comm genevaComm{};
+    MPI_Comm subClientComm{};
 
-	// Make an individual known to the optimizer
-	std::shared_ptr<GMPIEvaluatedIndividual> p(new GMPIEvaluatedIndividual());
-	go.push_back(p);
+    // all geneva clients and the geneva server
+    // In case of 17 processes with one server, 4 clients and 3 sub-clients the ranks [0, 4, 8, 12, 16]
+    const bool runsGeneva = worldRank % N_MPI_SUB_CLIENTS == 0;
+    const int nGenevaClients = (worldSize - 1) / (N_MPI_SUB_CLIENTS + 1);
 
-	// Add an evolutionary algorithm to the Go2 class.
-	go & "ea";
+    if (runsGeneva) {
+        // Create a communicator to be used by GMPIConsumerT
+        MPI_Comm_split(MPI_COMM_WORLD, MPI_GENEVA_COLOR, worldRank, &genevaComm);
 
-	// Perform the actual optimization
-	std::shared_ptr<GMPIEvaluatedIndividual>
-		bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GMPIEvaluatedIndividual>();
+        if (worldRank == 0) { // we want rank 0 to be the geneva server
+            // does not need to be in sub-client communicator
+            MPI_Comm_split(MPI_COMM_WORLD, MPI_UNDEFINED, worldRank, &subClientComm);
+        } else {
+            // all geneva clients are in separate communicators by using down-rounding integer division
+            MPI_Comm_split(MPI_COMM_WORLD, worldRank / nGenevaClients, worldRank, &subClientComm);
+            // notify the custom individual which communicator to use
+            Gem::Courtier::GMPIConsumerT<GParameterSet>::setMPICommunicator(subClientComm);
+        }
 
-	// Do something with the best result
+        // allowed to return without MPI_Finalize. Geneva processes are capable of finalizing mpi themselves
+        return runGeneva(argc, argv);
+    } else {
+        // create the genevaCommunicator, because the call is collective, but not enter it (pass MPI_UNDEFINED)
+        MPI_Comm_split(MPI_COMM_WORLD, MPI_UNDEFINED, worldRank, &genevaComm);
+
+        // putting N_MPI_SUB_CLIENTS in one communicator by using down-rounding integer division
+        MPI_Comm_split(MPI_COMM_WORLD, worldRank / nGenevaClients, worldRank, &subClientComm);
+
+        runMPISubClient(subClientComm);
+    }
+
+    finalizeMPI();
 }
