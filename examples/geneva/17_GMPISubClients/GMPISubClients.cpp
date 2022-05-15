@@ -56,7 +56,7 @@
 using namespace Gem::Geneva;
 
 
-const int N_MPI_SUB_CLIENTS = 1;
+const int DEFAULT_N_SUB_CLIENTS = 1;
 const int MPI_GENEVA_COLOR = 42;
 
 
@@ -84,9 +84,6 @@ int runGeneva(int &argc, char **&argv) {
             bestIndividual_ptr = go.optimize()->getBestGlobalIndividual<GMPIEvaluatedIndividual>();
 
     // Do something with the best result
-
-    std::cout << "Best result: " << std::endl
-              << bestIndividual_ptr << std::endl;
 
     return 0;
 }
@@ -116,6 +113,8 @@ void runMPISubClient(MPI_Comm subClientComm) {
 }
 
 int main(int argc, char **argv) {
+    int nSubClients{DEFAULT_N_SUB_CLIENTS};
+
     initializeMPI();
 
     int worldRank{0};
@@ -128,12 +127,14 @@ int main(int argc, char **argv) {
 
     // all geneva clients and the geneva server
     // In case of 17 processes with one server, 4 clients and 3 sub-clients the ranks [0, 4, 8, 12, 16]
-    const bool runsGeneva = worldRank % N_MPI_SUB_CLIENTS == 0;
-    const int nGenevaClients = (worldSize - 1) / (N_MPI_SUB_CLIENTS + 1);
+    const bool runsGeneva = worldRank % nSubClients == 0;
+    const int nGenevaClients = (worldSize - 1) / (nSubClients + 1);
 
     if (runsGeneva) {
         // Create a communicator to be used by GMPIConsumerT
         MPI_Comm_split(MPI_COMM_WORLD, MPI_GENEVA_COLOR, worldRank, &genevaComm);
+        // Set the GMPIConsumer to use this inter-communicator
+        Gem::Courtier::GMPIConsumerT<GParameterSet>::setMPICommunicator(genevaComm);
 
         if (worldRank == 0) { // we want rank 0 to be the geneva server
             // does not need to be in sub-client communicator
@@ -142,7 +143,7 @@ int main(int argc, char **argv) {
             // all geneva clients are in separate communicators by using down-rounding integer division
             MPI_Comm_split(MPI_COMM_WORLD, worldRank / nGenevaClients, worldRank, &subClientComm);
             // notify the custom individual which communicator to use
-            Gem::Courtier::GMPIConsumerT<GParameterSet>::setMPICommunicator(subClientComm);
+            GMPIEvaluatedIndividual::setCommunicator(subClientComm);
         }
 
         // allowed to return without MPI_Finalize. Geneva processes are capable of finalizing mpi themselves
@@ -151,7 +152,7 @@ int main(int argc, char **argv) {
         // create the genevaCommunicator, because the call is collective, but not enter it (pass MPI_UNDEFINED)
         MPI_Comm_split(MPI_COMM_WORLD, MPI_UNDEFINED, worldRank, &genevaComm);
 
-        // putting N_MPI_SUB_CLIENTS in one communicator by using down-rounding integer division
+        // putting nSubClients in one communicator by using down-rounding integer division
         MPI_Comm_split(MPI_COMM_WORLD, worldRank / nGenevaClients, worldRank, &subClientComm);
 
         runMPISubClient(subClientComm);
