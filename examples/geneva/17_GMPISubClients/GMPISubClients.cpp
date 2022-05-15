@@ -38,6 +38,10 @@
  *
  ********************************************************************************/
 
+// TODO: Think about putting this into the GMPIConsumer by adding a command line argument: --nSubClients and making it possible
+//  to register a callback (the sub-client code)
+// TODO: make the sub-clients in this example exit after the optimization has been done. This must be realized with async calls and timeouts
+
 // Standard header files go here
 #include <iostream>
 
@@ -56,7 +60,7 @@
 using namespace Gem::Geneva;
 
 
-const int DEFAULT_N_SUB_CLIENTS = 1;
+const int DEFAULT_N_SUB_CLIENTS = 3;
 const int MPI_GENEVA_COLOR = 42;
 
 
@@ -109,7 +113,12 @@ void finalizeMPI() {
 void runMPISubClient(MPI_Comm subClientComm) {
     // use mpi to communicate with the fitnessCalculation function of the individual.
     // In this case we just use a useless barrier as an example
-    MPI_Barrier(subClientComm);
+
+    // NOTE: This loop will exit, because this is a quick and easy example
+    while (true) {
+        // you might use a std::cout and a sleep in order to check that the barrier works
+        MPI_Barrier(subClientComm);
+    }
 }
 
 int main(int argc, char **argv) {
@@ -127,8 +136,13 @@ int main(int argc, char **argv) {
 
     // all geneva clients and the geneva server
     // In case of 17 processes with one server, 4 clients and 3 sub-clients the ranks [0, 4, 8, 12, 16]
-    const bool runsGeneva = worldRank % nSubClients == 0;
-    const int nGenevaClients = (worldSize - 1) / (nSubClients + 1);
+    const bool runsGeneva = worldRank % (nSubClients + 1) == 0;
+    const int subCommColor = (worldRank - 1) / (nSubClients + 1);
+
+    if (worldRank != 0) { // the server is in no sub-client group
+        std::cout << "worldRank=" << worldRank << " is in sub-client-group " << subCommColor << std::endl;
+    }
+
 
     if (runsGeneva) {
         // Create a communicator to be used by GMPIConsumerT
@@ -141,7 +155,7 @@ int main(int argc, char **argv) {
             MPI_Comm_split(MPI_COMM_WORLD, MPI_UNDEFINED, worldRank, &subClientComm);
         } else {
             // all geneva clients are in separate communicators by using down-rounding integer division
-            MPI_Comm_split(MPI_COMM_WORLD, worldRank / nGenevaClients, worldRank, &subClientComm);
+            MPI_Comm_split(MPI_COMM_WORLD, subCommColor, worldRank, &subClientComm);
             // notify the custom individual which communicator to use
             GMPIEvaluatedIndividual::setCommunicator(subClientComm);
         }
@@ -153,7 +167,7 @@ int main(int argc, char **argv) {
         MPI_Comm_split(MPI_COMM_WORLD, MPI_UNDEFINED, worldRank, &genevaComm);
 
         // putting nSubClients in one communicator by using down-rounding integer division
-        MPI_Comm_split(MPI_COMM_WORLD, worldRank / nGenevaClients, worldRank, &subClientComm);
+        MPI_Comm_split(MPI_COMM_WORLD, subCommColor, worldRank, &subClientComm);
 
         runMPISubClient(subClientComm);
     }

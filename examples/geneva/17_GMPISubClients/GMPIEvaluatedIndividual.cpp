@@ -125,7 +125,7 @@ namespace Gem::Geneva {
 
         this->streamline(parVec); // Retrieve the parameters
 
-        // do whatever you would like to do with mpi. In this case we just do a useless barrier
+        // communicate with the sub-clients. In this example just use a useless barrier
         MPI_Barrier(communicator);
 
         // Do the actual calculation
