@@ -84,7 +84,6 @@
 
 // TODO: extract double buffering to GBaseConsumerClientT
 // TODO: extract docker setup to a separate branch
-// TODO: write documentation about why we use async calls and why we use client server architecture
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -1115,6 +1114,19 @@ namespace Gem::Courtier {
      * to one methods of the two classes. This serves as an abstraction of MPI such that the user does not need to explicitly
      * ask for the process's rank.
      *
+     * The GMPIConsumerMasterNodeT is a server using MPI to wait for and serve connections initiated by GMPIConsumerWorkerNodeTs.
+     * The worker waits for a request from any worker node and answers it.
+     *
+     * The GMPIConsumerT only uses asynchronous MPI communication and point-to-point messaging. This might be unusual
+     * when working with MPI, as most MPI-applications use synchronous communication e.g. with scatter and gather.
+     * While synchronous communication with multiple clients at a time could maybe be more performant, the asynchronous
+     * client server model is much more fault tolerant and was therefore chosen.
+     * Asynchronous MPI calls with the client-server model allow realizing time-outs in case of crashing or unavailable workers.
+     * This means no matter how many clients crash, the remaining clients are able to fulfil their job and the optimization can
+     * be completed as soon as the server does not crash.
+     * Geneva claims to be fault tolerant, because the probability that one node crashes is very high in a large scale
+     * distributed system that runs for a long time. So the decision has been made to use a client-server model for GMPIConsumerT.
+     *
      * @tparam processable_type a type that is processable like GParameterSet
      */
     template<typename processable_type>
@@ -1126,15 +1138,6 @@ namespace Gem::Courtier {
         /**
          *
          * Constructor for a GMPIConsumerT
-         *
-         * Initialized the MPI framework. Then initialized the consumer to fulfill its role inside the cluster.
-         * Depending on the rank (0 = master node (server), 1-n = worker node (client)) the member variables will be
-         * set accordingly.
-         *
-         * NOTE: The constructor of GMPIConsumerT is only allowed to be called once per process. The reason for this is
-         * because the constructor of GMPIConsumerT calls MPI_Init_Thread and the destructor calls MPI_Finalize. Both
-         * those functions are not allowed to be called more than once per process. Therefore if you want to get a reference
-         * to GMPIConsumerT in multiple locations of your code, it is convenient to use the GSingletonT class.
          *
          * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call
          * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call
