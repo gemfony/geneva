@@ -85,7 +85,6 @@
 // TODO: extract double buffering to GBaseConsumerClientT
 // TODO: extract docker setup to a separate branch
 // TODO: write documentation about why we use async calls and why we use client server architecture
-// TODO: Use one thread that cleans up sessions in order to make thread pool quicker available for new sessions
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -105,15 +104,15 @@ namespace Gem::Courtier {
         /**
          * The time in microseconds between each check for a new incoming connection
          */
-        std::uint32_t receivePollIntervalUSec{10};
+        std::uint32_t receivePollIntervalUSec{0};
         /**
          * The time in microseconds between each check of completion of the send operation of a new work item to a worker node.
          */
-        std::uint32_t sendPollIntervalUSec{10};
+        std::uint32_t sendPollIntervalUSec{1'000'000};
         /**
-         * The maximum time in microseconds to wait until a send operation of a new work item to a worker node succeeds.
+         * The maximum time in microseconds to wait until a send operation of a new work item to a worker node is expected to succeed.
          */
-        std::uint32_t sendPollTimeoutUSec{1'000'000};
+        std::uint32_t sendPollTimeoutUSec{5'000'000};
 
         /**
          * Adds local command line options to a boost::program_options::options_description object.
@@ -162,11 +161,11 @@ namespace Gem::Courtier {
         /**
          * The time in microseconds between each check for completion of the request for a new work item.
          */
-        std::uint32_t ioPollIntervalUSec{10};
+        std::uint32_t ioPollIntervalUSec{100};
         /**
          * The maximum time in microseconds to wait until a request for a new work item has been answered.
          */
-        std::uint32_t ioPollTimeoutUSec{1'000'000};
+        std::uint32_t ioPollTimeoutUSec{5'000'000};
 
         /**
          * Adds local command line options to a boost::program_options::options_description object.
@@ -393,8 +392,8 @@ namespace Gem::Courtier {
                             << std::endl
                             << "Timeout triggered when communicating with GMPIConsumerMasterNodeT" << std::endl
                             << "We assume the server is down and will exit the worker." << std::endl
-                            << "The reason for the timeout could be that the server has completed computation and exited "
-                               "or a potential error or crash on the server side."
+                            << "The reason is most likely the end of the optimization at the server, but it could also "
+                               "be server side crash."
                             << std::endl
                             << GLOGGING;
 #endif // DEBUG
@@ -528,7 +527,7 @@ namespace Gem::Courtier {
         std::unique_ptr<char[]> m_incomingMessageBuffer;
         std::string m_incomingMessage;
         std::string m_outgoingMessage;
-        GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
+        GCommandContainerT <processable_type, networked_consumer_payload_command> m_commandContainer{
                 networked_consumer_payload_command::GETDATA}; ///< Holds the current command and payload (if any)
     };
 
@@ -562,19 +561,13 @@ namespace Gem::Courtier {
                 std::string requestMessage,
                 std::function<std::shared_ptr<processable_type>()> getPayloadItem,
                 std::function<void(std::shared_ptr<processable_type>)> putPayloadItem,
-                Gem::Common::serializationMode serializationMode,
-                std::atomic<bool> &isToldToStop,
-                std::uint32_t ioPollIntervalUSec,
-                std::uint32_t ioPollTimeoutUSec)
+                Gem::Common::serializationMode serializationMode)
                 : m_mpiStatus{status},
                 // avoid copying the string but also not taking it as reference because it should be owned by this object
                   m_requestMessage{std::move(requestMessage)},
                   m_getPayloadItem(std::move(getPayloadItem)),
                   m_putPayloadItem(std::move(putPayloadItem)),
                   m_serializationMode{serializationMode},
-                  m_isToldToStop{isToldToStop},
-                  m_ioPollIntervalUSec{ioPollIntervalUSec},
-                  m_ioPollTimeoutUSec{ioPollTimeoutUSec},
                   m_mpiRequestHandle{} {
         }
 
@@ -597,9 +590,48 @@ namespace Gem::Courtier {
         /**
          * Answers the request this session was created for
          */
-        bool run() {
+        void run() {
             // only execute sendResponse if processRequest was successful
-            return processRequest() && sendResponse();
+            if (processRequest()) {
+                sendResponse();
+            }
+        }
+
+        /**
+         * Allows to check whether the sending the response of the request to the worker has been completed
+         *
+         * This assumes that the run-method has already been called and finished execution.
+         *
+         * @return true if sending the response has been completed, otherwise false
+         */
+        bool isCompleted() {
+            int isCompleted{0};
+            MPI_Status status{};
+
+            MPI_Test(
+                    &m_mpiRequestHandle,
+                    &isCompleted,
+                    &status);
+
+            return isCompleted;
+        }
+
+        /**
+         * Cancels a non-completed session. Assumes the session has already called the run-method
+         */
+        void cancel() {
+            MPI_Cancel(&m_mpiRequestHandle);
+            MPI_Request_free(&m_mpiRequestHandle);
+        }
+
+        /**
+         *
+         * Allows retrieving the rank of the worker that this session was opened for
+         *
+         * @return the rank of the worker this session was opened for
+         */
+        [[nodiscard]] std::uint32_t getConnectedWorker() {
+            return m_mpiStatus.MPI_SOURCE;
         }
 
     private:
@@ -681,7 +713,11 @@ namespace Gem::Courtier {
                     m_commandContainer, m_serializationMode);
         }
 
-        bool sendResponse() {
+        /**
+         * Starts an asynchronous send call of the response message.
+         * isCompleted() can be used to check for the completion of the send operation.
+         */
+        void sendResponse() {
             // asynchronously start sending the response
             MPI_Isend(
                     m_outgoingMessage.data(),
@@ -692,80 +728,20 @@ namespace Gem::Courtier {
                     MPI_COMMUNICATOR,
                     &m_mpiRequestHandle);
 
-            std::chrono::microseconds timeElapsed{0};
-            const auto timeStart = std::chrono::steady_clock::now();
-
-            // wait for the completion of the asynchronous call to verify no errors have occurred
-            while (!m_isToldToStop) {
-                int isCompleted{0};
-                MPI_Status status{};
-
-                MPI_Test(
-                        &m_mpiRequestHandle,
-                        &isCompleted,
-                        &status);
-
-                if (isCompleted) {
-                    return true;
-                }
-
-                // update elapsed time to compare with timeout
-                auto currentTime = std::chrono::steady_clock::now();
-                timeElapsed = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - timeStart);
-
-                if (timeElapsed > std::chrono::microseconds{m_ioPollTimeoutUSec}) {
-                    glogger
-                            << "In GMPIConsumerSessionT<processable_type>::sendResponse() connected to rank="
-                            << m_mpiStatus.MPI_SOURCE << ":" << std::endl
-                            << "Configured timeout of " << m_ioPollTimeoutUSec
-                            << " microseconds has been reached for sending a work item to a worker node" << std::endl
-                            << "Response will be canceled." << std::endl
-                            << GWARNING;
-                    cancelActiveRequest();
-                    return false;
-                }
-
-                // if send not yet, sleep a short amount of time until polling again for the message status
-                if (m_ioPollIntervalUSec > 0) {
-                    std::this_thread::sleep_for(std::chrono::microseconds{m_ioPollIntervalUSec});
-                }
-            }
-
-#ifdef DEBUG
-            glogger
-                    << "In GMPIConsumerSessionT<processable_type>::sendResponse() connected to rank="
-                    << m_mpiStatus.MPI_SOURCE << ":" << std::endl
-                    << "Handler thread was told to stop before sending the response was completed." << std::endl
-                    << "Response will be canceled." << std::endl
-                    << GLOGGING;
-#endif // DEBUG
-            cancelActiveRequest();
-            return false;
+            // the isCompleted method can be used to check if the send-operation has been completed
         }
 
-        /**
-         * cancels an active send request that is referenced by the member variable m_mpiRequestHandle
-         */
-        void cancelActiveRequest() {
-            MPI_Cancel(&m_mpiRequestHandle);
-            MPI_Request_free(&m_mpiRequestHandle);
-        }
 
         //-------------------------------------------------------------------------
         // Data
         const MPI_Status m_mpiStatus;
         const std::string m_requestMessage;
         const Gem::Common::serializationMode m_serializationMode;
-        const std::uint32_t m_ioPollIntervalUSec;
-        const std::uint32_t m_ioPollTimeoutUSec;
 
         std::function<std::shared_ptr<processable_type>()> m_getPayloadItem;
         std::function<void(std::shared_ptr<processable_type>)> m_putPayloadItem;
 
-        // references a thread-safe indicator for shutdown that is stored in the scope calling the constructor
-        std::atomic<bool> &m_isToldToStop;
-
-        GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
+        GCommandContainerT <processable_type, networked_consumer_payload_command> m_commandContainer{
                 networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
         MPI_Request m_mpiRequestHandle;
         std::string m_outgoingMessage;
@@ -854,6 +830,9 @@ namespace Gem::Courtier {
             auto self = this->shared_from_this();
             m_receiverThread = std::thread(
                     [self] { self->listenForRequests(); });
+
+            m_cleanUpThread = std::thread(
+                    [self] { self->cleanUpSessionsLoop(); });
         }
 
         /**
@@ -866,14 +845,14 @@ namespace Gem::Courtier {
             // notify other threads to stop
             m_isToldToStop.store(true);
 
-            // stop the receiver thread
+            // wait for the receiver thread
             m_receiverThread.join();
+
+            // wait for the cleanup thread. This thread will close all open sessions before joining
+            m_cleanUpThread.join();
 
             // wait until all threads have finished their job
             m_handlerThreadPool->wait();
-
-            // call the destructor of the thread pool
-            m_handlerThreadPool.reset();
         }
 
     private:
@@ -940,20 +919,90 @@ namespace Gem::Courtier {
                 return;
             }
 
-            // start a new session i.e. answering the request
-            GMPIConsumerSessionT<processable_type>{
+            // start a new session
+            auto session = std::make_shared<GMPIConsumerSessionT<processable_type>>(
                     status,
                     std::string{buffer.get(), static_cast<size_t>(mpiGetCount(status))},
                     [this]() -> std::shared_ptr<processable_type> { return getPayloadItem(); },
                     [this](std::shared_ptr<processable_type> p) { putPayloadItem(p); },
-                    m_serializationMode,
-                    m_isToldToStop,
-                    m_config.sendPollIntervalUSec,
-                    m_config.sendPollTimeoutUSec}
-                    .run();
+                    m_serializationMode);
 
-            // at time of leaving this method the request has been handled and the job for this thread is finished.
-            // This thread will then be able to be scheduled for further requests by the IO-thread again
+            // runs the session but does not close it
+            session->run();
+
+            // push the open session to a vector of open sessions
+            // the m_cleanUpThread will make sure of waiting until these sessions complete or result in an error
+            pushOpenSession(session);
+
+            // This thread of the thread-pool will then be able to be scheduled for further requests by the IO-thread again
+        }
+
+        void pushOpenSession(std::shared_ptr<GMPIConsumerSessionT<processable_type>> session) {
+            m_openSessionsGuard.lock();
+            m_openSessions.push_back(std::make_pair(session, std::chrono::system_clock::now()));
+            m_openSessionsGuard.unlock();
+        }
+
+        /**
+         * Waits for open sessions to be completed.
+         *
+         * This is not a job that must be executed super fast. So we can safe resources if we do not let this run on the
+         * thread-pool but on a single thread. The thread-pool will then be ready for new work as soon as it has handled
+         * the request without having to wait for the completion of the asynchronous operations.
+         *
+         */
+        void cleanUpSessionsLoop() {
+            while (!m_isToldToStop) {
+                // wait a short amount of time between checking if the sessions have been completed
+                if (m_config.sendPollIntervalUSec > 0) {
+                    std::this_thread::sleep_for(std::chrono::microseconds{m_config.sendPollIntervalUSec});
+                }
+
+                auto timeCurr = std::chrono::system_clock::now();
+
+                // lock access to open sessions vector
+                m_openSessionsGuard.lock();
+
+
+                for (auto iter = m_openSessions.begin(); iter != m_openSessions.end(); /* no increment */) {
+                    auto session = iter->first;
+                    auto startTime = iter->second;
+
+                    if (session->isCompleted()) {
+                        // erase this session if it has been completed
+                        iter = m_openSessions.erase(iter);
+                    } else if (m_config.sendPollTimeoutUSec <
+                               std::chrono::duration_cast<std::chrono::microseconds>(timeCurr - startTime).count()) {
+                        glogger
+                                << "In GMPIConsumerSessionT<processable_type>::sendResponse() connected to rank="
+                                << session->getConnectedWorker() << ":" << std::endl
+                                << "Configured timeout of " << m_config.sendPollIntervalUSec
+                                << " microseconds has been reached for sending a work item to a worker node"
+                                << std::endl
+                                << "Response will be canceled." << std::endl
+                                << GWARNING;
+
+                        // close and erase session in case of timeout
+                        session->cancel();
+                        iter = m_openSessions.erase(iter);
+                    } else {
+                        // increment iterator in case no session has been erased
+                        ++iter;
+                    }
+                }
+                // make open sessions vector available again e.g. for pushback
+                m_openSessionsGuard.unlock();
+            }
+
+            // if told to stop cancel all open sessions
+            m_openSessionsGuard.lock();
+
+            for (auto openSession: m_openSessions) {
+                openSession.first->cancel();
+            }
+            m_openSessions.clear();
+
+            m_openSessionsGuard.unlock();
         }
 
         /**
@@ -1032,7 +1081,22 @@ namespace Gem::Courtier {
         MasterNodeConfig m_config;
 
         std::unique_ptr<Common::GThreadPool> m_handlerThreadPool;
+        /**
+         * thread that receives new incoming connections and schedules the handling of those to the thread pool
+         */
         std::thread m_receiverThread;
+        /*
+         * Thread that waits for the completion open sessions
+         */
+        std::thread m_cleanUpThread;
+        /*
+         * Mutex to protect the vector of open sessions
+         */
+        std::mutex m_openSessionsGuard{};
+        /*
+         * Open sessions and the time since the time of opening
+         */
+        std::vector<std::pair<std::shared_ptr<GMPIConsumerSessionT<processable_type>>, std::chrono::system_clock::time_point>> m_openSessions{};
         std::atomic<bool> m_isToldToStop;
 
         std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
