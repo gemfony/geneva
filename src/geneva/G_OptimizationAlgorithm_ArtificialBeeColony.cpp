@@ -45,6 +45,86 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GArtificialBeeColony) // NOLINT
 namespace Gem {
 namespace Geneva {
 
+GArtificialBeeColony::GArtificialBeeColony() {}
+
+GArtificialBeeColony::GArtificialBeeColony(const G_OptimizationAlgorithm_Base &cp) : G_OptimizationAlgorithm_Base(cp) {}
+
+void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
+    G_OptimizationAlgorithm_Base::addConfigurationOptions_(gpb);
+}
+
+void GArtificialBeeColony::load_(const GObject *cp) {
+    G_OptimizationAlgorithm_Base::load_(cp);
+}
+
+void GArtificialBeeColony::compare_(const GObject &cp, const Common::expectation &e, const double &limit) const {
+    G_OptimizationAlgorithm_Base::compare_(cp, e, limit);
+}
+
+void GArtificialBeeColony::resetToOptimizationStart_() {
+    G_OptimizationAlgorithm_Base::resetToOptimizationStart_();
+}
+
+void GArtificialBeeColony::init() {
+    G_OptimizationAlgorithm_Base::init();
+}
+
+void GArtificialBeeColony::finalize() {
+    G_OptimizationAlgorithm_Base::finalize();
+}
+
+bool GArtificialBeeColony::modify_GUnitTests_() {
+    return G_OptimizationAlgorithm_Base::modify_GUnitTests_();
+}
+
+void GArtificialBeeColony::specificTestsNoFailureExpected_GUnitTests_() {
+    G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests_();
+}
+
+void GArtificialBeeColony::specificTestsFailuresExpected_GUnitTests_() {
+    G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_();
+}
+
+void GArtificialBeeColony::updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) {
+    G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(bestIndividuals);
+}
+
+void GArtificialBeeColony::updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) {
+    G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(bestIndividuals);
+}
+
+std::tuple<double, double> GArtificialBeeColony::cycleLogic_() {
+    return std::tuple<double, double>();
+}
+
+std::shared_ptr<GPersonalityTraits> GArtificialBeeColony::getPersonalityTraits_() const {
+    return std::shared_ptr<GPersonalityTraits>();
+}
+
+void GArtificialBeeColony::adjustPopulation_() {
+
+}
+
+void GArtificialBeeColony::actOnStalls_() {
+
+}
+
+void GArtificialBeeColony::runFitnessCalculation_() {
+
+}
+
+std::string GArtificialBeeColony::getAlgorithmPersonalityType_() const {
+    return std::string("PERSONALITY_ABC");
+}
+
+std::string GArtificialBeeColony::getAlgorithmName_() const {
+    return std::string("GArtificialBeeColony");
+}
+
+std::string GArtificialBeeColony::name_() const {
+
+}
+
 
 } /* namespace Geneva */
 } /* namespace Gem */

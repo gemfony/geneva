@@ -49,9 +49,15 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
+#include "common/GParserBuilder.hpp"
+#include "G_OptimizationAlgorithm_Base.hpp"
+#include "GObject.hpp"
+#include "common/GCommonEnums.hpp"
+#include "GParameterSetFixedSizePriorityQueue.hpp"
 
 namespace Gem {
 namespace Geneva {
+
 
 class GArtificialBeeColony
         : public G_OptimizationAlgorithm_Base {
@@ -68,6 +74,52 @@ class GArtificialBeeColony
         //TODO: Add more
     }
     ///////////////////////////////////////////////////////////////////////
+
+
+public:
+    G_API_GENEVA GArtificialBeeColony();
+
+    GArtificialBeeColony(const G_OptimizationAlgorithm_Base &cp);
+
+protected:
+    G_API_GENEVA void addConfigurationOptions_(Common::GParserBuilder &gpb) override;
+
+    G_API_GENEVA void load_(const GObject *cp) override;
+
+    G_API_GENEVA void compare_(const GObject &cp, const Common::expectation &e, const double &limit) const override;
+
+    G_API_GENEVA void resetToOptimizationStart_() override;
+
+    G_API_GENEVA void init() override;
+
+    G_API_GENEVA void finalize() override;
+
+    G_API_GENEVA bool modify_GUnitTests_() override;
+
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
+    G_API_GENEVA void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
+
+    G_API_GENEVA void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
+
+private:
+    G_API_GENEVA std::string name_() const override;
+
+    G_API_GENEVA std::tuple<double, double> cycleLogic_() BASE override;
+
+    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const BASE override;
+
+    G_API_GENEVA void adjustPopulation_() BASE override;
+
+    G_API_GENEVA void actOnStalls_() BASE override;
+
+    void runFitnessCalculation_() BASE override;
+
+    std::string getAlgorithmPersonalityType_() const BASE override;
+
+    std::string getAlgorithmName_() const BASE override;
 };
 
 } /* namespace Geneva */
