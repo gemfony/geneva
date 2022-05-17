@@ -297,7 +297,7 @@ namespace Gem::Courtier {
             }
 
             while (!m_halt()) {
-                // swap messages in a
+                // swap messages
                 m_outgoingMessage = std::move(Gem::Courtier::container_to_string(
                         m_commandContainer,
                         m_serializationMode));
@@ -367,7 +367,7 @@ namespace Gem::Courtier {
             const auto timeStart = std::chrono::steady_clock::now();
 
             // continue testing until receive was completed or timeout has been triggered.
-            // note that we never wait for the send operation to complete, because receiving will only complete after
+            // note that we never wait for the send operation to complete, because receiving will only complete
             // if the send operation has completed, because the server/master will only send a response if it has received our request
             while (true) {
                 MPI_Test(&m_receiveHandle,
@@ -418,7 +418,7 @@ namespace Gem::Courtier {
                 return false;
             }
 
-            // create string with correct size from the fixed sie buffer
+            // create string with correct size from the fixed size buffer
             m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(receiveStatus));
 
             return true;
