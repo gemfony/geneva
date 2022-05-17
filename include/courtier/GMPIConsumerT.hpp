@@ -1235,7 +1235,7 @@ namespace Gem::Courtier {
                 }
             }
 
-            return isAlreadyInitialized;
+            return !isAlreadyInitialized;
         }
 
         /**
