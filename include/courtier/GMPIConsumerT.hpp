@@ -712,6 +712,17 @@ namespace Gem::Courtier {
             // serialize container, save as member and return
             m_outgoingMessage = Gem::Courtier::container_to_string(
                     m_commandContainer, m_serializationMode);
+
+            if (m_outgoingMessage.size() > GMPICONSUMERMAXMESSAGESIZE) {
+                throw gemfony_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                                << "GMPIConsumerSessionT<processable_type>::getAndSerializeWorkItem():" << std::endl
+                                << "Size of individual to send after serialization greater than maximum configured message size." << std::endl
+                                << "Size of Individual is " << m_outgoingMessage.size() << std::endl
+                                << "Maximum message size is " << GMPICONSUMERMAXMESSAGESIZE << std::endl
+                                << "Serialization mode is " << m_serializationMode << std::endl
+                                << "To overcome this issue change the serialization mode or adjust the maximum message size.");
+            }
         }
 
         /**
