@@ -298,6 +298,8 @@ namespace Gem::Courtier {
 
             while (!m_halt()) {
                 // swap messages
+                // serialize (processed) container and store in m_outgoingMessage
+                // afterwards deserialize m_incomingMessage into the container
                 m_outgoingMessage = std::move(Gem::Courtier::container_to_string(
                         m_commandContainer,
                         m_serializationMode));
