@@ -105,6 +105,21 @@ namespace Gem::Tests {
             return m_nClients;
         }
 
+        // TODO: doxygen comments for getters
+
+        [[nodiscard]] const std::string &getMIntermediateResultFileName() const {
+            return m_intermediateResultFile;
+        }
+
+        [[nodiscard]] const std::string &getMConfigFileName() const {
+            return m_configFile;
+        }
+
+        [[nodiscard]] const std::string &getMBenchmarkExecutableName() const {
+            return m_benchmarkExecutable;
+        }
+
+
     private:
 
         void registerFileOptions() {
@@ -122,6 +137,12 @@ namespace Gem::Tests {
                     "resultFile", m_resultFile, m_resultFile, VAR_IS_ESSENTIAL,
                     "The name of a file to which results of the benchmark should be written"
             );
+
+            m_fileParser.registerFileParameter(
+                    "intermediateResultFile", m_intermediateResultFile, m_intermediateResultFile, VAR_IS_ESSENTIAL,
+                    "The name of a file where the results of the runs of the subprocesses are written to. "
+                    "This should be identical with the result file name configured in the subprogram directory"
+            );
         }
 
         void registerCLOptions() {
@@ -130,6 +151,13 @@ namespace Gem::Tests {
                     m_configFile,
                     m_configFile,
                     "The location of the config file for this benchmark."
+            );
+
+            m_cLParser.registerCLParameter(
+                    "benchmarkExecutable",
+                    m_benchmarkExecutable,
+                    m_benchmarkExecutable,
+                    "The location of the executable that is started."
             );
         }
 
@@ -171,15 +199,25 @@ namespace Gem::Tests {
         std::string m_resultFile = "GAsioMPIBenchmarkResult.C";
 
         /**
-         * The location of the config file for this class
+         * The name of the intermediate result file produced each run.
+         * This should be the name of the result file in the config file for the GDelayIndividualFactory
          */
+        std::string m_intermediateResultFile = "executionTimes.C";
 
         /*****************************************************************
          * Options to parse from command line
          * ***************************************************************
          */
 
-        std::string m_configFile = "./config/GAsioMPIBenchmark.json";
+        /**
+         * The location of the config file for this class
+         */
+        std::string m_configFile = "./config/GAsioMPIBenchmarkConfig.json";
+
+        /**
+         * The location of the executable called for benchmarking
+         */
+        std::string m_benchmarkExecutable = "./GAsioMPIBenchmarkSubProgram/GAsioMPIBenchmarkSubProgram";
     };
 
 }

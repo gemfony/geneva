@@ -88,3 +88,6 @@ INSTALL(TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/
 #
 
 SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES TIMEOUT 2500)
+
+# add the actual benchmarking code that creates a separate executable
+ADD_SUBDIRECTORY(GAsioMPIBenchmarkSubProgram)
