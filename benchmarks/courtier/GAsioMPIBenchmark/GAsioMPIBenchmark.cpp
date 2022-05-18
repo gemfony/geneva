@@ -60,8 +60,17 @@ const std::string graphObjectPrefix{"graph_object"};
 
 Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
 
+std::string getCommandBanner(const std::string &command) {
+    std::stringstream sout{};
+    sout << "-----------------------------------------" << std::endl
+         << "running command: `" << command << "` as a new process" << std::endl
+         << "-----------------------------------------" << std::endl;
+
+    return sout.str();
+}
+
 void measureExecutionTimesMPI(const GAsioMPIBenchmarkConfig &config, std::uint32_t nClients) {
-    boost::process::ipstream pipe_stream;
+    boost::process::ipstream pipeStream{};
 
     std::string command = "mpirun --oversubscribe -np "
                           + std::to_string(nClients + 1) // one server + nClients
@@ -69,18 +78,44 @@ void measureExecutionTimesMPI(const GAsioMPIBenchmarkConfig &config, std::uint32
                           + config.getMBenchmarkExecutableName()
                           + " --consumer mpi";
 
-    std::cout << "-----------------------------------------" << std::endl
-              << "running command: `" << command << "` as a new process" << std::endl
-              << "-----------------------------------------" << std::endl << std::endl;
+    std::cout << getCommandBanner(command) << std::endl;
 
-    boost::process::child c(command, boost::process::std_out > pipe_stream);
+    boost::process::child c(command, boost::process::std_out > pipeStream);
 
-    std::string line;
-
-    while (pipe_stream && std::getline(pipe_stream, line) && !line.empty())
+    // pipe std out of mpirun to this process
+    std::string line{};
+    while (pipeStream && std::getline(pipeStream, line) && !line.empty())
         std::cerr << line << std::endl;
 
     c.wait();
+}
+
+void measureExecutionTimesAsio(const GAsioMPIBenchmarkConfig &config, std::uint32_t nClients) {
+    boost::process::ipstream pipeStream{};
+
+    std::string command = config.getMBenchmarkExecutableName() + " --consumer asio";
+
+    std::cout << getCommandBanner(command) << std::endl;
+
+    // run once without the --client attribute to start a server
+    boost::process::child server(command, boost::process::std_out > pipeStream);
+
+    // start nClients clients and store handles in a vector
+    std::vector<boost::process::child> clients{};
+    for (int i{0}; i < nClients; ++i) {
+        // this will call the constructor of the boost::process::child class and start the process
+        clients.emplace_back(command + " --client");
+    }
+
+    // pipe std out the server to this process
+    std::string line{};
+    while (pipeStream && std::getline(pipeStream, line) && !line.empty())
+        std::cerr << line << std::endl;
+
+
+    // wait for the completion of all processes
+    server.wait();
+    std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.wait(); });
 }
 
 void renameIntermediateFiles(const GAsioMPIBenchmarkConfig &config, const std::string &suffix, std::uint32_t nClients) {
@@ -139,8 +174,9 @@ void combineGraphsToPlot(const GAsioMPIBenchmarkConfig &config) {
 
         // generate an appropriate label for this graph
         // we have 2 files for each number of clients - one for asio one for mpi
+        // TODO: make sorting also work for multiple digits
         auto nClients = config.getNClients()[i / 2];
-        std::string label {((i % 2 == 0) ? "Asio" : "MPI") + (" clients=" + std::to_string(nClients))};
+        std::string label{((i % 2 == 0) ? "Asio" : "MPI") + (" clients=" + std::to_string(nClients))};
 
         // set the label
         graph->setPlotLabel(label);
@@ -153,19 +189,24 @@ void combineGraphsToPlot(const GAsioMPIBenchmarkConfig &config) {
     gpd.writeToFile(config.getResultFileName());
 }
 
+std::string getHeader(const GAsioMPIBenchmarkConfig &config) {
+    std::stringstream sout{};
+    sout << "-----------------------------------------" << std::endl
+         << "starting " << config.getNClients().size() << " benchmark(s) for asio and mpi" << std::endl
+         << "consumer numbers to benchmark: [" << Gem::Common::vecToString(config.getNClients()) << std::endl
+         << "-----------------------------------------" << std::endl;
+
+    return sout.str();
+}
+
 int main(int argc, char **argv) {
+    GAsioMPIBenchmarkConfig config{argc, argv};
+    std::cout << getHeader(config) << std::endl;
 
     resetOutputDirs();
-
-    GAsioMPIBenchmarkConfig config{argc, argv};
-
-    std::cout << "-----------------------------------------" << std::endl
-              << "starting " << config.getNClients().size() << " benchmark(s) for asio and mpi" << std::endl
-              << "-----------------------------------------" << std::endl << std::endl;
-
     for (const std::uint32_t &nClients: config.getNClients()) {
-//        measureExecutionTimesAsio(config, nClients);
-//        renameIntermediateFile(config, "asio", nClients);
+        measureExecutionTimesAsio(config, nClients);
+        renameIntermediateFiles(config, "asio", nClients);
 
         measureExecutionTimesMPI(config, nClients);
         renameIntermediateFiles(config, "mpi", nClients);
