@@ -1,0 +1,11 @@
+version: '2.2'
+
+services:
+   
+    geneva-builder:
+        container_name: "geneva_builder"
+        build: .
+        entrypoint: /home/app/build-geneva-interactive.sh
+        volumes:
+        # mount project root into container
+            - ../../:/home/app/geneva
