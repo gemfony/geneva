@@ -34,15 +34,14 @@
 #
 ################################################################################
 
-ADD_CUSTOM_TARGET( "benchmarks-courtier"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GBufferPortTTest # GConsumerPerformance
-	COMMENT "Building the benchmarks for the Courtier library."
+SET ( CONFIGFILES
+	GDelayIndividual.json
+	GDelayIndividual-reference.json
+	GEvolutionaryAlgorithm.json
+	Go2.json
 )
 
-ADD_SUBDIRECTORY (GBufferPortTTest )
-# ADD_SUBDIRECTORY (GConsumerPerformance)
+# Copy the config files to the build tree for easier testing
+FILE ( COPY ${CONFIGFILES} DESTINATION . )
 
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	ADD_SUBDIRECTORY(GAsioMPIBenchmark)
-ENDIF()
+INSTALL ( FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME}/config )
