@@ -115,11 +115,14 @@ private:
 
     G_API_GENEVA void actOnStalls_() BASE override;
 
-    void runFitnessCalculation_() BASE override;
+    G_API_GENEVA void runFitnessCalculation_() BASE override;
 
-    std::string getAlgorithmPersonalityType_() const BASE override;
+    G_API_GENEVA std::string getAlgorithmPersonalityType_() const BASE override;
 
-    std::string getAlgorithmName_() const BASE override;
+    G_API_GENEVA std::string getAlgorithmName_() const BASE override;
+
+    std::vector<double> m_dbl_lower_parameter_boundaries_cnt = std::vector<double>(); ///< Holds lower boundaries of double parameters
+    std::vector<double> m_dbl_upper_parameter_boundaries_cnt = std::vector<double>(); ///< Holds upper boundaries of double parameters
 };
 
 } /* namespace Geneva */

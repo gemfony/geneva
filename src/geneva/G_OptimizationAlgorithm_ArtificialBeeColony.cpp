@@ -50,6 +50,7 @@ GArtificialBeeColony::GArtificialBeeColony() {}
 GArtificialBeeColony::GArtificialBeeColony(const G_OptimizationAlgorithm_Base &cp) : G_OptimizationAlgorithm_Base(cp) {}
 
 void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
+    // Call our parent class'es function
     G_OptimizationAlgorithm_Base::addConfigurationOptions_(gpb);
 }
 
@@ -66,7 +67,11 @@ void GArtificialBeeColony::resetToOptimizationStart_() {
 }
 
 void GArtificialBeeColony::init() {
+    // To be performed before any other action
     G_OptimizationAlgorithm_Base::init();
+
+    // Extract the boundaries of all parameters
+    this->at(0)->boundaries(m_dbl_lower_parameter_boundaries_cnt, m_dbl_upper_parameter_boundaries_cnt, activityMode::ACTIVEONLY);
 }
 
 void GArtificialBeeColony::finalize() {

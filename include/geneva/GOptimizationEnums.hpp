@@ -179,6 +179,11 @@ const std::size_t DEFAULTPOPULATIONSIZE = 100;
 const std::size_t DEFAULTEAPOPULATIONSIZE = 42;
 
 /**
+ * The default population size in artificial bee colonies
+ */
+const std::size_t DEFAULTABCPOPULATIONSIZE = 50;
+
+/**
  * The default number of parents in evolutionary algorithms
  */
 const std::size_t DEFAULTEANPARENTS = 2;
