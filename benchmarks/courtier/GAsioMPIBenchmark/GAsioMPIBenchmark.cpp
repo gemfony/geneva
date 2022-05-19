@@ -38,6 +38,8 @@
  *
  ********************************************************************************/
 
+// TODO: improve code quality
+
 // Standard header files go here
 #include <iostream>
 #include <filesystem>
@@ -52,13 +54,82 @@
 
 using namespace Gem::Tests;
 
-const std::string graphObjectsDirectoryName{"graph_objects"};
-const std::string intermediateGraphObjectFileName{"graph_object.ser"};
+// name of the directory for ROOT files
 const std::string resultDirName{"results"};
 const std::string resultPrefix{"result"};
-const std::string graphObjectPrefix{"graph_object"};
+
+// name of the file produces by the subprogram
+const std::string executionTimesFileNameBeforeRename{"executionTimesVector.ser"};
+// name of the directory to move executionTimes of individual runs of the subprogram
+const std::string executionTimesDirName{"executionTimes"};
+const std::string executionTimesFilePrefix{"executionTimes"};
+
+// line color so be used when drawing multiple curves in the same graph
+// These are ROOT constants
+const std::vector<std::string> lineColors{
+        "kBlack",
+        "kGray",
+        "kRed",
+        "kGreen",
+        "kBlue",
+        "kYellow",
+        "kMagenta",
+        "kCyan",
+        "kOrange",
+        "kSpring",
+        "kTeal",
+        "kAzure",
+        "kViolet",
+        "kPink"
+};
 
 Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
+
+/**
+ * stores the execution times for asio and MPI for one specific number of clients
+ */
+struct ExecutionTimes {
+    std::uint32_t nClients;
+    std::vector<std::tuple<double, double, double, double>> executionTimesAsio;
+    std::vector<std::tuple<double, double, double, double>> executionTimesMPI;
+};
+
+/**
+ * loads a vector of exectuion times from a specified file
+ */
+std::vector<std::tuple<double, double, double, double>> loadExTimesFromFile(const std::string &path) {
+    std::vector<std::tuple<double, double, double, double>> exTimes{};
+    std::ifstream ifs(path);
+    boost::archive::text_iarchive ia(ifs);
+    ia & exTimes;
+
+    return exTimes;
+}
+
+/**
+ * takes a vector with error values and returns a vector with only x-values and the mean as y-values
+ */
+std::vector<std::tuple<double, double>> extractMean(
+        const std::vector<std::tuple<double, double, double, double>> &loadExTimesFromFile) {
+    std::vector<std::tuple<double, double>> means{};
+
+    std::for_each(loadExTimesFromFile.begin(), loadExTimesFromFile.end(), [&means](const auto &item) {
+        means.push_back(
+                std::tuple<double, double>(
+                        std::get<0>(item),
+                        std::get<2>(item))
+        );
+    });
+
+    return means;
+}
+
+std::string getNumberOfClientsPrefix(const std::uint32_t &nClients) {
+    std::stringstream sout{};
+    sout << std::setfill('0') << std::setw(4) << nClients;
+
+    return sout.str();
+}
 
 std::string getCommandBanner(const std::string &command) {
     std::stringstream sout{};
@@ -125,20 +196,20 @@ void renameIntermediateFiles(const GAsioMPIBenchmarkConfig &config, const std::s
 
     // copy the root file to the results directory
     fs::path resultDir = workDir / resultDirName;
-    std::string resultFileName{std::to_string(nClients) + "_" + resultPrefix + "_" + suffix};
+    std::string resultFileName{getNumberOfClientsPrefix(nClients) + "_" + resultPrefix + "_" + suffix};
     fs::rename(workDir / config.getMIntermediateResultFileName(), resultDir / resultFileName);
 
     // copy the serialized graph object to graph objects directory
-    fs::path graphsDir = workDir / graphObjectsDirectoryName;
-    std::string graphObjectFileName{std::to_string(nClients) + "_" + graphObjectPrefix + "_" + suffix};
-    fs::rename(workDir / intermediateGraphObjectFileName, graphsDir / graphObjectFileName);
+    fs::path executionTimesDir = workDir / executionTimesDirName;
+    std::string graphObjectFileName{getNumberOfClientsPrefix(nClients) + "_" + executionTimesFilePrefix + "_" + suffix};
+    fs::rename(workDir / executionTimesFileNameBeforeRename, executionTimesDir / graphObjectFileName);
 }
 
 void resetOutputDirs() {
     namespace fs = std::filesystem;
 
     fs::path workDir = fs::current_path();
-    fs::path graphsDir = workDir / graphObjectsDirectoryName;
+    fs::path graphsDir = workDir / executionTimesDirName;
     fs::path resultDir = workDir / resultDirName;
 
     fs::remove_all(graphsDir);
@@ -148,10 +219,124 @@ void resetOutputDirs() {
     fs::create_directory(resultDir);
 }
 
+Gem::Common::GPlotDesigner configurePlotter(
+        const std::vector<ExecutionTimes> &exTimesVec,
+        const std::string &title,
+        const std::string &xLabel,
+        const std::string &yLabel,
+        const bool &singlePlot) {
+
+    Gem::Common::GPlotDesigner gpd(title,
+                                   2,
+                                   (singlePlot ? 1 : exTimesVec.size()));
+
+    if (singlePlot) {
+        // NOTE: multiple graphs in a single plot can only be done with GGraph2D not with GGraph2ED
+        // create one first main graph for asio and mpi
+        auto asioMainGraph = std::make_shared<Gem::Common::GGraph2D>();
+        auto mpiMainGraph = std::make_shared<Gem::Common::GGraph2D>();
+
+        // set labels for main graph
+        asioMainGraph->setPlotLabel("Asio");
+        mpiMainGraph->setPlotLabel("MPI");
+
+        asioMainGraph->setXAxisLabel(xLabel);
+        asioMainGraph->setYAxisLabel(yLabel);
+        mpiMainGraph->setXAxisLabel(xLabel);
+        mpiMainGraph->setYAxisLabel(yLabel);
+
+        // set drawing arguments
+        asioMainGraph->setDrawingArguments("ALP*");
+        mpiMainGraph->setDrawingArguments("ALP*");
+
+        // set the line colors for the fist iteration
+        asioMainGraph->setLineColor(lineColors[0]);
+        mpiMainGraph->setLineColor(lineColors[0]);
+
+        // add the data to the graphs
+        (*asioMainGraph) & extractMean(exTimesVec[0].executionTimesAsio);
+        (*mpiMainGraph) & extractMean(exTimesVec[0].executionTimesMPI);
+
+        // add all following graphs as subplots
+        for (int i{1}; i < exTimesVec.size(); ++i) { // start from second element
+            auto asioSubGraph = std::make_shared<Gem::Common::GGraph2D>();
+            auto mpiSubGraph = std::make_shared<Gem::Common::GGraph2D>();
+
+            // add the data to the sub-graphs
+            (*asioSubGraph) & extractMean(exTimesVec[i].executionTimesAsio);
+            (*mpiSubGraph) & extractMean(exTimesVec[i].executionTimesMPI);
+
+            // set drawing options
+            asioSubGraph->setDrawingArguments("L*");
+            mpiSubGraph->setDrawingArguments("L*");
+
+            // set line colors
+            asioSubGraph->setLineColor(lineColors[i % lineColors.size()]); // modulo to prevent out of bounds error
+            mpiSubGraph->setLineColor(lineColors[i % lineColors.size()]);
+
+            // add the sub-graphs to the main-graph
+            asioMainGraph->registerSecondaryPlotter(asioSubGraph);
+            mpiMainGraph->registerSecondaryPlotter(mpiSubGraph);
+        }
+
+        // TODO: print legend
+
+        gpd.registerPlotter(asioMainGraph);
+        gpd.registerPlotter(mpiMainGraph);
+
+    } else {
+        for (const auto &et: exTimesVec) {
+            // create two graphs
+            auto asioGraph = std::make_shared<Gem::Common::GGraph2ED>();
+            auto mpiGraph = std::make_shared<Gem::Common::GGraph2ED>();
+
+            // set labels
+            asioGraph->setPlotLabel("Asio clients = " + std::to_string(et.nClients));
+            mpiGraph->setPlotLabel("MPI clients = " + std::to_string(et.nClients));
+
+            asioGraph->setXAxisLabel(xLabel);
+            asioGraph->setYAxisLabel(yLabel);
+            mpiGraph->setXAxisLabel(xLabel);
+            mpiGraph->setYAxisLabel(yLabel);
+
+            // add the data to the graphs
+            (*asioGraph) & et.executionTimesAsio;
+            (*mpiGraph) & et.executionTimesMPI;
+
+            // register graphs with the plotter
+            gpd.registerPlotter(asioGraph);
+            gpd.registerPlotter(mpiGraph);
+        }
+
+
+    }
+
+    gpd.setCanvasDimensions(800, 1200);
+
+    return gpd;
+}
+
+void plotAbsoluteTimes(const std::vector<ExecutionTimes> &exTimesVec, const GAsioMPIBenchmarkConfig &config) {
+    // plot directly with no modification, because values are already absolute
+    configurePlotter(exTimesVec,
+                     "Absolute time for optimizations for different numbers of consumers and evaluation of the fitness.",
+                     "time to calculate fitness [s]",
+                     "time needed for one optimization [s]",
+                     true)
+            .writeToFile(std::filesystem::path("abs_onePlot_" + config.getResultFileName()));
+
+    configurePlotter(exTimesVec,
+                     "Absolute time for optimizations for different numbers of consumers and evaluation of the fitness.",
+                     "time to calculate fitness [s]",
+                     "time needed for one optimization [s]",
+                     false)
+            .writeToFile(std::filesystem::path("abs_multiplePlots_" + config.getResultFileName()));
+}
+
 void combineGraphsToPlot(const GAsioMPIBenchmarkConfig &config) {
     namespace fs = std::filesystem;
 
-    fs::path graphsDir = fs::current_path() / graphObjectsDirectoryName;
+    fs::path executionTimesDir = fs::current_path() / executionTimesDirName;
 
 
     Gem::Common::GPlotDesigner gpd("Processing times for different evaluation times of individuals ", 2,
@@ -159,41 +344,34 @@ void combineGraphsToPlot(const GAsioMPIBenchmarkConfig &config) {
 
 
     // insert all file entries into a vector
-    std::vector<fs::directory_entry> graphFiles{};
-    for (auto const &dir_entry: std::filesystem::directory_iterator{graphsDir}) {
-        graphFiles.push_back(dir_entry);
+    std::vector<fs::directory_entry> exTimesFiles{};
+    for (auto const &dir_entry: std::filesystem::directory_iterator{executionTimesDir}) {
+        exTimesFiles.push_back(dir_entry);
     }
 
-    // sort by names, names indicate number of clients
-    std::sort(graphFiles.begin(), graphFiles.end());
+    // sort by names, name prefix indicates number of clients -> sort by clients
+    std::sort(exTimesFiles.begin(), exTimesFiles.end());
 
-    // load the graphs from the sorted files and add to the GPlotterDesigner
-    for (int i{0}; i < graphFiles.size(); ++i) {
-        auto graph = std::make_shared<Gem::Common::GGraph2ED>();
-        graph->fromFile(graphFiles[i], serMode);
-
-        // generate an appropriate label for this graph
-        // we have 2 files for each number of clients - one for asio one for mpi
-        // TODO: make sorting also work for multiple digits
-        auto nClients = config.getNClients()[i / 2];
-        std::string label{((i % 2 == 0) ? "Asio" : "MPI") + (" clients=" + std::to_string(nClients))};
-
-        // set the label
-        graph->setPlotLabel(label);
-
-        // add the graph to the plotter
-        gpd.registerPlotter(graph);
+    std::vector<ExecutionTimes> exTimesVec;
+    for (int i{0}; i < exTimesFiles.size(); i += 2) { // iterate in steps of two (get one asio and one mpi file)
+        // add execution times for one number of clients to the vector
+        exTimesVec.push_back(
+                ExecutionTimes{
+                        config.getNClients()[i / 2], // the amount of clients used for this run of the subprogram
+                        loadExTimesFromFile(
+                                exTimesFiles[i].path().string()), // asio ex-times (asio is alphabetically before mpi
+                        loadExTimesFromFile(exTimesFiles[i + 1].path().string())
+                });
     }
 
-    gpd.setCanvasDimensions(800, 1200);
-    gpd.writeToFile(config.getResultFileName());
+    plotAbsoluteTimes(exTimesVec, config);
 }
 
 std::string getHeader(const GAsioMPIBenchmarkConfig &config) {
     std::stringstream sout{};
     sout << "-----------------------------------------" << std::endl
          << "starting " << config.getNClients().size() << " benchmark(s) for asio and mpi" << std::endl
-         << "consumer numbers to benchmark: [" << Gem::Common::vecToString(config.getNClients()) << std::endl
+         << "consumer numbers to benchmark: [ " << Gem::Common::vecToString(config.getNClients()) << "]" << std::endl
          << "-----------------------------------------" << std::endl;
 
     return sout.str();

@@ -1383,6 +1383,7 @@ class GBasePlotter
         & BOOST_SERIALIZATION_NVP(m_y_axis_label)
         & BOOST_SERIALIZATION_NVP(m_z_axis_label)
         & BOOST_SERIALIZATION_NVP(m_plot_label)
+        & BOOST_SERIALIZATION_NVP(m_lineColor)
         & BOOST_SERIALIZATION_NVP(m_dsMarker)
         & BOOST_SERIALIZATION_NVP(m_secondaryPlotter)
         & BOOST_SERIALIZATION_NVP(m_id);
@@ -1426,6 +1427,11 @@ public:
     G_API_COMMON void setPlotLabel(std::string);
     /** @brief Allows to retrieve the plot label */
     G_API_COMMON std::string plotLabel() const;
+
+    /** Set the line color for the plot*/
+    G_API_COMMON void setLineColor(const std::string&);
+    /** @brief Allows to retrieve the line color */
+    G_API_COMMON std::string lineColor() const;
 
     /** @brief Allows to assign a marker to data structures */
     G_API_COMMON void setDataStructureMarker(std::string);
@@ -1510,6 +1516,7 @@ protected:
     std::string m_z_axis_label = std::string("z"); ///< A label for the z-axis (if available)
 
     std::string m_plot_label = std::string("");   ///< A label to be assigned to the entire plot
+    std::string m_lineColor = std::string("");
     std::string m_dsMarker = std::string("");     ///< A marker to make the origin of data structures clear in the output file
 
     std::vector<line> lines_; ///< Lines to be drawn into the drawing area

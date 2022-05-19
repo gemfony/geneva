@@ -329,6 +329,7 @@ void GBasePlotter::setPlotLabel(std::string pL) {
 	m_plot_label = pL;
 }
 
+
 /******************************************************************************/
 /**
  * Allows to retrieve the plot label
@@ -338,6 +339,24 @@ void GBasePlotter::setPlotLabel(std::string pL) {
 std::string GBasePlotter::plotLabel() const {
 	return m_plot_label;
 }
+
+/**
+ * Allows to set the line color for this plot
+ *
+ */
+void GBasePlotter::setLineColor(const std::string &lineColor){
+    m_lineColor = lineColor;
+}
+
+/**
+ * Allows to retrieve the line color
+ *
+ * @return The line color that has been assigned to the plot
+ */
+std::string GBasePlotter::lineColor() const {
+    return m_lineColor;
+}
+
 
 /******************************************************************************/
 /**
@@ -771,6 +790,11 @@ std::string GGraph2D::footerData_(
 		footer_data
 			<< indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
+
+    if (!m_lineColor.empty()) {
+        footer_data
+        << indent << graphName << "->SetLineColor(" << m_lineColor << ");" << std::endl;
+    }
 
 	footer_data
 		<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl

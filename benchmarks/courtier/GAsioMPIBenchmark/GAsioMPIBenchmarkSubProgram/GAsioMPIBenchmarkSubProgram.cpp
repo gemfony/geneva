@@ -59,7 +59,7 @@
 using namespace Gem::Geneva;
 using namespace Gem::Common;
 
-const std::string intermediateGraphObjectFileName{"graph_object.ser"};
+const std::string executionTimesFileName{"executionTimesVector.ser"};
 Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
 
 /******************************************************************************/
@@ -143,6 +143,15 @@ void measureExecutionTimes(
     std::cout << "End of measurement" << std::endl;
 }
 
+/**
+ * Serialize the execution times and write them to a file
+ */
+void executionTimesToFile(const std::vector<std::tuple<double, double, double, double>> &executionTimes) {
+        std::ofstream ofs(executionTimesFileName);
+        boost::archive::text_oarchive oa(ofs);
+        oa & executionTimes;
+}
+
 int main(int argc, char **argv) {
     std::vector<std::tuple<double, double, double, double>> executionTimes;
     std::tuple<double, double, double, double> ab;
@@ -162,12 +171,12 @@ int main(int argc, char **argv) {
     go.registerDefaultAlgorithm("ea");
     measureExecutionTimes(go, delayIndividualFactory, executionTimes);
 
+    executionTimesToFile(executionTimes);
+
     std::shared_ptr<GGraph2ED> graph(new GGraph2ED());
     graph->setPlotLabel("Execution times");
 
     (*graph) & executionTimes;
-
-    graph->toFile(std::filesystem::current_path() / intermediateGraphObjectFileName, serMode);
 
     GPlotDesigner gpd("Processing times for different evaluation times of individuals ", 1, 1);
 
