@@ -49,11 +49,11 @@
 #include "geneva/GParameterSet.hpp"
 #include "geneva/G_OptimizationAlgorithm_Base.hpp"
 #include "geneva/GOptimizationEnums.hpp"
-#include "common/GParserBuilder.hpp"
-#include "G_OptimizationAlgorithm_Base.hpp"
-#include "GObject.hpp"
-#include "common/GCommonEnums.hpp"
-#include "GParameterSetFixedSizePriorityQueue.hpp"
+#include "geneva/G_OptimizationAlgorithm_ArtificialBeeColony_PersonalityTraits.hpp"
+
+#ifdef GEM_TESTING
+#include "geneva/GTestIndividual1.hpp"
+#endif /* GEM_TESTING */
 
 namespace Gem {
 namespace Geneva {
@@ -78,8 +78,8 @@ class GArtificialBeeColony
 
 public:
     G_API_GENEVA GArtificialBeeColony();
-
-    GArtificialBeeColony(const G_OptimizationAlgorithm_Base &cp);
+    /** @brief A standard copy constructor */
+    explicit G_API_GENEVA GArtificialBeeColony(const GArtificialBeeColony&);
 
 protected:
     G_API_GENEVA void addConfigurationOptions_(Common::GParserBuilder &gpb) override;
@@ -105,21 +105,24 @@ protected:
     G_API_GENEVA void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
 
 private:
+    /** @brief Emits a name for this class / object */
     G_API_GENEVA std::string name_() const override;
+    /** @brief Creates a deep clone of this object */
+    G_API_GENEVA GObject *clone_() const override;
 
-    G_API_GENEVA std::tuple<double, double> cycleLogic_() BASE override;
+    G_API_GENEVA std::tuple<double, double> cycleLogic_() override;
 
-    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const BASE override;
+    G_API_GENEVA std::shared_ptr<GPersonalityTraits> getPersonalityTraits_() const override;
 
-    G_API_GENEVA void adjustPopulation_() BASE override;
+    G_API_GENEVA void adjustPopulation_() override;
 
-    G_API_GENEVA void actOnStalls_() BASE override;
+    G_API_GENEVA void actOnStalls_() override;
 
-    G_API_GENEVA void runFitnessCalculation_() BASE override;
+    G_API_GENEVA void runFitnessCalculation_() override;
 
-    G_API_GENEVA std::string getAlgorithmPersonalityType_() const BASE override;
+    G_API_GENEVA std::string getAlgorithmPersonalityType_() const override;
 
-    G_API_GENEVA std::string getAlgorithmName_() const BASE override;
+    G_API_GENEVA std::string getAlgorithmName_() const override;
 
     std::vector<double> m_dbl_lower_parameter_boundaries_cnt = std::vector<double>(); ///< Holds lower boundaries of double parameters
     std::vector<double> m_dbl_upper_parameter_boundaries_cnt = std::vector<double>(); ///< Holds upper boundaries of double parameters

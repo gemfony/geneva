@@ -72,6 +72,7 @@
 #include "geneva/G_OptimizationAlgorithm_ParameterScan_Factory.hpp"
 #include "geneva/G_OptimizationAlgorithm_SimulatedAnnealing_Factory.hpp"
 #include "geneva/G_OptimizationAlgorithm_SwarmAlgorithm_Factory.hpp"
+#include "geneva/G_OptimizationAlgorithm_ArtificialBeeColony_Factory.hpp"
 
 namespace Gem {
 namespace Geneva {

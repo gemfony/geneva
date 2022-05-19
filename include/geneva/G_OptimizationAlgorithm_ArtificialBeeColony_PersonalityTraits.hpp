@@ -81,3 +81,5 @@ public:
 
 } /* namespace Geneva */
 } /* namespace Gem */
+
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GArtificialBeeColony_PersonalityTraits)

@@ -88,6 +88,7 @@ Go2::Go2(
 	m_gi.registerOAF<GGradientDescentFactory>();
 	m_gi.registerOAF<GSimulatedAnnealingFactory>();
 	m_gi.registerOAF<GParameterScanFactory>();
+    m_gi.registerOAF<GArtificialBeeColonyFactory>();
 
 	m_gi.registerConsumer<GIndividualWebsocketConsumer>();
 	m_gi.registerConsumer<GIndividualAsioConsumer>();

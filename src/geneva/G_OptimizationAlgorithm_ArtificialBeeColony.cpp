@@ -47,7 +47,8 @@ namespace Geneva {
 
 GArtificialBeeColony::GArtificialBeeColony() {}
 
-GArtificialBeeColony::GArtificialBeeColony(const G_OptimizationAlgorithm_Base &cp) : G_OptimizationAlgorithm_Base(cp) {}
+GArtificialBeeColony::GArtificialBeeColony(const GArtificialBeeColony &cp) : G_OptimizationAlgorithm_Base(cp) //TODO: Copy all other attributes
+{}
 
 void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
     // Call our parent class'es function
@@ -127,7 +128,11 @@ std::string GArtificialBeeColony::getAlgorithmName_() const {
 }
 
 std::string GArtificialBeeColony::name_() const {
+    return std::string("GArtificialBeeColony");
+}
 
+GObject *GArtificialBeeColony::clone_() const {
+    return new GArtificialBeeColony(*this);
 }
 
 
