@@ -2913,6 +2913,18 @@ public:
     /** @brief Retrieves a unique name for this plotter */
     G_API_COMMON std::string getPlotterName() const override;
 
+    /** @brief Sets a flag that determines whether this plot shall print its legend entry */
+    G_API_COMMON void setPlotLegend(const bool&);
+
+    /** @brief Retrieves the flag that determines whether this plot shall print its legend entry */
+    G_API_COMMON bool getPlotLegend() const;
+
+    /** @brief sets the legend entry that is printed if setPlotLegend was set to true */
+    G_API_COMMON void setLegendEntry(const std::string&, const std::string& = "l");
+
+    /** @brief sets the legend title */
+    G_API_COMMON void setLegendTitle(const std::string&);
+
 protected:
     /** @brief Retrieve specific header settings for this plot */
     std::string headerData_(bool, std::size_t, const std::string &) const override;
@@ -2951,6 +2963,10 @@ private:
 
     graphPlotMode pM_ = DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
     bool drawArrows_ = false; ///< When set to true, arrows will be drawn between consecutive points
+    bool plotLegend_ = false;
+    std::string legendLabel_ = "";
+    std::string legendSymbolStyle_ = "l"; // "l" => line
+    std::string legendTitle_ = "Legend";
 };
 
 /******************************************************************************/

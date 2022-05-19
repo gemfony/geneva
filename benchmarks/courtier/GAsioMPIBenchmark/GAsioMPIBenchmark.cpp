@@ -253,6 +253,18 @@ Gem::Common::GPlotDesigner configurePlotter(
         asioMainGraph->setLineColor(lineColors[0]);
         mpiMainGraph->setLineColor(lineColors[0]);
 
+        // set title for the legend which belongs to this graph and all subplots
+        asioMainGraph->setLegendTitle("Number of clients");
+        mpiMainGraph->setLegendTitle("Number of clients");
+
+        // set the legends for the first iteration (main graph)
+        asioMainGraph->setLegendEntry(std::to_string(exTimesVec[0].nClients));
+        mpiMainGraph->setLegendEntry(std::to_string(exTimesVec[0].nClients));
+
+        // notify that we want to print the legend for these graphs
+        asioMainGraph->setPlotLegend(true);
+        mpiMainGraph->setPlotLegend(true);
+
         // add the data to the graphs
         (*asioMainGraph) & extractMean(exTimesVec[0].executionTimesAsio);
         (*mpiMainGraph) & extractMean(exTimesVec[0].executionTimesMPI);
@@ -274,12 +286,18 @@ Gem::Common::GPlotDesigner configurePlotter(
             asioSubGraph->setLineColor(lineColors[i % lineColors.size()]); // modulo to prevent out of bounds error
             mpiSubGraph->setLineColor(lineColors[i % lineColors.size()]);
 
+            // set the legends for the secondary graphs
+            asioSubGraph->setLegendEntry(std::to_string(exTimesVec[i].nClients));
+            mpiSubGraph->setLegendEntry(std::to_string(exTimesVec[i].nClients));
+
+            // notify that we want to print the legend for these graphs
+            asioSubGraph->setPlotLegend(true);
+            mpiSubGraph->setPlotLegend(true);
+
             // add the sub-graphs to the main-graph
             asioMainGraph->registerSecondaryPlotter(asioSubGraph);
             mpiMainGraph->registerSecondaryPlotter(mpiSubGraph);
         }
-
-        // TODO: print legend
 
         gpd.registerPlotter(asioMainGraph);
         gpd.registerPlotter(mpiMainGraph);
@@ -323,7 +341,7 @@ void plotAbsoluteTimes(const std::vector<ExecutionTimes> &exTimesVec, const GAsi
                      "time to calculate fitness [s]",
                      "time needed for one optimization [s]",
                      true)
-            .writeToFile(std::filesystem::path("abs_onePlot_" + config.getResultFileName()));
+            .writeToFile(std::filesystem::path("abs_singlePlot_" + config.getResultFileName()));
 
     configurePlotter(exTimesVec,
                      "Absolute time for optimizations for different numbers of consumers and evaluation of the fitness.",
@@ -365,6 +383,7 @@ void combineGraphsToPlot(const GAsioMPIBenchmarkConfig &config) {
     }
 
     plotAbsoluteTimes(exTimesVec, config);
+    // TODO: print graphs with other scales that show the overhead
 }
 
 std::string getHeader(const GAsioMPIBenchmarkConfig &config) {

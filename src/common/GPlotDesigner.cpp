@@ -598,6 +598,36 @@ std::string GBasePlotter::footerData(const std::string& indent) const {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
+
+/**
+ * Sets a flag that determines whether this plot shall print its legend entry
+ */
+void GGraph2D::setPlotLegend(const bool &plotLegend) {
+    plotLegend_ = plotLegend;
+}
+
+/**
+ * Retrieves the flag that determines whether this plot shall print its legend entry
+ */
+bool GGraph2D::getPlotLegend() const {
+    return plotLegend_;
+}
+
+/**
+ * sets the legend entry that is printed if setPlotLegend was set to true
+ */
+void GGraph2D::setLegendEntry(const std::string &label, const std::string &style) {
+    legendLabel_ = label;
+    legendSymbolStyle_ = style;
+}
+
+/**
+ * sets the legend title
+ */
+void GGraph2D::setLegendTitle(const std::string &title) {
+    legendTitle_ = title;
+}
+
 /**
  * Adds arrows to the plots between consecutive points. Note that setting this
  * value to true will force "SCATTER" mode
@@ -799,6 +829,30 @@ std::string GGraph2D::footerData_(
 	footer_data
 		<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
 		<< std::endl;
+
+    // TODO: make size of legend configurable
+    // TODO: mid-term probably extract this into a base class
+    // plot legend if the flag was set
+    if(plotLegend_) {
+        // graph name is suffixed with the primary graph's suffix
+        // this means all secondary graphs will also access this legend
+        std::string legendName = "legend_graph_" + std::to_string(!isSecondary ? this->id() : pId);
+
+        // newline for more readability
+        footer_data << std::endl;
+
+        // create the legend and plot it if this is the primary graph
+        if (!isSecondary) {
+            footer_data
+            << indent << "auto " << legendName << " = new TLegend(0.1, 0.7, 0.48, 0.9);" << std::endl
+            << indent << legendName << "->SetHeader(\"" << legendTitle_ << R"(", "C");)" << std::endl
+            << indent << legendName << "->Draw();" << std::endl;
+        }
+        // add the graph to the legend
+        footer_data
+        << indent << legendName << "->AddEntry("
+        << graphName << ", \"" << legendLabel_ << "\", \"" << legendSymbolStyle_ << "\");" << std::endl;
+    }
 
 	if (drawArrows_ && m_data.size() >= 2) {
 		std::vector<std::tuple<double, double>>::const_iterator it;
