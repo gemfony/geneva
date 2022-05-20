@@ -567,7 +567,7 @@ const updateRule DEFAULTUPDATERULE = updateRule::SWARM_UPDATERULE_CLASSIC; ///< 
 
 /******************************************************************************/
 
-const unsigned DEFAULTMAXTRIAL = 20;
+const std::uint32_t DEFAULTMAXTRIAL = 20;
 
 /******************************************************************************/
 

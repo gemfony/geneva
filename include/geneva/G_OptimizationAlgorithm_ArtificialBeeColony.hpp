@@ -73,7 +73,8 @@ class GArtificialBeeColony
         & make_nvp("G_OptimizationAlgorithm_Base", boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
         & BOOST_SERIALIZATION_NVP(m_dbl_lower_parameter_boundaries_cnt)
         & BOOST_SERIALIZATION_NVP(m_dbl_upper_parameter_boundaries_cnt)
-        & BOOST_SERIALIZATION_NVP(m_max_trial);
+        & BOOST_SERIALIZATION_NVP(m_max_trial)
+        & BOOST_SERIALIZATION_NVP(m_random_seed);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -81,14 +82,31 @@ class GArtificialBeeColony
 public:
     G_API_GENEVA GArtificialBeeColony();
     /** @brief A standard copy constructor */
-    explicit G_API_GENEVA GArtificialBeeColony(const GArtificialBeeColony&);
+    G_API_GENEVA GArtificialBeeColony(const GArtificialBeeColony&);
+
+    G_API_GENEVA size_t getMRandomSeed() const;
+
+    G_API_GENEVA uint32_t getMMaxTrial() const;
+
+    G_API_GENEVA void setMMaxTrial(uint32_t mMaxTrial);
 
 protected:
     G_API_GENEVA void addConfigurationOptions_(Common::GParserBuilder &gpb) override;
 
     G_API_GENEVA void load_(const GObject *cp) override;
 
-    G_API_GENEVA void compare_(const GObject &cp, const Common::expectation &e, const double &limit) const override;
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GArtificialBeeColony>(
+            GArtificialBeeColony const &
+            , GArtificialBeeColony const &
+            , Gem::Common::GToken &
+    );
+
+    G_API_GENEVA void compare_(
+            const GObject &cp
+            , const Common::expectation &e
+            , const double &limit
+    ) const override;
 
     G_API_GENEVA void resetToOptimizationStart_() override;
 
@@ -126,6 +144,7 @@ private:
     std::vector<double> m_dbl_upper_parameter_boundaries_cnt = std::vector<double>(); ///< Holds upper boundaries of double parameters
 
     std::uint32_t m_max_trial = DEFAULTMAXTRIAL;
+    std::size_t m_random_seed = 0;
 };
 
 } /* namespace Geneva */

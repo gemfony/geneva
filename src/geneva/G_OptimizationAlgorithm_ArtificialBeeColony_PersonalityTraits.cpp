@@ -55,7 +55,7 @@ unsigned int GArtificialBeeColony_PersonalityTraits::getTrial() const {
 }
 
 void GArtificialBeeColony_PersonalityTraits::setTrial(unsigned int trial) {
-    trial_ = trial;
+    trial = trial;
 }
 
 std::string GArtificialBeeColony_PersonalityTraits::getMnemonic() const {

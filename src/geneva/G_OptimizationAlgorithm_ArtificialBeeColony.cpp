@@ -52,11 +52,19 @@ GArtificialBeeColony::GArtificialBeeColony(const GArtificialBeeColony &cp)
 , m_dbl_lower_parameter_boundaries_cnt(cp.m_dbl_lower_parameter_boundaries_cnt)
 , m_dbl_upper_parameter_boundaries_cnt(cp.m_dbl_upper_parameter_boundaries_cnt)
 , m_max_trial(cp.m_max_trial)
+, m_random_seed(cp.m_random_seed)
 {/* nothing */}
 
 void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
     // Call our parent class'es function
     G_OptimizationAlgorithm_Base::addConfigurationOptions_(gpb);
+
+    gpb.registerFileParameter<std::uint32_t>(
+            "maxTrial" // The name of the variable
+            , DEFAULTMAXTRIAL // The default value
+            , [this](std::uint32_t maxTrial){ this->setMMaxTrial(maxTrial); }
+    )
+            << "The maximum allowed trial_ to abandon a food source";
 }
 
 void GArtificialBeeColony::load_(const GObject *cp) {
@@ -71,10 +79,28 @@ void GArtificialBeeColony::load_(const GObject *cp) {
     m_dbl_lower_parameter_boundaries_cnt = p_load->m_dbl_lower_parameter_boundaries_cnt;
     m_dbl_upper_parameter_boundaries_cnt = p_load->m_dbl_upper_parameter_boundaries_cnt;
     m_max_trial = p_load->m_max_trial;
+    m_random_seed = p_load->m_random_seed;
 }
 
 void GArtificialBeeColony::compare_(const GObject &cp, const Common::expectation &e, const double &limit) const {
-    G_OptimizationAlgorithm_Base::compare_(cp, e, limit);
+    using namespace Gem::Common;
+
+    // Check that we are dealing with a GBooleanAdaptor reference independent of this object and convert the pointer
+    const GArtificialBeeColony *p_load = Gem::Common::g_convert_and_compare<GObject, GArtificialBeeColony >(cp, this);
+
+    GToken token("GArtificialBeeColony", e);
+
+    // Compare our parent data ...
+    Gem::Common::compare_base_t<G_OptimizationAlgorithm_Base>(*this, *p_load, token);
+
+    // ... and then the local data
+    compare_t(IDENTITY(m_dbl_lower_parameter_boundaries_cnt, p_load->m_dbl_lower_parameter_boundaries_cnt), token);
+    compare_t(IDENTITY(m_dbl_upper_parameter_boundaries_cnt, p_load->m_dbl_upper_parameter_boundaries_cnt), token);
+    compare_t(IDENTITY(m_max_trial, p_load->m_max_trial), token);
+    compare_t(IDENTITY(m_random_seed, p_load->m_random_seed), token);
+
+    // React on deviations from the expectation
+    token.evaluate();
 }
 
 void GArtificialBeeColony::resetToOptimizationStart_() {
@@ -87,7 +113,7 @@ void GArtificialBeeColony::resetToOptimizationStart_() {
 void GArtificialBeeColony::init() {
     // To be performed before any other action
     G_OptimizationAlgorithm_Base::init();
-
+    m_random_seed = static_cast<size_t> (time(nullptr));
     // Extract the boundaries of all parameters
     this->at(0)->boundaries(m_dbl_lower_parameter_boundaries_cnt, m_dbl_upper_parameter_boundaries_cnt, activityMode::ACTIVEONLY);
 
@@ -103,7 +129,15 @@ void GArtificialBeeColony::init() {
     }
 #endif /* DEBUG */
 
-    //TODO: initialize the starting population according to abc
+    for (auto ind_ptr: *this) {
+        ind_ptr->randomInit(activityMode::ACTIVEONLY); //assuming the randomInit distributes every parameter evenly between its bounds
+    }
+
+    workOn(m_data_cnt, true, "GArtificialBeeColony::init()");
+
+    runFitnessCalculation_();
+
+    adjustPopulation_();
 }
 
 void GArtificialBeeColony::finalize() {
@@ -149,7 +183,7 @@ void GArtificialBeeColony::specificTestsFailuresExpected_GUnitTests_() {
 
 std::tuple<double, double> GArtificialBeeColony::cycleLogic_() {
     //TODO: implement the main abc cycle
-    return std::tuple<double, double>();
+    return std::tuple<double, double>(1,1);
 }
 
 std::shared_ptr<GPersonalityTraits> GArtificialBeeColony::getPersonalityTraits_() const {
@@ -162,7 +196,7 @@ void GArtificialBeeColony::adjustPopulation_() {
     } else if (this->size() < getDefaultPopulationSize()) {
         for (std::size_t i = this->size(); i < getDefaultPopulationSize(); i++) {
             this->push_back(this->front()->clone<GParameterSet>());
-            this->back()->randomInit(activityMode::ACTIVEONLY);
+            this->back()->randomInit(activityMode::ACTIVEONLY); //if there are individuals missing for some reason, we fill them up with new random solutions
         }
     }
 }
@@ -189,6 +223,18 @@ std::string GArtificialBeeColony::name_() const {
 
 GObject *GArtificialBeeColony::clone_() const {
     return new GArtificialBeeColony(*this);
+}
+
+size_t GArtificialBeeColony::getMRandomSeed() const {
+    return m_random_seed;
+}
+
+uint32_t GArtificialBeeColony::getMMaxTrial() const {
+    return m_max_trial;
+}
+
+void GArtificialBeeColony::setMMaxTrial(uint32_t mMaxTrial) {
+    m_max_trial = mMaxTrial;
 }
 
 

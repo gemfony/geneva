@@ -96,9 +96,9 @@ protected:
     G_API_GENEVA void load_(const GObject *object) override;
 
     /** @brief Allow access to this classes compare_ function */
-    friend void Gem::Common::compare_base_t<GSwarmAlgorithm_PersonalityTraits>(
-            GSwarmAlgorithm_PersonalityTraits const &
-            , GSwarmAlgorithm_PersonalityTraits const &
+    friend void Gem::Common::compare_base_t<GArtificialBeeColony_PersonalityTraits>(
+            GArtificialBeeColony_PersonalityTraits const &
+            , GArtificialBeeColony_PersonalityTraits const &
             , Gem::Common::GToken &
     );
 
@@ -120,7 +120,7 @@ private:
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override;
 
-    G_API_GENEVA std::uint32_t trial_ = 0;
+    std::uint32_t trial_ = 0;
 };
 
 } /* namespace Geneva */
