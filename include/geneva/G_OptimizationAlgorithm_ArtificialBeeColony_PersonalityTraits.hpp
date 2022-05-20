@@ -69,14 +69,58 @@ class GArtificialBeeColony_PersonalityTraits :
         using boost::serialization::make_nvp;
 
         ar
-        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits);
-        //TODO: add more
+        & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
+        & BOOST_SERIALIZATION_NVP(trial_);
     }
     ///////////////////////////////////////////////////////////////////////
 
 public:
     /** @brief An easy identifier for the class */
     static G_API_GENEVA const std::string nickname; // Initialized in the .cpp definition file
+
+    /** @brief The default constructor */
+    G_API_GENEVA GArtificialBeeColony_PersonalityTraits() = default;
+    /** @brief The copy contructor */
+    G_API_GENEVA GArtificialBeeColony_PersonalityTraits(const GArtificialBeeColony_PersonalityTraits &);
+    /** @brief The standard destructor */
+    G_API_GENEVA ~GArtificialBeeColony_PersonalityTraits() override = default;
+
+    G_API_GENEVA unsigned getTrial() const;
+
+    G_API_GENEVA void setTrial(unsigned int trial);
+
+    /** @brief Retrieves the mnemonic of the optimization algorithm */
+    G_API_GENEVA std::string getMnemonic() const override;
+
+protected:
+    G_API_GENEVA void load_(const GObject *object) override;
+
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GSwarmAlgorithm_PersonalityTraits>(
+            GSwarmAlgorithm_PersonalityTraits const &
+            , GSwarmAlgorithm_PersonalityTraits const &
+            , Gem::Common::GToken &
+    );
+
+    G_API_GENEVA void compare_(
+            const GObject &object
+            , const Common::expectation &expectation
+            , const double &d
+    ) const override;
+
+    G_API_GENEVA bool modify_GUnitTests_() override;
+
+    G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
+
+    G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
+
+private:
+    /** @brief Emits a name for this class / object */
+    G_API_GENEVA std::string name_() const override;
+    /** @brief Creates a deep clone of this object */
+    G_API_GENEVA GObject *clone_() const override;
+
+    G_API_GENEVA unsigned trial_ = 0;
 };
 
 } /* namespace Geneva */

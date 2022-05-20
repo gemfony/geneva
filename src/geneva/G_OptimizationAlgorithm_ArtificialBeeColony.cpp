@@ -47,7 +47,10 @@ namespace Geneva {
 
 GArtificialBeeColony::GArtificialBeeColony() {}
 
-GArtificialBeeColony::GArtificialBeeColony(const GArtificialBeeColony &cp) : G_OptimizationAlgorithm_Base(cp) //TODO: Copy all other attributes
+GArtificialBeeColony::GArtificialBeeColony(const GArtificialBeeColony &cp)
+: G_OptimizationAlgorithm_Base(cp)
+, m_dbl_lower_parameter_boundaries_cnt(cp.m_dbl_lower_parameter_boundaries_cnt)
+, m_dbl_upper_parameter_boundaries_cnt(cp.m_dbl_upper_parameter_boundaries_cnt)//TODO: Copy all other attributes
 {}
 
 void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
@@ -73,6 +76,20 @@ void GArtificialBeeColony::init() {
 
     // Extract the boundaries of all parameters
     this->at(0)->boundaries(m_dbl_lower_parameter_boundaries_cnt, m_dbl_upper_parameter_boundaries_cnt, activityMode::ACTIVEONLY);
+
+#ifdef DEBUG
+    // Size matters!
+    if(m_dbl_lower_parameter_boundaries_cnt.size() != m_dbl_upper_parameter_boundaries_cnt.size()) {
+        throw gemfony_exception(
+                g_error_streamer(DO_LOG,  time_and_place)
+                        << "In GArtificialBeeColony::init(): Error!" << std::endl
+                        << "Found invalid sizes: "
+                        << m_dbl_lower_parameter_boundaries_cnt.size() << " / " << m_dbl_upper_parameter_boundaries_cnt.size() << std::endl
+        );
+    }
+#endif /* DEBUG */
+
+    adjustPopulation_();
 }
 
 void GArtificialBeeColony::finalize() {
