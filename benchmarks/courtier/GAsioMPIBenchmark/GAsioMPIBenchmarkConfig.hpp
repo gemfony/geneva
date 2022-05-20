@@ -107,16 +107,20 @@ namespace Gem::Tests {
 
         // TODO: doxygen comments for getters
 
-        [[nodiscard]] const std::string &getMIntermediateResultFileName() const {
+        [[nodiscard]] std::string getMIntermediateResultFileName() const {
             return m_intermediateResultFile;
         }
 
-        [[nodiscard]] const std::string &getMConfigFileName() const {
+        [[nodiscard]] std::string getMConfigFileName() const {
             return m_configFile;
         }
 
-        [[nodiscard]] const std::string &getMBenchmarkExecutableName() const {
+        [[nodiscard]] std::string getMBenchmarkExecutableName() const {
             return m_benchmarkExecutable;
+        }
+
+        [[nodiscard]] std::uint32_t getOnlyGenerateGraphs() const {
+            return m_onlyGenerateGraphs;
         }
 
 
@@ -158,6 +162,13 @@ namespace Gem::Tests {
                     m_benchmarkExecutable,
                     m_benchmarkExecutable,
                     "The location of the executable that is started."
+            );
+
+            m_cLParser.registerCLParameter(
+                    "onlyGenerateGraphs",
+                    m_onlyGenerateGraphs,
+                    m_onlyGenerateGraphs,
+                    "Flag that defines whether to only build the graphs without running the benchmark."
             );
         }
 
@@ -218,6 +229,12 @@ namespace Gem::Tests {
          * The location of the executable called for benchmarking
          */
         std::string m_benchmarkExecutable = "./GAsioMPIBenchmarkSubProgram/GAsioMPIBenchmarkSubProgram";
+
+        /**
+         * Flag that defines whether to only build the graphs without running the benchmark. This can be useful if
+         * the benchmark files already exists from a previous run but you would like to rebuild the graphs
+         */
+         std::uint32_t m_onlyGenerateGraphs{0};
     };
 
 }
