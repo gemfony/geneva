@@ -120,7 +120,7 @@ private:
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override;
 
-    G_API_GENEVA unsigned trial_ = 0;
+    G_API_GENEVA std::uint32_t trial_ = 0;
 };
 
 } /* namespace Geneva */

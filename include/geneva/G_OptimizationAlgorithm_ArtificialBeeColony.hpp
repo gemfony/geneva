@@ -70,8 +70,10 @@ class GArtificialBeeColony
         using boost::serialization::make_nvp;
 
         ar
-        & make_nvp("G_OptimizationAlgorithm_Base", boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this));
-        //TODO: Add more
+        & make_nvp("G_OptimizationAlgorithm_Base", boost::serialization::base_object<G_OptimizationAlgorithm_Base>(*this))
+        & BOOST_SERIALIZATION_NVP(m_dbl_lower_parameter_boundaries_cnt)
+        & BOOST_SERIALIZATION_NVP(m_dbl_upper_parameter_boundaries_cnt)
+        & BOOST_SERIALIZATION_NVP(m_max_trial);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -100,10 +102,6 @@ protected:
 
     G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
 
-    G_API_GENEVA void updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
-
-    G_API_GENEVA void updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) override;
-
 private:
     /** @brief Emits a name for this class / object */
     G_API_GENEVA std::string name_() const override;
@@ -126,6 +124,8 @@ private:
 
     std::vector<double> m_dbl_lower_parameter_boundaries_cnt = std::vector<double>(); ///< Holds lower boundaries of double parameters
     std::vector<double> m_dbl_upper_parameter_boundaries_cnt = std::vector<double>(); ///< Holds upper boundaries of double parameters
+
+    std::uint32_t m_max_trial = DEFAULTMAXTRIAL;
 };
 
 } /* namespace Geneva */

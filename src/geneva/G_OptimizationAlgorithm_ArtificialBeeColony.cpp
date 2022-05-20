@@ -50,8 +50,9 @@ GArtificialBeeColony::GArtificialBeeColony() {}
 GArtificialBeeColony::GArtificialBeeColony(const GArtificialBeeColony &cp)
 : G_OptimizationAlgorithm_Base(cp)
 , m_dbl_lower_parameter_boundaries_cnt(cp.m_dbl_lower_parameter_boundaries_cnt)
-, m_dbl_upper_parameter_boundaries_cnt(cp.m_dbl_upper_parameter_boundaries_cnt)//TODO: Copy all other attributes
-{}
+, m_dbl_upper_parameter_boundaries_cnt(cp.m_dbl_upper_parameter_boundaries_cnt)
+, m_max_trial(cp.m_max_trial)
+{/* nothing */}
 
 void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
     // Call our parent class'es function
@@ -59,7 +60,17 @@ void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb)
 }
 
 void GArtificialBeeColony::load_(const GObject *cp) {
+    // Check that we are dealing with a GSwarmAlgorithm reference independent of this object and convert the pointer
+    const GArtificialBeeColony *p_load = Gem::Common::g_convert_and_compare<GObject, GArtificialBeeColony >(cp, this);
+
+    // First load the parent class'es data.
+    // This will also take care of copying all individuals.
     G_OptimizationAlgorithm_Base::load_(cp);
+
+    // ... and then our own data
+    m_dbl_lower_parameter_boundaries_cnt = p_load->m_dbl_lower_parameter_boundaries_cnt;
+    m_dbl_upper_parameter_boundaries_cnt = p_load->m_dbl_upper_parameter_boundaries_cnt;
+    m_max_trial = p_load->m_max_trial;
 }
 
 void GArtificialBeeColony::compare_(const GObject &cp, const Common::expectation &e, const double &limit) const {
@@ -67,6 +78,9 @@ void GArtificialBeeColony::compare_(const GObject &cp, const Common::expectation
 }
 
 void GArtificialBeeColony::resetToOptimizationStart_() {
+    m_dbl_lower_parameter_boundaries_cnt.clear();
+    m_dbl_upper_parameter_boundaries_cnt.clear();
+
     G_OptimizationAlgorithm_Base::resetToOptimizationStart_();
 }
 
@@ -89,51 +103,76 @@ void GArtificialBeeColony::init() {
     }
 #endif /* DEBUG */
 
-    adjustPopulation_();
+    //TODO: initialize the starting population according to abc
 }
 
 void GArtificialBeeColony::finalize() {
+
+    //Last Action
     G_OptimizationAlgorithm_Base::finalize();
 }
 
 bool GArtificialBeeColony::modify_GUnitTests_() {
-    return G_OptimizationAlgorithm_Base::modify_GUnitTests_();
+#ifdef GEM_TESTING
+    bool result = false;
+
+    // Call the parent class'es function
+    if (G_OptimizationAlgorithm_Base::modify_GUnitTests_()) result = true;
+
+    return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset("GArtificialBeeColony::modify_GUnitTests", "GEM_TESTING");
+    return false;
+#endif /* GEM_TESTING */
 }
 
 void GArtificialBeeColony::specificTestsNoFailureExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    // Call the parent class'es function
     G_OptimizationAlgorithm_Base::specificTestsNoFailureExpected_GUnitTests_();
+
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset("GSwarmAlgorithm::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 void GArtificialBeeColony::specificTestsFailuresExpected_GUnitTests_() {
+#ifdef GEM_TESTING
+    // Call the parent class'es function
     G_OptimizationAlgorithm_Base::specificTestsFailuresExpected_GUnitTests_();
-}
 
-void GArtificialBeeColony::updateGlobalBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) {
-    G_OptimizationAlgorithm_Base::updateGlobalBestsPQ_(bestIndividuals);
-}
-
-void GArtificialBeeColony::updateIterationBestsPQ_(GParameterSetFixedSizePriorityQueue &bestIndividuals) {
-    G_OptimizationAlgorithm_Base::updateIterationBestsPQ_(bestIndividuals);
+#else /* GEM_TESTING */ // If this function is called when GEM_TESTING isn't set, throw
+    Gem::Common::condnotset("GSwarmAlgorithm::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
 }
 
 std::tuple<double, double> GArtificialBeeColony::cycleLogic_() {
+    //TODO: implement the main abc cycle
     return std::tuple<double, double>();
 }
 
 std::shared_ptr<GPersonalityTraits> GArtificialBeeColony::getPersonalityTraits_() const {
-    return std::shared_ptr<GPersonalityTraits>();
+    return std::shared_ptr<GArtificialBeeColony_PersonalityTraits>(new GArtificialBeeColony_PersonalityTraits());
 }
 
 void GArtificialBeeColony::adjustPopulation_() {
-
+    if(this->size() > getDefaultPopulationSize()) {
+        this->resize(getDefaultPopulationSize());
+    } else if (this->size() < getDefaultPopulationSize()) {
+        for (std::size_t i = this->size(); i < getDefaultPopulationSize(); i++) {
+            this->push_back(this->front()->clone<GParameterSet>());
+            this->back()->randomInit(activityMode::ACTIVEONLY);
+        }
+    }
 }
 
 void GArtificialBeeColony::actOnStalls_() {
-
+    /* nothing */
 }
 
 void GArtificialBeeColony::runFitnessCalculation_() {
-
+    //TODO: implement some way to use this for abc (since we usually dont calculate the current existent individuals)
 }
 
 std::string GArtificialBeeColony::getAlgorithmPersonalityType_() const {

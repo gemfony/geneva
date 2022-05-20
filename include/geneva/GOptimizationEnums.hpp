@@ -179,11 +179,6 @@ const std::size_t DEFAULTPOPULATIONSIZE = 100;
 const std::size_t DEFAULTEAPOPULATIONSIZE = 42;
 
 /**
- * The default population size in artificial bee colonies
- */
-const std::size_t DEFAULTABCPOPULATIONSIZE = 50;
-
-/**
  * The default number of parents in evolutionary algorithms
  */
 const std::size_t DEFAULTEANPARENTS = 2;
@@ -569,6 +564,10 @@ enum class updateRule : Gem::Common::ENUMBASETYPE {
 /******************************************************************************/
 
 const updateRule DEFAULTUPDATERULE = updateRule::SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
+
+/******************************************************************************/
+
+const unsigned DEFAULTMAXTRIAL = 20;
 
 /******************************************************************************/
 
