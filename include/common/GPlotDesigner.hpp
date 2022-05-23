@@ -2925,6 +2925,12 @@ public:
     /** @brief sets the legend title */
     G_API_COMMON void setLegendTitle(const std::string&);
 
+    /** @brief Allows to set the limits for the x-axis */
+    void setXAxisLimits(const double &min, const double &max);
+
+    /** @brief Allows to set the limits for the y-axis */
+    void setYAxisLimits(const double &min, const double &max);
+
 protected:
     /** @brief Retrieve specific header settings for this plot */
     std::string headerData_(bool, std::size_t, const std::string &) const override;
@@ -2964,6 +2970,10 @@ private:
     graphPlotMode pM_ = DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
     bool drawArrows_ = false; ///< When set to true, arrows will be drawn between consecutive points
     bool plotLegend_ = false;
+    std::pair<double, double> xAxisLimits_{0.0, 0.0};
+    std::pair<double, double> yAxisLimits_{0.0, 0.0};
+    bool customXAxisSet_{false};
+    bool customYAxisSet_{false};
     std::string legendLabel_ = "";
     std::string legendSymbolStyle_ = "l"; // "l" => line
     std::string legendTitle_ = "Legend";

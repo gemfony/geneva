@@ -155,6 +155,29 @@ std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const std::vector<ExTimesSle
 }
 
 /**
+ * returns the maximum y-value for a vector of execution times.
+ */
+double getYMax(const std::vector<ExTimesSleepAtX> &exTimesVec) {
+    double maxY{0};
+
+    // iterate over all execution times for both asio and mpi to extract maximum y-value
+    for (const auto &exTimes: exTimesVec) {
+        for (const auto &tup: exTimes.executionTimesAsio) {
+            if (std::get<2>(tup) > maxY) {
+                maxY = std::get<2>(tup);
+            }
+        }
+        for (const auto &tup: exTimes.executionTimesMPI) {
+            if (std::get<2>(tup) > maxY) {
+                maxY = std::get<2>(tup);
+            }
+        }
+    }
+
+    return maxY;
+}
+
+/**
  * loads a vector of execution times from a specified file
  */
 std::vector<std::tuple<double, double, double, double>> loadExTimesFromFile(const std::string &path) {
@@ -290,8 +313,7 @@ Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
         const bool &singlePlot,
         const bool &clientsAtX) {
 
-    // TODO: currently the graph is scaled to show the primary graph.
-    //  instead it should be scaled to show the greatest x and y values of all graphs :(
+    const double yMax = getYMax(sleepAtXVec);
 
     // swap shape of vector if required
     std::vector<ExTimesClientsAtX> clientsAtXVec{};
@@ -338,6 +360,12 @@ Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
         // set title for the legend which belongs to this graph and all subplots
         asioMainGraph->setLegendTitle(legendTitle);
         mpiMainGraph->setLegendTitle(legendTitle);
+
+        // set the y-axis limits. This defaults to the limits of the y-values. But only for this graph.
+        // This means that any subplots would not be visible if their y-values are out of range
+        asioMainGraph->setYAxisLimits(0.0, yMax);
+        mpiMainGraph->setYAxisLimits(0.0, yMax);
+        // x-values are equal for each plot, so we can stick to the default range of the main graph
 
         // set the legends for the first iteration (main graph)
         if (clientsAtX) {
@@ -514,7 +542,6 @@ void combineGraphsToPlot(const GAsioMPIBenchmarkConfig &config) {
     }
 
     plotAbsoluteTimes(exTimesVec, config);
-    // TODO: graph with x-axix: clients, y-axis: absolute optimization time, mpi and asio together in one graph, one graph for each evaluation time
 }
 
 std::string getHeader(const GAsioMPIBenchmarkConfig &config) {
