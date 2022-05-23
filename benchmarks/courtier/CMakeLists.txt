@@ -42,7 +42,3 @@ ADD_CUSTOM_TARGET( "benchmarks-courtier"
 
 ADD_SUBDIRECTORY (GBufferPortTTest )
 # ADD_SUBDIRECTORY (GConsumerPerformance)
-
-IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	ADD_SUBDIRECTORY(GAsioMPIBenchmark)
-ENDIF()

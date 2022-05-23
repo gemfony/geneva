@@ -329,7 +329,6 @@ void GBasePlotter::setPlotLabel(std::string pL) {
 	m_plot_label = pL;
 }
 
-
 /******************************************************************************/
 /**
  * Allows to retrieve the plot label
@@ -338,39 +337,6 @@ void GBasePlotter::setPlotLabel(std::string pL) {
  */
 std::string GBasePlotter::plotLabel() const {
 	return m_plot_label;
-}
-
-/**
- * Allows to set the line color for this plot
- *
- */
-void GBasePlotter::setLineColor(const std::string &lineColor){
-    m_lineColor = lineColor;
-}
-
-/**
- * Allows to retrieve the line color
- *
- * @return The line color that has been assigned to the plot
- */
-std::string GBasePlotter::lineColor() const {
-    return m_lineColor;
-}
-
-/**
- * Allows to set the limits for the x-axis
- */
-void GBasePlotter::setXAxisLimits(const double &min, const double &max) {
-    xAxisLimits_ = std::make_pair(min, max);
-    customXAxisSet_ = true;
-}
-
-/**
- * Allows to set the limits for the y-axis
- */
-void GBasePlotter::setYAxisLimits(const double &min, const double &max) {
-    yAxisLimits_ = std::make_pair(min, max);
-    customYAxisSet_ = true;
 }
 
 /******************************************************************************/
@@ -613,36 +579,6 @@ std::string GBasePlotter::footerData(const std::string& indent) const {
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
-
-/**
- * Sets a flag that determines whether this plot shall print its legend entry
- */
-void GGraph2D::setPlotLegend(const bool &plotLegend) {
-    plotLegend_ = plotLegend;
-}
-
-/**
- * Retrieves the flag that determines whether this plot shall print its legend entry
- */
-bool GGraph2D::getPlotLegend() const {
-    return plotLegend_;
-}
-
-/**
- * sets the legend entry that is printed if setPlotLegend was set to true
- */
-void GGraph2D::setLegendEntry(const std::string &label, const std::string &style) {
-    legendLabel_ = label;
-    legendSymbolStyle_ = style;
-}
-
-/**
- * sets the legend title
- */
-void GGraph2D::setLegendTitle(const std::string &title) {
-    legendTitle_ = title;
-}
-
 /**
  * Adds arrows to the plots between consecutive points. Note that setting this
  * value to true will force "SCATTER" mode
@@ -836,50 +772,9 @@ std::string GGraph2D::footerData_(
 			<< indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
 
-    if (!m_lineColor.empty()) {
-        footer_data
-        << indent << graphName << "->SetLineColor(" << m_lineColor << ");" << std::endl;
-    }
-
-    // set the axis to the configured limits if the user has set them. If not we stay with the defaults
-    if (customXAxisSet_) {
-        // x-axis limits are set via the SetLimits method of the axis
-        footer_data
-        << indent << graphName << "->GetXaxis()->SetLimits("
-        << std::to_string(xAxisLimits_.first) << ", " << std::to_string(xAxisLimits_.second) << ");" << std::endl;
-    }
-
-    if (customYAxisSet_) {
-        // y-axis limits are set via the minimum and maximum
-        footer_data
-                << indent << graphName << "->SetMinimum(" << std::to_string(yAxisLimits_.first) << ");" << std::endl
-                << indent << graphName << "->SetMaximum(" << std::to_string(yAxisLimits_.second) << ");" << std::endl;
-    }
-
 	footer_data
 		<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
 		<< std::endl;
-
-    // TODO: make size of legend configurable
-    // TODO: mid-term probably extract this into a base class
-    // plot legend if the flag was set
-    if(plotLegend_) {
-        // graph name is suffixed with the primary graph's suffix
-        // this means all secondary graphs will also access this legend
-        std::string legendName = "legend_graph_" + std::to_string(!isSecondary ? this->id() : pId);
-
-        // create the legend and plot it if this is the primary graph
-        if (!isSecondary) {
-            footer_data
-            << indent << "auto " << legendName << " = new TLegend(0.1, 0.7, 0.48, 0.9);" << std::endl
-            << indent << legendName << "->SetHeader(\"" << legendTitle_ << R"(", "C");)" << std::endl
-            << indent << legendName << "->Draw();" << std::endl;
-        }
-        // add the graph to the legend
-        footer_data
-        << indent << legendName << "->AddEntry("
-        << graphName << ", \"" << legendLabel_ << "\", \"" << legendSymbolStyle_ << "\");" << std::endl;
-    }
 
 	if (drawArrows_ && m_data.size() >= 2) {
 		std::vector<std::tuple<double, double>>::const_iterator it;
@@ -1147,21 +1042,6 @@ std::string GGraph2ED::footerData_(
 		footer_data
 			<< indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
-
-    // set the axis to the configured limits if the user has set them. If not we stay with the defaults
-    if (customXAxisSet_) {
-        // x-axis limits are set via the SetLimits method of the axis
-        footer_data
-        << indent << graphName << "->GetXaxis()->SetLimits("
-        << std::to_string(xAxisLimits_.first) << ", " << std::to_string(xAxisLimits_.second) << ");" << std::endl;
-    }
-
-    if (customYAxisSet_) {
-        // y-axis limits are set via the minimum and maximum
-        footer_data
-        << indent << graphName << "->SetMinimum(" << std::to_string(yAxisLimits_.first) << ");" << std::endl
-        << indent << graphName << "->SetMaximum(" << std::to_string(yAxisLimits_.second) << ");" << std::endl;
-    }
 
 	footer_data
 		<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
