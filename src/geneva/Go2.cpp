@@ -926,13 +926,22 @@ void Go2::parseCommandLine(
 
 		std::cout << "Using consumer " << m_consumer_name << std::endl;
 
+        // allow the consumer to perform necessary initialization before startup
+        GConsumerStore->get(m_consumer_name)->init();
+
+        // TODO: Consider removing this #ifdefs
+        //  However, an issue is that this would require to create public functions like GBaseConsumerT::clientMode()
+        //  and GBaseConsumerT::setsClientModeItself() that are only implemented by GMPIConsumerT.
+        //  While this sounds good at first this would mean that GMPIConsumerT which is typically a server requires
+        //  knowledge about server AND client side. Both implementations (public functions to override or #ifdefs)
+        //  are not very clean. Maybe another solution can be found. But we stick with the #ifdef for now
+
         // reset the client mode to the information that the consumer has in case we are dealing with the GMPIConsumerT.
         // That is because the MPI consumer should not depend on the --client command-line parameter but decide itself
         // whether it is a server or client depending on the process's MPI rank
 #ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
         if(GIndividualMPIConsumer* mpiConsumerPtr = dynamic_cast<GIndividualMPIConsumer*>(
                 GConsumerStore->get(m_consumer_name).get())) {
-            mpiConsumerPtr->setPositionInCluster();
             m_client_mode = mpiConsumerPtr->isWorkerNode();
         }
 #endif // GENEVA_BUILD_WITH_MPI_CONSUMER

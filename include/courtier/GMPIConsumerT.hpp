@@ -1438,6 +1438,7 @@ namespace Gem::Courtier {
         /**
          * This method returns a client associated with this consumer.
          *
+         * Inherited from GBaseconsumerT
          * This function makes only sense to be called if the current node has rank 1-n (i.e. is a worker node).
          * Therefore we can simply return the current object, because it is already a client.
          */
@@ -1465,6 +1466,10 @@ namespace Gem::Courtier {
 
             return std::dynamic_pointer_cast<GBaseClientT<processable_type>>(
                     mutable_self->shared_from_this());
+        }
+
+        void init_() override {
+            setPositionInCluster();
         }
 
         /**
