@@ -121,6 +121,8 @@ void runMPISubClient(MPI_Comm subClientComm) {
     }
 }
 
+// TODO: extract reusable class that handles the functionality needed in this example and works with a config file
+
 int main(int argc, char **argv) {
     int nSubClients{DEFAULT_N_SUB_CLIENTS};
 
