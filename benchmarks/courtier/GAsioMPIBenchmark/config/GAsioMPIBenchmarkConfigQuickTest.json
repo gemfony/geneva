@@ -1,0 +1,38 @@
+{
+  "nTests": {
+    "comment": "The number of tests to be performed for each dimension",
+    "default": "10",
+    "value": "10"
+  },
+  "nClients": {
+    "comment": "numbers of clients to be benchmarked",
+    "default": {
+      "item": "1",
+      "item": "4",
+      "item": "10",
+      "item": "100",
+      "item": "200",
+      "item": "300",
+      "item": "400",
+      "item": "500",
+      "item": "750",
+      "item": "1000"
+    },
+    "value": {
+      "item": "4",
+      "item": "8"
+    }
+  },
+  "resultFile": {
+    "comment": "The name of a file to which results of the",
+    "comment": "benchmark should be written",
+    "default": "GAsioMPIBenchmarkResult.C",
+    "value": "GAsioMPIBenchmarkResult.C"
+  },
+  "intermediateResultFile": {
+    "comment": "The name of a file where the results of the runs of the subprocesses are written to. ",
+    "comment": "This should be identical with the result file name configured in the subprogram directory",
+    "default": "executionTimes.C",
+    "value": "executionTimes.C"
+  }
+}

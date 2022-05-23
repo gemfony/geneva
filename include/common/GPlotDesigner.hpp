@@ -1383,6 +1383,7 @@ class GBasePlotter
         & BOOST_SERIALIZATION_NVP(m_y_axis_label)
         & BOOST_SERIALIZATION_NVP(m_z_axis_label)
         & BOOST_SERIALIZATION_NVP(m_plot_label)
+        & BOOST_SERIALIZATION_NVP(m_lineColor)
         & BOOST_SERIALIZATION_NVP(m_dsMarker)
         & BOOST_SERIALIZATION_NVP(m_secondaryPlotter)
         & BOOST_SERIALIZATION_NVP(m_id);
@@ -1426,6 +1427,16 @@ public:
     G_API_COMMON void setPlotLabel(std::string);
     /** @brief Allows to retrieve the plot label */
     G_API_COMMON std::string plotLabel() const;
+
+    /** Set the line color for the plot*/
+    G_API_COMMON void setLineColor(const std::string&);
+    /** @brief Allows to retrieve the line color */
+    G_API_COMMON std::string lineColor() const;
+
+    /** @brief Allows to set the limits for the x-axis */
+    void setXAxisLimits(const double &min, const double &max);
+    /** @brief Allows to set the limits for the y-axis */
+    void setYAxisLimits(const double &min, const double &max);
 
     /** @brief Allows to assign a marker to data structures */
     G_API_COMMON void setDataStructureMarker(std::string);
@@ -1510,7 +1521,13 @@ protected:
     std::string m_z_axis_label = std::string("z"); ///< A label for the z-axis (if available)
 
     std::string m_plot_label = std::string("");   ///< A label to be assigned to the entire plot
+    std::string m_lineColor = std::string("");
     std::string m_dsMarker = std::string("");     ///< A marker to make the origin of data structures clear in the output file
+
+    std::pair<double, double> xAxisLimits_{0.0, 0.0}; // the limits for the axis
+    std::pair<double, double> yAxisLimits_{0.0, 0.0};
+    bool customXAxisSet_{false}; // indicates whether the default has been changed.
+    bool customYAxisSet_{false};
 
     std::vector<line> lines_; ///< Lines to be drawn into the drawing area
 
@@ -2906,6 +2923,18 @@ public:
     /** @brief Retrieves a unique name for this plotter */
     G_API_COMMON std::string getPlotterName() const override;
 
+    /** @brief Sets a flag that determines whether this plot shall print its legend entry */
+    G_API_COMMON void setPlotLegend(const bool&);
+
+    /** @brief Retrieves the flag that determines whether this plot shall print its legend entry */
+    G_API_COMMON bool getPlotLegend() const;
+
+    /** @brief sets the legend entry that is printed if setPlotLegend was set to true */
+    G_API_COMMON void setLegendEntry(const std::string&, const std::string& = "l");
+
+    /** @brief sets the legend title */
+    G_API_COMMON void setLegendTitle(const std::string&);
+
 protected:
     /** @brief Retrieve specific header settings for this plot */
     std::string headerData_(bool, std::size_t, const std::string &) const override;
@@ -2944,6 +2973,10 @@ private:
 
     graphPlotMode pM_ = DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
     bool drawArrows_ = false; ///< When set to true, arrows will be drawn between consecutive points
+    bool plotLegend_ = false;
+    std::string legendLabel_ = "";
+    std::string legendSymbolStyle_ = "l"; // "l" => line
+    std::string legendTitle_ = "Legend";
 };
 
 /******************************************************************************/
