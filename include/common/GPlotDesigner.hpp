@@ -1433,6 +1433,11 @@ public:
     /** @brief Allows to retrieve the line color */
     G_API_COMMON std::string lineColor() const;
 
+    /** @brief Allows to set the limits for the x-axis */
+    void setXAxisLimits(const double &min, const double &max);
+    /** @brief Allows to set the limits for the y-axis */
+    void setYAxisLimits(const double &min, const double &max);
+
     /** @brief Allows to assign a marker to data structures */
     G_API_COMMON void setDataStructureMarker(std::string);
     /** @brief Allows to retrieve the data structure marker */
@@ -1518,6 +1523,11 @@ protected:
     std::string m_plot_label = std::string("");   ///< A label to be assigned to the entire plot
     std::string m_lineColor = std::string("");
     std::string m_dsMarker = std::string("");     ///< A marker to make the origin of data structures clear in the output file
+
+    std::pair<double, double> xAxisLimits_{0.0, 0.0}; // the limits for the axis
+    std::pair<double, double> yAxisLimits_{0.0, 0.0};
+    bool customXAxisSet_{false}; // indicates whether the default has been changed.
+    bool customYAxisSet_{false};
 
     std::vector<line> lines_; ///< Lines to be drawn into the drawing area
 
@@ -2925,12 +2935,6 @@ public:
     /** @brief sets the legend title */
     G_API_COMMON void setLegendTitle(const std::string&);
 
-    /** @brief Allows to set the limits for the x-axis */
-    void setXAxisLimits(const double &min, const double &max);
-
-    /** @brief Allows to set the limits for the y-axis */
-    void setYAxisLimits(const double &min, const double &max);
-
 protected:
     /** @brief Retrieve specific header settings for this plot */
     std::string headerData_(bool, std::size_t, const std::string &) const override;
@@ -2970,10 +2974,6 @@ private:
     graphPlotMode pM_ = DEFPLOTMODE; ///< Whether to create scatter plots or a curve, connected by lines
     bool drawArrows_ = false; ///< When set to true, arrows will be drawn between consecutive points
     bool plotLegend_ = false;
-    std::pair<double, double> xAxisLimits_{0.0, 0.0};
-    std::pair<double, double> yAxisLimits_{0.0, 0.0};
-    bool customXAxisSet_{false};
-    bool customYAxisSet_{false};
     std::string legendLabel_ = "";
     std::string legendSymbolStyle_ = "l"; // "l" => line
     std::string legendTitle_ = "Legend";

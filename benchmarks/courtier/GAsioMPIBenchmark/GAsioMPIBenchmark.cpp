@@ -314,6 +314,7 @@ Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
         const bool &clientsAtX) {
 
     const double yMax = getYMax(sleepAtXVec);
+    const double yAxisUpperLimit = yMax + (yMax / 50.0); // set upper y-axis limit slightly above the greatest y-value
 
     // swap shape of vector if required
     std::vector<ExTimesClientsAtX> clientsAtXVec{};
@@ -363,8 +364,8 @@ Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
 
         // set the y-axis limits. This defaults to the limits of the y-values. But only for this graph.
         // This means that any subplots would not be visible if their y-values are out of range
-        asioMainGraph->setYAxisLimits(0.0, yMax);
-        mpiMainGraph->setYAxisLimits(0.0, yMax);
+        asioMainGraph->setYAxisLimits(0.0, yAxisUpperLimit);
+        mpiMainGraph->setYAxisLimits(0.0, yAxisUpperLimit);
         // x-values are equal for each plot, so we can stick to the default range of the main graph
 
         // set the legends for the first iteration (main graph)
@@ -453,6 +454,10 @@ Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
             asioGraph->setYAxisLabel(yLabel);
             mpiGraph->setXAxisLabel(xLabel);
             mpiGraph->setYAxisLabel(yLabel);
+
+            // to compare the graphs better all axis should be equally scaled
+            asioGraph->setYAxisLimits(0.0, yAxisUpperLimit);
+            mpiGraph->setYAxisLimits(0.0, yAxisUpperLimit);
 
             // add the data to the graphs
             if (clientsAtX) {

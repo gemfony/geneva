@@ -357,6 +357,22 @@ std::string GBasePlotter::lineColor() const {
     return m_lineColor;
 }
 
+/**
+ * Allows to set the limits for the x-axis
+ */
+void GBasePlotter::setXAxisLimits(const double &min, const double &max) {
+    xAxisLimits_ = std::make_pair(min, max);
+    customXAxisSet_ = true;
+}
+
+/**
+ * Allows to set the limits for the y-axis
+ */
+void GBasePlotter::setYAxisLimits(const double &min, const double &max) {
+    yAxisLimits_ = std::make_pair(min, max);
+    customYAxisSet_ = true;
+}
+
 /******************************************************************************/
 /**
  * Allows to assign a marker to data structures in the output file
@@ -625,23 +641,6 @@ void GGraph2D::setLegendEntry(const std::string &label, const std::string &style
  */
 void GGraph2D::setLegendTitle(const std::string &title) {
     legendTitle_ = title;
-}
-
-
-/**
- * Allows to set the limits for the x-axis
- */
-void GGraph2D::setXAxisLimits(const double &min, const double &max) {
-    xAxisLimits_ = std::make_pair(min, max);
-    customXAxisSet_ = true;
-}
-
-/**
- * Allows to set the limits for the y-axis
- */
-void GGraph2D::setYAxisLimits(const double &min, const double &max) {
-    yAxisLimits_ = std::make_pair(min, max);
-    customYAxisSet_ = true;
 }
 
 /**
@@ -1148,6 +1147,21 @@ std::string GGraph2ED::footerData_(
 		footer_data
 			<< indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
+
+    // set the axis to the configured limits if the user has set them. If not we stay with the defaults
+    if (customXAxisSet_) {
+        // x-axis limits are set via the SetLimits method of the axis
+        footer_data
+        << indent << graphName << "->GetXaxis()->SetLimits("
+        << std::to_string(xAxisLimits_.first) << ", " << std::to_string(xAxisLimits_.second) << ");" << std::endl;
+    }
+
+    if (customYAxisSet_) {
+        // y-axis limits are set via the minimum and maximum
+        footer_data
+        << indent << graphName << "->SetMinimum(" << std::to_string(yAxisLimits_.first) << ");" << std::endl
+        << indent << graphName << "->SetMaximum(" << std::to_string(yAxisLimits_.second) << ");" << std::endl;
+    }
 
 	footer_data
 		<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
