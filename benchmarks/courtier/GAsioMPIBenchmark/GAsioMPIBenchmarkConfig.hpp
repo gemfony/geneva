@@ -200,6 +200,7 @@ namespace Gem::Tests {
          */
         std::vector<std::uint32_t> m_nClients{
                 1,
+                5,
                 10,
                 25,
                 50,

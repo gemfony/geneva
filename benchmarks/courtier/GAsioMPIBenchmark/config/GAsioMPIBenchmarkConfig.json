@@ -8,6 +8,7 @@
     "comment": "numbers of clients to be benchmarked",
     "default": {
       "item": "1",
+      "item": "5",
       "item": "10",
       "item": "25",
       "item": "50",
