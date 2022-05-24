@@ -182,6 +182,15 @@ void GArtificialBeeColony::specificTestsFailuresExpected_GUnitTests_() {
 std::tuple<double, double> GArtificialBeeColony::cycleLogic_() {
     std::tuple<double, double> bestIndividualFitness;
 
+    employeeBeePhase();
+
+    scoutBeePhase();
+
+    onlookerBeePhase();
+
+    runFitnessCalculation_();
+
+    bestIndividualFitness = findBestFitness();
 
     return bestIndividualFitness;
 }
