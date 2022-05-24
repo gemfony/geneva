@@ -123,6 +123,9 @@ namespace Gem::Tests {
             return m_onlyGenerateGraphs;
         }
 
+        [[nodiscard]] std::string getMpirunLocation() const {
+            return m_mpirunLocation;
+        }
 
     private:
 
@@ -146,6 +149,11 @@ namespace Gem::Tests {
                     "intermediateResultFile", m_intermediateResultFile, m_intermediateResultFile, VAR_IS_ESSENTIAL,
                     "The name of a file where the results of the runs of the subprocesses are written to. "
                     "This should be identical with the result file name configured in the subprogram directory"
+            );
+
+            m_fileParser.registerFileParameter(
+                    "mpirunLocation", m_mpirunLocation, m_mpirunLocation, VAR_IS_ESSENTIAL,
+                    "The location of the mpirun executable to use."
             );
         }
 
@@ -199,9 +207,7 @@ namespace Gem::Tests {
                 200,
                 300,
                 400,
-                500,
-                750,
-                1000
+                500
         };
 
         /**
@@ -214,6 +220,11 @@ namespace Gem::Tests {
          * This should be the name of the result file in the config file for the GDelayIndividualFactory
          */
         std::string m_intermediateResultFile = "executionTimes.C";
+
+        /**
+         * location of the mpirun executable. If mpirun is in PATH you do not need to adjust this.
+         */
+        std::string m_mpirunLocation = "mpirun";
 
         /*****************************************************************
          * Options to parse from command line

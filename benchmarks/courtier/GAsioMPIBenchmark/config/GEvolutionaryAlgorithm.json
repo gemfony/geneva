@@ -165,8 +165,9 @@
     "population": {
         "size": {
             "comment": "The total size of the population ",
+            "comment": "For this benchmarks we need at least twice as many individuals compared to the number of clients",
             "default": "42",
-            "value": "42"
+            "value": "1000"
         },
         "nParents": {
             "comment": "The number of parents in the population",

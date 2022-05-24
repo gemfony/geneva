@@ -11,7 +11,7 @@
     "delays": {
         "comment": "A list of delays through which main() should cycle. Format: seconds:milliseconds",
         "default": "(0,1), (0,10), (0,100), (0,500), (1,0)",
-        "value": "(0,1), (0,10)"
+        "value": "(0,1), (0,10), (0,100), (0, 500), (1,0)"
     },
     "resultFile": {
         "comment": "The name of a file to which results should be stored",
@@ -26,7 +26,7 @@
     "nMeasurements": {
         "comment": "The number of measurements for each delay",
         "default": "10",
-        "value": "2"
+        "value": "10"
     },
     "interMeasurementDelay": {
         "comment": "The amount of seconds to wait between two measurements",

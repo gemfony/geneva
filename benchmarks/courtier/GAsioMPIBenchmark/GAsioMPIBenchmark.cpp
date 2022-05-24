@@ -227,7 +227,8 @@ std::string getCommandBanner(const std::string &command) {
 void measureExecutionTimesMPI(const GAsioMPIBenchmarkConfig &config, std::uint32_t nClients) {
     boost::process::ipstream pipeStream{};
 
-    std::string command = "mpirun --oversubscribe -np "
+    std::string command = config.getMpirunLocation()
+                          + " --oversubscribe -np "
                           + std::to_string(nClients + 1) // one server + nClients
                           + " "
                           + config.getMBenchmarkExecutableName()

@@ -14,9 +14,7 @@
       "item": "200",
       "item": "300",
       "item": "400",
-      "item": "500",
-      "item": "750",
-      "item": "1000"
+      "item": "500"
     },
     "value": {
       "item": "4",
@@ -34,5 +32,10 @@
     "comment": "This should be identical with the result file name configured in the subprogram directory",
     "default": "executionTimes.C",
     "value": "executionTimes.C"
+  },
+  "mpirunLocation": {
+    "comment": "The location of the mpirun executable to use",
+    "default": "mpirun",
+    "value": "mpirun"
   }
 }
