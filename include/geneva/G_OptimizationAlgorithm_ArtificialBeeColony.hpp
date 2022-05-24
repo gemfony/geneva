@@ -140,6 +140,14 @@ private:
 
     G_API_GENEVA std::string getAlgorithmName_() const override;
 
+    void employeeBeePhase();
+
+    void scoutBeePhase();
+
+    void onlookerBeePhase();
+
+    std::tuple<double, double> findBestFitness();
+
     std::vector<double> m_dbl_lower_parameter_boundaries_cnt = std::vector<double>(); ///< Holds lower boundaries of double parameters
     std::vector<double> m_dbl_upper_parameter_boundaries_cnt = std::vector<double>(); ///< Holds upper boundaries of double parameters
 

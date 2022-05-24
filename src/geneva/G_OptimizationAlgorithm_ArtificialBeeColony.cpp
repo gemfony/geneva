@@ -180,8 +180,10 @@ void GArtificialBeeColony::specificTestsFailuresExpected_GUnitTests_() {
 }
 
 std::tuple<double, double> GArtificialBeeColony::cycleLogic_() {
-    //TODO: implement the main abc cycle
-    return std::tuple<double, double>(1,1);
+    std::tuple<double, double> bestIndividualFitness;
+
+
+    return bestIndividualFitness;
 }
 
 std::shared_ptr<GPersonalityTraits> GArtificialBeeColony::getPersonalityTraits_() const {
@@ -273,6 +275,28 @@ uint32_t GArtificialBeeColony::getMMaxTrial() const {
 
 void GArtificialBeeColony::setMMaxTrial(uint32_t mMaxTrial) {
     m_max_trial = mMaxTrial;
+}
+
+void GArtificialBeeColony::employeeBeePhase() {
+
+}
+
+void GArtificialBeeColony::scoutBeePhase() {
+
+}
+
+void GArtificialBeeColony::onlookerBeePhase() {
+
+}
+
+std::tuple<double, double> GArtificialBeeColony::findBestFitness() {
+    std::tuple<double, double> bestFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+    for (auto& ind_ptr: m_data_cnt) {
+        if (isBetter(ind_ptr->transformed_fitness(), std::get<G_TRANSFORMED_FITNESS>(bestFitness), this->at(0)->getMaxMode())) {
+            bestFitness = ind_ptr->getFitnessTuple();
+        }
+    }
+    return bestFitness;
 }
 
 
