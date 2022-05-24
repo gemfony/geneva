@@ -48,6 +48,7 @@ G_API_GENEVA const std::string GArtificialBeeColony_PersonalityTraits::nickname 
 GArtificialBeeColony_PersonalityTraits::GArtificialBeeColony_PersonalityTraits(const GArtificialBeeColony_PersonalityTraits &cp)
         : GPersonalityTraits(cp)
         , trial_(cp.trial_)
+        , onlookers_(cp.onlookers_)
 { /* nothing */ }
 
 std::uint32_t GArtificialBeeColony_PersonalityTraits::getTrial() const {
@@ -75,6 +76,7 @@ void GArtificialBeeColony_PersonalityTraits::load_(const GObject *cp) {
 
     // and then the local data
     trial_ = p_load->trial_;
+    onlookers_ = p_load->onlookers_;
 }
 
 void GArtificialBeeColony_PersonalityTraits::compare_(

@@ -129,11 +129,9 @@ void GArtificialBeeColony::init() {
     }
 #endif /* DEBUG */
 
-    for (auto ind_ptr: *this) {
+    for (auto& ind_ptr: *this) {
         ind_ptr->randomInit(activityMode::ACTIVEONLY); //assuming the randomInit distributes every parameter evenly between its bounds
     }
-
-    workOn(m_data_cnt, true, "GArtificialBeeColony::init()");
 
     runFitnessCalculation_();
 
@@ -199,6 +197,8 @@ void GArtificialBeeColony::adjustPopulation_() {
             this->back()->randomInit(activityMode::ACTIVEONLY); //if there are individuals missing for some reason, we fill them up with new random solutions
         }
     }
+
+
 }
 
 void GArtificialBeeColony::actOnStalls_() {
@@ -206,7 +206,45 @@ void GArtificialBeeColony::actOnStalls_() {
 }
 
 void GArtificialBeeColony::runFitnessCalculation_() {
-    //TODO: implement some way to use this for abc (since we usually dont calculate the current existent individuals)
+    auto status = this->workOn(
+            m_data_cnt
+            ,true
+            ,"GArtificialBeeColony::runFitnessCalculation()");
+
+    if(status.has_errors) {
+        std::size_t n_erased = Gem::Common::erase_if(
+                this->m_data_cnt, [this](std::shared_ptr<GParameterSet> p) -> bool {
+                    return p->has_errors();
+                }
+        );
+#ifdef DEBUG
+        glogger
+                << "In GSwarmAlgorithm::runFitnessCalculation(): " << std::endl
+                << "Removed " << n_erased << " erroneous work items in iteration " << this->getIteration() << std::endl
+                << GLOGGING;
+#endif
+        adjustPopulation_();
+    }
+
+    while(not status.is_complete) {
+        std::vector<std::shared_ptr<GParameterSet>> m_data_incomplete;
+        for (auto& ind_ptr: m_data_cnt) {
+            m_data_incomplete.push_back(ind_ptr);
+        }
+
+        status = this->workOn(m_data_incomplete
+                , true
+                , "GArtificialBeeColony::runFitnessCalculation()");
+
+        if(not status.is_complete) {
+            Gem::Common::erase_if(
+                    this->m_data_cnt
+                    , [this](std::shared_ptr<GParameterSet> p) -> bool {
+                        return (p->getProcessingStatus() == Gem::Courtier::processingStatus::PROCESSED);
+                    }
+            );
+        }
+    }
 }
 
 std::string GArtificialBeeColony::getAlgorithmPersonalityType_() const {
