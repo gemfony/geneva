@@ -50,12 +50,16 @@ GArtificialBeeColony_PersonalityTraits::GArtificialBeeColony_PersonalityTraits(c
         , trial_(cp.trial_)
 { /* nothing */ }
 
-unsigned int GArtificialBeeColony_PersonalityTraits::getTrial() const {
+std::uint32_t GArtificialBeeColony_PersonalityTraits::getTrial() const {
     return trial_;
 }
 
-void GArtificialBeeColony_PersonalityTraits::setTrial(unsigned int trial) {
-    trial = trial;
+void GArtificialBeeColony_PersonalityTraits::increaseTrial() {
+    ++trial_;
+}
+
+void GArtificialBeeColony_PersonalityTraits::resetTrial() {
+    trial_ = 0;
 }
 
 std::string GArtificialBeeColony_PersonalityTraits::getMnemonic() const {
@@ -99,7 +103,7 @@ bool GArtificialBeeColony_PersonalityTraits::modify_GUnitTests_() {
     // Call the parent class'es function
     if (GPersonalityTraits::modify_GUnitTests_()) result = true;
 
-    this->setTrial(1);
+    this->increaseTrial();
     result = true;
 
     return result;
@@ -140,6 +144,18 @@ std::string GArtificialBeeColony_PersonalityTraits::name_() const {
 
 GObject *GArtificialBeeColony_PersonalityTraits::clone_() const {
     return new GArtificialBeeColony_PersonalityTraits(*this);
+}
+
+uint32_t GArtificialBeeColony_PersonalityTraits::getOnlookers() const {
+    return onlookers_;
+}
+
+void GArtificialBeeColony_PersonalityTraits::setOnlookers(uint32_t onlookers) {
+    onlookers_ = onlookers;
+}
+
+void GArtificialBeeColony_PersonalityTraits::resetOnlookers() {
+    onlookers_ = 0;
 }
 
 } /* namespace Geneva */

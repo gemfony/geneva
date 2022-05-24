@@ -85,12 +85,20 @@ public:
     /** @brief The standard destructor */
     G_API_GENEVA ~GArtificialBeeColony_PersonalityTraits() override = default;
 
-    G_API_GENEVA unsigned getTrial() const;
-
-    G_API_GENEVA void setTrial(unsigned int trial);
+    G_API_GENEVA std::uint32_t getTrial() const;
+    /** @brief Increases trial by 1 */
+    G_API_GENEVA void increaseTrial();
+    /** @brief Resets trial to 0 */
+    G_API_GENEVA void resetTrial();
 
     /** @brief Retrieves the mnemonic of the optimization algorithm */
     G_API_GENEVA std::string getMnemonic() const override;
+
+    G_API_GENEVA uint32_t getOnlookers() const;
+
+    G_API_GENEVA void setOnlookers(uint32_t onlookers);
+    /** @brief Resets onlookers to 0 */
+    G_API_GENEVA void resetOnlookers();
 
 protected:
     G_API_GENEVA void load_(const GObject *object) override;
@@ -121,6 +129,9 @@ private:
     G_API_GENEVA GObject *clone_() const override;
 
     std::uint32_t trial_ = 0;
+
+    std::uint32_t onlookers_ = 0;
+
 };
 
 } /* namespace Geneva */
