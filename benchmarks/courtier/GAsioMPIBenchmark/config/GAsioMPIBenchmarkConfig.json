@@ -8,12 +8,11 @@
     "comment": "numbers of clients to be benchmarked",
     "default": {
       "item": "1",
-      "item": "4",
       "item": "10",
+      "item": "25",
+      "item": "50",
       "item": "100",
-      "item": "200",
-      "item": "300",
-      "item": "400",
+      "item": "250",
       "item": "500"
     },
     "value": {
