@@ -77,7 +77,8 @@ Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
  */
 void measureExecutionTimes(
         Go2 &go, GDelayIndividualFactory &delayIndividualFactory,
-        std::vector<std::tuple<double, double, double, double>> &parallelExecutionTimes
+        std::vector<std::tuple<double, double, double, double>> &parallelExecutionTimes,
+        const std::uint32_t &optAlgIterations
 ) {
     std::cout << "Starting measurement" << std::endl;
 
@@ -116,7 +117,13 @@ void measureExecutionTimes(
 
             // Clean up the collection
             go.clear();
-            go.setOffset(go.getIteration());
+            std::uint32_t currentIteration{go.getIteration()};
+            // continue counting at the next iteration
+            go.setOffset(currentIteration);
+            // set the iteration to stop to a new number
+            go.getRegisteredAlgorithms()[0]->setMaxIteration(currentIteration + optAlgIterations);
+            // we want min=max to stop exactly at max. But that is forbidden, so we set min = max - 1
+            go.getRegisteredAlgorithms()[0]->setMinIteration(currentIteration + optAlgIterations - 1);
         }
 
         // Calculate the mean value and standard deviation of all measurements
@@ -147,9 +154,9 @@ void measureExecutionTimes(
  * Serialize the execution times and write them to a file
  */
 void executionTimesToFile(const std::vector<std::tuple<double, double, double, double>> &executionTimes) {
-        std::ofstream ofs(executionTimesFileName);
-        boost::archive::text_oarchive oa(ofs);
-        oa & executionTimes;
+    std::ofstream ofs(executionTimesFileName);
+    boost::archive::text_oarchive oa(ofs);
+    oa & executionTimes;
 }
 
 int main(int argc, char **argv) {
@@ -159,6 +166,7 @@ int main(int argc, char **argv) {
     // For the parallel measurement
     Go2 go(argc, argv, "./config/Go2.json");
 
+
     //---------------------------------------------------------------------
     // Client mode
     if (go.clientMode()) {
@@ -167,9 +175,20 @@ int main(int argc, char **argv) {
 
     GDelayIndividualFactory delayIndividualFactory("./config/GDelayIndividual.json");
 
-    // Add default optimization algorithms to the parallel Go2 object
-    go.registerDefaultAlgorithm("ea");
-    measureExecutionTimes(go, delayIndividualFactory, executionTimes);
+    // Use evolutionary algorithm for this benchmark
+    GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
+	std::shared_ptr<GEvolutionaryAlgorithm> eaPtr = ea.get<GEvolutionaryAlgorithm>();
+
+    // In this benchmark we want to run exactly the number of maxIterations
+    const std::uint32_t optAlgIterations = eaPtr->getMaxIteration();
+    // set minimum to maximum -1
+    // unfortunately we cannot set min=max, which would be best because then we would get exactly that amount of iterations
+    eaPtr->setMinIteration(optAlgIterations - 1);
+
+    // add algorithm to the optimizer
+    go & eaPtr;
+
+    measureExecutionTimes(go, delayIndividualFactory, executionTimes, optAlgIterations);
 
     executionTimesToFile(executionTimes);
 

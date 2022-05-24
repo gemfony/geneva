@@ -76,8 +76,10 @@
     },
     "maxIteration": {
         "comment": "The maximum allowed number of iterations",
+        "comment": "In this benchmark we run EXACTLY this number of iterations",
+        "comment": "i.e. maxIterations determines the exact number of iterations",
         "default": "1000",
-        "value": "1000"
+        "value": "20"
     },
     "minIteration": {
       "comment": "The minimum allowed number of iterations",
