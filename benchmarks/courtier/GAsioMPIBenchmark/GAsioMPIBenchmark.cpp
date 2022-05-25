@@ -484,23 +484,23 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec, const GAs
     // plot directly with no modification, because values are already absolute
 
     configurePlotterSleepTimeToOptTime(exTimesVec,
-                                       "Absolute time for optimizations for different numbers of consumers and evaluation of the fitness.",
-                                       "time to calculate fitness [s]",
+                                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
+                                       "duration of one fitness calculation [s]",
                                        "time needed for one optimization [s]",
                                        true,
                                        false)
             .writeToFile(std::filesystem::path("abs_singlePlot_sleepToOpt" + config.getResultFileName()));
 
     configurePlotterSleepTimeToOptTime(exTimesVec,
-                                       "Absolute time for optimizations for different numbers of consumers and evaluation of the fitness.",
-                                       "time to calculate fitness [s]",
+                                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
+                                       "duration of one fitness calculation [s]",
                                        "time needed for one optimization [s]",
                                        false,
                                        false)
             .writeToFile(std::filesystem::path("abs_multiplePlots_sleepToOpt" + config.getResultFileName()));
 
     configurePlotterSleepTimeToOptTime(exTimesVec,
-                                       "Absolute time for optimizations for different numbers of consumers and evaluation of the fitness.",
+                                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
                                        "number of clients",
                                        "time needed for one optimization [s]",
                                        true,
@@ -508,7 +508,7 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec, const GAs
             .writeToFile(std::filesystem::path("abs_singlePlot_clientsToOpt" + config.getResultFileName()));
 
     configurePlotterSleepTimeToOptTime(exTimesVec,
-                                       "Absolute time for optimizations for different numbers of consumers and evaluation of the fitness.",
+                                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
                                        "number of clients",
                                        "time needed for one optimization [s]",
                                        false,
