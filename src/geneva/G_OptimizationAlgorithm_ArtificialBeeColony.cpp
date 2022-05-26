@@ -113,6 +113,11 @@ void GArtificialBeeColony::resetToOptimizationStart_() {
 void GArtificialBeeColony::init() {
     // To be performed before any other action
     G_OptimizationAlgorithm_Base::init();
+
+    if(this->getDefaultPopulationSize() <= 1) {
+        this->setDefaultPopulationSize(2); //Needs to have atleast 2 Individuals
+    }
+
     m_random_seed = static_cast<size_t> (time(nullptr));
     // Extract the boundaries of all parameters
     this->at(0)->boundaries(m_dbl_lower_parameter_boundaries_cnt, m_dbl_upper_parameter_boundaries_cnt, activityMode::ACTIVEONLY);
@@ -180,7 +185,7 @@ void GArtificialBeeColony::specificTestsFailuresExpected_GUnitTests_() {
 }
 
 std::tuple<double, double> GArtificialBeeColony::cycleLogic_() {
-    std::tuple<double, double> bestIndividualFitness;
+    std::tuple<double, double> bestIndividualFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
 
     employeeBeePhase();
 
@@ -291,7 +296,10 @@ void GArtificialBeeColony::employeeBeePhase() {
 }
 
 void GArtificialBeeColony::scoutBeePhase() {
-
+    std::size_t max_trial_index = findMaxTrialIndex();
+    if (m_data_cnt.at(max_trial_index)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getTrial() > m_max_trial) {
+        m_data_cnt.at(max_trial_index)->randomInit(activityMode::ACTIVEONLY);
+    }
 }
 
 void GArtificialBeeColony::onlookerBeePhase() {
@@ -306,6 +314,15 @@ std::tuple<double, double> GArtificialBeeColony::findBestFitness() {
         }
     }
     return bestFitness;
+}
+
+std::size_t GArtificialBeeColony::findMaxTrialIndex() {
+    std::size_t max_trial = 0;
+    for (std::size_t i = 0; i < this->size(); ++i) {
+        max_trial = this->at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getTrial() > max_trial ?
+                i : max_trial;
+    }
+    return max_trial;
 }
 
 

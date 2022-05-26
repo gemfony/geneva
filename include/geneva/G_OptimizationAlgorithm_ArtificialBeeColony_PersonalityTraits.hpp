@@ -70,7 +70,8 @@ class GArtificialBeeColony_PersonalityTraits :
 
         ar
         & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
-        & BOOST_SERIALIZATION_NVP(trial_);
+        & BOOST_SERIALIZATION_NVP(trial_)
+        & BOOST_SERIALIZATION_NVP(onlookers_);
     }
     ///////////////////////////////////////////////////////////////////////
 

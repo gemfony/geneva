@@ -148,6 +148,8 @@ private:
 
     std::tuple<double, double> findBestFitness();
 
+    std::size_t findMaxTrialIndex();
+
     std::vector<double> m_dbl_lower_parameter_boundaries_cnt = std::vector<double>(); ///< Holds lower boundaries of double parameters
     std::vector<double> m_dbl_upper_parameter_boundaries_cnt = std::vector<double>(); ///< Holds upper boundaries of double parameters
 
