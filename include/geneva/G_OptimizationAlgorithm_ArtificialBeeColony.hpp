@@ -74,7 +74,8 @@ class GArtificialBeeColony
         & BOOST_SERIALIZATION_NVP(m_dbl_lower_parameter_boundaries_cnt)
         & BOOST_SERIALIZATION_NVP(m_dbl_upper_parameter_boundaries_cnt)
         & BOOST_SERIALIZATION_NVP(m_max_trial)
-        & BOOST_SERIALIZATION_NVP(m_random_seed);
+        & BOOST_SERIALIZATION_NVP(m_random_seed)
+        & BOOST_SERIALIZATION_NVP(m_parallel_rule);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -89,6 +90,10 @@ public:
     G_API_GENEVA uint32_t getMMaxTrial() const;
 
     G_API_GENEVA void setMMaxTrial(uint32_t mMaxTrial);
+
+    G_API_GENEVA parallelRule getMParallelRule() const;
+
+    G_API_GENEVA void setMParallelRule(parallelRule mParallelRule);
 
 protected:
     G_API_GENEVA void addConfigurationOptions_(Common::GParserBuilder &gpb) override;
@@ -155,6 +160,8 @@ private:
 
     std::uint32_t m_max_trial = DEFAULTMAXTRIAL;
     std::size_t m_random_seed = 0;
+
+    parallelRule m_parallel_rule = DEFAULTPARALLELRULE;
 };
 
 } /* namespace Geneva */

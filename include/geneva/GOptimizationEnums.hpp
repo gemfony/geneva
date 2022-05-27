@@ -566,10 +566,21 @@ enum class updateRule : Gem::Common::ENUMBASETYPE {
 const updateRule DEFAULTUPDATERULE = updateRule::SWARM_UPDATERULE_CLASSIC; ///< The default update rule in swarms
 
 /******************************************************************************/
-
-const std::uint32_t DEFAULTMAXTRIAL = 20;
+/**
+ * Specifies between parallel or sequential Bee Colony
+ */
+enum class parallelRule : Gem::Common::ENUMBASETYPE {
+    ABC_PARALLEL = 0,
+    ABC_SEQUENTIAL = 1
+};
 
 /******************************************************************************/
+
+const std::uint32_t DEFAULTMAXTRIAL = 20;
+const parallelRule DEFAULTPARALLELRULE = parallelRule::ABC_PARALLEL;
+
+/******************************************************************************/
+
 
 /** @brief Puts a Gem::Geneva::maxMode into a stream. Needed also for boost::lexical_cast<> */
 G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::maxMode&);
@@ -636,6 +647,12 @@ G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRu
 
 /** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
 G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::updateRule&);
+
+/** @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<> */
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::parallelRule&);
+
+/** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::parallelRule&);
 
 /** @brief Puts a Gem::Geneva::adaptionMode into a stream. Needed also for boost::lexical_cast<> */
 G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::adaptionMode&);

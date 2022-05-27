@@ -53,6 +53,7 @@ GArtificialBeeColony::GArtificialBeeColony(const GArtificialBeeColony &cp)
 , m_dbl_upper_parameter_boundaries_cnt(cp.m_dbl_upper_parameter_boundaries_cnt)
 , m_max_trial(cp.m_max_trial)
 , m_random_seed(cp.m_random_seed)
+, m_parallel_rule(cp.m_parallel_rule)
 {/* nothing */}
 
 void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
@@ -80,6 +81,7 @@ void GArtificialBeeColony::load_(const GObject *cp) {
     m_dbl_upper_parameter_boundaries_cnt = p_load->m_dbl_upper_parameter_boundaries_cnt;
     m_max_trial = p_load->m_max_trial;
     m_random_seed = p_load->m_random_seed;
+    m_parallel_rule = p_load->m_parallel_rule;
 }
 
 void GArtificialBeeColony::compare_(const GObject &cp, const Common::expectation &e, const double &limit) const {
@@ -98,6 +100,7 @@ void GArtificialBeeColony::compare_(const GObject &cp, const Common::expectation
     compare_t(IDENTITY(m_dbl_upper_parameter_boundaries_cnt, p_load->m_dbl_upper_parameter_boundaries_cnt), token);
     compare_t(IDENTITY(m_max_trial, p_load->m_max_trial), token);
     compare_t(IDENTITY(m_random_seed, p_load->m_random_seed), token);
+    compare_t(IDENTITY(m_parallel_rule, p_load->m_parallel_rule), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -213,8 +216,6 @@ void GArtificialBeeColony::adjustPopulation_() {
             this->back()->randomInit(activityMode::ACTIVEONLY); //if there are individuals missing for some reason, we fill them up with new random solutions
         }
     }
-
-
 }
 
 void GArtificialBeeColony::actOnStalls_() {
@@ -226,6 +227,7 @@ void GArtificialBeeColony::runFitnessCalculation_() {
             m_data_cnt
             ,true
             ,"GArtificialBeeColony::runFitnessCalculation()");
+
 
     if(status.has_errors) {
         std::size_t n_erased = Gem::Common::erase_if(
@@ -292,7 +294,54 @@ void GArtificialBeeColony::setMMaxTrial(uint32_t mMaxTrial) {
 }
 
 void GArtificialBeeColony::employeeBeePhase() {
+    std::vector<std::shared_ptr<GParameterSet>> new_solutions;
 
+    std::vector<double> values;
+    std::vector<double> second_individual_values;
+
+    this->front()->streamline(values, activityMode::ACTIVEONLY);
+    std::size_t parameter_count = values.size();
+
+    std::size_t second_individual_i;
+    std::size_t random_component_i;
+
+    std::mt19937_64 gen(m_random_seed);
+    std::uniform_int_distribution<std::size_t> second_individual_rng(0,this->getDefaultPopulationSize() - 2);
+    std::uniform_real_distribution<double> phi_rng(-1., 1.);
+    std::uniform_int_distribution<std::size_t> component_rng(0, parameter_count - 1);
+
+    for(std::size_t i = 0; i < this->size(); ++i) {
+        new_solutions.push_back(this->at(i)->clone<GParameterSet>());
+        if (new_solutions.at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getTrial() < m_max_trial) {
+            second_individual_i = second_individual_rng(gen);
+            if(second_individual_i >= i) {
+                ++second_individual_i;
+            }
+            new_solutions.at(i)->streamline(values, activityMode::ACTIVEONLY);
+            this->at(second_individual_i)->streamline(second_individual_values, activityMode::ACTIVEONLY);
+            if(values.size() == 1) {
+                values.at(0) += phi_rng(gen) * (values.at(0) - second_individual_values.at(0));
+            } else {
+                random_component_i = component_rng(gen);
+                values.at(random_component_i) += phi_rng(gen) * (values.at(random_component_i) - second_individual_values.at(random_component_i));
+            }
+            new_solutions.at(i)->assignValueVector(values, activityMode::ACTIVEONLY);
+        }
+    }
+
+    workOn(
+            new_solutions
+            , true
+            , "GArtificialBeeColony::employeePhase");
+
+    for(std::size_t i = 0; i < this->size(); ++i) {
+        if (isBetter(new_solutions.at(i), this->at(i))) {
+            this->at(i)->load(new_solutions.at(i));
+            this->at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->resetTrial();
+        } else {
+            this->at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->increaseTrial();
+        }
+    }
 }
 
 void GArtificialBeeColony::scoutBeePhase() {
@@ -323,6 +372,14 @@ std::size_t GArtificialBeeColony::findMaxTrialIndex() {
                 i : max_trial;
     }
     return max_trial;
+}
+
+parallelRule GArtificialBeeColony::getMParallelRule() const {
+    return m_parallel_rule;
+}
+
+void GArtificialBeeColony::setMParallelRule(parallelRule mParallelRule) {
+    m_parallel_rule = mParallelRule;
 }
 
 
