@@ -1000,7 +1000,7 @@ private:
 	  * if the assigned iteration is < the internally determined iteration
 	  */
 	 void set_external_iteration_counter(const ITERATION_COUNTER_TYPE& external_iteration_counter) {
-		 if(external_iteration_counter < m_iteration_counter){
+		/* if(external_iteration_counter < m_iteration_counter){
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG, time_and_place)
 					 << "In GBaseExeuctorT<processable_type>::set_external_iteration_counter():" << std::endl
@@ -1008,7 +1008,7 @@ private:
 					 << "while internal counter is at " << m_iteration_counter << " ." << std::endl
 					 << "The internal counter needs to be <= the external counter when being set" << std::endl
 			 );
-		 }
+		 } */ //TODO: Check if this code is necessary
 
 		 m_iteration_counter = external_iteration_counter;
 	 }

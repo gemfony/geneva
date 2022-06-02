@@ -54,6 +54,7 @@ GArtificialBeeColony::GArtificialBeeColony(const GArtificialBeeColony &cp)
 , m_max_trial(cp.m_max_trial)
 , m_random_seed(cp.m_random_seed)
 , m_parallel_rule(cp.m_parallel_rule)
+, m_best_individual(cp.m_best_individual->clone<GParameterSet>())
 {/* nothing */}
 
 void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
@@ -82,6 +83,7 @@ void GArtificialBeeColony::load_(const GObject *cp) {
     m_max_trial = p_load->m_max_trial;
     m_random_seed = p_load->m_random_seed;
     m_parallel_rule = p_load->m_parallel_rule;
+    m_best_individual = p_load->m_best_individual->clone<GParameterSet>();
 }
 
 void GArtificialBeeColony::compare_(const GObject &cp, const Common::expectation &e, const double &limit) const {
@@ -101,6 +103,7 @@ void GArtificialBeeColony::compare_(const GObject &cp, const Common::expectation
     compare_t(IDENTITY(m_max_trial, p_load->m_max_trial), token);
     compare_t(IDENTITY(m_random_seed, p_load->m_random_seed), token);
     compare_t(IDENTITY(m_parallel_rule, p_load->m_parallel_rule), token);
+    compare_t(IDENTITY(m_best_individual, p_load->m_best_individual), token);
 
     // React on deviations from the expectation
     token.evaluate();
@@ -142,6 +145,10 @@ void GArtificialBeeColony::init() {
     }
 
     runFitnessCalculation_();
+
+    m_best_individual = this->front()->clone<GParameterSet>();
+
+    findBestIndividual();
 
     adjustPopulation_();
 }
@@ -188,8 +195,6 @@ void GArtificialBeeColony::specificTestsFailuresExpected_GUnitTests_() {
 }
 
 std::tuple<double, double> GArtificialBeeColony::cycleLogic_() {
-    std::tuple<double, double> bestIndividualFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
-
     employeeBeePhase();
 
     scoutBeePhase();
@@ -198,9 +203,9 @@ std::tuple<double, double> GArtificialBeeColony::cycleLogic_() {
 
     runFitnessCalculation_();
 
-    bestIndividualFitness = findBestFitness();
+    findBestIndividual();
 
-    return bestIndividualFitness;
+    return m_best_individual->getFitnessTuple();
 }
 
 std::shared_ptr<GPersonalityTraits> GArtificialBeeColony::getPersonalityTraits_() const {
@@ -223,6 +228,10 @@ void GArtificialBeeColony::actOnStalls_() {
 }
 
 void GArtificialBeeColony::runFitnessCalculation_() {
+    for(const auto& ind_ptr: this->m_data_cnt) {
+        ind_ptr->set_processing_status(Courtier::processingStatus::DO_PROCESS);
+    }
+
     auto status = this->workOn(
             m_data_cnt
             ,true
@@ -342,12 +351,17 @@ void GArtificialBeeColony::employeeBeePhase() {
             this->at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->increaseTrial();
         }
     }
+
+    findBestIndividual();
 }
 
 void GArtificialBeeColony::scoutBeePhase() {
     std::size_t max_trial_index = findMaxTrialIndex();
-    if (m_data_cnt.at(max_trial_index)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getTrial() > m_max_trial) {
-        m_data_cnt.at(max_trial_index)->randomInit(activityMode::ACTIVEONLY);
+    if (this->at(max_trial_index)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getTrial() > m_max_trial) {
+        this->at(max_trial_index)->randomInit(activityMode::ACTIVEONLY);
+        this->at(max_trial_index)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->resetTrial();
+        this->at(max_trial_index)->set_processing_status(Courtier::processingStatus::DO_PROCESS);
+        this->at(max_trial_index)->process();
     }
 }
 
@@ -355,14 +369,12 @@ void GArtificialBeeColony::onlookerBeePhase() {
 
 }
 
-std::tuple<double, double> GArtificialBeeColony::findBestFitness() {
-    std::tuple<double, double> bestFitness = std::make_tuple(this->at(0)->getWorstCase(), this->at(0)->getWorstCase());
+void GArtificialBeeColony::findBestIndividual() {
     for (auto& ind_ptr: m_data_cnt) {
-        if (isBetter(ind_ptr->transformed_fitness(), std::get<G_TRANSFORMED_FITNESS>(bestFitness), this->at(0)->getMaxMode())) {
-            bestFitness = ind_ptr->getFitnessTuple();
+        if (isBetter(ind_ptr, this->m_best_individual)) {
+            this->m_best_individual = ind_ptr->clone<GParameterSet>();
         }
     }
-    return bestFitness;
 }
 
 std::size_t GArtificialBeeColony::findMaxTrialIndex() {
@@ -380,6 +392,14 @@ parallelRule GArtificialBeeColony::getMParallelRule() const {
 
 void GArtificialBeeColony::setMParallelRule(parallelRule mParallelRule) {
     m_parallel_rule = mParallelRule;
+}
+
+const std::shared_ptr<GParameterSet> &GArtificialBeeColony::getMBestIndividual() const {
+    return m_best_individual;
+}
+
+void GArtificialBeeColony::setMBestIndividual(const std::shared_ptr<GParameterSet> &mBestIndividual) {
+    m_best_individual = mBestIndividual;
 }
 
 
