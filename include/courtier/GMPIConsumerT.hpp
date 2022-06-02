@@ -432,6 +432,9 @@ namespace Gem::Courtier {
          */
         void cancelActiveRequests() {
             MPI_Cancel(&m_receiveHandle);
+            MPI_Request_free(&m_receiveHandle);
+
+            MPI_Cancel(&m_sendHandle);
             MPI_Request_free(&m_sendHandle);
         }
 
