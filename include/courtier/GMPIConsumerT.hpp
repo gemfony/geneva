@@ -902,9 +902,8 @@ namespace Gem::Courtier {
                         // let a new thread handle this request and listen for further requests
                         // we capture copies of smart pointers in the closure, which keeps the underlying data alive
                         const auto self = this->shared_from_this();
-                        boost::asio::post(
+                        m_handlerThreadPool->async_schedule(
                                 [&self, status, buffer] { self->handleRequest(status, buffer); });
-
                         break;
                     }
 
