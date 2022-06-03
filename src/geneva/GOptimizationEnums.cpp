@@ -425,13 +425,13 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::updateRule &ur) {
 
 /******************************************************************************/
 /**
- * Puts a Gem::Geneva::parallelRule item into a stream
+ * Puts a Gem::Geneva::abcParallelRule item into a stream
  *
  * @param o The ostream the item should be added to
  * @param ur the item to be added to the stream
  * @return The std::ostream object used to add the item to
  */
-std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parallelRule &ur) {
+std::ostream &operator<<(std::ostream &o, const Gem::Geneva::abcParallelRule &ur) {
     Gem::Common::ENUMBASETYPE tmp = static_cast<Gem::Common::ENUMBASETYPE>(ur);
     o << tmp;
     return o;
@@ -439,18 +439,18 @@ std::ostream &operator<<(std::ostream &o, const Gem::Geneva::parallelRule &ur) {
 
 /******************************************************************************/
 /**
- * Reads a Gem::Geneva::parallelRule item from a stream
+ * Reads a Gem::Geneva::abcParallelRule item from a stream
  *
  * @param i The stream the item should be read from
  * @param ur The item read from the stream
  * @return The std::istream object used to read the item from
  */
-std::istream &operator>>(std::istream &i, Gem::Geneva::parallelRule &ur) {
+std::istream &operator>>(std::istream &i, Gem::Geneva::abcParallelRule &ur) {
     Gem::Common::ENUMBASETYPE tmp;
     i >> tmp;
 
 #ifdef DEBUG
-    ur = boost::numeric_cast<Gem::Geneva::parallelRule>(tmp);
+    ur = boost::numeric_cast<Gem::Geneva::abcParallelRule>(tmp);
 #else
     ur = static_cast<Gem::Geneva::updateRule>(tmp);
 #endif /* DEBUG */

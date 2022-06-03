@@ -71,7 +71,8 @@ class GArtificialBeeColony_PersonalityTraits :
         ar
         & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GPersonalityTraits)
         & BOOST_SERIALIZATION_NVP(trial_)
-        & BOOST_SERIALIZATION_NVP(onlookers_);
+        & BOOST_SERIALIZATION_NVP(onlookers_)
+        & BOOST_SERIALIZATION_NVP(belongs_to_);
     }
     ///////////////////////////////////////////////////////////////////////
 
@@ -102,6 +103,10 @@ public:
     G_API_GENEVA void addToOnlookers(std::uint32_t);
     /** @brief Resets onlookers to 0 */
     G_API_GENEVA void resetOnlookers();
+
+    G_API_GENEVA std::size_t getBelongsTo() const;
+
+    G_API_GENEVA void setBelongsTo(std::size_t);
 
 protected:
     G_API_GENEVA void load_(const GObject *object) override;
@@ -134,6 +139,8 @@ private:
     std::uint32_t trial_ = 0;
 
     std::uint32_t onlookers_ = 0;
+
+    std::size_t belongs_to_ = -1;
 
 };
 

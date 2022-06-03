@@ -38,7 +38,7 @@
  *
  ********************************************************************************/
 
-#include "GParaboloidIndividual2D.hpp"
+#include "GBeeColonyIndividual.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GBeeColonyIndividual)
 

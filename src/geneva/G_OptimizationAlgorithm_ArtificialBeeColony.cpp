@@ -246,7 +246,7 @@ void GArtificialBeeColony::runFitnessCalculation_() {
         );
 #ifdef DEBUG
         glogger
-                << "In GSwarmAlgorithm::runFitnessCalculation(): " << std::endl
+                << "In GArtificialBeeColony::runFitnessCalculation(): " << std::endl
                 << "Removed " << n_erased << " erroneous work items in iteration " << this->getIteration() << std::endl
                 << GLOGGING;
 #endif
@@ -330,9 +330,17 @@ void GArtificialBeeColony::employeeBeePhase() {
             this->at(second_individual_i)->streamline(second_individual_values, activityMode::ACTIVEONLY);
             if(values.size() == 1) {
                 values.at(0) += phi_rng(gen) * (values.at(0) - second_individual_values.at(0));
+                if(values.at(0) > m_dbl_upper_parameter_boundaries_cnt.at(0)) //Check Boundaries
+                    values.at(0) = m_dbl_upper_parameter_boundaries_cnt.at(0);
+                if(values.at(0) < m_dbl_lower_parameter_boundaries_cnt.at(0))
+                    values.at(0) = m_dbl_lower_parameter_boundaries_cnt.at(0);
             } else {
                 random_component_i = component_rng(gen);
                 values.at(random_component_i) += phi_rng(gen) * (values.at(random_component_i) - second_individual_values.at(random_component_i));
+                if(values.at(random_component_i) > m_dbl_upper_parameter_boundaries_cnt.at(random_component_i)) //Check Boundaries
+                    values.at(random_component_i) = m_dbl_upper_parameter_boundaries_cnt.at(random_component_i);
+                if(values.at(random_component_i) < m_dbl_lower_parameter_boundaries_cnt.at(random_component_i))
+                    values.at(random_component_i) = m_dbl_lower_parameter_boundaries_cnt.at(random_component_i);
             }
             new_solutions.at(i)->assignValueVector(values, activityMode::ACTIVEONLY);
         }
@@ -341,7 +349,7 @@ void GArtificialBeeColony::employeeBeePhase() {
     workOn(
             new_solutions
             , true
-            , "GArtificialBeeColony::employeePhase");
+            , "GArtificialBeeColony::employeePhase()");
 
     for(std::size_t i = 0; i < this->size(); ++i) {
         if (isBetter(new_solutions.at(i), this->at(i))) {
@@ -366,7 +374,26 @@ void GArtificialBeeColony::scoutBeePhase() {
 }
 
 void GArtificialBeeColony::onlookerBeePhase() {
-
+    switch (m_parallel_rule) {
+        case abcParallelRule::ABC_PARALLEL:
+            onlookerParallel();
+            break;
+        case abcParallelRule::ABC_SEQUENTIAL:
+            onlookerSequential();
+            break;
+        case abcParallelRule::ABC_SIMPLEX:
+            onlookerSimplex();
+            break;
+        default:
+#ifdef DEBUG
+            throw gemfony_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                            << "Got into the default case of an enum based switch for the artificial bee colony" << std::endl
+                            << "which is either magic, or someone added a new enumerator that isn't handled yet." << std::endl
+                            << "Consider checking the abcParallelEnum in GOptimizationEnums."
+            );
+#endif
+    }
 }
 
 void GArtificialBeeColony::findBestIndividual() {
@@ -386,11 +413,11 @@ std::size_t GArtificialBeeColony::findMaxTrialIndex() {
     return max_trial;
 }
 
-parallelRule GArtificialBeeColony::getMParallelRule() const {
+abcParallelRule GArtificialBeeColony::getMParallelRule() const {
     return m_parallel_rule;
 }
 
-void GArtificialBeeColony::setMParallelRule(parallelRule mParallelRule) {
+void GArtificialBeeColony::setMParallelRule(abcParallelRule mParallelRule) {
     m_parallel_rule = mParallelRule;
 }
 
@@ -400,6 +427,22 @@ const std::shared_ptr<GParameterSet> &GArtificialBeeColony::getMBestIndividual()
 
 void GArtificialBeeColony::setMBestIndividual(const std::shared_ptr<GParameterSet> &mBestIndividual) {
     m_best_individual = mBestIndividual;
+}
+
+void GArtificialBeeColony::onlookerParallel() {
+
+}
+
+void GArtificialBeeColony::onlookerSequential() {
+
+}
+
+void GArtificialBeeColony::onlookerSimplex() {
+
+}
+
+void GArtificialBeeColony::onlookerProbabilityCalculations() {
+
 }
 
 

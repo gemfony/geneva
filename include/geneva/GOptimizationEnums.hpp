@@ -567,17 +567,22 @@ const updateRule DEFAULTUPDATERULE = updateRule::SWARM_UPDATERULE_CLASSIC; ///< 
 
 /******************************************************************************/
 /**
- * Specifies between parallel or sequential Bee Colony
+ * Specifies between parallel, sequential or simplex Bee Colony Onlooker Phase
+ *
+ * Default mode is parallel, which is an experimental parallel approach to the usual sequential onlooker phase
+ * sequential mode is following the usual Bee Colony Algorithm
+ * Simplex is a very experimental approach to optimize the bee colony algorithm even further
  */
-enum class parallelRule : Gem::Common::ENUMBASETYPE {
+enum class abcParallelRule : Gem::Common::ENUMBASETYPE {
     ABC_PARALLEL = 0,
-    ABC_SEQUENTIAL = 1
+    ABC_SEQUENTIAL = 1,
+    ABC_SIMPLEX = 2
 };
 
 /******************************************************************************/
 
 const std::uint32_t DEFAULTMAXTRIAL = 20;
-const parallelRule DEFAULTPARALLELRULE = parallelRule::ABC_PARALLEL;
+const abcParallelRule DEFAULTPARALLELRULE = abcParallelRule::ABC_PARALLEL;
 
 /******************************************************************************/
 
@@ -649,10 +654,10 @@ G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::updateRu
 G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::updateRule&);
 
 /** @brief Puts a Gem::Geneva::updateRule into a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::parallelRule&);
+G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::abcParallelRule&);
 
 /** @brief Reads a Gem::Geneva::updateRule from a stream. Needed also for boost::lexical_cast<> */
-G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::parallelRule&);
+G_API_GENEVA std::istream& operator>>(std::istream&, Gem::Geneva::abcParallelRule&);
 
 /** @brief Puts a Gem::Geneva::adaptionMode into a stream. Needed also for boost::lexical_cast<> */
 G_API_GENEVA std::ostream& operator<<(std::ostream&, const Gem::Geneva::adaptionMode&);

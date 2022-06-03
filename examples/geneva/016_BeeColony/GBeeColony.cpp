@@ -47,7 +47,7 @@
 #include "geneva/Go2.hpp"
 
 // The individual that should be optimized
-#include "GParaboloidIndividual2D.hpp"
+#include "GBeeColonyIndividual.hpp"
 
 using namespace Gem::Geneva;
 

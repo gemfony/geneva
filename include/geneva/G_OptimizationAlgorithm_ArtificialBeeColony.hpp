@@ -92,9 +92,9 @@ public:
 
     G_API_GENEVA void setMMaxTrial(uint32_t mMaxTrial);
 
-    G_API_GENEVA parallelRule getMParallelRule() const;
+    G_API_GENEVA abcParallelRule getMParallelRule() const;
 
-    G_API_GENEVA void setMParallelRule(parallelRule mParallelRule);
+    G_API_GENEVA void setMParallelRule(abcParallelRule mParallelRule);
 
     const std::shared_ptr<GParameterSet> &getMBestIndividual() const;
 
@@ -160,13 +160,24 @@ private:
 
     std::size_t findMaxTrialIndex();
 
+    void onlookerParallel();
+
+    void onlookerSequential();
+
+    void onlookerSimplex();
+
+    /**
+     * @brief Calculates the Probabilities for an Individual to be chosen and also sets the onlooker counts accourding to these individuals
+     */
+    void onlookerProbabilityCalculations();
+
     std::vector<double> m_dbl_lower_parameter_boundaries_cnt = std::vector<double>(); ///< Holds lower boundaries of double parameters
     std::vector<double> m_dbl_upper_parameter_boundaries_cnt = std::vector<double>(); ///< Holds upper boundaries of double parameters
 
     std::uint32_t m_max_trial = DEFAULTMAXTRIAL;
     std::size_t m_random_seed = 0;
 
-    parallelRule m_parallel_rule = DEFAULTPARALLELRULE;
+    abcParallelRule m_parallel_rule = DEFAULTPARALLELRULE;
 
     std::shared_ptr<GParameterSet> m_best_individual;
 };

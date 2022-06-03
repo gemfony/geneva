@@ -49,6 +49,7 @@ GArtificialBeeColony_PersonalityTraits::GArtificialBeeColony_PersonalityTraits(c
         : GPersonalityTraits(cp)
         , trial_(cp.trial_)
         , onlookers_(cp.onlookers_)
+        , belongs_to_(cp.belongs_to_)
 { /* nothing */ }
 
 std::uint32_t GArtificialBeeColony_PersonalityTraits::getTrial() const {
@@ -77,6 +78,7 @@ void GArtificialBeeColony_PersonalityTraits::load_(const GObject *cp) {
     // and then the local data
     trial_ = p_load->trial_;
     onlookers_ = p_load->onlookers_;
+    belongs_to_ = p_load->belongs_to_;
 }
 
 void GArtificialBeeColony_PersonalityTraits::compare_(
@@ -94,6 +96,8 @@ void GArtificialBeeColony_PersonalityTraits::compare_(
 
     // ... and then the local data
     compare_t(IDENTITY(trial_, p_load->trial_), token);
+    compare_t(IDENTITY(onlookers_, p_load->onlookers_), token);
+    compare_t(IDENTITY(belongs_to_, p_load->belongs_to_), token);
 
     token.evaluate();
 }
@@ -162,6 +166,14 @@ void GArtificialBeeColony_PersonalityTraits::addToOnlookers(std::uint32_t onlook
 
 void GArtificialBeeColony_PersonalityTraits::resetOnlookers() {
     onlookers_ = 0;
+}
+
+std::size_t GArtificialBeeColony_PersonalityTraits::getBelongsTo() const {
+    return belongs_to_;
+}
+
+void GArtificialBeeColony_PersonalityTraits::setBelongsTo(std::size_t belongsTo) {
+    belongs_to_ = belongsTo;
 }
 
 } /* namespace Geneva */
