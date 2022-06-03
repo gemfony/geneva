@@ -160,8 +160,12 @@ void GArtificialBeeColony_PersonalityTraits::setOnlookers(std::uint32_t onlooker
     onlookers_ = onlookers;
 }
 
-void GArtificialBeeColony_PersonalityTraits::addToOnlookers(std::uint32_t onlookers) {
-    onlookers_ += onlookers;
+void GArtificialBeeColony_PersonalityTraits::increaseOnlookers() {
+    ++onlookers_;
+}
+
+void GArtificialBeeColony_PersonalityTraits::decreaseOnlookers() {
+    --onlookers_;
 }
 
 void GArtificialBeeColony_PersonalityTraits::resetOnlookers() {

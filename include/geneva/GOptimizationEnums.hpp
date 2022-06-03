@@ -581,8 +581,8 @@ enum class abcParallelRule : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 
-const std::uint32_t DEFAULTMAXTRIAL = 20;
-const abcParallelRule DEFAULTPARALLELRULE = abcParallelRule::ABC_PARALLEL;
+const std::uint32_t DEFAULTMAXTRIAL = 15;
+const abcParallelRule DEFAULTPARALLELRULE = abcParallelRule::ABC_SEQUENTIAL; //TODO: Change to parallel as soon as implemented
 
 /******************************************************************************/
 

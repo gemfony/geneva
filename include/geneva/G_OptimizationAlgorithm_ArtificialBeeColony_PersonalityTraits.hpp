@@ -99,8 +99,10 @@ public:
     G_API_GENEVA uint32_t getOnlookers() const;
 
     G_API_GENEVA void setOnlookers(std::uint32_t);
-
-    G_API_GENEVA void addToOnlookers(std::uint32_t);
+    /** @brief increases Onlookers by 1 */
+    G_API_GENEVA void increaseOnlookers();
+    /** @brief decreases Onlookers by 1 */
+    G_API_GENEVA void decreaseOnlookers();
     /** @brief Resets onlookers to 0 */
     G_API_GENEVA void resetOnlookers();
 
