@@ -442,7 +442,34 @@ void GArtificialBeeColony::onlookerSimplex() {
 }
 
 void GArtificialBeeColony::onlookerProbabilityCalculations() {
+    std::vector<double> probabilities;
+    double sum = 0.;
+    for (std::size_t i = 0; i < this->size(); ++i) {
+        double fitness = this->at(i)->raw_fitness();
+        if (fitness >= 0) {
+            probabilities.push_back(1. / (1. + fitness));
+        } else {
+            probabilities.push_back(1. - fitness);
+        }
+        sum += probabilities.at(i);
+        this->at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->resetOnlookers(); //Make sure all onlooker counts are 0
+    }
+    for (double & probability : probabilities) {
+        probability /= sum;
+    }
 
+    std::mt19937_64 gen(m_random_seed);
+    std::uniform_real_distribution<double> onlooker_rng(0., 1.);    // to generate a number in [0, 1)
+    std::size_t onlookers_chosen = 0;
+    std::size_t current_index = 0;
+    while (onlookers_chosen < this->size()) {
+        auto roll = onlooker_rng(gen);
+        if(roll <= probabilities.at(current_index)) {
+            ++onlookers_chosen;
+            this->at(current_index)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->addToOnlookers(1);
+        }
+        current_index = (++current_index) % this->size();
+    }
 }
 
 
