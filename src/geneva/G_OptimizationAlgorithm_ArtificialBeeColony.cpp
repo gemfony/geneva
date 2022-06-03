@@ -374,6 +374,7 @@ void GArtificialBeeColony::scoutBeePhase() {
 }
 
 void GArtificialBeeColony::onlookerBeePhase() {
+    onlookerProbabilityCalculations();
     switch (m_parallel_rule) {
         case abcParallelRule::ABC_PARALLEL:
             onlookerParallel();
