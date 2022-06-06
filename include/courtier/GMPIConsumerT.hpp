@@ -83,7 +83,6 @@
 #include "courtier/GCommandContainerT.hpp"
 
 // TODO: extract double buffering to GBaseConsumerClientT
-// TODO: extract docker setup to a separate branch
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -431,6 +430,9 @@ namespace Gem::Courtier {
          */
         void cancelActiveRequests() {
             MPI_Cancel(&m_receiveHandle);
+            MPI_Request_free(&m_receiveHandle);
+
+            MPI_Cancel(&m_sendHandle);
             MPI_Request_free(&m_sendHandle);
         }
 
@@ -898,9 +900,8 @@ namespace Gem::Courtier {
                         // let a new thread handle this request and listen for further requests
                         // we capture copies of smart pointers in the closure, which keeps the underlying data alive
                         const auto self = this->shared_from_this();
-                        boost::asio::post(
+                        m_handlerThreadPool->async_schedule(
                                 [&self, status, buffer] { self->handleRequest(status, buffer); });
-
                         break;
                     }
 
@@ -1175,7 +1176,7 @@ namespace Gem::Courtier {
         /**
          * The destructor finalizes the MPI framework.
          *
-         * This constructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
+         * This destructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
          */
         ~GMPIConsumerT() override {
             int isInitialized{0};
@@ -1438,6 +1439,7 @@ namespace Gem::Courtier {
         /**
          * This method returns a client associated with this consumer.
          *
+         * Inherited from GBaseconsumerT
          * This function makes only sense to be called if the current node has rank 1-n (i.e. is a worker node).
          * Therefore we can simply return the current object, because it is already a client.
          */
@@ -1465,6 +1467,10 @@ namespace Gem::Courtier {
 
             return std::dynamic_pointer_cast<GBaseClientT<processable_type>>(
                     mutable_self->shared_from_this());
+        }
+
+        void init_() override {
+            setPositionInCluster();
         }
 
         /**
