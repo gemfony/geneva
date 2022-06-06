@@ -83,8 +83,6 @@
 #include "courtier/GCommandContainerT.hpp"
 
 // TODO: extract double buffering to GBaseConsumerClientT
-// TODO: consider making GMPIConsumer only have server functionality and then offer a public method that returns a client
-//  this would be more consistent with the other consumers
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -1178,7 +1176,7 @@ namespace Gem::Courtier {
         /**
          * The destructor finalizes the MPI framework.
          *
-         * This constructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
+         * This destructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
          */
         ~GMPIConsumerT() override {
             int isInitialized{0};
