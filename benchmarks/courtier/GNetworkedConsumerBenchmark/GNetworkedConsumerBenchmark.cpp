@@ -515,6 +515,8 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec,
                        const GNetworkedConsumerBenchmarkConfig &config) {
     // plot directly with no modification, because values are already absolute
 
+    // TODO: also plot 3D graphs
+
     configurePlotter(exTimesVec,
                      "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
                      "duration of one fitness calculation [s]",
