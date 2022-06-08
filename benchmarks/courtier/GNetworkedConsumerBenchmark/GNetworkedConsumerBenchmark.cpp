@@ -511,7 +511,7 @@ Gem::Common::GPlotDesigner configurePlotter(
                            config.getCompetitors().size() * config.getNClients().size());
 
     // initialize empty plotter
-    Gem::Common::GPlotDesigner gpd(title, 1, nRows);
+    Gem::Common::GPlotDesigner gpd(title, 2, nRows);
 
     // add graphs to plotter
     if (singlePlot) {
@@ -522,7 +522,7 @@ Gem::Common::GPlotDesigner configurePlotter(
         createMultiplePlots(clientsAtX, xLabel, yLabel, yAxisUpperLimit, config, clientsAtXVec, sleepAtXVec, gpd);
     }
 
-    gpd.setCanvasDimensions(800, 1200);
+    gpd.setCanvasDimensions(2000, 1200 * nRows);
 
     return gpd;
 }

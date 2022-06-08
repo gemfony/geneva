@@ -3373,7 +3373,8 @@ std::string GPlotDesigner::staticHeader(const std::string& indent) const {
 		<< indent << "gStyle->SetStatBorderSize(1);" << std::endl
 		<< indent << "gStyle->SetOptStat(0);" << std::endl
 		<< std::endl
-		<< indent << "TCanvas *cc = new TCanvas(\"cc\", \"cc\",0,0," << m_c_x_dim << "," << m_c_y_dim << ");" << std::endl
+		<< indent << "TCanvas *cc = new TCanvas(\"cc\", \"cc\", 0, 0, " << m_c_x_dim << ", " << m_c_y_dim << ");" << std::endl
+        << indent << "cc->SetCanvasSize(" << m_c_x_dim << ", " << m_c_y_dim << ");" << std::endl // reset canvas size to get a scroll bar
 		<< std::endl
 		<< indent << "TPaveLabel* canvasTitle = new TPaveLabel(0.2,0.95,0.8,0.99, \"" << m_canvas_label << "\");" << std::endl
 		<< indent << "canvasTitle->Draw();" << std::endl
