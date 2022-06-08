@@ -1,5 +1,5 @@
 /**
- * @file GOptimizationBenchmarkConfig.hpp
+ * @file GNetworkedConsumerBenchmarkConfig.hpp
  */
 
 /********************************************************************************
@@ -57,17 +57,31 @@
 
 namespace Gem::Tests {
 
+    /**
+     * stores information about one of the competing configurations in the benchmark
+     */
+    struct Competitor {
+        /**
+         * name displayed to the user in the graphs
+         */
+        std::string name;
+        /**
+         * arguments supplied to the benchmark executable
+         */
+        std::string arguments;
+    };
+
 /*********************************************************************************/
 /**
  * A class that parses configuration options for the GAsioMPIBenchmark test
  */
-    class GAsioMPIBenchmarkConfig {
+    class GNetworkedConsumerBenchmarkConfig {
     public:
 
         /**
          * Deleted Default Constructor
          */
-        GAsioMPIBenchmarkConfig() = delete; ///< Default constructor: Intentionally private and undefined
+        GNetworkedConsumerBenchmarkConfig() = delete; ///< Default constructor: Intentionally private and undefined
 
 
         /*****************************************************************************/
@@ -77,7 +91,7 @@ namespace Gem::Tests {
          * @param configFile The name of a configuration file
          * @param resultFile The name of a file to which results should be written
          */
-        explicit GAsioMPIBenchmarkConfig(int argc, char **argv) {
+        explicit GNetworkedConsumerBenchmarkConfig(int argc, char **argv) {
             registerCLOptions();
             registerFileOptions();
 
@@ -103,6 +117,19 @@ namespace Gem::Tests {
          */
         [[nodiscard]] const std::vector<std::uint32_t> &getNClients() const {
             return m_nClients;
+        }
+
+        /**
+         * returns all competitors for this benchmark
+         */
+        [[nodiscard]] std::vector<Competitor> getCompetitors() const {
+            std::vector<Competitor> competitors{};
+            // transform the vector of vectors into a more user-friendly vector of structs
+            for (const auto &c: m_competitors) {
+                competitors.push_back(Competitor{c[0], c[1]});
+            }
+
+            return competitors;
         }
 
         // TODO: doxygen comments for getters
@@ -138,6 +165,16 @@ namespace Gem::Tests {
                     VAR_IS_ESSENTIAL,
                     "A list of numbers of clients to test with. Each value will be used for a single test. "
                     "All those tests are run after another."
+            );
+
+            m_fileParser.registerFileParameter(
+                    "competitors",
+                    m_competitors,
+                    m_competitors,
+                    VAR_IS_ESSENTIAL,
+                    "A list of configurations to run against each other in this benchmark. Each item consists of"
+                    "two strings. The first string is the name displayed in the graphs. The second one is the string of arguments"
+                    "to pass to the executable. The benchmark executable will take care of correctly starting clients."
             );
 
             m_fileParser.registerFileParameter(
@@ -205,14 +242,25 @@ namespace Gem::Tests {
                 25,
                 50,
                 100,
-                250,
-                500
+                250
         };
+
+        /**
+         * The different configurations to test in this benchmark. The default is to test all networked consumers.
+         * The Benchmark itself will take care of starting the clients or in case of MPI using mpirun
+         */
+        std::vector<std::vector<std::string>> m_competitors{
+                // attributes: name, arguments
+                {"Asio",  ""},
+                {"beast", "--consumer beast"},
+                {"MPI",   "--consumer mpi"}
+        };
+
 
         /**
          * The name of a file to which results should be written
          */
-        std::string m_resultFile = "GAsioMPIBenchmarkResult.C";
+        std::string m_resultFile = "GNetworkedConsumerBenchmark.C";
 
         /**
          * The name of the intermediate result file produced each run.
@@ -225,6 +273,7 @@ namespace Gem::Tests {
          */
         std::string m_mpirunLocation = "mpirun";
 
+
         /*****************************************************************
          * Options to parse from command line
          * ***************************************************************
@@ -233,18 +282,18 @@ namespace Gem::Tests {
         /**
          * The location of the config file for this class
          */
-        std::string m_configFile = "./config/GAsioMPIBenchmarkConfig.json";
+        std::string m_configFile = "./config/GNetworkedConsumerBenchmarkConfig.json";
 
         /**
          * The location of the executable called for benchmarking
          */
-        std::string m_benchmarkExecutable = "./GAsioMPIBenchmarkSubProgram/GAsioMPIBenchmarkSubProgram";
+        std::string m_benchmarkExecutable = "./GNetworkedConsumerBenchmark/GNetworkedConsumerBenchmarkSubProgram";
 
         /**
          * Flag that defines whether to only build the graphs without running the benchmark. This can be useful if
          * the benchmark files already exists from a previous run but you would like to rebuild the graphs
          */
-         std::uint32_t m_onlyGenerateGraphs{0};
+        std::uint32_t m_onlyGenerateGraphs{0};
     };
 
 }

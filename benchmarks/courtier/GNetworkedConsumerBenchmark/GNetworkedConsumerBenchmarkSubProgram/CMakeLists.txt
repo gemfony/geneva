@@ -34,14 +34,52 @@
 #
 ################################################################################
 
-SET(CONFIGFILES
-        GAsioMPIBenchmarkConfig.json
-        GAsioMPIBenchmarkConfigQuickTest.json
-        GDelayIndividual.json
-        GEvolutionaryAlgorithm.json
-        Go2.json)
+IF (NOT GENEVA_FULL_TREE_BUILD)
 
-# Copy the config files to the build tree for easier testing
-FILE(COPY ${CONFIGFILES} DESTINATION .)
+	PROJECT(GNetworkedConsumerBenchmarkSubProgram)
 
-INSTALL(FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/tests/geneva/PerformanceTests/${EXECUTABLENAME}/config)
+	# For building the benchmarks independently, we still assume that the
+	# current source folder is still part of the Geneva tree structure,
+	# i.e., the 'CMakeModules' folder can be found going up... This avoids
+	# having to copy the same content over and over again in the tests.
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
+
+	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
+	INCLUDE(CommonGenevaBuild)
+
+ENDIF ()
+
+SET ( EXECUTABLENAME GNetworkedConsumerBenchmarkSubProgram )
+
+SET ( ${EXECUTABLENAME}_SRCS
+	GNetworkedConsumerBenchmarkSubProgram
+)
+
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+# Add MPI Libraries in case building with MPI-consumer
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
+ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )
+
+
+#
+# Take care of other particularities of this test
+#
+
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES TIMEOUT 2500)

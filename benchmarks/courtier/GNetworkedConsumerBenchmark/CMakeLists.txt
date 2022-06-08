@@ -52,7 +52,7 @@ ENDIF ()
 SET(EXECUTABLENAME GAsioMPIBenchmark)
 
 SET(${EXECUTABLENAME}_HEADERS
-        GAsioMPIBenchmarkConfig.hpp)
+        GNetworkedConsumerBenchmarkConfig.hpp)
 
 SET(${EXECUTABLENAME}_SRCS
         GAsioMPIBenchmark

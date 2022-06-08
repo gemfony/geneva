@@ -49,7 +49,7 @@
 
 // Geneva header files go here
 
-#include "GAsioMPIBenchmarkConfig.hpp"
+#include "GNetworkedConsumerBenchmarkConfig.hpp"
 #include "common/GPlotDesigner.hpp"
 
 using namespace Gem::Tests;
@@ -224,7 +224,7 @@ std::string getCommandBanner(const std::string &command) {
     return sout.str();
 }
 
-void measureExecutionTimesMPI(const GAsioMPIBenchmarkConfig &config, std::uint32_t nClients) {
+void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config, std::uint32_t nClients) {
     boost::process::ipstream pipeStream{};
 
     std::string command = config.getMpirunLocation()
@@ -248,7 +248,7 @@ void measureExecutionTimesMPI(const GAsioMPIBenchmarkConfig &config, std::uint32
     c.wait();
 }
 
-void measureExecutionTimesAsio(const GAsioMPIBenchmarkConfig &config, std::uint32_t nClients) {
+void measureExecutionTimesAsio(const GNetworkedConsumerBenchmarkConfig &config, std::uint32_t nClients) {
     boost::process::ipstream pipeStream{};
 
     std::string command = config.getMBenchmarkExecutableName() + " --consumer asio";
@@ -276,7 +276,7 @@ void measureExecutionTimesAsio(const GAsioMPIBenchmarkConfig &config, std::uint3
     std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.wait(); });
 }
 
-void renameIntermediateFiles(const GAsioMPIBenchmarkConfig &config, const std::string &suffix, std::uint32_t nClients) {
+void renameIntermediateFiles(const GNetworkedConsumerBenchmarkConfig &config, const std::string &suffix, std::uint32_t nClients) {
     namespace fs = std::filesystem;
 
     fs::path workDir = fs::current_path();
@@ -480,7 +480,7 @@ Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
     return gpd;
 }
 
-void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec, const GAsioMPIBenchmarkConfig &config) {
+void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec, const GNetworkedConsumerBenchmarkConfig &config) {
     // plot directly with no modification, because values are already absolute
 
     configurePlotterSleepTimeToOptTime(exTimesVec,
@@ -516,7 +516,7 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec, const GAs
             .writeToFile(std::filesystem::path("abs_multiplePlots_clientsToOpt" + config.getResultFileName()));
 }
 
-void combineGraphsToPlot(const GAsioMPIBenchmarkConfig &config) {
+void combineGraphsToPlot(const GNetworkedConsumerBenchmarkConfig &config) {
     namespace fs = std::filesystem;
 
     fs::path executionTimesDir = fs::current_path() / executionTimesDirName;
@@ -550,7 +550,7 @@ void combineGraphsToPlot(const GAsioMPIBenchmarkConfig &config) {
     plotAbsoluteTimes(exTimesVec, config);
 }
 
-std::string getHeader(const GAsioMPIBenchmarkConfig &config) {
+std::string getHeader(const GNetworkedConsumerBenchmarkConfig &config) {
     std::stringstream sout{};
     sout << "-----------------------------------------" << std::endl
          << "starting " << config.getNClients().size() << " benchmark(s) for asio and mpi" << std::endl
@@ -562,7 +562,7 @@ std::string getHeader(const GAsioMPIBenchmarkConfig &config) {
 }
 
 int main(int argc, char **argv) {
-    GAsioMPIBenchmarkConfig config{argc, argv};
+    GNetworkedConsumerBenchmarkConfig config{argc, argv};
 
     if (!config.getOnlyGenerateGraphs()) {
         std::cout << getHeader(config) << std::endl;
