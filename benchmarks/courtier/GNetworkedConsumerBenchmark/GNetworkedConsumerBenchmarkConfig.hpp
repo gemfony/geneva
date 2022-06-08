@@ -66,10 +66,32 @@ namespace Gem::Tests {
          */
         std::string name;
         /**
+         * a short specifier e.g. to prefix files
+         */
+        std::string shortName;
+        /**
          * arguments supplied to the benchmark executable
          */
         std::string arguments;
     };
+
+    std::ostream &operator<<(std::ostream &os, const Competitor c) {
+        os << "'" << c.name << "'" << ", " << "'" << c.shortName << "'" << ", " << "'" << c.arguments << "'";
+        return os;
+    }
+
+    std::istream &operator>>(std::istream &is, Competitor &c) {
+        std::getline(is, c.name, '\''); // skip until first tic
+        std::getline(is, c.name, '\''); // overwrite until second tic
+
+        std::getline(is, c.shortName, '\''); // skip until first tic
+        std::getline(is, c.shortName, '\''); // overwrite until second tic
+
+        std::getline(is, c.arguments, '\''); // skip until first tic
+        std::getline(is, c.arguments, '\''); // overwrite until second tic
+
+        return is;
+    }
 
 /*********************************************************************************/
 /**
@@ -122,34 +144,42 @@ namespace Gem::Tests {
         /**
          * returns all competitors for this benchmark
          */
-        [[nodiscard]] std::vector<Competitor> getCompetitors() const {
-            std::vector<Competitor> competitors{};
-            // transform the vector of vectors into a more user-friendly vector of structs
-            for (const auto &c: m_competitors) {
-                competitors.push_back(Competitor{c[0], c[1]});
-            }
-
-            return competitors;
+        [[nodiscard]] const std::vector<Competitor> &getCompetitors() const {
+            return m_competitors;
         }
 
-        // TODO: doxygen comments for getters
-
+        /**
+         * returns the name of the intermediate file
+         */
         [[nodiscard]] std::string getMIntermediateResultFileName() const {
             return m_intermediateResultFile;
         }
 
+        /**
+         * returns the name of the config file for this class
+         */
         [[nodiscard]] std::string getMConfigFileName() const {
             return m_configFile;
         }
 
+        /**
+         * returns the name of the benchmark executable to run
+         */
         [[nodiscard]] std::string getMBenchmarkExecutableName() const {
             return m_benchmarkExecutable;
         }
 
+        /**
+         * returns a flag that is true if the benchmark should not be run, but only the graphs should be generated from
+         * already existing result files.
+         */
         [[nodiscard]] std::uint32_t getOnlyGenerateGraphs() const {
             return m_onlyGenerateGraphs;
         }
 
+        /**
+         * returns the location where the mpirun executable is expected on this machine
+         */
         [[nodiscard]] std::string getMpirunLocation() const {
             return m_mpirunLocation;
         }
@@ -249,11 +279,11 @@ namespace Gem::Tests {
          * The different configurations to test in this benchmark. The default is to test all networked consumers.
          * The Benchmark itself will take care of starting the clients or in case of MPI using mpirun
          */
-        std::vector<std::vector<std::string>> m_competitors{
+        std::vector<Competitor> m_competitors{
                 // attributes: name, arguments
-                {"Asio",  ""},
-                {"beast", "--consumer beast"},
-                {"MPI",   "--consumer mpi"}
+                {"Boost.Asio",  "asio",  "--consumer asio"},
+                {"Boost.Beast", "beast", "--consumer beast"},
+                {"MPI",         "mpi",   "--consumer mpi"}
         };
 
 

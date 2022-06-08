@@ -1,5 +1,5 @@
 /**
- * @file GAsioMPIBenchmarkExecutable.cpp
+ * @file GNetworkedConsumerBenchmarkSubProgram.cpp
  */
 
 /********************************************************************************

@@ -36,7 +36,7 @@
 
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
-    PROJECT(GAsioMPIBenchmark)
+    PROJECT(GNetworkedConsumerBenchmark)
 
     # For building the benchmarks independently, we still assume that the
     # current source folder is still part of the Geneva tree structure,
@@ -49,13 +49,13 @@ IF (NOT GENEVA_FULL_TREE_BUILD)
 
 ENDIF ()
 
-SET(EXECUTABLENAME GAsioMPIBenchmark)
+SET(EXECUTABLENAME GNetworkedConsumerBenchmark)
 
 SET(${EXECUTABLENAME}_HEADERS
         GNetworkedConsumerBenchmarkConfig.hpp)
 
 SET(${EXECUTABLENAME}_SRCS
-        GAsioMPIBenchmark
+        GNetworkedConsumerBenchmark
         )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
@@ -90,4 +90,4 @@ INSTALL(TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/
 SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES TIMEOUT 2500)
 
 # add the actual benchmarking code that creates a separate executable
-ADD_SUBDIRECTORY(GAsioMPIBenchmarkSubProgram)
+ADD_SUBDIRECTORY(GNetworkedConsumerBenchmarkSubProgram)

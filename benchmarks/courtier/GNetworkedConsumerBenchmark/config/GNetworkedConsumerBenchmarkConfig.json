@@ -25,6 +25,19 @@
       "item": "400"
     }
   },
+  "competitors": {
+    "comment": "A list of configurations to run against each other in this benchmark",
+    "default": {
+      "item": "'Boost.Asio', 'asio', '--consumer asio'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast'",
+      "item": "'MPI', 'mpi', '--consumer mpi'"
+    },
+    "value": {
+      "item": "'Boost.Asio', 'asio', '--consumer asio'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast'",
+      "item": "'MPI', 'mpi', '--consumer mpi'"
+    }
+  },
   "resultFile": {
     "comment": "The name of a file to which results of the",
     "comment": "benchmark should be written",

@@ -1,5 +1,5 @@
 /**
- * @file GAsioMPIBenchmark.cpp
+ * @file GNetworkedConsumerBenchmark.cpp
  */
 
 /********************************************************************************
@@ -72,7 +72,6 @@ const std::vector<std::string> lineColors{
         "kRed",
         "kGreen",
         "kBlue",
-        "kYellow",
         "kMagenta",
         "kCyan",
         "kOrange",
@@ -80,7 +79,8 @@ const std::vector<std::string> lineColors{
         "kTeal",
         "kAzure",
         "kViolet",
-        "kPink"
+        "kPink",
+        "kYellow"
 };
 
 Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
@@ -224,6 +224,12 @@ std::string getCommandBanner(const std::string &command) {
     return sout.str();
 }
 
+void measureExecutionTimes(const GNetworkedConsumerBenchmarkConfig &config,
+                           std::uint32_t nClients,
+                           const Competitor &competitor) {
+    std::cout << nClients << " " << competitor.name << std::endl;
+}
+
 void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config, std::uint32_t nClients) {
     boost::process::ipstream pipeStream{};
 
@@ -276,7 +282,8 @@ void measureExecutionTimesAsio(const GNetworkedConsumerBenchmarkConfig &config, 
     std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.wait(); });
 }
 
-void renameIntermediateFiles(const GNetworkedConsumerBenchmarkConfig &config, const std::string &suffix, std::uint32_t nClients) {
+void renameIntermediateFiles(const GNetworkedConsumerBenchmarkConfig &config, const std::string &suffix,
+                             std::uint32_t nClients) {
     namespace fs = std::filesystem;
 
     fs::path workDir = fs::current_path();
@@ -480,7 +487,8 @@ Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
     return gpd;
 }
 
-void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec, const GNetworkedConsumerBenchmarkConfig &config) {
+void
+plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec, const GNetworkedConsumerBenchmarkConfig &config) {
     // plot directly with no modification, because values are already absolute
 
     configurePlotterSleepTimeToOptTime(exTimesVec,
@@ -569,16 +577,21 @@ int main(int argc, char **argv) {
         resetOutputDirs();
 
         for (const std::uint32_t &nClients: config.getNClients()) {
-            measureExecutionTimesAsio(config, nClients);
-            renameIntermediateFiles(config, "asio", nClients);
+//            measureExecutionTimesAsio(config, nClients);
+//            renameIntermediateFiles(config, "asio", nClients);
+//
+//            measureExecutionTimesMPI(config, nClients);
+//            renameIntermediateFiles(config, "mpi", nClients);
 
-            measureExecutionTimesMPI(config, nClients);
-            renameIntermediateFiles(config, "mpi", nClients);
+            for (const auto &competitor: config.getCompetitors()) {
+                measureExecutionTimes(config, nClients, competitor);
+//                renameIntermediateFiles(config, competitor.shortName, nClients);
+            }
         }
     }
 
     std::cout << "Generating the plots" << std::endl;
-    combineGraphsToPlot(config);
+//    combineGraphsToPlot(config);
 
     return 0;
 }
