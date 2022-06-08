@@ -8,17 +8,29 @@
     "comment": "numbers of clients to be benchmarked",
     "default": {
       "item": "1",
-      "item": "4",
+      "item": "5",
       "item": "10",
+      "item": "25",
+      "item": "50",
       "item": "100",
-      "item": "200",
-      "item": "300",
-      "item": "400",
-      "item": "500"
+      "item": "250"
     },
     "value": {
       "item": "4",
       "item": "8"
+    }
+  },
+  "competitors": {
+    "comment": "A list of configurations to run against each other in this benchmark",
+    "default": {
+      "item": "'Boost.Asio', 'asio', '--consumer asio'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast'",
+      "item": "'MPI', 'mpi', '--consumer mpi'"
+    },
+    "value": {
+      "item": "'Boost.Asio', 'asio', '--consumer asio'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast'",
+      "item": "'MPI', 'mpi', '--consumer mpi'"
     }
   },
   "resultFile": {

@@ -91,10 +91,9 @@ Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
 struct ExTimesSleepAtX {
     std::uint32_t nClients;
     /*
-     * <sleep_time, error, mean, stddev>
+     * <sleep_time, error, mean, stddev> for each competitor
      */
-    std::vector<std::tuple<double, double, double, double>> executionTimesAsio;
-    std::vector<std::tuple<double, double, double, double>> executionTimesMPI;
+    std::vector<std::vector<std::tuple<double, double, double, double>>> competitorExecutionTimes;
 };
 
 /**
@@ -102,11 +101,10 @@ struct ExTimesSleepAtX {
  */
 struct ExTimesClientsAtX {
     double sleepTime;
-    /**
-     * <clients, error, mean, stdDev>
+    /*
+     * <clients, error, mean, stddev> for each competitor
      */
-    std::vector<std::tuple<double, double, double, double>> executionTimesAsio;
-    std::vector<std::tuple<double, double, double, double>> executionTimesMPI;
+    std::vector<std::vector<std::tuple<double, double, double, double>>> competitorExecutionTimes;
 };
 
 std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const std::vector<ExTimesSleepAtX> &sleepAtXVec) {
@@ -114,38 +112,37 @@ std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const std::vector<ExTimesSle
     std::vector<ExTimesClientsAtX> clientsAtXVec{};
 
     // number of different values for sleepTime in the input vector
-    // sleep times are equal for all input elements, therefore just choose first element with asio
+    // sleep times are equal for all input elements, therefore just choose any element
+    // in this case the first element
     std::vector<double> sleepTimes{};
-    std::for_each(sleepAtXVec[0].executionTimesAsio.begin(), sleepAtXVec[0].executionTimesAsio.end(),
+    std::for_each(sleepAtXVec[0].competitorExecutionTimes[0].begin(), sleepAtXVec[0].competitorExecutionTimes[0].end(),
                   [&sleepTimes](const auto &tup) { sleepTimes.push_back(std::get<0>(tup)); });
 
-    // iterate over all sleep times, for each add a new entry to the output vector
+    // iterate over all sleep times
     for (std::size_t i{0}; i < sleepTimes.size(); ++i) {
+        // for each sleep time add a new empty entry to the output vector
         ExTimesClientsAtX toAdd{
                 sleepTimes[i],
-                std::vector<std::tuple<double, double, double, double>>{},
-                std::vector<std::tuple<double, double, double, double>>{}
+                std::vector<std::vector<std::tuple<double, double, double, double>>>{}
         };
 
-        // extract clients, error, mean, stdDev for each nClients for a fixed sleep time
-        // and add it to the vector
-
+        // for number of clients: extract clients, error, mean, stdDev for each nClients for a fixed sleep time and add it to the vector
         std::for_each(sleepAtXVec.begin(), sleepAtXVec.end(), [&toAdd, &i](const ExTimesSleepAtX &sax) {
-            toAdd.executionTimesAsio.emplace_back(
-                    sax.nClients,
-                    std::get<1>(sax.executionTimesAsio[i]),
-                    std::get<2>(sax.executionTimesAsio[i]),
-                    std::get<3>(sax.executionTimesAsio[i])
-            );
-        });
 
-        std::for_each(sleepAtXVec.begin(), sleepAtXVec.end(), [&toAdd, &i](const ExTimesSleepAtX &sax) {
-            toAdd.executionTimesMPI.emplace_back(
-                    sax.nClients,
-                    std::get<1>(sax.executionTimesMPI[i]),
-                    std::get<2>(sax.executionTimesMPI[i]),
-                    std::get<3>(sax.executionTimesMPI[i])
-            );
+            // for one specific number of clients and all competitors: create a vector with the exTimes
+            std::vector<std::tuple<double, double, double, double>> allCompetitorsValues{};
+
+            std::for_each(sax.competitorExecutionTimes.begin(), sax.competitorExecutionTimes.end(),
+                          [&allCompetitorsValues, &sax, &i](const auto &tuples) {
+                              // add the values for one specific competitor
+                              allCompetitorsValues.emplace_back(
+                                      sax.nClients,
+                                      std::get<1>(tuples[i]),
+                                      std::get<2>(tuples[i]),
+                                      std::get<3>(tuples[i]));
+                          });
+
+            toAdd.competitorExecutionTimes.push_back(allCompetitorsValues);
         });
 
         clientsAtXVec.push_back(toAdd);
@@ -162,14 +159,11 @@ double getYMax(const std::vector<ExTimesSleepAtX> &exTimesVec) {
 
     // iterate over all execution times for both asio and mpi to extract maximum y-value
     for (const auto &exTimes: exTimesVec) {
-        for (const auto &tup: exTimes.executionTimesAsio) {
-            if (std::get<2>(tup) > maxY) {
-                maxY = std::get<2>(tup);
-            }
-        }
-        for (const auto &tup: exTimes.executionTimesMPI) {
-            if (std::get<2>(tup) > maxY) {
-                maxY = std::get<2>(tup);
+        for (const auto &competitorExTimes: exTimes.competitorExecutionTimes) {
+            for (const auto &tup: competitorExTimes) {
+                if (std::get<2>(tup) > maxY) {
+                    maxY = std::get<2>(tup);
+                }
             }
         }
     }
@@ -215,22 +209,19 @@ std::string getNumberOfClientsPrefix(const std::uint32_t &nClients) {
     return sout.str();
 }
 
-std::string getCommandBanner(const std::string &command) {
+std::string getCommandBanner(const std::string &command,
+                             const std::uint32_t &nClients) {
     std::stringstream sout{};
     sout << "-----------------------------------------" << std::endl
-         << "running command: `" << command << "` as a new process" << std::endl
-         << "-----------------------------------------" << std::endl;
+         << "running command: `" << command << "` as a new process with " << nClients << " clients"
+         << std::endl << "-----------------------------------------" << std::endl;
 
     return sout.str();
 }
 
-void measureExecutionTimes(const GNetworkedConsumerBenchmarkConfig &config,
-                           std::uint32_t nClients,
-                           const Competitor &competitor) {
-    std::cout << nClients << " " << competitor.name << std::endl;
-}
-
-void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config, std::uint32_t nClients) {
+void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
+                              std::uint32_t nClients,
+                              const Competitor &competitor) {
     boost::process::ipstream pipeStream{};
 
     std::string command = config.getMpirunLocation()
@@ -238,11 +229,12 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config, s
                           + std::to_string(nClients + 1) // one server + nClients
                           + " "
                           + config.getMBenchmarkExecutableName()
-                          + " --consumer mpi"
+                          + " "
+                          + competitor.arguments
                           // use as many io-threads as clients to be able to process all in parallel
                           + " --mpi_master_nIOThreads " + std::to_string(nClients);
 
-    std::cout << getCommandBanner(command) << std::endl;
+    std::cout << getCommandBanner(command, nClients) << std::endl;
 
     boost::process::child c(command, boost::process::std_out > pipeStream);
 
@@ -254,15 +246,20 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config, s
     c.wait();
 }
 
-void measureExecutionTimesAsio(const GNetworkedConsumerBenchmarkConfig &config, std::uint32_t nClients) {
+void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &config,
+                                      std::uint32_t nClients,
+                                      const Competitor &competitor) {
     boost::process::ipstream pipeStream{};
 
-    std::string command = config.getMBenchmarkExecutableName() + " --consumer asio";
+    std::string command = config.getMBenchmarkExecutableName() + " " + competitor.arguments;
 
-    std::cout << getCommandBanner(command) << std::endl;
+    std::cout << getCommandBanner(command, nClients) << std::endl;
 
     // run once without the --client attribute to start a server
     boost::process::child server(command, boost::process::std_out > pipeStream);
+
+    // wait for server to be online before starting clients
+    std::this_thread::sleep_for(std::chrono::seconds(5));
 
     // start nClients clients and store handles in a vector
     std::vector<boost::process::child> clients{};
@@ -280,6 +277,19 @@ void measureExecutionTimesAsio(const GNetworkedConsumerBenchmarkConfig &config, 
     // wait for the completion of all processes
     server.wait();
     std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.wait(); });
+}
+
+void measureExecutionTimes(const GNetworkedConsumerBenchmarkConfig &config,
+                           std::uint32_t nClients,
+                           const Competitor &competitor) {
+    if (competitor.arguments.find("--consumer mpi") != std::string::npos) {
+        // mpi must be started differently
+        measureExecutionTimesMPI(config, nClients, competitor);
+    } else {
+        measureExecutionTimesWithClients(config, nClients, competitor);
+    }
+
+    std::cout << nClients << " " << competitor.name << std::endl;
 }
 
 void renameIntermediateFiles(const GNetworkedConsumerBenchmarkConfig &config, const std::string &suffix,
@@ -313,13 +323,155 @@ void resetOutputDirs() {
     fs::create_directory(resultDir);
 }
 
-Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
+
+/**
+ * creates a separate plot for each number of clients and each competitor configuration
+ */
+void createMultiplePlots(const bool &clientsAtX,
+                         const std::string &xLabel,
+                         const std::string &yLabel,
+                         const double yAxisUpperLimit,
+                         const GNetworkedConsumerBenchmarkConfig &config,
+                         const std::vector<ExTimesClientsAtX> &clientsAtXVec,
+                         const std::vector<ExTimesSleepAtX> &sleepAtXVec,
+                         Gem::Common::GPlotDesigner &gpd) {
+    for (uint32_t i{0}; i < config.getNClients().size(); ++i) {
+        // create as many graphs for each client as we have competitor configurations
+        for (uint32_t j{0}; j < config.getCompetitors().size(); ++j) {
+            auto graph = std::make_shared<Gem::Common::GGraph2ED>();
+
+            const Competitor competitor = config.getCompetitors()[j];
+
+            // set the labels
+            if (clientsAtX) {
+                graph->setPlotLabel(competitor.name + " sleep time = " + std::to_string(clientsAtXVec[i].sleepTime));
+            } else {
+                graph->setPlotLabel(competitor.name + " sleep time = " + std::to_string(sleepAtXVec[i].nClients));
+            }
+
+            graph->setXAxisLabel(xLabel);
+            graph->setYAxisLabel(yLabel);
+
+            // to compare the graphs better all axis should be equally scaled
+            graph->setYAxisLimits(0.0, yAxisUpperLimit);
+
+            // add the data to the graphs
+            if (clientsAtX) {
+                (*graph) & clientsAtXVec[i].competitorExecutionTimes[j];
+            } else {
+                (*graph) & sleepAtXVec[i].competitorExecutionTimes[j];
+            }
+
+            // register graph with the plotter
+            gpd.registerPlotter(graph);
+        }
+
+    }
+}
+
+/**
+ * creates a single plot with all client numbers for each competitor configuration
+ */
+void createSinglePlot(const bool &clientsAtX,
+                      const std::string &xLabel,
+                      const std::string &yLabel,
+                      const double yAxisUpperLimit,
+                      const std::string &legendTitle,
+                      const GNetworkedConsumerBenchmarkConfig &config,
+                      const std::vector<ExTimesSleepAtX> &sleepAtXVec,
+                      const std::vector<ExTimesClientsAtX> &clientsAtXVec,
+                      Gem::Common::GPlotDesigner &gpd) {
+    // NOTE: multiple graphs in a single plot can only be done with GGraph2D not with GGraph2ED
+
+    // create one graph for each competitor configuration
+    for (std::int32_t i{0}; i < config.getCompetitors().size(); ++i) {
+        const Competitor competitor = config.getCompetitors()[i];
+
+        // create one first main graph
+
+        auto mainGraph = std::make_shared<Gem::Common::GGraph2D>();
+
+        // set labels for main graph
+        mainGraph->setPlotLabel(competitor.name);
+        mainGraph->setXAxisLabel(xLabel);
+        mainGraph->setYAxisLabel(yLabel);
+
+        // set drawing arguments
+        mainGraph->setDrawingArguments("ALP*");
+
+        // set the line color for the fist iteration
+        mainGraph->setLineColor(lineColors[0]);
+
+        // set title for the legend which belongs to this graph and all subplots
+        mainGraph->setLegendTitle(legendTitle);
+
+        // set the y-axis limit to the greatest y-value of all graphs including subplots.
+        // This is necessary because the default would just set it to the greatest y-value of this graph.
+        // This then would result in the subplot being not visible if their values are greater than the main plots values
+        mainGraph->setYAxisLimits(0.0, yAxisUpperLimit);
+        // x-values are equal for each plot, so we can stick to the default range of the main graph
+
+        // set the legend for the first iteration (main graph)
+        if (clientsAtX) {
+            mainGraph->setLegendEntry(std::to_string(clientsAtXVec[0].sleepTime));
+        } else {
+            mainGraph->setLegendEntry(std::to_string(sleepAtXVec[0].nClients));
+        }
+
+        // notify that we want to print the legend for the main graph
+        mainGraph->setPlotLegend(true);
+
+        // add the data to the graph
+        if (clientsAtX) {
+            (*mainGraph) & extractMean(clientsAtXVec[0].competitorExecutionTimes[i]);
+        } else {
+            (*mainGraph) & extractMean(sleepAtXVec[0].competitorExecutionTimes[i]);
+        }
+
+        // add all following graphs as subplots
+        for (int j{1} /* start from the second elem */ ; j < sleepAtXVec.size(); ++j) {
+            auto subGraph = std::make_shared<Gem::Common::GGraph2D>();
+
+            // add the data to the sub-graphs
+            if (clientsAtX) {
+                (*subGraph) & extractMean(clientsAtXVec[j].competitorExecutionTimes[j]);
+            } else {
+                (*subGraph) & extractMean(sleepAtXVec[j].competitorExecutionTimes[j]);
+            }
+
+            // set drawing options
+            subGraph->setDrawingArguments("L*");
+
+            // set line colors
+            subGraph->setLineColor(lineColors[j % lineColors.size()]); // modulo to prevent out of bounds error
+
+            // set the legend for the secondary graph
+            if (clientsAtX) {
+                subGraph->setLegendEntry(std::to_string(clientsAtXVec[j].sleepTime));
+            } else {
+                subGraph->setLegendEntry(std::to_string(sleepAtXVec[j].nClients));
+            }
+
+            // notify that we want to plot the legend for these graphs
+            subGraph->setPlotLegend(true);
+
+            // add the sub-graphs to the main-graph
+            mainGraph->registerSecondaryPlotter(subGraph);
+        }
+
+        // add main graph containing sub-graphs to the plotter
+        gpd.registerPlotter(mainGraph);
+    }
+}
+
+Gem::Common::GPlotDesigner configurePlotter(
         const std::vector<ExTimesSleepAtX> &sleepAtXVec,
         const std::string &title,
         const std::string &xLabel,
         const std::string &yLabel,
         const bool &singlePlot,
-        const bool &clientsAtX) {
+        const bool &clientsAtX,
+        const GNetworkedConsumerBenchmarkConfig &config) {
 
     const double yMax = getYMax(sleepAtXVec);
     const double yAxisUpperLimit = yMax + (yMax / 50.0); // set upper y-axis limit slightly above the greatest y-value
@@ -337,190 +489,66 @@ Gem::Common::GPlotDesigner configurePlotterSleepTimeToOptTime(
         legendTitle = "Number of clients";
     }
 
-    std::uint32_t numberOfEntries = clientsAtX ? clientsAtXVec.size() : sleepAtXVec.size();
+    // one row for each competitor or one row for each combination of competitor and clients
+    std::uint32_t nRows = (singlePlot ? config.getCompetitors().size() :
+                           config.getCompetitors().size() * config.getNClients().size());
 
-    Gem::Common::GPlotDesigner gpd(title,
-                                   2,
-                                   (singlePlot ? 1 : numberOfEntries));
+    // initialize empty plotter
+    Gem::Common::GPlotDesigner gpd(title, 1, nRows);
 
+    // add graphs to plotter
     if (singlePlot) {
-        // NOTE: multiple graphs in a single plot can only be done with GGraph2D not with GGraph2ED
-        // create one first main graph for asio and mpi
-        auto asioMainGraph = std::make_shared<Gem::Common::GGraph2D>();
-        auto mpiMainGraph = std::make_shared<Gem::Common::GGraph2D>();
-
-        // set labels for main graph
-        asioMainGraph->setPlotLabel("Asio");
-        mpiMainGraph->setPlotLabel("MPI");
-
-        asioMainGraph->setXAxisLabel(xLabel);
-        asioMainGraph->setYAxisLabel(yLabel);
-        mpiMainGraph->setXAxisLabel(xLabel);
-        mpiMainGraph->setYAxisLabel(yLabel);
-
-        // set drawing arguments
-        asioMainGraph->setDrawingArguments("ALP*");
-        mpiMainGraph->setDrawingArguments("ALP*");
-
-        // set the line colors for the fist iteration
-        asioMainGraph->setLineColor(lineColors[0]);
-        mpiMainGraph->setLineColor(lineColors[0]);
-
-        // set title for the legend which belongs to this graph and all subplots
-        asioMainGraph->setLegendTitle(legendTitle);
-        mpiMainGraph->setLegendTitle(legendTitle);
-
-        // set the y-axis limits. This defaults to the limits of the y-values. But only for this graph.
-        // This means that any subplots would not be visible if their y-values are out of range
-        asioMainGraph->setYAxisLimits(0.0, yAxisUpperLimit);
-        mpiMainGraph->setYAxisLimits(0.0, yAxisUpperLimit);
-        // x-values are equal for each plot, so we can stick to the default range of the main graph
-
-        // set the legends for the first iteration (main graph)
-        if (clientsAtX) {
-            asioMainGraph->setLegendEntry(std::to_string(clientsAtXVec[0].sleepTime));
-            mpiMainGraph->setLegendEntry(std::to_string(clientsAtXVec[0].sleepTime));
-        } else {
-            asioMainGraph->setLegendEntry(std::to_string(sleepAtXVec[0].nClients));
-            mpiMainGraph->setLegendEntry(std::to_string(sleepAtXVec[0].nClients));
-        }
-
-        // notify that we want to print the legend for these graphs
-        asioMainGraph->setPlotLegend(true);
-        mpiMainGraph->setPlotLegend(true);
-
-        // add the data to the graphs
-        if (clientsAtX) {
-            (*asioMainGraph) & extractMean(clientsAtXVec[0].executionTimesAsio);
-            (*mpiMainGraph) & extractMean(clientsAtXVec[0].executionTimesMPI);
-        } else {
-            (*asioMainGraph) & extractMean(sleepAtXVec[0].executionTimesAsio);
-            (*mpiMainGraph) & extractMean(sleepAtXVec[0].executionTimesMPI);
-        }
-
-        // add all following graphs as subplots
-        for (int i{1}; i < sleepAtXVec.size(); ++i) { // start from second element
-            auto asioSubGraph = std::make_shared<Gem::Common::GGraph2D>();
-            auto mpiSubGraph = std::make_shared<Gem::Common::GGraph2D>();
-
-            // add the data to the sub-graphs
-            if (clientsAtX) {
-                (*asioSubGraph) & extractMean(clientsAtXVec[i].executionTimesAsio);
-                (*mpiSubGraph) & extractMean(clientsAtXVec[i].executionTimesMPI);
-            } else {
-                (*asioSubGraph) & extractMean(sleepAtXVec[i].executionTimesAsio);
-                (*mpiSubGraph) & extractMean(sleepAtXVec[i].executionTimesMPI);
-            }
-
-            // set drawing options
-            asioSubGraph->setDrawingArguments("L*");
-            mpiSubGraph->setDrawingArguments("L*");
-
-            // set line colors
-            asioSubGraph->setLineColor(lineColors[i % lineColors.size()]); // modulo to prevent out of bounds error
-            mpiSubGraph->setLineColor(lineColors[i % lineColors.size()]);
-
-            // set the legends for the secondary graphs
-            if (clientsAtX) {
-                asioSubGraph->setLegendEntry(std::to_string(clientsAtXVec[i].sleepTime));
-                mpiSubGraph->setLegendEntry(std::to_string(clientsAtXVec[i].sleepTime));
-            } else {
-                asioSubGraph->setLegendEntry(std::to_string(sleepAtXVec[i].nClients));
-                mpiSubGraph->setLegendEntry(std::to_string(sleepAtXVec[i].nClients));
-            }
-
-            // notify that we want to plot the legend for these graphs
-            asioSubGraph->setPlotLegend(true);
-            mpiSubGraph->setPlotLegend(true);
-
-            // add the sub-graphs to the main-graph
-            asioMainGraph->registerSecondaryPlotter(asioSubGraph);
-            mpiMainGraph->registerSecondaryPlotter(mpiSubGraph);
-        }
-
-        gpd.registerPlotter(asioMainGraph);
-        gpd.registerPlotter(mpiMainGraph);
+        createSinglePlot(clientsAtX, xLabel, yLabel, yAxisUpperLimit, legendTitle, config, sleepAtXVec,
+                         clientsAtXVec, gpd);
 
     } else {
-        // create a separate plot fore each curve
-        for (std::uint32_t i{0}; i < numberOfEntries; ++i) {
-            // create two graphs
-            auto asioGraph = std::make_shared<Gem::Common::GGraph2ED>();
-            auto mpiGraph = std::make_shared<Gem::Common::GGraph2ED>();
-
-            // set labels
-            if (clientsAtX) {
-                asioGraph->setPlotLabel("Asio sleep time = " + std::to_string(clientsAtXVec[i].sleepTime));
-                mpiGraph->setPlotLabel("MPI sleep time = " + std::to_string(clientsAtXVec[i].sleepTime));
-            } else {
-                asioGraph->setPlotLabel("Asio clients = " + std::to_string(sleepAtXVec[i].nClients));
-                mpiGraph->setPlotLabel("MPI clients = " + std::to_string(sleepAtXVec[i].nClients));
-            }
-
-
-            asioGraph->setXAxisLabel(xLabel);
-            asioGraph->setYAxisLabel(yLabel);
-            mpiGraph->setXAxisLabel(xLabel);
-            mpiGraph->setYAxisLabel(yLabel);
-
-            // to compare the graphs better all axis should be equally scaled
-            asioGraph->setYAxisLimits(0.0, yAxisUpperLimit);
-            mpiGraph->setYAxisLimits(0.0, yAxisUpperLimit);
-
-            // add the data to the graphs
-            if (clientsAtX) {
-                (*asioGraph) & clientsAtXVec[i].executionTimesAsio;
-                (*mpiGraph) & clientsAtXVec[i].executionTimesMPI;
-            } else {
-                (*asioGraph) & sleepAtXVec[i].executionTimesAsio;
-                (*mpiGraph) & sleepAtXVec[i].executionTimesMPI;
-            }
-
-
-            // register graphs with the plotter
-            gpd.registerPlotter(asioGraph);
-            gpd.registerPlotter(mpiGraph);
-        }
+        createMultiplePlots(clientsAtX, xLabel, yLabel, yAxisUpperLimit, config, clientsAtXVec, sleepAtXVec, gpd);
     }
+
     gpd.setCanvasDimensions(800, 1200);
 
     return gpd;
 }
 
-void
-plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec, const GNetworkedConsumerBenchmarkConfig &config) {
+
+void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec,
+                       const GNetworkedConsumerBenchmarkConfig &config) {
     // plot directly with no modification, because values are already absolute
 
-    configurePlotterSleepTimeToOptTime(exTimesVec,
-                                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
-                                       "duration of one fitness calculation [s]",
-                                       "time needed for one optimization [s]",
-                                       true,
-                                       false)
+    configurePlotter(exTimesVec,
+                     "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
+                     "duration of one fitness calculation [s]",
+                     "time needed for one optimization [s]",
+                     true,
+                     false,
+                     config)
             .writeToFile(std::filesystem::path("abs_singlePlot_sleepToOpt" + config.getResultFileName()));
 
-    configurePlotterSleepTimeToOptTime(exTimesVec,
-                                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
-                                       "duration of one fitness calculation [s]",
-                                       "time needed for one optimization [s]",
-                                       false,
-                                       false)
+    configurePlotter(exTimesVec,
+                     "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
+                     "duration of one fitness calculation [s]",
+                     "time needed for one optimization [s]",
+                     false,
+                     false,
+                     config)
             .writeToFile(std::filesystem::path("abs_multiplePlots_sleepToOpt" + config.getResultFileName()));
 
-    configurePlotterSleepTimeToOptTime(exTimesVec,
-                                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
-                                       "number of clients",
-                                       "time needed for one optimization [s]",
-                                       true,
-                                       true)
+    configurePlotter(exTimesVec,
+                     "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
+                     "number of clients",
+                     "time needed for one optimization [s]",
+                     true,
+                     true,
+                     config)
             .writeToFile(std::filesystem::path("abs_singlePlot_clientsToOpt" + config.getResultFileName()));
 
-    configurePlotterSleepTimeToOptTime(exTimesVec,
-                                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
-                                       "number of clients",
-                                       "time needed for one optimization [s]",
-                                       false,
-                                       true)
+    configurePlotter(exTimesVec,
+                     "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
+                     "number of clients",
+                     "time needed for one optimization [s]",
+                     false,
+                     true,
+                     config)
             .writeToFile(std::filesystem::path("abs_multiplePlots_clientsToOpt" + config.getResultFileName()));
 }
 
@@ -540,19 +568,29 @@ void combineGraphsToPlot(const GNetworkedConsumerBenchmarkConfig &config) {
         exTimesFiles.push_back(dir_entry);
     }
 
-    // sort by names, name prefix indicates number of clients -> sort by clients
+    // sort by names, name prefix indicates number of clients -> sort by clients and then by competitor configuration
     std::sort(exTimesFiles.begin(), exTimesFiles.end());
 
     std::vector<ExTimesSleepAtX> exTimesVec;
-    for (int i{0}; i < exTimesFiles.size(); i += 2) { // iterate in steps of two (get one asio and one mpi file)
-        // add execution times for one number of clients to the vector
+
+    // iterate over all result files
+    // iterate in steps of competitor size and access elements in between in inner loop
+    for (std::size_t i{0}; i < exTimesFiles.size(); i += config.getCompetitors().size()) {
+        // for each number of clients, create a vector with execution times of all competitors
+
+        // create element with empty execution times first
         exTimesVec.push_back(
                 ExTimesSleepAtX{
-                        config.getNClients()[i / 2], // the amount of clients used for this run of the subprogram
-                        loadExTimesFromFile(
-                                exTimesFiles[i].path().string()), // asio ex-times (asio is alphabetically before mpi
-                        loadExTimesFromFile(exTimesFiles[i + 1].path().string())
+                        config.getNClients()[i / config.getCompetitors().size()],
+                        std::vector<std::vector<std::tuple<double, double, double, double>>>{}
                 });
+
+        // fill exTimes with values of all competitors
+        for (std::size_t j{0}; j < config.getCompetitors().size(); ++j) {
+            exTimesVec.back().competitorExecutionTimes.push_back(
+                    loadExTimesFromFile(exTimesFiles[i + j].path().string()));
+
+        }
     }
 
     plotAbsoluteTimes(exTimesVec, config);
@@ -577,21 +615,15 @@ int main(int argc, char **argv) {
         resetOutputDirs();
 
         for (const std::uint32_t &nClients: config.getNClients()) {
-//            measureExecutionTimesAsio(config, nClients);
-//            renameIntermediateFiles(config, "asio", nClients);
-//
-//            measureExecutionTimesMPI(config, nClients);
-//            renameIntermediateFiles(config, "mpi", nClients);
-
             for (const auto &competitor: config.getCompetitors()) {
                 measureExecutionTimes(config, nClients, competitor);
-//                renameIntermediateFiles(config, competitor.shortName, nClients);
+                renameIntermediateFiles(config, competitor.shortName, nClients);
             }
         }
     }
 
     std::cout << "Generating the plots" << std::endl;
-//    combineGraphsToPlot(config);
+    combineGraphsToPlot(config);
 
     return 0;
 }

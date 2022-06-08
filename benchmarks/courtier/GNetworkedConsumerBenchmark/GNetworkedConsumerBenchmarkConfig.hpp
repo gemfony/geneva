@@ -317,7 +317,7 @@ namespace Gem::Tests {
         /**
          * The location of the executable called for benchmarking
          */
-        std::string m_benchmarkExecutable = "./GNetworkedConsumerBenchmark/GNetworkedConsumerBenchmarkSubProgram";
+        std::string m_benchmarkExecutable = "./GNetworkedConsumerBenchmarkSubProgram/GNetworkedConsumerBenchmarkSubProgram";
 
         /**
          * Flag that defines whether to only build the graphs without running the benchmark. This can be useful if

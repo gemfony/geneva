@@ -90,6 +90,7 @@ void measureExecutionTimes(
     // Loop until no valid individuals can be retrieved anymore
     std::uint32_t interMeasurementDelay = 1;
     std::uint32_t nMeasurementsPerIteration = 5;
+    std::uint32_t nBenchmarkIterations = 5;
     std::size_t iter = 0;
     std::shared_ptr<GDelayIndividual> gdi_ptr;
     while ((gdi_ptr = delayIndividualFactory.get_as<GDelayIndividual>())) {
@@ -98,11 +99,14 @@ void measureExecutionTimes(
             interMeasurementDelay = delayIndividualFactory.getInterMeasurementDelay();
             // Determine the number of measurements to be made for each delay
             nMeasurementsPerIteration = delayIndividualFactory.getNMeasurements();
+            // determine the number of iterations
+            nBenchmarkIterations = delayIndividualFactory.getNDelays();
         }
 
         std::vector<double> delaySummary;
         for (std::uint32_t i = 0; i < nMeasurementsPerIteration; i++) {
-            std::cout << "Measurement " << i << " in iteration " << iter << std::endl;
+            std::cout << "Measurement " << i + 1 << "/" << nMeasurementsPerIteration
+                      << " in iteration " << iter + 1 << "/" << nBenchmarkIterations << std::endl;
 
             // Make the individual known to the optimizer
             go.push_back(gdi_ptr);
@@ -177,7 +181,7 @@ int main(int argc, char **argv) {
 
     // Use evolutionary algorithm for this benchmark
     GEvolutionaryAlgorithmFactory ea("./config/GEvolutionaryAlgorithm.json");
-	std::shared_ptr<GEvolutionaryAlgorithm> eaPtr = ea.get<GEvolutionaryAlgorithm>();
+    std::shared_ptr<GEvolutionaryAlgorithm> eaPtr = ea.get<GEvolutionaryAlgorithm>();
 
     // In this benchmark we want to run exactly the number of maxIterations
     const std::uint32_t optAlgIterations = eaPtr->getMaxIteration();
