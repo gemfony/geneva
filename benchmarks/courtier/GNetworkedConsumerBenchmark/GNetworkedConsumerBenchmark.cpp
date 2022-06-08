@@ -236,6 +236,10 @@ std::string getCommandBanner(const std::string &command,
     return sout.str();
 }
 
+// TODO: make number of threads configurable through config file
+//  allow auto (=nClients) or a specific number
+// TODO: run the test on lxir with threads =1 and with threads =auto
+//  NOTE: probably we do not need an extra attribute but we can turn 'auto' on if threads have not been set explicitly
 void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                               std::uint32_t nClients,
                               const Competitor &competitor) {
