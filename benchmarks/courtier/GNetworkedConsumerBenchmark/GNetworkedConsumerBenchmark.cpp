@@ -107,48 +107,65 @@ struct ExTimesClientsAtX {
     std::vector<std::vector<std::tuple<double, double, double, double>>> competitorExecutionTimes;
 };
 
-std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const std::vector<ExTimesSleepAtX> &sleepAtXVec) {
+std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const ExTimesSleepAtX &sleepAtX) {
     // output vector
-    std::vector<ExTimesClientsAtX> clientsAtXVec{};
+    std::vector<ExTimesClientsAtX> result{};
 
-    // number of different values for sleepTime in the input vector
-    // sleep times are equal for all input elements, therefore just choose any element
-    // in this case the first element
+    // retrieve different values that occur in sleepTimes
     std::vector<double> sleepTimes{};
-    std::for_each(sleepAtXVec[0].competitorExecutionTimes[0].begin(), sleepAtXVec[0].competitorExecutionTimes[0].end(),
+    std::for_each(sleepAtX.competitorExecutionTimes[0].begin(), sleepAtX.competitorExecutionTimes[0].end(),
                   [&sleepTimes](const auto &tup) { sleepTimes.push_back(std::get<0>(tup)); });
 
-    // iterate over all sleep times
+    // for each sleep time we must create a new object of type ExTimesClientsAtX
     for (std::size_t i{0}; i < sleepTimes.size(); ++i) {
-        // for each sleep time add a new empty entry to the output vector
-        ExTimesClientsAtX toAdd{
-                sleepTimes[i],
-                std::vector<std::vector<std::tuple<double, double, double, double>>>{}
-        };
+        result.push_back(
+                ExTimesClientsAtX{
+                        sleepTimes[i],
+                        std::vector<std::vector<std::tuple<double, double, double, double>>>{} // empty element to fill later
+                });
 
-        // for number of clients: extract clients, error, mean, stdDev for each nClients for a fixed sleep time and add it to the vector
-        std::for_each(sleepAtXVec.begin(), sleepAtXVec.end(), [&toAdd, &i](const ExTimesSleepAtX &sax) {
+        // add execution times for this specific sleep time for each competitor
+        for (const auto &exTimesSpecificCompetitor: sleepAtX.competitorExecutionTimes) {
+            result.back().competitorExecutionTimes.push_back(
+                    std::vector<std::tuple<double, double, double, double>>{
+                            std::tuple<double, double, double, double>{
+                                    sleepAtX.nClients, // swap original sleep time with clients
+                                    std::get<1>(exTimesSpecificCompetitor[i]),
+                                    std::get<2>(exTimesSpecificCompetitor[i]),
+                                    std::get<3>(exTimesSpecificCompetitor[i])
+                            }
+                    });
+        }
 
-            // for one specific number of clients and all competitors: create a vector with the exTimes
-            std::vector<std::tuple<double, double, double, double>> allCompetitorsValues{};
-
-            std::for_each(sax.competitorExecutionTimes.begin(), sax.competitorExecutionTimes.end(),
-                          [&allCompetitorsValues, &sax, &i](const auto &tuples) {
-                              // add the values for one specific competitor
-                              allCompetitorsValues.emplace_back(
-                                      sax.nClients,
-                                      std::get<1>(tuples[i]),
-                                      std::get<2>(tuples[i]),
-                                      std::get<3>(tuples[i]));
-                          });
-
-            toAdd.competitorExecutionTimes.push_back(allCompetitorsValues);
-        });
-
-        clientsAtXVec.push_back(toAdd);
     }
 
-    return clientsAtXVec;
+    return result;
+}
+
+std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const std::vector<ExTimesSleepAtX> &sleepAtXVec) {
+    // create vector which only contains results for one number of clients
+    std::vector<ExTimesClientsAtX> result{sleepAtXToClientsAtX(sleepAtXVec[0])};
+
+    // add results from all other client numbers to the first one, starting from index 1
+    for (std::size_t i{1}; i < sleepAtXVec.size(); ++i) {
+        // create vector that should be added to the result
+        const auto toAdd{sleepAtXToClientsAtX(sleepAtXVec[i])};
+
+        // iterate over all execution times
+        for (std::size_t j{0}; j < result.size(); ++j) {
+
+            // iterate over all competitors
+            for (std::size_t k{0}; k < result[j].competitorExecutionTimes.size(); ++k) {
+                // add the new values to the result at the correct position
+                result.at(j).competitorExecutionTimes.at(k).push_back(
+                        toAdd.at(j).competitorExecutionTimes.at(k)[0]
+                        );
+            }
+        }
+
+    }
+
+    return result;
 }
 
 /**
