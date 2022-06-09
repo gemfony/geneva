@@ -530,8 +530,14 @@ Gem::Common::GPlotDesigner configurePlotter2D(
     return gpd;
 }
 
-Gem::Common::GPlotDesigner configurePlotter3D() {
-    Gem::Common::GPlotDesigner gpd("title", 1, 1);
+Gem::Common::GPlotDesigner configurePlotter3D(
+        const std::vector<ExTimesSleepAtX> &sleepAtXVec,
+        const std::string &title,
+        const std::string &xLabel,
+        const std::string &yLabel,
+        const std::string &zLabel,
+        const GNetworkedConsumerBenchmarkConfig &config) {
+    Gem::Common::GPlotDesigner gpd(title, 1, 1);
 
     const std::vector<std::tuple<double, double, double>> dummy{
             {0.0, 0.0, 1.0},
@@ -543,7 +549,14 @@ Gem::Common::GPlotDesigner configurePlotter3D() {
 
     auto graph = std::make_shared<Gem::Common::GGraph3D>();
 
+    // TODO: make the 3D graph set the axis labels via histogram, such that they will be shown
+    // TODO make the 3D graph capable of setting the axis limits
+
     graph->setDrawingArguments("surf1");
+    graph->setXAxisLabel(xLabel);
+    graph->setYAxisLabel(yLabel);
+    graph->setZAxisLabel(zLabel);
+    graph->setXAxisLimits(0.0, 10.0);
 
     (*graph) & dummy;
 
@@ -558,43 +571,56 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec,
                        const GNetworkedConsumerBenchmarkConfig &config) {
     // plot directly with no modification, because values are already absolute
 
+    const std::string title{
+            "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation"};
+    const std::string labelResult{"time needed for one optimization [s]"};
+    const std::string labelSleepTime{"duration of one fitness calculation [s]"};
+    const std::string labelClients{"number of clients"};
+
     configurePlotter2D(exTimesVec,
-                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
-                       "duration of one fitness calculation [s]",
-                       "time needed for one optimization [s]",
+                       title,
+                       labelSleepTime,
+                       labelResult,
                        true,
                        false,
                        config)
             .writeToFile(std::filesystem::path("abs_2D_singlePlot_sleepToOpt_" + config.getResultFileName()));
 
     configurePlotter2D(exTimesVec,
-                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
-                       "duration of one fitness calculation [s]",
-                       "time needed for one optimization [s]",
+                       title,
+                       labelSleepTime,
+                       labelResult,
                        false,
                        false,
                        config)
             .writeToFile(std::filesystem::path("abs_2D_multiplePlots_sleepToOpt_" + config.getResultFileName()));
 
     configurePlotter2D(exTimesVec,
-                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
-                       "number of clients",
-                       "time needed for one optimization [s]",
+                       title,
+                       labelClients,
+                       labelResult,
                        true,
                        true,
                        config)
             .writeToFile(std::filesystem::path("abs_2D_singlePlot_clientsToOpt_" + config.getResultFileName()));
 
     configurePlotter2D(exTimesVec,
-                       "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation",
-                       "number of clients",
-                       "time needed for one optimization [s]",
+                       title,
+                       labelClients,
+                       labelResult,
                        false,
                        true,
                        config)
             .writeToFile(std::filesystem::path("abs_2D_multiplePlots_clientsToOpt_" + config.getResultFileName()));
 
-    configurePlotter3D().writeToFile(std::filesystem::path("abs_3D_" + config.getResultFileName()));
+    configurePlotter3D(
+            exTimesVec,
+            title,
+            labelClients,
+            labelSleepTime,
+            labelResult,
+            config)
+            .writeToFile(std::filesystem::path("abs_3D_" + config.getResultFileName()));
 }
 
 void combineGraphsToPlot(const GNetworkedConsumerBenchmarkConfig &config) {
