@@ -1437,6 +1437,8 @@ public:
     void setXAxisLimits(const double &min, const double &max);
     /** @brief Allows to set the limits for the y-axis */
     void setYAxisLimits(const double &min, const double &max);
+    /** @brief Allows to set the limits for the z-axis */
+    void setZAxisLimits(const double &min, const double &max);
 
     /** @brief Allows to assign a marker to data structures */
     G_API_COMMON void setDataStructureMarker(std::string);
@@ -1526,8 +1528,10 @@ protected:
 
     std::pair<double, double> xAxisLimits_{0.0, 0.0}; // the limits for the axis
     std::pair<double, double> yAxisLimits_{0.0, 0.0};
+    std::pair<double, double> zAxisLimits_{0.0, 0.0};
     bool customXAxisSet_{false}; // indicates whether the default has been changed.
     bool customYAxisSet_{false};
+    bool customZAxisSet_{false};
 
     std::vector<line> lines_; ///< Lines to be drawn into the drawing area
 

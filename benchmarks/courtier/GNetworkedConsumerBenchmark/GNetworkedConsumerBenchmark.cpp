@@ -539,24 +539,23 @@ Gem::Common::GPlotDesigner configurePlotter3D(
         const GNetworkedConsumerBenchmarkConfig &config) {
     Gem::Common::GPlotDesigner gpd(title, 1, 1);
 
+    // TODO: turn real data into 3-dimensional form and use it instead of dummy
     const std::vector<std::tuple<double, double, double>> dummy{
             {0.0, 0.0, 1.0},
             {1.0, 0.5, 2.0},
             {0.5, 1.0, 3.0},
             {2.0, 1.0, 4.0},
-            {1.0, 2.0, 5.0}
+            {1.0, 5.0, 5.0}
     };
 
     auto graph = std::make_shared<Gem::Common::GGraph3D>();
-
-    // TODO: make the 3D graph set the axis labels via histogram, such that they will be shown
-    // TODO make the 3D graph capable of setting the axis limits
 
     graph->setDrawingArguments("surf1");
     graph->setXAxisLabel(xLabel);
     graph->setYAxisLabel(yLabel);
     graph->setZAxisLabel(zLabel);
-    graph->setXAxisLimits(0.0, 10.0);
+
+    graph->setZAxisLimits(0.0, 30.0);
 
     (*graph) & dummy;
 
@@ -573,7 +572,7 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec,
 
     const std::string title{
             "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation"};
-    const std::string labelResult{"time needed for one optimization [s]"};
+    const std::string labelResult{"duration of one optimization [s]"};
     const std::string labelSleepTime{"duration of one fitness calculation [s]"};
     const std::string labelClients{"number of clients"};
 

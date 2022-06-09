@@ -373,6 +373,14 @@ void GBasePlotter::setYAxisLimits(const double &min, const double &max) {
     customYAxisSet_ = true;
 }
 
+/**
+ * Allows to set the limits for the z-axis
+ */
+void GBasePlotter::setZAxisLimits(const double &min, const double &max) {
+    zAxisLimits_ = std::make_pair(min, max);
+    customZAxisSet_ = true;
+}
+
 /******************************************************************************/
 /**
  * Allows to assign a marker to data structures in the output file
@@ -1404,6 +1412,30 @@ std::string GGraph3D::footerData_(
 	} else {
 		footer_data << indent << graphName << "->SetTitle(\" \");" << std::endl;
 	}
+
+    // set the axis to the configured limits if the user has set them. If not we stay with the defaults
+    if (customXAxisSet_) {
+        // x-axis limits are set via the SetLimits method of the axis
+        footer_data
+                << indent << graphName << "->GetXaxis()->SetLimits("
+                << std::to_string(xAxisLimits_.first) << ", " << std::to_string(xAxisLimits_.second) << ");" << std::endl;
+    }
+
+    // set the axis to the configured limits if the user has set them. If not we stay with the defaults
+    if (customYAxisSet_) {
+        // x-axis limits are set via the SetLimits method of the axis
+        footer_data
+                << indent << graphName << "->GetYaxis()->SetLimits("
+                << std::to_string(yAxisLimits_.first) << ", " << std::to_string(yAxisLimits_.second) << ");" << std::endl;
+    }
+
+    if (customZAxisSet_) {
+        // y-axis limits are set via the minimum and maximum
+        footer_data
+                << indent << graphName << "->SetMinimum(" << std::to_string(zAxisLimits_.first) << ");" << std::endl
+                << indent << graphName << "->SetMaximum(" << std::to_string(zAxisLimits_.second) << ");" << std::endl;
+    }
+
 
 	footer_data
 		<< indent << graphName << "->Draw(\"" << dA << "\");" << std::endl
