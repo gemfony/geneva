@@ -73,6 +73,13 @@ namespace Gem::Tests {
          * arguments supplied to the benchmark executable
          */
         std::string arguments;
+
+        /**
+         * create an order depending on the shortName (which is also used as ID)
+         */
+        bool operator<(const Competitor &other) const {
+            return this->shortName < other.shortName;
+        }
     };
 
     std::ostream &operator<<(std::ostream &os, const Competitor c) {
@@ -119,6 +126,17 @@ namespace Gem::Tests {
 
             m_cLParser.parseCommandLine(argc, argv);
             m_fileParser.parseConfigFile(m_configFile);
+        }
+
+        /**
+         * sorts all collections that are stored in this class using the '<'-operator of the elements
+         */
+        GNetworkedConsumerBenchmarkConfig &sortAll() {
+            // sort array of clients
+            std::sort(m_nClients.begin(), m_nClients.end());
+
+            // sort competitors alphabetically
+            std::sort(m_competitors.begin(), m_competitors.end());
         }
 
 
