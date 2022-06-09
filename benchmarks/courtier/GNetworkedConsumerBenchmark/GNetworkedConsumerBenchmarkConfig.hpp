@@ -113,7 +113,7 @@ namespace Gem::Tests {
         std::getline(is, c.setThreadsParam, '='); // overwrite until equal sign
         std::string temp{};
         std::getline(is, temp, '\''); // read until tic
-        if (temp.find("auto") != std::string::npos) {
+        if (temp == "auto") {
             c.nThreads = {}; // set to an empty optional to indicate auto
         } else {
             c.nThreads = std::stoi(temp); // parse contained integer value if not set to auto
@@ -124,7 +124,7 @@ namespace Gem::Tests {
 
 /*********************************************************************************/
 /**
- * A class that parses configuration options for the GAsioMPIBenchmark test
+ * A class that parses configuration options for the GNetworkedConsumerBenchmarkConfig test
  */
     class GNetworkedConsumerBenchmarkConfig {
     public:
@@ -159,6 +159,8 @@ namespace Gem::Tests {
 
             // sort competitors alphabetically
             std::sort(m_competitors.begin(), m_competitors.end());
+
+            return *this;
         }
 
 

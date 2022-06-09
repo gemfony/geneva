@@ -41,8 +41,8 @@
   "resultFile": {
     "comment": "The name of a file to which results of the",
     "comment": "benchmark should be written",
-    "default": "GAsioMPIBenchmarkResult.C",
-    "value": "GAsioMPIBenchmarkResult.C"
+    "default": "GNetworkedConsumerBenchmark.C",
+    "value": "GNetworkedConsumerBenchmark.C"
   },
   "intermediateResultFile": {
     "comment": "The name of a file where the results of the runs of the subprocesses are written to. ",
