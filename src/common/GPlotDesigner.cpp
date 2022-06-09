@@ -1389,12 +1389,12 @@ std::string GGraph3D::footerData_(
 	// Fill the data in our tuple-vector into a ROOT TGraph object
 	footer_data
 		<< indent << "TGraph2D *" << graphName << " = new TGraph2D(" << m_data.size() << ", " << xArrayName << ", " << yArrayName <<  ", " << zArrayName << ");" << std::endl
-		<< indent << graphName << "->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
-		<< indent << graphName << "->GetXaxis()->SetTitleOffset(1.5);" << std::endl
-		<< indent << graphName << "->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
-		<< indent << graphName << "->GetYaxis()->SetTitleOffset(1.5);" << std::endl
-		<< indent << graphName << "->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
-		<< indent << graphName << "->GetZaxis()->SetTitleOffset(1.5);" << std::endl
+		<< indent << graphName << "->GetHistogram()->GetXaxis()->SetTitle(\"" << xAxisLabel() << "\");" << std::endl
+		<< indent << graphName << "->GetHistogram()->GetXaxis()->SetTitleOffset(2.0);" << std::endl
+		<< indent << graphName << "->GetHistogram()->GetYaxis()->SetTitle(\"" << yAxisLabel() << "\");" << std::endl
+		<< indent << graphName << "->GetHistogram()->GetYaxis()->SetTitleOffset(2.0);" << std::endl
+		<< indent << graphName << "->GetHistogram()->GetZaxis()->SetTitle(\"" << zAxisLabel() << "\");" << std::endl
+		<< indent << graphName << "->GetHistogram()->GetZaxis()->SetTitleOffset(1.0);" << std::endl
 		<< indent << graphName << "->SetMarkerStyle(20);" << std::endl
 		<< indent << graphName << "->SetMarkerSize(1);" << std::endl
 		<< indent << graphName << "->SetMarkerColor(2);" << std::endl;
