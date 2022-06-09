@@ -159,7 +159,7 @@ std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const std::vector<ExTimesSle
                 // add the new values to the result at the correct position
                 result.at(j).competitorExecutionTimes.at(k).push_back(
                         toAdd.at(j).competitorExecutionTimes.at(k)[0]
-                        );
+                );
             }
         }
 
@@ -236,10 +236,7 @@ std::string getCommandBanner(const std::string &command,
     return sout.str();
 }
 
-// TODO: make number of threads configurable through config file
-//  allow auto (=nClients) or a specific number
 // TODO: run the test on lxir with threads =1 and with threads =auto
-//  NOTE: probably we do not need an extra attribute but we can turn 'auto' on if threads have not been set explicitly
 void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                               std::uint32_t nClients,
                               const Competitor &competitor) {
@@ -250,10 +247,11 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                           + std::to_string(nClients + 1) // one server + nClients
                           + " "
                           + config.getMBenchmarkExecutableName()
-                          + " "
-                          + competitor.arguments
-                          // use as many io-threads as clients to be able to process all in parallel
-                          + " --mpi_master_nIOThreads " + std::to_string(nClients);
+                          + " " + competitor.arguments
+                          // if threads was set to auto, then set it dynamically. Otherwise, set it to the given fixed number
+                          + " " + competitor.setThreadsParam
+                          + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
+                                                                   : std::to_string(nClients));
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
@@ -272,7 +270,11 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
                                       const Competitor &competitor) {
     boost::process::ipstream pipeStream{};
 
-    std::string command = config.getMBenchmarkExecutableName() + " " + competitor.arguments;
+    std::string command = config.getMBenchmarkExecutableName()
+                          + " " + competitor.arguments
+                          + " " + competitor.setThreadsParam
+                          + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
+                                                                   : std::to_string(nClients));
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
@@ -620,10 +622,17 @@ void combineGraphsToPlot(const GNetworkedConsumerBenchmarkConfig &config) {
 }
 
 std::string getHeader(const GNetworkedConsumerBenchmarkConfig &config) {
+    const std::string indent{"     "};
+
     std::stringstream sout{};
     sout << "-----------------------------------------" << std::endl
-         << "starting " << config.getNClients().size() << " benchmark(s) for asio and mpi" << std::endl
-         << "consumer numbers to benchmark: [ " << Gem::Common::vecToString(config.getNClients()) << "]"
+         << "starting " << config.getNClients().size() << " benchmark(s) for the following configurations:" << std::endl;
+
+    std::for_each(config.getCompetitors().begin(), config.getCompetitors().end(), [&indent, &sout](const auto &competitor){
+        sout << indent << competitor << std::endl;
+    });
+
+    sout << "consumer numbers to benchmark: [ " << Gem::Common::vecToString(config.getNClients()) << "]"
          << std::endl
          << "-----------------------------------------" << std::endl;
 

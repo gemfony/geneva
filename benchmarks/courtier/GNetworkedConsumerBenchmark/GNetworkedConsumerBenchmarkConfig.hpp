@@ -73,6 +73,14 @@ namespace Gem::Tests {
          * arguments supplied to the benchmark executable
          */
         std::string arguments;
+        /**
+         * The CL parameter to set the number of threads for this competitor
+         */
+        std::string setThreadsParam;
+        /**
+         * The number of threads to use by the competitor. An empty value means set dynamically to the number of clients
+         */
+         std::optional<uint32_t> nThreads;
 
         /**
          * create an order depending on the shortName (which is also used as ID)
@@ -83,7 +91,11 @@ namespace Gem::Tests {
     };
 
     std::ostream &operator<<(std::ostream &os, const Competitor c) {
-        os << "'" << c.name << "'" << ", " << "'" << c.shortName << "'" << ", " << "'" << c.arguments << "'";
+        os << "'" << c.name << "', "
+        << "'" << c.shortName << "', "
+        << "'" << c.arguments << "', "
+        << "'" << c.setThreadsParam << "=" << (c.nThreads.has_value() ? std::to_string(c.nThreads.value()) : "auto") << "'";
+
         return os;
     }
 
@@ -96,6 +108,16 @@ namespace Gem::Tests {
 
         std::getline(is, c.arguments, '\''); // skip until first tic
         std::getline(is, c.arguments, '\''); // overwrite until second tic
+
+        std::getline(is, c.setThreadsParam, '\''); // skip until first tic
+        std::getline(is, c.setThreadsParam, '='); // overwrite until equal sign
+        std::string temp{};
+        std::getline(is, temp, '\''); // read until tic
+        if (temp.find("auto") != std::string::npos) {
+            c.nThreads = {}; // set to an empty optional to indicate auto
+        } else {
+            c.nThreads = std::stoi(temp); // parse contained integer value if not set to auto
+        }
 
         return is;
     }
@@ -299,9 +321,9 @@ namespace Gem::Tests {
          */
         std::vector<Competitor> m_competitors{
                 // attributes: name, arguments
-                {"Boost.Asio",  "asio",  "--consumer asio"},
-                {"Boost.Beast", "beast", "--consumer beast"},
-                {"MPI",         "mpi",   "--consumer mpi"}
+                {"Boost.Asio",  "asio",  "--consumer asio", "--asio_nProcessingThreads", {}},
+                {"Boost.Beast", "beast", "--consumer beast", "--beast_nListenerThreads", {}},
+                {"MPI",         "mpi",   "--consumer mpi", "--mpi_master_nIOThreads", {}}
         };
 
 

@@ -28,14 +28,14 @@
   "competitors": {
     "comment": "A list of configurations to run against each other in this benchmark",
     "default": {
-      "item": "'Boost.Asio', 'asio', '--consumer asio'",
-      "item": "'Boost.Beast', 'beast', '--consumer beast'",
-      "item": "'MPI', 'mpi', '--consumer mpi'"
+      "item": "'Boost.Asio', 'asio', '--consumer asio', '--asio_nProcessingThreads=auto'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast', '--beast_nListenerThreads=auto'",
+      "item": "'MPI', 'mpi', '--consumer mpi', '--mpi_master_nIOThreads=auto'"
     },
     "value": {
-      "item": "'Boost.Asio', 'asio', '--consumer asio'",
-      "item": "'Boost.Beast', 'beast', '--consumer beast'",
-      "item": "'MPI', 'mpi', '--consumer mpi'"
+      "item": "'Boost.Asio', 'asio', '--consumer asio', '--asio_nProcessingThreads=auto'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast', '--beast_nListenerThreads=auto'",
+      "item": "'MPI', 'mpi', '--consumer mpi', '--mpi_master_nIOThreads=auto'"
     }
   },
   "resultFile": {
