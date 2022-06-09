@@ -646,8 +646,9 @@ int main(int argc, char **argv) {
         }
     }
 
-    std::cout << "Generating the plots" << std::endl;
+    std::cout << "Generating the plots ..." << std::endl;
     combineGraphsToPlot(config);
+    std::cout << "Benchmark finished." << std::endl;
 
     return 0;
 }
