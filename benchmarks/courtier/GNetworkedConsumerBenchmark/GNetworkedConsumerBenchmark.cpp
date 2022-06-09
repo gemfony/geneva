@@ -630,6 +630,7 @@ std::string getHeader(const GNetworkedConsumerBenchmarkConfig &config) {
     return sout.str();
 }
 
+// TODO: sort configuration of competitors alphabetically to be in accordance with alphabetically sorted files
 int main(int argc, char **argv) {
     GNetworkedConsumerBenchmarkConfig config{argc, argv};
 
