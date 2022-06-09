@@ -38,8 +38,6 @@
  *
  ********************************************************************************/
 
-// TODO: improve code quality
-
 // Standard header files go here
 #include <iostream>
 #include <filesystem>
@@ -236,7 +234,6 @@ std::string getCommandBanner(const std::string &command,
     return sout.str();
 }
 
-// TODO: run the test on lxir with threads =1 and with threads =auto
 void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                               std::uint32_t nClients,
                               const Competitor &competitor) {
