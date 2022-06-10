@@ -439,7 +439,7 @@ void createMultiplePlots(const bool &clientsAtX,
             if (clientsAtX) {
                 graph->setPlotLabel(competitor.name + " sleep time = " + std::to_string(clientsAtXVec[i].sleepTime));
             } else {
-                graph->setPlotLabel(competitor.name + " sleep time = " + std::to_string(sleepAtXVec[i].nClients));
+                graph->setPlotLabel(competitor.name + " clients = " + std::to_string(sleepAtXVec[i].nClients));
             }
 
             graph->setXAxisLabel(xLabel);
