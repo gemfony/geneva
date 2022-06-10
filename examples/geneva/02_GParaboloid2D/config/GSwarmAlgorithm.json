@@ -1,27 +1,7 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "Thu Oct 12 12:29:21 2017"
-    },
-    "maxResubmissions": {
-        "comment": "The amount of resubmissions allowed if a full return of work",
-        "comment": "items was expected but only a subset has returned",
-        "default": "5",
-        "value": "5"
-    },
-    "waitFactor": {
-        "comment": "A static double factor for timeouts",
-        "comment": "A wait factor <= 0 means \"no timeout\".",
-        "comment": "It is suggested to use values >= 1.",
-        "default": "1.1000000000000001",
-        "value": "1.1000000000000001"
-    },
-    "initialWaitFactor": {
-        "comment": "A static double factor for timeouts in the first iteration.",
-        "comment": "Set this to the inverse of the number of parallel processing",
-        "comment": "units being used.",
-        "default": "1",
-        "value": "1"
+        "comment": "Fri May 13 17:12:48 2022"
     },
     "maxIteration": {
         "comment": "The maximum allowed number of iterations",
@@ -131,6 +111,21 @@
         "comment": "Triggers emission (1) or omission (0) of information about reasons for termination",
         "default": "true",
         "value": "true"
+    },
+    "defaultExecutor": {
+        "defaultExecMode": {
+            "comment": "The default executor type to be used for this algorithm.",
+            "comment": "0: serial",
+            "comment": "1: multi-threaded",
+            "comment": "2: brokered",
+            "default": "2",
+            "value": "2"
+        },
+        "defaultExecConfig": {
+            "comment": "The configuration file for the default executor. Note that it needs to fit the executor type.",
+            "default": ".\/config\/GBrokerExecutor.json",
+            "value": ".\/config\/GBrokerExecutor.json"
+        }
     },
     "swarmSize": {
         "nNeighborhoods": {

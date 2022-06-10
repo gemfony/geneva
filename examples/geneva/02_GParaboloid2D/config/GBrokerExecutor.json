@@ -1,0 +1,26 @@
+{
+    "header": {
+        "comment": "This configuration file was automatically created by GParserBuilder",
+        "comment": "Thu May 12 14:46:46 2022"
+    },
+    "maxResubmissions": {
+        "comment": "The amount of resubmissions allowed if a full return of work",
+        "comment": "items was expected but only a subset has returned",
+        "default": "5",
+        "value": "5"
+    },
+    "waitFactor": {
+        "comment": "A static double factor for timeouts",
+        "comment": "A wait factor <= 0 means \"no timeout\".",
+        "comment": "It is suggested to use values >= 1.",
+        "default": "1.1000000000000001",
+        "value": "1.1000000000000001"
+    },
+    "minPartialReturnPercentage": {
+        "comment": "Set to a value < 100 to allow execution to continue when",
+        "comment": "minPartialReturnPercentage percent of the expected work items",
+        "comment": "have returned. Set to 0 to disable this option.",
+        "default": "0",
+        "value": "0"
+    }
+}

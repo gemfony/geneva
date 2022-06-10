@@ -67,6 +67,13 @@ void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb)
             , [this](std::uint32_t maxTrial){ this->setMMaxTrial(maxTrial); }
     )
             << "The maximum allowed trial_ to abandon a food source";
+
+    gpb.registerFileParameter<abcParallelRule>(
+            "parallelRule" // The name of the variable
+            , DEFAULTPARALLELRULE // The default value
+            , [this](abcParallelRule pr) { this->setMParallelRule(pr); }
+    )
+            << "Specifies between parallel (0), sequential (1) or simplex (2) onlooker phase";
 }
 
 void GArtificialBeeColony::load_(const GObject *cp) {

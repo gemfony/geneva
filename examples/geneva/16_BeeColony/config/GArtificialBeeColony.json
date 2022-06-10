@@ -1,27 +1,7 @@
 {
     "header": {
         "comment": "This configuration file was automatically created by GParserBuilder",
-        "comment": "Thu Oct 12 12:29:21 2017"
-    },
-    "maxResubmissions": {
-        "comment": "The amount of resubmissions allowed if a full return of work",
-        "comment": "items was expected but only a subset has returned",
-        "default": "5",
-        "value": "5"
-    },
-    "waitFactor": {
-        "comment": "A static double factor for timeouts",
-        "comment": "A wait factor <= 0 means \"no timeout\".",
-        "comment": "It is suggested to use values >= 1.",
-        "default": "1.1000000000000001",
-        "value": "1.1000000000000001"
-    },
-    "initialWaitFactor": {
-        "comment": "A static double factor for timeouts in the first iteration.",
-        "comment": "Set this to the inverse of the number of parallel processing",
-        "comment": "units being used.",
-        "default": "1",
-        "value": "1"
+        "comment": "Thu Jun  2 22:03:54 2022"
     },
     "maxIteration": {
         "comment": "The maximum allowed number of iterations",
@@ -132,59 +112,29 @@
         "default": "true",
         "value": "true"
     },
-    "swarmSize": {
-        "nNeighborhoods": {
-            "comment": "The desired number of neighborhoods in the population",
-            "default": "5",
-            "value": "5"
+    "defaultExecutor": {
+        "defaultExecMode": {
+            "comment": "The default executor type to be used for this algorithm.",
+            "comment": "0: serial",
+            "comment": "1: multi-threaded",
+            "comment": "2: brokered",
+            "default": "2",
+            "value": "2"
         },
-        "nNeighborhoodMembers": {
-            "comment": "The desired number of members in each neighborhood",
-            "default": "10",
-            "value": "10"
+        "defaultExecConfig": {
+            "comment": "The configuration file for the default executor. Note that it needs to fit the executor type.",
+            "default": ".\/config\/GBrokerExecutor.json",
+            "value": ".\/config\/GBrokerExecutor.json"
         }
     },
-    "cPersonal": {
-        "comment": "A constant to be multiplied with the personal direction vector",
-        "default": "1.49",
-        "value": "1.49"
+    "maxTrial": {
+        "comment": "The maximum allowed trial_ to abandon a food source",
+        "default": "15",
+        "value": "15"
     },
-    "cNeighborhood": {
-        "comment": "A constant to be multiplied with the neighborhood direction vector",
-        "default": "1.49",
-        "value": "1.49"
-    },
-    "cGlobal": {
-        "comment": "A constant to be multiplied with the global direction vector",
+    "parallelRule": {
+        "comment": "Specifies between parallel (0), sequential (1) or simplex (2) onlooker phase",
         "default": "1",
-        "value": "1"
-    },
-    "cVelocity": {
-        "comment": "A constant to be multiplied with the old velocity vector",
-        "default": "0.71999999999999997",
-        "value": "0.71999999999999997"
-    },
-    "velocityRangePercentage": {
-        "comment": "Sets the velocity-range percentage",
-        "default": "0.14999999999999999",
-        "value": "0.14999999999999999"
-    },
-    "updateRule": {
-        "comment": "Specifies whether a linear (0) or classical (1)",
-        "comment": "update rule should be used",
-        "default": "1",
-        "value": "1"
-    },
-    "randomFillUp": {
-        "comment": "Specifies whether neighborhoods should be filled up",
-        "comment": "randomly (true) or start with equal values (false)",
-        "default": "true",
-        "value": "true"
-    },
-    "repulsionThreshold": {
-        "comment": "The number of stalls as of which the algorithm switches to repulsive mode",
-        "comment": "Set this to 0 in order to disable this feature",
-        "default": "0",
         "value": "0"
     }
 }
