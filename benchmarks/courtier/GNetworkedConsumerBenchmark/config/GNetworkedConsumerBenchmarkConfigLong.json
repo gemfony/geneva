@@ -45,7 +45,7 @@
       "item": "'Boost.Beast threads=auto', 'beast_t_auto', '--consumer beast', '--beast_nListenerThreads=auto'",
       "item": "'MPI threads=1, asyncReq=1', 'mpi_t_1_async_1', '--consumer mpi', '--mpi_master_nIOThreads=1'",
       "item": "'MPI threads=auto, asyncReq=1', 'mpi_t_auto_async_1', '--consumer mpi', '--mpi_master_nIOThreads=auto'",
-      "item": "'MPI threads=auto, asyncReq=0', 'mpi_t_auto_async_0', '--consumer mpi --mpi_worker_asyncRequests 0', '--mpi_master_nIOThreads=auto'"
+      "item": "'MPI threads=auto, asyncReq=0', 'mpi_t_auto_async_0', '--consumer mpi --mpi_worker_asyncRequests=0', '--mpi_master_nIOThreads=auto'"
     }
   },
   "resultFile": {
