@@ -587,7 +587,7 @@ Gem::Common::GPlotDesigner configurePlotter2D(
                            config.getCompetitors().size() * config.getNClients().size());
 
     // initialize empty plotter
-    Gem::Common::GPlotDesigner gpd(title, 2, nRows);
+    Gem::Common::GPlotDesigner gpd(title, 1, nRows);
 
     // add graphs to plotter
     if (singlePlot) {
@@ -610,33 +610,40 @@ Gem::Common::GPlotDesigner configurePlotter3D(
         const std::string &yLabel,
         const std::string &zLabel,
         const GNetworkedConsumerBenchmarkConfig &config) {
-    Gem::Common::GPlotDesigner gpd(title, 1, 1);
 
-    // TODO: turn real data into 3-dimensional form and use it instead of dummy
-    const std::vector<std::tuple<double, double, double>> dummy{
-            {2.0, 1.0, 4.0},
-            {1.0, 0.5, 2.0},
-            {0.0, 0.0, 1.0},
-            {0.5, 1.0, 3.0},
-            {1.0, 5.0, 5.0}
-    };
+    const std::size_t nRows{config.getCompetitors().size()};
 
+    Gem::Common::GPlotDesigner gpd(title, 1, nRows);
+
+    // convert data to 3D representation
     const auto measurements3D{ExTimes3D::fromSleepTimesAtXVec(sleepAtXVec)};
 
-    auto graph = std::make_shared<Gem::Common::GGraph3D>();
+    const double yMax = getYMax(sleepAtXVec);
 
-    graph->setDrawingArguments("surf1");
-    graph->setXAxisLabel(xLabel);
-    graph->setYAxisLabel(yLabel);
-    graph->setZAxisLabel(zLabel);
+    // create one graph for each competitor
+    for (std::size_t i{0}; i < measurements3D.competitorExTimes.size(); ++i) {
+        // create empty default constructed graph
+        auto graph = std::make_shared<Gem::Common::GGraph3D>();
 
-    graph->setZAxisLimits(0.0, 25.0);
+        // set the style of the graph
+        graph->setDrawingArguments("surf1");
 
-    (*graph) & measurements3D.competitorExTimes[0];
+        // set the labels
+        graph->setPlotLabel(config.getCompetitors()[i].name);
+        graph->setXAxisLabel(xLabel);
+        graph->setYAxisLabel(yLabel);
+        graph->setZAxisLabel(zLabel);
 
-    gpd.registerPlotter(graph);
+        // set Z-axis limit to the same value of all graphs which is slightly above the overall maximum value that occurs
+        graph->setZAxisLimits(0.0, yMax + (yMax / 50));
 
-    gpd.setCanvasDimensions(1920, 1163);
+        (*graph) & measurements3D.competitorExTimes[i];
+
+        gpd.registerPlotter(graph);
+
+    }
+
+    gpd.setCanvasDimensions(1920, 1163 * nRows);
 
     return gpd;
 }
