@@ -83,15 +83,35 @@ const std::vector<std::string> lineColors{
 
 Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
 
-/**
- * stores the execution times for all competitors for one specific number of clients
- */
-struct ExTimesSleepAtX {
-    std::uint32_t nClients;
-    /*
-     * <sleep_time, error, mean, stddev> for each competitor
+// forward declare struct
+struct ExTimesSleepAtX;
+
+struct ExTimes3D {
+    /**
+     * <sleep_time, clients, mean> for each competitor
      */
-    std::vector<std::vector<std::tuple<double, double, double, double>>> competitorExecutionTimes;
+    std::vector<std::vector<std::tuple<double, double, double>>> competitorExTimes;
+
+    /**
+     * allows adding the measurements of another instance of this class to this instance.
+     * This method assumes that the argument has the same number of competitors as this object
+     */
+    ExTimes3D &operator+=(const ExTimes3D &rhs) {
+        // iterate over all competitors
+        for (std::size_t i{0}; i < this->competitorExTimes.size(); ++i) {
+            // insert all measurements of rhs for competitor i into the measurements for competitor i of this object
+            this->competitorExTimes[i].insert(this->competitorExTimes[i].end(),
+                                              rhs.competitorExTimes[i].begin(),
+                                              rhs.competitorExTimes[i].end());
+        }
+
+        return *this;
+    }
+
+    /**
+     * creates a ExTimes3D from a vector of ExTimesSleepAtX
+     */
+    static ExTimes3D fromSleepTimesAtXVec(const std::vector<struct ExTimesSleepAtX> &sleepAtXVec);
 };
 
 /**
@@ -102,61 +122,114 @@ struct ExTimesClientsAtX {
     /*
      * <clients, error, mean, stddev> for each competitor
      */
-    std::vector<std::vector<std::tuple<double, double, double, double>>> competitorExecutionTimes;
+    std::vector<std::vector<std::tuple<double, double, double, double>>> competitorExTimes;
 };
 
-std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const ExTimesSleepAtX &sleepAtX) {
-    // output vector
-    std::vector<ExTimesClientsAtX> result{};
+/**
+ * stores the execution times for all competitors for one specific number of clients
+ */
+struct ExTimesSleepAtX {
+    std::uint32_t nClients;
+    /*
+     * <sleep_time, error, mean, stddev> for each competitor
+     */
+    std::vector<std::vector<std::tuple<double, double, double, double>>> competitorExTimes;
 
-    // retrieve different values that occur in sleepTimes
-    std::vector<double> sleepTimes{};
-    std::for_each(sleepAtX.competitorExecutionTimes[0].begin(), sleepAtX.competitorExecutionTimes[0].end(),
-                  [&sleepTimes](const auto &tup) { sleepTimes.push_back(std::get<0>(tup)); });
+    /**
+     * Converts one ExTimesSleepAtX to a vector of ExTimesClientsAtX.
+     */
+    [[nodiscard]] std::vector<ExTimesClientsAtX> toClientsAtX() const {
+        // output vector
+        std::vector<ExTimesClientsAtX> result{};
 
-    // for each sleep time we must create a new object of type ExTimesClientsAtX
-    for (std::size_t i{0}; i < sleepTimes.size(); ++i) {
-        result.push_back(
-                ExTimesClientsAtX{
-                        sleepTimes[i],
-                        std::vector<std::vector<std::tuple<double, double, double, double>>>{} // empty element to fill later
-                });
+        // retrieve different values that occur in sleepTimes
+        std::vector<double> sleepTimes{};
+        std::for_each(this->competitorExTimes[0].begin(), this->competitorExTimes[0].end(),
+                      [&sleepTimes](const auto &tup) { sleepTimes.push_back(std::get<0>(tup)); });
 
-        // add execution times for this specific sleep time for each competitor
-        for (const auto &exTimesSpecificCompetitor: sleepAtX.competitorExecutionTimes) {
-            result.back().competitorExecutionTimes.push_back(
-                    std::vector<std::tuple<double, double, double, double>>{
-                            std::tuple<double, double, double, double>{
-                                    sleepAtX.nClients, // swap original sleep time with clients
-                                    std::get<1>(exTimesSpecificCompetitor[i]),
-                                    std::get<2>(exTimesSpecificCompetitor[i]),
-                                    std::get<3>(exTimesSpecificCompetitor[i])
-                            }
+        // for each sleep time we must create a new object of type ExTimesClientsAtX
+        for (std::size_t i{0}; i < sleepTimes.size(); ++i) {
+            result.push_back(
+                    ExTimesClientsAtX{
+                            sleepTimes[i],
+                            std::vector<std::vector<std::tuple<double, double, double, double>>>{} // empty element to fill later
                     });
+
+            // add execution times for this specific sleep time for each competitor
+            for (const auto &exTimesSpecificCompetitor: this->competitorExTimes) {
+                result.back().competitorExTimes.push_back(
+                        std::vector<std::tuple<double, double, double, double>>{
+                                std::tuple<double, double, double, double>{
+                                        this->nClients, // swap original sleep time with clients
+                                        std::get<1>(exTimesSpecificCompetitor[i]),
+                                        std::get<2>(exTimesSpecificCompetitor[i]),
+                                        std::get<3>(exTimesSpecificCompetitor[i])
+                                }
+                        });
+            }
+
         }
 
+        return result;
+    }
+
+    [[nodiscard]] ExTimes3D to3D() const {
+        // create empty result
+        ExTimes3D result{};
+
+        // iterate over all competitors
+        for (std::size_t i{0}; i < this->competitorExTimes.size(); ++i) {
+            // create an empty default constructed entry for this competitor in the result
+            result.competitorExTimes.emplace_back();
+
+            // iterate over all measurements for competitor with index i
+            for (std::size_t j{0}; j < this->competitorExTimes[i].size(); ++j) {
+                // transform the measurement and insert into the result
+                const auto tup{this->competitorExTimes[i][j]};
+                result.competitorExTimes.back().emplace_back(
+                        std::get<0>(tup), // sleep time
+                        this->nClients,
+                        std::get<2>(tup) // mean
+                );
+            }
+        }
+
+        return result;
+    }
+};
+
+ExTimes3D ExTimes3D::fromSleepTimesAtXVec(const std::vector<struct ExTimesSleepAtX> &sleepAtXVec) {
+    // result initially holds only the 3D representation of the first element of the argument
+    ExTimes3D result{sleepAtXVec[0].to3D()};
+
+    // iterate over all remaining arguments and add their 3D representation to the result
+    for (std::size_t i{1}; i < sleepAtXVec.size(); ++i) { // start at second element
+        result += sleepAtXVec[i].to3D();
     }
 
     return result;
 }
 
+/**
+ * Converts a vector of ExTimesSleepAtX to a vector of ExTimesClientsAtX.
+ */
 std::vector<ExTimesClientsAtX> sleepAtXToClientsAtX(const std::vector<ExTimesSleepAtX> &sleepAtXVec) {
     // create vector which only contains results for one number of clients
-    std::vector<ExTimesClientsAtX> result{sleepAtXToClientsAtX(sleepAtXVec[0])};
+    std::vector<ExTimesClientsAtX> result{sleepAtXVec[0].toClientsAtX()};
 
     // add results from all other client numbers to the first one, starting from index 1
     for (std::size_t i{1}; i < sleepAtXVec.size(); ++i) {
         // create vector that should be added to the result
-        const auto toAdd{sleepAtXToClientsAtX(sleepAtXVec[i])};
+        const auto toAdd{sleepAtXVec[i].toClientsAtX()};
 
         // iterate over all execution times
         for (std::size_t j{0}; j < result.size(); ++j) {
 
             // iterate over all competitors
-            for (std::size_t k{0}; k < result[j].competitorExecutionTimes.size(); ++k) {
+            for (std::size_t k{0}; k < result[j].competitorExTimes.size(); ++k) {
                 // add the new values to the result at the correct position
-                result.at(j).competitorExecutionTimes.at(k).push_back(
-                        toAdd.at(j).competitorExecutionTimes.at(k)[0]
+                result.at(j).competitorExTimes.at(k).push_back(
+                        toAdd.at(j).competitorExTimes.at(k)[0]
                 );
             }
         }
@@ -174,7 +247,7 @@ double getYMax(const std::vector<ExTimesSleepAtX> &exTimesVec) {
 
     // iterate over all execution times for all competitors to extract maximum y-value
     for (const auto &exTimes: exTimesVec) {
-        for (const auto &competitorExTimes: exTimes.competitorExecutionTimes) {
+        for (const auto &competitorExTimes: exTimes.competitorExTimes) {
             for (const auto &tup: competitorExTimes) {
                 if (std::get<2>(tup) > maxY) {
                     maxY = std::get<2>(tup);
@@ -377,9 +450,9 @@ void createMultiplePlots(const bool &clientsAtX,
 
             // add the data to the graphs
             if (clientsAtX) {
-                (*graph) & clientsAtXVec[i].competitorExecutionTimes[j];
+                (*graph) & clientsAtXVec[i].competitorExTimes[j];
             } else {
-                (*graph) & sleepAtXVec[i].competitorExecutionTimes[j];
+                (*graph) & sleepAtXVec[i].competitorExTimes[j];
             }
 
             // register graph with the plotter
@@ -443,9 +516,9 @@ void createSinglePlot(const bool &clientsAtX,
 
         // add the data to the graph
         if (clientsAtX) {
-            (*mainGraph) & extractMean(clientsAtXVec[0].competitorExecutionTimes[i]);
+            (*mainGraph) & extractMean(clientsAtXVec[0].competitorExTimes[i]);
         } else {
-            (*mainGraph) & extractMean(sleepAtXVec[0].competitorExecutionTimes[i]);
+            (*mainGraph) & extractMean(sleepAtXVec[0].competitorExTimes[i]);
         }
 
         // add all following graphs as subplots
@@ -454,9 +527,9 @@ void createSinglePlot(const bool &clientsAtX,
 
             // add the data to the sub-graphs
             if (clientsAtX) {
-                (*subGraph) & extractMean(clientsAtXVec[j].competitorExecutionTimes[j]);
+                (*subGraph) & extractMean(clientsAtXVec[j].competitorExTimes[j]);
             } else {
-                (*subGraph) & extractMean(sleepAtXVec[j].competitorExecutionTimes[j]);
+                (*subGraph) & extractMean(sleepAtXVec[j].competitorExTimes[j]);
             }
 
             // set drawing options
@@ -541,12 +614,14 @@ Gem::Common::GPlotDesigner configurePlotter3D(
 
     // TODO: turn real data into 3-dimensional form and use it instead of dummy
     const std::vector<std::tuple<double, double, double>> dummy{
-            {0.0, 0.0, 1.0},
-            {1.0, 0.5, 2.0},
-            {0.5, 1.0, 3.0},
             {2.0, 1.0, 4.0},
+            {1.0, 0.5, 2.0},
+            {0.0, 0.0, 1.0},
+            {0.5, 1.0, 3.0},
             {1.0, 5.0, 5.0}
     };
+
+    const auto measurements3D{ExTimes3D::fromSleepTimesAtXVec(sleepAtXVec)};
 
     auto graph = std::make_shared<Gem::Common::GGraph3D>();
 
@@ -555,9 +630,9 @@ Gem::Common::GPlotDesigner configurePlotter3D(
     graph->setYAxisLabel(yLabel);
     graph->setZAxisLabel(zLabel);
 
-    graph->setZAxisLimits(0.0, 30.0);
+    graph->setZAxisLimits(0.0, 25.0);
 
-    (*graph) & dummy;
+    (*graph) & measurements3D.competitorExTimes[0];
 
     gpd.registerPlotter(graph);
 
@@ -615,14 +690,14 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec,
     configurePlotter3D(
             exTimesVec,
             title,
-            labelClients,
             labelSleepTime,
+            labelClients,
             labelResult,
             config)
             .writeToFile(std::filesystem::path("abs_3D_" + config.getResultFileName()));
 }
 
-void combineGraphsToPlot(const GNetworkedConsumerBenchmarkConfig &config) {
+void createPlotFromResults(const GNetworkedConsumerBenchmarkConfig &config) {
     namespace fs = std::filesystem;
 
     fs::path executionTimesDir = fs::current_path() / executionTimesDirName;
@@ -657,7 +732,7 @@ void combineGraphsToPlot(const GNetworkedConsumerBenchmarkConfig &config) {
 
         // fill exTimes with values of all competitors
         for (std::size_t j{0}; j < config.getCompetitors().size(); ++j) {
-            exTimesVec.back().competitorExecutionTimes.push_back(
+            exTimesVec.back().competitorExTimes.push_back(
                     loadExTimesFromFile(exTimesFiles[i + j].path().string()));
 
         }
@@ -705,7 +780,7 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "Generating the plots ..." << std::endl;
-    combineGraphsToPlot(config);
+    createPlotFromResults(config);
     std::cout << "Benchmark finished." << std::endl;
 
     return 0;
