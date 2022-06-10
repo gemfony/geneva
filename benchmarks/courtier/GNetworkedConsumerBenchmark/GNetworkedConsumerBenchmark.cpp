@@ -352,7 +352,7 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
     boost::process::child server(command, boost::process::std_out > pipeStream);
 
     // wait for server to be online before starting clients
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
     // start nClients clients and store handles in a vector
     std::vector<boost::process::child> clients{};
