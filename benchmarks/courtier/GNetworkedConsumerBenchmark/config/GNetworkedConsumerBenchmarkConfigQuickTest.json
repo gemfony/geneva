@@ -28,8 +28,8 @@
       "item": "'MPI', 'mpi', '--consumer mpi', '--mpi_master_nIOThreads=auto'"
     },
     "value": {
-      "item": "'Boost.Asio', 'asio', '--consumer asio', '--asio_nProcessingThreads=auto'",
-      "item": "'Boost.Beast', 'beast', '--consumer beast', '--beast_nListenerThreads=auto'",
+      "item": "'Boost.Asio', 'asio', '--consumer asio --asio_port 10000', '--asio_nProcessingThreads=auto'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast --beast_port 10001', '--beast_nListenerThreads=auto'",
       "item": "'MPI', 'mpi', '--consumer mpi', '--mpi_master_nIOThreads=auto'"
     }
   },
