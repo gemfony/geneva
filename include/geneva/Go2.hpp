@@ -193,8 +193,17 @@ public:
 	 /** @brief Retrieves the algorithms that were registered with this class */
 	 G_API_GENEVA std::vector<std::shared_ptr<GOABase>> getRegisteredAlgorithms();
 
+    /** @brief Retrieves the name of the used consumer */
+    G_API_GENEVA std::string getConsumerName();
+
 protected:
 	 /***************************************************************************/
+     /** @brief Triggers execution of the client loop */
+     G_API_GENEVA virtual int clientRun_();
+
+     /** @brief Adds local configuration options to a GParserBuilder object */
+     G_API_GENEVA virtual void addConfigurationOptions_(Gem::Common::GParserBuilder &);
+
 	 /** @brief Retrieves the best individual found */
 	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestGlobalIndividual_() const final;
 	 /** @brief Retrieves a list of the best individuals found */
@@ -203,6 +212,7 @@ protected:
 	 G_API_GENEVA std::shared_ptr<GParameterSet> getBestIterationIndividual_() const final;
 	 /** @brief Retrieves a list of the best individuals found */
 	 G_API_GENEVA std::vector<std::shared_ptr<GParameterSet>> getBestIterationIndividuals_() const final;
+
 
 private:
 	 /***************************************************************************/

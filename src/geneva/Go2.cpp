@@ -224,48 +224,52 @@ std::chrono::duration<double> Go2::getMaxClientTime() const {
  * the program after calling this function.
  */
 int Go2::clientRun() {
-	// Check that we have indeed been given a valid name
-	if (
-		GO2_DEF_NOCONSUMER == m_consumer_name
-		|| not GConsumerStore->exists(m_consumer_name)
-		) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In Go2::clientRun(): Error!" << std::endl
-				<< "Received invalid consumer name: " << m_consumer_name << std::endl
-		);
-	}
+    return this->clientRun_();
+}
 
-	// Retrieve the client worker from the consumer
-	std::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet>> p;
+int Go2::clientRun_() {
+    // Check that we have indeed been given a valid name
+    if (
+            GO2_DEF_NOCONSUMER == m_consumer_name
+            || not GConsumerStore->exists(m_consumer_name)
+            ) {
+        throw gemfony_exception(
+                g_error_streamer(DO_LOG,  time_and_place)
+                        << "In Go2::clientRun(): Error!" << std::endl
+                        << "Received invalid consumer name: " << m_consumer_name << std::endl
+        );
+    }
 
-	if (GConsumerStore->get(m_consumer_name)->needsClient()) {
-		p = GConsumerStore->get(m_consumer_name)->getClient();
-	} else {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In Go2::clientRun(): Error!" << std::endl
-				<< "Trying to execute clientRun() on consumer " << m_consumer_name << std::endl
-				<< "which does not require a client" << std::endl
-		);
-	}
+    // Retrieve the client worker from the consumer
+    std::shared_ptr<Gem::Courtier::GBaseClientT<Gem::Geneva::GParameterSet>> p;
 
-	// Check for errors
-	if (not p) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In Go2::clientRun(): Error!" << std::endl
-				<< "Received empty client from consumer " << m_consumer_name << std::endl
-		);
-	}
+    if (GConsumerStore->get(m_consumer_name)->needsClient()) {
+        p = GConsumerStore->get(m_consumer_name)->getClient();
+    } else {
+        throw gemfony_exception(
+                g_error_streamer(DO_LOG,  time_and_place)
+                        << "In Go2::clientRun(): Error!" << std::endl
+                        << "Trying to execute clientRun() on consumer " << m_consumer_name << std::endl
+                        << "which does not require a client" << std::endl
+        );
+    }
 
-	// Set the maximum runtime of the client
-	p->setMaxTime(this->m_max_client_duration);
+    // Check for errors
+    if (not p) {
+        throw gemfony_exception(
+                g_error_streamer(DO_LOG,  time_and_place)
+                        << "In Go2::clientRun(): Error!" << std::endl
+                        << "Received empty client from consumer " << m_consumer_name << std::endl
+        );
+    }
 
-	// Start the actual processing loop. This call will not return until run() is finished.
-	p->run();
+    // Set the maximum runtime of the client
+    p->setMaxTime(this->m_max_client_duration);
 
-	return 0;
+    // Start the actual processing loop. This call will not return until run() is finished.
+    p->run();
+
+    return 0;
 }
 
 /******************************************************************************/
@@ -343,6 +347,15 @@ void Go2::addAlgorithm(std::shared_ptr<GOABase> alg) {
  */
 std::vector<std::shared_ptr<GOABase>> Go2::getRegisteredAlgorithms() {
 	return m_algorithms_cnt;
+}
+
+/**
+ * Returns the name of the consumer currently in use.
+ * The consumer is set using the command line argument `--consumer`.
+ * @return The used consumer's name
+ */
+std::string Go2::getConsumerName() {
+    return m_consumer_name;
 }
 
 /******************************************************************************/
@@ -662,23 +675,35 @@ void Go2::runFitnessCalculation_() { /* nothing */ }
 void Go2::addConfigurationOptions(
 	Gem::Common::GParserBuilder &gpb
 ) {
-	using namespace Gem::Common;
+	this->addConfigurationOptions_(gpb);
+}
 
-	// Add local data only -- no options from parent classes
-	gpb.registerFileParameter<std::uint16_t>(
-		"nProducerThreads"
-		, GO2_DEF_NPRODUCERTHREADS
-		, [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
-	)
-		<< "The number of threads simultaneously producing random numbers";
+/******************************************************************************/
+/**
+ * Adds local configuration options to a GParserBuilder object
+ *
+ * @param gpb The GParserBuilder object to which configuration options should be added
+ */
+void Go2::addConfigurationOptions_(
+        Gem::Common::GParserBuilder &gpb
+) {
+    using namespace Gem::Common;
 
-	gpb.registerFileParameter<bool>(
-		"copyBestIndividualsOnly"
-		, GO2_DEF_COPYBESTINDIVIDUALSONLY
-		, [this](bool copyBestIndividualsOnly) { this->setCopyBestIndividualsOnly(copyBestIndividualsOnly); }
-	)
-		<< "Indicates whether only the best individuals should be copied when" << std::endl
-		<< "switching from one optimization algorithm to the next";
+    // Add local data only -- no options from parent classes
+    gpb.registerFileParameter<std::uint16_t>(
+            "nProducerThreads"
+            , GO2_DEF_NPRODUCERTHREADS
+            , [this](std::uint16_t npt) { this->setNProducerThreads(npt); }
+    )
+            << "The number of threads simultaneously producing random numbers";
+
+    gpb.registerFileParameter<bool>(
+            "copyBestIndividualsOnly"
+            , GO2_DEF_COPYBESTINDIVIDUALSONLY
+            , [this](bool copyBestIndividualsOnly) { this->setCopyBestIndividualsOnly(copyBestIndividualsOnly); }
+    )
+            << "Indicates whether only the best individuals should be copied when" << std::endl
+            << "switching from one optimization algorithm to the next";
 }
 
 /******************************************************************************/
