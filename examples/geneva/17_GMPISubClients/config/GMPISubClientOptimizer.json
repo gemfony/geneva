@@ -43,5 +43,10 @@
         "comment": "The number of threads simultaneously producing random numbers",
         "default": "0",
         "value": "0"
+    },
+    "subClientGroupSize": {
+        "comment": "The amount of processes in each sub-group. Each sub group works together on one individual.",
+        "default": "4",
+        "value": "4"
     }
 }
