@@ -125,7 +125,14 @@ namespace Gem::Geneva {
         /**
          * Callback function which is executed by sub-clients when clientRun() is called
          */
-        std::function<int(MPI_Comm)> m_subClientJob{};
+        std::function<int(MPI_Comm)> m_subClientJob{[](MPI_Comm comm) -> int {
+            throw gemfony_exception(
+                    g_error_streamer(DO_LOG, time_and_place)
+                            << "GMPISubClientOptimizer::m_subClientJob(MPI_Comm comm): Error!" << std::endl
+                            << "The sub-client job has not been set. Set it using the `GMPISubClientOptimizer &GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> &callback)` method."
+                            << std::endl
+            );
+        }};
 
         /**
         * The color argument when creating the Geneva communicator.
