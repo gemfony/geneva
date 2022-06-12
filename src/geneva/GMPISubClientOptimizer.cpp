@@ -89,8 +89,6 @@ namespace Gem::Geneva {
 
             // Create a communicator to be used by GMPIConsumerT
             MPI_Comm_split(baseCommunicator, m_MPI_GENEVA_COLOR, m_baseCommRank, &m_genevaComm);
-            // Notify the GMPIConsumerT to use this inter-communicator
-            Gem::Courtier::GMPIConsumerT<GParameterSet>::setMPICommunicator(m_genevaComm);
 
             if (m_baseCommRank == 0) { // process is the geneva server (master node)
                 // The geneva server has rank 0 and does not need to be in any sub-client communicator.
@@ -102,6 +100,11 @@ namespace Gem::Geneva {
             }
         }
 
+        // Notify the GMPIConsumerT to use this inter-communicator
+        Gem::Courtier::GMPIConsumerT<GParameterSet>::setMPICommunicator(m_genevaComm);
+
+        // Notify the individual to use this inter-communicator
+        GMPISubClientIndividual::setCommunicator(m_subClientComm);
     }
 
     void GMPISubClientOptimizer::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {

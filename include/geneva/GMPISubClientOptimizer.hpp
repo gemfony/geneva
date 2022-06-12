@@ -47,10 +47,18 @@
 
 // Geneva headers go here
 #include "geneva/Go2.hpp"
+#include "geneva-individuals/GMPISubClientIndividual.hpp"
 
 
 namespace Gem::Geneva {
 
+    /**
+     * This is a class which supports all functionality that is given by `Go2` and additionally adds
+     * the functionality of MPI-sub-clients. Each sub-client group can use their own MPI communicator in order
+     * to together solve a fitnessCalculation.
+     * This class only makes sense when the consumer is set to GMPIConsumerT and therefore is not allowed to use with other
+     * consumers.
+     */
     class GMPISubClientOptimizer : public Go2 {
     public:
         /**
