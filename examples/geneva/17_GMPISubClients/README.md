@@ -1,5 +1,7 @@
 # MPI Sub-Clients
 
+TODO: update this readme
+
 This example shows how to use the GMPIConsumerT with MPI sub-clients. The MPI-Consumer distributes the individuals via MPI to clients/workers.
 Additionally, in this example each of those clients talks to a number of clients while calling the calculateFitness function
 of the individual. So we have two layers of MPI.

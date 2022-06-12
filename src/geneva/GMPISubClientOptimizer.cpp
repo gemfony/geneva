@@ -120,7 +120,7 @@ namespace Gem::Geneva {
                 << "The amount of processes in each sub-group. Each sub group works together on one individual.";
     }
 
-    GMPISubClientOptimizer &GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> &callback) {
+    GMPISubClientOptimizer &GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> callback) {
         m_subClientJob = std::move(callback);
 
         // return reference to self for chaining calls

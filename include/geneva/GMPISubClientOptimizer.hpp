@@ -88,7 +88,7 @@ namespace Gem::Geneva {
          * @param callback The function called by sub-clients
          * @return
          */
-        G_API_GENEVA GMPISubClientOptimizer &registerSubClientJob(std::function<int(MPI_Comm)> &callback);
+        G_API_GENEVA GMPISubClientOptimizer &registerSubClientJob(std::function<int(MPI_Comm)> callback);
 
     protected:
         /**
