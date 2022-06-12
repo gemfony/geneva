@@ -39,6 +39,7 @@
  ********************************************************************************/
 
 #include "GMPISubClientParaboloidIndividual2D.hpp"
+#include "courtier/GMPIHelperFunctions.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividual2D)
 
@@ -114,17 +115,22 @@ namespace Gem::Geneva {
         MPI_Comm_size(communicator, &subGroupSize);
         MPI_Comm_rank(communicator, &subGroupRank);
 
-        std::cout << "Geneva client has sub-group rank=" << subGroupRank << std::endl;
-
-
         // allocate memory for receiving the results from sub-clients
         char *receiveBuffer = new char[subGroupSize];
+
+        // initialize request handles for async communication
+        MPI_Request scatterRequest{};
+        MPI_Request gatherRequest{};
 
         // NOTE: this process (root with rank=0) has two roles in MPI_Gather and scatter.
         // It has the root role and also has the role of a normal process.
         // Therefore, it will on scatter also receive one item and on gather send one item
 
-        MPI_Scatter(
+        // NOTE: here we could also use blocking calls.
+        // But the clients in the main program need non-blocking calls to implement a timeout
+        // Blocking calls do not match non-blocking calls
+
+        MPI_Iscatter(
                 m_echoMessage.data(), // send substrings of the test message
                 1, // send one char to each other process
                 MPI_CHAR,
@@ -132,9 +138,19 @@ namespace Gem::Geneva {
                 1, // send one character to every other process
                 MPI_CHAR,
                 0, // rank 0 (this process) is the root.
-                communicator);
+                communicator,
+                &scatterRequest);
 
-        MPI_Gather(
+        // wait for completion of async call
+        MPI_Status scatterStatus{};
+
+        MPI_Wait(&scatterRequest, &scatterStatus);
+        if (scatterStatus.MPI_ERROR != MPI_SUCCESS) {
+            std::cout << "Error happened: " << std::endl
+                      << mpiErrorString(scatterStatus.MPI_ERROR) << std::endl;
+        }
+
+        MPI_Igather(
                 receiveBuffer, // send one character as the root process
                 1, // send one character only
                 MPI_CHAR,
@@ -142,7 +158,16 @@ namespace Gem::Geneva {
                 1, // collect all sent characters
                 MPI_CHAR,
                 0, //rank 0 (this process) is the root.
-                communicator);
+                communicator,
+                &gatherRequest);
+
+        // wait for completion of async call
+        MPI_Status gatherStatus{};
+        MPI_Wait(&gatherRequest, &gatherStatus);
+        if (gatherStatus.MPI_ERROR != MPI_SUCCESS) {
+            std::cout << "Error happened: " << std::endl
+                      << mpiErrorString(gatherStatus.MPI_ERROR) << std::endl;
+        }
 
         // verify the message has been echoed successfully
         for (std::size_t i{0}; i < subGroupSize; ++i) {
@@ -150,11 +175,10 @@ namespace Gem::Geneva {
                 throw gemfony_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                                 << "GMPISubClientParaboloidIndividual2D::fitnessCalculation(): Error!" << std::endl
-                                << "the character `" << m_echoMessage[i] << "` has been sent and expected to be echoed" << std::endl
+                                << "the character `" << m_echoMessage[i] << "` has been sent and expected to be echoed"
+                                << std::endl
                                 << "but the character `" << receiveBuffer[i] << "` has been received." << std::endl
                 );
-            } else {
-                std::cout << "received correct character: " << receiveBuffer[i] << std::endl;
             }
         }
 
