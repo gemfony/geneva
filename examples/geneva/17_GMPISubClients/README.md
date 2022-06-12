@@ -1,19 +1,19 @@
 # MPI Sub-Clients
 
-TODO: update this readme
 
-This example shows how to use the GMPIConsumerT with MPI sub-clients. The MPI-Consumer distributes the individuals via MPI to clients/workers.
-Additionally, in this example each of those clients talks to a number of clients while calling the calculateFitness function
-of the individual. So we have two layers of MPI.
+This example shows how to use the GMPISubClientOptimizer.
+It offers all functionality of Go2 but additionally adds the functionality of
+creating MPI-sub-clients.
 
-To make this work we have to initialize MPI ourselves and create inter-communicators. This way the Geneva-clients can talk
-to the Geneva server using one communicator and the clients can talk to the sub-clients using another communicator.
+You can set the size of the sub-client networks via the `subClientGroupSize` parameter in the
+`GMPISubClientOptimizer.json` config file.
 
-To run this example with 1 server, 4 clients and 3 sub-clients for each of the clients use:
+
+For example to run this example with 1 server, 4 clients and 3 sub-clients for each of the clients use:
 
 ``````
     mpirun --oversubscribe -np 17 ./GMPISubClients --consumer mpi 
 ``````
 
-NOTE: if you want to change the amount of sub-clients you have to change the constant DEFAULT_N_SUB_CLIENTS
-in the GMPISubClients.cpp file.
+The amount of subgroups will automatically be calculated from the number of processes started with
+mpirun and the size of the subgroups set through the configuration file.
