@@ -36,7 +36,7 @@
 
 #include "geneva/GMPISubClientOptimizer.hpp"
 
-// TODO: create example and verify it works
+// TODO: change std::cout to glogger
 
 namespace Gem::Geneva {
     GMPISubClientOptimizer::GMPISubClientOptimizer(int argc,
@@ -45,13 +45,13 @@ namespace Gem::Geneva {
                                                    boost::program_options::options_description const &userDescriptions,
                                                    MPI_Comm baseCommunicator)
             : Go2{argc, argv, configFilePath, userDescriptions} {
-        if (Go2::getConsumerName() != "mpi") {
+        if (Go2::getConsumerName() != "mpi") { // only allow using MPI
             throw gemfony_exception(
                     g_error_streamer(DO_LOG, time_and_place)
                             << "GMPISubClientOptimizer::optimize_(std::uint32_t offset): Error!" << std::endl
-                            << "GMPISubClientOptimizer may only be used with the GMPIConsumer, but the consumer is `"
+                            << "GMPISubClientOptimizer may only be used with the GMPIConsumerT, but the consumer is `"
                             << Go2::getConsumerName() << "`" << std::endl
-                            << "Set the consumer to GMPISubClientOptimizer by using the command line argument `--consumer mpi`"
+                            << "Set the consumer to GMPIConsumerT by using the command line argument `--consumer mpi`"
                             << std::endl
             );
         }
@@ -67,10 +67,12 @@ namespace Gem::Geneva {
         // As an example: In case of 17 processes with one server, 4 clients and 4 sub-clients the ranks
         // [0, 4, 8, 12, 16] are server and geneva clients. All other processes will be sub-clients.
         m_isSubClient = m_baseCommRank % (m_subClientGroupSize) != 0;
-        const int subCommColor = (m_baseCommRank - 1) / (m_subClientGroupSize) + m_MPI_GENEVA_COLOR;
+        const int subCommColor = (m_baseCommRank - 1) / (m_subClientGroupSize) + M_MPI_GENEVA_COLOR;
+
+        std::cout << "baseRank=" << m_baseCommRank << std::endl;
 
         if (m_baseCommRank != 0) { // the server is in no sub-client group
-            glogger << "baseRank=" << m_baseCommRank << " is in sub-client-group " << subCommColor << std::endl;
+            std::cout << "baseRank=" << m_baseCommRank << " is in sub-client-group " << subCommColor << std::endl;
         }
 
 
@@ -88,7 +90,7 @@ namespace Gem::Geneva {
         } else { // process is a geneva client
 
             // Create a communicator to be used by GMPIConsumerT
-            MPI_Comm_split(baseCommunicator, m_MPI_GENEVA_COLOR, m_baseCommRank, &m_genevaComm);
+            MPI_Comm_split(baseCommunicator, M_MPI_GENEVA_COLOR, m_baseCommRank, &m_genevaComm);
 
             if (m_baseCommRank == 0) { // process is the geneva server (master node)
                 // The geneva server has rank 0 and does not need to be in any sub-client communicator.
@@ -96,7 +98,9 @@ namespace Gem::Geneva {
                 MPI_Comm_split(baseCommunicator, MPI_UNDEFINED, m_baseCommRank, &m_subClientComm);
             } else {
                 // all geneva clients are in separate communicators by using down-rounding integer division
-                MPI_Comm_split(baseCommunicator, subCommColor, m_baseCommRank, &m_subClientComm);
+                // This process (geneva client) receives rank 0 inside the subgroup. All other processes in this subgroup
+                // will definitely pass numbers greater 0 as key and therefore get the ranks 1 - (m_subClientGroupSize - 1)
+                MPI_Comm_split(baseCommunicator, subCommColor, 0, &m_subClientComm);
             }
         }
 

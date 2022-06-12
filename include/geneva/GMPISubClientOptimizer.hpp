@@ -146,7 +146,7 @@ namespace Gem::Geneva {
         * The color argument when creating the Geneva communicator.
         * The value is arbitrary but must be different from all sub-client colors.
         */
-        const int m_MPI_GENEVA_COLOR{0};
+        const int M_MPI_GENEVA_COLOR{0};
     };
 }
 

@@ -114,35 +114,38 @@ namespace Gem::Geneva {
         MPI_Comm_size(communicator, &subGroupSize);
         MPI_Comm_rank(communicator, &subGroupRank);
 
-        const int messageSize{subGroupSize - 1}; // send one character for every other process
-
         std::cout << "Geneva client has sub-group rank=" << subGroupRank << std::endl;
+
+
+        // allocate memory for receiving the results from sub-clients
+        char *receiveBuffer = new char[subGroupSize];
+
+        // NOTE: this process (root with rank=0) has two roles in MPI_Gather and scatter.
+        // It has the root role and also has the role of a normal process.
+        // Therefore, it will on scatter also receive one item and on gather send one item
 
         MPI_Scatter(
                 m_echoMessage.data(), // send substrings of the test message
-                messageSize, // send one char to each other process
+                1, // send one char to each other process
                 MPI_CHAR,
-                nullptr, // we do not receive anything here
+                receiveBuffer, // receive one character as the root process
                 1, // send one character to every other process
                 MPI_CHAR,
                 0, // rank 0 (this process) is the root.
                 communicator);
 
-        // allocate memory for receiving the results from sub-clients
-        char *receiveBuffer = new char[messageSize];
-
         MPI_Gather(
-                nullptr, // the master node does not send anything
+                receiveBuffer, // send one character as the root process
                 1, // send one character only
                 MPI_CHAR,
                 receiveBuffer,
-                messageSize, // collect all sent characters
+                1, // collect all sent characters
                 MPI_CHAR,
                 0, //rank 0 (this process) is the root.
                 communicator);
 
         // verify the message has been echoed successfully
-        for (std::size_t i{0}; i < messageSize; ++i) {
+        for (std::size_t i{0}; i < subGroupSize; ++i) {
             if (receiveBuffer[i] != m_echoMessage[i]) {
                 throw gemfony_exception(
                         g_error_streamer(DO_LOG, time_and_place)
@@ -150,6 +153,8 @@ namespace Gem::Geneva {
                                 << "the character `" << m_echoMessage[i] << "` has been sent and expected to be echoed" << std::endl
                                 << "but the character `" << receiveBuffer[i] << "` has been received." << std::endl
                 );
+            } else {
+                std::cout << "received correct character: " << receiveBuffer[i] << std::endl;
             }
         }
 
