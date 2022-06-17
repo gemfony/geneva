@@ -67,7 +67,6 @@ void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb)
             , [this](std::uint32_t maxTrial){ this->setMMaxTrial(maxTrial); }
     )
             << "The maximum allowed trial_ to abandon a food source";
-
     gpb.registerFileParameter<abcParallelRule>(
             "parallelRule" // The name of the variable
             , DEFAULTPARALLELRULE // The default value
@@ -503,8 +502,7 @@ void GArtificialBeeColony::onlookerParallel() {
             this->at(belongs_to)->load(new_solution);
         } else {
             this->at(belongs_to)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->increaseTrial();
-            this->at(
-                    belongs_to)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->decreaseOnlookers();
+            this->at(belongs_to)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->decreaseOnlookers();
         }
     }
 }
@@ -588,7 +586,155 @@ void GArtificialBeeColony::onlookerSequential() {
 }
 
 void GArtificialBeeColony::onlookerSimplex() {
+    std::vector<std::shared_ptr<GParameterSet>> new_solutions;
 
+    std::vector<double> values;
+    std::vector<double> second_individual_values;
+
+    this->front()->streamline(values, activityMode::ACTIVEONLY);
+    std::size_t parameter_count = values.size();
+
+    std::size_t second_individual_i;
+    std::size_t random_component_i;
+
+    std::mt19937_64 gen(m_random_seed);
+    std::uniform_int_distribution<std::size_t> second_individual_rng(0,this->getDefaultPopulationSize() - 2);
+    std::uniform_real_distribution<double> phi_rng(-1., 1.);
+    std::uniform_int_distribution<std::size_t> component_rng(0, parameter_count - 1);
+
+    for(std::size_t i = 0; i < this->size(); ++i) {
+        if(this->at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getOnlookers() > 0) {
+            if (this->at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getOnlookers() < parameter_count) {
+                std::shared_ptr <GParameterSet> onlooker = this->at(i)->clone<GParameterSet>();
+                onlooker->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->setBelongsTo(i);
+                new_solutions.push_back(onlooker);
+            } else {
+                for (std::size_t j = 0; j < this->at(i)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getOnlookers(); ++j) {
+                    std::shared_ptr<GParameterSet> onlooker = this->at(i)->clone<GParameterSet>();
+                    onlooker->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->setBelongsTo(i);
+                    new_solutions.push_back(onlooker);
+                }
+            }
+        }
+    }
+
+    for(auto& new_solution: new_solutions) {
+        std::size_t onlookerCount = new_solution->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getOnlookers();
+        if (onlookerCount == 1) {
+            second_individual_i = second_individual_rng(gen);
+            if(second_individual_i >= new_solution->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getBelongsTo()) {
+                ++second_individual_i;
+            }
+            new_solution->streamline(values, activityMode::ACTIVEONLY);
+            this->at(second_individual_i)->streamline(second_individual_values, activityMode::ACTIVEONLY);
+            if(values.size() == 1) {
+                values.at(0) += phi_rng(gen) * (values.at(0) - second_individual_values.at(0));
+                if(values.at(0) > m_dbl_upper_parameter_boundaries_cnt.at(0)) //Check Boundaries
+                    values.at(0) = m_dbl_upper_parameter_boundaries_cnt.at(0);
+                if(values.at(0) < m_dbl_lower_parameter_boundaries_cnt.at(0))
+                    values.at(0) = m_dbl_lower_parameter_boundaries_cnt.at(0);
+            } else {
+                random_component_i = component_rng(gen);
+                values.at(random_component_i) += phi_rng(gen) * (values.at(random_component_i) - second_individual_values.at(random_component_i));
+                if(values.at(random_component_i) > m_dbl_upper_parameter_boundaries_cnt.at(random_component_i)) //Check Boundaries
+                    values.at(random_component_i) = m_dbl_upper_parameter_boundaries_cnt.at(random_component_i);
+                if(values.at(random_component_i) < m_dbl_lower_parameter_boundaries_cnt.at(random_component_i))
+                    values.at(random_component_i) = m_dbl_lower_parameter_boundaries_cnt.at(random_component_i);
+            }
+            new_solution->assignValueVector(values, activityMode::ACTIVEONLY);
+        } else if (onlookerCount < parameter_count) {
+            std::set<std::size_t> second_i_set;
+            while (second_i_set.size() < onlookerCount) {
+                second_individual_i = second_individual_rng(gen);
+                if(second_individual_i >= new_solution->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getBelongsTo()) {
+                    ++second_individual_i;
+                }
+                second_i_set.insert(second_individual_i);
+            }
+            std::vector<std::shared_ptr<GParameterSet>> simplex_vector;
+            simplex_vector.push_back(new_solution);
+            for (std::size_t second_i: second_i_set) {
+                simplex_vector.push_back(this->at(second_i)->clone<GParameterSet>());
+            }
+            std::size_t worst_i = 0;
+            for (std::size_t i = 1; i < simplex_vector.size(); ++i) {
+                if(isWorse(simplex_vector.at(i), simplex_vector.at(worst_i))) {
+                    worst_i = i;
+                }
+            }
+            std::vector<double> worst_values;
+            simplex_vector.at(worst_i)->streamline(worst_values, activityMode::ACTIVEONLY);
+            std::fill_n(values.begin(), parameter_count, 0);
+            for (std::size_t i = 0; i < simplex_vector.size(); ++i) {
+                if (i != worst_i) {
+                    simplex_vector.at(i)->streamline(second_individual_values, activityMode::ACTIVEONLY);
+                    for (std::size_t j = 0; j < second_individual_values.size(); ++j) {
+                        values.at(j) += second_individual_values.at(j);
+                    }
+                }
+            }
+            for(std::size_t i = 0; i < values.size(); ++i) {
+                values.at(i) /= onlookerCount;
+                values.at(i) += values.at(i) - worst_values.at(i);
+            }
+            new_solution->assignValueVector(values, activityMode::ACTIVEONLY);
+        } else {
+            std::set<std::size_t> second_i_set;
+            while (second_i_set.size() < parameter_count) {
+                second_individual_i = second_individual_rng(gen);
+                if(second_individual_i >= new_solution->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getBelongsTo()) {
+                    ++second_individual_i;
+                }
+                second_i_set.insert(second_individual_i);
+            }
+            std::vector<std::shared_ptr<GParameterSet>> simplex_vector;
+            simplex_vector.push_back(new_solution);
+            for (std::size_t second_i: second_i_set) {
+                simplex_vector.push_back(this->at(second_i)->clone<GParameterSet>());
+            }
+            std::size_t worst_i = 0;
+            for (std::size_t i = 1; i < simplex_vector.size(); ++i) {
+                if(isWorse(simplex_vector.at(i), simplex_vector.at(worst_i))) {
+                    worst_i = i;
+                }
+            }
+            std::vector<double> worst_values;
+            simplex_vector.at(worst_i)->streamline(worst_values, activityMode::ACTIVEONLY);
+            std::fill_n(values.begin(), parameter_count, 0);
+            for (std::size_t i = 0; i < simplex_vector.size(); ++i) {
+                if (i != worst_i) {
+                    simplex_vector.at(i)->streamline(second_individual_values, activityMode::ACTIVEONLY);
+                    for (std::size_t j = 0; j < second_individual_values.size(); ++j) {
+                        values.at(j) += second_individual_values.at(j);
+                    }
+                }
+            }
+            for(std::size_t i = 0; i < values.size(); ++i) {
+                values.at(i) /= parameter_count;
+                values.at(i) += values.at(i) - worst_values.at(i);
+            }
+            new_solution->assignValueVector(values, activityMode::ACTIVEONLY);
+        }
+    }
+
+    workOn(
+            new_solutions
+            , true
+            , "GArtificialBeeColony::onlookerPhase()");
+
+    for (auto & new_solution: new_solutions) {
+        std::size_t belongs_to = new_solution->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getBelongsTo();
+        if (isBetter(new_solution, this->at(belongs_to))) {
+            new_solution->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->setOnlookers(
+                    this->at(belongs_to)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->getOnlookers());
+            new_solution->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->decreaseOnlookers();
+            new_solution->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->resetTrial();
+            this->at(belongs_to)->load(new_solution);
+        } else {
+            this->at(belongs_to)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->increaseTrial();
+            this->at(belongs_to)->getPersonalityTraits<GArtificialBeeColony_PersonalityTraits>()->decreaseOnlookers();
+        }
+    }
 }
 
 void GArtificialBeeColony::onlookerProbabilityCalculations() {
