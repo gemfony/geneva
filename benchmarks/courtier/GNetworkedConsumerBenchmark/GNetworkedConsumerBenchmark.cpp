@@ -345,7 +345,7 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
                           + " " + competitor.arguments
                           + " " + competitor.setThreadsParam
                           + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
-                                                                   : std::to_string(nClients));
+                                                                   : std::to_string(std::min(nClients, config.getNMaxThreads())));
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
