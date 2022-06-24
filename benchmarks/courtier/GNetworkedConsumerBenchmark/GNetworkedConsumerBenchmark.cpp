@@ -41,6 +41,7 @@
 // Standard header files go here
 #include <iostream>
 #include <filesystem>
+#include <algorithm>
 
 // Boost header files go here
 #include <boost/process.hpp>
@@ -321,7 +322,7 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                           // if threads was set to auto, then set it dynamically. Otherwise, set it to the given fixed number
                           + " " + competitor.setThreadsParam
                           + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
-                                                                   : std::to_string(nClients));
+                                                                   : std::to_string(std::min(nClients, config.getNMaxThreads())));
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 

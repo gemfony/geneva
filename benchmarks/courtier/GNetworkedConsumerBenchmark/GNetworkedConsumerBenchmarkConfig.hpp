@@ -226,6 +226,13 @@ namespace Gem::Tests {
             return m_mpirunLocation;
         }
 
+        /**
+         * Returns the configured maximum number of threads to use for servers.
+         */
+        [[nodiscard]] std::uint32_t getNMaxThreads() const {
+            return m_nMaxThreads;
+        }
+
     private:
 
         void registerFileOptions() {
@@ -264,6 +271,11 @@ namespace Gem::Tests {
                     "mpirunLocation", m_mpirunLocation, m_mpirunLocation, VAR_IS_ESSENTIAL,
                     "The location of the mpirun executable to use."
             );
+
+            m_fileParser.registerFileParameter(
+                    "nMaxThreads", m_nMaxThreads, m_nMaxThreads, VAR_IS_ESSENTIAL,
+                    "Limit for threads when using automatic setting of number of threads with respect to number of consumers."
+            );
         }
 
         void registerCLOptions() {
@@ -287,6 +299,7 @@ namespace Gem::Tests {
                     m_onlyGenerateGraphs,
                     "Flag that defines whether to only build the graphs without running the benchmark."
             );
+
         }
 
         /*
@@ -344,6 +357,11 @@ namespace Gem::Tests {
          * location of the mpirun executable. If mpirun is in PATH you do not need to adjust this.
          */
         std::string m_mpirunLocation = "mpirun";
+
+        /**
+         * Limit for threads when using automatic setting of number of threads with respect to number of consumers.
+         */
+        std::uint32_t m_nMaxThreads = 32;
 
 
         /*****************************************************************

@@ -54,5 +54,10 @@
     "comment": "The location of the mpirun executable to use",
     "default": "mpirun",
     "value": "mpirun"
+  },
+  "nMaxThreads": {
+    "comment": "Limit for threads when using automatic setting of number of threads with respect to number of consumers.",
+    "default": "32",
+    "value": "32"
   }
 }
