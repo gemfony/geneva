@@ -385,7 +385,6 @@ namespace Gem::Courtier {
                 timeElapsed = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - timeStart);
 
                 if (timeElapsed > std::chrono::microseconds{m_config.ioPollTimeoutUSec}) {
-#ifdef DEBUG
                     glogger
                             << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
                             << m_worldRank << ":"
@@ -396,7 +395,7 @@ namespace Gem::Courtier {
                                "be server side crash."
                             << std::endl
                             << GLOGGING;
-#endif // DEBUG
+
                     cancelActiveRequests();
                     return false;
                 }
