@@ -90,6 +90,8 @@ namespace Gem::Geneva {
          */
         G_API_GENEVA GMPISubClientOptimizer &registerSubClientJob(std::function<int(MPI_Comm)> callback);
 
+        [[nodiscard]]G_API_GENEVA bool isSubClient() const { return m_isSubClient; }
+
     protected:
         /**
          * Triggers execution of the client job
