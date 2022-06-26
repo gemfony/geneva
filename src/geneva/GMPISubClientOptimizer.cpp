@@ -56,8 +56,11 @@ namespace Gem::Geneva {
             );
         }
 
-        // initialize MPI in the way this is required by GMPIConsumerT
-        Gem::Courtier::GMPIConsumerT<GParameterSet>::initializeMPI();
+        // If the base communicator is already a sub communicator, this means MPI must already have been initialized by the user
+        if (baseCommunicator == MPI_COMM_WORLD) {
+            // initialize MPI in the way this is required by GMPIConsumerT
+            Gem::Courtier::GMPIConsumerT<GParameterSet>::initializeMPI();
+        }
 
         // initialize position in MPI world e.g. in the outermost communicator
         MPI_Comm_rank(baseCommunicator, &m_baseCommRank);
