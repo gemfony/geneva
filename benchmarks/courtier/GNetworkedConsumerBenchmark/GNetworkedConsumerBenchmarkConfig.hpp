@@ -233,6 +233,14 @@ namespace Gem::Tests {
             return m_nMaxThreads;
         }
 
+        /**
+         * Retrieves the delay between one call to the benchmark executable and the next call.
+         * This delay might be helpful to give the OS time to free up resources.
+         */
+        [[nodiscard]] std::uint32_t getInterMeasurementDelaySecs() const {
+            return m_interMeasurementDelaySecs;
+        }
+
     private:
 
         void registerFileOptions() {
@@ -275,6 +283,11 @@ namespace Gem::Tests {
             m_fileParser.registerFileParameter(
                     "nMaxThreads", m_nMaxThreads, m_nMaxThreads, VAR_IS_ESSENTIAL,
                     "Limit for threads when using automatic setting of number of threads with respect to number of consumers."
+            );
+
+            m_fileParser.registerFileParameter(
+                    "interMeasurementDelaySecs", m_interMeasurementDelaySecs, m_interMeasurementDelaySecs, VAR_IS_ESSENTIAL,
+                    "Delay in between starting benchmark executables, which might be helpful to give the OS time to free up resources."
             );
         }
 
@@ -363,6 +376,10 @@ namespace Gem::Tests {
          */
         std::uint32_t m_nMaxThreads = 32;
 
+        /**
+         * Delay in between starting benchmark executables, which might be helpful to give the OS time to free up resources.
+         */
+        std::uint32_t m_interMeasurementDelaySecs = 60;
 
         /*****************************************************************
          * Options to parse from command line

@@ -322,7 +322,8 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                           // if threads was set to auto, then set it dynamically. Otherwise, set it to the given fixed number
                           + " " + competitor.setThreadsParam
                           + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
-                                                                   : std::to_string(std::min(nClients, config.getNMaxThreads())));
+                                                                   : std::to_string(
+                    std::min(nClients, config.getNMaxThreads())));
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
@@ -345,7 +346,8 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
                           + " " + competitor.arguments
                           + " " + competitor.setThreadsParam
                           + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
-                                                                   : std::to_string(std::min(nClients, config.getNMaxThreads())));
+                                                                   : std::to_string(
+                    std::min(nClients, config.getNMaxThreads())));
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
@@ -783,6 +785,11 @@ int main(int argc, char **argv) {
             for (const auto &competitor: config.getCompetitors()) {
                 measureExecutionTimes(config, nClients, competitor);
                 renameIntermediateFiles(config, competitor.shortName, nClients);
+
+                // sleep before next iteration to let the OS free resources
+                std::cout << "Sleeping for interMeasurementDelaySecs = " << config.getInterMeasurementDelaySecs()
+                          << " s" << "before starting next benchmark" << std::endl;
+                std::this_thread::sleep_for(std::chrono::seconds(config.getInterMeasurementDelaySecs()));
             }
         }
     }

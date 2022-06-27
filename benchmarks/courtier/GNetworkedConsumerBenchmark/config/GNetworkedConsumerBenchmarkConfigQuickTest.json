@@ -54,5 +54,10 @@
     "comment": "Limit for threads when using automatic setting of number of threads with respect to number of consumers.",
     "default": "32",
     "value": "32"
+  },
+  "interMeasurementDelaySecs": {
+    "comment": "Delay in between starting benchmark executables, which might be helpful to give the OS time to free up resources",
+    "default": "60",
+    "value": "60"
   }
 }
