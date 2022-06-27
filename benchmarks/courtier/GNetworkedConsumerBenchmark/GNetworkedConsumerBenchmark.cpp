@@ -63,6 +63,11 @@ const std::string executionTimesFileNameBeforeRename{"executionTimesVector.ser"}
 const std::string executionTimesDirName{"executionTimes"};
 const std::string executionTimesFilePrefix{"executionTimes"};
 
+/**
+ * directory where ORTE (part of openmpi) should store temporary files
+ */
+const std::string orteTempDirBase{"/tmp/GNetworkedConsumerBenchmark_OPENMPI_ORTE"};
+
 // line color so be used when drawing multiple curves in the same graph
 // These are ROOT constants
 const std::vector<std::string> lineColors{
@@ -308,6 +313,15 @@ std::string getCommandBanner(const std::string &command,
     return sout.str();
 }
 
+/**
+ * There is a bug tracked here: `https://github.com/open-mpi/ompi/issues/7049` which can only be solved by cleaning
+ * up the temporary files that are left over by ORTE.
+ * This function does so.
+ */
+void cleanUpOrteTemp() {
+    std::filesystem::remove_all(orteTempDirBase);
+}
+
 void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                               std::uint32_t nClients,
                               const Competitor &competitor) {
@@ -316,14 +330,18 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
     std::string command = config.getMpirunLocation()
                           + " --oversubscribe -np "
                           + std::to_string(nClients + 1) // one server + nClients
-                          + " "
-                          + config.getMBenchmarkExecutableName()
+                          // set temp directory in order to be able to clean it
+                          + " --mca orte_tmpdir_base " + orteTempDirBase
+                          + " " + config.getMBenchmarkExecutableName()
                           + " " + competitor.arguments
                           // if threads was set to auto, then set it dynamically. Otherwise, set it to the given fixed number
                           + " " + competitor.setThreadsParam
                           + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
                                                                    : std::to_string(
                     std::min(nClients, config.getNMaxThreads())));
+
+    // clean up temp directory from previous runs
+    cleanUpOrteTemp();
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
