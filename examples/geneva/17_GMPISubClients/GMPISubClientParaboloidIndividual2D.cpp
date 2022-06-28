@@ -199,6 +199,131 @@ namespace Gem::Geneva {
         return result;
     }
 
+
+    const std::int64_t POLL_INTERVAL_USEC{100};
+    const std::int64_t TIMEOUT_USEC{1'000'000}; // one second
+
+    using namespace Gem::Geneva;
+
+    enum CompletionStatus {
+        SUCCESS,
+        TIMEOUT,
+        ERROR
+    };
+
+    int GMPISubClientParaboloidIndividual2D::subClientJob(MPI_Comm communicator) {
+        std::uint32_t count{0};
+
+        while (true) {
+            char message{}; // part of the message to receive
+
+            int subGroupSize{0};
+            int subGroupRank{0};
+            MPI_Comm_size(communicator, &subGroupSize);
+            MPI_Comm_rank(communicator, &subGroupRank);
+
+            MPI_Request scatterRequest{};
+            MPI_Request gatherRequest{};
+
+            // create a message to be emitted in case of timeout
+            std::stringstream timeoutMessage{};
+            timeoutMessage << "Sub-client with rank=" << subGroupRank << " in communicator " << communicator
+                           << "has received " << count << " messages so far and will now exit due to a timeout."
+                           << std::endl
+                           << "This is normal behaviour after the optimization has been finished." << std::endl
+                           << "If it occurs mid-optimization it indicated unavailability of the Geneva-client."
+                           << std::endl;
+
+            // receive one character from the root process
+            MPI_Iscatter(
+                    nullptr, // we do not send as sub-client
+                    1, // send one char to each other process
+                    MPI_CHAR,
+                    &message, // receive into the buffer
+                    1, // send one character to every other process
+                    MPI_CHAR,
+                    0, // rank 0 (geneva client) is the root. The rank of this process is != 0
+                    communicator,
+                    &scatterRequest);
+
+
+            switch (waitForRequestCompletion(scatterRequest)) {
+                case SUCCESS:
+                    break;
+                case TIMEOUT: {
+                    std::cout << timeoutMessage.str();
+                    return 0;
+                }
+                case ERROR:
+                    return -1;
+            }
+
+            // send the received character back to the root process
+            MPI_Igather(
+                    &message, // send the message, which we have received, back
+                    1, // send one character only
+                    MPI_CHAR,
+                    nullptr, // we do not receive anything
+                    1,
+                    MPI_CHAR,
+                    0, // rank 0 (geneva client) is the root. The rank of this process is != 0
+                    communicator,
+                    &gatherRequest);
+
+            switch (waitForRequestCompletion(gatherRequest)) {
+                case SUCCESS:
+                    break;
+                case TIMEOUT: {
+                    std::cout << timeoutMessage.str();
+                    return 0;
+                }
+                case ERROR:
+                    return -1;
+            }
+
+            // increment successful message counter
+            ++count;
+        }
+    }
+
+    /**
+     * Waits for an async request to be completed
+     * @param request the request handle
+     * @return false if an error occurred, otherwise true.
+     */
+    int GMPISubClientParaboloidIndividual2D::waitForRequestCompletion(MPI_Request &request) {
+        int isCompleted{0};
+        MPI_Status status{};
+        std::chrono::microseconds timeElapsed{0};
+        const auto timeStart = std::chrono::steady_clock::now();
+
+        while (true) {
+            MPI_Test(&request,
+                     &isCompleted,
+                     &status);
+
+            if (isCompleted) {
+                if (status.MPI_ERROR != MPI_SUCCESS) {
+                    std::cout << "Error happened: " << std::endl
+                              << mpiErrorString(status.MPI_ERROR) << std::endl;
+                    return CompletionStatus::ERROR;
+                }
+                return CompletionStatus::SUCCESS;
+            }
+
+            // update elapsed time to compare with timeout
+            auto currentTime = std::chrono::steady_clock::now();
+            timeElapsed = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - timeStart);
+
+            if (timeElapsed > std::chrono::microseconds{TIMEOUT_USEC}) {
+                return CompletionStatus::TIMEOUT;
+            }
+
+            // sleep some time before polling again for completion status
+            std::this_thread::sleep_for(std::chrono::microseconds(POLL_INTERVAL_USEC));
+        }
+    }
+
 /********************************************************************************************/
 
 } // namespace Gem::Geneva

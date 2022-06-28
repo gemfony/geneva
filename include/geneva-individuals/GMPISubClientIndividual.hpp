@@ -94,6 +94,9 @@ namespace Gem::Geneva {
         /** @brief A standard copy constructor */
         GMPISubClientIndividual(const GMPISubClientIndividual &) = default;
 
+        /**
+         * Allows retrieving the communicator which is used by this individual to communicate with dedicated workers.
+         */
         static MPI_Comm getCommunicator();
 
     private:

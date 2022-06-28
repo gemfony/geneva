@@ -86,6 +86,8 @@ public:
 	 /** @brief A standard copy constructor */
 	 GMPISubClientParaboloidIndividual2D(const GMPISubClientParaboloidIndividual2D&);
 
+     static int subClientJob(MPI_Comm comm);
+
 protected:
 	 /** @brief Loads the data of another GMPISubClientParaboloidIndividual2D */
 	 void load_(const GObject*) final;
@@ -94,12 +96,16 @@ protected:
 	 double fitnessCalculation() final;
 
 private:
+    /** Waits for the completion of an MPI_Request */
+    static int waitForRequestCompletion(MPI_Request &request);
+
 	 /** @brief Creates a deep clone of this object */
 	 [[nodiscard]] GObject* clone_() const final;
 
 	 const double M_PAR_MIN;
 	 const double M_PAR_MAX;
 
+     // message to be echoed by sub-client workers as a sort of unit test
      const std::string m_echoMessage{"abcdefghijklmnopqrstuvwxyz"};
 };
 
