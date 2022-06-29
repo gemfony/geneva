@@ -47,7 +47,7 @@
 
 // Geneva headers go here
 #include "geneva/Go2.hpp"
-#include "geneva-individuals/GMPISubClientIndividual.hpp"
+#include "geneva/GMPISubClientIndividual.hpp"
 
 
 namespace Gem::Geneva {

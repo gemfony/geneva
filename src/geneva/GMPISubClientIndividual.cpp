@@ -38,7 +38,7 @@
  *
  ********************************************************************************/
 
-#include "geneva-individuals/GMPISubClientIndividual.hpp"
+#include "geneva/GMPISubClientIndividual.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientIndividual)
 

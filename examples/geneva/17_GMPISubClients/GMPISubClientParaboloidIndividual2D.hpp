@@ -49,7 +49,7 @@
 // Boost header files go here
 
 // Geneva header files go here
-#include <geneva-individuals/GMPISubClientIndividual.hpp>
+#include <geneva/GMPISubClientIndividual.hpp>
 #include <geneva/GConstrainedDoubleObject.hpp>
 
 namespace Gem::Geneva {

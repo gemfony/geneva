@@ -96,7 +96,8 @@ SET ( OPTIMIZATIONINCLUDES
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	SET(OPTIMIZATIONINCLUDES
 			${OPTIMIZATIONINCLUDES}
-			GMPISubClientOptimizer.hpp)
+			GMPISubClientOptimizer.hpp
+			GMPISubClientIndividual.hpp)
 ENDIF()
 
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
