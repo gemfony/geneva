@@ -69,7 +69,8 @@ namespace Gem::Geneva {
         friend class boost::serialization::access;
 
         /**
-         *
+         * GMPISubClientOptimizer must be able to set the communicator, other classes should not.
+         * Therefore we should get access to private members from GMPISubClientOptimizer
          */
         friend class GMPISubClientOptimizer;
 
