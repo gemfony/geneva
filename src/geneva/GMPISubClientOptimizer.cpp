@@ -66,16 +66,23 @@ namespace Gem::Geneva {
         MPI_Comm_rank(baseCommunicator, &m_baseCommRank);
         MPI_Comm_size(baseCommunicator, &m_baseCommSize);
 
+        // server has rank 0
+        const bool isServer = m_baseCommRank == 0;
+
         // All processes but the geneva server and the geneva clients are sub-clients.
         // As an example: In case of 17 processes with one server, 4 clients and 4 sub-clients the ranks
-        // [0, 4, 8, 12, 16] are server and geneva clients. All other processes will be sub-clients.
-        m_isSubClient = m_baseCommRank % (m_subClientGroupSize) != 0;
+        // [0, 1, 5, 7, 13] are server and geneva clients. All other processes will be sub-clients.
+        m_isSubClient = !isServer && ((m_baseCommRank - 1) % m_subClientGroupSize != 0);
         const int subCommColor = (m_baseCommRank - 1) / (m_subClientGroupSize) + M_MPI_GENEVA_COLOR;
 
-        std::cout << "baseRank=" << m_baseCommRank << std::endl;
 
+        // emit output about this instance
         if (m_baseCommRank != 0) { // the server is in no sub-client group
-            std::cout << "baseRank=" << m_baseCommRank << " is in sub-client-group " << subCommColor << std::endl;
+            std::cout << "baseRank=" << m_baseCommRank << " with mode="
+                      << (isSubClient() ? "`sub-client`" : "`client`") << " is in subgroup " << subCommColor
+                      << std::endl;
+        } else {
+            std::cout << "baseRank=" << m_baseCommRank << " is the server and in no sub-group" << std::endl;
         }
 
 
@@ -90,12 +97,12 @@ namespace Gem::Geneva {
             // putting nSubClients in one communicator by using down-rounding integer division
             MPI_Comm_split(baseCommunicator, subCommColor, m_baseCommRank, &m_subClientComm);
 
-        } else { // process is a geneva client
+        } else { // process is a geneva client or the geneva server
 
             // Create a communicator to be used by GMPIConsumerT
             MPI_Comm_split(baseCommunicator, M_MPI_GENEVA_COLOR, m_baseCommRank, &m_genevaComm);
 
-            if (m_baseCommRank == 0) { // process is the geneva server (master node)
+            if (isServer) { // process is the geneva server (master node)
                 // The geneva server has rank 0 and does not need to be in any sub-client communicator.
                 // It only communicates with the geneva clients and does not communicate inside of subgroups.
                 MPI_Comm_split(baseCommunicator, MPI_UNDEFINED, m_baseCommRank, &m_subClientComm);
