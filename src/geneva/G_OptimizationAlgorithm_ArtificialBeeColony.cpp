@@ -401,6 +401,8 @@ void GArtificialBeeColony::onlookerBeePhase() {
             );
 #endif
     }
+
+    findBestIndividual();
 }
 
 void GArtificialBeeColony::findBestIndividual() {
