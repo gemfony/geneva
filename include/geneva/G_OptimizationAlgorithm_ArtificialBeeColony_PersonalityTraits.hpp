@@ -95,9 +95,9 @@ public:
 
     /** @brief Retrieves the mnemonic of the optimization algorithm */
     G_API_GENEVA std::string getMnemonic() const override;
-
-    G_API_GENEVA uint32_t getOnlookers() const;
-
+    /** @brief Retrieves the amount of Onlookers the Individual Currently has */
+    G_API_GENEVA std::uint32_t getOnlookers() const;
+    /** @brief Retrieves the amount of Onlookers the Individual Currently has */
     G_API_GENEVA void setOnlookers(std::uint32_t);
     /** @brief increases Onlookers by 1 */
     G_API_GENEVA void increaseOnlookers();
@@ -105,12 +105,13 @@ public:
     G_API_GENEVA void decreaseOnlookers();
     /** @brief Resets onlookers to 0 */
     G_API_GENEVA void resetOnlookers();
-
+    /** @brief Retrieves which Individual a copied object belongs to */
     G_API_GENEVA std::size_t getBelongsTo() const;
-
+    /** @brief Sets which Individual a copied object belongs to */
     G_API_GENEVA void setBelongsTo(std::size_t);
 
 protected:
+    /** @brief Loads the data of another GABC_PersonalityTraits object */
     G_API_GENEVA void load_(const GObject *object) override;
 
     /** @brief Allow access to this classes compare_ function */
@@ -120,16 +121,23 @@ protected:
             , Gem::Common::GToken &
     );
 
+    /**
+     * Searches for compliance with expectations with respect to another object of the same type
+     * @param object The other object
+     * @param expectation The expectations for this object, e.g. equality
+     * @param d The limit of deviation for comparing floating point types
+     */
     G_API_GENEVA void compare_(
             const GObject &object
             , const Common::expectation &expectation
             , const double &d
     ) const override;
 
+    /** @brief Applies modifications to this object. This is needed for testing purposes */
     G_API_GENEVA bool modify_GUnitTests_() override;
-
+    /** @brief Performs self tests that are expected to succeed. This is needed for testing purposes */
     G_API_GENEVA void specificTestsNoFailureExpected_GUnitTests_() override;
-
+    /** @brief Performs self tests that are expected to fail. This is needed for testing purposes */
     G_API_GENEVA void specificTestsFailuresExpected_GUnitTests_() override;
 
 private:
@@ -138,10 +146,11 @@ private:
     /** @brief Creates a deep clone of this object */
     G_API_GENEVA GObject *clone_() const override;
 
+    /** @brief The amount of trial the individual has */
     std::uint32_t trial_ = 0;
-
+    /** @brief The amount of onlookers the individual has */
     std::uint32_t onlookers_ = 0;
-
+    /** @brief The index of the individual in the population this individual belongs to */
     std::size_t belongs_to_ = -1;
 
 };

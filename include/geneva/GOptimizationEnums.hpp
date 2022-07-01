@@ -581,8 +581,8 @@ enum class abcParallelRule : Gem::Common::ENUMBASETYPE {
 
 /******************************************************************************/
 
-const std::uint32_t DEFAULTMAXTRIAL = 15;
-const abcParallelRule DEFAULTPARALLELRULE = abcParallelRule::ABC_PARALLEL;
+const std::uint32_t DEFAULTMAXTRIAL = 15; //Default maximum trial for artificial bee colony individuals
+const abcParallelRule DEFAULTPARALLELRULE = abcParallelRule::ABC_PARALLEL; //Default Onlooker Phase Algorithm to use with artificial bee colony
 
 /******************************************************************************/
 
