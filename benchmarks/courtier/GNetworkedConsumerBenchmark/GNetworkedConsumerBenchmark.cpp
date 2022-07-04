@@ -789,6 +789,8 @@ std::string getHeader(const GNetworkedConsumerBenchmarkConfig &config) {
     return sout.str();
 }
 
+// TODO: fix index out of bonds bug when running only one competitor configuration
+
 int main(int argc, char **argv) {
     GNetworkedConsumerBenchmarkConfig config{argc, argv};
 
