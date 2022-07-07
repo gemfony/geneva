@@ -36,6 +36,7 @@
 
 SET(CONFIGFILES
         GNetworkedConsumerBenchmarkConfig.json
+        GNetworkedConsumerBenchmarkConfigLong.json
         GNetworkedConsumerBenchmarkConfigQuickTest.json
         GDelayIndividual.json
         GEvolutionaryAlgorithm.json
