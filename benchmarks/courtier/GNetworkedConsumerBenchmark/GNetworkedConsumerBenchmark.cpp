@@ -449,7 +449,7 @@ void createMultiplePlots(const bool &clientsAtX,
                          const std::vector<ExTimesClientsAtX> &clientsAtXVec,
                          const std::vector<ExTimesSleepAtX> &sleepAtXVec,
                          Gem::Common::GPlotDesigner &gpd) {
-    for (uint32_t i{0}; i < config.getNClients().size(); ++i) {
+    for (uint32_t i{0}; i < (clientsAtX ? clientsAtXVec.size() : sleepAtXVec.size()); ++i) {
         // create as many graphs for each client as we have competitor configurations
         for (uint32_t j{0}; j < config.getCompetitors().size(); ++j) {
             auto graph = std::make_shared<Gem::Common::GGraph2ED>();
@@ -543,14 +543,14 @@ void createSinglePlot(const bool &clientsAtX,
         }
 
         // add all following graphs as subplots
-        for (int j{1} /* start from the second elem */ ; j < sleepAtXVec.size(); ++j) {
+        for (int j{1} /* start from the second elem */ ; j < (clientsAtX ? clientsAtXVec.size() : sleepAtXVec.size()); ++j) {
             auto subGraph = std::make_shared<Gem::Common::GGraph2D>();
 
             // add the data to the sub-graphs
             if (clientsAtX) {
-                (*subGraph) & extractMean(clientsAtXVec[j].competitorExTimes[j]);
+                (*subGraph) & extractMean(clientsAtXVec[j].competitorExTimes[i]);
             } else {
-                (*subGraph) & extractMean(sleepAtXVec[j].competitorExTimes[j]);
+                (*subGraph) & extractMean(sleepAtXVec[j].competitorExTimes[i]);
             }
 
             // set drawing options
