@@ -52,6 +52,8 @@
 #include "common/GPlotDesigner.hpp"
 
 using namespace Gem::Tests;
+using namespace boost::process;
+using timepoint = std::chrono::system_clock::time_point;
 
 // name of the directory for ROOT files
 const std::string resultDirName{"results"};
@@ -760,20 +762,152 @@ void createPlotFromResults(const GNetworkedConsumerStabilityConfig &config) {
     plotAbsoluteTimes(exTimesVec, config);
 }
 
-void runTestMPI(const GNetworkedConsumerStabilityConfig &config, const Competitor &competitor){
+std::string timeNowString(timepoint time) {
+    auto in_time_t = std::chrono::system_clock::to_time_t(time);
 
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&in_time_t), "%Y-%m-%d %X");
+    return ss.str();
 }
 
-void runTestWithClients(const GNetworkedConsumerStabilityConfig &config, const Competitor &competitor){
+enum ClientStatus {
+    OK,
+    CONNECTION_LOSS,
+    SHUTDOWN
+};
 
+ClientStatus parseClientStatus(const Competitor &competitor, const std::string &line) {
+    if (!competitor.connectionIssuesSubstring.empty() &&
+        line.find(competitor.connectionIssuesSubstring) != std::string::npos) {
+        return ClientStatus::CONNECTION_LOSS;
+    }
+
+    if (!competitor.terminationSubString.empty() &&
+        line.find(competitor.terminationSubString) != std::string::npos) {
+        return ClientStatus::SHUTDOWN;
+    }
+
+    return ClientStatus::OK;
+}
+
+void analyseClientStatus(const Competitor &competitor,
+                         timepoint &timeEnd,
+                         ipstream &pipeStream) {
+
+
+    std::string line{};
+
+    std::uint64_t lineCount{0};
+    while (pipeStream && std::getline(pipeStream, line) && !line.empty()) {
+        // The exact end time is not very important.
+        // Therefore, in order to gain performance we only check for the elapsed time every 10th line
+        if (lineCount % 10 == 0
+            && std::chrono::system_clock::now() > timeEnd) {
+            break;
+        }
+
+        switch (parseClientStatus(competitor, line)) {
+            case OK:
+                break;
+            case CONNECTION_LOSS:
+                std::cout << "client connection loss detected at " << timeNowString(std::chrono::system_clock::now())
+                          << std::endl;
+                break;
+            case SHUTDOWN:
+                std::cout << "client shutdown detected at " << timeNowString(std::chrono::system_clock::now())
+                          << std::endl;
+                break;
+            default:
+                break;
+        }
+
+        // TODO: create statistics and return them
+
+        ++lineCount;
+    }
+}
+
+void runTestMPI(const GNetworkedConsumerStabilityConfig &config,
+                const Competitor &competitor,
+                timepoint timeEnd) {
+    ipstream pipeStream{};
+
+    std::string command = config.getMpirunLocation()
+                          + " --oversubscribe -np "
+                          + std::to_string(config.getNClients() + 1) // one server + nClients
+                          // set temp directory in order to be able to clean it
+                          + " --mca orte_tmpdir_base " + orteTempDirBase
+                          + " " + config.getTestExecutableName()
+                          + " " + competitor.arguments;
+
+    // clean up temp directory from previous runs
+    cleanUpOrteTemp();
+
+    std::cout << getCommandBanner(command, config.getNClients()) << std::endl;
+
+    // start sub-process by creating an object of type boost::process::child
+    child c(command, std_out > pipeStream, std_err > pipeStream);
+
+    // analyse the pipe stream to check for client status
+    analyseClientStatus(competitor, timeEnd, pipeStream);
+
+    // kill processes after time for analyzing has elapsed
+    std::cout << "Time for testing this competitor configuration has elapsed. Killing child process..." << std::endl;
+    c.terminate();
+
+    // wait until child processes have exited
+    c.wait();
+
+    std::cout << "Test for this configuration completed." << std::endl;
+}
+
+void runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
+                        const Competitor &competitor,
+                        std::chrono::time_point<std::chrono::system_clock> timeEnd) {
+    ipstream pipeStream{};
+
+    std::string command = config.getTestExecutableName()
+                          + " " + competitor.arguments;
+
+    std::cout << getCommandBanner(command, config.getNClients()) << std::endl;
+
+    // run once without the --client attribute to start a server
+    child server(command, std_out > pipeStream, std_err > pipeStream);
+
+    // wait for server to be online before starting clients
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+
+    // start nClients clients and store handles in a vector
+    std::vector<child> clients{};
+    for (int i{0}; i < config.getNClients(); ++i) {
+        // this will call the constructor of the boost::process::child class and start the process
+        clients.emplace_back(command + " --client", std_out > pipeStream, std_err > pipeStream);
+    }
+
+    // check pipe-stream for connection issues for a specifies amount of time
+    analyseClientStatus(competitor, timeEnd, pipeStream);
+
+    // kill all processes after analyzing has been finished
+    std::cout << "Time for testing this competitor configuration has elapsed. Killing child process..." << std::endl;
+    server.terminate();
+    std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.terminate(); });
+
+    // wait for the completion of all processes
+    server.wait();
+    std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.wait(); });
+
+    std::cout << "Test for this configuration completed." << std::endl;
 }
 
 void runTest(const GNetworkedConsumerStabilityConfig &config, const Competitor &competitor) {
+    const timepoint timeStart = std::chrono::system_clock::now();
+    const timepoint timeEnd = timeStart + std::chrono::minutes(config.getDuration().totalMinutes());
+
     if (competitor.arguments.find("--consumer mpi") != std::string::npos) {
         // mpi must be started differently
-        runTestMPI(config, competitor);
+        runTestMPI(config, competitor, timeEnd);
     } else {
-        runTestWithClients(config, competitor);
+        runTestWithClients(config, competitor, timeEnd);
     }
 }
 

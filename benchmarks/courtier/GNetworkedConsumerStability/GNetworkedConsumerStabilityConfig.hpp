@@ -225,7 +225,7 @@ namespace Gem::Tests {
         /**
          * returns the name of the test executable to run
          */
-        [[nodiscard]] std::string getMBenchmarkExecutableName() const {
+        [[nodiscard]] std::string getTestExecutableName() const {
             return m_testExecutable;
         }
 
