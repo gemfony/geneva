@@ -402,8 +402,6 @@ void measureExecutionTimes(const GNetworkedConsumerBenchmarkConfig &config,
     } else {
         measureExecutionTimesWithClients(config, nClients, competitor);
     }
-
-    std::cout << nClients << " " << competitor.name << std::endl;
 }
 
 void renameIntermediateFiles(const GNetworkedConsumerBenchmarkConfig &config, const std::string &suffix,
