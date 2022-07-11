@@ -323,7 +323,9 @@ void cleanUpOrteTemp() {
 void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                               std::uint32_t nClients,
                               const Competitor &competitor) {
-    boost::process::ipstream pipeStream{};
+    using namespace boost::process;
+
+    ipstream pipeStream{};
 
     std::string command = config.getMpirunLocation()
                           + " --oversubscribe -np "
@@ -343,12 +345,12 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
-    boost::process::child c(command, boost::process::std_out > pipeStream);
+    child c(command, std_out > pipeStream, std_err > pipeStream);
 
     // pipe std out of mpirun to this process
     std::string line{};
     while (pipeStream && std::getline(pipeStream, line) && !line.empty())
-        std::cerr << line << std::endl;
+        std::cout << line << std::endl;
 
     c.wait();
 }
@@ -356,7 +358,9 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
 void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &config,
                                       std::uint32_t nClients,
                                       const Competitor &competitor) {
-    boost::process::ipstream pipeStream{};
+    using namespace boost::process;
+
+    ipstream pipeStream{};
 
     std::string command = config.getMBenchmarkExecutableName()
                           + " " + competitor.arguments
@@ -368,16 +372,16 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
     // run once without the --client attribute to start a server
-    boost::process::child server(command, boost::process::std_out > pipeStream);
+    child server(command, std_out > pipeStream, std_err > pipeStream);
 
     // wait for server to be online before starting clients
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     // start nClients clients and store handles in a vector
-    std::vector<boost::process::child> clients{};
+    std::vector<child> clients{};
     for (int i{0}; i < nClients; ++i) {
-        // this will call the constructor of the boost::process::child class and start the process
-        clients.emplace_back(command + " --client");
+        // this will call the constructor of the child class and start the process
+        clients.emplace_back(command + " --client", std_out > pipeStream, std_err > pipeStream);
     }
 
     // pipe std out the server to this process
@@ -388,7 +392,7 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
 
     // wait for the completion of all processes
     server.wait();
-    std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.wait(); });
+    std::for_each(clients.begin(), clients.end(), [](child &client) { client.wait(); });
 }
 
 void measureExecutionTimes(const GNetworkedConsumerBenchmarkConfig &config,
