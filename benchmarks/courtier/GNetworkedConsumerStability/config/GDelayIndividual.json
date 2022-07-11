@@ -10,8 +10,9 @@
     },
     "delays": {
         "comment": "A list of delays through which main() should cycle. Format: seconds:milliseconds",
+        "comment": "For GNetworkedConsumerStability test only the first value is used repeatedly",
         "default": "(0,1), (0,10), (0,100), (0,500), (1,0)",
-        "value": "(0,1), (0,10), (0,100), (0, 500), (1,0)"
+        "value": "(0,1)"
     },
     "resultFile": {
         "comment": "The name of a file to which results should be stored",
