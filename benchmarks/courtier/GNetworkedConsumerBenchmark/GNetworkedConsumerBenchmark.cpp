@@ -87,8 +87,6 @@ const std::vector<std::string> lineColors{
         "kYellow"
 };
 
-Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
-
 // forward declare struct
 struct ExTimesSleepAtX;
 

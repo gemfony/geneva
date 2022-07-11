@@ -60,7 +60,6 @@ using namespace Gem::Geneva;
 using namespace Gem::Common;
 
 const std::string executionTimesFileName{"executionTimesVector.ser"};
-Gem::Common::serializationMode serMode = Gem::Common::serializationMode::TEXT;
 
 /******************************************************************************/
 /**
