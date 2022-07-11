@@ -1,0 +1,41 @@
+{
+  "nClients": {
+    "comment": "numbers of clients to be benchmarked",
+    "default": "250",
+    "value": "250"
+  },
+  "duration": {
+    "comment": "duration (hours:minutes) for which each competitor will run until it will eventually be stopped",
+    "default": "01:00",
+    "value": "01:00"
+  },
+  "competitors": {
+    "comment": "A list of configurations to run against each other in this test",
+    "default": {
+      "item": "'Boost.Asio', 'asio', '--consumer asio --asio_port 10000 --asio_nProcessingThreads=1', 'We will try to reconnect', 'GAsioConsumerClientT<processable_type>::run_(): Client has terminated'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast --beast_port 10001 --beast_nListenerThreads=1','', 'GWebsocketClientT<processable_type>::run_(): Client session has terminated'",
+      "item": "'MPI', 'mpi', '--consumer mpi --mpi_master_nIOThreads=1', '', 'GMPIConsumerWorkerNodeT<processable_type>::run(): Worker has terminated'"
+    },
+    "value": {
+      "item": "'Boost.Asio', 'asio', '--consumer asio --asio_port 10000 --asio_nProcessingThreads=1'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast --beast_port 10001 --beast_nListenerThreads=1'",
+      "item": "'MPI', 'mpi', '--consumer mpi --mpi_master_nIOThreads=1'"
+    }
+  },
+  "resultFile": {
+    "comment": "The name of a file to which results of the",
+    "comment": "benchmark should be written",
+    "default": "GNetworkedConsumerStability.C",
+    "value": "GNetworkedConsumerStability.C"
+  },
+  "mpirunLocation": {
+    "comment": "The location of the mpirun executable to use",
+    "default": "mpirun",
+    "value": "mpirun"
+  },
+  "interMeasurementDelaySecs": {
+    "comment": "Delay in between starting benchmark executables, which might be helpful to give the OS time to free up resources",
+    "default": "60",
+    "value": "60"
+  }
+}

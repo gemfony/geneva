@@ -34,16 +34,52 @@
 #
 ################################################################################
 
-ADD_CUSTOM_TARGET( "benchmarks-courtier"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS GBufferPortTTest # GConsumerPerformance
-	COMMENT "Building the benchmarks for the Courtier library."
+IF (NOT GENEVA_FULL_TREE_BUILD)
+
+	PROJECT(GNetworkedConsumerStabilitySubProgram)
+
+	# For building the benchmarks independently, we still assume that the
+	# current source folder is still part of the Geneva tree structure,
+	# i.e., the 'CMakeModules' folder can be found going up... This avoids
+	# having to copy the same content over and over again in the tests.
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
+
+	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
+	INCLUDE(CommonGenevaBuild)
+
+ENDIF ()
+
+SET ( EXECUTABLENAME GNetworkedConsumerStabilitySubProgram )
+
+SET ( ${EXECUTABLENAME}_SRCS
+	GNetworkedConsumerStabilitySubProgram
 )
 
-ADD_SUBDIRECTORY (GBufferPortTTest )
-# ADD_SUBDIRECTORY (GConsumerPerformance)
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
 
+SET(LIBRARIES_TO_LINK
+		${GENEVA_LIBRARIES}
+		${Boost_LIBRARIES})
+
+# Add MPI Libraries in case building with MPI-consumer
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
-	ADD_SUBDIRECTORY(GNetworkedConsumerBenchmark)
-	ADD_SUBDIRECTORY(GNetworkedConsumerStability)
+	SET(LIBRARIES_TO_LINK
+			${LIBRARIES_TO_LINK}
+			${MPI_LIBRARIES})
 ENDIF()
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+		${LIBRARIES_TO_LINK})
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )
+
+
+#
+# Take care of other particularities of this test
+#
+
+SET_TESTS_PROPERTIES(${EXECUTABLENAME} PROPERTIES TIMEOUT 2500)
