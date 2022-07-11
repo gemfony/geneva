@@ -52,8 +52,6 @@
 #include "common/GPlotDesigner.hpp"
 
 using namespace Gem::Tests;
-using namespace boost::process;
-using timepoint = std::chrono::system_clock::time_point;
 
 // name of the directory for ROOT files
 const std::string resultDirName{"results"};
@@ -762,7 +760,8 @@ void createPlotFromResults(const GNetworkedConsumerStabilityConfig &config) {
     plotAbsoluteTimes(exTimesVec, config);
 }
 
-std::string timeNowString(timepoint time) {
+std::string timeNowString(std::chrono::system_clock::time_point time) {
+
     auto in_time_t = std::chrono::system_clock::to_time_t(time);
 
     std::stringstream ss;
@@ -791,9 +790,10 @@ ClientStatus parseClientStatus(const Competitor &competitor, const std::string &
 }
 
 void analyseClientStatus(const Competitor &competitor,
-                         timepoint &timeEnd,
-                         ipstream &pipeStream) {
+                         std::chrono::system_clock::time_point &timeEnd,
+                         boost::process::ipstream &pipeStream) {
 
+    using namespace std::chrono;
 
     std::string line{};
 
@@ -802,7 +802,7 @@ void analyseClientStatus(const Competitor &competitor,
         // The exact end time is not very important.
         // Therefore, in order to gain performance we only check for the elapsed time every 10th line
         if (lineCount % 10 == 0
-            && std::chrono::system_clock::now() > timeEnd) {
+            && system_clock::now() > timeEnd) {
             break;
         }
 
@@ -810,11 +810,11 @@ void analyseClientStatus(const Competitor &competitor,
             case OK:
                 break;
             case CONNECTION_LOSS:
-                std::cout << "client connection loss detected at " << timeNowString(std::chrono::system_clock::now())
+                std::cout << "client connection loss detected at " << timeNowString(system_clock::now())
                           << std::endl;
                 break;
             case SHUTDOWN:
-                std::cout << "client shutdown detected at " << timeNowString(std::chrono::system_clock::now())
+                std::cout << "client shutdown detected at " << timeNowString(system_clock::now())
                           << std::endl;
                 break;
             default:
@@ -829,7 +829,9 @@ void analyseClientStatus(const Competitor &competitor,
 
 void runTestMPI(const GNetworkedConsumerStabilityConfig &config,
                 const Competitor &competitor,
-                timepoint timeEnd) {
+                std::chrono::system_clock::time_point timeEnd) {
+    using namespace  boost::process;
+
     ipstream pipeStream{};
 
     std::string command = config.getMpirunLocation()
@@ -864,6 +866,8 @@ void runTestMPI(const GNetworkedConsumerStabilityConfig &config,
 void runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
                         const Competitor &competitor,
                         std::chrono::time_point<std::chrono::system_clock> timeEnd) {
+    using namespace  boost::process;
+
     ipstream pipeStream{};
 
     std::string command = config.getTestExecutableName()
@@ -890,18 +894,20 @@ void runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
     // kill all processes after analyzing has been finished
     std::cout << "Time for testing this competitor configuration has elapsed. Killing child process..." << std::endl;
     server.terminate();
-    std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.terminate(); });
+    std::for_each(clients.begin(), clients.end(), [](child &client) { client.terminate(); });
 
     // wait for the completion of all processes
     server.wait();
-    std::for_each(clients.begin(), clients.end(), [](boost::process::child &client) { client.wait(); });
+    std::for_each(clients.begin(), clients.end(), [](child &client) { client.wait(); });
 
     std::cout << "Test for this configuration completed." << std::endl;
 }
 
 void runTest(const GNetworkedConsumerStabilityConfig &config, const Competitor &competitor) {
-    const timepoint timeStart = std::chrono::system_clock::now();
-    const timepoint timeEnd = timeStart + std::chrono::minutes(config.getDuration().totalMinutes());
+    using namespace std::chrono;
+
+    const auto timeStart = system_clock::now();
+    const auto timeEnd = timeStart + minutes(config.getDuration().totalMinutes());
 
     if (competitor.arguments.find("--consumer mpi") != std::string::npos) {
         // mpi must be started differently
