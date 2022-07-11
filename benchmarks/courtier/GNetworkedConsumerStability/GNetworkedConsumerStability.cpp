@@ -797,15 +797,10 @@ void analyseClientStatus(const Competitor &competitor,
 
     std::string line{};
 
-    std::uint64_t lineCount{0};
-    while (pipeStream && std::getline(pipeStream, line) && !line.empty()) {
-        // The exact end time is not very important.
-        // Therefore, in order to gain performance we only check for the elapsed time every 10th line
-        if (lineCount % 10 == 0
-            && system_clock::now() > timeEnd) {
-            break;
-        }
-
+    while (system_clock::now() < timeEnd
+           && pipeStream
+           && std::getline(pipeStream, line)
+           && !line.empty()) {
         switch (parseClientStatus(competitor, line)) {
             case OK:
                 break;
@@ -830,7 +825,7 @@ void analyseClientStatus(const Competitor &competitor,
 void runTestMPI(const GNetworkedConsumerStabilityConfig &config,
                 const Competitor &competitor,
                 std::chrono::system_clock::time_point timeEnd) {
-    using namespace  boost::process;
+    using namespace boost::process;
 
     ipstream pipeStream{};
 
@@ -866,7 +861,7 @@ void runTestMPI(const GNetworkedConsumerStabilityConfig &config,
 void runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
                         const Competitor &competitor,
                         std::chrono::time_point<std::chrono::system_clock> timeEnd) {
-    using namespace  boost::process;
+    using namespace boost::process;
 
     ipstream pipeStream{};
 
