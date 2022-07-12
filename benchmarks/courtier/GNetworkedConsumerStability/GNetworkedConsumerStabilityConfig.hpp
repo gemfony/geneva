@@ -382,7 +382,7 @@ namespace Gem::Tests {
             os << c.name << ": " << c.arguments << std::endl;
         }
 
-        os << "Duration: " << config.getDuration() << std::endl;
+        os << "Duration: " << config.getDuration() << "[hh:mm]" << std::endl;
 
         os << "Clients: " << config.getNClients() << std::endl;
 
