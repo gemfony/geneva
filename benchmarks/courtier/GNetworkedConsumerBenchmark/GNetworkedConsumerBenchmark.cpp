@@ -345,7 +345,7 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
-    child c(command, std_out > pipeStream, std_err > pipeStream);
+    child c(command, (std_out & std_err) > pipeStream);
 
     // pipe std out of mpirun to this process
     std::string line{};
@@ -372,7 +372,7 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
     std::cout << getCommandBanner(command, nClients) << std::endl;
 
     // run once without the --client attribute to start a server
-    child server(command, std_out > pipeStream, std_err > pipeStream);
+    child server(command, (std_out & std_err) > pipeStream);
 
     // wait for server to be online before starting clients
     std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -381,7 +381,7 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
     std::vector<child> clients{};
     for (int i{0}; i < nClients; ++i) {
         // this will call the constructor of the child class and start the process
-        clients.emplace_back(command + " --client", std_out > pipeStream, std_err > pipeStream);
+        clients.emplace_back(command + " --client");
     }
 
     // pipe std out the server to this process
