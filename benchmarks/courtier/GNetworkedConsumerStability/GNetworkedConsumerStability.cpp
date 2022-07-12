@@ -45,6 +45,7 @@
 
 // Boost header files go here
 #include <boost/process.hpp>
+#include <utility>
 
 // Geneva header files go here
 
@@ -769,6 +770,109 @@ std::string timeNowString(std::chrono::system_clock::time_point time) {
     return ss.str();
 }
 
+class StabilityStatistic {
+public:
+    /**
+     * competitor which this statistic belongs to
+     */
+    Competitor m_competitor;
+    /**
+     * Vector of elements: <minutes elapsed, connection issues detected until this time>
+     */
+    std::vector<std::tuple<std::uint32_t, std::uint32_t>> m_connectionsLost;
+    /**
+     * Vector of elements: <minutes elapsed, clients lost until this time>
+     */
+    std::vector<std::tuple<std::uint32_t, std::uint32_t>> m_clientsTerminated;
+    /**
+     * amount of data points stored (if any)
+     */
+    std::uint32_t m_resolution;
+
+    StabilityStatistic() = delete;
+
+    /**
+     * Initializes the struct with a competitor and a given resolution
+     * @param c competitor that this statistic belongs to
+     * @param resolution the amount of data points stored in the vectors
+     */
+    explicit StabilityStatistic(Competitor c, std::uint32_t resolution)
+            : m_competitor{std::move(c)},
+              m_resolution{resolution},
+              m_connectionsLost{},
+              m_clientsTerminated{} {
+
+        // initialize vectors with the required length in case the competitor is able to test the given property
+        if (!m_competitor.connectionIssuesSubstring.empty()) {
+            for (std::uint32_t i{0}; i < resolution; ++i) {
+                m_connectionsLost.emplace_back(i, 0);
+            }
+        }
+        if (!m_competitor.terminationSubString.empty()) {
+            for (std::uint32_t i{0}; i < resolution; ++i) {
+                m_clientsTerminated.emplace_back(i, 0);
+            }
+        }
+    }
+
+    /**
+     * Shrinks the vectors such that they will have `resolution` elements.
+     * Consecutive elements are grouped. The resulting x-value is the smallest x-value of the group.
+     * The resulting y-value is the sum of all y-values of the group.
+     * If any elements at the end are left over (due to non-divisibility), they are ignored
+     * @param resolution number of elements in the vectors of the output object
+     * @return self
+     */
+    StabilityStatistic &shrink(const std::uint32_t &resolution) {
+        // shrink members
+        m_connectionsLost = StabilityStatistic::shrink(m_connectionsLost, resolution);
+        m_clientsTerminated = StabilityStatistic::shrink(m_clientsTerminated, resolution);
+
+        m_resolution = resolution;
+
+        // return self for chaining
+        return *this;
+    }
+
+    /**
+     * returns true if each x-axis tick represents one minute
+     */
+    [[nodiscard]] bool isMinuteScaled() const {
+        if (!m_clientsTerminated.empty() && m_resolution >= 2) {
+            return std::get<0>(m_clientsTerminated[0]) - std::get<0>(m_clientsTerminated[1]) == 1;
+        }
+        return false;
+    }
+
+private:
+
+    static std::vector<std::tuple<std::uint32_t, std::uint32_t>> shrink(
+            const std::vector<std::tuple<std::uint32_t, std::uint32_t>> &stat,
+            const std::uint32_t &resolution) {
+        if (!stat.empty() && resolution >= stat.size()) {
+            throw std::invalid_argument{"Cannot shrink to a resolution greater or equal to number of data points"};
+        }
+
+        // distance of x-values of the result vector
+        std::uint64_t stepWidth{stat.size() / resolution};
+        std::vector<std::tuple<std::uint32_t, std::uint32_t>> result{};
+
+        if (!stat.empty()) { // if empty we will not iterate and leave vector empty
+            for (std::uint32_t i{0}; i < stat.size(); i += stepWidth) {
+                // sum up all y-values until next tick
+                std::uint32_t sum{0};
+                for (std::uint32_t j{i}; j < j + stepWidth - 1; ++j) {
+                    sum += std::get<1>(stat[j]);
+                }
+                // add x-value of first element of group and sum of y-values of elements of group
+                result.emplace_back(i, sum);
+            }
+        }
+
+        return result;
+    }
+};
+
 enum ClientStatus {
     OK,
     CONNECTION_LOSS,
@@ -789,11 +893,37 @@ ClientStatus parseClientStatus(const Competitor &competitor, const std::string &
     return ClientStatus::OK;
 }
 
-void analyseClientStatus(const Competitor &competitor,
-                         std::chrono::system_clock::time_point &timeEnd,
-                         boost::process::ipstream &pipeStream) {
+void incrementStatNow(StabilityStatistic &stat,
+                      const std::chrono::system_clock::time_point &timeStart,
+                      const ClientStatus &status) {
+    if (!stat.isMinuteScaled()) {
+        throw std::invalid_argument{"Can only increment minute-scaled statistics."};
+    }
 
     using namespace std::chrono;
+
+    std::int64_t minutesElapsed{duration_cast<minutes>(system_clock::now() - timeStart).count()};
+
+    // create pointer to vector which needs to be incremented
+    auto vecPtr = status == CONNECTION_LOSS ? &stat.m_connectionsLost : &stat.m_clientsTerminated;
+
+    // increment y-value for the current minute and all following minutes in the collection
+    for (std::int64_t i{minutesElapsed}; i < vecPtr->size(); ++i) {
+        // increment y-value
+        std::get<1>((*vecPtr)[i]);
+    }
+}
+
+StabilityStatistic analyseClientStatus(const GNetworkedConsumerStabilityConfig &config,
+                         const Competitor &competitor,
+                         boost::process::ipstream &pipeStream) {
+    using namespace std::chrono;
+
+    const auto timeStart = system_clock::now();
+    const auto timeEnd = timeStart + minutes(config.getDuration().totalMinutes());
+
+    // create stat object for the competitor with the given runtime in minutes
+    StabilityStatistic stat{competitor, config.getDuration().totalMinutes()};
 
     std::string line{};
 
@@ -802,29 +932,28 @@ void analyseClientStatus(const Competitor &competitor,
            && std::getline(pipeStream, line)
            && !line.empty()) {
         switch (parseClientStatus(competitor, line)) {
-            case OK:
+            case OK: // do nothing if everything is ok
                 break;
             case CONNECTION_LOSS:
                 std::cout << "client connection loss detected at " << timeNowString(system_clock::now())
                           << std::endl;
+                incrementStatNow(stat, timeStart, CONNECTION_LOSS);
                 break;
             case SHUTDOWN:
                 std::cout << "client shutdown detected at " << timeNowString(system_clock::now())
                           << std::endl;
+                incrementStatNow(stat, timeStart, SHUTDOWN);
                 break;
             default:
                 break;
         }
-
-        // TODO: create statistics and return them
-
-        ++lineCount;
     }
+
+    return stat;
 }
 
-void runTestMPI(const GNetworkedConsumerStabilityConfig &config,
-                const Competitor &competitor,
-                std::chrono::system_clock::time_point timeEnd) {
+StabilityStatistic runTestMPI(const GNetworkedConsumerStabilityConfig &config,
+                const Competitor &competitor) {
     using namespace boost::process;
 
     ipstream pipeStream{};
@@ -846,7 +975,7 @@ void runTestMPI(const GNetworkedConsumerStabilityConfig &config,
     child c(command, std_out > pipeStream, std_err > pipeStream);
 
     // analyse the pipe stream to check for client status
-    analyseClientStatus(competitor, timeEnd, pipeStream);
+    StabilityStatistic stat {analyseClientStatus(config, competitor, pipeStream)};
 
     // kill processes after time for analyzing has elapsed
     std::cout << "Time for testing this competitor configuration has elapsed. Killing child process..." << std::endl;
@@ -856,11 +985,12 @@ void runTestMPI(const GNetworkedConsumerStabilityConfig &config,
     c.wait();
 
     std::cout << "Test for this configuration completed." << std::endl;
+
+    return stat;
 }
 
-void runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
-                        const Competitor &competitor,
-                        std::chrono::time_point<std::chrono::system_clock> timeEnd) {
+StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
+                        const Competitor &competitor) {
     using namespace boost::process;
 
     ipstream pipeStream{};
@@ -884,7 +1014,7 @@ void runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
     }
 
     // check pipe-stream for connection issues for a specifies amount of time
-    analyseClientStatus(competitor, timeEnd, pipeStream);
+    StabilityStatistic stat {analyseClientStatus(config, competitor, pipeStream)};
 
     // kill all processes after analyzing has been finished
     std::cout << "Time for testing this competitor configuration has elapsed. Killing child process..." << std::endl;
@@ -896,19 +1026,18 @@ void runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
     std::for_each(clients.begin(), clients.end(), [](child &client) { client.wait(); });
 
     std::cout << "Test for this configuration completed." << std::endl;
+
+    return stat;
 }
 
-void runTest(const GNetworkedConsumerStabilityConfig &config, const Competitor &competitor) {
+StabilityStatistic runTest(const GNetworkedConsumerStabilityConfig &config, const Competitor &competitor) {
     using namespace std::chrono;
-
-    const auto timeStart = system_clock::now();
-    const auto timeEnd = timeStart + minutes(config.getDuration().totalMinutes());
 
     if (competitor.arguments.find("--consumer mpi") != std::string::npos) {
         // mpi must be started differently
-        runTestMPI(config, competitor, timeEnd);
+        return runTestMPI(config, competitor);
     } else {
-        runTestWithClients(config, competitor, timeEnd);
+        return runTestWithClients(config, competitor);
     }
 }
 
@@ -930,8 +1059,10 @@ int main(int argc, char **argv) {
 
     std::cout << getHeader(config) << std::endl;
 
+    std::vector<StabilityStatistic> stats{};
+
     for (const Competitor &c: config.getCompetitors()) {
-        runTest(config, c);
+        stats.push_back(runTest(config, c));
     }
 
     std::cout << "Generating the plots ..." << std::endl;
