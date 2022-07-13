@@ -42,14 +42,11 @@
 #include <iostream>
 #include <cmath>
 #include <string>
-#include <fstream>
-#include <sstream>
 
 // Boost header files go here
 
 // Geneva header files go here
 #include "common/GCommonMathHelperFunctionsT.hpp"
-#include "common/GThreadPool.hpp"
 #include "geneva/Go2.hpp"
 #include "geneva/G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.hpp"
 
