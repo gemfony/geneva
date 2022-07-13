@@ -315,6 +315,30 @@ StabilityStatistic analyseClientStatus(const GNetworkedConsumerStabilityConfig &
     return stat;
 }
 
+void registerReadCallback(boost::asio::streambuf &streamBuf,
+                          boost::process::async_pipe &pipe,
+                          const GNetworkedConsumerStabilityConfig &config,
+                          const std::chrono::system_clock::time_point &timeStart,
+                          StabilityStatistic &stat) {
+    boost::asio::async_read_until(pipe,
+                            streamBuf,
+                            '\n',
+                            [&streamBuf, &pipe, &config, &timeStart, &stat]
+                                    (const boost::system::error_code &ec, std::size_t size) {
+                                if (ec && ec.value() != boost::asio::error::eof) {
+                                    std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
+                                } else {
+                                    // read all available lines in this callback
+                                    analyseClientStatus(config, timeStart, stat, streamBuf);
+
+                                    if (ec.value() != boost::asio::error::eof) {
+                                        // register handler again if eaf not reached yet
+                                        registerReadCallback(streamBuf, pipe, config, timeStart, stat);
+                                    }
+                                }
+                            });
+}
+
 StabilityStatistic runTestMPI(const GNetworkedConsumerStabilityConfig &config,
                               const Competitor &competitor) {
     namespace bp = boost::process;
@@ -347,17 +371,7 @@ StabilityStatistic runTestMPI(const GNetworkedConsumerStabilityConfig &config,
     bp::child c(command, (bp::std_out & bp::std_err) > pipe);
 
     // register handler for asynchronous read on stream buffer
-    boost::asio::async_read(pipe,
-                            streamBuf,
-                            [&streamBuf, &config, &timeStart, &resultStat]
-                                    (const boost::system::error_code &ec, std::size_t size) {
-                                if (ec && ec.value() != boost::asio::error::eof) {
-                                    std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
-                                } else {
-                                    // read all available lines in this callback
-                                    analyseClientStatus(config, timeStart, resultStat, streamBuf);
-                                }
-                            });
+    registerReadCallback(streamBuf, pipe, config, timeStart, resultStat);
 
     // run the io_service on a new thread to handle the pipe events
     auto ioRun = std::async(std::launch::async, [&ios]() { ios.run(); });
@@ -379,6 +393,34 @@ StabilityStatistic runTestMPI(const GNetworkedConsumerStabilityConfig &config,
     std::cout << "Test for this configuration completed." << std::endl;
 
     return resultStat;
+}
+
+void registerReadCallback(boost::asio::streambuf &streamBuf,
+                          boost::process::async_pipe &pipe,
+                          const GNetworkedConsumerStabilityConfig &config,
+                          const std::chrono::system_clock::time_point &timeStart,
+                          StabilityStatistic &stat,
+                          std::mutex &lock) {
+    boost::asio::async_read_until(pipe,
+                                  streamBuf,
+                                  '\n',
+                                  [&streamBuf, &pipe, &config, &timeStart, &stat, &lock]
+                                          (const boost::system::error_code &ec, std::size_t size) {
+                                      if (ec && ec.value() != boost::asio::error::eof) {
+                                          std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
+                                      } else {
+                                          // protect access to statistic when reading from multiple handlers concurrently
+                                          std::lock_guard<std::mutex> guard{lock};
+
+                                          // read all available lines in this callback
+                                          analyseClientStatus(config, timeStart, stat, streamBuf);
+
+                                          if (ec.value() != boost::asio::error::eof) {
+                                              // register handler again if eaf not reached yet
+                                              registerReadCallback(streamBuf, pipe, config, timeStart, stat, lock);
+                                          }
+                                      }
+                                  });
 }
 
 StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
@@ -414,22 +456,24 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
         processes.emplace_back(command + (i == 0 ? "" : " --client"), (bp::std_out & bp::std_err) > *pipes[i]);
 
         // register read handler for this pipe
-        basio::async_read(*pipes[i],
-                          *buffers[i],
-                          [i, &buffers, &config, &timeStart, &resultStat, &statLock](
-                                  const boost::system::error_code &ec,
-                                  std::size_t size) {
-                              if (ec && ec.value() != boost::asio::error::eof) {
-                                  std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
-                              } else {
-                                  // protect access to statistic when reading from multiple handlers concurrently
-                                  std::lock_guard<std::mutex> guard{statLock};
+        registerReadCallback(*buffers[i], *pipes[i], config, timeStart, resultStat, statLock);
 
-                                  // read all available lines in this callback
-                                  analyseClientStatus(config, timeStart, resultStat, *buffers[i]);
-                                  // guard goes out of scope and unlocks underlying mutex
-                              }
-                          });
+//        basio::async_read(*pipes[i],
+//                          *buffers[i],
+//                          [i, &buffers, &config, &timeStart, &resultStat, &statLock](
+//                                  const boost::system::error_code &ec,
+//                                  std::size_t size) {
+//                              if (ec && ec.value() != boost::asio::error::eof) {
+//                                  std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
+//                              } else {
+//                                  // protect access to statistic when reading from multiple handlers concurrently
+//                                  std::lock_guard<std::mutex> guard{statLock};
+//
+//                                  // read all available lines in this callback
+//                                  analyseClientStatus(config, timeStart, resultStat, *buffers[i]);
+//                                  // guard goes out of scope and unlocks underlying mutex
+//                              }
+//                          });
 
         if (i == 0) { // server
             std::this_thread::sleep_for(std::chrono::seconds(3)); // wait until server is up before starting clients
