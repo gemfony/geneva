@@ -366,9 +366,9 @@ namespace Gem::Tests {
          */
         std::vector<Competitor> m_competitors{
                 // attributes: name, arguments
-                {"Boost.Asio",  "asio",  "--consumer asio --asio_port 10000 --asio_nProcessingThreads=1",  "We will try to reconnect", "GAsioConsumerClientT<processable_type>::run_(): Client has terminated"},
-                {"Boost.Beast", "beast", "--consumer beast --beast_port 10001 --beast_nListenerThreads=1", "",                         "GWebsocketClientT<processable_type>::run_(): Client session has terminated"},
-                {"MPI",         "mpi",   "--consumer mpi --mpi_master_nIOThreads=1",                       "",                         "GMPIConsumerWorkerNodeT<processable_type>::run(): Worker has terminated"}
+                {"Boost.Asio",  "asio",  "--consumer asio --asio_port 10000 --asio_nProcessingThreads 1",  "We will try to reconnect", "GAsioConsumerClientT<processable_type>::run_(): Client has terminated"},
+                {"Boost.Beast", "beast", "--consumer beast --beast_port 10001 --beast_nListenerThreads 1", "",                         "GWebsocketClientT<processable_type>::run_(): Client session has terminated"},
+                {"MPI",         "mpi",   "--consumer mpi --mpi_master_nIOThreads 1",                       "",                         "GMPIConsumerWorkerNodeT<processable_type>::run(): Worker has terminated"}
         };
 
 
