@@ -479,8 +479,7 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
     for (std::uint32_t i{0}; i < config.getNClients() + 1; ++i) {
         buffers.push_back(std::make_shared<basio::streambuf>());
         pipes.push_back(std::make_shared<bp::async_pipe>(ios));
-        // TODO: change this back to 0
-        processes.emplace_back(command + (i == -1 ? "" : " --client"), (bp::std_out & bp::std_err) > *pipes[i]);
+        processes.emplace_back(command + (i == 0 ? "" : " --client"), (bp::std_out & bp::std_err) > *pipes[i]);
 
         // register read handler for this pipe
         registerReadCallback(*buffers[i], *pipes[i], config, timeStart, resultStat, statLock);
