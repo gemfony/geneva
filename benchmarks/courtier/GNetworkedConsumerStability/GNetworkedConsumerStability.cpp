@@ -321,7 +321,6 @@ void analyseClientStatus(const GNetworkedConsumerStabilityConfig &config,
            && !line.empty()) {
         switch (parseClientStatus(stat.m_competitor, line)) {
             case OK: // do nothing if everything is ok
-                std::cout << "OK: " << line << std::endl;
                 break;
             case CONNECTION_LOSS:
                 std::cout << "client connection loss detected at " << timeNowString(system_clock::now())
