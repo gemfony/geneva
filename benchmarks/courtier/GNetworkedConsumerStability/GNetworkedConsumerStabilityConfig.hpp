@@ -89,6 +89,19 @@ namespace Gem::Tests {
      * stores information about one of the competing configurations in the test
      */
     struct Competitor {
+        friend class boost::serialization::access;
+
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int) {
+            using boost::serialization::make_nvp;
+            ar
+            & BOOST_SERIALIZATION_NVP(name)
+            & BOOST_SERIALIZATION_NVP(shortName)
+            & BOOST_SERIALIZATION_NVP(arguments)
+            & BOOST_SERIALIZATION_NVP(connectionIssuesSubstring)
+            & BOOST_SERIALIZATION_NVP(terminationSubString);
+        }
+
         /**
          * name displayed to the user in the graphs
          */
@@ -118,7 +131,7 @@ namespace Gem::Tests {
         }
     };
 
-    std::ostream &operator<<(std::ostream &os, const Competitor& c) {
+    std::ostream &operator<<(std::ostream &os, const Competitor &c) {
         os << "'" << c.name << "', "
            << "'" << c.shortName << "', "
            << "'" << c.arguments << "', "
@@ -244,6 +257,14 @@ namespace Gem::Tests {
             return m_interMeasurementDelaySecs;
         }
 
+        /**
+         * returns a flag that is true if the benchmark should not be run, but only the graphs should be generated from
+         * already existing result files.
+         */
+        [[nodiscard]] std::uint32_t getOnlyGenerateGraphs() const {
+            return m_onlyGenerateGraphs;
+        }
+
     private:
 
         void registerFileOptions() {
@@ -304,6 +325,13 @@ namespace Gem::Tests {
                     m_testExecutable,
                     m_testExecutable,
                     "The location of the executable that is started for each competitor."
+            );
+
+            m_cLParser.registerCLParameter(
+                    "onlyGenerateGraphs",
+                    m_onlyGenerateGraphs,
+                    m_onlyGenerateGraphs,
+                    "Flag that defines whether to only build the graphs without running the benchmark."
             );
         }
 
@@ -373,6 +401,12 @@ namespace Gem::Tests {
          * The location of the executable called for testing
          */
         std::string m_testExecutable = "./GNetworkedConsumerStabilitySubProgram/GNetworkedConsumerStabilitySubProgram";
+
+        /**
+         * Flag that defines whether to only build the graphs without running the benchmark. This can be useful if
+         * the benchmark files already exists from a previous run but you would like to rebuild the graphs
+         */
+        std::uint32_t m_onlyGenerateGraphs{0};
     };
 
     std::ostream &operator<<(std::ostream &os, const GNetworkedConsumerStabilityConfig &config) {
@@ -382,7 +416,7 @@ namespace Gem::Tests {
             os << c.name << ": " << c.arguments << std::endl;
         }
 
-        os << "Duration: " << config.getDuration() << " [hh:mm]" << std::endl;
+        os << "Duration per configuration: " << config.getDuration() << " [hh:mm]" << std::endl;
 
         os << "Clients: " << config.getNClients() << std::endl;
 

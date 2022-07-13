@@ -2,12 +2,12 @@
   "nClients": {
     "comment": "numbers of clients to be benchmarked",
     "default": "250",
-    "value": "10"
+    "value": "250"
   },
   "duration": {
     "comment": "duration (hours:minutes) for which each competitor will run until it will eventually be stopped",
     "default": "01:00",
-    "value": "00:01"
+    "value": "01:00"
   },
   "competitors": {
     "comment": "A list of configurations to run against each other in this test",

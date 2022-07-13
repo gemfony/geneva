@@ -61,6 +61,11 @@ using namespace Gem::Tests;
 const std::string orteTempDirBase{"/tmp/GNetworkedConsumerStability_OPENMPI_ORTE"};
 
 /**
+ * Name of the backup file
+ */
+const std::string backupFileName{"stats.ser"};
+
+/**
  * Amount of data points to plot. i.e. a resolution for a test with duration 1 hour would result in one data point for each minute
  */
 const std::uint32_t graphResolution{30};
@@ -69,10 +74,10 @@ const std::uint32_t graphResolution{30};
 // These are ROOT constants
 const std::vector<std::string> lineColors{
         "kBlack",
-        "kGray",
         "kRed",
         "kGreen",
         "kBlue",
+        "kGray",
         "kMagenta",
         "kCyan",
         "kOrange",
@@ -113,6 +118,18 @@ std::string timeNowString(std::chrono::system_clock::time_point time) {
 }
 
 class StabilityStatistic {
+    friend class boost::serialization::access;
+
+    template<typename Archive>
+    void serialize(Archive &ar, const unsigned int) {
+        using boost::serialization::make_nvp;
+        ar
+        & BOOST_SERIALIZATION_NVP(m_competitor)
+        & BOOST_SERIALIZATION_NVP(m_connectionsLost)
+        & BOOST_SERIALIZATION_NVP(m_clientsTerminated)
+        & BOOST_SERIALIZATION_NVP(m_resolution);
+    }
+
 public:
     /**
      * competitor which this statistic belongs to
@@ -131,7 +148,10 @@ public:
      */
     std::uint32_t m_resolution;
 
-    StabilityStatistic() = delete;
+    /**
+     * required for serialization using boost
+     */
+    StabilityStatistic() = default;
 
     /**
      * Initializes the struct with a competitor and a given resolution
@@ -181,9 +201,10 @@ public:
      */
     [[nodiscard]] bool isMinuteScaled() const {
         if (!m_clientsTerminated.empty() && m_resolution >= 2) {
-            return std::get<0>(m_clientsTerminated[0]) - std::get<0>(m_clientsTerminated[1]) == 1;
+            // check if the distance of data points along the x-axis is equal to one
+            return std::get<0>(m_clientsTerminated[1]) - std::get<0>(m_clientsTerminated[0]) == 1;
         }
-        return false;
+        return true;
     }
 
     /**
@@ -195,12 +216,18 @@ public:
         std::tuple<std::uint32_t, std::uint32_t> max{0, 0};
         for (const auto &stat: stats) {
             if (clientsTerminated) {
+                if (stat.m_clientsTerminated.empty()) {
+                    continue; // do not check empty vectors (not applicable)
+                }
                 // vector is sorted, therefore checking the last element is sufficient
                 const auto terminated = stat.m_clientsTerminated[stat.m_clientsTerminated.size() - 1];
                 if (std::get<1>(terminated) > std::get<1>(max)) { // check greater y-value
                     max = terminated;
                 }
             } else {
+                if (stat.m_connectionsLost.empty()) {
+                    continue; // do not check empty vectors (not applicable)
+                }
                 // vector is sorted, therefore checking the last element is sufficient
                 const auto lost = stat.m_connectionsLost[stat.m_connectionsLost.size() - 1];
                 if (std::get<1>(lost) > std::get<1>(max)) { // check greater y-value
@@ -275,19 +302,18 @@ void incrementStatNow(StabilityStatistic &stat,
     auto vecPtr = status == CONNECTION_LOSS ? &stat.m_connectionsLost : &stat.m_clientsTerminated;
 
     // increment y-value for the current minute and all following minutes in the collection
+
     for (std::int64_t i{minutesElapsed}; i < vecPtr->size(); ++i) {
         // increment y-value
-        std::get<1>((*vecPtr)[i]);
+        ++std::get<1>((*vecPtr)[i]);
     }
 }
 
-StabilityStatistic analyseClientStatus(const GNetworkedConsumerStabilityConfig &config,
+void analyseClientStatus(const GNetworkedConsumerStabilityConfig &config,
                                        const std::chrono::system_clock::time_point &timeStart,
                                        StabilityStatistic &stat,
                                        boost::asio::streambuf &streamBuf) {
     using namespace std::chrono;
-
-    std::cout << "analyseClientStatus() called" << std::endl;
 
     std::string line{};
 
@@ -311,8 +337,6 @@ StabilityStatistic analyseClientStatus(const GNetworkedConsumerStabilityConfig &
                 break;
         }
     }
-
-    return stat;
 }
 
 void registerReadCallback(boost::asio::streambuf &streamBuf,
@@ -321,22 +345,23 @@ void registerReadCallback(boost::asio::streambuf &streamBuf,
                           const std::chrono::system_clock::time_point &timeStart,
                           StabilityStatistic &stat) {
     boost::asio::async_read_until(pipe,
-                            streamBuf,
-                            '\n',
-                            [&streamBuf, &pipe, &config, &timeStart, &stat]
-                                    (const boost::system::error_code &ec, std::size_t size) {
-                                if (ec && ec.value() != boost::asio::error::eof) {
-                                    std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
-                                } else {
-                                    // read all available lines in this callback
-                                    analyseClientStatus(config, timeStart, stat, streamBuf);
+                                  streamBuf,
+                                  '\n',
+                                  [&streamBuf, &pipe, &config, &timeStart, &stat]
+                                          (const boost::system::error_code &ec, std::size_t size) {
+                                      if (ec && ec.value() != boost::asio::error::eof) {
+                                          std::cout << "Error when reading asynchronously: " << ec.message()
+                                                    << std::endl;
+                                      } else {
+                                          // read all available lines in this callback
+                                          analyseClientStatus(config, timeStart, stat, streamBuf);
 
-                                    if (ec.value() != boost::asio::error::eof) {
-                                        // register handler again if eaf not reached yet
-                                        registerReadCallback(streamBuf, pipe, config, timeStart, stat);
-                                    }
-                                }
-                            });
+                                          if (ec.value() != boost::asio::error::eof) {
+                                              // register handler again if eaf not reached yet
+                                              registerReadCallback(streamBuf, pipe, config, timeStart, stat);
+                                          }
+                                      }
+                                  });
 }
 
 StabilityStatistic runTestMPI(const GNetworkedConsumerStabilityConfig &config,
@@ -407,7 +432,8 @@ void registerReadCallback(boost::asio::streambuf &streamBuf,
                                   [&streamBuf, &pipe, &config, &timeStart, &stat, &lock]
                                           (const boost::system::error_code &ec, std::size_t size) {
                                       if (ec && ec.value() != boost::asio::error::eof) {
-                                          std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
+                                          std::cout << "Error when reading asynchronously: " << ec.message()
+                                                    << std::endl;
                                       } else {
                                           // protect access to statistic when reading from multiple handlers concurrently
                                           std::lock_guard<std::mutex> guard{lock};
@@ -453,27 +479,11 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
     for (std::uint32_t i{0}; i < config.getNClients() + 1; ++i) {
         buffers.push_back(std::make_shared<basio::streambuf>());
         pipes.push_back(std::make_shared<bp::async_pipe>(ios));
-        processes.emplace_back(command + (i == 0 ? "" : " --client"), (bp::std_out & bp::std_err) > *pipes[i]);
+        // TODO: change this back to 0
+        processes.emplace_back(command + (i == -1 ? "" : " --client"), (bp::std_out & bp::std_err) > *pipes[i]);
 
         // register read handler for this pipe
         registerReadCallback(*buffers[i], *pipes[i], config, timeStart, resultStat, statLock);
-
-//        basio::async_read(*pipes[i],
-//                          *buffers[i],
-//                          [i, &buffers, &config, &timeStart, &resultStat, &statLock](
-//                                  const boost::system::error_code &ec,
-//                                  std::size_t size) {
-//                              if (ec && ec.value() != boost::asio::error::eof) {
-//                                  std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
-//                              } else {
-//                                  // protect access to statistic when reading from multiple handlers concurrently
-//                                  std::lock_guard<std::mutex> guard{statLock};
-//
-//                                  // read all available lines in this callback
-//                                  analyseClientStatus(config, timeStart, resultStat, *buffers[i]);
-//                                  // guard goes out of scope and unlocks underlying mutex
-//                              }
-//                          });
 
         if (i == 0) { // server
             std::this_thread::sleep_for(std::chrono::seconds(3)); // wait until server is up before starting clients
@@ -523,7 +533,7 @@ void addGraph(const GNetworkedConsumerStabilityConfig &config,
     auto mainGraph = std::make_shared<Gem::Common::GGraph2D>();
 
     // set labels for main graph
-    mainGraph->setPlotLabel(stats[0].m_competitor.name);
+    mainGraph->setPlotLabel(clientsTerminated ? "Client Termination" : "Client Connection Loss");
     mainGraph->setXAxisLabel("Time running [min]");
 
     if (clientsTerminated) {
@@ -591,14 +601,19 @@ void plotStats(const GNetworkedConsumerStabilityConfig &config,
         });
     }
 
+    // one graph for terminations and one graph for connection issues
+    const std::uint32_t nRows{2};
+
     // Create plotter
-    Gem::Common::GPlotDesigner gpd("Networked Consumer Stability Test", 1, 2);
+    Gem::Common::GPlotDesigner gpd("Networked Consumer Stability Test", 1, nRows);
 
     // plot client shutdown
     addGraph(config, stats, gpd, true);
 
     // plot connection losses
     addGraph(config, stats, gpd, false);
+
+    gpd.setCanvasDimensions(1920, 1163 * nRows);
 
     // write to file in ROOT format
     gpd.writeToFile(std::filesystem::path(config.getResultFileName()));
@@ -607,29 +622,51 @@ void plotStats(const GNetworkedConsumerStabilityConfig &config,
 std::string getHeader(const GNetworkedConsumerStabilityConfig &config) {
     std::stringstream sout{};
     sout << "-----------------------------------------" << std::endl
-         << "starting stability test for the following configuration:" << std::endl
+         << "Starting stability test for the following configuration:" << std::endl
          << config;
 
     return sout.str();
 }
 
+void statsToFile(const std::vector<StabilityStatistic> &stats) {
+    std::ofstream ofs(backupFileName);
+    boost::archive::text_oarchive oa(ofs);
+    oa & stats;
+}
+
+/**
+ * loads a vector of execution times from a specified file
+ */
+void statsFromFile(std::vector<StabilityStatistic> &stats, const std::string &path) {
+    std::ifstream ifs(path);
+    boost::archive::text_iarchive ia(ifs);
+    ia & stats;
+}
+
 int main(int argc, char **argv) {
     GNetworkedConsumerStabilityConfig config{argc, argv};
+
+    // statistics to create
+    std::vector<StabilityStatistic> stats{};
 
     // Sort all collections. Later on we can therefore assume that e.g. the competitors are alphabetically sorted
     config.sortAll();
 
+    if (!config.getOnlyGenerateGraphs()) { // run the tests
 
-    std::cout << getHeader(config) << std::endl;
+        std::cout << getHeader(config) << std::endl;
 
-    std::vector<StabilityStatistic> stats{};
+        for (const Competitor &c: config.getCompetitors()) {
+            stats.push_back(runTest(config, c));
+        }
 
-    for (const Competitor &c: config.getCompetitors()) {
-        stats.push_back(runTest(config, c));
+        // write stats to file in case we want to restore from this point in a later run
+        statsToFile(stats);
+    } else { // load results of previous test run from file
+        statsFromFile(stats, backupFileName);
     }
 
     std::cout << "Generating the plots ..." << std::endl;
-    // TODO: write stats to file before plotting to be able to reuse results
     plotStats(config, stats);
     std::cout << "Stability test finished." << std::endl;
 
