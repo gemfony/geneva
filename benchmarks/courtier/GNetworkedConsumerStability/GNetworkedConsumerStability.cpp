@@ -45,6 +45,7 @@
 
 // Boost header files go here
 #include <boost/process.hpp>
+#include <boost/asio.hpp>
 #include <utility>
 
 // Geneva header files go here
@@ -280,26 +281,21 @@ void incrementStatNow(StabilityStatistic &stat,
     }
 }
 
-// TODO: use boost::asio::asnc_read to read from multiple stream buffers at once and collect their output
 StabilityStatistic analyseClientStatus(const GNetworkedConsumerStabilityConfig &config,
-                                       const Competitor &competitor,
-                                       boost::process::ipstream &pipeStream) {
+                                       const std::chrono::system_clock::time_point &timeStart,
+                                       StabilityStatistic &stat,
+                                       boost::asio::streambuf &streamBuf) {
     using namespace std::chrono;
 
-    const auto timeStart = system_clock::now();
-    const auto timeEnd = timeStart + minutes(config.getDuration().totalMinutes());
-
-    // create stat object for the competitor with the given runtime in minutes
-    StabilityStatistic stat{competitor, config.getDuration().totalMinutes()};
+    std::cout << "analyseClientStatus() called" << std::endl;
 
     std::string line{};
 
-    while (system_clock::now() < timeEnd
-           && pipeStream
-           && std::getline(pipeStream, line)
+    while (std::getline(std::istream(&streamBuf), line)
            && !line.empty()) {
-        switch (parseClientStatus(competitor, line)) {
+        switch (parseClientStatus(stat.m_competitor, line)) {
             case OK: // do nothing if everything is ok
+                std::cout << "OK: " << line << std::endl;
                 break;
             case CONNECTION_LOSS:
                 std::cout << "client connection loss detected at " << timeNowString(system_clock::now())
@@ -321,9 +317,18 @@ StabilityStatistic analyseClientStatus(const GNetworkedConsumerStabilityConfig &
 
 StabilityStatistic runTestMPI(const GNetworkedConsumerStabilityConfig &config,
                               const Competitor &competitor) {
-    using namespace boost::process;
+    namespace bp = boost::process;
+    namespace basio = boost::asio;
 
-    ipstream pipeStream{};
+    const auto timeStart{std::chrono::system_clock::now()};
+
+    // result statistic
+    StabilityStatistic resultStat{competitor, config.getDuration().totalMinutes()};
+
+    // objects needed for reading from pipe asynchronously
+    basio::io_service ios{};
+    bp::async_pipe pipe{ios};
+    basio::streambuf streamBuf{};
 
     std::string command = config.getMpirunLocation()
                           + " --oversubscribe -np "
@@ -339,12 +344,32 @@ StabilityStatistic runTestMPI(const GNetworkedConsumerStabilityConfig &config,
     std::cout << getCommandBanner(command, config.getNClients()) << std::endl;
 
     // start sub-process by creating an object of type boost::process::child
-    child c(command, (std_out & std_err) > pipeStream);
+    bp::child c(command, (bp::std_out & bp::std_err) > pipe);
 
-    // analyse the pipe stream to check for client status
-    StabilityStatistic stat{analyseClientStatus(config, competitor, pipeStream)};
+    // register handler for asynchronous read on stream buffer
+    boost::asio::async_read(pipe,
+                            streamBuf,
+                            [&streamBuf, &config, &timeStart, &resultStat]
+                                    (const boost::system::error_code &ec, std::size_t size) {
+                                if (ec && ec.value() != boost::asio::error::eof) {
+                                    std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
+                                } else {
+                                    // read all available lines in this callback
+                                    analyseClientStatus(config, timeStart, resultStat, streamBuf);
+                                }
+                            });
 
-    // kill processes after time for analyzing has elapsed
+    // run the io_service on a new thread to handle the pipe events
+    auto ioRun = std::async(std::launch::async, [&ios]() { ios.run(); });
+
+    // sleep for the duration of the run
+    std::this_thread::sleep_for(std::chrono::minutes(config.getDuration().totalMinutes()));
+
+    // stop the io service and wait for its termination
+    ios.stop();
+    ioRun.wait();
+
+    // kill processes after analyzing has been finished
     std::cout << "Time for testing this competitor configuration has elapsed. Killing child process..." << std::endl;
     c.terminate();
 
@@ -353,48 +378,84 @@ StabilityStatistic runTestMPI(const GNetworkedConsumerStabilityConfig &config,
 
     std::cout << "Test for this configuration completed." << std::endl;
 
-    return stat;
+    return resultStat;
 }
 
 StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
                                       const Competitor &competitor) {
-    using namespace boost::process;
+    namespace bp = boost::process;
+    namespace basio = boost::asio;
 
-    ipstream pipeStream{};
+    const auto timeStart{std::chrono::system_clock::now()};
+
+    // result statistic
+    StabilityStatistic resultStat{competitor, config.getDuration().totalMinutes()};
+    // mutex to protect the statistic when accessing from multiple concurrent reader callbacks
+    std::mutex statLock{};
+
+    // io service handling network events
+    basio::io_service ios{};
+
+    // vector of child processes, one for the server and one for each client
+    std::vector<bp::child> processes{};
+    // vector of buffers, one for each process
+    std::vector<std::shared_ptr<basio::streambuf>> buffers{};
+    // vector of pipes, one for each process
+    std::vector<std::shared_ptr<bp::async_pipe>> pipes{};
 
     std::string command = config.getTestExecutableName()
                           + " " + competitor.arguments;
 
     std::cout << getCommandBanner(command, config.getNClients()) << std::endl;
 
-    // run once without the --client attribute to start a server
-    child server(command, (std_out & std_err) > pipeStream);
+    for (std::uint32_t i{0}; i < config.getNClients() + 1; ++i) {
+        buffers.push_back(std::make_shared<basio::streambuf>());
+        pipes.push_back(std::make_shared<bp::async_pipe>(ios));
+        processes.emplace_back(command + (i == 0 ? "" : " --client"), (bp::std_out & bp::std_err) > *pipes[i]);
 
-    // wait for server to be online before starting clients
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+        // register read handler for this pipe
+        basio::async_read(*pipes[i],
+                          *buffers[i],
+                          [i, &buffers, &config, &timeStart, &resultStat, &statLock](
+                                  const boost::system::error_code &ec,
+                                  std::size_t size) {
+                              if (ec && ec.value() != boost::asio::error::eof) {
+                                  std::cout << "Error when reading asynchronously: " << ec.message() << std::endl;
+                              } else {
+                                  // protect access to statistic when reading from multiple handlers concurrently
+                                  std::lock_guard<std::mutex> guard{statLock};
 
-    // start nClients clients and store handles in a vector
-    std::vector<child> clients{};
-    for (int i{0}; i < config.getNClients(); ++i) {
-        // this will call the constructor of the boost::process::child class and start the process
-        clients.emplace_back(command + " --client", (std_out & std_err) > pipeStream);
+                                  // read all available lines in this callback
+                                  analyseClientStatus(config, timeStart, resultStat, *buffers[i]);
+                                  // guard goes out of scope and unlocks underlying mutex
+                              }
+                          });
+
+        if (i == 0) { // server
+            std::this_thread::sleep_for(std::chrono::seconds(3)); // wait until server is up before starting clients
+        }
     }
 
-    // check pipe-stream for connection issues for a specifies amount of time
-    StabilityStatistic stat{analyseClientStatus(config, competitor, pipeStream)};
+    // run the io_service on a new thread to handle the pipe events
+    auto ioRun = std::async(std::launch::async, [&ios]() { ios.run(); });
+
+    // sleep for the duration of the run
+    std::this_thread::sleep_for(std::chrono::minutes(config.getDuration().totalMinutes()));
+
+    // stop the io service and wait for its termination
+    ios.stop();
+    ioRun.wait();
 
     // kill all processes after analyzing has been finished
-    std::cout << "Time for testing this competitor configuration has elapsed. Killing child process..." << std::endl;
-    server.terminate();
-    std::for_each(clients.begin(), clients.end(), [](child &client) { client.terminate(); });
+    std::cout << "Time for testing this competitor configuration has elapsed. Killing child processes..." << std::endl;
+    std::for_each(processes.begin(), processes.end(), [](bp::child &client) { client.terminate(); });
 
     // wait for the completion of all processes
-    server.wait();
-    std::for_each(clients.begin(), clients.end(), [](child &client) { client.wait(); });
+    std::for_each(processes.begin(), processes.end(), [](bp::child &client) { client.wait(); });
 
     std::cout << "Test for this configuration completed." << std::endl;
 
-    return stat;
+    return resultStat;
 }
 
 StabilityStatistic runTest(const GNetworkedConsumerStabilityConfig &config, const Competitor &competitor) {
@@ -480,7 +541,11 @@ void addGraph(const GNetworkedConsumerStabilityConfig &config,
 void plotStats(const GNetworkedConsumerStabilityConfig &config,
                std::vector<StabilityStatistic> stats) {
     // shrink all measurements to the requested resolution
-    std::for_each(stats.begin(), stats.end(), [](StabilityStatistic &stat) { stat.shrink(graphResolution); });
+    if (graphResolution < config.getDuration().totalMinutes()) {
+        std::for_each(stats.begin(), stats.end(), [](StabilityStatistic &stat) {
+            stat.shrink(graphResolution);
+        });
+    }
 
     // Create plotter
     Gem::Common::GPlotDesigner gpd("Networked Consumer Stability Test", 1, 2);
@@ -520,6 +585,7 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "Generating the plots ..." << std::endl;
+    // TODO: write stats to file before plotting to be able to reuse results
     plotStats(config, stats);
     std::cout << "Stability test finished." << std::endl;
 

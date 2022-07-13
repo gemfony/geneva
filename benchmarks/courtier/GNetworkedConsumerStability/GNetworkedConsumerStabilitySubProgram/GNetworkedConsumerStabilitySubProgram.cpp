@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
     }
 
     // TODO: remove this
-    std::this_thread::sleep_for(std::chrono::seconds(45)); // sleep to generate connection issues on client side
+//    std::this_thread::sleep_for(std::chrono::seconds(45)); // sleep to generate connection issues on client side
 
     GDelayIndividualFactory delayIndividualFactory("./config/GDelayIndividual.json");
 
