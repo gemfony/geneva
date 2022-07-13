@@ -324,11 +324,6 @@ namespace Gem::Courtier {
                     processWorkItem();
                 }
             }
-
-            // Let the audience know that we have finished the shutdown
-            glogger
-                    << "GMPIConsumerWorkerNodeT<processable_type>::run(): Worker has terminated" << std::endl
-                    << GLOGGING;
         }
 
     private:
@@ -1493,6 +1488,11 @@ namespace Gem::Courtier {
             instantiateNode();
 
             m_workerNodePtr->run();
+
+            // Let the audience know that we have finished the shutdown
+            glogger
+                    << "GMPIConsumerWorkerNodeT<processable_type>::run(): Worker has terminated" << std::endl
+                    << GLOGGING;
         }
 
         /**
