@@ -255,7 +255,7 @@ private:
             for (std::uint32_t i{0}; i < stat.size(); i += stepWidth) {
                 // sum up all y-values until next tick
                 std::uint32_t sum{0};
-                for (std::uint32_t j{i}; j < j + stepWidth - 1; ++j) {
+                for (std::uint32_t j{i}; j < i + stepWidth - 1; ++j) {
                     sum += std::get<1>(stat[j]);
                 }
                 // add x-value of first element of group and sum of y-values of elements of group
