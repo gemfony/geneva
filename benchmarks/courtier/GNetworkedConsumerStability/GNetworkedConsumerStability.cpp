@@ -310,9 +310,9 @@ void incrementStatNow(StabilityStatistic &stat,
 }
 
 void analyseClientStatus(const GNetworkedConsumerStabilityConfig &config,
-                                       const std::chrono::system_clock::time_point &timeStart,
-                                       StabilityStatistic &stat,
-                                       boost::asio::streambuf &streamBuf) {
+                         const std::chrono::system_clock::time_point &timeStart,
+                         StabilityStatistic &stat,
+                         boost::asio::streambuf &streamBuf) {
     using namespace std::chrono;
 
     std::string line{};
@@ -656,6 +656,10 @@ int main(int argc, char **argv) {
 
         for (const Competitor &c: config.getCompetitors()) {
             stats.push_back(runTest(config, c));
+
+            std::cout << "Waiting for the configured amount of " << config.getInterMeasurementDelaySecs()
+                      << " seconds before testing the next configuration..." << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(config.getInterMeasurementDelaySecs()));
         }
 
         // write stats to file in case we want to restore from this point in a later run
