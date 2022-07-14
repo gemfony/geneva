@@ -34,6 +34,9 @@
 #
 ################################################################################
 
+# TODO: this requires boost 1.7.3 due to a bug in boost 1.7.2 in boost::process
+#  https://github.com/boostorg/process/issues/116
+
 IF (NOT GENEVA_FULL_TREE_BUILD)
 
 	PROJECT(GNetworkedConsumerStabilitySubProgram)
