@@ -353,7 +353,7 @@ namespace Gem::Tests {
         /**
          * The amount of clients to test with
          */
-        std::uint32_t m_nClients{250};
+        std::uint32_t m_nClients{1000};
 
         /**
          * Duration to run each competitor for
