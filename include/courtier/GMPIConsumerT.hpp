@@ -194,6 +194,45 @@ namespace Gem::Courtier {
         }
     };
 
+    struct CommonConfig {
+        /**
+         * Serialization mode to use when serializing messages before transmitting over network between master node and worker nodes
+         */
+        Gem::Common::serializationMode serializationMode{Gem::Common::serializationMode::BINARY};
+        /**
+         * The time in microseconds between each check for the completion of synchronization on startup
+         */
+        std::uint32_t waitForMasterStartupPollIntervalUSec{100};
+        /**
+         * The maximum time in seconds to wait for the synchronization for all nodes on startup
+         */
+        std::uint32_t waitForMasterStartupTimeoutSec{60};
+
+        void addCLOptions_(
+                boost::program_options::options_description &visible,
+                boost::program_options::options_description &hidden) {
+            // Note that we use the current values of the members as default values, because in a default constructed
+            // instance the defaults are already set. This allows to reduce duplication of those values
+            namespace po = boost::program_options;
+
+            hidden.add_options()("mpi_serializationMode",
+                                 po::value<Gem::Common::serializationMode>(&serializationMode)->default_value(
+                                         serializationMode),
+                                 "\t[mpi] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
+
+            hidden.add_options()("mpi_waitForMasterStartupPollInterval",
+                                 po::value<std::uint32_t>(&waitForMasterStartupPollIntervalUSec)->default_value(
+                                         waitForMasterStartupPollIntervalUSec),
+                                 "\t[mpi] The time in microseconds between each check for the completion of synchronization on startup.\n"
+                                 "Setting this to 0 means repeatedly checking without waiting in between checks");
+
+            hidden.add_options()("mpi_waitForMasterStartupTimeout",
+                                 po::value<std::uint32_t>(&waitForMasterStartupTimeoutSec)->default_value(
+                                         waitForMasterStartupTimeoutSec),
+                                 "\t[mpi] The maximum time in seconds to wait for the synchronization for all nodes on startup.");
+        }
+    };
+
     // forward declare class because we have a cyclic dependency between MPIConsumerT and MPIConsumerWorkerNodeT
     template<typename processable_type>
     class GMPIConsumerT;
@@ -718,7 +757,8 @@ namespace Gem::Courtier {
                 throw gemfony_exception(
                         g_error_streamer(DO_LOG, time_and_place)
                                 << "GMPIConsumerSessionT<processable_type>::getAndSerializeWorkItem():" << std::endl
-                                << "Size of individual to send after serialization greater than maximum configured message size." << std::endl
+                                << "Size of individual to send after serialization greater than maximum configured message size."
+                                << std::endl
                                 << "Size of Individual is " << m_outgoingMessage.size() << std::endl
                                 << "Maximum message size is " << GMPICONSUMERMAXMESSAGESIZE << std::endl
                                 << "Serialization mode is " << m_serializationMode << std::endl
@@ -1161,12 +1201,12 @@ namespace Gem::Courtier {
         explicit GMPIConsumerT(
                 int *argc = nullptr,
                 char ***argv = nullptr,
-                Gem::Common::serializationMode serializationMode = Gem::Common::serializationMode::BINARY,
+                CommonConfig commonConfig = CommonConfig{},
                 MasterNodeConfig masterNodeConfig = MasterNodeConfig{},
                 WorkerNodeConfig workerNodeConfig = WorkerNodeConfig{})
                 : m_argc{argc},
                   m_argv{argv},
-                  m_serializationMode{serializationMode},
+                  m_commonConfig{commonConfig},
                   m_masterNodeConfig{masterNodeConfig},
                   m_workerNodeConfig{workerNodeConfig},
                   m_commRank{},
@@ -1345,15 +1385,9 @@ namespace Gem::Courtier {
             // instance the defaults are already set. This allows to reduce duplication of those values
             namespace po = boost::program_options;
 
-            // add specific options for worker and master node
+            m_commonConfig.addCLOptions_(visible, hidden);
             m_workerNodeConfig.addCLOptions(visible, hidden);
             m_masterNodeConfig.addCLOptions(visible, hidden);
-
-            // add general options for GMPIConsumerT
-            hidden.add_options()("mpi_serializationMode",
-                                 po::value<Gem::Common::serializationMode>(&m_serializationMode)->default_value(
-                                         m_serializationMode),
-                                 "\t[mpi] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
         }
 
         /**
@@ -1404,6 +1438,9 @@ namespace Gem::Courtier {
                 return;
             }
             instantiateNode();
+
+            // wait for all processes to be up and running, because clients should not start before server is responsive
+            trySynchronize();
 
             m_masterNodePtr->async_startProcessing();
         }
@@ -1487,6 +1524,9 @@ namespace Gem::Courtier {
             }
             instantiateNode();
 
+            // wait for all processes to be up and running, because clients should not start before server is responsive
+            trySynchronize();
+
             m_workerNodePtr->run();
         }
 
@@ -1500,7 +1540,7 @@ namespace Gem::Courtier {
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
                 m_masterNodePtr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
-                        m_serializationMode,
+                        m_commonConfig.serializationMode,
                         m_commSize,
                         m_masterNodeConfig);
             } else {
@@ -1510,7 +1550,7 @@ namespace Gem::Courtier {
                 // safe already with raw pointers, because the lifetime of the GMPIConsumerWorkerNodeT is bound to the
                 // lifetime of this object
                 m_workerNodePtr = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
-                        m_serializationMode,
+                        m_commonConfig.serializationMode,
                         m_commSize,
                         m_commRank,
                         [this]() -> bool { return this->halt(); },
@@ -1519,9 +1559,68 @@ namespace Gem::Courtier {
             }
         }
 
+        /**
+         * Tries to synchronize with all other processes in the communicator.
+         * If m_commonConfig.waitForMasterStartupTimeoutSec seconds elapse without all processes synchronizing,
+         * the synchronization attempt is stopped.
+         * @return true in case of all processing synchronizing, otherwise false
+         */
+        bool trySynchronize() const {
+            // handle for asynchronous MPI request
+            MPI_Request requestHandle{};
+
+            // asynchronously ask all processes to synchronize here.
+            MPI_Ibarrier(MPI_COMMUNICATOR, &requestHandle);
+
+            auto timeStart{std::chrono::system_clock::now()};
+
+            while (true) {
+
+                int isCompleted{0};
+                MPI_Status status{};
+
+                MPI_Test(
+                        &requestHandle,
+                        &isCompleted,
+                        &status);
+
+                if (isCompleted) {
+                    if (status.MPI_ERROR != MPI_SUCCESS) {
+                        glogger
+                                << "In GMPIConsumerT<processable_type>::trySynchronize():" << std::endl
+                                << "Received an error:" << std::endl
+                                << mpiErrorString(status.MPI_ERROR) << std::endl
+                                << "We will try to continue execution anyways." << std::endl
+                                << GWARNING;
+
+                        return false; // synchronize stopped but unsuccessful
+                    }
+                    return true; // synchronize successful
+                }
+
+                if (std::chrono::system_clock::now() - timeStart >
+                    std::chrono::seconds(m_commonConfig.waitForMasterStartupTimeoutSec)) {
+                    glogger
+                            << "In GMPIConsumerT<processable_type>::trySynchronize() with rank="
+                            << m_commRank << ":" << std::endl
+                            << "Synchronization on startup timed out after "
+                            << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
+                            << "Trying to continue unsynchronized." << std::endl
+                            << GWARNING;
+
+                    return false; // synchronize stopped but unsuccessful
+                } else if (m_commonConfig.waitForMasterStartupPollIntervalUSec > 0) {
+                    // sleep in this thread in case the poll interval is not set to zero and we are not timed out
+                    std::this_thread::sleep_for(
+                            std::chrono::microseconds{m_commonConfig.waitForMasterStartupPollIntervalUSec});
+                }
+            }
+        }
+
         //-------------------------------------------------------------------------
         // Data
-        Gem::Common::serializationMode m_serializationMode;
+
+        CommonConfig m_commonConfig;
         MasterNodeConfig m_masterNodeConfig;
         WorkerNodeConfig m_workerNodeConfig;
 
