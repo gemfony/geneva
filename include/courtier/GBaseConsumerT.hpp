@@ -219,6 +219,14 @@ public:
 		 return this->getMnemonic_();
 	 }
 
+    //-------------------------------------------------------------------------
+    /**
+     * Allows the consumer to perform necessary initialization before startup
+     */
+    void init() {
+         this->init_();
+     }
+
 	 //-------------------------------------------------------------------------
 	 /**
 	  * The actual business logic
@@ -308,6 +316,10 @@ private:
 	  * By default we assume that a full return is not possible.
 	  */
 	 virtual bool capableOfFullReturn_() const BASE = 0;
+
+    //-------------------------------------------------------------------------
+
+    virtual void init_() { /* not necessary to override. Default is empty implementation */ }
 
 	 //-------------------------------------------------------------------------
 

@@ -3,9 +3,14 @@ the minimum of a function, using an evolutionary strategy. Parallelisation
 can happen at your choice in networked mode, via threads or in serial mode.
 
 The example demonstrates how the functionality of a given optimization
-algorithm can be accessed directly. NOTE: Usually, the user will not do so, but will
+algorithm can be accessed directly.
+NOTE: Usually, the user will not do so, but will
 rather use the Go2 class, which wraps all necessary functionality. However, there
 may be special use cases where one might want to interact directly with a given
 optimization algorithm.
+NOTE: This example does not include the GMPIConsumerT. The reason for this is that we want to be able to build
+this example even when geneva is build without the mpi consumer. We could use preprocessor macros to make this
+work, but this would confuse the user. Therefore we have a separate example on how to directly use the GMPIConsumerT
+located at ../16_GMPIConsumer/
 
 Call the example program with --help to find out about available options.

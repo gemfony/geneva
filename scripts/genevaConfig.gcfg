@@ -92,6 +92,9 @@ INSTALLDIR="/opt/geneva"
 # Further linker parameters you might want to provide
 LINKEREXTRAFLAGS=""
 
+# Whether to build MPI consumer
+BUILDMPICONSUMER="1"
+
 # Whether to build OpenCL examples. Note that this is an experimental feature
 BUILDOPENCLEXAMPLES="0"
 

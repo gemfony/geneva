@@ -60,6 +60,7 @@ if [ $# -eq 0 ]; then
 	BUILDSTATIC="0"                # Whether to build static code / libraries (experimental!)
 	VERBOSEMAKEFILE="1"            # Whether compilation information should be emitted
 	INSTALLDIR="/opt/geneva"       # Where the Geneva library shall go
+	BUILDWITHMPICONSUMER="1"           # Whether to build the MPI-consumer of the courtier library
 	BUILDOPENCLEXAMPLES="0"        # Whether to build OpenCL examples (note: this is an experimental feature)
 elif [ $# -eq 1 ]; then
 	# Check that the command file has the expected form (ends with .gcfg)
@@ -120,6 +121,11 @@ elif [ $# -eq 1 ]; then
 		INSTALLDIR="/opt/geneva"
 		echo "Variable INSTALLDIR wasn't set. Setting to default value '${INSTALLDIR}'"
 	fi
+
+	if [ -z "${BUILDWITHMPICONSUMER}" ]; then
+  	BUILDWITHMPICONSUMER="1"
+  	echo "Variable INSTALLDIR wasn't set. Setting to default value '${BUILDWITHMPICONSUMER}'"
+  fi
 
 	if [ -z "${BUILDOPENCLEXAMPLES}" ]; then
 		BUILDOPENCLEXAMPLES="0"
@@ -277,6 +283,7 @@ CONFIGURE="${CMAKE} $BOOSTLOCATIONPATHS $BOOSTSYSTEMFLAG \
 -DGENEVA_STATIC=${BUILDSTATIC} \
 -DCMAKE_VERBOSE_MAKEFILE=${VERBOSEMAKEFILE} \
 -DCMAKE_INSTALL_PREFIX=${INSTALLDIR} \
+-DGENEVA_BUILD_WITH_MPI_CONSUMER=${BUILDWITHMPICONSUMER} \
 -DGENEVA_BUILD_WITH_OPENCL_EXAMPLES=${BUILDOPENCLEXAMPLES}"
 
 if [ "x$CXXEXTRAFLAGS" != "x" ]; then
