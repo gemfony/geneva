@@ -65,6 +65,8 @@ const std::string orteTempDirBase{"/tmp/GNetworkedConsumerStability_OPENMPI_ORTE
  */
 const std::string backupFileName{"stats.ser"};
 
+const std::uint32_t waitForServerStartupSec{15};
+
 /**
  * Amount of data points to plot. i.e. a resolution for a test with duration 1 hour would result in one data point for each minute
  */
@@ -484,7 +486,7 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
         registerReadCallback(*buffers[i], *pipes[i], config, timeStart, resultStat, statLock);
 
         if (i == 0) { // server
-            std::this_thread::sleep_for(std::chrono::seconds(3)); // wait until server is up before starting clients
+            std::this_thread::sleep_for(std::chrono::seconds(waitForServerStartupSec)); // wait until server is up before starting clients
         }
     }
 
@@ -558,13 +560,17 @@ void addGraph(const GNetworkedConsumerStabilityConfig &config,
 
     // notify that we want to print the legend for the main graph
     mainGraph->setLegendEntry(stats[0].m_competitor.name);
-    mainGraph->setPlotLegend(true);
+
+    // only show the legend if this graph has any data points
+    mainGraph->setPlotLegend((clientsTerminated && !stats[0].m_clientsTerminated.empty()) ||
+                              (!clientsTerminated && !stats[0].m_connectionsLost.empty()));
 
     // add data to main graph
     *mainGraph & (clientsTerminated ? stats[0].m_clientsTerminated : stats[0].m_connectionsLost);
 
     // add all following graphs as subplots
     for (int i{1} /* start from the second elem */ ; i < stats.size(); ++i) {
+
         auto subGraph = std::make_shared<Gem::Common::GGraph2D>();
 
         // add data to subplot
@@ -579,8 +585,9 @@ void addGraph(const GNetworkedConsumerStabilityConfig &config,
         // set the legend for the secondary graph
         subGraph->setLegendEntry(stats[i].m_competitor.name);
 
-        // notify that we want to plot the legend for these graphs
-        subGraph->setPlotLegend(true);
+        // only show the legend if this graph has any data points
+        subGraph->setPlotLegend((clientsTerminated && !stats[i].m_clientsTerminated.empty()) ||
+                                 (!clientsTerminated && !stats[i].m_connectionsLost.empty()));
 
         // add the sub-graphs to the main-graph
         mainGraph->registerSecondaryPlotter(subGraph);
