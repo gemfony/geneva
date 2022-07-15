@@ -321,8 +321,7 @@ void analyseClientStatus(const GNetworkedConsumerStabilityConfig &config,
 
     std::string line{};
 
-    while (std::getline(std::istream(&streamBuf), line)
-           && !line.empty()) {
+    while (std::getline(std::istream(&streamBuf), line)) {
         switch (parseClientStatus(stat.m_competitor, line)) {
             case OK: // do nothing if everything is ok
                 std::cout << "OK: " << line << std::endl;
