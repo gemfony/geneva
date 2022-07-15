@@ -349,7 +349,7 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
 
     // pipe std out of mpirun to this process
     std::string line{};
-    while (pipeStream && std::getline(pipeStream, line) && !line.empty())
+    while (pipeStream && std::getline(pipeStream, line))
         std::cout << line << std::endl;
 
     c.wait();
@@ -386,8 +386,8 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
 
     // pipe std out the server to this process
     std::string line{};
-    while (pipeStream && std::getline(pipeStream, line) && !line.empty())
-        std::cerr << line << std::endl;
+    while (pipeStream && std::getline(pipeStream, line))
+        std::cout << line << std::endl;
 
 
     // wait for the completion of all processes
