@@ -258,6 +258,20 @@ namespace Gem::Tests {
         }
 
         /**
+         * Retrieves the amount of seconds to wait after starting the server before starting the clinets
+         */
+        [[nodiscard]] std::uint32_t getClientStartupDelay() const {
+            return m_clientStartupDelaySecs;
+        }
+
+        /**
+         * Retrieves the amount of data points to show in the graph
+         */
+        [[nodiscard]] std::uint32_t getResolution() const {
+            return m_graphResolution;
+        }
+
+        /**
          * returns a flag that is true if the benchmark should not be run, but only the graphs should be generated from
          * already existing result files.
          */
@@ -309,6 +323,17 @@ namespace Gem::Tests {
                     "interMeasurementDelaySecs", m_interMeasurementDelaySecs, m_interMeasurementDelaySecs,
                     VAR_IS_ESSENTIAL,
                     "Delay in between starting test executables, which might be helpful to give the OS time to free up resources."
+            );
+
+            m_fileParser.registerFileParameter(
+                    "clientStartupDelay", m_clientStartupDelaySecs, m_clientStartupDelaySecs, VAR_IS_ESSENTIAL,
+                    "Amount of time to wait after starting server to start the clients in seconds"
+            );
+
+            m_fileParser.registerFileParameter(
+                    "graphResolution", m_graphResolution, m_graphResolution,
+                    VAR_IS_ESSENTIAL,
+                    "Amount of data points to show in the graph"
             );
         }
 
@@ -386,6 +411,16 @@ namespace Gem::Tests {
          * Delay in between starting test executables, which might be helpful to give the OS time to free up resources.
          */
         std::uint32_t m_interMeasurementDelaySecs = 60;
+
+        /**
+         * Amount of time to wait after starting server to start the clients
+         */
+         std::uint32_t m_clientStartupDelaySecs = 60;
+
+        /**
+         * Amount of data points to plot. i.e. a resolution for a test with duration 1 hour would result in one data point for each minute
+         */
+        std::uint32_t m_graphResolution = 60;
 
         /*****************************************************************
          * Options to parse from command line

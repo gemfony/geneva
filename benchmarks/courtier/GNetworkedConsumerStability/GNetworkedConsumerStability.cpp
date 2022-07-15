@@ -65,13 +65,6 @@ const std::string orteTempDirBase{"/tmp/GNetworkedConsumerStability_OPENMPI_ORTE
  */
 const std::string backupFileName{"stats.ser"};
 
-const std::uint32_t waitForServerStartupSec{15};
-
-/**
- * Amount of data points to plot. i.e. a resolution for a test with duration 1 hour would result in one data point for each minute
- */
-const std::uint32_t graphResolution{30};
-
 // line color so be used when drawing multiple curves in the same graph
 // These are ROOT constants
 const std::vector<std::string> lineColors{
@@ -488,7 +481,10 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
         registerReadCallback(*buffers[i], *pipes[i], config, timeStart, resultStat, statLock);
 
         if (i == 0) { // server
-            std::this_thread::sleep_for(std::chrono::seconds(waitForServerStartupSec)); // wait until server is up before starting clients
+            // wait until server is up before starting clients
+            std::cout << "Server has been started. Waiting for the configured amount of "
+                      << config.getClientStartupDelay() << " seconds before starting the clients" << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(config.getClientStartupDelay()));
         }
     }
 
@@ -565,7 +561,7 @@ void addGraph(const GNetworkedConsumerStabilityConfig &config,
 
     // only show the legend if this graph has any data points
     mainGraph->setPlotLegend((clientsTerminated && !stats[0].m_clientsTerminated.empty()) ||
-                              (!clientsTerminated && !stats[0].m_connectionsLost.empty()));
+                             (!clientsTerminated && !stats[0].m_connectionsLost.empty()));
 
     // add data to main graph
     *mainGraph & (clientsTerminated ? stats[0].m_clientsTerminated : stats[0].m_connectionsLost);
@@ -589,7 +585,7 @@ void addGraph(const GNetworkedConsumerStabilityConfig &config,
 
         // only show the legend if this graph has any data points
         subGraph->setPlotLegend((clientsTerminated && !stats[i].m_clientsTerminated.empty()) ||
-                                 (!clientsTerminated && !stats[i].m_connectionsLost.empty()));
+                                (!clientsTerminated && !stats[i].m_connectionsLost.empty()));
 
         // add the sub-graphs to the main-graph
         mainGraph->registerSecondaryPlotter(subGraph);
@@ -602,9 +598,9 @@ void addGraph(const GNetworkedConsumerStabilityConfig &config,
 void plotStats(const GNetworkedConsumerStabilityConfig &config,
                std::vector<StabilityStatistic> stats) {
     // shrink all measurements to the requested resolution
-    if (graphResolution < config.getDuration().totalMinutes()) {
-        std::for_each(stats.begin(), stats.end(), [](StabilityStatistic &stat) {
-            stat.shrink(graphResolution);
+    if (config.getResolution() < config.getDuration().totalMinutes()) {
+        std::for_each(stats.begin(), stats.end(), [&config](StabilityStatistic &stat) {
+            stat.shrink(config.getResolution());
         });
     }
 

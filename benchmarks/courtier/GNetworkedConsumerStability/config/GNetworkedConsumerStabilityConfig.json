@@ -37,5 +37,15 @@
     "comment": "Delay in between starting benchmark executables, which might be helpful to give the OS time to free up resources",
     "default": "60",
     "value": "60"
+  },
+  "clientStartupDelay": {
+    "comment": "Amount of time to wait after starting server to start the clients in seconds",
+    "default": "60",
+    "value": "60"
+  },
+  "graphResolution": {
+    "comment": "Amount of data points to show in the graph",
+    "default": "60",
+    "value": "60"
   }
 }
