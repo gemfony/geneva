@@ -242,6 +242,12 @@ public:
 
 private:
 
+    /**
+     * returns a smaller representation of the same result
+     * @param stat the statistic to shrink
+     * @param resolution the amount of data points in the result statistic
+     * @return the result statistic with `resolution` elements
+     */
     static std::vector<std::tuple<std::uint32_t, std::uint32_t>> shrink(
             const std::vector<std::tuple<std::uint32_t, std::uint32_t>> &stat,
             const std::uint32_t &resolution) {
@@ -255,13 +261,9 @@ private:
 
         if (!stat.empty()) { // if empty we will not iterate and leave vector empty
             for (std::uint32_t i{0}; i < stat.size(); i += stepWidth) {
-                // sum up all y-values until next tick
-                std::uint32_t sum{0};
-                for (std::uint32_t j{i}; j < i + stepWidth - 1; ++j) {
-                    sum += std::get<1>(stat[j]);
-                }
-                // add x-value of first element of group and sum of y-values of elements of group
-                result.emplace_back(i, sum);
+                // for the new point use the greatest datapoint in this tick
+                // because the function is monotonous, the greatest datapoint is the last data-point in this group of points
+                result.emplace_back(i, std::get<1>(stat[i + stepWidth - 1]));
             }
         }
 
