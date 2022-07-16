@@ -320,13 +320,15 @@ void analyseClientStatus(const GNetworkedConsumerStabilityConfig &config,
                 std::cout << "OK: " << line << std::endl;
                 break;
             case CONNECTION_LOSS:
-                std::cout << "CONNECTION_LOSS: detected at " << timeNowString(system_clock::now())
-                          << std::endl;
+                std::cout << "CONNECTION_LOSS: detected at " << timeNowString(system_clock::now()) << ":"
+                          << std::endl
+                          << "->\t" << line << std::endl;
                 incrementStatNow(stat, timeStart, CONNECTION_LOSS);
                 break;
             case SHUTDOWN:
-                std::cout << "SHUT_DOWN: detected at " << timeNowString(system_clock::now())
-                          << std::endl;
+                std::cout << "SHUT_DOWN: detected at " << timeNowString(system_clock::now()) << ":"
+                          << std::endl
+                          << "->\t" << line << std::endl;
                 incrementStatNow(stat, timeStart, SHUTDOWN);
                 break;
             default:
@@ -447,10 +449,11 @@ void registerReadCallback(boost::asio::streambuf &streamBuf,
 
 StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &config,
                                       const Competitor &competitor) {
+    using namespace std::chrono;
     namespace bp = boost::process;
     namespace basio = boost::asio;
 
-    const auto timeStart{std::chrono::system_clock::now()};
+    const auto timeStart{system_clock::now()};
 
     // result statistic
     StabilityStatistic resultStat{competitor, config.getDuration().totalMinutes()};
@@ -484,7 +487,10 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
             // wait until server is up before starting clients
             std::cout << "Server has been started. Waiting for the configured amount of "
                       << config.getClientStartupDelay() << " seconds before starting the clients" << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(config.getClientStartupDelay()));
+            std::this_thread::sleep_for(seconds(config.getClientStartupDelay()));
+        } else {
+            // wait until starting the next client such that only the configured amount of clients is started each second
+            std::this_thread::sleep_for(milliseconds(1000 / config.getClientStartupPerSec()));
         }
     }
 
@@ -492,7 +498,7 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
     auto ioRun = std::async(std::launch::async, [&ios]() { ios.run(); });
 
     // sleep for the duration of the run
-    std::this_thread::sleep_for(std::chrono::minutes(config.getDuration().totalMinutes()));
+    std::this_thread::sleep_for(minutes(config.getDuration().totalMinutes()));
 
     // stop the io service and wait for its termination
     ios.stop();

@@ -265,6 +265,14 @@ namespace Gem::Tests {
         }
 
         /**
+         * Returns the amount of clients to start per second until all clients have been started.
+         * Setting this to zero means starting all clients immediately
+         */
+        [[nodiscard]] std::uint32_t getClientStartupPerSec() const {
+            return m_clientStartupPerSec;
+        }
+
+        /**
          * Retrieves the amount of data points to show in the graph
          */
         [[nodiscard]] std::uint32_t getResolution() const {
@@ -334,6 +342,13 @@ namespace Gem::Tests {
                     "graphResolution", m_graphResolution, m_graphResolution,
                     VAR_IS_ESSENTIAL,
                     "Amount of data points to show in the graph"
+            );
+
+            m_fileParser.registerFileParameter(
+                    "clientStartupPerSec", m_clientStartupPerSec, m_clientStartupPerSec,
+                    VAR_IS_ESSENTIAL,
+                    "The amount of clients to start per second until all clients have been started. "
+                    "Setting this to zero means starting all clients immediately "
             );
         }
 
@@ -415,7 +430,13 @@ namespace Gem::Tests {
         /**
          * Amount of time to wait after starting server to start the clients
          */
-         std::uint32_t m_clientStartupDelaySecs = 60;
+        std::uint32_t m_clientStartupDelaySecs = 60;
+
+        /**
+         * The amount of clients to start per second until all clients have been started.
+         * Setting this to zero means starting all clients immediately
+         */
+        std::uint32_t m_clientStartupPerSec = 5;
 
         /**
          * Amount of data points to plot. i.e. a resolution for a test with duration 1 hour would result in one data point for each minute
@@ -454,6 +475,8 @@ namespace Gem::Tests {
         os << "Duration per configuration: " << config.getDuration() << " [hh:mm]" << std::endl;
 
         os << "Clients: " << config.getNClients() << std::endl;
+
+        os << "Clients starting up per seconds: " << config.getClientStartupPerSec() << std::endl;
 
         return os;
     }

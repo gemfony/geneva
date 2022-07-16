@@ -47,5 +47,11 @@
     "comment": "Amount of data points to show in the graph",
     "default": "60",
     "value": "60"
+  },
+  "clientStartupPerSec": {
+    "comment": "The amount of clients to start per second until all clients have been started.",
+    "comment": "Setting this to zero means starting all clients immediately.",
+    "default": "5",
+    "value": "5"
   }
 }
