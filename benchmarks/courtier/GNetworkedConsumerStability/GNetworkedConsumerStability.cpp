@@ -472,6 +472,9 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
 
     const auto timeStart{system_clock::now()};
 
+    // future which returns when the ioService thread has finished its work
+    std::future<void> ioRun{};
+
     // result statistic
     StabilityStatistic resultStat{competitor, config.getDuration().totalMinutes()};
     // mutex to protect the statistic when accessing from multiple concurrent reader callbacks
@@ -501,6 +504,9 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
         registerReadCallback(*buffers[i], *pipes[i], config, timeStart, resultStat, statLock);
 
         if (i == 0) { // server
+            // now the first callback has been registered, and we can start the io-service to handle events using this callback
+            ioRun = std::async(std::launch::async, [&ios]() { ios.run(); });
+
             // wait until server is up before starting clients
             std::cout << "Server has been started. Waiting for the configured amount of "
                       << config.getClientStartupDelay() << " seconds before starting the clients" << std::endl;
@@ -511,11 +517,9 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
         }
     }
 
-    // run the io_service on a new thread to handle the pipe events
-    auto ioRun = std::async(std::launch::async, [&ios]() { ios.run(); });
-
-    // sleep for the duration of the run
-    std::this_thread::sleep_for(minutes(config.getDuration().totalMinutes()));
+    // sleep for the remaining duration of the run
+    std::this_thread::sleep_for(minutes(config.getDuration().totalMinutes()) -
+                                duration_cast<minutes>(system_clock::now() - timeStart));
 
     // stop the io service and wait for its termination
     ios.stop();
