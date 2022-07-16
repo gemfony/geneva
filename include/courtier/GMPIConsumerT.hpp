@@ -161,9 +161,10 @@ namespace Gem::Courtier {
          */
         std::uint32_t ioPollIntervalUSec{100};
         /**
-         * The maximum time in microseconds to wait until a request for a new work item has been answered.
+         * The maximum time in seconds to wait until a request for a new work item has been answered.
+         * After this timeout is triggered, the worker assumes the server is finished or has crashed and will shutdown.
          */
-        std::uint32_t ioPollTimeoutUSec{5'000'000};
+        std::uint32_t ioPollTimeoutSec{5};
 
         /**
          * Adds local command line options to a boost::program_options::options_description object.
@@ -188,9 +189,9 @@ namespace Gem::Courtier {
                                  "\t[mpi-worker-node] The time in microseconds between each check for completion of the request for a new work item.");
 
             hidden.add_options()("mpi_worker_pollTimeout",
-                                 po::value<std::uint32_t>(&ioPollTimeoutUSec)->default_value(
-                                         ioPollTimeoutUSec),
-                                 "\t[mpi-worker-node] The maximum time in microseconds to wait until a request for a new work item has been answered");
+                                 po::value<std::uint32_t>(&ioPollTimeoutSec)->default_value(
+                                         ioPollTimeoutSec),
+                                 "\t[mpi-worker-node] The maximum time in seconds to wait until a request for a new work item has been answered");
         }
     };
 
@@ -421,9 +422,9 @@ namespace Gem::Courtier {
 
                 // update elapsed time to compare with timeout
                 auto currentTime = std::chrono::steady_clock::now();
-                timeElapsed = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - timeStart);
+                timeElapsed = std::chrono::duration_cast<std::chrono::seconds>(currentTime - timeStart);
 
-                if (timeElapsed > std::chrono::microseconds{m_config.ioPollTimeoutUSec}) {
+                if (timeElapsed > std::chrono::seconds{m_config.ioPollTimeoutSec}) {
                     glogger
                             << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
                             << m_worldRank << ":"
