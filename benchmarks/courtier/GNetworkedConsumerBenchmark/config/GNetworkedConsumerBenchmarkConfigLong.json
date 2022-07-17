@@ -43,9 +43,9 @@
       "item": "'Boost.Asio threads=auto', 'asio_t_auto', '--consumer asio --asio_port 10001', '--asio_nProcessingThreads=auto'",
       "item": "'Boost.Beast threads=1', 'beast_t_1', '--consumer beast --beast_port 10002', '--beast_nListenerThreads=1'",
       "item": "'Boost.Beast threads=auto', 'beast_t_auto', '--consumer beast --beast_port 10003', '--beast_nListenerThreads=auto'",
-      "item": "'MPI threads=1, asyncReq=1', 'mpi_t_1_async_1', '--consumer mpi', '--mpi_master_nIOThreads=1'",
-      "item": "'MPI threads=auto, asyncReq=1', 'mpi_t_auto_async_1', '--consumer mpi', '--mpi_master_nIOThreads=auto'",
-      "item": "'MPI threads=auto, asyncReq=0', 'mpi_t_auto_async_0', '--consumer mpi --mpi_worker_asyncRequests 0', '--mpi_master_nIOThreads=auto'"
+      "item": "'MPI threads=1, asyncReq=1', 'mpi_t_1_async_1', '--consumer mpi --mpi_worker_pollTimeout 600', '--mpi_master_nIOThreads=1'",
+      "item": "'MPI threads=auto, asyncReq=1', 'mpi_t_auto_async_1', '--consumer mpi --mpi_worker_pollTimeout 600', '--mpi_master_nIOThreads=auto'",
+      "item": "'MPI threads=auto, asyncReq=0', 'mpi_t_auto_async_0', '--consumer mpi --mpi_worker_asyncRequests 0 --mpi_worker_pollTimeout 600', '--mpi_master_nIOThreads=auto'"
     }
   },
   "resultFile": {
