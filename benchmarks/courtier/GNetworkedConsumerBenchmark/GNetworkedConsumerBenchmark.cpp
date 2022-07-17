@@ -47,9 +47,11 @@
 #include <boost/process.hpp>
 
 // Geneva header files go here
-
 #include "GNetworkedConsumerBenchmarkConfig.hpp"
 #include "common/GPlotDesigner.hpp"
+
+// Posix header files
+#include <sys/resource.h>
 
 using namespace Gem::Tests;
 
@@ -318,6 +320,20 @@ std::string getCommandBanner(const std::string &command,
  */
 void cleanUpOrteTemp() {
     std::filesystem::remove_all(orteTempDirBase);
+}
+
+/**
+ * Sets the specified system limit to the maximum value (raises hard limit to soft limit)
+ * @return the value of the set limit
+ */
+std::uint32_t setUlimitMax(__rlimit_resource_t resource) {
+    rlimit limit{};
+    getrlimit(resource, &limit);
+
+    limit.rlim_cur = limit.rlim_max;
+    setrlimit(resource, &limit);
+
+    return limit.rlim_max;
 }
 
 void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
@@ -789,8 +805,6 @@ std::string getHeader(const GNetworkedConsumerBenchmarkConfig &config) {
     return sout.str();
 }
 
-// TODO: fix index out of bonds bug when running only one competitor configuration
-
 int main(int argc, char **argv) {
     GNetworkedConsumerBenchmarkConfig config{argc, argv};
 
@@ -799,6 +813,9 @@ int main(int argc, char **argv) {
 
     if (!config.getOnlyGenerateGraphs()) {
         std::cout << getHeader(config) << std::endl;
+
+        std::cout << "Setting the limit for open file descriptors to " << setUlimitMax(RLIMIT_NOFILE) << std::endl;
+
         resetOutputDirs();
 
         for (const std::uint32_t &nClients: config.getNClients()) {
