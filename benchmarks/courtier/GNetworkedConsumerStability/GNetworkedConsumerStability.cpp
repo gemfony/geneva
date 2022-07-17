@@ -512,8 +512,10 @@ StabilityStatistic runTestWithClients(const GNetworkedConsumerStabilityConfig &c
                       << config.getClientStartupDelay() << " seconds before starting the clients" << std::endl;
             std::this_thread::sleep_for(seconds(config.getClientStartupDelay()));
         } else {
-            // wait until starting the next client such that only the configured amount of clients is started each second
-            std::this_thread::sleep_for(milliseconds(1000 / config.getClientStartupPerSec()));
+            if (config.getClientStartupPerSec() != 0) {
+                // wait until starting the next client such that only the configured amount of clients is started each second
+                std::this_thread::sleep_for(milliseconds(1000 / config.getClientStartupPerSec()));
+            }
         }
     }
 
