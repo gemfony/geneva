@@ -211,6 +211,10 @@ namespace Gem::Courtier {
          * The maximum time in seconds to wait for the synchronization for all nodes on startup
          */
         std::uint32_t waitForMasterStartupTimeoutSec{60};
+        /**
+         * Flag whether to synchronize all nodes when calling the constructor of GMPIConsumerT
+         */
+        std::uint32_t synchronize{1};
 
         void addCLOptions_(
                 boost::program_options::options_description &visible,
@@ -234,6 +238,11 @@ namespace Gem::Courtier {
                                  po::value<std::uint32_t>(&waitForMasterStartupTimeoutSec)->default_value(
                                          waitForMasterStartupTimeoutSec),
                                  "\t[mpi] The maximum time in seconds to wait for the synchronization for all nodes on startup.");
+
+            hidden.add_options()("mpi_synchronize",
+                                 po::value<std::uint32_t>(&synchronize)->default_value(
+                                         synchronize),
+                                 "\t[mpi] Flag whether to synchronize all nodes when calling the constructor of GMPIConsumerT");
         }
     };
 
@@ -1325,6 +1334,64 @@ namespace Gem::Courtier {
         }
 
         /**
+         * Tries to synchronize with all other processes in the communicator.
+         * If m_commonConfig.waitForMasterStartupTimeoutSec seconds elapse without all processes synchronizing,
+         * the synchronization attempt is stopped.
+         * @return true in case of all processing synchronizing, otherwise false
+         */
+        bool trySynchronize() const {
+            // handle for asynchronous MPI request
+            MPI_Request requestHandle{};
+
+            // asynchronously ask all processes to synchronize here.
+            MPI_Ibarrier(MPI_COMMUNICATOR, &requestHandle);
+
+            auto timeStart{std::chrono::system_clock::now()};
+
+            while (true) {
+
+                int isCompleted{0};
+                MPI_Status status{};
+
+                MPI_Test(
+                        &requestHandle,
+                        &isCompleted,
+                        &status);
+
+                if (isCompleted) {
+                    if (status.MPI_ERROR != MPI_SUCCESS) {
+                        glogger
+                                << "In GMPIConsumerT<processable_type>::trySynchronize():" << std::endl
+                                << "Received an error:" << std::endl
+                                << mpiErrorString(status.MPI_ERROR) << std::endl
+                                << "We will try to continue execution anyways." << std::endl
+                                << GWARNING;
+
+                        return false; // synchronize stopped but unsuccessful
+                    }
+                    return true; // synchronize successful
+                }
+
+                if (std::chrono::system_clock::now() - timeStart >
+                    std::chrono::seconds(m_commonConfig.waitForMasterStartupTimeoutSec)) {
+                    glogger
+                            << "In GMPIConsumerT<processable_type>::trySynchronize() with rank="
+                            << m_commRank << ":" << std::endl
+                            << "Synchronization on startup timed out after "
+                            << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
+                            << "Trying to continue unsynchronized." << std::endl
+                            << GWARNING;
+
+                    return false; // synchronize stopped but unsuccessful
+                } else if (m_commonConfig.waitForMasterStartupPollIntervalUSec > 0) {
+                    // sleep in this thread in case the poll interval is not set to zero and we are not timed out
+                    std::this_thread::sleep_for(
+                            std::chrono::microseconds{m_commonConfig.waitForMasterStartupPollIntervalUSec});
+                }
+            }
+        }
+
+        /**
          * Returns true if the current process has rank 0 within the mpi cluster, otherwise returns false.
          *
          * Requires that cluster position has already been set with  setPositionInCluster
@@ -1444,8 +1511,9 @@ namespace Gem::Courtier {
             }
             instantiateNode();
 
-            // wait for all processes to be up and running, because clients should not start before server is responsive
-            trySynchronize();
+            if (m_commonConfig.synchronize) {
+                trySynchronize();
+            }
 
             m_masterNodePtr->async_startProcessing();
         }
@@ -1529,8 +1597,9 @@ namespace Gem::Courtier {
             }
             instantiateNode();
 
-            // wait for all processes to be up and running, because clients should not start before server is responsive
-            trySynchronize();
+            if (m_commonConfig.synchronize) {
+                trySynchronize();
+            }
 
             m_workerNodePtr->run();
         }
@@ -1561,64 +1630,6 @@ namespace Gem::Courtier {
                         [this]() -> bool { return this->halt(); },
                         [this]() -> void { this->incrementProcessingCounter(); },
                         m_workerNodeConfig);
-            }
-        }
-
-        /**
-         * Tries to synchronize with all other processes in the communicator.
-         * If m_commonConfig.waitForMasterStartupTimeoutSec seconds elapse without all processes synchronizing,
-         * the synchronization attempt is stopped.
-         * @return true in case of all processing synchronizing, otherwise false
-         */
-        bool trySynchronize() const {
-            // handle for asynchronous MPI request
-            MPI_Request requestHandle{};
-
-            // asynchronously ask all processes to synchronize here.
-            MPI_Ibarrier(MPI_COMMUNICATOR, &requestHandle);
-
-            auto timeStart{std::chrono::system_clock::now()};
-
-            while (true) {
-
-                int isCompleted{0};
-                MPI_Status status{};
-
-                MPI_Test(
-                        &requestHandle,
-                        &isCompleted,
-                        &status);
-
-                if (isCompleted) {
-                    if (status.MPI_ERROR != MPI_SUCCESS) {
-                        glogger
-                                << "In GMPIConsumerT<processable_type>::trySynchronize():" << std::endl
-                                << "Received an error:" << std::endl
-                                << mpiErrorString(status.MPI_ERROR) << std::endl
-                                << "We will try to continue execution anyways." << std::endl
-                                << GWARNING;
-
-                        return false; // synchronize stopped but unsuccessful
-                    }
-                    return true; // synchronize successful
-                }
-
-                if (std::chrono::system_clock::now() - timeStart >
-                    std::chrono::seconds(m_commonConfig.waitForMasterStartupTimeoutSec)) {
-                    glogger
-                            << "In GMPIConsumerT<processable_type>::trySynchronize() with rank="
-                            << m_commRank << ":" << std::endl
-                            << "Synchronization on startup timed out after "
-                            << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
-                            << "Trying to continue unsynchronized." << std::endl
-                            << GWARNING;
-
-                    return false; // synchronize stopped but unsuccessful
-                } else if (m_commonConfig.waitForMasterStartupPollIntervalUSec > 0) {
-                    // sleep in this thread in case the poll interval is not set to zero and we are not timed out
-                    std::this_thread::sleep_for(
-                            std::chrono::microseconds{m_commonConfig.waitForMasterStartupPollIntervalUSec});
-                }
             }
         }
 
