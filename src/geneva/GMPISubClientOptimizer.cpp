@@ -46,7 +46,7 @@ namespace Gem::Geneva {
         if (Go2::getConsumerName() != "mpi") { // only allow using MPI
             throw gemfony_exception(
                     g_error_streamer(DO_LOG, time_and_place)
-                            << "GMPISubClientOptimizer::optimize_(std::uint32_t offset): Error!" << std::endl
+                            << "GMPISubClientOptimizer constructor Error!" << std::endl
                             << "GMPISubClientOptimizer may only be used with the GMPIConsumerT, but the consumer is `"
                             << Go2::getConsumerName() << "`" << std::endl
                             << "Set the consumer to GMPIConsumerT by using the command line argument `--consumer mpi`"
