@@ -92,7 +92,7 @@ namespace Gem::Courtier {
     static MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD;
 
     /**
-     * Combines all configuration options necessary for a master node
+     * Stores configuration options necessary for a master node
      */
     struct MasterNodeConfig {
         /**
@@ -149,7 +149,7 @@ namespace Gem::Courtier {
     };
 
     /**
-     * Combines all configuration options necessary for a master node
+     * Combines all configuration options necessary for a worker node
      */
     struct WorkerNodeConfig {
         /**
@@ -195,6 +195,9 @@ namespace Gem::Courtier {
         }
     };
 
+    /**
+     * Stores configuration options which are used by master node and worker nodes
+     */
     struct CommonConfig {
         /**
          * Serialization mode to use when serializing messages before transmitting over network between master node and worker nodes
@@ -208,6 +211,10 @@ namespace Gem::Courtier {
          * The maximum time in seconds to wait for the synchronization for all nodes on startup
          */
         std::uint32_t waitForMasterStartupTimeoutSec{60};
+        /**
+         * Flag whether to synchronize all nodes when calling the constructor of GMPIConsumerT
+         */
+        std::uint32_t synchronize{1};
 
         void addCLOptions_(
                 boost::program_options::options_description &visible,
@@ -231,6 +238,11 @@ namespace Gem::Courtier {
                                  po::value<std::uint32_t>(&waitForMasterStartupTimeoutSec)->default_value(
                                          waitForMasterStartupTimeoutSec),
                                  "\t[mpi] The maximum time in seconds to wait for the synchronization for all nodes on startup.");
+
+            hidden.add_options()("mpi_synchronize",
+                                 po::value<std::uint32_t>(&synchronize)->default_value(
+                                         synchronize),
+                                 "\t[mpi] Flag whether to synchronize all nodes when calling the constructor of GMPIConsumerT");
         }
     };
 
@@ -251,12 +263,12 @@ namespace Gem::Courtier {
      * (3) Deserialize the received message\n
      * (4.1) If the message contains DATA (a raw work item): process the received work item\n
      * (4.2) If the message contains no data: poll later again i.e. back to step (1)\n
-     * (5) Asynchronously send the result of the processing to the master node, this message also simultaneously requests a
+     * (5) Asynchronously send the processed work item to the master node, this message also implicitly requests a
      *      new work item\n
      * (6) Wait for the response i.e. go back to step (2) again\n
      *
      * All communication between GMPIConsumerWorkerNodeT and GMPIConsumerMasterNodeT works with asynchronous communication
-     * using the MPI. If an asynchronous request is not able to complete within a predefined timeframe, a timeout will be triggered.
+     * using MPI. If an asynchronous request is not able to complete within a predefined timeframe, a timeout will be triggered.
      * Depending on where the timeout happened the worker might be able to continue working or needs to shutdown.
      * Timeouts and shutdowns will be logged.
      *
@@ -479,7 +491,7 @@ namespace Gem::Courtier {
          * Processes the work item that is stored in the member m_commandContainer.
          * After processing has been finished the result is put into m_commandContainer i.e. it overrides the old item.
          * In case that m_commandContainer did not contain any work items this method will store a new GETDATA request
-         * in m_commandContainer to retrieve new work in the next iteration.
+         * in m_commandContainer to retrieve new work when sending this message.
          */
         void processWorkItem() {
             switch (m_commandContainer.get_command()) {
@@ -577,7 +589,7 @@ namespace Gem::Courtier {
      * This class represents one session between the master node and one worker node.
      *
      * A GMPIConsumerSessionT can be opened as soon as the master node has fully received a request from
-     * a worker node. The opened GMPIConsumerSessionT will then take care of putting deserializing and processing
+     * a worker node. The opened GMPIConsumerSessionT will then take care of deserializing and processing
      * the request as well as responding to it with a new work item (if there are items available in the brokers queue
      * at that point in time).
      */
@@ -594,9 +606,6 @@ namespace Gem::Courtier {
          * @param getPayloadItem a callback function to retrieve payload items (raw work items) from their origin / producer
          * @param putPayloadItem a callback function to put payload items (processed work items) to their destination
          * @param serializationMode the mode of serialization between the master nodes and the worker nodes
-         * @param isToldToStop a reference to a thread safe atomic bool variable indicating whether the caller decided abort this session.
-         * @param ioPollIntervalUSec time in microseconds between each poll for the status of the send operation of the response
-         * @param ioPollTimeoutUSec maximum time in microseconds for a sending a response until a timeout will get triggered
          */
         GMPIConsumerSessionT(
                 MPI_Status status,
@@ -813,27 +822,26 @@ namespace Gem::Courtier {
      *
      * The simplified workflow of the GMPIConsumerMasterNodeT can be described as follows:
      *
-     * (1) Create thread pool using boost::thread_group and boost::io_service\n
+     * (1) Create thread pool\n
      * (2) Spawn a new thread that receives request (receiverThread). Then return from the function immediately, because
      * geneva expects consumers to be background processes on other threads than the main thread.\n
      * (3) Once a shutdown is supposed to occur:\n
      *  (3.1) Set a member flag to tell the receiver thread to stop\n
-     *  (3.2) Stop the boost::io_service object\n
-     *  (3.3) Join all threads. The receiver thread should exit itself and all handler threads will finish their last task
+     *  (3.2) Join all threads. The receiver thread should exit itself and all handler threads will finish their last task
      *        and then finish.\n\n
      *
      * Then the main loop in the receiver thread works as follows:\n
-     * (2) Asynchronously receive message from any worker node if not yet told to stop (check thread safe member variable)\n
-     * (2) Once a request has been received: schedule a handler on the thread pool and wait for another message
-     *     to receive i.e. go back to (1)\n\n
+     * (2.1) Asynchronously receive message from any worker node if not yet told to stop (check thread safe member variable)\n
+     * (2.2) Once a request has been received: schedule a handler on the thread pool and wait for another message
+     *     to receive i.e. go back to (2.1)\n\n
      *
      * Then the handler thread works as follows (implemented in the class GMPIConsumerSessionT):\n
      *  (3.1) Deserialize received object\n
      *  (3.2) If the message from the worker includes a processed item, put it into the processed items queue of the broker\n
-     *  (3.3) Take an item from the non-processed items queue (if there currently is one available)\n
+     *  (3.3) Take an item from the non-processed items queue (if currently there is one available)\n
      *  (3.4) Serialize the response container, which contains a new work item or the NODATA command.\n
      *  (3.5) Asynchronously send the item to the worker node which has requested it.\n
-     *  (3.6) Exit the handler. This lets boost use this thread for further jobs.\n
+     *  (3.6) Exit the handler. This lets the thread pool use this thread for future incoming requests.\n
      *
      */
     template<typename processable_type>
@@ -873,8 +881,10 @@ namespace Gem::Courtier {
         /**
          * Starts background threads that run the GMPIConsumerMasterNodeT.
          *
-         * First a thread-pool will be created. Then another thread will be created which listens for requests and
-         * schedules request handlers on the thread-pool. Once the threads have been created this method will immediately
+         * First a thread-pool will be created.Then another thread will be created which listens for requests and
+         * schedules request handlers on the thread-pool. Furthermore a cleanup thread will be created, which closes open
+         * sessions in a cyclic manner.
+         * Once the threads have been created this method will immediately
          * return to the caller while the spawned threads run in the background and fulfil their job.
          * To stop the master node and all its threads again the shutdown method can be called.
          */
@@ -999,9 +1009,12 @@ namespace Gem::Courtier {
         /**
          * Waits for open sessions to be completed.
          *
-         * This is not a job that must be executed super fast. So we can safe resources if we do not let this run on the
+         * This is not a job that must be executed super fast. So we can save resources if we do not let this run on the
          * thread-pool but on a single thread. The thread-pool will then be ready for new work as soon as it has handled
          * the request without having to wait for the completion of the asynchronous operations.
+         * The cleanup thread acts as a sort of multiplexer, by handling open sessions from various threads in the thread
+         * pool. This is clever because the majority of the time we will be waiting for a session to complete. By handling
+         * this by a single thread, we can overlap the waiting time of multiple sessions and only block one thread.
          *
          */
         void cleanUpSessionsLoop() {
@@ -1163,17 +1176,17 @@ namespace Gem::Courtier {
      * This class manages the initialization of MPI and is a wrapper around GMPIConsumerMasterNodeT and GMPIConsumerWorkerNodeT.
      *
      * This class is responsible for checking whether the current process is the master node (rank 0) or a worker node (any other rank).
-     * It is derived from both base classes - GBaseClientT and GBaseConsumerT and can therefore be used as either of these.
+     * It is derived from both base classes - GBaseClientT and GBaseConsumerT - and can therefore be used as either of these.
      * It instantiates the correct classes (GMPIConsumerMasterNodeT or GMPIConsumerWorkerNodeT) and forwards calls to its methods
-     * to one methods of the two classes. This serves as an abstraction of MPI such that the user does not need to explicitly
+     * to one methods of the underlying object. This serves as an abstraction of MPI such that the user does not need to explicitly
      * ask for the process's rank.
      *
      * The GMPIConsumerMasterNodeT is a server using MPI to wait for and serve connections initiated by GMPIConsumerWorkerNodeTs.
-     * The worker waits for a request from any worker node and answers it.
+     * The server waits for a request from any worker node and answers it.
      *
      * The GMPIConsumerT only uses asynchronous MPI communication and point-to-point messaging. This might be unusual
      * when working with MPI, as most MPI-applications use synchronous communication e.g. with scatter and gather.
-     * While synchronous communication with multiple clients at a time could maybe be more performant, the asynchronous
+     * While synchronous communication with multiple clients at a time could maybe be slightly more performant, the asynchronous
      * client server model is much more fault tolerant and was therefore chosen.
      * Asynchronous MPI calls with the client-server model allow realizing time-outs in case of crashing or unavailable workers.
      * This means no matter how many clients crash, the remaining clients are able to fulfil their job and the optimization can
@@ -1195,7 +1208,7 @@ namespace Gem::Courtier {
          *
          * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call
          * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call
-         * @param serializationMode serialization mode to use for messages send between the master node and worker nodes
+         * @param commonConfig general configuration options
          * @param masterNodeConfig configuration specifically for the case in which this instance is the master node
          * @param workerNodeConfig configuration specifically for the case in which this instance is a worker node
          */
@@ -1321,6 +1334,64 @@ namespace Gem::Courtier {
         }
 
         /**
+         * Tries to synchronize with all other processes in the communicator.
+         * If m_commonConfig.waitForMasterStartupTimeoutSec seconds elapse without all processes synchronizing,
+         * the synchronization attempt is stopped.
+         * @return true in case of all processing synchronizing, otherwise false
+         */
+        bool trySynchronize() const {
+            // handle for asynchronous MPI request
+            MPI_Request requestHandle{};
+
+            // asynchronously ask all processes to synchronize here.
+            MPI_Ibarrier(MPI_COMMUNICATOR, &requestHandle);
+
+            auto timeStart{std::chrono::system_clock::now()};
+
+            while (true) {
+
+                int isCompleted{0};
+                MPI_Status status{};
+
+                MPI_Test(
+                        &requestHandle,
+                        &isCompleted,
+                        &status);
+
+                if (isCompleted) {
+                    if (status.MPI_ERROR != MPI_SUCCESS) {
+                        glogger
+                                << "In GMPIConsumerT<processable_type>::trySynchronize():" << std::endl
+                                << "Received an error:" << std::endl
+                                << mpiErrorString(status.MPI_ERROR) << std::endl
+                                << "We will try to continue execution anyways." << std::endl
+                                << GWARNING;
+
+                        return false; // synchronize stopped but unsuccessful
+                    }
+                    return true; // synchronize successful
+                }
+
+                if (std::chrono::system_clock::now() - timeStart >
+                    std::chrono::seconds(m_commonConfig.waitForMasterStartupTimeoutSec)) {
+                    glogger
+                            << "In GMPIConsumerT<processable_type>::trySynchronize() with rank="
+                            << m_commRank << ":" << std::endl
+                            << "Synchronization on startup timed out after "
+                            << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
+                            << "Trying to continue unsynchronized." << std::endl
+                            << GWARNING;
+
+                    return false; // synchronize stopped but unsuccessful
+                } else if (m_commonConfig.waitForMasterStartupPollIntervalUSec > 0) {
+                    // sleep in this thread in case the poll interval is not set to zero and we are not timed out
+                    std::this_thread::sleep_for(
+                            std::chrono::microseconds{m_commonConfig.waitForMasterStartupPollIntervalUSec});
+                }
+            }
+        }
+
+        /**
          * Returns true if the current process has rank 0 within the mpi cluster, otherwise returns false.
          *
          * Requires that cluster position has already been set with  setPositionInCluster
@@ -1440,8 +1511,9 @@ namespace Gem::Courtier {
             }
             instantiateNode();
 
-            // wait for all processes to be up and running, because clients should not start before server is responsive
-            trySynchronize();
+            if (m_commonConfig.synchronize) {
+                trySynchronize();
+            }
 
             m_masterNodePtr->async_startProcessing();
         }
@@ -1525,8 +1597,9 @@ namespace Gem::Courtier {
             }
             instantiateNode();
 
-            // wait for all processes to be up and running, because clients should not start before server is responsive
-            trySynchronize();
+            if (m_commonConfig.synchronize) {
+                trySynchronize();
+            }
 
             m_workerNodePtr->run();
         }
@@ -1560,64 +1633,6 @@ namespace Gem::Courtier {
             }
         }
 
-        /**
-         * Tries to synchronize with all other processes in the communicator.
-         * If m_commonConfig.waitForMasterStartupTimeoutSec seconds elapse without all processes synchronizing,
-         * the synchronization attempt is stopped.
-         * @return true in case of all processing synchronizing, otherwise false
-         */
-        bool trySynchronize() const {
-            // handle for asynchronous MPI request
-            MPI_Request requestHandle{};
-
-            // asynchronously ask all processes to synchronize here.
-            MPI_Ibarrier(MPI_COMMUNICATOR, &requestHandle);
-
-            auto timeStart{std::chrono::system_clock::now()};
-
-            while (true) {
-
-                int isCompleted{0};
-                MPI_Status status{};
-
-                MPI_Test(
-                        &requestHandle,
-                        &isCompleted,
-                        &status);
-
-                if (isCompleted) {
-                    if (status.MPI_ERROR != MPI_SUCCESS) {
-                        glogger
-                                << "In GMPIConsumerT<processable_type>::trySynchronize():" << std::endl
-                                << "Received an error:" << std::endl
-                                << mpiErrorString(status.MPI_ERROR) << std::endl
-                                << "We will try to continue execution anyways." << std::endl
-                                << GWARNING;
-
-                        return false; // synchronize stopped but unsuccessful
-                    }
-                    return true; // synchronize successful
-                }
-
-                if (std::chrono::system_clock::now() - timeStart >
-                    std::chrono::seconds(m_commonConfig.waitForMasterStartupTimeoutSec)) {
-                    glogger
-                            << "In GMPIConsumerT<processable_type>::trySynchronize() with rank="
-                            << m_commRank << ":" << std::endl
-                            << "Synchronization on startup timed out after "
-                            << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
-                            << "Trying to continue unsynchronized." << std::endl
-                            << GWARNING;
-
-                    return false; // synchronize stopped but unsuccessful
-                } else if (m_commonConfig.waitForMasterStartupPollIntervalUSec > 0) {
-                    // sleep in this thread in case the poll interval is not set to zero and we are not timed out
-                    std::this_thread::sleep_for(
-                            std::chrono::microseconds{m_commonConfig.waitForMasterStartupPollIntervalUSec});
-                }
-            }
-        }
-
         //-------------------------------------------------------------------------
         // Data
 
@@ -1641,9 +1656,8 @@ namespace Gem::Courtier {
         bool isClusterPositionDefined{false};
 
         // This instance of a shared_ptr keeps it alive as long as the GMPIConsumerT exists
-        // Apart from this it is unused
         // Normally this should not be necessary, because we have a static instance of shared_ptr to the logger in the
-        // GSingleton class. However, there is a bug that could be solved by inserting this member variable.
+        // GSingleton class. However, there is a bug that was worked around by inserting this member variable.
         // We are as of right now not sure why the bug persists.
         // If nobody resets the GSingleton or the pointer manually that would mean that some parts of the Consumer are
         // still running after the destructor of the static shared_ptr instance in GSingleton has been called. That would
