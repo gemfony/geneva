@@ -75,7 +75,7 @@ namespace Gem::Geneva {
 
 
         // emit output about this instance
-        if (m_baseCommRank != 0) { // the server is in no sub-client group
+        if (!isServer) { // the server is in no sub-client group
             glogger << "baseRank=" << m_baseCommRank << " with mode="
                       << (isSubClient() ? "`sub-client`" : "`client`") << " is in subgroup " << subCommColor
                       << std::endl << GLOGGING;
