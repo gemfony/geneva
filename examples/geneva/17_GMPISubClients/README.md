@@ -12,7 +12,7 @@ In the following Figure we see how the network looks line when using a `subClien
 The rounded rectangles represent the MPI-communicators:
 - Black: The base communicator. This defaults to MPI_COMM_WORLD. However, the user can set this communicator to a sub-communicator if the user himself uses MPI in his application specific code apart from Geneva.
 - Blue: The Geneva communicator. This is the communicator which is used for transmitting individuals between master node and worker nodes.
-- Orange: The sub-client communicators 1-n. The subgroups have a size of n which can be configured through the configuration file of `GMPISubClientOptimizer`. The number of subgroups will be calculated based on the size of the subgroups and the number of processes in the base communicator. Each subgroup can use MPI in a user-defined fashion in order to parallelize at the level of individuals (i.e. parallelize the fitnessCalculation function).
+- Orange: The sub-client communicators 1-m. The subgroups have a size of n which can be configured through the configuration file of `GMPISubClientOptimizer`. The number of subgroups will be calculated based on the size of the subgroups and the number of processes in the base communicator. Each subgroup can use MPI in a user-defined fashion in order to parallelize at the level of individuals (i.e. parallelize the fitnessCalculation function).
 
 <img src="./images/mpi-sub-clients.png">
 
