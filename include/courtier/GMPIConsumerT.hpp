@@ -211,10 +211,6 @@ namespace Gem::Courtier {
          * The maximum time in seconds to wait for the synchronization for all nodes on startup
          */
         std::uint32_t waitForMasterStartupTimeoutSec{60};
-        /**
-         * Flag whether to synchronize all nodes when calling the constructor of GMPIConsumerT
-         */
-        std::uint32_t synchronize{1};
 
         void addCLOptions_(
                 boost::program_options::options_description &visible,
@@ -238,11 +234,6 @@ namespace Gem::Courtier {
                                  po::value<std::uint32_t>(&waitForMasterStartupTimeoutSec)->default_value(
                                          waitForMasterStartupTimeoutSec),
                                  "\t[mpi] The maximum time in seconds to wait for the synchronization for all nodes on startup.");
-
-            hidden.add_options()("mpi_synchronize",
-                                 po::value<std::uint32_t>(&synchronize)->default_value(
-                                         synchronize),
-                                 "\t[mpi] Flag whether to synchronize all nodes when calling the constructor of GMPIConsumerT");
         }
     };
 
@@ -1339,7 +1330,7 @@ namespace Gem::Courtier {
          * the synchronization attempt is stopped.
          * @return true in case of all processing synchronizing, otherwise false
          */
-        bool trySynchronize() const {
+        [[nodiscard]] bool trySynchronize() const {
             // handle for asynchronous MPI request
             MPI_Request requestHandle{};
 
@@ -1511,10 +1502,6 @@ namespace Gem::Courtier {
             }
             instantiateNode();
 
-            if (m_commonConfig.synchronize) {
-                trySynchronize();
-            }
-
             m_masterNodePtr->async_startProcessing();
         }
 
@@ -1596,10 +1583,6 @@ namespace Gem::Courtier {
                 return;
             }
             instantiateNode();
-
-            if (m_commonConfig.synchronize) {
-                trySynchronize();
-            }
 
             m_workerNodePtr->run();
         }
