@@ -36,8 +36,6 @@
 
 #include "geneva/GMPISubClientOptimizer.hpp"
 
-// TODO: change std::cout to glogger
-
 namespace Gem::Geneva {
     GMPISubClientOptimizer::GMPISubClientOptimizer(int argc,
                                                    char **argv,
@@ -78,11 +76,11 @@ namespace Gem::Geneva {
 
         // emit output about this instance
         if (m_baseCommRank != 0) { // the server is in no sub-client group
-            std::cout << "baseRank=" << m_baseCommRank << " with mode="
+            glogger << "baseRank=" << m_baseCommRank << " with mode="
                       << (isSubClient() ? "`sub-client`" : "`client`") << " is in subgroup " << subCommColor
-                      << std::endl;
+                      << std::endl << GLOGGING;
         } else {
-            std::cout << "baseRank=" << m_baseCommRank << " is the server and in no sub-group" << std::endl;
+            glogger << "baseRank=" << m_baseCommRank << " is the server and in no sub-group" << std::endl << GLOGGING;
         }
 
 
