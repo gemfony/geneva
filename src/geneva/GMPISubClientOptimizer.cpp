@@ -54,6 +54,12 @@ namespace Gem::Geneva {
             );
         }
 
+        // Go2 already parses the config file but does not know the options needed by this class.
+        // Therefore, we parse it again here and override the results of parsing the first time
+        // When parsing here, the addConfigurationOptions_ of this class is used and options of this class are added.
+        // TODO: Pass a callback to Go2-constructor which adds additional config-file options, in order to not parse twice and remove this call here
+        parseConfigFile(configFilePath);
+
         // If the base communicator is already a sub communicator, this means MPI must already have been initialized by the user
         if (baseCommunicator == MPI_COMM_WORLD) {
             // initialize MPI in the way this is required by GMPIConsumerT
