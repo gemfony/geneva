@@ -1,5 +1,5 @@
 /**
- * @file GMPISubClientParaboloidIndividual2D.hpp
+ * @file GMPISubClientParaboloidIndividualMultiD.hpp
  */
 
 /********************************************************************************
@@ -55,8 +55,6 @@
 
 namespace Gem::Geneva {
 
-    // TODO: rename this class and files (is no longer 2D)
-
     /******************************************************************/
     /**
      * This class demonstrates the functionality of GMPISubClientIndividual.
@@ -64,7 +62,7 @@ namespace Gem::Geneva {
      * In this example we just send an example message. But in a real implementation
      * real data would be sent in order to solve the fitnessCalculation in a distributed manner.
      */
-    class GMPISubClientParaboloidIndividual2D : public GMPISubClientIndividual {
+    class GMPISubClientParaboloidIndividualMultiD : public GMPISubClientIndividual {
         /** @brief Make the class accessible to Boost.Serialization */
         friend class boost::serialization::access;
 
@@ -84,15 +82,15 @@ namespace Gem::Geneva {
         /**************************************************************/
     public:
         /** @brief The default constructor */
-        GMPISubClientParaboloidIndividual2D();
+        GMPISubClientParaboloidIndividualMultiD();
 
         /** @brief A standard copy constructor */
-        GMPISubClientParaboloidIndividual2D(const GMPISubClientParaboloidIndividual2D &);
+        GMPISubClientParaboloidIndividualMultiD(const GMPISubClientParaboloidIndividualMultiD &);
 
         static int subClientJob(MPI_Comm comm);
 
     protected:
-        /** @brief Loads the data of another GMPISubClientParaboloidIndividual2D */
+        /** @brief Loads the data of another GMPISubClientParaboloidIndividualMultiD */
         void load_(const GObject *) final;
 
         /** @brief The actual fitness calculation takes place here. */
@@ -129,5 +127,5 @@ namespace Gem::Geneva {
 
 } // namespace Gem::Geneva
 
-BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMPISubClientParaboloidIndividual2D)
+BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD)
 

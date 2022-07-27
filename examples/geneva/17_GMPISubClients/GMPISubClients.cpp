@@ -51,7 +51,7 @@
 #include "courtier/GMPIHelperFunctions.hpp"
 
 // The individual that should be optimized
-#include "GMPISubClientParaboloidIndividual2D.hpp"
+#include "GMPISubClientParaboloidIndividualMultiD.hpp"
 
 using namespace Gem::Geneva;
 
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
     GMPISubClientOptimizer optimizer(argc, argv, "config/GMPISubClientOptimizer.json");
 
     // register the sub-client job which is executed by sub-clients who need to communicate with geneva clients inside a subgroup
-    optimizer.registerSubClientJob(GMPISubClientParaboloidIndividual2D::subClientJob);
+    optimizer.registerSubClientJob(GMPISubClientParaboloidIndividualMultiD::subClientJob);
 
     //---------------------------------------------------------------------
     // Initialize a client, if requested
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     // Add individuals and algorithms and perform the actual optimization cycle
 
     // Make an individual known to the optimizer
-    std::shared_ptr<GMPISubClientParaboloidIndividual2D> p(new GMPISubClientParaboloidIndividual2D());
+    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD> p(new GMPISubClientParaboloidIndividualMultiD());
     optimizer.push_back(p);
 
     // Add an evolutionary algorithm to the Go2 class.
@@ -80,8 +80,8 @@ int main(int argc, char **argv) {
     auto timeStart{std::chrono::system_clock::now()};
 
     // Perform the actual optimization
-    std::shared_ptr<GMPISubClientParaboloidIndividual2D>
-            bestIndividual_ptr = optimizer.optimize()->getBestGlobalIndividual<GMPISubClientParaboloidIndividual2D>();
+    std::shared_ptr<GMPISubClientParaboloidIndividualMultiD>
+            bestIndividual_ptr = optimizer.optimize()->getBestGlobalIndividual<GMPISubClientParaboloidIndividualMultiD>();
 
     auto timeElapsed{std::chrono::system_clock::now() - timeStart};
 

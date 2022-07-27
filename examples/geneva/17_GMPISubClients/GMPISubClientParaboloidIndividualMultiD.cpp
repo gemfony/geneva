@@ -1,5 +1,5 @@
 /**
- * @file GMPISubClientParaboloidIndividual2D.cpp
+ * @file GMPISubClientParaboloidIndividualMultiD.cpp
  */
 
 /********************************************************************************
@@ -38,9 +38,9 @@
  *
  ********************************************************************************/
 
-#include "GMPISubClientParaboloidIndividual2D.hpp"
+#include "GMPISubClientParaboloidIndividualMultiD.hpp"
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividual2D)
+BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividualMultiD)
 
 namespace Gem::Geneva {
 
@@ -49,7 +49,7 @@ namespace Gem::Geneva {
  * The default constructor. This function will add a specified number of double parameters to this individual,
  * each of which has a constrained value range [-10:10].
  */
-    GMPISubClientParaboloidIndividual2D::GMPISubClientParaboloidIndividual2D()
+    GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD()
             : GMPISubClientIndividual(), M_PAR_MIN(-10.), M_PAR_MAX(10.) {
         for (std::size_t npar = 0; npar < m_nParameters; npar++) {
             // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
@@ -63,21 +63,21 @@ namespace Gem::Geneva {
 /**
  * A standard copy constructor. All real work is done by the parent class.
  *
- * @param cp A copy of another GMPISubClientParaboloidIndividual2D
+ * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD
  */
-    GMPISubClientParaboloidIndividual2D::GMPISubClientParaboloidIndividual2D(
-            const GMPISubClientParaboloidIndividual2D &cp)
+    GMPISubClientParaboloidIndividualMultiD::GMPISubClientParaboloidIndividualMultiD(
+            const GMPISubClientParaboloidIndividualMultiD &cp)
             : GMPISubClientIndividual(cp), M_PAR_MIN(-10.), M_PAR_MAX(10) { /* nothing */ }
 
 /********************************************************************************************/
 /**
- * Loads the data of another GMPISubClientParaboloidIndividual2D, camouflaged as a GObject.
+ * Loads the data of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GObject.
  *
- * @param cp A copy of another GMPISubClientParaboloidIndividual2D, camouflaged as a GObject
+ * @param cp A copy of another GMPISubClientParaboloidIndividualMultiD, camouflaged as a GObject
  */
-    void GMPISubClientParaboloidIndividual2D::load_(const GObject *cp) {
-        // Check that we are dealing with a GMPISubClientParaboloidIndividual2D reference independent of this object and convert the pointer
-        const GMPISubClientParaboloidIndividual2D *p_load = Gem::Common::g_convert_and_compare<GObject, GMPISubClientParaboloidIndividual2D>(
+    void GMPISubClientParaboloidIndividualMultiD::load_(const GObject *cp) {
+        // Check that we are dealing with a GMPISubClientParaboloidIndividualMultiD reference independent of this object and convert the pointer
+        const GMPISubClientParaboloidIndividualMultiD *p_load = Gem::Common::g_convert_and_compare<GObject, GMPISubClientParaboloidIndividualMultiD>(
                 cp, this);
 
         // Load our parent's data
@@ -93,8 +93,8 @@ namespace Gem::Geneva {
  *
  * @return A deep clone of this object, camouflaged as a GObject
  */
-    GObject *GMPISubClientParaboloidIndividual2D::clone_() const {
-        return new GMPISubClientParaboloidIndividual2D(*this);
+    GObject *GMPISubClientParaboloidIndividualMultiD::clone_() const {
+        return new GMPISubClientParaboloidIndividualMultiD(*this);
     }
 
 /********************************************************************************************/
@@ -103,7 +103,7 @@ namespace Gem::Geneva {
  *
  * @return The value of this object
  */
-    double GMPISubClientParaboloidIndividual2D::fitnessCalculation() {
+    double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
         const uint32_t size{mpiSize(getCommunicator())}; // number of processes in the communicator
         double result = 0.; // Will hold the result
         std::vector<double> parVec; // Will hold the parameters
@@ -133,7 +133,7 @@ namespace Gem::Geneva {
     }
 
 
-    int GMPISubClientParaboloidIndividual2D::subClientJob(MPI_Comm _communicator) {
+    int GMPISubClientParaboloidIndividualMultiD::subClientJob(MPI_Comm _communicator) {
 
         const uint32_t size{mpiSize(getCommunicator())};
         std::optional<std::vector<double>> dummyRecvVec{};
@@ -159,7 +159,7 @@ namespace Gem::Geneva {
 
     }
 
-    MPITimeoutStatus GMPISubClientParaboloidIndividual2D::distributedSolveWithTimeout(
+    MPITimeoutStatus GMPISubClientParaboloidIndividualMultiD::distributedSolveWithTimeout(
             const std::optional<std::vector<double>> &sendVec,
             std::optional<std::vector<double>> &resultVec,
             const std::uint32_t &parsPerProc) {
