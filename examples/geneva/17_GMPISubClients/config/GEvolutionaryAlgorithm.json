@@ -77,12 +77,12 @@
     "maxIteration": {
         "comment": "The maximum allowed number of iterations",
         "default": "1000",
-        "value": "1000"
+        "value": "101"
     },
     "minIteration": {
       "comment": "The minimum allowed number of iterations",
       "default": "0",
-      "value": "0"
+      "value": "100"
     },
     "maxStallIteration": {
         "comment": "The maximum allowed number of iterations without improvement",

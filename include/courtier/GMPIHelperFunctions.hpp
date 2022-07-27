@@ -41,7 +41,33 @@
 
 // MPI library
 #include <mpi.h>
+
+// standard headers
 #include <string>
+#include <chrono>
+#include <thread>
+
+/**
+ * Stores the result of an MPI operation which can potentially time out
+ */
+struct MPITimeoutStatus {
+    /**
+     * Whether the operation has timed out or not
+     */
+    bool timedOut{false};
+    /**
+     * The status which was returned by MPI at that time
+     */
+    MPI_Status status{};
+
+    /**
+     * returns
+     * @return true if the operation succeeded without error and without triggering the timeout
+     */
+    [[nodiscard]] inline bool succeeded() const {
+        return !timedOut && status.MPI_ERROR == MPI_SUCCESS;
+    }
+};
 
 /******************************************************************************/
 G_API_COMMON
@@ -50,3 +76,29 @@ int mpiGetCount(const MPI_Status &, MPI_Datatype = MPI_CHAR);
 /******************************************************************************/
 G_API_COMMON
 std::string mpiErrorString(int);
+
+/******************************************************************************/
+G_API_COMMON
+std::uint32_t mpiSize(const MPI_Comm &comm);
+
+/******************************************************************************/
+G_API_COMMON
+[[nodiscard]] MPITimeoutStatus mpiGatherWithTimeout(const void *sendBuf,
+                                                    const std::uint32_t &sendCount,
+                                                    void *recvBuf,
+                                                    MPI_Datatype type,
+                                                    const std::uint32_t &root,
+                                                    MPI_Comm comm,
+                                                    const std::uint64_t &pollIntervalMSec,
+                                                    const std::uint64_t &pollTimeoutMsec);
+
+/******************************************************************************/
+G_API_COMMON
+[[nodiscard]] MPITimeoutStatus mpiScatterWithTimeout(const void *sendBuf,
+                                       const std::uint32_t &sendCount,
+                                       void *recvBuf,
+                                       MPI_Datatype type,
+                                       const std::uint32_t &root,
+                                       MPI_Comm comm,
+                                       const std::uint64_t &pollIntervalMSec,
+                                       const std::uint64_t &pollTimeoutMsec);

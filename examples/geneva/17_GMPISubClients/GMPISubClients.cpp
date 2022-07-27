@@ -77,9 +77,17 @@ int main(int argc, char **argv) {
     // Add an evolutionary algorithm to the Go2 class.
     optimizer & "ea";
 
+    auto timeStart{std::chrono::system_clock::now()};
+
     // Perform the actual optimization
     std::shared_ptr<GMPISubClientParaboloidIndividual2D>
             bestIndividual_ptr = optimizer.optimize()->getBestGlobalIndividual<GMPISubClientParaboloidIndividual2D>();
+
+    auto timeElapsed{std::chrono::system_clock::now() - timeStart};
+
+    std::cout << "Optimization finished in "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(timeElapsed).count() << " milliseconds"
+              << std::endl;
 
     // Do something with the best result
 }

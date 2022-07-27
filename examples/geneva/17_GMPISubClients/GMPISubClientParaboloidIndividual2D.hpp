@@ -51,63 +51,79 @@
 // Geneva header files go here
 #include <geneva/GMPISubClientIndividual.hpp>
 #include <geneva/GConstrainedDoubleObject.hpp>
+#include <courtier/GMPIHelperFunctions.hpp>
 
 namespace Gem::Geneva {
 
-/******************************************************************/
-/**
- * This class demonstrates the functionality of GMPISubClientIndividual.
- * In the fitnessCalculation function it will communicate to MPI sub-clients.
- * In this example we just send an example message. But in a real implementation
- * real data would be sent in order to solve the fitnessCalculation in a distributed manner.
- */
-class GMPISubClientParaboloidIndividual2D :public GMPISubClientIndividual
-{
-	 /** @brief Make the class accessible to Boost.Serialization */
-	 friend class boost::serialization::access;
+    // TODO: rename this class and files (is no longer 2D)
 
-	 /**************************************************************/
-	 /**
-	  * This function triggers serialization of this class and its
-	  * base classes.
-	  */
-	 template<typename Archive>
-	 void serialize(Archive & ar, const unsigned int) {
-		 using boost::serialization::make_nvp;
-		 // Serialize the base class
-		 ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
-		 // Add other variables here like this:
-		 // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
-	 }
-	 /**************************************************************/
-public:
-	 /** @brief The default constructor */
-	 GMPISubClientParaboloidIndividual2D();
-	 /** @brief A standard copy constructor */
-	 GMPISubClientParaboloidIndividual2D(const GMPISubClientParaboloidIndividual2D&);
+    /******************************************************************/
+    /**
+     * This class demonstrates the functionality of GMPISubClientIndividual.
+     * In the fitnessCalculation function it will communicate to MPI sub-clients.
+     * In this example we just send an example message. But in a real implementation
+     * real data would be sent in order to solve the fitnessCalculation in a distributed manner.
+     */
+    class GMPISubClientParaboloidIndividual2D : public GMPISubClientIndividual {
+        /** @brief Make the class accessible to Boost.Serialization */
+        friend class boost::serialization::access;
 
-     static int subClientJob(MPI_Comm comm);
+        /**************************************************************/
+        /**
+         * This function triggers serialization of this class and its
+         * base classes.
+         */
+        template<typename Archive>
+        void serialize(Archive &ar, const unsigned int) {
+            using boost::serialization::make_nvp;
+            // Serialize the base class
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(GParameterSet);
+            // Add other variables here like this:
+            // ar & BOOST_SERIALIZATION_NVP(sampleVariable);
+        }
+        /**************************************************************/
+    public:
+        /** @brief The default constructor */
+        GMPISubClientParaboloidIndividual2D();
 
-protected:
-	 /** @brief Loads the data of another GMPISubClientParaboloidIndividual2D */
-	 void load_(const GObject*) final;
+        /** @brief A standard copy constructor */
+        GMPISubClientParaboloidIndividual2D(const GMPISubClientParaboloidIndividual2D &);
 
-	 /** @brief The actual fitness calculation takes place here. */
-	 double fitnessCalculation() final;
+        static int subClientJob(MPI_Comm comm);
 
-private:
-    /** Waits for the completion of an MPI_Request */
-    static int waitForRequestCompletion(MPI_Request &request);
+    protected:
+        /** @brief Loads the data of another GMPISubClientParaboloidIndividual2D */
+        void load_(const GObject *) final;
 
-	 /** @brief Creates a deep clone of this object */
-	 [[nodiscard]] GObject* clone_() const final;
+        /** @brief The actual fitness calculation takes place here. */
+        double fitnessCalculation() final;
 
-	 const double M_PAR_MIN;
-	 const double M_PAR_MAX;
+    private:
+        /** @brief calculates the square of all parameters in this parameters set together with all sub-clients */
+        [[nodiscard]] static MPITimeoutStatus
+        distributedSolveWithTimeout(const std::optional<std::vector<double>> &sendVec,
+                                    std::optional<std::vector<double>> &resultVec,
+                                    const std::uint32_t &parsPerProc);
 
-     // message to be echoed by sub-client workers as a sort of unit test
-     const std::string m_echoMessage{"abcdefghijklmnopqrstuvwxyz"};
-};
+
+        /** @brief Creates a deep clone of this object */
+        [[nodiscard]] GObject *clone_() const final;
+
+        const double M_PAR_MIN;
+        const double M_PAR_MAX;
+
+        /** the number of parameters to optimize */
+        inline const static std::uint32_t m_nParameters{64};
+
+        /** Simulated time required to calculate one parameter in this parameter set */
+        inline const static std::uint32_t m_delayPerParameterMSec{30};
+
+        /** Interval for checking the result of mpi communication requests */
+        inline const static std::uint32_t m_pollIntervalMSec{5};
+
+        /** Maximum time to wait before a timeout is triggered on an mpi communication request */
+        inline const static std::uint32_t m_pollTimeoutMSec{5000}; // 30 seconds
+    };
 
 /******************************************************************/
 

@@ -39,7 +39,6 @@
  ********************************************************************************/
 
 #include "GMPISubClientParaboloidIndividual2D.hpp"
-#include "courtier/GMPIHelperFunctions.hpp"
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientParaboloidIndividual2D)
 
@@ -47,12 +46,12 @@ namespace Gem::Geneva {
 
 /********************************************************************************************/
 /**
- * The default constructor. This function will add two double parameters to this individual,
+ * The default constructor. This function will add a specified number of double parameters to this individual,
  * each of which has a constrained value range [-10:10].
  */
     GMPISubClientParaboloidIndividual2D::GMPISubClientParaboloidIndividual2D()
             : GMPISubClientIndividual(), M_PAR_MIN(-10.), M_PAR_MAX(10.) {
-        for (std::size_t npar = 0; npar < 2; npar++) {
+        for (std::size_t npar = 0; npar < m_nParameters; npar++) {
             // GConstrainedDoubleObject is constrained to [M_PAR_MIN:M_PAR_MAX[
             std::shared_ptr<GConstrainedDoubleObject> gcdo_ptr(new GConstrainedDoubleObject(M_PAR_MIN, M_PAR_MAX));
             // Add the parameters to this individual
@@ -105,225 +104,115 @@ namespace Gem::Geneva {
  * @return The value of this object
  */
     double GMPISubClientParaboloidIndividual2D::fitnessCalculation() {
+        const uint32_t size{mpiSize(getCommunicator())}; // number of processes in the communicator
         double result = 0.; // Will hold the result
         std::vector<double> parVec; // Will hold the parameters
 
-        // get information about current MPI environment
-        MPI_Comm communicator = GMPISubClientIndividual::getCommunicator();
-        int subGroupSize{0};
-        int subGroupRank{0};
-        MPI_Comm_size(communicator, &subGroupSize);
-        MPI_Comm_rank(communicator, &subGroupRank);
+        // Retrieve the parameters
+        this->streamline(parVec);
 
-        // allocate memory for receiving the results from sub-clients
-        char *receiveBuffer = new char[subGroupSize];
+        // must create lValue binding
+        std::optional<std::vector<double>> recvVecOpt{parVec};
 
-        // initialize request handles for async communication
-        MPI_Request scatterRequest{};
-        MPI_Request gatherRequest{};
+        // distributed calculation of squares of individual parameters together with sub-clients
+        MPITimeoutStatus status = distributedSolveWithTimeout(parVec, recvVecOpt, m_nParameters / size);
 
-        // NOTE: this process (root with rank=0) has two roles in MPI_Gather and scatter.
-        // It has the root role and also has the role of a normal process.
-        // Therefore, it will on scatter also receive one item and on gather send one item
-
-        // NOTE: here we could also use blocking calls.
-        // But the clients in the main program need non-blocking calls to implement a timeout
-        // Blocking calls do not match non-blocking calls
-
-        MPI_Iscatter(
-                m_echoMessage.data(), // send substrings of the test message
-                1, // send one char to each other process
-                MPI_CHAR,
-                receiveBuffer, // receive one character as the root process
-                1, // send one character to every other process
-                MPI_CHAR,
-                0, // rank 0 (this process) is the root.
-                communicator,
-                &scatterRequest);
-
-        // wait for completion of async call
-        MPI_Status scatterStatus{};
-
-        MPI_Wait(&scatterRequest, &scatterStatus);
-        if (scatterStatus.MPI_ERROR != MPI_SUCCESS) {
-            std::cout << "Error happened: " << std::endl
-                      << mpiErrorString(scatterStatus.MPI_ERROR) << std::endl;
+        if (status.timedOut) {
+            std::cout << "Error: Sub-client unavailable: timeout triggered when communicating." << std::endl;
+        } else if (!status.succeeded()) { // any error but a timeout
+            std::cout << "MPI error occurred: " << std::endl
+                      << mpiErrorString(status.status.MPI_ERROR) << std::endl;
         }
 
-        MPI_Igather(
-                receiveBuffer, // send one character as the root process
-                1, // send one character only
-                MPI_CHAR,
-                receiveBuffer,
-                1, // collect all sent characters
-                MPI_CHAR,
-                0, //rank 0 (this process) is the root.
-                communicator,
-                &gatherRequest);
-
-        // wait for completion of async call
-        MPI_Status gatherStatus{};
-        MPI_Wait(&gatherRequest, &gatherStatus);
-        if (gatherStatus.MPI_ERROR != MPI_SUCCESS) {
-            std::cout << "Error happened: " << std::endl
-                      << mpiErrorString(gatherStatus.MPI_ERROR) << std::endl;
-        }
-
-        // verify the message has been echoed successfully
-        for (std::size_t i{0}; i < subGroupSize; ++i) {
-            if (receiveBuffer[i] != m_echoMessage[i]) {
-                throw gemfony_exception(
-                        g_error_streamer(DO_LOG, time_and_place)
-                                << "GMPISubClientParaboloidIndividual2D::fitnessCalculation(): Error!" << std::endl
-                                << "the character `" << m_echoMessage[i] << "` has been sent and expected to be echoed"
-                                << std::endl
-                                << "but the character `" << receiveBuffer[i] << "` has been received." << std::endl
-                );
-            }
-        }
-
-        // release dynamic buffer
-        delete[] receiveBuffer;
-
-
-        // if everything has worked fine! :)
-        // No we can do the real calculation which is taken from GParaboloidIndividual2D
-
-        this->streamline(parVec); // Retrieve the parameters
-
-        // Do the actual calculation
-        for (auto const &d: parVec) {
-            result += d * d;
+        // Calculate the sum of all individual results as the fitness value
+        for (auto const &d: recvVecOpt.value()) {
+            result += d;
         }
 
         return result;
     }
 
 
-    const std::int64_t POLL_INTERVAL_USEC{100};
-    const std::int64_t TIMEOUT_USEC{1'000'000}; // one second
+    int GMPISubClientParaboloidIndividual2D::subClientJob(MPI_Comm _communicator) {
 
-    using namespace Gem::Geneva;
+        const uint32_t size{mpiSize(getCommunicator())};
+        std::optional<std::vector<double>> dummyRecvVec{};
 
-    enum CompletionStatus {
-        SUCCESS,
-        TIMEOUT,
-        ERROR
-    };
-
-    int GMPISubClientParaboloidIndividual2D::subClientJob(MPI_Comm communicator) {
-        std::uint32_t count{0};
 
         while (true) {
-            char message{}; // part of the message to receive
+            MPITimeoutStatus status = distributedSolveWithTimeout({}, dummyRecvVec, m_nParameters / size);
 
-            int subGroupSize{0};
-            int subGroupRank{0};
-            MPI_Comm_size(communicator, &subGroupSize);
-            MPI_Comm_rank(communicator, &subGroupRank);
-
-            MPI_Request scatterRequest{};
-            MPI_Request gatherRequest{};
-
-            // create a message to be emitted in case of timeout
-            std::stringstream timeoutMessage{};
-            timeoutMessage << "Sub-client with rank=" << subGroupRank << " in communicator " << communicator
-                           << "has received " << count << " messages so far and will now exit due to a timeout."
-                           << std::endl
-                           << "This is normal behaviour after the optimization has been finished." << std::endl
-                           << "If it occurs mid-optimization it indicated unavailability of the Geneva-client."
-                           << std::endl;
-
-            // receive one character from the root process
-            MPI_Iscatter(
-                    nullptr, // we do not send as sub-client
-                    1, // send one char to each other process
-                    MPI_CHAR,
-                    &message, // receive into the buffer
-                    1, // send one character to every other process
-                    MPI_CHAR,
-                    0, // rank 0 (geneva client) is the root. The rank of this process is != 0
-                    communicator,
-                    &scatterRequest);
-
-
-            switch (waitForRequestCompletion(scatterRequest)) {
-                case SUCCESS:
-                    break;
-                case TIMEOUT: {
-                    std::cout << timeoutMessage.str();
-                    return 0;
-                }
-                case ERROR:
-                    return -1;
+            if (status.timedOut) {
+                std::cout << "Sub-client will exit due to a timeout." << std::endl
+                          << "This is normal behaviour after the optimization has been finished." << std::endl
+                          << "If it occurs mid-optimization it indicates unavailability of the Geneva-client."
+                          << std::endl;
+                return 0;
+            } else if (!status.succeeded()) { // operation was not successful and has not timed out
+                std::cout << "Error occurred: " << std::endl
+                          << mpiErrorString(status.status.MPI_ERROR);
+                return -1;
             }
 
-            // send the received character back to the root process
-            MPI_Igather(
-                    &message, // send the message, which we have received, back
-                    1, // send one character only
-                    MPI_CHAR,
-                    nullptr, // we do not receive anything
-                    1,
-                    MPI_CHAR,
-                    0, // rank 0 (geneva client) is the root. The rank of this process is != 0
-                    communicator,
-                    &gatherRequest);
-
-            switch (waitForRequestCompletion(gatherRequest)) {
-                case SUCCESS:
-                    break;
-                case TIMEOUT: {
-                    std::cout << timeoutMessage.str();
-                    return 0;
-                }
-                case ERROR:
-                    return -1;
-            }
-
-            // increment successful message counter
-            ++count;
+            // continue with next iteration if no error or timeout occurred
         }
+
     }
 
-    /**
-     * Waits for an async request to be completed
-     * @param request the request handle
-     * @return false if an error occurred, otherwise true.
-     */
-    int GMPISubClientParaboloidIndividual2D::waitForRequestCompletion(MPI_Request &request) {
-        int isCompleted{0};
-        MPI_Status status{};
-        std::chrono::microseconds timeElapsed{0};
-        const auto timeStart = std::chrono::steady_clock::now();
+    MPITimeoutStatus GMPISubClientParaboloidIndividual2D::distributedSolveWithTimeout(
+            const std::optional<std::vector<double>> &sendVec,
+            std::optional<std::vector<double>> &resultVec,
+            const std::uint32_t &parsPerProc) {
 
-        while (true) {
-            MPI_Test(&request,
-                     &isCompleted,
-                     &status);
+        // vector to store the received subset of parameters in
+        std::vector<double> parameterSubset{};
+        parameterSubset.resize(parsPerProc);
 
-            if (isCompleted) {
-                if (status.MPI_ERROR != MPI_SUCCESS) {
-                    std::cout << "Error happened: " << std::endl
-                              << mpiErrorString(status.MPI_ERROR) << std::endl;
-                    return CompletionStatus::ERROR;
-                }
-                return CompletionStatus::SUCCESS;
-            }
+        // completion status to return
+        MPITimeoutStatus completionStatus{};
 
-            // update elapsed time to compare with timeout
-            auto currentTime = std::chrono::steady_clock::now();
-            timeElapsed = std::chrono::duration_cast<std::chrono::microseconds>(currentTime - timeStart);
+        // only the root process must pass a valid send address for scattering
+        const double *scatterSendVecAddress{sendVec.has_value() ? sendVec.value().data() : nullptr};
+        // only the root process must pass a valid send address for gathering
+        double *gatherRecvVecAddress{resultVec.has_value() ? resultVec.value().data() : nullptr};
 
-            if (timeElapsed > std::chrono::microseconds{TIMEOUT_USEC}) {
-                return CompletionStatus::TIMEOUT;
-            }
+        // scatter data to all processes
 
-            // sleep some time before polling again for completion status
-            std::this_thread::sleep_for(std::chrono::microseconds(POLL_INTERVAL_USEC));
+        completionStatus = mpiScatterWithTimeout(scatterSendVecAddress,
+                                                 parsPerProc,
+                                                 parameterSubset.data(),
+                                                 MPI_DOUBLE,
+                                                 0,
+                                                 getCommunicator(),
+                                                 m_pollIntervalMSec,
+                                                 m_pollTimeoutMSec);
+
+        // return early with the error status if not completed successfully
+        if (!completionStatus.succeeded()) {
+            return completionStatus;
         }
+
+        // actual calculation on the range of parameters assigned to this process
+        for (double &par: parameterSubset) {
+            // simulate longer time for the calculation of one parameter
+            std::this_thread::sleep_for(std::chrono::milliseconds(m_delayPerParameterMSec));
+
+            // square each parameter
+            par = par * par;
+        }
+
+        // gather results from all processes
+        completionStatus = mpiGatherWithTimeout(parameterSubset.data(),
+                                                parsPerProc,
+                                                gatherRecvVecAddress,
+                                                MPI_DOUBLE,
+                                                0,
+                                                getCommunicator(),
+                                                m_pollIntervalMSec,
+                                                m_pollTimeoutMSec);
+
+        return completionStatus;
     }
 
-/********************************************************************************************/
 
 } // namespace Gem::Geneva
