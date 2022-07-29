@@ -44,8 +44,6 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Gem::Geneva::GMPISubClientIndividual)
 
 namespace Gem::Geneva {
 
-    MPI_Comm GMPISubClientIndividual::m_communicator{MPI_COMM_NULL};
-
     MPI_Comm GMPISubClientIndividual::getCommunicator() {
         return GMPISubClientIndividual::m_communicator;
     }
@@ -53,5 +51,27 @@ namespace Gem::Geneva {
     void GMPISubClientIndividual::setCommunicator(const MPI_Comm &communicator) {
         m_communicator = communicator;
     }
+
+    void GMPISubClientIndividual::setClientStatusRequest(const MPI_Request &request){
+        m_clientStatusRequest = request;
+    }
+
+    ClientStatus GMPISubClientIndividual::getClientStatus(){
+        MPI_Status status{};
+        int isCompleted{};
+
+        MPI_Test(&m_clientStatusRequest, &isCompleted, &status);
+
+        if (!isCompleted) {
+            return ClientStatus::RUNNING;
+        }
+
+        if (status.MPI_ERROR != MPI_SUCCESS) {
+            return ClientStatus::ERROR;
+        }
+
+        return ClientStatus::FINISHED;
+    }
+
 
 } // namespace Gem::Geneva

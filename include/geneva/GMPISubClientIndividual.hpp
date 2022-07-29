@@ -57,6 +57,12 @@
 
 namespace Gem::Geneva {
 
+    enum ClientStatus{
+        RUNNING,
+        FINISHED,
+        ERROR
+    };
+
 /******************************************************************/
     /**
      * This individual offers to set and retrieve an MPI communicator.
@@ -100,6 +106,12 @@ namespace Gem::Geneva {
          */
         static MPI_Comm getCommunicator();
 
+    protected:
+        /**
+         * @return status of the associated client in the communication group
+         */
+        static ClientStatus getClientStatus();
+
     private:
         /**
          * Sets the MPI communicator that can be used by the individual to communicate with sub-clients in an MPI sub-group
@@ -108,9 +120,19 @@ namespace Gem::Geneva {
         static void setCommunicator(const MPI_Comm &communicator);
 
         /**
+         * Sets a request that can be used to check for the status of the client in the current communication group
+         */
+        static void setClientStatusRequest(const MPI_Request &request);
+
+        /**
          * Communicator that can be used by this class
          */
-        static MPI_Comm m_communicator;
+        static inline MPI_Comm m_communicator{MPI_COMM_NULL};
+
+        /**
+         * Request which can be used to check the client status
+         */
+         inline static MPI_Request m_clientStatusRequest{};
 
         // NOTE: the class remains abstract because essential methods of the base class are not implemented
     };

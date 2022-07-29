@@ -104,9 +104,9 @@ namespace Gem::Geneva {
  * @return The value of this object
  */
     double GMPISubClientParaboloidIndividualMultiD::fitnessCalculation() {
-        const uint32_t size{mpiSize(getCommunicator())}; // number of processes in the communicator
-        double result = 0.; // Will hold the result
-        std::vector<double> parVec; // Will hold the parameters
+        const uint32_t size{mpiSize(getCommunicator())};    // number of processes in the communicator
+        double result{0.0};                                 // Will hold the result
+        std::vector<double> parVec;                         // Will hold the parameters
 
         // Retrieve the parameters
         this->streamline(parVec);
@@ -115,18 +115,29 @@ namespace Gem::Geneva {
         std::optional<std::vector<double>> recvVecOpt{parVec};
 
         // distributed calculation of squares of individual parameters together with sub-clients
-        MPITimeoutStatus status = distributedSolveWithTimeout(parVec, recvVecOpt, m_nParameters / size);
+        MPICompletionStatus status = distributedSolveWhile(parVec,
+                                                           recvVecOpt,
+                                                           m_nParameters / size,
+                                                           // clients stop themselves, and always run
+                                                           []() { return true; });
 
-        if (status.timedOut) {
-            std::cout << "Error: Sub-client unavailable: timeout triggered when communicating." << std::endl;
-        } else if (!status.succeeded()) { // any error but a timeout
-            std::cout << "MPI error occurred: " << std::endl
-                      << mpiErrorString(status.status.MPI_ERROR) << std::endl;
-        }
-
-        // Calculate the sum of all individual results as the fitness value
-        for (auto const &d: recvVecOpt.value()) {
-            result += d;
+        switch (status.statusCode) {
+            case ::ERROR:
+                std::cerr << "MPI error occurred: " << std::endl
+                          << mpiErrorString(status.mpiStatus.MPI_ERROR) << std::endl;
+                break;
+            case STOPPED:
+                std::cerr
+                        << "Client executed fitnessCalculation while being stopped. This is an internal error. Client should only be stopped after the fitnessCalculation has been finished."
+                        << std::endl;
+                break;
+            case SUCCESS: {
+                // Calculate the sum of all individual results as the fitness value
+                for (auto const &d: recvVecOpt.value()) {
+                    result += d;
+                }
+            }
+                break;
         }
 
         return result;
@@ -138,38 +149,42 @@ namespace Gem::Geneva {
         const uint32_t size{mpiSize(getCommunicator())};
         std::optional<std::vector<double>> dummyRecvVec{};
 
-
         while (true) {
-            MPITimeoutStatus status = distributedSolveWithTimeout({}, dummyRecvVec, m_nParameters / size);
+            MPICompletionStatus status = distributedSolveWhile({},
+                                                               dummyRecvVec,
+                                                               m_nParameters / size,
+                                                               []() {
+                                                                   return GMPISubClientIndividual::getClientStatus() ==
+                                                                          ClientStatus::RUNNING;
+                                                               });
 
-            if (status.timedOut) {
-                std::cout << "Sub-client will exit due to a timeout." << std::endl
-                          << "This is normal behaviour after the optimization has been finished." << std::endl
-                          << "If it occurs mid-optimization it indicates unavailability of the Geneva-client."
-                          << std::endl;
+            if (status.statusCode == MPIStatusCode::STOPPED) {
+                std::cout << "Sub-client will exit because the client sent a shutdown signal" << std::endl;
                 return 0;
-            } else if (!status.succeeded()) { // operation was not successful and has not timed out
+            } else if (status.statusCode ==
+                       MPIStatusCode::ERROR) { // operation was not successful and has not timed out
                 std::cout << "Error occurred: " << std::endl
-                          << mpiErrorString(status.status.MPI_ERROR);
+                          << mpiErrorString(status.mpiStatus.MPI_ERROR);
                 return -1;
             }
 
-            // continue with next iteration if no error or timeout occurred
+            // client ist still running -> continue with next iteration
         }
 
     }
 
-    MPITimeoutStatus GMPISubClientParaboloidIndividualMultiD::distributedSolveWithTimeout(
+    MPICompletionStatus GMPISubClientParaboloidIndividualMultiD::distributedSolveWhile(
             const std::optional<std::vector<double>> &sendVec,
             std::optional<std::vector<double>> &resultVec,
-            const std::uint32_t &parsPerProc) {
+            const std::uint32_t &parsPerProc,
+            const std::function<bool()> &runWhile) {
 
         // vector to store the received subset of parameters in
         std::vector<double> parameterSubset{};
         parameterSubset.resize(parsPerProc);
 
         // completion status to return
-        MPITimeoutStatus completionStatus{};
+        MPICompletionStatus completionStatus{};
 
         // only the root process must pass a valid send address for scattering
         const double *scatterSendVecAddress{sendVec.has_value() ? sendVec.value().data() : nullptr};
@@ -178,17 +193,17 @@ namespace Gem::Geneva {
 
         // scatter data to all processes
 
-        completionStatus = mpiScatterWithTimeout(scatterSendVecAddress,
-                                                 parsPerProc,
-                                                 parameterSubset.data(),
-                                                 MPI_DOUBLE,
-                                                 0,
-                                                 getCommunicator(),
-                                                 m_pollIntervalMSec,
-                                                 m_pollTimeoutMSec);
+        completionStatus = mpiScatterWhile(scatterSendVecAddress,
+                                           parsPerProc,
+                                           parameterSubset.data(),
+                                           MPI_DOUBLE,
+                                           runWhile,
+                                           0,
+                                           getCommunicator(),
+                                           m_pollIntervalMSec);
 
         // return early with the error status if not completed successfully
-        if (!completionStatus.succeeded()) {
+        if (completionStatus.statusCode == MPIStatusCode::ERROR) {
             return completionStatus;
         }
 
@@ -202,14 +217,14 @@ namespace Gem::Geneva {
         }
 
         // gather results from all processes
-        completionStatus = mpiGatherWithTimeout(parameterSubset.data(),
-                                                parsPerProc,
-                                                gatherRecvVecAddress,
-                                                MPI_DOUBLE,
-                                                0,
-                                                getCommunicator(),
-                                                m_pollIntervalMSec,
-                                                m_pollTimeoutMSec);
+        completionStatus = mpiGatherWhile(parameterSubset.data(),
+                                          parsPerProc,
+                                          gatherRecvVecAddress,
+                                          MPI_DOUBLE,
+                                          runWhile,
+                                          0,
+                                          getCommunicator(),
+                                          m_pollIntervalMSec);
 
         return completionStatus;
     }

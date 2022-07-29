@@ -98,10 +98,11 @@ namespace Gem::Geneva {
 
     private:
         /** @brief calculates the square of all parameters in this parameters set together with all sub-clients */
-        [[nodiscard]] static MPITimeoutStatus
-        distributedSolveWithTimeout(const std::optional<std::vector<double>> &sendVec,
-                                    std::optional<std::vector<double>> &resultVec,
-                                    const std::uint32_t &parsPerProc);
+        [[nodiscard]] static MPICompletionStatus
+        distributedSolveWhile(const std::optional<std::vector<double>> &sendVec,
+                              std::optional<std::vector<double>> &resultVec,
+                              const std::uint32_t &parsPerProc,
+                              const std::function<bool()> &runWhile);
 
 
         /** @brief Creates a deep clone of this object */

@@ -81,59 +81,53 @@ std::string mpiErrorString(int mpiError) {
 }
 
 /**
- * Waits for the completion of an async MPI request until it completes or a timeout is triggered
+ * Waits for the completion of an async MPI request by checking in a cyclic manner as long as a predicate returns true
  * @param request the request to wait on
- * @param pollIntervalMSec the interval in ms in which to check for the completion status of the request
- * @param pollTimeoutMSec the maximum time in ms to wait for the completion of the request
- * @return the status of the request
+ * @param pollIntervalMSec the time between checks
+ * @param runWhile predicate, when this is false the waiting will be aborted
+ * @return status of the operation when terminated
  */
-MPITimeoutStatus waitForRequestCompletion(MPI_Request &request,
-                                          const std::uint64_t &pollIntervalMSec,
-                                          const std::uint64_t &pollTimeoutMSec) {
+MPICompletionStatus waitForRequestCompletionWhile(MPI_Request &request,
+                                                  const std::uint64_t &pollIntervalMSec,
+                                                  const std::function<bool()> &runWhile) {
     int isCompleted{0};
     MPI_Status status{};
-    std::chrono::milliseconds timeElapsed{0};
-    const auto timeStart = std::chrono::system_clock::now();
 
-    while (true) {
+    while (runWhile()) {
         MPI_Test(&request,
                  &isCompleted,
                  &status);
 
 
+        // return appropriate result in case of completion
         if (isCompleted) {
-            return MPITimeoutStatus{false, status};
-        }
-
-        // update elapsed time to compare with timeout
-        auto timeCurr = std::chrono::system_clock::now();
-        timeElapsed = std::chrono::duration_cast<std::chrono::milliseconds>(timeCurr - timeStart);
-
-        if (timeElapsed.count() > pollTimeoutMSec) {
-            return MPITimeoutStatus{true, status};
+            if (status.MPI_ERROR == MPI_SUCCESS) {
+                return MPICompletionStatus{MPIStatusCode::SUCCESS, status};
+            } else {
+                return MPICompletionStatus{MPIStatusCode::ERROR, status};
+            }
         }
 
         // sleep some time before polling again for completion status
         std::this_thread::sleep_for(std::chrono::milliseconds(pollIntervalMSec));
     }
-}
 
+    // the execution shall be stopped due to the stop criterion returning false
+
+    // return appropriate result
+    return MPICompletionStatus{MPIStatusCode::STOPPED, status};
+}
 /**
- * A blocking call to scatter which can time out.
- * This function uses asynchronous MPI and polling to realize the functionality of timeouts.
- *
- * The function completes once the operation succeeds, causes an error, or triggers the timeout.
- *
- * @return The status of the operation
+ * Performs an async scatter and bocks until the request has completed or a predicate returns false
  */
-MPITimeoutStatus mpiScatterWithTimeout(const void *sendBuf,
-                                       const std::uint32_t &sendCount,
-                                       void *recvBuf,
-                                       MPI_Datatype type,
-                                       const std::uint32_t &root = 0,
-                                       MPI_Comm comm = MPI_COMM_WORLD,
-                                       const std::uint64_t &pollIntervalMSec = 1,
-                                       const std::uint64_t &pollTimeoutMsec = 1000) {
+MPICompletionStatus mpiScatterWhile(const void *sendBuf,
+                                    const std::uint32_t &sendCount,
+                                    void *recvBuf,
+                                    MPI_Datatype type,
+                                    const std::function<bool()> &runWhile,
+                                    const std::uint32_t &root = 0,
+                                    MPI_Comm comm = MPI_COMM_WORLD,
+                                    const std::uint64_t &pollIntervalMSec = 1) {
     MPI_Request requestHandle{};
 
     MPI_Iscatter(
@@ -147,25 +141,20 @@ MPITimeoutStatus mpiScatterWithTimeout(const void *sendBuf,
             comm,
             &requestHandle);
 
-    return waitForRequestCompletion(requestHandle, pollIntervalMSec, pollTimeoutMsec);
+    return waitForRequestCompletionWhile(requestHandle, pollIntervalMSec, runWhile);
 }
 
 /**
- * A blocking call to scatter which can time out.
- * This function uses asynchronous MPI and polling to realize the functionality of timeouts.
- *
- * The function completes once the operation succeeds, causes an error, or triggers the timeout.
- *
- * @return The status of the operation
+ * Performs an async gather and bocks until the request has completed or a predicate returns false
  */
-MPITimeoutStatus mpiGatherWithTimeout(const void *sendBuf,
-                                      const std::uint32_t &sendCount,
-                                      void *recvBuf,
-                                      MPI_Datatype type,
-                                      const std::uint32_t &root = 0,
-                                      MPI_Comm comm = MPI_COMM_WORLD,
-                                      const std::uint64_t &pollIntervalMSec = 1,
-                                      const std::uint64_t &pollTimeoutMsec = 1000) {
+MPICompletionStatus mpiGatherWhile(const void *sendBuf,
+                                   const std::uint32_t &sendCount,
+                                   void *recvBuf,
+                                   MPI_Datatype type,
+                                   const std::function<bool()> &runWhile,
+                                   const std::uint32_t &root = 0,
+                                   MPI_Comm comm = MPI_COMM_WORLD,
+                                   const std::uint64_t &pollIntervalMSec = 1) {
     MPI_Request requestHandle{};
 
     MPI_Igather(
@@ -179,5 +168,6 @@ MPITimeoutStatus mpiGatherWithTimeout(const void *sendBuf,
             comm,
             &requestHandle);
 
-    return waitForRequestCompletion(requestHandle, pollIntervalMSec, pollTimeoutMsec);
+    return waitForRequestCompletionWhile(requestHandle, pollIntervalMSec, runWhile);
 }
+

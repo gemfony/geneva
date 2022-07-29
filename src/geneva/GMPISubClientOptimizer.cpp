@@ -83,8 +83,8 @@ namespace Gem::Geneva {
         // emit output about this instance
         if (!isServer) { // the server is in no sub-client group
             glogger << "baseRank=" << m_baseCommRank << " with mode="
-                      << (isSubClient() ? "`sub-client`" : "`client`") << " is in subgroup " << subCommColor
-                      << std::endl << GLOGGING;
+                    << (isSubClient() ? "`sub-client`" : "`client`") << " is in subgroup " << subCommColor
+                    << std::endl << GLOGGING;
         } else {
             glogger << "baseRank=" << m_baseCommRank << " is the server and in no sub-group" << std::endl << GLOGGING;
         }
@@ -115,6 +115,7 @@ namespace Gem::Geneva {
                 // This process (geneva client) receives rank 0 inside the subgroup. All other processes in this subgroup
                 // will definitely pass numbers greater 0 as key and therefore get the ranks 1 - (m_subClientGroupSize - 1)
                 MPI_Comm_split(baseCommunicator, subCommColor, 0, &m_subClientComm);
+
             }
         }
 
@@ -123,6 +124,13 @@ namespace Gem::Geneva {
 
         // Notify the individual to use this inter-communicator
         GMPISubClientIndividual::setCommunicator(m_subClientComm);
+
+        // set sub-client group status communicator
+        if (!isServer) {
+            // create the status communicator as a copy of the local group communicator
+            MPI_Comm_dup(m_subClientComm, &m_subClientStatusComm);
+        }
+
     }
 
     void GMPISubClientOptimizer::addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) {
@@ -145,11 +153,26 @@ namespace Gem::Geneva {
         return *this;
     }
 
+    MPI_Request GMPISubClientOptimizer::startAsyncBarrier() const {
+        MPI_Request request{};
+        MPI_Ibarrier(m_subClientStatusComm, &request);
+
+        return request;
+    }
+
     int GMPISubClientOptimizer::clientRun_() {
         if (m_isSubClient) {
+            // start the asynchronous request waiting for the client to finish its job
+            GMPISubClientIndividual::setClientStatusRequest(startAsyncBarrier());
+            // execute the sub-client job
             return m_subClientJob(m_subClientComm);
         } else {
-            return Go2::clientRun_();
+            // run the client until optimization finished
+            int returnValue{Go2::clientRun_()};
+            // tell sub-clients that the optimization has finished
+            startAsyncBarrier();
+            // return value
+            return returnValue;
         }
     }
 

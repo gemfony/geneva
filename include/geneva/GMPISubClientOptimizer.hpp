@@ -107,6 +107,7 @@ namespace Gem::Geneva {
         G_API_GENEVA void addConfigurationOptions_(Gem::Common::GParserBuilder &gpb) override;
 
     private:
+        MPI_Request startAsyncBarrier() const;
         /**
          * MPI communicator used for communication between the geneva GMPIConsumerMasterNodeT and GMPIConsumerWorkerNodeT.
          */
@@ -115,6 +116,10 @@ namespace Gem::Geneva {
          * MPI communicator used for communication between sub-clients inside of their specific sub-group.
          */
         MPI_Comm m_subClientComm{};
+        /**
+         * MPI communicator which has the same scope as m_subClientComm but is used for retrieving status information about of the current group.
+         */
+        MPI_Comm m_subClientStatusComm{};
         /**
          * Total number of the MPI nodes which will instantiate this class
          */

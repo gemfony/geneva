@@ -46,27 +46,37 @@
 #include <string>
 #include <chrono>
 #include <thread>
+#include <functional>
+
+// TODO: maybe create a new namespace for these utilities
+
+enum MPIStatusCode {
+    /**
+     * The operation has succeeded without errors
+     */
+    SUCCESS,
+    /**
+     * The operation was stopped due to the halt criterion
+     */
+    STOPPED,
+    /**
+     * The operation has completed with an error
+     */
+    ERROR
+};
 
 /**
- * Stores the result of an MPI operation which can potentially time out
+ * Stores the result of an MPI while operation
  */
-struct MPITimeoutStatus {
+struct MPICompletionStatus {
     /**
-     * Whether the operation has timed out or not
+     * Type of completion
      */
-    bool timedOut{false};
+    MPIStatusCode statusCode{};
     /**
      * The status which was returned by MPI at that time
      */
-    MPI_Status status{};
-
-    /**
-     * returns
-     * @return true if the operation succeeded without error and without triggering the timeout
-     */
-    [[nodiscard]] inline bool succeeded() const {
-        return !timedOut && status.MPI_ERROR == MPI_SUCCESS;
-    }
+    MPI_Status mpiStatus{};
 };
 
 /******************************************************************************/
@@ -83,22 +93,22 @@ std::uint32_t mpiSize(const MPI_Comm &comm);
 
 /******************************************************************************/
 G_API_COMMON
-[[nodiscard]] MPITimeoutStatus mpiGatherWithTimeout(const void *sendBuf,
-                                                    const std::uint32_t &sendCount,
-                                                    void *recvBuf,
-                                                    MPI_Datatype type,
-                                                    const std::uint32_t &root,
-                                                    MPI_Comm comm,
-                                                    const std::uint64_t &pollIntervalMSec,
-                                                    const std::uint64_t &pollTimeoutMsec);
+[[nodiscard]] MPICompletionStatus mpiScatterWhile(const void *sendBuf,
+                                                  const std::uint32_t &sendCount,
+                                                  void *recvBuf,
+                                                  MPI_Datatype type,
+                                                  const std::function<bool()> &runWhile,
+                                                  const std::uint32_t &root,
+                                                  MPI_Comm comm,
+                                                  const std::uint64_t &pollIntervalMSec);
 
 /******************************************************************************/
 G_API_COMMON
-[[nodiscard]] MPITimeoutStatus mpiScatterWithTimeout(const void *sendBuf,
-                                       const std::uint32_t &sendCount,
-                                       void *recvBuf,
-                                       MPI_Datatype type,
-                                       const std::uint32_t &root,
-                                       MPI_Comm comm,
-                                       const std::uint64_t &pollIntervalMSec,
-                                       const std::uint64_t &pollTimeoutMsec);
+[[nodiscard]] MPICompletionStatus mpiGatherWhile(const void *sendBuf,
+                                                 const std::uint32_t &sendCount,
+                                                 void *recvBuf,
+                                                 MPI_Datatype type,
+                                                 const std::function<bool()> &runWhile,
+                                                 const std::uint32_t &root,
+                                                 MPI_Comm comm,
+                                                 const std::uint64_t &pollIntervalMSec);
