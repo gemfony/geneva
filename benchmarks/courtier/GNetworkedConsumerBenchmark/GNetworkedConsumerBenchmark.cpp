@@ -762,20 +762,21 @@ void plotSpeedup(std::vector<ExTimesSleepAtX> exTimesVec,
             // for each measurement
             for (std::uint32_t k{0}; k < exTimesVec[i].competitorExTimes[j].size(); ++k) {
                 // speedup = serial execution / parallel execution:
+                const double speedup = std::get<2>(serialExecution.competitorExTimes[j][k]) /
+                                       std::get<2>(exTimesVec[i].competitorExTimes[j][k]);
+
+                // NOTE: error and std::dev will not be used
                 exTimesVec[i].competitorExTimes[j][k] = std::tuple<double, double, double, double>{
                         std::get<0>(exTimesVec[i].competitorExTimes[j][k]),  // sleep time
-                        std::get<1>(serialExecution.competitorExTimes[j][k]) /
-                        std::get<1>(exTimesVec[i].competitorExTimes[j][k]), // error
-                        std::get<2>(serialExecution.competitorExTimes[j][k]) /
-                        std::get<2>(exTimesVec[i].competitorExTimes[j][k]),  // mean
-                        std::get<3>(serialExecution.competitorExTimes[j][k]) /
-                        std::get<3>(exTimesVec[i].competitorExTimes[j][k])  // stddev
+                        0.0, // error
+                        speedup,  // mean speedup
+                        0.0  // stddev
                 };
             }
         }
     }
 
-    const std::string title{"speedup"};
+    const std::string title{"Speedup"};
     const std::string labelResult{"speedup [ser/par]"};
     const std::string labelSleepTime{"duration of one fitness calculation [s]"};
     const std::string labelClients{"number of clients"};
@@ -806,6 +807,76 @@ void plotSpeedup(std::vector<ExTimesSleepAtX> exTimesVec,
             labelResult,
             config)
             .writeToFile(std::filesystem::path("speedup_3D_" + config.getResultFileName()));
+}
+
+void plotEfficiency(std::vector<ExTimesSleepAtX> exTimesVec,
+                    const GNetworkedConsumerBenchmarkConfig &config) {
+    // efficiency is calculated as <ideal execution time> / <real execution time>
+    // <ideal execution time> = <serial execution time> / <number of clients>
+
+    // efficiency cannot be calculated if there is no measurement for 1 client
+    if (config.getNClients()[0] != 1) {
+        return;
+    }
+
+    // calculate efficiency:
+
+    const auto serialExecution = exTimesVec[0];
+
+    // for each number of clients
+    for (std::uint32_t i{0}; i < exTimesVec.size(); ++i) {
+        // for each value of sleep time
+        for (std::uint32_t j{0}; j < exTimesVec[i].competitorExTimes.size(); ++j) {
+            // for each measurement
+            for (std::uint32_t k{0}; k < exTimesVec[i].competitorExTimes[j].size(); ++k) {
+                // ideal = serial execution time / number of clients
+                const double ideal = std::get<2>(serialExecution.competitorExTimes[j][k]) / exTimesVec[i].nClients;
+
+                // efficiency = ideal execution time / real execution time
+                const double efficiency = ideal / std::get<2>(exTimesVec[i].competitorExTimes[j][k]);
+
+                // NOTE: error and std::dev will not be used
+                exTimesVec[i].competitorExTimes[j][k] = std::tuple<double, double, double, double>{
+                        std::get<0>(exTimesVec[i].competitorExTimes[j][k]),  // sleep time
+                        0.0, // error
+                        efficiency, // mean efficiency
+                        0.0  // stddev
+                };
+            }
+        }
+    }
+
+    const std::string title{"Efficiency"};
+    const std::string labelResult{"efficiency [ideal/real]"};
+    const std::string labelSleepTime{"duration of one fitness calculation [s]"};
+    const std::string labelClients{"number of clients"};
+
+    configurePlotter2D(exTimesVec,
+                       title,
+                       labelSleepTime,
+                       labelResult,
+                       true,
+                       false,
+                       config)
+            .writeToFile(std::filesystem::path("efficiency_2D_singlePlot_sleepToOpt_" + config.getResultFileName()));
+
+    configurePlotter2D(exTimesVec,
+                       title,
+                       labelClients,
+                       labelResult,
+                       true,
+                       true,
+                       config)
+            .writeToFile(std::filesystem::path("efficiency_2D_singlePlot_clientsToOpt_" + config.getResultFileName()));
+
+    configurePlotter3D(
+            exTimesVec,
+            title,
+            labelSleepTime,
+            labelClients,
+            labelResult,
+            config)
+            .writeToFile(std::filesystem::path("efficiency_3D_" + config.getResultFileName()));
 }
 
 void createPlotFromResults(const GNetworkedConsumerBenchmarkConfig &config) {
@@ -851,6 +922,7 @@ void createPlotFromResults(const GNetworkedConsumerBenchmarkConfig &config) {
 
     plotAbsoluteTimes(exTimesVec, config);
     plotSpeedup(exTimesVec, config);
+    plotEfficiency(exTimesVec, config);
 }
 
 std::string getHeader(const GNetworkedConsumerBenchmarkConfig &config) {
