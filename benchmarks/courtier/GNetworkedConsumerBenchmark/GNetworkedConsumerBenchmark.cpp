@@ -559,7 +559,8 @@ void createSinglePlot(const bool &clientsAtX,
         }
 
         // add all following graphs as subplots
-        for (int j{1} /* start from the second elem */ ; j < (clientsAtX ? clientsAtXVec.size() : sleepAtXVec.size()); ++j) {
+        for (int j{1} /* start from the second elem */ ;
+             j < (clientsAtX ? clientsAtXVec.size() : sleepAtXVec.size()); ++j) {
             auto subGraph = std::make_shared<Gem::Common::GGraph2D>();
 
             // add the data to the sub-graphs
@@ -741,6 +742,72 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec,
             .writeToFile(std::filesystem::path("abs_3D_" + config.getResultFileName()));
 }
 
+void plotSpeedup(std::vector<ExTimesSleepAtX> exTimesVec,
+                 const GNetworkedConsumerBenchmarkConfig &config) {
+    // speedup is calculated as <serial execution time> / <parallel execution time>
+
+    // speedup cannot be calculated if there is no measurement for 1 client
+    if (config.getNClients()[0] != 1) {
+        return;
+    }
+
+    // calculate speedup:
+
+    const auto serialExecution = exTimesVec[0];
+
+    // for each number of clients
+    for (std::uint32_t i{0}; i < exTimesVec.size(); ++i) {
+        // for each value of sleep time
+        for (std::uint32_t j{0}; j < exTimesVec[i].competitorExTimes.size(); ++j) {
+            // for each measurement
+            for (std::uint32_t k{0}; k < exTimesVec[i].competitorExTimes[j].size(); ++k) {
+                // speedup = serial execution / parallel execution:
+                exTimesVec[i].competitorExTimes[j][k] = std::tuple<double, double, double, double>{
+                        std::get<0>(exTimesVec[i].competitorExTimes[j][k]),  // sleep time
+                        std::get<1>(serialExecution.competitorExTimes[j][k]) /
+                        std::get<1>(exTimesVec[i].competitorExTimes[j][k]), // error
+                        std::get<2>(serialExecution.competitorExTimes[j][k]) /
+                        std::get<2>(exTimesVec[i].competitorExTimes[j][k]),  // mean
+                        std::get<3>(serialExecution.competitorExTimes[j][k]) /
+                        std::get<3>(exTimesVec[i].competitorExTimes[j][k])  // stddev
+                };
+            }
+        }
+    }
+
+    const std::string title{"speedup"};
+    const std::string labelResult{"speedup [ser/par]"};
+    const std::string labelSleepTime{"duration of one fitness calculation [s]"};
+    const std::string labelClients{"number of clients"};
+
+    configurePlotter2D(exTimesVec,
+                       title,
+                       labelSleepTime,
+                       labelResult,
+                       true,
+                       false,
+                       config)
+            .writeToFile(std::filesystem::path("speedup_2D_singlePlot_sleepToOpt_" + config.getResultFileName()));
+
+    configurePlotter2D(exTimesVec,
+                       title,
+                       labelClients,
+                       labelResult,
+                       true,
+                       true,
+                       config)
+            .writeToFile(std::filesystem::path("speedup_2D_singlePlot_clientsToOpt_" + config.getResultFileName()));
+
+    configurePlotter3D(
+            exTimesVec,
+            title,
+            labelSleepTime,
+            labelClients,
+            labelResult,
+            config)
+            .writeToFile(std::filesystem::path("speedup_3D_" + config.getResultFileName()));
+}
+
 void createPlotFromResults(const GNetworkedConsumerBenchmarkConfig &config) {
     namespace fs = std::filesystem;
 
@@ -783,6 +850,7 @@ void createPlotFromResults(const GNetworkedConsumerBenchmarkConfig &config) {
     }
 
     plotAbsoluteTimes(exTimesVec, config);
+    plotSpeedup(exTimesVec, config);
 }
 
 std::string getHeader(const GNetworkedConsumerBenchmarkConfig &config) {
