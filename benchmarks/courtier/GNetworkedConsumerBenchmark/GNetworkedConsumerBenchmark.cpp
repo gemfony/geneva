@@ -691,7 +691,7 @@ void plotAbsoluteTimes(const std::vector<ExTimesSleepAtX> &exTimesVec,
     // plot directly with no modification, because values are already absolute
 
     const std::string title{
-            "Absolute time for optimizations for different numbers of consumers and duration of fitness calculation"};
+            "Absolute execution time"};
     const std::string labelResult{"duration of one optimization [s]"};
     const std::string labelSleepTime{"duration of one fitness calculation [s]"};
     const std::string labelClients{"number of clients"};
@@ -883,11 +883,6 @@ void createPlotFromResults(const GNetworkedConsumerBenchmarkConfig &config) {
     namespace fs = std::filesystem;
 
     fs::path executionTimesDir = fs::current_path() / executionTimesDirName;
-
-
-    Gem::Common::GPlotDesigner gpd("Processing times for different evaluation times of individuals ", 2,
-                                   config.getNClients().size());
-
 
     // insert all file entries into a vector
     std::vector<fs::directory_entry> exTimesFiles{};
