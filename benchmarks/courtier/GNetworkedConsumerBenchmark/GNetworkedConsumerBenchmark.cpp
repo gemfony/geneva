@@ -349,12 +349,7 @@ void measureExecutionTimesMPI(const GNetworkedConsumerBenchmarkConfig &config,
                           // set temp directory in order to be able to clean it
                           + " --mca orte_tmpdir_base " + orteTempDirBase
                           + " " + config.getMBenchmarkExecutableName()
-                          + " " + competitor.arguments
-                          // if threads was set to auto, then set it dynamically. Otherwise, set it to the given fixed number
-                          + " " + competitor.setThreadsParam
-                          + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
-                                                                   : std::to_string(
-                    std::min(nClients, config.getNMaxThreads())));
+                          + " " + competitor.arguments;
 
     // clean up temp directory from previous runs
     cleanUpOrteTemp();
@@ -379,11 +374,7 @@ void measureExecutionTimesWithClients(const GNetworkedConsumerBenchmarkConfig &c
     ipstream pipeStream{};
 
     std::string command = config.getMBenchmarkExecutableName()
-                          + " " + competitor.arguments
-                          + " " + competitor.setThreadsParam
-                          + " " + (competitor.nThreads.has_value() ? std::to_string(competitor.nThreads.value())
-                                                                   : std::to_string(
-                    std::min(nClients, config.getNMaxThreads())));
+                          + " " + competitor.arguments;
 
     std::cout << getCommandBanner(command, nClients) << std::endl;
 

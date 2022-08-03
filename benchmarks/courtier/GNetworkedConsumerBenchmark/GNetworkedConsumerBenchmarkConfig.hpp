@@ -73,14 +73,6 @@ namespace Gem::Tests {
          * arguments supplied to the benchmark executable
          */
         std::string arguments;
-        /**
-         * The CL parameter to set the number of threads for this competitor
-         */
-        std::string setThreadsParam;
-        /**
-         * The number of threads to use by the competitor. An empty value means set dynamically to the number of clients
-         */
-         std::optional<uint32_t> nThreads;
 
         /**
          * create an order depending on the shortName (which is also used as ID)
@@ -93,8 +85,7 @@ namespace Gem::Tests {
     std::ostream &operator<<(std::ostream &os, const Competitor c) {
         os << "'" << c.name << "', "
         << "'" << c.shortName << "', "
-        << "'" << c.arguments << "', "
-        << "'" << c.setThreadsParam << "=" << (c.nThreads.has_value() ? std::to_string(c.nThreads.value()) : "auto") << "'";
+        << "'" << c.arguments << "', ";
 
         return os;
     }
@@ -108,16 +99,6 @@ namespace Gem::Tests {
 
         std::getline(is, c.arguments, '\''); // skip until first tic
         std::getline(is, c.arguments, '\''); // overwrite until second tic
-
-        std::getline(is, c.setThreadsParam, '\''); // skip until first tic
-        std::getline(is, c.setThreadsParam, '='); // overwrite until equal sign
-        std::string temp{};
-        std::getline(is, temp, '\''); // read until tic
-        if (temp == "auto") {
-            c.nThreads = {}; // set to an empty optional to indicate auto
-        } else {
-            c.nThreads = std::stoi(temp); // parse contained integer value if not set to auto
-        }
 
         return is;
     }
@@ -227,13 +208,6 @@ namespace Gem::Tests {
         }
 
         /**
-         * Returns the configured maximum number of threads to use for servers.
-         */
-        [[nodiscard]] std::uint32_t getNMaxThreads() const {
-            return m_nMaxThreads;
-        }
-
-        /**
          * Retrieves the delay between one call to the benchmark executable and the next call.
          * This delay might be helpful to give the OS time to free up resources.
          */
@@ -278,11 +252,6 @@ namespace Gem::Tests {
             m_fileParser.registerFileParameter(
                     "mpirunLocation", m_mpirunLocation, m_mpirunLocation, VAR_IS_ESSENTIAL,
                     "The location of the mpirun executable to use."
-            );
-
-            m_fileParser.registerFileParameter(
-                    "nMaxThreads", m_nMaxThreads, m_nMaxThreads, VAR_IS_ESSENTIAL,
-                    "Limit for threads when using automatic setting of number of threads with respect to number of consumers."
             );
 
             m_fileParser.registerFileParameter(
@@ -348,10 +317,10 @@ namespace Gem::Tests {
          * The Benchmark itself will take care of starting the clients or in case of MPI using mpirun
          */
         std::vector<Competitor> m_competitors{
-                // attributes: name, arguments
-                {"Boost.Asio",  "asio",  "--consumer asio", "--asio_nProcessingThreads", {}},
-                {"Boost.Beast", "beast", "--consumer beast", "--beast_nListenerThreads", {}},
-                {"MPI",         "mpi",   "--consumer mpi", "--mpi_master_nIOThreads", {}}
+                // attributes: name, short_name, arguments
+                {"Boost.Asio",  "asio",  "--consumer asio --asio_nProcessingThreads 16"},
+                {"Boost.Beast", "beast", "--consumer beast --beast_nListenerThreads 16"},
+                {"MPI",         "mpi",   "--consumer mpi --mpi_master_nIOThreads 16"}
         };
 
 
@@ -370,11 +339,6 @@ namespace Gem::Tests {
          * location of the mpirun executable. If mpirun is in PATH you do not need to adjust this.
          */
         std::string m_mpirunLocation = "mpirun";
-
-        /**
-         * Limit for threads when using automatic setting of number of threads with respect to number of consumers.
-         */
-        std::uint32_t m_nMaxThreads = 32;
 
         /**
          * Delay in between starting benchmark executables, which might be helpful to give the OS time to free up resources.

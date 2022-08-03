@@ -28,14 +28,14 @@
   "competitors": {
     "comment": "A list of configurations to run against each other in this benchmark",
     "default": {
-      "item": "'Boost.Asio', 'asio', '--consumer asio', '--asio_nProcessingThreads=auto'",
-      "item": "'Boost.Beast', 'beast', '--consumer beast', '--beast_nListenerThreads=auto'",
-      "item": "'MPI', 'mpi', '--consumer mpi', '--mpi_master_nIOThreads=auto'"
+      "item": "'Boost.Asio', 'asio', '--consumer asio --asio_nProcessingThreads 16'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast --beast_nListenerThreads 16'",
+      "item": "'MPI', 'mpi', '--consumer mpi --mpi_master_nIOThreads 16'"
     },
     "value": {
-      "item": "'Boost.Asio', 'asio', '--consumer asio --asio_port 10000', '--asio_nProcessingThreads=auto'",
-      "item": "'Boost.Beast', 'beast', '--consumer beast --beast_port 10001', '--beast_nListenerThreads=auto'",
-      "item": "'MPI', 'mpi', '--consumer mpi', '--mpi_master_nIOThreads=auto'"
+      "item": "'Boost.Asio', 'asio', '--consumer asio --asio_nProcessingThreads 16'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast --beast_nListenerThreads 16'",
+      "item": "'MPI', 'mpi', '--consumer mpi --mpi_master_nIOThreads 16'"
     }
   },
   "resultFile": {
@@ -54,11 +54,6 @@
     "comment": "The location of the mpirun executable to use",
     "default": "mpirun",
     "value": "mpirun"
-  },
-  "nMaxThreads": {
-    "comment": "Limit for threads when using automatic setting of number of threads with respect to number of consumers.",
-    "default": "32",
-    "value": "32"
   },
   "interMeasurementDelaySecs": {
     "comment": "Delay in between starting benchmark executables, which might be helpful to give the OS time to free up resources",

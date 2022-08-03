@@ -79,7 +79,7 @@
         "comment": "In this benchmark we run EXACTLY this number of iterations",
         "comment": "i.e. maxIterations determines the exact number of iterations",
         "default": "1000",
-        "value": "20"
+        "value": "5"
     },
     "minIteration": {
       "comment": "The minimum allowed number of iterations",
@@ -168,9 +168,9 @@
     "population": {
         "size": {
             "comment": "The total size of the population ",
-            "comment": "For this benchmarks we need at least twice as many individuals compared to the number of clients",
+            "comment": "For this benchmarks we need at least twice as many individuals compared to the number of clients in order for double buffering to take effect",
             "default": "42",
-            "value": "1000"
+            "value": "3000"
         },
         "nParents": {
             "comment": "The number of parents in the population",

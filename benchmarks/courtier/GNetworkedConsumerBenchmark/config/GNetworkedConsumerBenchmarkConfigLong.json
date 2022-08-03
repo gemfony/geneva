@@ -28,24 +28,27 @@
       "item": "175",
       "item": "200",
       "item": "225",
-      "item": "250"
+      "item": "250",
+      "item": "500",
+      "item": "750",
+      "item": "1000"
     }
   },
   "competitors": {
     "comment": "A list of configurations to run against each other in this benchmark",
     "default": {
-      "item": "'Boost.Asio', 'asio', '--consumer asio', '--asio_nProcessingThreads=auto'",
-      "item": "'Boost.Beast', 'beast', '--consumer beast', '--beast_nListenerThreads=auto'",
-      "item": "'MPI', 'mpi', '--consumer mpi', '--mpi_master_nIOThreads=auto'"
+      "item": "'Boost.Asio', 'asio', '--consumer asio --asio_nProcessingThreads 16'",
+      "item": "'Boost.Beast', 'beast', '--consumer beast --beast_nListenerThreads 16'",
+      "item": "'MPI', 'mpi', '--consumer mpi --mpi_master_nIOThreads 16'"
     },
     "value": {
-      "item": "'Boost.Asio threads=1', 'asio_t_1', '--consumer asio --asio_port 10000', '--asio_nProcessingThreads=1'",
-      "item": "'Boost.Asio threads=auto', 'asio_t_auto', '--consumer asio --asio_port 10001', '--asio_nProcessingThreads=auto'",
-      "item": "'Boost.Beast threads=1', 'beast_t_1', '--consumer beast --beast_port 10002', '--beast_nListenerThreads=1'",
-      "item": "'Boost.Beast threads=auto', 'beast_t_auto', '--consumer beast --beast_port 10003', '--beast_nListenerThreads=auto'",
-      "item": "'MPI threads=1, asyncReq=1', 'mpi_t_1_async_1', '--consumer mpi --mpi_worker_pollTimeout 600', '--mpi_master_nIOThreads=1'",
-      "item": "'MPI threads=auto, asyncReq=1', 'mpi_t_auto_async_1', '--consumer mpi --mpi_worker_pollTimeout 600', '--mpi_master_nIOThreads=auto'",
-      "item": "'MPI threads=auto, asyncReq=0', 'mpi_t_auto_async_0', '--consumer mpi --mpi_worker_asyncRequests 0 --mpi_worker_pollTimeout 600', '--mpi_master_nIOThreads=auto'"
+      "item": "'Boost.Asio threads=1', 'asio_t_1', '--consumer asio --asio_port 10000 --asio_nProcessingThreads=1'",
+      "item": "'Boost.Asio threads=64', 'asio_t_64', '--consumer asio --asio_port 10001 --asio_nProcessingThreads=64'",
+      "item": "'Boost.Beast threads=1', 'beast_t_1', '--consumer beast --beast_port 10002 --beast_nListenerThreads=1'",
+      "item": "'Boost.Beast threads=64', 'beast_t_64', '--consumer beast --beast_port 10003 --beast_nListenerThreads=64'",
+      "item": "'MPI threads=1, asyncReq=1', 'mpi_t_1_async_1', '--consumer mpi --mpi_worker_pollTimeout 600 --mpi_master_nIOThreads=1'",
+      "item": "'MPI threads=64, asyncReq=1', 'mpi_t_64_async_1', '--consumer mpi --mpi_worker_pollTimeout 600 --mpi_master_nIOThreads=64'",
+      "item": "'MPI threads=64, asyncReq=0', 'mpi_t_64_async_0', '--consumer mpi --mpi_worker_asyncRequests 0 --mpi_worker_pollTimeout 600 --mpi_master_nIOThreads=64'"
     }
   },
   "resultFile": {
@@ -64,11 +67,6 @@
     "comment": "The location of the mpirun executable to use",
     "default": "mpirun",
     "value": "mpirun"
-  },
-  "nMaxThreads": {
-    "comment": "Limit for threads when using automatic setting of number of threads with respect to number of consumers.",
-    "default": "32",
-    "value": "32"
   },
   "interMeasurementDelaySecs": {
     "comment": "Delay in between starting benchmark executables, which might be helpful to give the OS time to free up resources",
