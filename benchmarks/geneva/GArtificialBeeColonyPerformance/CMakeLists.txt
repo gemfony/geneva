@@ -34,21 +34,38 @@
 #
 ################################################################################
 
-ADD_CUSTOM_TARGET( "benchmarks-geneva"
-	# Add all the available test targets (EXECUTABLENAMEs) here
-	DEPENDS
-        GBrokerOverhead
-        GBrokerSanityChecks
-		GOptimizationBenchmark
-		GParallelisationOverhead
-		GSerializationOverhead
-		GArtificialBeeColonyPerformance
-	COMMENT "Building the benchmarks for the optimization library."
+IF (NOT GENEVA_FULL_TREE_BUILD)
+
+	PROJECT(GArtificialBeeColonyPerformance)
+
+	# For building the benchmarks independently, we still assume that the
+	# current source folder is still part of the Geneva tree structure,
+	# i.e., the 'CMakeModules' folder can be found going up... This avoids
+	# having to copy the same content over and over again in the tests.
+	SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/../../../CMakeModules")
+
+	MESSAGE("\nPerforming an independent build of ${PROJECT_NAME}")
+	INCLUDE(CommonGenevaBuild)
+
+ENDIF ()
+
+SET ( EXECUTABLENAME GArtificialBeeColonyPerformance )
+
+SET ( ${EXECUTABLENAME}_SRCS
+	GArtificialBeeColonyPerformance
 )
 
-ADD_SUBDIRECTORY ( GBrokerOverhead )
-ADD_SUBDIRECTORY ( GBrokerSanityChecks )
-ADD_SUBDIRECTORY ( GOptimizationBenchmark )
-ADD_SUBDIRECTORY ( GParallelisationOverhead )
-ADD_SUBDIRECTORY ( GSerializationOverhead )
-ADD_SUBDIRECTORY ( GArtificialBeeColonyPerformance )
+ADD_EXECUTABLE(${EXECUTABLENAME}
+	${${EXECUTABLENAME}_SRCS}
+)
+
+TARGET_LINK_LIBRARIES (${EXECUTABLENAME}
+	${GENEVA_LIBRARIES}
+	${Boost_LIBRARIES}
+)
+
+ADD_SUBDIRECTORY (config)
+
+ADD_TEST(${EXECUTABLENAME} ${EXECUTABLENAME})
+
+INSTALL ( TARGETS ${EXECUTABLENAME} DESTINATION ${INSTALL_PREFIX_DATA}/benchmarks/geneva/PerformanceTests/${EXECUTABLENAME} )

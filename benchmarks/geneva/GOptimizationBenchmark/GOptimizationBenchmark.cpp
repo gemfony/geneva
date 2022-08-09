@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 		// Run the desired number of tests
 		for(std::size_t test=0; test<nTests; test++) {
 			// Create a Go2-object for the loop
-			Go2 go_loop(argc, argv, "./config/Go2.json");
+			Go2* go_loop = new Go2(argc, argv, "./config/Go2.json");
 
 			// Retrieve an individual from the factory
 			std::shared_ptr<GFunctionIndividual> g = gfi.get_as<GFunctionIndividual>();
@@ -119,22 +119,22 @@ int main(int argc, char **argv) {
 				);
 			}
 
-			if(!go_loop.empty()) {
+			if(!go_loop->empty()) {
 				throw gemfony_exception(
 					g_error_streamer(DO_LOG,  time_and_place)
-						<< "In main(): go contains " << go_loop.size() << " items when it should be empty." << std::endl
+						<< "In main(): go contains " << go_loop->size() << " items when it should be empty." << std::endl
 				);
 			}
 #endif /* DEBUG */
 
 			// Make an individual known to the optimizer
-			go_loop.push_back(g);
+			go_loop->push_back(g);
 
 			// Start recording of time
 			startTime = std::chrono::system_clock::now();
 
 			// Perform the actual optimization and extract the best individual
-			std::shared_ptr<GFunctionIndividual> p = go_loop.optimize()->getBestGlobalIndividual<GFunctionIndividual>();
+			std::shared_ptr<GFunctionIndividual> p = go_loop->optimize()->getBestGlobalIndividual<GFunctionIndividual>();
 
 			endTime = std::chrono::system_clock::now();
 
@@ -150,6 +150,8 @@ int main(int argc, char **argv) {
 
 			// Add timing information to the result vector
 			timeConsumed.push_back(std::chrono::duration<double>(endTime-startTime).count());
+
+            delete go_loop;
 		}
 
 		// Post process the vector, extracting mean and sigma
@@ -167,6 +169,7 @@ int main(int argc, char **argv) {
 
 		resultVec.push_back(resultE);
 		timingVec.push_back(timingE);
+
 	}
 
 	//-------------------------------------------------------------------------

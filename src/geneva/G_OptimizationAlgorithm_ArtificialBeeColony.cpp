@@ -47,16 +47,6 @@ namespace Geneva {
 
 GArtificialBeeColony::GArtificialBeeColony() {}
 
-GArtificialBeeColony::GArtificialBeeColony(const GArtificialBeeColony &cp)
-: G_OptimizationAlgorithm_Base(cp)
-, m_dbl_lower_parameter_boundaries_cnt(cp.m_dbl_lower_parameter_boundaries_cnt)
-, m_dbl_upper_parameter_boundaries_cnt(cp.m_dbl_upper_parameter_boundaries_cnt)
-, m_max_trial(cp.m_max_trial)
-, m_random_seed(cp.m_random_seed)
-, m_parallel_rule(cp.m_parallel_rule)
-, m_best_individual(cp.m_best_individual->clone<GParameterSet>())
-{/* nothing */}
-
 void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb) {
     // Call our parent class'es function
     G_OptimizationAlgorithm_Base::addConfigurationOptions_(gpb);
@@ -73,6 +63,12 @@ void GArtificialBeeColony::addConfigurationOptions_(Common::GParserBuilder &gpb)
             , [this](abcParallelRule pr) { this->setMParallelRule(pr); }
     )
             << "Specifies between parallel (0), sequential (1) or simplex (2) onlooker phase";
+    gpb.registerFileParameter<std::size_t>(
+            "populationSize"
+            , DEFAULTPOPULATIONSIZE
+            , [this](std::size_t size){this->setDefaultPopulationSize(size);}
+    )
+            << "Specifies the population size";
 }
 
 void GArtificialBeeColony::load_(const GObject *cp) {
@@ -400,6 +396,7 @@ void GArtificialBeeColony::onlookerBeePhase() {
                             << "Consider checking the abcParallelEnum in GOptimizationEnums."
             );
 #endif
+            break;
     }
 
     findBestIndividual();

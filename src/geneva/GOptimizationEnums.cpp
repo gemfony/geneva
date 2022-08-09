@@ -452,7 +452,7 @@ std::istream &operator>>(std::istream &i, Gem::Geneva::abcParallelRule &ur) {
 #ifdef DEBUG
     ur = boost::numeric_cast<Gem::Geneva::abcParallelRule>(tmp);
 #else
-    ur = static_cast<Gem::Geneva::updateRule>(tmp);
+    ur = static_cast<Gem::Geneva::abcParallelRule>(tmp);
 #endif /* DEBUG */
 
     return i;

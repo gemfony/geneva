@@ -98,7 +98,7 @@
     "parDim": {
         "comment": "The number of dimensions used for the demo function",
         "default": "2",
-        "value": "2"
+        "value": "3"
     },
     "minVar": {
         "comment": "The lower boundary of the initialization range for parameters",
@@ -185,6 +185,6 @@
         "comment": "6: Salomon",
         "comment": "7: Negative Parabola",
         "default": "0",
-        "value": "0"
+        "value": "1"
     }
 }

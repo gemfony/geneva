@@ -86,7 +86,7 @@ public:
     G_API_GENEVA GArtificialBeeColony();
 
     /** @brief A standard copy constructor */
-    G_API_GENEVA GArtificialBeeColony(const GArtificialBeeColony&);
+    G_API_GENEVA GArtificialBeeColony(const GArtificialBeeColony&) = default;
 
     /** @brief The standard destructor */
     G_API_GENEVA ~GArtificialBeeColony() override = default;
