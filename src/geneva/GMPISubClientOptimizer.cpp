@@ -162,11 +162,13 @@ namespace Gem::Geneva {
 
     int GMPISubClientOptimizer::clientRun_() {
         if (m_isSubClient) {
-            // start the asynchronous request waiting for the client to finish its job
+            GMPISubClientIndividual::setClientMode(ClientMode::SUB_CLIENT);
             GMPISubClientIndividual::setClientStatusRequest(startAsyncBarrier());
+            // start the asynchronous request waiting for the client to finish its job
             // execute the sub-client job
             return m_subClientJob(m_subClientComm);
         } else {
+            GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);
             // run the client until optimization finished
             int returnValue{Go2::clientRun_()};
             // tell sub-clients that the optimization has finished

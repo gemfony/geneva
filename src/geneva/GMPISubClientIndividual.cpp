@@ -56,7 +56,17 @@ namespace Gem::Geneva {
         m_clientStatusRequest = request;
     }
 
+    void GMPISubClientIndividual::setClientMode(const ClientMode &mode) {
+        m_clientMode = mode;
+    }
+
     ClientStatus GMPISubClientIndividual::getClientStatus() {
+        // If the optimization is finished this means that no Individual is being processed.
+        // Therefore, clients can only call this method if they are running
+        if (m_clientMode == CLIENT) {
+            return ClientStatus::RUNNING;
+        }
+
         MPI_Status status{};
         int isCompleted{};
 
@@ -71,6 +81,10 @@ namespace Gem::Geneva {
         }
 
         return ClientStatus::FINISHED;
+    }
+
+    ClientMode GMPISubClientIndividual::getClientMode() {
+        return m_clientMode;
     }
 
 

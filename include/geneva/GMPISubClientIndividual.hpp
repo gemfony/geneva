@@ -63,6 +63,11 @@ namespace Gem::Geneva {
         ERROR
     };
 
+    enum ClientMode {
+        CLIENT,
+        SUB_CLIENT
+    };
+
 /******************************************************************/
     /**
      * This individual offers to set and retrieve an MPI communicator.
@@ -112,6 +117,11 @@ namespace Gem::Geneva {
          */
         static ClientStatus getClientStatus();
 
+        /**
+         * @return mode of the current process, either client or sub client
+         */
+         static ClientMode getClientMode();
+
     private:
         /**
          * Sets the MPI communicator that can be used by the individual to communicate with sub-clients in an MPI sub-group
@@ -125,6 +135,11 @@ namespace Gem::Geneva {
         static void setClientStatusRequest(const MPI_Request &request);
 
         /**
+         * Sets the mode for this process to client or sub-client, such that the user can access this property inside of individuals
+         */
+        static void setClientMode(const ClientMode &mode);
+
+        /**
          * Communicator that can be used by this class
          */
         static inline MPI_Comm m_communicator{MPI_COMM_NULL};
@@ -133,6 +148,8 @@ namespace Gem::Geneva {
          * Request which can be used to check the client status
          */
         inline static MPI_Request m_clientStatusRequest{};
+
+        inline static ClientMode m_clientMode{ClientMode::CLIENT};
 
         // NOTE: the class remains abstract because essential methods of the base class are not implemented
     };
