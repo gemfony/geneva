@@ -57,7 +57,7 @@
 
 namespace Gem::Geneva {
 
-    enum ClientStatus{
+    enum ClientStatus {
         RUNNING,
         FINISHED,
         ERROR
@@ -132,7 +132,7 @@ namespace Gem::Geneva {
         /**
          * Request which can be used to check the client status
          */
-         inline static MPI_Request m_clientStatusRequest{};
+        inline static MPI_Request m_clientStatusRequest{};
 
         // NOTE: the class remains abstract because essential methods of the base class are not implemented
     };
