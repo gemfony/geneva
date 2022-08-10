@@ -52,11 +52,11 @@ namespace Gem::Geneva {
         m_communicator = communicator;
     }
 
-    void GMPISubClientIndividual::setClientStatusRequest(const MPI_Request &request){
+    void GMPISubClientIndividual::setClientStatusRequest(const MPI_Request &request) {
         m_clientStatusRequest = request;
     }
 
-    ClientStatus GMPISubClientIndividual::getClientStatus(){
+    ClientStatus GMPISubClientIndividual::getClientStatus() {
         MPI_Status status{};
         int isCompleted{};
 
