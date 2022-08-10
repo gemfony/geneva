@@ -637,6 +637,9 @@ namespace Gem::Courtier {
             if (processRequest()) {
                 sendResponse();
             }
+
+            // set the time when finishing the run method
+            m_finishedSince = std::chrono::steady_clock::now();
         }
 
         /**
@@ -646,7 +649,7 @@ namespace Gem::Courtier {
          *
          * @return true if sending the response has been completed, otherwise false
          */
-        bool isCompleted() {
+        [[nodiscard]] bool isCompleted() {
             int isCompleted{0};
             MPI_Status status{};
 
@@ -656,6 +659,10 @@ namespace Gem::Courtier {
                     &status);
 
             return isCompleted;
+        }
+
+        [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> finishedSince() const {
+            return m_finishedSince;
         }
 
         /**
@@ -799,6 +806,8 @@ namespace Gem::Courtier {
                 networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
         MPI_Request m_mpiRequestHandle;
         std::string m_outgoingMessage;
+
+        std::optional<std::chrono::steady_clock::time_point> m_finishedSince{}; // empty start time before run called
     };
 
     /**
@@ -993,7 +1002,7 @@ namespace Gem::Courtier {
 
         void pushOpenSession(std::shared_ptr<GMPIConsumerSessionT<processable_type>> session) {
             m_openSessionsGuard.lock();
-            m_openSessions.push_back(std::make_pair(session, std::chrono::steady_clock::now()));
+            m_openSessions.push_back(session);
             m_openSessionsGuard.unlock();
         }
 
@@ -1015,24 +1024,20 @@ namespace Gem::Courtier {
                     std::this_thread::sleep_for(std::chrono::milliseconds{m_config.sendPollIntervalMSec});
                 }
 
-                auto timeCurr = std::chrono::steady_clock::now();
+                const auto timeCurr = std::chrono::steady_clock::now();
 
                 // lock access to open sessions vector
                 m_openSessionsGuard.lock();
 
-
-                for (auto iter = m_openSessions.begin(); iter != m_openSessions.end(); /* no increment */) {
-                    auto session = iter->first;
-                    auto startTime = iter->second;
-
-                    if (session->isCompleted()) {
+                for (auto sessionIter{m_openSessions.begin() }; sessionIter != m_openSessions.end(); /* no increment */) {
+                    if ((*sessionIter)->isCompleted()) {
                         // erase this session if it has been completed
-                        iter = m_openSessions.erase(iter);
+                        sessionIter = m_openSessions.erase(sessionIter);
                     } else if (m_config.sendPollTimeoutSec <
-                               std::chrono::duration_cast<std::chrono::seconds>(timeCurr - startTime).count()) {
+                               std::chrono::duration_cast<std::chrono::seconds>(timeCurr - (*sessionIter)->finishedSince().value()).count()) {
                         glogger
                                 << "In GMPIConsumerSessionT<processable_type>::sendResponse() connected to rank="
-                                << session->getConnectedWorker() << ":" << std::endl
+                                << (*sessionIter)->getConnectedWorker() << ":" << std::endl
                                 << "Configured timeout of " << m_config.sendPollIntervalMSec
                                 << " milliseconds has been reached for sending a work item to a worker node"
                                 << std::endl
@@ -1040,11 +1045,11 @@ namespace Gem::Courtier {
                                 << GWARNING;
 
                         // close and erase session in case of timeout
-                        session->cancel();
-                        iter = m_openSessions.erase(iter);
+                        (*sessionIter)->cancel();
+                        sessionIter = m_openSessions.erase(sessionIter);
                     } else {
                         // increment iterator in case no session has been erased
-                        ++iter;
+                        ++sessionIter;
                     }
                 }
                 // make open sessions vector available again e.g. for pushback
@@ -1055,7 +1060,7 @@ namespace Gem::Courtier {
             m_openSessionsGuard.lock();
 
             for (auto openSession: m_openSessions) {
-                openSession.first->cancel();
+                openSession->cancel();
             }
             m_openSessions.clear();
 
@@ -1151,9 +1156,9 @@ namespace Gem::Courtier {
          */
         std::mutex m_openSessionsGuard{};
         /*
-         * Open sessions and the time since the time of opening
+         * Open sessions
          */
-        std::vector<std::pair<std::shared_ptr<GMPIConsumerSessionT<processable_type>>, std::chrono::steady_clock::time_point>> m_openSessions{};
+        std::vector<std::shared_ptr<GMPIConsumerSessionT<processable_type>>> m_openSessions{};
         std::atomic<bool> m_isToldToStop;
 
         std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
