@@ -124,12 +124,12 @@ elif [ $# -eq 1 ]; then
 
 	if [ -z "${BUILDWITHMPICONSUMER}" ]; then
   	BUILDWITHMPICONSUMER="1"
-  	echo "Variable INSTALLDIR wasn't set. Setting to default value '${BUILDWITHMPICONSUMER}'"
+  	echo "Variable BUILDWITHMPICONSUMER wasn't set. Setting to default value '${BUILDWITHMPICONSUMER}'"
   fi
 
 	if [ -z "${BUILDOPENCLEXAMPLES}" ]; then
 		BUILDOPENCLEXAMPLES="0"
-		echo "Variable INSTALLDIR wasn't set. Setting to default value '${BUILDOPENCLEXAMPLES}'"
+		echo "Variable BUILDOPENCLEXAMPLES wasn't set. Setting to default value '${BUILDOPENCLEXAMPLES}'"
 	fi
 else
 	echo -e "\nReceived $# command line arguments, which is an invalid number."
