@@ -104,13 +104,13 @@ namespace Gem::Courtier {
          */
         std::uint32_t receivePollIntervalUSec{0};
         /**
-         * The time in microseconds between each check of completion of the send operation of a new work item to a worker node.
+         * The time in milliseconds between each check of completion of the send operation of a new work item to a worker node.
          */
-        std::uint32_t sendPollIntervalUSec{1'000'000};
+        std::uint32_t sendPollIntervalMSec{1'000};
         /**
-         * The maximum time in microseconds to wait until a send operation of a new work item to a worker node is expected to succeed.
+         * The maximum time in seconds to wait until a send operation of a new work item to a worker node is expected to succeed.
          */
-        std::uint32_t sendPollTimeoutUSec{5'000'000};
+        std::uint32_t sendPollTimeoutSec{5};
 
         /**
          * Adds local command line options to a boost::program_options::options_description object.
@@ -137,14 +137,14 @@ namespace Gem::Courtier {
                                  "Setting this to 0 means repeatedly checking without waiting in between checks.");
 
             hidden.add_options()("mpi_master_sendPollInterval",
-                                 po::value<std::uint32_t>(&sendPollIntervalUSec)->default_value(
-                                         sendPollIntervalUSec),
-                                 "\t[mpi-master-node] The time in microseconds between each check of completion of the send operation of a new work item to a worker node");
+                                 po::value<std::uint32_t>(&sendPollIntervalMSec)->default_value(
+                                         sendPollIntervalMSec),
+                                 "\t[mpi-master-node] The time in milliseconds between each check of completion of the send operation of a new work item to a worker node");
 
             hidden.add_options()("mpi_master_sendPollTimeout",
-                                 po::value<std::uint32_t>(&sendPollTimeoutUSec)->default_value(
-                                         sendPollTimeoutUSec),
-                                 "\t[mpi-master-node] The maximum time in microseconds to wait until a send operation of a new work item to a worker node succeeds");
+                                 po::value<std::uint32_t>(&sendPollTimeoutSec)->default_value(
+                                         sendPollTimeoutSec),
+                                 "\t[mpi-master-node] The maximum time in seconds to wait until a send operation of a new work item to a worker node succeeds");
         }
     };
 
@@ -637,6 +637,9 @@ namespace Gem::Courtier {
             if (processRequest()) {
                 sendResponse();
             }
+
+            // set the time when finishing the run method
+            m_finishedSince = std::chrono::steady_clock::now();
         }
 
         /**
@@ -646,7 +649,7 @@ namespace Gem::Courtier {
          *
          * @return true if sending the response has been completed, otherwise false
          */
-        bool isCompleted() {
+        [[nodiscard]] bool isCompleted() {
             int isCompleted{0};
             MPI_Status status{};
 
@@ -656,6 +659,10 @@ namespace Gem::Courtier {
                     &status);
 
             return isCompleted;
+        }
+
+        [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> finishedSince() const {
+            return m_finishedSince;
         }
 
         /**
@@ -799,6 +806,8 @@ namespace Gem::Courtier {
                 networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
         MPI_Request m_mpiRequestHandle;
         std::string m_outgoingMessage;
+
+        std::optional<std::chrono::steady_clock::time_point> m_finishedSince{}; // empty start time before run called
     };
 
     /**
@@ -993,7 +1002,7 @@ namespace Gem::Courtier {
 
         void pushOpenSession(std::shared_ptr<GMPIConsumerSessionT<processable_type>> session) {
             m_openSessionsGuard.lock();
-            m_openSessions.push_back(std::make_pair(session, std::chrono::system_clock::now()));
+            m_openSessions.push_back(session);
             m_openSessionsGuard.unlock();
         }
 
@@ -1011,40 +1020,36 @@ namespace Gem::Courtier {
         void cleanUpSessionsLoop() {
             while (!m_isToldToStop) {
                 // wait a short amount of time between checking if the sessions have been completed
-                if (m_config.sendPollIntervalUSec > 0) {
-                    std::this_thread::sleep_for(std::chrono::microseconds{m_config.sendPollIntervalUSec});
+                if (m_config.sendPollIntervalMSec > 0) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds{m_config.sendPollIntervalMSec});
                 }
 
-                auto timeCurr = std::chrono::system_clock::now();
+                const auto timeCurr = std::chrono::steady_clock::now();
 
                 // lock access to open sessions vector
                 m_openSessionsGuard.lock();
 
-
-                for (auto iter = m_openSessions.begin(); iter != m_openSessions.end(); /* no increment */) {
-                    auto session = iter->first;
-                    auto startTime = iter->second;
-
-                    if (session->isCompleted()) {
+                for (auto sessionIter{m_openSessions.begin() }; sessionIter != m_openSessions.end(); /* no increment */) {
+                    if ((*sessionIter)->isCompleted()) {
                         // erase this session if it has been completed
-                        iter = m_openSessions.erase(iter);
-                    } else if (m_config.sendPollTimeoutUSec <
-                               std::chrono::duration_cast<std::chrono::microseconds>(timeCurr - startTime).count()) {
+                        sessionIter = m_openSessions.erase(sessionIter);
+                    } else if (m_config.sendPollTimeoutSec <
+                               std::chrono::duration_cast<std::chrono::seconds>(timeCurr - (*sessionIter)->finishedSince().value()).count()) {
                         glogger
                                 << "In GMPIConsumerSessionT<processable_type>::sendResponse() connected to rank="
-                                << session->getConnectedWorker() << ":" << std::endl
-                                << "Configured timeout of " << m_config.sendPollIntervalUSec
-                                << " microseconds has been reached for sending a work item to a worker node"
+                                << (*sessionIter)->getConnectedWorker() << ":" << std::endl
+                                << "Configured timeout of " << m_config.sendPollIntervalMSec
+                                << " milliseconds has been reached for sending a work item to a worker node"
                                 << std::endl
                                 << "Response will be canceled." << std::endl
                                 << GWARNING;
 
                         // close and erase session in case of timeout
-                        session->cancel();
-                        iter = m_openSessions.erase(iter);
+                        (*sessionIter)->cancel();
+                        sessionIter = m_openSessions.erase(sessionIter);
                     } else {
                         // increment iterator in case no session has been erased
-                        ++iter;
+                        ++sessionIter;
                     }
                 }
                 // make open sessions vector available again e.g. for pushback
@@ -1055,7 +1060,7 @@ namespace Gem::Courtier {
             m_openSessionsGuard.lock();
 
             for (auto openSession: m_openSessions) {
-                openSession.first->cancel();
+                openSession->cancel();
             }
             m_openSessions.clear();
 
@@ -1151,9 +1156,9 @@ namespace Gem::Courtier {
          */
         std::mutex m_openSessionsGuard{};
         /*
-         * Open sessions and the time since the time of opening
+         * Open sessions
          */
-        std::vector<std::pair<std::shared_ptr<GMPIConsumerSessionT<processable_type>>, std::chrono::system_clock::time_point>> m_openSessions{};
+        std::vector<std::shared_ptr<GMPIConsumerSessionT<processable_type>>> m_openSessions{};
         std::atomic<bool> m_isToldToStop;
 
         std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
@@ -1337,7 +1342,7 @@ namespace Gem::Courtier {
             // asynchronously ask all processes to synchronize here.
             MPI_Ibarrier(MPI_COMMUNICATOR, &requestHandle);
 
-            auto timeStart{std::chrono::system_clock::now()};
+            auto timeStart{std::chrono::steady_clock::now()};
 
             while (true) {
 
@@ -1363,7 +1368,7 @@ namespace Gem::Courtier {
                     return true; // synchronize successful
                 }
 
-                if (std::chrono::system_clock::now() - timeStart >
+                if (std::chrono::steady_clock::now() - timeStart >
                     std::chrono::seconds(m_commonConfig.waitForMasterStartupTimeoutSec)) {
                     glogger
                             << "In GMPIConsumerT<processable_type>::trySynchronize() with rank="
