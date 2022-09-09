@@ -78,7 +78,7 @@ int main(int argc, char **argv) {
 	go.registerContentCreator(gfi_ptr);
 
 	// Add a default optimization algorithm to the Go2 object. This is optional.
-	// Indeed "ea" is the default setting anyway. However, if you do not like it, you
+	// Indeed, "ea" is the default setting anyway. However, if you do not like it, you
 	// can register another default algorithm here, which will then be used, unless
 	// you specify other algorithms on the command line. You can also add a smart
 	// pointer to an optimization algorithm here instead of its mnemonic.
