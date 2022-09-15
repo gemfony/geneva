@@ -57,6 +57,20 @@ parameters are specified. There is a whole family of parameter objects.
 12_GExternalEvaluator:
 ----------------------
 
+13_GPluggableOptimizationMonitors:
+----------------------------------
+
+14_GDependentConstraints:
+-------------------------
+
+15_GOpenCLConsumer:
+-------------------
+
+16_GMPIConsumer:
+----------------
+
+This example shows how the MPI consumer can be used within the broker infrastructure.
+
 
 Please check each directory's README for further information. The main source
 code file (named similar to the directory it is in) might also prove useful.

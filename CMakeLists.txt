@@ -81,6 +81,12 @@ ENDIF()
 
 SET(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMakeModules")
 
+################################################################################
+# Set preprocessor define to use in source code if building with MPI consumer
+IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
+	ADD_COMPILE_DEFINITIONS(GENEVA_BUILD_WITH_MPI_CONSUMER)
+ENDIF ()
+
 ###############################################################################
 # Include the shared functionality module for any Geneva build
 
@@ -252,7 +258,7 @@ SET(CPACK_RPM_PACKAGE_LICENSE "Apache License 2.0")
 SET(CPACK_RPM_PACKAGE_GROUP "Sciences/Libraries")
 SET(CPACK_RPM_PACKAGE_REQUIRES "boost-devel >= ${GENEVA_MIN_BOOST_VERSION}")
 
-# Detect the distribution to autoselect the package generator...
+# Detect the distribution to autos-elect the package generator...
 EXECUTE_PROCESS(COMMAND lsb_release -is
 	OUTPUT_VARIABLE CPACK_AUX_DISTRO
 )

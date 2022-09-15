@@ -51,6 +51,14 @@ SET ( COMMUNICATIONINCLUDES
     GWorkerT.hpp
 )
 
+# MPI-consumer is optional, only build it when requested
+IF (GENEVA_BUILD_WITH_MPI_CONSUMER)
+    SET( COMMUNICATIONINCLUDES
+            ${COMMUNICATIONINCLUDES}
+            GMPIConsumerT.hpp
+            GMPIHelperFunctions.hpp)
+ENDIF ()
+
 set_source_files_properties(
     ${COMMUNICATIONINCLUDES}
     PROPERTIES

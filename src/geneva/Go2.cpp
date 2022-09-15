@@ -94,6 +94,11 @@ Go2::Go2(
 	m_gi.registerConsumer<GIndividualThreadConsumer>();
 	m_gi.registerConsumer<GIndividualSerialConsumer>();
 
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+    // the mpi consumer requires to be a singleton, because it is not allowed to initialize or finalize MPI multiple times
+    m_gi.registerConsumer(GMPIConsumerInstance);
+#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
+
 	//--------------------------------------------
 	// Parse configuration file options
 	this->parseConfigFile(configFilename);
@@ -683,6 +688,15 @@ void Go2::addConfigurationOptions(
  * @param serverMode Allows to mark this object as belonging to a client as opposed to a server
  */
 void Go2::setClientMode(bool clientMode) {
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+    if (m_consumer_name == "GMPIConsumerT" || m_consumer_name == "mpi") {
+        throw gemfony_exception(
+				g_error_streamer(DO_LOG, time_and_place)
+					<< "In Go2::setClientMode(): Error!" << std::endl
+					<< "If running MPI then the mode can not be changed between client and server mode after the process has been launched"
+			);
+    }
+#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 	m_client_mode = clientMode;
 }
 
@@ -820,7 +834,7 @@ void Go2::parseCommandLine(
 			("optimizationAlgorithms,a", po::value<std::string>(&optimization_algorithms), oa_help.str().c_str())
 			("cp_file,f", po::value<std::string>(&checkpointFile)->default_value("empty"),
 				"A file (including its path) holding a checkpoint for a given optimization algorithm")
-			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients")
+			("client", "Indicates that this program should run as a client or in server mode. Note that this setting will trigger an error unless called in conjunction with a consumer capable of dealing with clients. This option is ignored when working with the mpi consumer, because the mpi consumer will configure itself to be a client or server depending on its rank.")
 			("maxClientDuration", po::value<std::string>(&maxClientDuration)->default_value(EMPTYDURATION),
 				R"(The maximum runtime for a client in the form "hh:mm:ss". Note that a client may run longer as this time-frame if its work load still runs. The default value "00:00:00" means: "no time limit")")
 			("consumer,c", po::value<std::string>(&m_consumer_name)->default_value("stc"), consumer_help.str().c_str());
@@ -911,6 +925,26 @@ void Go2::parseCommandLine(
 		}
 
 		std::cout << "Using consumer " << m_consumer_name << std::endl;
+
+        // allow the consumer to perform necessary initialization before startup
+        GConsumerStore->get(m_consumer_name)->init();
+
+        // TODO: Consider removing this #ifdefs
+        //  However, an issue is that this would require to create public functions like GBaseConsumerT::clientMode()
+        //  and GBaseConsumerT::setsClientModeItself() that are only implemented by GMPIConsumerT.
+        //  While this sounds good at first this would mean that GMPIConsumerT which is typically a server requires
+        //  knowledge about server AND client side. Both implementations (public functions to override or #ifdefs)
+        //  are not very clean. Maybe another solution can be found. But we stick with the #ifdef for now
+
+        // reset the client mode to the information that the consumer has in case we are dealing with the GMPIConsumerT.
+        // That is because the MPI consumer should not depend on the --client command-line parameter but decide itself
+        // whether it is a server or client depending on the process's MPI rank
+#ifdef GENEVA_BUILD_WITH_MPI_CONSUMER
+        if(GIndividualMPIConsumer* mpiConsumerPtr = dynamic_cast<GIndividualMPIConsumer*>(
+                GConsumerStore->get(m_consumer_name).get())) {
+            m_client_mode = mpiConsumerPtr->isWorkerNode();
+        }
+#endif // GENEVA_BUILD_WITH_MPI_CONSUMER
 
 		// Finally give the consumer the chance to act on the command line options
 		// TODO: clone the consumer, then let the clone act on CL options and add the clone to the broker
