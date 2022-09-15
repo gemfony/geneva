@@ -77,12 +77,12 @@
     "maxIteration": {
         "comment": "The maximum allowed number of iterations",
         "default": "1000",
-        "value": "21"
+        "value": "1000"
     },
     "minIteration": {
       "comment": "The minimum allowed number of iterations",
       "default": "0",
-      "value": "20"
+      "value": "0"
     },
     "maxStallIteration": {
         "comment": "The maximum allowed number of iterations without improvement",
@@ -166,7 +166,7 @@
         "size": {
             "comment": "The total size of the population ",
             "default": "42",
-            "value": "64"
+            "value": "42"
         },
         "nParents": {
             "comment": "The number of parents in the population",

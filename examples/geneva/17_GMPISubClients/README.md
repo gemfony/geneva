@@ -1,31 +1,17 @@
 # MPI Sub-Clients
 
+This example shows how to use the GMPIConsumerT with MPI sub-clients. The MPI-Consumer distributes the individuals via MPI to clients/workers.
+Additionally, in this example each of those clients talks to a number of clients while calling the calculateFitness function
+of the individual. So we have two layers of MPI.
 
-This example shows how to use the GMPISubClientOptimizer.
-It offers all functionality of Go2 but additionally adds the functionality of
-creating MPI-sub-clients, which can be used to parallelize computation on the level of individuals in a user-defined fashion.
+To make this work we have to initialize MPI ourselves and create inter-communicators. This way the Geneva-clients can talk
+to the Geneva server using one communicator and the clients can talk to the sub-clients using another communicator.
 
-You can set the size of the sub-client networks via the `subClientGroupSize` parameter in the
-`GMPISubClientOptimizer.json` config file.
+To run this example with 1 server, 4 clients and 3 sub-clients for each of the clients use:
 
-In the following Figure we see how the network looks line when using a `subClientGroupSize` of n.  
-The rounded rectangles represent the MPI-communicators:
-- Black: The base communicator. This defaults to MPI_COMM_WORLD. However, the user can set this communicator to a sub-communicator if the user himself uses MPI in his application specific code apart from Geneva.
-- Blue: The Geneva communicator. This is the communicator which is used for transmitting individuals between master node and worker nodes.
-- Orange: The sub-client communicators 1-m. The subgroups have a size of n which can be configured through the configuration file of `GMPISubClientOptimizer`. The number of subgroups will be calculated based on the size of the subgroups and the number of processes in the base communicator. Each subgroup can use MPI in a user-defined fashion in order to parallelize at the level of individuals (i.e. parallelize the fitnessCalculation function).
+``````
+    mpirun --oversubscribe -np 17 ./GMPISubClients --consumer mpi 
+``````
 
-<img src="./images/mpi-sub-clients.png">
-
-The executable can be started as follows:
-
-```
-mpirun --oversubscribe -np <1 + number of clients * subgroup-size> ./GMPISubClients --consumer mpi
-```
-
-
-For example to run this example with 1 server, 4 clients and 3 sub-clients for each client set the `subClientGroupSize` parameter in the config file to 4 (1 client + 3 sub-clients) and start it with:
-
-```
-mpirun --oversubscribe -np 17 ./GMPISubClients --consumer mpi 
-```
-
+NOTE: if you want to change the amount of sub-clients you have to change the constant DEFAULT_N_SUB_CLIENTS
+in the GMPISubClients.cpp file.

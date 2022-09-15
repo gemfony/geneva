@@ -34,12 +34,12 @@
 #
 ################################################################################
 
-SET(CONFIGFILES
-        GEvolutionaryAlgorithm.json
-        GMPISubClientOptimizer.json
-        )
+SET ( CONFIGFILES
+	GEvolutionaryAlgorithm.json
+	Go2.json
+)
 
 # Copy the config files to the build tree for easier testing
-FILE(COPY ${CONFIGFILES} DESTINATION .)
+FILE ( COPY ${CONFIGFILES} DESTINATION . )
 
-INSTALL(FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config)
+INSTALL ( FILES ${CONFIGFILES} DESTINATION ${INSTALL_PREFIX_DATA}/examples/${EXECUTABLENAME}/config )

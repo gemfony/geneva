@@ -41,43 +41,7 @@
 
 // MPI library
 #include <mpi.h>
-
-// standard headers
 #include <string>
-#include <chrono>
-#include <thread>
-#include <functional>
-
-// TODO: maybe create a new namespace for these utilities
-
-enum MPIStatusCode {
-    /**
-     * The operation has succeeded without errors
-     */
-    SUCCESS,
-    /**
-     * The operation was stopped due to the halt criterion
-     */
-    STOPPED,
-    /**
-     * The operation has completed with an error
-     */
-    ERROR
-};
-
-/**
- * Stores the result of an MPI while operation
- */
-struct MPICompletionStatus {
-    /**
-     * Type of completion
-     */
-    MPIStatusCode statusCode{};
-    /**
-     * The status which was returned by MPI at that time
-     */
-    MPI_Status mpiStatus{};
-};
 
 /******************************************************************************/
 G_API_COMMON
@@ -86,29 +50,3 @@ int mpiGetCount(const MPI_Status &, MPI_Datatype = MPI_CHAR);
 /******************************************************************************/
 G_API_COMMON
 std::string mpiErrorString(int);
-
-/******************************************************************************/
-G_API_COMMON
-std::uint32_t mpiSize(const MPI_Comm &comm);
-
-/******************************************************************************/
-G_API_COMMON
-[[nodiscard]] MPICompletionStatus mpiScatterWhile(const void *sendBuf,
-                                                  const std::uint32_t &sendCount,
-                                                  void *recvBuf,
-                                                  MPI_Datatype type,
-                                                  const std::function<bool()> &runWhile,
-                                                  const std::uint32_t &root,
-                                                  MPI_Comm comm,
-                                                  const std::uint64_t &pollIntervalMSec);
-
-/******************************************************************************/
-G_API_COMMON
-[[nodiscard]] MPICompletionStatus mpiGatherWhile(const void *sendBuf,
-                                                 const std::uint32_t &sendCount,
-                                                 void *recvBuf,
-                                                 MPI_Datatype type,
-                                                 const std::function<bool()> &runWhile,
-                                                 const std::uint32_t &root,
-                                                 MPI_Comm comm,
-                                                 const std::uint64_t &pollIntervalMSec);

@@ -53,7 +53,7 @@ SET ( EXECUTABLENAME GMPISubClients )
 
 SET ( ${EXECUTABLENAME}_SRCS
 	GMPISubClients
-	GMPISubClientParaboloidIndividualMultiD
+	GMPIEvaluatedIndividual
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

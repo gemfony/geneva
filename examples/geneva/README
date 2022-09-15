@@ -33,13 +33,10 @@ parameters are specified. There is a whole family of parameter objects.
 04_GMultiCriterionParabola:
 ---------------------------
 
-06_GDirectEA:
+06_GSimpleEA:
 -------------
 
-06_GDirectSA:
--------------
-
-06_GDirectSwarm:
+06_GSimpleGD:
 -------------
 
 06_GSimpleSwarm:
@@ -72,18 +69,7 @@ parameters are specified. There is a whole family of parameter objects.
 16_GMPIConsumer:
 ----------------
 
-This example shows how the MPI consumer can be used directly within the broker infrastructure without using Go2.
-Usually using Go2 is recommended, but this example serves as a demonstration of direct interaction with the broker and
-is similar to the example 06_GDirectEA. If you would like to explore the MPI-Consumer with Go2, you can use the example
-10_GStarter and call the executable with --help --showAll to explore all options.
-
-17_GMPISubClients:
-------------------
-
-This example shows how to use the GMPISubClientOptimizer.
-It offers all functionality of Go2 but additionally adds the functionality of
-creating MPI-sub-clients, which can be used to parallelize computation on the level
-of individuals in a user-defined fashion.
+This example shows how the MPI consumer can be used within the broker infrastructure.
 
 
 Please check each directory's README for further information. The main source
