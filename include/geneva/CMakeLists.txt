@@ -92,6 +92,14 @@ SET ( OPTIMIZATIONINCLUDES
 	GTestIndividual1.hpp
 )
 
+# Add MPI specific files
+IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
+	SET(OPTIMIZATIONINCLUDES
+			${OPTIMIZATIONINCLUDES}
+			GMPISubClientOptimizer.hpp
+			GMPISubClientIndividual.hpp)
+ENDIF()
+
 # This is a workaround for a CLion-problem -- see CPP270 in the JetBrains issue tracker
 ADD_CUSTOM_TARGET(CLION_ALL_GENEVA_HEADERS SOURCES ${OPTIMIZATIONINCLUDES})
 
