@@ -35,18 +35,18 @@
 ################################################################################
 
 SET ( COMMONSOURCES
-	GCanvas
-    GCommonEnums
-    GCommonHelperFunctions
-    GCommonMathHelperFunctions
-    GExceptions
-	GExpectationChecksT
-	GFormulaParserT
-	GLogger
-	GParserBuilder
-	GPlotDesigner
-	GThreadGroup
-	GThreadPool
+	GCanvas.cpp
+    GCommonEnums.cpp
+    GCommonHelperFunctions.cpp
+    GCommonMathHelperFunctions.cpp
+    GExceptions.cpp
+	GExpectationChecksT.cpp
+	GFormulaParserT.cpp
+	GLogger.cpp
+	GParserBuilder.cpp
+	GPlotDesigner.cpp
+	GThreadGroup.cpp
+	GThreadPool.cpp
 )
 
 

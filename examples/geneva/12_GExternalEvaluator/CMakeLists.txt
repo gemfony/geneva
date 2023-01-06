@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GExternalEvaluator )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GExternalEvaluator
+	GExternalEvaluator.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

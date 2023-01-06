@@ -52,8 +52,8 @@ ENDIF ()
 SET ( EXECUTABLENAME GFunctionMinimizer )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GFunctionMinimizer
-	GFMinIndividual
+	GFunctionMinimizer.cpp
+	GFMinIndividual.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

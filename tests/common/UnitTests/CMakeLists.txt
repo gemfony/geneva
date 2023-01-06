@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME CommonStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
-        GCommonStandardTests
+        GCommonStandardTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

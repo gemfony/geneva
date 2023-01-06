@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GenevaStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GenevaStandardTests
+	GenevaStandardTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

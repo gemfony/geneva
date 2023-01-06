@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GParameterObjectUsagePatterns )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GParameterObjectUsagePatterns
+	GParameterObjectUsagePatterns.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GBooleanProbabilityTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GBooleanProbabilityTest
+	GBooleanProbabilityTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

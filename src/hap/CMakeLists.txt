@@ -35,10 +35,10 @@
 ################################################################################
 
 SET ( HAPSOURCES
-	GHapEnums
-	GRandomBase
-	GRandomFactory
-	GRandomT
+	GHapEnums.cpp
+	GRandomBase.cpp
+	GRandomFactory.cpp
+	GRandomT.cpp
 )
 
 set_source_files_properties(

@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GMetaOptimizer )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GMetaOptimizer
+	GMetaOptimizer.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

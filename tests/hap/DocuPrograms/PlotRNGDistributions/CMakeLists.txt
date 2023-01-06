@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME PlotRNGDistributions )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	PlotRNGDistributions
+	PlotRNGDistributions.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

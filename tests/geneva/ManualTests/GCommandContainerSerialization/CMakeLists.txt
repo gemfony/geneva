@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GCommandContainerSerialization )
 
 SET ( ${EXECUTABLENAME}_SRCS
-    GCommandContainerSerialization
+    GCommandContainerSerialization.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

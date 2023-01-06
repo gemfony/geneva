@@ -52,8 +52,8 @@ ENDIF ()
 SET ( EXECUTABLENAME GParaboloid2D )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GParaboloid2D
-	GParaboloidIndividual2D
+	GParaboloid2D.cpp
+	GParaboloidIndividual2D.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

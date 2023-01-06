@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GResetToOptimizationStart )
 
 SET ( ${EXECUTABLENAME}_SRCS
-        GResetToOptimizationStart
+        GResetToOptimizationStart.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

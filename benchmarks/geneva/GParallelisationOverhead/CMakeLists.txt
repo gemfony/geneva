@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GParallelisationOverhead )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GParallelisationOverhead
+	GParallelisationOverhead.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
