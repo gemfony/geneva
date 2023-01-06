@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GBrokerOverhead )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GBrokerOverhead
+	GBrokerOverhead.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

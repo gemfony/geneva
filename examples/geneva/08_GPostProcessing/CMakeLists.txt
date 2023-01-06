@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GPostProcessing )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GPostProcessing
+	GPostProcessing.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

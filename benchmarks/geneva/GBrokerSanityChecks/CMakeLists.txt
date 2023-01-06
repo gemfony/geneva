@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GBrokerSanityChecks )
 
 SET ( ${EXECUTABLENAME}_SRCS
-        GBrokerSanityChecks
+        GBrokerSanityChecks.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

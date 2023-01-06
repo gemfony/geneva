@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GSigmaSigmaAdaptionTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GSigmaSigmaAdaptionTest
+	GSigmaSigmaAdaptionTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

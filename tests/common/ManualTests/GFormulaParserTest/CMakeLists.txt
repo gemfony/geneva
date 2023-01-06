@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GFormulaParserTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GFormulaParserTest
+	GFormulaParserTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -52,8 +52,8 @@ ENDIF ()
 SET ( EXECUTABLENAME GMultiCriterionParabola )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GMultiCriterionParabola
-	GMultiCriterionParabolaIndividual
+	GMultiCriterionParabola.cpp
+	GMultiCriterionParabolaIndividual.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

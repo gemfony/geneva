@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GPluggableOptimizationMonitors )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GPluggableOptimizationMonitors
+	GPluggableOptimizationMonitors.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

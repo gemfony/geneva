@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GDoubleBiGaussAdaptorTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GDoubleBiGaussAdaptorTest
+	GDoubleBiGaussAdaptorTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

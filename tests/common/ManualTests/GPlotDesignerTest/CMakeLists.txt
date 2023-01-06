@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GPlotDesignerTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GPlotDesignerTest
+	GPlotDesignerTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

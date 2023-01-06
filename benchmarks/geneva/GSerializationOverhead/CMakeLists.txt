@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GSerializationOverhead )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GSerializationOverhead
+	GSerializationOverhead.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

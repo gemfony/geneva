@@ -35,78 +35,78 @@
 ################################################################################
 
 SET ( OPTIMIZATIONSOURCES
-	G_Interface_Rateable
-	GAdaptorT
-	GBooleanAdaptor
-	GBooleanCollection
-	GBooleanObject
-	GBooleanObjectCollection
-	GConstrainedDoubleCollection
-	GConstrainedDoubleObject
-	GConstrainedDoubleObjectCollection
-	GConstrainedInt32Object
-	GConstrainedInt32ObjectCollection
-	GDoubleBiGaussAdaptor
-	GDoubleCollection
-	GDoubleGaussAdaptor
-	GDoubleObject
-	GDoubleObjectCollection
-	GenevaHelperFunctionsT
-	GenevaHelperFunctions
-	GenevaInitializer
-	GIndividualMultiConstraint
-	GIndividualStandardConsumers
-	GInt32Collection
-	GInt32FlipAdaptor
-	GInt32GaussAdaptor
-	GInt32Object
-	GInt32ObjectCollection
-	Go2
-    G_OptimizationAlgorithm_Base
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory
-    G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits
-    G_OptimizationAlgorithm_GradientDescent
-    G_OptimizationAlgorithm_GradientDescent_Factory
-    G_OptimizationAlgorithm_GradientDescent_PersonalityTraits
-    G_OptimizationAlgorithm_ParChild
-    G_OptimizationAlgorithm_ParChildT_PersonalityTraits
-    G_OptimizationAlgorithm_ParameterScan
-    G_OptimizationAlgorithm_ParameterScan_Factory
-    G_OptimizationAlgorithm_ParameterScan_PersonalityTraits
-    G_OptimizationAlgorithm_SimulatedAnnealing
-    G_OptimizationAlgorithm_SimulatedAnnealing_Factory
-    G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits
-    G_OptimizationAlgorithm_SwarmAlgorithm
-    G_OptimizationAlgorithm_SwarmAlgorithm_Factory
-    G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits
-    G_OA_ConjugateGradientDescent
-	GObject
-	GOptimizationEnums
-	GParameterBase
-	GParameterObjectCollection
-	GParameterPropertyParser
-	GParameterSet
-	GParameterSetFixedSizePriorityQueue
-	GParameterSetMultiConstraint
-	GPersonalityTraits
-    GPluggableOptimizationMonitors
-    GPostProcessorT
-	GTestIndividual1
+	G_Interface_Rateable.cpp
+	GAdaptorT.cpp
+	GBooleanAdaptor.cpp
+	GBooleanCollection.cpp
+	GBooleanObject.cpp
+	GBooleanObjectCollection.cpp
+	GConstrainedDoubleCollection.cpp
+	GConstrainedDoubleObject.cpp
+	GConstrainedDoubleObjectCollection.cpp
+	GConstrainedInt32Object.cpp
+	GConstrainedInt32ObjectCollection.cpp
+	GDoubleBiGaussAdaptor.cpp
+	GDoubleCollection.cpp
+	GDoubleGaussAdaptor.cpp
+	GDoubleObject.cpp
+	GDoubleObjectCollection.cpp
+	GenevaHelperFunctionsT.cpp
+	GenevaHelperFunctions.cpp
+	GenevaInitializer.cpp
+	GIndividualMultiConstraint.cpp
+	GIndividualStandardConsumers.cpp
+	GInt32Collection.cpp
+	GInt32FlipAdaptor.cpp
+	GInt32GaussAdaptor.cpp
+	GInt32Object.cpp
+	GInt32ObjectCollection.cpp
+	Go2.cpp
+    G_OptimizationAlgorithm_Base.cpp
+    G_OptimizationAlgorithm_EvolutionaryAlgorithm.cpp
+    G_OptimizationAlgorithm_EvolutionaryAlgorithm_Factory.cpp
+    G_OptimizationAlgorithm_EvolutionaryAlgorithm_PersonalityTraits.cpp
+    G_OptimizationAlgorithm_GradientDescent.cpp
+    G_OptimizationAlgorithm_GradientDescent_Factory.cpp
+    G_OptimizationAlgorithm_GradientDescent_PersonalityTraits.cpp
+    G_OptimizationAlgorithm_ParChild.cpp
+    G_OptimizationAlgorithm_ParChildT_PersonalityTraits.cpp
+    G_OptimizationAlgorithm_ParameterScan.cpp
+    G_OptimizationAlgorithm_ParameterScan_Factory.cpp
+    G_OptimizationAlgorithm_ParameterScan_PersonalityTraits.cpp
+    G_OptimizationAlgorithm_SimulatedAnnealing.cpp
+    G_OptimizationAlgorithm_SimulatedAnnealing_Factory.cpp
+    G_OptimizationAlgorithm_SimulatedAnnealing_PersonalityTraits.cpp
+    G_OptimizationAlgorithm_SwarmAlgorithm.cpp
+    G_OptimizationAlgorithm_SwarmAlgorithm_Factory.cpp
+    G_OptimizationAlgorithm_SwarmAlgorithm_PersonalityTraits.cpp
+    G_OA_ConjugateGradientDescent.cpp
+	GObject.cpp
+	GOptimizationEnums.cpp
+	GParameterBase.cpp
+	GParameterObjectCollection.cpp
+	GParameterPropertyParser.cpp
+	GParameterSet.cpp
+	GParameterSetFixedSizePriorityQueue.cpp
+	GParameterSetMultiConstraint.cpp
+	GPersonalityTraits.cpp
+    GPluggableOptimizationMonitors.cpp
+    GPostProcessorT.cpp
+	GTestIndividual1.cpp
 )
 
 # Add MPI specific files
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			GMPISubClientIndividual)
+			GMPISubClientIndividual.cpp)
 ENDIF()
 
 # Add MPI specific files
 IF(GENEVA_BUILD_WITH_MPI_CONSUMER)
 	SET(OPTIMIZATIONSOURCES
 			${OPTIMIZATIONSOURCES}
-			GMPISubClientOptimizer)
+			GMPISubClientOptimizer.cpp)
 ENDIF()
 
 # BUILD_SHARED_LIBS controls the behavior of ADD_LIBRARY if STATIC/SHARED omitted

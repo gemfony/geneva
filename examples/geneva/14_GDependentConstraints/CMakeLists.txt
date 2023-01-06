@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GDependentConstraints )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GDependentConstraints
+	GDependentConstraints.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

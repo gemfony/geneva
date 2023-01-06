@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GThreadPoolTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GThreadPoolTest
+	GThreadPoolTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

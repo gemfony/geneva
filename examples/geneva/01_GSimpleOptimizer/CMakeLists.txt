@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GSimpleOptimizer )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GSimpleOptimizer
+	GSimpleOptimizer.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
