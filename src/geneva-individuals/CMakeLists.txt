@@ -35,14 +35,14 @@
 ################################################################################
 
 SET ( SAMPLEINDIVIDUALSOURCES
-    GDelayIndividual
-	GExternalEvaluatorIndividual
-	GFunctionIndividual
-	GLineFitIndividual
-	GMetaOptimizerIndividualT
-	GNeuralNetworkIndividual
-	GTestIndividual2
-	GTestIndividual3
+    GDelayIndividual.cpp
+	GExternalEvaluatorIndividual.cpp
+	GFunctionIndividual.cpp
+	GLineFitIndividual.cpp
+	GMetaOptimizerIndividualT.cpp
+	GNeuralNetworkIndividual.cpp
+	GTestIndividual2.cpp
+	GTestIndividual3.cpp
 )
 
 set_source_files_properties(

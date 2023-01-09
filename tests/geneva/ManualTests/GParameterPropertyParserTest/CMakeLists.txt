@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GParameterPropertyParserTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GParameterPropertyParserTest
+	GParameterPropertyParserTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

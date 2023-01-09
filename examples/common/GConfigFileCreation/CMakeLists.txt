@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GConfigFileCreation )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GConfigFileCreation
+	GConfigFileCreation.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

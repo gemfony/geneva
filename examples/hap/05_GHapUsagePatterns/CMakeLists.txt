@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GHapUsagePatterns )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GHapUsagePatterns
+	GHapUsagePatterns.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

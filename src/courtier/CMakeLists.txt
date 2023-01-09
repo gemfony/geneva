@@ -35,9 +35,9 @@
 ################################################################################
 
 SET(COMMUNICATIONSOURCES
-        GCourtierHelperFunctions
-        GCourtierEnums
-        GDemoProcessingContainers
+        GCourtierHelperFunctions.cpp
+        GCourtierEnums.cpp
+        GDemoProcessingContainers.cpp
         )
 
 # MPI-consumer is optional, only build it when requested

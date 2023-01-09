@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GConstrainedFPTTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GConstrainedFPTTest
+	GConstrainedFPTTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

@@ -3,7 +3,7 @@
 
 Recommended versions:
 - Boost version 1.70 or higher is required, 1.72 is recommended
-- CMake version 3.10 or higher is required
+- CMake version 3.20 or higher is required
 - GCC is recommended to be at least version 8. Earlier versions
   might work if C++17 is sufficiently supported
 

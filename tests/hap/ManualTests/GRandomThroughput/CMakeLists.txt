@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GRandomThroughput )
 
 SET ( ${EXECUTABLENAME}_SRCS
-    GRandomThroughput
+    GRandomThroughput.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

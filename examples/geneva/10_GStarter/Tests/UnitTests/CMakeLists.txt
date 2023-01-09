@@ -37,8 +37,8 @@
 SET ( EXECUTABLENAME GStarterIndividualUnitTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GStarterIndividualUnitTests
-	../../GStarterIndividual
+	GStarterIndividualUnitTests.cpp
+	../../GStarterIndividual.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

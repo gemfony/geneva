@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GConstrainedIntegerTTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GConstrainedIntegerTTest
+	GConstrainedIntegerTTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

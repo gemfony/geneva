@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GNeuralNetwork )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GNeuralNetwork
+	GNeuralNetwork.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

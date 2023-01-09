@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GHelperFunctionsTest )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GHelperFunctionsTest
+	GHelperFunctionsTest.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

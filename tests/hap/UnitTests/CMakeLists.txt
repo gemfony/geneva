@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME GHapStandardTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
-    GHapStandardTests
+    GHapStandardTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

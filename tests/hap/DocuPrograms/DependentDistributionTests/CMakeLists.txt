@@ -52,7 +52,7 @@ ENDIF ()
 SET ( EXECUTABLENAME DependentDistributionTests )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	DependentDistributionTests
+	DependentDistributionTests.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
