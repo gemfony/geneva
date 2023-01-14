@@ -52,8 +52,8 @@ ENDIF ()
 SET ( EXECUTABLENAME GMPISubClients )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GMPISubClients
-	GMPISubClientParaboloidIndividualMultiD
+	GMPISubClients.cpp
+	GMPISubClientParaboloidIndividualMultiD.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
