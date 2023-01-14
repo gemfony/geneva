@@ -52,7 +52,7 @@ ENDIF ()
 SET(EXECUTABLENAME GMPIConsumer)
 
 SET(${EXECUTABLENAME}_SRCS
-        GMPIConsumer
+        GMPIConsumer.cpp
         )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}
