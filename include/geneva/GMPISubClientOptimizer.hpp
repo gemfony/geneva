@@ -42,6 +42,7 @@
 #include "common/GGlobalDefines.hpp"
 
 // Standard header files go here
+#include <optional>
 
 // Boost header files go here
 
