@@ -45,6 +45,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <optional>
 
 // Boost header files go here
 

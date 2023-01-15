@@ -51,6 +51,7 @@
 #include <mutex>
 #include <thread>
 #include <array>
+#include <optional>
 
 // Boost headers go here
 #include <boost/enable_shared_from_this.hpp>
