@@ -102,7 +102,7 @@ elif [ $# -eq 1 ]; then
 		echo "Variable BUILDEXAMPLES wasn't set. Setting to default value '${BUILDEXAMPLES}'"
 	fi
 
-  if [ -z "${BUILDBENCHMARKS}" ]; then
+    if [ -z "${BUILDBENCHMARKS}" ]; then
 		BUILDBENCHMARKS="1"
 		echo "Variable BUILDBENCHMARKS wasn't set. Setting to default value '${BUILDBENCHMARKS}'"
 	fi
@@ -123,9 +123,9 @@ elif [ $# -eq 1 ]; then
 	fi
 
 	if [ -z "${BUILDMPICONSUMER}" ]; then
-  	BUILDMPICONSUMER="1"
-  	echo "Variable BUILDMPICONSUMER wasn't set. Setting to default value '${BUILDMPICONSUMER}'"
-  fi
+      BUILDMPICONSUMER="1"
+      echo "Variable BUILDMPICONSUMER wasn't set. Setting to default value '${BUILDMPICONSUMER}'"
+    fi
 
 	if [ -z "${BUILDOPENCLEXAMPLES}" ]; then
 		BUILDOPENCLEXAMPLES="0"

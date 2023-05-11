@@ -58,14 +58,13 @@
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "cl.hpp" // Use the file in our local directory -- cl.hpp is not delivered by default on MacOS X
 #else
-#include <CL/cl.hpp>
+#include <CL/opencl.hpp>
 #endif
 
 // Geneva header files go here
 #include "common/GCanvas.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 typedef std::tuple<float,float,float> COLORTYPE;
 
@@ -94,34 +93,34 @@ public:
    /** @brief The default constructor */
    GOpenCLCanvas();
    /** @brief Initialization with dimensions and colors */
-   GOpenCLCanvas(
+   [[maybe_unused]] explicit GOpenCLCanvas(
          const std::tuple<std::size_t, std::size_t>&
          , const std::tuple<float,float,float>& = COLORTYPE(0.f, 0.f, 0.f)
    );
    /** @brief Initialization from data held in a string -- uses the PPM-P3 format */
-   GOpenCLCanvas(const std::string&);
+   [[maybe_unused]] explicit GOpenCLCanvas(const std::string&);
    /** @brief Copy construction */
    GOpenCLCanvas(const GOpenCLCanvas&);
    /** @brief The destructor */
-   virtual ~GOpenCLCanvas();
+   ~GOpenCLCanvas() override;
 
    /** @brief Find out the deviation between this and another canvas */
-   virtual float diff(const GOpenCLCanvas&) const;
+   [[nodiscard]] virtual float diff(const GOpenCLCanvas&) const;
 
    /** @brief Emits the canvas data suitable for transfer to an OpenCL context (char-representation) */
-   std::tuple<std::shared_ptr<cl_uchar>, std::size_t> getOpenCLCanvasI() const;
+   [[maybe_unused]] [[nodiscard]] std::tuple<std::shared_ptr<cl_uchar>, std::size_t> getOpenCLCanvasI() const;
    /** @brief Loads the canvas data from a cl_uchar array */
-   void loadFromOpenCLArrayI(const std::tuple<std::shared_ptr<cl_uchar>, std::size_t>&);
+   [[maybe_unused]] void loadFromOpenCLArrayI(const std::tuple<std::shared_ptr<cl_uchar>, std::size_t>&);
 
    /** @brief Emits the canvas data suitable for transfer to an OpenCL context (cl_float-representation) */
-   std::tuple<std::shared_ptr<cl_float>, std::size_t> getOpenCLCanvasF() const;
+   [[nodiscard]] std::tuple<std::shared_ptr<cl_float>, std::size_t> getOpenCLCanvasF() const;
    /** @brief Loads the canvas data from a cl_float array */
-   void loadFromOpenCLArrayF(const std::tuple<std::shared_ptr<cl_float>, std::size_t>&);
+   [[maybe_unused]] void loadFromOpenCLArrayF(const std::tuple<std::shared_ptr<cl_float>, std::size_t>&);
 
    /** @brief Emits the canvas data suitable for transfer to an OpenCL context (cl_float4-representation) */
-   std::tuple<std::shared_ptr<cl_float4>, std::size_t> getOpenCLCanvasF4() const;
+   [[maybe_unused]] [[nodiscard]] auto getOpenCLCanvasF4() const;
    /** @brief Loads the canvas data from a cl_float4 array */
-   void loadFromOpenCLArrayF4(const std::tuple<std::shared_ptr<cl_float4>, std::size_t>&);
+   [[maybe_unused]] void loadFromOpenCLArrayF4(const std::tuple<std::shared_ptr<cl_float4>, std::size_t>&);
 };
 
 /** @brief Convenience function for the calculation of the difference between two canvasses */
@@ -131,8 +130,7 @@ float operator-(const GOpenCLCanvas&, const GOpenCLCanvas&);
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 BOOST_CLASS_EXPORT_KEY(Gem::Geneva::GOpenCLCanvas);
 

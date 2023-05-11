@@ -83,8 +83,7 @@
 #include "common/GCommonMathHelperFunctionsT.hpp"
 #include "common/GCanvas.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 const std::size_t GII_DEF_NTRIANGLES = std::size_t(300);
 const double GII_DEF_STARTSIZE = 0.;
@@ -153,7 +152,7 @@ public:
 	 /** @brief A standard copy constructor */
 	 GImageIndividual(const GImageIndividual&);
 	 /** @brief The standard destructor */
-	 virtual ~GImageIndividual();
+	 ~GImageIndividual() override;
 
 	 /** @brief Fills the object with parameters */
 	 void init(
@@ -185,19 +184,12 @@ public:
 		 , const double& loc_maxAdProb
 	 );
 
-	 /** @brief Searches for compliance with expectations with respect to another object of the same type */
-	 virtual void compare(
-		 const GObject&
-		 , const Gem::Common::expectation&
-		 , const double&
-	 ) const override;
-
 	 /** @brief Retrieves the number of triangles */
 	 std::size_t getNTriangles() const;
 	 /** @brief Retrieves an array with the triangle data, using the circular triangle definition */
 	 std::vector<Gem::Common::t_circle> getTriangleData() const;
 	 /** @brief Retrieves the background colors */
-	 std::tuple<float,float,float> getBackGroundColor() const;
+     std::tuple<float,float,float> getBackGroundColor() const;
 
 	 /** @brief Converts the triangle data into a GCanvas object */
 	 std::shared_ptr<Gem::Common::GCanvas<GII_DEF_COLORDEPTH> > toCanvas(const std::tuple<std::size_t, std::size_t>&) const;
@@ -211,6 +203,18 @@ public:
 
 protected:
 	 /******************************************************************************/
+    /** @brief Allow access to this classes compare_ function */
+    friend void Gem::Common::compare_base_t<GImageIndividual>(
+      GImageIndividual const &
+        , GImageIndividual const &
+        , Gem::Common::GToken &);
+
+     /** @brief Searches for compliance with expectations with respect to another object of the same type */
+     virtual void compare_(
+          const GObject&
+          , const Gem::Common::expectation&
+          , const double&) const final;
+
 	 /** @brief Loads the data of another GImageIndividual */
 	 virtual void load_(const GObject*) override;
 
@@ -228,13 +232,13 @@ private:
 	 std::size_t nTriangles_; ///< The number of triangles
 	 bool alphaSort_; ///< Indicates whether triangles should be sorted according to their alpha channel
 
-public:
+protected:
 	 /** @brief Applies modifications to this object. */
-	 virtual bool modify_GUnitTests() override;
+     bool modify_GUnitTests_() override;
 	 /** @brief Performs self tests that are expected to succeed. */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override;
+     void specificTestsNoFailureExpected_GUnitTests_() override;
 	 /** @brief Performs self tests that are expected to fail. */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override;
+     void specificTestsFailuresExpected_GUnitTests_() override;
 };
 
 /******************************************************************************/
@@ -260,7 +264,7 @@ public:
 	 double getAdProb() const;
 	 double getAdaptAdProb() const;
 	 void setAdaptAdProb(double adaptAdProb);
-	 std::tuple<double,double> getAdProbRange() const;
+	 auto getAdProbRange() const;
 	 void setAdProbRange(double minAdProb, double maxAdProb);
 	 double getMaxSigma() const;
 	 double getMinSigma() const;
@@ -270,7 +274,7 @@ public:
 	 double getLocAdProb() const;
 	 double getLocAdaptAdProb() const;
 	 void setLocAdaptAdProb(double loc_adaptAdProb);
-	 std::tuple<double,double> getLocAdProbRange() const;
+	 auto getLocAdProbRange() const;
 	 void setLocAdProbRange(double minLocAdProb, double maxLocAdProb);
 	 double getLocMinSigma() const;
 	 double getLocMaxSigma() const;
@@ -328,8 +332,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 
 #ifdef GEM_TESTING
 

@@ -52,8 +52,7 @@
 #include "geneva/GPluggableOptimizationMonitors.hpp"
 #include "GImageIndividual.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -115,54 +114,13 @@ public:
 	  *
 	  * @param cp A copy of another GImagePOM object
 	  */
-	 GImagePOM(const GImagePOM& cp)
-		 : GBasePluggableOM(cp)
-			, resultImageDirectory_(cp.resultImageDirectory_)
-			, dimX_(cp.dimX_)
-			, dimY_(cp.dimY_)
-			, emitBestOnly_(cp.emitBestOnly_)
-	 { /* nothing */ }
+	 GImagePOM(const GImagePOM& cp) = default;
 
 	 /***************************************************************************/
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GImagePOM()
-	 { /* nothing */ }
-
-	 /***************************************************************************/
-	 /**
-	  * Searches for compliance with expectations with respect to another object
-	  * of the same type
-	  *
-	  * @param cp A constant reference to another GObject object
-	  * @param e The expected outcome of the comparison
-	  * @param limit The maximum deviation for floating point values (important for similarity checks)
-	  */
-	 virtual void compare(
-		 const GObject& cp
-		 , const Gem::Common::expectation& e
-		 , const double& limit
-	 ) const override {
-		 using namespace Gem::Common;
-
-		 // Check that we are dealing with a GImagePOM reference independent of this object and convert the pointer
-		 const GImagePOM *p_load = Gem::Common::g_convert_and_compare(cp, this);
-
-		 GToken token("GImagePOM", e);
-
-		 // Compare our parent data ...
-		 Gem::Common::compare_base<GBasePluggableOM>(IDENTITY(*this, *p_load), token);
-
-		 // ... and then our local data
-		 compare_t(IDENTITY(resultImageDirectory_, p_load->resultImageDirectory_), token);
-		 compare_t(IDENTITY(dimX_, p_load->dimX_), token);
-		 compare_t(IDENTITY(dimY_, p_load->dimY_), token);
-		 compare_t(IDENTITY(emitBestOnly_, p_load->emitBestOnly_), token);
-
-		 // React on deviations from the expectation
-		 token.evaluate();
-	 }
+	 ~GImagePOM() override = default;
 
 	 /***************************************************************************/
 	 /**
@@ -180,7 +138,7 @@ public:
 	 /**
 	  * Returns the dimensions used to store result images
 	  */
-	 auto getImageDimensions() const {
+     [[maybe_unused]] [[nodiscard]] auto getImageDimensions() const {
 		 return std::tuple<std::size_t, std::size_t>{dimX_, dimY_};
 	 }
 
@@ -188,7 +146,7 @@ public:
 	 /**
 	  * Allows to specify whether only images for improved iterations should be emitted
 	  */
-	 void setEmitBestOnly(const bool& emitBestOnly) {
+     [[maybe_unused]] void setEmitBestOnly(const bool& emitBestOnly) {
 		 emitBestOnly_ = emitBestOnly;
 	 }
 
@@ -196,68 +154,8 @@ public:
 	 /**
 	  * Allows to check whether only images for improved iterations should be emitted
 	  */
-	 bool getEmitBestOnly() const {
+     [[maybe_unused]] [[nodiscard]] bool getEmitBestOnly() const {
 		 return emitBestOnly_;
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Allows to emit information in different stages of the information cycle
-	  * (initialization, during each cycle and during finalization)
-	  */
-	 virtual void informationFunction(
-		 const infoMode& im
-		 , G_OptimizationAlgorithm_Base * const goa
-	 ) override {
-		 switch(im) {
-			 case Gem::Geneva::infoMode::INFOINIT:
-			 {
-				 // Check that the target directory for result files exists. If not, try to create it.
-				 if(!boost::filesystem::exists(boost::filesystem::path(resultImageDirectory_))) {
-					 if(!boost::filesystem::create_directory(boost::filesystem::path(resultImageDirectory_))) {
-						 throw gemfony_exception(
-							 g_error_streamer(DO_LOG,  time_and_place)
-								 << "Error: could not create directory " << resultImageDirectory_ << std::endl
-						 );
-					 }
-				 } else { // Check that resultImageDirectory_ is indeed a directory and not a file
-					 if(!boost::filesystem::is_directory(boost::filesystem::path(resultImageDirectory_))) {
-						 throw gemfony_exception(
-							 g_error_streamer(DO_LOG,  time_and_place)
-								 << "Error: " << resultImageDirectory_ << " is not a directory" << std::endl
-						 );
-					 }
-				 }
-			 }
-				 break;
-
-			 case Gem::Geneva::infoMode::INFOPROCESSING:
-			 {
-				 // Trigger output of a result picture
-				 if(!emitBestOnly_ || (emitBestOnly_ && goa->progress())) {
-					 // TODO: We assume that access to dimX_/dimY_ and resultImageDirectory_ is read-only
-					 // (i.e. no entity writes to these quantities during an optimization run). Hence we
-					 // do not currently protect these resouces. This should be changed.
-					 std::async(
-						 [&]() {
-							 goa->G_Interface_OptimizerT::getBestIterationIndividual<GImageIndividual>()->writeImage(
-								 "image"
-								 , resultImageDirectory_
-								 , std::tuple<std::size_t, std::size_t>(
-									 dimX_
-									 , dimY_
-								 )
-							 );
-						 }
-					 );
-				 }
-			 }
-				 break;
-
-			 case Gem::Geneva::infoMode::INFOEND:
-				 // nothing
-				 break;
-		 };
 	 }
 
 protected:
@@ -267,7 +165,7 @@ protected:
 	  *
 	  * cp A pointer to another GCollectiveMonitorT<ind_type> object, camouflaged as a GObject
 	  */
-	 virtual void load_(const GObject* cp) override {
+	 void load_(const GObject* cp) override {
 		 // Check that we are dealing with a GImagePOM reference independent of this object and convert the pointer
 		 const GImagePOM *p_load = Gem::Common::g_convert_and_compare(cp, this);
 
@@ -281,20 +179,113 @@ protected:
 		 this->emitBestOnly_ = p_load->emitBestOnly_;
 	 }
 
+     /** @brief Allow access to this classes compare_ function */
+     friend void Gem::Common::compare_base_t<GImagePOM>(
+           GImagePOM const &
+         , GImagePOM const &
+         , Gem::Common::GToken &);
+
+     /** @brief Searches for compliance with expectations with respect to another object of the same type */
+     void compare_(
+         const GObject& cp
+         , const Gem::Common::expectation& e
+         , const double& limit) const final {
+         using namespace Gem::Common;
+
+         // Check that we are dealing with a GImagePOM reference independent of this object and convert the pointer
+         const GImagePOM *p_load = Gem::Common::g_convert_and_compare(cp, this);
+
+         GToken token("GImagePOM", e);
+
+         // Compare our parent data ...
+         Gem::Common::compare_base_t<Gem::Geneva::GBasePluggableOM>(*this, *p_load, token);
+
+         // ... and then our local data
+         compare_t(IDENTITY(resultImageDirectory_, p_load->resultImageDirectory_), token);
+         compare_t(IDENTITY(dimX_, p_load->dimX_), token);
+         compare_t(IDENTITY(dimY_, p_load->dimY_), token);
+         compare_t(IDENTITY(emitBestOnly_, p_load->emitBestOnly_), token);
+
+         // React on deviations from the expectation
+         token.evaluate();
+     }
+
+     /***************************************************************************/
+     /**
+	  * Applies modifications to this object. This is needed for testing purposes
+	  *
+	  * @return A boolean which indicates whether modifications were made
+      */
+     bool modify_GUnitTests_() override {
+#ifdef GEM_TESTING
+         using boost::unit_test_framework::test_suite;
+         using boost::unit_test_framework::test_case;
+
+         bool result = false;
+
+         // Call the parent classes' functions
+         if(GBasePluggableOM::modify_GUnitTests()) {
+           result = true;
+         }
+
+         // no local data -- nothing to change
+
+         return result;
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+         condnotset("GImagePOM::modify_GUnitTests", "GEM_TESTING");
+         return false;
+#endif /* GEM_TESTING */
+     }
+
+     /***************************************************************************/
+     /**
+	  * Performs self tests that are expected to succeed. This is needed for testing purposes
+      */
+     void specificTestsNoFailureExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+         using boost::unit_test_framework::test_suite;
+         using boost::unit_test_framework::test_case;
+
+         // Call the parent classes' functions
+         GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+         condnotset("GImagePOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+     }
+
+     /***************************************************************************/
+     /**
+	  * Performs self tests that are expected to fail. This is needed for testing purposes
+      */
+     void specificTestsFailuresExpected_GUnitTests_() override {
+#ifdef GEM_TESTING
+         using boost::unit_test_framework::test_suite;
+         using boost::unit_test_framework::test_case;
+
+         // Call the parent classes' functions
+         GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
+
+#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
+         condnotset("GImagePOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
+#endif /* GEM_TESTING */
+     }
+     /***************************************************************************/
+
 private:
 	 /***************************************************************************/
 	 /**
 	  * Emits a name for this class / object
 	  */
-	 virtual std::string name_() const override {
-		 return std::string("GImagePOM");
+	 [[nodiscard]] std::string name_() const override {
+		 return {"GImagePOM"};
 	 }
 
 	 /************************************************************************/
 	 /**
 	  * Creates a deep clone of this object
 	  */
-	 virtual GObject* clone_() const override {
+	 [[nodiscard]] GObject* clone_() const override {
 		 return new GImagePOM(*this);
 	 }
 
@@ -306,7 +297,67 @@ private:
 	 GImagePOM()
 	 { /* nothing */ }
 
-	 /***************************************************************************/
+     /***************************************************************************/
+     /**
+      * Allows to emit information in different stages of the information cycle
+	  * (initialization, during each cycle and during finalization)
+      */
+     void informationFunction_(
+         infoMode im
+         , G_OptimizationAlgorithm_Base const * const goa
+         ) override {
+             switch(im) {
+             case Gem::Geneva::infoMode::INFOINIT:
+             {
+               // Check that the target directory for result files exists. If not, try to create it.
+               if(!boost::filesystem::exists(boost::filesystem::path(resultImageDirectory_))) {
+                 if(!boost::filesystem::create_directory(boost::filesystem::path(resultImageDirectory_))) {
+                   throw gemfony_exception(
+                       g_error_streamer(DO_LOG,  time_and_place)
+                       << "Error: could not create directory " << resultImageDirectory_ << std::endl
+                   );
+                 }
+               } else { // Check that resultImageDirectory_ is indeed a directory and not a file
+                 if(!boost::filesystem::is_directory(boost::filesystem::path(resultImageDirectory_))) {
+                   throw gemfony_exception(
+                       g_error_streamer(DO_LOG,  time_and_place)
+                       << "Error: " << resultImageDirectory_ << " is not a directory" << std::endl
+                   );
+                 }
+               }
+             }
+             break;
+
+             case Gem::Geneva::infoMode::INFOPROCESSING:
+             {
+               // Trigger output of a result picture
+               if(!emitBestOnly_ || (emitBestOnly_ && goa->progress())) {
+                 // TODO: We assume that access to dimX_/dimY_ and resultImageDirectory_ is read-only
+                 // (i.e. no entity writes to these quantities during an optimization run). Hence we
+                 // do not currently protect these resources. This should be changed.
+                 std::async(
+                     [&]() {
+                       goa->G_Interface_OptimizerT::getBestIterationIndividual<GImageIndividual>()->writeImage(
+                           "image"
+                           , resultImageDirectory_
+                           , std::tuple<std::size_t, std::size_t>(
+                               dimX_
+                               , dimY_
+                               )
+                       );
+                     }
+                 );
+               }
+             }
+             break;
+
+             case Gem::Geneva::infoMode::INFOEND:
+               // nothing
+               break;
+             };
+     }
+
+     /***************************************************************************/
 	 /**
 	  * Adds a slash to the end of the path if necessary
 	  */
@@ -322,75 +373,11 @@ private:
 	 std::size_t dimX_ = DEFAULTXDIMPROGRESS;
 	 std::size_t dimY_ = DEFAULTYDIMPROGRESS; ///< The dimensions of the candidate image written to disk
 	 bool emitBestOnly_ = true; ///< Indicates whether images should only be written for improved iterations
-
-public:
-	 /***************************************************************************/
-	 /**
-	  * Applies modifications to this object. This is needed for testing purposes
-	  *
-	  * @return A boolean which indicates whether modifications were made
-	  */
-	 virtual bool modify_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 bool result = false;
-
-		 // Call the parent classes' functions
-		 if(GBasePluggableOM::modify_GUnitTests()) {
-			 result = true;
-		 }
-
-		 // no local data -- nothing to change
-
-		 return result;
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GImagePOM::modify_GUnitTests", "GEM_TESTING");
-		return false;
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to succeed. This is needed for testing purposes
-	  */
-	 virtual void specificTestsNoFailureExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 // Call the parent classes' functions
-		 GBasePluggableOM::specificTestsNoFailureExpected_GUnitTests();
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GImagePOM::specificTestsNoFailureExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-
-	 /***************************************************************************/
-	 /**
-	  * Performs self tests that are expected to fail. This is needed for testing purposes
-	  */
-	 virtual void specificTestsFailuresExpected_GUnitTests() override {
-#ifdef GEM_TESTING
-		 using boost::unit_test_framework::test_suite;
-		 using boost::unit_test_framework::test_case;
-
-		 // Call the parent classes' functions
-		 GBasePluggableOM::specificTestsFailuresExpected_GUnitTests();
-
-#else /* GEM_TESTING */  // If this function is called when GEM_TESTING isn't set, throw
-		 condnotset("GImagePOM::specificTestsFailuresExpected_GUnitTests", "GEM_TESTING");
-#endif /* GEM_TESTING */
-	 }
-	 /***************************************************************************/
 };
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

@@ -52,10 +52,10 @@ ENDIF ()
 SET ( EXECUTABLENAME GOpenCLConsumer )
 
 SET ( ${EXECUTABLENAME}_SRCS
-	GImageBuilder
-    GImageIndividual
-    GImageOpenCLWorker
-    GOpenCLCanvas
+	GImageBuilder.cpp
+    GImageIndividual.cpp
+    GImageOpenCLWorker.cpp
+    GOpenCLCanvas.cpp
 )
 
 ADD_EXECUTABLE(${EXECUTABLENAME}

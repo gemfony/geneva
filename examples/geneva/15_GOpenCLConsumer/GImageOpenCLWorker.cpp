@@ -40,8 +40,7 @@
 
 #include "GImageOpenCLWorker.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 /**
@@ -161,8 +160,8 @@ GImageOpenCLWorker::GImageOpenCLWorker(
 	, const std::string& configFile
 )
 	: Gem::Courtier::GOpenCLWorkerT<GParameterSet>(device, configFile)
-	  , global_results_((cl_float *)NULL)
-	  , circle_triangles_((t_ocl_circle *)NULL)
+      , global_results_(nullptr)
+	  , circle_triangles_(nullptr)
 	  , imageFile_()
 	  , targetCanvas_()
 	  , dimX_(0), dimY_(0)
@@ -190,12 +189,10 @@ GImageOpenCLWorker::GImageOpenCLWorker(
  */
 GImageOpenCLWorker::GImageOpenCLWorker(
 	const GImageOpenCLWorker& cp
-	, const std::size_t& thread_id
-	, const Gem::Courtier::GStdThreadConsumerT<GParameterSet> *c_ptr
 )
-	: Gem::Courtier::GOpenCLWorkerT<GParameterSet>(cp, thread_id, c_ptr)
-	  , global_results_((cl_float *)NULL)
-	  , circle_triangles_((t_ocl_circle *)NULL)
+	: Gem::Courtier::GOpenCLWorkerT<GParameterSet>(cp)
+	  , global_results_(nullptr)
+	  , circle_triangles_(nullptr)
 	  , imageFile_(cp.imageFile_)
 	  , targetCanvas_(cp.targetCanvas_)
 	  , dimX_(cp.dimX_), dimY_(cp.dimY_)
@@ -221,22 +218,9 @@ GImageOpenCLWorker::~GImageOpenCLWorker()
 /**
  * Creates a deep clone of this object, camouflaged as a GWorker
  */
-std::shared_ptr<Gem::Courtier::GStdThreadConsumerT<GParameterSet>::GWorker>
-GImageOpenCLWorker::clone (
-	const std::size_t& thread_id
-	, const Gem::Courtier::GStdThreadConsumerT<GParameterSet> *outer
-) const {
-#ifdef DEBUG
-	if(!outer) {
-		throw gemfony_exception(
-			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GImageOpenCLWorker::clone(): Error!" << std::endl
-				<< "Got empty outer pointer!" << std::endl
-		);
-	}
-#endif /* DEBUG */
-
-	return std::shared_ptr<GImageOpenCLWorker>(new GImageOpenCLWorker(*this, thread_id, outer));
+std::shared_ptr<Gem::Courtier::GWorkerT<GParameterSet>>
+GImageOpenCLWorker::clone_() const {
+	return std::shared_ptr<GImageOpenCLWorker>(new GImageOpenCLWorker(*this));
 }
 
 
@@ -253,7 +237,7 @@ void GImageOpenCLWorker::initOpenCL(std::shared_ptr<GParameterSet> p) {
 	if(!p) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GImageConsumer::GOpenCLWorker : Error!" << std::endl
+				<< "In GImageOpenCLWorker::initOpenCL() : Error!" << std::endl
 				<< "p is empty" << std::endl
 		);
 	}
@@ -262,7 +246,7 @@ void GImageOpenCLWorker::initOpenCL(std::shared_ptr<GParameterSet> p) {
 	if(!p_conv) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
-				<< "In GImageConsumer::process(): Error!" << std::endl
+				<< "In GImageOpenCLWorker::initOpenCL(): Error!" << std::endl
 				<< "Conversion failed" << std::endl
 		);
 	}
@@ -281,7 +265,7 @@ void GImageOpenCLWorker::initOpenCL(std::shared_ptr<GParameterSet> p) {
 
 	// Initialize buffers and load the target image to "our" device
 	target_image_buffer_ = cl::Image2D(
-		context_
+		Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_context
 		, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR // This will copy the data in the host_ptr
 		, cl::ImageFormat(CL_RGBA, CL_FLOAT)
 		, dimX_, dimY_
@@ -290,15 +274,15 @@ void GImageOpenCLWorker::initOpenCL(std::shared_ptr<GParameterSet> p) {
 	);
 
 	candidate_image_buffer_ = cl::Image2D(
-		context_
+		Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_context
 		, CL_MEM_READ_WRITE
 		, cl::ImageFormat(CL_RGBA, CL_FLOAT) // alpha will be 1.f or 255
 		, dimX_, dimY_
 	);
 
-	global_results_buffer_ = cl::Buffer(context_, CL_MEM_WRITE_ONLY, nWorkGroups_*sizeof(cl_float));
-	circ_triangle_buffer_  = cl::Buffer(context_, CL_MEM_READ_ONLY,  nTriangles_*sizeof(t_ocl_circle)); // A host-ptr will be copied later
-	cart_triangle_buffer_  = cl::Buffer(context_, CL_MEM_READ_WRITE, nTriangles_*sizeof(t_ocl_cart));
+	global_results_buffer_ = cl::Buffer(Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_context, CL_MEM_WRITE_ONLY, nWorkGroups_*sizeof(cl_float));
+	circ_triangle_buffer_  = cl::Buffer(Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_context, CL_MEM_READ_ONLY,  nTriangles_*sizeof(t_ocl_circle)); // A host-ptr will be copied later
+	cart_triangle_buffer_  = cl::Buffer(Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_context, CL_MEM_READ_WRITE, nTriangles_*sizeof(t_ocl_cart));
 }
 
 /******************************************************************************/
@@ -306,9 +290,9 @@ void GImageOpenCLWorker::initOpenCL(std::shared_ptr<GParameterSet> p) {
  * Initialization of kernel objects
  */
 void GImageOpenCLWorker::initKernels(std::shared_ptr<GParameterSet> p) {
-	tr_transcode_kernel_ = cl::Kernel(program_, "monalisa_triangle_transcode");
-	candidate_creator_kernel_ = cl::Kernel(program_, "monalisa_candidate_creator");
-	candidate_deviation_kernel_ = cl::Kernel(program_, "monalisa_candidate_deviation");
+	tr_transcode_kernel_ = cl::Kernel(Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_program, "monalisa_triangle_transcode");
+	candidate_creator_kernel_ = cl::Kernel(Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_program, "monalisa_candidate_creator");
+	candidate_deviation_kernel_ = cl::Kernel(Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_program, "monalisa_candidate_deviation");
 }
 
 /******************************************************************************/
@@ -346,7 +330,7 @@ std::vector<double> GImageOpenCLWorker::openCLCalc(std::shared_ptr<GImageIndivid
 	}
 
 	// Transfer the triangle array to the device
-	queue_.enqueueWriteBuffer(circ_triangle_buffer_, CL_TRUE, 0, sizeof(t_ocl_circle) * nTriangles_, (void *)circle_triangles_);
+	Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_queue.enqueueWriteBuffer(circ_triangle_buffer_, CL_TRUE, 0, sizeof(t_ocl_circle) * nTriangles_, (void *)circle_triangles_);
 
 	//set the arguments of our kernel
 	tr_transcode_kernel_.setArg(0, circ_triangle_buffer_);
@@ -355,14 +339,14 @@ std::vector<double> GImageOpenCLWorker::openCLCalc(std::shared_ptr<GImageIndivid
 	// Execute the kernel and wait for its termination
 	{ // Compare e.g. https://bbs.archlinux.org/viewtopic.php?id=138292 . Could this be due to the profiling option of the queue ?
 		cl::Event event;
-		queue_.enqueueNDRangeKernel(tr_transcode_kernel_, cl::NullRange, cl::NDRange(nTriangles_), cl::NullRange, NULL, &event);
+        Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_queue.enqueueNDRangeKernel(tr_transcode_kernel_, cl::NullRange, cl::NDRange(nTriangles_), cl::NullRange, NULL, &event);
 		event.wait();
 	}
 
 	//---------------------------------------------------------------------------------------------
 	// Run the candidate creator kernel
 
-	std::tuple<float,float,float> bgcol = p_conv->getBackGroundColor();
+	auto bgcol = p_conv->getBackGroundColor();
 	cl_float4 oclBgCol;
 	oclBgCol.s[0] = std::get<0>(bgcol);
 	oclBgCol.s[1] = std::get<1>(bgcol);
@@ -376,7 +360,7 @@ std::vector<double> GImageOpenCLWorker::openCLCalc(std::shared_ptr<GImageIndivid
 	// Start the actual execution
 	{
 		cl::Event event;
-		queue_.enqueueNDRangeKernel(candidate_creator_kernel_, cl::NullRange, cl::NDRange(dimX_, dimY_), cl::NullRange, NULL, &event);
+        Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_queue.enqueueNDRangeKernel(candidate_creator_kernel_, cl::NullRange, cl::NDRange(dimX_, dimY_), cl::NullRange, NULL, &event);
 		event.wait();
 	}
 
@@ -390,12 +374,12 @@ std::vector<double> GImageOpenCLWorker::openCLCalc(std::shared_ptr<GImageIndivid
 	// Start the actual execution
 	{
 		cl::Event event;
-		queue_.enqueueNDRangeKernel(candidate_deviation_kernel_, cl::NullRange, cl::NDRange(targetSize_), cl::NDRange(workGroupSize_), NULL, &event);
+        Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_queue.enqueueNDRangeKernel(candidate_deviation_kernel_, cl::NullRange, cl::NDRange(targetSize_), cl::NDRange(m_workGroupSize), NULL, &event);
 		event.wait();
 	}
 
 	// Retrieve the results buffer
-	queue_.enqueueReadBuffer(global_results_buffer_, CL_TRUE, 0, nWorkGroups_*sizeof(cl_float), global_results_);
+    Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_queue.enqueueReadBuffer(global_results_buffer_, CL_TRUE, 0, nWorkGroups_*sizeof(cl_float), global_results_);
 	for(int i=0; i<nWorkGroups_; i++) {
 		result += global_results_[i];
 	}
@@ -419,7 +403,7 @@ std::vector<double> GImageOpenCLWorker::cpuCalc(std::shared_ptr<GImageIndividual
 /**
  * The actual per-item work is done here
  */
-void GImageOpenCLWorker::process(std::shared_ptr<GParameterSet> p) {
+void GImageOpenCLWorker::process_(std::shared_ptr<GParameterSet> p) {
 	std::shared_ptr<GImageIndividual> p_conv;
 
 #ifdef DEBUG
@@ -447,19 +431,22 @@ void GImageOpenCLWorker::process(std::shared_ptr<GParameterSet> p) {
 
 	std::function<std::vector<double>()> f;
 	if(useGPU_) {
-		f = std::bind(&GImageOpenCLWorker::openCLCalc, this, p_conv);
+        auto openCLResults = this->openCLCalc(p_conv);
+        std::size_t pos = 0;
+        for(auto result: openCLResults) p_conv->setResult(pos++, result);
 	} else {
-		f = std::bind(&GImageOpenCLWorker::cpuCalc, this, p_conv);
+        auto cpuResults = this->cpuCalc(p_conv);
+        std::size_t pos = 0;
+        for(auto result: cpuResults) p_conv->setResult(pos++, result);
 	}
-	p_conv->enforceFitnessUpdate(f);
-	p_conv->force_mark_processing_as_successful();
 }
 
 /******************************************************************************/
 /**
  * Retrieve the image dimensions
  */
-auto GImageOpenCLWorker::getImageDimensions() const {
+std::tuple<std::size_t,std::size_t>
+GImageOpenCLWorker::getImageDimensions() const {
 	return std::tuple<std::size_t,std::size_t>{(std::size_t)dimX_, (std::size_t)dimY_};
 }
 
@@ -467,7 +454,7 @@ auto GImageOpenCLWorker::getImageDimensions() const {
 /**
  * Sets the amount of triangles constituting each image
  */
-void GImageOpenCLWorker::setNTriangles(const std::size_t& nT) {
+[[maybe_unused]] void GImageOpenCLWorker::setNTriangles(const std::size_t& nT) {
 	nTriangles_ = nT;
 }
 
@@ -475,11 +462,11 @@ void GImageOpenCLWorker::setNTriangles(const std::size_t& nT) {
 /**
  * Adds local configuration options to a GParserBuilder object
  */
-void GImageOpenCLWorker::addConfigurationOptions(
+void GImageOpenCLWorker::addConfigurationOptions_(
 	Gem::Common::GParserBuilder& gpb
 ) {
 	// Call our parent class'es function
-	Gem::Courtier::GOpenCLWorkerT<GParameterSet>::addConfigurationOptions(gpb);
+	Gem::Courtier::GOpenCLWorkerT<GParameterSet>::addConfigurationOptions_(gpb);
 
 	std::string comment;
 
@@ -517,19 +504,18 @@ void GImageOpenCLWorker::loadTargetFromFile() {
 	dimY_ = targetCanvas_.getYDim();
 	targetSize_ = targetCanvas_.getNPixels();
 
-	if(targetSize_ % Gem::Courtier::GOpenCLWorkerT<GParameterSet>::workGroupSize_ != 0) {
+	if(targetSize_ % Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_workGroupSize != 0) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GImageOpenCLWorker::loadTargetFromFile(): Error!" << std::endl
 				<< "Image has invalid dimensions " << dimX_ << "/" << dimY_ << std::endl
-				<< "The number of pixels should be a multiple of the work group size " << workGroupSize_ << std::endl
+				<< "The number of pixels should be a multiple of the work group size " << m_workGroupSize << std::endl
 		);
 	}
 
-	nWorkGroups_ = targetSize_/Gem::Courtier::GOpenCLWorkerT<GParameterSet>::workGroupSize_;
+	nWorkGroups_ = targetSize_/Gem::Courtier::GOpenCLWorkerT<GParameterSet>::m_workGroupSize;
 }
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */

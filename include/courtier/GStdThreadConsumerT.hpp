@@ -126,7 +126,7 @@ public:
 	 *
 	 * @return The maximum number of allowed threads
 	 */
-	 std::size_t getNThreadsPerWorker(void) const {
+	 std::size_t getNThreadsPerWorker() const {
 		 return m_nThreads;
 	 }
 
@@ -175,22 +175,20 @@ public:
 	 /**
 	  * Sets up a consumer and registers it with the broker. This function accepts
 	  * a worker as argument.
-	  *
-	  * @TODO Check if this is needed
 	  */
-//	 static void setup(
-//		 const std::string &configFile,
-//		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
-//	 ) {
-//		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
-//			 new GStdThreadConsumerT<processable_type>()
-//		 );
-//
-//		 consumer_ptr->registerWorkerTemplate(worker_ptr);
-//		 consumer_ptr->parseConfigFile(configFile);
-//
-//		 GBROKER(processable_type)->enrol_consumer(consumer_ptr);
-//	 }
+	 static void setup(
+		 const std::string &configFile,
+		 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> worker_ptr
+	 ) {
+		 std::shared_ptr <GStdThreadConsumerT<processable_type>> consumer_ptr(
+			 new GStdThreadConsumerT<processable_type>()
+		 );
+
+		 consumer_ptr->registerWorkerTemplate(worker_ptr);
+		 consumer_ptr->parseConfigFile(configFile);
+
+		 GBROKER(processable_type)->enrol_consumer(consumer_ptr);
+	 }
 
 protected:
 	 /***************************************************************************/
@@ -292,7 +290,7 @@ private:
 	  * @return A unique identifier for a given consumer
 	  */
 	 std::string getConsumerName_() const override {
-		 return std::string("GStdThreadConsumerT");
+		 return {"GStdThreadConsumerT"};
 	 }
 
 	 /***************************************************************************/
@@ -300,7 +298,7 @@ private:
 	  * Returns a short identifier for this consumer
 	  */
 	 std::string getMnemonic_() const override {
-		 return std::string("stc");
+		 return {"stc"};
 	 }
 
 	 /***************************************************************************/

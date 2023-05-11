@@ -141,10 +141,62 @@ loadTextDataFromFile(std::filesystem::path const &p) {
 	}
 
 	std::ifstream sourceFileStream(p);
+
+    if (not sourceFileStream) {
+        throw gemfony_exception(
+            g_error_streamer(DO_LOG,  time_and_place)
+                << "In loadTextDataFromFile(): Error!" << std::endl
+                << "Stream from file " << p.string() << std::endl
+                << "is not valid" << std::endl
+        );
+    }
+
 	std::string sourceFile(
 		std::istreambuf_iterator<char>(sourceFileStream), (std::istreambuf_iterator<char>())
 	);
 	return sourceFile;
+}
+
+/******************************************************************************/
+/**
+ * This function loads textual (ASCII) data from an external file line by line and emits
+ * a std::vector of strings, each holding a single line
+ *
+ * @param p The name of the file to be loaded
+ * @return The data contained in the file, as a std::vector
+ */
+std::vector<std::string>
+loadTextLinesFromFile(std::filesystem::path const &p) {
+        // Check that the file exists
+        if (not std::filesystem::exists(p)) {
+                throw gemfony_exception(
+                    g_error_streamer(DO_LOG,  time_and_place)
+                    << "In loadTextLinesFromFile(): Error!" << std::endl
+                    << "Tried to load data from file " << p.string() << std::endl
+                    << "which does not exist" << std::endl
+                );
+        }
+
+        std::ifstream sourceFileStream(p);
+
+        if (not sourceFileStream) {
+                throw gemfony_exception(
+                    g_error_streamer(DO_LOG,  time_and_place)
+                    << "In loadTextLinesFromFile(): Error!" << std::endl
+                    << "Stream from file " << p.string() << std::endl
+                    << "is not valid" << std::endl
+                );
+        }
+
+        std::string line;
+        std::vector<std::string> str_result_vec;
+
+        while (std::getline(sourceFileStream, line)) {
+            // Omit empty lines, store everything else in the vector
+            if(not line.empty()) str_result_vec.push_back(line);
+        }
+
+        return str_result_vec;
 }
 
 /******************************************************************************/

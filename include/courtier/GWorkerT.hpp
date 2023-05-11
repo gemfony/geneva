@@ -52,8 +52,7 @@
 #include "common/GLogger.hpp"
 #include "courtier/GProcessingContainerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /******************************************************************************/
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +79,7 @@ public:
 	  * Initialization with the worker id (a consecutive, unique id to be
 	  * supplied by the caller.
 	  */
-	 GWorkerT(std::size_t workerId) : m_worker_id(workerId)
+	 explicit GWorkerT(std::size_t workerId) : m_worker_id(workerId)
 	 { /* nothing */ }
 
 protected:
@@ -90,7 +89,7 @@ protected:
 	  * supplied by the caller. In order to avoid copying inside of the
 	  * default version, we supply a custom copy constructor here.
 	  */
-	 GWorkerT(const GWorkerT<processable_type> &cp) { /* nothing */ }
+      GWorkerT(const GWorkerT<processable_type> &) { /* nothing */ }
 
 public:
 	 /************************************************************************/
@@ -120,7 +119,7 @@ public:
 	  *
 	  * @return The current worker id
 	  */
-	 std::size_t getWorkerId() const {
+     [[maybe_unused]] [[nodiscard]] std::size_t getWorkerId() const {
 		 if(m_worker_id < 0) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
@@ -171,15 +170,19 @@ public:
 
 		 try {
 			 std::shared_ptr<processable_type> p;
-
-			 // Any necessary setup work
-			 this->processInit();
+             bool first = true;
 
 			 // The main loop
 			 do {
-				 // Retieve an item and check for its validity. Try again if
+				 // Retrieve an item and check for its validity. Try again if
 				 // we didn't receive a valid item
 				 if(not (p=this->retrieve(m_retrieval_timeout))) { continue; }
+
+                 if(first) {
+                    // Any necessary setup work
+                    this->processInit(p);
+                    first=false;
+                 }
 
 				 // Initiate the actual processing
 				 this->process(p);
@@ -187,7 +190,6 @@ public:
 				 // Return the item. Note that the submit function has the freedom
 				 // to discard items if a submission is not possible.
 				 this->submit(p, m_submission_timeout);
-
 			 } while(not this->stop_requested());
 
 			 // Perform any final work
@@ -198,20 +200,19 @@ public:
 			 error_streamer
 				 << "In GWorkerT<processable_type>::run(): Caught gemfony_exception with message" << std::endl
 				 << e.what() << std::endl;
-		 } catch (std::exception &e) {
-			 has_error = true;
-			 error_streamer
-				 << "In GWorkerT<processable_type>::run():" << std::endl
-				 << "Caught std::exception with message" << std::endl
-				 << e.what() << std::endl;
-		 }
-		 catch (boost::exception &e) {
+		 } catch (boost::exception &e) {
 			 has_error = true;
 			 error_streamer
 				 << "In GWorkerT<processable_type>::run():" << std::endl
 				 << "Caught boost::exception with message" << std::endl
 				 << boost::diagnostic_information(e) << std::endl;
-		 }
+		 } catch (std::exception &e) {
+             has_error = true;
+             error_streamer
+                 << "In GWorkerT<processable_type>::run():" << std::endl
+                 << "Caught std::exception with message" << std::endl
+                 << e.what() << std::endl;
+                 }
 		 catch (...) {
 			 has_error = true;
 			 error_streamer
@@ -229,6 +230,14 @@ public:
 
 		 //---------------------------------------------------------------------
 	 }
+
+     /************************************************************************/
+     /**
+      * Allows to treat derived objects as a function object
+      */
+     void operator()() {
+         this->run();
+     }
 
 	 /************************************************************************/
 	 /**
@@ -268,7 +277,7 @@ protected:
 	 /************************************************************************/
 	 /**
 	  * The actual implementation of adding configuration options. "protected",
-	  * so it may be called by derived classes.
+	  * so it may be called by derived classes and these classes may call this function.´
 	  *
 	  * @param gpb The GParserBuilder object, to which configuration options will be added
 	  */
@@ -282,8 +291,8 @@ private:
 	  * Initialization code for processing. Specify custom code in the virtual
 	  * processInit_ function.
 	  */
-	 void processInit() {
-		 this->processInit_();
+	 void processInit(std::shared_ptr <processable_type> p) {
+		 this->processInit_(p);
 	 }
 
 	 /************************************************************************/
@@ -342,27 +351,30 @@ private:
 	 /**
 	  * Indicates whether the worker was asked to stop processing
 	  */
-	 bool stop_requested() const {
+	 [[nodiscard]] bool stop_requested() const {
 		 return this->stop_requested_();
 	 }
 
 	 /************************************************************************/
 	 // Some purely virtual functions, to be implemented in derived classes
 
-	 /** @brief Creation of deep clones of this object('s derivatives) */
-	 virtual std::shared_ptr<GWorkerT<processable_type>> clone_() const BASE = 0;
+ protected:
 	 /** @brief Initialization code for processing. */
-	 virtual void processInit_() BASE = 0;
+	 virtual void processInit_(std::shared_ptr <processable_type> p) BASE = 0;
 	 /** @brief Actual per-item work is done here -- all error-detection instrumentation is done in the protected "process() function. */
 	 virtual void process_(std::shared_ptr <processable_type> p) BASE = 0;
 	 /** @brief Finalization code for processing. */
 	 virtual void processFinalize_() BASE = 0;
+
+ private:
+     /** @brief Creation of deep clones of this object('s derivatives) */
+     virtual std::shared_ptr<GWorkerT<processable_type>> clone_() const BASE = 0;
 	 /** @brief Retrieval of work items */
 	 virtual std::shared_ptr<processable_type> retrieve_(const std::chrono::milliseconds&) BASE = 0;
 	 /** @brief Submission of work items */
 	 virtual void submit_(std::shared_ptr<processable_type>, const std::chrono::milliseconds&) BASE = 0;
 	 /** @brief Indicates whether the worker was asked to stop processing */
-	 virtual bool stop_requested_() const BASE = 0;
+	 [[nodiscard]] virtual bool stop_requested_() const BASE = 0;
 
 	 /************************************************************************/
 	 // Data
@@ -396,10 +408,10 @@ public:
 		 , std::function<void(std::shared_ptr<processable_type>, const std::chrono::milliseconds&)> submitter
 		 , std::function<bool()> stop_requested
 	 )
-		 : m_worker_id(worker_id)
-			, m_retriever(retriever)
-			, m_submitter(submitter)
-			, m_stop_requested(stop_requested)
+        : m_worker_id(worker_id)
+        , m_retriever(retriever)
+        , m_submitter(submitter)
+        , m_stop_requested(stop_requested)
 	 {
 		 if(not m_retriever) {
 			 glogger
@@ -426,6 +438,14 @@ public:
 		 }
 	 }
 
+     /************************************************************************/
+     // Some deleted functions -- this class is non-copyable
+     GBrokerFerryT() = delete;
+     GBrokerFerryT(const GBrokerFerryT<processable_type>&) = delete;
+     GBrokerFerryT(GBrokerFerryT<processable_type>&&) = delete;
+     GBrokerFerryT<processable_type>& operator=(const GBrokerFerryT<processable_type>&) = delete;
+     GBrokerFerryT<processable_type>& operator=(GBrokerFerryT<processable_type>&&) = delete;
+
 	 /************************************************************************/
 	 /**
 	  * Retrieval of work items
@@ -449,7 +469,7 @@ public:
 	 /**
 	  * Indicates whether the worker was asked to stop processing
 	  */
-	 bool stop_requested() const {
+	 [[nodiscard]] bool stop_requested() const {
 		 return this->m_stop_requested();
 	 }
 
@@ -457,19 +477,11 @@ public:
 	 /**
 	  * Access to the worker id
 	  */
-	 std::size_t getWorkerId() const {
+	 [[nodiscard]] std::size_t getWorkerId() const {
 		 return m_worker_id;
 	 }
 
 private:
-	 /************************************************************************/
-	 // Some deleted functions -- this class is non-copyable
-	 GBrokerFerryT() = delete;
-	 GBrokerFerryT(const GBrokerFerryT<processable_type>&) = delete;
-	 GBrokerFerryT(GBrokerFerryT<processable_type>&&) = delete;
-	 GBrokerFerryT<processable_type>& operator=(const GBrokerFerryT<processable_type>&) = delete;
-	 GBrokerFerryT<processable_type>& operator=(GBrokerFerryT<processable_type>&&) = delete;
-
 	 /************************************************************************/
 	 // Data and stored functions
 
@@ -503,8 +515,7 @@ protected:
 	  * The copy constructor.
 	  */
 	 GLocalConsumerWorkerT(const GLocalConsumerWorkerT<processable_type> &cp)
-		 : GWorkerT<processable_type>(cp)
-	 { /* nothing */ }
+		 : GWorkerT<processable_type>(cp) { /* nothing */ }
 
 public:
 	 /************************************************************************/
@@ -536,21 +547,29 @@ public:
 		 this->setWorkerId(m_broker_ferry_ptr->getWorkerId());
 	 }
 
-private:
-	 /************************************************************************/
-	 /**
-	  * Creation of deep clones of this object. Note that a new broker ferry
-	  * needs to be registered with this object.
-	  */
-	 std::shared_ptr<GWorkerT<processable_type>> clone_() const override {
-		 return std::shared_ptr<GWorkerT<processable_type>>(new GLocalConsumerWorkerT<processable_type>(*this));
-	 }
+protected:
+    /************************************************************************/
+    /**
+     * The actual implementation of adding configuration options. "protected",
+     * so it may be called by derived classes and these classes may call this function.´
+     *
+     * @param gpb The GParserBuilder object, to which configuration options will be added
+     */
+    void addConfigurationOptions_(
+        Gem::Common::GParserBuilder &gpb
+    ) override {
+       // Make sure any options from our parent class are processed
+       GWorkerT<processable_type>::addConfigurationOptions_(gpb);
+    }
 
 	 /************************************************************************/
 	 /**
 	  * Initialization code for processing.
 	  */
-	 void processInit_() override {
+	 void processInit_(std::shared_ptr <processable_type> p) override {
+       // The parent class'es processInit_ function is purely virtual, so we do not need to call it here
+       // GWorkerT<processable_type>::processInit_(p);
+
 		 if(not m_broker_ferry_ptr) {
 			 throw gemfony_exception(
 				 g_error_streamer(DO_LOG,  time_and_place)
@@ -575,6 +594,16 @@ private:
 	  */
 	 void processFinalize_() override { /* nothing */ }
 
+private:
+      /************************************************************************/
+      /**
+       * Creation of deep clones of this object. Note that a new broker ferry
+       * needs to be registered with this object.
+       */
+      std::shared_ptr<GWorkerT<processable_type>> clone_() const override {
+           return std::shared_ptr<GWorkerT<processable_type>>(new GLocalConsumerWorkerT<processable_type>(*this));
+      }
+
 	 /************************************************************************/
 	 /** @brief Retrieval of work items */
 	 std::shared_ptr<processable_type> retrieve_(
@@ -594,7 +623,7 @@ private:
 
 	 /************************************************************************/
 	 /** @brief Indicates whether the worker was asked to stop processing */
-	 bool stop_requested_() const override {
+	 [[nodiscard]] bool stop_requested_() const override {
 		 return this->m_broker_ferry_ptr->stop_requested();
 	 }
 
@@ -608,6 +637,5 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 

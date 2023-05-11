@@ -42,7 +42,7 @@
 
 // Standard headers go here
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -58,13 +58,13 @@
 #include <boost/lexical_cast.hpp>
 
 // OpenCL includes
-#define __CL_ENABLE_EXCEPTIONS // This will force OpenCL C++ classes to raise exceptions rather than to use an error code
-#define CL_HPP_TARGET_OPENCL_VERSION 120
-#define CL_HPP_MINIMUM_OPENCL_VERSION 120
+#define CL_HPP_ENABLE_EXCEPTIONS // This will force OpenCL C++ classes to raise exceptions rather than to use an error code
+#define CL_HPP_TARGET_OPENCL_VERSION 300
+#define CL_HPP_MINIMUM_OPENCL_VERSION 300
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "cl.hpp" // Use the file in our local directory -- cl.hpp is not delivered by default on MacOS X
 #else
-#include <CL/cl.hpp>
+#include <CL/opencl.hpp>
 #endif
 
 // Geneva headers go here
@@ -73,9 +73,9 @@
 #include "courtier/GBrokerT.hpp"
 #include "courtier/GBaseConsumerT.hpp"
 #include "courtier/GStdThreadConsumerT.hpp"
+#include "courtier/GWorkerT.hpp"
 
-namespace Gem {
-namespace Courtier {
+namespace Gem::Courtier {
 
 /** @brief A default value for the Open CL code file */
 const std::string GOCLWT_DEF_CODEFILE = "./code/default.cl";
@@ -85,13 +85,13 @@ const int GOCLWT_DEF_WGS = 192;
 /******************************************************************************/
 /**
  * A worker class for the GStdThreadConsumerT, targeted at OpenCL work. Derived
- * classes particularly need to implement the process() function, where all task-
+ * classes particularly need to implement the process_() function, where all task-
  * specific work may take place. This class is purely virtual and cannot be
  * instantiated directly.
  */
 template<typename processable_type>
 class GOpenCLWorkerT
-	: public GStdThreadConsumerT<processable_type>::GWorker
+	: public GLocalConsumerWorkerT<processable_type>
 {
 public:
 	 /***************************************************************************/
@@ -105,7 +105,7 @@ public:
 		 const cl::Device &device
 		 , const std::string &configFile
 	 )
-		 : GStdThreadConsumerT<processable_type>::GWorker()
+		 : GLocalConsumerWorkerT<processable_type>()
 		 , m_device(1, device)
 		 , m_context(m_device)
 		 , m_queue(m_context, m_device[0], CL_QUEUE_PROFILING_ENABLE)
@@ -120,14 +120,12 @@ protected:
 	  * Initialization with a copy of another GOpenCLWorkerT object, a thread id
 	  * and a pointer to a GStdThreadConsumerT<processable_type> (or a derivative
 	  * thereof). The constructor is protected, as it is only intended to be used
-	  * from the clone() function of this class and from derived constructors.
+	  * from the clone_() function of this class and from derived constructors.
 	  */
 	 GOpenCLWorkerT(
 		 const GOpenCLWorkerT<processable_type> &cp
-		 , const std::size_t &thread_id
-		 , const GStdThreadConsumerT <processable_type> *c_ptr
 	 )
-		 : GStdThreadConsumerT<processable_type>::GWorker(cp, thread_id, c_ptr)
+		 : GLocalConsumerWorkerT<processable_type>(cp)
 		 , m_device(cp.m_device)
 		 , m_context(m_device)
 		 , m_queue(m_context, m_device[0], CL_QUEUE_PROFILING_ENABLE)
@@ -142,8 +140,12 @@ public:
 	 /**
 	  * The destructor
 	  */
-	 virtual ~GOpenCLWorkerT()
-	 { /* nothing */ }
+     ~GOpenCLWorkerT() override = default;
+
+     /** @brief The default constructor: Intentionally undefined */
+     GOpenCLWorkerT() = delete;
+     /** @brief The assignment operator: Intentionally undefined */
+     const GOpenCLWorkerT<processable_type> &operator=(const GOpenCLWorkerT<processable_type> &) = delete;
 
 protected:
 	 /************************************************************************/
@@ -152,22 +154,25 @@ protected:
 	  * prior to building the program objects. Particularly, it is possible
 	  * to set up the data needed for the OpenCL compiler options.
 	  */
-	 virtual void initOpenCL(std::shared_ptr<processable_type> p)
+	 virtual void initOpenCL(std::shared_ptr<processable_type> p) BASE
 	 { /* nothing */ }
 
 	 /************************************************************************/
 	 /**
 	  * Initialization of kernel objects
 	  */
-	 virtual void initKernels(std::shared_ptr<processable_type> p)
+	 virtual void initKernels(std::shared_ptr<processable_type> p) BASE
 	 { /* nothing */ }
 
 	 /************************************************************************/
 	 /**
-	  * Initialization code for processing. Can be specified in derived classes.
+	  * Initialization code for processing.
 	  */
-	 virtual void processInit(std::shared_ptr<processable_type> p)
-	 {
+     void processInit_(std::shared_ptr<processable_type> p) override {
+         // Make sure our parent class gets initialized
+         GLocalConsumerWorkerT<processable_type>::processInit_(p);
+
+         // TODO: This function seems to be called twice, also in the derived class
 		 // Load local options
 		 this->parseConfigFile(m_configFile);
 
@@ -183,16 +188,18 @@ protected:
 
 	 /************************************************************************/
 	 /**
-	  * Finalization code for processing. Can be specified in derived classes.
+	  * Finalization code for processing.
 	  */
-	 virtual void processFinalize()
-	 { /* nothing */ }
+	 void processFinalize_() override {
+         // Make sure our parent class's function is called
+         GLocalConsumerWorkerT<processable_type>::processFinalize_();
+     }
 
 	 /***************************************************************************/
 	 /**
 	  * Emits compiler options for OpenCL
 	  */
-	 virtual std::string getCompilerOptions() const
+	 [[nodiscard]] virtual std::string getCompilerOptions() const
 	 {
 		 std::string compilerOptions =
 			 " -DWORKGROUPSIZE=" + Gem::Common::to_string(m_workGroupSize) + " -cl-fast-relaxed-math";
@@ -203,11 +210,13 @@ protected:
 	 /**
 	  * Adds local configuration options to a GParserBuilder object
 	  */
-	 virtual void addConfigurationOptions(Gem::Common::GParserBuilder &gpb)
-	 {
-		 // Call our parent class'es function
-		 GStdThreadConsumerT<processable_type>::GWorker::addConfigurationOptions(gpb);
+     void addConfigurationOptions_(
+         Gem::Common::GParserBuilder &gpb
+     ) override {
+         // Make sure any options from our parent class are processed
+         GLocalConsumerWorkerT<processable_type>::addConfigurationOptions_(gpb);
 
+         // Add local options
 		 std::string comment;
 
 		 comment = "";
@@ -236,10 +245,10 @@ protected:
 	  * A utility function that calculates the time needed for running a given
 	  * OpenCL command
 	  */
-	 double duration(const cl::Event &e) const
+	 [[nodiscard]] double duration(const cl::Event &e) const
 	 {
-		 cl_ulong ev_start_time = (cl_ulong) 0;
-		 cl_ulong ev_end_time = (cl_ulong) 0;
+		 auto ev_start_time = (cl_ulong) 0;
+		 auto ev_end_time = (cl_ulong) 0;
 		 e.getProfilingInfo(
 			 CL_PROFILING_COMMAND_QUEUED
 			 , &ev_start_time
@@ -252,7 +261,6 @@ protected:
 	 }
 
 	 /***************************************************************************/
-
 	 /**
 	  * The device we are supposed to act on. It is stored in a std::vector for
 	  * simplicity reasons, so we can more easily initialize the context_ .
@@ -279,13 +287,7 @@ private:
 	 {
 		 try {
 			 // Initialize the program object
-			 std::string openCLSource = Gem::Common::loadTextDataFromFile(m_codeFile);
-			 m_source = cl::Program::Sources(
-				 1
-				 , std::make_pair(
-					 openCLSource.c_str()
-					 , openCLSource.length() + 1
-				 ));
+             m_source = Gem::Common::loadTextLinesFromFile(m_codeFile);
 			 m_program = cl::Program(
 				 m_context
 				 , m_source
@@ -302,33 +304,11 @@ private:
 		 }
 	 }
 
-	 /***************************************************************************/
-
-	 /** @brief The default constructor: Intentionally private and undefined */
-	 GOpenCLWorkerT();
-
-	 /** @brief The copy constructor: Intentionally private and undefined */
-	 GOpenCLWorkerT(const GOpenCLWorkerT<processable_type> &);
-
-	 /** @brief The assignment operator: Intentionally private and undefined */
-	 const GOpenCLWorkerT<processable_type> &operator=(const GOpenCLWorkerT<processable_type> &);
-
-	 /***************************************************************************/
-	 // Some purely virtual functions that need to be specified in derived classes
-
-public:
-	 /** @brief Creates a deep clone of this object, camouflaged as a GWorker */
-	 virtual std::shared_ptr<typename Gem::Courtier::GStdThreadConsumerT<processable_type>::GWorker> clone(
-		 const std::size_t &
-		 , const GStdThreadConsumerT <processable_type> *
-	 ) const = 0;
-
-	 /** @brief Actual per-item work is done here */
-	 virtual void process(std::shared_ptr<processable_type> p) = 0;
+     /** @brief Creation of deep clones of this object('s derivatives) */
+     virtual std::shared_ptr<GWorkerT<processable_type>> clone_() const BASE = 0;
 };
 
 /******************************************************************************/
 
-} /* namespace Courtier */
-} /* namespace Gem */
+} /* namespace Gem::Courtier */
 

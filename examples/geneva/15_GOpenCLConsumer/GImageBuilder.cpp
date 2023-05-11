@@ -40,6 +40,7 @@
 
 // Standard header files go here
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <tuple>
 #include <memory>
@@ -69,7 +70,7 @@
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "cl.hpp" // Use the file in our local directory -- cl.hpp is not delivered by default on MacOS X
 #else
-#include <CL/cl.hpp>
+#include <CL/opencl.hpp>
 #endif
 
 using namespace Gem::Geneva;
@@ -77,7 +78,7 @@ using namespace Gem::Courtier;
 
 namespace po = boost::program_options;
 
-const cl_device_type DEFAULTDEVICETYPE = CL_DEVICE_TYPE_ALL; // GPU+CPU
+const cl_device_type DEFAULTDEVICETYPE = CL_DEVICE_TYPE_GPU;// CL_DEVICE_TYPE_ALL; // GPU+CPU
 
 
 /******************************************************************************/
@@ -254,11 +255,10 @@ std::vector<cl::Device> getDevices(const cl::Platform& platform, const cl_device
 		platform.getDevices(t, &devices);
 
 		if(devices.empty()) {
-			throw gemfony_exception(
-				g_error_streamer(DO_LOG,  time_and_place)
-					<< "In getDevices(): Error!" << std::endl
-					<< "No devices found ..." << std::endl
-			);
+            glogger
+              << "In getDevices(): Note!" << std::endl
+              << "No devices found for platform " << platform.getInfo<CL_PLATFORM_NAME>() << std::endl
+              << GLOGGING;
 		}
 	} catch(cl::Error& err) {
 		std::cout << err.what();
@@ -297,8 +297,8 @@ void printDeviceInfo() {
 /**
  * Retrieves workers to be added to the GBoostThreadConsumerT
  */
-std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker> > getWorkers(
-	std::string deviceDescription
+std::vector<std::shared_ptr<GImageOpenCLWorker>> getWorkers(
+	const std::string& deviceDescription
 	, std::tuple<std::size_t, std::size_t>& imageDimensions
 ) {
 	bool first = true;
@@ -308,7 +308,7 @@ std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker> > getWo
 	std::vector<std::tuple<unsigned int, unsigned int> >::iterator it;
 
 	// Will hold the workers
-	std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker>> workers;
+	std::vector<std::shared_ptr<GImageOpenCLWorker>> workers;
 
 	// Retrieve the workers
 	std::vector<cl::Platform> platforms = getPlatforms();
@@ -317,11 +317,9 @@ std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker> > getWo
 		for(std::size_t d=0; d<devices.size(); d++) {
 			for(it=deviceIds.begin(); it!=deviceIds.end(); ++it) {
 				if(p == std::get<0>(*it) && d==std::get<1>(*it)) {
-					std::shared_ptr<GImageOpenCLWorker> worker_ptr = std::shared_ptr<GImageOpenCLWorker>(
-						new GImageOpenCLWorker(
+					auto worker_ptr = std::make_shared<GImageOpenCLWorker>(
 							devices[d]
 							, "./config/GImageOpenCLWorker.json"
-						)
 					);
 
 					if(first) {
@@ -395,12 +393,13 @@ int main(int argc, char **argv) {
 	}
 
 	// Retrieve workers
-	std::vector<std::shared_ptr<GStdThreadConsumerT<GParameterSet>::GWorker>> workers;
+	std::vector<std::shared_ptr<GImageOpenCLWorker>> workers;
 	std::tuple<std::size_t, std::size_t> imageDimensions;
 	workers = getWorkers(deviceDescription, imageDimensions);
 
-	// Set up the consumer
-	GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", workers);
+	// Set up the consumer -- this call will register it with the broker
+    // TODO: This is a hack (only first worker)
+	GStdThreadConsumerT<GParameterSet>::setup("./config/GStdThreadConsumerT.json", workers[0]);
 
 	// Register pluggable optimization monitors, if requested by the user
 	std::shared_ptr<GCollectiveMonitor> collectiveMonitor_ptr = getPOM(

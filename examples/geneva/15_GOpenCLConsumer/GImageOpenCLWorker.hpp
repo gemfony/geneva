@@ -54,7 +54,7 @@
 #if defined(__APPLE__) || defined(__MACOSX)
 #include "cl.hpp" // Use the file in our local directory -- cl.hpp is not delivered by default on MacOS X
 #else
-#include <CL/cl.hpp>
+#include <CL/cl2.hpp>
 #endif
 
 // Boost headers go here
@@ -69,8 +69,7 @@
 #include "GImageIndividual.hpp"
 #include "GOpenCLCanvas.hpp"
 
-namespace Gem {
-namespace Geneva {
+namespace Gem::Geneva {
 
 /******************************************************************************/
 // Some default settings
@@ -145,28 +144,15 @@ public:
    );
 
    /** @brief Initialization with the data needed for an optimization run */
-   GImageOpenCLWorker(
-      const GImageOpenCLWorker&
-      , const std::size_t&
-      , const Gem::Courtier::GStdThreadConsumerT<GParameterSet> *
-   );
+   GImageOpenCLWorker(const GImageOpenCLWorker&);
 
    /** @brief The destructor */
-   virtual ~GImageOpenCLWorker();
-
-   /** @brief Creates a deep clone of this object, camouflaged as a GWorker */
-   virtual std::shared_ptr<Gem::Courtier::GStdThreadConsumerT<GParameterSet>::GWorker> clone (
-      const std::size_t&
-      , const Gem::Courtier::GStdThreadConsumerT<GParameterSet> *
-   ) const;
-
-   /** @brief Actual per-item work is done here */
-   virtual void process(std::shared_ptr<GParameterSet>);
+   ~GImageOpenCLWorker() override;
 
    /** @brief Retrieve the image dimensions */
-   std::tuple<std::size_t,std::size_t> getImageDimensions() const;
+   [[nodiscard]] std::tuple<std::size_t,std::size_t> getImageDimensions() const;
    /** @brief Sets the amount of triangles constituting each image */
-   void setNTriangles(const std::size_t&);
+   [[maybe_unused]] void setNTriangles(const std::size_t&);
 
    /** @brief External evaluation using OpenCL and available devices */
    std::vector<double> openCLCalc(std::shared_ptr<GImageIndividual>);
@@ -174,18 +160,24 @@ public:
    std::vector<double> cpuCalc(std::shared_ptr<GImageIndividual>);
 
 protected:
+   /** @brief Actual per-item work is done here */
+   void process_(std::shared_ptr<GParameterSet>) override;
+
    /** @brief Initialization of everything related to OpenCL */
-   virtual void initOpenCL(std::shared_ptr<GParameterSet>);
+   void initOpenCL(std::shared_ptr<GParameterSet>) override;
    /** @brief Initialization of kernel objects */
-   virtual void initKernels(std::shared_ptr<GParameterSet>);
+   void initKernels(std::shared_ptr<GParameterSet>) override;
 
    /** @brief Emits compiler options for OpenCL */
-   virtual std::string getCompilerOptions() const;
+   [[nodiscard]] std::string getCompilerOptions() const override;
 
    /** @brief Adds local configuration options to a GParserBuilder object */
-   virtual void addConfigurationOptions(Gem::Common::GParserBuilder&);
+   void addConfigurationOptions_(Gem::Common::GParserBuilder&) override;
 
 private:
+   /** @brief Creates a deep clone of this object, camouflaged as a GWorker */
+   std::shared_ptr<Gem::Courtier::GWorkerT<GParameterSet>> clone_() const override;
+
    /** @brief Loads the target image from file into a local canvas */
    void loadTargetFromFile();
 
@@ -215,6 +207,5 @@ private:
 
 /******************************************************************************/
 
-} /* namespace Geneva */
-} /* namespace Gem */
+} /* namespace Gem::Geneva */
 

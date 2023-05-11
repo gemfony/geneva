@@ -327,7 +327,7 @@ void GImageIndividual::init(
  * @param e The expected outcome of the comparison
  * @param limit The maximum deviation for floating point values (important for similarity checks)
  */
-void GImageIndividual::compare(
+void GImageIndividual::compare_(
 	const GObject& cp
 	, const Gem::Common::expectation& e
 	, const double& limit
@@ -339,8 +339,8 @@ void GImageIndividual::compare(
 
 	GToken token("GImageIndividual", e);
 
-	// Compare our parent data ...
-	Gem::Common::compare_base<GParameterSet>(IDENTITY(*this, *p_load), token);
+    // Compare our parent data ...
+    Gem::Common::compare_base_t<Gem::Geneva::GParameterSet>(*this, *p_load, token);
 
 	// ... and then the local data
 	Gem::Common::compare_t(IDENTITY(nTriangles_, p_load->nTriangles_), token);
@@ -429,7 +429,8 @@ std::vector<Gem::Common::t_circle> GImageIndividual::getTriangleData() const {
  *
  * @return The background color used for the candidate image
  */
-auto GImageIndividual::getBackGroundColor() const {
+std::tuple<float,float,float>
+GImageIndividual::getBackGroundColor() const {
 	float local_bg_red, local_bg_green, local_bg_blue;
 	std::size_t offset = 10*nTriangles_;
 	local_bg_red   = static_cast<float>(this->at<GConstrainedDoubleObject>(offset+0)->value());
@@ -477,11 +478,12 @@ void GImageIndividual::writeImage(
 	, const std::tuple<std::size_t, std::size_t>& dimensions
 ) {
 	// Cross-check that we can safely access the fitness
-	if(this->isDirty()) {
+	if(not this->is_processed()) {
 		throw gemfony_exception(
 			g_error_streamer(DO_LOG,  time_and_place)
 				<< "In GImageIndividual::writeImage():" << std::endl
-				<< "Individual has dirty flag set when it shouldn't"
+				<< "Individual does not seem to have been processed, so" << std::endl
+                << "saving the image does not mage sense."
 		);
 	}
 
@@ -490,7 +492,7 @@ void GImageIndividual::writeImage(
 	gen_filename_stream
 		<< prefix << "-result-"
 		<< this->getAssignedIteration()
-		<< "-" << this->fitness()
+		<< "-" << this->raw_fitness()
 		<< ".ppm";
 
 	std::ofstream result((path+gen_filename_stream.str()).c_str());
@@ -551,7 +553,7 @@ double GImageIndividual::fitnessCalculation() {
  *
  * @return A boolean which indicates whether modifications were made
  */
-bool GImageIndividual::modify_GUnitTests() {
+bool GImageIndividual::modify_GUnitTests_() {
 #ifdef GEM_TESTING
 	using boost::unit_test_framework::test_suite;
 	using boost::unit_test_framework::test_case;
@@ -573,7 +575,7 @@ bool GImageIndividual::modify_GUnitTests() {
 /**
  * Performs self tests that are expected to succeed. This is needed for testing purposes
  */
-void GImageIndividual::specificTestsNoFailureExpected_GUnitTests() {
+void GImageIndividual::specificTestsNoFailureExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
@@ -608,7 +610,7 @@ void GImageIndividual::specificTestsNoFailureExpected_GUnitTests() {
 /**
  * Performs self tests that are expected to fail. This is needed for testing purposes
  */
-void GImageIndividual::specificTestsFailuresExpected_GUnitTests() {
+void GImageIndividual::specificTestsFailuresExpected_GUnitTests_() {
 #ifdef GEM_TESTING
 	using namespace Gem::Geneva;
 
