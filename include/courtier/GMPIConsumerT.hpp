@@ -1381,6 +1381,9 @@ namespace Gem::Courtier {
                             << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
                             << "Trying to continue unsynchronized." << std::endl
                             << GWARNING;
+                    
+                    MPI_Cancel(&requestHandle);
+                    MPI_Request_free(&requestHandle);
 
                     return false; // synchronize stopped but unsuccessful
                 } else if (m_commonConfig.waitForMasterStartupPollIntervalUSec > 0) {
