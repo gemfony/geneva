@@ -412,8 +412,7 @@ namespace Gem::Courtier {
             const auto timeStart = std::chrono::steady_clock::now();
 
             // continue testing until receive was completed or timeout has been triggered.
-            // note that we never wait for the send operation to complete, because receiving will only complete
-            // if the send operation has completed, because the server/master will only send a response if it has received our request
+            // This can only happen after the server has received our message, so send must also be complete
             while (true) {
                 MPI_Test(&m_receiveHandle,
                          &receiveIsCompleted,
@@ -421,6 +420,11 @@ namespace Gem::Courtier {
 
                 // using break instead of while-condition allows skipping the sleep as soon as receiving has been completed
                 if (receiveIsCompleted) {
+                    // At this point we know that the send call is finished because otherwise we would not have received
+                    // the servers response to our message
+                    // Still, we have to call MPI_Test on the send handle to make the MPI runtime free the resources
+                    int unusedFlag{0};
+                    MPI_Test(&m_sendHandle, &unusedFlag, MPI_STATUS_IGNORE);
                     break;
                 }
 
@@ -652,12 +656,11 @@ namespace Gem::Courtier {
          */
         [[nodiscard]] bool isCompleted() {
             int isCompleted{0};
-            MPI_Status status{};
 
             MPI_Test(
                     &m_mpiRequestHandle,
                     &isCompleted,
-                    &status);
+                    MPI_STATUS_IGNORE);
 
             return isCompleted;
         }
@@ -918,6 +921,16 @@ namespace Gem::Courtier {
 
             // wait until all threads have finished their job
             m_handlerThreadPool->wait();
+
+            // cancel all open sessions. This must be done after receiverThread, handlerThreadPool and cleanUpThread
+            // have been joined because only then we can be sure that there are no more active sessions in the system
+            // other than those in the openSessions queue, thereby preventing race conditions.
+            m_openSessionsGuard.lock();
+            for (auto openSession: m_openSessions) {
+                openSession->cancel();
+            }
+            m_openSessions.clear();
+            m_openSessionsGuard.unlock();
         }
 
     private:
@@ -1056,16 +1069,6 @@ namespace Gem::Courtier {
                 // make open sessions vector available again e.g. for pushback
                 m_openSessionsGuard.unlock();
             }
-
-            // if told to stop cancel all open sessions
-            m_openSessionsGuard.lock();
-
-            for (auto openSession: m_openSessions) {
-                openSession->cancel();
-            }
-            m_openSessions.clear();
-
-            m_openSessionsGuard.unlock();
         }
 
         /**
