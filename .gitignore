@@ -6,5 +6,5 @@
 .DS_Store
 .com.apple.*
 build/
-cmake-build-debug/
+cmake-build-*/
 .vscode
