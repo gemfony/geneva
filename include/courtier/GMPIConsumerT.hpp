@@ -1232,29 +1232,7 @@ namespace Gem::Courtier {
          * This destructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
          */
         ~GMPIConsumerT() override {
-            int isInitialized{0};
-            MPI_Initialized(&isInitialized);
-
-            // Do not finalize if not initialized
-            // This can happen e.g. if instantiating GMPIConsumerT in Go2 but not using it afterwards
-            if (!isInitialized) {
-                return;
-            }
-
-            int isAlreadyFinalized{0};
-            MPI_Finalized(&isAlreadyFinalized);
-
-            if (!isAlreadyFinalized) {
-                MPI_Finalize();
-            } else {
-                glogger
-                        << "In GMPIConsumerT<>::~GMPIConsumerT():" << std::endl
-                        << "MPI has been finalized before the destructor of GMPIConsumerT has been called."
-                        << std::endl
-                        << "Happened on node with rank " << m_commRank << std::endl
-                        << "This might indicate issues in the user code." << std::endl
-                        << GWARNING;
-            }
+            this->finalizeMPI();
         }
 
         //-------------------------------------------------------------------------
@@ -1301,6 +1279,30 @@ namespace Gem::Courtier {
             }
 
             return !isAlreadyInitialized;
+        }
+
+        void finalizeMPI() {
+            // Do not finalize MPI if MPI Consumer has never been initialized.
+            // Note that it is still possible that MPI is initialized since the user code might use MPI
+            // Therefore we should not check for MPI_Initialized() but rather for our own flag
+            if (!this->isClusterPositionDefined) {
+                return;
+            }
+
+            int isAlreadyFinalized{0};
+            MPI_Finalized(&isAlreadyFinalized);
+
+            if (!isAlreadyFinalized) {
+                MPI_Finalize();
+            } else {
+                glogger
+                        << "In GMPIConsumerT<>::~GMPIConsumerT():" << std::endl
+                        << "MPI has been finalized before the destructor of GMPIConsumerT has been called."
+                        << std::endl
+                        << "Happened on node with rank " << m_commRank << std::endl
+                        << "This might indicate issues in the user code." << std::endl
+                        << GWARNING;
+            }
         }
 
         /**
