@@ -420,11 +420,9 @@ namespace Gem::Courtier {
 
                 // using break instead of while-condition allows skipping the sleep as soon as receiving has been completed
                 if (receiveIsCompleted) {
-                    // At this point we know that the send call is finished because otherwise we would not have received
-                    // the servers response to our message
-                    // Still, we have to call MPI_Test on the send handle to make the MPI runtime free the resources
-                    int unusedFlag{0};
-                    MPI_Test(&m_sendHandle, &unusedFlag, MPI_STATUS_IGNORE);
+                    // Since we have received the response to our message, the message must have been send out and
+                    // we can therefore allow the send request and send buffer to be freed.
+                    MPI_Request_free(&m_sendHandle);
                     break;
                 }
 
