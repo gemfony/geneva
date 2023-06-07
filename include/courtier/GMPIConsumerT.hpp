@@ -1294,8 +1294,8 @@ namespace Gem::Courtier {
                 MPI_Finalize();
             } else {
                 glogger
-                        << "In GMPIConsumerT<>::~GMPIConsumerT():" << std::endl
-                        << "MPI has been finalized before the destructor of GMPIConsumerT has been called."
+                        << "In GMPIConsumerT<>::finalizeMPI():" << std::endl
+                        << "MPI has been finalized GMPIConsumerT::finalizeMPI() has been called."
                         << std::endl
                         << "Happened on node with rank " << m_commRank << std::endl
                         << "This might indicate issues in the user code." << std::endl
