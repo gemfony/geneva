@@ -412,8 +412,7 @@ namespace Gem::Courtier {
             const auto timeStart = std::chrono::steady_clock::now();
 
             // continue testing until receive was completed or timeout has been triggered.
-            // note that we never wait for the send operation to complete, because receiving will only complete
-            // if the send operation has completed, because the server/master will only send a response if it has received our request
+            // This can only happen after the server has received our message, so send must also be complete
             while (true) {
                 MPI_Test(&m_receiveHandle,
                          &receiveIsCompleted,
@@ -421,6 +420,9 @@ namespace Gem::Courtier {
 
                 // using break instead of while-condition allows skipping the sleep as soon as receiving has been completed
                 if (receiveIsCompleted) {
+                    // Since we have received the response to our message, the message must have been send out and
+                    // we can therefore allow the send request and send buffer to be freed.
+                    MPI_Request_free(&m_sendHandle);
                     break;
                 }
 
@@ -652,12 +654,11 @@ namespace Gem::Courtier {
          */
         [[nodiscard]] bool isCompleted() {
             int isCompleted{0};
-            MPI_Status status{};
 
             MPI_Test(
                     &m_mpiRequestHandle,
                     &isCompleted,
-                    &status);
+                    MPI_STATUS_IGNORE);
 
             return isCompleted;
         }
@@ -918,6 +919,16 @@ namespace Gem::Courtier {
 
             // wait until all threads have finished their job
             m_handlerThreadPool->wait();
+
+            // cancel all open sessions. This must be done after receiverThread, handlerThreadPool and cleanUpThread
+            // have been joined because only then we can be sure that there are no more active sessions in the system
+            // other than those in the openSessions queue, thereby preventing race conditions.
+            m_openSessionsGuard.lock();
+            for (auto openSession: m_openSessions) {
+                openSession->cancel();
+            }
+            m_openSessions.clear();
+            m_openSessionsGuard.unlock();
         }
 
     private:
@@ -1056,16 +1067,6 @@ namespace Gem::Courtier {
                 // make open sessions vector available again e.g. for pushback
                 m_openSessionsGuard.unlock();
             }
-
-            // if told to stop cancel all open sessions
-            m_openSessionsGuard.lock();
-
-            for (auto openSession: m_openSessions) {
-                openSession->cancel();
-            }
-            m_openSessions.clear();
-
-            m_openSessionsGuard.unlock();
         }
 
         /**
@@ -1229,29 +1230,7 @@ namespace Gem::Courtier {
          * This destructor must call the MPI_Finalize function as this function encapsulates all MPI-specific action.
          */
         ~GMPIConsumerT() override {
-            int isInitialized{0};
-            MPI_Initialized(&isInitialized);
-
-            // Do not finalize if not initialized
-            // This can happen e.g. if instantiating GMPIConsumerT in Go2 but not using it afterwards
-            if (!isInitialized) {
-                return;
-            }
-
-            int isAlreadyFinalized{0};
-            MPI_Finalized(&isAlreadyFinalized);
-
-            if (!isAlreadyFinalized) {
-                MPI_Finalize();
-            } else {
-                glogger
-                        << "In GMPIConsumerT<>::~GMPIConsumerT():" << std::endl
-                        << "MPI has been finalized before the destructor of GMPIConsumerT has been called."
-                        << std::endl
-                        << "Happened on node with rank " << m_commRank << std::endl
-                        << "This might indicate issues in the user code." << std::endl
-                        << GWARNING;
-            }
+            this->finalizeMPI();
         }
 
         //-------------------------------------------------------------------------
@@ -1298,6 +1277,30 @@ namespace Gem::Courtier {
             }
 
             return !isAlreadyInitialized;
+        }
+
+        void finalizeMPI() {
+            // Do not finalize MPI if MPI Consumer has never been initialized.
+            // Note that it is still possible that MPI is initialized since the user code might use MPI
+            // Therefore we should not check for MPI_Initialized() but rather for our own flag
+            if (!this->isClusterPositionDefined) {
+                return;
+            }
+
+            int isAlreadyFinalized{0};
+            MPI_Finalized(&isAlreadyFinalized);
+
+            if (!isAlreadyFinalized) {
+                MPI_Finalize();
+            } else {
+                glogger
+                        << "In GMPIConsumerT<>::finalizeMPI():" << std::endl
+                        << "MPI has been finalized GMPIConsumerT::finalizeMPI() has been called."
+                        << std::endl
+                        << "Happened on node with rank " << m_commRank << std::endl
+                        << "This might indicate issues in the user code." << std::endl
+                        << GWARNING;
+            }
         }
 
         /**
@@ -1378,6 +1381,9 @@ namespace Gem::Courtier {
                             << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
                             << "Trying to continue unsynchronized." << std::endl
                             << GWARNING;
+                    
+                    MPI_Cancel(&requestHandle);
+                    MPI_Request_free(&requestHandle);
 
                     return false; // synchronize stopped but unsuccessful
                 } else if (m_commonConfig.waitForMasterStartupPollIntervalUSec > 0) {
