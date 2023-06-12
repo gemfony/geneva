@@ -154,10 +154,6 @@ namespace Gem::Courtier {
      */
     struct WorkerNodeConfig {
         /**
-         * Whether to issue a request for the next work item while the current work item is still being processed.
-         */
-        bool useAsynchronousRequests{true};
-        /**
          * The time in microseconds between each check for completion of the request for a new work item.
          */
         std::uint32_t ioPollIntervalUSec{100};
@@ -179,11 +175,6 @@ namespace Gem::Courtier {
             // Note that we use the current values of the members as default values, because in a default constructed
             // instance the defaults are already set. This allows to reduce duplication of those values
             namespace po = boost::program_options;
-            // add general options for GMPIConsumerT
-            visible.add_options()("mpi_worker_asyncRequests",
-                                  po::value<bool>(&useAsynchronousRequests)->default_value(useAsynchronousRequests),
-                                  "\t[mpi-worker-node] Whether to issue a request for the next work item while the current work item is still being processed");
-
             hidden.add_options()("mpi_worker_pollInterval",
                                  po::value<std::uint32_t>(&ioPollIntervalUSec)->default_value(
                                          ioPollIntervalUSec),
@@ -200,6 +191,10 @@ namespace Gem::Courtier {
      * Stores configuration options which are used by master node and worker nodes
      */
     struct CommonConfig {
+        /**
+         * Whether to issue a request for the next work item while the current work item is still being processed.
+         */
+        bool useAsynchronousRequests{true};
         /**
          * Serialization mode to use when serializing messages before transmitting over network between master node and worker nodes
          */
@@ -219,6 +214,10 @@ namespace Gem::Courtier {
             // Note that we use the current values of the members as default values, because in a default constructed
             // instance the defaults are already set. This allows to reduce duplication of those values
             namespace po = boost::program_options;
+
+            visible.add_options()("mpi_asyncRequests",
+                                  po::value<bool>(&useAsynchronousRequests)->default_value(useAsynchronousRequests),
+                                  "\t[mpi] Whether to issue a request for the next work item while the current work item is still being processed");
 
             hidden.add_options()("mpi_serializationMode",
                                  po::value<Gem::Common::serializationMode>(&serializationMode)->default_value(
@@ -274,27 +273,27 @@ namespace Gem::Courtier {
          *
          * Constructor with arguments for all configuration options for this class.
          *
-         * @param serializationMode mode of serialization between master node and worker nodes
-         * @param worldSize number of nodes in the cluster, which is equal to the number of workers + 1
-         * @param worldRank this node's rank within this cluster
+         * @param commSize number of nodes in the cluster, which is equal to the number of workers + 1
+         * @param commRank this node's rank within this cluster
          * @param halt function that returns true if halt criterion has been reached
          * @param incrementProcessingCounter function that increments the counter for already processed items on this node
-         * @param config configuration for this worker injected by the end user
+         * @param commonConfig general configuration specified by the end-user
+         * @param workerConfig configuration for this worker injected by the end-user
          */
         explicit GMPIConsumerWorkerNodeT(
-                Gem::Common::serializationMode serializationMode,
-                std::int32_t worldSize,
-                std::int32_t worldRank,
+                std::int32_t commSize,
+                std::int32_t commRank,
                 std::function<bool()> halt,
                 std::function<void()> incrementProcessingCounter,
-                WorkerNodeConfig config)
-                : m_serializationMode{serializationMode},
-                  m_worldSize{worldSize},
-                  m_worldRank{worldRank},
+                CommonConfig commonConfig,
+                WorkerNodeConfig workerConfig)
+                : m_commonConfig{commonConfig},
+                  m_commSize{commSize},
+                  m_commRank{commRank},
                   m_halt{std::move(halt)},
                   m_incrementProcessingCounter{std::move(incrementProcessingCounter)},
-                  m_config{config} {
-            glogger << "GMPIConsumerWorkerNodeT with rank " << m_worldRank
+                  m_workerConfig{workerConfig} {
+            glogger << "GMPIConsumerWorkerNodeT with rank " << m_commRank
                     << " started up" << std::endl
                     << GLOGGING;
             // create the buffer for incoming messages
@@ -339,7 +338,8 @@ namespace Gem::Courtier {
                 return; // return if unrecoverable error in networking occurred
             }
 
-            while (!m_halt()) {
+            // stop if server tells this worker to stop or if the optimization stop creteria is fulfilled
+            while (!m_stopRequestReceived && !m_halt()) {
                 // swap messages
                 // serialize (processed) container and store in m_outgoingMessage
                 // afterwards deserialize m_incomingMessage into the container
@@ -351,7 +351,7 @@ namespace Gem::Courtier {
                         m_commandContainer,
                         m_serializationMode);
 
-                if (m_config.useAsynchronousRequests) {
+                if (m_commonConfig.useAsynchronousRequests) {
                     std::future<bool> networkingSuccessful = std::async(
                             std::launch::async,
                             [this]() -> bool { return this->sendResultAndRequestNewWork(); });
@@ -430,10 +430,10 @@ namespace Gem::Courtier {
                 auto currentTime = std::chrono::steady_clock::now();
                 timeElapsed = std::chrono::duration_cast<std::chrono::seconds>(currentTime - timeStart);
 
-                if (timeElapsed > std::chrono::seconds{m_config.ioPollTimeoutSec}) {
+                if (timeElapsed > std::chrono::seconds{m_workerConfig.ioPollTimeoutSec}) {
                     glogger
                             << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
-                            << m_worldRank << ":"
+                            << m_commRank << ":"
                             << std::endl
                             << "Timeout triggered when communicating with GMPIConsumerMasterNodeT" << std::endl
                             << "We assume the server is down and will exit the worker." << std::endl
@@ -446,15 +446,15 @@ namespace Gem::Courtier {
                     return false;
                 }
 
-                if (m_config.ioPollIntervalUSec > 0) {
-                    std::this_thread::sleep_for(std::chrono::microseconds{m_config.ioPollIntervalUSec});
+                if (m_workerConfig.ioPollIntervalUSec > 0) {
+                    std::this_thread::sleep_for(std::chrono::microseconds{m_workerConfig.ioPollIntervalUSec});
                 }
             }
 
             if (receiveStatus.MPI_ERROR != MPI_SUCCESS) {
                 glogger
                         << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
-                        << m_worldRank << ":" << std::endl
+                        << m_commRank << ":" << std::endl
                         << "Received an error receiving a message from GMPIConsumerMasterNodeT:" << std::endl
                         << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl
                         << "Worker node will shut down." << std::endl
@@ -516,7 +516,7 @@ namespace Gem::Courtier {
                     break;
                 default: {
                     // Emit a warning, ignore item and request new item
-                    glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem() with rank=" << m_worldRank
+                    glogger << "GMPIConsumerWorkerNodeT<processable_type>::processWorkItem() with rank=" << m_commRank
                             << ":" << std::endl
                             << "Got unknown or invalid command "
                             << boost::lexical_cast<std::string>(m_commandContainer.get_command()) << std::endl
@@ -533,11 +533,11 @@ namespace Gem::Courtier {
         /**
          * number of nodes in the cluster (number of worker nodes + 1)
          */
-        std::int32_t m_worldSize;
+        std::int32_t m_commSize;
         /**
          * rank of this node in the cluster
          */
-        std::int32_t m_worldRank;
+        std::int32_t m_commRank;
         /**
          * serialization mode to use for messages between master node and worker nodes
          */
@@ -553,7 +553,15 @@ namespace Gem::Courtier {
         /**
          * Configuration of this client specified by the end-user.
          */
-        WorkerNodeConfig m_config;
+        WorkerNodeConfig m_workerConfig;
+        /**
+         * Configuration for client and server node specified by the end-user
+         */
+        CommonConfig m_commonConfig;
+        /**
+         * Whether a stop request from the master node has been received
+         */
+        bool m_stopRequestReceived{false};
 
         // only one request is processed at a time. Even in the version with asynchronous request the thread which is
         // responsible for handling the IO will always be joined before the next thread for the next IO-operation is spawned.
@@ -575,7 +583,7 @@ namespace Gem::Courtier {
         std::unique_ptr<char[]> m_incomingMessageBuffer;
         std::string m_incomingMessage;
         std::string m_outgoingMessage;
-        GCommandContainerT <processable_type, networked_consumer_payload_command> m_commandContainer{
+        GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
                 networked_consumer_payload_command::GETDATA}; ///< Holds the current command and payload (if any)
     };
 
@@ -606,13 +614,15 @@ namespace Gem::Courtier {
                 std::string requestMessage,
                 std::function<std::shared_ptr<processable_type>()> getPayloadItem,
                 std::function<void(std::shared_ptr<processable_type>)> putPayloadItem,
-                Gem::Common::serializationMode serializationMode)
+                Gem::Common::serializationMode serializationMode,
+                bool stopRequested)
                 : m_mpiStatus{status},
                 // avoid copying the string but also not taking it as reference because it should be owned by this object
                   m_requestMessage{std::move(requestMessage)},
                   m_getPayloadItem(std::move(getPayloadItem)),
                   m_putPayloadItem(std::move(putPayloadItem)),
                   m_serializationMode{serializationMode},
+                  m_stopRequested{stopRequested},
                   m_mpiRequestHandle{} {
         }
 
@@ -640,9 +650,6 @@ namespace Gem::Courtier {
             if (processRequest()) {
                 sendResponse();
             }
-
-            // set the time when finishing the run method
-            m_finishedSince = std::chrono::steady_clock::now();
         }
 
         /**
@@ -661,18 +668,6 @@ namespace Gem::Courtier {
                     MPI_STATUS_IGNORE);
 
             return isCompleted;
-        }
-
-        [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> finishedSince() const {
-            return m_finishedSince;
-        }
-
-        /**
-         * Cancels a non-completed session. Assumes the session has already called the run-method
-         */
-        void cancel() {
-            MPI_Cancel(&m_mpiRequestHandle);
-            MPI_Request_free(&m_mpiRequestHandle);
         }
 
         /**
@@ -696,18 +691,15 @@ namespace Gem::Courtier {
                 auto inboundCommand = m_commandContainer.get_command();
 
                 // If we have some payload received, add it to its destination
-                // Either way retrieve the next work item and send it to the client for processing
                 switch (inboundCommand) {
-                    case networked_consumer_payload_command::GETDATA: {
-                        getAndSerializeWorkItem();
-                        return true;
-                    }
                     case networked_consumer_payload_command::RESULT: {
                         putWorkItem();
-                        getAndSerializeWorkItem();
                         return true;
                     }
-                    default: {
+                    case networked_consumer_payload_command::GETDATA: {
+                        return true; // no data to process
+                    }
+                    default: { // clients may only send RESULT or GETDATA commands
                         glogger
                                 << "GMPIConsumerSessionT<processable_type>::process_request() connected to rank="
                                 << m_mpiStatus.MPI_SOURCE << ":" << std::endl
@@ -748,7 +740,7 @@ namespace Gem::Courtier {
                     << GWARNING;
         }
 
-        void getAndSerializeWorkItem() {
+        void prepareDataResponse() {
             // Obtain a container_payload object from the queue, serialize it and send it off
             // this function includes a timeout that might result in a nullptr being returned
             auto payloadPtr = this->m_getPayloadItem();
@@ -758,21 +750,28 @@ namespace Gem::Courtier {
             } else {
                 m_commandContainer.reset(networked_consumer_payload_command::NODATA);
             }
+        }
 
-            // serialize container, save as member and return
+        void prepareStopResponse() {
+            // store a stop request in the command container
+            m_commandContainer.reset(networked_consumer_payload_command::STOP);
+        }
+
+        void serializeOutgoingMsg() {
+            // set the outgoing message to the string representation of the
             m_outgoingMessage = Gem::Courtier::container_to_string(
                     m_commandContainer, m_serializationMode);
 
             if (m_outgoingMessage.size() > GMPICONSUMERMAXMESSAGESIZE) {
                 throw gemfony_exception(
                         g_error_streamer(DO_LOG, time_and_place)
-                                << "GMPIConsumerSessionT<processable_type>::getAndSerializeWorkItem():" << std::endl
+                                << "GMPIConsumerSessionT<processable_type>::serializeOutgoingMsg():" << std::endl
                                 << "Size of individual to send after serialization greater than maximum configured message size."
                                 << std::endl
                                 << "Size of Individual is " << m_outgoingMessage.size() << std::endl
                                 << "Maximum message size is " << GMPICONSUMERMAXMESSAGESIZE << std::endl
                                 << "Serialization mode is " << m_serializationMode << std::endl
-                                << "To overcome this issue change the serialization mode or adjust the maximum message size.");
+                                << "To overcome this issue, change the serialization mode or adjust the maximum message size.");
             }
         }
 
@@ -781,6 +780,16 @@ namespace Gem::Courtier {
          * isCompleted() can be used to check for the completion of the send operation.
          */
         void sendResponse() {
+            // prepare the correct type of message in the outgoing command
+            if (m_stopRequested) {
+                prepareStopResponse();
+            } else {
+                prepareDataResponse();
+            }
+
+            // serialize the outgoing message
+            serializeOutgoingMsg();
+
             // asynchronously start sending the response
             MPI_Isend(
                     m_outgoingMessage.data(),
@@ -800,11 +809,12 @@ namespace Gem::Courtier {
         const MPI_Status m_mpiStatus;
         const std::string m_requestMessage;
         const Gem::Common::serializationMode m_serializationMode;
+        const bool m_stopRequested;
 
         std::function<std::shared_ptr<processable_type>()> m_getPayloadItem;
         std::function<void(std::shared_ptr<processable_type>)> m_putPayloadItem;
 
-        GCommandContainerT <processable_type, networked_consumer_payload_command> m_commandContainer{
+        GCommandContainerT<processable_type, networked_consumer_payload_command> m_commandContainer{
                 networked_consumer_payload_command::NONE}; ///< Holds the current command and payload (if any)
         MPI_Request m_mpiRequestHandle;
         std::string m_outgoingMessage;
@@ -853,20 +863,22 @@ namespace Gem::Courtier {
     public:
         /**
          * Constructor to instantiate the GMPIConsumerMasterNodeT
-         * @param serializationMode mode of serialization to use for messages transferred between master node and worker nodes.
          * @param worldSize number of nodes in the cluster, which is equal to the number of workers + 1
          * @param config configuration for this node specified by the end user
          */
         explicit GMPIConsumerMasterNodeT(
                 Gem::Common::serializationMode serializationMode,
                 std::int32_t worldSize,
+                CommonConfig commonConfig,
                 MasterNodeConfig config)
                 : m_serializationMode{serializationMode},
                   m_worldSize{worldSize},
                   m_isToldToStop{false},
-                  m_config{config} {
+                  m_allClientsToldToStop{false},
+                  m_commonConfig{commonConfig},
+                  m_masterConfig{config} {
             configureNHandlerThreads();
-            glogger << "GMPIConsumerMasterNodeT started with n=" << m_config.nIOThreads << " IO-threads" << std::endl
+            glogger << "GMPIConsumerMasterNodeT started with n=" << m_masterConfig.nIOThreads << " IO-threads" << std::endl
                     << GLOGGING;
         }
 
@@ -891,7 +903,7 @@ namespace Gem::Courtier {
          * To stop the master node and all its threads again the shutdown method can be called.
          */
         void async_startProcessing() {
-            m_handlerThreadPool = std::make_unique<Common::GThreadPool>(m_config.nIOThreads);
+            m_handlerThreadPool = std::make_unique<Common::GThreadPool>(m_masterConfig.nIOThreads);
 
             auto self = this->shared_from_this();
             m_receiverThread = std::thread(
@@ -911,29 +923,22 @@ namespace Gem::Courtier {
             // notify other threads to stop
             m_isToldToStop.store(true);
 
-            // wait for the receiver thread
+            // wait for the receiver thread to send a stop request to each client
             m_receiverThread.join();
+
+            // wait until all threads to finish their work i.e. send the stop requests out to the clients
+            m_handlerThreadPool->wait();
 
             // wait for the cleanup thread. This thread will close all open sessions before joining
             m_cleanUpThread.join();
-
-            // wait until all threads have finished their job
-            m_handlerThreadPool->wait();
-
-            // cancel all open sessions. This must be done after receiverThread, handlerThreadPool and cleanUpThread
-            // have been joined because only then we can be sure that there are no more active sessions in the system
-            // other than those in the openSessions queue, thereby preventing race conditions.
-            m_openSessionsGuard.lock();
-            for (auto openSession: m_openSessions) {
-                openSession->cancel();
-            }
-            m_openSessions.clear();
-            m_openSessionsGuard.unlock();
         }
 
     private:
         void listenForRequests() {
-            while (!m_isToldToStop) {
+            // number of workers that we have send a stop request to
+            uint32_t stopRequestsSendOut{0};
+
+            while (stopRequestsSendOut < this->m_worldSize) {
                 MPI_Request requestHandle{};
                 // create a buffer for each request.
                 // once the session finished handling the request, it will release the handle and the memory will be freed
@@ -959,29 +964,31 @@ namespace Gem::Courtier {
                             &status);
 
                     if (isCompleted) {
+                        // save atomic variable value
+                        const bool stopRequested = m_isToldToStop.load();
+
+                        if (stopRequested) {
+                            ++stopRequestsSendOut;
+                        }
                         // let a new thread handle this request and listen for further requests
                         // we capture copies of smart pointers in the closure, which keeps the underlying data alive
                         const auto self = this->shared_from_this();
                         m_handlerThreadPool->async_schedule(
-                                [&self, status, buffer] { self->handleRequest(status, buffer); });
+                                [&self, status, buffer, stopRequested] {
+                                    self->handleRequest(status, buffer, stopRequested);
+                                });
                         break;
                     }
 
-                    if (m_isToldToStop) {
-                        // cancel pending request and return in case we receive a stop signal
-                        cancelRequest(requestHandle);
-                        return;
-                    }
-
                     // if receive not completed yet, sleep a short amount of time until polling again for the message status
-                    if (m_config.receivePollIntervalUSec > 0) {
-                        std::this_thread::sleep_for(std::chrono::microseconds{m_config.receivePollIntervalUSec});
+                    if (m_masterConfig.receivePollIntervalUSec > 0) {
+                        std::this_thread::sleep_for(std::chrono::microseconds{m_masterConfig.receivePollIntervalUSec});
                     }
                 }
             }
         }
 
-        void handleRequest(const MPI_Status &status, const std::shared_ptr<char[]> &buffer) {
+        void handleRequest(const MPI_Status &status, const std::shared_ptr<char[]> &buffer, const bool stopRequested) {
             if (status.MPI_ERROR != MPI_SUCCESS) {
                 glogger
                         << "In GMPIConsumerMasterNodeT<processable_type>::handleRequest():" << std::endl
@@ -1000,7 +1007,8 @@ namespace Gem::Courtier {
                     std::string{buffer.get(), static_cast<size_t>(mpiGetCount(status))},
                     [this]() -> std::shared_ptr<processable_type> { return getPayloadItem(); },
                     [this](std::shared_ptr<processable_type> p) { putPayloadItem(p); },
-                    m_serializationMode);
+                    m_serializationMode,
+                    stopRequested);
 
             // runs the session but does not close it
             session->run();
@@ -1013,9 +1021,8 @@ namespace Gem::Courtier {
         }
 
         void pushOpenSession(std::shared_ptr<GMPIConsumerSessionT<processable_type>> session) {
-            m_openSessionsGuard.lock();
+            std::lock_guard<std::mutex> guard(m_openSessionsMutex);
             m_openSessions.push_back(session);
-            m_openSessionsGuard.unlock();
         }
 
         /**
@@ -1030,42 +1037,33 @@ namespace Gem::Courtier {
          *
          */
         void cleanUpSessionsLoop() {
-            while (!m_isToldToStop) {
+            // keep running until all stop requests have been send out,
+            // since after that no more sessions should be opened because all clients will shut down
+            while (!m_allClientsToldToStop) {
                 // wait a short amount of time between checking if the sessions have been completed
-                if (m_config.sendPollIntervalMSec > 0) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds{m_config.sendPollIntervalMSec});
+                if (m_masterConfig.sendPollIntervalMSec > 0) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds{m_masterConfig.sendPollIntervalMSec});
                 }
 
                 const auto timeCurr = std::chrono::steady_clock::now();
 
                 // lock access to open sessions vector
-                m_openSessionsGuard.lock();
+                std::lock_guard<std::mutex> guard(m_openSessionsMutex);
+                // TODO: remove
+                std::cout << "Number of open sessions before clean up: " << m_openSessions.size() << std::endl;
 
-                for (auto sessionIter{m_openSessions.begin() }; sessionIter != m_openSessions.end(); /* no increment */) {
+                for (auto sessionIter{m_openSessions.begin()};
+                     sessionIter != m_openSessions.end(); /* no increment */) {
                     if ((*sessionIter)->isCompleted()) {
                         // erase this session if it has been completed
-                        sessionIter = m_openSessions.erase(sessionIter);
-                    } else if (m_config.sendPollTimeoutSec <
-                               std::chrono::duration_cast<std::chrono::seconds>(timeCurr - (*sessionIter)->finishedSince().value()).count()) {
-                        glogger
-                                << "In GMPIConsumerSessionT<processable_type>::sendResponse() connected to rank="
-                                << (*sessionIter)->getConnectedWorker() << ":" << std::endl
-                                << "Configured timeout of " << m_config.sendPollIntervalMSec
-                                << " milliseconds has been reached for sending a work item to a worker node"
-                                << std::endl
-                                << "Response will be canceled." << std::endl
-                                << GWARNING;
-
-                        // close and erase session in case of timeout
-                        (*sessionIter)->cancel();
                         sessionIter = m_openSessions.erase(sessionIter);
                     } else {
                         // increment iterator in case no session has been erased
                         ++sessionIter;
                     }
                 }
-                // make open sessions vector available again e.g. for pushback
-                m_openSessionsGuard.unlock();
+
+                std::cout << "Number of open sessions after clean up: " << m_openSessions.size() << std::endl;
             }
         }
 
@@ -1116,8 +1114,8 @@ namespace Gem::Courtier {
 
         void configureNHandlerThreads() {
             // if thread pool size is set to 0 by user, set it to a recommendation
-            if (m_config.nIOThreads == 0) {
-                m_config.nIOThreads = nHandlerThreadsRecommendation();
+            if (m_masterConfig.nIOThreads == 0) {
+                m_masterConfig.nIOThreads = nHandlerThreadsRecommendation();
             }
         }
 
@@ -1142,7 +1140,8 @@ namespace Gem::Courtier {
 
         Gem::Common::serializationMode m_serializationMode;
         std::int32_t m_worldSize;
-        MasterNodeConfig m_config;
+        MasterNodeConfig m_masterConfig;
+        CommonConfig m_commonConfig;
 
         std::unique_ptr<Common::GThreadPool> m_handlerThreadPool;
         /**
@@ -1156,13 +1155,15 @@ namespace Gem::Courtier {
         /*
          * Mutex to protect the vector of open sessions
          */
-        std::mutex m_openSessionsGuard{};
+        std::mutex m_openSessionsMutex{};
         /*
          * Open sessions
          */
         std::vector<std::shared_ptr<GMPIConsumerSessionT<processable_type>>> m_openSessions{};
-        std::atomic<bool> m_isToldToStop;
-
+        // whether a stop request for the GMPIConsumerT has been received
+        std::atomic_bool m_isToldToStop;
+        // whether the stop request has been sent to all clients
+        std::atomic_bool m_allClientsToldToStop;
         std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
                 processable_type); ///< Simplified access to the broker
         const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(
@@ -1381,7 +1382,7 @@ namespace Gem::Courtier {
                             << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
                             << "Trying to continue unsynchronized." << std::endl
                             << GWARNING;
-                    
+
                     MPI_Cancel(&requestHandle);
                     MPI_Request_free(&requestHandle);
 
@@ -1609,8 +1610,8 @@ namespace Gem::Courtier {
             // instantiate the correct class according to the position in the cluster
             if (isMasterNode()) {
                 m_masterNodePtr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
-                        m_commonConfig.serializationMode,
                         m_commSize,
+                        m_commonConfig,
                         m_masterNodeConfig);
             } else {
                 // note that we cannot create a shared pointer from this because we are currently in the constructor
@@ -1619,11 +1620,11 @@ namespace Gem::Courtier {
                 // safe already with raw pointers, because the lifetime of the GMPIConsumerWorkerNodeT is bound to the
                 // lifetime of this object
                 m_workerNodePtr = std::make_shared<GMPIConsumerWorkerNodeT<processable_type>>(
-                        m_commonConfig.serializationMode,
                         m_commSize,
                         m_commRank,
                         [this]() -> bool { return this->halt(); },
                         [this]() -> void { this->incrementProcessingCounter(); },
+                        m_commonConfig,
                         m_workerNodeConfig);
             }
         }
