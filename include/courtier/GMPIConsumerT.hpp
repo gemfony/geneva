@@ -356,17 +356,27 @@ namespace Gem::Courtier {
                             std::launch::async,
                             [this]() -> bool { return this->sendResultAndRequestNewWork(); });
 
+                    // process the currently available work item (may be a stop request)
                     processWorkItem();
 
                     if (!networkingSuccessful.get()) {
                         return; // return if unrecoverable error in networking occurred
                     }
                 } else {
+                    // process the currently available work item (may be a stop request)
+                    processWorkItem();
+
+                    // TODO: only send new request if not told to stop
                     if (!sendResultAndRequestNewWork()) {
                         return; // return if unrecoverable error in networking occurred
                     }
-                    processWorkItem();
                 }
+            }
+
+            // if we have been stopped in async mode, we have send one more request out
+            // The response for this request has to be received
+            if (m_stopRequestReceived && m_commonConfig.useAsynchronousRequests) {
+                // TODO:
             }
         }
 
@@ -408,8 +418,6 @@ namespace Gem::Courtier {
             // time in microseconds that have been spent waiting during communication already
             int receiveIsCompleted{0};
             MPI_Status receiveStatus{};
-            std::chrono::microseconds timeElapsed{0};
-            const auto timeStart = std::chrono::steady_clock::now();
 
             // continue testing until receive was completed or timeout has been triggered.
             // This can only happen after the server has received our message, so send must also be complete
@@ -424,26 +432,6 @@ namespace Gem::Courtier {
                     // we can therefore allow the send request and send buffer to be freed.
                     MPI_Request_free(&m_sendHandle);
                     break;
-                }
-
-                // update elapsed time to compare with timeout
-                auto currentTime = std::chrono::steady_clock::now();
-                timeElapsed = std::chrono::duration_cast<std::chrono::seconds>(currentTime - timeStart);
-
-                if (timeElapsed > std::chrono::seconds{m_workerConfig.ioPollTimeoutSec}) {
-                    glogger
-                            << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
-                            << m_commRank << ":"
-                            << std::endl
-                            << "Timeout triggered when communicating with GMPIConsumerMasterNodeT" << std::endl
-                            << "We assume the server is down and will exit the worker." << std::endl
-                            << "The reason is most likely the end of the optimization at the server, but it could also "
-                               "be server side crash."
-                            << std::endl
-                            << GLOGGING;
-
-                    cancelActiveRequests();
-                    return false;
                 }
 
                 if (m_workerConfig.ioPollIntervalUSec > 0) {
@@ -512,6 +500,10 @@ namespace Gem::Courtier {
 
                     // Tell the server again we need work
                     m_commandContainer.reset(networked_consumer_payload_command::GETDATA);
+                }
+                    break;
+                case networked_consumer_payload_command::STOP: {
+                    this->m_stopRequestReceived = true;
                 }
                     break;
                 default: {
@@ -872,13 +864,14 @@ namespace Gem::Courtier {
                 CommonConfig commonConfig,
                 MasterNodeConfig config)
                 : m_serializationMode{serializationMode},
-                  m_worldSize{worldSize},
+                  m_commSize{worldSize},
                   m_isToldToStop{false},
                   m_allClientsToldToStop{false},
                   m_commonConfig{commonConfig},
                   m_masterConfig{config} {
             configureNHandlerThreads();
-            glogger << "GMPIConsumerMasterNodeT started with n=" << m_masterConfig.nIOThreads << " IO-threads" << std::endl
+            glogger << "GMPIConsumerMasterNodeT started with n=" << m_masterConfig.nIOThreads << " IO-threads"
+                    << std::endl
                     << GLOGGING;
         }
 
@@ -937,8 +930,14 @@ namespace Gem::Courtier {
         void listenForRequests() {
             // number of workers that we have send a stop request to
             uint32_t stopRequestsSendOut{0};
+            // number of stop requests to be send out until all clients stop.
+            // In sync mode, each client received one stop request.
+            // In async mode, each client sends out one last request although having receive a stop that has to be answered
+            // by the server
+            uint32_t reqNumStops{
+                    m_commonConfig.useAsynchronousRequests ? 2 * (this->m_commSize - 1) : (this->m_commSize - 1)};
 
-            while (stopRequestsSendOut < this->m_worldSize) {
+            while (stopRequestsSendOut < reqNumStops) {
                 MPI_Request requestHandle{};
                 // create a buffer for each request.
                 // once the session finished handling the request, it will release the handle and the memory will be freed
@@ -1139,7 +1138,7 @@ namespace Gem::Courtier {
         // Data
 
         Gem::Common::serializationMode m_serializationMode;
-        std::int32_t m_worldSize;
+        std::int32_t m_commSize;
         MasterNodeConfig m_masterConfig;
         CommonConfig m_commonConfig;
 
