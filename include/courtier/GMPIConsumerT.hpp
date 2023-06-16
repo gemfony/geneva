@@ -377,11 +377,11 @@ namespace Gem::Courtier {
             // await last server response for the due to double buffering unnecessarily send our request
             if (this->m_stopRequestReceived) {
                 waitForLastResponse();
-            }
 
-            glogger << "GMPIConsumerWorkerNodeT with rank " << this->m_commRank
-                    << " has received a stop request and will shut down."
-                    << std::endl << GLOGGING;
+                glogger << "GMPIConsumerWorkerNodeT with rank " << this->m_commRank
+                        << " has received a stop request and will shut down."
+                        << std::endl << GLOGGING;
+            }
         }
 
     private:
@@ -455,7 +455,6 @@ namespace Gem::Courtier {
                         << "Worker node will shut down." << std::endl
                         << GWARNING;
 
-                cancelActiveRequests();
                 return false;
             }
 
@@ -465,16 +464,17 @@ namespace Gem::Courtier {
             return true;
         }
 
-        /**
-         * Cancels the active requests that are associated with the handles, which are stored as member variables.
-         */
-        void cancelActiveRequests() {
-            MPI_Cancel(&m_receiveHandle);
-            MPI_Request_free(&m_receiveHandle);
-
-            MPI_Cancel(&m_sendHandle);
-            MPI_Request_free(&m_sendHandle);
-        }
+        // TODO: remove unused code
+//        /**
+//         * Cancels the active requests that are associated with the handles, which are stored as member variables.
+//         */
+//        void cancelActiveRequests() {
+//            MPI_Cancel(&m_receiveHandle);
+//            MPI_Request_free(&m_receiveHandle);
+//
+//            MPI_Cancel(&m_sendHandle);
+//            MPI_Request_free(&m_sendHandle);
+//        }
 
         /**
          * Processes the work item that is stored in the member m_commandContainer.
@@ -511,6 +511,8 @@ namespace Gem::Courtier {
                     break;
                 case networked_consumer_payload_command::STOP: {
                     this->m_stopRequestReceived = true;
+                    // TODO: remove print
+                    std::cout << "Worker " << this->m_commRank << ": Stop request received" << std::endl;
                 }
                     break;
                 default: {
@@ -555,7 +557,11 @@ namespace Gem::Courtier {
                         << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl
                         << "Worker node will shut down." << std::endl
                         << GTERMINATION;
+                return;
             }
+
+            // TODO: remove print
+            std::cout << "Worker " << this->m_commRank << " last stop received" << std::endl;
 
             // get command container from received bytes
             m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(receiveStatus));
@@ -830,6 +836,8 @@ namespace Gem::Courtier {
         void sendResponse() {
             // prepare the correct type of message in the outgoing command
             if (m_stopRequested) {
+                // TODO: remove print
+                std::cout << "Sending stop request" << std::endl;
                 prepareStopResponse();
             } else {
                 prepareDataResponse();
@@ -973,23 +981,23 @@ namespace Gem::Courtier {
             // wait for the receiver thread to send a stop request to each client
             m_receiverThread.join();
 
-            // wait until all threads to finish their work i.e. send the stop requests out to the clients
+            // wait until for threads to finish their work i.e. send the stop requests out to the clients
             m_handlerThreadPool->wait();
 
             // wait for the cleanup thread. This thread will close all open sessions before joining
             m_cleanUpThread.join();
+
+            // TODO: remove print
+            std::cout << "Server finished shutdown" << std::endl;
         }
 
     private:
         void listenForRequests() {
             // number of workers that we have send a stop request to
             uint32_t stopRequestsSendOut{0};
-            // number of stop requests to be send out until all clients stop.
-            // In sync mode, each client received one stop request.
-            // In async mode, each client sends out one last request although having receive a stop that has to be answered
-            // by the server
-            uint32_t reqNumStops{
-                    m_commonConfig.useAsynchronousRequests ? 2 * (this->m_commSize - 1) : (this->m_commSize - 1)};
+            // Each client sends out one last request although having receive a stop that has to be answered
+            // by the server since the clients use double buffering
+            int32_t reqNumStops{2 * (this->m_commSize - 1)};
 
             while (stopRequestsSendOut < reqNumStops) {
                 MPI_Request requestHandle{};
@@ -1039,6 +1047,9 @@ namespace Gem::Courtier {
                     }
                 }
             }
+            // notify that all clients have received all stop requests and therefore no client may send further requests
+            m_allClientsToldToStop.store(true);
+            std::this_thread::sleep_for(std::chrono::seconds(5));
         }
 
         void handleRequest(const MPI_Status &status, const std::shared_ptr<char[]> &buffer, const bool stopRequested) {
@@ -1092,7 +1103,7 @@ namespace Gem::Courtier {
         void cleanUpSessionsLoop() {
             // keep running until all stop requests have been send out,
             // since after that no more sessions should be opened because all clients will shut down
-            while (!m_allClientsToldToStop) {
+            while (!m_allClientsToldToStop.load()) {
                 // wait a short amount of time between checking if the sessions have been completed
                 if (m_masterConfig.sendPollIntervalMSec > 0) {
                     std::this_thread::sleep_for(std::chrono::milliseconds{m_masterConfig.sendPollIntervalMSec});
