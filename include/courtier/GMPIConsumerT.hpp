@@ -84,6 +84,8 @@
 #include "courtier/GCommandContainerT.hpp"
 
 // TODO: extract double buffering to GBaseConsumerClientT
+// TODO: adapt documentation
+// TODO: make MPI consumer a returning consumer
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -909,16 +911,14 @@ namespace Gem::Courtier {
     public:
         /**
          * Constructor to instantiate the GMPIConsumerMasterNodeT
-         * @param worldSize number of nodes in the cluster, which is equal to the number of workers + 1
+         * @param commSize number of nodes in the cluster, which is equal to the number of workers + 1
          * @param config configuration for this node specified by the end user
          */
         explicit GMPIConsumerMasterNodeT(
-                Gem::Common::serializationMode serializationMode,
-                std::int32_t worldSize,
+                std::int32_t commSize,
                 CommonConfig commonConfig,
                 MasterNodeConfig config)
-                : m_serializationMode{serializationMode},
-                  m_commSize{worldSize},
+                : m_commSize{commSize},
                   m_isToldToStop{false},
                   m_allClientsToldToStop{false},
                   m_commonConfig{commonConfig},
@@ -1102,7 +1102,7 @@ namespace Gem::Courtier {
 
                 // lock access to open sessions vector
                 std::lock_guard<std::mutex> guard(m_openSessionsMutex);
-                // TODO: remove
+                // TODO: remove print
                 std::cout << "Number of open sessions before clean up: " << m_openSessions.size() << std::endl;
 
                 for (auto sessionIter{m_openSessions.begin()};
@@ -1116,18 +1116,20 @@ namespace Gem::Courtier {
                     }
                 }
 
+                // TODO: remove print
                 std::cout << "Number of open sessions after clean up: " << m_openSessions.size() << std::endl;
             }
         }
 
-        /**
-         * Cancels an active mpi request.
-         * @param request the request to be canceled.
-         */
-        void cancelRequest(MPI_Request &request) {
-            MPI_Cancel(&request);
-            MPI_Request_free(&request);
-        }
+        // TODO: remove unused code
+//        /**
+//         * Cancels an active mpi request.
+//         * @param request the request to be canceled.
+//         */
+//        void cancelRequest(MPI_Request &request) {
+//            MPI_Cancel(&request);
+//            MPI_Request_free(&request);
+//        }
 
         /**
          * Tries to retrieve a work item from the server, observing a timeout. If timeout is reached a nullptr is returned
@@ -1173,19 +1175,11 @@ namespace Gem::Courtier {
         }
 
         [[nodiscard]] std::uint32_t nHandlerThreadsRecommendation() const {
-            // At least the main thread (consumer runs not on main thread)
-            // and the thread for receiving incoming connections should get their own processor
-            const long long threadsReservedForOtherTasks{2};
-            long long numCPUCores = sysconf(_SC_NPROCESSORS_ONLN);
+            // query hint that indicates how many hardware threads are available (might return 0)
+            const unsigned int hwThreads{std::thread::hardware_concurrency()};
 
-            long long recommendation{numCPUCores - threadsReservedForOtherTasks};
-
-            // at least one thread must be used for handling requests, even if system has not as many cores
-            if (recommendation < 1) {
-                recommendation = 1;
-            }
-
-            return recommendation > 0 ? recommendation : 1;
+            // if hint has returned 0, default to 8
+            return hwThreads != 0 ? hwThreads : 8;
         }
 
         //-------------------------------------------------------------------------
@@ -1587,7 +1581,7 @@ namespace Gem::Courtier {
          */
         size_t getNProcessingUnitsEstimate_(bool &exact) const BASE override {
             exact = true; // mark the answer as exact
-            return m_commSize;
+            return m_commSize - 1;
         }
 
         /**
@@ -1595,13 +1589,13 @@ namespace Gem::Courtier {
          * @return
          */
         [[nodiscard]] bool capableOfFullReturn_() const BASE override {
-            return false; // in network operations we must always expect that error can occur
+            return true; // mpi errors are fatal in most cases, assume everything returns or we have an error
         }
 
         /**
          * This method returns a client associated with this consumer.
          *
-         * Inherited from GBaseconsumerT
+         * Inherited from GBaseonsumerT
          * This function makes only sense to be called if the current node has rank 1-n (i.e. is a worker node).
          * Therefore we can simply return the current object, because it is already a client.
          */
