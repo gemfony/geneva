@@ -366,18 +366,20 @@ namespace Gem::Courtier {
                     // process the currently available work item (may be a stop request)
                     processWorkItem();
 
-                    // TODO: only send new request if not told to stop
                     if (!sendResultAndRequestNewWork()) {
                         return; // return if unrecoverable error in networking occurred
                     }
                 }
             }
 
-            // if we have been stopped in async mode, we have send one more request out
-            // The response for this request has to be received
-            if (m_stopRequestReceived && m_commonConfig.useAsynchronousRequests) {
-                // TODO:
+            // await last server response for the due to double buffering unnecessarily send our request
+            if (this->m_stopRequestReceived) {
+                waitForLastResponse();
             }
+
+            glogger << "GMPIConsumerWorkerNodeT with rank " << this->m_commRank
+                    << " has received a stop request and will shut down."
+                    << std::endl << GLOGGING;
         }
 
     private:
@@ -418,6 +420,9 @@ namespace Gem::Courtier {
             // time in microseconds that have been spent waiting during communication already
             int receiveIsCompleted{0};
             MPI_Status receiveStatus{};
+
+            // TODO: to decrease CPU utilization, use MPI_Wait instead of MPI_Test.
+            //  Since the computation is running on another thread, this should be possible
 
             // continue testing until receive was completed or timeout has been triggered.
             // This can only happen after the server has received our message, so send must also be complete
@@ -516,6 +521,55 @@ namespace Gem::Courtier {
 
                     m_commandContainer.reset(networked_consumer_payload_command::GETDATA);
                 }
+            }
+        }
+
+        /**
+         *  If we have been stopped, we leave the loop here but have sent one more request out
+         * because of double buffered requests. The server must await this additional request, because all
+         * MPI communication should be completed before shutdown.
+         * For this reason, we have to receive the server's response for this last request and keep it unanswered
+         */
+        void waitForLastResponse() {
+            // issue async call to receive the server's last response
+            MPI_Irecv(
+                    m_incomingMessageBuffer.get(),
+                    GMPICONSUMERMAXMESSAGESIZE,
+                    MPI_CHAR,
+                    RANK_MASTER_NODE,
+                    MPI_ANY_TAG,
+                    MPI_COMMUNICATOR,
+                    &m_receiveHandle);
+
+            // wait for completion of last server response
+            MPI_Status receiveStatus{};
+            MPI_Wait(&m_receiveHandle, &receiveStatus);
+
+            if (receiveStatus.MPI_ERROR != MPI_SUCCESS) {
+                glogger
+                        << "In GMPIConsumerWorkerNodeT<processable_type>::waitForLastResponse() with rank="
+                        << m_commRank << ":" << std::endl
+                        << "Received an error receiving the last message from GMPIConsumerMasterNodeT:" << std::endl
+                        << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl
+                        << "Worker node will shut down." << std::endl
+                        << GTERMINATION;
+            }
+
+            // get command container from received bytes
+            m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(receiveStatus));
+            Gem::Courtier::container_from_string(
+                    m_incomingMessage,
+                    m_commandContainer,
+                    m_serializationMode);
+
+            // sanity check: Server should only return stop request once the first stop request has been returned
+            if (m_commandContainer.get_command() != networked_consumer_payload_command::STOP) {
+                glogger
+                        << "In GMPIConsumerWorkerNodeT<processable_type>::waitForLastResponse() with rank="
+                        << m_commRank << ":" << std::endl
+                        << "Expected to receive the last stop request but instead received message with command "
+                        << m_commandContainer.get_command()
+                        << GTERMINATION;
             }
         }
 
