@@ -96,101 +96,6 @@ namespace Gem::Courtier {
     static MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD;
 
     /**
-     * Stores configuration options necessary for a master node
-     */
-//    struct MasterNodeConfig {
-//        /**
-//         * The number of threads in a thread pool which is used to handle incoming requests.
-//         */
-//        boost::uint32_t nHandlerThreads{0};
-////        /**
-////         * The time in microseconds between each check for a new incoming connection
-////         */
-////        std::uint32_t receivePollIntervalUSec{0};
-//        /**
-//         * The time in milliseconds between each check of completion of the send operation of a new work item to a worker node.
-//         */
-//        std::uint32_t masterCheckSendComplMSec{1'000};
-//        /**
-//         * The maximum time in seconds to wait until a send operation of a new work item to a worker node is expected to succeed.
-//         */
-////        std::uint32_t sendPollTimeoutSec{5};
-//
-//        /**
-//         * Adds local command line options to a boost::program_options::options_description object.
-//         *
-//         * @param visible Command line options that should always be visible
-//         * @param hidden Command line options that should only be visible upon request for details
-//         */
-//        void addCLOptions(
-//                boost::program_options::options_description &visible,
-//                boost::program_options::options_description &hidden) {
-//            // Note that we use the current values of the members as default values, because in a default constructed
-//            // instance the defaults are already set. This allows to reduce duplication of those values
-//            namespace po = boost::program_options;
-//            // add general options for GMPIConsumerT
-//            visible.add_options()("mpi_master_nIOThreads",
-//                                  po::value<std::uint32_t>(&nHandlerThreads)->default_value(nHandlerThreads),
-//                                  "\t[mpi-master-node] The number of threads in a thread pool which is used to handle incoming requests."
-//                                  "The default of 0 triggers a dynamic configuration depending on the number of cpu cores on the current system");
-//
-////            hidden.add_options()("mpi_master_receivePollInterval",
-////                                 po::value<std::uint32_t>(&receivePollIntervalUSec)->default_value(
-////                                         receivePollIntervalUSec),
-////                                 "\t[mpi-master-node] The time in microseconds between each check for a new incoming connection. "
-////                                 "Setting this to 0 means repeatedly checking without waiting in between checks.");
-//
-//            hidden.add_options()("mpi_master_sendPollInterval",
-//                                 po::value<std::uint32_t>(&masterCheckSendComplMSec)->default_value(
-//                                         masterCheckSendComplMSec),
-//                                 "\t[mpi-master-node] The time in milliseconds between each check of completion of the send operation of a new work item to a worker node");
-//
-////            hidden.add_options()("mpi_master_sendPollTimeout",
-////                                 po::value<std::uint32_t>(&sendPollTimeoutSec)->default_value(
-////                                         sendPollTimeoutSec),
-////                                 "\t[mpi-master-node] The maximum time in seconds to wait until a send operation of a new work item to a worker node succeeds");
-//        }
-//    };
-
-//    /**
-//     * Combines all configuration options necessary for a worker node
-//     */
-//    struct WorkerNodeConfig {
-//        /**
-//         * The time in microseconds between each check for completion of the request for a new work item.
-//         */
-//        std::uint32_t workerCheckRecvComplUSec{100};
-//        /**
-//         * The maximum time in seconds to wait until a request for a new work item has been answered.
-//         * After this timeout is triggered, the worker assumes the server is finished or has crashed and will shut down.
-//         */
-////        std::uint32_t ioPollTimeoutSec{5};
-//
-//        /**
-//         * Adds local command line options to a boost::program_options::options_description object.
-//         *
-//         * @param visible Command line options that should always be visible
-//         * @param hidden Command line options that should only be visible upon request for details
-//         */
-//        void addCLOptions(
-//                boost::program_options::options_description &visible,
-//                boost::program_options::options_description &hidden) {
-//            // Note that we use the current values of the members as default values, because in a default constructed
-//            // instance the defaults are already set. This allows to reduce duplication of those values
-//            namespace po = boost::program_options;
-//            hidden.add_options()("mpi_worker_pollInterval",
-//                                 po::value<std::uint32_t>(&workerCheckRecvComplUSec)->default_value(
-//                                         workerCheckRecvComplUSec),
-//                                 "\t[mpi-worker-node] The time in microseconds between each check for completion of the request for a new work item.");
-//
-////            hidden.add_options()("mpi_worker_pollTimeout",
-////                                 po::value<std::uint32_t>(&ioPollTimeoutSec)->default_value(
-////                                         ioPollTimeoutSec),
-////                                 "\t[mpi-worker-node] The maximum time in seconds to wait until a request for a new work item has been answered");
-//        }
-//    };
-
-    /**
      * Stores configuration options which are used by master node and worker nodes
      */
     struct MPIConsumerConfig {
@@ -414,20 +319,9 @@ namespace Gem::Courtier {
                 }
             }
 
-            // TODO: remove print
-            std::cout << "Worker with rank " << m_commRank << " leaving Loop after stop request" << std::endl;
-
             // await last server response for the due to double buffering unnecessarily send our request
             if (this->m_stopRequestReceived) {
-                // TODO: remove print
-                std::cout << "Worker with rank " << m_commRank << " preparing to wait for last stop request"
-                          << std::endl;
-//                waitForLastResponse();
                 processLastResponse();
-
-                glogger << "GMPIConsumerWorkerNodeT with rank " << this->m_commRank
-                        << " has received a stop request and will shut down."
-                        << std::endl << GLOGGING;
             }
         }
 
@@ -505,25 +399,11 @@ namespace Gem::Courtier {
                 return false;
             }
 
-            std::cout << "Worker received msg with size " << mpiGetCount(receiveStatus) << std::endl;
-
             // create string with correct size from the fixed size buffer
             m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(receiveStatus));
 
             return true;
         }
-
-        // TODO: remove unused code
-//        /**
-//         * Cancels the active requests that are associated with the handles, which are stored as member variables.
-//         */
-//        void cancelActiveRequests() {
-//            MPI_Cancel(&m_receiveHandle);
-//            MPI_Request_free(&m_receiveHandle);
-//
-//            MPI_Cancel(&m_sendHandle);
-//            MPI_Request_free(&m_sendHandle);
-//        }
 
         /**
          * Processes the work item that is stored in the member m_commandContainer.
@@ -560,8 +440,6 @@ namespace Gem::Courtier {
                     break;
                 case networked_consumer_payload_command::STOP: {
                     this->m_stopRequestReceived = true;
-                    // TODO: remove print
-                    std::cout << "Worker " << this->m_commRank << ": Stop request received" << std::endl;
                 }
                     break;
                 default: {
@@ -600,67 +478,6 @@ namespace Gem::Courtier {
                         << GTERMINATION;
             }
         }
-
-//        /**
-//         *  If we have been stopped, we leave the loop here but have sent one more request out
-//         * because of double buffered requests. The server must await this additional request, because all
-//         * MPI communication should be completed before shutdown.
-//         * For this reason, we have to receive the server's response for this last request and keep it unanswered
-//         */
-//        void waitForLastResponse() {
-//            // issue async call to receive the server's last response
-//            MPI_Irecv(
-//                    m_incomingMessageBuffer.get(),
-//                    GMPICONSUMERMAXMESSAGESIZE,
-//                    MPI_CHAR,
-//                    RANK_MASTER_NODE,
-//                    MPI_ANY_TAG,
-//                    MPI_COMMUNICATOR,
-//                    &m_receiveHandle);
-//
-//            // wait for completion of last server response
-//            MPI_Status receiveStatus{};
-////            MPI_Wait(&request, &receiveStatus);
-//
-//            // TODO: use MPI_Wait if possible
-//            int isCompleted{0};
-//            while (!isCompleted) {
-//                MPI_Test(&m_receiveHandle, &isCompleted, &receiveStatus);
-//            }
-//
-//            if (receiveStatus.MPI_ERROR != MPI_SUCCESS) {
-//                glogger
-//                        << "In GMPIConsumerWorkerNodeT<processable_type>::waitForLastResponse() with rank="
-//                        << m_commRank << ":" << std::endl
-//                        << "Received an error receiving the last message from GMPIConsumerMasterNodeT:" << std::endl
-//                        << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl
-//                        << "Worker node will shut down." << std::endl
-//                        << GTERMINATION;
-//                return;
-//            }
-//
-//            // TODO: remove print
-//            std::cout << "Worker " << this->m_commRank << " received last stop received with size "
-//                      << mpiGetCount(receiveStatus) << " and error status " << receiveStatus.MPI_ERROR << " aka "
-//                      << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl;
-//
-//            // get command container from received bytes for sanity check
-//            m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(receiveStatus));
-//            Gem::Courtier::container_from_string(
-//                    m_incomingMessage,
-//                    m_commandContainer,
-//                    m_config.serializationMode);
-//
-//            // sanity check: Server should only return stop request once the first stop request has been returned
-//            if (m_commandContainer.get_command() != networked_consumer_payload_command::STOP) {
-//                glogger
-//                        << "In GMPIConsumerWorkerNodeT<processable_type>::waitForLastResponse() with rank="
-//                        << m_commRank << ":" << std::endl
-//                        << "Expected to receive the last stop request but instead received message with command "
-//                        << m_commandContainer.get_command()
-//                        << GTERMINATION;
-//            }
-//        }
 
         //-------------------------------------------------------------------------
         // Private data
@@ -916,8 +733,6 @@ namespace Gem::Courtier {
         void sendResponse() {
             // prepare the correct type of message in the outgoing command
             if (m_stopRequested) {
-                // TODO: remove print
-                std::cout << "Sending stop request" << std::endl;
                 prepareStopResponse();
             } else {
                 prepareDataResponse();
@@ -925,9 +740,6 @@ namespace Gem::Courtier {
 
             // serialize the outgoing message
             serializeOutgoingMsg();
-
-            std::cout << "Master sending msg with type " << m_commandContainer.get_command() << " and size "
-                      << m_outgoingMessage.size() << std::endl;
 
             // asynchronously start sending the response
             MPI_Isend(
@@ -1067,16 +879,7 @@ namespace Gem::Courtier {
             // wait for the cleanup thread. This thread will close all open sessions before joining
             m_cleanUpThread.join();
 
-            // TODO: remove print
-            std::cout << "Server finished shutdown" << std::endl;
         }
-
-//        void configureNHandlerThreads() {
-//            // if thread pool size is set to 0 by user, set it to a recommendation
-//            if (m_config.nHandlerThreads == 0) {
-//                m_config.nHandlerThreads = nHandlerThreadsRecommendation();
-//            }
-//        }
 
     private:
         void listenForRequests() {
@@ -1128,14 +931,8 @@ namespace Gem::Courtier {
                         break;
                     }
 
-                    // if receive not completed yet, sleep a short amount of time until polling again for the message status
-//                    if (m_masterConfig.receivePollIntervalUSec > 0) {
-//                        std::this_thread::sleep_for(std::chrono::microseconds{m_masterConfig.receivePollIntervalUSec});
-//                    }
                 }
             }
-            // TODO: remove waiting if shutdown bug found
-            std::this_thread::sleep_for(std::chrono::seconds(5));
         }
 
         void handleRequest(const MPI_Status &status, const std::shared_ptr<char[]> &buffer, const bool stopRequested) {
@@ -1229,16 +1026,6 @@ namespace Gem::Courtier {
                 std::cout << "Number of open sessions after clean up: " << m_openSessions.size() << std::endl;
             }
         }
-
-        // TODO: remove unused code
-//        /**
-//         * Cancels an active mpi request.
-//         * @param request the request to be canceled.
-//         */
-//        void cancelRequest(MPI_Request &request) {
-//            MPI_Cancel(&request);
-//            MPI_Request_free(&request);
-//        }
 
         /**
          * Tries to retrieve a work item from the server, observing a timeout. If timeout is reached a nullptr is returned
