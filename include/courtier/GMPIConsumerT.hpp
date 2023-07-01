@@ -107,19 +107,11 @@ namespace Gem::Courtier {
         /**
          * Whether to issue a request for the next work item while the current work item is still being processed.
          */
-        bool useAsynchronousRequests{true};
+        bool useAsyncReq{true};
         /**
          * Serialization mode to use when serializing messages before transmitting over network between master node and worker nodes
          */
         Gem::Common::serializationMode serializationMode{Gem::Common::serializationMode::BINARY};
-        /**
-         * The time in microseconds between each check for the completion of synchronization on startup
-         */
-        std::uint32_t waitForMasterStartupPollIntervalUSec{100};
-        /**
-         * The maximum time in seconds to wait for the synchronization for all nodes on startup
-         */
-        std::uint32_t waitForMasterStartupTimeoutSec{60};
         /**
          * The number of threads in a thread pool which is used to handle incoming requests.
          */
@@ -127,11 +119,7 @@ namespace Gem::Courtier {
         /**
          * The time in milliseconds between each check of completion of the send operation of a new work item to a worker node.
          */
-        std::uint32_t masterCheckSendComplMSec{1'000};
-        /**
-         * The time in microseconds between each check for completion of the request for a new work item.
-         */
-        std::uint32_t workerCheckRecvComplUSec{100};
+        std::uint32_t masterCleanSessIntervalMSec{1'000};
 
         void addCLOptions_(
                 boost::program_options::options_description &visible,
@@ -140,44 +128,30 @@ namespace Gem::Courtier {
             // instance the defaults are already set. This allows to reduce duplication of those values
             namespace po = boost::program_options;
 
-            visible.add_options()("asyncRequests",
-                                  po::value<bool>(&useAsynchronousRequests)->default_value(useAsynchronousRequests),
-                                  "\t[mpi] Whether to issue a request for the next work item while the current work item is still being processed");
+            visible.add_options()("mpi_asyncReq",
+                                  po::value<bool>(&useAsyncReq)->default_value(useAsyncReq),
+                                  "\t[mpi] Whether the clients should issue a request for the next work item while"
+                                  "the current work item is still being processed");
 
-            visible.add_options()("mpi_handlerThreads",
+            visible.add_options()("mpi_nHandlerThreads",
                                   po::value<std::uint32_t>(&nHandlerThreads)->default_value(nHandlerThreads),
-                                  "\t[mpi-master-node] The number of threads in a thread pool which is used to handle incoming requests."
-                                  "The default of 0 triggers a dynamic configuration depending on the number of cpu cores on the current system");
+                                  "\t[mpi] The number of threads in a thread pool which is used to handle incoming requests."
+                                  "Defaults to the number of CPU cores in the system, if able to determine by C++ runtime");
 
-            hidden.add_options()("mpi_master_sendPollInterval",
-                                 po::value<std::uint32_t>(&masterCheckSendComplMSec)->default_value(
-                                         masterCheckSendComplMSec),
-                                 "\t[mpi-master-node] The time in milliseconds between each check of completion of the send operation of a new work item to a worker node");
+            hidden.add_options()("mpi_cleanSessInterval",
+                                 po::value<std::uint32_t>(&masterCleanSessIntervalMSec)->default_value(
+                                         masterCleanSessIntervalMSec),
+                                 "\t[mpi] The time interval in micro seconds between each check for the completion "
+                                 "of active sessions on the master node.");
 
             hidden.add_options()("mpi_serializationMode",
                                  po::value<Gem::Common::serializationMode>(&serializationMode)->default_value(
                                          serializationMode),
                                  "\t[mpi] Specifies whether serialization shall be done in TEXTMODE (0), XMLMODE (1) or BINARYMODE (2)");
-
-            hidden.add_options()("mpi_waitForMasterStartupPollInterval",
-                                 po::value<std::uint32_t>(&waitForMasterStartupPollIntervalUSec)->default_value(
-                                         waitForMasterStartupPollIntervalUSec),
-                                 "\t[mpi] The time in microseconds between each check for the completion of synchronization on startup.\n"
-                                 "Setting this to 0 means repeatedly checking without waiting in between checks");
-
-            hidden.add_options()("mpi_waitForMasterStartupTimeout",
-                                 po::value<std::uint32_t>(&waitForMasterStartupTimeoutSec)->default_value(
-                                         waitForMasterStartupTimeoutSec),
-                                 "\t[mpi] The maximum time in seconds to wait for the synchronization for all nodes on startup.");
-
-            hidden.add_options()("mpi_worker_pollInterval",
-                                 po::value<std::uint32_t>(&workerCheckRecvComplUSec)->default_value(
-                                         workerCheckRecvComplUSec),
-                                 "\t[mpi-worker-node] The time in microseconds between each check for completion of the request for a new work item.");
         }
 
         [[nodiscard]] std::uint32_t nHandlerThreadsRecommendation() const {
-            // query hint that indicates how many hardware threads are available (might return 0)
+            // query hint that indicates how many hardware threads are available (might return 0 if unknown)
             const unsigned int hwThreads{std::thread::hardware_concurrency()};
 
             // if hint has returned 0, default to 8
@@ -297,7 +271,7 @@ namespace Gem::Courtier {
                         m_commandContainer,
                         m_config.serializationMode);
 
-                if (m_config.useAsynchronousRequests) {
+                if (m_config.useAsyncReq) {
                     std::future<bool> networkingSuccessful = std::async(
                             std::launch::async,
                             [this]() -> bool { return this->sendResultAndRequestNewWork(); });
@@ -972,8 +946,8 @@ namespace Gem::Courtier {
             // since after that no more sessions should be opened because all clients will shut down
             while (stopSendOutsCompleted < reqNumStops) {
                 // wait a short amount of time between checking if the sessions have been completed
-                if (m_config.masterCheckSendComplMSec > 0) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds{m_config.masterCheckSendComplMSec});
+                if (m_config.masterCleanSessIntervalMSec > 0) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds{m_config.masterCleanSessIntervalMSec});
                 }
 
                 const auto timeCurr = std::chrono::steady_clock::now();
