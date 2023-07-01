@@ -85,7 +85,6 @@
 
 // TODO: extract double buffering to GBaseConsumerClientT
 // TODO: adapt documentation
-// TODO: use MPI wait over MPI_Test if possible when no meaningful work can be done in between
 // TODO: rework the configuration struct CLI interface names
 
 namespace Gem::Courtier {
@@ -804,8 +803,7 @@ namespace Gem::Courtier {
                 : m_commSize{commSize},
                   m_isToldToStop{false},
                   m_config{config} {
-//            configureNHandlerThreads();
-            glogger << "GMPIConsumerMasterNodeT started with n=" << m_config.nHandlerThreads << " IO-threads"
+            glogger << "GMPIConsumerMasterNodeT started with n=" << m_config.nHandlerThreads << " handler threads"
                     << std::endl
                     << GLOGGING;
         }
@@ -1246,8 +1244,6 @@ namespace Gem::Courtier {
 
             // asynchronously ask all processes to synchronize here.
             MPI_Ibarrier(MPI_COMMUNICATOR, &requestHandle);
-
-            auto timeStart{std::chrono::steady_clock::now()};
 
             while (true) {
 
