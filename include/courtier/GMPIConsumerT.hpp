@@ -86,7 +86,8 @@
 // TODO: extract double buffering to GBaseConsumerClientT
 // TODO: adapt documentation
 // TODO: make MPI consumer a definitely returning consumer
-// TODO: figure out why only ser mode TEXT works
+// TODO: figure out why an exception with stream error is thrown for last stop request received.
+//  Also figure out why the error msg says ser mode BINARY even if another ser mode is passed
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -1090,7 +1091,7 @@ namespace Gem::Courtier {
                     std::string{buffer.get(), static_cast<size_t>(mpiGetCount(status))},
                     [this]() -> std::shared_ptr<processable_type> { return getPayloadItem(); },
                     [this](std::shared_ptr<processable_type> p) { putPayloadItem(p); },
-                    m_serializationMode,
+                    m_commonConfig.serializationMode,
                     stopRequested);
 
             // runs the session but does not close it
@@ -1227,7 +1228,6 @@ namespace Gem::Courtier {
         //-------------------------------------------------------------------------
         // Data
 
-        Gem::Common::serializationMode m_serializationMode;
         std::int32_t m_commSize;
         MasterNodeConfig m_masterConfig;
         CommonConfig m_commonConfig;
