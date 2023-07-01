@@ -968,8 +968,6 @@ namespace Gem::Courtier {
 
                 // lock access to open sessions vector
                 std::lock_guard<std::mutex> guard(m_openSessionsMutex);
-                // TODO: remove print
-                std::cout << "Number of open sessions before clean up: " << m_openSessions.size() << std::endl;
 
                 for (auto sessionIter{m_openSessions.begin()};
                      sessionIter != m_openSessions.end(); /* no increment */) {
@@ -977,8 +975,6 @@ namespace Gem::Courtier {
                         // track the completed stop requests
                         if ((*sessionIter)->getOutCommand() == networked_consumer_payload_command::STOP) {
                             ++stopSendOutsCompleted;
-                            // TODO: remove print
-                            std::cout << "stop request sending completed" << std::endl;
                         }
 
                         // erase this session because it has completed
@@ -988,9 +984,6 @@ namespace Gem::Courtier {
                         ++sessionIter;
                     }
                 }
-
-                // TODO: remove print
-                std::cout << "Number of open sessions after clean up: " << m_openSessions.size() << std::endl;
             }
         }
 
