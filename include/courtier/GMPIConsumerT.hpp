@@ -100,102 +100,108 @@ namespace Gem::Courtier {
     /**
      * Stores configuration options necessary for a master node
      */
-    struct MasterNodeConfig {
-        /**
-         * The number of threads in a thread pool which is used to handle incoming requests.
-         */
-        boost::uint32_t nIOThreads{0};
+//    struct MasterNodeConfig {
 //        /**
-//         * The time in microseconds between each check for a new incoming connection
+//         * The number of threads in a thread pool which is used to handle incoming requests.
 //         */
-//        std::uint32_t receivePollIntervalUSec{0};
-        /**
-         * The time in milliseconds between each check of completion of the send operation of a new work item to a worker node.
-         */
-        std::uint32_t sendPollIntervalMSec{1'000};
-        /**
-         * The maximum time in seconds to wait until a send operation of a new work item to a worker node is expected to succeed.
-         */
-//        std::uint32_t sendPollTimeoutSec{5};
+//        boost::uint32_t nHandlerThreads{0};
+////        /**
+////         * The time in microseconds between each check for a new incoming connection
+////         */
+////        std::uint32_t receivePollIntervalUSec{0};
+//        /**
+//         * The time in milliseconds between each check of completion of the send operation of a new work item to a worker node.
+//         */
+//        std::uint32_t masterCheckSendComplMSec{1'000};
+//        /**
+//         * The maximum time in seconds to wait until a send operation of a new work item to a worker node is expected to succeed.
+//         */
+////        std::uint32_t sendPollTimeoutSec{5};
+//
+//        /**
+//         * Adds local command line options to a boost::program_options::options_description object.
+//         *
+//         * @param visible Command line options that should always be visible
+//         * @param hidden Command line options that should only be visible upon request for details
+//         */
+//        void addCLOptions(
+//                boost::program_options::options_description &visible,
+//                boost::program_options::options_description &hidden) {
+//            // Note that we use the current values of the members as default values, because in a default constructed
+//            // instance the defaults are already set. This allows to reduce duplication of those values
+//            namespace po = boost::program_options;
+//            // add general options for GMPIConsumerT
+//            visible.add_options()("mpi_master_nIOThreads",
+//                                  po::value<std::uint32_t>(&nHandlerThreads)->default_value(nHandlerThreads),
+//                                  "\t[mpi-master-node] The number of threads in a thread pool which is used to handle incoming requests."
+//                                  "The default of 0 triggers a dynamic configuration depending on the number of cpu cores on the current system");
+//
+////            hidden.add_options()("mpi_master_receivePollInterval",
+////                                 po::value<std::uint32_t>(&receivePollIntervalUSec)->default_value(
+////                                         receivePollIntervalUSec),
+////                                 "\t[mpi-master-node] The time in microseconds between each check for a new incoming connection. "
+////                                 "Setting this to 0 means repeatedly checking without waiting in between checks.");
+//
+//            hidden.add_options()("mpi_master_sendPollInterval",
+//                                 po::value<std::uint32_t>(&masterCheckSendComplMSec)->default_value(
+//                                         masterCheckSendComplMSec),
+//                                 "\t[mpi-master-node] The time in milliseconds between each check of completion of the send operation of a new work item to a worker node");
+//
+////            hidden.add_options()("mpi_master_sendPollTimeout",
+////                                 po::value<std::uint32_t>(&sendPollTimeoutSec)->default_value(
+////                                         sendPollTimeoutSec),
+////                                 "\t[mpi-master-node] The maximum time in seconds to wait until a send operation of a new work item to a worker node succeeds");
+//        }
+//    };
 
-        /**
-         * Adds local command line options to a boost::program_options::options_description object.
-         *
-         * @param visible Command line options that should always be visible
-         * @param hidden Command line options that should only be visible upon request for details
-         */
-        void addCLOptions(
-                boost::program_options::options_description &visible,
-                boost::program_options::options_description &hidden) {
-            // Note that we use the current values of the members as default values, because in a default constructed
-            // instance the defaults are already set. This allows to reduce duplication of those values
-            namespace po = boost::program_options;
-            // add general options for GMPIConsumerT
-            visible.add_options()("mpi_master_nIOThreads",
-                                  po::value<std::uint32_t>(&nIOThreads)->default_value(nIOThreads),
-                                  "\t[mpi-master-node] The number of threads in a thread pool which is used to handle incoming requests."
-                                  "The default of 0 triggers a dynamic configuration depending on the number of cpu cores on the current system");
-
-//            hidden.add_options()("mpi_master_receivePollInterval",
-//                                 po::value<std::uint32_t>(&receivePollIntervalUSec)->default_value(
-//                                         receivePollIntervalUSec),
-//                                 "\t[mpi-master-node] The time in microseconds between each check for a new incoming connection. "
-//                                 "Setting this to 0 means repeatedly checking without waiting in between checks.");
-
-            hidden.add_options()("mpi_master_sendPollInterval",
-                                 po::value<std::uint32_t>(&sendPollIntervalMSec)->default_value(
-                                         sendPollIntervalMSec),
-                                 "\t[mpi-master-node] The time in milliseconds between each check of completion of the send operation of a new work item to a worker node");
-
-//            hidden.add_options()("mpi_master_sendPollTimeout",
-//                                 po::value<std::uint32_t>(&sendPollTimeoutSec)->default_value(
-//                                         sendPollTimeoutSec),
-//                                 "\t[mpi-master-node] The maximum time in seconds to wait until a send operation of a new work item to a worker node succeeds");
-        }
-    };
-
-    /**
-     * Combines all configuration options necessary for a worker node
-     */
-    struct WorkerNodeConfig {
-        /**
-         * The time in microseconds between each check for completion of the request for a new work item.
-         */
-        std::uint32_t ioPollIntervalUSec{100};
-        /**
-         * The maximum time in seconds to wait until a request for a new work item has been answered.
-         * After this timeout is triggered, the worker assumes the server is finished or has crashed and will shutdown.
-         */
-//        std::uint32_t ioPollTimeoutSec{5};
-
-        /**
-         * Adds local command line options to a boost::program_options::options_description object.
-         *
-         * @param visible Command line options that should always be visible
-         * @param hidden Command line options that should only be visible upon request for details
-         */
-        void addCLOptions(
-                boost::program_options::options_description &visible,
-                boost::program_options::options_description &hidden) {
-            // Note that we use the current values of the members as default values, because in a default constructed
-            // instance the defaults are already set. This allows to reduce duplication of those values
-            namespace po = boost::program_options;
-            hidden.add_options()("mpi_worker_pollInterval",
-                                 po::value<std::uint32_t>(&ioPollIntervalUSec)->default_value(
-                                         ioPollIntervalUSec),
-                                 "\t[mpi-worker-node] The time in microseconds between each check for completion of the request for a new work item.");
-
-//            hidden.add_options()("mpi_worker_pollTimeout",
-//                                 po::value<std::uint32_t>(&ioPollTimeoutSec)->default_value(
-//                                         ioPollTimeoutSec),
-//                                 "\t[mpi-worker-node] The maximum time in seconds to wait until a request for a new work item has been answered");
-        }
-    };
+//    /**
+//     * Combines all configuration options necessary for a worker node
+//     */
+//    struct WorkerNodeConfig {
+//        /**
+//         * The time in microseconds between each check for completion of the request for a new work item.
+//         */
+//        std::uint32_t workerCheckRecvComplUSec{100};
+//        /**
+//         * The maximum time in seconds to wait until a request for a new work item has been answered.
+//         * After this timeout is triggered, the worker assumes the server is finished or has crashed and will shut down.
+//         */
+////        std::uint32_t ioPollTimeoutSec{5};
+//
+//        /**
+//         * Adds local command line options to a boost::program_options::options_description object.
+//         *
+//         * @param visible Command line options that should always be visible
+//         * @param hidden Command line options that should only be visible upon request for details
+//         */
+//        void addCLOptions(
+//                boost::program_options::options_description &visible,
+//                boost::program_options::options_description &hidden) {
+//            // Note that we use the current values of the members as default values, because in a default constructed
+//            // instance the defaults are already set. This allows to reduce duplication of those values
+//            namespace po = boost::program_options;
+//            hidden.add_options()("mpi_worker_pollInterval",
+//                                 po::value<std::uint32_t>(&workerCheckRecvComplUSec)->default_value(
+//                                         workerCheckRecvComplUSec),
+//                                 "\t[mpi-worker-node] The time in microseconds between each check for completion of the request for a new work item.");
+//
+////            hidden.add_options()("mpi_worker_pollTimeout",
+////                                 po::value<std::uint32_t>(&ioPollTimeoutSec)->default_value(
+////                                         ioPollTimeoutSec),
+////                                 "\t[mpi-worker-node] The maximum time in seconds to wait until a request for a new work item has been answered");
+//        }
+//    };
 
     /**
      * Stores configuration options which are used by master node and worker nodes
      */
-    struct CommonConfig {
+    struct MPIConsumerConfig {
+        MPIConsumerConfig(){
+            // Set the handler threads to the hardware recommendation as a default value
+            // This can later be overwritten by user-defined command line options
+            this->nHandlerThreads = this->nHandlerThreadsRecommendation();
+        }
+
         /**
          * Whether to issue a request for the next work item while the current work item is still being processed.
          */
@@ -212,6 +218,18 @@ namespace Gem::Courtier {
          * The maximum time in seconds to wait for the synchronization for all nodes on startup
          */
         std::uint32_t waitForMasterStartupTimeoutSec{60};
+        /**
+         * The number of threads in a thread pool which is used to handle incoming requests.
+         */
+        boost::uint32_t nHandlerThreads{0};
+        /**
+         * The time in milliseconds between each check of completion of the send operation of a new work item to a worker node.
+         */
+        std::uint32_t masterCheckSendComplMSec{1'000};
+        /**
+         * The time in microseconds between each check for completion of the request for a new work item.
+         */
+        std::uint32_t workerCheckRecvComplUSec{100};
 
         void addCLOptions_(
                 boost::program_options::options_description &visible,
@@ -220,9 +238,19 @@ namespace Gem::Courtier {
             // instance the defaults are already set. This allows to reduce duplication of those values
             namespace po = boost::program_options;
 
-            visible.add_options()("mpi_asyncRequests",
+            visible.add_options()("asyncRequests",
                                   po::value<bool>(&useAsynchronousRequests)->default_value(useAsynchronousRequests),
                                   "\t[mpi] Whether to issue a request for the next work item while the current work item is still being processed");
+
+            visible.add_options()("mpi_handlerThreads",
+                                  po::value<std::uint32_t>(&nHandlerThreads)->default_value(nHandlerThreads),
+                                  "\t[mpi-master-node] The number of threads in a thread pool which is used to handle incoming requests."
+                                  "The default of 0 triggers a dynamic configuration depending on the number of cpu cores on the current system");
+
+            hidden.add_options()("mpi_master_sendPollInterval",
+                                 po::value<std::uint32_t>(&masterCheckSendComplMSec)->default_value(
+                                         masterCheckSendComplMSec),
+                                 "\t[mpi-master-node] The time in milliseconds between each check of completion of the send operation of a new work item to a worker node");
 
             hidden.add_options()("mpi_serializationMode",
                                  po::value<Gem::Common::serializationMode>(&serializationMode)->default_value(
@@ -239,6 +267,19 @@ namespace Gem::Courtier {
                                  po::value<std::uint32_t>(&waitForMasterStartupTimeoutSec)->default_value(
                                          waitForMasterStartupTimeoutSec),
                                  "\t[mpi] The maximum time in seconds to wait for the synchronization for all nodes on startup.");
+
+            hidden.add_options()("mpi_worker_pollInterval",
+                                 po::value<std::uint32_t>(&workerCheckRecvComplUSec)->default_value(
+                                         workerCheckRecvComplUSec),
+                                 "\t[mpi-worker-node] The time in microseconds between each check for completion of the request for a new work item.");
+        }
+
+        [[nodiscard]] std::uint32_t nHandlerThreadsRecommendation() const {
+            // query hint that indicates how many hardware threads are available (might return 0)
+            const unsigned int hwThreads{std::thread::hardware_concurrency()};
+
+            // if hint has returned 0, default to 8
+            return hwThreads != 0 ? hwThreads : 8;
         }
     };
 
@@ -290,14 +331,12 @@ namespace Gem::Courtier {
                 std::int32_t commRank,
                 std::function<bool()> halt,
                 std::function<void()> incrementProcessingCounter,
-                CommonConfig commonConfig,
-                WorkerNodeConfig workerConfig)
-                : m_commonConfig{commonConfig},
-                  m_commSize{commSize},
+                const MPIConsumerConfig &config)
+                : m_commSize{commSize},
                   m_commRank{commRank},
                   m_halt{std::move(halt)},
                   m_incrementProcessingCounter{std::move(incrementProcessingCounter)},
-                  m_workerConfig{workerConfig} {
+                  m_config{config} {
             glogger << "GMPIConsumerWorkerNodeT with rank " << m_commRank
                     << " started up" << std::endl
                     << GLOGGING;
@@ -336,39 +375,39 @@ namespace Gem::Courtier {
             // set message for initial GETDATA request
             m_outgoingMessage = Gem::Courtier::container_to_string(
                     m_commandContainer,
-                    m_commonConfig.serializationMode);
+                    m_config.serializationMode);
 
             // send initial GETDATA request to receive first work item
             if (!sendResultAndRequestNewWork()) {
                 return; // return if unrecoverable error in networking occurred
             }
 
-            // stop if server tells this worker to stop or if the optimization stop creteria is fulfilled
+            // stop if server tells this worker to stop or if the optimization stop criteria is fulfilled
             while (!m_stopRequestReceived && !m_halt()) {
                 // swap messages
                 // serialize (processed) container and store in m_outgoingMessage
                 // afterwards deserialize m_incomingMessage into the container
                 m_outgoingMessage = std::move(Gem::Courtier::container_to_string(
                         m_commandContainer,
-                        m_commonConfig.serializationMode));
+                        m_config.serializationMode));
                 Gem::Courtier::container_from_string(
                         m_incomingMessage,
                         m_commandContainer,
-                        m_commonConfig.serializationMode);
+                        m_config.serializationMode);
 
-                if (m_commonConfig.useAsynchronousRequests) {
+                if (m_config.useAsynchronousRequests) {
                     std::future<bool> networkingSuccessful = std::async(
                             std::launch::async,
                             [this]() -> bool { return this->sendResultAndRequestNewWork(); });
 
-                    // process the currently available work item (may be a stop request)
+                    // process the currently available work item (might be a stop request)
                     processWorkItem();
 
                     if (!networkingSuccessful.get()) {
                         return; // return if unrecoverable error in networking occurred
                     }
                 } else {
-                    // process the currently available work item (may be a stop request)
+                    // process the currently available work item (might be a stop request)
                     processWorkItem();
 
                     if (!sendResultAndRequestNewWork()) {
@@ -377,13 +416,14 @@ namespace Gem::Courtier {
                 }
             }
 
-                // TODO: remove print
+            // TODO: remove print
             std::cout << "Worker with rank " << m_commRank << " leaving Loop after stop request" << std::endl;
 
             // await last server response for the due to double buffering unnecessarily send our request
             if (this->m_stopRequestReceived) {
                 // TODO: remove print
-                std::cout << "Worker with rank " << m_commRank << " preparing to wait for last stop request" << std::endl;
+                std::cout << "Worker with rank " << m_commRank << " preparing to wait for last stop request"
+                          << std::endl;
                 waitForLastResponse();
 
                 glogger << "GMPIConsumerWorkerNodeT with rank " << this->m_commRank
@@ -443,14 +483,14 @@ namespace Gem::Courtier {
 
                 // using break instead of while-condition allows skipping the sleep as soon as receiving has been completed
                 if (receiveIsCompleted) {
-                    // Since we have received the response to our message, the message must have been send out and
+                    // Since we have received the response to our message, the message must have been sent out and
                     // we can therefore allow the send request and send buffer to be freed.
                     MPI_Request_free(&m_sendHandle);
                     break;
                 }
 
-                if (m_workerConfig.ioPollIntervalUSec > 0) {
-                    std::this_thread::sleep_for(std::chrono::microseconds{m_workerConfig.ioPollIntervalUSec});
+                if (m_config.workerCheckRecvComplUSec > 0) {
+                    std::this_thread::sleep_for(std::chrono::microseconds{m_config.workerCheckRecvComplUSec});
                 }
             }
 
@@ -584,7 +624,7 @@ namespace Gem::Courtier {
             Gem::Courtier::container_from_string(
                     m_incomingMessage,
                     m_commandContainer,
-                    m_commonConfig.serializationMode);
+                    m_config.serializationMode);
 
             // sanity check: Server should only return stop request once the first stop request has been returned
             if (m_commandContainer.get_command() != networked_consumer_payload_command::STOP) {
@@ -608,10 +648,6 @@ namespace Gem::Courtier {
          * rank of this node in the cluster
          */
         std::int32_t m_commRank;
-        /** TODO: this might be uninitialized! use common config instead
-         * serialization mode to use for messages between master node and worker nodes
-         */
-//        Gem::Common::serializationMode m_serializationMode{Common::serializationMode::TEXT};
         /**
          * Callback function that returns true if the halt criterion has been reached
          */
@@ -621,13 +657,9 @@ namespace Gem::Courtier {
          */
         std::function<void()> m_incrementProcessingCounter;
         /**
-         * Configuration of this client specified by the end-user.
+         * Configuration specified by the end-user.
          */
-        WorkerNodeConfig m_workerConfig;
-        /**
-         * Configuration for client and server node specified by the end-user
-         */
-        CommonConfig m_commonConfig;
+        const MPIConsumerConfig &m_config;
         /**
          * Whether a stop request from the master node has been received
          */
@@ -947,14 +979,12 @@ namespace Gem::Courtier {
          */
         explicit GMPIConsumerMasterNodeT(
                 std::int32_t commSize,
-                CommonConfig commonConfig,
-                MasterNodeConfig config)
+                const MPIConsumerConfig &config)
                 : m_commSize{commSize},
                   m_isToldToStop{false},
-                  m_commonConfig{commonConfig},
-                  m_masterConfig{config} {
-            configureNHandlerThreads();
-            glogger << "GMPIConsumerMasterNodeT started with n=" << m_masterConfig.nIOThreads << " IO-threads"
+                  m_config{config} {
+//            configureNHandlerThreads();
+            glogger << "GMPIConsumerMasterNodeT started with n=" << m_config.nHandlerThreads << " IO-threads"
                     << std::endl
                     << GLOGGING;
         }
@@ -980,7 +1010,7 @@ namespace Gem::Courtier {
          * To stop the master node and all its threads again the shutdown method can be called.
          */
         void async_startProcessing() {
-            m_handlerThreadPool = std::make_unique<Common::GThreadPool>(m_masterConfig.nIOThreads);
+            m_handlerThreadPool = std::make_unique<Common::GThreadPool>(m_config.nHandlerThreads);
 
             auto self = this->shared_from_this();
             m_receiverThread = std::thread(
@@ -1012,6 +1042,13 @@ namespace Gem::Courtier {
             // TODO: remove print
             std::cout << "Server finished shutdown" << std::endl;
         }
+
+//        void configureNHandlerThreads() {
+//            // if thread pool size is set to 0 by user, set it to a recommendation
+//            if (m_config.nHandlerThreads == 0) {
+//                m_config.nHandlerThreads = nHandlerThreadsRecommendation();
+//            }
+//        }
 
     private:
         void listenForRequests() {
@@ -1092,7 +1129,7 @@ namespace Gem::Courtier {
                     std::string{buffer.get(), static_cast<size_t>(mpiGetCount(status))},
                     [this]() -> std::shared_ptr<processable_type> { return getPayloadItem(); },
                     [this](std::shared_ptr<processable_type> p) { putPayloadItem(p); },
-                    m_commonConfig.serializationMode,
+                    m_config.serializationMode,
                     stopRequested);
 
             // runs the session but does not close it
@@ -1124,15 +1161,15 @@ namespace Gem::Courtier {
         void cleanUpSessionsLoop() {
             // track number of stop requests, for which the sending has completed
             uint32_t stopSendOutsCompleted{0};
-            // two stop requests for each clients
+            // two stop requests for each client
             const int32_t reqNumStops{2 * (this->m_commSize - 1)};
 
             // keep running until all stop requests have been send out,
             // since after that no more sessions should be opened because all clients will shut down
             while (stopSendOutsCompleted < reqNumStops) {
                 // wait a short amount of time between checking if the sessions have been completed
-                if (m_masterConfig.sendPollIntervalMSec > 0) {
-                    std::this_thread::sleep_for(std::chrono::milliseconds{m_masterConfig.sendPollIntervalMSec});
+                if (m_config.masterCheckSendComplMSec > 0) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds{m_config.masterCheckSendComplMSec});
                 }
 
                 const auto timeCurr = std::chrono::steady_clock::now();
@@ -1211,27 +1248,11 @@ namespace Gem::Courtier {
             }
         }
 
-        void configureNHandlerThreads() {
-            // if thread pool size is set to 0 by user, set it to a recommendation
-            if (m_masterConfig.nIOThreads == 0) {
-                m_masterConfig.nIOThreads = nHandlerThreadsRecommendation();
-            }
-        }
-
-        [[nodiscard]] std::uint32_t nHandlerThreadsRecommendation() const {
-            // query hint that indicates how many hardware threads are available (might return 0)
-            const unsigned int hwThreads{std::thread::hardware_concurrency()};
-
-            // if hint has returned 0, default to 8
-            return hwThreads != 0 ? hwThreads : 8;
-        }
-
         //-------------------------------------------------------------------------
         // Data
 
         std::int32_t m_commSize;
-        MasterNodeConfig m_masterConfig;
-        CommonConfig m_commonConfig;
+        const MPIConsumerConfig &m_config;
 
         std::unique_ptr<Common::GThreadPool> m_handlerThreadPool;
         /**
@@ -1296,21 +1317,15 @@ namespace Gem::Courtier {
          *
          * @param argc argument count passed to main function, which will be forwarded to the MPI_Init call
          * @param argv argument vector passed to main function, which will be forwarded to MPI_Init call
-         * @param commonConfig general configuration options
-         * @param masterNodeConfig configuration specifically for the case in which this instance is the master node
-         * @param workerNodeConfig configuration specifically for the case in which this instance is a worker node
+         * @param commonConfig configuration options for users, default values are defined through the default values of the struct
          */
         explicit GMPIConsumerT(
                 int *argc = nullptr,
                 char ***argv = nullptr,
-                CommonConfig commonConfig = CommonConfig{},
-                MasterNodeConfig masterNodeConfig = MasterNodeConfig{},
-                WorkerNodeConfig workerNodeConfig = WorkerNodeConfig{})
+                MPIConsumerConfig config = MPIConsumerConfig{})
                 : m_argc{argc},
                   m_argv{argv},
-                  m_commonConfig{commonConfig},
-                  m_masterNodeConfig{masterNodeConfig},
-                  m_workerNodeConfig{workerNodeConfig},
+                  m_config{config},
                   m_commRank{},
                   m_commSize{} {}
 
@@ -1425,7 +1440,7 @@ namespace Gem::Courtier {
 
         /**
          * Tries to synchronize with all other processes in the communicator.
-         * If m_commonConfig.waitForMasterStartupTimeoutSec seconds elapse without all processes synchronizing,
+         * If m_config.waitForMasterStartupTimeoutSec seconds elapse without all processes synchronizing,
          * the synchronization attempt is stopped.
          * @return true in case of all processing synchronizing, otherwise false
          */
@@ -1465,12 +1480,12 @@ namespace Gem::Courtier {
                 // TODO: consider removing timeout check here since we expect returning consumer anyways
 
                 if (std::chrono::steady_clock::now() - timeStart >
-                    std::chrono::seconds(m_commonConfig.waitForMasterStartupTimeoutSec)) {
+                    std::chrono::seconds(m_config.waitForMasterStartupTimeoutSec)) {
                     glogger
                             << "In GMPIConsumerT<processable_type>::trySynchronize() with rank="
                             << m_commRank << ":" << std::endl
                             << "Synchronization on startup timed out after "
-                            << m_commonConfig.waitForMasterStartupTimeoutSec << "s." << std::endl
+                            << m_config.waitForMasterStartupTimeoutSec << "s." << std::endl
                             << "Trying to continue unsynchronized." << std::endl
                             << GWARNING;
 
@@ -1478,10 +1493,10 @@ namespace Gem::Courtier {
                     MPI_Request_free(&requestHandle);
 
                     return false; // synchronize stopped but unsuccessful
-                } else if (m_commonConfig.waitForMasterStartupPollIntervalUSec > 0) {
+                } else if (m_config.waitForMasterStartupPollIntervalUSec > 0) {
                     // sleep in this thread in case the poll interval is not set to zero and we are not timed out
                     std::this_thread::sleep_for(
-                            std::chrono::microseconds{m_commonConfig.waitForMasterStartupPollIntervalUSec});
+                            std::chrono::microseconds{m_config.waitForMasterStartupPollIntervalUSec});
                 }
             }
         }
@@ -1552,9 +1567,8 @@ namespace Gem::Courtier {
             // instance the defaults are already set. This allows to reduce duplication of those values
             namespace po = boost::program_options;
 
-            m_commonConfig.addCLOptions_(visible, hidden);
-            m_workerNodeConfig.addCLOptions(visible, hidden);
-            m_masterNodeConfig.addCLOptions(visible, hidden);
+            // add command line options from our configuration struct
+            m_config.addCLOptions_(visible, hidden);
         }
 
         /**
@@ -1702,8 +1716,7 @@ namespace Gem::Courtier {
             if (isMasterNode()) {
                 m_masterNodePtr = std::make_shared<GMPIConsumerMasterNodeT<processable_type>>(
                         m_commSize,
-                        m_commonConfig,
-                        m_masterNodeConfig);
+                        m_config);
             } else {
                 // note that we cannot create a shared pointer from this because we are currently in the constructor
                 // and therefore the precondition that there must already exist one shared pointer pointing to this
@@ -1715,17 +1728,16 @@ namespace Gem::Courtier {
                         m_commRank,
                         [this]() -> bool { return this->halt(); },
                         [this]() -> void { this->incrementProcessingCounter(); },
-                        m_commonConfig,
-                        m_workerNodeConfig);
+                        m_config);
             }
         }
 
         //-------------------------------------------------------------------------
         // Data
 
-        CommonConfig m_commonConfig;
-        MasterNodeConfig m_masterNodeConfig;
-        WorkerNodeConfig m_workerNodeConfig;
+        MPIConsumerConfig m_config;
+//        MasterNodeConfig m_masterNodeConfig;
+//        WorkerNodeConfig m_workerNodeConfig;
 
         // it might seem like unique pointers are sufficient in the first place.
         // However, we need to call shared_from_this in the objects themselves to pass a reference to them
