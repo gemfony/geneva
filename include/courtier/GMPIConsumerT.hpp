@@ -87,7 +87,8 @@
 // TODO: adapt documentation
 // TODO: make MPI consumer a definitely returning consumer
 // TODO: figure out why an exception with stream error is thrown for last stop request received.
-//  Also figure out why the error msg says ser mode BINARY even if another ser mode is passed
+// TODO: refactor config structs
+// TODO: use MPI wait over MPI_Test if possible when no meaningful work can be done in between
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
@@ -104,10 +105,10 @@ namespace Gem::Courtier {
          * The number of threads in a thread pool which is used to handle incoming requests.
          */
         boost::uint32_t nIOThreads{0};
-        /**
-         * The time in microseconds between each check for a new incoming connection
-         */
-        std::uint32_t receivePollIntervalUSec{0};
+//        /**
+//         * The time in microseconds between each check for a new incoming connection
+//         */
+//        std::uint32_t receivePollIntervalUSec{0};
         /**
          * The time in milliseconds between each check of completion of the send operation of a new work item to a worker node.
          */
@@ -115,7 +116,7 @@ namespace Gem::Courtier {
         /**
          * The maximum time in seconds to wait until a send operation of a new work item to a worker node is expected to succeed.
          */
-        std::uint32_t sendPollTimeoutSec{5};
+//        std::uint32_t sendPollTimeoutSec{5};
 
         /**
          * Adds local command line options to a boost::program_options::options_description object.
@@ -135,21 +136,21 @@ namespace Gem::Courtier {
                                   "\t[mpi-master-node] The number of threads in a thread pool which is used to handle incoming requests."
                                   "The default of 0 triggers a dynamic configuration depending on the number of cpu cores on the current system");
 
-            hidden.add_options()("mpi_master_receivePollInterval",
-                                 po::value<std::uint32_t>(&receivePollIntervalUSec)->default_value(
-                                         receivePollIntervalUSec),
-                                 "\t[mpi-master-node] The time in microseconds between each check for a new incoming connection. "
-                                 "Setting this to 0 means repeatedly checking without waiting in between checks.");
+//            hidden.add_options()("mpi_master_receivePollInterval",
+//                                 po::value<std::uint32_t>(&receivePollIntervalUSec)->default_value(
+//                                         receivePollIntervalUSec),
+//                                 "\t[mpi-master-node] The time in microseconds between each check for a new incoming connection. "
+//                                 "Setting this to 0 means repeatedly checking without waiting in between checks.");
 
             hidden.add_options()("mpi_master_sendPollInterval",
                                  po::value<std::uint32_t>(&sendPollIntervalMSec)->default_value(
                                          sendPollIntervalMSec),
                                  "\t[mpi-master-node] The time in milliseconds between each check of completion of the send operation of a new work item to a worker node");
 
-            hidden.add_options()("mpi_master_sendPollTimeout",
-                                 po::value<std::uint32_t>(&sendPollTimeoutSec)->default_value(
-                                         sendPollTimeoutSec),
-                                 "\t[mpi-master-node] The maximum time in seconds to wait until a send operation of a new work item to a worker node succeeds");
+//            hidden.add_options()("mpi_master_sendPollTimeout",
+//                                 po::value<std::uint32_t>(&sendPollTimeoutSec)->default_value(
+//                                         sendPollTimeoutSec),
+//                                 "\t[mpi-master-node] The maximum time in seconds to wait until a send operation of a new work item to a worker node succeeds");
         }
     };
 
@@ -165,7 +166,7 @@ namespace Gem::Courtier {
          * The maximum time in seconds to wait until a request for a new work item has been answered.
          * After this timeout is triggered, the worker assumes the server is finished or has crashed and will shutdown.
          */
-        std::uint32_t ioPollTimeoutSec{5};
+//        std::uint32_t ioPollTimeoutSec{5};
 
         /**
          * Adds local command line options to a boost::program_options::options_description object.
@@ -184,10 +185,10 @@ namespace Gem::Courtier {
                                          ioPollIntervalUSec),
                                  "\t[mpi-worker-node] The time in microseconds between each check for completion of the request for a new work item.");
 
-            hidden.add_options()("mpi_worker_pollTimeout",
-                                 po::value<std::uint32_t>(&ioPollTimeoutSec)->default_value(
-                                         ioPollTimeoutSec),
-                                 "\t[mpi-worker-node] The maximum time in seconds to wait until a request for a new work item has been answered");
+//            hidden.add_options()("mpi_worker_pollTimeout",
+//                                 po::value<std::uint32_t>(&ioPollTimeoutSec)->default_value(
+//                                         ioPollTimeoutSec),
+//                                 "\t[mpi-worker-node] The maximum time in seconds to wait until a request for a new work item has been answered");
         }
     };
 
@@ -1063,9 +1064,9 @@ namespace Gem::Courtier {
                     }
 
                     // if receive not completed yet, sleep a short amount of time until polling again for the message status
-                    if (m_masterConfig.receivePollIntervalUSec > 0) {
-                        std::this_thread::sleep_for(std::chrono::microseconds{m_masterConfig.receivePollIntervalUSec});
-                    }
+//                    if (m_masterConfig.receivePollIntervalUSec > 0) {
+//                        std::this_thread::sleep_for(std::chrono::microseconds{m_masterConfig.receivePollIntervalUSec});
+//                    }
                 }
             }
             // TODO: remove waiting if shutdown bug found
@@ -1460,6 +1461,8 @@ namespace Gem::Courtier {
                     }
                     return true; // synchronize successful
                 }
+
+                // TODO: consider removing timeout check here since we expect returning consumer anyways
 
                 if (std::chrono::steady_clock::now() - timeStart >
                     std::chrono::seconds(m_commonConfig.waitForMasterStartupTimeoutSec)) {
