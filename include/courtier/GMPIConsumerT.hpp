@@ -323,20 +323,33 @@ namespace Gem::Courtier {
                     MPI_COMMUNICATOR,
                     &m_receiveHandle);
 
-            MPI_Status receiveStatus{};
+
+            MPI_Status status{};
+
+            // wait until sending completed
+            MPI_Wait(&m_sendHandle, &status);
+
+            if (status.MPI_ERROR != MPI_SUCCESS) {
+                glogger
+                        << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
+                        << m_commRank << ":" << std::endl
+                        << "Received an error sending a message to GMPIConsumerMasterNodeT:" << std::endl
+                        << mpiErrorString(status.MPI_ERROR) << std::endl
+                        << "Worker node will shut down." << std::endl
+                        << GWARNING;
+
+                return false;
+            }
 
             // wait until we have received the response.
-            MPI_Wait(&m_receiveHandle, &receiveStatus);
-            // By now, the sending of the request must also have been successfully completed since otherwise the
-            // server would not have answered with a response
-            MPI_Request_free(&m_sendHandle);
+            MPI_Wait(&m_receiveHandle, &status);
 
-            if (receiveStatus.MPI_ERROR != MPI_SUCCESS) {
+            if (status.MPI_ERROR != MPI_SUCCESS) {
                 glogger
                         << "In GMPIConsumerWorkerNodeT<processable_type>::sendResultAndRequestNewWork() with rank="
                         << m_commRank << ":" << std::endl
                         << "Received an error receiving a message from GMPIConsumerMasterNodeT:" << std::endl
-                        << mpiErrorString(receiveStatus.MPI_ERROR) << std::endl
+                        << mpiErrorString(status.MPI_ERROR) << std::endl
                         << "Worker node will shut down." << std::endl
                         << GWARNING;
 
@@ -344,7 +357,7 @@ namespace Gem::Courtier {
             }
 
             // create string with correct size from the fixed size buffer
-            m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(receiveStatus));
+            m_incomingMessage = std::string(m_incomingMessageBuffer.get(), mpiGetCount(status));
 
             return true;
         }
