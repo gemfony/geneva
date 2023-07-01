@@ -1240,7 +1240,7 @@ namespace Gem::Courtier {
          * the synchronization attempt is stopped.
          * @return true in case of all processing synchronizing, otherwise false
          */
-        [[nodiscard]] bool trySynchronize() const {
+        [[nodiscard]] bool synchronize() const {
             // handle for asynchronous MPI request
             MPI_Request requestHandle{};
 
@@ -1251,49 +1251,22 @@ namespace Gem::Courtier {
 
             while (true) {
 
-                int isCompleted{0};
                 MPI_Status status{};
 
-                MPI_Test(
-                        &requestHandle,
-                        &isCompleted,
-                        &status);
+                MPI_Wait(&requestHandle, &status);
 
-                if (isCompleted) {
-                    if (status.MPI_ERROR != MPI_SUCCESS) {
-                        glogger
-                                << "In GMPIConsumerT<processable_type>::trySynchronize():" << std::endl
-                                << "Received an error:" << std::endl
-                                << mpiErrorString(status.MPI_ERROR) << std::endl
-                                << "We will try to continue execution anyways." << std::endl
-                                << GWARNING;
-
-                        return false; // synchronize stopped but unsuccessful
-                    }
-                    return true; // synchronize successful
-                }
-
-                // TODO: consider removing timeout check here since we expect returning consumer anyways
-
-                if (std::chrono::steady_clock::now() - timeStart >
-                    std::chrono::seconds(m_config.waitForMasterStartupTimeoutSec)) {
+                if (status.MPI_ERROR != MPI_SUCCESS) {
                     glogger
-                            << "In GMPIConsumerT<processable_type>::trySynchronize() with rank="
-                            << m_commRank << ":" << std::endl
-                            << "Synchronization on startup timed out after "
-                            << m_config.waitForMasterStartupTimeoutSec << "s." << std::endl
-                            << "Trying to continue unsynchronized." << std::endl
+                            << "In GMPIConsumerT<processable_type>::synchronize():" << std::endl
+                            << "Received an error:" << std::endl
+                            << mpiErrorString(status.MPI_ERROR) << std::endl
+                            << "We will try to continue execution anyways." << std::endl
                             << GWARNING;
 
-                    MPI_Cancel(&requestHandle);
-                    MPI_Request_free(&requestHandle);
-
                     return false; // synchronize stopped but unsuccessful
-                } else if (m_config.waitForMasterStartupPollIntervalUSec > 0) {
-                    // sleep in this thread in case the poll interval is not set to zero and we are not timed out
-                    std::this_thread::sleep_for(
-                            std::chrono::microseconds{m_config.waitForMasterStartupPollIntervalUSec});
                 }
+
+                return true; // synchronize successful
             }
         }
 
