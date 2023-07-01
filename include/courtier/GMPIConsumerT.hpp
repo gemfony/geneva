@@ -1484,8 +1484,6 @@ namespace Gem::Courtier {
         // Data
 
         MPIConsumerConfig m_config;
-//        MasterNodeConfig m_masterNodeConfig;
-//        WorkerNodeConfig m_workerNodeConfig;
 
         // it might seem like unique pointers are sufficient in the first place.
         // However, we need to call shared_from_this in the objects themselves to pass a reference to them
