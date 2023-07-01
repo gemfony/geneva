@@ -360,32 +360,13 @@ namespace Gem::Courtier {
                     MPI_COMMUNICATOR,
                     &m_receiveHandle);
 
-            // time in microseconds that have been spent waiting during communication already
-            int receiveIsCompleted{0};
             MPI_Status receiveStatus{};
 
-            // TODO: to decrease CPU utilization, use MPI_Wait instead of MPI_Test.
-            //  Since the computation is running on another thread, this should be possible
-
-            // continue testing until receive was completed or timeout has been triggered.
-            // This can only happen after the server has received our message, so send must also be complete
-            while (true) {
-                MPI_Test(&m_receiveHandle,
-                         &receiveIsCompleted,
-                         &receiveStatus);
-
-                // using break instead of while-condition allows skipping the sleep as soon as receiving has been completed
-                if (receiveIsCompleted) {
-                    // Since we have received the response to our message, the message must have been sent out and
-                    // we can therefore allow the send request and send buffer to be freed.
-                    MPI_Request_free(&m_sendHandle);
-                    break;
-                }
-
-                if (m_config.workerCheckRecvComplUSec > 0) {
-                    std::this_thread::sleep_for(std::chrono::microseconds{m_config.workerCheckRecvComplUSec});
-                }
-            }
+            // wait until we have received the response.
+            MPI_Wait(&m_receiveHandle, &receiveStatus);
+            // By now, the sending of the request must also have been successfully completed since otherwise the
+            // server would not have answered with a response
+            MPI_Request_free(&m_sendHandle);
 
             if (receiveStatus.MPI_ERROR != MPI_SUCCESS) {
                 glogger
