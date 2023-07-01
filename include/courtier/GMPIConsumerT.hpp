@@ -892,7 +892,7 @@ namespace Gem::Courtier {
                         // we capture copies of smart pointers in the closure, which keeps the underlying data alive
                         const auto self = this->shared_from_this();
                         m_handlerThreadPool->async_schedule(
-                                [&self, status, buffer, stopRequested] {
+                                [self, status, buffer, stopRequested] {
                                     self->handleRequest(status, buffer, stopRequested);
                                 });
                         break;
