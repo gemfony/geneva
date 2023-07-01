@@ -91,9 +91,9 @@
 
 namespace Gem::Courtier {
     // constants that are used by the master and the worker nodes
-    const int TAG_REQUEST_WORK_ITEM = 42;
-    const int TAG_SEND_WORK_ITEM = 43;
-    const int RANK_MASTER_NODE = 0;
+    constexpr int TAG_REQUEST_WORK_ITEM = 42;
+    constexpr int TAG_SEND_WORK_ITEM = 43;
+    constexpr int RANK_MASTER_NODE = 0;
     static MPI_Comm MPI_COMMUNICATOR = MPI_COMM_WORLD;
 
     /**
