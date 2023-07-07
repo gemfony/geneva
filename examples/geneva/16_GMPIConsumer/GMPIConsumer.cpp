@@ -218,6 +218,11 @@ int main(int argc, char **argv) {
     auto consumer_ptr = std::make_shared<GMPIConsumerT<GParameterSet>>(/* optional configuration */);
     // initialize MPI and figure out position in the cluster
     consumer_ptr->setPositionInCluster();
+    // optionally synchronize processes. Makes only sense if some of the procs are doing very long init work
+    // This is not the case here. Synchronization just shown for demonstration purposes.
+    if(consumer_ptr->synchronize() && consumer_ptr->isMasterNode()) {
+        std::cout << "All MPI processes synchronized successfully." << std::endl;
+    }
 
     /****************************************************************************/
     // If this is supposed to be a client start an MPI consumer client
