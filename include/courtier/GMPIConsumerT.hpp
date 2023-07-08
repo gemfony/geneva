@@ -1196,6 +1196,9 @@ namespace Gem::Courtier {
             MPI_Comm_rank(MPI_COMMUNICATOR, &m_commRank);
             isClusterPositionDefined = true;
 
+            // TODO: remove print
+            std::cout << "setting position on object " << &MPI_COMMUNICATOR << " rank " << m_commRank << " size" << m_commSize << std::endl;
+
             return *this;
         }
 
@@ -1208,6 +1211,8 @@ namespace Gem::Courtier {
          * @param communicator the new communicator for communication between master node and worker nodes
          */
         static void setMPICommunicator(MPI_Comm communicator) {
+            // TODO: remove print
+            std::cout << "setting comm on address " << &MPI_COMMUNICATOR << std::endl;
             MPI_COMMUNICATOR = communicator;
         }
 

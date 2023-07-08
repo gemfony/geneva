@@ -116,13 +116,10 @@ namespace Gem::Geneva {
         inline const static std::uint32_t m_nParameters{64};
 
         /** Simulated time required to calculate one parameter in this parameter set */
-        inline const static std::uint32_t m_delayPerParameterMSec{50};
+        inline const static std::uint32_t m_delayPerParameterMSec{5};
 
         /** Interval for checking the result of mpi communication requests */
         inline const static std::uint32_t m_pollIntervalMSec{5};
-
-        /** Maximum time to wait before a timeout is triggered on an mpi communication request */
-        inline const static std::uint32_t m_pollTimeoutMSec{5000}; // 30 seconds
     };
 
 /******************************************************************/

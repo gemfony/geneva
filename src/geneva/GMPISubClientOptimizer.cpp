@@ -125,6 +125,10 @@ namespace Gem::Geneva {
         // Notify the individual to use this inter-communicator
         GMPISubClientIndividual::setCommunicator(m_subClientComm);
 
+        // overwrite cluster position that has already been set by the Go2 constructor, since we have changed the communicator
+        dynamic_cast<GIndividualMPIConsumer *>(
+                GConsumerStore->get(Go2::getConsumerName()).get())->setPositionInCluster();
+
         // set sub-client group status communicator
         if (!isServer) {
             // create the status communicator as a copy of the local group communicator
@@ -171,8 +175,23 @@ namespace Gem::Geneva {
             GMPISubClientIndividual::setClientMode(ClientMode::CLIENT);
             // run the client until optimization finished
             int returnValue{Go2::clientRun_()};
-            // tell sub-clients that the optimization has finished
-            startAsyncBarrier();
+            // tell sub-clients that the optimization has finished and wait for them to stop
+            MPI_Request request = startAsyncBarrier();
+
+            int errCode = MPI_Wait(&request, MPI_STATUS_IGNORE);
+
+            if (errCode != MPI_SUCCESS) {
+                std::cout << "MPI ERROR: " << errCode << std::endl;
+                throw gemfony_exception(
+                        g_error_streamer(DO_LOG, time_and_place)
+                                << "GMPISubClientOptimizer::clientRun_() Error!" << std::endl
+                                << "Stop request via MPI barrier returned error: `"
+                                << mpiErrorString(errCode) << "`" << std::endl
+                );
+            }
+
+            glogger << "client finished " << std::endl << GLOGGING;
+
             // return value
             return returnValue;
         }
