@@ -65,6 +65,10 @@ CMAKE="/usr/bin/cmake"
 #BOOSTLIBS="/usr/lib"
 #BOOSTINCL="/usr/include"
 
+# Specify the root path of your MPI installation i.e. that among others contains the directories lib/ and bin/
+# If empty, CMake searches for a default MPI installation that might not be the desired one if multiple installations exist
+MPIROOT=""
+
 # Build mode must be either 'Release', 'Debug', 'RelWithDebInfo',
 # 'MinSizeRel' or 'Sanitize'. NOTE: the 'Sanitize' setting is experimental!
 # It will default to 'Debug' on unsupported platforms; see
