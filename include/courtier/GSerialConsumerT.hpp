@@ -244,14 +244,14 @@ private:
 					 const std::chrono::milliseconds& timeout
 				 ) -> std::shared_ptr<processable_type> {
 					 std::shared_ptr<processable_type> p;
-					 m_broker_ptr->get(p, timeout);
+					 GBROKER(processable_type)->get(p, timeout);
 					 return p;
 				 }
 				 //----------------------
 				 , [this](
 					 std::shared_ptr<processable_type> p
 					 , const std::chrono::milliseconds& timeout
-				 ) -> void { m_broker_ptr->put(p, timeout); }
+				 ) -> void { GBROKER(processable_type)->put(p, timeout); }
 				 //----------------------
 				 , [this]() -> bool { return this->stopped(); }
 				 //----------------------
@@ -304,7 +304,6 @@ private:
 	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_worker; ///< Holds the worker assigned to this consumer
 	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_workerTemplate; ///< Holds an external worker assigned to this consumer
 
-	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/

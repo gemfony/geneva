@@ -334,14 +334,14 @@ private:
 						 const std::chrono::milliseconds& timeout
 					 ) -> std::shared_ptr<processable_type> {
 						 std::shared_ptr<processable_type> p;
-						 m_broker_ptr->get(p, timeout);
+						 GBROKER(processable_type)->get(p, timeout);
 						 return p;
 					 }
 					 //----------------------
 					 , [this](
 						 std::shared_ptr<processable_type> p
 						 , const std::chrono::milliseconds& timeout
-					 ) -> void { m_broker_ptr->put(p, timeout); }
+					 ) -> void { GBROKER(processable_type)->put(p, timeout); }
 					 //----------------------
 					 , [this]() -> bool { return this->stopped(); }
 					 //----------------------
@@ -398,8 +398,6 @@ private:
 
 	 std::vector<std::shared_ptr<GLocalConsumerWorkerT<processable_type>>> m_workers; ///< Holds the current worker objects
 	 std::shared_ptr<GLocalConsumerWorkerT<processable_type>> m_workerTemplate; ///< All workers will be created as a clone of this worker
-
-	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< A shortcut to the broker so we do not have to go through the singleton
 };
 
 /******************************************************************************/

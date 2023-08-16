@@ -1093,7 +1093,7 @@ private:
 		 std::shared_ptr<processable_type> p;
 
 		 // Try to retrieve a work item from the broker
-		 m_broker_ptr->get(p, m_timeout);
+		 GBROKER(processable_type)->get(p, m_timeout);
 
 		 // May be empty, if we ran into a timeout
 		 return p;
@@ -1112,7 +1112,7 @@ private:
 			 );
 		 }
 
-		 if(not m_broker_ptr->put(p, m_timeout)) {
+		 if(not GBROKER(processable_type)->put(p, m_timeout)) {
 			 glogger
 				 << "In GAsioConsumerT<>::putPayloadItem():" << std::endl
 				 << "Work item could not be submitted to the broker" << std::endl
@@ -1185,7 +1185,6 @@ private:
 	 std::atomic<std::size_t> m_n_active_sessions{0};
 	 std::size_t m_n_max_reconnects = GASIOCONSUMERMAXCONNECTIONATTEMPTS;
 
-	 std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< Simplified access to the broker
 	 const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(GBEASTMSTIMEOUT); ///< A timeout for put- and get-operations via the broker
 
 	 //-------------------------------------------------------------------------

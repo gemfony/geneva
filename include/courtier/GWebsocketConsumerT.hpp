@@ -1409,7 +1409,7 @@ private:
 		 std::shared_ptr<processable_type> p;
 
 		 // Try to retrieve a work item from the broker
-		 m_broker_ptr->get(p, m_timeout);
+		 GBROKER(processable_type)->get(p, m_timeout);
 
 		 // May be empty, if we ran into a timeout
 		 return p;
@@ -1428,7 +1428,7 @@ private:
 			 );
 		 }
 
-		 if(not m_broker_ptr->put(p, m_timeout)) {
+		 if(not GBROKER(processable_type)->put(p, m_timeout)) {
 			 glogger
 				 << "In GWebsocketConsumerT<>::putPayloadItem():" << std::endl
 				 << "Work item could not be submitted to the broker" << std::endl
@@ -1502,7 +1502,6 @@ private:
 	 std::size_t m_ping_interval = GBEASTCONSUMERPINGINTERVAL;
 	 bool m_verbose_control_frames = false; ///< Whether the control_callback should emit information when a control frame is received
 
-	 std::shared_ptr<GBrokerT<processable_type>> m_broker_ptr = GBROKER(processable_type); ///< Simplified access to the broker
 	 const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(GBEASTMSTIMEOUT); ///< A timeout for put- and get-operations via the broker
 
 	 //-------------------------------------------------------------------------
