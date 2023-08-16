@@ -996,7 +996,7 @@ namespace Gem::Courtier {
             std::shared_ptr<processable_type> p;
 
             // Try to retrieve a work item from the broker
-            m_brokerPtr->get(p, m_timeout);
+            GBROKER(processable_type)->get(p, m_timeout);
 
             // May be empty, if we ran into a timeout
             return p;
@@ -1014,7 +1014,7 @@ namespace Gem::Courtier {
                                 << "Function called with empty work item" << std::endl);
             }
 
-            if (not m_brokerPtr->put(p, m_timeout)) {
+            if (not GBROKER(processable_type)->put(p, m_timeout)) {
                 glogger
                         << "In GMPIConsumerMasterNodeT<>::putPayloadItem():" << std::endl
                         << "Work item could not be submitted to the broker" << std::endl
@@ -1048,9 +1048,6 @@ namespace Gem::Courtier {
         std::vector<std::shared_ptr<GMPIConsumerSessionT<processable_type>>> m_openSessions{};
         // whether a stop request for the GMPIConsumerT has been received
         std::atomic_bool m_isToldToStop;
-        // whether the stop request has been sent to all clients
-        std::shared_ptr<typename Gem::Courtier::GBrokerT<processable_type>> m_brokerPtr = GBROKER(
-                processable_type); ///< Simplified access to the broker
         const std::chrono::duration<double> m_timeout = std::chrono::milliseconds(
                 GMPICONSUMERBROKERACCESSBROKERTIMEOUT); ///< A timeout for put- and get-operations via the broker
     };
