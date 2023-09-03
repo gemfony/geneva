@@ -147,7 +147,7 @@ namespace Gem::Geneva {
                 "subClientGroupSize",
                 m_subClientGroupSize,
                 m_subClientGroupSize)
-                << "The amount of processes in each sub-group. Each sub group works together on one individual.";
+                << "The number of processes in each sub-group. Each sub group works together on one individual.";
     }
 
     GMPISubClientOptimizer &GMPISubClientOptimizer::registerSubClientJob(std::function<int(MPI_Comm)> callback) {
